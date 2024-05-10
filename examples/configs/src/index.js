@@ -1,34 +1,62 @@
-import { vapi } from './utils';
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
+import { vapi } from './utils.js';
 import {
   justScatter, justScatterExpression, justSpatial,
   codeluppi2018,
   codeluppiGating,
-} from './view-configs/codeluppi';
-import { eng2019 } from './view-configs/eng';
-import { wang2018 } from './view-configs/wang';
-import { spraggins2020, neumann2020 } from './view-configs/spraggins';
-import { satija2020 } from './view-configs/satija';
-import { justHiglass } from './view-configs/rao';
-import { scAtacSeq10xPbmc } from './view-configs/tenx';
-import { blin2019 } from './view-configs/blin';
-import { omeNgffLegacy } from './view-configs/ome-ngff-legacy';
-import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap';
+} from './view-configs/codeluppi.js';
+import { eng2019 } from './view-configs/eng.js';
+import { wang2018 } from './view-configs/wang.js';
+import { spraggins2020, neumann2020 } from './view-configs/spraggins.js';
+import { satija2020 } from './view-configs/satija.js';
+import { justHiglass } from './view-configs/rao.js';
+import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
+import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
+import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
+import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
   embeddingTargetYConfig,
   embeddingCellSetPolygonsVisibleConfig,
-} from './view-configs/coordination-types/index';
-import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv';
-import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr';
-import { combat2022cell } from './view-configs/combat_2022_cell';
-import { habib2017natureMethods } from './view-configs/habib_2017_nature_methods';
-import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium';
-import { kuppe2022nature } from './view-configs/kuppe_2022_nature';
-import { marshall2022iScience } from './view-configs/marshall_2022_iscience';
-import { meta2022azimuth } from './view-configs/meta_2022_azimuth';
-import { rgbOmeTiff } from './view-configs/rgb-ome-tiff';
-import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff';
+} from './view-configs/coordination-types/index.js';
+import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv.js';
+import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr.js';
+import { combat2022cell } from './view-configs/combat_2022_cell.js';
+import { habib2017natureMethods, habib2017natureMethodsZip, habib2017withQualityMetrics } from './view-configs/habib_2017_nature_methods.js';
+import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium.js';
+import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
+import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
+import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
+import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
+import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
+import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
+import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
+import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
+import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
+import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
+import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
+import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
+import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
+import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
+import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
+import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
+import { lake2023 } from './view-configs/multi-sample.js';
+import { salcher2022 } from './view-configs/salcher_2022.js';
+
+// TODO(spatialBeta):
+import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
+import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
+import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorithm-comparison.js';
+import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
+import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
+import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
+import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
+
+import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
+import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
+import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
+
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -50,6 +78,8 @@ export const configs = {
   'codeluppi-2018-via-zarr': codeluppiViaZarr,
   'combat-2022': combat2022cell,
   'habib-2017': habib2017natureMethods,
+  'habib-2017-zip': habib2017natureMethodsZip,
+  'habib-2017-with-quality-metrics': habib2017withQualityMetrics,
   'human-lymph-node-10x-visium': humanLymphNode10xVisium,
   'kuppe-2022': kuppe2022nature,
   'marshall-2022': marshall2022iScience,
@@ -62,15 +92,43 @@ export const configs = {
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
+  'ome-ngff-multi': multipleOmeZarrViaRasterJson,
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
   'segmentations-ome-tiff': segmentationsOmeTiff,
   // Keys which enable backwards compatibility with old links.
-  'codeluppi-2018-via-json': codeluppi2018,
   'linnarsson-2018': codeluppi2018,
+  'visium-spatial-viewer': visiumSpatialViewer,
+  'spatialdata-visium': visiumSpatialdata2023,
+  'spatialdata-visium_io': visiumIoSpatialdata2023,
+  'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
+  'lake-2023': lake2023,
+  'salcher-2022': salcher2022,
+  'maynard-2021': maynard2021,
+
+  // Multi-level coordination with spatialBeta view:
+  'blin-2019-2': blinOop2019,
+  'blin-2019-3': blinSideBySide2019,
+  'codex-2023': codexOop2023,
+  'visium-2023-image-only': visiumImageOop2023,
+  'visium-2023': visiumSpotsOop2023,
+  'codeluppi-2018-2': codeluppiOop2018,
+  'kpmp-2023': kpmp2023,
+  'kpmp-2023-2': kpmpOop2023,
+  'exemplar-small': exemplarSmall2024,
+  'exemplar-small-partial-init': exemplarSmallPartialInit,
+
+  // TODO(spatialBeta): clean up
+  'ims-algorithm-comparison': imsAlgorithmComparison,
+  'neumann-2020-2': neumanOop2023,
+  'lightsheet-2023': lightsheetOop2023,
+  'visium-2023-polygons': visiumPolygonsOop2023,
+  'kpmp-auto-init': kpmpAutoInit2023,
+
+  // For documentation of coordination types:
   ...coordinationTypeConfigs,
 };
 
@@ -87,3 +145,14 @@ export const publicConfigs = [
   'rgb-ome-tiff',
   'segmentations-ome-tiff',
 ];
+
+const exemplarSmallStores = {
+  'exemplar-001.crop.cells.adata.zarr': createStoreFromMapContents(exemplarSmallCellsAdata),
+  'exemplar-001.crop.image.ome.zarr': createStoreFromMapContents(exemplarSmallImageOmeZarr),
+  'exemplar-001.crop.segmentations.ome.zarr': createStoreFromMapContents(exemplarSmallSegmentationsOmeZarr),
+};
+
+export const configStores = {
+  'exemplar-small': exemplarSmallStores,
+  'exemplar-small-partial-init': exemplarSmallStores,
+};

@@ -11,19 +11,10 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { EditableGeoJsonLayer } from '@nebula.gl/layers';
-import { DrawRectangleMode, DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
+import { DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
 
 const EDIT_TYPE_ADD = 'addFeature';
 const EDIT_TYPE_CLEAR = 'clearFeatures';
-
-// Customize the click handlers for the rectangle and polygon tools,
-// so that clicking triggers the `onEdit` callback.
-class ClickableDrawRectangleMode extends DrawRectangleMode {
-  // eslint-disable-next-line class-methods-use-this
-  handleClick(event, props) {
-    props.onEdit({ editType: EDIT_TYPE_CLEAR });
-  }
-}
 
 class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
   // eslint-disable-next-line class-methods-use-this
@@ -33,12 +24,10 @@ class ClickableDrawPolygonByDraggingMode extends DrawPolygonByDraggingMode {
 }
 
 const MODE_MAP = {
-  [SELECTION_TYPE.RECTANGLE]: ClickableDrawRectangleMode,
   [SELECTION_TYPE.POLYGON]: ClickableDrawPolygonByDraggingMode,
 };
 
 const defaultProps = {
-  selectionType: SELECTION_TYPE.RECTANGLE,
   layerIds: [],
   onSelect: () => {},
 };
@@ -81,10 +70,8 @@ const PASS_THROUGH_PROPS = [
 export default class SelectionLayer extends CompositeLayer {
   _selectPolygonObjects(coordinates) {
     const {
-      onSelect,
-      getCellCoords,
-      cellsQuadTree,
       flipY,
+      obsLayers,
     } = this.props;
 
     const flippedCoordinates = (flipY
@@ -94,53 +81,73 @@ export default class SelectionLayer extends CompositeLayer {
     // Convert the selection to a turf polygon object.
     const selectedPolygon = turfPolygon(flippedCoordinates);
 
-    // Create an array to store the results.
-    const pickingInfos = [];
-
     // quadtree.visit() takes a callback that returns a boolean:
     // If true returned, then the children of the node are _not_ visited.
     // If false returned, then the children of the node are visited.
     // Reference: https://github.com/d3/d3-quadtree#quadtree_visit
-    cellsQuadTree.visit((node, x0, y0, x1, y1) => {
-      const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
-      const nodePolygon = turfPolygon(nodePoints);
+    obsLayers.forEach((obsLayer) => {
+      const {
+        getObsCoords,
+        obsQuadTree,
+        obsIndex,
+        onSelect: layerOnSelect,
+      } = obsLayer;
 
-      const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
-      const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
-      const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
+      // Create an array to store the results.
+      // Clear the array before checking each new layer.
+      const pickingInfos = [];
 
-      if (!nodePolygonContainsSelectedPolygon
-        && !nodePolygonWithinSelectedPolygon
-        && !nodePolygonOverlapsSelectedPolgyon) {
-        // We are not interested in anything below this node,
-        // so return true because we are done with this node.
-        return true;
-      }
+      // It is possible for a layer to not have an obsQuadTree,
+      // for example if the layer is a segmentation bitmask without associated
+      // obsLocations.
+      obsQuadTree?.visit((node, x0, y0, x1, y1) => {
+        const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
+        const nodePolygon = turfPolygon(nodePoints);
 
-      // This node made it past the above return statement, so it must either
-      // contain, be within, or overlap with the selected polygon.
+        const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
+        const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
+        const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
 
-      // Check if this is a leaf node.
-      if (node.data
-        && booleanPointInPolygon(
-          turfPoint([].slice.call(getCellCoords(node.data))), selectedPolygon,
-        )
-      ) {
-        // This node has data, so it is a leaf node representing one data point,
-        // and we have verified that the point is in the selected polygon.
-        pickingInfos.push(node.data);
-      }
+        if (!nodePolygonContainsSelectedPolygon
+          && !nodePolygonWithinSelectedPolygon
+          && !nodePolygonOverlapsSelectedPolgyon) {
+          // We are not interested in anything below this node,
+          // so return true because we are done with this node.
+          return true;
+        }
 
-      // Return false because we are not done.
-      // We want to visit the children of this node.
-      return false;
+        // This node made it past the above return statement, so it must either
+        // contain, be within, or overlap with the selected polygon.
+
+        // Check if this is a leaf node.
+        if (node.data
+          && booleanPointInPolygon(
+            turfPoint([].slice.call(getObsCoords(node.data))), selectedPolygon,
+          )
+        ) {
+          // This node has data, so it is a leaf node representing one data point,
+          // and we have verified that the point is in the selected polygon.
+          pickingInfos.push(node.data);
+        }
+
+        // Return false because we are not done.
+        // We want to visit the children of this node.
+        return false;
+      });
+      const pickingIds = pickingInfos.map(obsI => obsIndex[obsI]);
+      layerOnSelect(pickingIds);
     });
+  }
 
-    onSelect({ pickingInfos });
+  _selectEmpty() {
+    const { obsLayers } = this.props;
+    obsLayers.forEach((obsLayer) => {
+      const { onSelect: layerOnSelect } = obsLayer;
+      layerOnSelect([]);
+    });
   }
 
   renderLayers() {
-    const { onSelect } = this.props;
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {};
@@ -164,7 +171,7 @@ export default class SelectionLayer extends CompositeLayer {
               this._selectPolygonObjects(coordinates);
             } else if (editType === EDIT_TYPE_CLEAR) {
               // We want to select an empty array to clear any previous selection.
-              onSelect({ pickingInfos: [] });
+              this._selectEmpty();
             }
           },
           _subLayerProps: {

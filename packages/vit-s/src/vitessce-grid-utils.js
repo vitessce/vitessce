@@ -2,11 +2,9 @@ import {
   useState, useEffect, useRef,
 } from 'react';
 import { InternMap } from 'internmap';
-import isEqual from 'lodash/isEqual';
-import pick from 'lodash/pick';
-import { DEFAULT_COORDINATION_VALUES, DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
-import { getSourceAndLoaderFromFileType } from './data/loader-registry';
-import { getFileTypeDataTypeMapping } from './plugins';
+import { isEqual, pick } from 'lodash-es';
+import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
+import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry.js';
 
 /**
  * Return the bottom coordinate of the layout.
@@ -88,14 +86,20 @@ export function useRowHeight(config, initialRowHeight, height, margin, padding) 
   return [rowHeight, containerRef];
 }
 
-function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
+function withDefaults(
+  coordinationValues,
+  dataType,
+  fileType,
+  datasetUid,
+  defaultCoordinationValues,
+) {
   const defaultKeys = DATA_TYPE_COORDINATION_VALUE_USAGE[dataType]
     .filter(k => (
-      Object.keys(DEFAULT_COORDINATION_VALUES).includes(k)
-      && DEFAULT_COORDINATION_VALUES[k]
+      Object.keys(defaultCoordinationValues).includes(k)
+      // && defaultCoordinationValues[k]
       && !Object.keys(coordinationValues).includes(k)
     ));
-  const defaultValues = pick(DEFAULT_COORDINATION_VALUES, defaultKeys);
+  const defaultValues = pick(defaultCoordinationValues, defaultKeys);
   const coordinationValuesWithDefaults = {
     ...defaultValues,
     // The user-provided values should take precedence.
@@ -113,13 +117,18 @@ function withDefaults(coordinationValues, dataType, fileType, datasetUid) {
  * @param {object[]} datasets The datasets array from the view config.
  * @param {string} configDescription The top-level description in the
  * view config.
+ * @param {PluginFileType[]} fileTypes
+ * @param {PluginCoordinationType[]} coordinationTypes
+ * @param {object} stores Optional mapping from URLs to Zarrita stores.
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription) {
+export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
   const result = {};
-  const dataSources = {};
-  const fileTypeDataTypeMapping = getFileTypeDataTypeMapping();
+  const dataSources = new InternMap([], JSON.stringify);
+  const defaultCoordinationValues = Object.fromEntries(
+    coordinationTypes.map(ct => ([ct.name, ct.defaultValue])),
+  );
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -134,18 +143,33 @@ export function createLoaders(datasets, configDescription) {
         fileType,
         coordinationValues = {},
       } = file;
-      const dataType = fileTypeDataTypeMapping[fileType];
+      const dataType = getDataTypeFromFileType(fileType, fileTypes);
       const coordinationValuesWithDefaults = withDefaults(
-        coordinationValues, dataType,
-        fileType, dataset.uid,
+        coordinationValues,
+        dataType,
+        fileType,
+        dataset.uid,
+        defaultCoordinationValues,
       );
-      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType);
-      // Create _one_ DataSourceClass instance per URL. Derived loaders share this object.
+      const [DataSourceClass, LoaderClass] = getSourceAndLoaderFromFileType(fileType, fileTypes);
+      // Create _one_ DataSourceClass instance per (URL, DataSource class name) pair.
+      // Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
-      if (!(fileId in dataSources)) {
-        dataSources[fileId] = new DataSourceClass({ url, requestInit });
+      // The class name might be minified but that should not matter;
+      // we just need a string that is unique to the class for the key.
+      const dataSourceName = DataSourceClass.prototype.constructor.name;
+      const dataSourceKey = [fileId, dataSourceName];
+      if (!dataSources.has(dataSourceKey)) {
+        dataSources.set(dataSourceKey, new DataSourceClass({
+          url,
+          fileType,
+          requestInit,
+          // Optionally, pass a Zarrita store to the data source,
+          // if one was mapped to this URL.
+          store: stores?.[url],
+        }));
       }
-      const loader = new LoaderClass(dataSources[fileId], file);
+      const loader = new LoaderClass(dataSources.get(dataSourceKey), file);
       if (datasetLoaders.loaders[dataType]) {
         datasetLoaders.loaders[dataType].set(coordinationValuesWithDefaults, loader);
       } else {

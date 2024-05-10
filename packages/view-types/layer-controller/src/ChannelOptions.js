@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles, MenuItem } from '@material-ui/core';
+import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
-import { MuiSpan } from './styles';
-import ColorPalette from './ColorPalette';
+import { useSpanStyles } from './styles.js';
+import ColorPalette from './ColorPalette.js';
 
 const useStyles = makeStyles(() => ({
   menuButton: {
@@ -18,6 +17,12 @@ const useStyles = makeStyles(() => ({
     paddingRight: '2px',
   },
 }));
+
+function MuiSpan(props) {
+  const { children } = props;
+  const classes = useSpanStyles();
+  return <span className={classes.span}>{children}</span>;
+}
 
 /**
  * Dropdown for options for a channel on the three dots button.
@@ -45,14 +50,25 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
       buttonClassName={classes.menuButton}
+      aria-label="Open channel options menu"
     >
-      <MenuItem dense disableGutters onClick={handleRemove}>
+      <MenuItem dense disableGutters onClick={handleRemove} aria-label="Click to remove channel">
         <MuiSpan>Remove</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters onClick={handleIQRUpdate}>
+      <MenuItem
+        dense
+        disableGutters
+        onClick={handleIQRUpdate}
+        aria-label="Click to use IQR for channel"
+      >
         <MuiSpan>Use IQR</MuiSpan>
       </MenuItem>
-      <MenuItem dense disableGutters className={classes.colors}>
+      <MenuItem
+        dense
+        disableGutters
+        className={classes.colors}
+        aria-label="Click to select color for channel"
+      >
         <ColorPalette handleChange={handleColorSelect} />
       </MenuItem>
     </PopperMenu>

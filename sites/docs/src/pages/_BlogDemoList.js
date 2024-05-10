@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 import React from 'react';
 import { configs } from '@vitessce/example-configs';
-import DemoList from './_DemoList';
+import DemoList from './_DemoList.js';
 
 // Reference: https://github.com/mac-s-g/react-json-view/issues/121#issuecomment-670431408
 export default function BlogDemoList() {

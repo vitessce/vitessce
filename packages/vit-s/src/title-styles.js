@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 
 export const useTitleStyles = makeStyles(theme => ({
   title: {
@@ -37,7 +37,7 @@ export const useTitleStyles = makeStyles(theme => ({
     },
   },
   card: {
-    border: `1px solid ${theme.palette.cardBorder}`,
+    border: `${theme.cardBorderSize} solid ${theme.palette.cardBorder}`,
     flex: '1 1 auto',
     minHeight: '1px',
     padding: '12px',

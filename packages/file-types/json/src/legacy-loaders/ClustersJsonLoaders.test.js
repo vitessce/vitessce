@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
-import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix';
-import JsonSource from '../JsonSource';
+import ClustersJsonAsObsFeatureMatrixLoader from './ClustersJsonAsObsFeatureMatrix.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
@@ -16,7 +17,7 @@ describe('loaders/clusters-json-loaders', () => {
     it('can load obsFeatureMatrix', async () => {
       const loader = createLoader(ClustersJsonAsObsFeatureMatrixLoader, {
         fileType: 'obsFeatureMatrix.clusters.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/clusters.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/clusters.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

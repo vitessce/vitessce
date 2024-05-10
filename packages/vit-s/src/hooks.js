@@ -1,12 +1,12 @@
 import {
   useRef, useState, useEffect, useCallback, useMemo,
 } from 'react';
-import debounce from 'lodash/debounce';
-import every from 'lodash/every';
+import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
-import { capitalize, fromEntries } from '@vitessce/utils';
-import { useGridResize, useEmitGridResize } from './state/hooks';
-import { VITESSCE_CONTAINER } from './classNames';
+import { capitalize } from '@vitessce/utils';
+import { STATUS } from '@vitessce/constants-internal';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -138,34 +138,26 @@ export function useDeckCanvasSize() {
  */
 export function useReady(statusValues) {
   return useMemo(() => every(
-    statusValues, val => val === 'success',
+    statusValues, val => val !== STATUS.LOADING,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), statusValues);
 }
 
 /**
  * This hook helps manage a list of URLs.
- * @param {object} loaders The loaders dependency.
- * @param {string} dataset The dataset UID dependency.
- * @returns {array} An array
- * [urls, addUrl]
- * where urls is the array of URL objects,
- * and addUrl is a function for adding a URL to the array.
+ * @param {(null|object[])[]} urls Array of (null or array of { url, name }).
+ * @returns {array} An array of { url, name } objects (flattened from the input).
  */
-export function useUrls(loaders, dataset) {
-  const [urls, setUrls] = useState([]);
-
-  const addUrl = useCallback((url, name) => {
-    if (url) {
-      setUrls(prev => ([...prev, { url, name }]));
-    }
-  }, [setUrls]);
-
-  useEffect(() => {
-    setUrls([]);
-  }, [loaders, dataset]);
-
-  return [urls, addUrl];
+export function useUrls(urls) {
+  const mergedUrls = useMemo(
+    () => urls.filter(a => Array.isArray(a)).flat().filter((url, index, array) => {
+      const firstIndex = array.findIndex(u => u && url && u.name === url.name);
+      return index === firstIndex;
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    urls,
+  );
+  return mergedUrls;
 }
 
 /**
@@ -283,25 +275,39 @@ export function useExpressionValueGetter(
   return getExpressionValue;
 }
 
+export function useGetObsMembership(obsSetsMembership) {
+  return useCallback((obsId) => {
+    if (obsId) {
+      return obsSetsMembership?.get(obsId) || [];
+    }
+    return [];
+  }, [obsSetsMembership]);
+}
+
 export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
   return useCallback((obsId) => {
     if (obsId) {
       const obsMembership = obsSetsMembership?.get(obsId) || [];
       return {
         [`${capitalize(obsType)} ID`]: obsId,
-        ...fromEntries(obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
-          `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
-          pathEl,
-        ])))),
-        ...fromEntries(Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
-          obsLabelsType,
-          obsLabelsData?.[scopeKey]?.obsLabels?.[
-            // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
-            // with keys: obsId, values: obsIdx
-            // which would avoid the indexOf calls.
-            obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
-          ],
-        ])).filter(([obsLabelsType]) => Boolean(obsLabelsType))),
+        ...Object.fromEntries(
+          obsMembership
+            .flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
+              `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+              pathEl,
+            ]))),
+        ),
+        ...Object.fromEntries(
+          Object.entries(obsLabelsTypes).map(([scopeKey, obsLabelsType]) => ([
+            obsLabelsType,
+            obsLabelsData?.[scopeKey]?.obsLabels?.[
+              // TODO: Maybe all loaders that return obsIndex should also return an obsIndexMap
+              // with keys: obsId, values: obsIdx
+              // which would avoid the indexOf calls.
+              obsLabelsData?.[scopeKey]?.obsIndex?.indexOf(obsId)
+            ],
+          ])).filter(([obsLabelsType]) => Boolean(obsLabelsType)),
+        ),
       };
     }
     return null;

@@ -1,44 +1,21 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import { Grid, Slider } from '@material-ui/core';
+import { debounce, isEqual } from 'lodash-es';
 
-import { getSourceFromLoader } from '@vitessce/spatial-utils';
-import ChannelOptions from './ChannelOptions';
-import { DOMAINS } from './constants';
-import { getMultiSelectionStats, toRgbUIString } from './utils';
+import {
+  getSourceFromLoader,
+  getMultiSelectionStats,
+  toRgbUIString,
+  abbreviateNumber,
+  DOMAINS,
+} from '@vitessce/spatial-utils';
+import ChannelOptions from './ChannelOptions.js';
 import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
-} from './shared-channel-controls';
-
-function abbreviateNumber(value) {
-  // Return an abbreviated representation of value, in 5 characters or less.
-
-  const maxLength = 5;
-  let maxNaiveDigits = maxLength;
-
-  /* eslint-disable no-plusplus */
-  if (!Number.isInteger(value)) {
-    --maxNaiveDigits;
-  } // Wasted on "."
-  if (value < 1) {
-    --maxNaiveDigits;
-  } // Wasted on "0."
-  /* eslint-disable no-plusplus */
-
-  const naive = Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: maxNaiveDigits,
-    useGrouping: false,
-  }).format(value);
-  if (naive.length <= maxLength) return naive;
-
-  // "e+9" consumes 3 characters, so if we even had two significant digits,
-  // it would take take us to six characters, including the decimal point.
-  return value.toExponential(0);
-}
+} from './shared-channel-controls.js';
+import { useChannelSliderStyles } from './styles.js';
 
 /**
  * Slider for controlling current colormap.
@@ -67,14 +44,22 @@ function ChannelSlider({
     debounce(handleChange, 3, { trailing: true }),
     [handleChange],
   );
-  const step = max - min < 500 && dtype === 'Float32' ? (max - min) / 500 : 1;
+
+  const classes = useChannelSliderStyles();
+
+  const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
+      classes={{ valueLabel: classes.valueLabel }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
       valueLabelDisplay="auto"
-      getAriaLabel={() => `${color}-${slider}`}
+      getAriaLabel={(index) => {
+        const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+        return `${labelPrefix} for ${color} colormap channel`;
+      }}
+      getAriaValueText={() => `Current colormap values: ${color}-${slider}`}
       min={min}
       max={max}
       step={step}
@@ -125,6 +110,7 @@ function RasterChannelController({
   const [selection, setSelection] = useState([
     { ...channels[channelId].selection },
   ]);
+
   const rgbColor = toRgbUIString(colormapOn, color, theme);
 
   useEffect(() => {

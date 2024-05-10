@@ -1,5 +1,6 @@
-import { getCellByGeneTile, getGeneByCellTile } from './heatmap';
-import { expressionMatrix, cellColors } from './Heatmap.test.fixtures';
+import { describe, it, expect } from 'vitest';
+import { getCellByGeneTile, getGeneByCellTile } from './heatmap.js';
+import { expressionMatrix, cellColors } from './Heatmap.test.fixtures.js';
 
 describe('heatmap tiling utils', () => {
   it('creates cell x gene tiles (transpose = false)', () => {

@@ -1,34 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useId } from 'react-aria';
 import { viv } from '@vitessce/gl';
 import {
-  GLOBAL_LABELS, getSourceFromLoader, isRgb,
+  GLOBAL_LABELS,
+  getSourceFromLoader,
+  isRgb,
+  getMultiSelectionStats,
+  DOMAINS,
+  canLoadResolution,
 } from '@vitessce/spatial-utils';
 
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
-import Slider from '@material-ui/core/Slider';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import {
+  Grid, Button, Slider, Tabs, Tab, InputLabel,
+  Accordion, AccordionDetails, AccordionSummary,
+} from '@material-ui/core';
+import {
+  Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@material-ui/icons';
 
-import Accordion from '@material-ui/core/Accordion';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-
-import { canLoadResolution } from '@vitessce/utils';
-import LayerOptions from './LayerOptions';
-import VolumeOptions from './VolumeOptions';
+import LayerOptions from './LayerOptions.js';
+import VolumeOptions from './VolumeOptions.js';
 import {
   useControllerSectionStyles,
-  StyledAccordionDetails,
-  StyledAccordionSummary,
-  StyledInputLabel,
-  OverflowEllipsisGrid,
-} from './styles';
-import { getMultiSelectionStats } from './utils';
+  useInputLabelStyles,
+  useOverflowEllipsisGridStyles,
+  useAccordionStyles,
+} from './styles.js';
 
-import { DOMAINS } from './constants';
 
 function TabPanel(props) {
   const {
@@ -128,6 +129,7 @@ export default function LayerController(props) {
     return undefined;
   }, [channels]);
 
+  const layerControlsId = useId();
   const firstSelection = channels[0]?.selection || {};
 
   const { data, channels: channelOptions } = loader;
@@ -398,6 +400,9 @@ export default function LayerController(props) {
   }
 
   const controllerSectionClasses = useControllerSectionStyles();
+  const accordionClasses = useAccordionStyles();
+  const inputLabelClasses = useInputLabelStyles();
+  const overflowEllipsisGridClasses = useOverflowEllipsisGridStyles();
 
   const { visible } = layer;
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -466,7 +471,7 @@ export default function LayerController(props) {
   );
   return (
     <Accordion
-      className={controllerSectionClasses.root}
+      className={controllerSectionClasses.layerControllerRoot}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',
@@ -474,14 +479,23 @@ export default function LayerController(props) {
       }
       TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
+      id={`layer-controls-accordion-${layerControlsId}`}
     >
-      <StyledAccordionSummary
+      <AccordionSummary
+        classes={{
+          root: accordionClasses.accordionSummaryRoot,
+          content: accordionClasses.content,
+          expanded: accordionClasses.expanded,
+          expandIcon: accordionClasses.expandIcon,
+        }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
+        aria-expanded={isExpanded}
       >
         <Grid container direction="column" m={1} justifyContent="center">
-          <OverflowEllipsisGrid item>
+          <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
+              aria-label="Toggle layer visibility"
               onClick={(e) => {
                 if (!disabled) {
                   // Needed to prevent affecting the expansion panel from changing
@@ -500,7 +514,7 @@ export default function LayerController(props) {
               <Visibility />
             </Button>
             {name}
-          </OverflowEllipsisGrid>
+          </Grid>
           {!disabled && !isExpanded && !use3d && (
             <Grid
               container
@@ -509,9 +523,12 @@ export default function LayerController(props) {
               justifyContent="center"
             >
               <Grid item xs={6}>
-                <StyledInputLabel htmlFor={`layer-${name}-opacity-closed`}>
+                <InputLabel
+                  htmlFor={`layer-${name}-opacity-closed`}
+                  classes={{ root: inputLabelClasses.inputLabelRoot }}
+                >
                   Opacity:
-                </StyledInputLabel>
+                </InputLabel>
               </Grid>
               <Grid item xs={6}>
                 <Slider
@@ -519,7 +536,7 @@ export default function LayerController(props) {
                   value={opacity}
                   onChange={(e, v) => setOpacity(v)}
                   valueLabelDisplay="auto"
-                  getAriaLabel={() => 'opacity slider'}
+                  aria-label={`Adjust opacity for layer ${name}`}
                   min={0}
                   max={1}
                   step={0.01}
@@ -529,18 +546,22 @@ export default function LayerController(props) {
             </Grid>
           )}
         </Grid>
-      </StyledAccordionSummary>
-      <StyledAccordionDetails>
+      </AccordionSummary>
+      <AccordionDetails
+        classes={{ root: accordionClasses.accordionDetailsRoot }}
+        id={`layer-${name}-controls`}
+      >
         {useVolumeTabs ? (
           <>
             <Tabs
               value={tab}
               onChange={handleTabChange}
-              aria-label="simple tabs example"
+              aria-label="Change the layer tab type"
               style={{ height: '24px', minHeight: '24px' }}
             >
               <Tab
                 label="Channels"
+                aria-label="Channels tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
@@ -551,6 +572,7 @@ export default function LayerController(props) {
               />
               <Tab
                 label="Volume"
+                aria-label="Volume tab"
                 style={{
                   fontSize: '.75rem',
                   bottom: 12,
@@ -593,7 +615,7 @@ export default function LayerController(props) {
             Remove Image Layer
           </Button>
         ) : null}
-      </StyledAccordionDetails>
+      </AccordionDetails>
     </Accordion>
   );
 }

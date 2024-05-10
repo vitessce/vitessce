@@ -1,70 +1,84 @@
-import { viv } from '@vitessce/gl';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
   getNgffAxes,
+  hexToRgb,
+  normalizeCoordinateTransformations,
+  loadOmeZarr,
 } from '@vitessce/spatial-utils';
+import {
+  ImageWrapper,
+} from '@vitessce/image-utils';
 import {
   AbstractLoaderError,
   LoaderResult,
   AbstractTwoStepLoader,
-  imageOmeZarrSchema,
 } from '@vitessce/vit-s';
+import { CoordinationLevel as CL } from '@vitessce/config';
 
-function hexToRgb(hex) {
-  const result = /^#?([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/i.exec(hex);
-  return [
-    parseInt(result[1].toLowerCase(), 16),
-    parseInt(result[2].toLowerCase(), 16),
-    parseInt(result[3].toLowerCase(), 16),
-  ];
-}
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
-    this.optionsSchema = imageOmeZarrSchema;
+    this.storeRoot = this.dataSource.storeRoot;
   }
 
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs').catch(reason => Promise.resolve(reason));
+    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
     if (payload instanceof AbstractLoaderError) {
       return Promise.reject(payload);
     }
 
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
-    const loader = await viv.loadOmeZarr(this.url, { fetchOptions: this.requestInit, type: 'multiscales' });
+    // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
+    // Loader sub-classes may override this.storeRoot in their constructor
+    // if their OME-Zarr image is not at the root of the store.
+    const loader = await loadOmeZarr(this.storeRoot);
+    const imageWrapper = new ImageWrapper(loader, this.options);
+
     const { metadata, data } = loader;
+    const { omero, multiscales, channels_metadata: spatialDataChannels, 'image-label': imageLabel } = metadata;
 
-    const { omero, multiscales } = metadata;
+    // Crude way to check if this is a SpatialData OME-NGFF.
+    const isSpatialData = !!spatialDataChannels || !!imageLabel;
+    const isLabels = !!imageLabel;
 
-    if (!omero) {
-      console.error('Path for image not valid');
+    if (!isSpatialData && !omero) {
+      console.error('image.ome-zarr must have omero metadata in attributes.');
       return Promise.reject(payload);
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {
       console.error('Multiscales array must exist and have at least one element');
     }
-    const { coordinateTransformations } = multiscales[0];
+
+    const {
+      datasets,
+      coordinateTransformations: coordinateTransformationsFromFile,
+      name: imageName,
+    } = multiscales[0];
 
     // Axes in v0.4 format.
     const axes = getNgffAxes(multiscales[0].axes);
+
+    // SpatialData uses the new coordinateTransformations spec.
+    // Reference: https://github.com/ome/ngff/pull/138
+
+    // This new spec is very flexible, so here we will attepmpt to convert it back to the old spec.
+    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+      coordinateTransformationsFromFile, datasets,
+    );
 
     const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, axes,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      coordinateTransformations, axes,
+      normCoordinateTransformationsFromFile, axes,
     );
 
     const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
 
-    const { rdefs, channels, name: omeroName } = omero;
-
-    const t = rdefs.defaultT ?? 0;
-    const z = rdefs.defaultZ ?? 0;
 
     const filterSelection = (sel) => {
       // Remove selection keys for which there is no dimension.
@@ -82,14 +96,54 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       return sel;
     };
 
+    let channelObjects;
+    let channelLabels = [];
+    let initialTargetT = 0;
+    let initialTargetZ = 0;
+    if (isSpatialData) {
+      // TODO: Consider removing support for `channels_metadata` once OME-NGFF loosens
+      // requirements for channel metadata fields such as `window` and `color`.
+      // (Unclear if we will need to keep this around for backwards compatibility with
+      // those SpatialData objects generated in the meantime though.)
+      // References:
+      // - https://github.com/ome/ngff/issues/192
+      // - https://github.com/ome/ome-zarr-py/pull/261
+      if (isLabels) {
+        channelObjects = [{
+          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: 0 }),
+          slider: [0, 255],
+          color: [255, 255, 255],
+        }];
+        channelLabels = ['labels'];
+      } else {
+        const { channels } = spatialDataChannels;
+        channelObjects = channels.map((channel, i) => ({
+          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+          slider: [0, 255],
+          color: [255, 255, 255],
+        }));
+        channelLabels = channels.map(c => c.label);
+      }
+    } else {
+      const { rdefs, channels } = omero;
+      if (typeof rdefs.defaultT === 'number') {
+        initialTargetT = rdefs.defaultT;
+      }
+      if (typeof rdefs.defaultZ === 'number') {
+        initialTargetZ = rdefs.defaultZ;
+      }
+      channelObjects = channels.map((channel, i) => ({
+        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+        slider: [channel.window.start, channel.window.end],
+        color: hexToRgb(channel.color),
+      }));
+      channelLabels = channels.map(c => c.label);
+    }
+
     const imagesWithLoaderCreators = [
       {
-        name: omeroName || 'Image',
-        channels: channels.map((channel, i) => ({
-          selection: filterSelection({ z, t, c: i }),
-          slider: [channel.window.start, channel.window.end],
-          color: hexToRgb(channel.color),
-        })),
+        name: imageName || 'Image',
+        channels: channelObjects,
         ...(transformMatrix ? {
           metadata: {
             transform: {
@@ -97,7 +151,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
             },
           },
         } : {}),
-        loaderCreator: async () => ({ ...loader, channels: channels.map(c => c.label) }),
+        loaderCreator: async () => ({ ...loader, channels: channelLabels }),
       },
     ];
 
@@ -109,12 +163,45 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       imagesWithLoaderCreators, undefined,
     );
 
+    const channelObjects2 = imageWrapper.getChannelObjects();
+    const channelCoordination = channelObjects2.slice(0, 5).map((channelObj, i) => ({
+      spatialTargetC: i,
+      spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: channelObj.defaultWindow || null,
+    }));
+
+
     const coordinationValues = {
+      // Old
       spatialImageLayer: autoImageLayers,
+      // New
+      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      spatialTargetT: imageWrapper.getDefaultTargetT(),
+      imageLayer: CL([
+        {
+          fileUid: this.coordinationValues?.fileUid || null,
+          spatialLayerOpacity: 1.0,
+          spatialLayerVisible: true,
+          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
+          volumetricRenderingAlgorithm: 'maximumIntensityProjection',
+          spatialTargetResolution: null,
+          imageChannel: CL(channelCoordination),
+        },
+      ]),
     };
+
     return Promise.resolve(new LoaderResult(
-      { image: { loaders: imageLayerLoaders, meta: imageLayerMeta } },
-      [],
+      {
+        image: {
+          loaders: imageLayerLoaders, // TODO: replace with imageWrapper
+          meta: imageLayerMeta, // TODO: replace with imageWrapper
+          instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
+        },
+        featureIndex: imageWrapper.getChannelNames(),
+      },
+      null,
       coordinationValues,
     ));
   }

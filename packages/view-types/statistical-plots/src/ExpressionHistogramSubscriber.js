@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+import React, {
+  useMemo, useCallback,
+} from 'react';
 import { sum } from 'd3-array';
 import {
   TitleInfo,
@@ -7,9 +9,9 @@ import {
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import ExpressionHistogram from './ExpressionHistogram';
-import { useStyles } from './styles';
-
+import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
+import ExpressionHistogram from './ExpressionHistogram.js';
+import { useStyles } from './styles.js';
 /**
  * A subscriber component for `ExpressionHistogram`,
  * which listens for gene selection updates and
@@ -23,6 +25,8 @@ import { useStyles } from './styles';
 export function ExpressionHistogramSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
   } = props;
@@ -37,17 +41,25 @@ export function ExpressionHistogramSubscriber(props) {
     featureType,
     featureValueType,
     featureSelection: geneSelection,
+    additionalObsSets: additionalCellSets,
+    obsSetColor: cellSetColor,
+  }, {
+    setAdditionalObsSets: setAdditionalCellSets,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setObsSetSelection: setCellSetSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_VALUE_HISTOGRAM],
     coordinationScopes,
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus] = useObsFeatureMatrixData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [
+    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
+  ] = useObsFeatureMatrixData(
+    loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
   // eslint-disable-next-line no-unused-vars
@@ -59,6 +71,9 @@ export function ExpressionHistogramSubscriber(props) {
     matrixStatus,
     featureSelectionStatus,
   ]);
+  const urls = useUrls([
+    matrixUrls,
+  ]);
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
     ? geneSelection[0]
@@ -68,11 +83,11 @@ export function ExpressionHistogramSubscriber(props) {
   // generate the array of data points for the histogram.
   const data = useMemo(() => {
     if (firstGeneSelected && obsFeatureMatrix && expressionData) {
-      // Create new cellColors map based on the selected gene.
-      return Array.from(expressionData[0]).map((_, index) => {
-        const value = expressionData[0][index];
-        const normValue = value * 100 / 255;
-        return { value: normValue, gene: firstGeneSelected };
+      return obsIndex.map((cellId, cellIndex) => {
+        const value = expressionData[0][cellIndex];
+        // Create new cellColors map based on the selected gene.
+        const newItem = { value, gene: firstGeneSelected, cellId };
+        return newItem;
       });
     }
     if (obsFeatureMatrix) {
@@ -80,16 +95,34 @@ export function ExpressionHistogramSubscriber(props) {
       return obsIndex.map((cellId, cellIndex) => {
         const values = obsFeatureMatrix.data
           .subarray(cellIndex * numGenes, (cellIndex + 1) * numGenes);
-        const sumValue = sum(values) * 100 / 255;
-        return { value: sumValue, gene: null };
+        const sumValue = sum(values);
+        const newItem = { value: sumValue, gene: null, cellId };
+        return newItem;
       });
     }
     return null;
   }, [obsIndex, featureIndex, obsFeatureMatrix, firstGeneSelected, expressionData]);
 
+  const onSelect = useCallback((value) => {
+    const geneName = firstGeneSelected ? [firstGeneSelected, 'values'].join(' ') : 'transcript count';
+
+    const selectedCellIds = getObsInfoFromDataWithinRange(value, data);
+    setObsSelection(
+      selectedCellIds, additionalCellSets, cellSetColor,
+      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
+      setCellColorEncoding,
+      'Selection ',
+      `: based on ${geneName} in range [${value[0].toFixed(1)}, ${value[1].toFixed(1)}] `,
+    );
+  }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
+    setCellColorEncoding, setCellSetColor, setCellSetSelection, firstGeneSelected,
+  ]);
+
   return (
     <TitleInfo
-      title={`Expression Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`Histogram${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -98,6 +131,10 @@ export function ExpressionHistogramSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram
           geneSelection={geneSelection}
+          obsType={obsType}
+          featureType={featureType}
+          featureValueType={featureValueType}
+          onSelect={onSelect}
           data={data}
           theme={theme}
           width={width}

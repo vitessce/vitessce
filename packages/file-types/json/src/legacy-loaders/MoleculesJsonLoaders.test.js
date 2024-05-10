@@ -1,7 +1,8 @@
+import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/vit-s';
-import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations';
-import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels';
-import JsonSource from '../JsonSource';
+import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations.js';
+import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels.js';
+import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
   const configWithUrl = {
@@ -17,7 +18,7 @@ describe('loaders/molecules-json-loaders', () => {
     it('can load obsLocations', async () => {
       const loader = createLoader(MoleculesJsonAsObsLocationsLoader, {
         fileType: 'obsLocations.molecules.json',
-      }, 'http://localhost:51204/@fixtures/json-legacy/molecules.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/molecules.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;
@@ -34,7 +35,7 @@ describe('loaders/molecules-json-loaders', () => {
         coordinationValues: {
           obsLabelsType: 'gene',
         },
-      }, 'http://localhost:51204/@fixtures/json-legacy/molecules.good.json');
+      }, 'http://localhost:4204/@fixtures/json-legacy/molecules.good.json');
       const result = await loader.load();
       expect(result).toBeInstanceOf(LoaderResult);
       const payload = result.data;

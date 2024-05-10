@@ -1,15 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
-import { fromEntries } from '@vitessce/utils';
-import { useMatchingLoader, useMultiCoordinationValues, useSetWarning } from './state/hooks';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import {
+  useMultiCoordinationValues,
+  useComplexCoordination,
+  useSetWarning,
+  getMatchingLoader,
+} from './state/hooks.js';
 import {
   LoaderNotFoundError,
-} from './errors/index';
+} from './errors/index.js';
 import {
   warn,
   useDataType,
   useDataTypeMulti,
-} from './data-hook-utils';
+} from './data-hook-utils.js';
 
 /**
  * Get the dataset description string.
@@ -48,8 +53,6 @@ export function useDescription(loaders, dataset) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -63,111 +66,155 @@ export function useDescription(loaders, dataset) {
  * number of items in the cells object.
  */
 export function useObsEmbeddingData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_EMBEDDING,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsSpotsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_SPOTS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useObsPointsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.OBS_POINTS,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLocationsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LOCATIONS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsLabelsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_LABELS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSegmentationsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SEGMENTATIONS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsSetsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_SETS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useSampleSetsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_SETS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+export function useSampleEdgesData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.SAMPLE_EDGES,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useObsFeatureMatrixData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.OBS_FEATURE_MATRIX,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useFeatureLabelsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.FEATURE_LABELS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useImageData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.IMAGE,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useGenomicProfilesData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.GENOMIC_PROFILES,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
 
 export function useNeighborhoodsData(
-  loaders, dataset, addUrl, isRequired,
+  loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.NEIGHBORHOODS,
-    loaders, dataset, addUrl, isRequired,
+    loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }
@@ -193,73 +240,71 @@ export function useFeatureSelection(
   selection,
   matchOn,
 ) {
-  const [geneData, setGeneData] = useState();
-  const [status, setStatus] = useState(STATUS.LOADING);
-  const [loadedGeneName, setLoadedGeneName] = useState(null);
-
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
-
-  useEffect(() => {
-    if (!selection) {
-      setGeneData(null);
-      setLoadedGeneName(null);
-      setStatus(STATUS.SUCCESS);
-      return;
-    }
-    if (loader) {
-      setGeneData(null);
-      setLoadedGeneName(null);
-      setStatus(STATUS.LOADING);
-      const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
-      if (implementsGeneSelection) {
-        loader
-          .loadGeneSelection({ selection })
-          .catch(e => warn(e, setWarning))
-          .then((payload) => {
-            if (!payload) return;
+  const featureQueries = useQueries({
+    queries: selection?.map(featureId => ({
+      structuralSharing: false,
+      placeholderData: null,
+      queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, featureId, 'useFeatureSelection'],
+      // Query function should return an object
+      // { data, dataKey } where dataKey is the loaded gene selection.
+      queryFn: async (ctx) => {
+        const loader = getMatchingLoader(
+          ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+        );
+        if (loader) {
+          const implementsGeneSelection = typeof loader.loadGeneSelection === 'function';
+          if (implementsGeneSelection) {
+            const payload = await loader.loadGeneSelection({ selection: [featureId] });
+            if (!payload) return null;
             const { data } = payload;
-            setGeneData(data);
-            setStatus(STATUS.SUCCESS);
-            setLoadedGeneName(selection);
-          });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
+            return { data: data[0], dataKey: featureId };
+          }
+          // Loader does not implement loadGeneSelection.
+          const payload = await loader.load();
+          if (!payload) return null;
           const { data } = payload;
           const { obsIndex, featureIndex, obsFeatureMatrix } = data;
-          const expressionDataForSelection = selection.map((sel) => {
-            const geneIndex = featureIndex.indexOf(sel);
-            const numGenes = featureIndex.length;
-            const numCells = obsIndex.length;
-            const expressionData = new Float32Array(numCells);
-            for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
-              expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
-            }
-            return expressionData;
-          });
-          setGeneData(expressionDataForSelection);
-          setStatus(STATUS.SUCCESS);
-          setLoadedGeneName(selection);
-        });
-      }
-    } else {
-      setGeneData(null);
-      setLoadedGeneName(null);
-      if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader, selection]);
+          // Compute expressionData
+          const geneIndex = featureIndex.indexOf(featureId);
+          const numGenes = featureIndex.length;
+          const numCells = obsIndex.length;
+          const expressionData = new Float32Array(numCells);
+          for (let cellIndex = 0; cellIndex < numCells; cellIndex += 1) {
+            expressionData[cellIndex] = obsFeatureMatrix.data[cellIndex * numGenes + geneIndex];
+          }
+          return { data: expressionData, dataKey: featureId };
+        }
+        // No loader was found.
+        if (isRequired) {
+          throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+        } else {
+          return { data: null, dataKey: null };
+        }
+      },
+      meta: { loaders },
+    })) || [],
+  });
+  const anyLoading = featureQueries.some(q => q.isFetching);
+  const anyError = featureQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
+  const geneData = isSuccess ? featureQueries.map(q => q.data?.data || null) : null;
+  const loadedGeneName = isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null;
 
-  return [geneData, loadedGeneName, status];
+  useEffect(() => {
+    featureQueries
+      .map(q => q.error)
+      .filter(e => Boolean(e))
+      .forEach((error) => {
+        warn(error, setWarning);
+      });
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyError, setWarning]);
+
+  return [geneData, loadedGeneName, dataStatus];
 }
 
 /**
@@ -272,83 +317,258 @@ export function useFeatureSelection(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
  */
 export function useObsFeatureMatrixIndices(
-  loaders, dataset, addUrl, isRequired, matchOn,
+  loaders, dataset, isRequired, matchOn,
 ) {
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+  const placeholderObject = useMemo(() => ({}), []);
+  const indicesQuery = useQuery({
+    // TODO: only enable once `loaders` is available?
+    structuralSharing: false,
+    placeholderData: placeholderObject,
+    // Include the hook name in the queryKey to prevent the case in which an identical queryKey
+    // in a different hook would cause an accidental cache hit.
+    // Note: this uses the same key structure/suffix as
+    // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
+    queryKey: [dataset, DataType.OBS_FEATURE_MATRIX, matchOn, isRequired, 'useObsFeatureMatrixIndices'],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    // TODO: use TypeScript to type the return value?
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
+        if (implementsLoadAttrs) {
+          // Has loadAttrs function.
+          const payload = await loader.loadAttrs();
+          if (!payload) return placeholderObject;
+          const { data: payloadData, url } = payload;
 
-  useEffect(() => {
-    if (loader) {
-      setStatus(STATUS.LOADING);
-      const implementsLoadAttrs = typeof loader.loadAttrs === 'function';
-      if (implementsLoadAttrs) {
-        loader.loadAttrs().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data: payloadData, url } = payload;
-          setData({
-            obsIndex: payloadData.rows,
-            featureIndex: payloadData.cols,
-          });
-          addUrl(url, DataType.OBS_FEATURE_MATRIX);
-          setStatus(STATUS.SUCCESS);
-        });
-      } else {
-        loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-          if (!payload) return;
-          const { data: payloadData, url } = payload;
-          setData({
+          return {
+            data: {
+              obsIndex: payloadData.rows,
+              featureIndex: payloadData.cols,
+            },
+            urls: (url ? [{ url, name: DataType.OBS_FEATURE_MATRIX }] : null),
+          };
+        }
+        // No loadAttrs function.
+        const payload = await loader.load();
+        if (!payload) return placeholderObject;
+        const { data: payloadData, url } = payload;
+        return {
+          data: {
             obsIndex: payloadData.obsIndex,
             featureIndex: payloadData.featureIndex,
-          });
-          addUrl(url, DataType.OBS_FEATURE_MATRIX);
-          setStatus(STATUS.SUCCESS);
-        });
+          },
+          urls: [{ url, name: DataType.OBS_FEATURE_MATRIX }],
+        };
       }
-    } else {
-      setData({});
+      // No loader was found.
       if (isRequired) {
-        warn(
-          new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn),
-          setWarning,
-        );
-        setStatus(STATUS.ERROR);
+        // Status: error
+        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
       } else {
-        setStatus(STATUS.SUCCESS);
+        // Status: success
+        return { data: placeholderObject, dataKey: null };
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
+    },
+    meta: { loaders },
+  });
+  const { data, status, isFetching, error } = indicesQuery;
+  const loadedData = data?.data || placeholderObject;
 
-  return [data, status];
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  const urls = data?.urls;
+
+  useEffect(() => {
+    if (error) {
+      setWarning(error.message);
+    }
+  }, [error, setWarning]);
+
+  return [loadedData, dataStatus, urls];
 }
 
+export function useMultiObsPoints(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
+    DataType.OBS_POINTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj, mergeCoordination, viewUid,
+  );
+  return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
+}
+
+export function useMultiObsSpots(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
+    DataType.OBS_SPOTS, loaders, dataset,
+    false, {}, {},
+    matchOnObj, mergeCoordination, viewUid,
+  );
+  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
+}
+
+export function useSpotMultiObsSets(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [obsSetsData, obsSetsDataStatus, obsSetsUrls] = useDataTypeMulti(
+    DataType.OBS_SETS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
+}
+
+
+export function useSpotMultiFeatureLabels(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const featureTypeCoordination = useComplexCoordination(
+    [
+      CoordinationType.FEATURE_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SPOT_LAYER,
+  );
+  const matchOnObj = useMemo(() => featureTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls] = useDataTypeMulti(
+    DataType.FEATURE_LABELS, loaders, dataset,
+    false, {}, {},
+    matchOnObj,
+  );
+  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls];
+}
+
+
 export function useMultiObsLabels(
-  coordinationScopes, obsType, loaders, dataset, addUrl,
+  coordinationScopes, obsType, loaders, dataset,
 ) {
   const obsLabelsTypes = useMultiCoordinationValues(
     CoordinationType.OBS_LABELS_TYPE,
     coordinationScopes,
   );
-  const obsLabelsMatchOnObj = useMemo(() => fromEntries(
+  const obsLabelsMatchOnObj = useMemo(() => Object.fromEntries(
     Object.entries(obsLabelsTypes).map(([scope, obsLabelsType]) => ([
       scope,
       { obsLabelsType, obsType },
     ])),
   ), [obsLabelsTypes, obsType]);
-  const [obsLabelsData, obsLabelsDataStatus] = useDataTypeMulti(
+  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
-    addUrl, false, {}, {},
+    false, {}, {},
     obsLabelsMatchOnObj,
   );
-  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus];
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls];
+}
+
+export function useMultiObsSegmentations(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
+) {
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+  );
+  const matchOnObj = useMemo(() => imageCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [
+    obsSegmentationsData,
+    obsSegmentationsDataStatus,
+    obsSegmentationsUrls,
+  ] = useDataTypeMulti(
+    DataType.OBS_SEGMENTATIONS, loaders, dataset,
+    false, {}, {},
+    matchOnObj, mergeCoordination, viewUid,
+  );
+  return [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls];
+}
+
+export function useMultiImages(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+  mergeCoordination, viewUid,
+) {
+  // TODO: delegate the generation of matchOnObj to a different hoook and pass as a parameter?
+  // (in all of the useMulti data hooks)?
+  const imageCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.IMAGE_LAYER,
+  );
+  const matchOnObj = useMemo(() => imageCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [imageData, imageDataStatus, imageUrls] = useDataTypeMulti(
+    DataType.IMAGE, loaders, dataset,
+    false, {}, {},
+    matchOnObj, mergeCoordination, viewUid,
+  );
+  return [imageData, imageDataStatus, imageUrls];
 }

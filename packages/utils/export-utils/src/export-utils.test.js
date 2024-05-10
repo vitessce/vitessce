@@ -1,7 +1,8 @@
+import { describe, it, expect } from 'vitest';
 import {
   encodeConfInUrl,
   decodeURLParamsToConf,
-} from './export-utils';
+} from './export-utils.js';
 
 const fakeConfig = {
   version: '0.1.0',

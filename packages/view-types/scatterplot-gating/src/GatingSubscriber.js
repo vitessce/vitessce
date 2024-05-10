@@ -1,12 +1,11 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import plur from 'plur';
 import { extent } from 'd3-array';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 import {
+  pluralize as plur,
   capitalize, commaNumber,
-  getCellColors,
   getValueTransformFunction, VALUE_TRANSFORM_OPTIONS,
 } from '@vitessce/utils';
 import {
@@ -22,7 +21,9 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
 } from '@vitessce/vit-s';
-import { getCellSetPolygons, mergeObsSets, setObsSelection } from '@vitessce/sets-utils';
+import {
+  getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
+} from '@vitessce/sets-utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
@@ -30,7 +31,7 @@ import {
   EmptyMessage,
 } from '@vitessce/scatterplot';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import GatingScatterplotOptions from './GatingScatterplotOptions';
+import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 
 /**
    * A subscriber component for the gating scatterplot.
@@ -49,6 +50,8 @@ export function GatingSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     disableTooltip = false,
@@ -120,7 +123,6 @@ export function GatingSubscriber(props) {
     coordinationScopes,
   );
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = useMemo(() => {
@@ -141,8 +143,8 @@ export function GatingSubscriber(props) {
   ), [gatingFeatureSelectionY]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, false,
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
@@ -162,8 +164,10 @@ export function GatingSubscriber(props) {
     loaders, dataset, false, featureSelectionY,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsIndex, featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [
+    { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
+  ] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
   const cellsCount = obsIndex?.length || 0;
@@ -174,6 +178,10 @@ export function GatingSubscriber(props) {
     featureSelectionXStatus,
     featureSelectionYStatus,
     matrixIndicesStatus,
+  ]);
+  const urls = useUrls([
+    obsSetsUrls,
+    matrixIndicesUrls,
   ]);
 
   // Generate a new cells object with a mapping added for the user selected genes.
@@ -229,16 +237,13 @@ export function GatingSubscriber(props) {
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
   const cellColors = useMemo(() => getCellColors({
-    cellColorEncoding,
-    expressionData: expressionDataColor && expressionDataColor[0],
-    geneSelection: gatingFeatureSelectionColor,
     cellSets: mergedCellSets,
     cellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
-  }), [cellColorEncoding, gatingFeatureSelectionColor, mergedCellSets, theme,
-    cellSetSelection, cellSetColor, expressionDataColor, obsIndex]);
+  }), [mergedCellSets, theme,
+    cellSetSelection, cellSetColor, obsIndex]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -350,6 +355,8 @@ export function GatingSubscriber(props) {
     <TitleInfo
       title={title}
       info={`${commaNumber(cellsCount)} ${plur(obsType, cellsCount)}`}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}

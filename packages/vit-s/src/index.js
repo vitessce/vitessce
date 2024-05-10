@@ -1,12 +1,6 @@
-export { VitS } from './VitS';
-export { TitleInfo } from './TitleInfo';
-export { PopperMenu } from './shared-mui/components';
-export {
-  registerPluginViewType,
-  registerPluginCoordinationType,
-  registerPluginFileType,
-  registerPluginJointFileType,
-} from './plugins';
+export { VitS } from './VitS.js';
+export { TitleInfo } from './TitleInfo.js';
+export { PopperMenu } from './shared-mui/components.js';
 // For plugin view types:
 export {
   useReady,
@@ -16,18 +10,28 @@ export {
   useUint8ObsFeatureMatrix,
   useUint8FeatureSelection,
   useExpressionValueGetter,
+  useGetObsMembership,
   useGetObsInfo,
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
-} from './hooks';
+} from './hooks.js';
 export {
+  useCoordinationScopes,
+  useCoordinationScopesBy,
+  useInitialCoordination,
   useCoordination,
   useComplexCoordination,
+  useComplexCoordinationSecondary,
+  useMultiCoordinationScopes,
+  useMultiCoordinationScopesNonNull,
+  useMultiCoordinationScopesSecondary,
+  useMultiCoordinationScopesSecondaryNonNull,
   useMultiCoordinationValues,
   useMultiDatasetCoordination,
   useDatasetUids,
   useLoaders,
+  useMergeCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
@@ -39,7 +43,9 @@ export {
   useSetWarning,
   useAuxiliaryCoordination,
   useComponentLayout,
-} from './state/hooks';
+  useRemoveImageChannelInMetaCoordinationScopes,
+  useAddImageChannelInMetaCoordinationScopes,
+} from './state/hooks.js';
 export {
   useDescription,
   useImageData,
@@ -47,8 +53,18 @@ export {
   useObsEmbeddingData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
+  useSampleSetsData,
+  useSampleEdgesData,
   useMultiObsLabels,
+  useMultiObsSpots,
+  useMultiObsPoints,
+  useSpotMultiObsSets,
+  useSpotMultiFeatureLabels,
+  useMultiObsSegmentations,
+  useMultiImages,
 
+  useObsSpotsData,
+  useObsPointsData,
   useObsLocationsData,
   useObsSegmentationsData,
   useNeighborhoodsData,
@@ -57,54 +73,35 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
-} from './data-hooks';
+} from './data-hooks.js';
+export {
+  usePointMultiObsLabels,
+  useSpotMultiFeatureSelection,
+  useSpotMultiObsFeatureMatrixIndices,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsLocations,
+  useSegmentationMultiObsSets,
+} from './data-hooks-multilevel.js';
 export {
   useHasLoader,
-} from './data-hook-utils';
+} from './data-hook-utils.js';
 export {
   AbstractLoader,
   AbstractTwoStepLoader,
   LoaderResult,
-} from './data/index';
+} from './data/index.js';
 export {
   AbstractLoaderError,
   DatasetNotFoundError,
   LoaderNotFoundError,
   LoaderValidationError,
-  OptionsValidationError,
   DataSourceFetchError,
-} from './errors/index';
-export {
-  // TODO(monorepo): should these be in here? or within file-types/
-  obsEmbeddingAnndataSchema,
-  obsLocationsAnndataSchema,
-  obsSegmentationsAnndataSchema,
-  obsSetsAnndataSchema,
-  obsFeatureMatrixAnndataSchema,
-  obsLabelsAnndataSchema,
-  featureLabelsAnndataSchema,
-  obsEmbeddingCsvSchema,
-  obsLocationsCsvSchema,
-  obsLabelsCsvSchema,
-  featureLabelsCsvSchema,
-  obsSetsCsvSchema,
-  anndataZarrSchema,
-  imageOmeTiffSchema,
-  imageOmeZarrSchema,
-  emptySchema,
-} from './file-options-schemas';
-export {
-  SCHEMA_HANDLERS,
-  LATEST_VERSION,
-} from './view-config-versions';
-export {
-  upgradeAndValidate,
-} from './view-config-utils';
+} from './errors/index.js';
 export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
   usePlotOptionsStyles,
-} from './shared-plot-options';
-// eslint-disable-next-line react-refresh/only-export-components
-export * from './json-schemas';
+} from './shared-plot-options/index.js';
+export { logConfig } from './view-config-utils.js';

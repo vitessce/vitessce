@@ -1,6 +1,7 @@
 {
   "name": "@vitessce/example-configs",
-  "version": "2.0.3",
+  "private": true,
+  "version": "3.3.12",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -13,10 +14,10 @@
     "dist-tsc",
     "src"
   ],
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "@vitessce/config": "workspace:*",
-    "@vitessce/constants": "workspace:*"
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*"
   }
 }

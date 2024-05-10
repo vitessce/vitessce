@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
 import {
   makeGridLayout, getMaxRows, resolveLayout,
-} from './layout-utils';
+} from './layout-utils.js';
 
 describe('layout-utils.js', () => {
   describe('makeGridLayout', () => {

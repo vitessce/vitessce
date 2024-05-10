@@ -1,7 +1,6 @@
 import React from 'react';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
+import { useId } from 'react-aria';
+import { TableCell, TableRow, TextField } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 
 export default function CellSetExpressionPlotOptions(props) {
@@ -12,6 +11,9 @@ export default function CellSetExpressionPlotOptions(props) {
     setFeatureValueTransformCoefficient,
     transformOptions,
   } = props;
+
+  const cellSetExpressionPlotOptionsId = useId();
+
   const classes = usePlotOptionsStyles();
 
   const handleTransformChange = (event) => {
@@ -35,15 +37,20 @@ export default function CellSetExpressionPlotOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell className={classes.labelCell}>Transform</TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`cellset-expression-transform-select-${cellSetExpressionPlotOptionsId}`}
+          >
+            Transform
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            key="gating-transform-select"
             className={classes.select}
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
-              id: 'scatterplot-transform-select',
+              id: `cellset-expression-transform-select-${cellSetExpressionPlotOptionsId}`,
             }}
           >
             {transformOptions.map(opt => (
@@ -54,19 +61,24 @@ export default function CellSetExpressionPlotOptions(props) {
           </OptionSelect>
         </TableCell>
       </TableRow>
-      <TableRow key="transform-coefficient-option-row">
-        <TableCell className={classes.labelCell}>
-          Transform Coefficient
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
+          >
+            Transform Coefficient
+          </label>
         </TableCell>
-        <TableCell className={classes.inputCell}>
+        <TableCell className={classes.inputCell} variant="body">
           <TextField
-            label="Number"
+            label="Transform Coefficient"
             type="number"
             onChange={handleTransformCoefficientChange}
             value={featureValueTransformCoefficient}
             InputLabelProps={{
               shrink: true,
             }}
+            id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
         </TableCell>
       </TableRow>

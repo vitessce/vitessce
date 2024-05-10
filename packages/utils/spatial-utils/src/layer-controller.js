@@ -1,9 +1,36 @@
-import { Matrix4 } from 'math.gl';
 import { viv } from '@vitessce/gl';
+import { Matrix4 } from 'math.gl';
+
+// Returns an rgb string for display, and changes the color (arr)
+// to use a grey for light theme + white color or if the colormap is on.
+export const toRgbUIString = (on, arr, theme) => {
+  const color = on || (theme !== 'dark' && arr?.every(i => i === 255))
+    ? [220, 220, 220]
+    : arr;
+  return `rgb(${color})`;
+};
+
+/**
+ * Ensure that the channel selection object does not have
+ * extra dimension keys, as this will cause Viv functions
+ * to throw errors about not being able to access the data.
+ * @param {*} loader
+ * @param {object} selection Mapping from dimension label to slice index.
+ * @returns {object} The filtered selection.
+ */
+export function filterSelection(loader, selection) {
+  if (!selection) {
+    return selection;
+  }
+  const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
+  const { labels } = data;
+  return Object.fromEntries(Object.entries(selection).filter(([key]) => labels.includes(key)));
+}
 
 async function getSingleSelectionStats2D({ loader, selection }) {
   const data = Array.isArray(loader) ? loader[loader.length - 1] : loader;
-  const raster = await data.getRaster({ selection });
+  const filteredSelection = filterSelection(loader, selection);
+  const raster = await data.getRaster({ selection: filteredSelection });
   const selectionStats = viv.getChannelStats(raster.data);
   const { domain, contrastLimits: slider } = selectionStats;
   return { domain, slider };
@@ -11,17 +38,18 @@ async function getSingleSelectionStats2D({ loader, selection }) {
 
 async function getSingleSelectionStats3D({ loader, selection }) {
   const lowResSource = loader[loader.length - 1];
+  const filteredSelection = filterSelection(lowResSource, selection);
   const { shape, labels } = lowResSource;
   // eslint-disable-next-line no-bitwise
   const sizeZ = shape[labels.indexOf('z')] >> (loader.length - 1);
   const raster0 = await lowResSource.getRaster({
-    selection: { ...selection, z: 0 },
+    selection: { ...filteredSelection, z: 0 },
   });
   const rasterMid = await lowResSource.getRaster({
-    selection: { ...selection, z: Math.floor(sizeZ / 2) },
+    selection: { ...filteredSelection, z: Math.floor(sizeZ / 2) },
   });
   const rasterTop = await lowResSource.getRaster({
-    selection: { ...selection, z: Math.max(0, sizeZ - 1) },
+    selection: { ...filteredSelection, z: Math.max(0, sizeZ - 1) },
   });
   const stats0 = viv.getChannelStats(raster0.data);
   const statsMid = viv.getChannelStats(rasterMid.data);

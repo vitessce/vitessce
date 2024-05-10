@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
-import ToolMenu from './ToolMenu';
-import { getCursor, getCursorWithTool } from './cursor';
+import ToolMenu from './ToolMenu.js';
+import { getCursor, getCursorWithTool } from './cursor.js';
 
 /**
  * Abstract class component intended to be inherited by
@@ -19,12 +19,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
 
     this.viewport = null;
-
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
+    this.recenter = this.recenter.bind(this);
   }
 
   /**
@@ -37,9 +37,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   onViewStateChange({ viewState: nextViewState }) {
     const {
-      setViewState, viewState, layers, spatialAxisFixed,
+      setViewState, viewState, spatialAxisFixed,
     } = this.props;
-    const use3d = layers?.some(l => l.use3d);
+    const use3d = this.use3d();
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
@@ -92,6 +92,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  // TODO: remove this method and use the layer-level onHover instead.
+  // (e.g., see delegateHover in spatial-beta/SpatialSubscriber.js).
   // eslint-disable-next-line consistent-return
   onHover(info) {
     const {
@@ -99,6 +101,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
+      setHoverInfo,
     } = this.props;
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
@@ -107,6 +110,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!layer || !coordinate) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
+      }
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -118,6 +124,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!content) {
       if (cellHighlight && hasBitmask) {
         setCellHighlight(null);
+      }
+      if (setHoverInfo) {
+        setHoverInfo(null, null);
       }
       return null;
     }
@@ -158,6 +167,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         // eslint-disable-next-line no-unused-expressions
         setCellHighlight(cellId ? String(cellId) : null);
       }
+      if (setHoverInfo) {
+        if (cellId) {
+          setHoverInfo(hoverData, coordinate);
+        } else {
+          setHoverInfo(null, null);
+        }
+      }
     }
   }
 
@@ -173,7 +189,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
-        project: (obsId) => {
+        project: viewport.project,
+        projectFromId: (obsId) => {
           try {
             if (obsIndex && obsLocations) {
               const getObsCoords = makeGetObsCoords(obsLocations);
@@ -198,6 +215,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
 
   }
 
+  /** Intended to be overridden by descendants.
+   * Resets the view type to its original position.
+  */
+  // eslint-disable-next-line class-methods-use-this
+  recenter() {}
+
   /**
    * Intended to be overridden by descendants.
    * @returns {boolean} Whether or not any layers are 3D.
@@ -213,7 +236,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    */
   render() {
     const {
-      deckRef, viewState, uuid, hideTools,
+      deckRef, viewState, uuid, hideTools, orbitAxis,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
@@ -238,16 +261,16 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           setActiveTool={this.onToolChange}
           visibleTools={{
             pan: showPanTool && !hideTools,
-            selectRectangle: showCellSelectionTools && !hideTools,
             selectLasso: showCellSelectionTools && !hideTools,
           }}
+          recenterOnClick={this.recenter}
         />
         <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
           views={[
             use3d
-              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis: 'Y' })
+              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis })
               : new deck.OrthographicView({
                 id: 'ortho',
               }),

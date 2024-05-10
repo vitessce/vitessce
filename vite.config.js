@@ -30,6 +30,9 @@ export function serveTestFixtures() {
   return {
     name: "serve-test-fixtures-dir",
     configureServer(server) {
+
+
+
       server.middlewares.use((req, res, next) => {
         if (/^\/@fixtures\/zarr\//.test(req.url)) {
           req.url = req.url.replace("/@fixtures/zarr/", "");
@@ -57,27 +60,43 @@ export default defineConfig({
     serveTestFixtures(),
   ],
   test: {
-    api: 51204,
+    api: 4204,
     passWithNoTests: true,
     testTimeout: 15000,
     globals: true,
-    environment: "jsdom",
-    setupFiles: [resolve(__dirname, "./vitest.setup.js")],
+    environment: 'jsdom',
+    setupFiles: [resolve(__dirname, './vitest.setup.js')],
+    deps: {
+      inline: ['vitest-canvas-mock'],
+    },
     environmentOptions: {
       jsdom: {
         resources: "usable",
       },
     },
     // Only run test files that are within src/
-    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    // Coverage
+    coverage: {
+      enabled: true,
+      reporter: ['text', 'json-summary', 'json', 'html'],
+      provider: 'v8',
+      include: [
+        // Do not include hits from dist-tsc/ files
+        // (e.g., from sibling sub-packages) in the coverage report.
+        '**/src/**',
+      ],
+      exclude: [
+        // Exclude test fixtures.
+        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)'
+      ]
+    },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
   esbuild: {
-    loader: "tsx",
+    loader: 'tsx',
     include: /src\/.*\.[tj]sx?$/,
-    // loader: "tsx",
-    // include: /src\/.*\.[tj]sx?$/,
     exclude: [],
   },
 });

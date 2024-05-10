@@ -16,8 +16,8 @@ export default function HeatmapTooltipSubscriber(props) {
   const [cellInfo, cellCoord] = (obsHighlight && getObsInfo ? (
     [
       getObsInfo(obsHighlight),
-      (viewInfo && viewInfo.project
-        ? viewInfo.project(obsHighlight, null)[(transpose ? 0 : 1)]
+      (viewInfo && viewInfo.projectFromId
+        ? viewInfo.projectFromId(obsHighlight, null)[(transpose ? 0 : 1)]
         : null),
     ]
   ) : ([null, null]));
@@ -25,8 +25,8 @@ export default function HeatmapTooltipSubscriber(props) {
   const [geneInfo, geneCoord] = (featureHighlight && getFeatureInfo ? (
     [
       getFeatureInfo(featureHighlight),
-      (viewInfo && viewInfo.project
-        ? viewInfo.project(null, featureHighlight)[(transpose ? 1 : 0)]
+      (viewInfo && viewInfo.projectFromId
+        ? viewInfo.projectFromId(null, featureHighlight)[(transpose ? 1 : 0)]
         : null),
     ]
   ) : ([null, null]));

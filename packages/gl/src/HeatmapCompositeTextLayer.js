@@ -8,7 +8,7 @@ import {
   THEME_TO_TEXT_COLOR,
   AXIS_FONT_FAMILY,
   COLOR_BAR_SIZE,
-} from './heatmap-constants';
+} from './heatmap-constants.js';
 
 export default class HeatmapCompositeTextLayer extends CompositeLayer {
   _renderAxisTopLayers() {

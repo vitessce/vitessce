@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react';
-import debounce from 'lodash/debounce';
-
-import Checkbox from '@material-ui/core/Checkbox';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Slider from '@material-ui/core/Slider';
-import { makeStyles } from '@material-ui/core/styles';
+import { useId } from 'react-aria';
+import { debounce } from 'lodash-es';
+import {
+  Checkbox,
+  TableCell,
+  TableRow,
+  Slider,
+  makeStyles,
+} from '@material-ui/core';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';
@@ -15,11 +17,8 @@ const useToggleStyles = makeStyles(() => ({
   cameraLabel: {
     padding: '0px 0px 0px 16px',
   },
-  box: {
+  toggleBox: {
     padding: '0px',
-  },
-  button: {
-    padding: '0px 0px 0px 8px',
   },
 }));
 
@@ -28,17 +27,26 @@ const ToggleFixedAxisButton = ({
   spatialAxisFixed,
   use3d,
 }) => {
+  const toggleAxisId = useId();
   const classes = useToggleStyles();
   return (
     <TableRow>
-      <TableCell className={classes.cameraLabel}>
-        Fix Camera Axis
+      <TableCell className={classes.cameraLabel} variant="head" scope="row">
+        <label
+          htmlFor={`spatial-camera-axis-${toggleAxisId}`}
+        >
+          Fix Camera Axis
+        </label>
       </TableCell>
-      <TableCell className={classes.box}>
+      <TableCell className={classes.toggleBox} variant="body">
         <Checkbox
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
+          inputProps={{
+            'aria-label': 'Fix or not fix spatial camera axis',
+            id: `spatial-camera-axis-${toggleAxisId}`,
+          }}
         />
       </TableCell>
     </TableRow>
@@ -53,6 +61,8 @@ export default function SpatialOptions(props) {
     setSpatialAxisFixed,
     spatialAxisFixed,
     use3d,
+    tooltipsVisible,
+    setTooltipsVisible,
     geneExpressionColormap,
     setGeneExpressionColormap,
     geneExpressionColormapRange,
@@ -61,6 +71,8 @@ export default function SpatialOptions(props) {
     canShowColorEncodingOption,
     canShow3DOptions,
   } = props;
+
+  const spatialOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -73,6 +85,10 @@ export default function SpatialOptions(props) {
     debounce(handleColormapRangeChange, 5, { trailing: true }),
     [handleColormapRangeChange],
   );
+
+  function handleTooltipsVisibilityChange(event) {
+    setTooltipsVisible(event.target.checked);
+  }
 
   const classes = usePlotOptionsStyles();
 
@@ -92,19 +108,51 @@ export default function SpatialOptions(props) {
           use3d={use3d}
         />
       ) : null}
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`}
+          >
+            Tooltips Visible
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+              /**
+               * We have to use "checked" here, not "value".
+               * The checkbox state is not persisting with value.
+               * For reference, https://v4.mui.com/api/checkbox/
+               */
+            checked={tooltipsVisible}
+            onChange={handleTooltipsVisibilityChange}
+            name="gene-expression-colormap-option-tooltip-visibility"
+            color="default"
+            inputProps={{
+              'aria-label': 'Enable or disable tooltips',
+              id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
       {canShowExpressionOptions ? (
         <>
           <TableRow>
-            <TableCell className={classes.labelCell} htmlFor="gene-expression-colormap-select">
-              Gene Expression Colormap
+            <TableCell className={classes.labelCell} variant="head" scope="row">
+              <label
+                htmlFor={`gene-expression-colormap-select-${spatialOptionsId}`}
+              >
+                Gene Expression Colormap
+              </label>
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <OptionSelect
+                key="gene-expression-colormap-select"
                 className={classes.select}
                 value={geneExpressionColormap}
                 onChange={handleGeneExpressionColormapChange}
                 inputProps={{
-                  id: 'gene-expression-colormap-select',
+                  id: `gene-expression-colormap-select-${spatialOptionsId}`,
                 }}
               >
                 {GLSL_COLORMAPS.map(cmap => (
@@ -114,15 +162,23 @@ export default function SpatialOptions(props) {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className={classes.labelCell}>
-              Gene Expression Colormap Range
+            <TableCell className={classes.labelCell} variant="head" scope="row">
+              <label
+                htmlFor={`gene-expression-colormap-range-${spatialOptionsId}`}
+              >
+                Gene Expression Colormap Range
+              </label>
             </TableCell>
-            <TableCell className={classes.inputCell}>
+            <TableCell className={classes.inputCell} variant="body">
               <Slider
                 classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
-                aria-labelledby="gene-expression-colormap-range-slider"
+                getAriaLabel={(index) => {
+                  const labelPrefix = index === 0 ? 'Low value slider' : 'High value slider';
+                  return `${labelPrefix} for spatial gene expression colormap range`;
+                }}
+                id={`gene-expression-colormap-range-${spatialOptionsId}`}
                 valueLabelDisplay="auto"
                 step={0.005}
                 min={0.0}

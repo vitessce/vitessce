@@ -1,6 +1,5 @@
-import React from 'react';
-import plur from 'plur';
-import { capitalize, commaNumber } from '@vitessce/utils';
+import React, { useState } from 'react';
+import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -8,7 +7,8 @@ import {
   useCoordination, useLoaders,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import FeatureList from './FeatureList';
+import FeatureList from './FeatureList.js';
+import FeatureListOptions from './FeatureListOptions.js';
 
 
 /**
@@ -26,6 +26,11 @@ import FeatureList from './FeatureList';
  * form of the name of the variable.
  * @param {boolean} props.enableMultiSelect If true, allow
  * shift-clicking to select multiple genes.
+ * @param {boolean} props.showTable If true, shows a table with the feature name and id.
+ * @param {'alphabetical'|'original'} props.sort The sort order of the genes. If sort is defined and
+ * it is not equal to `alphabetical`, the genes will be displayed in the feature list in
+ * the original order.
+ * @param {'featureIndex'|'featureLabels'|null} props.sortKey The information to use for sorting.
  */
 export function FeatureListSubscriber(props) {
   const {
@@ -35,6 +40,11 @@ export function FeatureListSubscriber(props) {
     theme,
     title: titleOverride,
     enableMultiSelect = false,
+    showTable = false,
+    sort = 'alphabetical',
+    sortKey = null,
+    closeButtonVisible,
+    downloadButtonVisible,
   } = props;
 
   const loaders = useLoaders();
@@ -42,6 +52,7 @@ export function FeatureListSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
     featureType,
     featureSelection: geneSelection,
     featureFilter: geneFilter,
@@ -57,29 +68,38 @@ export function FeatureListSubscriber(props) {
 
   const title = titleOverride || `${capitalize(variablesLabel)} List`;
 
-  const [urls, addUrl] = useUrls(loaders, dataset);
-
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ featureIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, true,
-    { featureType },
+  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, true,
+    { obsType, featureType },
   );
   const isReady = useReady([
     featureLabelsStatus,
     matrixIndicesStatus,
   ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    obsFeatureMatrixUrls,
+  ]);
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
+  const hasFeatureLabels = Boolean(featureLabelsMap);
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
     setCellColorEncoding('geneSelection');
   }
+  const [showFeatureTable, setShowFeatureTable] = useState(showTable);
+  const [featureListSort, setFeatureListSort] = useState(sort);
+  const [featureListSortKey, setFeatureListSortKey] = useState(null);
+  const initialSortKey = sortKey || (hasFeatureLabels ? 'featureLabels' : 'featureIndex');
+
+  const primaryColumnName = `${capitalize(featureType)} ID`;
 
   return (
     <TitleInfo
@@ -90,20 +110,40 @@ export function FeatureListSubscriber(props) {
       // even though this no longer uses the TitleInfo component's
       // scroll css (SelectableTable is virtual scroll).
       isScroll
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
+      options={(
+        <FeatureListOptions
+          featureListSort={featureListSort}
+          setFeatureListSort={setFeatureListSort}
+          featureListSortKey={featureListSortKey || initialSortKey}
+          setFeatureListSortKey={setFeatureListSortKey}
+          showFeatureTable={showFeatureTable}
+          setShowFeatureTable={setShowFeatureTable}
+          hasFeatureLabels={Boolean(featureLabelsMap)}
+          primaryColumnName={primaryColumnName}
+        />
+      )}
     >
       <FeatureList
         hasColorEncoding={cellColorEncoding === 'geneSelection'}
+        showFeatureTable={showFeatureTable}
         geneList={geneList}
+        featureListSort={featureListSort}
+        featureListSortKey={featureListSortKey || initialSortKey}
         featureLabelsMap={featureLabelsMap}
+        featureType={featureType}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
         setGeneSelection={setGeneSelectionAndColorEncoding}
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
         enableMultiSelect={enableMultiSelect}
+        hasFeatureLabels={Boolean(featureLabelsMap)}
+        primaryColumnName={primaryColumnName}
       />
     </TitleInfo>
   );

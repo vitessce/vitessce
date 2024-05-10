@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 
 export const useStyles = makeStyles(theme => ({
   box: {
@@ -42,7 +42,7 @@ export const useStyles = makeStyles(theme => ({
       fontSize: '14px',
     },
   },
-  selectRoot: {
+  optionSelectRoot: {
     padding: 0,
     height: 'auto',
   },

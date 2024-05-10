@@ -62,6 +62,12 @@ module.exports = {
           position: 'left',
         },
         {
+          type: 'doc',
+          docId: 'feedback',
+          label: 'Feedback',
+          position: 'right',
+        },
+        {
           to: 'blog',
           label: 'Blog',
           position: 'right',
@@ -152,6 +158,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    './plugins/vitessce-plugin',
     './plugins/monaco-editor-plugin',
     //path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],

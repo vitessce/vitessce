@@ -5,7 +5,12 @@ import styles from './styles.module.css';
 export default function DataTypesTable() {
   const anndataConvenienceFileType = (
     <li>
-      <a href={useBaseUrl('/docs/data-file-types/#anndatazarr')}><code>anndata.zarr</code></a> (<a href="#joint-file-types">joint</a>)
+      <a href={useBaseUrl('/docs/data-file-types/#anndatazarr')}><code>anndata.zarr</code></a>
+    </li>
+  );
+  const spatialdataConvenienceFileType = (
+    <li>
+      <a href={useBaseUrl('/docs/data-file-types/#spatialdatazarr')}><code>spatialdata.zarr</code></a>
     </li>
   );
   return (
@@ -38,10 +43,84 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td>
-            <code>obsLocations</code>
-            <br /> Spatially-resolved 2D coordinates.
+            <code>obsPoints</code>
+            <br /> Spatially-resolved 2D coordinates without a specified size.
             For example, individual RNA molecule x-y coordinates
-            measured by FISH, or cell segmentation centroid coordinates.
+            measured by FISH.
+            (Supported by <code>spatialBeta</code> view.)
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointscsv')}><code>obsPoints.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsanndatazarr')}><code>obsPoints.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsmudatazarr')}><code>obsPoints.mudata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSpots</code>
+            <br /> Spatially-resolved 2D coordinates with a specified size.
+            For example, spot-based or bead-based spatial transcriptomics such as from 10x Visium.
+            (Supported by <code>spatialBeta</code> view.)
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotscsv')}><code>obsSpots.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsanndatazarr')}><code>obsSpots.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsmudatazarr')}><code>obsSpots.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsspatialdatazarr')}><code>obsSpots.spatialdata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSegmentations</code>
+            <br /> Per-observation segmentation polygons or bitmasks.
+            For example, cell or organelle segmentations.
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-zarr')}><code>obsSegmentations.ome-zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#labelsspatialdatazarr')}><code>labels.spatialdata.zarr</code></a></li>
+              {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsLocations</code>
+            <br /> 2D coordinates representing
+            precise locations corresponding to segmentations.
+            For example, cell segmentation centroid coordinates to
+            support lasso selection interactions.
           </td>
           <td>
             <ul>
@@ -70,7 +149,9 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetscsv')}><code>obsSets.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsanndatazarr')}><code>obsSets.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obssetsmudatazarr')}><code>obsSets.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obssetsspatialdatazarr')}><code>obsSets.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -109,16 +190,10 @@ export default function DataTypesTable() {
           </td>
           <td>
             <ul>
-              <li>
-                <a href={useBaseUrl('/docs/data-file-types/#imageome-zarr')}>
-                  <code>image.ome-zarr</code>
-                </a>
-              </li>
-              <li>
-                <a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}>
-                  <code>image.ome-tiff</code>
-                </a>
-              </li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imageome-zarr')}><code>image.ome-zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}><code>image.ome-tiff</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#imagespatialdatazarr')}><code>image.spatialdata.zarr</code></a></li>
+              {spatialdataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -139,7 +214,9 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixcsv')}><code>obsFeatureMatrix.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixanndatazarr')}><code>obsFeatureMatrix.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixmudatazarr')}><code>obsFeatureMatrix.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsfeaturematrixspatialdatazarr')}><code>obsFeatureMatrix.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -171,34 +248,33 @@ export default function DataTypesTable() {
           </td>
         </tr>
         <tr>
-          <td>
-            <code>obsSegmentations</code>
-            <br /> Per-observation segmentation polygons or bitmasks.
-            Typically used to store cell or organelle segmentations.
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsome-tiff')}><code>obsSegmentations.ome-tiff</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsjson')}><code>obsSegmentations.json</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsanndatazarr')}><code>obsSegmentations.anndata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsmudatazarr')}><code>obsSegmentations.mudata.zarr</code></a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#obssegmentationsrasterjson')}><code>obsSegmentations.raster.json</code></a></li>
-              {anndataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
-        </tr>
-        <tr>
           <td><code>genomic-profiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#genomic-profileszarr')}><code>genomic-profiles.zarr</code></a></li></ul></td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>sampleEdges</code>
+            <br />
+            Tuples of (observationId, sampleId) to map observations to samples.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#sampleedgesanndatazarr')}><code>sampleEdges.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sampleSets</code><br /> Lists or hierarchies of sets of samples.</td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
             </ul>
           </td>
         </tr>

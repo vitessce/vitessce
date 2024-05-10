@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import { cloneDeep } from 'lodash';
+import { describe, it, expect } from 'vitest';
+import { cloneDeep } from 'lodash-es';
 
 import {
   nodeToRenderProps,
@@ -13,14 +14,14 @@ import {
   nodeToLevelDescendantNamePaths,
   treeExport,
   filterNode,
-} from './cell-set-utils';
+  treeToSetSizesBySetNames,
+} from './cell-set-utils.js';
 
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
   tree,
-} from './cell-set-utils.test.fixtures';
-
+} from './cell-set-utils.test.fixtures.js';
 
 describe('Hierarchical sets cell-set-utils', () => {
   describe('Node rendering', () => {
@@ -107,11 +108,112 @@ describe('Hierarchical sets cell-set-utils', () => {
         [],
         ['Cell Type Annotations'],
       );
+
       // No nodes transformed for fals-y predicate.
       expect(nodeTransformedWithoutPredicate.name).toEqual('Cell Type Annotations');
       expect(
         nodeTransformedWithoutPredicate.children[0].children[0].name,
       ).toEqual('Pericytes');
+    });
+  });
+
+  describe('Generate properties from paths', () => {
+    it('treeToSetSizesBySetNames where one bar is selected', () => {
+      const setColor = [
+        {
+          path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+          color: [255, 0, 0],
+        },
+        {
+          path: ['Cell Type Annotations', 'Vasculature'],
+          color: [68, 119, 170],
+        },
+      ];
+      const setSizes = treeToSetSizesBySetNames(
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial']],
+        setColor,
+        'dark',
+      );
+
+      expect(setSizes.length).toEqual(2);
+      expect(setSizes[0].name).toEqual('Endothelial');
+      expect(setSizes[0].size).toEqual(3);
+      expect(setSizes[0].color).toEqual([255, 0, 0]);
+      expect(setSizes[0].isGrayedOut).toEqual(false);
+      expect(setSizes[0].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature', 'Endothelial']);
+
+      expect(setSizes[1].name).toEqual('Vasculature');
+      expect(setSizes[1].size).toEqual(9);
+      expect(setSizes[1].color).toEqual([68, 119, 170]);
+      expect(setSizes[1].isGrayedOut).toEqual(true);
+    });
+
+    it('treeToSetSizesBySetNames where nothing is selected', () => {
+      const setColor = [
+        {
+          path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+          color: [255, 0, 0],
+        },
+        {
+          path: ['Cell Type Annotations', 'Vasculature'],
+          color: [68, 119, 170],
+        },
+      ];
+      const setSizes = treeToSetSizesBySetNames(
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
+        [],
+        setColor,
+        'dark',
+      );
+
+      expect(setSizes.length).toEqual(2);
+      expect(setSizes[0].name).toEqual('Endothelial');
+      expect(setSizes[0].size).toEqual(3);
+      expect(setSizes[0].color).toEqual([255, 0, 0]);
+      expect(setSizes[0].isGrayedOut).toEqual(true);
+      expect(setSizes[0].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature', 'Endothelial']);
+
+      expect(setSizes[1].name).toEqual('Vasculature');
+      expect(setSizes[1].size).toEqual(9);
+      expect(setSizes[1].color).toEqual([68, 119, 170]);
+      expect(setSizes[1].isGrayedOut).toEqual(true);
+      expect(setSizes[1].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature']);
+    });
+
+    it('treeToSetSizesBySetNames where selected paths are not part of all paths', () => {
+      const setColor = [
+        {
+          path: ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+          color: [255, 0, 0],
+        },
+        {
+          path: ['Cell Type Annotations', 'Vasculature'],
+          color: [68, 119, 170],
+        },
+      ];
+      const setSizes = treeToSetSizesBySetNames(
+        tree,
+        [['Cell Type Annotations', 'Vasculature', 'Endothelial'], ['Cell Type Annotations', 'Vasculature']],
+        [['Louvain Clusters', '0'], ['Louvain Clusters', '1']],
+        setColor,
+        'dark',
+      );
+
+      expect(setSizes.length).toEqual(2);
+      expect(setSizes[0].name).toEqual('Endothelial');
+      expect(setSizes[0].size).toEqual(3);
+      expect(setSizes[0].color).toEqual([255, 0, 0]);
+      expect(setSizes[0].isGrayedOut).toEqual(true);
+      expect(setSizes[0].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature', 'Endothelial']);
+
+      expect(setSizes[1].name).toEqual('Vasculature');
+      expect(setSizes[1].size).toEqual(9);
+      expect(setSizes[1].color).toEqual([68, 119, 170]);
+      expect(setSizes[1].isGrayedOut).toEqual(true);
+      expect(setSizes[1].setNamePath).toEqual(['Cell Type Annotations', 'Vasculature']);
     });
   });
 

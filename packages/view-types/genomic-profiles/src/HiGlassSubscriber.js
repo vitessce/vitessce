@@ -1,7 +1,7 @@
 import React from 'react';
 import { TitleInfo, useGridItemSize } from '@vitessce/vit-s';
-import HiGlassLazy from './HiGlassLazy';
-import { useStyles } from './styles';
+import HiGlassLazy from './HiGlassLazy.js';
+import { useStyles } from './styles.js';
 
 const urls = [];
 
@@ -21,6 +21,8 @@ export function HiGlassSubscriber(props) {
     coordinationScopes,
     theme,
     hgViewConfig,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
   } = props;
 
@@ -32,6 +34,8 @@ export function HiGlassSubscriber(props) {
     <div className={classes.higlassTitleWrapper}>
       <TitleInfo
         title="HiGlass"
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady

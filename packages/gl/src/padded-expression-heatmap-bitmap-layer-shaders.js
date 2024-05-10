@@ -1,4 +1,4 @@
-import { colormaps } from './glsl';
+import { colormaps } from './glsl/index.js';
 
 /**
  * No change to the vertex shader from the base BitmapLayer.

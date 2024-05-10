@@ -1,6 +1,6 @@
 import React from 'react';
-import Select from '@material-ui/core/Select';
-import { useStyles } from './styles';
+import { Select } from '@material-ui/core';
+import { useStyles } from './styles.js';
 
 export default function OptionSelect(props) {
   const { classes: classesProp = {} } = props;
@@ -11,9 +11,10 @@ export default function OptionSelect(props) {
       disableUnderline
       {...props}
       classes={{
-        root: classes.selectRoot,
+        root: classes.optionSelectRoot,
         ...classesProp,
       }}
+      aria-label="Select an option"
     />
   );
 }

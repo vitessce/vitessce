@@ -1,38 +1,54 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import jsonDiff from 'json-diff-ts';
-import lodash from 'lodash';
-const { cloneDeep } = lodash;
+import { cloneDeep } from 'lodash-es';
 
 const isDryrun = process.env.META_UPDATER_MODE === 'dryrun';
 const isVersionOnly = process.env.META_UPDATER_MODE === 'versiononly';
 
-const LUMAGL_VERSION = '~8.5.16';
+const LUMAGL_VERSION = '8.5.21';
 const LOADERSGL_VERSION = "^3.0.0";
-const DECKGL_VERSION = '~8.8.6';
+const DECKGL_VERSION = '8.8.27';
 const TURF_VERSION = "^6.5.0";
 const NEBULAGL_VERSION = "0.23.8";
 const OTHER_VERSIONS = {
-  "ajv": "^6.10.0",
-  'lodash': '^4.17.21',
+  'lodash-es': '^4.17.21',
   'react-grid-layout-with-lodash': '^1.3.5',
   "internmap": "^2.0.3",
-  "uuid": "^3.3.2",
-  "zarr": "0.5.1",
+  "uuid": "^9.0.0",
+  "zarrita": "0.4.0-next.4",
+  "@zarrita/core": "0.1.0-next.8",
+  "@zarrita/indexing": "0.1.0-next.10",
+  "@zarrita/storage": "0.1.0-next.4",
   "zustand": "^3.5.10",
-  "@hms-dbmi/viv": "~0.13.7",
+  "@hms-dbmi/viv": "~0.13.8",
   "clsx": "^1.1.1",
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
   "d3-force": "^2.1.1",
   "d3-quadtree": "^1.0.7",
   "d3-scale-chromatic": "^1.3.3",
-  "plur": "^5.1.0",
+  "d3-scale": "^4.0.0",
+  "d3-shape": "^3.2.0",
+  "d3-axis": "^3.0.0",
+  "d3-selection": "^3.0.0",
+  "vega-scale": "^6.0.0",
+  "pluralize": "^8.0.0",
   "@material-ui/core": "~4.12.3",
   "@material-ui/icons": "~4.11.2",
   "math.gl": "^3.5.6",
   "@math.gl/core": "^3.5.6",
   "mathjs": "^9.2.0",
+  "zod": "^3.21.4",
+  "react-aria": "^3.28.0",
+  "semver": "^7.3.8",
+  "vite": "^4.3.0",
+  "@vitejs/plugin-react": "^4.0.0",
+  "vitest": "^0.32.2",
+  "@testing-library/jest-dom": "^5.16.4",
+  "@testing-library/react": "^13.3.0",
+  "@testing-library/react-hooks": "^8.0.1",
+  "@testing-library/user-event": "^14.2.1",
 
   // LumaGL
   "@luma.gl/constants": LUMAGL_VERSION,

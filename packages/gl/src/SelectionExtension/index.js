@@ -1,3 +1,3 @@
-import SelectionExtension from './SelectionExtension';
+import SelectionExtension from './SelectionExtension.js';
 
 export default SelectionExtension;

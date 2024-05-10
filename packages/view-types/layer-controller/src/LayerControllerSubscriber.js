@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
-import Grid from '@material-ui/core/Grid';
+import { Grid } from '@material-ui/core';
 import {
   TitleInfo,
   useReady,
@@ -19,11 +19,11 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
-import RasterChannelController from './RasterChannelController';
-import BitmaskChannelController from './BitmaskChannelController';
-import VectorLayerController from './VectorLayerController';
-import LayerController from './LayerController';
-import ImageAddButton from './ImageAddButton';
+import RasterChannelController from './RasterChannelController.js';
+import BitmaskChannelController from './BitmaskChannelController.js';
+import VectorLayerController from './VectorLayerController.js';
+import LayerController from './LayerController.js';
+import ImageAddButton from './ImageAddButton.js';
 
 // LayerController is memoized to prevent updates from prop changes that
 // are caused by view state updates i.e zooming and panning within
@@ -33,6 +33,8 @@ const LayerControllerMemoized = React.memo(
   forwardRef((props, ref) => {
     const {
       title,
+      closeButtonVisible,
+      downloadButtonVisible,
       removeGridComponent,
       theme,
       isReady,
@@ -86,6 +88,8 @@ const LayerControllerMemoized = React.memo(
       <TitleInfo
         title={title}
         isScroll
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
@@ -306,6 +310,8 @@ const LayerControllerMemoized = React.memo(
 export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
     title = 'Spatial Layers',
@@ -370,7 +376,7 @@ export function LayerControllerSubscriber(props) {
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
   const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
     {}, // TODO: use obsType once #1240 is merged.
@@ -379,13 +385,13 @@ export function LayerControllerSubscriber(props) {
     { obsSegmentations, obsSegmentationsType },
     obsSegmentationsStatus,
   ] = useObsSegmentationsData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, () => {}, false,
+    loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
@@ -450,6 +456,8 @@ export function LayerControllerSubscriber(props) {
     <LayerControllerMemoized
       ref={layerControllerRef}
       title={title}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}

@@ -1,4 +1,4 @@
-import AbstractLoaderError from './AbstractLoaderError';
+import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class LoaderNotFoundError extends AbstractLoaderError {
   constructor(loaders, dataset, fileType, viewCoordinationValues) {

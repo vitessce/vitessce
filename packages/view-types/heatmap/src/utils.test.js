@@ -1,4 +1,5 @@
-import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils';
+import { describe, it, expect } from 'vitest';
+import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils.js';
 
 describe('heatmap tooltip utils', () => {
   it('transforms mouse coordinates to row and column indices when zoomed out', () => {

@@ -6,13 +6,15 @@ import {
   useFeatureSelection, useObsSetsData,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
+  useSampleSetsData,
+  useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
 import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
-import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions';
-import CellSetExpressionPlot from './CellSetExpressionPlot';
-import { useStyles } from './styles';
+import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
+import CellSetExpressionPlot from './CellSetExpressionPlot.js';
+import { useStyles } from './styles.js';
 
 /**
  * Get expression data for the cells
@@ -85,7 +87,9 @@ function useExpressionByCellSet(
   // From the cell sets hierarchy and the list of selected cell sets,
   // generate the array of set sizes data points for the bar plot.
   const setArr = useMemo(() => (mergedCellSets && cellSetSelection && cellSetColor
-    ? treeToSetSizesBySetNames(mergedCellSets, cellSetSelection, cellSetColor, theme)
+    ? treeToSetSizesBySetNames(
+      mergedCellSets, cellSetSelection, cellSetSelection, cellSetColor, theme,
+    )
     : []
   ), [mergedCellSets, cellSetSelection, cellSetColor, theme]);
 
@@ -106,8 +110,13 @@ function useExpressionByCellSet(
 export function CellSetExpressionPlotSubscriber(props) {
   const {
     coordinationScopes,
+    closeButtonVisible,
+    downloadButtonVisible,
     removeGridComponent,
     theme,
+    jitter = false,
+    yMin = null,
+    yUnits = null,
   } = props;
 
   const classes = useStyles();
@@ -125,6 +134,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
+    sampleType,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
@@ -134,7 +144,6 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [width, height, containerRef] = useGridItemSize();
-  const [urls, addUrl] = useUrls(loaders, dataset);
 
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
@@ -145,26 +154,48 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus] = useFeatureLabelsData(
-    loaders, dataset, addUrl, false, {}, {},
+  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+    loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus] = useObsFeatureMatrixIndices(
-    loaders, dataset, addUrl, false,
+  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus] = useObsSetsData(
-    loaders, dataset, addUrl, true, {}, {},
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+    loaders, dataset, true, {}, {},
     { obsType },
   );
+
+  // eslint-disable-next-line no-unused-vars
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
+    loaders, dataset, false, {}, {},
+    { sampleType },
+  );
+
+  // eslint-disable-next-line no-unused-vars
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
+    loaders, dataset, false, {}, {},
+    { obsType, sampleType },
+  );
+
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
+    sampleSetsStatus,
+    sampleEdgesStatus,
+  ]);
+  const urls = useUrls([
+    featureLabelsUrls,
+    matrixIndicesUrls,
+    obsSetsUrls,
+    sampleSetsUrls,
+    sampleEdgesUrls,
   ]);
 
-  const [expressionArr, setArr, expressionMax] = useExpressionByCellSet(
+  const [expressionArr, setArr] = useExpressionByCellSet(
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
@@ -182,6 +213,8 @@ export function CellSetExpressionPlotSubscriber(props) {
   return (
     <TitleInfo
       title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      closeButtonVisible={closeButtonVisible}
+      downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
@@ -199,13 +232,16 @@ export function CellSetExpressionPlotSubscriber(props) {
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (
           <CellSetExpressionPlot
-            domainMax={expressionMax}
+            yMin={yMin}
+            yUnits={yUnits}
+            jitter={jitter}
             colors={setArr}
             data={expressionArr}
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
+            featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
           />

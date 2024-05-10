@@ -169,6 +169,11 @@
   height: 100%;
 }
 
+.viewConfigGo:active {
+  box-shadow: none;
+  transform: scale(0.98);
+}
+
 .viewConfigInputUrlOrFileSplit {
   display: grid;
   grid-template-columns: 4fr 1fr;
@@ -188,11 +193,7 @@
   margin-left: 20px;
 }
 
-.viewConfigInputButton {
-
-}
-
-.viewConfigUrlInput {
+.viewConfigUrlInput, .viewConfigUrlTextarea {
   padding: 0.5rem 1rem;
   font-size: 16px;
   margin: 0.5rem 0 0.5rem 20px;
@@ -204,7 +205,11 @@
   box-sizing: border-box;
 }
 
-.viewConfigUrlInput::placeholder {
+.viewConfigUrlTextarea {
+  height: 200px;
+}
+
+.viewConfigUrlInput::placeholder, .viewConfigUrlTextarea::placeholder {
   color: var(--dropzone);
   opacity: 1;
 }
@@ -411,4 +416,7 @@
 }
 .demoGridItem .demoGridItemPill._3d {
   background-color: rgb(161, 185, 84);
+}
+.demoGridItem .demoGridItemPill.spatialdata {
+  background-color: rgb(99, 215, 177);
 }

@@ -78,6 +78,63 @@ coordinationValues={`{
 }`}
 />
 
+### `obsPoints.csv`
+
+A three-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other two store (x, y) spatial coordinates.
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | X | Y |
+| ----- | ----- | ----- |
+| cell_1 | 1.5 | 2.7 |
+| cell_2 | 3.1 | 1.2 |
+| ... | ... | ... |
+
+<FileDefTabs
+fileName="my_cell_coordinates.csv"
+fileType="obsPoints.csv"
+fileConst="OBS_POINTS_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The two columns containing the (x, y) coordinates.
+  "obsPoints": ["X", "Y"]
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `obsSpots.csv`
+
+A three-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other two store (x, y) spatial coordinates.
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | X | Y |
+| ----- | ----- | ----- |
+| cell_1 | 1.5 | 2.7 |
+| cell_2 | 3.1 | 1.2 |
+| ... | ... | ... |
+
+<FileDefTabs
+fileName="my_cell_coordinates.csv"
+fileType="obsSpots.csv"
+fileConst="OBS_SPOTS_CSV"
+options={`{
+  // The column containing the observation index.
+  "obsIndex": "cell_id",
+  // The two columns containing the (x, y) coordinates.
+  "obsSpots": ["X", "Y"]
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+
 ### `obsLocations.csv`
 
 A three-column (minimum; the file may contain extra columns) CSV file.
@@ -208,6 +265,41 @@ options={`{
 coordinationValues={`{
   "featureType": "gene",
   "featureLabelsType": "Gene symbol"
+}`}
+/>
+
+### `sampleSets.csv`
+
+Maps each sample to membership in one or more sets.
+
+If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the file contents might look like:
+
+| donor_id | disease_state |
+| ----- | ----- |
+| donor_1 | Healthy reference |
+| donor_2 | Diabetes |
+| donor_3 | Diabetes |
+| donor_4 | Healthy reference |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_sample_set_membership.csv"
+fileType="sampleSets.csv"
+fileConst="SAMPLE_SETS_CSV"
+options={`{
+  "sampleIndex": "donor_id",
+  "sampleSets": [
+    {
+      "name": "Disease state",
+      "column": "disease_state"
+    }
+  ]
+}`}
+coordinationValues={`{
+  "sampleType": "donor"
 }`}
 />
 
@@ -382,7 +474,7 @@ coordinationValues={`{
 }`}
 />
 
-### `obsLocations.anndata.zarr`
+### `obsPoints.anndata.zarr`
 
 A two-column array with entries along the `obs` axis.
 The two columns store (x, y) spatial coordinates.
@@ -400,16 +492,46 @@ array([[ 3.1402664 , -7.1668797 ],
 
 <FileDefTabs
 fileName="my_adata.zarr"
-fileType="obsLocations.anndata.zarr"
-fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
+fileType="obsPoints.anndata.zarr"
+fileConst="OBS_POINTS_ANNDATA_ZARR"
 options={`{
   // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
   "path": "obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+  "obsType": "molecule"
 }`}
 />
+
+### `obsSpots.anndata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `adata.obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsSpots.anndata.zarr"
+fileConst="OBS_SPOTS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "bead"
+}`}
+/>
+
 
 ### `obsSets.anndata.zarr`
 
@@ -496,6 +618,35 @@ coordinationValues={`{
 }`}
 />
 
+### `obsLocations.anndata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `adata.obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="obsLocations.anndata.zarr"
+fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
 ### `featureLabels.anndata.zarr`
 
 A column containing string labels along the `var` axis.
@@ -525,6 +676,31 @@ coordinationValues={`{
 }`}
 />
 
+### `sampleEdges.anndata.zarr`
+
+A column containing string labels along the `obs` axis, which maps observations to samples.
+For example, the contents of `adata.obs['donor_id']` might look like:
+
+```
+index
+cell_1     donor_1
+cell_2     donor_1
+cell_3     donor_2
+Name: donor_id, dtype: object
+```
+
+<FileDefTabs
+fileName="my_adata.zarr"
+fileType="sampleEdges.anndata.zarr"
+fileConst="SAMPLE_EDGES_ANNDATA_ZARR"
+options={`{
+  "path": "obs/donor_id"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "donor"
+}`}
+/>
 
 ### `anndata.zarr`
 
@@ -535,13 +711,21 @@ fileName="my_adata.zarr"
 fileType="anndata.zarr"
 fileConst="ANNDATA_ZARR"
 options={`{
-  "obsLocations": {
-    // Accepts the same options as obsLocations.anndata.zarr
-    "path": "obsm/X_centroids"
+  "obsPoints": {
+    // Accepts the same options as obsPoints.anndata.zarr
+    "path": "obsm/X_spatial"
+  },
+  "obsSpots": {
+    // Accepts the same options as obsSpots.anndata.zarr
+    "path": "obsm/X_spatial"
   },
   "obsSegmentations": {
     // Accepts the same options as obsSegmentations.anndata.zarr
     "path": "obsm/X_segmentations"
+  },
+  "obsLocations": {
+    // Accepts the same options as obsLocations.anndata.zarr
+    "path": "obsm/X_centroids"
   },
   "obsEmbedding": [
     {
@@ -650,7 +834,7 @@ coordinationValues={`{
 }`}
 />
 
-### `obsLocations.mudata.zarr`
+### `obsPoints.mudata.zarr`
 
 A two-column array with entries along the `obs` axis.
 The two columns store (x, y) spatial coordinates.
@@ -668,8 +852,37 @@ array([[ 3.1402664 , -7.1668797 ],
 
 <FileDefTabs
 fileName="my_mdata.zarr"
-fileType="obsLocations.mudata.zarr"
-fileConst="OBS_LOCATIONS_MUDATA_ZARR"
+fileType="obsPoints.mudata.zarr"
+fileConst="OBS_POINTS_MUDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "mod/rna/obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `obsSpots.mudata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `mdata.mod['rna'].obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsSpots.mudata.zarr"
+fileConst="OBS_SPOTS_MUDATA_ZARR"
 options={`{
   // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
   "path": "mod/rna/obs/X_spatial"
@@ -764,6 +977,35 @@ coordinationValues={`{
 }`}
 />
 
+### `obsLocations.mudata.zarr`
+
+A two-column array with entries along the `obs` axis.
+The two columns store (x, y) spatial coordinates.
+For example, the contents of `mdata.mod['rna'].obsm['X_spatial']` might look like:
+
+```
+array([[ 3.1402664 , -7.1668797 ],
+       [-3.105793  , -3.2035291 ],
+       [ 6.1815314 ,  3.4141443 ],
+       ...,
+       [ 6.922351  , -6.529349  ],
+       [ 4.714882  , -4.027811  ],
+       [ 0.75445884, -4.2975116 ]], dtype=float32)
+```
+
+<FileDefTabs
+fileName="my_mdata.zarr"
+fileType="obsLocations.mudata.zarr"
+fileConst="OBS_LOCATIONS_MUDATA_ZARR"
+options={`{
+  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+  "path": "mod/rna/obs/X_spatial"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
 ### `featureLabels.mudata.zarr`
 
 A column containing string labels along the `var` axis.
@@ -792,6 +1034,188 @@ coordinationValues={`{
   "featureLabelsType": "Gene symbol"
 }`}
 />
+
+## SpatialData
+
+[SpatialData](https://spatialdata.scverse.org/) is a data structure for spatial omics data.
+It uses a Zarr-based on-disk format which is a container for [AnnData-Zarr](#anndata-zarr) tables and [OME-Zarr](#imageome-zarr) images.
+
+The on-disk format is relatively stable but still in the early days, so we will be following any changes to the on-disk representation closely so that we can support the most up-to-date version in Vitessce.
+For example, support for multiple tables is [currently under discussion](https://github.com/scverse/spatialdata/issues/298),
+coordinate transformations use a [proposed format](https://github.com/ome/ngff/pull/138) that is not yet incorporated into OME-NGFF,
+and channel metadata is temporarily using a [non-NGFF property](https://github.com/ome/ngff/issues/192).
+
+SpatialData defines several spatial elements: `points`, `shapes`, `labels`, `images`, and `tables`. These can be mapped to Vitessce data types:
+
+| SpatialData SpatialElement | Vitessce DataType |
+|------|-----|
+| points | obsPoints |
+| shapes (circles) | obsSpots |
+| shapes (polygons) | obsSegmentations |
+| labels | obsSegmentations |
+| images | image |
+| tables | obsFeatureMatrix<br/>obsSets<br/>obsLabels<br/>obsEmbedding |
+
+### `obsSpots.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsSpots.spatialdata.zarr"
+fileConst="OBS_SPOTS_SPATIALDATA_ZARR"
+options={`{
+  // Should point to the table containing the circular shape coordinates.
+  "path": "shapes/some_region_shapes",
+  // Should point to the table which annotates the specified shapes. Optional.
+  "tablePath": "table/table",
+  // Region value to use for filtering the rows of the table.
+  "region": "some_region_shapes"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `labels.spatialdata.zarr`
+
+SpatialData label images represent segmentation bitmasks for observations.
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="labels.spatialdata.zarr"
+fileConst="LABELS_SPATIALDATA_ZARR"
+options={`{
+  // Should point to a label image.
+  "path": "labels/my_cell_bitmask"
+}`}
+coordinationValues={`{
+  "fileUid": "cell-bitmask",
+  "obsType": "cell"
+}`}
+/>
+
+### `image.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="image.spatialdata.zarr"
+fileConst="IMAGE_SPATIALDATA_ZARR"
+options={`{
+  // Should point to an image.
+  "path": "images/some_image"
+}`}
+coordinationValues={`{
+  "fileUid": "histology-image"
+}`}
+/>
+
+### `obsFeatureMatrix.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsFeatureMatrix.spatialdata.zarr"
+fileConst="OBS_FEATURE_MATRIX_SPATIALDATA_ZARR"
+options={`{
+  // Should point to a 2D array within the AnnData table object.
+  "path": "table/table/X"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `obsSets.spatialdata.zarr`
+
+Maps each observation to membership in one or more sets.
+Typically used to assign cells to cell type labels or cell cluster IDs.
+To allow for multiple groups of sets to be be specified, `options.obsSets` takes an array.
+
+If a group of sets is organized as a flat list, then `"path"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"path"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the contents of `sdata.table.obs` might look like:
+
+| index | leiden | cell_type_coarse | cell_type_fine | pred_cell_type | pred_score |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| cell_1 | 1 | Immune | B cell | B cell | 0.81 |
+| cell_2 | 2 | Immune | T cell | T cell | 0.99 |
+| cell_3 | 2 | Immune | T cell | Macrophage | 0.21 |
+| cell_4 | 3 | Neuron | Excitatory neuron | Inhibitory neuron | 0.25 |
+| ... | ... | ... | ... | ... | ... |
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsSets.spatialdata.zarr"
+fileConst="OBS_SETS_SPATIALDATA_ZARR"
+options={`{
+  // Array of { name, path, ... } objects specifying columns containing set values.
+  "obsSets": [
+    {
+      "name": "Leiden Clustering",
+      "path": "table/table/obs/leiden"
+    },
+    {
+      "name": "Cell Type Annotations",
+      "path": ["table/table/obs/cell_type_coarse", "table/table/obs/cell_type_fine"]
+    },
+    {
+      "name": "Predicted Cell Types",
+      "path": "table/table/obs/pred_cell_type",
+      "scorePath": "table/table/obs/pred_score"
+    }
+  ],
+  // Region value to filter the rows of the table. Optional.
+  "region": "some_region",
+  // Path to table containing the index that is aligned to the set columns. Optional.
+  "tablePath": "table/table"
+}`}
+coordinationValues={`{
+  "obsType": "cell"
+}`}
+/>
+
+### `spatialdata.zarr`
+
+Defines an SpatialData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="spatialdata.zarr"
+fileConst="SPATIALDATA_ZARR"
+options={`{
+  "image": {
+    // Accepts the same options as image.spatialdata.zarr
+    "path": "images/visium_151673_full_image"
+  },
+  "labels": {
+    // Accepts the same options as labels.spatialdata.zarr
+    "path": "images/visium_151673_annotations"
+  },
+  "obsFeatureMatrix": {
+    // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
+    "path": "table/table/X"
+  }
+  "obsSpots": {
+    // Accepts the same options as obsSpots.spatialdata.zarr
+    "path": "shapes/visium_151673",
+  },
+  "obsSets": {
+    // Accepts the same options as obsSets.spatialdata.zarr
+    "obsSets": [
+      // Accepts the same options as obsSets.anndata.zarr
+      {
+        "name": "Cell Type Annotations",
+        "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+      }
+    ],
+  }
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
 
 ## JSON
 
@@ -901,6 +1325,17 @@ The dimensions of these transformations must correspond to the `DimensionOrder` 
 fileName="my_image.ome.tif"
 fileType="image.ome-tiff"
 fileConst="IMAGE_OME_TIFF"
+/>
+
+## `obsSegmentations.ome-zarr`
+
+Points to a label image ("bitmask") in OME-NGFF format.
+Pixel values are integers that correspond to segmented observations, with `0` representing background.
+
+<FileDefTabs
+fileName="my_cell_segmentations.ome.zarr"
+fileType="obsSegmentations.ome-zarr"
+fileConst="OBS_SEGMENTATIONS_OME_ZARR"
 />
 
 ## `image.ome-zarr`

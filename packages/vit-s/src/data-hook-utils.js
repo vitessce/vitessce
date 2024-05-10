@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
-import equal from 'fast-deep-equal';
-import { capitalize } from '@vitessce/utils';
+import { useEffect, useMemo } from 'react';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import {
+  capitalize,
+  getInitialCoordinationScopePrefix,
+} from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useMatchingLoader, useMatchingLoaders, useSetWarning } from './state/hooks';
+import {
+  getMatchingLoader,
+  useMatchingLoader,
+  useSetWarning,
+} from './state/hooks.js';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from './errors/index';
-import { getDefaultCoordinationValues } from './plugins';
+} from './errors/index.js';
 
 /**
  * Warn via publishing to the console
@@ -38,18 +44,43 @@ export function initCoordinationSpace(values, setters, initialValues) {
   if (!values || !setters) {
     return;
   }
-  const defaultCoordinationValues = getDefaultCoordinationValues();
   Object.entries(values).forEach(([coordinationType, value]) => {
     const setterName = `set${capitalize(coordinationType)}`;
     const setterFunc = setters[setterName];
     const initialValue = initialValues && initialValues[coordinationType];
-    const shouldInit = equal(initialValue, defaultCoordinationValues[coordinationType]);
+    // Interpret null as "uninitialized" and therefore needing initialization.
+    const shouldInit = initialValue === null;
     if (shouldInit && setterFunc) {
       setterFunc(value);
     }
   });
 }
 
+
+export async function dataQueryFn(ctx) {
+  const { placeholderObject, loaders } = ctx.meta;
+  // This ordering of the queryKey must match.
+  const [dataset, dataType, matchOn, isRequired] = ctx.queryKey;
+  const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+  if (loader) {
+    // TODO: can cacheing logic be removed from all loaders?
+    const payload = await loader.load();
+    if (!payload) return placeholderObject; // TODO: throw error instead?
+    const { data, url, requestInit, coordinationValues } = payload;
+    // Status: success
+    // Array of objects like  { url, name }.
+    const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
+    return { data, coordinationValues, urls, requestInit };
+  }
+  // No loader was found.
+  if (isRequired) {
+    // Status: error
+    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+  } else {
+    // Status: success
+    return { data: placeholderObject };
+  }
+}
 
 /**
  * Get data from a cells data type loader,
@@ -60,8 +91,6 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -70,54 +99,55 @@ export function initCoordinationSpace(values, setters, initialValues) {
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
+ * @returns {array} [data, status, urls] where
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
 export function useDataType(
-  dataType, loaders, dataset, addUrl, isRequired,
+  dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
   const setWarning = useSetWarning();
-  const loader = useMatchingLoader(loaders, dataset, dataType, matchOn);
+  const placeholderObject = useMemo(() => ({}), []);
+  const dataQuery = useQuery({
+    // TODO: only enable when loaders has been initialized?
+    structuralSharing: false,
+    placeholderData: placeholderObject,
+    // Include the hook name in the queryKey to prevent the case in which an identical queryKey
+    // in a different hook would cause an accidental cache hit.
+    // Note: same key structure/suffix as
+    // useDataTypeMulti() and getQueryKeyScopeTuplesAux()
+    // for shared caching.
+    queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    queryFn: dataQueryFn,
+    meta: { loaders, placeholderObject },
+  });
+  const { data, status, isFetching, error } = dataQuery;
+  const loadedData = data?.data || placeholderObject;
+
+  const coordinationValues = data?.coordinationValues;
+  const urls = data?.urls;
+  const requestInit = data?.requestInit;
+
 
   useEffect(() => {
-    if (loader) {
-      setStatus(STATUS.LOADING);
-      loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-        if (!payload) return;
-        const { data: payloadData, url, coordinationValues } = payload;
-        setData(payloadData);
-        if (Array.isArray(url)) {
-          url.forEach(([val, name]) => {
-            addUrl(val, name);
-          });
-        } else if (url) {
-          addUrl(url, dataType);
-        }
-        initCoordinationSpace(
-          coordinationValues,
-          coordinationSetters,
-          initialCoordinationValues,
-        );
-        setStatus(STATUS.SUCCESS);
-      });
-    } else {
-      setData({});
-      if (isRequired) {
-        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOn), setWarning);
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loader]);
+    initCoordinationSpace(
+      coordinationValues,
+      coordinationSetters,
+      initialCoordinationValues,
+    );
+  }, [coordinationValues]);
 
-  return [data, status];
+  useEffect(() => {
+    if (error) {
+      warn(error, setWarning);
+    }
+  }, [error, setWarning]);
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [loadedData, dataStatus, urls, requestInit];
 }
 
 /**
@@ -129,8 +159,6 @@ export function useDataType(
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
- * @param {function} addUrl A function to call to update
- * the URL list.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {object} coordinationSetters Object where
@@ -144,51 +172,87 @@ export function useDataType(
  * number of items in the cells object.
  */
 export function useDataTypeMulti(
-  dataType, loaders, dataset, addUrl, isRequired,
+  dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOnObj,
+  mergeCoordination, viewUid,
 ) {
-  const [data, setData] = useState({});
-  const [status, setStatus] = useState(STATUS.LOADING);
-
+  const placeholderObject = useMemo(() => ({}), []);
   const setWarning = useSetWarning();
-  const matchingLoaders = useMatchingLoaders(loaders, dataset, dataType, matchOnObj);
+
+  const matchOnEntries = matchOnObj ? Object.entries(matchOnObj) : [];
+  const dataQueries = useQueries({
+    // eslint-disable-next-line no-unused-vars
+    queries: matchOnEntries.map(([scopeKey, matchOn]) => ({
+      structuralSharing: false,
+      placeholderData: placeholderObject,
+      // Query key should match useDataType for shared cacheing
+      // and correctness of dataQueryFn.
+      // Note: same key structure/suffix as
+      // useDataType() and getQueryKeyScopeTuplesAux()
+      // for shared caching.
+      queryKey: [dataset, dataType, matchOn, isRequired, 'useDataType'],
+      // Query function should return an object
+      // { data, dataKey } where dataKey is the loaded gene selection.
+      queryFn: dataQueryFn,
+      meta: { loaders, placeholderObject },
+    })),
+  });
+
+  const anyLoading = dataQueries.some(q => q.isFetching);
+  const anyError = dataQueries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const isSuccess = dataStatus === STATUS.SUCCESS;
 
   useEffect(() => {
-    if (matchingLoaders) {
-      setStatus(STATUS.LOADING);
-      Object.entries(matchingLoaders).forEach(([scopeKey, loader]) => {
-        if (loader) {
-          loader.load().catch(e => warn(e, setWarning)).then((payload) => {
-            if (!payload) return;
-            const { data: payloadData, url, coordinationValues } = payload;
-            setData((prev) => {
-              // eslint-disable-next-line no-param-reassign
-              prev[scopeKey] = payloadData;
-              return prev;
-            });
-            addUrl(url, dataType);
-            initCoordinationSpace(
-              coordinationValues,
-              coordinationSetters,
-              initialCoordinationValues,
-            );
-            setStatus(STATUS.SUCCESS);
-          });
+    dataQueries
+      .filter(q => Boolean(q.data?.coordinationValues))
+      .forEach((q) => {
+        const { coordinationValues } = q.data;
+        if (mergeCoordination) {
+          mergeCoordination(
+            coordinationValues,
+            // Auto-generate based on the dataset and data type.
+            getInitialCoordinationScopePrefix(dataset, dataType),
+            viewUid,
+          );
+        } else {
+          initCoordinationSpace(
+            coordinationValues,
+            coordinationSetters,
+            initialCoordinationValues,
+          );
         }
       });
-    } else {
-      setData({});
-      if (isRequired) {
-        warn(new LoaderNotFoundError(loaders, dataset, dataType, matchOnObj), setWarning);
-        setStatus(STATUS.ERROR);
-      } else {
-        setStatus(STATUS.SUCCESS);
-      }
-    }
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchingLoaders]);
+  }, [isSuccess]);
 
-  return [data, status];
+  useEffect(() => {
+    dataQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
+      warn(error, setWarning);
+    });
+  // Deliberate dependency omissions: use indirect dependencies for efficiency.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyError, setWarning]);
+
+  // Convert data to object keyed by scopeKey.
+  const data = useMemo(() => Object.fromEntries(
+    matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
+  // Deliberate dependency omissions: dataQueries and matchOnEntries,
+  // since dataQueries changes every re-render. We use the in-direct
+  // dependency of matchOnObj and the derived primitive value dataStatus.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [matchOnObj, dataStatus]);
+
+  // Convert data to object keyed by scopeKey.
+  const urls = useMemo(() => Object.fromEntries(
+    matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.urls])),
+  // Deliberate dependency omissions: matchOnEntries, since dataQueries depends on it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [dataQueries]);
+
+  return [data, dataStatus, urls];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

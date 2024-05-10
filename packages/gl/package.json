@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/gl",
-  "version": "2.0.3",
+  "version": "3.3.12",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -8,39 +8,48 @@
     "url": "git+https://github.com/vitessce/vitessce.git"
   },
   "license": "MIT",
+  "type": "module",
   "main": "dist-tsc/index.js",
   "publishConfig": {
-    "main": "dist/index.mjs"
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "files": [
+    "src",
     "dist",
-    "src"
+    "dist-tsc"
   ],
   "scripts": {
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run -r ../../ --dir .",
+    "test": "pnpm exec vitest --run",
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
-    "@deck.gl/aggregation-layers": "~8.8.6",
-    "@deck.gl/core": "~8.8.6",
-    "@deck.gl/extensions": "~8.8.6",
-    "@deck.gl/geo-layers": "~8.8.6",
-    "@deck.gl/layers": "~8.8.6",
-    "@deck.gl/mesh-layers": "~8.8.6",
-    "@deck.gl/react": "~8.8.6",
-    "@hms-dbmi/viv": "~0.13.7",
+    "@deck.gl/aggregation-layers": "8.8.27",
+    "@deck.gl/core": "8.8.27",
+    "@deck.gl/extensions": "8.8.27",
+    "@deck.gl/geo-layers": "8.8.27",
+    "@deck.gl/layers": "8.8.27",
+    "@deck.gl/mesh-layers": "8.8.27",
+    "@deck.gl/react": "8.8.27",
+    "@hms-dbmi/viv": "~0.13.8",
     "@loaders.gl/3d-tiles": "^3.0.0",
     "@loaders.gl/core": "^3.0.0",
     "@loaders.gl/images": "^3.0.0",
     "@loaders.gl/loader-utils": "^3.0.0",
-    "@luma.gl/constants": "~8.5.16",
-    "@luma.gl/core": "~8.5.16",
-    "@luma.gl/engine": "~8.5.16",
-    "@luma.gl/experimental": "~8.5.16",
-    "@luma.gl/gltools": "~8.5.16",
-    "@luma.gl/shadertools": "~8.5.16",
-    "@luma.gl/webgl": "~8.5.16",
+    "@luma.gl/constants": "8.5.21",
+    "@luma.gl/core": "8.5.21",
+    "@luma.gl/engine": "8.5.21",
+    "@luma.gl/experimental": "8.5.21",
+    "@luma.gl/gltools": "8.5.21",
+    "@luma.gl/shadertools": "8.5.21",
+    "@luma.gl/webgl": "8.5.21",
     "@math.gl/core": "^3.5.6",
     "@nebula.gl/edit-modes": "0.23.8",
     "@nebula.gl/layers": "0.23.8",
@@ -52,9 +61,10 @@
     "@turf/centroid": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@vitessce/utils": "workspace:*",
-    "deck.gl": "~8.8.6",
+    "d3-array": "^2.4.0",
+    "deck.gl": "8.8.27",
     "glslify": "^7.0.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",
     "mathjs": "^9.2.0",
     "nebula.gl": "0.23.8"
