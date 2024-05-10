@@ -149,8 +149,9 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
             transform: {
               matrix: transformMatrix,
             },
+            isBitmask: isLabels,
           },
-        } : {}),
+        } : { isBitmask: isLabels }),
         loaderCreator: async () => ({ ...loader, channels: channelLabels }),
       },
     ];
