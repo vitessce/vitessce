@@ -6,7 +6,7 @@ import type { AxisKey } from "./types";
 import { Readable } from "@zarrita/storage";
 
 export default class AxisArrays<S extends Readable> {
-  private root: zarr.Location<S>;
+  public root: zarr.Location<S>;
 
   public constructor(root: zarr.Group<S>, axisKey: AxisKey) {
     this.root = root.resolve(axisKey);

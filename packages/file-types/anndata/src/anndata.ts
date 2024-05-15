@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unresolved
 import * as zarr from "zarrita";
 import AxisArrays from "./axis_arrays";
-import { StringOverrideFetchStore, has } from "./utils";
+import { has } from "./utils";
 import { AxisKeys, AxisKey } from "./types";
 import { Listable } from "@zarrita/core";
 import { FetchStore, Readable } from "@zarrita/storage";
@@ -21,6 +21,20 @@ class AnnData<S extends Readable> {
     this.var = data['var'];
     this.obsm = data['obsm'];
     this.varm = data['varm'];
+  }
+
+  private async names(grp: zarr.Group<S>) {
+    return zarr.open(grp.resolve(String(grp.attrs["_index"] || "_index")), { kind: "array" });
+  }
+
+  public async obsNames() {
+    const grp = await zarr.open(this.obs.root, { kind: "group" });
+    return this.names(grp)
+  }
+
+  public async varNames() {
+    const grp = await zarr.open(this.var.root, { kind: "group" });
+    return this.names(grp)
   }
 }
 

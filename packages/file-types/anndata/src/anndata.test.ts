@@ -13,12 +13,20 @@ import { Readable } from "@zarrita/storage";
 
 describe("AnnData", () => {
   Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture }).forEach(([version, fixture]) => {
-    describe(`AnnData v${version}`, () => {
+    describe(`AnnData v${version}`, async () => {
+      const store = createStoreFromMapContents(fixture);
+      const adata = await readZarr(store as Readable);
       it("adata obs column", async () => {
-        const store = createStoreFromMapContents(fixture);
-        const adata = await readZarr(store as Readable);
         const ids = await adata.obs.get("leiden");
         expect(Array.from((await get(ids)))).toEqual(["1", "1", "2"]);
+      });
+      it("adata obs index", async () => {
+        const ids = await adata.obsNames();
+        expect(Array.from((await get(ids)))).toEqual(["CTG", "GCA", "CTG"]);
+      });
+      it("adata var index", async () => {
+        const ids = await adata.varNames();
+        expect(Array.from((await get(ids)))).toEqual([...new Array(15).keys()].map((k: number) => `gene_${k}`));
       });
     })
   })
