@@ -8,7 +8,7 @@ function base64Decode(encoded: string) {
 
 // This is intended to be used for unit testing purposes.
 // It goes along with scripts/directory-to-memory-store.mjs
-export function createStoreFromMapContents(mapContents: [string, string][]) {
+export function createStoreFromMapContents(mapContents: Iterable<readonly [string, string]>) {
   const map = new Map(mapContents);
   return new Proxy(map, {
     get: (target, prop) => {

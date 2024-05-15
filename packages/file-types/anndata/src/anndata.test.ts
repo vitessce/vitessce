@@ -1,16 +1,19 @@
 // import { HTTPStore, NestedArray } from "zarr";
 import { readZarr } from "./anndata";
 import { describe, expect, it } from "vitest";
-import { StringOverrideFetchStore, get } from "./utils";
+import { get } from "./utils";
+import * as zarr from "zarrita";
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
+
+import anndata_0_7_DenseFixture from "../../zarr/src/json-fixtures/anndata-0.7/anndata-dense.json";
 
 // describe("anndata", () => {
 describe("AnnData v0.7", () => {
   it("adata obs column", async () => {
-    const adata = await readZarr(
-      "http://localhost:51204/@fixtures/zarr/anndata-0.7/anndata-dense.zarr"
-    );
+    const store = createStoreFromMapContents(anndata_0_7_DenseFixture);
+    const adata = await readZarr(store);
     const ids = await adata.obs.get("leiden");
-    expect(Array.from(await get(ids))).toEqual(["1", "1", "2"]);
+    expect(Array.from((await get(ids)))).toEqual(["1", "1", "2"]);
   });
 
   // it("adata var index", async () => {

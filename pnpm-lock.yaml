@@ -92,7 +92,7 @@ importers:
         version: 20.0.1
       jsdom-worker:
         specifier: ^0.3.0
-        version: 0.3.0(node-fetch@3.2.10)
+        version: 0.3.0(node-fetch@3.3.2)
       json-diff-ts:
         specifier: ^1.2.5
         version: 1.2.5(lodash@4.17.21)
@@ -207,23 +207,47 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/anndata:
-    specifiers:
-      d3-array: ^2.4.0
-      lodash: ^4.17.21
-      node-fetch: ^3.3.1
-      numcodecs: ^0.2.2
-      vite: ^3.0.0
-      vitest: ^0.23.4
-      zarrita: 0.2.3
     dependencies:
-      d3-array: 2.12.1
-      lodash: 4.17.21
-      node-fetch: 3.3.1
-      numcodecs: 0.2.2
-      zarrita: 0.2.3
+      '@vitessce/zarr':
+        specifier: workspace:*
+        version: link:../zarr
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../utils/zarr-utils
+      '@zarrita/core':
+        specifier: 0.1.0-next.10
+        version: 0.1.0-next.10
+      '@zarrita/indexing':
+        specifier: 0.1.0-next.12
+        version: 0.1.0-next.12
+      '@zarrita/storage':
+        specifier: 0.1.0-next.4
+        version: 0.1.0-next.4
+      '@zarrita/typedarray':
+        specifier: 0.1.0-next.2
+        version: 0.1.0-next.2
+      d3-array:
+        specifier: ^2.4.0
+        version: 2.12.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      node-fetch:
+        specifier: ^3.3.1
+        version: 3.3.2
+      numcodecs:
+        specifier: ^0.2.2
+        version: 0.2.2
+      zarrita:
+        specifier: 0.4.0-next.12
+        version: 0.4.0-next.12
     devDependencies:
-      vite: 3.1.8
-      vitest: 0.23.4
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: ^0.32.2
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/csv:
     dependencies:
@@ -10538,6 +10562,14 @@ packages:
   /@xtuc/long@4.2.2:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
+  /@zarrita/core@0.1.0-next.10:
+    resolution: {integrity: sha512-OlX4AWgygc7JW7O+ixSQKQ9irJV/BLt7GXHqb9w+K7qMKk/+Kvt4hRFgCoslm6f9BxHnzuJdg3s87AoF0khNPw==}
+    dependencies:
+      '@zarrita/storage': 0.1.0-next.5
+      '@zarrita/typedarray': 0.1.0-next.3
+      numcodecs: 0.3.1
+    dev: false
+
   /@zarrita/core@0.1.0-next.8:
     resolution: {integrity: sha512-WdpTxX4JLVfpP1LAt4aAoQsC/dkgpZzhFTHKykPOGSQ7tkLRfn3ON4T7dxYVcD9uQkRE+ZTTBjhkAFnVQkNasQ==}
     dependencies:
@@ -10548,9 +10580,17 @@ packages:
   /@zarrita/indexing@0.1.0-next.10:
     resolution: {integrity: sha512-WOquXdNUNBf22Kl3qkdJmWnzMDLKxpyrgdC87HNR8Y8imQMTdRjejFiI7FvOrY/7HqViDgrckYsyxRrkbLUHjg==}
     dependencies:
-      '@zarrita/core': 0.1.0-next.8
+      '@zarrita/core': 0.1.0-next.10
       '@zarrita/storage': 0.1.0-next.4
       '@zarrita/typedarray': 0.1.0-next.2
+    dev: false
+
+  /@zarrita/indexing@0.1.0-next.12:
+    resolution: {integrity: sha512-Gn/t17a0ty/kGBXnPFCU0bQ/QCcoiFMriA8269a7hw8tKdHYAQoCNMRVo1mpCy0V5T73znWuHSQn/JsFvJFgCw==}
+    dependencies:
+      '@zarrita/core': 0.1.0-next.10
+      '@zarrita/storage': 0.1.0-next.5
+      '@zarrita/typedarray': 0.1.0-next.3
     dev: false
 
   /@zarrita/storage@0.1.0-next.4:
@@ -10559,8 +10599,19 @@ packages:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
 
+  /@zarrita/storage@0.1.0-next.5:
+    resolution: {integrity: sha512-E1VSxhNGZHL4RsKfIuyaz0HRsDk7hOU8Y7R+8yvKolaHDjK31XQsUgu97oaR24qS1j1OOg5vGyFyd+y0q7FNOA==}
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 1.4.3
+    dev: false
+
   /@zarrita/typedarray@0.1.0-next.2:
     resolution: {integrity: sha512-utFKMocqLk5j4GXCKkuZQr3mAakskjq77GoUV5B55HJh0leXH9idDIelzpUszEsLpSIkFwO2Id/NHuClhCuzSw==}
+
+  /@zarrita/typedarray@0.1.0-next.3:
+    resolution: {integrity: sha512-DpSaU3Cr6HmYDC/v8oM+e219cHU/kzKma309Z9E+QbpRnZycKNbSTKcxFR7FqB6HgB9640gzNUVFG5P+wzX5Xg==}
+    dev: false
 
   /@zkochan/which@2.0.3:
     resolution: {integrity: sha512-C1ReN7vt2/2O0fyTsx5xnbQuxBrmG5NMSbcIkPKCCfCTJgpZBsuRYzFXHj3nVq8vTfK7vxHUmzfCpSHgO7j4rg==}
@@ -10702,7 +10753,7 @@ packages:
       object.entries: 1.1.6
       prop-types: 15.8.1
       prop-types-exact: 1.2.0
-      react: 16.14.0
+      react: 18.2.0
       react-is: 16.13.1
     dev: false
 
@@ -10716,6 +10767,8 @@ packages:
 
   /ajv-formats@2.1.1(ajv@8.11.0):
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -13982,7 +14035,7 @@ packages:
       object.assign: 4.1.4
       object.fromentries: 2.0.6
       prop-types: 15.8.1
-      react: 16.14.0
+      react: 18.2.0
       semver: 5.7.1
     dev: false
 
@@ -16070,6 +16123,9 @@ packages:
     engines: {node: '>=0.12.0'}
     peerDependencies:
       pixi.js: ^5.0.3
+      react: ^16.6.3 || 18
+      react-bootstrap: 0.32.1
+      react-dom: ^16.6.3 || 18
     dependencies:
       ajv: 6.12.6
       box-intersect: 1.0.2
@@ -17217,13 +17273,13 @@ packages:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
     dev: true
 
-  /jsdom-worker@0.3.0(node-fetch@3.2.10):
+  /jsdom-worker@0.3.0(node-fetch@3.3.2):
     resolution: {integrity: sha512-nlPmN0i93+e6vxzov8xqLMR+MBs/TAYeSviehivzqovHH0AgooVx9pQ/otrygASppPvdR+V9Jqx5SMe8+FcADg==}
     peerDependencies:
       node-fetch: '*'
     dependencies:
       mitt: 3.0.0
-      node-fetch: 3.3.1
+      node-fetch: 3.3.2
       uuid-v4: 0.1.0
     dev: true
 
@@ -18457,6 +18513,7 @@ packages:
       '@deck.gl/core': ^8.4.6
       '@deck.gl/geo-layers': ^8.4.6
       '@deck.gl/layers': ^8.4.6
+      '@luma.gl/constants': ^8.4.3
       '@luma.gl/core': ^8.4.3
     dependencies:
       '@deck.gl/core': 8.8.27
@@ -18535,8 +18592,8 @@ packages:
     dependencies:
       whatwg-url: 5.0.0
 
-  /node-fetch@3.2.10:
-    resolution: {integrity: sha512-MhuzNwdURnZ1Cp4XTazr69K0BTizsBroX7Zx3UgDSVcZYKF/6p0CBe4EUb/hLqmzVhl0UpYfgRljQ4yxE+iCxA==}
+  /node-fetch@3.3.2:
+    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -20284,7 +20341,7 @@ packages:
     peerDependencies:
       react: '>=0.14.0 || 18'
     dependencies:
-      react: 16.14.0
+      react: 18.2.0
       react-is: 16.13.1
       warning: 4.0.3
     dev: false
@@ -20741,7 +20798,7 @@ packages:
       lodash: 4.17.21
       nanoid: 3.3.6
       prop-types: 15.8.1
-      react: 16.14.0
+      react: 18.2.0
     dev: false
 
   /react-color-with-lodash@2.19.5(react@18.2.0):
@@ -20790,6 +20847,12 @@ packages:
   /react-dev-utils@12.0.1(eslint@6.8.0)(typescript@4.8.4)(webpack@5.74.0):
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
+    peerDependencies:
+      typescript: '>=2.7'
+      webpack: '>=4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       '@babel/code-frame': 7.21.4
       address: 1.2.1
@@ -20820,9 +20883,7 @@ packages:
     transitivePeerDependencies:
       - eslint
       - supports-color
-      - typescript
       - vue-template-compiler
-      - webpack
     dev: false
 
   /react-dimensions@1.3.1(react-dom@18.2.0)(react@18.2.0):
@@ -21064,7 +21125,7 @@ packages:
     peerDependencies:
       react: '>=0.14.0 || 18'
     dependencies:
-      react: 16.14.0
+      react: 18.2.0
       warning: 3.0.0
     dev: false
 
@@ -21173,6 +21234,7 @@ packages:
   /react-sortable-hoc@1.11.0(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-v1CDCvdfoR3zLGNp6qsBa4J1BWMEVH25+UKxF/RvQRh+mrB+emqtVHMgZ+WreUiKJoEaiwYoScaueIKhMVBHUg==}
     peerDependencies:
+      prop-types: ^15.5.7
       react: ^0.14.0 || ^15.0.0 || ^16.0.0 || 18
       react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || 18
     dependencies:
@@ -21190,7 +21252,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       prop-types: 15.8.1
-      react: 16.14.0
+      react: 18.2.0
       react-is: 16.13.1
       scheduler: 0.19.1
     dev: false
@@ -23516,7 +23578,7 @@ packages:
       react: '>=0.11.0 || 18'
     dependencies:
       invariant: 2.2.4
-      react: 16.14.0
+      react: 18.2.0
     dev: false
 
   /unescape@1.0.1:
@@ -25248,9 +25310,17 @@ packages:
   /zarrita@0.4.0-next.10:
     resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
     dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/indexing': 0.1.0-next.10
+      '@zarrita/core': 0.1.0-next.10
+      '@zarrita/indexing': 0.1.0-next.12
       '@zarrita/storage': 0.1.0-next.4
+    dev: false
+
+  /zarrita@0.4.0-next.12:
+    resolution: {integrity: sha512-t96p5cSOGaJCt1ok9WRsx3qKT9a0o/EW3sGWrV84FZdtPJXpmpjXHUn230jAYrElg3lVUOtTVjab15f9YBfsCQ==}
+    dependencies:
+      '@zarrita/core': 0.1.0-next.10
+      '@zarrita/indexing': 0.1.0-next.12
+      '@zarrita/storage': 0.1.0-next.5
     dev: false
 
   /zod-to-json-schema@3.21.1(zod@3.21.4):

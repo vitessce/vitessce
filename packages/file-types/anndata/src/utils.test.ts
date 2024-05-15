@@ -1,37 +1,18 @@
-import * as zarr from "zarrita/v2";
+import * as zarr from "zarrita";
+import { FetchStore } from "@zarrita/storage";
 import { describe, expect, it } from "vitest";
-import { StringOverrideFetchStore, LazyCategoricalArray, get } from "./utils";
-
-describe("StringOverrideFetchStore", () => {
-  it("overrides .zarray when vlenutf8", async () => {
-    const store = new StringOverrideFetchStore(
-      "https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr/var/index"
-    );
-    const zarray = JSON.parse(
-      new TextDecoder().decode(await store.get("/.zarray"))
-    );
-    expect(zarray?.dtype).toEqual("<U8");
-  });
-  it("does not override .zarray when not vlenutf8", async () => {
-    const store = new StringOverrideFetchStore(
-      "https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr/X"
-    );
-    const zarray = JSON.parse(
-      new TextDecoder().decode(await store.get("/.zarray"))
-    );
-    expect(zarray?.dtype).toEqual("<f8");
-  });
-});
+import { LazyCategoricalArray, get } from "./utils";
 
 describe("String Arrays", () => {
-  it("custom vlenutf8 codecc provides correct results", async () => {
+  it("custom vlenutf8 codec provides correct results", async () => {
     async function test() {
-      const store = new StringOverrideFetchStore(
+      const store = new FetchStore(
         "https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr"
       );
-      const arr = await zarr.get_array(store, "/var/index");
-      const stringIDs = (await arr.get_chunk([0])).data;
-      return stringIDs.get(0);
+      const grp = await zarr.open(store, { kind: "group" });
+      const arr = await zarr.open(grp.resolve("/var/index"), { kind: "array" })
+      const stringID = await zarr.get(arr, [0]);
+      return stringID;
     }
 
     await expect(test()).resolves.toEqual("APLP1");
@@ -39,19 +20,17 @@ describe("String Arrays", () => {
 });
 
 describe("Categorical Array Arrays", () => {
-  it("custom vlenutf8 codecc provides correct results", async () => {
+  it("custom vlenutf8 codec provides correct results", async () => {
     async function test() {
-      const store = new StringOverrideFetchStore(
+      const store = new FetchStore(
         "https://s3.amazonaws.com/vitessce-data/0.0.33/main/habib-2017/habib_2017_nature_methods.h5ad.zarr"
       );
-      const categories = await zarr.get_array(
-        store,
-        "/obs/__categories/CellType"
-      );
-      const codes = await zarr.get_array(store, "/obs/CellType");
+      const grp = await zarr.open(store, { kind: "group" });
+      const categories = await zarr.open(grp.resolve("/obs/__categories/CellType"), { kind: "array" })
+      const codes = await zarr.open(grp.resolve("/obs/CellType"), { kind: "array" })
       const arr = new LazyCategoricalArray(codes, categories);
-      const first = (await get(arr)).get(0);
-      return first;
+      const first = await get(arr);
+      return first[0];
     }
 
     await expect(test()).resolves.toEqual("exCA1");
