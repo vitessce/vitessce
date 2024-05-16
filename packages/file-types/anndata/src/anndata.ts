@@ -1,9 +1,7 @@
 // eslint-disable-next-line import/no-unresolved
 import * as zarr from "zarrita";
 import AxisArrays from "./axis_arrays";
-import { has } from "./utils";
 import { AxisKeys, AxisKey } from "./types";
-import { Listable } from "@zarrita/core";
 import { FetchStore, Readable } from "@zarrita/storage";
 
 type AnnDataInit<S extends Readable> = Record<

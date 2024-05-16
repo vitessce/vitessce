@@ -1,4 +1,3 @@
-import { FetchError } from "node-fetch";
 import * as zarr from "zarrita";
 import { LazyCategoricalArray } from "./utils";
 
