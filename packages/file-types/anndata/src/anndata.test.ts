@@ -18,17 +18,27 @@ describe("AnnData", () => {
       const adata = await readZarr(store as Readable);
       it("adata obs column", async () => {
         const ids = await adata.obs.get("leiden");
-        expect(Array.from((await get(ids)))).toEqual(["1", "1", "2"]);
+        expect(Array.from((await get(ids)).data)).toEqual(["1", "1", "2"]);
       });
       it("adata obs index", async () => {
         const ids = await adata.obsNames();
-        expect(Array.from((await get(ids)))).toEqual(["CTG", "GCA", "CTG"]);
+        expect(Array.from((await get(ids)).data)).toEqual(["CTG", "GCA", "CTG"]);
       });
       it("adata var index", async () => {
         const ids = await adata.varNames();
-        expect(Array.from((await get(ids)))).toEqual([...new Array(15).keys()].map((k: number) => `gene_${k}`));
+        expect(Array.from((await get(ids)).data)).toEqual([...new Array(15).keys()].map((k: number) => `gene_${k}`));
       });
-    })
+      it("adata obsm", async () => {
+        const data = await adata.obsm.get("X_umap");
+        expect(await get(data)).toEqual(
+          {
+            data: new Int32Array([-1, -1, 0, 0, 1, 1]),
+            shape: [3, 2],
+            stride: [2, 1]
+          }
+        );
+      });
+    });
   })
 })
 

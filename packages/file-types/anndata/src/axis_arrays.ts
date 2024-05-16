@@ -18,17 +18,15 @@ export default class AxisArrays<S extends Readable> {
     const keyNode = await zarr.open(keyRoot);
     const { categories, "encoding-type": encodingType } =
       (await keyNode.attrs) as any;
-    const keyNodeAsArray = (keyNode as zarr.Array<D, S>)
-    if (keyNodeAsArray.dtype != undefined) {
+    if (categories != undefined) {
       const cats = await zarr.open(this.root.resolve(categories), { kind: "array" });
-      const codes = await zarr.open(keyRoot, { kind: "array" });
-      return new LazyCategoricalArray(codes, cats);
+      return new LazyCategoricalArray((keyNode as zarr.Array<D, S>), cats);
     }
     if (encodingType === "categorical") {
       const cats = await zarr.open(keyRoot.resolve('categories'), { kind: "array" });
       const codes = await zarr.open(keyRoot.resolve('codes'), { kind: "array" });
       return new LazyCategoricalArray(codes, cats);
     }
-    return keyNodeAsArray;
+    return (keyNode as zarr.Array<D, S>);
   }
 }
