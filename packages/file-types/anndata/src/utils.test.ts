@@ -30,7 +30,7 @@ describe("Categorical Array Arrays", () => {
       const codes = await zarr.open(grp.resolve("/obs/CellType"), { kind: "array" })
       const arr = new LazyCategoricalArray(codes, categories);
       const first = await get(arr);
-      return first[0];
+      return first.data[0];
     }
 
     await expect(test()).resolves.toEqual("exCA1");

@@ -136,7 +136,7 @@ function isLazyCategoricalArray<K extends zarr.DataType, D extends zarr.DataType
 
 export async function get<K extends zarr.DataType, D extends zarr.DataType, S extends Readable>(
   arr: LazyCategoricalArray<K, D, S> | zarr.Array<D, S>
-): Promise<any[]> {
+): Promise<zarr.Chunk<D>> {
   if (isLazyCategoricalArray(arr)) {
     const codes = await zarr.get(arr.codes, null);
     const categories = await zarr.get(arr.categories, null); //
@@ -145,10 +145,9 @@ export async function get<K extends zarr.DataType, D extends zarr.DataType, S ex
       const cat = Number(val)
       data[ind] = (categories.data as any)[cat]; // TODO: what is up with this??
     });
-    return data;
+    return { ...codes, data: (data as typeof categories.data) };
   }
-  const { data } = await zarr.get(arr, null);
-  return (data as any[]);
+  return zarr.get(arr, null);
 }
 
 
