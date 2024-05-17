@@ -420,3 +420,10 @@
 .demoGridItem .demoGridItemPill.spatialdata {
   background-color: rgb(99, 215, 177);
 }
+
+.searchbarContainer {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
