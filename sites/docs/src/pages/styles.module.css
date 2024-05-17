@@ -427,3 +427,11 @@
   padding-left: 2rem;
   padding-right: 2rem;
 }
+
+.searchBar {
+  margin-right: 1rem;
+}
+
+.filterTagsHeading {
+  margin: 0;
+}

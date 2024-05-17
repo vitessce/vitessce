@@ -136,12 +136,16 @@ function DemoList(props) {
       </p>
 
       <div key="tags" className={clsx(styles.searchbarContainer, styles.demoGridItem)}>
+        <p className={clsx(styles.filterTagsHeading)}>
+          <b>Filter by tags</b>
+        </p>
         <input
           id="searchbar"
+          className={clsx(styles.searchBar)}
           onKeyUp={() => searchAttr()}
           type="text"
           name="search"
-          placeholder="filter by tags"
+          placeholder="e.g. CSV"
         />
 
         {attrsFilter.map(attrVal => (
