@@ -116,7 +116,7 @@ function DemoList(props) {
       newAttrs.push(event.target.innerText);
       setAttrsSelected(newAttrs);
     }
-    document.getElementById('searchbar').value = "";
+    document.getElementById('searchbar').value = '';
     setAttrsFilter(configAttrsUnique);
   }
 
