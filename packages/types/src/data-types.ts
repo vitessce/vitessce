@@ -46,7 +46,7 @@ export type FeatureLabelsData = {
 export type FeatureStatsData = {
   featureId: string[];
   featureSignificance: number[];
-  featureFoldChange: number[];
+  featureFoldChange: number[]; // TODO: Should this be called featureLogFoldChange? Will it always be pre- log-transformed?
   // Used when faceting by sample
   sampleId: string[] | null; // Null if not per-sample stats
   // Used when faceting by obsSet

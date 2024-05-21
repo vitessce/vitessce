@@ -128,22 +128,7 @@ export function VolcanoPlotSubscriber(props) {
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const title = useMemo(() => {
-    if (titleOverride) {
-      return titleOverride;
-    }
-    if (!(gatingFeatureSelectionX && gatingFeatureSelectionY)) {
-      return 'Volcano Plot';
-    }
-    return `Volcano Plot (${gatingFeatureSelectionX} vs ${gatingFeatureSelectionY})`;
-  }, [titleOverride, gatingFeatureSelectionX, gatingFeatureSelectionY]);
-
-  const featureSelectionX = useMemo(() => (
-    gatingFeatureSelectionX ? [gatingFeatureSelectionX] : null
-  ), [gatingFeatureSelectionX]);
-  const featureSelectionY = useMemo(() => (
-    gatingFeatureSelectionY ? [gatingFeatureSelectionY] : null
-  ), [gatingFeatureSelectionY]);
+  const title = 'Volcano Plot';
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
@@ -154,82 +139,36 @@ export function VolcanoPlotSubscriber(props) {
   );
   const [featureStats, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
     loaders, dataset, false,
-    // TODO: pass in the volcano plot options here.
     { featureType, sampleType },
+    // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection },
   );
-  console.log(featureStats);
 
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(
-    loaders, dataset, false, gatingFeatureSelectionColor,
-    { obsType, featureType, featureValueType },
-  );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionX,
-    { obsType, featureType, featureValueType },
-  );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionY,
-    { obsType, featureType, featureValueType },
-  );
-  const [
-    { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
-  ] = useObsFeatureMatrixIndices(
-    loaders, dataset, false,
-    { obsType, featureType, featureValueType },
-  );
-  const cellsCount = obsIndex?.length || 0;
+  const obsIndex = featureStats?.featureId;
+  const featureIndex = featureStats?.featureId;
+  const expressionDataColor = null;
+  const cellsCount = featureStats?.featureId?.length || 0;
+
+  // TODO: load featureLabelsData here for conversion to human-readable gene symbols.
 
   const isReady = useReady([
-    obsSetsStatus,
-    featureSelectionColorStatus,
-    featureSelectionXStatus,
-    featureSelectionYStatus,
-    matrixIndicesStatus,
+    featureStatsStatus,
   ]);
-  const urls = useUrls([
-    obsSetsUrls,
-    matrixIndicesUrls,
-  ]);
+  const urls = useUrls([]);
 
   // Generate a new cells object with a mapping added for the user selected genes.
   const obsXY = useMemo(() => {
-    if (!(cellsCount && expressionDataX?.[0] && expressionDataY?.[0]
-      && featureSelectionX && featureSelectionY
-    )) {
+    if (!featureStats.featureSignificance || !featureStats.featureFoldChange) {
       return null;
     }
 
-    // Get transform coefficient for log and arcsinh
-    let coefficient = 1;
-    const parsedTransformCoefficient = Number(featureValueTransformCoefficient);
-    if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
-      coefficient = parsedTransformCoefficient;
-    }
-
-    // Set transform function
-    const transformFunction = getValueTransformFunction(
-      featureValueTransform,
-      coefficient,
-    );
-
-    const obsX = new Float32Array(cellsCount);
-    const obsY = new Float32Array(cellsCount);
-    for (let i = 0; i < cellsCount; i += 1) {
-      obsX[i] = transformFunction(expressionDataX[0][i]);
-      obsY[i] = transformFunction(expressionDataY[0][i]);
-    }
+    const obsX = new Float32Array(featureStats.featureFoldChange);
+    const obsY = new Float32Array(featureStats.featureSignificance);
     return {
       data: [obsX, obsY],
-      shape: [2, cellsCount],
+      shape: [2, obsX.length],
     };
-  }, [cellsCount, expressionDataX, expressionDataY,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureSelectionX, featureSelectionY,
-  ]);
+  }, [featureStats]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
@@ -417,10 +356,6 @@ export function VolcanoPlotSubscriber(props) {
         </ScatterplotOptions>
       )}
     >
-      <EmptyMessage
-        visible={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-        message={`Select two ${plur(featureType, 2)} in the plot settings.`}
-      />
       <Scatterplot
         ref={deckRef}
         uuid={uuid}

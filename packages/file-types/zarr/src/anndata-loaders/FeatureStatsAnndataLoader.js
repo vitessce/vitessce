@@ -80,6 +80,16 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
   /**
    * 
+   * @param {string[]} dfPaths
+   * @returns {Promise<number[]>}
+   */
+  async loadFeatureSignificance(dfPaths) {
+    return (await this.loadAndConcatNumeric(dfPaths, 'adj_pval'))
+      .map((val) => - Math.log10(val));
+  }
+
+  /**
+   * 
    * @returns {Promise<StatsMeta[]>}
    */
   async loadMetadata() {
@@ -145,7 +155,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     }
     return Promise.all([
       this.loadAndConcat(matchingPaths, 'name'),
-      this.loadAndConcatNumeric(matchingPaths, 'adj_pval'),
+      this.loadFeatureSignificance(matchingPaths),
       this.loadAndConcatNumeric(matchingPaths, 'lfc'),
     ]).then(([
         featureId,

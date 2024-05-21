@@ -450,5 +450,19 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
     // TODO: CoordinationType.FEATURE_COLOR_ENCODING,
     // TODO: CoordinationType.ADDITIONAL_FEATURE_SETS,
+
+    // TEMP:
+    CoordinationType.EMBEDDING_ZOOM,
+    CoordinationType.EMBEDDING_ROTATION,
+    CoordinationType.EMBEDDING_TARGET_X,
+    CoordinationType.EMBEDDING_TARGET_Y,
+    CoordinationType.EMBEDDING_TARGET_Z,
+    CoordinationType.EMBEDDING_OBS_SET_POLYGONS_VISIBLE,
+    CoordinationType.EMBEDDING_OBS_SET_LABELS_VISIBLE,
+    CoordinationType.EMBEDDING_OBS_SET_LABEL_SIZE,
+    CoordinationType.EMBEDDING_OBS_RADIUS,
+    CoordinationType.EMBEDDING_OBS_RADIUS_MODE,
+    CoordinationType.EMBEDDING_OBS_OPACITY,
+    CoordinationType.EMBEDDING_OBS_OPACITY_MODE,
   ],
 };
