@@ -277,6 +277,15 @@ export const CoordinationType = {
   VOLCANO_FEATURE_RADIUS_MODE: 'volcanoFeatureRadiusMode',
   VOLCANO_FEATURE_OPACITY: 'volcanoFeatureOpacity',
   VOLCANO_FEATURE_OPACITY_MODE: 'volcanoFeatureOpacityMode',
+  // TODO:
+  // - Insignificant color
+  // - Significant color
+  // - Significance threshold
+  // - Fold-change threshold
+  // 
+  // - Feature labels visible for significant features only?
+  // - Zooming enabled?
+  // - Adjusted p-values vs. not? vs other stats?
 };
 
 export const STATUS = {

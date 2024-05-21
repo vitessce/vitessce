@@ -491,4 +491,16 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  // For volcano plot:
+  new PluginCoordinationType(CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_ZOOM, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_X, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_Y, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABELS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABEL_SIZE, 14, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS, 2, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY, 1, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS_MODE, 'manual', z.enum(['manual', 'auto'])),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY_MODE, 'manual', z.enum(['manual', 'auto'])),
 ];

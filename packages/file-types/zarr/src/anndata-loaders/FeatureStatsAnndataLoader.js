@@ -154,6 +154,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       return Promise.reject(superResult);
     }
     return Promise.all([
+      // TODO: pass topK (if present) to the load functions to limit their amount of requested Zarr chunks.
       this.loadAndConcat(matchingPaths, 'name'),
       this.loadFeatureSignificance(matchingPaths),
       this.loadAndConcatNumeric(matchingPaths, 'lfc'),

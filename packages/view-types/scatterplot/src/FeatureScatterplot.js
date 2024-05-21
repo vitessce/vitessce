@@ -9,7 +9,7 @@ import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
 
-const CELLS_LAYER_ID = 'scatterplot';
+const FEATURES_LAYER_ID = 'feature-scatterplot';
 const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
 const NUM_FORCE_SIMULATION_TICKS = 100;
 const LABEL_UPDATE_ZOOM_DELTA = 0.25;
@@ -56,7 +56,6 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
-    this.onUpdateCellSetsLayers();
   }
 
   createCellsLayer() {
@@ -65,6 +64,10 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       theme,
       cellRadius = 1.0,
       cellOpacity = 1.0,
+      significanceThreshold,
+      foldChangeThreshold,
+      significantColor,
+      insignificantColor,
       // cellFilter,
       cellSelection,
       setCellHighlight,
@@ -79,7 +82,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       cellColorEncoding,
     } = this.props;
     return new deck.ScatterplotLayer({
-      id: CELLS_LAYER_ID,
+      id: FEATURES_LAYER_ID,
       // Note that the reference for the object passed to the data prop should not change,
       // otherwise DeckGL will need to do a full re-render every time .createCellsLayer is called,
       // which can be very often to handle cellOpacity and cellRadius updates for dynamic opacity.
@@ -100,7 +103,14 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
       getPosition,
-      getFillColor: getCellColor,
+      getFillColor: (object, { index, data }) => {
+        const foldChange = data.src.obsEmbedding.data[0][index];
+        const significance = data.src.obsEmbedding.data[1][index];
+        if (Math.abs(foldChange) >= foldChangeThreshold && significance >= significanceThreshold) {
+          return significantColor;
+        }
+        return insignificantColor;
+      },
       getLineColor: getCellColor,
       getRadius: 1,
       getExpressionValue,
@@ -128,69 +138,6 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     });
   }
 
-  createCellSetsLayers() {
-    const {
-      theme,
-      cellSetPolygons,
-      viewState,
-      cellSetPolygonsVisible,
-      cellSetLabelsVisible,
-      cellSetLabelSize,
-    } = this.props;
-
-    const result = [];
-
-    if (cellSetPolygonsVisible) {
-      result.push(new deck.PolygonLayer({
-        id: 'cell-sets-polygon-layer',
-        data: cellSetPolygons,
-        stroked: true,
-        filled: false,
-        wireframe: true,
-        lineWidthMaxPixels: 1,
-        getPolygon: d => d.hull,
-        getLineColor: d => d.color,
-        getLineWidth: 1,
-      }));
-    }
-
-    if (cellSetLabelsVisible) {
-      const { zoom } = viewState;
-      const nodes = cellSetPolygons.map(p => ({
-        x: p.centroid[0],
-        y: p.centroid[1],
-        label: p.name,
-      }));
-
-      const collisionForce = this.cellSetsForceSimulation
-        .size(d => ([
-          cellSetLabelSize * 1 / (2 ** zoom) * 4 * d?.label?.length,
-          cellSetLabelSize * 1 / (2 ** zoom) * 1.5,
-        ]));
-
-      forceSimulation()
-        .nodes(nodes)
-        .force('collision', collisionForce)
-        .tick(NUM_FORCE_SIMULATION_TICKS);
-
-      result.push(new deck.TextLayer({
-        id: 'cell-sets-text-layer',
-        data: nodes,
-        getPosition: d => ([d.x, d.y]),
-        getText: d => d.label,
-        getColor: (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]),
-        getSize: cellSetLabelSize,
-        getAngle: 0,
-        getTextAnchor: 'middle',
-        getAlignmentBaseline: 'center',
-        fontFamily: LABEL_FONT_FAMILY,
-        fontWeight: 'normal',
-      }));
-    }
-
-    return result;
-  }
-
   createSelectionLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
@@ -205,7 +152,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     return getSelectionLayer(
       tool,
       viewState.zoom,
-      CELLS_LAYER_ID,
+      FEATURES_LAYER_ID,
       [
         {
           getObsCoords: getCellCoords,
@@ -255,35 +202,6 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     }
   }
 
-  onUpdateCellSetsLayers(onlyViewStateChange) {
-    // Because the label sizes for the force simulation depend on the zoom level,
-    // we _could_ run the simulation every time the zoom level changes.
-    // However, this has a performance impact in firefox.
-    if (onlyViewStateChange) {
-      const { viewState, cellSetLabelsVisible } = this.props;
-      const { zoom } = viewState;
-      const { cellSetsLabelPrevZoom } = this;
-      // Instead, we can just check if the zoom level has changed
-      // by some relatively large delta, to be more conservative
-      // about re-running the force simulation.
-      if (cellSetLabelsVisible
-        && (
-          cellSetsLabelPrevZoom === null
-          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
-        )
-      ) {
-        this.cellSetsLayers = this.createCellSetsLayers();
-        this.cellSetsLabelPrevZoom = zoom;
-      }
-    } else {
-      // Otherwise, something more substantial than just
-      // the viewState has changed, such as the label array
-      // itself, so we always want to update the layer
-      // in this case.
-      this.cellSetsLayers = this.createCellSetsLayers();
-    }
-  }
-
   viewInfoDidUpdate() {
     const {
       obsEmbeddingIndex,
@@ -324,19 +242,6 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
-      forceUpdate = true;
-    }
-    if ([
-      'cellSetPolygons', 'cellSetPolygonsVisible',
-      'cellSetLabelsVisible', 'cellSetLabelSize',
-    ].some(shallowDiff)) {
-      // Cell sets layer props changed.
-      this.onUpdateCellSetsLayers(false);
-      forceUpdate = true;
-    }
-    if (shallowDiff('viewState')) {
-      // The viewState prop has changed (due to zoom or pan).
-      this.onUpdateCellSetsLayers(true);
       forceUpdate = true;
     }
     if (forceUpdate) {

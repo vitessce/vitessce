@@ -23,7 +23,7 @@ import {
   useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import {
-  getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
+  mergeObsSets, setObsSelection, getCellColors,
 } from '@vitessce/sets-utils';
 import {
   FeatureScatterplot,
@@ -31,7 +31,6 @@ import {
   ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
-  EmptyMessage,
 } from '@vitessce/scatterplot';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import VolcanoPlotOptions from './VolcanoPlotOptions.js';
@@ -74,55 +73,55 @@ export function VolcanoPlotSubscriber(props) {
     sampleType,
     featureType,
     featureValueType,
-    embeddingZoom: zoom,
-    embeddingTargetX: targetX,
-    embeddingTargetY: targetY,
-    embeddingTargetZ: targetZ,
+    volcanoZoom: zoom,
+    volcanoTargetX: targetX,
+    volcanoTargetY: targetY,
+    volcanoTargetZ: targetZ,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
-    embeddingObsSetPolygonsVisible: cellSetPolygonsVisible,
-    embeddingObsSetLabelsVisible: cellSetLabelsVisible,
-    embeddingObsSetLabelSize: cellSetLabelSize,
-    embeddingObsRadius: cellRadiusFixed,
-    embeddingObsRadiusMode: cellRadiusMode,
-    embeddingObsOpacity: cellOpacityFixed,
-    embeddingObsOpacityMode: cellOpacityMode,
+    volcanoFeatureLabelsVisible: cellSetLabelsVisible, // TODO: rename
+    volcanoFeatureLabelSize: cellSetLabelSize, // TODO: rename
+    volcanoFeatureRadius: cellRadiusFixed,
+    volcanoFeatureRadiusMode: cellRadiusMode,
+    volcanoFeatureOpacity: cellOpacityFixed,
+    volcanoFeatureOpacityMode: cellOpacityMode,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
-    featureSelection: gatingFeatureSelectionColor,
     featureValueTransform,
     featureValueTransformCoefficient,
     gatingFeatureSelectionX,
     gatingFeatureSelectionY,
+    featureSelection,
     sampleSetSelection,
   }, {
-    setEmbeddingZoom: setZoom,
-    setEmbeddingTargetX: setTargetX,
-    setEmbeddingTargetY: setTargetY,
-    setEmbeddingTargetZ: setTargetZ,
+    setVolcanoZoom: setZoom,
+    setVolcanoTargetX: setTargetX,
+    setVolcanoTargetY: setTargetY,
+    setVolcanoTargetZ: setTargetZ,
     setObsFilter: setCellFilter,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setAdditionalObsSets: setAdditionalCellSets,
-    setEmbeddingObsSetPolygonsVisible: setCellSetPolygonsVisible,
-    setEmbeddingObsSetLabelsVisible: setCellSetLabelsVisible,
-    setEmbeddingObsSetLabelSize: setCellSetLabelSize,
-    setEmbeddingObsRadius: setCellRadiusFixed,
-    setEmbeddingObsRadiusMode: setCellRadiusMode,
-    setEmbeddingObsOpacity: setCellOpacityFixed,
-    setEmbeddingObsOpacityMode: setCellOpacityMode,
+    setVolcanoFeatureLabelsVisible: setCellSetLabelsVisible,
+    setVolcanoFeatureLabelSize: setCellSetLabelSize,
+    setVolcanoFeatureRadius: setCellRadiusFixed,
+    setVolcanoFeatureRadiusMode: setCellRadiusMode,
+    setVolcanoFeatureOpacity: setCellOpacityFixed,
+    setVolcanoFeatureOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
+    setFeatureSelection,
+    setSampleSetSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
     coordinationScopes,
@@ -196,33 +195,6 @@ export function VolcanoPlotSubscriber(props) {
     theme,
   }), [mergedCellSets, theme,
     cellSetSelection, cellSetColor, obsIndex]);
-
-  // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
-  // where the keys are cellSetSelection arrays.
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
-  const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
-  const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
-  const cellSetPolygons = useMemo(() => {
-    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
-      && mergedCellSets?.tree?.length
-      && obsXY
-      && obsIndex
-      && cellSetColor?.length) {
-      const newCellSetPolygons = getCellSetPolygons({
-        obsIndex,
-        obsEmbedding: obsXY,
-        cellSets: mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
-        theme,
-      });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
-      return newCellSetPolygons;
-    }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsIndex, obsXY, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
@@ -330,8 +302,6 @@ export function VolcanoPlotSubscriber(props) {
           setCellSetLabelsVisible={setCellSetLabelsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
-          cellSetPolygonsVisible={cellSetPolygonsVisible}
-          setCellSetPolygonsVisible={setCellSetPolygonsVisible}
           cellColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
           geneExpressionColormap={geneExpressionColormap}
@@ -365,23 +335,25 @@ export function VolcanoPlotSubscriber(props) {
         uuid={uuid}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom, target: [targetX, targetY] }}
         setViewState={({ zoom: newZoom, target }) => {
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
         }}
+        significanceThreshold={-Math.log10(0.05)}
+        foldChangeThreshold={1.0}
+        significantColor={[255, 255, 255]}
+        insignificantColor={[80, 80, 80]}
+
         obsEmbeddingIndex={obsIndex}
         obsEmbedding={obsXY}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
-        cellSetPolygons={cellSetPolygons}
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
-        cellSetPolygonsVisible={cellSetPolygonsVisible}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
