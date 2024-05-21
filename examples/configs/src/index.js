@@ -42,6 +42,7 @@ import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023 } from './view-configs/multi-sample.js';
+import { lemur2023 } from './view-configs/lemur.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 
 // TODO(spatialBeta):
@@ -116,6 +117,7 @@ export const configs = {
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
   'lake-2023': lake2023,
+  'lemur-2023': lemur2023,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
 

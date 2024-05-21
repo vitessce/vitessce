@@ -637,6 +637,9 @@ importers:
       '@vitessce/scatterplot-gating':
         specifier: workspace:*
         version: link:../../view-types/scatterplot-gating
+      '@vitessce/scatterplot-volcano':
+        specifier: workspace:*
+        version: link:../../view-types/scatterplot-volcano
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
@@ -1440,6 +1443,46 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/scatterplot-gating:
+    dependencies:
+      '@material-ui/core':
+        specifier: ~4.12.3
+        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/scatterplot':
+        specifier: workspace:*
+        version: link:../scatterplot
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      d3-array:
+        specifier: ^2.4.0
+        version: 2.12.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+      react-aria:
+        specifier: ^3.28.0
+        version: 3.28.0(react-dom@18.2.0)(react@18.2.0)
+    devDependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: ^0.32.2
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/view-types/scatterplot-volcano:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3

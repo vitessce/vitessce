@@ -186,6 +186,17 @@ export function useFeatureLabelsData(
   );
 }
 
+export function useFeatureStatsData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.FEATURE_STATS,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 export function useImageData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

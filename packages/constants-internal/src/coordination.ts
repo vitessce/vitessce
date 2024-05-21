@@ -417,4 +417,38 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
+  [ViewType.VOLCANO_PLOT]: [
+    CoordinationType.DATASET,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+    // For selection of case-control sets of samples:
+    CoordinationType.SAMPLE_SET_SELECTION,
+    // For selection of one-vs-others sets of observations:
+    CoordinationType.OBS_SET_SELECTION,
+    // For p-value column name:
+    CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN,
+    // For log-fold-change column name:
+    CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN,
+    // Analogs of other scatterplot coordination types:
+    CoordinationType.VOLCANO_ZOOM,
+    CoordinationType.VOLCANO_TARGET_X,
+    CoordinationType.VOLCANO_TARGET_Y,
+    CoordinationType.VOLCANO_FEATURE_LABELS_VISIBLE,
+    // TODO: CoordinationType.VOLCANO_FEATURE_SET_LABELS_VISIBLE,
+    CoordinationType.VOLCANO_FEATURE_LABEL_SIZE,
+    // TODO: CoordinationType.VOLCANO_FEATURE_SET_LABEL_SIZE,
+    CoordinationType.VOLCANO_FEATURE_RADIUS,
+    CoordinationType.VOLCANO_FEATURE_RADIUS_MODE,
+    CoordinationType.VOLCANO_FEATURE_OPACITY,
+    CoordinationType.VOLCANO_FEATURE_OPACITY_MODE,
+    // TODO: CoordinationType.FEATURE_SET_SELECTION,
+    // TODO: CoordinationType.FEATURE_SET_HIGHLIGHT,
+    // TODO: CoordinationType.FEATURE_SET_COLOR,
+    CoordinationType.FEATURE_HIGHLIGHT,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.FEATURE_VALUE_COLORMAP,
+    CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    // TODO: CoordinationType.FEATURE_COLOR_ENCODING,
+    // TODO: CoordinationType.ADDITIONAL_FEATURE_SETS,
+  ],
 };
