@@ -26,7 +26,9 @@ import {
   getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
 } from '@vitessce/sets-utils';
 import {
-  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
+  FeatureScatterplot,
+  ScatterplotTooltipSubscriber,
+  ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
   EmptyMessage,
@@ -301,6 +303,8 @@ export function VolcanoPlotSubscriber(props) {
     gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
   ]);
 
+
+
   return (
     <TitleInfo
       title={title}
@@ -356,7 +360,7 @@ export function VolcanoPlotSubscriber(props) {
         </ScatterplotOptions>
       )}
     >
-      <Scatterplot
+      <FeatureScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}

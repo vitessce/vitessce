@@ -37,39 +37,8 @@ const getPosition = (object, { index, data, target }) => {
   return target;
 };
 
-/**
- * React component which renders a scatterplot from cell data.
- * @param {object} props
- * @param {string} props.uuid A unique identifier for this component.
- * @param {string} props.theme The current vitessce theme.
- * @param {object} props.viewState The deck.gl view state.
- * @param {function} props.setViewState Function to call to update the deck.gl view state.
- * @param {object} props.cells
- * @param {string} props.mapping The name of the coordinate mapping field,
- * for each cell, for example "PCA" or "t-SNE".
- * @param {Map} props.cellColors Mapping of cell IDs to colors.
- * @param {array} props.cellSelection Array of selected cell IDs.
- * @param {array} props.cellFilter Array of filtered cell IDs. By default, null.
- * @param {number} props.cellRadius The value for `radiusScale` to pass
- * to the deck.gl cells ScatterplotLayer.
- * @param {number} props.cellOpacity The value for `opacity` to pass
- * to the deck.gl cells ScatterplotLayer.
- * @param {function} props.getCellCoords Getter function for cell coordinates
- * (used by the selection layer).
- * @param {function} props.getCellPosition Getter function for cell [x, y, z] position.
- * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
- * @param {function} props.getExpressionValue Getter function for cell expression value.
- * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
- * @param {function} props.setCellSelection
- * @param {function} props.setCellHighlight
- * @param {function} props.updateViewInfo
- * @param {function} props.onToolChange Callback for tool changes
- * (lasso/pan selection tools).
- * @param {function} props.onCellClick Getter function for cell layer onClick.
- * @param {object} props.originalViewState A viewState object to pass to
- * setViewState upon clicking the recenter button.
- */
-class Scatterplot extends AbstractSpatialOrScatterplot {
+
+class FeatureScatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
 
@@ -393,10 +362,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
  * but we are using a class component.
  */
 const ScatterplotWrapper = forwardRef((props, deckRef) => (
-  <Scatterplot
+  <FeatureScatterplot
     {...props}
     deckRef={deckRef}
   />
 ));
-ScatterplotWrapper.displayName = 'ScatterplotWrapper';
+ScatterplotWrapper.displayName = 'FeatureScatterplotWrapper';
 export default ScatterplotWrapper;

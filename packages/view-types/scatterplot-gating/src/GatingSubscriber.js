@@ -25,7 +25,9 @@ import {
   getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
 } from '@vitessce/sets-utils';
 import {
-  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
+  ObservationScatterplot,
+  ScatterplotTooltipSubscriber,
+  ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
   EmptyMessage,
@@ -410,7 +412,7 @@ export function GatingSubscriber(props) {
         visible={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
         message={`Select two ${plur(featureType, 2)} in the plot settings.`}
       />
-      <Scatterplot
+      <ObservationScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}
