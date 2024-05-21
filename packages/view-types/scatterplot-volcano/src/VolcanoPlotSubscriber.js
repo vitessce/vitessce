@@ -96,6 +96,7 @@ export function VolcanoPlotSubscriber(props) {
     featureValueTransformCoefficient,
     gatingFeatureSelectionX,
     gatingFeatureSelectionY,
+    sampleSetSelection,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -151,14 +152,13 @@ export function VolcanoPlotSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  const [{ featureIds }, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
+  const [featureStats, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
     loaders, dataset, false,
     // TODO: pass in the volcano plot options here.
-    {},
-    {},
-    { featureType },
+    { featureType, sampleType },
+    { sampleSetSelection },
   );
-  console.log(obsType, sampleType);
+  console.log(featureStats);
 
   // eslint-disable-next-line no-unused-vars
   const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(

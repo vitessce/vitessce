@@ -48,9 +48,9 @@ export type FeatureStatsData = {
   featureSignificance: number[];
   featureFoldChange: number[];
   // Used when faceting by sample
-  sampleId: null | string[]; // Null if not per-sample stats
+  sampleId: string[] | null; // Null if not per-sample stats
   // Used when faceting by obsSet
-  obsSetId: null | string[]; // Null if not obsSet-vs-rest stats
+  obsSetId: string[] | null; // Null if not obsSet-vs-rest stats
 };
 
 export type ObsLabelsData = {

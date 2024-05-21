@@ -490,5 +490,5 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
 ];
