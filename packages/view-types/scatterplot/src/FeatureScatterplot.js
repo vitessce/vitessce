@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
+import { scaleLinear } from 'd3-scale';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
 } from '@vitessce/gl';
@@ -52,10 +53,93 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
+    this.axisLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
+    this.onUpdateAxisLayers();
+  }
+
+  createAxisLayers() {
+    const {
+      xExtent,
+      yExtent,
+    } = this.props;
+    if(!xExtent || !yExtent) return [];
+    const xRange = xExtent;
+    const yRange = [-yExtent[1], yExtent[0]];
+    const xWidth = xRange[1] - xRange[0];
+    const yWidth = yRange[1] - yRange[0];
+    const xMid = (xRange[0] + xRange[1]) / 2;
+    const yMid = (yRange[0] + yRange[1]) / 2;
+
+    const xScale = scaleLinear()
+      .domain(xRange);
+    const xTicks = xScale.ticks();
+
+    const yScale = scaleLinear()
+      .domain(yRange)
+    const yTicks = yScale.ticks();
+
+    return [
+      new deck.LineLayer({
+        id: 'axis-lines',
+        data: [
+          { source: [xExtent[0], 0], target: [xExtent[1], 0] }, // x-axis
+          { source: [xExtent[0], yRange[0]], target: [xExtent[0], yRange[1]] }, // y-axis
+        ],
+        getColor: [255, 255, 255],
+        getSourcePosition: d => d.source,
+        getTargetPosition: d => d.target,
+        getWidth: 2,
+      }),
+      new deck.TextLayer({
+        id: 'x-axis-ticks',
+        data: xTicks,
+        getPosition: d => [d, 0.75],
+        getText: d => `${d}`,
+        getSize: 0.5,
+        getColor: [255, 255, 255],
+        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        sizeUnits: 'common',
+      }),
+      new deck.TextLayer({
+        id: 'y-axis-ticks',
+        data: yTicks,
+        getPosition: d => [-10.75, d],
+        getText: d => `${d}`,
+        getSize: 0.5,
+        getColor: [255, 255, 255],
+        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        sizeUnits: 'common',
+      }),
+      new deck.TextLayer({
+        id: 'x-axis-title',
+        data: [
+          { text: 'log2(Fold Change)' },
+        ],
+        getPosition: d => [d, 1.5],
+        getText: d => d.text,
+        getSize: 0.5,
+        getColor: [255, 255, 255],
+        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        sizeUnits: 'common',
+      }),
+      new deck.TextLayer({
+        id: 'y-axis-title',
+        data: [
+          { text: '-log10(Adjusted p-value)' },
+        ],
+        getAngle: 90,
+        getPosition: d => [-11.5, yMid],
+        getText: d => d.text,
+        getSize: 0.5,
+        getColor: [255, 255, 255],
+        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        sizeUnits: 'common',
+      }),
+    ]
   }
 
   createCellsLayer() {
@@ -171,10 +255,12 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     const {
       cellsLayer,
       cellSetsLayers,
+      axisLayers
     } = this;
     return [
       cellsLayer,
       ...cellSetsLayers,
+      ...axisLayers,
       this.createSelectionLayer(),
     ];
   }
@@ -199,6 +285,15 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       this.cellsLayer = this.createCellsLayer();
     } else {
       this.cellsLayer = null;
+    }
+  }
+
+  onUpdateAxisLayers() {
+    const { xExtent, yExtent } = this.props;
+    if (xExtent && yExtent) {
+      this.axisLayers = this.createAxisLayers();
+    } else {
+      this.axisLayers = [];
     }
   }
 
@@ -244,6 +339,12 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellsLayer();
       forceUpdate = true;
     }
+
+    if (['xExtent', 'yExtent'].some(shallowDiff)) {
+      this.onUpdateAxisLayers();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }

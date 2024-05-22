@@ -227,9 +227,10 @@ export function VolcanoPlotSubscriber(props) {
       setDynamicCellOpacity(nextCellOpacityScale);
 
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetX = xExtent[0] + xRange / 2
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+
         setTargetX(newTargetX);
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
@@ -345,6 +346,9 @@ export function VolcanoPlotSubscriber(props) {
         foldChangeThreshold={1.0}
         significantColor={[255, 255, 255]}
         insignificantColor={[80, 80, 80]}
+
+        xExtent={xExtent}
+        yExtent={yExtent}
 
         obsEmbeddingIndex={obsIndex}
         obsEmbedding={obsXY}
