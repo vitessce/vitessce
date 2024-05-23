@@ -9,6 +9,7 @@ export const ViewType = {
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   SPATIAL_BETA: 'spatialBeta',
+  SMALL_MULTIPLES: 'smallMultiples',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   LAYER_CONTROLLER_BETA: 'layerControllerBeta',
