@@ -16,24 +16,19 @@ const NUM_FORCE_SIMULATION_TICKS = 100;
 const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 
 // Default getter function props.
-const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
-  const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
-    || getDefaultColor(theme);
-  return [r, g, b, 255 * (a || 1)];
-};
-const makeDefaultGetObsCoords = obsEmbedding => i => ([
-  obsEmbedding.data[0][i],
-  obsEmbedding.data[1][i],
+const makeDefaultGetObsCoords = featurePositions => i => ([
+  featurePositions.data[0][i],
+  featurePositions.data[1][i],
   0,
 ]);
-const makeFlippedGetObsCoords = obsEmbedding => i => ([
-  obsEmbedding.data[0][i],
-  -obsEmbedding.data[1][i],
+const makeFlippedGetObsCoords = featurePositions => i => ([
+  featurePositions.data[0][i],
+  -featurePositions.data[1][i],
   0,
 ]);
 const getPosition = (object, { index, data, target }) => {
-  target[0] = data.src.obsEmbedding.data[0][index];
-  target[1] = -data.src.obsEmbedding.data[1][index];
+  target[0] = data.src.featurePositions.data[0][index];
+  target[1] = -data.src.featurePositions.data[1][index];
   target[2] = 0;
   return target;
 };
@@ -48,38 +43,33 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     // uses instance variables.
     // All instance variables used in this class:
     this.cellsQuadTree = null;
-    this.cellsLayer = null;
-    this.cellsData = null;
+    this.scatterplotLayer = null;
+    this.featuresData = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
-    this.cellSetsLayers = [];
     this.axisLayers = [];
 
     // Initialize data and layers.
-    this.onUpdateCellsData();
-    this.onUpdateCellsLayer();
+    this.onUpdateFeaturesData();
+    this.onUpdateFeaturesLayer();
     this.onUpdateAxisLayers();
   }
 
   createAxisLayers() {
     const {
       xExtent,
-      yExtent,
     } = this.props;
-    if(!xExtent || !yExtent) return [];
-    const xRange = xExtent;
-    const yRange = [-yExtent[1], yExtent[0]];
-    const xWidth = xRange[1] - xRange[0];
-    const yWidth = yRange[1] - yRange[0];
-    const xMid = (xRange[0] + xRange[1]) / 2;
-    const yMid = (yRange[0] + yRange[1]) / 2;
+    if(!xExtent || !this.props.yExtent) return [];
+    const yExtent = [-this.props.yExtent[1], this.props.yExtent[0]];
+    const xMid = (xExtent[0] + xExtent[1]) / 2;
+    const yMid = (yExtent[0] + yExtent[1]) / 2;
 
     const xScale = scaleLinear()
-      .domain(xRange);
+      .domain(xExtent);
     const xTicks = xScale.ticks();
 
     const yScale = scaleLinear()
-      .domain(yRange)
+      .domain(yExtent)
     const yTicks = yScale.ticks();
 
     return [
@@ -87,7 +77,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         id: 'axis-lines',
         data: [
           { source: [xExtent[0], 0], target: [xExtent[1], 0] }, // x-axis
-          { source: [xExtent[0], yRange[0]], target: [xExtent[0], yRange[1]] }, // y-axis
+          { source: [xExtent[0], yExtent[0]], target: [xExtent[0], yExtent[1]] }, // y-axis
         ],
         getColor: [255, 255, 255],
         getSourcePosition: d => d.source,
@@ -101,7 +91,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         getText: d => `${d}`,
         getSize: 0.5,
         getColor: [255, 255, 255],
-        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
       new deck.TextLayer({
@@ -111,7 +101,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         getText: d => `${d}`,
         getSize: 0.5,
         getColor: [255, 255, 255],
-        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
       new deck.TextLayer({
@@ -123,7 +113,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         getText: d => d.text,
         getSize: 0.5,
         getColor: [255, 255, 255],
-        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
       new deck.TextLayer({
@@ -136,41 +126,39 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         getText: d => d.text,
         getSize: 0.5,
         getColor: [255, 255, 255],
-        fontFamily: "-apple-system, 'Helvetica Neue', Arial, sans-serif",
+        fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
     ]
   }
 
-  createCellsLayer() {
+  createFeaturesLayer() {
     const {
-      obsEmbeddingIndex: obsIndex,
+      featureIds: obsIndex,
       theme,
-      cellRadius = 1.0,
-      cellOpacity = 1.0,
+      featureRadius = 1.0,
+      featureOpacity = 1.0,
       significanceThreshold,
       foldChangeThreshold,
       significantColor,
       insignificantColor,
-      // cellFilter,
       cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
-      cellColorEncoding,
+      featureColorEncoding,
     } = this.props;
     return new deck.ScatterplotLayer({
       id: FEATURES_LAYER_ID,
       // Note that the reference for the object passed to the data prop should not change,
-      // otherwise DeckGL will need to do a full re-render every time .createCellsLayer is called,
-      // which can be very often to handle cellOpacity and cellRadius updates for dynamic opacity.
-      data: this.cellsData,
+      // otherwise DeckGL will need to do a full re-render every time .createFeaturesLayer is called,
+      // which can be very often to handle featureOpacity and featureRadius updates for dynamic opacity.
+      data: this.featuresData,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       visible: true,
       pickable: true,
@@ -179,8 +167,8 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       stroked: true,
       backgroundColor: (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]),
       getCellIsSelected,
-      opacity: cellOpacity,
-      radiusScale: cellRadius,
+      opacity: featureOpacity,
+      radiusScale: featureRadius,
       radiusMinPixels: 1,
       radiusMaxPixels: 30,
       // Our radius pixel setters measure in pixels.
@@ -188,14 +176,13 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       lineWidthUnits: 'pixels',
       getPosition,
       getFillColor: (object, { index, data }) => {
-        const foldChange = data.src.obsEmbedding.data[0][index];
-        const significance = data.src.obsEmbedding.data[1][index];
+        const foldChange = data.src.featurePositions.data[0][index];
+        const significance = data.src.featurePositions.data[1][index];
         if (Math.abs(foldChange) >= foldChangeThreshold && significance >= significanceThreshold) {
           return significantColor;
         }
         return insignificantColor;
       },
-      getLineColor: getCellColor,
       getRadius: 1,
       getExpressionValue,
       getLineWidth: 0,
@@ -205,7 +192,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       ],
       colorScaleLo: geneExpressionColormapRange[0],
       colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: (cellColorEncoding === 'geneSelection'),
+      isExpressionMode: (featureColorEncoding === 'geneSelection'),
       colormap: geneExpressionColormap,
       onClick: (info) => {
         if (onCellClick) {
@@ -215,8 +202,8 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       updateTriggers: {
         getExpressionValue,
-        getFillColor: [cellColorEncoding, cellSelection, cellColors],
-        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getFillColor: [featureColorEncoding, cellSelection, cellColors],
+        getLineColor: [featureColorEncoding, cellSelection, cellColors],
         getCellIsSelected,
       },
     });
@@ -224,15 +211,15 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
 
   createSelectionLayer() {
     const {
-      obsEmbeddingIndex: obsIndex,
-      obsEmbedding,
+      featureIds: obsIndex,
+      featurePositions,
       viewState,
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
     const { cellsQuadTree } = this;
     const flipYTooltip = true;
-    const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
+    const getCellCoords = makeDefaultGetObsCoords(featurePositions);
     return getSelectionLayer(
       tool,
       viewState.zoom,
@@ -253,38 +240,36 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
 
   getLayers() {
     const {
-      cellsLayer,
-      cellSetsLayers,
+      scatterplotLayer,
       axisLayers
     } = this;
     return [
-      cellsLayer,
-      ...cellSetsLayers,
+      scatterplotLayer,
       ...axisLayers,
       this.createSelectionLayer(),
     ];
   }
 
-  onUpdateCellsData() {
-    const { obsEmbedding } = this.props;
-    if (obsEmbedding) {
-      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
-      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
-      this.cellsData = {
+  onUpdateFeaturesData() {
+    const { featurePositions } = this.props;
+    if (featurePositions) {
+      const getCellCoords = makeDefaultGetObsCoords(featurePositions);
+      this.cellsQuadTree = createQuadTree(featurePositions, getCellCoords);
+      this.featuresData = {
         src: {
-          obsEmbedding,
+          featurePositions,
         },
-        length: obsEmbedding.shape[1],
+        length: featurePositions.shape[1],
       };
     }
   }
 
-  onUpdateCellsLayer() {
-    const { obsEmbeddingIndex, obsEmbedding } = this.props;
-    if (obsEmbeddingIndex && obsEmbedding) {
-      this.cellsLayer = this.createCellsLayer();
+  onUpdateFeaturesLayer() {
+    const { featureIds, featurePositions } = this.props;
+    if (featureIds && featurePositions) {
+      this.scatterplotLayer = this.createFeaturesLayer();
     } else {
-      this.cellsLayer = null;
+      this.scatterplotLayer = null;
     }
   }
 
@@ -299,12 +284,12 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
 
   viewInfoDidUpdate() {
     const {
-      obsEmbeddingIndex,
-      obsEmbedding,
+      featureIds,
+      featurePositions,
     } = this.props;
     super.viewInfoDidUpdate(
-      obsEmbeddingIndex,
-      obsEmbedding,
+      featureIds,
+      featurePositions,
       makeFlippedGetObsCoords,
     );
   }
@@ -323,20 +308,20 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     let forceUpdate = false;
-    if (['obsEmbedding'].some(shallowDiff)) {
+    if (['featurePositions'].some(shallowDiff)) {
       // Cells data changed.
-      this.onUpdateCellsData();
+      this.onUpdateFeaturesData();
       forceUpdate = true;
     }
 
     if ([
-      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
-      'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
-      'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
+      'featureIds', 'featurePositions', 'cellSelection', 'cellColors',
+      'featureRadius', 'featureOpacity', 'geneExpressionColormap',
+      'geneExpressionColormapRange', 'geneSelection', 'featureColorEncoding',
       'getExpressionValue',
     ].some(shallowDiff)) {
       // Cells layer props changed.
-      this.onUpdateCellsLayer();
+      this.onUpdateFeaturesLayer();
       forceUpdate = true;
     }
 

@@ -303,7 +303,7 @@ export function VolcanoPlotSubscriber(props) {
           setCellSetLabelsVisible={setCellSetLabelsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
-          cellColorEncoding={cellColorEncoding}
+          featureColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
@@ -350,8 +350,8 @@ export function VolcanoPlotSubscriber(props) {
         xExtent={xExtent}
         yExtent={yExtent}
 
-        obsEmbeddingIndex={obsIndex}
-        obsEmbedding={obsXY}
+        featureIds={obsIndex}
+        featurePositions={obsXY}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
@@ -361,8 +361,8 @@ export function VolcanoPlotSubscriber(props) {
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadius={cellRadius}
-        cellOpacity={cellOpacity}
+        featureRadius={cellRadius}
+        featureOpacity={cellOpacity}
         cellColorEncoding={cellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
