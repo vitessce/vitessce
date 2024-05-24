@@ -113,7 +113,7 @@ function IndexWithHashParams() {
   const [isExpanded, setIsExpanded] = useState(isExpandedFromUrl);
 
   useEffect(() => {
-    if(!isExpandedFromUrl) {
+    if (!isExpandedFromUrl) {
       setIsExpanded(!isDemo);
     }
   }, [isDemo]);
