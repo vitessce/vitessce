@@ -43,8 +43,6 @@ import {
  * feature value transform function.
  * @param {number} featureValueTransformCoefficient A coefficient
  * to be used in the transform function.
- * @param {string} theme "light" or "dark" for the vitessce theme
- * `path` and `color`.
  */
 function useExpressionByCellSet(
   sampleEdges, sampleSets, sampleSetSelection,
@@ -66,7 +64,6 @@ function useExpressionByCellSet(
       expressionData, obsIndex, mergedCellSets,
       geneSelection, cellSetSelection, cellSetColor,
       featureValueTransform, featureValueTransformCoefficient,
-      theme,
     );
     if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(

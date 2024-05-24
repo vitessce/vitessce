@@ -76,14 +76,11 @@ describe('Utility functions for processing expression data', () => {
       const featureValueTransform = null;
       const featureValueTransformCoefficient = 1;
 
-      const theme = 'light';
-
       const [result, exprMax] = stratifyExpressionData(
         sampleEdges, sampleSets, sampleSetSelection,
         expressionData, obsIndex, mergedCellSets,
         geneSelection, cellSetSelection, cellSetColor,
         featureValueTransform, featureValueTransformCoefficient,
-        theme,
       );
 
       expect([...result.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);

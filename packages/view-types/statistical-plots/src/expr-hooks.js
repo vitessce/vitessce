@@ -81,7 +81,6 @@ export function stratifyExpressionData(
   expressionData, obsIndex, mergedCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme,
 ) {
   const result = new InternMap([], JSON.stringify);
 
@@ -135,6 +134,7 @@ export function stratifyExpressionData(
         continue;
       }
 
+      // eslint-disable-next-line no-loop-func
       geneKeys.forEach((geneKey, geneI) => {
         const value = expressionData[geneI][i];
         const transformFunction = getValueTransformFunction(
@@ -293,7 +293,12 @@ export function histogramStratifiedExpressionData(
     .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
 
   return {
-    groupSummaries, // Array of [{ key, value: [{ key, value: { quartiles, range, whiskers, chauvenetRange, nonOutliers } }] }]
+    // Array of [{ key, value: [
+    //   { key, value: {
+    //      quartiles, range, whiskers, chauvenetRange, nonOutliers }
+    //   }
+    // ] }]
+    groupSummaries,
     groupData, // Array of [{ key, value: [{ key, value: nonOutliers }] }]
     groupBins, // Array of [{ key, value: [{ key, value: histogram(nonOutliers) }] }]
     groupBinsMax, // Number
