@@ -1544,6 +1544,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/gl':
+        specifier: workspace:*
+        version: link:../../gl
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils

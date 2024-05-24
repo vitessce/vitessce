@@ -10,8 +10,8 @@ import {
   useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, getValueTransformFunction } from '@vitessce/utils';
-import { treeToObsIndicesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { VALUE_TRANSFORM_OPTIONS } from '@vitessce/utils';
+import { mergeObsSets } from '@vitessce/sets-utils';
 import { InternMap } from 'internmap';
 import { v4 as uuidv4 } from 'uuid';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
@@ -65,14 +65,20 @@ export function useExpressionSummaries(
       featureValueTransform, featureValueTransformCoefficient,
       'light',
     );
-    if(stratifiedData) {
+    if (stratifiedData) {
       const dotData = dotStratifiedExpressionData(
         stratifiedData, posThreshold,
       );
 
-      const geneToUuid = new Map(geneSelection?.map((gene) => [gene, uuidv4()]));
-      const cellSetToUuid = new InternMap(cellSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
-      const sampleSetToUuid = new InternMap(sampleSetSelection?.map((sampleSet) => ([sampleSet, uuidv4()])), JSON.stringify);
+      const geneToUuid = new Map(geneSelection?.map(gene => [gene, uuidv4()]));
+      const cellSetToUuid = new InternMap(
+        cellSetSelection?.map(sampleSet => ([sampleSet, uuidv4()])),
+        JSON.stringify,
+      );
+      const sampleSetToUuid = new InternMap(
+        sampleSetSelection?.map(sampleSet => ([sampleSet, uuidv4()])),
+        JSON.stringify,
+      );
 
       const result = [];
       ([...dotData.keys()]).forEach((cellSetKey) => {
@@ -85,7 +91,7 @@ export function useExpressionSummaries(
 
               featureKey: geneToUuid.get(geneKey),
               feature: featureLabelsMap?.get(featureName) || featureName,
-              
+
               groupKey: cellSetToUuid.get(cellSetKey),
               group: cellSetKey.at(-1),
 
@@ -95,11 +101,11 @@ export function useExpressionSummaries(
               meanExpInGroup: dotObj.meanExpInGroup,
               fracPosInGroup: dotObj.fracPosInGroup,
               pctPosInGroup: dotObj.fracPosInGroup * 100.0,
-            })
+            });
           });
         });
       });
-      
+
       return [result, exprMax];
     }
     return [null, null];
@@ -239,6 +245,8 @@ export function DotPlotSubscriber(props) {
           transformOptions={transformOptions}
           featureValuePositivityThreshold={posThreshold}
           setFeatureValuePositivityThreshold={setPosThreshold}
+          featureValueColormap={featureValueColormap}
+          setFeatureValueColormap={setFeatureValueColormap}
         />
       )}
     >

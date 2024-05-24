@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useEffect } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import * as vegaImport from 'vega';
 import clsx from 'clsx';

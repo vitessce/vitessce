@@ -10,10 +10,8 @@ import {
   useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
+import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
 import {
-  treeToSelectedSetMap,
-  treeToObjectsBySetNames,
   treeToSetSizesBySetNames,
   mergeObsSets,
 } from '@vitessce/sets-utils';
@@ -70,7 +68,7 @@ function useExpressionByCellSet(
       featureValueTransform, featureValueTransformCoefficient,
       theme,
     );
-    if(stratifiedData) {
+    if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(
         stratifiedData, geneSelection,
       );

@@ -70,7 +70,7 @@ function generateLake2023Config() {
     fileType: 'sampleEdges.anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/lake_et_al.2.h5ad.zarr',
     options: {
-      path: 'obs/donor_id'
+      path: 'obs/donor_id',
     },
     coordinationValues: {
       sampleType: 'sample',
