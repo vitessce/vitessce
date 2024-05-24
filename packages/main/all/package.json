@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.3.7",
+  "version": "3.4.6",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -39,6 +39,7 @@
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/genomic-profiles": "workspace:*",
     "@vitessce/heatmap": "workspace:*",
+    "@vitessce/glb": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/layer-controller-beta": "workspace:*",
@@ -54,6 +55,7 @@
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/spatial-three": "workspace:*",
     "zod": "^3.21.4"
   },
   "devDependencies": {

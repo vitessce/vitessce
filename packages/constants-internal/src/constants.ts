@@ -20,6 +20,7 @@ export const ViewType = {
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
+  FEATURE_BAR_PLOT: 'featureBarPlot',
 };
 
 export const DataType = {
@@ -110,6 +111,8 @@ export const FileType = {
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
+  // GLB
+  OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
