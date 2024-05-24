@@ -281,7 +281,7 @@ export function VolcanoPlotSubscriber(props) {
   return (
     <TitleInfo
       title={title}
-      info={`${commaNumber(cellsCount)} ${plur(obsType, cellsCount)}`}
+      info={`${commaNumber(cellsCount)} ${plur(featureType, cellsCount)}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -344,11 +344,18 @@ export function VolcanoPlotSubscriber(props) {
         }}
         significanceThreshold={-Math.log10(0.05)}
         foldChangeThreshold={1.0}
-        significantColor={[255, 255, 255]}
-        insignificantColor={[80, 80, 80]}
+        significantColor={[80, 80, 80]}
+        insignificantColor={[200, 200, 200]}
 
+        width={width}
+        height={height}
+        marginTop={40}
+        marginLeft={60}
+        marginRight={40}
+        marginBottom={60}
         xExtent={xExtent}
         yExtent={yExtent}
+        
 
         featureIds={obsIndex}
         featurePositions={obsXY}

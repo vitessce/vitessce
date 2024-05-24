@@ -14,7 +14,7 @@ import {
         obsType: 'cell',
         featureType: 'gene',
         featureValueType: 'expression',
-        embeddingType: 'UMAP',
+        embeddingType: 'DensMAP',
       },
       options: {
         obsFeatureMatrix: {
@@ -90,12 +90,12 @@ import {
     const featureList = vc.addView(dataset, 'featureList');
     const volcanoPlot = vc.addView(dataset, 'volcanoPlot');
   
-    vc.linkViews([scatterplot], ['embeddingType'], ['UMAP']);
+    vc.linkViews([scatterplot], ['embeddingType'], ['DensMAP']);
   
     vc.linkViewsByObject([scatterplot, volcanoPlot, featureList], {
       featureSelection: ['ENSG00000169344'],
       obsColorEncoding: 'geneSelection',
-      featureValueColormapRange: [0, 0.25],
+      featureValueColormapRange: [0, 1.00],
     }, { meta: false });
 
     vc.linkViews([volcanoPlot], ['sampleType', 'sampleSetSelection'], ['sample', [

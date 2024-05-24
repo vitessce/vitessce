@@ -57,7 +57,15 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
 
   createAxisLayers() {
     const {
+      theme,
+      viewState,
       xExtent,
+      height,
+      width,
+      marginTop,
+      marginLeft,
+      marginRight,
+      marginBottom,
     } = this.props;
     if(!xExtent || !this.props.yExtent) return [];
     const yExtent = [-this.props.yExtent[1], this.props.yExtent[0]];
@@ -72,14 +80,42 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       .domain(yExtent)
     const yTicks = yScale.ticks();
 
+    const bgColor = (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]);
+    const fgColor = (theme === 'dark' ? [255, 255, 255] : [0, 0, 0]);
+
+    const { zoom, target } = viewState;
+    const scaleFactor = 2 ** zoom;
+    function toDynamicX(fixedX) {
+      const targetX = target[0];
+      return targetX + ((fixedX - (width/2)) / scaleFactor);
+    }
+    
+    function toDynamicY(fixedY) {
+      const targetY = target[1];
+      return targetY + ((fixedY - (height/2)) / scaleFactor);
+    }
+    
+    function toDynamicSize(fixedSize) {
+      return fixedSize / scaleFactor;
+    }
+
+
     return [
       new deck.LineLayer({
         id: 'axis-lines',
         data: [
-          { source: [xExtent[0], 0], target: [xExtent[1], 0] }, // x-axis
-          { source: [xExtent[0], yExtent[0]], target: [xExtent[0], yExtent[1]] }, // y-axis
+          {
+            // x-axis
+            source: [toDynamicX(marginLeft), toDynamicY(height - marginBottom)],
+            target: [toDynamicX(width - marginRight), toDynamicY(height - marginBottom)]
+          },
+          {
+            // y-axis
+            source: [toDynamicX(marginLeft), toDynamicY(marginTop)],
+            target: [toDynamicX(marginLeft), toDynamicY(height - marginBottom)]
+          },
         ],
-        getColor: [255, 255, 255],
+        getColor: fgColor,
         getSourcePosition: d => d.source,
         getTargetPosition: d => d.target,
         getWidth: 2,
@@ -87,20 +123,20 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       new deck.TextLayer({
         id: 'x-axis-ticks',
         data: xTicks,
-        getPosition: d => [d, 0.75],
+        getPosition: d => [d, toDynamicY(height - marginBottom + 20)],
         getText: d => `${d}`,
-        getSize: 0.5,
-        getColor: [255, 255, 255],
+        getSize: d => toDynamicSize(15, viewState),
+        getColor: fgColor,
         fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
       new deck.TextLayer({
         id: 'y-axis-ticks',
         data: yTicks,
-        getPosition: d => [-10.75, d],
+        getPosition: d => [toDynamicX(marginLeft - 20), d],
         getText: d => `${d}`,
-        getSize: 0.5,
-        getColor: [255, 255, 255],
+        getSize: toDynamicSize(15, viewState),
+        getColor: fgColor,
         fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
@@ -109,10 +145,10 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         data: [
           { text: 'log2(Fold Change)' },
         ],
-        getPosition: d => [d, 1.5],
+        getPosition: d => [toDynamicX(width/2), toDynamicY(height - marginBottom + 40)],
         getText: d => d.text,
-        getSize: 0.5,
-        getColor: [255, 255, 255],
+        getSize: d => toDynamicSize(15),
+        getColor: fgColor,
         fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
@@ -122,10 +158,10 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
           { text: '-log10(Adjusted p-value)' },
         ],
         getAngle: 90,
-        getPosition: d => [-11.5, yMid],
+        getPosition: d => [toDynamicX(marginLeft - 40), toDynamicY(height/2)],
         getText: d => d.text,
-        getSize: 0.5,
-        getColor: [255, 255, 255],
+        getSize: d => toDynamicSize(15),
+        getColor: fgColor,
         fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
@@ -183,7 +219,14 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         }
         return insignificantColor;
       },
-      getRadius: 1,
+      getRadius: (object, { index, data }) => {
+        const foldChange = data.src.featurePositions.data[0][index];
+        const significance = data.src.featurePositions.data[1][index];
+        if (Math.abs(foldChange) >= foldChangeThreshold && significance >= significanceThreshold) {
+          return 1.5;
+        }
+        return 1;
+      },
       getExpressionValue,
       getLineWidth: 0,
       extensions: [
@@ -245,7 +288,8 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     } = this;
     return [
       scatterplotLayer,
-      ...axisLayers,
+     // ...axisLayers,
+     ...this.createAxisLayers(),
       this.createSelectionLayer(),
     ];
   }
