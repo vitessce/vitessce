@@ -1,4 +1,13 @@
 
+## 3.4.6
+
+### Patch Changes
+
+- Add expand=true URL parameter for docs site. (`docs`) ([#1884](https://github.com/vitessce/vitessce/pull/1884))
+
+- Fix status check for Enter XR button. (`@vitessce/spatial-three`) ([#1876](https://github.com/vitessce/vitessce/pull/1876))
+
+
 ## 3.4.5
 
 ### Patch Changes
