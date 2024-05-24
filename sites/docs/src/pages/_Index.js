@@ -86,6 +86,7 @@ function IndexWithHashParams() {
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
+  const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,10 +110,12 @@ function IndexWithHashParams() {
 
   // Initialize to collapsed if this is a demo.
   // Otherwise, initialize to expanded.
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(isExpandedFromUrl);
 
   useEffect(() => {
-    setIsExpanded(!isDemo);
+    if(!isExpandedFromUrl) {
+      setIsExpanded(!isDemo);
+    }
   }, [isDemo]);
 
   // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
