@@ -104,7 +104,7 @@ export function VitS(props) {
       // Convert the array of PluginAsyncFunction instances to a mapping
       // from function type strings to async functions.
       asyncFunctionsProp?.map(p => ([p.functionType, p.asyncFunction]))
-      || []
+      || [],
     ),
     [asyncFunctionsProp],
   );

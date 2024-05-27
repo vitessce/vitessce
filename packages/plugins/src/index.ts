@@ -93,6 +93,7 @@ type AsyncFunctionType = string;
 
 export class PluginAsyncFunction {
   functionType: AsyncFunctionType;
+
   asyncFunction: AsyncFunction;
 
   constructor(functionType: AsyncFunctionType, asyncFunction: AsyncFunction) {
