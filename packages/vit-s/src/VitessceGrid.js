@@ -37,6 +37,7 @@ const margin = 5;
  * @param {PluginViewType[]} props.viewTypes
  * @param {PluginFileType[]} props.fileTypes
  * @param {PluginCoordinationType[]} props.coordinationTypes
+ * @param {boolean} props.pageMode
  */
 export default function VitessceGrid(props) {
   const {
@@ -51,6 +52,8 @@ export default function VitessceGrid(props) {
     fileTypes,
     coordinationTypes,
     stores,
+    pageMode,
+    children,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -112,6 +115,7 @@ export default function VitessceGrid(props) {
     >
       {layout ? (
         <VitessceGridLayout
+          pageMode={pageMode}
           role="group"
           layout={layout}
           height={height}
@@ -126,7 +130,9 @@ export default function VitessceGrid(props) {
           isBounded={isBounded}
           onResize={onResize}
           onResizeStop={onResize}
-        />
+        >
+          {children}
+        </VitessceGridLayout>
       ) : null}
     </div>
   );
