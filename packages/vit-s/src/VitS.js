@@ -60,6 +60,7 @@ import { createGenerateClassName } from './mui-utils.js';
  * @param {array} props.jointFileTypes Plugin joint file types.
  * @param {array} props.coordinationTypes Plugin coordination types.
  * @param {null|object} props.warning A warning to render within the Vitessce grid,
+ * @param {boolean} props.pageMode Whether to render in page mode. By default, false.
  * provided by the parent.
  */
 export function VitS(props) {
@@ -82,6 +83,8 @@ export function VitS(props) {
     jointFileTypes: jointFileTypesProp,
     coordinationTypes: coordinationTypesProp,
     warning,
+    pageMode = false,
+    children,
   } = props;
 
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
@@ -220,6 +223,7 @@ export function VitS(props) {
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <VitessceGrid
+                pageMode={pageMode}
                 success={success}
                 configKey={configKey}
                 viewTypes={viewTypes}
@@ -231,7 +235,9 @@ export function VitS(props) {
                 theme={theme}
                 isBounded={isBounded}
                 stores={stores}
-              />
+              >
+                {children}
+              </VitessceGrid>
               <CallbackPublisher
                 onWarn={onWarn}
                 onConfigChange={onConfigChange}
