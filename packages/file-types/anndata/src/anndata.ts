@@ -48,7 +48,7 @@ export default class AnnData<S extends Readable, D extends zarr.NumberDataType> 
 export async function readZarr(path: string | Readable) {
   let root: zarr.Group<Readable>;
   if (typeof path == "string") {
-    const store = await zarr.tryWithConsolidated(new FetchStore(path));
+    const store = await zarr.tryWithConsolidated(new zarr.FetchStore(path));
     root = await zarr.open(store, { kind: "group" });
   } else {
     root = await zarr.open(path, { kind: "group" });
