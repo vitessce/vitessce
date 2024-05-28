@@ -12,7 +12,7 @@ export default class AxisArrays<S extends Readable> {
     this.root = root.resolve(axisKey);
   }
 
-  public async get(key: string): Promise<zarr.Array<zarr.NumberDataType, Readable> | SparseArray<zarr.NumberDataType> | LazyCategoricalArray<zarr.NumberDataType, zarr.DataType, Readable>> {
+  public async get(key: string): Promise<zarr.Array<zarr.DataType, Readable> | SparseArray<zarr.NumberDataType> | LazyCategoricalArray<zarr.NumberDataType, zarr.DataType, Readable>> {
     // categories needed for backward compat
     const keyRoot = this.root.resolve(key);
     const keyNode = await zarr.open(keyRoot);
@@ -30,6 +30,6 @@ export default class AxisArrays<S extends Readable> {
     if (["csc_format", "csr_format"].includes(encodingType)) {
       return readSparse(keyNode as zarr.Group<Readable>)
     }
-    return (keyNode as zarr.Array<zarr.NumberDataType, S>);
+    return (keyNode as zarr.Array<zarr.DataType, S>);
   }
 }
