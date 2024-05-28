@@ -6,22 +6,28 @@ import SparseArray from './sparse_array';
 import { AxisKey, AxisKeys } from "./types";
 import { readSparse } from "./utils";
 interface AxisKeyTypes<S extends Readable, D extends zarr.NumberDataType> {
-  obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D>
+  obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D>, layers: AxisArrays<S>, obsp: AxisArrays<S>, varp: AxisArrays<S>
 }
 
 class AnnData<S extends Readable, D extends zarr.NumberDataType> {
   public obs: AxisArrays<S>;
   public var: AxisArrays<S>;
   public obsm: AxisArrays<S>;
+  public obsp: AxisArrays<S>;
   public varm: AxisArrays<S>;
+  public varp: AxisArrays<S>;
   public X: SparseArray<D> | zarr.Array<D>;
+  public layers: AxisArrays<S>
 
   constructor(data: AxisKeyTypes<S, D>) {
     this.obs = data['obs'];
     this.var = data['var'];
     this.obsm = data['obsm'];
+    this.obsp = data['obsm'];
     this.varm = data['varm'];
+    this.varp = data['varm'];
     this.X = data['X'];
+    this.layers = data['layers'];
   }
 
   private async names(grp: zarr.Group<S>) {
