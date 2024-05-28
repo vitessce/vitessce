@@ -26,7 +26,7 @@ export default class SampleSetsCsvLoader extends CsvLoader {
       cellSetScores,
     ], setsArr);
     const obsSetsMembership = treeToMembershipMap(cellSetsTree);
-    
+
     const coordinationValues = {};
     // Create a list of sample set objects with color mappings.
     const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);

@@ -171,8 +171,8 @@ export function CellSetExpressionPlotSubscriber(props) {
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
     loaders, dataset, false,
-    { setSampleSetColor: setSampleSetColor },
-    { sampleSetColor: sampleSetColor },
+    { setSampleSetColor },
+    { sampleSetColor },
     { sampleType },
   );
 
