@@ -2,7 +2,6 @@
 import { readZarr } from "./anndata";
 import { describe, expect, it } from "vitest";
 import { get } from "./utils";
-import * as zarr from "zarrita";
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 
 import anndata_0_7_DenseFixture from "../../zarr/src/json-fixtures/anndata-0.7/anndata-dense.json";
