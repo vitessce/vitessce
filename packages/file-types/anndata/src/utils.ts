@@ -82,14 +82,8 @@ function isTypedArrayFromDtype(data: any, dtype: zarr.DataType): data is Int8Arr
   return !isZarrStringTypedArrayFromDtype(data, dtype) && !isZarrBoolTypedArrayFromDtype(data, dtype) // ok, probably not a great idea
 }
 
-export async function get<K extends IntType, D extends zarr.DataType, S extends Readable>(
-  array: LazyCategoricalArray<K, D, S>, selection?: AxisSelection | FullSelection
-): Promise<zarr.Chunk<K>>;
-export async function get<N extends zarr.NumberDataType, S extends Readable>(
-  array: SparseArray<N>, selection?: AxisSelection | FullSelection
-): Promise<zarr.Chunk<N>>;
 export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends IntType, S extends Readable>(
-  array: zarr.Array<L, S> | SparseArray<N> | LazyCategoricalArray<K, L, S>, selection?: AxisSelection | FullSelection
+  array: zarr.Array<L, S> | SparseArray<N> | LazyCategoricalArray<K, L, S>, selection: AxisSelection | FullSelection = null
 ): Promise<zarr.Chunk<L | N>> { // is this better than just a union? maybe?
   if (isLazyCategoricalArray(array)) {
     const codes = await zarr.get(array.codes, null);
