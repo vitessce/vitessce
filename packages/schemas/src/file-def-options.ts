@@ -30,6 +30,7 @@ const annDataConvenienceObsEmbeddingItem = z.object({
 
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
+const annDataFeatureStats = annDataObs; // TODO: customize
 const annDataSampleEdges = annDataObs;
 const annDataObsFeatureMatrix = z.object({
   path: z.string(),
@@ -178,6 +179,7 @@ export const obsSetsAnndataSchema = annDataObsSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
+export const featureStatsAnndataSchema = annDataFeatureStats;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
 

@@ -22,6 +22,7 @@ export {
   obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
+  featureStatsAnndataSchema,
   sampleEdgesAnndataSchema,
   anndataZarrSchema,
   spatialdataZarrSchema,

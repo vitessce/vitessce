@@ -14,6 +14,7 @@ import {
   useUint8FeatureSelection,
   useExpressionValueGetter,
   useObsSetsData,
+  useFeatureStatsData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useCoordination,
@@ -22,18 +23,17 @@ import {
   useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import {
-  getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
+  mergeObsSets, setObsSelection, getCellColors,
 } from '@vitessce/sets-utils';
 import {
-  ObservationScatterplot,
+  FeatureScatterplot,
   ScatterplotTooltipSubscriber,
   ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
-  EmptyMessage,
 } from '@vitessce/scatterplot';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import GatingScatterplotOptions from './GatingScatterplotOptions.js';
+import VolcanoPlotOptions from './VolcanoPlotOptions.js';
 
 /**
    * A subscriber component for the gating scatterplot.
@@ -48,7 +48,7 @@ import GatingScatterplotOptions from './GatingScatterplotOptions.js';
    * @param {number} props.averageFillDensity Override the average fill density calculation
    * when using dynamic opacity mode.
    */
-export function GatingSubscriber(props) {
+export function VolcanoPlotSubscriber(props) {
   const {
     uuid,
     coordinationScopes,
@@ -69,80 +69,67 @@ export function GatingSubscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
-    obsType,
+    obsType = 'cell',
+    sampleType,
     featureType,
     featureValueType,
-    embeddingZoom: zoom,
-    embeddingTargetX: targetX,
-    embeddingTargetY: targetY,
-    embeddingTargetZ: targetZ,
+    volcanoZoom: zoom,
+    volcanoTargetX: targetX,
+    volcanoTargetY: targetY,
+    volcanoTargetZ: targetZ,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
     obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
-    embeddingObsSetPolygonsVisible: cellSetPolygonsVisible,
-    embeddingObsSetLabelsVisible: cellSetLabelsVisible,
-    embeddingObsSetLabelSize: cellSetLabelSize,
-    embeddingObsRadius: cellRadiusFixed,
-    embeddingObsRadiusMode: cellRadiusMode,
-    embeddingObsOpacity: cellOpacityFixed,
-    embeddingObsOpacityMode: cellOpacityMode,
+    volcanoFeatureLabelsVisible: cellSetLabelsVisible, // TODO: rename
+    volcanoFeatureLabelSize: cellSetLabelSize, // TODO: rename
+    volcanoFeatureRadius: cellRadiusFixed,
+    volcanoFeatureRadiusMode: cellRadiusMode,
+    volcanoFeatureOpacity: cellOpacityFixed,
+    volcanoFeatureOpacityMode: cellOpacityMode,
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
-    featureSelection: gatingFeatureSelectionColor,
     featureValueTransform,
     featureValueTransformCoefficient,
     gatingFeatureSelectionX,
     gatingFeatureSelectionY,
+    featureSelection,
+    sampleSetSelection,
   }, {
-    setEmbeddingZoom: setZoom,
-    setEmbeddingTargetX: setTargetX,
-    setEmbeddingTargetY: setTargetY,
-    setEmbeddingTargetZ: setTargetZ,
+    setVolcanoZoom: setZoom,
+    setVolcanoTargetX: setTargetX,
+    setVolcanoTargetY: setTargetY,
+    setVolcanoTargetZ: setTargetZ,
     setObsFilter: setCellFilter,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setAdditionalObsSets: setAdditionalCellSets,
-    setEmbeddingObsSetPolygonsVisible: setCellSetPolygonsVisible,
-    setEmbeddingObsSetLabelsVisible: setCellSetLabelsVisible,
-    setEmbeddingObsSetLabelSize: setCellSetLabelSize,
-    setEmbeddingObsRadius: setCellRadiusFixed,
-    setEmbeddingObsRadiusMode: setCellRadiusMode,
-    setEmbeddingObsOpacity: setCellOpacityFixed,
-    setEmbeddingObsOpacityMode: setCellOpacityMode,
+    setVolcanoFeatureLabelsVisible: setCellSetLabelsVisible,
+    setVolcanoFeatureLabelSize: setCellSetLabelSize,
+    setVolcanoFeatureRadius: setCellRadiusFixed,
+    setVolcanoFeatureRadiusMode: setCellRadiusMode,
+    setVolcanoFeatureOpacity: setCellOpacityFixed,
+    setVolcanoFeatureOpacityMode: setCellOpacityMode,
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
+    setFeatureSelection,
+    setSampleSetSelection,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.GATING],
+    COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
     coordinationScopes,
   );
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const title = useMemo(() => {
-    if (titleOverride) {
-      return titleOverride;
-    }
-    if (!(gatingFeatureSelectionX && gatingFeatureSelectionY)) {
-      return 'Gating';
-    }
-    return `Gating (${gatingFeatureSelectionX} vs ${gatingFeatureSelectionY})`;
-  }, [titleOverride, gatingFeatureSelectionX, gatingFeatureSelectionY]);
-
-  const featureSelectionX = useMemo(() => (
-    gatingFeatureSelectionX ? [gatingFeatureSelectionX] : null
-  ), [gatingFeatureSelectionX]);
-  const featureSelectionY = useMemo(() => (
-    gatingFeatureSelectionY ? [gatingFeatureSelectionY] : null
-  ), [gatingFeatureSelectionY]);
+  const title = 'Volcano Plot';
 
   // Get data from loaders using the data hooks.
   const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
@@ -151,76 +138,38 @@ export function GatingSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(
-    loaders, dataset, false, gatingFeatureSelectionColor,
-    { obsType, featureType, featureValueType },
-  );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionX,
-    { obsType, featureType, featureValueType },
-  );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(
-    loaders, dataset, false, featureSelectionY,
-    { obsType, featureType, featureValueType },
-  );
-  const [
-    { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
-  ] = useObsFeatureMatrixIndices(
+  const [featureStats, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
     loaders, dataset, false,
-    { obsType, featureType, featureValueType },
+    { featureType, sampleType },
+    // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
+    { sampleSetSelection },
   );
-  const cellsCount = obsIndex?.length || 0;
+
+  const obsIndex = featureStats?.featureId;
+  const featureIndex = featureStats?.featureId;
+  const expressionDataColor = null;
+  const cellsCount = featureStats?.featureId?.length || 0;
+
+  // TODO: load featureLabelsData here for conversion to human-readable gene symbols.
 
   const isReady = useReady([
-    obsSetsStatus,
-    featureSelectionColorStatus,
-    featureSelectionXStatus,
-    featureSelectionYStatus,
-    matrixIndicesStatus,
+    featureStatsStatus,
   ]);
-  const urls = useUrls([
-    obsSetsUrls,
-    matrixIndicesUrls,
-  ]);
+  const urls = useUrls([]);
 
   // Generate a new cells object with a mapping added for the user selected genes.
   const obsXY = useMemo(() => {
-    if (!(cellsCount && expressionDataX?.[0] && expressionDataY?.[0]
-      && featureSelectionX && featureSelectionY
-    )) {
+    if (!featureStats.featureSignificance || !featureStats.featureFoldChange) {
       return null;
     }
 
-    // Get transform coefficient for log and arcsinh
-    let coefficient = 1;
-    const parsedTransformCoefficient = Number(featureValueTransformCoefficient);
-    if (!Number.isNaN(parsedTransformCoefficient) && parsedTransformCoefficient > 0) {
-      coefficient = parsedTransformCoefficient;
-    }
-
-    // Set transform function
-    const transformFunction = getValueTransformFunction(
-      featureValueTransform,
-      coefficient,
-    );
-
-    const obsX = new Float32Array(cellsCount);
-    const obsY = new Float32Array(cellsCount);
-    for (let i = 0; i < cellsCount; i += 1) {
-      obsX[i] = transformFunction(expressionDataX[0][i]);
-      obsY[i] = transformFunction(expressionDataY[0][i]);
-    }
+    const obsX = new Float32Array(featureStats.featureFoldChange);
+    const obsY = new Float32Array(featureStats.featureSignificance);
     return {
       data: [obsX, obsY],
-      shape: [2, cellsCount],
+      shape: [2, obsX.length],
     };
-  }, [cellsCount, expressionDataX, expressionDataY,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureSelectionX, featureSelectionY,
-  ]);
+  }, [featureStats]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
@@ -246,33 +195,6 @@ export function GatingSubscriber(props) {
     theme,
   }), [mergedCellSets, theme,
     cellSetSelection, cellSetColor, obsIndex]);
-
-  // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
-  // where the keys are cellSetSelection arrays.
-  const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
-  const cacheHas = (cache, key) => cache.findIndex(el => isEqual(el[0], key)) !== -1;
-  const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
-  const cellSetPolygons = useMemo(() => {
-    if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
-      && mergedCellSets?.tree?.length
-      && obsXY
-      && obsIndex
-      && cellSetColor?.length) {
-      const newCellSetPolygons = getCellSetPolygons({
-        obsIndex,
-        obsEmbedding: obsXY,
-        cellSets: mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
-        theme,
-      });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
-      return newCellSetPolygons;
-    }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
-  }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsIndex, obsXY, mergedCellSets, cellSetSelection, cellSetColor]);
 
 
   const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
@@ -305,9 +227,10 @@ export function GatingSubscriber(props) {
       setDynamicCellOpacity(nextCellOpacityScale);
 
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        const newTargetX = xExtent[0] + xRange / 2;
+        const newTargetX = xExtent[0] + xRange / 2
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
+
         setTargetX(newTargetX);
         // Graphics rendering has the y-axis going south so we need to multiply by negative one.
         setTargetY(-newTargetY);
@@ -353,10 +276,12 @@ export function GatingSubscriber(props) {
     gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
   ]);
 
+
+
   return (
     <TitleInfo
       title={title}
-      info={`${commaNumber(cellsCount)} ${plur(obsType, cellsCount)}`}
+      info={`${commaNumber(cellsCount)} ${plur(featureType, cellsCount)}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -378,16 +303,14 @@ export function GatingSubscriber(props) {
           setCellSetLabelsVisible={setCellSetLabelsVisible}
           cellSetLabelSize={cellSetLabelSize}
           setCellSetLabelSize={setCellSetLabelSize}
-          cellSetPolygonsVisible={cellSetPolygonsVisible}
-          setCellSetPolygonsVisible={setCellSetPolygonsVisible}
-          cellColorEncoding={cellColorEncoding}
+          featureColorEncoding={cellColorEncoding}
           setCellColorEncoding={setCellColorEncoding}
           geneExpressionColormap={geneExpressionColormap}
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
         >
-          <GatingScatterplotOptions
+          <VolcanoPlotOptions
             featureType={featureType}
             gatingFeatureSelectionX={gatingFeatureSelectionX}
             setGatingFeatureSelectionX={setGatingFeatureSelectionX}
@@ -408,37 +331,45 @@ export function GatingSubscriber(props) {
         </ScatterplotOptions>
       )}
     >
-      <EmptyMessage
-        visible={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-        message={`Select two ${plur(featureType, 2)} in the plot settings.`}
-      />
-      <ObservationScatterplot
+      <FeatureScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom, target: [targetX, targetY] }}
         setViewState={({ zoom: newZoom, target }) => {
           setZoom(newZoom);
           setTargetX(target[0]);
           setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
         }}
-        obsEmbeddingIndex={obsIndex}
-        obsEmbedding={obsXY}
+        significanceThreshold={-Math.log10(0.05)}
+        foldChangeThreshold={1.0}
+        significantColor={[80, 80, 80]}
+        insignificantColor={[200, 200, 200]}
+
+        width={width}
+        height={height}
+        marginTop={40}
+        marginLeft={60}
+        marginRight={40}
+        marginBottom={60}
+        xExtent={xExtent}
+        yExtent={yExtent}
+        
+
+        featureIds={obsIndex}
+        featurePositions={obsXY}
         cellFilter={cellFilter}
         cellSelection={cellSelection}
         cellHighlight={cellHighlight}
         cellColors={cellColors}
-        cellSetPolygons={cellSetPolygons}
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
-        cellSetPolygonsVisible={cellSetPolygonsVisible}
         setCellFilter={setCellFilter}
         setCellSelection={setCellSelectionProp}
         setCellHighlight={setCellHighlight}
-        cellRadius={cellRadius}
-        cellOpacity={cellOpacity}
+        featureRadius={cellRadius}
+        featureOpacity={cellOpacity}
         cellColorEncoding={cellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
