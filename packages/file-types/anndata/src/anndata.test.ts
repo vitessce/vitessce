@@ -27,19 +27,19 @@ describe("AnnData", () => {
       const adata = await readZarr(store as Readable);
       it("obs column", async () => {
         const ids = await adata.obs.get("leiden");
-        expect(Array.from((await get(ids)).data)).toEqual(["1", "1", "2"]);
+        expect(Array.from((await get(ids, [null])).data)).toEqual(["1", "1", "2"]);
       });
       it("obs index", async () => {
         const ids = await adata.obsNames();
-        expect(Array.from((await get(ids)).data)).toEqual(["CTG", "GCA", "CTG"]);
+        expect(Array.from((await get(ids, [null])).data)).toEqual(["CTG", "GCA", "CTG"]);
       });
       it("var index", async () => {
         const ids = await adata.varNames();
-        expect(Array.from((await get(ids)).data)).toEqual([...new Array(15).keys()].map((k: number) => `gene_${k}`));
+        expect(Array.from((await get(ids, [null])).data)).toEqual([...new Array(15).keys()].map((k: number) => `gene_${k}`));
       });
       it("obsm", async () => {
         const data = await adata.obsm.get("X_umap");
-        expect(await get(data)).toEqual(
+        expect(await get(data, [null, null])).toEqual(
           {
             data: new Int32Array([-1, -1, 0, 0, 1, 1]),
             shape: [3, 2],
@@ -49,11 +49,18 @@ describe("AnnData", () => {
       });
       it("X", async () => {
         const data = await adata.X;
-        expect(await get(data)).toEqual(
+        expect(await get(data, [null, null])).toEqual(
           {
             data: new Float32Array(Array.from(Array(45).keys()).map(j => j % 15)),
             shape: [3, 15],
             stride: [15, 1]
+          }
+        );
+        expect(await get(data, [0, null])).toEqual(
+          {
+            data: new Float32Array(Array.from(Array(15).keys())),
+            shape: [15],
+            stride: [1]
           }
         );
       });
@@ -65,11 +72,18 @@ describe("AnnData", () => {
       const adata = await readZarr(store as Readable);
       it("adata X", async () => {
         const data = adata.X;
-        expect(await get(data)).toEqual(
+        expect(await get(data, [null, null])).toEqual(
           {
             data: new Float32Array(Array.from(Array(45).keys()).map(j => j % 15)),
             shape: [3, 15],
             stride: [15, 1]
+          }
+        );
+        expect(await get(data, [0, null])).toEqual(
+          {
+            data: new Float32Array(Array.from(Array(15).keys())),
+            shape: [15],
+            stride: [1]
           }
         );
       });
@@ -81,11 +95,18 @@ describe("AnnData", () => {
       const adata = await readZarr(store as Readable);
       it("adata X", async () => {
         const data = adata.X;
-        expect(await get(data)).toEqual(
+        expect(await get(data, [null, null])).toEqual(
           {
             data: new Float32Array(Array.from(Array(45).keys()).map(j => j % 15)),
             shape: [3, 15],
             stride: [15, 1]
+          }
+        );
+        expect(await get(data, [0, null])).toEqual(
+          {
+            data: new Float32Array(Array.from(Array(15).keys())),
+            shape: [15],
+            stride: [1]
           }
         );
       });

@@ -1,7 +1,7 @@
 import * as zarr from "zarrita";
 import { LazyCategoricalArray, readSparse } from "./utils";
 
-import type { AxisKey, BackedArray, IntType } from "./types";
+import type { AxisKey, BackedArray, UIntType } from "./types";
 import { Readable } from "@zarrita/storage";
 
 export default class AxisArrays<S extends Readable> {
@@ -22,11 +22,11 @@ export default class AxisArrays<S extends Readable> {
         (await keyNode.attrs) as any;
       if (categories != undefined) {
         const cats = await zarr.open(this.root.resolve(categories), { kind: "array" });
-        this.cache.set(key, new LazyCategoricalArray((keyNode as zarr.Array<IntType, S>), cats))
+        this.cache.set(key, new LazyCategoricalArray((keyNode as zarr.Array<UIntType, S>), cats))
       }
       else if (encodingType === "categorical") {
         const cats = await zarr.open(keyRoot.resolve('categories'), { kind: "array" });
-        const codes = await zarr.open(keyRoot.resolve('codes'), { kind: "array" }) as zarr.Array<IntType, Readable>;
+        const codes = await zarr.open(keyRoot.resolve('codes'), { kind: "array" }) as zarr.Array<UIntType, Readable>;
         this.cache.set(key, new LazyCategoricalArray(codes, cats))
       }
       else if (["csc_format", "csr_format"].includes(encodingType)) {

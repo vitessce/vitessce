@@ -32,10 +32,12 @@ class SparseArray<D extends zarr.NumberDataType> {
         }
         const minorAxisSelection = selection[this.minorAxis]
         const majorAxisSelection = selection[this.majorAxis]
-        const finalSelection = new Array(2);
-        finalSelection[this.majorAxis] = null;
-        finalSelection[this.minorAxis] = minorAxisSelection
-        return zarr.get(await this.getContiguous(majorAxisSelection), finalSelection);
+        const arr = await this.getContiguous(majorAxisSelection)
+        const finalSelection = new Array(arr.shape.length).fill(null);
+        if (arr.shape.length > 1) {
+            finalSelection[this.minorAxis] = minorAxisSelection
+        }
+        return zarr.get(arr, finalSelection);
     }
 
     public get majorAxis(): number {
@@ -62,9 +64,10 @@ class SparseArray<D extends zarr.NumberDataType> {
             sliceEnd = s + 2;
         }
         const majorAxisSize = sliceEnd - sliceStart - 1;
-        const shape: number[] = new Array(2);
-        shape[this.majorAxis] = majorAxisSize
-        shape[this.minorAxis] = this.shape[this.minorAxis]
+        const shape: number[] = new Array(majorAxisSize > 1 ? 2 : 1).fill(this.shape[this.minorAxis]);
+        if (majorAxisSize > 1) {
+            shape[this.majorAxis] = majorAxisSize
+        }
 
         // Get start and stop of the data/indices based on major-axis selection
         const { data: indptr } = await zarr.get(this.indptr, [zarr.slice(sliceStart, sliceEnd)])
@@ -92,9 +95,11 @@ class SparseArray<D extends zarr.NumberDataType> {
         let { data } = await zarr.get(this.data, [
             zarr.slice(start, stop),
         ]);
-        const stride = new Array(2);
-        stride[this.majorAxis] = shape[this.minorAxis]
-        stride[this.minorAxis] = 1
+        const stride = new Array(majorAxisSize > 1 ? 2 : 1).fill(1);
+        if (majorAxisSize > 1) {
+            stride[this.majorAxis] = shape[this.minorAxis]
+            stride[this.minorAxis] = 1
+        }
         const chunk = {
             data: this.densify(indices, indptr, data, dense, shape),
             shape,
@@ -105,12 +110,16 @@ class SparseArray<D extends zarr.NumberDataType> {
     }
 
     densify(indices: zarr.TypedArray<zarr.NumberDataType>, indptr: zarr.TypedArray<zarr.NumberDataType>, data: zarr.TypedArray<zarr.NumberDataType>, dense: zarr.TypedArray<zarr.NumberDataType>, shape: number[]) {
+        let minorAxisLength = shape[0];
+        if (shape.length > 1) {
+            minorAxisLength = shape[this.minorAxis]
+        }
         for (let majorIdx = 0; majorIdx < indptr.length; majorIdx += 1) {
             const indptrStart = indptr[majorIdx];
             const indptrStop = indptr[majorIdx + 1];
             for (let indicesOrDataIndex = indptrStart; indicesOrDataIndex < indptrStop; indicesOrDataIndex += 1) {
                 const minorIdx = indices[indicesOrDataIndex];
-                dense[(majorIdx * shape[this.minorAxis]) + minorIdx] = data[indicesOrDataIndex];
+                dense[(majorIdx * minorAxisLength) + minorIdx] = data[indicesOrDataIndex];
             }
         }
         return dense

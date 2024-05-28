@@ -1,7 +1,7 @@
 import * as zarr from "zarrita";
 import { Readable } from "@zarrita/storage";
 import SparseArray from "./sparse_array";
-import { AxisSelection, FullSelection, IntType } from "./types";
+import { AxisSelection, FullSelection, UIntType } from "./types";
 import { BoolArray, ByteStringArray, UnicodeStringArray } from "@zarrita/typedarray";
 
 const V2_STRING_REGEX = /v2:([US])(\d+)/;
@@ -44,7 +44,7 @@ export function get_ctr<D extends zarr.DataType>(
 }
 
 
-export class LazyCategoricalArray<K extends IntType, D extends zarr.DataType, S extends Readable> {
+export class LazyCategoricalArray<K extends UIntType, D extends zarr.DataType, S extends Readable> {
   public codes: zarr.Array<K, S>;
 
   public categories: zarr.Array<D, S>;
@@ -58,7 +58,7 @@ export class LazyCategoricalArray<K extends IntType, D extends zarr.DataType, S 
   }
 }
 
-function isLazyCategoricalArray<K extends IntType, D extends zarr.DataType, S extends Readable>(
+function isLazyCategoricalArray<K extends UIntType, D extends zarr.DataType, S extends Readable>(
   array: LazyCategoricalArray<K, D, S> | any
 ): array is LazyCategoricalArray<K, D, S> {
   return (array as LazyCategoricalArray<K, D, S>).categories !== undefined;
@@ -82,12 +82,12 @@ function isTypedArrayFromDtype(data: any, dtype: zarr.DataType): data is Int8Arr
   return !isZarrStringTypedArrayFromDtype(data, dtype) && !isZarrBoolTypedArrayFromDtype(data, dtype) // ok, probably not a great idea
 }
 
-export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends IntType, S extends Readable>(
-  array: zarr.Array<L, S> | SparseArray<N> | LazyCategoricalArray<K, L, S>, selection: AxisSelection | FullSelection = null
+export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends UIntType, S extends Readable>(
+  array: zarr.Array<L, S> | SparseArray<N> | LazyCategoricalArray<K, L, S>, selection: FullSelection
 ): Promise<zarr.Chunk<L | N>> { // is this better than just a union? maybe?
   if (isLazyCategoricalArray(array)) {
-    const codes = await zarr.get(array.codes, null);
-    const categories = await zarr.get(array.categories, null); //
+    const codes = await zarr.get(array.codes, selection);
+    const categories = await zarr.get(array.categories, selection); //
     const dtype = array.categories.dtype;
     const data = new (get_ctr(array.categories.dtype))(codes.data.length); // TODO(ilan-gold): open issue in zarrita
     for (let i = 0; i < codes.data.length; i += 1) {
@@ -106,14 +106,9 @@ export async function get<L extends zarr.DataType, N extends zarr.NumberDataType
     return { ...codes, data };
   }
   if (isSparseArray(array)) {
-    if (!(selection instanceof Array)) {
-      return array.get([selection || null, null])
-    } else if (selection.length == 1) {
-      return array.get([selection[0], null])
-    }
     return array.get(selection)
   }
-  return zarr.get(array, null);
+  return zarr.get(array, selection);
 }
 
 
