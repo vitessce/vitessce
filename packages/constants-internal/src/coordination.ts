@@ -280,6 +280,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_COLOR,
   ],
   [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
@@ -410,6 +411,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_COLOR,
   ],
   higlass: [
     CoordinationType.DATASET,

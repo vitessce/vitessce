@@ -39,6 +39,7 @@ export default function CellSetExpressionPlot(props) {
     jitter,
     cellSetSelection,
     sampleSetSelection,
+    sampleSetColor,
     colors,
     data,
     theme,
@@ -120,7 +121,12 @@ export default function CellSetExpressionPlot(props) {
         .range(['left', 'right']);
       stratificationColor = scaleOrdinal()
         .domain(sampleSetNames)
-        .range(['gray', 'orange']);
+        .range(
+          // TODO: check for full path equality here.
+          sampleSetNames
+            .map(name => sampleSetColor?.find(d => d.path.at(-1) === name).color)
+            .map(colorArrayToString),
+        );
     }
 
     // Remove outliers on a per-group basis.

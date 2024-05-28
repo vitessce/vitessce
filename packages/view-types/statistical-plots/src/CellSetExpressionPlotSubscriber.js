@@ -135,9 +135,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     sampleType,
     sampleSetSelection,
+    sampleSetColor,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setSampleSetColor,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
@@ -168,7 +170,9 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
-    loaders, dataset, false, {}, {},
+    loaders, dataset, false,
+    { setSampleSetColor: setSampleSetColor },
+    { sampleSetColor: sampleSetColor },
     { sampleType },
   );
 
@@ -236,6 +240,7 @@ export function CellSetExpressionPlotSubscriber(props) {
             jitter={jitter}
             cellSetSelection={cellSetSelection}
             sampleSetSelection={sampleSetSelection}
+            sampleSetColor={sampleSetColor}
             colors={setArr}
             data={histogramData}
             exprMax={exprMax}

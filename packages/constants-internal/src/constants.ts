@@ -261,6 +261,7 @@ export const CoordinationType = {
   // Multi-sample / comparative
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SET_SELECTION: 'sampleSetSelection',
+  SAMPLE_SET_COLOR: 'sampleSetColor',
 };
 
 export const STATUS = {

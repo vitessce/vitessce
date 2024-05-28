@@ -494,4 +494,12 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.SAMPLE_SET_COLOR,
+    null,
+    z.array(z.object({
+      path: obsSetPath,
+      color: rgbArray,
+    })).nullable(),
+  ),
 ];
