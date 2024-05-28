@@ -1,8 +1,9 @@
 import * as zarr from "zarrita";
-import { LazyCategoricalArray } from "./utils";
+import { LazyCategoricalArray, readSparse } from "./utils";
 
 import type { AxisKey } from "./types";
 import { Readable } from "@zarrita/storage";
+import SparseArray from "./sparse_array";
 
 export default class AxisArrays<S extends Readable> {
   public root: zarr.Location<S>;
@@ -11,7 +12,7 @@ export default class AxisArrays<S extends Readable> {
     this.root = root.resolve(axisKey);
   }
 
-  public async get<D extends zarr.DataType>(key: string) {
+  public async get(key: string): Promise<zarr.Array<zarr.NumberDataType, Readable> | SparseArray<zarr.NumberDataType> | LazyCategoricalArray<zarr.NumberDataType, zarr.DataType, Readable>> {
     // categories needed for backward compat
     const keyRoot = this.root.resolve(key);
     const keyNode = await zarr.open(keyRoot);
@@ -19,13 +20,16 @@ export default class AxisArrays<S extends Readable> {
       (await keyNode.attrs) as any;
     if (categories != undefined) {
       const cats = await zarr.open(this.root.resolve(categories), { kind: "array" });
-      return new LazyCategoricalArray((keyNode as zarr.Array<D, S>), cats);
+      return new LazyCategoricalArray((keyNode as zarr.Array<zarr.NumberDataType, S>), cats);
     }
     if (encodingType === "categorical") {
       const cats = await zarr.open(keyRoot.resolve('categories'), { kind: "array" });
-      const codes = await zarr.open(keyRoot.resolve('codes'), { kind: "array" });
+      const codes = await zarr.open(keyRoot.resolve('codes'), { kind: "array" }) as zarr.Array<zarr.NumberDataType, Readable>;
       return new LazyCategoricalArray(codes, cats);
     }
-    return (keyNode as zarr.Array<D, S>);
+    if (["csc_format", "csr_format"].includes(encodingType)) {
+      return readSparse(keyNode as zarr.Group<Readable>)
+    }
+    return (keyNode as zarr.Array<zarr.NumberDataType, S>);
   }
 }
