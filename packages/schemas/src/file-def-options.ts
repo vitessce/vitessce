@@ -255,6 +255,7 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+  sampleEdges: annDataSampleEdges,
 }).partial();
 
 export const spatialdataZarrSchema = z.object({

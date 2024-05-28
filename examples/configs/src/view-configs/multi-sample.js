@@ -15,6 +15,7 @@ function generateLake2023Config() {
       featureType: 'gene',
       featureValueType: 'expression',
       embeddingType: 'UMAP',
+      sampleType: 'sample',
     },
     options: {
       obsFeatureMatrix: {
@@ -46,6 +47,9 @@ function generateLake2023Config() {
       featureLabels: {
         path: 'var/feature_name',
       },
+      sampleEdges: {
+        path: 'obs/donor_id',
+      },
     },
   }).addFile({
     fileType: 'sampleSets.csv',
@@ -65,16 +69,6 @@ function generateLake2023Config() {
     },
     coordinationValues: {
       sampleType: 'sample',
-    },
-  }).addFile({
-    fileType: 'sampleEdges.anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/lake_et_al.2.h5ad.zarr',
-    options: {
-      path: 'obs/donor_id',
-    },
-    coordinationValues: {
-      sampleType: 'sample',
-      obsType: 'cell',
     },
   });
 

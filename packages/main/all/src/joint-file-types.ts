@@ -35,6 +35,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       obsType: fileDef.coordinationValues?.obsType || 'cell',
       featureType: fileDef.coordinationValues?.featureType || 'gene',
       featureValueType: fileDef.coordinationValues?.featureValueType || 'expression',
+      sampleType: fileDef.coordinationValues?.sampleType || 'sample',
     },
   };
   const extraCoordinationValues: Record<string, any> = {};
@@ -192,6 +193,17 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         },
       }]
     ) : []),
+    // sampleEdges
+    ...(options.sampleEdges ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.SAMPLE_EDGES_ANNDATA_ZARR),
+      options: options.sampleEdges,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        sampleType: baseFileDef.coordinationValues.sampleType,
+      },
+    }] : []),
   ];
 }
 
