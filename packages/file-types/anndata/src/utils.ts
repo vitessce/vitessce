@@ -19,39 +19,39 @@ export class LazyCategoricalArray<K extends zarr.DataType, D extends zarr.DataTy
 }
 
 function isLazyCategoricalArray<K extends zarr.DataType, D extends zarr.DataType, S extends Readable>(
-  arr: LazyCategoricalArray<K, D, S> | any
-): arr is LazyCategoricalArray<K, D, S> {
-  return (arr as LazyCategoricalArray<K, D, S>).categories !== undefined;
+  array: LazyCategoricalArray<K, D, S> | any
+): array is LazyCategoricalArray<K, D, S> {
+  return (array as LazyCategoricalArray<K, D, S>).categories !== undefined;
 }
 
 function isSparseArray<K extends zarr.NumberDataType>(
-  arr: SparseArray<K> | any
-): arr is SparseArray<K> {
-  return (arr as SparseArray<K>).indptr !== undefined;
+  array: SparseArray<K> | any
+): array is SparseArray<K> {
+  return (array as SparseArray<K>).indptr !== undefined;
 }
 
 export async function get<K extends zarr.NumberDataType, D extends zarr.DataType, S extends Readable>(
-  arr: LazyCategoricalArray<K, D, S> | zarr.Array<D, S> | SparseArray<K>, sel: AxisSelection | FullSelection = null
+  array: LazyCategoricalArray<K, D, S> | zarr.Array<D, S> | SparseArray<K>, selection: AxisSelection | FullSelection = null
 ): Promise<zarr.Chunk<D | K>> {
-  if (isLazyCategoricalArray(arr)) {
-    const codes = await zarr.get(arr.codes, null);
-    const categories = await zarr.get(arr.categories, null); //
+  if (isLazyCategoricalArray(array)) {
+    const codes = await zarr.get(array.codes, null);
+    const categories = await zarr.get(array.categories, null); //
     const data = new Array(codes.data.length); // TODO(ilan-gold): better string array choice, how to construct from categories?
     Array.from(codes.data).forEach((val: number | bigint, ind: number) => {
-      const cat = Number(val)
-      data[ind] = (categories.data as any)[cat]; // TODO: what is up with this??
+      const category = Number(val)
+      data[ind] = (categories.data as any)[category]; // TODO: what is up with this??
     });
     return { ...codes, data: (data as typeof categories.data) };
   }
-  if (isSparseArray(arr)) {
-    if (!(sel instanceof Array)) {
-      return arr.get([sel, null])
-    } else if (sel.length == 1) {
-      return arr.get([sel[0], null])
+  if (isSparseArray(array)) {
+    if (!(selection instanceof Array)) {
+      return array.get([selection, null])
+    } else if (selection.length == 1) {
+      return array.get([selection[0], null])
     }
-    return arr.get(sel)
+    return array.get(selection)
   }
-  return zarr.get(arr, null);
+  return zarr.get(array, null);
 }
 
 

@@ -39,16 +39,16 @@ class SparseArray<D extends NumberDataType> {
         public readonly format: "csc" | "csr"
     ) { }
 
-    async get(sel: FullSelection) {
-        if (sel.length != 2) {
+    async get(selection: FullSelection) {
+        if (selection.length != 2) {
             throw new IndexingError("For sparse array, selection must be of length 2");
         }
-        const minorAxisSel = sel[this.minorAxis]
-        const majorAxisSel = sel[this.majorAxis]
-        const finalSel = new Array(2);
-        finalSel[this.majorAxis] = null;
-        finalSel[this.minorAxis] = minorAxisSel
-        return zarr.get(await this.getContiguous(majorAxisSel), finalSel);
+        const minorAxisSelection = selection[this.minorAxis]
+        const majorAxisSelection = selection[this.majorAxis]
+        const finalSelection = new Array(2);
+        finalSelection[this.majorAxis] = null;
+        finalSelection[this.minorAxis] = minorAxisSelection
+        return zarr.get(await this.getContiguous(majorAxisSelection), finalSelection);
     }
 
     public get majorAxis(): number {
