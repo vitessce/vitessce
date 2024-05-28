@@ -1,15 +1,15 @@
 // eslint-disable-next-line import/no-unresolved
 import * as zarr from "zarrita";
 import AxisArrays from "./axis_arrays";
-import { FetchStore, Readable } from "@zarrita/storage";
+import { Readable } from "@zarrita/storage";
 import SparseArray from './sparse_array';
-import { AxisKey, AxisKeys } from "./types";
+import { AxisKeys } from "./types";
 import { readSparse } from "./utils";
 interface AxisKeyTypes<S extends Readable, D extends zarr.NumberDataType> {
   obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D>, layers: AxisArrays<S>, obsp: AxisArrays<S>, varp: AxisArrays<S>
 }
 
-class AnnData<S extends Readable, D extends zarr.NumberDataType> {
+export default class AnnData<S extends Readable, D extends zarr.NumberDataType> {
   public obs: AxisArrays<S>;
   public var: AxisArrays<S>;
   public obsm: AxisArrays<S>;

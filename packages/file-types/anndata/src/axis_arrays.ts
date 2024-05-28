@@ -3,7 +3,6 @@ import { LazyCategoricalArray, readSparse } from "./utils";
 
 import type { AxisKey, BackedArray, IntType } from "./types";
 import { Readable } from "@zarrita/storage";
-import SparseArray from "./sparse_array";
 
 export default class AxisArrays<S extends Readable> {
   public root: zarr.Location<S>;

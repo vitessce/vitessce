@@ -2,7 +2,6 @@ import { Readable } from '@zarrita/storage';
 import * as zarr from 'zarrita';
 import { AxisSelection, FullSelection, Slice } from './types';
 import { CONSTRUCTORS } from './utils'
-import { NumberDataType } from 'zarrita';
 
 class IndexingError {
     public message: string
@@ -17,7 +16,7 @@ function isSlice(s: any): s is Slice {
 
 
 // TODO: Make this and other data types more restricitve but how?
-class SparseArray<D extends NumberDataType> {
+class SparseArray<D extends zarr.NumberDataType> {
 
     constructor(
         public readonly indices: zarr.Array<zarr.NumberDataType, Readable>,
