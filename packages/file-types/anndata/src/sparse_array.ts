@@ -1,6 +1,7 @@
 import { Readable } from '@zarrita/storage';
 import * as zarr from 'zarrita';
 import { AxisSelection, FullSelection, Slice } from './types';
+import { CONSTRUCTORS } from './utils'
 import { NumberDataType } from 'zarrita';
 
 class IndexingError {
@@ -9,19 +10,6 @@ class IndexingError {
         this.message = message
     }
 }
-
-const CONSTRUCTORS = {
-    int8: Int8Array,
-    int16: Int16Array,
-    int32: Int32Array,
-    int64: globalThis.BigInt64Array,
-    uint8: Uint8Array,
-    uint16: Uint16Array,
-    uint32: Uint32Array,
-    uint64: globalThis.BigUint64Array,
-    float32: Float32Array,
-    float64: Float64Array,
-};
 
 function isSlice(s: any): s is Slice {
     return (s as Slice)?.stop !== undefined || (s as Slice)?.start !== undefined
