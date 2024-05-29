@@ -7,4 +7,3 @@ export { default as CellSetSizesPlot } from './CellSetSizesPlot.js';
 export { default as CellSetExpressionPlot } from './CellSetExpressionPlot.js';
 export { default as ExpressionHistogram } from './ExpressionHistogram.js';
 export { default as DotPlot } from './DotPlot.js';
-export { stratifyExpressionData } from './expr-hooks.js';

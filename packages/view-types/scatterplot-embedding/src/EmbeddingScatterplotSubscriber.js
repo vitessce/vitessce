@@ -26,6 +26,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
+  stratifyExpressionData, aggregateStratifiedExpressionData,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
@@ -35,7 +36,6 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { stratifyExpressionData } from '@vitessce/statistical-plots';
 
 
 /**
@@ -394,10 +394,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     instanceObsIndex: obsEmbeddingIndex,
     matrixObsIndex,
     expressionData: uint8ExpressionData,
-    sampleEdges,
-    sampleSets,
-    sampleSetSelection,
   });
+
+  const [stratifiedObsIndex, stratifiedObsEmbedding, stratifiedGetExpressionValue] = useMemo(() => {
+    // TODO: call stratifyExpressionData and aggregateStratifiedExpressionData here.
+    return [null, null, null];
+  }, [obsEmbeddingIndex, matrixObsIndex, uint8ExpressionData,
+    sampleEdges, sampleSets, sampleSetSelection,
+    cellSetSelection, mergedCellSets,
+  ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
@@ -476,6 +481,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
+        obsSetSelection={cellSetSelection}
+        sampleSetSelection={sampleSetSelection}
+        // InternMap data structures where keys are either
+        // sampleSet -> value,
+        // obsSet -> value, or
+        // sampleSet -> obsSet -> value.
+        stratifiedObsIndex={stratifiedObsIndex}
+        stratifiedObsEmbedding={stratifiedObsEmbedding}
+        stratifiedGetExpressionValue={stratifiedGetExpressionValue}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber

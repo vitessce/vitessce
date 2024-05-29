@@ -14,13 +14,13 @@ import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
 import {
   treeToSetSizesBySetNames,
   mergeObsSets,
+  stratifyExpressionData,
+  aggregateStratifiedExpressionData,
 } from '@vitessce/sets-utils';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import CellSetExpressionPlot from './CellSetExpressionPlot.js';
 import { useStyles } from './styles.js';
 import {
-  stratifyExpressionData,
-  aggregateStratifiedExpressionData,
   summarizeStratifiedExpressionData,
   histogramStratifiedExpressionData,
 } from './expr-hooks.js';

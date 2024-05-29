@@ -1,10 +1,12 @@
 
 import { useMemo } from 'react';
-import { mergeObsSets } from '@vitessce/sets-utils';
 import { InternMap } from 'internmap';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  mergeObsSets,
   stratifyExpressionData,
+} from '@vitessce/sets-utils';
+import {
   dotStratifiedExpressionData,
 } from './expr-hooks.js';
 
