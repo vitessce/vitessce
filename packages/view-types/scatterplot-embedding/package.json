@@ -34,7 +34,6 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/legend": "workspace:*",
     "@vitessce/scatterplot": "workspace:*",
-    "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",

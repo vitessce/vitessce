@@ -398,6 +398,9 @@ export function EmbeddingScatterplotSubscriber(props) {
   // TODO: remove unused useExpressionSummaries hook once this hook has been implemented.
   const [stratifiedObsIndex, stratifiedObsEmbedding, stratifiedGetExpressionValue] = useMemo(() => {
     // TODO: call stratifyExpressionData and aggregateStratifiedExpressionData here.
+
+    
+
     return [null, null, null];
   }, [obsEmbeddingIndex, matrixObsIndex, uint8ExpressionData,
     sampleEdges, sampleSets, sampleSetSelection,

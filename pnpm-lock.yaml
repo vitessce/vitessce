@@ -1419,9 +1419,6 @@ importers:
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
-      '@vitessce/statistical-plots':
-        specifier: workspace:*
-        version: link:../statistical-plots
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils

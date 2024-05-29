@@ -128,6 +128,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellColorEncoding,
     } = this.props;
 
+    // TODO: use stratifiedObsIndex, stratifiedObsEmbedding, and stratifiedGetExpressionValue props
+
     const baseOpacity = false ? 0.5 * 255 : 255;
 
     // TODO: return a separate contour layer for each cell set?
