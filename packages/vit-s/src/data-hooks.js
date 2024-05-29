@@ -288,14 +288,16 @@ export function useFeatureSelection(
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
   // eslint-disable-next-line no-nested-ternary
-  const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
+  const dataStatus = anyLoading
+    ? STATUS.LOADING
+    : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const isSuccess = dataStatus === STATUS.SUCCESS;
-  const geneData = useMemo(() => {
-    return isSuccess ? featureQueries.map(q => q.data?.data || null) : null;
-  }, [isSuccess, selection, dataset]);
-  const loadedGeneName = useMemo(() => {
-    return isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null;
-  }, [isSuccess, selection, dataset]);
+  const geneData = useMemo(() => (
+    isSuccess ? featureQueries.map(q => q.data?.data || null) : null
+  ), [isSuccess, selection, dataset]);
+  const loadedGeneName = useMemo(() => (
+    isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null
+  ), [isSuccess, selection, dataset]);
 
   useEffect(() => {
     featureQueries

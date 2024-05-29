@@ -39,7 +39,7 @@ export function FeatureListSubscriber(props) {
     variablesLabelOverride,
     theme,
     title: titleOverride,
-    enableMultiSelect = true,
+    enableMultiSelect = false,
     showTable = false,
     sort = 'alphabetical',
     sortKey = null,

@@ -2,6 +2,7 @@ import React from 'react';
 import { useId } from 'react-aria';
 import { TableCell, TableRow, TextField, Slider } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function CellSetExpressionPlotOptions(props) {
   const {
@@ -12,11 +13,17 @@ export default function CellSetExpressionPlotOptions(props) {
     transformOptions,
     featureValuePositivityThreshold,
     setFeatureValuePositivityThreshold,
+    featureValueColormap,
+    setFeatureValueColormap,
   } = props;
 
   const cellSetExpressionPlotOptionsId = useId();
 
   const classes = usePlotOptionsStyles();
+
+  function handleFeatureValueColormapChange(event) {
+    setFeatureValueColormap(event.target.value);
+  }
 
   const handleTransformChange = (event) => {
     setFeatureValueTransform(event.target.value === '' ? null : event.target.value);
@@ -42,6 +49,30 @@ export default function CellSetExpressionPlotOptions(props) {
 
   return (
     <OptionsContainer>
+      {setFeatureValueColormap ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label htmlFor={`cellset-expression-feature-value-colormap-${cellSetExpressionPlotOptionsId}`}>
+              Feature Value Colormap
+            </label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              value={featureValueColormap}
+              onChange={handleFeatureValueColormapChange}
+              inputProps={{
+                'aria-label': 'Select feature value colormap',
+                id: `cellset-expression-feature-value-colormap-${cellSetExpressionPlotOptionsId}`,
+              }}
+            >
+              {GLSL_COLORMAPS.map(cmap => (
+                <option key={cmap} value={cmap}>{cmap}</option>
+              ))}
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label

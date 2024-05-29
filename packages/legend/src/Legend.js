@@ -206,7 +206,9 @@ export default function Legend(props) {
         y += titleHeight;
 
         setPaths.forEach((setPath) => {
-          const setColor = obsSetColor.find(d => isEqual(d.path, setPath)).color;
+          const setColor = obsSetColor
+            ?.find(d => isEqual(d.path, setPath))
+            ?.color || getDefaultColor(theme);
 
           // TODO: for nested sets, render the intermediate nodes in the legend?
 
@@ -275,9 +277,10 @@ export default function Legend(props) {
           .style('fill', foregroundColor);
       }
     }
-  }, [width, height, featureValueColormap, featureValueColormapRange, considerSelections,
-    obsType, obsColorEncoding, featureSelection, isDarkTheme, featureValueType, extent,
-    featureLabelsMap, spatialChannelColor, obsSetColor, obsSetSelection, isSetColor,
+  }, [width, height, featureValueColormap, featureValueColormapRange,
+    considerSelections, obsType, obsColorEncoding, featureSelection,
+    isDarkTheme, featureValueType, extent, featureLabelsMap,
+    spatialChannelColor, obsSetColor, obsSetSelection, isSetColor, theme,
   ]);
 
   return (

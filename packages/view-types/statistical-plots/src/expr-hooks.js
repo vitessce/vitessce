@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { InternMap } from 'internmap';
 import { scaleLinear } from 'd3-scale';
 import {
@@ -13,7 +14,6 @@ import {
   treeToSelectedSetMap,
 } from '@vitessce/sets-utils';
 import { getValueTransformFunction } from '@vitessce/utils';
-
 
 
 // Reference: https://github.com/d3/d3-array/issues/180#issuecomment-851378012
@@ -62,26 +62,25 @@ function summarize(iterable, keepZeros) {
  *   },
  *   exprMax
  * ]
- * @param {*} sampleEdges 
- * @param {*} sampleSets 
- * @param {*} sampleSetSelection 
- * @param {*} expressionData 
- * @param {*} obsIndex 
- * @param {*} mergedCellSets 
- * @param {*} geneSelection 
- * @param {*} cellSetSelection 
- * @param {*} cellSetColor 
- * @param {*} featureValueTransform 
- * @param {*} featureValueTransformCoefficient 
- * @param {*} theme 
- * @returns 
+ * @param {*} sampleEdges
+ * @param {*} sampleSets
+ * @param {*} sampleSetSelection
+ * @param {*} expressionData
+ * @param {*} obsIndex
+ * @param {*} mergedCellSets
+ * @param {*} geneSelection
+ * @param {*} cellSetSelection
+ * @param {*} cellSetColor
+ * @param {*} featureValueTransform
+ * @param {*} featureValueTransformCoefficient
+ * @param {*} theme
+ * @returns
  */
 export function stratifyExpressionData(
   sampleEdges, sampleSets, sampleSetSelection,
   expressionData, obsIndex, mergedCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme,
 ) {
   const result = new InternMap([], JSON.stringify);
 
@@ -110,7 +109,6 @@ export function stratifyExpressionData(
     });
   });
 
-  
 
   if (mergedCellSets && cellSetSelection
       && geneSelection && geneSelection.length >= 1
@@ -120,21 +118,23 @@ export function stratifyExpressionData(
       ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
       : null;
     const cellIdToSetMap = treeToSelectedSetMap(mergedCellSets, cellSetSelection);
-    
+
     let exprMax = -Infinity;
 
     for (let i = 0; i < obsIndex.length; i += 1) {
       const obsId = obsIndex[i];
-      
+
       const cellSet = cellIdToSetMap?.get(obsId);
       const sampleId = sampleEdges?.get(obsId);
       const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
 
-      if(hasSampleSetSelection && !sampleSet) {
+      if (hasSampleSetSelection && !sampleSet) {
         // Skip this sample if it is not in the selected sample set.
+        // eslint-disable-next-line no-continue
         continue;
       }
 
+      // eslint-disable-next-line no-loop-func
       geneKeys.forEach((geneKey, geneI) => {
         const value = expressionData[geneI][i];
         const transformFunction = getValueTransformFunction(
@@ -162,9 +162,9 @@ export function stratifyExpressionData(
  * Aggregate stratified expression data so that there is
  * a single value for each (cell set, sample set) tuple.
  * I.e., aggregate along the gene axis.
- * @param {*} stratifiedResult 
- * @param {*} geneSelection 
- * @returns 
+ * @param {*} stratifiedResult
+ * @param {*} geneSelection
+ * @returns
  */
 export function aggregateStratifiedExpressionData(
   stratifiedResult, geneSelection,
@@ -186,9 +186,9 @@ export function aggregateStratifiedExpressionData(
 /**
  * Supports three-level stratified input
  * (cell set, sample set, gene).
- * @param {*} stratifiedResult 
- * @param {*} posThreshold 
- * @returns 
+ * @param {*} stratifiedResult
+ * @param {*} posThreshold
+ * @returns
  */
 export function dotStratifiedExpressionData(
   stratifiedResult, posThreshold,
@@ -223,9 +223,9 @@ export function dotStratifiedExpressionData(
 /**
  * Supports two-level stratified input
  * (cell set, sample set).
- * @param {*} stratifiedResult 
- * @param {*} keepZeros 
- * @returns 
+ * @param {*} stratifiedResult
+ * @param {*} keepZeros
+ * @returns
  */
 export function summarizeStratifiedExpressionData(
   stratifiedResult, keepZeros,
@@ -248,17 +248,17 @@ export function summarizeStratifiedExpressionData(
  * Supports two-level summarized input
  * (cell set, sample set),
  * the output from summarizeStratifiedExpressionData.
- * @param {*} summarizedResult 
- * @param {*} binCount 
- * @param {*} yMinProp 
- * @returns 
+ * @param {*} summarizedResult
+ * @param {*} binCount
+ * @param {*} yMinProp
+ * @returns
  */
 export function histogramStratifiedExpressionData(
   summarizedResult, binCount, yMinProp,
 ) {
-  const groupSummaries = ([...summarizedResult.keys()]).map((cellSetKey) => ({
+  const groupSummaries = ([...summarizedResult.keys()]).map(cellSetKey => ({
     key: cellSetKey,
-    value: ([...summarizedResult.get(cellSetKey).keys()]).map((sampleSetKey) => ({
+    value: ([...summarizedResult.get(cellSetKey).keys()]).map(sampleSetKey => ({
       key: sampleSetKey,
       value: summarizedResult.get(cellSetKey).get(sampleSetKey),
     })),
@@ -267,10 +267,12 @@ export function histogramStratifiedExpressionData(
   const groupData = groupSummaries
     .map(({ key, value }) => ({
       key,
-      value: value.map(({ key: subKey, value: subValue }) => ({ key: subKey, value: subValue.nonOutliers })),
+      value: value.map(({ key: subKey, value: subValue }) => (
+        { key: subKey, value: subValue.nonOutliers }
+      )),
     }));
   const trimmedData = groupData.map(kv => kv.value.map(subKv => subKv.value).flat()).flat();
-  
+
   const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
 
   // For the y domain, use the yMin prop
@@ -283,15 +285,23 @@ export function histogramStratifiedExpressionData(
     .thresholds(y.ticks(binCount))
     .domain(y.domain());
 
-  const groupBins = groupData.map(kv => ({ key: kv.key, value: kv.value.map(subKv => ({ key: subKv.key, value: histogram(subKv.value) })) }));
-  const groupBinsMax = max(groupBins.flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
+  const groupBins = groupData.map(kv => ({ key: kv.key,
+    value: kv.value.map(subKv => (
+      { key: subKv.key, value: histogram(subKv.value) }
+    )) }));
+  const groupBinsMax = max(groupBins
+    .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
 
   return {
-    groupSummaries, // Array of [{ key, value: [{ key, value: { quartiles, range, whiskers, chauvenetRange, nonOutliers } }] }]
+    // Array of [{ key, value: [
+    //   { key, value: {
+    //      quartiles, range, whiskers, chauvenetRange, nonOutliers }
+    //   }
+    // ] }]
+    groupSummaries,
     groupData, // Array of [{ key, value: [{ key, value: nonOutliers }] }]
     groupBins, // Array of [{ key, value: [{ key, value: histogram(nonOutliers) }] }]
     groupBinsMax, // Number
     y, // d3.scaleLinear without a range set
   };
 }
-

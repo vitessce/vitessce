@@ -39,6 +39,7 @@ export default function CellSetExpressionPlot(props) {
     jitter,
     cellSetSelection,
     sampleSetSelection,
+    sampleSetColor,
     colors,
     data,
     theme,
@@ -58,7 +59,7 @@ export default function CellSetExpressionPlot(props) {
 
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForLabel = useMemo(() => {
-    if(!cellSetSelection) {
+    if (!cellSetSelection) {
       return 0;
     }
     const cellSetNames = cellSetSelection.map(d => d.at(-1));
@@ -66,10 +67,10 @@ export default function CellSetExpressionPlot(props) {
       // eslint-disable-next-line no-param-reassign
       acc = acc === undefined || name.length > acc ? name.length : acc;
       return acc;
-    }, 0)
+    }, 0);
   }, [cellSetSelection]);
 
-  const isStratified = (Array.isArray(sampleSetSelection) && sampleSetSelection.length == 2);
+  const isStratified = (Array.isArray(sampleSetSelection) && sampleSetSelection.length === 2);
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -104,25 +105,28 @@ export default function CellSetExpressionPlot(props) {
       .attr('width', width)
       .attr('height', height);
 
-    const groupNames = colors.map(d => d.name);
-
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
     const colorScale = scaleOrdinal()
       .domain(colors.map(d => d.setNamePath))
-      .range(colors.map(d => colorArrayToString(d.color)))
+      .range(colors.map(d => colorArrayToString(d.color)));
 
     const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
-    
+
     let stratificationSide;
     let stratificationColor;
-    if(isStratified) {
+    if (isStratified) {
       stratificationSide = scaleOrdinal()
         .domain(sampleSetNames)
         .range(['left', 'right']);
       stratificationColor = scaleOrdinal()
         .domain(sampleSetNames)
-        .range(['gray', 'orange']);
+        .range(
+          // TODO: check for full path equality here.
+          sampleSetNames
+            .map(name => sampleSetColor?.find(d => d.path.at(-1) === name).color)
+            .map(colorArrayToString),
+        );
     }
 
     // Remove outliers on a per-group basis.
@@ -132,7 +136,7 @@ export default function CellSetExpressionPlot(props) {
       groupBins, // Array of [{ key, value: [{ key, value: histogram(nonOutliers) }] }]
       groupBinsMax, // Number
     } = data;
-    let y = data.y;
+    let { y } = data;
 
     const innerWidth = width - marginLeft;
     const innerHeight = height - autoMarginBottom;
@@ -157,15 +161,15 @@ export default function CellSetExpressionPlot(props) {
       .x1(d => x(d.length))
       .y(d => y(d.x0))
       .curve(curveBasis);
-    
+
     const leftArea = d3_area()
       .x0(d => x(-d.length))
-      .x1(d => x(0))
+      .x1(() => x(0))
       .y(d => y(d.x0))
       .curve(curveBasis);
-    
+
     const rightArea = d3_area()
-      .x0(d => x(0))
+      .x0(() => x(0))
       .x1(d => x(d.length))
       .y(d => y(d.x0))
       .curve(curveBasis);
@@ -174,9 +178,9 @@ export default function CellSetExpressionPlot(props) {
       left: leftArea,
       right: rightArea,
     };
-    
+
     // Violin areas
-    if(isStratified) {
+    if (isStratified) {
       const violinG = g
         .selectAll('violin')
         .data(groupBins)
@@ -206,53 +210,52 @@ export default function CellSetExpressionPlot(props) {
             .style('stroke', 'none')
             .attr('d', d => area(d.value));
     }
-    
+
     // Whiskers
     const whiskerGroups = g.selectAll('whiskers')
       .data(groupedSummaries)
       .enter()
         .append('g')
           .attr('transform', d => `translate(${xGroup(d.key)},0)`);
-    
-    if(isStratified) {
+
+    if (isStratified) {
       // Vertical line
       whiskerGroups.append('line')
         .datum(d => d.value[0])
         .attr('stroke', rectColor)
-        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
-        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 1.5))
         .attr('y1', d => y(d.value.quartiles[0]))
         .attr('y2', d => y(d.value.quartiles[2]))
         .attr('stroke-width', 2);
-      
+
       whiskerGroups.append('line')
         .datum(d => d.value[1])
         .attr('stroke', rectColor)
-        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
-        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 1.5))
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 1.5))
         .attr('y1', d => y(d.value.quartiles[0]))
         .attr('y2', d => y(d.value.quartiles[2]))
         .attr('stroke-width', 2);
-      
+
       // Horizontal line
       whiskerGroups.append('line')
         .datum(d => d.value[0])
         .attr('stroke', rectColor)
-        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -5.5 : 1.5))
-        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 5.5))
-        .attr('y1', d => y(d.value.quartiles[1]))
-        .attr('y2', d => y(d.value.quartiles[1]))
-        .attr('stroke-width', 2);
-      
-      whiskerGroups.append('line')
-        .datum(d => d.value[1])
-        .attr('stroke', rectColor)
-        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -5.5 : 1.5))
-        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) == 'left' ? -1.5 : 5.5))
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -5.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 5.5))
         .attr('y1', d => y(d.value.quartiles[1]))
         .attr('y2', d => y(d.value.quartiles[1]))
         .attr('stroke-width', 2);
 
+      whiskerGroups.append('line')
+        .datum(d => d.value[1])
+        .attr('stroke', rectColor)
+        .attr('x1', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -5.5 : 1.5))
+        .attr('x2', d => xGroup.bandwidth() / 2 + (stratificationSide(d.key) === 'left' ? -1.5 : 5.5))
+        .attr('y1', d => y(d.value.quartiles[1]))
+        .attr('y2', d => y(d.value.quartiles[1]))
+        .attr('stroke-width', 2);
     } else {
       // Vertical line
       whiskerGroups.append('line')
@@ -263,7 +266,7 @@ export default function CellSetExpressionPlot(props) {
         .attr('y1', d => y(d.quartiles[0]))
         .attr('y2', d => y(d.quartiles[2]))
         .attr('stroke-width', 2);
-      
+
       // Horizontal line
       whiskerGroups.append('line')
         .datum(d => d.value[0].value)
@@ -274,12 +277,12 @@ export default function CellSetExpressionPlot(props) {
         .attr('y2', d => y(d.quartiles[1]))
         .attr('stroke-width', 2);
     }
-    
+
     // Jittered points
     if (jitter) {
       groupedData.forEach(({ key, value }) => {
-        value.forEach(({ key: subKey, value: subValue }) => {
-          if(isStratified) {
+        value.forEach(({ value: subValue }) => {
+          if (isStratified) {
             // TODO
           } else {
             const groupG = g.append('g');
@@ -340,9 +343,9 @@ export default function CellSetExpressionPlot(props) {
       .text(xTitle)
       .style('font-size', '12px')
       .style('fill', fgColor);
-    
+
     // Legend
-    if(isStratified) {
+    if (isStratified) {
       const legendG = g
         .append('g')
           .attr('transform', `translate(${marginLeft + innerWidth - 150},${marginTop})`);
@@ -388,7 +391,7 @@ export default function CellSetExpressionPlot(props) {
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel, sampleSetSelection, 
+    maxCharactersForLabel, sampleSetSelection,
   ]);
 
   return (

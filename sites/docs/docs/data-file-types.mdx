@@ -1173,6 +1173,49 @@ coordinationValues={`{
 }`}
 />
 
+### `spatialdata.zarr`
+
+Defines an SpatialData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="spatialdata.zarr"
+fileConst="SPATIALDATA_ZARR"
+options={`{
+  "image": {
+    // Accepts the same options as image.spatialdata.zarr
+    "path": "images/visium_151673_full_image"
+  },
+  "labels": {
+    // Accepts the same options as labels.spatialdata.zarr
+    "path": "images/visium_151673_annotations"
+  },
+  "obsFeatureMatrix": {
+    // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
+    "path": "table/table/X"
+  }
+  "obsSpots": {
+    // Accepts the same options as obsSpots.spatialdata.zarr
+    "path": "shapes/visium_151673",
+  },
+  "obsSets": {
+    // Accepts the same options as obsSets.spatialdata.zarr
+    "obsSets": [
+      // Accepts the same options as obsSets.anndata.zarr
+      {
+        "name": "Cell Type Annotations",
+        "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+      }
+    ],
+  }
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "featureType": "gene",
+  "featureValueType": "expression"
+}`}
+/>
+
 
 ## JSON
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   stratifyExpressionData,
+  aggregateStratifiedExpressionData,
   summarizeStratifiedExpressionData,
   histogramStratifiedExpressionData,
 } from './expr-hooks.js';
@@ -8,13 +9,12 @@ import {
 describe('Utility functions for processing expression data', () => {
   describe('stratifyExpressionData function', () => {
     it('stratify by cell set, then sample set', () => {
-      
       const sampleEdges = new Map([
         ['cell1-1', 'donor1'],
         ['cell1-2', 'donor1'],
         ['cell1-3', 'donor1'],
         ['cell1-4', 'donor1'],
-        
+
         ['cell2-1', 'donor2'],
         ['cell2-2', 'donor2'],
         ['cell2-3', 'donor2'],
@@ -27,15 +27,15 @@ describe('Utility functions for processing expression data', () => {
             children: [
               {
                 name: 'AKI',
-                set: [['donor1', null]] 
+                set: [['donor1', null]],
               },
               {
                 name: 'CKD',
-                set: [['donor2', null]] 
-              }
-            ]
+                set: [['donor2', null]],
+              },
+            ],
           },
-        ]
+        ],
       };
       const sampleSetSelection = [
         ['Clinical groups', 'AKI'],
@@ -43,7 +43,7 @@ describe('Utility functions for processing expression data', () => {
       ];
       const expressionData = [
         // Gene 1
-        [10, 20, 30, 40, 11, 21, 31, 41]
+        [10, 20, 30, 40, 11, 21, 31, 41],
       ];
       const obsIndex = ['cell1-1', 'cell1-2', 'cell1-3', 'cell1-4', 'cell2-1', 'cell2-2', 'cell2-3', 'cell2-4'];
       const mergedCellSets = {
@@ -53,18 +53,18 @@ describe('Utility functions for processing expression data', () => {
             children: [
               {
                 name: 'T cell',
-                set: [['cell1-1', null], ['cell1-3', null], ['cell2-1', null], ['cell2-3', null]]
+                set: [['cell1-1', null], ['cell1-3', null], ['cell2-1', null], ['cell2-3', null]],
               },
               {
                 name: 'B cell',
-                set: [['cell1-2', null], ['cell1-4', null], ['cell2-2', null], ['cell2-4', null]]
-              }
+                set: [['cell1-2', null], ['cell1-4', null], ['cell2-2', null], ['cell2-4', null]],
+              },
             ],
-          }
-        ]
+          },
+        ],
       };
       const geneSelection = [
-        'Gene 1'
+        'Gene 1',
       ];
       const cellSetSelection = [
         ['Cell type', 'T cell'],
@@ -77,23 +77,24 @@ describe('Utility functions for processing expression data', () => {
       const featureValueTransform = null;
       const featureValueTransformCoefficient = 1;
 
-      const theme = 'light';
-
       const [result, exprMax] = stratifyExpressionData(
         sampleEdges, sampleSets, sampleSetSelection,
         expressionData, obsIndex, mergedCellSets,
         geneSelection, cellSetSelection, cellSetColor,
         featureValueTransform, featureValueTransformCoefficient,
-        theme,
       );
 
       expect([...result.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
       expect([...result.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
-      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).length).toBe(2);
-      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI'])).toEqual([10, 30]);
+      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1').length).toBe(2);
+      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1')).toEqual([10, 30]);
       expect(exprMax).toEqual(41);
 
-      const summaryResult = summarizeStratifiedExpressionData(result);
+      const aggregateData = aggregateStratifiedExpressionData(
+        result, geneSelection,
+      );
+      const summaryResult = summarizeStratifiedExpressionData(aggregateData, true);
+
       expect([...summaryResult.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
       expect([...summaryResult.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
       expect(Object.keys(summaryResult.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']))).toEqual([
@@ -111,14 +112,10 @@ describe('Utility functions for processing expression data', () => {
         'groupData',
         'groupBins',
         'groupBinsMax',
-        'y'
+        'y',
       ]);
       expect(histogramResult.groupSummaries.map(d => d.key)).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
       expect(histogramResult.groupBinsMax).toEqual(1);
     });
-
-
-
-    
   });
 });

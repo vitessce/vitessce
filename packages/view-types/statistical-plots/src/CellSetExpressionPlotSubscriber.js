@@ -10,10 +10,8 @@ import {
   useSampleEdgesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
+import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
 import {
-  treeToSelectedSetMap,
-  treeToObjectsBySetNames,
   treeToSetSizesBySetNames,
   mergeObsSets,
 } from '@vitessce/sets-utils';
@@ -45,8 +43,6 @@ import {
  * feature value transform function.
  * @param {number} featureValueTransformCoefficient A coefficient
  * to be used in the transform function.
- * @param {string} theme "light" or "dark" for the vitessce theme
- * `path` and `color`.
  */
 function useExpressionByCellSet(
   sampleEdges, sampleSets, sampleSetSelection,
@@ -68,9 +64,8 @@ function useExpressionByCellSet(
       expressionData, obsIndex, mergedCellSets,
       geneSelection, cellSetSelection, cellSetColor,
       featureValueTransform, featureValueTransformCoefficient,
-      theme,
     );
-    if(stratifiedData) {
+    if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(
         stratifiedData, geneSelection,
       );
@@ -140,9 +135,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     sampleType,
     sampleSetSelection,
+    sampleSetColor,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setSampleSetColor,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
@@ -173,7 +170,9 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
-    loaders, dataset, false, {}, {},
+    loaders, dataset, false,
+    { setSampleSetColor },
+    { sampleSetColor },
     { sampleType },
   );
 
@@ -241,6 +240,7 @@ export function CellSetExpressionPlotSubscriber(props) {
             jitter={jitter}
             cellSetSelection={cellSetSelection}
             sampleSetSelection={sampleSetSelection}
+            sampleSetColor={sampleSetColor}
             colors={setArr}
             data={histogramData}
             exprMax={exprMax}

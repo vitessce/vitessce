@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-beta",
-  "version": "3.3.7",
+  "version": "3.4.6",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -40,6 +40,7 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/spatial-three": "workspace:*",
     "d3-array": "^2.4.0",
     "lodash-es": "^4.17.21",
     "math.gl": "^3.5.6",

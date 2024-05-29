@@ -282,6 +282,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_COLOR,
   ],
   [ViewType.FEATURE_VALUE_HISTOGRAM]: [
     CoordinationType.DATASET,
@@ -412,6 +413,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_COLOR,
   ],
   higlass: [
     CoordinationType.DATASET,
@@ -422,5 +424,20 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_FILTER,
     CoordinationType.FEATURE_HIGHLIGHT,
     CoordinationType.FEATURE_SELECTION,
+  ],
+  [ViewType.FEATURE_BAR_PLOT]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_VALUE_TYPE,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.FEATURE_VALUE_TRANSFORM,
+    CoordinationType.FEATURE_VALUE_TRANSFORM_COEFFICIENT,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_HIGHLIGHT,
+    CoordinationType.OBS_HIGHLIGHT,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.ADDITIONAL_OBS_SETS,
   ],
 };

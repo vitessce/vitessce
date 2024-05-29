@@ -14,6 +14,22 @@ import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJs, baseJson } from './_live-editor-examples.js';
 
+// TODO: remove this when ThreeJS-based XR spatial view is on main branch.
+const betaXrKeys = [
+  'Figure3a_blood_vessel',
+  'Figure3d_tumor_cytoskeleton',
+  'Figure6n_cell_community',
+];
+// End TODO
+
+// TODO: temporary until paper reviews are complete.
+const betaMrKeys = [
+  'D1',
+  'D2',
+  '123',
+];
+// End TODO
+
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
@@ -65,10 +81,12 @@ function DemoStyles() {
 
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
+  const [wsCode] = useHashParam('code', undefined, 'string');
   const [demo] = useHashParam('dataset', undefined, 'string');
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
+  const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -84,13 +102,39 @@ function IndexWithHashParams() {
   }
 
   const isDemo = demo && Object.keys(configs).includes(demo);
+
+  // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
+  const isBetaXrDemo = demo && betaXrKeys.includes(demo);
+  const isBetaMrDemo = demo && betaMrKeys.includes(demo);
+  // End TODO
+
   // Initialize to collapsed if this is a demo.
   // Otherwise, initialize to expanded.
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(isExpandedFromUrl);
 
   useEffect(() => {
-    setIsExpanded(!isDemo);
+    if (!isExpandedFromUrl) {
+      setIsExpanded(!isDemo);
+    }
   }, [isDemo]);
+
+  // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
+  useEffect(() => {
+    if (isBetaXrDemo) {
+      window.location.href = `http://beta-3d.vitessce.io/?dataset=${demo}`;
+    }
+  }, [isBetaXrDemo]);
+  // End TODO
+
+  // TODO: remove this useEffect when ThreeJS-based XR spatial view is on main branch.
+  useEffect(() => {
+    if (isBetaMrDemo) {
+      if (wsCode) {
+        window.location.href = `http://beta-mr.vitessce.io/?dataset=${demo}&code=${wsCode}&ws=true&send=true`;
+      }
+    }
+  }, [isBetaMrDemo, wsCode]);
+  // End TODO
 
   useEffect(() => {
     window.dispatchEvent(new Event('resize'));
@@ -255,12 +299,13 @@ function IndexWithQueryParamRedirect() {
   // Reference: https://github.com/vitessce/vitessce/pull/810#discussion_r745842290
   const baseUrl = useBaseUrl('/#?');
   const [demo] = useQueryParam('dataset', StringParam);
+  const [wsCode] = useQueryParam('code', StringParam);
   const [url] = useQueryParam('url', StringParam);
 
   useEffect(() => {
     const hasQueryParams = demo || url;
     if (hasQueryParams) {
-      const params = (demo ? `dataset=${demo}` : `url=${url}`);
+      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
       window.location.href = baseUrl + params;
     }
   }, [baseUrl, demo, url]);

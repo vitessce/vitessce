@@ -90,7 +90,7 @@ export default function DotPlot(props) {
   const groupKeys = data.map(d => d.keyGroup);
   const featureKeys = data.map(d => d.keyFeature);
   const groupSecondaryKeys = data.map(d => d.keyGroupSecondary);
-  
+
 
   const meanTransform = (featureValueTransformName && featureValueTransformName !== 'None')
     // Mean Log-Transformed Normalized Expression
@@ -118,7 +118,7 @@ export default function DotPlot(props) {
         field: 'keyGroup',
         type: 'nominal',
         header: transpose
-          ? { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: -60, labelAlign: 'right', titleOrient: "bottom", labelOrient: "bottom" }
+          ? { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: -60, labelAlign: 'right', titleOrient: 'bottom', labelOrient: 'bottom' }
           : { labelExpr: `substring(datum.label, ${keyLength})`, labelAngle: 0, labelAlign: 'left' },
         title: `${capitalize(obsType)} Set`,
         sort: groupKeys,
@@ -157,13 +157,13 @@ export default function DotPlot(props) {
     config: {
       ...VEGA_THEMES[theme],
       ...(!isStratified ? {
-        // Remove the row/column outlines when 
+        // Remove the row/column outlines when
         // not stratified by sample set.
         view: {
           stroke: 'transparent',
         },
       } : {}),
-    }
+    },
   };
 
   return (

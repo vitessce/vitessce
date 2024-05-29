@@ -39,7 +39,7 @@ export default class SampleEdgesAnndataLoader extends AbstractTwoStepLoader {
       return Promise.resolve(new LoaderResult(
         { sampleEdges },
         null,
-      ))
+      ));
     });
   }
 }
