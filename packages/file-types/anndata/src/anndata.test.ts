@@ -79,6 +79,7 @@ function getBufferElementType(buffer: ArrayBufferView): zarr.NumberDataType {
   throw new Error(`Unsupported buffer type ${name}`);
 }
 
+// Both functions generate matrices whose diagonal is the row number, missing the middle row (to ensure that we are testing the axis skipping ability of sparse matrices)
 async function genSparse(grp: zarr.Group<Map<any, any>>, shape: number[], type: "csc" | "csr") {
   const majorAxisSize = shape[Number(type === "csc")]
   const minorAxisSize = shape[(Number(type === "csc") - 1) % 1]
@@ -107,10 +108,18 @@ async function genDense(grp: zarr.Group<Map<any, any>>, shape: number[]) {
     chunk_shape: shape,
     data_type: "float32",
   });
-  const data = new Float32Array(shape.reduce((a, b) => a * b, 1))
-  for (let i = 0; i < data.length; i += 1) {
-    data[i] = i
+  const data = new Float32Array(shape.reduce((a, b) => a * b, 1));
+  const middleRow = Math.floor(shape[0] / 2);
+
+  for (let i = 0; i < shape[0]; i++) {
+    if (i === middleRow) {
+      continue; // Skip the middle row
+    }
+    if (i < shape[1]) {
+      data[i * shape[1] + i] = i; // Set the diagonal entry to the row number
+    }
   }
+
   const chunk = {
     data,
     shape,
