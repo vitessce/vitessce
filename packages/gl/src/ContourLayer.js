@@ -31,7 +31,7 @@ const defaultProps = {
   // grid aggregation
   cellSize: {type: 'number', min: 1, max: 1000, value: 1000},
   getPosition: {type: 'accessor', value: x => x.position},
-  getWeight: {type: 'accessor', value: 1},
+  getWeight: {type: 'accessor', value: 1 },
   gpuAggregation: true,
   aggregation: 'MEAN', // TODO: use MEAN so that point density does not result in misleading contours.
 
@@ -85,9 +85,13 @@ export default class ContourPatternLayer extends ContourLayer {
       oldProps.width !== props.width
       || oldProps.height !== props.height
       || oldProps.cellSize !== props.cellSize
-      || oldProps.getPosition !== props.getPosition
+      || oldProps.getPosition !== props.getPosition // - TODO: stabilize reference
       || oldProps.getWeight !== props.getWeight
-      || oldProps.data !== props.data
+      || oldProps.data !== props.data // - TODO: stabilize reference
+      // The inclusion of contours and zOffset are necessary to overwrite the _updateThresholdData call of the superclass.
+      // Reference: https://github.com/visgl/deck.gl/blob/03ce925107a63830e48e706c521000a08e20a02c/modules/aggregation-layers/src/contour-layer/contour-layer.ts#L201C9-L201C83
+      || oldProps.contours !== props.contours
+      || oldProps.zOffset !== props.zOffset
     ) {
       const thresholds = this.getThresholds();
       console.log(thresholds);
@@ -96,11 +100,20 @@ export default class ContourPatternLayer extends ContourLayer {
         color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
         strokeWidth: 2,
       }));
-      super._updateThresholdData({ contours, zOffset: props.zOffset });
+      this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });
       super._generateContours();
       console.log(this.state.thresholdData);
     }
-    
+  }
+
+  _updateThresholdData(params) {
+    const { contours, zOffset, fromSubclass = false } = params;
+    if(fromSubclass) {
+      super._updateThresholdData({ contours, zOffset });
+    } else {
+      // We never want to call super._updateThresholdData to be called with contours that we did not compute.
+      super._updateThresholdData({ contours: [], zOffset });
+    }
   }
   
   renderLayers() {

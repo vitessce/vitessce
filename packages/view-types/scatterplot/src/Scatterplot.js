@@ -38,6 +38,15 @@ const getPosition = (object, { index, data, target }) => {
   return target;
 };
 
+const contourGetPosition = (object, { index, data, target }) => {
+  target[0] = data.src.embedding[0][data.src.indices[index]];
+  target[1] = -data.src.embedding[1][data.src.indices[index]];
+  target[2] = 0;
+  return target;
+};
+
+const baseContours = [];
+
 /**
  * React component which renders a scatterplot from cell data.
  * @param {object} props
@@ -81,6 +90,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellsData = null;
+    this.cellsContourData = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
@@ -149,12 +159,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition: (object, { index, data, target }) => {
-        target[0] = data.src.embedding[0][data.src.indices[index]];
-        target[1] = -data.src.embedding[1][data.src.indices[index]];
-        target[2] = 0;
-        return target;
-      },
+      getPosition: contourGetPosition,
       getFillColor: getCellColor,
       getLineColor: getCellColor,
       getPointRadius: 1,
@@ -210,10 +215,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return new ContourLayer({
       id: `contour`,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      data: {
-        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
-        length: indices.length
-      },
+      data: this.cellsContourData,
       visible: true,
       pickable: false,
       autoHighlight: false,
@@ -224,17 +226,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
       //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
       cellSize: 0.25,
-      contours: [],
-      getPosition: (object, { index, data, target }) => {
-        target[0] = data.src.embedding[0][data.src.indices[index]];
-        target[1] = -data.src.embedding[1][data.src.indices[index]];
-        target[2] = 0;
-        return target;
-      },
+
+      // We will compute the contours internally,
+      // but we need to provide a stable reference here.
+      contours: baseContours,
+      getPosition: contourGetPosition,
       getWeight: getExpressionValue,
       pattern: false,
       getFillPattern: () => "hatch-cross",
       getFillPatternScale: 350,
+      updateTriggers: {
+        getWeight: [getExpressionValue],
+      },
     });
   }
 
@@ -414,7 +417,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const { obsEmbedding } = this.props;
+    const { obsEmbedding, obsEmbeddingIndex } = this.props;
     if (obsEmbedding) {
       const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
       this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
@@ -423,6 +426,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
           obsEmbedding,
         },
         length: obsEmbedding.shape[1],
+      };
+      // Create data for contour layer.
+      const indices = obsEmbeddingIndex.map((x, i) => i);
+      this.cellsContourData = {
+        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
+        length: indices.length
       };
     }
   }
@@ -493,7 +502,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     let forceUpdate = false;
-    if (['obsEmbedding'].some(shallowDiff)) {
+    if (['obsEmbedding', 'obsEmbeddingIndex'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       forceUpdate = true;
@@ -509,6 +518,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellsLayer();
       forceUpdate = true;
     }
+
     if ([
       'cellSetPolygons', 'cellSetPolygonsVisible',
       'cellSetLabelsVisible', 'cellSetLabelSize',
