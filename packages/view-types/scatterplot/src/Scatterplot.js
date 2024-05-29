@@ -103,6 +103,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellSetsLayers();
   }
 
+  // TODO: support multiple types of contour layers
+  // - One layer for all data points (no filtering)
+  // - Array of per-selected-obsSet layers (filter to obsSet members)
+  // - Array of per-selected-sampleSet layers (filter to sampleSet members)
+  // - Array of per-sampleSet, per-obsSet layers (filter to sampleSet and obsSet members)
   createContourLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
@@ -140,7 +145,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return new ContourLayer({
       id: `contour`,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      data: this.cellsContourData,
+      data: this.cellsContourData, // TODO: pass filtered data
+      getWeight: getExpressionValue, // TODO: pass a different getter function that is aware of the data filtering
       visible: true,
       pickable: false,
       autoHighlight: false,
@@ -157,7 +163,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contours: baseContours,
       percentiles: [0.09, 0.9, 0.99, 0.999], // TODO: get this from prop (from coordination space)
       getPosition: contourGetPosition,
-      getWeight: getExpressionValue,
+      
       pattern: false,
       getFillPattern: () => "hatch-cross",
       getFillPatternScale: 350,
@@ -421,6 +427,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
    * This function does not follow React conventions or paradigms,
    * it is only implemented this way to try to squeeze out
    * performance.
+   * TODO: can this be replaced by React.memo with custom arePropsEqual?
    * @param {object} prevProps The previous props to diff against.
    */
   componentDidUpdate(prevProps) {

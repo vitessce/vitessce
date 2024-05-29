@@ -7,9 +7,6 @@ import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
-import {
-  treeToSelectedSetMap,
-} from '@vitessce/sets-utils';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -250,20 +247,8 @@ export function useUint8FeatureSelection(expressionData) {
 }
 
 export function useExpressionValueGetter(
-  {
-    instanceObsIndex, matrixObsIndex, expressionData,
-    sampleEdges,
-    sampleSets,
-    sampleSetSelection,
-  },
+  { instanceObsIndex, matrixObsIndex, expressionData },
 ) {
-
-  const sampleIdToSetMap = useMemo(() => {
-    return sampleSets && sampleSetSelection
-      ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
-      : null;
-  }, [sampleSets, sampleSetSelection]);
-
   // Get a mapping from cell ID to row index in the gene expression matrix.
   // Since the two obsIndices (instanceObsIndex = the obsIndex from obsEmbedding)
   // may be ordered differently (matrixObsIndex = the obsIndex from obsFeatureMatrix),
@@ -277,29 +262,16 @@ export function useExpressionValueGetter(
     return null;
   }, [instanceObsIndex, matrixObsIndex]);
 
-  //console.log(sampleEdges);
-
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
-    if (toMatrixIndexMap && expressionData && expressionData[0] && sampleIdToSetMap) {
+    if (toMatrixIndexMap && expressionData && expressionData[0]) {
       const rowIndex = toMatrixIndexMap[instanceIndex];
-
-      const obsId = matrixObsIndex[rowIndex];
-      
-      const sampleId = sampleEdges?.get(obsId);
-      const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
-      //console.log(obsId, sampleId, sampleSet);
-      if(sampleSet?.[1] === 'CKD') {
-        const val = expressionData[0][rowIndex];
-        return val;
-      }
-      return 0;
-
-      
+      const val = expressionData[0][rowIndex];
+      return val;
     }
     return 0;
-  }, [toMatrixIndexMap, expressionData, sampleIdToSetMap, sampleEdges]);
+  }, [toMatrixIndexMap, expressionData]);
   return getExpressionValue;
 }
 
