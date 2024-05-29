@@ -103,81 +103,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellSetsLayers();
   }
 
-  createHeatmapLayer() {
-    const {
-      obsEmbeddingIndex: obsIndex,
-      theme,
-      cellRadius = 1.0,
-      cellOpacity = 1.0,
-      // cellFilter,
-      cellSelection,
-      setCellHighlight,
-      setComponentHover,
-      getCellIsSelected,
-      cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
-      getExpressionValue,
-      onCellClick,
-      geneExpressionColormap,
-      geneExpressionColormapRange = [0.0, 1.0],
-      cellColorEncoding,
-    } = this.props;
-
-    // TODO: return a separate heatmap layer for each cell set?
-    // TODO: use real `group` object.
-    const group = {
-      name: 'test',
-      color: [255, 0, 0],
-      indices: obsIndex.map((x, i) => i), 
-    }
-    const { name, color: groupColor, indices } = group;
-
-    return new deck.ScatterplotHeatmapLayer({
-      id: 'heatmap',
-      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      data: {
-        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
-        length: indices.length
-      },
-      visible: true,
-      pickable: true,
-      autoHighlight: true,
-      filled: true,
-      radiusPixels: 40,
-      radiusScale: cellRadius,
-      radiusMinPixels: 1,
-      radiusMaxPixels: 30,
-      colorRange: [
-        [251, 215, 196, 255],
-        [241, 163, 133, 255],
-        [213, 96, 80, 255],
-        [172, 32, 47, 255],
-        [103, 0, 31, 255],
-      ],
-      getPolygonOffset: () => ([0, 20]),
-      //modelMatrix: new Matrix4().makeTranslation(0, 0, 1),
-      // Our radius pixel setters measure in pixels.
-      radiusUnits: 'pixels',
-      lineWidthUnits: 'pixels',
-      getPosition: contourGetPosition,
-      getFillColor: getCellColor,
-      getLineColor: getCellColor,
-      getPointRadius: 1,
-      getExpressionValue,
-      getLineWidth: 0,
-      colorScaleLo: geneExpressionColormapRange[0],
-      colorScaleHi: geneExpressionColormapRange[1],
-      isExpressionMode: (cellColorEncoding === 'geneSelection'),
-      colormap: geneExpressionColormap,
-      updateTriggers: {
-        getExpressionValue,
-        getFillColor: [cellColorEncoding, cellSelection, cellColors],
-        getLineColor: [cellColorEncoding, cellSelection, cellColors],
-        getCellIsSelected,
-      },
-    });
-  }
-
   createContourLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
@@ -230,6 +155,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // We will compute the contours internally,
       // but we need to provide a stable reference here.
       contours: baseContours,
+      percentiles: [0.09, 0.9, 0.99, 0.999], // TODO: get this from prop (from coordination space)
       getPosition: contourGetPosition,
       getWeight: getExpressionValue,
       pattern: false,

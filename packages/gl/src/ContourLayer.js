@@ -22,6 +22,7 @@ import { LineLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import { FillStyleExtension } from '@deck.gl/extensions';
 import { ContourLayer } from '@deck.gl/aggregation-layers';
 import { quantile } from 'd3-array';
+import { isEqual } from 'lodash-es';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 const DEFAULT_STROKE_WIDTH = 1;
@@ -37,6 +38,7 @@ const defaultProps = {
 
   // contour lines
   contours: [{threshold: DEFAULT_THRESHOLD}],
+  percentiles: { type: 'array', value: [0.09, 0.9, 0.99, 0.999], compare: true },
 
   zOffset: 0.005,
   filled: { type: 'boolean', compare: false },
@@ -47,7 +49,7 @@ const defaultProps = {
 
 export default class ContourPatternLayer extends ContourLayer {
 
-  getThresholds() {
+  getThresholds(percentiles) {
     // How to convert positions to XY coordinates
     // Reference: https://github.com/visgl/deck.gl/blob/89189f4e9ecb2f1b9b619f9a66c246690948fd19/modules/aggregation-layers/src/cpu-grid-layer/grid-aggregator.ts#L173
     
@@ -71,7 +73,7 @@ export default class ContourPatternLayer extends ContourLayer {
     // Note: could potentially use a <1 cellSize
     // Reference: https://github.com/d3/d3-contour/issues/63#issuecomment-1224930141
 
-    const thresholds = [0.09, 0.9, 0.99, 0.999].map(p => quantile(weights, p))
+    const thresholds = percentiles.map(p => quantile(weights, p))
       .map((t) => Math.max(t, 1.0))
       .filter((t, i) => i === 0 || t > 1.0);
     return thresholds;
@@ -85,18 +87,20 @@ export default class ContourPatternLayer extends ContourLayer {
       oldProps.width !== props.width
       || oldProps.height !== props.height
       || oldProps.cellSize !== props.cellSize
-      || oldProps.getPosition !== props.getPosition // - TODO: stabilize reference
+      || oldProps.getPosition !== props.getPosition
       || oldProps.getWeight !== props.getWeight
-      || oldProps.data !== props.data // - TODO: stabilize reference
+      || oldProps.data !== props.data
       // The inclusion of contours and zOffset are necessary to overwrite the _updateThresholdData call of the superclass.
       // Reference: https://github.com/visgl/deck.gl/blob/03ce925107a63830e48e706c521000a08e20a02c/modules/aggregation-layers/src/contour-layer/contour-layer.ts#L201C9-L201C83
       || oldProps.contours !== props.contours
       || oldProps.zOffset !== props.zOffset
+      || !isEqual(oldProps.percentiles, props.percentiles)
     ) {
-      const thresholds = this.getThresholds();
+      const thresholds = this.getThresholds(props.percentiles);
       console.log(thresholds);
       const contours = thresholds.map((threshold, i) => ({
         threshold: threshold,
+        // TODO: get colors for each percentile(/threshold) from props
         color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
         strokeWidth: 2,
       }));
