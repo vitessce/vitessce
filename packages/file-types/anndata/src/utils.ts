@@ -1,7 +1,7 @@
 import * as zarr from "zarrita";
 import { Readable } from "@zarrita/storage";
 import SparseArray from "./sparse_array";
-import { AxisSelection, FullSelection, UIntType } from "./types";
+import { AxisSelection, FullSelection, Slice, UIntType } from "./types";
 import { BoolArray, ByteStringArray, UnicodeStringArray } from "@zarrita/typedarray";
 
 const V2_STRING_REGEX = /v2:([US])(\d+)/;
@@ -82,18 +82,41 @@ function isTypedArrayFromDtype(data: any, dtype: zarr.DataType): data is Int8Arr
   return !isZarrStringTypedArrayFromDtype(data, dtype) && !isZarrBoolTypedArrayFromDtype(data, dtype) // ok, probably not a great idea
 }
 
-export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends UIntType, S extends Readable>(
-  array: zarr.Array<L, S> | SparseArray<N> | LazyCategoricalArray<K, L, S>, selection: FullSelection
-): Promise<zarr.Chunk<L | N>> { // is this better than just a union? maybe?
+function isNumericArray(data: any): data is number[] {
+  return data.every((i: any) => typeof i == "number")
+}
+
+export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends UIntType, S extends Readable, Arr extends LazyCategoricalArray<K, L, S> | zarr.Array<L, S> | SparseArray<N>>(
+  array: Arr, selection: (null | Slice | number)[]
+): Promise<zarr.Chunk<Arr extends zarr.Array<L, S> | LazyCategoricalArray<K, L, S> ? L : N>>
+export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends UIntType, S extends Readable, Arr extends LazyCategoricalArray<K, L, S> | zarr.Array<L, S> | SparseArray<N>>(
+  array: Arr, selection: number[]
+): Promise<zarr.Scalar<Arr extends zarr.Array<L, S> | LazyCategoricalArray<K, L, S> ? L : N>>
+export async function get<L extends zarr.DataType, N extends zarr.NumberDataType, K extends UIntType, S extends Readable, Arr extends LazyCategoricalArray<K, L, S> | zarr.Array<L, S> | SparseArray<N>>(
+  array: Arr, selection: FullSelection
+) {
   if (isLazyCategoricalArray(array)) {
     const codes = await zarr.get(array.codes, selection);
-    const categories = await zarr.get(array.categories, selection); //
+    const categories = await zarr.get(array.categories, [null]);
+    const { data: categoriesData } = categories;
     const dtype = array.categories.dtype;
+    if (isNumericArray(selection)) {
+      const category = Number(codes);
+      if (isTypedArrayFromDtype(categoriesData, dtype)) {
+        return categoriesData[category]
+      }
+      if (isZarrStringTypedArrayFromDtype(categoriesData, dtype)) {
+        return categoriesData.get(category)
+      }
+      if (isZarrBoolTypedArrayFromDtype(categoriesData, dtype)) {
+        return categoriesData.get(category)
+      }
+      throw new Error("Unrecognized category")
+    }
     const data = new (get_ctr(array.categories.dtype))(codes.data.length); // TODO(ilan-gold): open issue in zarrita
     for (let i = 0; i < codes.data.length; i += 1) {
       const code = codes.data[i]
       const category = Number(code)
-      const { data: categoriesData } = categories;
       // TODO(ilan-gold): a better way of setting data maybe? more type agnostic?
       if (isTypedArrayFromDtype(categoriesData, dtype) && isTypedArrayFromDtype(data, dtype)) {
         data[i] = categoriesData[category];
@@ -105,10 +128,11 @@ export async function get<L extends zarr.DataType, N extends zarr.NumberDataType
     }
     return { ...codes, data };
   }
-  if (isSparseArray(array)) {
+  else if (isSparseArray(array)) {
     return array.get(selection)
+  } else {
+    return zarr.get(array, selection);
   }
-  return zarr.get(array, selection);
 }
 
 

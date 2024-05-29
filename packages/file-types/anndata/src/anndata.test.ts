@@ -1,6 +1,7 @@
 // import { HTTPStore, NestedArray } from "zarr";
 import { readZarr } from "./anndata";
 import { describe, expect, it } from "vitest";
+import * as zarr from "zarrita"
 import { get } from "./utils";
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 
@@ -27,10 +28,14 @@ describe("AnnData", () => {
       it("obs column", async () => {
         const ids = await adata.obs.get("leiden");
         expect(Array.from((await get(ids, [null])).data)).toEqual(["1", "1", "2"]);
+        expect(Array.from((await get(ids, [zarr.slice(0, 2)])).data)).toEqual(["1", "1"]);
+        expect(await get(ids, [0])).toEqual("1");
       });
       it("obs index", async () => {
         const ids = await adata.obsNames();
         expect(Array.from((await get(ids, [null])).data)).toEqual(["CTG", "GCA", "CTG"]);
+        expect(Array.from((await get(ids, [zarr.slice(0, 2)])).data)).toEqual(["CTG", "GCA"]);
+        expect(await get(ids, [0])).toEqual("CTG");
       });
       it("var index", async () => {
         const ids = await adata.varNames();
@@ -62,6 +67,7 @@ describe("AnnData", () => {
             stride: [1]
           }
         );
+        expect(await get(data, [1, 1])).toEqual(1);
       });
     });
   })
@@ -85,6 +91,7 @@ describe("AnnData", () => {
             stride: [1]
           }
         );
+        expect(await get(data, [1, 1])).toEqual(1);
       });
     });
   })
@@ -108,6 +115,7 @@ describe("AnnData", () => {
             stride: [1]
           }
         );
+        expect(await get(data, [1, 1])).toEqual(1);
       });
     });
   })

@@ -26,6 +26,9 @@ class SparseArray<D extends zarr.NumberDataType> {
         public readonly format: "csc" | "csr"
     ) { }
 
+
+    async get(selection: (null | Slice | number)[]): Promise<zarr.Chunk<D>>
+    async get(selection: number[]): Promise<zarr.Scalar<D>>
     async get(selection: FullSelection) {
         if (selection.length != 2) {
             throw new IndexingError("For sparse array, selection must be of length 2");
@@ -33,11 +36,15 @@ class SparseArray<D extends zarr.NumberDataType> {
         const minorAxisSelection = selection[this.minorAxis]
         const majorAxisSelection = selection[this.majorAxis]
         const arr = await this.getContiguous(majorAxisSelection)
-        const finalSelection = new Array(arr.shape.length).fill(null);
+        const finalSelection = new Array(arr.shape.length).fill(minorAxisSelection);
         if (arr.shape.length > 1) {
-            finalSelection[this.minorAxis] = minorAxisSelection
+            finalSelection[this.majorAxis] = null
         }
-        return zarr.get(arr, finalSelection);
+        const res = await zarr.get(arr, finalSelection);
+        if (res?.shape && res.shape[0] === 1 && res.shape.length === 1) {
+            return res.data[0]
+        }
+        return res
     }
 
     public get majorAxis(): number {
@@ -64,8 +71,9 @@ class SparseArray<D extends zarr.NumberDataType> {
             sliceEnd = s + 2;
         }
         const majorAxisSize = sliceEnd - sliceStart - 1;
-        const shape: number[] = new Array(majorAxisSize > 1 ? 2 : 1).fill(this.shape[this.minorAxis]);
-        if (majorAxisSize > 1) {
+        const return2D = majorAxisSize > 1 || this.majorAxis // return 2D for column selection, even if the selection is 1D
+        const shape: number[] = new Array(return2D ? 2 : 1).fill(this.shape[this.minorAxis]);
+        if (return2D) {
             shape[this.majorAxis] = majorAxisSize
         }
 
@@ -95,8 +103,8 @@ class SparseArray<D extends zarr.NumberDataType> {
         let { data } = await zarr.get(this.data, [
             zarr.slice(start, stop),
         ]);
-        const stride = new Array(majorAxisSize > 1 ? 2 : 1).fill(1);
-        if (majorAxisSize > 1) {
+        const stride = new Array(return2D ? 2 : 1).fill(1);
+        if (return2D) {
             stride[this.majorAxis] = shape[this.minorAxis]
             stride[this.minorAxis] = 1
         }
