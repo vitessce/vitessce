@@ -399,12 +399,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [stratifiedObsIndex, stratifiedObsEmbedding, stratifiedGetExpressionValue] = useMemo(() => {
     // TODO: call stratifyExpressionData and aggregateStratifiedExpressionData here.
 
-    
+
 
     return [null, null, null];
   }, [obsEmbeddingIndex, matrixObsIndex, uint8ExpressionData,
     sampleEdges, sampleSets, sampleSetSelection,
     cellSetSelection, mergedCellSets,
+    // TODO: add more dependencies (see current useExpressionSummaries hook params)
+    geneExpressionColormapRange,
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
