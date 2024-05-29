@@ -283,15 +283,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   }), [mergedCellSets, theme,
     cellSetSelection, cellSetColor, matrixObsIndex]);
 
-  const [resultArr, meanExpressionMax] = useExpressionSummaries(
-    sampleEdges, sampleSets, sampleSetSelection,
-    expressionData, matrixObsIndex, mergedCellSets,
-    geneSelection, cellSetSelection, cellSetColor,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureLabelsMap,
-
-  );
-
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
   const [cellSetPolygonCache, setCellSetPolygonCache] = useState([]);
@@ -395,7 +386,16 @@ export function EmbeddingScatterplotSubscriber(props) {
     matrixObsIndex,
     expressionData: uint8ExpressionData,
   });
+  
+  const [resultArr, meanExpressionMax] = useExpressionSummaries(
+    sampleEdges, sampleSets, sampleSetSelection,
+    expressionData, matrixObsIndex, mergedCellSets,
+    geneSelection, cellSetSelection, cellSetColor,
+    featureValueTransform, featureValueTransformCoefficient,
+    featureLabelsMap,
+  );
 
+  // TODO: remove unused useExpressionSummaries hook once this hook has been implemented.
   const [stratifiedObsIndex, stratifiedObsEmbedding, stratifiedGetExpressionValue] = useMemo(() => {
     // TODO: call stratifyExpressionData and aggregateStratifiedExpressionData here.
     return [null, null, null];
