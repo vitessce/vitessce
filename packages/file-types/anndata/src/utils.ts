@@ -144,8 +144,8 @@ export async function has(root: zarr.Group<Readable>, path: string) {
     if (error instanceof zarr.NodeNotFoundError) {
       return false;
     }
-    return true;
   }
+  return true;
 }
 
 export async function readSparse<S extends Readable, D extends zarr.NumberDataType>(elem: zarr.Group<S>): Promise<SparseArray<D>> {

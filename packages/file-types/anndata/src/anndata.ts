@@ -4,9 +4,9 @@ import AxisArrays from "./axis_arrays";
 import { Readable } from "@zarrita/storage";
 import SparseArray from './sparse_array';
 import { AxisKeys } from "./types";
-import { readSparse } from "./utils";
+import { has, readSparse } from "./utils";
 interface AxisKeyTypes<S extends Readable, D extends zarr.NumberDataType> {
-  obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D>, layers: AxisArrays<S>, obsp: AxisArrays<S>, varp: AxisArrays<S>
+  obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D> | undefined, layers: AxisArrays<S>, obsp: AxisArrays<S>, varp: AxisArrays<S>
 }
 
 export default class AnnData<S extends Readable, D extends zarr.NumberDataType> {
@@ -16,7 +16,7 @@ export default class AnnData<S extends Readable, D extends zarr.NumberDataType> 
   public obsp: AxisArrays<S>;
   public varm: AxisArrays<S>;
   public varp: AxisArrays<S>;
-  public X: SparseArray<D> | zarr.Array<D>;
+  public X: SparseArray<D> | zarr.Array<D> | undefined;
   public layers: AxisArrays<S>
 
   constructor(data: AxisKeyTypes<S, D>) {
@@ -35,12 +35,12 @@ export default class AnnData<S extends Readable, D extends zarr.NumberDataType> 
   }
 
   public async obsNames() {
-    const grp = await zarr.open(this.obs.root, { kind: "group" });
+    const grp = await zarr.open(this.obs.axisRoot, { kind: "group" });
     return this.names(grp)
   }
 
   public async varNames() {
-    const grp = await zarr.open(this.var.root, { kind: "group" });
+    const grp = await zarr.open(this.var.axisRoot, { kind: "group" });
     return this.names(grp)
   }
 }
@@ -58,11 +58,13 @@ export async function readZarr(path: string | Readable) {
   const adataInit = {} as AxisKeyTypes<Readable, zarr.NumberDataType>;
   await Promise.all(AxisKeys.map(async (k) => {
     if (k == "X") {
-      const x_elem = await zarr.open(root.resolve("X"));
-      if (x_elem instanceof zarr.Group) {
-        adataInit[k] = await readSparse(x_elem)
-      } else {
-        adataInit[k] = x_elem as zarr.Array<zarr.NumberDataType>
+      if (await has(root, k)) {
+        const x_elem = await zarr.open(root.resolve("X"));
+        if (x_elem instanceof zarr.Group) {
+          adataInit[k] = await readSparse(x_elem)
+        } else {
+          adataInit[k] = x_elem as zarr.Array<zarr.NumberDataType>
+        }
       }
     } else {
       adataInit[k] = new AxisArrays<Readable>(root, k);

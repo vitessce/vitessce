@@ -29,6 +29,8 @@ function test(fixture: [string, string][], type: "dense" | "csc" | "csr", versio
       expect(Array.from((await get(ids, [null])).data)).toEqual(["1", "1", "2"]);
       expect(Array.from((await get(ids, [zarr.slice(0, 2)])).data)).toEqual(["1", "1"]);
       expect(await get(ids, [0])).toEqual("1");
+      expect(await adata.obs.has("not_a_column")).toEqual(false);
+      expect(async () => await adata.obs.get("not_a_column")).rejects.toThrow('obs has no key: \"not_a_column\"');
     });
     it("obs index", async () => {
       const ids = await adata.obsNames();
@@ -52,6 +54,9 @@ function test(fixture: [string, string][], type: "dense" | "csc" | "csr", versio
     });
     it("X", async () => {
       const data = await adata.X;
+      if (data === undefined) {
+        return;
+      }
       expect(await get(data, [null, null])).toEqual(
         {
           data: new Float32Array(Array.from(Array(45).keys()).map(j => j % 15)),

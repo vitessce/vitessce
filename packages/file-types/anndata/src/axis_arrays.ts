@@ -1,27 +1,36 @@
 import * as zarr from "zarrita";
-import { LazyCategoricalArray, readSparse } from "./utils";
+import { LazyCategoricalArray, has, readSparse } from "./utils";
 
 import type { AxisKey, BackedArray, UIntType } from "./types";
 import { Readable } from "@zarrita/storage";
 
-export default class AxisArrays<S extends Readable> {
-  public root: zarr.Location<S>;
+export default class AxisArrays<S extends Readable, AxisArrayKey extends Exclude<AxisKey, "X">> {
+  public parentRoot: zarr.Group<S>;
+  public name: AxisArrayKey
   private cache: Map<string, BackedArray>
 
-  public constructor(root: zarr.Group<S>, axisKey: AxisKey) {
-    this.root = root.resolve(axisKey);
+  public constructor(parentRoot: zarr.Group<S>, axisKey: AxisArrayKey) {
+    this.name = axisKey
+    this.parentRoot = parentRoot;
     this.cache = new Map();
   }
 
+  public get axisRoot(): zarr.Location<S> {
+    return this.parentRoot.resolve(this.name)
+  }
+
   public async get(key: string): Promise<BackedArray> {
+    if (!await this.has(key)) {
+      throw new Error(`${this.name} has no key: \"${key}\"`)
+    }
     if (!this.cache.has(key)) {
       // categories needed for backward compat
-      const keyRoot = this.root.resolve(key);
+      const keyRoot = this.axisRoot.resolve(key);
       const keyNode = await zarr.open(keyRoot);
       const { categories, "encoding-type": encodingType } =
         (await keyNode.attrs) as any;
       if (categories != undefined) {
-        const cats = await zarr.open(this.root.resolve(categories), { kind: "array" });
+        const cats = await zarr.open(this.axisRoot.resolve(categories), { kind: "array" });
         this.cache.set(key, new LazyCategoricalArray((keyNode as zarr.Array<UIntType, S>), cats))
       }
       else if (encodingType === "categorical") {
@@ -40,5 +49,9 @@ export default class AxisArrays<S extends Readable> {
       throw new Error("See https://github.com/microsoft/TypeScript/issues/13086 for why this will never happen")
     }
     return val
+  }
+
+  public async has(key: string): Promise<boolean> {
+    return has(this.parentRoot, `${this.name}/${key}`)
   }
 }
