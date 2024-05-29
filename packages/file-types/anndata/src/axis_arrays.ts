@@ -4,12 +4,12 @@ import { LazyCategoricalArray, has, readSparse } from "./utils";
 import type { AxisKey, BackedArray, UIntType } from "./types";
 import { Readable } from "@zarrita/storage";
 
-export default class AxisArrays<S extends Readable, AxisArrayKey extends Exclude<AxisKey, "X">> {
+export default class AxisArrays<S extends Readable> {
   public parentRoot: zarr.Group<S>;
-  public name: AxisArrayKey
+  public name: Exclude<AxisKey, "X">
   private cache: Map<string, BackedArray>
 
-  public constructor(parentRoot: zarr.Group<S>, axisKey: AxisArrayKey) {
+  public constructor(parentRoot: zarr.Group<S>, axisKey: Exclude<AxisKey, "X">) {
     this.name = axisKey
     this.parentRoot = parentRoot;
     this.cache = new Map();
