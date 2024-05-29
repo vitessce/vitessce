@@ -3,12 +3,8 @@ import * as zarr from "zarrita";
 import AxisArrays from "./axis_arrays";
 import { Readable } from "@zarrita/storage";
 import SparseArray from './sparse_array';
-import { AxisKeys } from "./types";
+import { AxisKeyTypes, AxisKeys } from "./types";
 import { has, readSparse } from "./utils";
-interface AxisKeyTypes<S extends Readable, D extends zarr.NumberDataType> {
-  obs: AxisArrays<S>, var: AxisArrays<S>, obsm: AxisArrays<S>, varm: AxisArrays<S>, X: SparseArray<D> | zarr.Array<D> | undefined, layers: AxisArrays<S>, obsp: AxisArrays<S>, varp: AxisArrays<S>
-}
-
 export default class AnnData<S extends Readable, D extends zarr.NumberDataType> {
   public obs: AxisArrays<S>;
   public var: AxisArrays<S>;
