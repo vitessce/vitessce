@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
+import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
   ContourLayer,
@@ -112,23 +113,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   // - Array of per-sampleSet, per-obsSet layers (filter to sampleSet and obsSet members)
   createContourLayers() {
     const {
-      //obsEmbeddingIndex: obsIndex,
-      theme,
-      stratifiedData,
-      cellRadius = 1.0,
-      cellOpacity = 1.0,
-      // cellFilter,
-      cellSelection,
-      setCellHighlight,
-      setComponentHover,
-      getCellIsSelected,
-      cellColors,
-      //getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
-      //getExpressionValue,
-      onCellClick,
-      geneExpressionColormap,
-      geneExpressionColormapRange = [0.0, 1.0],
-      cellColorEncoding,
+      obsSetColor,
+      sampleSetColor,
     } = this.props;
 
     const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
@@ -138,9 +124,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       const obsIndex = arrs.get('obsIndex');
 
       return new ContourLayer({
-        id: `contour-${i}-${j}`,
+        id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
         coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-        data: { // TODO: memoize
+        data: { // TODO: memoize / stabilize reference
           src: {
             embeddingX,
             embeddingY,
@@ -149,7 +135,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
           },
           length: obsIndex.length,
         },
-        getWeight: (object, { index, data }) => {
+        getWeight: (object, { index, data }) => { // TODO: stabilize reference
           return data.src.featureValues[index];
         },
         visible: true,
@@ -163,12 +149,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
         cellSize: 0.25,
         //zOffset: 0.005 + (0.001 * i * j),
+        contourColor: sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color,
 
         // We will compute the contours internally,
         // but we need to provide a stable reference here.
         contours: baseContours,
         percentiles: [0.09, 0.9, 0.99], // TODO: get this from prop (from coordination space)
-        getPosition: (object, { index, data, target }) => {
+        getPosition: (object, { index, data, target }) => { // TODO: stabilize reference
           target[0] = data.src.embeddingX[index];
           target[1] = -data.src.embeddingY[index];
           target[2] = 0;
@@ -180,56 +167,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getFillPatternScale: 350,
       });
     }));
-    console.log(layers);
     return layers;
-
-    // TODO: use stratifiedObsIndex, stratifiedObsEmbedding, and stratifiedGetExpressionValue props
-
-    const baseOpacity = false ? 0.5 * 255 : 255;
-
-    // TODO: return a separate contour layer for each cell set?
-    // TODO: use real `group` object.
-    const group = {
-      name: 'test',
-      color: [255, 0, 0],
-      indices: obsIndex.map((x, i) => i), 
-    }
-    const { name, color: groupColor, indices } = group;
-
-    const color = (true ? groupColor : [180, 180, 180]);
-    const [r, g, b, a] = color;
-
-    return [
-      new ContourLayer({
-        id: `contour`,
-        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-        data: this.cellsContourData, // TODO: pass filtered data
-        getWeight: getExpressionValue, // TODO: pass a different getter function that is aware of the data filtering
-        visible: true,
-        pickable: false,
-        autoHighlight: false,
-        filled: true,
-        getPolygonOffset: () => ([0, 20]),
-        // cellSize: 0.5,
-        // contours: [
-        //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
-        //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
-        cellSize: 0.25,
-
-        // We will compute the contours internally,
-        // but we need to provide a stable reference here.
-        contours: baseContours,
-        percentiles: [0.09, 0.9, 0.99, 0.999], // TODO: get this from prop (from coordination space)
-        getPosition: contourGetPosition,
-        
-        pattern: false,
-        getFillPattern: () => "hatch-cross",
-        getFillPatternScale: 350,
-        updateTriggers: {
-          getWeight: [getExpressionValue],
-        },
-      })
-    ];
   }
 
   createCellsLayer() {

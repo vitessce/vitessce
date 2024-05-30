@@ -39,6 +39,7 @@ const defaultProps = {
   // contour lines
   contours: [{threshold: DEFAULT_THRESHOLD}],
   percentiles: { type: 'array', value: [0.09, 0.9, 0.99, 0.999], compare: true },
+  contourColor: { type: 'array', value: [0, 0, 0], compare: true },
 
   zOffset: 0.005,
   filled: { type: 'boolean', compare: false },
@@ -95,13 +96,14 @@ export default class ContourPatternLayer extends ContourLayer {
       || oldProps.contours !== props.contours
       || oldProps.zOffset !== props.zOffset
       || !isEqual(oldProps.percentiles, props.percentiles)
+      // TODO: don't recompute thresholds if only the color changed...
+      || !isEqual(oldProps.contourColor, props.contourColor)
     ) {
       const thresholds = this.getThresholds(props.percentiles);
       console.log(thresholds);
       const contours = thresholds.map((threshold, i) => ({
         threshold: threshold,
-        // TODO: get colors for each percentile(/threshold) from props
-        color: [0, 0, 0, ((i+1)/(thresholds.length)) * 255],
+        color: [...props.contourColor, ((i+1)/(thresholds.length)) * 255],
         strokeWidth: 2,
       }));
       this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });

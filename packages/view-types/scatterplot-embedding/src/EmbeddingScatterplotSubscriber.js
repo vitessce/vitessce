@@ -101,6 +101,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelection,
     featureValueTransform,
     featureValueTransformCoefficient,
+    sampleSetColor,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -481,6 +482,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         // InternMap data structures where keys are
         // obsSet -> sampleSet -> arrayKey -> [].
         stratifiedData={stratifiedData}
+        obsSetColor={cellSetColor}
+        sampleSetColor={sampleSetColor}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
