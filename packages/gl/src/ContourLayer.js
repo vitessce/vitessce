@@ -106,7 +106,7 @@ export default class ContourPatternLayer extends ContourLayer {
       }));
       this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });
       super._generateContours();
-      console.log(this.state.thresholdData);
+      //console.log(this.state);
     }
   }
 

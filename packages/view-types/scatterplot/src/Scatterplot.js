@@ -90,17 +90,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellsData = null;
-    this.cellsContourData = null;
+    this.stratifiedData = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
 
-    this.contourLayer = null;
+    this.contourLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
+    this.onUpdateStratifiedData();
+    this.onUpdateContourLayers();
   }
 
   // TODO: support multiple types of contour layers
@@ -108,10 +110,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   // - Array of per-selected-obsSet layers (filter to obsSet members)
   // - Array of per-selected-sampleSet layers (filter to sampleSet members)
   // - Array of per-sampleSet, per-obsSet layers (filter to sampleSet and obsSet members)
-  createContourLayer() {
+  createContourLayers() {
     const {
-      obsEmbeddingIndex: obsIndex,
+      //obsEmbeddingIndex: obsIndex,
       theme,
+      stratifiedData,
       cellRadius = 1.0,
       cellOpacity = 1.0,
       // cellFilter,
@@ -120,13 +123,65 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
-      getExpressionValue,
+      //getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      //getExpressionValue,
       onCellClick,
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
     } = this.props;
+
+    const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
+      const embeddingX = arrs.get('obsEmbeddingX');
+      const embeddingY = arrs.get('obsEmbeddingY');
+      const featureValues = arrs.get('featureValue');
+      const obsIndex = arrs.get('obsIndex');
+
+      return new ContourLayer({
+        id: `contour-${i}-${j}`,
+        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+        data: { // TODO: memoize
+          src: {
+            embeddingX,
+            embeddingY,
+            featureValues,
+            obsIndex,
+          },
+          length: obsIndex.length,
+        },
+        getWeight: (object, { index, data }) => {
+          return data.src.featureValues[index];
+        },
+        visible: true,
+        pickable: false,
+        autoHighlight: false,
+        filled: true,
+        getPolygonOffset: () => ([0, 20]),
+        // cellSize: 0.5,
+        // contours: [
+        //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
+        //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
+        cellSize: 0.25,
+        //zOffset: 0.005 + (0.001 * i * j),
+
+        // We will compute the contours internally,
+        // but we need to provide a stable reference here.
+        contours: baseContours,
+        percentiles: [0.09, 0.9, 0.99], // TODO: get this from prop (from coordination space)
+        getPosition: (object, { index, data, target }) => {
+          target[0] = data.src.embeddingX[index];
+          target[1] = -data.src.embeddingY[index];
+          target[2] = 0;
+          return target;
+        },
+
+        pattern: false,
+        getFillPattern: () => "hatch-cross",
+        getFillPatternScale: 350,
+      });
+    }));
+    console.log(layers);
+    return layers;
 
     // TODO: use stratifiedObsIndex, stratifiedObsEmbedding, and stratifiedGetExpressionValue props
 
@@ -144,35 +199,37 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const color = (true ? groupColor : [180, 180, 180]);
     const [r, g, b, a] = color;
 
-    return new ContourLayer({
-      id: `contour`,
-      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      data: this.cellsContourData, // TODO: pass filtered data
-      getWeight: getExpressionValue, // TODO: pass a different getter function that is aware of the data filtering
-      visible: true,
-      pickable: false,
-      autoHighlight: false,
-      filled: true,
-      getPolygonOffset: () => ([0, 20]),
-      // cellSize: 0.5,
-      // contours: [
-      //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
-      //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
-      cellSize: 0.25,
+    return [
+      new ContourLayer({
+        id: `contour`,
+        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+        data: this.cellsContourData, // TODO: pass filtered data
+        getWeight: getExpressionValue, // TODO: pass a different getter function that is aware of the data filtering
+        visible: true,
+        pickable: false,
+        autoHighlight: false,
+        filled: true,
+        getPolygonOffset: () => ([0, 20]),
+        // cellSize: 0.5,
+        // contours: [
+        //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
+        //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
+        cellSize: 0.25,
 
-      // We will compute the contours internally,
-      // but we need to provide a stable reference here.
-      contours: baseContours,
-      percentiles: [0.09, 0.9, 0.99, 0.999], // TODO: get this from prop (from coordination space)
-      getPosition: contourGetPosition,
-      
-      pattern: false,
-      getFillPattern: () => "hatch-cross",
-      getFillPatternScale: 350,
-      updateTriggers: {
-        getWeight: [getExpressionValue],
-      },
-    });
+        // We will compute the contours internally,
+        // but we need to provide a stable reference here.
+        contours: baseContours,
+        percentiles: [0.09, 0.9, 0.99, 0.999], // TODO: get this from prop (from coordination space)
+        getPosition: contourGetPosition,
+        
+        pattern: false,
+        getFillPattern: () => "hatch-cross",
+        getFillPatternScale: 350,
+        updateTriggers: {
+          getWeight: [getExpressionValue],
+        },
+      })
+    ];
   }
 
   createCellsLayer() {
@@ -340,18 +397,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       cellsLayer,
       cellSetsLayers,
-      contourLayer,
+      contourLayers,
     } = this;
     return [
-      cellsLayer,
-      contourLayer,
+      //cellsLayer,
+      ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
     ];
   }
 
   onUpdateCellsData() {
-    const { obsEmbedding, obsEmbeddingIndex } = this.props;
+    const { obsEmbedding } = this.props;
     if (obsEmbedding) {
       const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
       this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
@@ -361,12 +418,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         },
         length: obsEmbedding.shape[1],
       };
-      // Create data for contour layer.
-      const indices = obsEmbeddingIndex.map((x, i) => i);
-      this.cellsContourData = {
-        src: { indices, embedding: this.cellsData.src.obsEmbedding.data },
-        length: indices.length
-      };
     }
   }
 
@@ -374,10 +425,24 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { obsEmbeddingIndex, obsEmbedding } = this.props;
     if (obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
-      // TODO: create contour layer separately, only if enabled
-      this.contourLayer = this.createContourLayer();
     } else {
       this.cellsLayer = null;
+    }
+  }
+
+  onUpdateStratifiedData() {
+    const { stratifiedData } = this.props;
+    if (stratifiedData) {
+      this.stratifiedData = stratifiedData;
+    }
+  }
+
+  onUpdateContourLayers() {
+    const { stratifiedData } = this.props;
+    if (stratifiedData) {
+      this.contourLayers = this.createContourLayers();
+    } else {
+      this.contourLayers = [];
     }
   }
 
@@ -443,6 +508,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
+    if (['stratifiedData'].some(shallowDiff)) {
+      // Cells data changed.
+      this.onUpdateStratifiedData();
+      forceUpdate = true;
+    }
+
     if ([
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
@@ -451,6 +522,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
+      forceUpdate = true;
+    }
+
+    if (['stratifiedData'].some(shallowDiff)) {
+      // Cells data changed.
+      this.onUpdateContourLayers();
       forceUpdate = true;
     }
 

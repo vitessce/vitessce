@@ -26,7 +26,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyExpressionData, aggregateStratifiedExpressionData,
+  stratifyArrays,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
@@ -36,62 +36,6 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-
-
-/**
- * Get expression data for the cells
- * in the selected cell sets.
- * @param {object} expressionMatrix
- * @param {string[]} expressionMatrix.rows Cell IDs.
- * @param {string[]} expressionMatrix.cols Gene names.
- * @param {Uint8Array} expressionMatrix.matrix The
- * flattened expression matrix as a typed array.
- * @param {object} cellSets The cell sets from the dataset.
- * @param {object} additionalCellSets The user-defined cell sets
- * from the coordination space.
- * @param {array} geneSelection Array of selected genes.
- * @param {array} cellSetSelection Array of selected cell set paths.
- * @param {object[]} cellSetColor Array of objects with properties
- * @param {string|null} featureValueTransform The name of the
- * feature value transform function.
- * @param {number} featureValueTransformCoefficient A coefficient
- * to be used in the transform function.
- * @param {string} theme "light" or "dark" for the vitessce theme
- * `path` and `color`.
- */
-export function useExpressionSummaries(
-  sampleEdges, sampleSets, sampleSetSelection,
-  expressionData, obsIndex, mergedCellSets,
-  geneSelection, cellSetSelection, cellSetColor,
-  featureValueTransform, featureValueTransformCoefficient,
-  featureLabelsMap,
-) {
-  // TODO: stratify both expression data and embedding coordinates.
-
-  // From the expression matrix and the list of selected genes / cell sets,
-  // generate the array of data points for the plot.
-  const [resultArr, meanExpressionMax] = useMemo(() => {
-    const [stratifiedData, exprMax] = stratifyExpressionData(
-      sampleEdges, sampleSets, sampleSetSelection,
-      expressionData, obsIndex, mergedCellSets,
-      geneSelection, cellSetSelection, cellSetColor,
-      featureValueTransform, featureValueTransformCoefficient,
-      'light',
-    );
-    if(stratifiedData) {
-      console.log(stratifiedData)
-      return [null, null];
-    }
-    return [null, null];
-  }, [expressionData, obsIndex, geneSelection,
-    mergedCellSets, cellSetSelection,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureLabelsMap,
-    sampleEdges, sampleSets, sampleSetSelection,
-  ]);
-
-  return [resultArr, meanExpressionMax];
-}
 
 
 /**
@@ -386,27 +330,73 @@ export function EmbeddingScatterplotSubscriber(props) {
     matrixObsIndex,
     expressionData: uint8ExpressionData,
   });
-  
-  const [resultArr, meanExpressionMax] = useExpressionSummaries(
-    sampleEdges, sampleSets, sampleSetSelection,
-    expressionData, matrixObsIndex, mergedCellSets,
-    geneSelection, cellSetSelection, cellSetColor,
-    featureValueTransform, featureValueTransformCoefficient,
-    featureLabelsMap,
-  );
 
-  // TODO: remove unused useExpressionSummaries hook once this hook has been implemented.
-  const [stratifiedObsIndex, stratifiedObsEmbedding, stratifiedGetExpressionValue] = useMemo(() => {
-    // TODO: call stratifyExpressionData and aggregateStratifiedExpressionData here.
+  // It is possible for the embedding index+data to be out of order with respect to the matrix index+data.
+  // Here, we align the embedding data so that the rows are ordered the same as the matrix rows.
+  // TODO: refactor this as a hook that can be used elsewhere to align data from different data types
+  // with the expression matrix data. Need to fallback to the original ordering if no matrix data is present.
+  // TODO: do this everywhere and remove the need for the useExpressionValueGetter hook and getter function.
+  const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
+    // Sort the embedding data according to the matrix obsIndex.
+    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
 
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
 
+      const newEmbeddingIndex = new Array(obsEmbeddingIndex.length);
+      const newEmbeddingData = [
+        new obsEmbedding.data[0].constructor(obsEmbedding.data[0].length),
+        new obsEmbedding.data[1].constructor(obsEmbedding.data[1].length),
+      ];
+      for(let i = 0; i < obsEmbeddingIndex.length; i++) {
+        const matrixRowIndex = toMatrixIndex[i];
+        newEmbeddingData[0][matrixRowIndex] = obsEmbedding.data[0][i];
+        newEmbeddingData[1][matrixRowIndex] = obsEmbedding.data[1][i];
+        newEmbeddingIndex[matrixRowIndex] = obsEmbeddingIndex[i];
+      }
+      return [newEmbeddingIndex, { ...obsEmbedding, data: newEmbeddingData }];
+    }
+    // Fall back to original ordering if no matrix data is present to align with.
+    return [obsEmbeddingIndex, obsEmbedding];
+  }, [matrixObsIndex, obsEmbeddingIndex, obsEmbedding]);
 
-    return [null, null, null];
-  }, [obsEmbeddingIndex, matrixObsIndex, uint8ExpressionData,
-    sampleEdges, sampleSets, sampleSetSelection,
+  const sampleIdToObsIdsMap = useMemo(() => {
+    // sampleEdges maps obsId -> sampleId.
+    // However when we stratify we want to map sampleId -> [obsId1, obsId2, ...].
+    // Here we create this reverse mapping.
+    if (sampleEdges) {
+      const result = new Map();
+      sampleEdges.entries().forEach(([obsId, sampleId]) => {
+        if(!result.has(sampleId)) {
+          result.set(sampleId, [obsId]);
+        } else {
+          result.get(sampleId).push(obsId);
+        }
+      });
+      return result;
+    }
+    return null;
+  }, [sampleEdges]);
+
+  // Stratify multiple arrays: per-cellSet and per-sampleSet.
+  const stratifiedData = useMemo(() => {
+    if(alignedEmbeddingData?.data) {
+      const result = stratifyArrays(
+        sampleEdges, sampleIdToObsIdsMap,
+        sampleSets, sampleSetSelection,
+        alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
+          'obsEmbeddingX': alignedEmbeddingData.data[0],
+          'obsEmbeddingY': alignedEmbeddingData.data[1],
+          // TODO: aggregate and transform expression data if needed prior to passing here
+          ...(uint8ExpressionData?.[0] ? { 'featureValue': uint8ExpressionData?.[0] } : {}),
+        },
+      );
+      return result;
+    }
+    return null;
+  }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
+    sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
     cellSetSelection, mergedCellSets,
-    // TODO: add more dependencies (see current useExpressionSummaries hook params)
-    geneExpressionColormapRange,
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
@@ -488,13 +478,9 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         obsSetSelection={cellSetSelection}
         sampleSetSelection={sampleSetSelection}
-        // InternMap data structures where keys are either
-        // sampleSet -> value,
-        // obsSet -> value, or
-        // sampleSet -> obsSet -> value.
-        stratifiedObsIndex={stratifiedObsIndex}
-        stratifiedObsEmbedding={stratifiedObsEmbedding}
-        stratifiedGetExpressionValue={stratifiedGetExpressionValue}
+        // InternMap data structures where keys are
+        // obsSet -> sampleSet -> arrayKey -> [].
+        stratifiedData={stratifiedData}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
