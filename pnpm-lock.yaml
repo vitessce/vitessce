@@ -491,9 +491,6 @@ importers:
       d3-array:
         specifier: ^2.4.0
         version: 2.12.1
-      d3-contour:
-        specifier: ^4.0.2
-        version: 4.0.2
       deck.gl:
         specifier: 8.8.27
         version: 8.8.27(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)(@math.gl/core@3.6.3)(@types/react@18.2.7)(gl-matrix@3.4.3)(react-dom@18.2.0)(react@18.2.0)
@@ -13544,13 +13541,6 @@ packages:
   /d3-color@3.1.0:
     resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
     engines: {node: '>=12'}
-    dev: false
-
-  /d3-contour@4.0.2:
-    resolution: {integrity: sha512-4EzFTRIikzs47RGmdxbeUvLWtGedDUNkTcmzoeyg4sP/dvCexO47AaQL7VKy/gul85TOxw+IBgA8US2xwbToNA==}
-    engines: {node: '>=12'}
-    dependencies:
-      d3-array: 3.2.0
     dev: false
 
   /d3-delaunay@6.0.2:
