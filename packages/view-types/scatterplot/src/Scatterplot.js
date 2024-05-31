@@ -115,6 +115,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const {
       obsSetColor,
       sampleSetColor,
+      contourPercentiles,
+      contourThresholds,
     } = this.props;
 
     const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
@@ -122,6 +124,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       const embeddingY = arrs.get('obsEmbeddingY');
       const featureValues = arrs.get('featureValue');
       const obsIndex = arrs.get('obsIndex');
+
+      // TODO: the thresholds need to be computed based on the entire dataset,
+      // as opposed to just the subsets for each layer.
+      // This way, the contours will be comparable among different layers.
 
       return new ContourLayer({
         id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
@@ -143,18 +149,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         autoHighlight: false,
         filled: true,
         getPolygonOffset: () => ([0, 20]),
-        // cellSize: 0.5,
-        // contours: [
-        //   { threshold: 10, color: [r, g, b, 0.9 * baseOpacity], strokeWidth: 2 },
-        //   { threshold: [10, 1000], color: [r, g, b, 0.7 * baseOpacity] },
         cellSize: 0.25,
-        //zOffset: 0.005 + (0.001 * i * j),
+        // TODO: support usage of obsSet colors or static colors.
         contourColor: sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color,
 
         // We will compute the contours internally,
         // but we need to provide a stable reference here.
         contours: baseContours,
-        percentiles: [0.09, 0.9, 0.99], // TODO: get this from prop (from coordination space)
+        thresholds: contourThresholds,
+        //percentiles: contourPercentiles || DEFAULT_CONTOUR_PERCENTILES,
         getPosition: (object, { index, data, target }) => { // TODO: stabilize reference
           target[0] = data.src.embeddingX[index];
           target[1] = -data.src.embeddingY[index];
@@ -339,8 +342,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     } = this;
     return [
       //cellsLayer,
-      ...contourLayers,
       ...cellSetsLayers,
+      ...contourLayers,
+      
       this.createSelectionLayer(),
     ];
   }
@@ -463,7 +467,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if (['stratifiedData'].some(shallowDiff)) {
+    if (['stratifiedData', 'contourPercentiles', 'contourThresholds'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateContourLayers();
       forceUpdate = true;

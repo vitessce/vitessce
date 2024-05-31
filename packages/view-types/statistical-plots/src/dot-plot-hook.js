@@ -80,7 +80,7 @@ export function useExpressionSummaries(
               feature: featureLabelsMap?.get(featureName) || featureName,
 
               groupKey: cellSetToUuid.get(cellSetKey),
-              group: cellSetKey.at(-1),
+              group: cellSetKey?.at(-1),
 
               secondaryGroup: sampleSetKey?.at(-1),
               secondaryGroupKey: sampleSetToUuid.get(sampleSetKey),

@@ -39,6 +39,7 @@ const defaultProps = {
   // contour lines
   contours: [{threshold: DEFAULT_THRESHOLD}],
   percentiles: { type: 'array', value: [0.09, 0.9, 0.99, 0.999], compare: true },
+  thresholds: { type: 'array', value: [], compare: true },
   contourColor: { type: 'array', value: [0, 0, 0], compare: true },
 
   zOffset: 0.005,
@@ -94,13 +95,12 @@ export default class ContourPatternLayer extends ContourLayer {
       // The inclusion of contours and zOffset are necessary to overwrite the _updateThresholdData call of the superclass.
       // Reference: https://github.com/visgl/deck.gl/blob/03ce925107a63830e48e706c521000a08e20a02c/modules/aggregation-layers/src/contour-layer/contour-layer.ts#L201C9-L201C83
       || oldProps.contours !== props.contours
+      || oldProps.thresholds !== props.thresholds
       || oldProps.zOffset !== props.zOffset
       || !isEqual(oldProps.percentiles, props.percentiles)
-      // TODO: don't recompute thresholds if only the color changed...
       || !isEqual(oldProps.contourColor, props.contourColor)
     ) {
-      const thresholds = this.getThresholds(props.percentiles);
-      console.log(thresholds);
+      const thresholds = props.thresholds ? props.thresholds : [];
       const contours = thresholds.map((threshold, i) => ({
         threshold: threshold,
         color: [...props.contourColor, ((i+1)/(thresholds.length)) * 255],
@@ -108,7 +108,6 @@ export default class ContourPatternLayer extends ContourLayer {
       }));
       this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });
       super._generateContours();
-      //console.log(this.state);
     }
   }
 

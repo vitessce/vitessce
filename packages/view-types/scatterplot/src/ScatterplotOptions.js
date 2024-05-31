@@ -34,6 +34,9 @@ export default function ScatterplotOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+    contourPercentiles,
+    setContourPercentiles,
+    defaultContourPercentiles,
   } = props;
 
   const scatterplotOptionsId = useId();
@@ -84,6 +87,14 @@ export default function ScatterplotOptions(props) {
   const handleColormapRangeChangeDebounced = useCallback(
     debounce(handleColormapRangeChange, 5, { trailing: true }),
     [handleColormapRangeChange],
+  );
+
+  function handlePercentilesChange(event, values) {
+    setContourPercentiles(values);
+  }
+  const handlePercentilesChangeDebounced = useCallback(
+    debounce(handlePercentilesChange, 5, { trailing: true }),
+    [handlePercentilesChange],
   );
 
   return (
@@ -323,6 +334,28 @@ export default function ScatterplotOptions(props) {
             step={0.005}
             min={0.0}
             max={1.0}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contour-percentiles-${scatterplotOptionsId}`}
+          >
+            Contour Percentiles
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            value={contourPercentiles || defaultContourPercentiles}
+            onChange={handlePercentilesChangeDebounced}
+            aria-label="Scatterplot sliders for contour percentile thresholds"
+            id={`scatterplot-contour-percentiles-${scatterplotOptionsId}`}
+            valueLabelDisplay="auto"
+            step={0.005}
+            min={0.009}
+            max={0.999}
           />
         </TableCell>
       </TableRow>

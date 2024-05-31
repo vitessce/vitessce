@@ -262,6 +262,7 @@ export const CoordinationType = {
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SET_SELECTION: 'sampleSetSelection',
   SAMPLE_SET_COLOR: 'sampleSetColor',
+  EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
 };
 
 export const STATUS = {

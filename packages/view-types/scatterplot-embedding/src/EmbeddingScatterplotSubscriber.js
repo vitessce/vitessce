@@ -1,7 +1,7 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import { extent } from 'd3-array';
+import { extent, quantile } from 'd3-array';
 import { isEqual } from 'lodash-es';
 import {
   TitleInfo,
@@ -36,6 +36,7 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 
 /**
@@ -102,6 +103,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueTransform,
     featureValueTransformCoefficient,
     sampleSetColor,
+    embeddingContourPercentiles: contourPercentiles,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -123,6 +125,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setEmbeddingContourPercentiles: setContourPercentiles,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -332,6 +335,21 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  // Compute contour thresholds based on the entire expression data distribution
+  // (not per-cellSet or per-sampleSet).
+  // TODO: only use expression data for the currently-selected cells (filter out others).
+  const contourThresholds = useMemo(() => {
+    if (uint8ExpressionData?.[0]) {
+      const weights = uint8ExpressionData[0];
+      const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
+        .map(p => quantile(weights, p))
+        .map((t) => Math.max(t, 1.0))
+        .filter((t, i) => i === 0 || t > 1.0);
+      return thresholds;
+    }
+    return null;
+  }, [contourPercentiles, uint8ExpressionData]);
+
   // It is possible for the embedding index+data to be out of order with respect to the matrix index+data.
   // Here, we align the embedding data so that the rows are ordered the same as the matrix rows.
   // TODO: refactor this as a hook that can be used elsewhere to align data from different data types
@@ -367,7 +385,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     // Here we create this reverse mapping.
     if (sampleEdges) {
       const result = new Map();
-      sampleEdges.entries().forEach(([obsId, sampleId]) => {
+      Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
         if(!result.has(sampleId)) {
           result.set(sampleId, [obsId]);
         } else {
@@ -442,6 +460,9 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          contourPercentiles={contourPercentiles}
+          setContourPercentiles={setContourPercentiles}
+          defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
         />
       )}
     >
@@ -484,6 +505,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         stratifiedData={stratifiedData}
         obsSetColor={cellSetColor}
         sampleSetColor={sampleSetColor}
+        contourThresholds={contourThresholds}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
@@ -505,6 +527,9 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         extent={expressionExtents?.[0]}
+        // TODO: whether to show contour percentile legend
+        contourPercentiles={contourPercentiles}
+        defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
       />
     </TitleInfo>
   );

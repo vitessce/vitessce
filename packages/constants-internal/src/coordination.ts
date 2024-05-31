@@ -66,6 +66,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
     CoordinationType.SAMPLE_SET_COLOR,
+    CoordinationType.EMBEDDING_CONTOUR_PERCENTILES,
   ],
   [ViewType.GATING]: [
     CoordinationType.DATASET,

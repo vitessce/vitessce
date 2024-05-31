@@ -502,4 +502,5 @@ export const baseCoordinationTypes = [
       color: rgbArray,
     })).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
 ];

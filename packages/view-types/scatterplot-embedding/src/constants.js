@@ -1,0 +1,1 @@
+export const DEFAULT_CONTOUR_PERCENTILES = [0.09, 0.9, 0.99];
