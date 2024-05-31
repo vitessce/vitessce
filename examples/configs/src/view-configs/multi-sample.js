@@ -86,12 +86,13 @@ function generateLake2023Config() {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
+    sampleType: 'sample',
+    sampleSetSelection: [['Tissue Type', 'CKD']],
   }, { meta: false });
-  vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
+  vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
     ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
   ]]);
-
   vc.linkViewsByObject([scatterplot, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'],//, 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
