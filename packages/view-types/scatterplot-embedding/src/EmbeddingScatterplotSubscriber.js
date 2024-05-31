@@ -105,6 +105,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetColor,
     embeddingPointsVisible,
     embeddingContoursVisible,
+    embeddingContoursFilled,
     embeddingContourPercentiles: contourPercentiles,
     contourColorEncoding,
     contourColor,
@@ -131,6 +132,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTooltipsVisible,
     setEmbeddingPointsVisible,
     setEmbeddingContoursVisible,
+    setEmbeddingContoursFilled,
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
@@ -471,6 +473,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           setEmbeddingPointsVisible={setEmbeddingPointsVisible}
           embeddingContoursVisible={embeddingContoursVisible}
           setEmbeddingContoursVisible={setEmbeddingContoursVisible}
+          embeddingContoursFilled={embeddingContoursFilled}
+          setEmbeddingContoursFilled={setEmbeddingContoursFilled}
           contourPercentiles={contourPercentiles}
           setContourPercentiles={setContourPercentiles}
           defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
@@ -521,6 +525,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         contourThresholds={contourThresholds}
         contourColorEncoding={contourColorEncoding}
         contourColor={contourColor}
+        contoursFilled={embeddingContoursFilled}
         embeddingPointsVisible={embeddingPointsVisible}
         embeddingContoursVisible={embeddingContoursVisible}
       />

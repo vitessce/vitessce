@@ -39,6 +39,8 @@ export default function ScatterplotOptions(props) {
     setEmbeddingPointsVisible,
     embeddingContoursVisible,
     setEmbeddingContoursVisible,
+    embeddingContoursFilled,
+    setEmbeddingContoursFilled,
 
     contourPercentiles,
     setContourPercentiles,
@@ -93,11 +95,15 @@ export default function ScatterplotOptions(props) {
   function handlePointsVisibilityChange(event) {
     setEmbeddingPointsVisible(event.target.checked);
   }
+
   function handleContoursVisibilityChange(event) {
     setEmbeddingContoursVisible(event.target.checked);
   }
 
-
+  function handleContoursFilledChange(event) {
+    setEmbeddingContoursFilled(event.target.checked);
+  }
+  
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
   }
@@ -398,6 +404,28 @@ export default function ScatterplotOptions(props) {
             inputProps={{
               'aria-label': 'Show or hide contours',
               id: `scatterplot-contours-visible-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contours-filled-${scatterplotOptionsId}`}
+          >
+            Contours Filled
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingContoursFilled}
+            onChange={handleContoursFilledChange}
+            name="scatterplot-option-contour-filled"
+            color="default"
+            inputProps={{
+              'aria-label': 'Filled or stroked contours',
+              id: `scatterplot-contours-filled-${scatterplotOptionsId}`,
             }}
           />
         </TableCell>

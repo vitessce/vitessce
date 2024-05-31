@@ -68,6 +68,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SAMPLE_SET_COLOR,
     CoordinationType.EMBEDDING_POINTS_VISIBLE,
     CoordinationType.EMBEDDING_CONTOURS_VISIBLE,
+    CoordinationType.EMBEDDING_CONTOURS_FILLED,
     CoordinationType.EMBEDDING_CONTOUR_PERCENTILES,
     CoordinationType.CONTOUR_COLOR_ENCODING,
     CoordinationType.CONTOUR_COLOR,

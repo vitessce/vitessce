@@ -43,8 +43,8 @@ const defaultProps = {
   contourColor: { type: 'array', value: [0, 0, 0], compare: true },
 
   zOffset: 0.005,
-  filled: { type: 'boolean', compare: false },
-  pattern: { type: 'boolean', compare: false },
+  filled: { type: 'boolean', value: false, compare: false },
+  pattern: { type: 'boolean', value: false, compare: false },
   getFillPattern: { type: 'accessor', compare: false },
   getFillPatternScale: { type: 'accessor', compare: false },
 };
@@ -95,6 +95,7 @@ export default class ContourPatternLayer extends ContourLayer {
       // The inclusion of contours and zOffset are necessary to overwrite the _updateThresholdData call of the superclass.
       // Reference: https://github.com/visgl/deck.gl/blob/03ce925107a63830e48e706c521000a08e20a02c/modules/aggregation-layers/src/contour-layer/contour-layer.ts#L201C9-L201C83
       || oldProps.contours !== props.contours
+      || oldProps.filled !== props.filled
       || oldProps.thresholds !== props.thresholds
       || oldProps.zOffset !== props.zOffset
       || !isEqual(oldProps.percentiles, props.percentiles)
@@ -102,9 +103,9 @@ export default class ContourPatternLayer extends ContourLayer {
     ) {
       const thresholds = props.thresholds ? props.thresholds : [];
       const contours = thresholds.map((threshold, i) => ({
-        threshold: threshold,
+        threshold: (props.filled ? [threshold, threshold[i+1] || Infinity] : threshold),
         // TODO: should the opacity steps be uniform? Should align with human perception.
-        color: [...props.contourColor, ((i+1)/(thresholds.length)) * 255],
+        color: [...props.contourColor, (props.filled ? (1/thresholds.length * 255) : ((i+1)/(thresholds.length)) * 255)],
         strokeWidth: 2,
       }));
       this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });
