@@ -103,7 +103,11 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueTransform,
     featureValueTransformCoefficient,
     sampleSetColor,
+    embeddingPointsVisible,
+    embeddingContoursVisible,
     embeddingContourPercentiles: contourPercentiles,
+    contourColorEncoding,
+    contourColor,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -125,7 +129,10 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setEmbeddingPointsVisible,
+    setEmbeddingContoursVisible,
     setEmbeddingContourPercentiles: setContourPercentiles,
+    setContourColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -460,9 +467,15 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          embeddingPointsVisible={embeddingPointsVisible}
+          setEmbeddingPointsVisible={setEmbeddingPointsVisible}
+          embeddingContoursVisible={embeddingContoursVisible}
+          setEmbeddingContoursVisible={setEmbeddingContoursVisible}
           contourPercentiles={contourPercentiles}
           setContourPercentiles={setContourPercentiles}
           defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
+          contourColorEncoding={contourColorEncoding}
+          setContourColorEncoding={setContourColorEncoding}
         />
       )}
     >
@@ -506,6 +519,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         obsSetColor={cellSetColor}
         sampleSetColor={sampleSetColor}
         contourThresholds={contourThresholds}
+        contourColorEncoding={contourColorEncoding}
+        contourColor={contourColor}
+        embeddingPointsVisible={embeddingPointsVisible}
+        embeddingContoursVisible={embeddingContoursVisible}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber

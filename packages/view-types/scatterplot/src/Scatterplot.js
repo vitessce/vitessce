@@ -113,10 +113,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   // - Array of per-sampleSet, per-obsSet layers (filter to sampleSet and obsSet members)
   createContourLayers() {
     const {
+      theme,
       obsSetColor,
       sampleSetColor,
+      contourColorEncoding,
       contourPercentiles,
       contourThresholds,
+      contourColor: contourColorProp,
     } = this.props;
 
     const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
@@ -129,6 +132,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // as opposed to just the subsets for each layer.
       // This way, the contours will be comparable among different layers.
 
+      let contourColor = contourColorProp || getDefaultColor(theme); // TODO: support a user-defined static color. Fall back to different default based on theme.
+      if(contourColorEncoding === 'cellSetSelection') {
+        contourColor = obsSetColor?.find(d => isEqual(obsSetKey, d.path))?.color || contourColor;
+      } else if(contourColorEncoding === 'sampleSetSelection') {
+        contourColor = sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color || contourColor;
+      }
       return new ContourLayer({
         id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
         coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
@@ -151,13 +160,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getPolygonOffset: () => ([0, 20]),
         cellSize: 0.25,
         // TODO: support usage of obsSet colors or static colors.
-        contourColor: sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color,
-
-        // We will compute the contours internally,
-        // but we need to provide a stable reference here.
+        contourColor,
         contours: baseContours,
         thresholds: contourThresholds,
-        //percentiles: contourPercentiles || DEFAULT_CONTOUR_PERCENTILES,
         getPosition: (object, { index, data, target }) => { // TODO: stabilize reference
           target[0] = data.src.embeddingX[index];
           target[1] = -data.src.embeddingY[index];
@@ -341,7 +346,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourLayers,
     } = this;
     return [
-      //cellsLayer,
+      cellsLayer,
       ...cellSetsLayers,
       ...contourLayers,
       
@@ -364,8 +369,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsLayer() {
-    const { obsEmbeddingIndex, obsEmbedding } = this.props;
-    if (obsEmbeddingIndex && obsEmbedding) {
+    const { obsEmbeddingIndex, obsEmbedding, embeddingPointsVisible } = this.props;
+    if (embeddingPointsVisible && obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
     } else {
       this.cellsLayer = null;
@@ -380,8 +385,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateContourLayers() {
-    const { stratifiedData } = this.props;
-    if (stratifiedData) {
+    const { stratifiedData, contourThresholds, embeddingContoursVisible } = this.props;
+    if (embeddingContoursVisible && stratifiedData && contourThresholds) {
       this.contourLayers = this.createContourLayers();
     } else {
       this.contourLayers = [];
@@ -460,14 +465,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
-      'getExpressionValue',
+      'getExpressionValue', 'embeddingPointsVisible',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       forceUpdate = true;
     }
 
-    if (['stratifiedData', 'contourPercentiles', 'contourThresholds'].some(shallowDiff)) {
+    if (['stratifiedData', 'contourPercentiles', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateContourLayers();
       forceUpdate = true;

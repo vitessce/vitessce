@@ -34,9 +34,18 @@ export default function ScatterplotOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+
+    embeddingPointsVisible,
+    setEmbeddingPointsVisible,
+    embeddingContoursVisible,
+    setEmbeddingContoursVisible,
+
     contourPercentiles,
     setContourPercentiles,
     defaultContourPercentiles,
+
+    contourColorEncoding,
+    setContourColorEncoding,
   } = props;
 
   const scatterplotOptionsId = useId();

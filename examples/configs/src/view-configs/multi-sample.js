@@ -82,7 +82,11 @@ function generateLake2023Config() {
   const dotPlot = vc.addView(dataset, 'dotPlot');
 
 
-  vc.linkViews([scatterplot], ['embeddingType'], ['densMAP']);
+  vc.linkViewsByObject([scatterplot], {
+    embeddingType: 'densMAP',
+    embeddingContoursVisible: true,
+    embeddingPointsVisible: false,
+  }, { meta: false });
   vc.linkViews([scatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
     ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
