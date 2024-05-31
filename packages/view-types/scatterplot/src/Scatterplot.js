@@ -117,7 +117,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       obsSetColor,
       sampleSetColor,
       contourColorEncoding,
-      contourPercentiles,
       contourThresholds,
       contourColor: contourColorProp,
     } = this.props;
@@ -472,7 +471,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if (['stratifiedData', 'contourPercentiles', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
+    if (['stratifiedData', 'contourColorEncoding', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateContourLayers();
       forceUpdate = true;

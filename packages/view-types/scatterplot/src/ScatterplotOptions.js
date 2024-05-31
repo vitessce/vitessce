@@ -58,6 +58,10 @@ export default function ScatterplotOptions(props) {
     setCellRadiusMode(event.target.value);
   }
 
+  function handleContourColorEncodingChange(event) {
+    setContourColorEncoding(event.target.value);
+  }
+
   function handleCellOpacityModeChange(event) {
     setCellOpacityMode(event.target.value);
   }
@@ -85,6 +89,14 @@ export default function ScatterplotOptions(props) {
   function handlePolygonVisibilityChange(event) {
     setCellSetPolygonsVisible(event.target.checked);
   }
+
+  function handlePointsVisibilityChange(event) {
+    setEmbeddingPointsVisible(event.target.checked);
+  }
+  function handleContoursVisibilityChange(event) {
+    setEmbeddingContoursVisible(event.target.checked);
+  }
+
 
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
@@ -344,6 +356,73 @@ export default function ScatterplotOptions(props) {
             min={0.0}
             max={1.0}
           />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-points-visible-${scatterplotOptionsId}`}
+          >
+            Points Visible
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingPointsVisible}
+            onChange={handlePointsVisibilityChange}
+            name="scatterplot-option-point-visibility"
+            color="default"
+            inputProps={{
+              'aria-label': 'Show or hide scatterplot points',
+              id: `scatterplot-points-visible-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contours-visible-${scatterplotOptionsId}`}
+          >
+            Contours Visible
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingContoursVisible}
+            onChange={handleContoursVisibilityChange}
+            name="scatterplot-option-contour-visibility"
+            color="default"
+            inputProps={{
+              'aria-label': 'Show or hide contours',
+              id: `scatterplot-contours-visible-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contour-color-encoding-${scatterplotOptionsId}`}
+          >
+            Contour Color Encoding
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <OptionSelect
+            className={classes.select}
+            value={contourColorEncoding}
+            onChange={handleContourColorEncodingChange}
+            inputProps={{
+              id: `scatterplot-contour-color-encoding-${scatterplotOptionsId}`,
+            }}
+          >
+            <option value="sampleSetSelection">Sample Sets</option>
+            <option value="cellSetSelection">{observationsLabelNice} Sets</option>
+            <option value="staticColor">Static Color</option>
+          </OptionSelect>
         </TableCell>
       </TableRow>
       <TableRow>
