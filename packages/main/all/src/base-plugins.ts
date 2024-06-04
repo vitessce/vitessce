@@ -67,6 +67,7 @@ import {
 
 // Register view type plugins
 import { DescriptionSubscriber } from '@vitessce/description';
+import { OrganViewerSubscriber } from '@vitessce/organ-viewer';
 import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
 import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
@@ -206,6 +207,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),
   makeViewType(ViewType.LAYER_CONTROLLER_BETA, LayerControllerBetaSubscriber),
   makeViewType(ViewType.STATUS, StatusSubscriber),
+  makeViewType(ViewType.ORGAN_VIEWER, OrganViewerSubscriber),
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
   makeViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),

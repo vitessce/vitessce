@@ -15,6 +15,7 @@ export const ViewType = {
   GENOMIC_PROFILES: 'genomicProfiles',
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
+  ORGAN_VIEWER: 'organViewer',
   OBS_SETS: 'obsSets',
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',

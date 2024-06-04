@@ -67,6 +67,7 @@ import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.j
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+import {jainKidney} from "./view-configs/3d-maps/kidney.js";
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -139,6 +140,7 @@ export const configs = {
   'kpmp-auto-init': kpmpAutoInit2023,
 
   // 3D Maps
+  'jain24': jainKidney,
   'jain-2024': jainkidneyDecimated,
   'tian-2024': humanLiver,
   'sorger-2024': bloodVessel,
