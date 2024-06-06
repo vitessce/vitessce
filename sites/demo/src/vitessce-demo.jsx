@@ -107,34 +107,32 @@ export function VitessceDemo() {
     if (websocket) {
         useEffect(() => {
             if (ws === undefined) {
-                var username = "user_" + (Math.floor(Math.random() * 1000));
-                let socket = new PieSocket({
-                    clusterId: "s12099.nyc1",
-                    apiKey: "vAs6XEQY09uijiPR1GZNPm2qUnqB0VgBEkAFJLoJ",
-                    notifySelf: false,
-                    userId: username,
-                    presence: true,
-                });
+                var authToken = 'mr-vitessce';
+                document.cookie = 'Authorization: ' + authToken + '; path=/';
+                let socket = new WebSocket("wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production");
                 setWS(socket);
+                socket.onopen = (event) => {
+                    socket.send("Here's some text that the server is urgently awaiting!");
+                };
             }
         }, [ws])
 
-        useEffect(() => {
-            ws?.subscribe(channelID).then((chan) => {
-                // console.log("Channel is ready")
-                chan.listen("new_message", (data, meta) => {
-                    // console.log(data.sender, ws?.options.userId)
-                    if (data.sender !== ws?.options.userId) {
-                        // console.log("New Message:", data);
-                        setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
-                    }
-                })
-                chan.listen("system:member_joined", function (data) {
-                    console.log("New member joined the chat " + data.member.user);
-                })
-                setChannel(chan);
-            })
-        }, [channel, ws])
+        // useEffect(() => {
+        //     ws?.subscribe(channelID).then((chan) => {
+        //         // console.log("Channel is ready")
+        //         chan.listen("new_message", (data, meta) => {
+        //             // console.log(data.sender, ws?.options.userId)
+        //             if (data.sender !== ws?.options.userId) {
+        //                 // console.log("New Message:", data);
+        //                 setConfig({...data.message, uid: "id" + (Math.floor(Math.random() * 1000))});
+        //             }
+        //         })
+        //         chan.listen("system:member_joined", function (data) {
+        //             console.log("New member joined the chat " + data.member.user);
+        //         })
+        //         setChannel(chan);
+        //     })
+        //}, [channel, ws])
     }
 
     const result = useMemo(() => {
