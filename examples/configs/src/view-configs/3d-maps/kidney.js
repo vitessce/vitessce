@@ -23,6 +23,7 @@ function generateJainKidney() {
   const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const organViewer = config.addView(dataset, 'organViewer').setProps({ description: "Test" });
+  const blockViewer = config.addView(dataset, 'blockViewer').setProps({ description: "Test" });
 
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
@@ -53,7 +54,7 @@ function generateJainKidney() {
     ]),
   });
 
-  config.layout(hconcat(spatialThreeView, vconcat(lcView,organViewer)));
+  config.layout(hconcat(spatialThreeView, vconcat(lcView, hconcat(organViewer, blockViewer))));
 
   const configJSON = config.toJSON();
   return configJSON;

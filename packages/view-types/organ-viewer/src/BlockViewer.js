@@ -29,11 +29,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Scene() {
-  const gltf = useLoader(GLTFLoader, 'https://ccf-ontology.hubmapconsortium.org/objects/v1.2/VH_M_Kidney_L.glb');
-  return <primitive object={gltf.scene}/>;
+  return <Box position={[0, 0, 0.0]} />
 }
 
-export default function OrganViewer(props) {
+function Box(props) {
+  const boxRef = useRef()
+  return (
+    <mesh {...props} ref={boxRef}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color={'hotpink'} />
+    </mesh>
+  )
+}
+
+
+export default function BlockViewer(props) {
   const { description } = props;
   const model = useRef();
   const classes = useStyles();
@@ -43,10 +53,7 @@ export default function OrganViewer(props) {
       width: '100%',
       height: '100%'
     }}>
-      <Canvas camera={{
-        fov: 50,
-        position: [0.3, 0.8, 0.1]
-      }}>
+      <Canvas>
         <OrbitControls/>
         <group>
           <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>

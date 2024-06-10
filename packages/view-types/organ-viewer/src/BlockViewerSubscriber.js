@@ -6,7 +6,7 @@ import {
   useDescription, useImageData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import OrganViewer from './OrganViewer.js';
+import BlockViewer from './BlockViewer.js';
 
 /**
  * A subscriber component for a text description component.
@@ -19,13 +19,13 @@ import OrganViewer from './OrganViewer.js';
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
-export function OrganViewerSubscriber(props) {
+export function BlockViewerSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
     removeGridComponent,
     theme,
-    title = 'Block View',
+    title = 'Organ View',
     closeButtonVisible,
   } = props;
 
@@ -73,7 +73,7 @@ export function OrganViewerSubscriber(props) {
       theme={theme}
       isReady={isReady}
     >
-      <OrganViewer
+      <BlockViewer
         description={descriptionOverride || description}
         metadata={metadata}
       />

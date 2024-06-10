@@ -16,6 +16,7 @@ export const ViewType = {
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
   ORGAN_VIEWER: 'organViewer',
+  BLOCK_VIEWER: 'blockViewer',
   OBS_SETS: 'obsSets',
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',

@@ -622,15 +622,15 @@ importers:
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
-      '@vitessce/organ-viewer':
-          specifier: workspace:*
-          version: link:../../view-types/organ-viewer
       '@vitessce/obs-sets-manager':
         specifier: workspace:*
         version: link:../../view-types/obs-sets-manager
       '@vitessce/ome-tiff':
         specifier: workspace:*
         version: link:../../file-types/ome-tiff
+      '@vitessce/organ-viewer':
+        specifier: workspace:*
+        version: link:../../view-types/organ-viewer
       '@vitessce/plugins':
         specifier: workspace:*
         version: link:../../plugins
@@ -1346,12 +1346,24 @@ importers:
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@react-three/drei':
+        specifier: ^9.99.7
+        version: 9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@17.0.50)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
+      '@react-three/fiber':
+        specifier: ^8.15.19
+        version: 8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
+      '@react-three/xr':
+        specifier: ^5.7.1
+        version: 5.7.1(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(react@18.2.0)(three@0.154.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      three:
+        specifier: ^0.154.0
+        version: 0.154.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.16.4
@@ -17492,7 +17504,7 @@ snapshots:
       '@types/webxr': 0.5.10
       react: 18.2.0
       three: 0.154.0
-      three-stdlib: 2.28.7(three@0.154.0)
+      three-stdlib: 2.29.5(three@0.154.0)
       zustand: 3.7.2(react@18.2.0)
 
   '@react-types/breadcrumbs@3.6.2(react@18.2.0)':
