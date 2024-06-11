@@ -1846,12 +1846,12 @@ importers:
       react-dom:
         specifier: ^18.0.0
         version: 18.2.0(react@18.2.0)
+      react-use-websocket:
+        specifier: 3.0.0
+        version: 3.0.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       vitessce:
         specifier: workspace:*
         version: link:../../packages/main/prod
-      ws:
-        specifier: ^8.17.0
-        version: 8.17.0
     devDependencies:
       '@vitejs/plugin-basic-ssl':
         specifier: ^1.0.2
@@ -10179,6 +10179,12 @@ packages:
     peerDependencies:
       react: '>=16.13'
       react-dom: '>=16.13'
+
+  react-use-websocket@3.0.0:
+    resolution: {integrity: sha512-BInlbhXYrODBPKIplDAmI0J1VPM+1KhCLN09o+dzgQ8qMyrYs4t5kEYmCrTqyRuMTmpahylHFZWQXpfYyDkqOw==}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
 
   react-use-websocket@4.5.0:
     resolution: {integrity: sha512-oxYVLWM3Lv0InCfjW7hG/Hk0hkE0P1SiLd5/I3d5x0W4riAnDUkD4VEu7qNVAqxNjBF3nU7k0jLMOetLXpwfsA==}
@@ -24814,6 +24820,11 @@ snapshots:
   react-use-measure@2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       debounce: 1.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+
+  react-use-websocket@3.0.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
