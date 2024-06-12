@@ -2,65 +2,56 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, useEffect } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Canvas } from '@react-three/fiber';
-import { XRButton, XR, RayGrab } from '@react-three/xr';
-import { makeStyles } from '@material-ui/core';
-import { useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from '@react-three/drei';
+import {Box3, BoxGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, Vector3} from "three";
+import {createUnitBlock, getBlocksFromOrgan, getInfo, getObjSubPathToOntology} from "./utils.js";
 
+function BlockScene(props) {
+  const [model, setModel] = useState(undefined)
+  const [initialLoad, setInitialLoad] = useState(true)
+  const {uuidInput} = props
+  useEffect(() => {
+    async function fetchData() {
+      let blockGroup = new Group()
+      let result = await getInfo([uuidInput])
+      let x = result.hits.hits[0]._source.rui_location.split("\"x_dimension\": ")[1].split(",")[0]
+      let y = result.hits.hits[0]._source.rui_location.split("\"y_dimension\": ")[1].split(",")[0]
+      let z = result.hits.hits[0]._source.rui_location.split("\"z_dimension\": ")[1].split(",")[0]
+      const geometry = new BoxGeometry(parseInt(x), parseInt(y), parseInt(z));
+      const block = new Mesh(geometry, new MeshBasicMaterial({color: "orange"}));
+      block.rotateX(Math.PI * 0.25)
+      block.rotateZ(Math.PI * 0.25)
+      block.position.set(0, 0, 0);
+      blockGroup.add(block)
+      setModel(blockGroup)
+    }
 
-const useStyles = makeStyles(theme => ({
-  description: {
-    '& p, details, table': {
-      fontSize: '80%',
-      opacity: '0.8',
-    },
-    '& details': {
-      marginBottom: '6px',
-    },
-    '& summary': {
-      // TODO(monorepo): lighten color by 10%
-      borderBottom: `1px solid ${theme.palette.primaryBackground}`,
-      cursor: 'pointer',
-    },
-  },
-}));
-
-function Scene() {
-  return <Box position={[0, 0, 0.0]} />
+    if (initialLoad) {
+      fetchData();
+      setInitialLoad(false)
+    }
+  }, [initialLoad, model])
+  return <group>
+    {model !== undefined ? (
+        <primitive object={model}/>) : null
+    }
+  </group>
 }
-
-function Box(props) {
-  const boxRef = useRef()
-  return (
-    <mesh {...props} ref={boxRef}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={'hotpink'} />
-    </mesh>
-  )
-}
-
 
 export default function BlockViewer(props) {
-  const { description } = props;
-  const model = useRef();
-  const classes = useStyles();
-  let canvasRef;
+  const { uuidInput } = props;
   return (
     <div style={{
       width: '100%',
       height: '100%'
     }}>
-      <Canvas>
+      <Canvas camera={{position:[0,0,-50.0]}}>
         <OrbitControls/>
         <group>
-          <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
-          <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
-          <Scene></Scene>
+          <BlockScene uuidInput={uuidInput}></BlockScene>
         </group>
-        {/* </XR> */}
       </Canvas>
     </div>
   );
