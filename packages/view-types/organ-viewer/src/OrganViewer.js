@@ -89,11 +89,9 @@ function BlockScene(props) {
             blocksInformation.blocks.forEach(rawBlock => {
                 let sortingByID = blocksInformation.hubmapEntities.get(rawBlock.id).donor.hubmap_id; // Sorting by donor
                 // let sortingByID = blocksInformation.hubmapEntities.get(rawBlock.id).group_name; // Sorting by group
-                const block = createUnitBlock(rawBlock, rawBlock.id === uuidInput ? "orange" : "gray");
+                const block = createUnitBlock(rawBlock, rawBlock.id === uuidInput ? "orange" : "blue");
                 const transformationMatrix = new Matrix4().fromArray(blocksInformation.ccfEntities.get(rawBlock.id).transformationMatrix);
                 block.applyMatrix4(transformationMatrix);
-                block.material.transparent = rawBlock.id === uuidInput ? false : true;
-                block.material.opacity = 0.5;
                 blocksGroup.add(block); //TODO TESTING
 
                 // // TESTING

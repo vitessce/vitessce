@@ -22,8 +22,8 @@ function generateJainKidney() {
 
     const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({three: true});
     const lcView = config.addView(dataset, 'layerControllerBeta');
-    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "f09ce9d45b7d311019769044ddeee0a3"});
-    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "f09ce9d45b7d311019769044ddeee0a3"});
+    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "c40774aa2f52a2811db15c5ca1949314"});
+    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "c40774aa2f52a2811db15c5ca1949314"});
 
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
