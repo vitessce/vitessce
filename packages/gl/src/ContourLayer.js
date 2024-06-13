@@ -105,7 +105,7 @@ export default class ContourPatternLayer extends ContourLayer {
       const contours = thresholds.map((threshold, i) => ({
         threshold: (props.filled ? [threshold, threshold[i+1] || Infinity] : threshold),
         // TODO: should the opacity steps be uniform? Should align with human perception.
-        color: [...props.contourColor, (props.filled ? (1/thresholds.length * 255) : ((i+1)/(thresholds.length)) * 255)],
+        color: [...props.contourColor, (props.filled ? ((i+0.5)/thresholds.length * 255) : ((i+1)/(thresholds.length)) * 255)],
         strokeWidth: 2,
       }));
       this._updateThresholdData({ contours, zOffset: props.zOffset, fromSubclass: true });

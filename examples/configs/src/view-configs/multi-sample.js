@@ -74,7 +74,8 @@ function generateLake2023Config() {
     },
   });
 
-  const scatterplot = vc.addView(dataset, 'scatterplot');
+  const scatterplot = vc.addView(dataset, 'scatterplot').setProps({ title: 'CKD' });
+  const scatterplot2 = vc.addView(dataset, 'scatterplot').setProps({ title: 'Healthy Reference' });
   const obsSets = vc.addView(dataset, 'obsSets');
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
@@ -89,27 +90,43 @@ function generateLake2023Config() {
     sampleType: 'sample',
     sampleSetSelection: [['Tissue Type', 'CKD']],
   }, { meta: false });
+  vc.linkViewsByObject([scatterplot2], {
+    embeddingType: 'densMAP',
+    embeddingContoursVisible: true,
+    embeddingPointsVisible: false,
+    sampleType: 'sample',
+    sampleSetSelection: [['Tissue Type', 'Healthy Reference']],
+  }, { meta: false });
+
   vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
     ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
   ]]);
-  vc.linkViewsByObject([scatterplot, violinPlots, featureList, dotPlot], {
+  vc.linkViewsByObject([scatterplot, scatterplot2, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'],//, 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
+  vc.linkViewsByObject([scatterplot, scatterplot2], {
+    embeddingZoom: null,
+    embeddingTargetX: null,
+    embeddingTargetY: null,
+  }, { meta: false });
 
   vc.layout(hconcat(
     vconcat(
-      scatterplot,
-      hconcat(
-        obsSets,
-        obsSetSizes,
+      scatterplot2,
+      vconcat(
+        hconcat(
+          obsSets,
+          obsSetSizes,
+        ),
+        featureList,
       ),
     ),
     vconcat(
-      vconcat(featureList, dotPlot),
-      violinPlots,
+      scatterplot,
+      vconcat(violinPlots, dotPlot),
     ),
   ));
   const configJSON = vc.toJSON();
