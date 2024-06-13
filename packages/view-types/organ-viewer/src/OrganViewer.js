@@ -10,6 +10,49 @@ import {Box3, BoxGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, Scene, Vecto
 import {createUnitBlock, getBlocksFromOrgan, getInfo, getObjSubPathToOntology, getOrganInformation} from "./utils.js";
 
 
+async function getOrgan(searchResult, uuid) {
+    let organFile = ""
+    let blockID = null
+    if (searchResult.sample_category === "block") {
+        console.log("Block Level")
+        organFile = searchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+        blockID = uuid;
+    } else if (searchResult.sample_category === "organ") {
+        console.log("Organ Level")
+        if(searchResult.immediate_descendants[0].rui_location !== undefined) {
+            organFile = searchResult.immediate_descendants[0].rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+        }else{
+            let newSearchResult = (await getInfo([searchResult.immediate_descendants[0].uuid])).hits.hits[0]._source
+            console.log(newSearchResult)
+            organFile = newSearchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+        }
+    } else if (searchResult.sample_category === "section") {
+        console.log("Section Level")
+        blockID = searchResult.immediate_ancestors[0].uuid
+        let newSearchResult = (await getInfo([searchResult.immediate_ancestors[0].uuid])).hits.hits[0]._source
+        organFile = newSearchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+    } else if (searchResult.sample_category === "suspension") {
+        console.log("Suspension Level")
+        if (searchResult.rui_location !== undefined) {
+            organFile = searchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+        } else {
+            if (searchResult.immediate_ancestors[0].sample_category == "organ") {
+                let newSearchResult = (await getInfo([searchResult.immediate_ancestors[0].uuid])).hits.hits[0]._source
+                console.log(newSearchResult)
+                organFile = newSearchResult.immediate_descendants[0].rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+            } else if (searchResult.immediate_ancestors[0].sample_category == "block") {
+                blockID = searchResult.immediate_ancestors[0].uuid
+                let newSearchResult = (await getInfo([searchResult.immediate_ancestors[0].uuid])).hits.hits[0]._source
+                organFile = newSearchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
+            }
+        }
+    }
+    console.log(organFile)
+    let organ = await getObjSubPathToOntology(organFile);
+    console.log(organ)
+    return [organ, blockID];
+}
+
 function OrganScene(props) {
     const [model, setModel] = useState(undefined)
     const [initialLoad, setInitialLoad] = useState(true)
@@ -17,7 +60,8 @@ function OrganScene(props) {
     useEffect(() => {
         async function fetchData() {
             let result = await getInfo([uuidInput])
-            let organ = await getObjSubPathToOntology(result.hits.hits[0]._source.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]);
+            let searchResult = result.hits.hits[0]._source
+            let [organ, blockID] = await getOrgan(searchResult, uuidInput)
             let loader = new GLTFLoader();
             loader.load(organ.object.file, async function (gltf) {
                 let root = gltf.scene;
@@ -78,7 +122,8 @@ function BlockScene(props) {
         async function fetchData() {
             let sceneGroup = new Group();
             let result = await getInfo([uuidInput])
-            let organ = await getObjSubPathToOntology(result.hits.hits[0]._source.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]);
+            let searchResult = result.hits.hits[0]._source
+            let [organ, blockID] = await getOrgan(searchResult, uuidInput)
             let blocksInformation = await getBlocksFromOrgan(organ.representation_of, organ.sex);
             // Create a group for the tissue blocks
             let blocksGroup = new Group();
@@ -87,29 +132,12 @@ function BlockScene(props) {
             let blocksGroupChildren = new Group();
             blocksGroupChildren.position.set(0, 0, 0); // Explicitly set to origin
             blocksInformation.blocks.forEach(rawBlock => {
-                let sortingByID = blocksInformation.hubmapEntities.get(rawBlock.id).donor.hubmap_id; // Sorting by donor
-                // let sortingByID = blocksInformation.hubmapEntities.get(rawBlock.id).group_name; // Sorting by group
-                const block = createUnitBlock(rawBlock, rawBlock.id === uuidInput ? "orange" : "blue");
+                const block = createUnitBlock(rawBlock, rawBlock.id === blockID ? "orange" : "blue");
                 const transformationMatrix = new Matrix4().fromArray(blocksInformation.ccfEntities.get(rawBlock.id).transformationMatrix);
                 block.applyMatrix4(transformationMatrix);
-                blocksGroup.add(block); //TODO TESTING
-
-                // // TESTING
-                // const centerOfBlock = new Box3().setFromObject(block).getCenter(new Vector3());
-                // const geometryTesting = new BoxGeometry(2 / 1000, 2 / 1000, 2 / 1000);
-                // const blockTesting = new Mesh(geometryTesting, new MeshBasicMaterial({color: 0xFF00FFFF}));
-                // blockTesting.position.set(centerOfBlock.x, centerOfBlock.y, centerOfBlock.z);
-                // blockTesting.name = "blockChild;" + rawBlock.id;
-                // blocksGroupChildren.add(blockTesting);
-                //
-                // block.visible = rawBlock.id === uuidInput;
-                // blockTesting.visible = rawBlock.id !== uuidInput;
-                // /// TESTING
+                blocksGroup.add(block);
             })
-
-            // Add to main scene
             sceneGroup.add(blocksGroup);
-            // sceneGroup.add(blocksGroupChildren);
             setModel(sceneGroup)
         }
 

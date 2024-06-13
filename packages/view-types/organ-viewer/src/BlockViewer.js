@@ -5,7 +5,17 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import {Box3, BoxGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, Vector3} from "three";
+import {
+  Box3,
+  BoxGeometry,
+  EdgesGeometry,
+  Group,
+  LineBasicMaterial, LineSegments,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3
+} from "three";
 import {createUnitBlock, getBlocksFromOrgan, getInfo, getObjSubPathToOntology} from "./utils.js";
 
 function BlockScene(props) {
@@ -20,11 +30,33 @@ function BlockScene(props) {
       let y = result.hits.hits[0]._source.rui_location.split("\"y_dimension\": ")[1].split(",")[0]
       let z = result.hits.hits[0]._source.rui_location.split("\"z_dimension\": ")[1].split(",")[0]
       const geometry = new BoxGeometry(parseInt(x), parseInt(y), parseInt(z));
-      const block = new Mesh(geometry, new MeshBasicMaterial({color: "orange"}));
-      block.rotateX(Math.PI * 0.25)
-      block.rotateZ(Math.PI * 0.25)
+      const block = new Mesh(geometry, new MeshBasicMaterial({color: "orange", transparent:true,opacity:0.5}));
       block.position.set(0, 0, 0);
+      var geo = new EdgesGeometry( block.geometry );
+      var mat = new LineBasicMaterial( { color: "darkorange" } );
+      var wireframe = new LineSegments( geo, mat );
+      block.add( wireframe );
+
       blockGroup.add(block)
+
+      let planeGeometry = new BoxGeometry(parseInt(x)*0.9, parseInt(y)*0.9, parseInt(z)/10.0);
+      let plane = new Mesh(planeGeometry, new MeshBasicMaterial({color: "blue"}));
+      plane.position.set(0, 0, 0);
+      blockGroup.add(plane)
+
+      planeGeometry = new BoxGeometry(parseInt(x)*0.9, parseInt(y)*0.9, parseInt(z)/10.0);
+      plane = new Mesh(planeGeometry, new MeshBasicMaterial({color: "green"}));
+      plane.position.set(0, 0, parseInt(z)/10.0*2.0);
+      blockGroup.add(plane)
+
+      planeGeometry = new BoxGeometry(parseInt(x)*0.9, parseInt(y)*0.9, parseInt(z)/10.0);
+      plane = new Mesh(planeGeometry, new MeshBasicMaterial({color: "red"}));
+      plane.position.set(0, 0, -parseInt(z)/10.0*2.0);
+      blockGroup.add(plane)
+
+
+      blockGroup.rotateX(Math.PI * 0.25)
+      blockGroup.rotateZ(Math.PI * 0.25)
       setModel(blockGroup)
     }
 

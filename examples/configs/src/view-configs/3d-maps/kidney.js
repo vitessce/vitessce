@@ -22,8 +22,13 @@ function generateJainKidney() {
 
     const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({three: true});
     const lcView = config.addView(dataset, 'layerControllerBeta');
-    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "c40774aa2f52a2811db15c5ca1949314"});
-    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "c40774aa2f52a2811db15c5ca1949314"});
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "7d481376b442a45584e2a39da5aaa15d"}); // Block
+
+    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "d9e64e77d26d9fb8133d7754d1c3f6d0"}); // Block
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "1f4a0534ad5757369603e879ddb0391c"}); // Section
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "b1d41395cc87b8eff3f580cfa168283b"}); //Organ
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "4fb887c5b17d203e20143d9044c0bf94"}); //Suspension
+    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "d9e64e77d26d9fb8133d7754d1c3f6d0"});
 
     config.linkViewsByObject([spatialThreeView, lcView], {
         spatialTargetZ: 0,
