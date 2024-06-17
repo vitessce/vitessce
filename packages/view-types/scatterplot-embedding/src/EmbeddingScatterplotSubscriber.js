@@ -1,7 +1,7 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import { extent, quantile } from 'd3-array';
+import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
 import {
   TitleInfo,
@@ -344,20 +344,29 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  // Sort the expression data array so that we can compute percentiles
+  // using the d3 quantileSorted function for improved performance.
+  const sortedWeights = useMemo(() => {
+    if (uint8ExpressionData?.[0]) {
+      const weights = uint8ExpressionData[0];
+      return weights.toSorted();
+    }
+    return null;
+  }, [uint8ExpressionData]);
+
   // Compute contour thresholds based on the entire expression data distribution
   // (not per-cellSet or per-sampleSet).
   // TODO: only use expression data for the currently-selected cells (filter out others).
   const contourThresholds = useMemo(() => {
-    if (uint8ExpressionData?.[0]) {
-      const weights = uint8ExpressionData[0];
+    if (sortedWeights) {
       const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
-        .map(p => quantile(weights, p))
+        .map(p => quantileSorted(sortedWeights, p))
         .map((t) => Math.max(t, 1.0))
         .filter((t, i) => i === 0 || t > 1.0);
       return thresholds;
     }
     return null;
-  }, [contourPercentiles, uint8ExpressionData]);
+  }, [contourPercentiles, sortedWeights]);
 
   // It is possible for the embedding index+data to be out of order with respect to the matrix index+data.
   // Here, we align the embedding data so that the rows are ordered the same as the matrix rows.
