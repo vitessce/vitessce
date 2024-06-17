@@ -4,7 +4,6 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
-  ContourLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -45,8 +44,6 @@ const contourGetPosition = (object, { index, data, target }) => {
   target[2] = 0;
   return target;
 };
-
-const baseContours = [];
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -138,7 +135,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       } else if(contourColorEncoding === 'sampleSetSelection') {
         contourColor = sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color || contourColor;
       }
-      return new ContourLayer({
+      return new deck.ContourLayer({
         id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
         coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
         data: { // TODO: memoize / stabilize reference
@@ -153,26 +150,29 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         getWeight: (object, { index, data }) => { // TODO: stabilize reference
           return data.src.featureValues[index];
         },
+        aggregation: 'MEAN',
+        gpuAggregation: true,
         visible: true,
         pickable: false,
         autoHighlight: false,
         filled: contoursFilled,
-        getPolygonOffset: () => ([0, 20]),
+        getPolygonOffset: () => ([0, 20]), // TODO: stabilize reference
         cellSize: 0.25,
-        // TODO: support usage of obsSet colors or static colors.
-        contourColor,
-        contours: baseContours,
-        thresholds: contourThresholds,
+        zOffset: 0.005,
+         // TODO: stabilize reference
+        contours: contourThresholds.map((threshold, i) => ({
+          threshold: (contoursFilled ? [threshold, threshold[i+1] || Infinity] : threshold),
+          // TODO: should the opacity steps be uniform? Should align with human perception.
+          // TODO: support usage of static colors.
+          color: [...contourColor, (contoursFilled ? ((i+0.5)/contourThresholds.length * 255) : ((i+1)/(contourThresholds.length)) * 255)],
+          strokeWidth: 2,
+        })),
         getPosition: (object, { index, data, target }) => { // TODO: stabilize reference
           target[0] = data.src.embeddingX[index];
           target[1] = -data.src.embeddingY[index];
           target[2] = 0;
           return target;
         },
-
-        pattern: false,
-        getFillPattern: () => "hatch-cross",
-        getFillPatternScale: 350,
       });
     }));
     return layers;
