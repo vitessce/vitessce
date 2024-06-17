@@ -359,10 +359,10 @@ export function EmbeddingScatterplotSubscriber(props) {
   // TODO: only use expression data for the currently-selected cells (filter out others).
   const contourThresholds = useMemo(() => {
     if (sortedWeights) {
+      console.log(sortedWeights)
       const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
         .map(p => quantileSorted(sortedWeights, p))
-        .map((t) => Math.max(t, 1.0))
-        .filter((t, i) => i === 0 || t > 1.0);
+        .map((t) => Math.max(t, 1.0));
       return thresholds;
     }
     return null;
@@ -558,9 +558,12 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         extent={expressionExtents?.[0]}
-        // TODO: whether to show contour percentile legend
-        contourPercentiles={contourPercentiles}
-        defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
+        // Contour percentile legend
+        pointsVisible={embeddingPointsVisible}
+        contoursVisible={embeddingContoursVisible}
+        contoursFilled={embeddingContoursFilled}
+        contourPercentiles={contourPercentiles || DEFAULT_CONTOUR_PERCENTILES}
+        contourThresholds={contourThresholds}
       />
     </TitleInfo>
   );
