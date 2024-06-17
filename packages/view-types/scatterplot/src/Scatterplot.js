@@ -38,12 +38,20 @@ const getPosition = (object, { index, data, target }) => {
   return target;
 };
 
+
+const contourGetWeight = (object, { index, data }) => {
+  return data.src.featureValues[index];
+};
+
 const contourGetPosition = (object, { index, data, target }) => {
-  target[0] = data.src.embedding[0][data.src.indices[index]];
-  target[1] = -data.src.embedding[1][data.src.indices[index]];
+  target[0] = data.src.embeddingX[index];
+  target[1] = -data.src.embeddingY[index];
   target[2] = 0;
   return target;
 };
+
+const contourGetPolygonOffset = () => ([0, 20]);
+
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -103,7 +111,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateContourLayers();
   }
 
-  // TODO: support multiple types of contour layers
+  // Want to support multiple types of contour layers
   // - One layer for all data points (no filtering)
   // - Array of per-selected-obsSet layers (filter to obsSet members)
   // - Array of per-selected-sampleSet layers (filter to sampleSet members)
@@ -119,13 +127,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourColor: contourColorProp,
     } = this.props;
 
-    const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
-      const embeddingX = arrs.get('obsEmbeddingX');
-      const embeddingY = arrs.get('obsEmbeddingY');
-      const featureValues = arrs.get('featureValue');
-      const obsIndex = arrs.get('obsIndex');
+    const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs]) => {
+      const deckData = arrs.get('deckData');
 
-      // TODO: the thresholds need to be computed based on the entire dataset,
+      // The thresholds are computed based on the entire dataset,
       // as opposed to just the subsets for each layer.
       // This way, the contours will be comparable among different layers.
 
@@ -138,28 +143,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       return new deck.ContourLayer({
         id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
         coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-        data: { // TODO: memoize / stabilize reference
-          src: {
-            embeddingX,
-            embeddingY,
-            featureValues,
-            obsIndex,
-          },
-          length: obsIndex.length,
-        },
-        getWeight: (object, { index, data }) => { // TODO: stabilize reference
-          return data.src.featureValues[index];
-        },
-        aggregation: 'MEAN',
-        gpuAggregation: true,
-        visible: true,
-        pickable: false,
-        autoHighlight: false,
-        filled: contoursFilled,
-        getPolygonOffset: () => ([0, 20]), // TODO: stabilize reference
-        cellSize: 0.25,
-        zOffset: 0.005,
-         // TODO: stabilize reference
+        data: deckData,
+        getWeight: contourGetWeight,
+        getPosition: contourGetPosition,
+        getPolygonOffset: contourGetPolygonOffset,
         contours: contourThresholds.map((threshold, i) => ({
           threshold: (contoursFilled ? [threshold, threshold[i+1] || Infinity] : threshold),
           // TODO: should the opacity steps be uniform? Should align with human perception.
@@ -167,12 +154,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
           color: [...contourColor, (contoursFilled ? ((i+0.5)/contourThresholds.length * 255) : ((i+1)/(contourThresholds.length)) * 255)],
           strokeWidth: 2,
         })),
-        getPosition: (object, { index, data, target }) => { // TODO: stabilize reference
-          target[0] = data.src.embeddingX[index];
-          target[1] = -data.src.embeddingY[index];
-          target[2] = 0;
-          return target;
-        },
+        aggregation: 'MEAN',
+        gpuAggregation: true,
+        visible: true,
+        pickable: false,
+        autoHighlight: false,
+        filled: contoursFilled,
+        cellSize: 0.25,
+        zOffset: 0.005,
       });
     }));
     return layers;
@@ -379,6 +368,25 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   onUpdateStratifiedData() {
     const { stratifiedData } = this.props;
     if (stratifiedData) {
+      // Set up the data object { src, length } for each ContourLayer.
+      Array.from(stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
+        const embeddingX = arrs.get('obsEmbeddingX');
+        const embeddingY = arrs.get('obsEmbeddingY');
+        const featureValues = arrs.get('featureValue');
+        const obsIndex = arrs.get('obsIndex');
+
+        // We want to memoize / stabilize the object reference
+        // that we pass to ContourLayer.data to prevent extra re-renders.
+        arrs.set('deckData', {
+          src: {
+            embeddingX,
+            embeddingY,
+            featureValues,
+            obsIndex,
+          },
+          length: obsIndex.length,
+        });
+      }));
       this.stratifiedData = stratifiedData;
     }
   }
