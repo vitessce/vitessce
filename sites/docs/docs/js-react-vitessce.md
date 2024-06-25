@@ -103,6 +103,10 @@ Define additional [joint file type](docs/data-types-file-types/#joint-file-types
 
 Mapping from file URLs (that appear in `config.datasets[].files[].url`) to Zarr stores implementing the [Readable](https://zarrita.dev/packages/storage.html#what-is-a-store) interface.
 
+### `pageMode`
+- Type: `boolean`
+
+By default, `false`. If `true`, then views will be rendered according to the `children` of the Vitessce component (i.e., `<Vitessce>{children}</Vitessce>`). Views will be mapped to children by matching child `id` attributes to `view.uid` properties in the config. This requires views to be sized and positioned manually by the user (e.g., with CSS) (`view.{x,y,w,h}` properties will be ignored).
 
 ## Lazy loading
 
