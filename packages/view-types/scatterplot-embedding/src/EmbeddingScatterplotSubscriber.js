@@ -100,8 +100,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
     sampleSetSelection,
-    featureValueTransform,
-    featureValueTransformCoefficient,
     sampleSetColor,
     embeddingPointsVisible,
     embeddingContoursVisible,
@@ -356,27 +354,27 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   // Compute contour thresholds based on the entire expression data distribution
   // (not per-cellSet or per-sampleSet).
-  // TODO: only use expression data for the currently-selected cells (filter out others).
   const contourThresholds = useMemo(() => {
     if (sortedWeights) {
-      console.log(sortedWeights)
       const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
         .map(p => quantileSorted(sortedWeights, p))
-        .map((t) => Math.max(t, 1.0));
+        .map(t => Math.max(t, 1.0));
       return thresholds;
     }
     return null;
   }, [contourPercentiles, sortedWeights]);
 
-  // It is possible for the embedding index+data to be out of order with respect to the matrix index+data.
-  // Here, we align the embedding data so that the rows are ordered the same as the matrix rows.
-  // TODO: refactor this as a hook that can be used elsewhere to align data from different data types
-  // with the expression matrix data. Need to fallback to the original ordering if no matrix data is present.
-  // TODO: do this everywhere and remove the need for the useExpressionValueGetter hook and getter function.
+  // It is possible for the embedding index+data to be out of order
+  // with respect to the matrix index+data. Here, we align the embedding
+  // data so that the rows are ordered the same as the matrix rows.
+  // TODO: refactor this as a hook that can be used elsewhere to align data
+  // from different data types with the expression matrix data.
+  // Need to fallback to the original ordering if no matrix data is present.
+  // TODO: do this everywhere and remove the need for the
+  // useExpressionValueGetter hook and getter function.
   const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
     // Sort the embedding data according to the matrix obsIndex.
     if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
-
       const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
       const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
 
@@ -385,7 +383,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         new obsEmbedding.data[0].constructor(obsEmbedding.data[0].length),
         new obsEmbedding.data[1].constructor(obsEmbedding.data[1].length),
       ];
-      for(let i = 0; i < obsEmbeddingIndex.length; i++) {
+      for (let i = 0; i < obsEmbeddingIndex.length; i++) {
         const matrixRowIndex = toMatrixIndex[i];
         newEmbeddingData[0][matrixRowIndex] = obsEmbedding.data[0][i];
         newEmbeddingData[1][matrixRowIndex] = obsEmbedding.data[1][i];
@@ -404,7 +402,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     if (sampleEdges) {
       const result = new Map();
       Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
-        if(!result.has(sampleId)) {
+        if (!result.has(sampleId)) {
           result.set(sampleId, [obsId]);
         } else {
           result.get(sampleId).push(obsId);
@@ -417,15 +415,15 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   // Stratify multiple arrays: per-cellSet and per-sampleSet.
   const stratifiedData = useMemo(() => {
-    if(alignedEmbeddingData?.data) {
+    if (alignedEmbeddingData?.data) {
       const result = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
-          'obsEmbeddingX': alignedEmbeddingData.data[0],
-          'obsEmbeddingY': alignedEmbeddingData.data[1],
+          obsEmbeddingX: alignedEmbeddingData.data[0],
+          obsEmbeddingY: alignedEmbeddingData.data[1],
           // TODO: aggregate and transform expression data if needed prior to passing here
-          ...(uint8ExpressionData?.[0] ? { 'featureValue': uint8ExpressionData?.[0] } : {}),
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
         },
       );
       return result;

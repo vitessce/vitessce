@@ -79,7 +79,7 @@ describe('Utility functions for processing expression data for statistical plots
       const featureValueTransform = null;
       const featureValueTransformCoefficient = 1;
 
-      const [result, exprMax] = stratifyExpressionData(
+      const [result] = stratifyExpressionData(
         sampleEdges, sampleSets, sampleSetSelection,
         expressionData, obsIndex, mergedCellSets,
         geneSelection, cellSetSelection, cellSetColor,

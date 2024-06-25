@@ -103,7 +103,7 @@ function generateLake2023Config() {
     ['Tissue Type', 'CKD'],
   ]]);
   vc.linkViewsByObject([scatterplot, scatterplot2, violinPlots, featureList, dotPlot], {
-    featureSelection: ['ENSG00000169344'],//, 'ENSG00000074803', 'ENSG00000164825'],
+    featureSelection: ['ENSG00000169344'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });

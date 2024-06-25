@@ -103,7 +103,7 @@ export default function ScatterplotOptions(props) {
   function handleContoursFilledChange(event) {
     setEmbeddingContoursFilled(event.target.checked);
   }
-  
+
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
   }

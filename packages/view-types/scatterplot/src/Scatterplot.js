@@ -39,9 +39,7 @@ const getPosition = (object, { index, data, target }) => {
 };
 
 
-const contourGetWeight = (object, { index, data }) => {
-  return data.src.featureValues[index];
-};
+const contourGetWeight = (object, { index, data }) => data.src.featureValues[index];
 
 const contourGetPosition = (object, { index, data, target }) => {
   target[0] = data.src.embeddingX[index];
@@ -127,43 +125,60 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourColor: contourColorProp,
     } = this.props;
 
-    const layers = Array.from(this.stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs]) => {
-      const deckData = arrs.get('deckData');
+    const layers = Array.from(this.stratifiedData.entries())
+      .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
+        .map(([sampleSetKey, arrs]) => {
+          const deckData = arrs.get('deckData');
 
-      // The thresholds are computed based on the entire dataset,
-      // as opposed to just the subsets for each layer.
-      // This way, the contours will be comparable among different layers.
+          // The thresholds are computed based on the entire dataset,
+          // as opposed to just the subsets for each layer.
+          // This way, the contours will be comparable among different layers.
 
-      let contourColor = contourColorProp || getDefaultColor(theme); // TODO: support a user-defined static color. Fall back to different default based on theme.
-      if(contourColorEncoding === 'cellSetSelection') {
-        contourColor = obsSetColor?.find(d => isEqual(obsSetKey, d.path))?.color || contourColor;
-      } else if(contourColorEncoding === 'sampleSetSelection') {
-        contourColor = sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color || contourColor;
-      }
-      return new deck.ContourLayer({
-        id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
-        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-        data: deckData,
-        getWeight: contourGetWeight,
-        getPosition: contourGetPosition,
-        getPolygonOffset: contourGetPolygonOffset,
-        contours: contourThresholds.map((threshold, i) => ({
-          threshold: (contoursFilled ? [threshold, threshold[i+1] || Infinity] : threshold),
-          // TODO: should the opacity steps be uniform? Should align with human perception.
-          // TODO: support usage of static colors.
-          color: [...contourColor, (contoursFilled ? ((i+0.5)/contourThresholds.length * 255) : ((i+1)/(contourThresholds.length)) * 255)],
-          strokeWidth: 2,
-        })),
-        aggregation: 'MEAN',
-        gpuAggregation: true,
-        visible: true,
-        pickable: false,
-        autoHighlight: false,
-        filled: contoursFilled,
-        cellSize: 0.25,
-        zOffset: 0.005,
-      });
-    }));
+          // TODO: Also support a user-defined static color.
+          // Fall back to default color based on the current theme.
+          let contourColor = contourColorProp || getDefaultColor(theme);
+          if (contourColorEncoding === 'cellSetSelection') {
+            contourColor = (
+              obsSetColor?.find(d => isEqual(obsSetKey, d.path))?.color
+              || contourColor
+            );
+          } else if (contourColorEncoding === 'sampleSetSelection') {
+            contourColor = (
+              sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color
+              || contourColor
+            );
+          }
+          return new deck.ContourLayer({
+            id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
+            coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+            data: deckData,
+            getWeight: contourGetWeight,
+            getPosition: contourGetPosition,
+            getPolygonOffset: contourGetPolygonOffset,
+            contours: contourThresholds.map((threshold, i) => ({
+              threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
+              // TODO: should the opacity steps be uniform? Should align with human perception.
+              // TODO: support usage of static colors.
+              color: [
+                // r, g, b
+                ...contourColor,
+                // a
+                (contoursFilled
+                  ? ((i + 0.5) / contourThresholds.length * 255)
+                  : ((i + 1) / (contourThresholds.length)) * 255),
+              ],
+              strokeWidth: 2,
+            })),
+            aggregation: 'MEAN',
+            gpuAggregation: true,
+            visible: true,
+            pickable: false,
+            autoHighlight: false,
+            filled: contoursFilled,
+            cellSize: 0.25,
+            zOffset: 0.005,
+          });
+        }));
     return layers;
   }
 
@@ -369,24 +384,28 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { stratifiedData } = this.props;
     if (stratifiedData) {
       // Set up the data object { src, length } for each ContourLayer.
-      Array.from(stratifiedData.entries()).flatMap(([obsSetKey, sampleSetMap], i) => Array.from(sampleSetMap.entries()).map(([sampleSetKey, arrs], j) => {
-        const embeddingX = arrs.get('obsEmbeddingX');
-        const embeddingY = arrs.get('obsEmbeddingY');
-        const featureValues = arrs.get('featureValue');
-        const obsIndex = arrs.get('obsIndex');
+      stratifiedData.values()
+        .forEach(sampleSetMap => sampleSetMap.values()
+          .forEach((arrs) => {
+            // Not ideal, but here we are mutating the nested Map (arrs)
+            // to add the 'deckData' object.
+            const embeddingX = arrs.get('obsEmbeddingX');
+            const embeddingY = arrs.get('obsEmbeddingY');
+            const featureValues = arrs.get('featureValue');
+            const obsIndex = arrs.get('obsIndex');
 
-        // We want to memoize / stabilize the object reference
-        // that we pass to ContourLayer.data to prevent extra re-renders.
-        arrs.set('deckData', {
-          src: {
-            embeddingX,
-            embeddingY,
-            featureValues,
-            obsIndex,
-          },
-          length: obsIndex.length,
-        });
-      }));
+            // We want to memoize / stabilize the object reference
+            // that we pass to ContourLayer.data to prevent extra re-renders.
+            arrs.set('deckData', {
+              src: {
+                embeddingX,
+                embeddingY,
+                featureValues,
+                obsIndex,
+              },
+              length: obsIndex.length,
+            });
+          }));
       this.stratifiedData = stratifiedData;
     }
   }
