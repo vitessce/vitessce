@@ -384,8 +384,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const { stratifiedData } = this.props;
     if (stratifiedData) {
       // Set up the data object { src, length } for each ContourLayer.
-      stratifiedData.values()
-        .forEach(sampleSetMap => sampleSetMap.values()
+      Array.from(stratifiedData.values())
+        .forEach(sampleSetMap => Array.from(sampleSetMap.values())
           .forEach((arrs) => {
             // Not ideal, but here we are mutating the nested Map (arrs)
             // to add the 'deckData' object.
