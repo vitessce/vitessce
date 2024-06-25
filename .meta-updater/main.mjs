@@ -26,6 +26,7 @@ const OTHER_VERSIONS = {
   "d3-array": "^2.4.0",
   "d3-dsv": "^1.1.1",
   "d3-force": "^2.1.1",
+  "d3-format": "^3.1.0",
   "d3-quadtree": "^1.0.7",
   "d3-scale-chromatic": "^1.3.3",
   "d3-scale": "^4.0.0",

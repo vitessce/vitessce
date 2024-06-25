@@ -502,4 +502,10 @@ export const baseCoordinationTypes = [
       color: rgbArray,
     })).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
 ];

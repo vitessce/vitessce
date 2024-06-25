@@ -2,13 +2,15 @@ import { describe, it, expect } from 'vitest';
 import {
   stratifyExpressionData,
   aggregateStratifiedExpressionData,
+} from '@vitessce/sets-utils';
+import {
   summarizeStratifiedExpressionData,
   histogramStratifiedExpressionData,
 } from './expr-hooks.js';
 
-describe('Utility functions for processing expression data', () => {
-  describe('stratifyExpressionData function', () => {
-    it('stratify by cell set, then sample set', () => {
+describe('Utility functions for processing expression data for statistical plots', () => {
+  describe('summarizeStratifiedExpressionData function', () => {
+    it('computes summarized information accurately', () => {
       const sampleEdges = new Map([
         ['cell1-1', 'donor1'],
         ['cell1-2', 'donor1'],
@@ -77,19 +79,12 @@ describe('Utility functions for processing expression data', () => {
       const featureValueTransform = null;
       const featureValueTransformCoefficient = 1;
 
-      const [result, exprMax] = stratifyExpressionData(
+      const [result] = stratifyExpressionData(
         sampleEdges, sampleSets, sampleSetSelection,
         expressionData, obsIndex, mergedCellSets,
         geneSelection, cellSetSelection, cellSetColor,
         featureValueTransform, featureValueTransformCoefficient,
       );
-
-      expect([...result.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
-      expect([...result.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
-      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1').length).toBe(2);
-      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1')).toEqual([10, 30]);
-      expect(exprMax).toEqual(41);
-
       const aggregateData = aggregateStratifiedExpressionData(
         result, geneSelection,
       );

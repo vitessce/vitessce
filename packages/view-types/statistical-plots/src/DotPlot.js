@@ -53,7 +53,7 @@ export default function DotPlot(props) {
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForGroup = data.reduce((acc, val) => {
     // eslint-disable-next-line no-param-reassign
-    acc = acc === undefined || val.group.length > acc ? val.group.length : acc;
+    acc = acc === undefined || val.group?.length > acc ? val.group?.length : acc;
     return acc;
   }, 0);
   const maxCharactersForFeature = data.reduce((acc, val) => {

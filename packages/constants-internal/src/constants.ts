@@ -262,6 +262,12 @@ export const CoordinationType = {
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SET_SELECTION: 'sampleSetSelection',
   SAMPLE_SET_COLOR: 'sampleSetColor',
+  EMBEDDING_POINTS_VISIBLE: 'embeddingPointsVisible',
+  EMBEDDING_CONTOURS_VISIBLE: 'embeddingContoursVisible',
+  EMBEDDING_CONTOURS_FILLED: 'embeddingContoursFilled',
+  EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
+  CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
+  CONTOUR_COLOR: 'contourColor',
 };
 
 export const STATUS = {
