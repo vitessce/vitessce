@@ -19,6 +19,7 @@ export const ViewType = {
   OBS_SET_SIZES: 'obsSetSizes',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
+  DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
 };
 
@@ -224,6 +225,7 @@ export const CoordinationType = {
   GATING_FEATURE_SELECTION_X: 'gatingFeatureSelectionX',
   GATING_FEATURE_SELECTION_Y: 'gatingFeatureSelectionY',
   FEATURE_VALUE_TRANSFORM_COEFFICIENT: 'featureValueTransformCoefficient',
+  FEATURE_VALUE_POSITIVITY_THRESHOLD: 'featureValuePositivityThreshold',
   TOOLTIPS_VISIBLE: 'tooltipsVisible',
   FILE_UID: 'fileUid',
   IMAGE_LAYER: 'imageLayer',
@@ -267,6 +269,13 @@ export const CoordinationType = {
   // Multi-sample / comparative
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SET_SELECTION: 'sampleSetSelection',
+  SAMPLE_SET_COLOR: 'sampleSetColor',
+  EMBEDDING_POINTS_VISIBLE: 'embeddingPointsVisible',
+  EMBEDDING_CONTOURS_VISIBLE: 'embeddingContoursVisible',
+  EMBEDDING_CONTOURS_FILLED: 'embeddingContoursFilled',
+  EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
+  CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
+  CONTOUR_COLOR: 'contourColor',
 };
 
 export const STATUS = {
