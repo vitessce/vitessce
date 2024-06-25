@@ -1,4 +1,15 @@
 
+## 3.4.7
+
+### Patch Changes
+
+- Add sampleSets and sampleEdges data types, with file types for CSV and AnnData, respectively. (`@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/schemas`) ([#1793](https://github.com/vitessce/vitessce/pull/1793))
+
+- Add support for pageMode prop on Vitessce and VitS components. (`@vitessce/vit-s`) ([#1885](https://github.com/vitessce/vitessce/pull/1885))
+
+- Add support for plugin async functions. (`@vitessce/constants-internal`, `@vitessce/plugins`, `@vitessce/vit-s`) ([#1887](https://github.com/vitessce/vitessce/pull/1887))
+
+
 ## 3.4.6
 
 ### Patch Changes
