@@ -62,7 +62,7 @@ export function dotStratifiedExpressionData(
     Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
       result.get(cellSetKey).set(sampleSetKey, new InternMap([], JSON.stringify));
       Array.from(secondLevelInternMap.entries()).forEach(([geneKey, values]) => {
-        if(values) {
+        if (values) {
           const exprMean = d3_mean(values);
           const numPos = values.reduce((acc, val) => (val > posThreshold ? acc + 1 : acc), 0);
           const fracPos = numPos / values.length;

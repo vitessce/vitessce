@@ -19,6 +19,7 @@
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*"
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/biomarker-select": "workspace:*"
   }
 }
