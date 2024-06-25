@@ -68,10 +68,9 @@ export function useExpressionSummaries(
       );
 
       const result = [];
-      ([...dotData.keys()]).forEach((cellSetKey) => {
-        ([...dotData.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
-          ([...dotData.get(cellSetKey).get(sampleSetKey).keys()]).forEach((geneKey) => {
-            const dotObj = dotData.get(cellSetKey).get(sampleSetKey).get(geneKey);
+      Array.from(dotData.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
+        Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
+          Array.from(secondLevelInternMap.entries()).forEach(([geneKey, dotObj]) => {
             const featureName = geneKey;
             result.push({
               key: uuidv4(), // Unique key for this dot.
