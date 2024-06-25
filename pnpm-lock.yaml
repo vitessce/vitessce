@@ -153,6 +153,9 @@ importers:
       '@vitessce/constants':
         specifier: workspace:*
         version: link:../../packages/constants
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../packages/vit-s
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../packages/utils/zarr-utils

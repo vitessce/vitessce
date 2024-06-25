@@ -41,7 +41,7 @@ import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-v
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
-import { lake2023 } from './view-configs/multi-sample.js';
+import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 
 // TODO(spatialBeta):
@@ -176,4 +176,8 @@ const exemplarSmallStores = {
 export const configStores = {
   'exemplar-small': exemplarSmallStores,
   'exemplar-small-partial-init': exemplarSmallStores,
+};
+
+export const configPages = {
+  'lake-2023': lake2023component,
 };

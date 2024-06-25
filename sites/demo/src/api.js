@@ -1,4 +1,4 @@
-import { configs, publicConfigs, configStores } from '@vitessce/example-configs';
+import { configs, publicConfigs, configStores, configPages } from '@vitessce/example-configs';
 import { configsWithPlugins as pluginConfigs, pluginProps } from '@vitessce/example-plugins';
 
 
@@ -28,8 +28,9 @@ export function getPlugins(id) {
 }
 
 export function getStores(id) {
-  if (configStores[id]) {
-    return configStores[id];
-  }
-  return null;
+  return configStores?.[id];
+}
+
+export function getPage(id) {
+  return configPages?.[id];
 }

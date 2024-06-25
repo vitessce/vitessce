@@ -4,6 +4,7 @@ import {
   hconcat,
   vconcat,
 } from '@vitessce/config';
+import { usePageModeView } from '@vitessce/vit-s';
 
 function generateLake2023Config() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -133,5 +134,26 @@ function generateLake2023Config() {
   return configJSON;
 }
 
+function ViewA(props) {
+  const ViewComponent = usePageModeView("A");
+  return (
+    <div style={{ width: '100%', height: '500px' }}>
+      <p>View A</p>
+      <ViewComponent />
+    </div>
+  );
+
+}
+
+function PageComponent(props) {
+  return (
+    <>
+      <h1>Test</h1>
+      <ViewA />
+    </>
+  );
+}
+
 
 export const lake2023 = generateLake2023Config();
+export const lake2023component = PageComponent;

@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
+import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
 
@@ -102,7 +102,6 @@ export function VitessceDemo() {
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
-    const pageMode = urlParams.get('pageMode') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -110,6 +109,8 @@ export function VitessceDemo() {
       const config = getConfig(datasetId);
       const pluginProps = getPlugins(datasetId);
       const stores = getStores(datasetId);
+      const PageComponent = getPage(datasetId);
+      const pageMode = !!PageComponent;
       return (
         <ContainerComponent>
           <Vitessce
@@ -124,10 +125,7 @@ export function VitessceDemo() {
             {...pluginProps}
             pageMode={pageMode}
           >
-            <h1>Test</h1>
-            <div id="A" style={{ border: '5px solid red', width: '600px', height: '600px' }} />
-            <h2>Another test</h2>
-            <div id="B" style={{ border: '5px solid red', width: '600px', height: '400px' }} />
+            {pageMode ? <PageComponent /> : null}
           </Vitessce>
         </ContainerComponent>
       );
