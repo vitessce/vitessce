@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
-import { Add as AddIcon, ExpandMore as ExpandMoreIcon, Info as InfoIcon } from '@material-ui/icons';
+import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { VariableSizeList } from 'react-window';
 

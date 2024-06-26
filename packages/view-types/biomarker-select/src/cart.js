@@ -1,10 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@material-ui/core';
+import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import { useStyles } from './styles.js';
-// import type { QueryFunctionContext } from '@tanstack/react-query';
-import { useQueries } from '@tanstack/react-query';
-// import type { KgAutocompleteFunc, KgEdgeGetterFunc, KgNode, ConfirmatoryCartProps, ConfirmatoryStepperProps } from '../old-src/types.js';
-import { Grid, Box, TextField, FormHelperText, Accordion, AccordionDetails, AccordionSummary, Typography, Select, FormControl, InputLabel } from '@material-ui/core';
-import { Add as AddIcon, ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 
 
 export function ConfirmatoryCart(props) {
