@@ -1,7 +1,6 @@
-/* eslint-disable max-len */
 import { makeStyles } from '@material-ui/core';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles(() => ({
   header: {
     marginTop: '10px',
     marginBottom: '10px'
@@ -16,5 +15,19 @@ export const useStyles = makeStyles(theme => ({
   accordion: {
     width: '100%',
     margin: '0 !important',
+  },
+  accordionDetails: {
+    paddingTop: 0,
+  },
+  cartUl: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
+  selectInput: {
+    height: 'auto !important',
+  },
+  searchInput: {
+    lineHeight: 'initial',
+    height: 'auto !important',
   },
 }));

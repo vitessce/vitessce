@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ButtonGroup, Grid, Typography } from '@material-ui/core';
+import { Button, ButtonGroup, Grid, Typography, Tooltip } from '@material-ui/core';
 import { ConfirmatoryStepper } from './confirmatory-stepper.js';
 import { useStyles } from './styles.js';
 
@@ -40,8 +40,12 @@ export function ScmdUi(props) {
         </Grid>
         <Grid item container xs={4} justifyContent="flex-end">
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
-            <Button variant={isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('confirmatory')}>Confirmatory (Hypothesis-driven)</Button>
-            <Button variant={!isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('exploratory')}>Exploratory (Hypothesis-generating)</Button>
+            <Tooltip arrow title="Start from biomarker(s) of interest">
+              <Button variant={isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('confirmatory')}>Confirmatory (Hypothesis-driven)</Button>
+            </Tooltip>
+            <Tooltip arrow title="Lacking biomarker(s) of interest">
+              <Button variant={!isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('exploratory')}>Exploratory (Hypothesis-generating)</Button>
+            </Tooltip>
           </ButtonGroup>
         </Grid>
       </Grid>

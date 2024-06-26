@@ -1,29 +1,15 @@
-import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useStyles } from './styles.js';
-import { useQueries } from '@tanstack/react-query';
-//import type { KgAutocompleteFunc, KgEdgeGetterFunc, KgNode, ConfirmatoryCartProps, ConfirmatoryStepperSelectProps } from './types.js';
 import {
   Grid,
   Button,
   TextField,
   Typography,
-  /*
-  Box,
-  FormHelperText,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Select,
-  FormControl,
-  InputLabel,
-  autocompleteClasses,
-  ListSubheader,
-  Popper,
-  */
 } from '@material-ui/core';
 import { Add as AddIcon, ExpandMore as ExpandMoreIcon, Info as InfoIcon } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { VariableSizeList } from 'react-window';
+
 
 const LIST_ROW_HEIGHT = 48;
 
@@ -39,14 +25,12 @@ const OuterElementType = React.forwardRef((props, ref) => {
 function ListRow(props) {
   const { data, index, style } = props;
 
-  const rowProps = data[index][0];
-  const { kgId, label, term, nodeType } = data[index][1];
-
-  return (
-    <Typography component="li" {...rowProps} noWrap style={style}>
-      {label} ({nodeType})
-    </Typography>
-  )
+  return React.cloneElement(data[index], {
+    style: {
+      ...style,
+      top: style.top + 8,
+    },
+  });
 }
 
 function useResetCache(itemCount) {
@@ -130,25 +114,24 @@ export function SelectAgnostic(props) {
               Search by gene, protein, pathway (by term name), or cell type:
             </Typography>
         </Grid>
-        <Grid item container xs={12} style={{ marginTop: '20px' }}>
-          <Grid
-            item
-            xs={4}
-          >
+        <Grid item container xs={12}>
+          <Grid item xs={4}>
             <Autocomplete
               options={potentialItems}
               autoComplete
               includeInputInList
               onInputChange={handleChange}
               onChange={(event, item) => setSelectedItem(item)}
+              classes={{ input: classes.searchInput }}
               renderInput={(params) => (
                 <TextField label="Search" variant="outlined" onChange={handleChange} {...params} />
               )}
               ListboxComponent={ListboxComponent}
-              renderOption={(props, option, state) => ([props, option, state.index])}
+              getOptionLabel={option => option.label}
+              renderOption={(option) => <Typography noWrap>{option.label} ({option.nodeType})</Typography>}
             />
           </Grid>
-          <Grid item xs={8} style={{ border: '1px solid gray', borderRadius: '4px', marginTop: '3px' }}>
+          <Grid item xs={8} style={{ border: selectedItem ? '1px solid gray' : '1px solid transparent', borderRadius: '4px' }}>
             {selectedItem ? (
               <>
                 <Grid container item xs={12}>

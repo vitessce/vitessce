@@ -5,7 +5,7 @@ import {
   vconcat,
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
-import { ScmdUi } from '@vitessce/biomarker-select';
+import { Demo } from '@vitessce/biomarker-select';
 
 function generateLake2023Config() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -150,7 +150,7 @@ function PageComponent(props) {
   return (
     <>
       <h1>Test</h1>
-      <ScmdUi />
+      <Demo />
       <ViewA />
     </>
   );

@@ -42,8 +42,8 @@ export function ConfirmatoryCart(props) {
                     Modality-agnostic biomarkers
                 </Typography>
             </AccordionSummary>
-            <AccordionDetails>
-                  <ul>
+            <AccordionDetails className={classes.accordionDetails}>
+                  <ul className={classes.cartUl}>
                     {currentModalityAgnosticSelection ? (
                       currentModalityAgnosticSelection.map((item) => (
                         <li key={item.kgId}>{item.label} ({item.nodeType})</li>
@@ -62,8 +62,8 @@ export function ConfirmatoryCart(props) {
                     Modality-specific signature
                 </Typography>
             </AccordionSummary>
-            <AccordionDetails>
-                <ul>
+            <AccordionDetails className={classes.accordionDetails}>
+                <ul className={classes.cartUl}>
                     {currentModalitySpecificSelection ? (
                       currentModalitySpecificSelection.map((item) => (
                         <li key={item.kgId}>{item.label} ({item.nodeType})</li>
@@ -82,8 +82,8 @@ export function ConfirmatoryCart(props) {
                   Case-control stratification
               </Typography>
           </AccordionSummary>
-          <AccordionDetails>
-            <ul>
+          <AccordionDetails className={classes.accordionDetails}>
+            <ul className={classes.cartUl}>
               {currentStratificationSelection ? (
                 <li>{currentStratificationSelection.name}</li>
               ) : null}

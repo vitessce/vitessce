@@ -1,20 +1,16 @@
-import React, { useMemo, useEffect } from 'react';
-import { useStyles } from './styles.js';
-import { useQueries } from '@tanstack/react-query';
-// import type { KgAutocompleteFunc, KgEdgeGetterFunc, KgNode, ConfirmatoryCartProps, ConfirmatoryStepperProps } from './types.js';
-import { Stepper, Step, StepLabel, Button, Grid, Box, TextField, FormHelperText, Accordion, AccordionDetails, AccordionSummary, Typography, Select, FormControl, InputLabel } from '@material-ui/core';
-
+import React, { useEffect } from 'react';
+import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@material-ui/core';
+import { ConfirmatoryCart } from './cart.js';
 import { SelectAgnostic } from './select-agnostic.js';
 import { SelectSpecific } from './select-specific.js';
-import { ConfirmatoryCart } from './cart.js';
 import { SelectStratification } from './select-stratification.js';
+import { useStyles } from './styles.js';
 
 const steps = [
   'Select biomarkers (modality-agnostic)',
   'Derive modality-specific biomarker signature',
   'Define case-control stratification',
 ];
-
 
 export function ConfirmatoryStepper(props) {
   const {

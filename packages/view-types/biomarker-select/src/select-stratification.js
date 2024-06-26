@@ -1,7 +1,6 @@
 import React from 'react';
 import { Grid, RadioGroup, FormControl, FormLabel, Radio, FormControlLabel, Typography } from '@material-ui/core';
 
-// import { ConfirmatoryStepperSelectProps } from './types';
 
 export function SelectStratification(props) {
   const {

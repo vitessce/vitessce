@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
-import { useStyles } from './styles.js';
-//import type { QueryFunctionContext } from '@tanstack/react-query';
 import { useQueries } from '@tanstack/react-query';
-//import type { KgAutocompleteFunc, KgEdgeGetterFunc, KgNode, ConfirmatoryCartProps, ConfirmatoryStepperSelectProps } from './types.js';
-import { Stepper, Step, StepLabel, Button, Grid, FormHelperText, Typography, Select, FormControl } from '@material-ui/core';
+import { Grid, FormHelperText, Typography, Select, FormControl } from '@material-ui/core';
 import { DataGrid } from '@mui/x-data-grid';
+import { useStyles } from './styles.js';
 
 
 const columns = [
@@ -22,17 +20,6 @@ const columns = [
   },
 ];
 
-const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-];
 
 export function SelectSpecific(props) {
   const {
@@ -45,6 +32,7 @@ export function SelectSpecific(props) {
 
     getEdges,
   } = props;
+  const classes = useStyles();
 
   const queries = useQueries({
     queries: currentModalityAgnosticSelection?.map((item) => ({
@@ -98,6 +86,7 @@ export function SelectSpecific(props) {
             <Select
               native
               defaultValue={'gene'}
+              classes={{ select: classes.selectInput }}
               inputProps={{
                 name: 'age',
                 id: 'uncontrolled-native',
@@ -109,20 +98,13 @@ export function SelectSpecific(props) {
           </FormControl>
         </Grid>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item container xs={12} style={{ height: '450px' }}>
         <DataGrid
           rows={rows}
           columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 10,
-              },
-            },
-          }}
-          pageSizeOptions={[10]}
+          pageSize={10}
           checkboxSelection
-          onRowSelectionModelChange={handleSelection}
+          onSelectionModelChange={handleSelection}
           rowSelectionModel={rowSelectionModel}
         />
       </Grid>
