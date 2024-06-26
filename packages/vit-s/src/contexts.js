@@ -10,3 +10,13 @@ export function useAsyncFunction(functionType) {
   const context = useContext(AsyncFunctionsContext);
   return context?.[functionType];
 }
+
+export const PageModeViewContext = createContext({
+  // Keys are view UIDs and values are
+  // the corresponding React components.
+});
+
+export function usePageModeView(uid) {
+  const context = useContext(PageModeViewContext);
+  return context?.[uid];
+}

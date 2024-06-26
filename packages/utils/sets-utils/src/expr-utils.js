@@ -278,12 +278,12 @@ export function aggregateStratifiedExpressionData(
   stratifiedResult, geneSelection,
 ) {
   const result = new InternMap([], JSON.stringify);
-  ([...stratifiedResult.keys()]).forEach((cellSetKey) => {
+  Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
     result.set(cellSetKey, new InternMap([], JSON.stringify));
-    ([...stratifiedResult.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
+    Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
       // For now, we just take the first gene.
       // TODO: support multiple genes via signature score method.
-      const values = stratifiedResult.get(cellSetKey).get(sampleSetKey).get(geneSelection[0]);
+      const values = secondLevelInternMap.get(geneSelection[0]);
       result.get(cellSetKey).set(sampleSetKey, values);
     });
   });
