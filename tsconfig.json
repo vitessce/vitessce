@@ -57,6 +57,7 @@
     { "path": "packages/view-types/spatial" },
     { "path": "packages/view-types/spatial-three" },
     { "path": "packages/view-types/spatial-beta" },
+    { "path": "packages/view-types/small-multiples" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" },
     { "path": "packages/main/all" },
