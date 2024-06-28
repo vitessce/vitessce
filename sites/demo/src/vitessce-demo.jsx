@@ -213,6 +213,7 @@ export function VitessceDemo() {
             onConfigChange={(configValue) => {
               if (send && socketOpen) {
                 let configString = id + ';' + btoa(JSON.stringify(configValue));
+                console.log("Send Message")
                 connection.current?.send('{"action": "sendMessage","message": "' + configString + '"}');
               }
             }}
