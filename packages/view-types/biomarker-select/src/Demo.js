@@ -101,40 +101,19 @@ export function Demo(props) {
     .filter(d => d.term !== null);
   const pathwayList = pathwayQuery.data;
   
-  console.log(geneList);
   console.log(cellTypeList);
-  console.log(pathwayList);
 
 
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
+  const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
   const autocompleteNode = useCallback(async (inputValue) => {
     return await autocompleteFeature(inputValue);
   }, [autocompleteFeature]);
 
-  const pathwayEdgeQuery = useQuery({
-    placeholderData: [],
-    queryKey: ['Reactome_2022.Reactome.Gene.edges.csv'],
-    queryFn: pathwayEdgeQueryFn,
-  });
-
-  const pathwayEdges = pathwayEdgeQuery.data;
-
-  const getPathwayEdges = useCallback(async (pathwayNode) => {
-    if(!pathwayEdges || !geneList) return [];
-    const matchingEdges = pathwayEdges.filter(d => d.source === pathwayNode.kgId);
-    const matchingGeneIds = matchingEdges.map(d => d.target);
-    const matchingGenes = geneList.filter(d => matchingGeneIds.includes(d.kgId));
-    return matchingGenes;
-  }, [pathwayEdges, geneList]);
-
-  // TODO: replace with async function from useAsyncFunction.
   const getEdges = useCallback(async (node, targetModality) => {
-    if(node.nodeType === 'pathway') return getPathwayEdges(node);
-    if(node.nodeType === 'gene') return [node];
-    // TODO: additional edge getter functions
-    return [];
-  }, [getPathwayEdges]);
+    return await transformFeature(node, targetModality);
+  }, [transformFeature]);
 
 
   return (

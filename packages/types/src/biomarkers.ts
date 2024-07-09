@@ -33,8 +33,8 @@ export type KgNode = {
 
 // Are the edge and stratification types needed here?
 export type KgEdge = {
-  source: KgNode;
-  target: KgNode;
+  source: string;
+  target: string;
   relation: string;
 };
 

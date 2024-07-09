@@ -2,7 +2,7 @@
 import { csvParse } from 'd3-dsv';
 import Fuse from 'fuse.js/basic';
 
-/** @import { KgNode,TargetModalityType, AutocompleteFeatureFunc } from '@vitessce/types' */
+/** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc } from '@vitessce/types' */
 /** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 
 
@@ -124,4 +124,50 @@ export async function autocompleteFeature({ queryClient }, partial, targetModali
 
   const results = fuse.search(partial);
   return results.map((/** @type {any} */ result) => result.item);
+}
+
+async function loadPathwayToGeneEdges() {
+  return fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`)
+    .then(res => res.text())
+    .then(res => {
+      const result = csvParse(res)
+      return result.map((/** @type {any} */ d) => ({
+        source: d.source,
+        target: d.target,
+        relation: d.relation,
+      }));
+    });
+}
+
+/**
+ * @satisfies {TransformFeatureFunc}
+ * @param {object} ctx
+ * @param {QueryClient} ctx.queryClient 
+ * @param {KgNode} node 
+ * @param {TargetModalityType} targetModality 
+ * @returns {Promise<KgNode[]>}
+ */
+export async function transformFeature({ queryClient }, node, targetModality) {
+  if(targetModality === 'gene') {
+    const geneNodes = await queryClient.fetchQuery({
+      queryKey: ['geneNodes'],
+      staleTime: Infinity,
+      queryFn: loadGeneNodes,
+    });
+    if(node.nodeType === 'pathway') {
+      const pathwayGeneEdges = await queryClient.fetchQuery({
+        queryKey: ['pathwayGeneEdges'],
+        staleTime: Infinity,
+        queryFn: loadPathwayToGeneEdges,
+      });
+
+      const matchingEdges = pathwayGeneEdges.filter((/** @type {KgEdge} */ d) => d.source === node.kgId);
+      const matchingGeneIds = matchingEdges.map((/** @type {KgEdge} */ d) => d.target);
+      const matchingGenes = geneNodes.filter(d => matchingGeneIds.includes(d.kgId));
+      return matchingGenes;
+    }
+    // TODO: handle other node types
+  }
+  // TODO: handle other target modalities
+  return [];
 }

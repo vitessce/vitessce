@@ -179,7 +179,10 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
-import { autocompleteFeature } from '@vitessce/biomarker-select';
+import {
+  autocompleteFeature,
+  transformFeature,
+} from '@vitessce/biomarker-select';
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
@@ -515,4 +518,5 @@ export const baseCoordinationTypes = [
 
 export const baseAsyncFunctions = [
   new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
+  new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
 ];
