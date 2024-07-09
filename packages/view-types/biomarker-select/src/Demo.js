@@ -3,6 +3,8 @@ import { Container } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { csvParse } from 'd3-dsv';
 import { ScmdUi } from './scmd-ui.js';
+import { useAsyncFunction } from '@vitessce/vit-s';
+import { AsyncFunctionType } from '@vitessce/constants-internal';
 
 const kgBaseUrl = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
 
@@ -103,29 +105,12 @@ export function Demo(props) {
   console.log(cellTypeList);
   console.log(pathwayList);
 
-  // Autocomplete functions
-  // TODO: use async function plugins to perform autocomplete.
-  const autocompleteGene = useCallback(async (inputValue) => {
-    if(inputValue.length < 1 || !geneList) return [];
-    return geneList.filter(d => (
-      d.label.toLowerCase().includes(inputValue.toLowerCase())
-      || d.term.toLowerCase().startsWith(inputValue.toLowerCase())
-    ));
-  }, [geneList]);
 
-  const autocompletePathway = useCallback(async (inputValue) => {
-    if(inputValue.length < 1 || !pathwayList) return [];
-    return pathwayList.filter(d => (
-      d.label.toLowerCase().includes(inputValue.toLowerCase())
-      || d.term.toLowerCase().startsWith(inputValue.toLowerCase())
-    ));
-  }, [pathwayList]);
+  const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
 
   const autocompleteNode = useCallback(async (inputValue) => {
-    const geneResults = await autocompleteGene(inputValue);
-    const pathwayResults = await autocompletePathway(inputValue);
-    return [...geneResults, ...pathwayResults];
-  }, [autocompleteGene, autocompletePathway]);
+    return await autocompleteFeature(inputValue);
+  }, [autocompleteFeature]);
 
   const pathwayEdgeQuery = useQuery({
     placeholderData: [],
@@ -143,6 +128,7 @@ export function Demo(props) {
     return matchingGenes;
   }, [pathwayEdges, geneList]);
 
+  // TODO: replace with async function from useAsyncFunction.
   const getEdges = useCallback(async (node, targetModality) => {
     if(node.nodeType === 'pathway') return getPathwayEdges(node);
     if(node.nodeType === 'gene') return [node];

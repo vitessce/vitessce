@@ -5,6 +5,7 @@ import {
   DataType,
   ViewType,
   CoordinationType,
+  AsyncFunctionType,
   COMPONENT_COORDINATION_TYPES,
   ALT_ZARR_STORE_TYPES,
 } from '@vitessce/constants-internal';
@@ -13,6 +14,7 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
+  PluginAsyncFunction,
 } from '@vitessce/plugins';
 import type {
   DataLoader,
@@ -177,6 +179,7 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
+import { autocompleteFeature } from '@vitessce/biomarker-select';
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
@@ -508,4 +511,8 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
+];
+
+export const baseAsyncFunctions = [
+  new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
 ];

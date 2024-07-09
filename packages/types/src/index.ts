@@ -32,6 +32,23 @@ export type {
   SetsTreeNodeNonLeaf,
   SetsTree,
 } from './sets.js';
+export type {
+  KgNode,
+  KgNodeType,
+  TargetModalityType,
+  GroupType,
+  KgNodeReason,
+  KgNodeMethod,
+  KgEdge,
+  KgStratification,
+  AutocompleteFeatureFunc,
+  TransformFeatureFunc,
+  RelatedFeaturesFunc,
+  FeatureToUrlFunc,
+  FeatureToIntervalFunc,
+  ObsSetToFeaturesFunc,
+  FeaturesToObsSetFunc,
+} from './biomarkers.js';
 
 // This is a types-only package.
 export {};

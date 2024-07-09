@@ -99,15 +99,6 @@ export function VitS(props) {
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
   );
-  const asyncFunctions = useMemo(
-    () => Object.fromEntries(
-      // Convert the array of PluginAsyncFunction instances to a mapping
-      // from function type strings to async functions.
-      asyncFunctionsProp?.map(p => ([p.functionType, p.asyncFunction]))
-      || [],
-    ),
-    [asyncFunctionsProp],
-  );
 
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
@@ -196,7 +187,22 @@ export function VitS(props) {
         retry: 2,
       },
     },
+    // TODO: should the queryClient be shared? Or have an option to be shared
+    // (e.g., based on remountOnUidChange)?
   }), [configKey]);
+
+  const asyncFunctions = useMemo(
+    () => ({
+      queryClient,
+      asyncFunctions: Object.fromEntries(
+        // Convert the array of PluginAsyncFunction instances to a mapping
+        // from function type strings to async functions.
+        asyncFunctionsProp?.map(p => ([p.functionType, p.asyncFunction]))
+        || [],
+      ),
+    }),
+    [asyncFunctionsProp, queryClient],
+  );
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.

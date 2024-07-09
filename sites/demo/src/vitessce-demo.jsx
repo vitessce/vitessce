@@ -102,6 +102,7 @@ export function VitessceDemo() {
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
+    const pageMode = urlParams.get('pageMode') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -110,7 +111,6 @@ export function VitessceDemo() {
       const pluginProps = getPlugins(datasetId);
       const stores = getStores(datasetId);
       const PageComponent = getPage(datasetId);
-      const pageMode = !!PageComponent;
       return (
         <ContainerComponent>
           <Vitessce

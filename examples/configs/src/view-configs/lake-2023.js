@@ -138,8 +138,7 @@ function generateLake2023Config() {
 function ViewA(props) {
   const ViewComponent = usePageModeView("A");
   return (
-    <div style={{ width: '100%', height: '500px' }}>
-      <p>View A</p>
+    <div style={{ width: '100%', height: '800px' }}>
       <ViewComponent />
     </div>
   );
@@ -149,7 +148,7 @@ function ViewA(props) {
 function PageComponent(props) {
   return (
     <>
-      <h1>Test</h1>
+      <h1>Test of view positioning via CSS</h1>
       <Demo />
       <ViewA />
     </>

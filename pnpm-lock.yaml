@@ -604,6 +604,9 @@ importers:
       '@material-ui/core':
         specifier: ~4.12.3
         version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0)(react@18.2.0)
+      '@vitessce/biomarker-select':
+        specifier: workspace:*
+        version: link:../../view-types/biomarker-select
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1042,9 +1045,15 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../../types
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      fuse.js:
+        specifier: ^7.0.0
+        version: 7.0.0
       react-window:
         specifier: ^1.8.10
         version: 1.8.10(react-dom@18.2.0)(react@18.2.0)
@@ -16275,6 +16284,11 @@ packages:
 
   /functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+
+  /fuse.js@7.0.0:
+    resolution: {integrity: sha512-14F4hBIxqKvD4Zz/XjDc3y94mNZN6pRv3U13Udo0lNLCWRBUsrMv2xwcF/y/Z5sV6+FQW+/ow68cHpm4sunt8Q==}
+    engines: {node: '>=10'}
+    dev: false
 
   /genbank-parser@1.2.4:
     resolution: {integrity: sha512-r3pTgKHZx/rol90v2cezrNhfMhq3yHWCnBYyETNIJkvnJk+cwx/D/ZVgAy1SX8zwtnfvYQmFbqlpbh2f4t0h2w==}
