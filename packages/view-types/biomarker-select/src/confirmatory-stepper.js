@@ -31,13 +31,9 @@ export function ConfirmatoryStepper(props) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 
-  const isStepOptional = (step) => {
-    return step === 2;
-  };
+  const isStepOptional = step => step === 2;
 
-  const isStepSkipped = (step) => {
-    return skipped.has(step);
-  };
+  const isStepSkipped = step => skipped.has(step);
 
   const handleNext = () => {
     let newSkipped = skipped;
@@ -46,12 +42,12 @@ export function ConfirmatoryStepper(props) {
       newSkipped.delete(activeStep);
     }
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep(prevActiveStep => prevActiveStep + 1);
     setSkipped(newSkipped);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep(prevActiveStep => prevActiveStep - 1);
   };
 
   const handleSkip = () => {
@@ -61,7 +57,7 @@ export function ConfirmatoryStepper(props) {
       throw new Error("You can't skip a step that isn't optional.");
     }
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep(prevActiveStep => prevActiveStep + 1);
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
@@ -74,7 +70,7 @@ export function ConfirmatoryStepper(props) {
   };
 
   useEffect(() => {
-    if(activeStep === steps.length) {
+    if (activeStep === steps.length) {
       onFinish();
     }
   }, [activeStep, steps]);
@@ -166,15 +162,15 @@ export function ConfirmatoryStepper(props) {
         </Grid>
         {/* Cart */}
         <Grid item container xs={4}>
-            <ConfirmatoryCart
-              currentModalityAgnosticSelection={currentModalityAgnosticSelection}
-              setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-              currentModalitySpecificSelection={currentModalitySpecificSelection}
-              setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
-              currentStratificationSelection={currentStratificationSelection}
-              setCurrentStratificationSelection={setCurrentStratificationSelection}
-              stratifications={stratifications}
-            />
+          <ConfirmatoryCart
+            currentModalityAgnosticSelection={currentModalityAgnosticSelection}
+            setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
+            currentModalitySpecificSelection={currentModalitySpecificSelection}
+            setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+            currentStratificationSelection={currentStratificationSelection}
+            setCurrentStratificationSelection={setCurrentStratificationSelection}
+            stratifications={stratifications}
+          />
         </Grid>
         {/* Step navigation button footer */}
         <Box className={classes.fullWidthBox}>

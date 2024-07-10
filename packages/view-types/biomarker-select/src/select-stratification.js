@@ -15,7 +15,7 @@ export function SelectStratification(props) {
     : currentStratificationSelectionProp.stratificationId;
   function setCurrentStratificationSelection(event, value) {
     setCurrentStratificationSelectionProp(
-      stratifications.find(s => s.stratificationId === value) ?? null
+      stratifications.find(s => s.stratificationId === value) ?? null,
     );
   }
 
@@ -33,11 +33,11 @@ export function SelectStratification(props) {
         >
           <FormControlLabel value="__all__" control={<Radio />} label="No stratification" />
           <FormLabel>By participant group (clinical):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.groupType === 'clinical').map((s) => (
+          {stratifications ? stratifications.filter(s => s.groupType === 'clinical').map(s => (
             <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
           )) : null}
           <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.groupType === 'structural-region').map((s) => (
+          {stratifications ? stratifications.filter(s => s.groupType === 'structural-region').map(s => (
             <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
           )) : null}
         </RadioGroup>

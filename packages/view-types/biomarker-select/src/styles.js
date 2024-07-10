@@ -3,10 +3,10 @@ import { makeStyles } from '@material-ui/core';
 export const useStyles = makeStyles(() => ({
   header: {
     marginTop: '10px',
-    marginBottom: '10px'
+    marginBottom: '10px',
   },
   fullWidthBox: {
-    width: '100%'
+    width: '100%',
   },
   selectButton: {
     position: 'absolute',

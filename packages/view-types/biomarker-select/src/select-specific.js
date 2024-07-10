@@ -35,7 +35,7 @@ export function SelectSpecific(props) {
   const classes = useStyles();
 
   const queries = useQueries({
-    queries: currentModalityAgnosticSelection?.map((item) => ({
+    queries: currentModalityAgnosticSelection?.map(item => ({
       queryKey: [item.nodeType, item.kgId],
       queryFn: async (ctx) => {
         const matchingGenes = await getEdges(item, 'gene');
@@ -51,8 +51,8 @@ export function SelectSpecific(props) {
   const data = queries
     .flatMap(q => q.data)
     .filter(Boolean);
-  
-  const rows = useMemo(() => data.map((d) => ({
+
+  const rows = useMemo(() => data.map(d => ({
     id: d.target.kgId,
     targetLabel: d.target.label,
     sourceRelationship: (d.source.nodeType === 'gene'
@@ -63,9 +63,7 @@ export function SelectSpecific(props) {
 
   // Derive the set of selected row ids from the
   // currentModalitySpecificSelection.
-  const rowSelectionModel = useMemo(() => {
-    return currentModalitySpecificSelection?.map(d => d.kgId) || [];
-  }, [rows, currentModalitySpecificSelection]);
+  const rowSelectionModel = useMemo(() => currentModalitySpecificSelection?.map(d => d.kgId) || [], [rows, currentModalitySpecificSelection]);
 
 
   function handleSelection(newRowSelectionModel) {
@@ -85,14 +83,14 @@ export function SelectSpecific(props) {
           <FormControl fullWidth>
             <Select
               native
-              defaultValue={'gene'}
+              defaultValue="gene"
               classes={{ select: classes.selectInput }}
               inputProps={{
                 name: 'age',
                 id: 'uncontrolled-native',
               }}
             >
-              <option value={'gene'}>Gene (RNA-seq)</option>
+              <option value="gene">Gene (RNA-seq)</option>
             </Select>
             <FormHelperText>Feature type (experimental modality)</FormHelperText>
           </FormControl>

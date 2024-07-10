@@ -2,8 +2,8 @@
 import { csvParse } from 'd3-dsv';
 import Fuse from 'fuse.js/basic';
 
-/** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc } from '@vitessce/types' */
 /** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
+/** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc } from '@vitessce/types' */
 
 
 const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
@@ -18,8 +18,8 @@ const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-k
 function loadGeneNodes() {
   return fetch(`${KG_BASE_URL}/Gene.nodes.csv`)
     .then(res => res.text())
-    .then(res => {
-      const result = csvParse(res)
+    .then((res) => {
+      const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
         label: d.label,
@@ -29,16 +29,19 @@ function loadGeneNodes() {
     });
 }
 
+/**
+ * @returns {Promise<KgNode[]>}
+ */
 function loadCellTypeNodes() {
   return fetch(`${KG_BASE_URL}/HuBMAP_ASCTplusB_augmented_2022.nodes.csv`)
     .then(res => res.text())
-    .then(res => {
-      const result = csvParse(res)
+    .then((res) => {
+      const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
         label: d.label,
         term: d.cell_id.length ? d.cell_id : null,
-        nodeType: 'cellType',
+        nodeType: 'cell-type',
       }));
     });
 }
@@ -49,8 +52,8 @@ function loadCellTypeNodes() {
 function loadPathwayNodes() {
   return fetch(`${KG_BASE_URL}/Reactome_2022.nodes.csv`)
     .then(res => res.text())
-    .then(res => {
-      const result = csvParse(res)
+    .then((res) => {
+      const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
         label: d.pathway,
@@ -61,13 +64,13 @@ function loadPathwayNodes() {
 }
 
 /**
- * 
+ *
  * @param {QueryFunctionContext} ctx
- * @returns 
+ * @returns
  */
 async function loadFuseObject(ctx) {
   const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
-  
+
   const [geneNodes, cellTypeNodes, pathwayNodes] = await Promise.all([
     queryClient.fetchQuery({
       queryKey: ['geneNodes'],
@@ -110,7 +113,7 @@ async function loadFuseObject(ctx) {
  * @returns {Promise<KgNode[]>}
  */
 export async function autocompleteFeature({ queryClient }, partial, targetModality) {
-  if(partial.length < 1) {
+  if (partial.length < 1) {
     return [];
   }
   // TODO: parameterize the fuse object (via queryKey) based on targetModality?
@@ -129,8 +132,8 @@ export async function autocompleteFeature({ queryClient }, partial, targetModali
 async function loadPathwayToGeneEdges() {
   return fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`)
     .then(res => res.text())
-    .then(res => {
-      const result = csvParse(res)
+    .then((res) => {
+      const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         source: d.source,
         target: d.target,
@@ -142,19 +145,24 @@ async function loadPathwayToGeneEdges() {
 /**
  * @satisfies {TransformFeatureFunc}
  * @param {object} ctx
- * @param {QueryClient} ctx.queryClient 
- * @param {KgNode} node 
- * @param {TargetModalityType} targetModality 
+ * @param {QueryClient} ctx.queryClient
+ * @param {KgNode} node
+ * @param {TargetModalityType} targetModality
  * @returns {Promise<KgNode[]>}
  */
 export async function transformFeature({ queryClient }, node, targetModality) {
-  if(targetModality === 'gene') {
+  if (targetModality === node.nodeType) {
+    // For example, if the target modality is gene and the node is already a gene node.
+    return [node];
+  }
+  if (targetModality === 'gene') {
     const geneNodes = await queryClient.fetchQuery({
       queryKey: ['geneNodes'],
       staleTime: Infinity,
       queryFn: loadGeneNodes,
     });
-    if(node.nodeType === 'pathway') {
+    if (node.nodeType === 'pathway') {
+      // Pathway to genes case.
       const pathwayGeneEdges = await queryClient.fetchQuery({
         queryKey: ['pathwayGeneEdges'],
         staleTime: Infinity,
@@ -166,7 +174,11 @@ export async function transformFeature({ queryClient }, node, targetModality) {
       const matchingGenes = geneNodes.filter(d => matchingGeneIds.includes(d.kgId));
       return matchingGenes;
     }
-    // TODO: handle other node types
+    if (node.nodeType === 'cell-type') {
+      // Cell type to genes case.
+
+      // TODO: implement
+    }
   }
   // TODO: handle other target modalities
   return [];

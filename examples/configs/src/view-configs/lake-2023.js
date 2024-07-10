@@ -136,13 +136,12 @@ function generateLake2023Config() {
 }
 
 function ViewA(props) {
-  const ViewComponent = usePageModeView("A");
+  const ViewComponent = usePageModeView('A');
   return (
     <div style={{ width: '100%', height: '800px' }}>
       <ViewComponent />
     </div>
   );
-
 }
 
 function PageComponent(props) {

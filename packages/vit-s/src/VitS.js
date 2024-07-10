@@ -240,29 +240,29 @@ export function VitS(props) {
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                  <VitessceGrid
-                    pageMode={pageMode}
-                    success={success}
-                    configKey={configKey}
-                    viewTypes={viewTypes}
-                    fileTypes={fileTypes}
-                    coordinationTypes={coordinationTypes}
-                    config={configOrWarning}
-                    rowHeight={rowHeight}
-                    height={height}
-                    theme={theme}
-                    isBounded={isBounded}
-                    stores={stores}
-                  >
-                    {children}
-                  </VitessceGrid>
-                  <CallbackPublisher
-                    onWarn={onWarn}
-                    onConfigChange={onConfigChange}
-                    onLoaderChange={onLoaderChange}
-                    validateOnConfigChange={validateOnConfigChange}
-                    pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                  />
+                <VitessceGrid
+                  pageMode={pageMode}
+                  success={success}
+                  configKey={configKey}
+                  viewTypes={viewTypes}
+                  fileTypes={fileTypes}
+                  coordinationTypes={coordinationTypes}
+                  config={configOrWarning}
+                  rowHeight={rowHeight}
+                  height={height}
+                  theme={theme}
+                  isBounded={isBounded}
+                  stores={stores}
+                >
+                  {children}
+                </VitessceGrid>
+                <CallbackPublisher
+                  onWarn={onWarn}
+                  onConfigChange={onConfigChange}
+                  onLoaderChange={onLoaderChange}
+                  validateOnConfigChange={validateOnConfigChange}
+                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                />
               </AsyncFunctionsContext.Provider>
             </AuxiliaryProvider>
           </ViewConfigProvider>

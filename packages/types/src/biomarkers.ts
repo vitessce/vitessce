@@ -23,7 +23,7 @@ export type KgNode = {
   label: string; // Human-readable name of the node.
   term?: string; // Ontology term for this node. Should be a CURIE.
   altIds?: string[]; // Alternative identifiers like gene symbols or Ensembl IDs, in CURIE string format.
-  
+
   // Provenance info
   source?: string; // Name of a data source like 'EnrichrKG'.
   sourceMethod?: KgNodeMethod;
