@@ -512,7 +512,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
   let result = [];
 
   if (Array.isArray(coordinateTransformations)) {
-    result = coordinateTransformations.map((transform) => {
+    result = coordinateTransformations.flatMap((transform) => {
       if (transform.input && transform.output) {
         // This is a new-style coordinate transformation.
         // (As proposed in https://github.com/ome/ngff/pull/138)
@@ -531,6 +531,9 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         }
         if (type === 'identity') {
           return { type };
+        }
+        if (type == 'sequence') {
+          return normalizeCoordinateTransformations(transform.transformations, datasets);
         }
         console.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
