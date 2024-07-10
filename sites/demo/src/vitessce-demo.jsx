@@ -113,6 +113,15 @@ export function VitessceDemo() {
       const PageComponent = getPage(datasetId);
       return (
         <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}</style>
+          ) : null}
           <Vitessce
             config={config}
             rowHeight={rowHeight}
@@ -168,11 +177,6 @@ export function VitessceDemo() {
         width: 100%;
         overflow: scroll;
         background-color: #333333;
-      }
-      #root .vitessce-container {
-        height: max(100%,100vh);
-        width: 100%;
-        overflow: hidden;
       }
       `}
       </style>

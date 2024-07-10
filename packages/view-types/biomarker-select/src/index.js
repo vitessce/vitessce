@@ -1,5 +1,4 @@
-export { ScmdUi } from './scmd-ui.js';
-export { Demo } from './Demo.js';
+export { BiomarkerSelectSubscriber } from './BiomarkerSelectSubscriber.js';
 export {
   autocompleteFeature,
   transformFeature,

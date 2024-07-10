@@ -5,7 +5,7 @@ import {
   vconcat,
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
-import { Demo } from '@vitessce/biomarker-select';
+import { BiomarkerSelectSubscriber } from '@vitessce/biomarker-select';
 
 function generateLake2023Config() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -76,13 +76,14 @@ function generateLake2023Config() {
     },
   });
 
-  const scatterplot = vc.addView(dataset, 'scatterplot').setProps({ title: 'CKD' });
-  const scatterplot2 = vc.addView(dataset, 'scatterplot').setProps({ title: 'Healthy Reference' });
-  const obsSets = vc.addView(dataset, 'obsSets');
+  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  const scatterplot = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-case' }).setProps({ title: 'CKD' });
+  const scatterplot2 = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-control' }).setProps({ title: 'Healthy Reference' });
+  const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
-  const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution');
-  const dotPlot = vc.addView(dataset, 'dotPlot');
+  const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
+  const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot'});
 
 
   vc.linkViewsByObject([scatterplot], {
@@ -101,8 +102,8 @@ function generateLake2023Config() {
   }, { meta: false });
 
   vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
-    ['Tissue Type', 'Healthy Reference'],
     ['Tissue Type', 'CKD'],
+    ['Tissue Type', 'Healthy Reference'],
   ]]);
   vc.linkViewsByObject([scatterplot, scatterplot2, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'], // , 'ENSG00000074803', 'ENSG00000164825'],
@@ -117,7 +118,7 @@ function generateLake2023Config() {
 
   vc.layout(hconcat(
     vconcat(
-      scatterplot2,
+      hconcat(scatterplot2, biomarkerSelect),
       vconcat(
         hconcat(
           obsSets,
@@ -135,21 +136,88 @@ function generateLake2023Config() {
   return configJSON;
 }
 
-function ViewA(props) {
-  const ViewComponent = usePageModeView('A');
-  return (
-    <div style={{ width: '100%', height: '800px' }}>
-      <ViewComponent />
-    </div>
-  );
+function ensureComponent(component) {
+  if(!component) {
+    return () => null;
+  }
+  return component;
 }
 
 function PageComponent(props) {
+  const BiomarkerSelect = ensureComponent(usePageModeView('biomarker-select'));
+  const ScatterplotCase = ensureComponent(usePageModeView('scatterplot-case'));
+  const ScatterplotControl = ensureComponent(usePageModeView('scatterplot-control'));
+  const CellSets = ensureComponent(usePageModeView('cell-sets'));
+
+  const ViolinPlot = ensureComponent(usePageModeView('violin-plot'));
+  const DotPlot = ensureComponent(usePageModeView('dot-plot'));
+
   return (
     <>
-      <h1>Test of view positioning via CSS</h1>
-      <Demo />
-      <ViewA />
+      <style>{`
+      h1, h2, h3, h4, h5, h6 {
+        font-family: sans-serif;
+      }
+      h1 {
+        font-weight: normal;
+      }
+      h2 {
+        font-size: 36px;
+      }
+      h3 {
+        font-size: 28px;
+      }
+      .page-body {
+        width: 70%;
+        margin-left: 15%;
+      }
+      .right-sidebar {
+        width: 15%;
+      }
+      `}</style>
+      <div style={{ width: '100%' }}>
+        <div style={{ width: '70%', marginLeft: '15%' }}>
+        <h1>Comparisce: comparative visualization of single-cell atlas data</h1>
+          <BiomarkerSelect />
+        </div>
+      </div>
+
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+        <div style={{ width: '70%', marginLeft: '15%' }}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+            <div style={{ width: '45%' }}><h2>Chronic Kidney Disease</h2></div>
+            <div style={{ width: '5%' }}><h2 style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
+            <div style={{ width: '50%' }}><h2>Healthy Reference</h2></div>
+          </div>
+          <h3>Cell type-level representations</h3>
+          <div style={{ width: '100%', height: '800px', display: 'flex', flexDirection: 'row' }}>
+            <div style={{ width: '50%' }}>
+              <ScatterplotCase />
+            </div>
+            <div style={{ width: '50%' }}>
+              <ScatterplotControl />
+            </div>
+          </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <ViolinPlot />
+          </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <DotPlot />
+          </div>
+          <h3>Neighborhood-level representations</h3>
+          <h1>TODO</h1>
+          <h3>Segmented instance-level representations</h3>
+          <h1>TODO</h1>
+          <h3>Image-level representations</h3>
+          <h1>TODO</h1>
+          <h3>Participant-level representations</h3>
+          <h1>TODO</h1>
+        </div>
+        <div style={{ width: '14%', height: '500px' }}>
+          <CellSets />
+        </div>
+      </div>
+      
     </>
   );
 }

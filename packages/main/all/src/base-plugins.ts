@@ -163,10 +163,6 @@ import {
 
 // Joint file types
 import {
-  autocompleteFeature,
-  transformFeature,
-} from '@vitessce/biomarker-select';
-import {
   expandAnndataZarr,
   expandSpatialdataZarr,
 } from './joint-file-types.js';
@@ -183,6 +179,13 @@ import {
   expandRasterJson,
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
+
+// Biomarker select UI and default async functions.
+import {
+  BiomarkerSelectSubscriber,
+  autocompleteFeature,
+  transformFeature,
+} from '@vitessce/biomarker-select';
 
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
@@ -220,6 +223,7 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
 ];
 
 export const baseFileTypes = [

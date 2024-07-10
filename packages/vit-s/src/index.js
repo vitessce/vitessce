@@ -35,6 +35,8 @@ export {
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
+  useViewConfig,
+  useSetViewConfig,
   useComponentHover,
   useSetComponentHover,
   useComponentViewInfo,

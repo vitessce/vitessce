@@ -34,11 +34,11 @@ export function SelectStratification(props) {
           <FormControlLabel value="__all__" control={<Radio />} label="No stratification" />
           <FormLabel>By participant group (clinical):</FormLabel>
           {stratifications ? stratifications.filter(s => s.groupType === 'clinical').map(s => (
-            <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
+            <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
           )) : null}
           <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
           {stratifications ? stratifications.filter(s => s.groupType === 'structural-region').map(s => (
-            <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
+            <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
           )) : null}
         </RadioGroup>
       </FormControl>

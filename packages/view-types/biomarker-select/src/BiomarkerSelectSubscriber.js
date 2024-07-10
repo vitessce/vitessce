@@ -2,8 +2,14 @@ import React, { useState, useCallback } from 'react';
 import { Container } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { csvParse } from 'd3-dsv';
-import { useAsyncFunction } from '@vitessce/vit-s';
-import { AsyncFunctionType } from '@vitessce/constants-internal'; import { ScmdUi } from './scmd-ui.js';
+import {
+  useAsyncFunction,
+  useViewConfigStoreApi,
+  useViewConfig,
+  useSetViewConfig,
+} from '@vitessce/vit-s';
+import { AsyncFunctionType } from '@vitessce/constants-internal';
+import { ScmdUi } from './scmd-ui.js';
 
 
 const kgBaseUrl = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
@@ -24,7 +30,19 @@ function cellTypeQueryFn(ctx) {
 }
 
 
-export function Demo(props) {
+export function BiomarkerSelectSubscriber(props) {
+  const {
+    coordinationScopes,
+    theme,
+  } = props;
+
+  const viewConfigStoreApi = useViewConfigStoreApi();
+  const viewConfig = useViewConfig();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
+
+  console.log(viewConfig);
+  
+
   // TODO: make isSelecting a coordination type plugin.
   // TODO: use store hooks from @vitessce/vit-s to update the view config based on the selections.
   const [isSelecting, setIsSelecting] = useState(true);
@@ -57,7 +75,7 @@ export function Demo(props) {
 
 
   return (
-    <Container>
+    <>
       {isSelecting ? (
         <ScmdUi
           mode={mode}
@@ -146,9 +164,14 @@ export function Demo(props) {
               groupType: 'structural-region',
             },
           ]}
-          onFinish={() => setIsSelecting(false)}
+          onFinish={() => {
+            console.log("Done selecting");
+            console.log(viewConfig);
+            //setViewConfig({ ...viewConfig, layout: [] })
+            //setIsSelecting(false)
+          }}
         />
       ) : null}
-    </Container>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, ButtonGroup, Grid, Typography, Tooltip } from '@material-ui/core';
 import { ConfirmatoryStepper } from './confirmatory-stepper.js';
 import { useStyles } from './styles.js';
@@ -28,15 +28,15 @@ export function ScmdUi(props) {
   const mode = modeProp || 'confirmatory';
   const step = mode === 'confirmatory' ? (stepProp || 'select-biomarkers') : (stepProp || 'define-stratification');
 
+  const [tempIsVisible, setTempIsVisible] = useState(true);
+
   const isConfirmatoryMode = mode === 'confirmatory';
   return (
-    <Grid container style={{ border: '1px solid red' }}>
+    <Grid container style={{ border: '0px solid red' }}>
       {/* Header */}
       <Grid item container xs={12} className={classes.header}>
         <Grid item xs={8}>
-          <Typography variant="h5">
-            Comparative visual analysis of atlas data
-          </Typography>
+          <button onClick={() => setTempIsVisible(prev => !prev)}>toggle</button>
         </Grid>
         <Grid item container xs={4} justifyContent="flex-end">
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
@@ -50,23 +50,27 @@ export function ScmdUi(props) {
         </Grid>
       </Grid>
       {/* Stepper */}
-      {mode === 'confirmatory' ? (
-        <ConfirmatoryStepper
-          autocompleteNode={autocompleteNode}
+      {tempIsVisible ? (
+        <div style={{ border: '2px solid #eee', borderRadius: '5px' }}>
+          {mode === 'confirmatory' ? (
+            <ConfirmatoryStepper
+              autocompleteNode={autocompleteNode}
 
-          currentModalityAgnosticSelection={currentModalityAgnosticSelection}
-          setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-          currentModalitySpecificSelection={currentModalitySpecificSelection}
-          setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
-          currentStratificationSelection={currentStratificationSelection}
-          setCurrentStratificationSelection={setCurrentStratificationSelection}
+              currentModalityAgnosticSelection={currentModalityAgnosticSelection}
+              setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
+              currentModalitySpecificSelection={currentModalitySpecificSelection}
+              setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+              currentStratificationSelection={currentStratificationSelection}
+              setCurrentStratificationSelection={setCurrentStratificationSelection}
 
-          getEdges={getEdges}
-          stratifications={stratifications}
-          onFinish={onFinish}
-        />
+              getEdges={getEdges}
+              stratifications={stratifications}
+              onFinish={onFinish}
+            />
+          ) : null}
+          {mode === 'exploratory' ? <span>TODO</span> : null}
+        </div>
       ) : null}
-      {mode === 'exploratory' ? <span>TODO</span> : null}
     </Grid>
   );
 }

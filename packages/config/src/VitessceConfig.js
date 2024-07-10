@@ -252,7 +252,7 @@ export class VitessceConfigView {
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
    */
-  constructor(component, coordinationScopes, x, y, w, h) {
+  constructor(component, coordinationScopes, x, y, w, h, uid) {
     this.view = {
       component,
       coordinationScopes,
@@ -261,6 +261,7 @@ export class VitessceConfigView {
       y,
       w,
       h,
+      uid,
     };
   }
 
@@ -599,6 +600,7 @@ export class VitessceConfig {
       y = 0,
       w = 1,
       h = 1,
+      uid = undefined,
       mapping = null,
     } = options || {};
     const datasetMatches = (
@@ -618,7 +620,7 @@ export class VitessceConfig {
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
+    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h, uid);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -1002,7 +1004,7 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
+      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid);
       vc.config.layout.push(newView);
     });
     return vc;
