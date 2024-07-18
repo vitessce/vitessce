@@ -167,13 +167,6 @@ function PageComponent(props) {
       h3 {
         font-size: 28px;
       }
-      .page-body {
-        width: 70%;
-        margin-left: 15%;
-      }
-      .right-sidebar {
-        width: 15%;
-      }
       `}</style>
       <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
