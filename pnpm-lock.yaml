@@ -4,6 +4,248 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  deck.gl:
+    '@deck.gl/aggregation-layers':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/core':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/extensions':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/geo-layers':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/layers':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/mesh-layers':
+      specifier: 8.8.27
+      version: 8.8.27
+    '@deck.gl/react':
+      specifier: 8.8.27
+      version: 8.8.27
+    deck.gl:
+      specifier: 8.8.27
+      version: 8.8.27
+  default:
+    '@hms-dbmi/viv':
+      specifier: ~0.16.0
+      version: 0.16.0
+    '@material-ui/core':
+      specifier: ~4.12.3
+      version: 4.12.4
+    '@material-ui/icons':
+      specifier: ~4.11.2
+      version: 4.11.3
+    '@math.gl/core':
+      specifier: ^3.5.6
+      version: 3.6.3
+    '@react-three/drei':
+      specifier: ^9.99.7
+      version: 9.99.7
+    '@react-three/fiber':
+      specifier: ^8.15.19
+      version: 8.15.19
+    '@react-three/xr':
+      specifier: ^5.7.1
+      version: 5.7.1
+    '@testing-library/jest-dom':
+      specifier: ^5.16.4
+      version: 5.16.5
+    '@testing-library/react':
+      specifier: ^13.3.0
+      version: 13.4.0
+    '@testing-library/react-hooks':
+      specifier: ^8.0.1
+      version: 8.0.1
+    '@testing-library/user-event':
+      specifier: ^14.2.1
+      version: 14.4.3
+    '@types/lodash-es':
+      specifier: ^4.17.7
+      version: 4.17.7
+    '@types/react':
+      specifier: ^18.0.28
+      version: 18.2.7
+    '@types/semver':
+      specifier: ^7.3.13
+      version: 7.5.0
+    '@types/uuid':
+      specifier: ^9.0.1
+      version: 9.0.1
+    '@vitejs/plugin-react':
+      specifier: ^4.0.0
+      version: 4.0.0
+    '@zarrita/core':
+      specifier: 0.1.0-next.8
+      version: 0.1.0-next.8
+    '@zarrita/indexing':
+      specifier: 0.1.0-next.10
+      version: 0.1.0-next.10
+    '@zarrita/storage':
+      specifier: 0.1.0-next.4
+      version: 0.1.0-next.4
+    '@zarrita/typedarray':
+      specifier: 0.1.0-next.2
+      version: 0.1.0-next.2
+    clsx:
+      specifier: ^1.1.1
+      version: 1.2.1
+    d3-array:
+      specifier: ^2.4.0
+      version: 2.12.1
+    d3-axis:
+      specifier: ^3.0.0
+      version: 3.0.0
+    d3-color:
+      specifier: ^1.4.0
+      version: 1.4.1
+    d3-dsv:
+      specifier: ^1.1.1
+      version: 1.2.0
+    d3-force:
+      specifier: ^2.1.1
+      version: 2.1.1
+    d3-format:
+      specifier: ^3.1.0
+      version: 3.1.0
+    d3-interpolate:
+      specifier: ^2.0.1
+      version: 2.0.1
+    d3-quadtree:
+      specifier: ^1.0.7
+      version: 1.0.7
+    d3-scale:
+      specifier: ^4.0.0
+      version: 4.0.2
+    d3-selection:
+      specifier: ^3.0.0
+      version: 3.0.0
+    d3-shape:
+      specifier: ^3.2.0
+      version: 3.2.0
+    internmap:
+      specifier: ^2.0.3
+      version: 2.0.3
+    lodash-es:
+      specifier: ^4.17.21
+      version: 4.17.21
+    math.gl:
+      specifier: ^3.5.6
+      version: 3.6.3
+    mathjs:
+      specifier: ^9.2.0
+      version: 9.5.2
+    pluralize:
+      specifier: ^8.0.0
+      version: 8.0.0
+    react:
+      specifier: ^18.0.0
+      version: 18.2.0
+    react-aria:
+      specifier: ^3.28.0
+      version: 3.28.0
+    react-dom:
+      specifier: ^18.0.0
+      version: 18.2.0
+    semver:
+      specifier: ^7.3.8
+      version: 7.3.8
+    three:
+      specifier: ^0.154.0
+      version: 0.154.0
+    uuid:
+      specifier: ^9.0.0
+      version: 9.0.1
+    vega-scale:
+      specifier: ^6.0.0
+      version: 6.0.0
+    vite:
+      specifier: ^4.3.0
+      version: 4.3.9
+    vitest:
+      specifier: ^0.32.2
+      version: 0.32.2
+    zarrita:
+      specifier: 0.4.0-next.10
+      version: 0.4.0-next.10
+    zod:
+      specifier: ^3.21.4
+      version: 3.22.4
+    zustand:
+      specifier: ^3.5.10
+      version: 3.7.2
+  loaders.gl:
+    '@loaders.gl/3d-tiles':
+      specifier: ^3.0.0
+      version: 3.2.10
+    '@loaders.gl/core':
+      specifier: ^3.0.0
+      version: 3.2.10
+    '@loaders.gl/images':
+      specifier: ^3.0.0
+      version: 3.2.10
+    '@loaders.gl/loader-utils':
+      specifier: ^3.0.0
+      version: 3.2.10
+  luma.gl:
+    '@luma.gl/constants':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/core':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/engine':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/experimental':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/gltools':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/shadertools':
+      specifier: 8.5.21
+      version: 8.5.21
+    '@luma.gl/webgl':
+      specifier: 8.5.21
+      version: 8.5.21
+  nebula.gl:
+    '@nebula.gl/edit-modes':
+      specifier: 0.23.8
+      version: 0.23.8
+    '@nebula.gl/layers':
+      specifier: 0.23.8
+      version: 0.23.8
+    nebula.gl:
+      specifier: 0.23.8
+      version: 0.23.8
+  turf:
+    '@turf/area':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/boolean-contains':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/boolean-overlap':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/boolean-point-in-polygon':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/boolean-within':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/centroid':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@turf/helpers':
+      specifier: ^6.5.0
+      version: 6.5.0
+
 overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
@@ -24,20 +266,17 @@ importers:
       '@playwright/test':
         specifier: ^1.40.1
         version: 1.40.1
-      '@pnpm/meta-updater':
-        specifier: ^0.0.6
-        version: 0.0.6
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@testing-library/react-hooks':
-        specifier: ^8.0.1
+        specifier: 'catalog:'
         version: 8.0.1(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react-test-renderer@16.14.0(react@18.2.0))(react@18.2.0)
       '@testing-library/user-event':
-        specifier: ^14.2.1
+        specifier: 'catalog:'
         version: 14.4.3(@testing-library/dom@8.19.0)
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.59.2
@@ -46,7 +285,7 @@ importers:
         specifier: ^5.59.2
         version: 5.59.7(eslint@8.25.0)(typescript@5.5.3)
       '@vitejs/plugin-react':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
       '@vitest/coverage-v8':
         specifier: ^0.32.2
@@ -97,7 +336,7 @@ importers:
         specifier: ^1.2.5
         version: 1.2.5(lodash@4.17.21)
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       mdast-util-to-string:
         specifier: ^1.0.6
@@ -106,10 +345,10 @@ importers:
         specifier: ^0.1.11
         version: 0.1.12
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       react-dom:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0(react@18.2.0)
       remark-parse:
         specifier: ^7.0.1
@@ -136,10 +375,10 @@ importers:
         specifier: ^8.3.2
         version: 8.4.2
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
       vitest-canvas-mock:
         specifier: ^0.3.0
@@ -160,7 +399,7 @@ importers:
   examples/plugins:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants':
         specifier: workspace:*
@@ -178,11 +417,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/vit-s
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
 
   packages/config:
@@ -203,10 +442,10 @@ importers:
   packages/constants-internal:
     devDependencies:
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/csv:
@@ -224,17 +463,17 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       d3-dsv:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.0
 
   packages/file-types/glb:
     dependencies:
       '@react-three/drei':
-        specifier: ~9.89.0
-        version: 9.89.0(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/three@0.162.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
+        specifier: 'catalog:'
+        version: 9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@18.2.7)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -256,17 +495,14 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
-      ajv:
-        specifier: ^6.10.0
-        version: 6.12.6
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       three:
-        specifier: ^0.154.0
+        specifier: 'catalog:'
         version: 0.154.0
 
   packages/file-types/json:
@@ -299,17 +535,17 @@ importers:
         specifier: workspace:*
         version: link:../../utils/zarr-utils
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       zarrita:
-        specifier: 0.4.0-next.10
+        specifier: 'catalog:'
         version: 0.4.0-next.10
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: 'catalog:'
+        version: 3.22.4
 
   packages/file-types/ome-tiff:
     dependencies:
@@ -337,14 +573,11 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
-      ajv:
-        specifier: ^6.10.0
-        version: 6.12.6
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
 
   packages/file-types/zarr:
@@ -377,140 +610,140 @@ importers:
         specifier: workspace:*
         version: link:../../utils/zarr-utils
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       zarrita:
-        specifier: 0.4.0-next.10
+        specifier: 'catalog:'
         version: 0.4.0-next.10
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
       '@zarrita/core':
-        specifier: 0.1.0-next.8
+        specifier: 'catalog:'
         version: 0.1.0-next.8
       '@zarrita/storage':
-        specifier: 0.1.0-next.4
+        specifier: 'catalog:'
         version: 0.1.0-next.4
       '@zarrita/typedarray':
-        specifier: 0.1.0-next.2
+        specifier: 'catalog:'
         version: 0.1.0-next.2
 
   packages/gl:
     dependencies:
       '@deck.gl/aggregation-layers':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/core@8.5.21)
       '@deck.gl/core':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27
       '@deck.gl/extensions':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3)
       '@deck.gl/geo-layers':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@deck.gl/layers':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
       '@deck.gl/mesh-layers':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@deck.gl/react':
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@hms-dbmi/viv':
-        specifier: ~0.16.0
+        specifier: 'catalog:'
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@loaders.gl/3d-tiles':
-        specifier: ^3.0.0
+        specifier: catalog:loaders.gl
         version: 3.2.10(@loaders.gl/core@3.2.10)
       '@loaders.gl/core':
-        specifier: ^3.0.0
+        specifier: catalog:loaders.gl
         version: 3.2.10
       '@loaders.gl/images':
-        specifier: ^3.0.0
+        specifier: catalog:loaders.gl
         version: 3.2.10
       '@loaders.gl/loader-utils':
-        specifier: ^3.0.0
+        specifier: catalog:loaders.gl
         version: 3.2.10
       '@luma.gl/constants':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@luma.gl/core':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@luma.gl/engine':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@luma.gl/experimental':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
       '@luma.gl/gltools':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@luma.gl/shadertools':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@luma.gl/webgl':
-        specifier: 8.5.21
+        specifier: catalog:luma.gl
         version: 8.5.21
       '@math.gl/core':
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       '@nebula.gl/edit-modes':
-        specifier: 0.23.8
+        specifier: catalog:nebula.gl
         version: 0.23.8
       '@nebula.gl/layers':
-        specifier: 0.23.8
+        specifier: catalog:nebula.gl
         version: 0.23.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
       '@turf/area':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/boolean-contains':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/boolean-overlap':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/boolean-point-in-polygon':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/boolean-within':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/centroid':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/helpers':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       deck.gl:
-        specifier: 8.8.27
+        specifier: catalog:deck.gl
         version: 8.8.27(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)(@math.gl/core@3.6.3)(@types/react@18.2.7)(gl-matrix@3.4.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       glslify:
         specifier: ^7.0.0
         version: 7.1.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       mathjs:
-        specifier: ^9.2.0
+        specifier: 'catalog:'
         version: 9.5.2
       nebula.gl:
-        specifier: 0.23.8
+        specifier: catalog:nebula.gl
         version: 0.23.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
     devDependencies:
       glsl-colormap:
@@ -520,7 +753,7 @@ importers:
   packages/icons:
     devDependencies:
       '@vitejs/plugin-react':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
       cross-env:
         specifier: ^7.0.0
@@ -529,7 +762,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vite-plugin-svgr:
         specifier: ^2.2.1
@@ -547,7 +780,7 @@ importers:
   packages/legend:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/sets-utils':
         specifier: workspace:*
@@ -556,47 +789,47 @@ importers:
         specifier: workspace:*
         version: link:../utils/other-utils
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       colormap:
         specifier: ^2.3.2
         version: 2.3.2
       d3-axis:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.0.0
       d3-color:
-        specifier: ^1.4.0
+        specifier: 'catalog:'
         version: 1.4.1
       d3-format:
-        specifier: ^3.1.0
+        specifier: 'catalog:'
         version: 3.1.0
       d3-interpolate:
-        specifier: ^2.0.1
+        specifier: 'catalog:'
         version: 2.0.1
       d3-scale:
-        specifier: ^3.2.3
-        version: 3.3.0
+        specifier: 'catalog:'
+        version: 4.0.2
       d3-selection:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.0.0
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/main/all:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -668,17 +901,17 @@ importers:
         specifier: workspace:*
         version: link:../../file-types/zarr
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: 'catalog:'
+        version: 3.22.4
     devDependencies:
       '@types/react':
-        specifier: ^18.0.28
+        specifier: 'catalog:'
         version: 18.2.7
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/main/dev:
@@ -703,7 +936,7 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@vitejs/plugin-react':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
       cross-env:
         specifier: ^7.0.0
@@ -712,7 +945,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
 
   packages/main/prod:
@@ -737,7 +970,7 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@vitejs/plugin-react':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
       cross-env:
         specifier: ^7.0.0
@@ -749,38 +982,35 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3(rollup@3.23.0)
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
 
   packages/plugins:
     dependencies:
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: 'catalog:'
+        version: 3.22.4
     devDependencies:
       '@types/react':
-        specifier: ^18.0.28
+        specifier: 'catalog:'
         version: 18.2.7
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/schemas:
     dependencies:
-      '@types/lodash':
-        specifier: ^4.14.191
-        version: 4.14.195
       '@types/lodash-es':
-        specifier: ^4.17.7
+        specifier: 'catalog:'
         version: 4.17.7
       '@types/semver':
-        specifier: ^7.3.13
+        specifier: 'catalog:'
         version: 7.5.0
       '@types/uuid':
-        specifier: ^9.0.1
+        specifier: 'catalog:'
         version: 9.0.1
       '@vitessce/constants':
         specifier: workspace:*
@@ -795,67 +1025,67 @@ importers:
         specifier: workspace:*
         version: link:../utils/other-utils
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       semver:
-        specifier: ^7.3.8
+        specifier: 'catalog:'
         version: 7.3.8
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: 'catalog:'
+        version: 3.22.4
     devDependencies:
       json-schema-to-zod:
         specifier: ^0.6.3
         version: 0.6.3
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
       zod-to-json-schema:
         specifier: ^3.20.4
-        version: 3.21.1(zod@3.21.4)
+        version: 3.21.1(zod@3.22.4)
 
   packages/tooltip:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../vit-s
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/types:
     dependencies:
       '@hms-dbmi/viv':
-        specifier: ~0.13.8
-        version: 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+        specifier: 'catalog:'
+        version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@zarrita/storage':
-        specifier: 0.1.0-next.4
+        specifier: 'catalog:'
         version: 0.1.0-next.4
     devDependencies:
       '@types/react':
-        specifier: ^18.0.28
+        specifier: 'catalog:'
         version: 18.2.7
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/utils/export-utils:
@@ -870,7 +1100,7 @@ importers:
   packages/utils/image-utils:
     dependencies:
       '@hms-dbmi/viv':
-        specifier: ~0.16.0
+        specifier: 'catalog:'
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@vitessce/spatial-utils':
         specifier: workspace:*
@@ -883,10 +1113,10 @@ importers:
         version: link:../other-utils
     devDependencies:
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/utils/other-utils:
@@ -895,22 +1125,22 @@ importers:
         specifier: ^2.11.0
         version: 2.11.0
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       lz-string:
         specifier: ^1.4.4
         version: 1.4.4
       pluralize:
-        specifier: ^8.0.0
+        specifier: 'catalog:'
         version: 8.0.0
 
   packages/utils/sets-utils:
     dependencies:
       '@turf/centroid':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@turf/helpers':
-        specifier: ^6.5.0
+        specifier: catalog:turf
         version: 6.5.0
       '@vitessce/schemas':
         specifier: workspace:*
@@ -922,23 +1152,23 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       d3-dsv:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.0
       internmap:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       json2csv:
         specifier: ^5.0.0
         version: 5.0.7
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       tinycolor2:
         specifier: ^1.4.1
         version: 1.4.2
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
 
   packages/utils/spatial-utils:
     dependencies:
@@ -952,37 +1182,37 @@ importers:
         specifier: workspace:*
         version: link:../zarr-utils
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       mathjs:
-        specifier: ^9.2.0
+        specifier: 'catalog:'
         version: 9.5.2
       zarrita:
-        specifier: 0.4.0-next.10
+        specifier: 'catalog:'
         version: 0.4.0-next.10
 
   packages/utils/zarr-utils:
     dependencies:
       '@zarrita/core':
-        specifier: 0.1.0-next.8
+        specifier: 'catalog:'
         version: 0.1.0-next.8
       '@zarrita/indexing':
-        specifier: 0.1.0-next.10
+        specifier: 'catalog:'
         version: 0.1.0-next.10
       '@zarrita/storage':
-        specifier: 0.1.0-next.4
+        specifier: 'catalog:'
         version: 0.1.0-next.4
       zarrita:
-        specifier: 0.4.0-next.10
+        specifier: 'catalog:'
         version: 0.4.0-next.10
 
   packages/vega:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/legend':
         specifier: workspace:*
@@ -991,7 +1221,7 @@ importers:
         specifier: workspace:*
         version: link:../tooltip
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       react-vega:
         specifier: ^7.4.4
@@ -1007,19 +1237,19 @@ importers:
         version: 0.27.0
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/description:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1029,25 +1259,25 @@ importers:
         version: link:../../vit-s
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/feature-list:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1059,44 +1289,44 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-virtualized:
         specifier: ^9.22.2
         version: 9.22.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@testing-library/user-event':
-        specifier: ^14.2.1
+        specifier: 'catalog:'
         version: 14.4.3(@testing-library/dom@8.19.0)
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/genomic-profiles:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1108,7 +1338,7 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       higlass-no-github-deps:
         specifier: 1.11.13
@@ -1120,26 +1350,26 @@ importers:
         specifier: 0.3.0-next.3
         version: 0.3.0-next.3
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-dom:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
         version: 18.2.0(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/heatmap:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1166,38 +1396,38 @@ importers:
         specifier: workspace:*
         version: link:../../workers
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/layer-controller:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/icons':
-        specifier: ~4.11.2
+        specifier: 'catalog:'
         version: 4.11.3(@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1215,32 +1445,32 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/layer-controller-beta:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/icons':
-        specifier: ~4.11.2
+        specifier: 'catalog:'
         version: 4.11.3(@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^4.29.12
@@ -1273,38 +1503,38 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       plur:
         specifier: ^5.1.0
         version: 5.1.0
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-color-with-lodash:
         specifier: ^2.19.5
         version: 2.19.5(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/obs-sets-manager:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1322,10 +1552,10 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       rc-tooltip:
         specifier: ^5.2.2
@@ -1338,22 +1568,22 @@ importers:
         version: 2.19.5(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/scatterplot:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/icons':
-        specifier: ~4.11.2
+        specifier: 'catalog:'
         version: 4.11.3(@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1374,41 +1604,41 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       d3-force:
-        specifier: ^2.1.1
+        specifier: 'catalog:'
         version: 2.1.1
       d3-quadtree:
-        specifier: ^1.0.7
+        specifier: 'catalog:'
         version: 1.0.7
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/scatterplot-embedding:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1429,29 +1659,29 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/scatterplot-gating:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1469,29 +1699,29 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/spatial:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1521,38 +1751,38 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       mathjs:
-        specifier: ^9.2.0
+        specifier: 'catalog:'
         version: 9.5.2
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       short-number:
         specifier: ^1.0.6
         version: 1.0.7
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/spatial-beta:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1585,16 +1815,16 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       mathjs:
-        specifier: ^9.2.0
+        specifier: 'catalog:'
         version: 9.5.2
       plur:
         specifier: ^5.1.0
@@ -1604,28 +1834,28 @@ importers:
         version: 1.0.7
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/spatial-three:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@react-three/drei':
-        specifier: ^9.99.7
+        specifier: 'catalog:'
         version: 9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@17.0.50)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
       '@react-three/fiber':
-        specifier: ^8.15.19
+        specifier: 'catalog:'
         version: 8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
       '@react-three/xr':
-        specifier: ^5.7.1
+        specifier: 'catalog:'
         version: 5.7.1(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(react@18.2.0)(three@0.154.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1652,16 +1882,16 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       math.gl:
-        specifier: ^3.5.6
+        specifier: 'catalog:'
         version: 3.6.3
       mathjs:
-        specifier: ^9.2.0
+        specifier: 'catalog:'
         version: 9.5.2
       plur:
         specifier: ^5.1.0
@@ -1670,26 +1900,26 @@ importers:
         specifier: ^1.0.6
         version: 1.0.7
       three:
-        specifier: ^0.154.0
+        specifier: 'catalog:'
         version: 0.154.0
     devDependencies:
       '@types/three':
         specifier: ^0.162.0
         version: 0.162.0
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/statistical-plots:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1710,53 +1940,53 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       d3-axis:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.0.0
       d3-format:
-        specifier: ^3.1.0
+        specifier: 'catalog:'
         version: 3.1.0
       d3-scale:
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.2
       d3-selection:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.0.0
       d3-shape:
-        specifier: ^3.2.0
+        specifier: 'catalog:'
         version: 3.2.0
       internmap:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
       vega-scale:
-        specifier: ^6.0.0
+        specifier: 'catalog:'
         version: 6.0.0
     devDependencies:
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/status:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
@@ -1765,32 +1995,32 @@ importers:
         specifier: workspace:*
         version: link:../../vit-s
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/vit-s:
     dependencies:
       '@material-ui/core':
-        specifier: ~4.12.3
+        specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/icons':
-        specifier: ~4.11.2
+        specifier: 'catalog:'
         version: 4.11.3(@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^4.29.12
@@ -1814,59 +2044,59 @@ importers:
         specifier: workspace:*
         version: link:../utils/other-utils
       clsx:
-        specifier: ^1.1.1
+        specifier: 'catalog:'
         version: 1.2.1
       d3-array:
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.12.1
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
       internmap:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       jss-plugin-global:
         specifier: ^10.9.2
         version: 10.9.2
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
       react-aria:
-        specifier: ^3.28.0
+        specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-grid-layout-with-lodash:
         specifier: ^1.3.5
         version: 1.3.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: 'catalog:'
+        version: 9.0.1
       zustand:
-        specifier: ^3.5.10
+        specifier: 'catalog:'
         version: 3.7.2(react@18.2.0)
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
+        specifier: 'catalog:'
         version: 5.16.5
       '@testing-library/react':
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/types':
         specifier: workspace:*
         version: link:../types
       react:
-        specifier: ^18.0.0
+        specifier: 'catalog:'
         version: 18.2.0
       vite:
-        specifier: ^4.3.0
+        specifier: 'catalog:'
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
-        specifier: ^0.32.2
+        specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/workers:
     dependencies:
       lodash-es:
-        specifier: ^4.17.21
+        specifier: 'catalog:'
         version: 4.17.21
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -3014,8 +3244,8 @@ packages:
     peerDependencies:
       '@deck.gl/core': ^8.0.0
       '@types/react': '>= 16.3'
-      react: '>=16.3'
-      react-dom: '>=16.3'
+      react: '>=16.3 || 18'
+      react-dom: '>=16.3 || 18'
 
   '@docsearch/css@3.2.1':
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
@@ -3360,9 +3590,6 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
-
-  '@hms-dbmi/viv@0.13.8':
-    resolution: {integrity: sha512-6t5CvkkSwu6aUBSJGdHFAVRLZL5NRfmlRat1Ucpx/dWX32xzu9Hf8NV8d2+xAKIp4FN6fGeJC2ZdkkSisVUEtA==}
 
   '@hms-dbmi/viv@0.16.0':
     resolution: {integrity: sha512-cYLo2Vnmy7AnxljuLR1KsivGuXaYPooRAIncTenXXrWqygPYvyCYcWgJ+PUnSsB6KbEnibyRjOKjJ6ZGkMXccw==}
@@ -3772,109 +3999,6 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  '@pnpm/cli-meta@2.0.3':
-    resolution: {integrity: sha512-VPekfwCV39lF2dShE2+eHFrzU8Qxbqo+TEevU5BEoZG0K1zXxhfw6VyBbIC2+C1YbutJXQPYDVJQCGPhyRtNqA==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/cli-utils@0.6.63':
-    resolution: {integrity: sha512-uOytSQefXHc0TWL7Hh0EWtQIjeSsbiiXeXVvBvRYDz3NXFQ8y1DgL8UriJltllaWFNnPn1/18ZUpsDeb8+BrWw==}
-    engines: {node: '>=12.17'}
-    peerDependencies:
-      '@pnpm/logger': ^4.0.0
-
-  '@pnpm/config@13.15.0':
-    resolution: {integrity: sha512-WwJOGljI0UcbCxJsWCm2YoCm5mgTNg8GN8H8Z2brx+7cWUbcQhYPJgJR7a1CmJ6Ron1pzEPh3FVZNH9Ny1JM9A==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/constants@5.0.0':
-    resolution: {integrity: sha512-VhUGKR5jvAtoBHgHAB3Kfc9g42ocVUws9iOafGAQ+xjR8uLokUCReXDpLXRRtrqw8N8yyh3gLNpCJs/AYadA1g==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/core-loggers@6.1.5':
-    resolution: {integrity: sha512-tIpC0xvHa0vihzUm0VJ/FAHNZKGcxxhQDoCk+PUCJ9v9ZLAaFQiGEmwya03Ei0Gy+btURC1yRQmZRBXuRGj5rQ==}
-    engines: {node: '>=12.17'}
-    peerDependencies:
-      '@pnpm/logger': ^4.0.0
-
-  '@pnpm/default-reporter@8.6.5':
-    resolution: {integrity: sha512-NFTRDFYygBOsWf0L7zmzZsKJckplZPsO6g/+wThjzlcOUU2mM0ttVDqiu05L/uBD6EMEmrusBILDvQPZBxWzNQ==}
-    engines: {node: '>=12.17'}
-    peerDependencies:
-      '@pnpm/logger': ^4.0.0
-
-  '@pnpm/error@2.1.0':
-    resolution: {integrity: sha512-IxtPG61WgxsDNbtWW+128RiRo6WHhm7Dm2vm77xxC/zEi/uQ35Uf59olhVT3m2/ETDw/iz7Lv1RpvPYTsglX9g==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/find-workspace-dir@3.0.3':
-    resolution: {integrity: sha512-BKYs+FNdsGNce2H71abpbeQN8gKviAyF/ue9UdZktMgzKfZGQFhQ+qRssWY3+2CaaSoIRxftXdylkaRALsxlBw==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/find-workspace-packages@3.1.55':
-    resolution: {integrity: sha512-c4v2htJLD0RAU7hcGi/dvMzCqh7GlI3JuKnCd1Qr3iwOjXqNm/rFnnaDc5yZrZuWNa4bh+P8bj6r8nQP8kNq+g==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/global-bin-dir@3.0.1':
-    resolution: {integrity: sha512-BVAi5ezLB4ex86MjEB//GuUDiwsVDBWbdZurg3XWGkoLbwmasqC8OME7Uh1VrPqKuTYPulsE04mOQtLw5rlF9A==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/graceful-fs@1.0.0':
-    resolution: {integrity: sha512-bb+NcVgVBjm81skP73c0i4o2NUxiBt0d30KLXHJ05EejQ/qbxQMsi/gZxsi8MKbzCky2DzykQYkzm2tl3XajAQ==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/lockfile-types@3.2.1':
-    resolution: {integrity: sha512-d6E84PHjz6yDW1YXmbGeyaPVGOBuCBLQO2XTvtnJyBJyKtQk6cCdeu7hBNNbXklGlCtoJ108a1nRDldXRTwdYA==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/logger@4.0.0':
-    resolution: {integrity: sha512-SIShw+k556e7S7tLZFVSIHjCdiVog1qWzcKW2RbLEHPItdisAFVNIe34kYd9fMSswTlSRLS/qRjw3ZblzWmJ9Q==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/manifest-utils@2.1.11':
-    resolution: {integrity: sha512-V3YdTThC2ZnDAkKmdA0682l5nmp37S/OB0YWDeBEkDSHPNPzsGyfIMp4UcqJJ5Yg+VHhxVmkTgPFMAQ8Z9RWgw==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/meta-updater@0.0.6':
-    resolution: {integrity: sha512-b5jlKMHow2tKouspQujk01EMXYeyddLbuTZHao5riVq6gNJ/flXCsEd88m53JbUaiYXsnzrZ7EJQwpTZSrjuvQ==}
-    engines: {node: '>=10.12'}
-    hasBin: true
-
-  '@pnpm/network.ca-file@1.0.1':
-    resolution: {integrity: sha512-gkINruT2KUhZLTaiHxwCOh1O4NVnFT0wLjWFBHmTz9vpKag/C/noIMJXBxFe4F0mYpUVX2puLwAieLYFg2NvoA==}
-    engines: {node: '>=12.22.0'}
-
-  '@pnpm/npm-conf@1.0.4':
-    resolution: {integrity: sha512-o5YFq/+ksEJMbSzzkaQDHlp00aonLDU5xNPVTRL12hTWBbVSSeWXxPukq75h+mvXnoOWT95vV2u1HSTw2C4XOw==}
-    engines: {node: '>=12'}
-
-  '@pnpm/package-is-installable@5.0.14':
-    resolution: {integrity: sha512-XDMRaSy+byrDn2m38Mtvmpvhc/BtEM21Csf7JptxgQ654lNeclPnjp+z3VnL3Qc2peA+3UbwDwF5q6fmRZKY9g==}
-    engines: {node: '>=12.17'}
-    peerDependencies:
-      '@pnpm/logger': ^4.0.0
-
-  '@pnpm/pnpmfile@1.2.8':
-    resolution: {integrity: sha512-2w1wtxeViXzFf3Lloo2Wg3+THGMn+TPNWEuiSMx6HD33/82vPiKuxjQ0+BQCtRspf1QlK90nZjjndoM//NGvPw==}
-    engines: {node: '>=12.17'}
-    peerDependencies:
-      '@pnpm/logger': ^4.0.0
-
-  '@pnpm/read-project-manifest@2.0.14':
-    resolution: {integrity: sha512-eeD5FwvH76D3y5YNqHVnKfkJx0PHjQTZ6PvWg8xxG3+NDX4fYqnabJW7RvuQLrIRtAogLOk/7H35gVRAFfxCHA==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/render-peer-issues@1.1.3':
-    resolution: {integrity: sha512-MbICxpU3DECNIsKw3ZIbRL+l5WlC67Ci2SjButR39RQA3RYamGuZQmlQ5jOZ58ZO+JV+66zLeEfD2+mI+2VL+Q==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/types@7.11.0':
-    resolution: {integrity: sha512-q7vABFn0vt7kxvYdBP/4L/ExtH05yG6iU08VrmdA9fvRsxtXC8H59tavZG9Tg0qaMlEgfPmEQ0yutGsR5TjG5A==}
-    engines: {node: '>=12.17'}
-
-  '@pnpm/write-project-manifest@2.0.12':
-    resolution: {integrity: sha512-QH63aLC6OOtUx0LNpkO9LU0XgXLje2EpVptWS3w0Wg4hAYDeEvBy/h3Ku6WTX1SA+9WtnjpQp68vw9pyajO4gw==}
-    engines: {node: '>=12.17'}
-
   '@polka/url@1.0.0-next.21':
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
 
@@ -4245,17 +4369,6 @@ packages:
     resolution: {integrity: sha512-BM7h7AlJNEB/X6XlMLlUoqye4SCGFmHiOIwEtha3QfJA52O1/0lgzD9yj5cLbdQPwZNmFH4R95b/OHqSIpgEBw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
-
-  '@react-three/drei@9.89.0':
-    resolution: {integrity: sha512-iddG7OAfng3a99nAO7erzb1wlwaY1Zlaz9EVfnW9ZiLm4rM322vXHnLX1zhrH5/AeRB/1t4bEu8uAHvXX3XwWA==}
-    peerDependencies:
-      '@react-three/fiber': '>=8.0'
-      react: '>=18.0'
-      react-dom: '>=18.0'
-      three: '>=0.137'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
 
   '@react-three/drei@9.99.7':
     resolution: {integrity: sha512-2QNGBgdVInbTHdDoXIT/zFTn/UuhkJ0FD52lwCUTi0FUTLg/JDfqKUI5X+LppNxg6cOSMiXQtmlhj87Cde0cWQ==}
@@ -5104,32 +5217,13 @@ packages:
   '@vitest/utils@0.32.2':
     resolution: {integrity: sha512-lnJ0T5i03j0IJaeW73hxe2AuVnZ/y1BhhCOuIcl9LIzXnbpXJT9Lrt6brwKHXLOiA7MZ6N5hSJjt0xE1dGNCzQ==}
 
-  '@vivjs/constants@0.13.8':
-    resolution: {integrity: sha512-0XN4lUl6vG7x6KCTu7TdzmBIz8fmKaKLasuqNio18erafFvkxYJ6hnAGXClVVwbj26uKvmOzwO/hqEIUTIWLRg==}
-
   '@vivjs/constants@0.16.0':
     resolution: {integrity: sha512-PqGSlLzwE51CPXt9qOm8AF3rJKdsUv45Sw/ab7NNcXt9IBMrbS3lsh15hN+U7tP4a1uHWwqP0qRl/C3U9Dq76g==}
-
-  '@vivjs/extensions@0.13.8':
-    resolution: {integrity: sha512-7leQexk/5VXQrRZ+n3yOHx/FpH5uIA6HhMJnDRD+2PlSj/TLouSmPLz0Fr3+K2a8zBv+0qyGYROmzDZdru6FOw==}
-    peerDependencies:
-      '@deck.gl/core': ~8.8.6
 
   '@vivjs/extensions@0.16.0':
     resolution: {integrity: sha512-otZXgaBCigKLkRgMkv8N3DR1AzRqDffXNk3J6N9i0njL1zYxwx/EcWbZTGx2sIOtAXNTaUKNISoXgS9fltNMaA==}
     peerDependencies:
       '@deck.gl/core': ~8.8.27
-
-  '@vivjs/layers@0.13.8':
-    resolution: {integrity: sha512-h66rWozTZS6d1pyHQuept5lOiEsCeOImwV0zfhVPvtagieE6tOyKFiGSpD/VP8zUjZUoNhanLOFpvoDXdJ6ytA==}
-    peerDependencies:
-      '@deck.gl/core': ~8.8.6
-      '@deck.gl/geo-layers': ~8.8.6
-      '@deck.gl/layers': ~8.8.6
-      '@luma.gl/constants': ~8.5.16
-      '@luma.gl/core': ~8.5.16
-      '@luma.gl/engine': ~8.5.16
-      '@luma.gl/webgl': ~8.5.16
 
   '@vivjs/layers@0.16.0':
     resolution: {integrity: sha512-aD3D4qdvfMPKXUHZa+NiL1XOOZcOeCINsoSR+SbK584U8ZUmDj2lWOnyU4VUGL39qdParwEUURsw7xUuTs/Yug==}
@@ -5142,35 +5236,17 @@ packages:
       '@luma.gl/engine': ~8.5.21
       '@luma.gl/webgl': ~8.5.21
 
-  '@vivjs/loaders@0.13.8':
-    resolution: {integrity: sha512-qeJ5LPb12nlV2FBnf9BtuTLg3hIjYsWK5FIIqy2hE7v5i4fxcr1RMFQ3NP8C77i0+1hzHVUkoS/Dq/F1OSJJLQ==}
-
   '@vivjs/loaders@0.16.0':
     resolution: {integrity: sha512-FU6XrMOJ94b4Ep2P0eRuJOFGEVkDT1tIRMiYjCq9LitGRKUiS8tHF8xzYkUrbzHXa1WwH/9PyIw5eeyMndc9Vw==}
 
-  '@vivjs/types@0.13.8':
-    resolution: {integrity: sha512-D4g9jxNJ4wc/N/S4GuLcZJQu9j89UowhDH8IKswyK0yXlIfUpVngqxCw3wQCKcMeu7yLbDQgI+2gytB6jCV+rQ==}
-
   '@vivjs/types@0.16.0':
     resolution: {integrity: sha512-n898DVFlHmDbvBsCG1SdSoPv9sgUDfCYedFp9A1msoHn/SVJhA5e6oTvVbgKGAxuTXKa3baXz7fIGvduVytZ3Q==}
-
-  '@vivjs/viewers@0.13.8':
-    resolution: {integrity: sha512-TK7GyZ4iwXyfaKLSiwMccFystTxuOyckwRzOr7dEcsZvQnEKdJNqz30htIoSBtGtYpuaUPTbT/bsSg1F26nECQ==}
-    peerDependencies:
-      '@deck.gl/react': ~8.8.6
-      react: ^16.8.0 || ^17.0.0
 
   '@vivjs/viewers@0.16.0':
     resolution: {integrity: sha512-ih872YZS9H7JrPDYlZqZ2qDiXPWXT8fVx6cA0OouFO2bDOw8q1E2MN36lhN2pUYjL2aC2NmLgS1yq2zN0bblXQ==}
     peerDependencies:
       '@deck.gl/react': ~8.8.27
-      react: ^16.8.0 || ^17.0.0
-
-  '@vivjs/views@0.13.8':
-    resolution: {integrity: sha512-qGay7rj3cUHpwmhng5JskoUqjbm6CG99PK3GWjfl23REubOIvqNfLdoqlIEFIElqXuz+99wgHyL6/fj5FSbN+A==}
-    peerDependencies:
-      '@deck.gl/core': ~8.8.6
-      '@deck.gl/layers': ~8.8.6
+      react: ^16.8.0 || ^17.0.0 || 18
 
   '@vivjs/views@0.16.0':
     resolution: {integrity: sha512-OQ4/3X5DLcu2yKVFeopmWW6iZ+hfTgkle84wfNPwPvvhtV3b1vEeUMzyBt5p1RSvpTzKGKv8CR5R4SdTunkUEQ==}
@@ -5240,11 +5316,6 @@ packages:
 
   '@zarrita/typedarray@0.1.0-next.2':
     resolution: {integrity: sha512-utFKMocqLk5j4GXCKkuZQr3mAakskjq77GoUV5B55HJh0leXH9idDIelzpUszEsLpSIkFwO2Id/NHuClhCuzSw==}
-
-  '@zkochan/which@2.0.3':
-    resolution: {integrity: sha512-C1ReN7vt2/2O0fyTsx5xnbQuxBrmG5NMSbcIkPKCCfCTJgpZBsuRYzFXHj3nVq8vTfK7vxHUmzfCpSHgO7j4rg==}
-    engines: {node: '>= 8'}
-    hasBin: true
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -5361,9 +5432,6 @@ packages:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
 
-  ansi-diff@1.1.1:
-    resolution: {integrity: sha512-XnTdFDQzbEewrDx8epWXdw7oqHMvv315vEtfqDiEhhWghIf4++h26c3/FMz7iTLhNrnj56DNIXpbxHZq+3s6qw==}
-
   ansi-escapes@4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
     engines: {node: '>=8'}
@@ -5372,10 +5440,6 @@ packages:
     resolution: {integrity: sha512-1APHAyr3+PCamwNw3bXCPp4HFLONZt/yIH0sZp0/469KWNTEy+qN5jQ3GVX6DMZ1UXAi34yVwtTeaG/HpBuuzw==}
     engines: {'0': node >= 0.8.0}
     hasBin: true
-
-  ansi-regex@3.0.1:
-    resolution: {integrity: sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==}
-    engines: {node: '>=4'}
 
   ansi-regex@4.1.1:
     resolution: {integrity: sha512-ILlv4k/3f6vfQ4OoP2AGvirOktlQ98ZEL1k9FaQjxa3L1abBgbuTDAdPOpvbGncC0BTVQrl+OM8xZGK6tWXt7g==}
@@ -5388,9 +5452,6 @@ packages:
   ansi-regex@6.0.1:
     resolution: {integrity: sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==}
     engines: {node: '>=12'}
-
-  ansi-split@1.0.1:
-    resolution: {integrity: sha512-RRxQym4DFtDNmHIkW6aeFVvrXURb11lGAEPXNiryjCe8bK8RsANjzJ0M2aGOkvBYwP4Bl/xZ8ijtr6D3j1x/eg==}
 
   ansi-styles@3.2.1:
     resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
@@ -5418,9 +5479,6 @@ packages:
 
   arch@2.2.0:
     resolution: {integrity: sha512-Of/R0wqp83cgHozfIYLbBMnej79U/SVGOOyuB3VVFv1NRM/PSFMK12x9KVtiYzJqmnU5WR2qp0Z5rHb7sWGnFQ==}
-
-  archy@1.0.0:
-    resolution: {integrity: sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==}
 
   arg@5.0.2:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
@@ -5501,9 +5559,6 @@ packages:
   arrify@1.0.1:
     resolution: {integrity: sha512-3CYzex9M9FGQjCGMGyi6/31c8GJbgb0qGyrx5HWxPd0aCwh4cB2YjMb2Xf9UuoogrMrlO9cTqnB5rI5GHZTcUA==}
     engines: {node: '>=0.10.0'}
-
-  as-table@1.0.55:
-    resolution: {integrity: sha512-xvsWESUJn0JN421Xb9MQw6AsMHRCUknCe0Wjlxvjud80mU4E6hQf1A6NzQKcYNmYw62MfzEtXc+badstZP3JpQ==}
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
@@ -5677,9 +5732,6 @@ packages:
     resolution: {integrity: sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
 
-  bole@4.0.1:
-    resolution: {integrity: sha512-42r0aSOJFJti2l6LasBHq2BuWJzohGs349olQnH/ETlJo87XnoWw7UT8pGE6UstjxzOKkwz7tjoFcmSr6L16vg==}
-
   bonjour-service@1.0.14:
     resolution: {integrity: sha512-HIMbgLnk1Vqvs6B4Wq5ep7mxvj9sGz5d1JJyDNSGNIdA/w2MCz6GTjWTdjqOJV1bEPj+6IkxDvWNFKEBxNt4kQ==}
 
@@ -5780,10 +5832,6 @@ packages:
     resolution: {integrity: sha512-YrwaA0vEKazPBkn0ipTiMpSajYDSe+KjQfrjhcBMxJt/znbvlHd8Pw/Vamaz5EB4Wfhs3SUR3Z9mwRu/P3s3Yg==}
     engines: {node: '>=8'}
 
-  camelcase-keys@7.0.2:
-    resolution: {integrity: sha512-Rjs1H+A9R+Ig+4E/9oyB66UC5Mj9Xq3N//vcLf2WzgdTi/3gUu3Z9KoqmlrEG4VuuLK8wJHofxzdQXz/knhiYg==}
-    engines: {node: '>=12'}
-
   camelcase@5.3.1:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
     engines: {node: '>=6'}
@@ -5796,10 +5844,6 @@ packages:
     resolution: {integrity: sha512-L4mxjBd3u8qiOLozdWrH2P8ZybSsDXBF7iyNyqNEFJhPUkovmuARWR8JTc1B/qlclOIg6FvZZA/0uAZMMim0mw==}
     peerDependencies:
       three: '>=0.126.1'
-
-  can-write-to-dir@1.1.1:
-    resolution: {integrity: sha512-eOgiEWqjppB+3DN/5E82EQ8dTINus8d9GXMCbEsUnp2hcUIcXmBvzWmD3tXMk3CuBK0v+ddK9qw0EAF+JVRMjQ==}
-    engines: {node: '>=10.13'}
 
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
@@ -5830,10 +5874,6 @@ packages:
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
-    engines: {node: '>=10'}
-
-  char-regex@1.0.2:
-    resolution: {integrity: sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==}
     engines: {node: '>=10'}
 
   character-entities-html4@1.1.4:
@@ -5900,10 +5940,6 @@ packages:
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
     engines: {node: '>=10'}
-
-  cli-columns@4.0.0:
-    resolution: {integrity: sha512-XW2Vg+w+L9on9wtwKpyzluIPCWXjaBahI7mTcYjx+BVIYD9c3yqcv/yKC7CmdCZat4rq2yiE1UMSJC5ivKfMtQ==}
-    engines: {node: '>= 10'}
 
   cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -6059,9 +6095,6 @@ packages:
   concordance@5.0.4:
     resolution: {integrity: sha512-OAcsnTEYu1ARJqWVGwf4zh4JDfHZEaSNlNccFmt8YjB2l/n19/PF2viLINHc57vO4FKIAFl2FWASIGZZWZ2Kxw==}
     engines: {node: '>=10.18.0 <11 || >=12.14.0 <13 || >=14'}
-
-  config-chain@1.1.13:
-    resolution: {integrity: sha512-qj+f8APARXHrM0hraqXYb2/bOVSV4PvJQlNZ/DVj0QrmNM2q2euizkeuVckQ57J+W0mRH6Hvi+k50M4Jul2VRQ==}
 
   configstore@5.0.1:
     resolution: {integrity: sha512-aMKprgk5YhBNyH25hj8wGt2+D52Sw1DRRIzqBwLp2Ya9mFmY8KPvvtvmna8SxVR9JMZ4kzMD68N22vlaRpkeFA==}
@@ -6493,9 +6526,6 @@ packages:
     resolution: {integrity: sha512-jRFi8UDGo6j+odZiEpjazZaWqEal3w/basFjQHQEwVtZJGDpxbH1MeYluwCS8Xq5wmLJooDlMgvVarmWfGM44g==}
     engines: {node: '>=0.10'}
 
-  data-uri-to-buffer@2.0.2:
-    resolution: {integrity: sha512-ND9qDTLc6diwj+Xe5cdAgVTbLVdXbtxTJRXRhli8Mowuaan+0EJOtdqJ0QCHNSSPyoXGx9HX2/VMnKeC34AChA==}
-
   data-uri-to-buffer@4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
@@ -6561,10 +6591,6 @@ packages:
   decamelize@1.2.0:
     resolution: {integrity: sha512-z2S+W9X73hAUUki+N+9Za2lBlun89zigOyGrsax+KUQ6wKW4ZoWpEYBkGhQjwAjjDCkWxhY0VKEhk8wzY7F5cA==}
     engines: {node: '>=0.10.0'}
-
-  decamelize@5.0.1:
-    resolution: {integrity: sha512-VfxadyCECXgQlkoEAjeghAr5gY3Hf+IKjKb+X8tGVDtveCjN+USwprd2q3QXBR9T1+x2DG0XZF5/w+7HAtSaXA==}
-    engines: {node: '>=10'}
 
   decimal.js@10.4.2:
     resolution: {integrity: sha512-ic1yEvwT6GuvaYwBLLY6/aFFgjZdySKTE8en/fkU3QICTmRtgtSlFn0u0BXN06InZwtfCelR7j8LRiDI/02iGA==}
@@ -6682,10 +6708,6 @@ packages:
 
   diff3@0.0.3:
     resolution: {integrity: sha512-iSq8ngPOt0K53A6eVr4d5Kn6GNrM2nQZtC740pzIriHtn4pOQ2lyzEXQMBeVcWERN0ye7fhBsk9PbLLQOnUx/g==}
-
-  diff@4.0.2:
-    resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
-    engines: {node: '>=0.3.1'}
 
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
@@ -7275,15 +7297,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-safe-stringify@2.1.1:
-    resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
-
   fast-url-parser@1.1.3:
     resolution: {integrity: sha512-5jOCVXADYNuRkKFzNJ0dCCewsZiYo0dz8QNYljkOpFC6r2U4OBmKtvm/Tsuh4w1YYdDqDb31a8TVhBJ2OJKdqQ==}
-
-  fast-xml-parser@3.21.1:
-    resolution: {integrity: sha512-FTFVjYoBOZTJekiUsawGsSYV9QL0A+zDYCRj7y34IO6Jg+2IMYEtQa+bbictpdpV8dHxXywqU7C0gRDEOFtBFg==}
-    hasBin: true
 
   fastq@1.13.0:
     resolution: {integrity: sha512-YpkpUnK8od0o1hmeSc7UUs/eB/vIPWJYjKck2QKIzAf71Vm1AAQ3EbuZB3g2JIy+pg+ERD0vqI79KyZiB2e2Nw==}
@@ -7366,10 +7381,6 @@ packages:
   find-cache-dir@3.3.2:
     resolution: {integrity: sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig==}
     engines: {node: '>=8'}
-
-  find-packages@8.0.14:
-    resolution: {integrity: sha512-1CPA/n7ENTTrpVczSXIwL1CiDYDb/ZgDDEeR/9XWv+eugulhOqRYy1yHNSWqiTgMuqNqmewx/x/fkDNbjrPKMA==}
-    engines: {node: '>=12.17'}
 
   find-replace@3.0.0:
     resolution: {integrity: sha512-6Tb2myMioCAgv5kfvP5/PkZZ/ntTpVK39fHY7WkWBgvbeE+VHd/tZuZ4mrC+bxh4cfOZeYKVPaJIZtZXV7GNCQ==}
@@ -7552,9 +7563,6 @@ packages:
 
   get-own-enumerable-property-symbols@3.0.2:
     resolution: {integrity: sha512-I0UBV/XOz1XkIJHEUDMZAbzCThU/H8DxmSfmdGcKPnVhu2VfFqr34jr9777IyaTYvxjedWhqVIilEDsCdP5G6g==}
-
-  get-source@2.0.12:
-    resolution: {integrity: sha512-X5+4+iD+HoSeEED+uwrQ07BOQr0kEDFMVqqpBuI+RaZBpBpHCuXxo70bjar6f0b0u/DQJsJ7ssurpP0V60Az+w==}
 
   get-stream@4.1.0:
     resolution: {integrity: sha512-GMat4EJ5161kIy2HevLlr4luNjBgvmj413KaQA7jt4V8B4RDsfpHk7WQ9GVqfYyyx8OS/L66Kox+rJRNklLK7w==}
@@ -7824,10 +7832,6 @@ packages:
   hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
 
-  hosted-git-info@4.1.0:
-    resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
-    engines: {node: '>=10'}
-
   hpack.js@2.1.6:
     resolution: {integrity: sha512-zJxVehUdMGIKsRaNt7apO2Gqp0BdqW5yaiGHXXmbpvxgBYVZnAql+BJb4RO5ad2MgpbZKn5G6nMnegrH1FcNYQ==}
 
@@ -7993,13 +7997,6 @@ packages:
   indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
-
-  indent-string@5.0.0:
-    resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
-    engines: {node: '>=12'}
-
-  individual@3.0.0:
-    resolution: {integrity: sha512-rUY5vtT748NMRbEMrTNiFfy29BgGZwGXUi2NFUVMWQrogSLzlJvQV9eeMWi+g1aVaQ53tpyLAQtd5x/JH0Nh1g==}
 
   infima@0.2.0-alpha.42:
     resolution: {integrity: sha512-ift8OXNbQQwtbIt6z16KnSWP7uJ/SysSMFI4F87MNRTicypfl4Pv3E2OGVv6N3nSZFJvA8imYulCBS64iyHYww==}
@@ -8624,10 +8621,6 @@ packages:
     resolution: {integrity: sha512-3p6ZOGNbiX4CdvEd1VcE6yi78UrGNpjHO33noGwHCnT/o2fyllJDepsm8+mFFv/DvtwFHht5HIHSyOy5a+ChVQ==}
     engines: {node: '>=4'}
 
-  load-json-file@6.2.0:
-    resolution: {integrity: sha512-gUD/epcRms75Cw8RT1pUdHugZYM5ce64ucs2GEISABwkRsOQr0q2wm/MV2TKThycIe5e0ytRweW2RZxclogCdQ==}
-    engines: {node: '>=8'}
-
   load-yaml-file@0.2.0:
     resolution: {integrity: sha512-OfCBkGEw4nN6JLtgRidPX6QxjBQGQf72q3si2uvqyFEMbycSFFHwAZeXx6cJgFM9wmLrf9zBwCP3Ivqa+LLZPw==}
     engines: {node: '>=6'}
@@ -8677,9 +8670,6 @@ packages:
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
 
-  lodash.clamp@4.0.3:
-    resolution: {integrity: sha512-HvzRFWjtcguTW7yd8NJBshuNaCa8aqNFtnswdT7f/cMd/1YKy5Zzoq4W/Oxvnx9l7aeY258uSdDfM793+eLsVg==}
-
   lodash.curry@4.1.1:
     resolution: {integrity: sha512-/u14pXGviLaweY5JI0IUzgzF2J6Ne8INyzAZjImcryjgkZ+ebruBxy2/JaOOkTqScddcYtakjhSaeemV8lR0tA==}
 
@@ -8707,14 +8697,8 @@ packages:
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
-  lodash.omit@4.5.0:
-    resolution: {integrity: sha512-XeqSp49hNGmlkj2EJlfrQFIzQ6lXdNro9sddtQzcJY8QaoC2GO0DT7xaIokHeyM+mIT0mPMlPvkYzg2xCuHdZg==}
-
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
-
-  lodash.pick@4.4.0:
-    resolution: {integrity: sha512-hXt6Ul/5yWjfklSGvLQl8vM//l3FtyHZeuelpzK6mm99pNvN9yTDruNZPEJZD1oWrqo+izBmB7oUfWgcCX7s4Q==}
 
   lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
@@ -8785,12 +8769,6 @@ packages:
       '@types/three': '>=0.144.0'
       three: '>=0.144.0'
 
-  maath@0.9.0:
-    resolution: {integrity: sha512-aAR8hoUqPxlsU8VOxkS9y37jhUzdUxM017NpCuxFU1Gk+nMaZASZxymZrV8LRSHzRk/watlbfyNKu6XPUhCFrQ==}
-    peerDependencies:
-      '@types/three': '>=0.144.0'
-      three: '>=0.144.0'
-
   magic-string@0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
 
@@ -8805,10 +8783,6 @@ packages:
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
-
-  map-age-cleaner@0.1.3:
-    resolution: {integrity: sha512-bJzx6nMoP6PDLPBFmg7+xRKeFZvFboMrGlxmNj9ClvX53KrmvM5bXFXEWjbz4cz1AFn+jWJ9z/DJSz7hrs0w3w==}
-    engines: {node: '>=6'}
 
   map-limit@0.0.1:
     resolution: {integrity: sha512-pJpcfLPnIF/Sk3taPW21G/RQsEEirGaFpCW3oXRwH9dnFHPHNGjNyvh++rdmC2fNqEaTw2MhYJraoJWAHx8kEg==}
@@ -8870,17 +8844,9 @@ packages:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
 
-  mem@8.1.1:
-    resolution: {integrity: sha512-qFCFUDs7U3b8mBDPyz5EToEKoAkgCzqquIgi9nkkR9bixxOVOre+09lbuH7+9Kn2NFpm56M3GUWVbU2hQgdACA==}
-    engines: {node: '>=10'}
-
   memfs@3.4.7:
     resolution: {integrity: sha512-ygaiUSNalBX85388uskeCyhSAoOSgzBbtVCr9jA2RROssFL9Q19/ZXFqS+2Th2sr1ewNIWgFdLzLC3Yl1Zv+lw==}
     engines: {node: '>= 4.0.0'}
-
-  meow@10.1.5:
-    resolution: {integrity: sha512-/d+PQ4GKmGvM9Bee/DPa8z3mXs/pkvJE2KEThngVNOqtmljC6K7NMPxtc2JeZYTmpWb9k/TmxjeL18ez3h7vCw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   meow@6.1.1:
     resolution: {integrity: sha512-3YffViIt2QWgTy6Pale5QpopX/IvU3LPL03jOTqp6pGj3VjesdO/U8CuHMKpnQr4shCNCM5fd5XFFvIIl6JBHg==}
@@ -8936,10 +8902,6 @@ packages:
   mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
-
-  mimic-fn@3.1.0:
-    resolution: {integrity: sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==}
-    engines: {node: '>=8'}
 
   mimic-response@1.0.1:
     resolution: {integrity: sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==}
@@ -9074,11 +9036,6 @@ packages:
   ndarray@1.0.19:
     resolution: {integrity: sha512-B4JHA4vdyZU30ELBw3g7/p9bZupyew5a7tX1Y/gGeF2hafrPaQZhgrGQfsvgfYbgdFZjYwuEcnaobeM/WMW+HQ==}
 
-  ndjson@2.0.0:
-    resolution: {integrity: sha512-nGl7LRGrzugTtaFcJMhLbpzJM6XdivmbkdlaGcrk/LXg2KL/YBC6z1g70xh0/al+oFuVFP8N8kiWRucmeEH/qQ==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   nearley@2.20.1:
     resolution: {integrity: sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ==}
     hasBin: true
@@ -9135,10 +9092,6 @@ packages:
   normalize-package-data@2.5.0:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
 
-  normalize-package-data@3.0.3:
-    resolution: {integrity: sha512-p2W1sgqij3zMMyRC067Dg16bfzVH+w7hyegmpIvZ4JNjqtGOVAIvLmjBx3yP7YTe9vKJgkoNOPjwQGogDoMXFA==}
-    engines: {node: '>=10'}
-
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -9146,9 +9099,6 @@ packages:
   normalize-range@0.1.2:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
-
-  normalize-registry-url@2.0.0:
-    resolution: {integrity: sha512-3e9FwDyRAhbxXw4slm4Tjv40u78yPwMc/WZkACpqNQOs5sM7wic853AeTLkMFEVhivZkclGYlse8iYsklz0Yvg==}
 
   normalize-url@4.5.1:
     resolution: {integrity: sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==}
@@ -9305,10 +9255,6 @@ packages:
     resolution: {integrity: sha512-s73XxOZ4zpt1edZYZzvhqFa6uvQc1vwUa0K0BdtIZgQMAJj9IbebH+JkgKZc9h+B05PKHLOTl4ajG1BmNrVZlw==}
     engines: {node: '>=6'}
 
-  p-defer@1.0.0:
-    resolution: {integrity: sha512-wB3wfAxZpk2AzOfUMJNL+d36xothRSyj8EXOa4f6GMqYDN9BJaaSISbsk+wS9abmnebVw95C2Kb5t85UmpCxuw==}
-    engines: {node: '>=4'}
-
   p-filter@2.1.0:
     resolution: {integrity: sha512-ZBxxZ5sL2HghephhpGAQdoskxplTwr7ICaehZwLIlfL6acuVgZPm8yBNuRAFBGEqtD/hmUeq9eqLg2ys9Xr/yw==}
     engines: {node: '>=8'}
@@ -9415,10 +9361,6 @@ packages:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
 
-  parse-ms@2.1.0:
-    resolution: {integrity: sha512-kHt7kzLoS9VBZfUsiKjv43mr91ea+U05EyKkEtqp7vNbHxmaVuEqN7XxeEVnGrMtYOAxGrDElSi96K7EgO1zCA==}
-    engines: {node: '>=6'}
-
   parse-numeric-range@1.3.0:
     resolution: {integrity: sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ==}
 
@@ -9441,10 +9383,6 @@ packages:
 
   pascal-case@3.1.2:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
-
-  path-absolute@1.0.1:
-    resolution: {integrity: sha512-gds5iRhSeOcDtj8gfWkRHLtZKTPsFVuh7utbjYtvnclw4XM+ffRzJrwqMhOD1PVqef7nBLmgsu1vIujjvAJrAw==}
-    engines: {node: '>=4'}
 
   path-exists@2.1.0:
     resolution: {integrity: sha512-yTltuKuhtNeFJKa1PiRzfLAU5182q1y4Eb4XCJ3PBqyzEDkAZRzBrKKBct682ls9reBVHf9udYLN5Nd+K1B9BQ==}
@@ -9473,15 +9411,8 @@ packages:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
     engines: {node: '>=8'}
 
-  path-name@1.0.0:
-    resolution: {integrity: sha512-/dcAb5vMXH0f51yvMuSUqFpxUcA8JelbRmE5mW/p4CUJxrNgK24IkstnV7ENtg2IDGBOu6izKTG6eilbnbNKWQ==}
-
   path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
-
-  path-temp@2.0.0:
-    resolution: {integrity: sha512-92olbatybjsHTGB2CUnAM7s0mU/27gcMfLNA7t09UftndUdxywlQKur3fzXEPpfLrgZD3I2Bt8+UmiL7YDEgXQ==}
-    engines: {node: '>=8.15'}
 
   path-to-regexp@0.1.7:
     resolution: {integrity: sha512-5DFkuoqlv1uYQKxy8omFBeJPQcdoE07Kv2sferDCrAq1ohOU+MSDswDIbnx3YAM60qIOnYa53wBhXW0EbMonrQ==}
@@ -9871,20 +9802,9 @@ packages:
     resolution: {integrity: sha512-CGJ6VVGXVRP2o2Dorl4mAwwvDWT25luIsYhkyVQW32E4nL+TgW939J7LlKT/npq5Cpq6j3s+sy+13yk7xYpBmg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  pretty-ms@7.0.1:
-    resolution: {integrity: sha512-973driJZvxiGOQ5ONsFhOF/DtzPMOMtgC11kCpUrPGMTgqp2q/1gwzCquocrN33is0VZ5GFHXZYMM9l6h67v2Q==}
-    engines: {node: '>=10'}
-
   pretty-time@1.1.0:
     resolution: {integrity: sha512-28iF6xPQrP8Oa6uxE6a1biz+lWeTOAPKggvjB8HAs6nVMKZwf5bG++632Dx614hIWgUPkgivRfG+a8uAXGTIbA==}
     engines: {node: '>=4'}
-
-  print-diff@1.0.0:
-    resolution: {integrity: sha512-tvYT1pVzXxTOMLDRyu6ncaF2LL69d0EAchmGGGJoLc/2GOcnRKcO4PV89l7/s3Er1CpXTgFv7jB4XDgd+yxBjA==}
-    engines: {node: '>=8.3'}
-
-  printable-characters@1.0.42:
-    resolution: {integrity: sha512-dKp+C4iXWK4vVYZmYSd0KBH5F/h1HoZRsbJ82AVKRO3PEo8L4lBS/vLwhVtpwwuYcoIsVY+1JYKR268yn480uQ==}
 
   prism-react-renderer@1.3.5:
     resolution: {integrity: sha512-IJ+MSwBWKG+SM3b2SUfdrhC+gu01QkV2KmRQgREThBfSQRoufqRfxfHUxpG1WcaFjP+kojcFyO9Qqtpgt3qLCg==}
@@ -9929,9 +9849,6 @@ packages:
 
   property-information@5.6.0:
     resolution: {integrity: sha512-YUHSPk+A30YPv+0Qf8i9Mbfe/C0hdPXk1s1jPVToV8pk8BQtpw10ct89Eo7OWkutrwqvT0eicAxlOg3dOAu8JA==}
-
-  proto-list@1.2.4:
-    resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
 
   protocol-buffers-schema@3.6.0:
     resolution: {integrity: sha512-TdDRD+/QNdrCGCE7v8340QyuXd4kIWIgapsE2+n/SaGiSSbomYl4TjHlvIoCWRpE7wFt02EpB35VVA2ImcBVqw==}
@@ -10011,10 +9928,6 @@ packages:
     resolution: {integrity: sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==}
     engines: {node: '>=8'}
 
-  quick-lru@5.1.1:
-    resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
-    engines: {node: '>=10'}
-
   quick-lru@6.1.1:
     resolution: {integrity: sha512-S27GBT+F0NTRiehtbrgaSE1idUAJ5bX8dPAQTdylEyNlrdcH5X4Lz7Edz3DYzecbsCluD5zO8ZNEe04z3D3u6Q==}
     engines: {node: '>=12'}
@@ -10027,9 +9940,6 @@ packages:
 
   railroad-diagrams@1.0.0:
     resolution: {integrity: sha512-cz93DjNeLY0idrCNOH6PviZGRN9GJhsdm9hpn1YCS879fj4W+x5IFJhhkRZcwVgMmFF7R82UA/7Oh+R8lLZg6A==}
-
-  ramda@0.27.2:
-    resolution: {integrity: sha512-SbiLPU40JuJniHexQSAgad32hfwd+DRUdwF2PlVuI5RZD0/vahUco7R8vD86J/tcEKKF9vZrUVwgtmGCqlCKyA==}
 
   randexp@0.4.6:
     resolution: {integrity: sha512-80WNmd9DA0tmZrw9qQa62GPPWfuXJknrmVmLcxvq4uZBdYqb1wYoKTmnlGUchvVWe0XiLupYkBoXVOxz3C8DYQ==}
@@ -10252,9 +10162,6 @@ packages:
     peerDependencies:
       react: '*'
 
-  react-merge-refs@1.1.0:
-    resolution: {integrity: sha512-alTKsjEL0dKH/ru1Iyn7vliS2QRcBp9zZPGoWxUOvRGWPUYgjo+V01is7p04It6KhgrzhJGnIj9GgX8W4bZoCQ==}
-
   react-monaco-editor@0.43.0:
     resolution: {integrity: sha512-2PXSDwOzjUDlwdsK8psrmezSB2lPnjLQ/SRNwqoRF2+TAB2n4Q+Bs1wGlWOZbU8WI7s6Wnni0+3PdT9nSPtzRA==}
     peerDependencies:
@@ -10393,10 +10300,6 @@ packages:
     resolution: {integrity: sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==}
     engines: {node: '>=8'}
 
-  read-pkg-up@8.0.0:
-    resolution: {integrity: sha512-snVCqPczksT0HS2EC+SxUndvSzn6LRCwpfSvLrIfR5BKDQQZMaI6jPRC9dYvYFDRAuFEAnkwww8kBBNE/3VvzQ==}
-    engines: {node: '>=12'}
-
   read-pkg@2.0.0:
     resolution: {integrity: sha512-eFIBOPW7FGjzBuk3hdXEuNSiTZS/xEMlH49HxMyzb0hyPfu4EhVjT2DH32K1hSSmVq4sebAWnZuuY5auISUTGA==}
     engines: {node: '>=4'}
@@ -10405,17 +10308,9 @@ packages:
     resolution: {integrity: sha512-Ug69mNOpfvKDAc2Q8DRpMjjzdtrnv9HcSMX+4VsZxD1aZ6ZzrIE7rlzXBtWTyhULSMKg076AW6WR5iZpD0JiOg==}
     engines: {node: '>=8'}
 
-  read-pkg@6.0.0:
-    resolution: {integrity: sha512-X1Fu3dPuk/8ZLsMhEj5f4wFAF0DWoK7qhGJvgaijocXxBmSToKfbFtqbxMO7bVjNA1dmE5huAzjXj/ey86iw9Q==}
-    engines: {node: '>=12'}
-
   read-yaml-file@1.1.0:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
     engines: {node: '>=6'}
-
-  read-yaml-file@2.1.0:
-    resolution: {integrity: sha512-UkRNRIwnhG+y7hpqnycCL/xbTk7+ia9VuVTC0S+zVbwd65DI9eUpRMfsWIGrCWxTU/mi+JW8cHQCrv+zfCbEPQ==}
-    engines: {node: '>=10.13'}
 
   readable-stream@1.0.34:
     resolution: {integrity: sha512-ok1qVCJuRkNmvebYikljxJA/UEsKwLl2nI1OmaqAu4/UE+h0wKCHok4XkL/gvi39OacXvw59RJUOFUkDib2rHg==}
@@ -10434,10 +10329,6 @@ packages:
   reading-time@1.5.0:
     resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
 
-  realpath-missing@1.1.0:
-    resolution: {integrity: sha512-wnWtnywepjg/eHIgWR97R7UuM5i+qHLA195qdN9UPKvcMqfn60+67S8sPPW3vDlSEfYHoFkKU8IvpCNty3zQvQ==}
-    engines: {node: '>=10'}
-
   rechoir@0.6.2:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
@@ -10449,10 +10340,6 @@ packages:
   redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
-
-  redent@4.0.0:
-    resolution: {integrity: sha512-tYkDkVVtYkSVhuQ4zBgfvciymHaeuel+zFKXShfDnFP5SyVEP7qo70Rf1jTOTCx3vGNAbnEi/xFkcfQVMIBWag==}
-    engines: {node: '>=12'}
 
   reduce-flatten@2.0.0:
     resolution: {integrity: sha512-EJ4UNY/U1t2P/2k6oqotuX2Cc3T6nxJwsM0N0asT7dhrtH1ltUxDn4NalSYmPE2rCkVpcf/X6R0wDwcFpzhd4w==}
@@ -10634,10 +10521,6 @@ packages:
   rfdc@1.3.0:
     resolution: {integrity: sha512-V2hovdzFbOi77/WajaSMXk2OLm+xNIeQdMMuB7icj7bk6zi2F8GGAxigcnDFpJHbNyNcgyJDiP+8nOrY5cZGrA==}
 
-  right-pad@1.0.1:
-    resolution: {integrity: sha512-bYBjgxmkvTAfgIYy328fmkwhp39v8lwVgWhhrzxPV3yHtcSqyYKe9/XOhvW48UFjATg3VuJbpsp5822ACNvkmw==}
-    engines: {node: '>= 0.10'}
-
   rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
     hasBin: true
@@ -10732,10 +10615,6 @@ packages:
 
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
-
-  safe-execa@0.1.2:
-    resolution: {integrity: sha512-vdTshSQ2JsRCgT8eKZWNJIL26C6bVqy1SOmuCMlKHegVeo8KYRobRrefOdUq9OozSPUUiSxrylteeRmLOMFfWg==}
-    engines: {node: '>=12'}
 
   safe-regex-test@1.0.3:
     resolution: {integrity: sha512-CdASjNJPvRa7roO6Ra/gLYBTzYzzPyyBXxIMdGW3USQLyjWEls2RgW5UBTXaQVp+OrpeCK3bLem8smtmheoRuw==}
@@ -10989,10 +10868,6 @@ packages:
     resolution: {integrity: sha512-IeWvo8NkNiY2vVYdPa27MCQiR0MN0M80johAYFVxWWXQ44KU84WNxjslwBHmc/7ZL2ccwkM7/e6S5aiKZXm7jA==}
     engines: {node: '>= 6.3.0'}
 
-  sort-keys@4.2.0:
-    resolution: {integrity: sha512-aUYIEU/UviqPgc8mHR6IW1EGxkAXpeRETYcrzg8cLAvUPZcpAlleSXHV2mY7G12GphSH6Gzv+4MMVSSkbdteHg==}
-    engines: {node: '>=8'}
-
   source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -11047,9 +10922,6 @@ packages:
     resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
     engines: {node: '>=6'}
 
-  split2@3.2.2:
-    resolution: {integrity: sha512-9NThjpgZnifTkJpzTZ7Eue85S49QwpNhZTq6GRJwObb6jnLFNGB7Qm73V5HewTROPyxD0C29xqmaI68bQtV+hg==}
-
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
@@ -11072,17 +10944,11 @@ packages:
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
-  stacktracey@2.1.8:
-    resolution: {integrity: sha512-Kpij9riA+UNg7TnphqjH7/CzctQ/owJGNbFkfEeve4Z4uxT5+JapVLFXcsurIfN34gnTWZNJ/f7NMG0E8JDzTw==}
-
   state-toggle@1.0.3:
     resolution: {integrity: sha512-d/5Z4/2iiCnHw6Xzghyhb+GcmF89bxwgXG60wjIiZaxnymbyOmI8Hk4VqHXiVVp6u2ysaskFfXg3ekCj4WNftQ==}
 
   static-eval@2.1.0:
     resolution: {integrity: sha512-agtxZ/kWSsCkI5E4QifRwsaPs0P0JmZV6dkLz6ILYfFYQGn+5plctanRN+IC8dJRiFkyXHrwEE3W9Wmx67uDbw==}
-
-  stats-gl@1.0.7:
-    resolution: {integrity: sha512-vZI82CjefSxLC1bjw36z28v0+QE9rJKymGlXtfWu+ipW70ZEAwa4EbO4LxluAfLfpqiaAS04NzpYBRLDeAwYWQ==}
 
   stats-gl@2.2.2:
     resolution: {integrity: sha512-1RQSqf5fV/p0SDmfHVcIT8sgCxPv70KfviIdFIUYDGHWEsRtYxavP7JcMRSS50NKRgn4L81zxoOm6ejWwV/KiQ==}
@@ -11114,10 +10980,6 @@ packages:
   strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
     engines: {node: '>=4'}
-
-  string-length@4.0.2:
-    resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}
-    engines: {node: '>=10'}
 
   string-width@3.1.0:
     resolution: {integrity: sha512-vafcv6KjVZKSgz06oM/H6GDBrAtz8vdhQakGjFIvNrHA6y3HCF1CInLy+QLq8dTJPQ1b+KDUqDFctkdRW44e1w==}
@@ -11181,10 +11043,6 @@ packages:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
 
-  strip-bom@4.0.0:
-    resolution: {integrity: sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w==}
-    engines: {node: '>=8'}
-
   strip-final-newline@2.0.0:
     resolution: {integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==}
     engines: {node: '>=6'}
@@ -11192,10 +11050,6 @@ packages:
   strip-indent@3.0.0:
     resolution: {integrity: sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ==}
     engines: {node: '>=8'}
-
-  strip-indent@4.0.0:
-    resolution: {integrity: sha512-mnVSV2l+Zv6BLpSD/8V87CW/y9EmmbYzGCIavsnsI6/nwn26DwffM/yztm30Z/I2DY9wdS3vXVCMnHDgZaVNoA==}
-    engines: {node: '>=12'}
 
   strip-json-comments@2.0.1:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
@@ -11207,9 +11061,6 @@ packages:
 
   strip-literal@1.0.1:
     resolution: {integrity: sha512-QZTsipNpa2Ppr6v1AmJHESqJ3Uz247MUS0OjrnnZjFAvEoWqxuyFuXn2xLgMtRnijJShAa1HL0gtJyUs7u7n3Q==}
-
-  strnum@1.0.5:
-    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
 
   style-to-object@0.3.0:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
@@ -11310,20 +11161,10 @@ packages:
   threads@0.7.3:
     resolution: {integrity: sha512-QzxU4qCxT8BCrjTyQ8xe3+2aof7b9QNTI+eG9wMXx6QO/00QfefnZwqoavtCti2J3oXnf0sO0hZW7HVKb3pmvg==}
 
-  three-mesh-bvh@0.6.8:
-    resolution: {integrity: sha512-EGebF9DZx1S8+7OZYNNTT80GXJZVf+UYXD/HyTg/e2kR/ApofIFfUS4ZzIHNnUVIadpnLSzM4n96wX+l7GMbnQ==}
-    peerDependencies:
-      three: '>= 0.151.0'
-
   three-mesh-bvh@0.7.3:
     resolution: {integrity: sha512-3W6KjzmupjfE89GuHPT31kxKWZ4YGZPEZJNysJpiOZfQRsBQQgmK7v/VJPpjG6syhAvTnY+5Fr77EvIkTLpGSw==}
     peerDependencies:
       three: '>= 0.151.0'
-
-  three-stdlib@2.28.7:
-    resolution: {integrity: sha512-E7NuztilCswBKnEoyqydvA7N4dy0cf/gLA0bKrrg6+Q6j4WtusGa/+t9oK2HVq47S1AHRH2CvFHpdIGNjPKo/A==}
-    peerDependencies:
-      three: '>=0.128.0'
 
   three-stdlib@2.29.5:
     resolution: {integrity: sha512-p9IQsH7gT9wVqAuMsimX2JTtEoCGHlwgm3HsAeXwWqP/PWV9DjYldbggLCr0B1TMzofi/58GG1X5KTQnG6ijpw==}
@@ -11341,9 +11182,6 @@ packages:
 
   through2@2.0.5:
     resolution: {integrity: sha512-/mrRod8xqpA+IHSLyGCQ2s8SPHiCDEeQJSep1jqLYeEUClOFG2Qsh+4FU6G9VeqpZnGW/Su8LQGc4YKni5rYSQ==}
-
-  through2@4.0.2:
-    resolution: {integrity: sha512-iOqSav00cVxEEICeD7TjLB1sueEL+81Wpzp2bY17uZjZN0pWZPuo4suZ/61VujxmqSGFfgOcNuTZ85QJwNZQpw==}
 
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
@@ -11439,10 +11277,6 @@ packages:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
 
-  trim-newlines@4.0.2:
-    resolution: {integrity: sha512-GJtWyq9InR/2HRiLZgpIKv+ufIKrVrvjQWEj7PxAXNc5dwbNJkqhAUoAGgzRmULAnoOM5EIpveYd3J2VeSAIew==}
-    engines: {node: '>=12'}
-
   trim-trailing-lines@1.1.4:
     resolution: {integrity: sha512-rjUWSqnfTNrjbB9NQWfPMH/xRK1deHeGsHoVfpxJ++XeYXE0d6B1En37AHfw3jtfTU7dzMzZL2jjpe8Qb5gLIQ==}
 
@@ -11450,18 +11284,8 @@ packages:
     resolution: {integrity: sha512-YzQV+TZg4AxpKxaTHK3c3D+kRDCGVEE7LemdlQZoQXn0iennk10RsIoY6ikzAqJTc9Xjl9C1/waHom/J86ziAQ==}
     deprecated: Use String.prototype.trim() instead
 
-  troika-three-text@0.47.2:
-    resolution: {integrity: sha512-qylT0F+U7xGs+/PEf3ujBdJMYWbn0Qci0kLqI5BJG2kW1wdg4T1XSxneypnF05DxFqJhEzuaOR9S2SjiyknMng==}
-    peerDependencies:
-      three: '>=0.125.0'
-
   troika-three-text@0.49.0:
     resolution: {integrity: sha512-sn9BNC6eIX8OO3iAkPwjecJ7Pn21Ve8P1UNFMNeQzXx759rrqS4i4pSZs7FLMYdWyCKVXBFGimBySFwRKLjq/Q==}
-    peerDependencies:
-      three: '>=0.125.0'
-
-  troika-three-utils@0.47.2:
-    resolution: {integrity: sha512-/28plhCxfKtH7MSxEGx8e3b/OXU5A0xlwl+Sbdp0H8FXUHKZDoksduEKmjQayXYtxAyuUiCRunYIv/8Vi7aiyg==}
     peerDependencies:
       three: '>=0.125.0'
 
@@ -11469,9 +11293,6 @@ packages:
     resolution: {integrity: sha512-umitFL4cT+Fm/uONmaQEq4oZlyRHWwVClaS6ZrdcueRvwc2w+cpNQ47LlJKJswpqtMFWbEhOLy0TekmcPZOdYA==}
     peerDependencies:
       three: '>=0.125.0'
-
-  troika-worker-utils@0.47.2:
-    resolution: {integrity: sha512-mzss4MeyzUkYBppn4x5cdAqrhBHFEuVmMMgLMTyFV23x6GvQMyo+/R5E5Lsbrt7WSt5RfvewjcwD1DChRTA9lA==}
 
   troika-worker-utils@0.49.0:
     resolution: {integrity: sha512-1xZHoJrG0HFfCvT/iyN41DvI/nRykiBtHqFkGaGgJwq5iXfIZFBiPPEHFpPpgyKM3Oo5ITHXP5wM2TNQszYdVg==}
@@ -11548,10 +11369,6 @@ packages:
   type-fest@0.8.1:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
-
-  type-fest@1.4.0:
-    resolution: {integrity: sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==}
-    engines: {node: '>=10'}
 
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
@@ -11832,10 +11649,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
 
-  uuid@9.0.0:
-    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
-    hasBin: true
-
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -12004,6 +11817,7 @@ packages:
 
   viewport-mercator-project@7.0.4:
     resolution: {integrity: sha512-0jzpL6pIMocCKWg1C3mqi/N4UPgZC3FzwghEm1H+XsUo8hNZAyJc3QR7YqC816ibOR8aWT5pCsV+gCu8/BMJgg==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   vite-node@0.32.2:
     resolution: {integrity: sha512-dTQ1DCLwl2aEseov7cfQ+kDMNJpM1ebpyMMMwWzBvLbis8Nla/6c9WQcqpPssTwS6Rp/+U6KwlIj8Eapw4bLdA==}
@@ -12274,14 +12088,6 @@ packages:
   write-file-atomic@3.0.3:
     resolution: {integrity: sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q==}
 
-  write-json-file@4.3.0:
-    resolution: {integrity: sha512-PxiShnxf0IlnQuMYOPPhPkhExoCQuTUNPOa/2JWCYTmBquU9njyyDuwRKN26IZBlp4yn1nt+Agh2HOOBl+55HQ==}
-    engines: {node: '>=8.3'}
-
-  write-yaml-file@4.2.0:
-    resolution: {integrity: sha512-LwyucHy0uhWqbrOkh9cBluZBeNVxzHjDaE9mwepZG3n3ZlbM4v3ndrFw51zW/NXYFFqP+QWZ72ihtLWTh05e4Q==}
-    engines: {node: '>=10.13'}
-
   write@1.0.3:
     resolution: {integrity: sha512-/lg70HAjtkUgWPVZhZcm+T4hkL8Zbtp1nFNOn3lRrxnlv50SRBv7cR7RqR+GMsd3hUXy9hWBo4CHTbFTcOYwig==}
     engines: {node: '>=4'}
@@ -12364,10 +12170,6 @@ packages:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
     engines: {node: '>=6'}
 
-  yargs-parser@20.2.9:
-    resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
-    engines: {node: '>=10'}
-
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
@@ -12406,9 +12208,6 @@ packages:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
     peerDependencies:
       zod: ^3.21.4
-
-  zod@3.21.4:
-    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
 
   zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
@@ -15759,26 +15558,6 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@hms-dbmi/viv@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)':
-    dependencies:
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-      '@vivjs/loaders': 0.13.8
-      '@vivjs/types': 0.13.8
-      '@vivjs/viewers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
-      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-    transitivePeerDependencies:
-      - '@deck.gl/core'
-      - '@deck.gl/geo-layers'
-      - '@deck.gl/layers'
-      - '@deck.gl/react'
-      - '@luma.gl/constants'
-      - '@luma.gl/core'
-      - '@luma.gl/engine'
-      - '@luma.gl/webgl'
-      - react
-
   '@hms-dbmi/viv@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)':
     dependencies:
       '@vivjs/constants': 0.16.0
@@ -15890,7 +15669,7 @@ snapshots:
 
   '@loaders.gl/core@3.2.10':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@loaders.gl/loader-utils': 3.2.10
       '@loaders.gl/worker-utils': 3.2.10
       '@probe.gl/log': 3.5.2
@@ -15925,7 +15704,7 @@ snapshots:
 
   '@loaders.gl/loader-utils@3.2.10':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@loaders.gl/worker-utils': 3.2.10
       '@probe.gl/stats': 3.5.2
 
@@ -16200,7 +15979,7 @@ snapshots:
 
   '@math.gl/core@3.6.3':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@math.gl/types': 3.6.3
       gl-matrix: 3.4.3
 
@@ -16571,191 +16350,6 @@ snapshots:
   '@playwright/test@1.40.1':
     dependencies:
       playwright: 1.40.1
-
-  '@pnpm/cli-meta@2.0.3':
-    dependencies:
-      '@pnpm/types': 7.11.0
-      load-json-file: 6.2.0
-
-  '@pnpm/cli-utils@0.6.63(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/cli-meta': 2.0.3
-      '@pnpm/config': 13.15.0(@pnpm/logger@4.0.0)
-      '@pnpm/default-reporter': 8.6.5(@pnpm/logger@4.0.0)
-      '@pnpm/error': 2.1.0
-      '@pnpm/logger': 4.0.0
-      '@pnpm/manifest-utils': 2.1.11(@pnpm/logger@4.0.0)
-      '@pnpm/package-is-installable': 5.0.14(@pnpm/logger@4.0.0)
-      '@pnpm/read-project-manifest': 2.0.14
-      '@pnpm/types': 7.11.0
-      chalk: 4.1.2
-      load-json-file: 6.2.0
-
-  '@pnpm/config@13.15.0(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/constants': 5.0.0
-      '@pnpm/error': 2.1.0
-      '@pnpm/global-bin-dir': 3.0.1
-      '@pnpm/npm-conf': 1.0.4
-      '@pnpm/pnpmfile': 1.2.8(@pnpm/logger@4.0.0)
-      '@pnpm/read-project-manifest': 2.0.14
-      '@pnpm/types': 7.11.0
-      camelcase: 6.3.0
-      can-write-to-dir: 1.1.1
-      is-subdir: 1.2.0
-      normalize-registry-url: 2.0.0
-      ramda: 0.27.2
-      realpath-missing: 1.1.0
-      which: 2.0.2
-    transitivePeerDependencies:
-      - '@pnpm/logger'
-
-  '@pnpm/constants@5.0.0': {}
-
-  '@pnpm/core-loggers@6.1.5(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/logger': 4.0.0
-      '@pnpm/types': 7.11.0
-
-  '@pnpm/default-reporter@8.6.5(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/config': 13.15.0(@pnpm/logger@4.0.0)
-      '@pnpm/core-loggers': 6.1.5(@pnpm/logger@4.0.0)
-      '@pnpm/error': 2.1.0
-      '@pnpm/logger': 4.0.0
-      '@pnpm/render-peer-issues': 1.1.3
-      '@pnpm/types': 7.11.0
-      ansi-diff: 1.1.1
-      boxen: 5.1.2
-      chalk: 4.1.2
-      normalize-path: 3.0.0
-      pretty-bytes: 5.6.0
-      pretty-ms: 7.0.1
-      ramda: 0.27.2
-      right-pad: 1.0.1
-      rxjs: 7.5.7
-      semver: 7.3.8
-      stacktracey: 2.1.8
-      string-length: 4.0.2
-      strip-ansi: 6.0.1
-
-  '@pnpm/error@2.1.0':
-    dependencies:
-      '@pnpm/constants': 5.0.0
-
-  '@pnpm/find-workspace-dir@3.0.3':
-    dependencies:
-      '@pnpm/error': 2.1.0
-      find-up: 5.0.0
-
-  '@pnpm/find-workspace-packages@3.1.55(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/cli-utils': 0.6.63(@pnpm/logger@4.0.0)
-      '@pnpm/constants': 5.0.0
-      '@pnpm/types': 7.11.0
-      find-packages: 8.0.14
-      read-yaml-file: 2.1.0
-    transitivePeerDependencies:
-      - '@pnpm/logger'
-
-  '@pnpm/global-bin-dir@3.0.1':
-    dependencies:
-      '@pnpm/error': 2.1.0
-      can-write-to-dir: 1.1.1
-      path-name: 1.0.0
-
-  '@pnpm/graceful-fs@1.0.0':
-    dependencies:
-      graceful-fs: 4.2.10
-
-  '@pnpm/lockfile-types@3.2.1':
-    dependencies:
-      '@pnpm/types': 7.11.0
-
-  '@pnpm/logger@4.0.0':
-    dependencies:
-      bole: 4.0.1
-      ndjson: 2.0.0
-
-  '@pnpm/manifest-utils@2.1.11(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/core-loggers': 6.1.5(@pnpm/logger@4.0.0)
-      '@pnpm/error': 2.1.0
-      '@pnpm/types': 7.11.0
-    transitivePeerDependencies:
-      - '@pnpm/logger'
-
-  '@pnpm/meta-updater@0.0.6':
-    dependencies:
-      '@pnpm/find-workspace-dir': 3.0.3
-      '@pnpm/find-workspace-packages': 3.1.55(@pnpm/logger@4.0.0)
-      '@pnpm/logger': 4.0.0
-      '@pnpm/types': 7.11.0
-      load-json-file: 6.2.0
-      meow: 10.1.5
-      print-diff: 1.0.0
-      ramda: 0.27.2
-      write-json-file: 4.3.0
-
-  '@pnpm/network.ca-file@1.0.1':
-    dependencies:
-      graceful-fs: 4.2.10
-
-  '@pnpm/npm-conf@1.0.4':
-    dependencies:
-      '@pnpm/network.ca-file': 1.0.1
-      config-chain: 1.1.13
-
-  '@pnpm/package-is-installable@5.0.14(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/core-loggers': 6.1.5(@pnpm/logger@4.0.0)
-      '@pnpm/error': 2.1.0
-      '@pnpm/logger': 4.0.0
-      '@pnpm/types': 7.11.0
-      execa: safe-execa@0.1.2
-      mem: 8.1.1
-      semver: 7.3.8
-
-  '@pnpm/pnpmfile@1.2.8(@pnpm/logger@4.0.0)':
-    dependencies:
-      '@pnpm/core-loggers': 6.1.5(@pnpm/logger@4.0.0)
-      '@pnpm/error': 2.1.0
-      '@pnpm/lockfile-types': 3.2.1
-      '@pnpm/logger': 4.0.0
-      '@pnpm/types': 7.11.0
-      chalk: 4.1.2
-      path-absolute: 1.0.1
-
-  '@pnpm/read-project-manifest@2.0.14':
-    dependencies:
-      '@pnpm/error': 2.1.0
-      '@pnpm/graceful-fs': 1.0.0
-      '@pnpm/types': 7.11.0
-      '@pnpm/write-project-manifest': 2.0.12
-      detect-indent: 6.1.0
-      fast-deep-equal: 3.1.3
-      is-windows: 1.0.2
-      json5: 2.2.3
-      parse-json: 5.2.0
-      read-yaml-file: 2.1.0
-      sort-keys: 4.2.0
-      strip-bom: 4.0.0
-
-  '@pnpm/render-peer-issues@1.1.3':
-    dependencies:
-      '@pnpm/types': 7.11.0
-      archy: 1.0.0
-      chalk: 4.1.2
-      cli-columns: 4.0.0
-
-  '@pnpm/types@7.11.0': {}
-
-  '@pnpm/write-project-manifest@2.0.12':
-    dependencies:
-      '@pnpm/types': 7.11.0
-      json5: 2.2.3
-      write-file-atomic: 3.0.3
-      write-yaml-file: 4.2.0
 
   '@polka/url@1.0.0-next.21': {}
 
@@ -17515,40 +17109,6 @@ snapshots:
       '@swc/helpers': 0.5.2
       react: 18.2.0
 
-  '@react-three/drei@9.89.0(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/three@0.162.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)':
-    dependencies:
-      '@babel/runtime': 7.22.0
-      '@mediapipe/tasks-vision': 0.10.8
-      '@react-spring/three': 9.6.1(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(react@18.2.0)(three@0.154.0)
-      '@react-three/fiber': 8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
-      '@use-gesture/react': 10.3.0(react@18.2.0)
-      camera-controls: 2.7.3(three@0.154.0)
-      cross-env: 7.0.3
-      detect-gpu: 5.0.37
-      glsl-noise: 0.0.0
-      lodash.clamp: 4.0.3
-      lodash.omit: 4.5.0
-      lodash.pick: 4.4.0
-      maath: 0.9.0(@types/three@0.162.0)(three@0.154.0)
-      meshline: 3.1.7(three@0.154.0)
-      react: 18.2.0
-      react-composer: 5.0.3(react@18.2.0)
-      react-merge-refs: 1.1.0
-      stats-gl: 1.0.7
-      stats.js: 0.17.0
-      suspend-react: 0.1.3(react@18.2.0)
-      three: 0.154.0
-      three-mesh-bvh: 0.6.8(three@0.154.0)
-      three-stdlib: 2.28.7(three@0.154.0)
-      troika-three-text: 0.47.2(three@0.154.0)
-      utility-types: 3.10.0
-      uuid: 9.0.1
-      zustand: 3.7.2(react@18.2.0)
-    optionalDependencies:
-      react-dom: 18.2.0(react@18.2.0)
-    transitivePeerDependencies:
-      - '@types/three'
-
   '@react-three/drei@9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@17.0.50)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)':
     dependencies:
       '@babel/runtime': 7.22.0
@@ -17572,6 +17132,39 @@ snapshots:
       three-stdlib: 2.29.5(three@0.154.0)
       troika-three-text: 0.49.0(three@0.154.0)
       tunnel-rat: 0.1.2(@types/react@17.0.50)(immer@9.0.15)(react@18.2.0)
+      utility-types: 3.10.0
+      uuid: 9.0.1
+      zustand: 3.7.2(react@18.2.0)
+    optionalDependencies:
+      react-dom: 18.2.0(react@18.2.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/three'
+      - immer
+
+  '@react-three/drei@9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@18.2.7)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)':
+    dependencies:
+      '@babel/runtime': 7.22.0
+      '@mediapipe/tasks-vision': 0.10.8
+      '@react-spring/three': 9.6.1(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(react@18.2.0)(three@0.154.0)
+      '@react-three/fiber': 8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
+      '@use-gesture/react': 10.3.0(react@18.2.0)
+      camera-controls: 2.7.3(three@0.154.0)
+      cross-env: 7.0.3
+      detect-gpu: 5.0.37
+      glsl-noise: 0.0.0
+      maath: 0.10.7(@types/three@0.162.0)(three@0.154.0)
+      meshline: 3.1.7(three@0.154.0)
+      react: 18.2.0
+      react-composer: 5.0.3(react@18.2.0)
+      stats-gl: 2.2.2
+      stats.js: 0.17.0
+      suspend-react: 0.1.3(react@18.2.0)
+      three: 0.154.0
+      three-mesh-bvh: 0.7.3(three@0.154.0)
+      three-stdlib: 2.29.5(three@0.154.0)
+      troika-three-text: 0.49.0(three@0.154.0)
+      tunnel-rat: 0.1.2(@types/react@18.2.7)(immer@9.0.15)(react@18.2.0)
       utility-types: 3.10.0
       uuid: 9.0.1
       zustand: 3.7.2(react@18.2.0)
@@ -17606,7 +17199,7 @@ snapshots:
       '@types/webxr': 0.5.10
       react: 18.2.0
       three: 0.154.0
-      three-stdlib: 2.28.7(three@0.154.0)
+      three-stdlib: 2.29.5(three@0.154.0)
       zustand: 3.7.2(react@18.2.0)
 
   '@react-types/breadcrumbs@3.6.2(react@18.2.0)':
@@ -17945,7 +17538,7 @@ snapshots:
 
   '@testing-library/react-hooks@8.0.1(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react-test-renderer@16.14.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       react: 18.2.0
       react-error-boundary: 3.1.4(react@18.2.0)
     optionalDependencies:
@@ -18714,39 +18307,14 @@ snapshots:
       loupe: 2.3.6
       pretty-format: 27.5.1
 
-  '@vivjs/constants@0.13.8':
-    dependencies:
-      '@luma.gl/constants': 8.5.21
-
   '@vivjs/constants@0.16.0':
     dependencies:
       '@luma.gl/constants': 8.5.21
-
-  '@vivjs/extensions@0.13.8(@deck.gl/core@8.8.27)':
-    dependencies:
-      '@deck.gl/core': 8.8.27
-      '@vivjs/constants': 0.13.8
 
   '@vivjs/extensions@0.16.0(@deck.gl/core@8.8.27)':
     dependencies:
       '@deck.gl/core': 8.8.27
       '@vivjs/constants': 0.16.0
-
-  '@vivjs/layers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)':
-    dependencies:
-      '@deck.gl/core': 8.8.27
-      '@deck.gl/geo-layers': 8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21)
-      '@deck.gl/layers': 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
-      '@luma.gl/constants': 8.5.21
-      '@luma.gl/core': 8.5.21
-      '@luma.gl/engine': 8.5.21
-      '@luma.gl/webgl': 8.5.21
-      '@math.gl/core': 3.6.3
-      '@math.gl/culling': 3.6.3
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/loaders': 0.13.8
-      '@vivjs/types': 0.13.8
 
   '@vivjs/layers@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)':
     dependencies:
@@ -18764,15 +18332,6 @@ snapshots:
       '@vivjs/loaders': 0.16.0
       '@vivjs/types': 0.16.0
 
-  '@vivjs/loaders@0.13.8':
-    dependencies:
-      '@vivjs/types': 0.13.8
-      fast-xml-parser: 3.21.1
-      geotiff: 2.0.5
-      lzw-tiff-decoder: 0.1.1
-      quickselect: 2.0.0
-      zarr: 0.5.1
-
   '@vivjs/loaders@0.16.0':
     dependencies:
       '@vivjs/types': 0.16.0
@@ -18782,32 +18341,10 @@ snapshots:
       zarr: 0.5.1
       zod: 3.22.4
 
-  '@vivjs/types@0.13.8':
-    dependencies:
-      '@vivjs/constants': 0.13.8
-      math.gl: 3.6.3
-
   '@vivjs/types@0.16.0':
     dependencies:
       '@vivjs/constants': 0.16.0
       math.gl: 3.6.3
-
-  '@vivjs/viewers@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)':
-    dependencies:
-      '@deck.gl/react': 8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@vivjs/constants': 0.13.8
-      '@vivjs/extensions': 0.13.8(@deck.gl/core@8.8.27)
-      '@vivjs/views': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-      fast-deep-equal: 3.1.3
-      react: 18.2.0
-    transitivePeerDependencies:
-      - '@deck.gl/core'
-      - '@deck.gl/geo-layers'
-      - '@deck.gl/layers'
-      - '@luma.gl/constants'
-      - '@luma.gl/core'
-      - '@luma.gl/engine'
-      - '@luma.gl/webgl'
 
   '@vivjs/viewers@0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)':
     dependencies:
@@ -18821,21 +18358,6 @@ snapshots:
       - '@deck.gl/core'
       - '@deck.gl/geo-layers'
       - '@deck.gl/layers'
-      - '@luma.gl/constants'
-      - '@luma.gl/core'
-      - '@luma.gl/engine'
-      - '@luma.gl/webgl'
-
-  '@vivjs/views@0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)':
-    dependencies:
-      '@deck.gl/core': 8.8.27
-      '@deck.gl/layers': 8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21)
-      '@math.gl/core': 3.6.3
-      '@vivjs/layers': 0.13.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)
-      '@vivjs/loaders': 0.13.8
-      math.gl: 3.6.3
-    transitivePeerDependencies:
-      - '@deck.gl/geo-layers'
       - '@luma.gl/constants'
       - '@luma.gl/core'
       - '@luma.gl/engine'
@@ -18954,10 +18476,6 @@ snapshots:
       unzipit: 1.4.3
 
   '@zarrita/typedarray@0.1.0-next.2': {}
-
-  '@zkochan/which@2.0.3':
-    dependencies:
-      isexe: 2.0.0
 
   abab@2.0.6: {}
 
@@ -19090,27 +18608,17 @@ snapshots:
 
   ansi-colors@4.1.3: {}
 
-  ansi-diff@1.1.1:
-    dependencies:
-      ansi-split: 1.0.1
-
   ansi-escapes@4.3.2:
     dependencies:
       type-fest: 0.21.3
 
   ansi-html-community@0.0.8: {}
 
-  ansi-regex@3.0.1: {}
-
   ansi-regex@4.1.1: {}
 
   ansi-regex@5.0.1: {}
 
   ansi-regex@6.0.1: {}
-
-  ansi-split@1.0.1:
-    dependencies:
-      ansi-regex: 3.0.1
 
   ansi-styles@3.2.1:
     dependencies:
@@ -19143,8 +18651,6 @@ snapshots:
       tslib: 2.4.0
 
   arch@2.2.0: {}
-
-  archy@1.0.0: {}
 
   arg@5.0.2: {}
 
@@ -19251,10 +18757,6 @@ snapshots:
       is-shared-array-buffer: 1.0.3
 
   arrify@1.0.1: {}
-
-  as-table@1.0.55:
-    dependencies:
-      printable-characters: 1.0.42
 
   asap@2.0.6: {}
 
@@ -19500,11 +19002,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  bole@4.0.1:
-    dependencies:
-      fast-safe-stringify: 2.1.1
-      individual: 3.0.0
-
   bonjour-service@1.0.14:
     dependencies:
       array-flatten: 2.1.2
@@ -19635,13 +19132,6 @@ snapshots:
       map-obj: 4.3.0
       quick-lru: 4.0.1
 
-  camelcase-keys@7.0.2:
-    dependencies:
-      camelcase: 6.3.0
-      map-obj: 4.3.0
-      quick-lru: 5.1.1
-      type-fest: 1.4.0
-
   camelcase@5.3.1: {}
 
   camelcase@6.3.0: {}
@@ -19649,10 +19139,6 @@ snapshots:
   camera-controls@2.7.3(three@0.154.0):
     dependencies:
       three: 0.154.0
-
-  can-write-to-dir@1.1.1:
-    dependencies:
-      path-temp: 2.0.0
 
   caniuse-api@3.0.0:
     dependencies:
@@ -19696,8 +19182,6 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  char-regex@1.0.2: {}
 
   character-entities-html4@1.1.4: {}
 
@@ -19763,11 +19247,6 @@ snapshots:
   cli-boxes@2.2.1: {}
 
   cli-boxes@3.0.0: {}
-
-  cli-columns@4.0.0:
-    dependencies:
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
 
   cli-cursor@3.1.0:
     dependencies:
@@ -19934,11 +19413,6 @@ snapshots:
       md5-hex: 3.0.1
       semver: 7.3.8
       well-known-symbols: 2.0.0
-
-  config-chain@1.1.13:
-    dependencies:
-      ini: 1.3.8
-      proto-list: 1.2.4
 
   configstore@5.0.1:
     dependencies:
@@ -20368,7 +19842,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 2.12.1
+      d3-array: 3.2.0
       d3-geo: 3.0.1
 
   d3-geo@1.12.1:
@@ -20381,7 +19855,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 2.12.1
+      d3-array: 3.2.0
 
   d3-hexbin@0.2.2: {}
 
@@ -20397,7 +19871,7 @@ snapshots:
 
   d3-interpolate@3.0.1:
     dependencies:
-      d3-color: 1.4.1
+      d3-color: 3.1.0
 
   d3-path@3.1.0: {}
 
@@ -20434,9 +19908,9 @@ snapshots:
 
   d3-scale@4.0.2:
     dependencies:
-      d3-array: 2.12.1
+      d3-array: 3.2.0
       d3-format: 3.1.0
-      d3-interpolate: 2.0.1
+      d3-interpolate: 3.0.1
       d3-time: 3.0.0
       d3-time-format: 4.1.0
 
@@ -20464,7 +19938,7 @@ snapshots:
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 2.12.1
+      d3-array: 3.2.0
 
   d3-timer@1.0.10: {}
 
@@ -20494,8 +19968,6 @@ snapshots:
   dashdash@1.14.1:
     dependencies:
       assert-plus: 1.0.0
-
-  data-uri-to-buffer@2.0.2: {}
 
   data-uri-to-buffer@4.0.0: {}
 
@@ -20555,8 +20027,6 @@ snapshots:
       map-obj: 1.0.1
 
   decamelize@1.2.0: {}
-
-  decamelize@5.0.1: {}
 
   decimal.js@10.4.2: {}
 
@@ -20717,8 +20187,6 @@ snapshots:
   diff-sequences@29.4.3: {}
 
   diff3@0.0.3: {}
-
-  diff@4.0.2: {}
 
   dir-glob@3.0.1:
     dependencies:
@@ -21629,15 +21097,9 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-safe-stringify@2.1.1: {}
-
   fast-url-parser@1.1.3:
     dependencies:
       punycode: 1.4.1
-
-  fast-xml-parser@3.21.1:
-    dependencies:
-      strnum: 1.0.5
 
   fastq@1.13.0:
     dependencies:
@@ -21739,13 +21201,6 @@ snapshots:
       commondir: 1.0.1
       make-dir: 3.1.0
       pkg-dir: 4.2.0
-
-  find-packages@8.0.14:
-    dependencies:
-      '@pnpm/read-project-manifest': 2.0.14
-      '@pnpm/types': 7.11.0
-      fast-glob: 3.2.12
-      p-filter: 2.1.0
 
   find-replace@3.0.0:
     dependencies:
@@ -21947,11 +21402,6 @@ snapshots:
       hasown: 2.0.2
 
   get-own-enumerable-property-symbols@3.0.2: {}
-
-  get-source@2.0.12:
-    dependencies:
-      data-uri-to-buffer: 2.0.2
-      source-map: 0.6.1
 
   get-stream@4.1.0:
     dependencies:
@@ -22354,10 +21804,6 @@ snapshots:
 
   hosted-git-info@2.8.9: {}
 
-  hosted-git-info@4.1.0:
-    dependencies:
-      lru-cache: 6.0.0
-
   hpack.js@2.1.6:
     dependencies:
       inherits: 2.0.4
@@ -22551,10 +21997,6 @@ snapshots:
       minimist: 1.2.8
 
   indent-string@4.0.0: {}
-
-  indent-string@5.0.0: {}
-
-  individual@3.0.0: {}
 
   infima@0.2.0-alpha.42: {}
 
@@ -23188,13 +22630,6 @@ snapshots:
       pify: 2.3.0
       strip-bom: 3.0.0
 
-  load-json-file@6.2.0:
-    dependencies:
-      graceful-fs: 4.2.10
-      parse-json: 5.2.0
-      strip-bom: 4.0.0
-      type-fest: 0.6.0
-
   load-yaml-file@0.2.0:
     dependencies:
       graceful-fs: 4.2.10
@@ -23247,8 +22682,6 @@ snapshots:
 
   lodash.camelcase@4.3.0: {}
 
-  lodash.clamp@4.0.3: {}
-
   lodash.curry@4.1.1: {}
 
   lodash.debounce@4.0.8: {}
@@ -23267,11 +22700,7 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
-  lodash.omit@4.5.0: {}
-
   lodash.once@4.1.1: {}
-
-  lodash.pick@4.4.0: {}
 
   lodash.startcase@4.4.0: {}
 
@@ -23335,11 +22764,6 @@ snapshots:
       '@types/three': 0.162.0
       three: 0.154.0
 
-  maath@0.9.0(@types/three@0.162.0)(three@0.154.0):
-    dependencies:
-      '@types/three': 0.162.0
-      three: 0.154.0
-
   magic-string@0.25.9:
     dependencies:
       sourcemap-codec: 1.4.8
@@ -23355,10 +22779,6 @@ snapshots:
   make-dir@3.1.0:
     dependencies:
       semver: 6.3.0
-
-  map-age-cleaner@0.1.3:
-    dependencies:
-      p-defer: 1.0.0
 
   map-limit@0.0.1:
     dependencies:
@@ -23380,7 +22800,7 @@ snapshots:
 
   mathjs@9.5.2:
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       complex.js: 2.1.1
       decimal.js: 10.4.2
       escape-latex: 1.2.0
@@ -23427,29 +22847,9 @@ snapshots:
 
   media-typer@0.3.0: {}
 
-  mem@8.1.1:
-    dependencies:
-      map-age-cleaner: 0.1.3
-      mimic-fn: 3.1.0
-
   memfs@3.4.7:
     dependencies:
       fs-monkey: 1.0.3
-
-  meow@10.1.5:
-    dependencies:
-      '@types/minimist': 1.2.2
-      camelcase-keys: 7.0.2
-      decamelize: 5.0.1
-      decamelize-keys: 1.1.0
-      hard-rejection: 2.1.0
-      minimist-options: 4.1.0
-      normalize-package-data: 3.0.3
-      read-pkg-up: 8.0.0
-      redent: 4.0.0
-      trim-newlines: 4.0.2
-      type-fest: 1.4.0
-      yargs-parser: 20.2.9
 
   meow@6.1.1:
     dependencies:
@@ -23499,8 +22899,6 @@ snapshots:
   mime@1.6.0: {}
 
   mimic-fn@2.1.0: {}
-
-  mimic-fn@3.1.0: {}
 
   mimic-response@1.0.1: {}
 
@@ -23619,14 +23017,6 @@ snapshots:
       iota-array: 1.0.0
       is-buffer: 1.1.6
 
-  ndjson@2.0.0:
-    dependencies:
-      json-stringify-safe: 5.0.1
-      minimist: 1.2.8
-      readable-stream: 3.6.0
-      split2: 3.2.2
-      through2: 4.0.2
-
   nearley@2.20.1:
     dependencies:
       commander: 2.20.3
@@ -23710,18 +23100,9 @@ snapshots:
       semver: 5.7.1
       validate-npm-package-license: 3.0.4
 
-  normalize-package-data@3.0.3:
-    dependencies:
-      hosted-git-info: 4.1.0
-      is-core-module: 2.12.1
-      semver: 7.3.8
-      validate-npm-package-license: 3.0.4
-
   normalize-path@3.0.0: {}
 
   normalize-range@0.1.2: {}
-
-  normalize-registry-url@2.0.0: {}
 
   normalize-url@4.5.1: {}
 
@@ -23888,8 +23269,6 @@ snapshots:
 
   p-cancelable@1.1.0: {}
 
-  p-defer@1.0.0: {}
-
   p-filter@2.1.0:
     dependencies:
       p-map: 2.1.0
@@ -24007,8 +23386,6 @@ snapshots:
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
 
-  parse-ms@2.1.0: {}
-
   parse-numeric-range@1.3.0: {}
 
   parse-uri@1.0.7: {}
@@ -24031,8 +23408,6 @@ snapshots:
       no-case: 3.0.4
       tslib: 2.4.0
 
-  path-absolute@1.0.1: {}
-
   path-exists@2.1.0:
     dependencies:
       pinkie-promise: 2.0.1
@@ -24049,13 +23424,7 @@ snapshots:
 
   path-key@3.1.1: {}
 
-  path-name@1.0.0: {}
-
   path-parse@1.0.7: {}
-
-  path-temp@2.0.0:
-    dependencies:
-      unique-string: 2.0.0
 
   path-to-regexp@0.1.7: {}
 
@@ -24595,17 +23964,7 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.2.0
 
-  pretty-ms@7.0.1:
-    dependencies:
-      parse-ms: 2.1.0
-
   pretty-time@1.1.0: {}
-
-  print-diff@1.0.0:
-    dependencies:
-      diff: 4.0.2
-
-  printable-characters@1.0.42: {}
 
   prism-react-renderer@1.3.5(react@18.2.0):
     dependencies:
@@ -24656,8 +24015,6 @@ snapshots:
   property-information@5.6.0:
     dependencies:
       xtend: 4.0.2
-
-  proto-list@1.2.4: {}
 
   protocol-buffers-schema@3.6.0: {}
 
@@ -24726,8 +24083,6 @@ snapshots:
 
   quick-lru@4.0.1: {}
 
-  quick-lru@5.1.1: {}
-
   quick-lru@6.1.1: {}
 
   quickselect@2.0.0: {}
@@ -24737,8 +24092,6 @@ snapshots:
       performance-now: 2.1.0
 
   railroad-diagrams@1.0.0: {}
-
-  ramda@0.27.2: {}
 
   randexp@0.4.6:
     dependencies:
@@ -25119,8 +24472,6 @@ snapshots:
       prop-types: 15.8.1
       react: 18.2.0
 
-  react-merge-refs@1.1.0: {}
-
   react-monaco-editor@0.43.0(@types/react@18.2.7)(react@18.2.0):
     dependencies:
       '@types/react': 18.2.7
@@ -25302,12 +24653,6 @@ snapshots:
       read-pkg: 5.2.0
       type-fest: 0.8.1
 
-  read-pkg-up@8.0.0:
-    dependencies:
-      find-up: 5.0.0
-      read-pkg: 6.0.0
-      type-fest: 1.4.0
-
   read-pkg@2.0.0:
     dependencies:
       load-json-file: 2.0.0
@@ -25321,24 +24666,12 @@ snapshots:
       parse-json: 5.2.0
       type-fest: 0.6.0
 
-  read-pkg@6.0.0:
-    dependencies:
-      '@types/normalize-package-data': 2.4.1
-      normalize-package-data: 3.0.3
-      parse-json: 5.2.0
-      type-fest: 1.4.0
-
   read-yaml-file@1.1.0:
     dependencies:
       graceful-fs: 4.2.10
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
-
-  read-yaml-file@2.1.0:
-    dependencies:
-      js-yaml: 4.1.0
-      strip-bom: 4.0.0
 
   readable-stream@1.0.34:
     dependencies:
@@ -25369,8 +24702,6 @@ snapshots:
 
   reading-time@1.5.0: {}
 
-  realpath-missing@1.1.0: {}
-
   rechoir@0.6.2:
     dependencies:
       resolve: 1.22.1
@@ -25383,11 +24714,6 @@ snapshots:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
-
-  redent@4.0.0:
-    dependencies:
-      indent-string: 5.0.0
-      strip-indent: 4.0.0
 
   reduce-flatten@2.0.0: {}
 
@@ -25617,8 +24943,6 @@ snapshots:
 
   rfdc@1.3.0: {}
 
-  right-pad@1.0.1: {}
-
   rimraf@2.6.3:
     dependencies:
       glob: 7.2.3
@@ -25715,12 +25039,6 @@ snapshots:
   safe-buffer@5.1.2: {}
 
   safe-buffer@5.2.1: {}
-
-  safe-execa@0.1.2:
-    dependencies:
-      '@zkochan/which': 2.0.3
-      execa: 5.1.1
-      path-name: 1.0.0
 
   safe-regex-test@1.0.3:
     dependencies:
@@ -26031,10 +25349,6 @@ snapshots:
 
   sort-css-media-queries@2.1.0: {}
 
-  sort-keys@4.2.0:
-    dependencies:
-      is-plain-obj: 2.1.0
-
   source-map-js@1.0.2: {}
 
   source-map-support@0.5.21:
@@ -26096,10 +25410,6 @@ snapshots:
 
   split-on-first@1.1.0: {}
 
-  split2@3.2.2:
-    dependencies:
-      readable-stream: 3.6.0
-
   sprintf-js@1.0.3: {}
 
   sshpk@1.17.0:
@@ -26124,18 +25434,11 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  stacktracey@2.1.8:
-    dependencies:
-      as-table: 1.0.55
-      get-source: 2.0.12
-
   state-toggle@1.0.3: {}
 
   static-eval@2.1.0:
     dependencies:
       escodegen: 1.14.3
-
-  stats-gl@1.0.7: {}
 
   stats-gl@2.2.2: {}
 
@@ -26158,11 +25461,6 @@ snapshots:
       mixme: 0.5.9
 
   strict-uri-encode@2.0.0: {}
-
-  string-length@4.0.2:
-    dependencies:
-      char-regex: 1.0.2
-      strip-ansi: 6.0.1
 
   string-width@3.1.0:
     dependencies:
@@ -26252,15 +25550,9 @@ snapshots:
 
   strip-bom@3.0.0: {}
 
-  strip-bom@4.0.0: {}
-
   strip-final-newline@2.0.0: {}
 
   strip-indent@3.0.0:
-    dependencies:
-      min-indent: 1.0.1
-
-  strip-indent@4.0.0:
     dependencies:
       min-indent: 1.0.1
 
@@ -26271,8 +25563,6 @@ snapshots:
   strip-literal@1.0.1:
     dependencies:
       acorn: 8.9.0
-
-  strnum@1.0.5: {}
 
   style-to-object@0.3.0:
     dependencies:
@@ -26378,22 +25668,8 @@ snapshots:
       eventemitter3: 2.0.3
       native-promise-only: 0.8.1
 
-  three-mesh-bvh@0.6.8(three@0.154.0):
-    dependencies:
-      three: 0.154.0
-
   three-mesh-bvh@0.7.3(three@0.154.0):
     dependencies:
-      three: 0.154.0
-
-  three-stdlib@2.28.7(three@0.154.0):
-    dependencies:
-      '@types/draco3d': 1.4.9
-      '@types/offscreencanvas': 2019.7.0
-      '@types/webxr': 0.5.10
-      draco3d: 1.4.1
-      fflate: 0.6.10
-      potpack: 1.0.2
       three: 0.154.0
 
   three-stdlib@2.29.5(three@0.154.0):
@@ -26419,10 +25695,6 @@ snapshots:
     dependencies:
       readable-stream: 2.3.7
       xtend: 4.0.2
-
-  through2@4.0.2:
-    dependencies:
-      readable-stream: 3.6.0
 
   through@2.3.8: {}
 
@@ -26496,19 +25768,9 @@ snapshots:
 
   trim-newlines@3.0.1: {}
 
-  trim-newlines@4.0.2: {}
-
   trim-trailing-lines@1.1.4: {}
 
   trim@0.0.1: {}
-
-  troika-three-text@0.47.2(three@0.154.0):
-    dependencies:
-      bidi-js: 1.0.3
-      three: 0.154.0
-      troika-three-utils: 0.47.2(three@0.154.0)
-      troika-worker-utils: 0.47.2
-      webgl-sdf-generator: 1.1.1
 
   troika-three-text@0.49.0(three@0.154.0):
     dependencies:
@@ -26518,15 +25780,9 @@ snapshots:
       troika-worker-utils: 0.49.0
       webgl-sdf-generator: 1.1.1
 
-  troika-three-utils@0.47.2(three@0.154.0):
-    dependencies:
-      three: 0.154.0
-
   troika-three-utils@0.49.0(three@0.154.0):
     dependencies:
       three: 0.154.0
-
-  troika-worker-utils@0.47.2: {}
 
   troika-worker-utils@0.49.0: {}
 
@@ -26570,6 +25826,14 @@ snapshots:
       - immer
       - react
 
+  tunnel-rat@0.1.2(@types/react@18.2.7)(immer@9.0.15)(react@18.2.0):
+    dependencies:
+      zustand: 4.5.2(@types/react@18.2.7)(immer@9.0.15)(react@18.2.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - react
+
   turf-jsts@1.2.3: {}
 
   tweetnacl@0.14.5: {}
@@ -26597,8 +25861,6 @@ snapshots:
   type-fest@0.6.0: {}
 
   type-fest@0.8.1: {}
-
-  type-fest@1.4.0: {}
 
   type-fest@2.19.0: {}
 
@@ -26895,8 +26157,6 @@ snapshots:
   uuid@7.0.3: {}
 
   uuid@8.3.2: {}
-
-  uuid@9.0.0: {}
 
   uuid@9.0.1: {}
 
@@ -27617,20 +26877,6 @@ snapshots:
       signal-exit: 3.0.7
       typedarray-to-buffer: 3.1.5
 
-  write-json-file@4.3.0:
-    dependencies:
-      detect-indent: 6.1.0
-      graceful-fs: 4.2.10
-      is-plain-obj: 2.1.0
-      make-dir: 3.1.0
-      sort-keys: 4.2.0
-      write-file-atomic: 3.0.3
-
-  write-yaml-file@4.2.0:
-    dependencies:
-      js-yaml: 4.1.0
-      write-file-atomic: 3.0.3
-
   write@1.0.3:
     dependencies:
       mkdirp: 0.5.6
@@ -27673,8 +26919,6 @@ snapshots:
     dependencies:
       camelcase: 5.3.1
       decamelize: 1.2.0
-
-  yargs-parser@20.2.9: {}
 
   yargs-parser@21.1.1: {}
 
@@ -27732,15 +26976,9 @@ snapshots:
       '@zarrita/indexing': 0.1.0-next.10
       '@zarrita/storage': 0.1.0-next.4
 
-  zod-to-json-schema@3.21.1(zod@3.21.4):
-    dependencies:
-      zod: 3.21.4
-
   zod-to-json-schema@3.21.1(zod@3.22.4):
     dependencies:
       zod: 3.22.4
-
-  zod@3.21.4: {}
 
   zod@3.22.4: {}
 
@@ -27753,6 +26991,14 @@ snapshots:
       use-sync-external-store: 1.2.0(react@18.2.0)
     optionalDependencies:
       '@types/react': 17.0.50
+      immer: 9.0.15
+      react: 18.2.0
+
+  zustand@4.5.2(@types/react@18.2.7)(immer@9.0.15)(react@18.2.0):
+    dependencies:
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.2.7
       immer: 9.0.15
       react: 18.2.0
 
