@@ -40,7 +40,6 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - run: pnpm run changeset-status
       - id: get-options
@@ -72,7 +71,6 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
@@ -111,7 +109,6 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
@@ -149,7 +146,6 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps

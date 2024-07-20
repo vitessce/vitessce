@@ -23,7 +23,6 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action

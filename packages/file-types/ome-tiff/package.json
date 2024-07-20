@@ -38,11 +38,7 @@
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "ajv": "^6.10.0",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21"
-  },
-  "devDependencies": {
-    "ajv": "^6.10.0"
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:"
   }
 }

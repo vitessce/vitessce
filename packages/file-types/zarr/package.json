@@ -39,14 +39,14 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "zarrita": "0.4.0-next.10"
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@zarrita/core": "0.1.0-next.8",
-    "@zarrita/storage": "0.1.0-next.4",
-    "@zarrita/typedarray": "0.1.0-next.2"
+    "@zarrita/core": "catalog:",
+    "@zarrita/storage": "catalog:",
+    "@zarrita/typedarray": "catalog:"
   }
 }

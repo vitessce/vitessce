@@ -44,7 +44,7 @@ For more details, please visit the [documentation](http://vitessce.io/docs/js-ov
 
 ## Development
 
-First install [PNPM](https://pnpm.io/installation) v8. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
+First install [PNPM](https://pnpm.io/installation) v9.5. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
 
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.
@@ -82,12 +82,8 @@ We use squash merging for pull requests.
 
 ### Monorepo organization
 
-#### Meta-updater script
-
-```sh
-pnpm run meta-dryrun
-pnpm run meta-update
-```
+See `pnpm-workspace.yaml` for more information.
+We are using PNPM [catalogs](https://pnpm.io/catalogs) which are available from v9.5.0 of PNPM.
 
 ### Testing
 
