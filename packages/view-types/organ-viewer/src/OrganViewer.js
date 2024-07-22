@@ -64,16 +64,19 @@ function OrganScene(props) {
     const [model, setModel] = useState(undefined)
     const [initialLoad, setInitialLoad] = useState(true)
     const {uuidInput, uberon} = props
+    console.log(uuidInput, uberon)
     useEffect(() => {
         async function fetchData() {
-            let result = await getInfo([uuidInput])
-            let searchResult = result.hits.hits[0]._source
-            let organ = null, block = null
+            let organ = null;
             if (uberon !== undefined) {
                 organ = await getOrganUberonToOntologyOrganFile(uberon)
-                console.log(organ)
             } else {
-                [organ, blockID] = await getOrgan(searchResult, uuidInput)
+                console.log("Here")
+                let result = await getInfo([uuidInput])
+                let searchResult = result.hits.hits[0]._source
+                let [organRes, blockID] = await getOrgan(searchResult, uuidInput)
+                organ = organRes;
+                console.log(organ)
             }
             let loader = new GLTFLoader();
             loader.load(organ.object.file, async function (gltf) {
@@ -110,8 +113,6 @@ function OrganScene(props) {
                     }
                 });
                 setModel(organGroup)
-
-
             });
         }
 
@@ -130,18 +131,24 @@ function OrganScene(props) {
 function BlockScene(props) {
     const [model, setModel] = useState(undefined)
     const [initialLoad, setInitialLoad] = useState(true)
-    const {uuidInput} = props
+    const {uuidInput, uberon} = props
     useEffect(() => {
         async function fetchData() {
             let sceneGroup = new Group();
-            let result = await getInfo([uuidInput])
-            let searchResult = result.hits.hits[0]._source
-            let [organ, blockID] = await getOrgan(searchResult, uuidInput)
-            let blocksInformation = await getBlocksFromOrgan(organ.representation_of, organ.sex);
+            let organ = null, blockID = null;
+            if (uberon !== undefined) {
+                organ = await getOrganUberonToOntologyOrganFile(uberon)
+            } else {
+                let result = await getInfo([uuidInput])
+                let searchResult = result.hits.hits[0]._source
+                let [organRetval, blockIDRetval] = await getOrgan(searchResult, uuidInput)
+                organ = organRetval;
+                blockID = blockIDRetval
+            }
+            let blocksInformation = await getBlocksFromOrgan(organ.representation_of, organ.sex, uuidInput);
             // Create a group for the tissue blocks
             let blocksGroup = new Group();
             blocksGroup.position.set(0, 0, 0); // Explicitly set to origin
-
             let blocksGroupChildren = new Group();
             blocksGroupChildren.position.set(0, 0, 0); // Explicitly set to origin
             blocksInformation.blocks.forEach(rawBlock => {
@@ -182,7 +189,7 @@ export default function OrganViewer(props) {
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                     <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
                     <OrganScene uuidInput={uuidInput} uberon={uberon}></OrganScene>
-                    <BlockScene uuidInput={uuidInput}></BlockScene>
+                    <BlockScene uuidInput={uuidInput} uberon={uberon}></BlockScene>
                 </group>
             </Canvas>
         </div>

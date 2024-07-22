@@ -20,7 +20,8 @@ function generateJainKidney() {
         },
     });
 
-    const organViewer = config.addView(dataset, 'organViewer').setProps({uberon: "http://purl.obolibrary.org/obo/UBERON_0000970"}); // Block
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uberon: "http://purl.obolibrary.org/obo/UBERON_0004538"}); // organ with uberon
+    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "b1d41395cc87b8eff3f580cfa168283b"});
     const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "5f043da4d6347e2b6f93509c000804d1"});
     config.layout(hconcat(organViewer, blockViewer));
 
