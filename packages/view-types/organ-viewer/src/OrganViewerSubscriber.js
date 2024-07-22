@@ -7,6 +7,7 @@ import OrganViewer from './OrganViewer.js';
 export function OrganViewerSubscriber(props) {
     const {
         uuidInput,
+        uberon,
         removeGridComponent,
         theme,
         title = 'Organ View',
@@ -23,6 +24,7 @@ export function OrganViewerSubscriber(props) {
         >
             <OrganViewer
                 uuidInput={uuidInput}
+                uberon = {uberon}
             />
         </TitleInfo>
     );

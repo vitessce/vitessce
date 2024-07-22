@@ -7,7 +7,14 @@ import {Canvas} from '@react-three/fiber';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {OrbitControls} from '@react-three/drei';
 import {Box3, BoxGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, Scene, Vector3} from "three";
-import {createUnitBlock, getBlocksFromOrgan, getInfo, getObjSubPathToOntology, getOrganInformation} from "./utils.js";
+import {
+    createUnitBlock,
+    getBlocksFromOrgan,
+    getInfo,
+    getObjSubPathToOntology,
+    getOrganInformation,
+    getOrganUberonToOntologyOrganFile
+} from "./utils.js";
 
 
 async function getOrgan(searchResult, uuid) {
@@ -19,11 +26,11 @@ async function getOrgan(searchResult, uuid) {
         blockID = uuid;
     } else if (searchResult.sample_category === "organ") {
         console.log("Organ Level")
-        if(searchResult.immediate_descendants[0].rui_location !== undefined) {
+        if (searchResult.immediate_descendants[0].rui_location !== undefined) {
             organFile = searchResult.immediate_descendants[0].rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
-        }else{
+        } else {
             let newSearchResult = (await getInfo([searchResult.immediate_descendants[0].uuid])).hits.hits[0]._source
-            console.log(newSearchResult)
+            // console.log(newSearchResult)
             organFile = newSearchResult.rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
         }
     } else if (searchResult.sample_category === "section") {
@@ -38,7 +45,7 @@ async function getOrgan(searchResult, uuid) {
         } else {
             if (searchResult.immediate_ancestors[0].sample_category == "organ") {
                 let newSearchResult = (await getInfo([searchResult.immediate_ancestors[0].uuid])).hits.hits[0]._source
-                console.log(newSearchResult)
+                // console.log(newSearchResult)
                 organFile = newSearchResult.immediate_descendants[0].rui_location.split("target\": \"")[1].split("\"")[0].split("owl")[1]
             } else if (searchResult.immediate_ancestors[0].sample_category == "block") {
                 blockID = searchResult.immediate_ancestors[0].uuid
@@ -47,21 +54,27 @@ async function getOrgan(searchResult, uuid) {
             }
         }
     }
-    console.log(organFile)
+    // console.log(organFile)
     let organ = await getObjSubPathToOntology(organFile);
-    console.log(organ)
+    // console.log(organ)
     return [organ, blockID];
 }
 
 function OrganScene(props) {
     const [model, setModel] = useState(undefined)
     const [initialLoad, setInitialLoad] = useState(true)
-    const {uuidInput} = props
+    const {uuidInput, uberon} = props
     useEffect(() => {
         async function fetchData() {
             let result = await getInfo([uuidInput])
             let searchResult = result.hits.hits[0]._source
-            let [organ, blockID] = await getOrgan(searchResult, uuidInput)
+            let organ = null, block = null
+            if (uberon !== undefined) {
+                organ = await getOrganUberonToOntologyOrganFile(uberon)
+                console.log(organ)
+            } else {
+                [organ, blockID] = await getOrgan(searchResult, uuidInput)
+            }
             let loader = new GLTFLoader();
             loader.load(organ.object.file, async function (gltf) {
                 let root = gltf.scene;
@@ -155,8 +168,9 @@ function BlockScene(props) {
 
 
 export default function OrganViewer(props) {
-    const {uuidInput} = props;
+    const {uuidInput, uberon} = props;
     console.log(uuidInput)
+    console.log(uberon)
     return (
         <div style={{
             width: '100%',
@@ -167,7 +181,7 @@ export default function OrganViewer(props) {
                 <group>
                     <hemisphereLight skyColor={0x808080} groundColor={0x606060}/>
                     <directionalLight color={0xFFFFFF} position={[0, -800, 0]}/>
-                    <OrganScene uuidInput={uuidInput}></OrganScene>
+                    <OrganScene uuidInput={uuidInput} uberon={uberon}></OrganScene>
                     <BlockScene uuidInput={uuidInput}></BlockScene>
                 </group>
             </Canvas>

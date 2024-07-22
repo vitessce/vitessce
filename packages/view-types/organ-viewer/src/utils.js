@@ -215,7 +215,7 @@ export async function getOrganInformation(organUberon, sex) {
         });
 }
 
-export async function getObjSubPathToOntology(organID) {
+export async function getOrganUberonToOntologyOrganFile(uberon) {
     const url = "https://raw.githubusercontent.com/hubmapconsortium/hubmap-ontology/master/source_data/generated-reference-spatial-entities.jsonld"
     return fetch(url, {
         method: 'GET',
@@ -223,6 +223,29 @@ export async function getObjSubPathToOntology(organID) {
             'Accept': 'application/json',
         }
     }).then(res => res.json()).then(data => {
+        console.log(data)
+        let retVal;
+        data.forEach(d => {
+            console.log(uberon)
+            if (d.object !== undefined && d["representation_of"] !== undefined &&
+                d["representation_of"].includes(uberon)) {
+                retVal = d;
+            }
+        })
+        return retVal;
+    });
+}
+
+export async function getObjSubPathToOntology(organID) {
+    console.log(organID)
+    const url = "https://raw.githubusercontent.com/hubmapconsortium/hubmap-ontology/master/source_data/generated-reference-spatial-entities.jsonld"
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        }
+    }).then(res => res.json()).then(data => {
+        console.log(data)
         let retVal;
         data.forEach(d => {
             if (d.object !== undefined && d["@id"].includes(organID)) {
