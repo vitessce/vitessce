@@ -21,7 +21,7 @@ jobs:
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - uses: preactjs/compressed-size-action@v2
+      - uses: preactjs/compressed-size-action@v2.6.0
         with:
           minimum-change-threshold: 1000
           compression: "none"
