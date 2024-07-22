@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v2.4.1
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
@@ -21,7 +21,7 @@ jobs:
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - uses: preactjs/compressed-size-action@v2.6.0
+      - uses: preactjs/compressed-size-action@2.6.0
         with:
           minimum-change-threshold: 1000
           compression: "none"
