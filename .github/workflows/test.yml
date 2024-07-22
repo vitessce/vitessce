@@ -13,11 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [18.12.0, 20, 22]
+        node: [18.20.0, 20.10.0, 22]
         os: [ubuntu-latest]
         include:
           - os: windows-2022
-            node: 18.12.0
+            node: 18.20.0
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
 
