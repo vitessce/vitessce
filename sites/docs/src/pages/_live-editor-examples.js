@@ -21,7 +21,7 @@ const vc = new VitessceConfig({
   description: "This demonstrates the JavaScript API"
 });
 // Add a dataset and its files.
-const baseUrl = "https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019";
+const baseUrl = "https://data-1.vitessce.io/0.0.33/main/eng-2019";
 const dataset = vc
   .addDataset("Eng et al., Nature 2019")
   .addFile({
@@ -77,7 +77,7 @@ export const exampleJson = `{
       "files": [
         {
           "fileType": "obsEmbedding.csv",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
+          "url": "https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
           "coordinationValues": {
             "obsType": "cell",
             "embeddingType": "t-SNE"
@@ -89,7 +89,7 @@ export const exampleJson = `{
         },
         {
           "fileType": "obsEmbedding.csv",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
+          "url": "https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
           "coordinationValues": {
             "obsType": "cell",
             "embeddingType": "UMAP"
@@ -101,7 +101,7 @@ export const exampleJson = `{
         },
         {
           "fileType": "obsSets.csv",
-          "url": "https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
+          "url": "https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv",
           "coordinationValues": {
             "obsType": "cell"
           },

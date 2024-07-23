@@ -10,7 +10,7 @@ export const codeluppiViaZarr = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr',
           options: {
             obsFeatureMatrix: {
               path: 'X',
@@ -46,7 +46,7 @@ export const codeluppiViaZarr = {
         },
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
           options: {
             obsLocations: {
               path: 'obsm/X_spatial',

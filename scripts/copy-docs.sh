@@ -6,14 +6,14 @@ die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
 (( $# == 1 )) || die "Requires one argument, the staging URL to be copied to vitessce.io; Instead got $#."
 S3_BASE='//s3.amazonaws.com/'
-S3_BUCKET='vitessce-data'
+S3_BUCKET='temp-vitessce-data'
 S3_PATH='/docs-root/'
 RE="$S3_BASE$S3_BUCKET$S3_PATH"
 [[ "$@" =~ "$RE" ]] || die "Expected URL to match $RE"
 S3_SRC_PATH=$( echo "$@" | perl -pne 's{^.*'"$S3_BASE"'}{}; s{/index.html}{}; s{/$}{}' )
 
 S3_SRC="s3://$S3_SRC_PATH"
-S3_TARGET='s3://vitessce.io'
+S3_TARGET='s3://temp-vitessce.io'
 
 b=$(tput bold)
 n=$(tput sgr0)

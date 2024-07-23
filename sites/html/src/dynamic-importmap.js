@@ -39,7 +39,7 @@ const eng2019 = {
       files: [
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
             embeddingType: 't-SNE',
@@ -51,7 +51,7 @@ const eng2019 = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
             embeddingType: 'UMAP',
@@ -63,7 +63,7 @@ const eng2019 = {
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
           },
@@ -74,7 +74,7 @@ const eng2019 = {
         },
         {
           fileType: 'obsSets.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
           },
@@ -94,7 +94,7 @@ const eng2019 = {
         },
         {
           fileType: 'obsSegmentations.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.segmentations.json',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.segmentations.json',
           coordinationValues: {
             obsType: 'cell',
           },
