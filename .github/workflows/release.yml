@@ -53,3 +53,24 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.get-tag.outputs.tag }}
           body_path: RELEASE_NOTES.md
+      - name: Build demo site and docs site (twice)
+        if: steps.changesets.outputs.should-release == 'true'
+        run: ./scripts/build-sites.sh --action
+      - name: Configure AWS credentials
+        if: steps.changesets.outputs.should-release == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Push sites to S3
+        if: steps.changesets.outputs.should-release == 'true'
+        run: |
+          export DATE=`date "+%Y-%m-%d"`
+          export HASH=`git rev-parse --short HEAD`
+          aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH/
+          aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/vitessce-data/docs-root/$DATE/$HASH/
+          aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
+          aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
+          
+          
