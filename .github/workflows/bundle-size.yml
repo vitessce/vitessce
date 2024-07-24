@@ -12,17 +12,16 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
-      - uses: pnpm/action-setup@v2.4.1
+          node-version: 20.10.0
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - uses: preactjs/compressed-size-action@v2
+      - uses: preactjs/compressed-size-action@2.6.0
         with:
           minimum-change-threshold: 1000
           compression: "none"

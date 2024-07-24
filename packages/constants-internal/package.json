@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "devDependencies": {
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }
