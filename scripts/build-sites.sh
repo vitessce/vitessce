@@ -2,10 +2,8 @@
 set -o errexit
 set -o pipefail
 
-BRANCH=`git rev-parse --abbrev-ref HEAD`
 DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
-PKG_VERSION=`npm pkg get version | tr -d '"'`
 
 DEMO_URL_PATH="demos/$DATE/$HASH"
 ROOT_DOCS_URL_PATH="docs-root/$DATE/$HASH"
@@ -33,10 +31,6 @@ Disallow: /' > $DEMO_DIST_DIR/robots.txt
 DEMO_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$DEMO_URL_PATH/index.html"
 
 cd ../..
-echo "- $DATE: [$BRANCH]($DEMO_TARGET_URL)" >> DEMOS.md
-
-echo "Deployed dev site"
-
 
 # Build docs site...
 cd sites/docs
@@ -58,7 +52,3 @@ VERSIONED_DIST_DIR='dist-versioned/'
 # and add an error page for vitessce.io...
 cp ../demo/error.html $ROOT_DIST_DIR
 cp ../demo/error.html $VERSIONED_DIST_DIR
-
-VERSIONED_TARGET_URL="http://data-1.vitessce.io/$VERSIONED_DOCS_URL_PATH/"
-COPY_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$ROOT_DOCS_URL_PATH/index.html"
-

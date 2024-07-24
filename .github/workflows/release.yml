@@ -46,6 +46,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       - id: get-tag
         run: echo "tag=v$(cat ./package.json | jq -r .version)" >> $GITHUB_OUTPUT
+      - name: Append versioned URLs to RELEASE_NOTES.md
+        if: steps.changesets.outputs.should-release == 'true'
+        run: |
+          export DATE=`date "+%Y-%m-%d"`
+          export HASH=`git rev-parse --short HEAD`
+          export VERSIONED_DOCS_URL="https://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH"
+          export VERSIONED_DEMO_URL="https://legacy.vitessce.io/demos/$DATE/$HASH"
+          echo "### Versioned Sites" >> RELEASE_NOTES.md
+          echo "- [Docs]($VERSIONED_DOCS_URL)" >> RELEASE_NOTES.md
+          echo "- [Demo]($VERSIONED_DEMO_URL)" >> RELEASE_NOTES.md
       - name: Create GitHub release if publish was successful
         if: steps.changesets.outputs.should-release == 'true'
         uses: softprops/action-gh-release@v1
@@ -69,8 +79,9 @@ jobs:
           export DATE=`date "+%Y-%m-%d"`
           export HASH=`git rev-parse --short HEAD`
           aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH/
-          aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/vitessce-data/docs-root/$DATE/$HASH/
+          aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/docs-root/$DATE/$HASH/
           aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
+          aws s3 cp --recursive sites/demo/dist s3://legacy.vitessce.io/demos/$DATE/$HASH/
           aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
           
           
