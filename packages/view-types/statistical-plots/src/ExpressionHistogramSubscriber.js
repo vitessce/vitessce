@@ -8,7 +8,7 @@ import {
   useUrls, useReady, useGridItemSize,
   useObsFeatureMatrixData, useFeatureSelection,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
 import ExpressionHistogram from './ExpressionHistogram.js';
 import { useStyles } from './styles.js';
@@ -29,6 +29,8 @@ export function ExpressionHistogramSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    helpText = ViewHelpMapping.FEATURE_VALUE_HISTOGRAM,
+    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -127,6 +129,8 @@ export function ExpressionHistogramSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram

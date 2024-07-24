@@ -12,7 +12,7 @@ import {
   useUrls, useReady,
   useObsSetsData,
 } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import {
   treeExportLevelZeroNode,
   treeExportSet,
@@ -74,6 +74,8 @@ export function ObsSetsManagerSubscriber(props) {
     removeGridComponent,
     theme,
     title: titleOverride,
+    helpText = ViewHelpMapping.OBS_SETS,
+    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -659,6 +661,8 @@ export function ObsSetsManagerSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       {manager}
     </TitleInfo>

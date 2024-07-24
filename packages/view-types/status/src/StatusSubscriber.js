@@ -2,7 +2,7 @@ import React from 'react';
 import {
   TitleInfo, useCoordination, useWarning,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import Status from './Status.js';
 
 /**
@@ -24,6 +24,8 @@ export function StatusSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Status',
+    helpText = ViewHelpMapping.STATUS,
+    onHandleHelpIconClick,
   } = props;
 
   // Get "props" from the coordination space.
@@ -59,6 +61,8 @@ export function StatusSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isScroll
       isReady
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <Status warn={warn} info={info} />
     </TitleInfo>

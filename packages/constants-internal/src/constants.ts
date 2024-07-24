@@ -283,3 +283,28 @@ export const STATUS = {
   SUCCESS: 'success',
   ERROR: 'error',
 };
+
+/**
+ * Constants representing the help text for
+ * each view.
+ */
+export const ViewHelpMapping = {
+  SCATTERPLOT: {
+    PCA: 'A 2D Scatterplot of the cell embeddings extracted using the Principal Component Analysis (PCA) technique',
+    TSNE: 'A 2D Scatterplot of the cell embeddings extracted using the t-distributed Stochastic Neighbor Embedding (t-SNE) technique',
+  },
+  HEATMAP: 'This Heatmap View provides an overview of the gene expression (represented by color) of the genes (i.e., rows) in each cell (i.e., column). The cellSet row on top shows the cells in each cluster (color mapped to clusters in scatterplot)',
+  SPATIAL: 'Spatial View',
+  DESCRIPTION: 'Description',
+  STATUS: 'Status',
+  LAYER_CONTROLLER: 'Layer Controller',
+  GENOMIC_PROFILES: 'Genomic Profiles- Genome browser tracks with bar plots',
+  GATING: 'Scatterplot of gated gene expression data',
+  FEATURE_LIST: 'Interactive list of features',
+  OBS_SETS: 'List of potential observation sets',
+  OBS_SET_SIZES: 'sizes of selected observation sets',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'Violin plot with values',
+  FEATURE_VALUE_HISTOGRAM: 'This view provides the Distribution of ',
+  DOT_PLOT: 'Dot Plot',
+  FEATURE_BAR_PLOT: 'Feature BarPlot',
+};

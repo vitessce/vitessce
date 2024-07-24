@@ -8,7 +8,7 @@ import {
   useCoordination, useLoaders,
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy.js';
 import { useStyles } from './styles.js';
 
@@ -80,6 +80,8 @@ export function GenomicProfilesSubscriber(props) {
     assembly = 'hg38',
     title = 'Genomic Profiles',
     showGeneAnnotations = true,
+    helpText = ViewHelpMapping.GENOMIC_PROFILES,
+    onHandleHelpIconClick,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -269,6 +271,8 @@ export function GenomicProfilesSubscriber(props) {
         theme={theme}
         isReady={isReady}
         urls={urls}
+        helpText={helpText}
+        onHandleHelpIconClick={onHandleHelpIconClick}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
           {hgViewConfig ? (

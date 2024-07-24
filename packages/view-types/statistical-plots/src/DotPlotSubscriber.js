@@ -9,7 +9,7 @@ import {
   useSampleSetsData,
   useSampleEdgesData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS } from '@vitessce/utils';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import DotPlot from './DotPlot.js';
@@ -32,6 +32,8 @@ export function DotPlotSubscriber(props) {
     theme,
     title = 'Dot Plot',
     transpose = true,
+    helpText = ViewHelpMapping.DOT_PLOT,
+    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -133,6 +135,8 @@ export function DotPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

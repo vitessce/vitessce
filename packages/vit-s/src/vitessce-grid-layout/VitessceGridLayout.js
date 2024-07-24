@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import { isEqual } from 'lodash-es';
 import { getMaxRows, resolveLayout } from './layout-utils.js';
+import { HelpOverlay } from '../HelpOverlay.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -14,6 +15,18 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 }
 
 export function VitessceGridLayout(props) {
+  const [showHelpOverlay, setShowHelpOverlay] = useState(false);
+  const [helpOverlayText, setHelpOverlayText] = useState('');
+
+  function handleShowHelpOverlay(text) {
+    setShowHelpOverlay(prev => !prev);
+    setHelpOverlayText(text);
+  }
+
+  function onHandleCloseOverlay() {
+    setShowHelpOverlay(false);
+  }
+
   const {
     layout,
     viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
@@ -165,6 +178,7 @@ export function VitessceGridLayout(props) {
             coordinationScopes={v.coordinationScopes}
             coordinationScopesBy={v.coordinationScopesBy}
             theme={theme}
+            onHandleHelpIconClick={handleShowHelpOverlay}
             removeGridComponent={removeGridComponent}
           />
         </div>
@@ -201,6 +215,12 @@ export function VitessceGridLayout(props) {
         >
           {layoutChildren}
         </ResponsiveHeightGridLayout>
+        {showHelpOverlay ? (
+          <HelpOverlay
+            helpOverlayText={helpOverlayText}
+            onHandleCloseOverlay={onHandleCloseOverlay}
+          />
+        ) : null}
       </>
     )));
 }
