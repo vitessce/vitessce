@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     permissions:
-      # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+      # Need "write" to interact with GitHub's OIDC Token endpoint.
       id-token: write
-      contents: read
+      # Need "read" to interact with GitHub's OIDC Token endpoint. Need "write" to create release. Write also includes Read.
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
         with:
