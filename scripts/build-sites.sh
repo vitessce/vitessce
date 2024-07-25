@@ -9,9 +9,6 @@ DEMO_URL_PATH="demos/$DATE/$HASH"
 ROOT_DOCS_URL_PATH="docs-root/$DATE/$HASH"
 VERSIONED_DOCS_URL_PATH="docs/$DATE/$HASH"
 
-die() { set +v; echo "$*" 1>&2 ; exit 1; }
-git diff --quiet || die 'Uncommitted changes: Stash or commit before pushing.'
-
 # Build library...
 pnpm run build
 
