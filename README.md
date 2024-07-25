@@ -142,7 +142,7 @@ if it looks good, copy it to dev.vitessce.io:
 Note: if you need to obtain this URL later:
 
 ```
-Copy dev to https://s3.amazonaws.com/vitessce-data/demos/$DATE/$HASH/index.html
+Copy dev to https://legacy.vitessce.io/demos/$DATE/$HASH/index.html
 ```
 
 #### Publish staged docs to vitessce.io
@@ -157,7 +157,7 @@ if it looks good, copy it to vitessce.io:
 Note: if you need to obtain this URL later:
 
 ```
-Copy docs to https://s3.amazonaws.com/vitessce-data/docs-root/$DATE/$HASH/index.html
+Copy docs to https://data-1.vitessce.io/docs-root/$DATE/$HASH/index.html
 ```
 
 ## Release
