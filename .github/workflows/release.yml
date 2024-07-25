@@ -84,8 +84,10 @@ jobs:
           aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH/
           aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/docs-root/$DATE/$HASH/
           aws s3 cp --recursive sites/demo/dist s3://legacy.vitessce.io/demos/$DATE/$HASH/
-          aws s3 sync sites/docs/dist-root s3://vitessce-docs/
-          aws s3 sync --recursive sites/demo/dist s3://vitessce-dev/
+          aws s3 rm --recursive s3://vitessce-docs/
+          aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
+          aws s3 rm --recursive s3://vitessce-dev/
+          aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
       - name: Invalidate CloudFront caches
         if: steps.changesets.outputs.should-release == 'true'
         run: |
