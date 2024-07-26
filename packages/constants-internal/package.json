@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@vitessce/types": "workspace:*"
   }
 }

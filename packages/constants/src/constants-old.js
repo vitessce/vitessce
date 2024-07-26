@@ -1,9 +1,15 @@
+// @ts-check
 /**
  * Old constant values with deprecation log messages.
  * Values should be tuples like [oldValue, deprecationMessage].
  */
+// import {
+//   ViewTypeOld,
+//   DataTypeOld,
+//   CoordinationTypeOld
+// } from '@vitessce/types';
 
-// @ts-check
+
 export const ViewType = {
   GENES: [
     'genes',
@@ -52,6 +58,11 @@ export const DataType = {
 
 export const FileType = {};
 
+/**
+ * @param {string} newTypeName
+ * @param {string} newVersion
+ * @returns {[string, string, string]}
+ */
 function makeChangeMessage(newTypeName, newVersion) {
   return [
     `This coordination type was changed to ${newTypeName} in view config schema version ${newVersion}`,

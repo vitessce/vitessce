@@ -1,10 +1,16 @@
+// @ts-check
 /**
  * The exports from this file are not intended to be used for internal development.
  * They are only meant to be exported from the package's main index.js to enable
  * backwards compatibility.
  */
 
-// @ts-check
+// import {
+//   ViewTypeCurr, ViewTypeOld
+//   DataTypeCurr, DataTypeOld
+//   CoordinationTypeCurr, CoordinationTypeOld
+// } from '@vitessce/types';
+
 import {
   ViewType as ViewTypeCurr,
   DataType as DataTypeCurr,
@@ -18,13 +24,23 @@ import {
   CoordinationType as CoordinationTypeOld,
 } from './constants-old.js';
 
+/**
+ * Creates a constant with a deprecation message.
+ * @template T
+ * @param {ViewTypeCurr | DataTypeCurr | FileTypeCurr | CoordinationTypeCurr} currObj
+ * @param {ViewTypeOld | DataTypeOld | FileTypeOld | CoordinationTypeOld} oldObj
+ * @returns {T & object} A proxy object with deprecation warnings.
+ */
+
 function makeConstantWithDeprecationMessage(currObj, oldObj) {
+  /** @type {ProxyHandler<any & string>} */
   const handler = {
     get(obj, prop) {
       const oldKeys = Object.keys(oldObj);
-      if (oldKeys.includes(prop)) {
-        console.warn(`Notice about the constant mapping ${prop}: '${oldObj[prop][0]}':\n${oldObj[prop][1]}`);
-        return oldObj[prop];
+      const propKey = String(prop);
+      if (oldKeys.includes(propKey)) {
+        console.warn(`Notice about the constant mapping ${propKey}: '${oldObj[propKey][0]}':\n${oldObj[propKey][1]}`);
+        return oldObj[propKey];
       }
       return obj[prop];
     },
