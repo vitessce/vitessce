@@ -34,7 +34,7 @@ cd sites/docs
 
 # We need to build the docs site twice:
 # 1. With baseUrl: "/" which may be copied to vitessce.io.
-# 2. With baseUrl: "/vitessce-data/docs/2020-12-19/b416e16/" for the versioned access via legacy.vitessce.io.
+# 2. With baseUrl: "/docs/2020-12-19/b416e16/" for the versioned access via legacy.vitessce.io.
 export VITESSCE_DOCS_BASE_URL="/"
 pnpm run build-root
 export VITESSCE_DOCS_BASE_URL="/$VERSIONED_DOCS_URL_PATH/"
