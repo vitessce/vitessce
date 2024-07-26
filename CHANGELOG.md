@@ -1,4 +1,11 @@
 
+## 3.4.9
+
+### Patch Changes
+
+- Fix issue in versioned URLs. (`vitessce`) ([#1917](https://github.com/vitessce/vitessce/pull/1917))
+
+
 ## 3.4.8
 
 ### Patch Changes
