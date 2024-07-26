@@ -190,11 +190,6 @@ export function stratifyExpressionData(
   cellSetColor, // TODO: remove this parameter
   featureValueTransform, featureValueTransformCoefficient,
 ) {
-  console.log(
-    sampleEdges, sampleSets, sampleSetSelection,
-    expressionData, obsIndex, mergedCellSets,
-    geneSelection, cellSetSelection,
-  );
   const result = new InternMap([], JSON.stringify);
 
   const hasSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 0;
@@ -263,7 +258,6 @@ export function stratifyExpressionData(
           ?.push(transformedValue);
       });
     }
-    console.log(result);
     return [result, exprMax];
   }
   return [null, null];
@@ -284,7 +278,7 @@ export function aggregateStratifiedExpressionData(
   stratifiedResult, geneSelection,
 ) {
   const result = new InternMap([], JSON.stringify);
-  if(stratifiedResult) {
+  if (stratifiedResult) {
     Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
       result.set(cellSetKey, new InternMap([], JSON.stringify));
       Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
