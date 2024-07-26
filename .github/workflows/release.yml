@@ -57,8 +57,8 @@ jobs:
         run: |
           export DATE=`date "+%Y-%m-%d"`
           export HASH=`git rev-parse --short HEAD`
-          export VERSIONED_DOCS_URL="https://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH"
-          export VERSIONED_DEMO_URL="https://legacy.vitessce.io/demos/$DATE/$HASH"
+          export VERSIONED_DOCS_URL="https://legacy.vitessce.io/docs/$DATE/$HASH/"
+          export VERSIONED_DEMO_URL="https://legacy.vitessce.io/demos/$DATE/$HASH/"
           echo "### Versioned Sites" >> RELEASE_NOTES.md
           echo "- [Docs]($VERSIONED_DOCS_URL)" >> RELEASE_NOTES.md
           echo "- [Demo]($VERSIONED_DEMO_URL)" >> RELEASE_NOTES.md
@@ -83,7 +83,7 @@ jobs:
         run: |
           export DATE=`date "+%Y-%m-%d"`
           export HASH=`git rev-parse --short HEAD`
-          aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/vitessce-data/docs/$DATE/$HASH/
+          aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/docs/$DATE/$HASH/
           aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/docs-root/$DATE/$HASH/
           aws s3 cp --recursive sites/demo/dist s3://legacy.vitessce.io/demos/$DATE/$HASH/
           aws s3 rm --recursive s3://vitessce-docs/
