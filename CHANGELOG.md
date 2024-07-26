@@ -1,4 +1,11 @@
 
+## 3.4.8
+
+### Patch Changes
+
+- Add configs for paper figures. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`, `@vitessce/example-configs`) ([#1915](https://github.com/vitessce/vitessce/pull/1915))
+
+
 ## 3.4.7
 
 ### Patch Changes
