@@ -2,6 +2,8 @@
  * Old constant values with deprecation log messages.
  * Values should be tuples like [oldValue, deprecationMessage].
  */
+
+// @ts-check
 export const ViewType = {
   GENES: [
     'genes',

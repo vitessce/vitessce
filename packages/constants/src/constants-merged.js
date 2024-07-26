@@ -3,6 +3,8 @@
  * They are only meant to be exported from the package's main index.js to enable
  * backwards compatibility.
  */
+
+// @ts-check
 import {
   ViewType as ViewTypeCurr,
   DataType as DataTypeCurr,
