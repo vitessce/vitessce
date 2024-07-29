@@ -89,7 +89,7 @@ We are using PNPM [catalogs](https://pnpm.io/catalogs) which are available from 
 
 For the end-to-end tests, they depend on 
 ```sh
-pnpm run build-demo
+cd sites/demo && pnpm run build-demo
 ```
 
 - To run all the tests, both unit and e2e: `./scripts/test.sh`
