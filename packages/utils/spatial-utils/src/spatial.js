@@ -532,7 +532,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         if (type === 'identity') {
           return { type };
         }
-        if (type == 'sequence') {
+        if (type === 'sequence') {
           return normalizeCoordinateTransformations(transform.transformations, datasets);
         }
         console.warn(`Coordinate transformation type "${type}" is not supported.`);
