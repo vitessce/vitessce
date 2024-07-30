@@ -287,6 +287,5 @@ export function aggregateStratifiedExpressionData(
       result.get(cellSetKey).set(sampleSetKey, values);
     });
   });
-
   return result;
 }

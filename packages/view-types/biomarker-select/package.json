@@ -39,7 +39,8 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/types": "workspace:*",
-    "fuse.js": "^7.0.0"
+    "fuse.js": "^7.0.0",
+    "d3-dsv": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

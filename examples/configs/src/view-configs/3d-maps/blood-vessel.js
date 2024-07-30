@@ -12,16 +12,16 @@ function generateBloodVesselConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/redBloodCell.offsets.json',
     },
     coordinationValues: {
       fileUid: 'kidney',
     },
   }).addFile({
     fileType: 'obsSegmentations.glb',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVessel.glb',
+    url: 'https://data-2.vitessce.io/data/bloodVessel.glb',
     // url: 'http://127.0.0.1:8080/untitled.glb',
     // url: 'http://127.0.0.1:8081/bloodVEssel.glb',
     options: {

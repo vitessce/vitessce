@@ -200,7 +200,7 @@ export const codeluppi2018 = {
         {
           type: 'cells',
           fileType: 'cells.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cells.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.cells.json',
           options: {
             embeddingTypes: [
               'PCA',
@@ -211,26 +211,26 @@ export const codeluppi2018 = {
         {
           type: 'cell-sets',
           fileType: 'cell-sets.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.cell-sets.json',
         },
         {
           fileType: 'image.raster.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.raster.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.raster.json',
         },
         {
           type: 'molecules',
           fileType: 'molecules.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.molecules.json',
         },
         {
           type: 'neighborhoods',
           fileType: 'neighborhoods.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.neighborhoods.json',
         },
         {
           type: 'expression-matrix',
           fileType: 'clusters.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/linnarsson/linnarsson.clusters.json',
+          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.clusters.json',
         },
       ],
     },

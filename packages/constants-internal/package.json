@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/constants-internal",
-  "version": "3.4.6",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "devDependencies": {
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

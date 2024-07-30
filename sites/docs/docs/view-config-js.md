@@ -10,7 +10,7 @@ slug: /view-config-js
 The Vitessce view config defines how data is retrieved, which views are rendered, and how different views are coordinated.
 Ultimately, this configuration must be a JSON object when it is passed to the `<Vitessce/>` React component's [`config`](/docs/js-react-vitessce/#config) prop.
 
-Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://vitessce.github.io/vitessce-python/) and [R](https://vitessce.github.io/vitessceR/) if one of those languages is more familiar to you.
+Writing large JSON objects by hand can be difficult and prevents from using variables for more easily maintainable string constants, so we have developed object-oriented APIs to simplify this process. There are corresponding APIs in [Python](https://python-docs.vitessce.io/) and [R](https://r-docs.vitessce.io/) if one of those languages is more familiar to you.
 
 ## `VitessceConfig`
 
