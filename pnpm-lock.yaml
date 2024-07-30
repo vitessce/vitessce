@@ -1615,6 +1615,9 @@ importers:
       d3-quadtree:
         specifier: 'catalog:'
         version: 1.0.7
+      d3-scale:
+        specifier: 'catalog:'
+        version: 4.0.2
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -1725,7 +1728,7 @@ importers:
     dependencies:
       '@material-ui/core':
         specifier: ~4.12.3
-        version: 4.12.4(react-dom@18.2.0)(react@18.2.0)
+        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1749,7 +1752,7 @@ importers:
         version: 4.17.21
       react-aria:
         specifier: ^3.28.0
-        version: 3.28.0(react-dom@18.2.0)(react@18.2.0)
+        version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       react:
         specifier: ^18.0.0
@@ -1759,7 +1762,7 @@ importers:
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: ^0.32.2
-        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(sass@1.55.0)(terser@5.15.1)
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/spatial:
     dependencies:
@@ -3287,8 +3290,8 @@ packages:
     peerDependencies:
       '@deck.gl/core': ^8.0.0
       '@types/react': '>= 16.3'
-      react: '>=16.3 || 18'
-      react-dom: '>=16.3 || 18'
+      react: '>=16.3'
+      react-dom: '>=16.3'
 
   '@docsearch/css@3.2.1':
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
@@ -5289,7 +5292,7 @@ packages:
     resolution: {integrity: sha512-ih872YZS9H7JrPDYlZqZ2qDiXPWXT8fVx6cA0OouFO2bDOw8q1E2MN36lhN2pUYjL2aC2NmLgS1yq2zN0bblXQ==}
     peerDependencies:
       '@deck.gl/react': ~8.8.27
-      react: ^16.8.0 || ^17.0.0 || 18
+      react: ^16.8.0 || ^17.0.0
 
   '@vivjs/views@0.16.0':
     resolution: {integrity: sha512-OQ4/3X5DLcu2yKVFeopmWW6iZ+hfTgkle84wfNPwPvvhtV3b1vEeUMzyBt5p1RSvpTzKGKv8CR5R4SdTunkUEQ==}
@@ -19885,7 +19888,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-geo: 3.0.1
 
   d3-geo@1.12.1:
@@ -19898,7 +19901,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-hexbin@0.2.2: {}
 
@@ -19951,7 +19954,7 @@ snapshots:
 
   d3-scale@4.0.2:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-format: 3.1.0
       d3-interpolate: 3.0.1
       d3-time: 3.0.0
@@ -19981,7 +19984,7 @@ snapshots:
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-timer@1.0.10: {}
 
