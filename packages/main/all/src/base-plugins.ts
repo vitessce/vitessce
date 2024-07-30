@@ -84,6 +84,7 @@ import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
   ExpressionHistogramSubscriber,
+  DotPlotSubscriber,
   FeatureBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
@@ -215,6 +216,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.FEATURE_BAR_PLOT, FeatureBarPlotSubscriber),
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
+  makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
 ];
 
@@ -420,6 +422,11 @@ export const baseCoordinationTypes = [
     z.number(),
   ),
   new PluginCoordinationType(
+    CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
+    0,
+    z.number(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.TOOLTIPS_VISIBLE,
     true,
     z.boolean(),
@@ -491,6 +498,23 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
+  // TODO: remove one array level and use multi-coordination for sampleSetSelection?
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.SAMPLE_SET_COLOR,
+    null,
+    z.array(z.object({
+      path: obsSetPath,
+      color: rgbArray,
+    })).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
   // For volcano plot:
   new PluginCoordinationType(CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN, null, z.string().nullable()),

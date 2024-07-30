@@ -11,9 +11,9 @@ function generateBloodVesselNeighborhood() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/bloodVessel_bigger.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/bloodVessel_bigger.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/bloodVessel_bigger.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/bloodVessel_bigger.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',

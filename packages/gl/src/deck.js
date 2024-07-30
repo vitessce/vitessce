@@ -7,3 +7,4 @@ export {
     LineLayer,
 } from '@deck.gl/layers';
 export { OrthographicView, OrbitView } from '@deck.gl/core';
+export { ContourLayer } from '@deck.gl/aggregation-layers';

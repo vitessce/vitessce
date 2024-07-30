@@ -8,7 +8,7 @@ export const kuppe2022nature = {
     files: [
       {
         fileType: 'obsSets.anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
+        url: 'https://data-1.vitessce.io/0.0.33/main/kuppe-2022/kuppe_2022_nature.joint.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
         },
@@ -33,7 +33,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
+        url: 'https://data-1.vitessce.io/0.0.33/main/kuppe-2022/kuppe_2022_nature.rna.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
@@ -60,7 +60,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
+        url: 'https://data-1.vitessce.io/0.0.33/main/kuppe-2022/kuppe_2022_nature.atac.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'gene',
@@ -83,7 +83,7 @@ export const kuppe2022nature = {
       },
       {
         fileType: 'anndata.zarr',
-        url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
+        url: 'https://data-1.vitessce.io/0.0.33/main/kuppe-2022/kuppe_2022_nature.visium.h5ad.zarr',
         coordinationValues: {
           obsType: 'spot',
           featureType: 'gene',

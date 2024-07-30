@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
+import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
 } from '@vitessce/gl';
@@ -36,6 +37,19 @@ const getPosition = (object, { index, data, target }) => {
   target[2] = 0;
   return target;
 };
+
+
+const contourGetWeight = (object, { index, data }) => data.src.featureValues[index];
+
+const contourGetPosition = (object, { index, data, target }) => {
+  target[0] = data.src.embeddingX[index];
+  target[1] = -data.src.embeddingY[index];
+  target[2] = 0;
+  return target;
+};
+
+const contourGetPolygonOffset = () => ([0, 20]);
+
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -80,14 +94,92 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
     this.cellsQuadTree = null;
     this.cellsLayer = null;
     this.cellsData = null;
+    this.stratifiedData = null;
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
+
+    this.contourLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
     this.onUpdateCellsLayer();
     this.onUpdateCellSetsLayers();
+    this.onUpdateStratifiedData();
+    this.onUpdateContourLayers();
+  }
+
+  // Want to support multiple types of contour layers
+  // - One layer for all data points (no filtering)
+  // - Array of per-selected-obsSet layers (filter to obsSet members)
+  // - Array of per-selected-sampleSet layers (filter to sampleSet members)
+  // - Array of per-sampleSet, per-obsSet layers (filter to sampleSet and obsSet members)
+  createContourLayers() {
+    const {
+      theme,
+      obsSetColor,
+      sampleSetColor,
+      contourColorEncoding,
+      contourThresholds,
+      contoursFilled,
+      contourColor: contourColorProp,
+    } = this.props;
+
+    const layers = Array.from(this.stratifiedData.entries())
+      .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
+        .map(([sampleSetKey, arrs]) => {
+          const deckData = arrs.get('deckData');
+
+          // The thresholds are computed based on the entire dataset,
+          // as opposed to just the subsets for each layer.
+          // This way, the contours will be comparable among different layers.
+
+          // TODO: Also support a user-defined static color.
+          // Fall back to default color based on the current theme.
+          let contourColor = contourColorProp || getDefaultColor(theme);
+          if (contourColorEncoding === 'cellSetSelection') {
+            contourColor = (
+              obsSetColor?.find(d => isEqual(obsSetKey, d.path))?.color
+              || contourColor
+            );
+          } else if (contourColorEncoding === 'sampleSetSelection') {
+            contourColor = (
+              sampleSetColor?.find(d => isEqual(sampleSetKey, d.path))?.color
+              || contourColor
+            );
+          }
+          return new deck.ContourLayer({
+            id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
+            coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+            data: deckData,
+            getWeight: contourGetWeight,
+            getPosition: contourGetPosition,
+            getPolygonOffset: contourGetPolygonOffset,
+            contours: contourThresholds.map((threshold, i) => ({
+              threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
+              // TODO: should the opacity steps be uniform? Should align with human perception.
+              // TODO: support usage of static colors.
+              color: [
+                // r, g, b
+                ...contourColor,
+                // a
+                (contoursFilled
+                  ? ((i + 0.5) / contourThresholds.length * 255)
+                  : ((i + 1) / (contourThresholds.length)) * 255),
+              ],
+              strokeWidth: 2,
+            })),
+            aggregation: 'MEAN',
+            gpuAggregation: true,
+            visible: true,
+            pickable: false,
+            autoHighlight: false,
+            filled: contoursFilled,
+            cellSize: 0.25,
+            zOffset: 0.005,
+          });
+        }));
+    return layers;
   }
 
   createCellsLayer() {
@@ -255,9 +347,11 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
     const {
       cellsLayer,
       cellSetsLayers,
+      contourLayers,
     } = this;
     return [
       cellsLayer,
+      ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
     ];
@@ -278,11 +372,50 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsLayer() {
-    const { obsEmbeddingIndex, obsEmbedding } = this.props;
-    if (obsEmbeddingIndex && obsEmbedding) {
+    const { obsEmbeddingIndex, obsEmbedding, embeddingPointsVisible } = this.props;
+    if (embeddingPointsVisible && obsEmbeddingIndex && obsEmbedding) {
       this.cellsLayer = this.createCellsLayer();
     } else {
       this.cellsLayer = null;
+    }
+  }
+
+  onUpdateStratifiedData() {
+    const { stratifiedData } = this.props;
+    if (stratifiedData) {
+      // Set up the data object { src, length } for each ContourLayer.
+      Array.from(stratifiedData.values())
+        .forEach(sampleSetMap => Array.from(sampleSetMap.values())
+          .forEach((arrs) => {
+            // Not ideal, but here we are mutating the nested Map (arrs)
+            // to add the 'deckData' object.
+            const embeddingX = arrs.get('obsEmbeddingX');
+            const embeddingY = arrs.get('obsEmbeddingY');
+            const featureValues = arrs.get('featureValue');
+            const obsIndex = arrs.get('obsIndex');
+
+            // We want to memoize / stabilize the object reference
+            // that we pass to ContourLayer.data to prevent extra re-renders.
+            arrs.set('deckData', {
+              src: {
+                embeddingX,
+                embeddingY,
+                featureValues,
+                obsIndex,
+              },
+              length: obsIndex.length,
+            });
+          }));
+      this.stratifiedData = stratifiedData;
+    }
+  }
+
+  onUpdateContourLayers() {
+    const { stratifiedData, contourThresholds, embeddingContoursVisible } = this.props;
+    if (embeddingContoursVisible && stratifiedData && contourThresholds) {
+      this.contourLayers = this.createContourLayers();
+    } else {
+      this.contourLayers = [];
     }
   }
 
@@ -334,6 +467,7 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
    * This function does not follow React conventions or paradigms,
    * it is only implemented this way to try to squeeze out
    * performance.
+   * TODO: can this be replaced by React.memo with custom arePropsEqual?
    * @param {object} prevProps The previous props to diff against.
    */
   componentDidUpdate(prevProps) {
@@ -341,9 +475,15 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     let forceUpdate = false;
-    if (['obsEmbedding'].some(shallowDiff)) {
+    if (['obsEmbedding', 'obsEmbeddingIndex'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
+      forceUpdate = true;
+    }
+
+    if (['stratifiedData'].some(shallowDiff)) {
+      // Cells data changed.
+      this.onUpdateStratifiedData();
       forceUpdate = true;
     }
 
@@ -351,12 +491,19 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
-      'getExpressionValue',
+      'getExpressionValue', 'embeddingPointsVisible',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();
       forceUpdate = true;
     }
+
+    if (['stratifiedData', 'contourColorEncoding', 'contoursFilled', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
+      // Cells data changed.
+      this.onUpdateContourLayers();
+      forceUpdate = true;
+    }
+
     if ([
       'cellSetPolygons', 'cellSetPolygonsVisible',
       'cellSetLabelsVisible', 'cellSetLabelSize',
