@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/glb",
-  "version": "3.4.6",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -37,13 +37,9 @@
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@react-three/drei": "~9.89.0",
-    "ajv": "^6.10.0",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "three": "^0.154.0"
-  },
-  "devDependencies": {
-    "ajv": "^6.10.0"
+    "@react-three/drei": "catalog:",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "three": "catalog:"
   }
 }

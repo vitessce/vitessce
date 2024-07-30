@@ -11,16 +11,16 @@ function generateBloodVesselConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/redBloodCell.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
     },
   }).addFile({
     fileType: 'obsSegmentations.glb',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/bloodVesselNamed.glb',
+    url: 'https://data-2.vitessce.io/data/bloodVesselNamed.glb',
     options: {
       targetX: 403,
       targetY: -582,

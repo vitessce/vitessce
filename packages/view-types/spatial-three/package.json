@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-three",
-  "version": "3.4.6",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,10 +30,10 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
-    "@react-three/fiber": "^8.15.19",
-    "@react-three/drei": "^9.99.7",
-    "@react-three/xr": "^5.7.1",
+    "@material-ui/core": "catalog:",
+    "@react-three/fiber": "catalog:",
+    "@react-three/drei": "catalog:",
+    "@react-three/xr": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",
@@ -42,19 +42,19 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "math.gl": "^3.5.6",
-    "mathjs": "^9.2.0",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "math.gl": "catalog:",
+    "mathjs": "catalog:",
     "plur": "^5.1.0",
     "short-number": "^1.0.6",
-    "three": "^0.154.0"
+    "three": "catalog:"
   },
   "devDependencies": {
     "@types/three": "^0.162.0",
-    "react": "^18.0.0",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

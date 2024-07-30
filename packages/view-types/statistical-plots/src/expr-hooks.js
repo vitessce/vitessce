@@ -57,14 +57,14 @@ export function dotStratifiedExpressionData(
   stratifiedResult, posThreshold,
 ) {
   const result = new InternMap([], JSON.stringify);
-  ([...stratifiedResult.keys()]).forEach((cellSetKey) => {
+  Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
     result.set(cellSetKey, new InternMap([], JSON.stringify));
-    ([...stratifiedResult.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
+    Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
       result.get(cellSetKey).set(sampleSetKey, new InternMap([], JSON.stringify));
 
       const allGenes = stratifiedResult.get(cellSetKey).get(sampleSetKey);
 
-      ([...allGenes.keys()]).forEach((geneKey) => {
+      Array.from(allGenes.keys()).forEach((geneKey) => {
         const values = allGenes.get(geneKey);
 
         const exprMean = d3_mean(values);
@@ -95,9 +95,9 @@ export function summarizeStratifiedExpressionData(
 ) {
   const summarizedResult = new InternMap([], JSON.stringify);
 
-  ([...stratifiedResult.keys()]).forEach((cellSetKey) => {
+  Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
     summarizedResult.set(cellSetKey, new InternMap([], JSON.stringify));
-    ([...stratifiedResult.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
+    Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
       const values = stratifiedResult.get(cellSetKey).get(sampleSetKey);
       const summary = summarize(values, keepZeros);
       summarizedResult.get(cellSetKey).set(sampleSetKey, summary);
@@ -119,9 +119,9 @@ export function summarizeStratifiedExpressionData(
 export function histogramStratifiedExpressionData(
   summarizedResult, binCount, yMinProp,
 ) {
-  const groupSummaries = ([...summarizedResult.keys()]).map(cellSetKey => ({
+  const groupSummaries = Array.from(summarizedResult.keys()).map(cellSetKey => ({
     key: cellSetKey,
-    value: ([...summarizedResult.get(cellSetKey).keys()]).map(sampleSetKey => ({
+    value: Array.from(summarizedResult.get(cellSetKey).keys()).map(sampleSetKey => ({
       key: sampleSetKey,
       value: summarizedResult.get(cellSetKey).get(sampleSetKey),
     })),
