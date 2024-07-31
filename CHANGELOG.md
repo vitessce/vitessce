@@ -1,4 +1,11 @@
 
+## 3.4.10
+
+### Patch Changes
+
+- Implement sequence transformation for OME-NGFF / SpatialData. (`@vitessce/spatial-utils`) ([#1900](https://github.com/vitessce/vitessce/pull/1900))
+
+
 ## 3.4.9
 
 ### Patch Changes
