@@ -4,6 +4,7 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ContourTextLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -125,6 +126,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourColor: contourColorProp,
     } = this.props;
 
+    function onContourDataChange(key, contourData) {
+      console.log(key, contourData);
+      // TODO: physics simulation with matter-js and matter-attractors
+    }
+
     const layers = Array.from(this.stratifiedData.entries())
       .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
         .map(([sampleSetKey, arrs]) => {
@@ -148,7 +154,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
               || contourColor
             );
           }
-          return new deck.ContourLayer({
+          return new ContourTextLayer({
             id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
             coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
             data: deckData,
@@ -177,6 +183,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             filled: contoursFilled,
             cellSize: 0.25,
             zOffset: 0.005,
+            onContourDataChange: (contourData) => onContourDataChange(`${obsSetKey}-${sampleSetKey}`, contourData),
           });
         }));
     return layers;

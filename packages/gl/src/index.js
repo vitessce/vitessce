@@ -7,6 +7,8 @@ export { default as PixelatedBitmapLayer } from './PixelatedBitmapLayer.js';
 export { default as HeatmapCompositeTextLayer } from './HeatmapCompositeTextLayer.js';
 export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressionHeatmapBitmapLayer.js';
 
+export { default as ContourTextLayer } from './ContourTextLayer.js';
+
 export {
   GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TYPE,
 } from './constants.js';
@@ -16,7 +18,6 @@ export { default as ScaledExpressionExtension } from './ScaledExpressionExtensio
 export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
 export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
-
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
@@ -36,3 +37,5 @@ export * as viv from './viv.js';
 export * as luma from './luma.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as deck from './deck.js';
+// eslint-disable-next-line react-refresh/only-export-components
+export * as matter from './matter.js';

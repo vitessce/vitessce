@@ -67,7 +67,8 @@
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
     "mathjs": "catalog:",
-    "nebula.gl": "catalog:nebula.gl"
+    "nebula.gl": "catalog:nebula.gl",
+    "matter-js": "^0.20.0"
   },
   "devDependencies": {
     "glsl-colormap": "^1.0.1"
