@@ -263,29 +263,29 @@ export const neumannAutoInit = {
             init_A_image_2: 'IMS PosMode',
             init_A_image_3: 'IMS NegMode',
           },
-	        photometricInterpretation: {
+          photometricInterpretation: {
             init_A_image_0: 'RGB',
             init_A_image_1: 'BlackIsZero',
             init_A_image_2: 'BlackIsZero',
             init_A_image_3: 'BlackIsZero',
           },
-	        spatialLayerVisible: {
-	          init_A_image_0: 'PAS',
+          spatialLayerVisible: {
+            init_A_image_0: 'PAS',
             init_A_image_1: 'AF',
             init_A_image_2: 'IMS PosMode',
             init_A_image_3: 'IMS NegMode',
-	        },
-	        spatialLayerTransparentColor: {
+          },
+          spatialLayerTransparentColor: {
             init_A_image_1: 'AF',
             init_A_image_2: 'IMS PosMode',
             init_A_image_3: 'IMS NegMode',
           },
           imageChannel: {
-	          init_A_image_0: ['init_A_image_0'],
+            init_A_image_0: ['init_A_image_0'],
             init_A_image_1: ['init_A_image_1'],
             init_A_image_2: ['init_A_image_2'],
             init_A_image_3: ['init_A_image_3'],
-	        },
+          },
         },
       },
     },
