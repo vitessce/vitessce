@@ -9,7 +9,7 @@ export const humanLymphNode10xVisium = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
           coordinationValues: {
             obsType: 'spot',
             featureType: 'gene',

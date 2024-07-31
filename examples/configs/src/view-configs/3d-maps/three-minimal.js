@@ -12,9 +12,9 @@ function generateThreeMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json',
     },
     coordinationValues: {
       fileUid: 'kiemen',

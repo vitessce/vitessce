@@ -7,7 +7,7 @@ export const marshall2022iScience = {
     name: 'marshall_2022',
     files: [{
       fileType: 'anndata.zarr',
-      url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/marshall-2022/marshall_2022_iscience.h5ad.zarr',
+      url: 'https://data-1.vitessce.io/0.0.33/main/marshall-2022/marshall_2022_iscience.h5ad.zarr',
       coordinationValues: {
         obsType: 'bead',
         featureType: 'gene',

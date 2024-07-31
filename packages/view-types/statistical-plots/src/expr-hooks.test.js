@@ -90,8 +90,8 @@ describe('Utility functions for processing expression data for statistical plots
       );
       const summaryResult = summarizeStratifiedExpressionData(aggregateData, true);
 
-      expect([...summaryResult.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
-      expect([...summaryResult.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
+      expect(Array.from(summaryResult.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
+      expect(Array.from(summaryResult.get(['Cell type', 'T cell']).keys())).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
       expect(Object.keys(summaryResult.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']))).toEqual([
         'quartiles',
         'range',

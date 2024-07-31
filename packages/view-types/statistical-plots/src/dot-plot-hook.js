@@ -68,9 +68,9 @@ export function useExpressionSummaries(
       );
 
       const result = [];
-      ([...dotData.keys()]).forEach((cellSetKey) => {
-        ([...dotData.get(cellSetKey).keys()]).forEach((sampleSetKey) => {
-          ([...dotData.get(cellSetKey).get(sampleSetKey).keys()]).forEach((geneKey) => {
+      Array.from(dotData.keys()).forEach((cellSetKey) => {
+        Array.from(dotData.get(cellSetKey).keys()).forEach((sampleSetKey) => {
+          Array.from(dotData.get(cellSetKey).get(sampleSetKey).keys()).forEach((geneKey) => {
             const dotObj = dotData.get(cellSetKey).get(sampleSetKey).get(geneKey);
             const featureName = geneKey;
             result.push({
