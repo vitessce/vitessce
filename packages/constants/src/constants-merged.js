@@ -5,12 +5,6 @@
  * backwards compatibility.
  */
 
-// import {
-//   ViewTypeCurr, ViewTypeOld
-//   DataTypeCurr, DataTypeOld
-//   CoordinationTypeCurr, CoordinationTypeOld
-// } from '@vitessce/types';
-
 import {
   ViewType as ViewTypeCurr,
   DataType as DataTypeCurr,
@@ -26,12 +20,11 @@ import {
 
 /**
  * Creates a constant with a deprecation message.
- * @template T
- * @param {ViewTypeCurr | DataTypeCurr | FileTypeCurr | CoordinationTypeCurr} currObj
+ * @template {ViewTypeCurr | DataTypeCurr | FileTypeCurr | CoordinationTypeCurr} T
+ * @param {T} currObj
  * @param {ViewTypeOld | DataTypeOld | FileTypeOld | CoordinationTypeOld} oldObj
- * @returns {T & object} A proxy object with deprecation warnings.
+ * @returns {T} A proxy object with deprecation warnings.
  */
-
 function makeConstantWithDeprecationMessage(currObj, oldObj) {
   /** @type {ProxyHandler<any & string>} */
   const handler = {

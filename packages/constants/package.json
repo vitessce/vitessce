@@ -29,7 +29,6 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js"
   },
   "dependencies": {
-    "@vitessce/types": "workspace:*",
     "@vitessce/constants-internal": "workspace:*"
   }
 }

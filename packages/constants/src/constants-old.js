@@ -3,12 +3,6 @@
  * Old constant values with deprecation log messages.
  * Values should be tuples like [oldValue, deprecationMessage].
  */
-// import {
-//   ViewTypeOld,
-//   DataTypeOld,
-//   CoordinationTypeOld
-// } from '@vitessce/types';
-
 
 export const ViewType = {
   GENES: [
