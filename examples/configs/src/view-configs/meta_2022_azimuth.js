@@ -7,7 +7,7 @@ export const meta2022azimuth = {
     name: 'azimuth_2022_meta',
     files: [{
       fileType: 'anndata.zarr',
-      url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/meta-2022-azimuth/meta_2022_azimuth.h5ad.zarr',
+      url: 'https://data-1.vitessce.io/0.0.33/main/meta-2022-azimuth/meta_2022_azimuth.h5ad.zarr',
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',

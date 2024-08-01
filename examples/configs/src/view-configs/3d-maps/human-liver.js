@@ -14,13 +14,13 @@ function generateThreeMinimalConfiguration() {
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
     // url: "https://assets.hubmapconsortium.org/30bc1823e0c19be58557fb979499bac2/ometiff-pyramids/data/3D_image_stack.ome.tif?token=",
-    // url: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.ome.tiff",
+    // url: "https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff",
     // url: "http://127.0.0.1:8080/cell_community.ome.tif",
-    // url: "https://vitessce-data-v2.s3.amazonaws.com/data/redBloodCell.ome.tiff",
-    // url: "https://vitessce-data-v2.s3.amazonaws.com/data/sorger/f8ii.ome.tiff",
+    // url: "https://data-2.vitessce.io/data/redBloodCell.ome.tiff",
+    // url: "https://data-2.vitessce.io/data/sorger/f8ii.ome.tiff",
     url: 'https://storage.googleapis.com/vitessce-data/0.0.31/master_release/tian/human_3d.raster.pyramid.ome.tiff',
     // options: {
-    //        offsetsUrl: "https://vitessce-data-v2.s3.amazonaws.com/data/kiemenetal/5xHE.offsets.json",
+    //        offsetsUrl: "https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json",
     // },
     coordinationValues: {
       fileUid: 'kidney',

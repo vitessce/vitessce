@@ -12,16 +12,16 @@ function generateCellNeighborhoodConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cell_community_new.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/cell_community_new.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cell_community_new.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/cell_community_new.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
     },
   }).addFile({
     fileType: 'obsSegmentations.glb',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/sorger/cells_from_wrl_named.glb',
+    url: 'https://data-2.vitessce.io/data/sorger/cells_from_wrl_named.glb',
     options: {
       targetX: -1467,
       targetY: -89,

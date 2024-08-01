@@ -84,8 +84,8 @@ describe('Utility functions for processing expression data', () => {
         featureValueTransform, featureValueTransformCoefficient,
       );
 
-      expect([...result.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
-      expect([...result.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
+      expect(Array.from(result.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
+      expect(Array.from(result.get(['Cell type', 'T cell']).keys())).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1').length).toBe(2);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('Gene 1')).toEqual([10, 30]);
       expect(exprMax).toEqual(41);
@@ -94,8 +94,8 @@ describe('Utility functions for processing expression data', () => {
         result, geneSelection,
       );
 
-      expect([...aggregateData.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
-      expect([...aggregateData.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
+      expect(Array.from(aggregateData.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
+      expect(Array.from(aggregateData.get(['Cell type', 'T cell']).keys())).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
       expect(aggregateData.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).length).toBe(2);
 
       // TODO: add expect statements that check the aggregateData result, once it supports
@@ -129,9 +129,9 @@ describe('Utility functions for processing expression data', () => {
         },
       );
 
-      expect([...result.keys()]).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
-      expect([...result.get(['Cell type', 'T cell']).keys()]).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
-      expect([...result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).keys()]).toEqual(['obsEmbeddingX', 'obsEmbeddingY', 'featureValue', 'obsIndex']);
+      expect(Array.from(result.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
+      expect(Array.from(result.get(['Cell type', 'T cell']).keys())).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
+      expect(Array.from(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).keys())).toEqual(['obsEmbeddingX', 'obsEmbeddingY', 'featureValue', 'obsIndex']);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue').length).toBe(2);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue')).toEqual(new Uint8Array([10, 30]));
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('obsEmbeddingX').length).toBe(2);

@@ -165,7 +165,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
 
     // if length of path is 1, storing the value as an array doesn't work
     // es-lint-disable-next-line max-len
-    // Example: https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
+    // Example: https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
     options.obsSets = options.obsSets?.map((obsSet) => {
       if (obsSet.path.length === 1) {
         return {
@@ -270,7 +270,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       '/obsm/X_segmentations/.zarray',
       '/obs/.zattrs',
       '/X/.zarray',
-      '/X/data/.zarray', // for https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
+      '/X/data/.zarray', // for https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
     ];
 
     const getObsmKey = (url) => {
