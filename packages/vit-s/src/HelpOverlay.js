@@ -1,10 +1,10 @@
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import { useTitleStyles } from './helpOverlay.styles.js';
+import { IconButton } from '@material-ui/core';
+import { Close as CloseIcon } from '@material-ui/icons';
+import { useHelpStyles } from './help-overlay-styles.js';
 
 export function HelpOverlay({ helpOverlayText, onHandleCloseOverlay }) {
-  const classes = useTitleStyles();
+  const classes = useHelpStyles();
 
   return (
     <div

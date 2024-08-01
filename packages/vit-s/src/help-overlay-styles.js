@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-export const useTitleStyles = makeStyles(theme => ({
+export const useHelpStyles = makeStyles(theme => ({
 
   overlay: {
     position: 'fixed',

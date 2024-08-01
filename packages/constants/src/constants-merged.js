@@ -8,14 +8,12 @@ import {
   DataType as DataTypeCurr,
   FileType as FileTypeCurr,
   CoordinationType as CoordinationTypeCurr,
-  ViewHelpMapping as ViewHelpMappingCurr,
 } from '@vitessce/constants-internal';
 import {
   ViewType as ViewTypeOld,
   DataType as DataTypeOld,
   FileType as FileTypeOld,
   CoordinationType as CoordinationTypeOld,
-  ViewHelpMapping as ViewHelpMappingOld,
 } from './constants-old.js';
 
 function makeConstantWithDeprecationMessage(currObj, oldObj) {
@@ -49,9 +47,4 @@ export const FileType = makeConstantWithDeprecationMessage(
 export const CoordinationType = makeConstantWithDeprecationMessage(
   CoordinationTypeCurr,
   CoordinationTypeOld,
-);
-
-export const ViewHelpMapping = makeConstantWithDeprecationMessage(
-  ViewHelpMappingCurr,
-  ViewHelpMappingOld,
 );

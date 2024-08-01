@@ -62,7 +62,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
     observationsLabelOverride,
     title: titleOverride,
-    helpText,
+    helpText = ViewHelpMapping.SCATTERPLOT,
     onHandleHelpIconClick,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
@@ -150,8 +150,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
-
-  const HELP_TEXT = mapping === 'PCA' ? ViewHelpMapping.SCATTERPLOT.PCA : ViewHelpMapping.SCATTERPLOT.TSNE;
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
@@ -455,7 +453,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
-      helpText={HELP_TEXT}
+      helpText={helpText}
       onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <ScatterplotOptions
