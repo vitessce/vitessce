@@ -56,6 +56,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
+    "@vitessce/biomarker-select": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
