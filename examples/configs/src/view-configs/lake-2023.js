@@ -136,21 +136,13 @@ function generateLake2023Config() {
   return configJSON;
 }
 
-function ensureComponent(component) {
-  if(!component) {
-    return () => null;
-  }
-  return component;
-}
-
-function PageComponent(props) {
-  const BiomarkerSelect = ensureComponent(usePageModeView('biomarker-select'));
-  const ScatterplotCase = ensureComponent(usePageModeView('scatterplot-case'));
-  const ScatterplotControl = ensureComponent(usePageModeView('scatterplot-control'));
-  const CellSets = ensureComponent(usePageModeView('cell-sets'));
-
-  const ViolinPlot = ensureComponent(usePageModeView('violin-plot'));
-  const DotPlot = ensureComponent(usePageModeView('dot-plot'));
+function PageComponent() {
+  const BiomarkerSelect = usePageModeView('biomarker-select');
+  const ScatterplotCase = usePageModeView('scatterplot-case');
+  const ScatterplotControl = usePageModeView('scatterplot-control');
+  const CellSets = usePageModeView('cell-sets');
+  const ViolinPlot = usePageModeView('violin-plot');
+  const DotPlot = usePageModeView('dot-plot');
 
   return (
     <>

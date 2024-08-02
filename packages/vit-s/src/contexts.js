@@ -25,7 +25,16 @@ export const PageModeViewContext = createContext({
   // the corresponding React components.
 });
 
+function ensureComponent(component) {
+  if (!component) {
+    return () => null;
+  }
+  return component;
+}
+
 export function usePageModeView(uid) {
   const context = useContext(PageModeViewContext);
-  return context?.[uid];
+  // TODO: Is there any case where we would want to
+  // throw an error instead?
+  return ensureComponent(context?.[uid]);
 }
