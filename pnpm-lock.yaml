@@ -861,6 +861,9 @@ importers:
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
+      '@vitessce/link-controller':
+        specifier: workspace:*
+        version: link:../../view-types/link-controller
       '@vitessce/obs-sets-manager':
         specifier: workspace:*
         version: link:../../view-types/obs-sets-manager
@@ -1521,6 +1524,34 @@ importers:
         specifier: ^2.19.5
         version: 2.19.5(react@18.2.0)
     devDependencies:
+      react:
+        specifier: 'catalog:'
+        version: 18.2.0
+      vite:
+        specifier: 'catalog:'
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/view-types/link-controller:
+    dependencies:
+      '@material-ui/core':
+        specifier: 'catalog:'
+        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 5.16.5
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 'catalog:'
         version: 18.2.0
@@ -3244,8 +3275,8 @@ packages:
     peerDependencies:
       '@deck.gl/core': ^8.0.0
       '@types/react': '>= 16.3'
-      react: '>=16.3 || 18'
-      react-dom: '>=16.3 || 18'
+      react: '>=16.3'
+      react-dom: '>=16.3'
 
   '@docsearch/css@3.2.1':
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
@@ -5246,7 +5277,7 @@ packages:
     resolution: {integrity: sha512-ih872YZS9H7JrPDYlZqZ2qDiXPWXT8fVx6cA0OouFO2bDOw8q1E2MN36lhN2pUYjL2aC2NmLgS1yq2zN0bblXQ==}
     peerDependencies:
       '@deck.gl/react': ~8.8.27
-      react: ^16.8.0 || ^17.0.0 || 18
+      react: ^16.8.0 || ^17.0.0
 
   '@vivjs/views@0.16.0':
     resolution: {integrity: sha512-OQ4/3X5DLcu2yKVFeopmWW6iZ+hfTgkle84wfNPwPvvhtV3b1vEeUMzyBt5p1RSvpTzKGKv8CR5R4SdTunkUEQ==}
@@ -7753,10 +7784,6 @@ packages:
 
   has-property-descriptors@1.0.2:
     resolution: {integrity: sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==}
-
-  has-proto@1.0.1:
-    resolution: {integrity: sha512-7qE+iP+O+bgF9clE5+UoBFzE65mlBiVj3tKCrlNQ0Ogwm0BjpT/gK4SlLYDMybDh5I3TCTKnPPa0oMG7JDYrhg==}
-    engines: {node: '>= 0.4'}
 
   has-proto@1.0.3:
     resolution: {integrity: sha512-SJ1amZAJUiZS+PhsVLf5tGydlaVB8EdFpaSO4gmiUKUOxk8qzn5AIy4ZeJUmh22znIdk/uMAUT2pl3FxzVUH+Q==}
@@ -15848,7 +15875,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@17.0.50)
@@ -15867,7 +15894,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@18.2.7)
@@ -21397,7 +21424,7 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
       function-bind: 1.1.2
-      has-proto: 1.0.1
+      has-proto: 1.0.3
       has-symbols: 1.0.3
       hasown: 2.0.2
 
@@ -21651,8 +21678,6 @@ snapshots:
   has-property-descriptors@1.0.2:
     dependencies:
       es-define-property: 1.0.0
-
-  has-proto@1.0.1: {}
 
   has-proto@1.0.3: {}
 
@@ -22198,7 +22223,7 @@ snapshots:
   is-regex@1.1.4:
     dependencies:
       call-bind: 1.0.7
-      has-tostringtag: 1.0.0
+      has-tostringtag: 1.0.2
 
   is-regexp@1.0.0: {}
 
