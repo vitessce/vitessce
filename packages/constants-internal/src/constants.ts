@@ -286,5 +286,5 @@ export const STATUS = {
 
 export const DescriptionType = {
   PLAIN: 'plain',
-  MARKUP: 'markup',
+  MARKDOWN: 'markdown',
 };

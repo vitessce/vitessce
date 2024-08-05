@@ -44,7 +44,7 @@ export default function Description(props) {
   const classes = useStyles();
   return (
     <div className={classes.description}>
-      {descriptionType && descriptionType === DescriptionType.MARKUP
+      {descriptionType && descriptionType === DescriptionType.MARKDOWN
         ? <Markdown>{description}</Markdown> : <p>{description}</p>}
       {metadata && Array.from(metadata.entries())
         .map(([layerIndex, { name: layerName, metadata: metadataRecord }]) => (
