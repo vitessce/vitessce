@@ -117,6 +117,10 @@ export const eng2019 = {
   layout: [
     {
       component: 'description',
+      props: {
+        description: 'Transcriptome-scale,  super-resolved imaging in tissues by RNA *seqFISH*',
+        descriptionType: 'markdown',
+      },
       x: 9,
       y: 0,
       w: 3,
