@@ -30,7 +30,7 @@ import {
   getPointOpacity,
   EmptyMessage,
 } from '@vitessce/scatterplot';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 
 /**
@@ -58,6 +58,8 @@ export function GatingSubscriber(props) {
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+    helpText = ViewHelpMapping.GATING,
+    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -361,6 +363,8 @@ export function GatingSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}

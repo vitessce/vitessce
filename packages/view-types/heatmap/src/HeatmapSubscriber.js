@@ -18,7 +18,7 @@ import {
 } from '@vitessce/vit-s';
 import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
-import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber.js';
@@ -48,6 +48,8 @@ export function HeatmapSubscriber(props) {
     observationsLabelOverride,
     variablesLabelOverride,
     title = 'Heatmap',
+    helpText = ViewHelpMapping.HEATMAP,
+    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -199,6 +201,8 @@ export function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
       info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
              with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}

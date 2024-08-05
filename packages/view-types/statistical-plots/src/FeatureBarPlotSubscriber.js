@@ -10,7 +10,7 @@ import {
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection } from '@vitessce/sets-utils';
 import FeatureBarPlot from './FeatureBarPlot.js';
 import { useStyles } from './styles.js';
@@ -23,6 +23,8 @@ export function FeatureBarPlotSubscriber(props) {
     theme,
     yMin = 0,
     yUnits = null,
+    helpText = ViewHelpMapping.FEATURE_BAR_PLOT,
+    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -126,6 +128,8 @@ export function FeatureBarPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (

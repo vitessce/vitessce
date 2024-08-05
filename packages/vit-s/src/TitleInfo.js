@@ -7,6 +7,7 @@ import {
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
+  Help as HelpIcon,
 } from '@material-ui/icons';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -107,6 +108,23 @@ function DownloadOptions(props) {
   ) : null);
 }
 
+function HelpButton({ onHandleHelpIconClick, helpText }) {
+  const classes = useStyles();
+  return (
+    <>
+      <IconButton
+        onClick={() => onHandleHelpIconClick(helpText)}
+        size="small"
+        className={classes.iconButton}
+        title="close"
+        aria-label="Info for each view"
+      >
+        <HelpIcon />
+      </IconButton>
+    </>
+  );
+}
+
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
   const classes = useStyles();
@@ -127,6 +145,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
+    onHandleHelpIconClick, helpText,
   } = props;
 
   const classes = useTitleStyles();
@@ -150,6 +169,10 @@ export function TitleInfo(props) {
               urls={urls}
             />
           ) : null}
+          <HelpButton
+            onHandleHelpIconClick={onHandleHelpIconClick}
+            helpText={helpText}
+          />
           {closeButtonVisible && removeGridComponent ? (
             <ClosePaneButton
               removeGridComponent={removeGridComponent}

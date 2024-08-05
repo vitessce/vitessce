@@ -9,7 +9,7 @@ import {
   useSampleSetsData,
   useSampleEdgesData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
 import {
   treeToSetSizesBySetNames,
@@ -116,6 +116,8 @@ export function CellSetExpressionPlotSubscriber(props) {
     jitter = false,
     yMin = null,
     yUnits = null,
+    helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -222,6 +224,8 @@ export function CellSetExpressionPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

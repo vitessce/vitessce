@@ -6,7 +6,7 @@ import {
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
 import FeatureListOptions from './FeatureListOptions.js';
 
@@ -45,6 +45,8 @@ export function FeatureListSubscriber(props) {
     sortKey = null,
     closeButtonVisible,
     downloadButtonVisible,
+    helpText = ViewHelpMapping.FEATURE_LIST,
+    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -115,6 +117,8 @@ export function FeatureListSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
+      helpText={helpText}
+      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <FeatureListOptions
           featureListSort={featureListSort}

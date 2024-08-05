@@ -283,3 +283,25 @@ export const STATUS = {
   SUCCESS: 'success',
   ERROR: 'error',
 };
+
+/**
+ * Constants representing the help text for
+ * each view.
+ */
+export const ViewHelpMapping = {
+  SCATTERPLOT:'The Scatterplot View displays two-dimensional (pre-computed) embeddings / projections (such as t-SNE or UMAP). Each point on the scatterplot represents a cell.',
+  HEATMAP: 'The Heatmap View displays a normalized cell-by-gene or gene-by-cell matrix visualization.',
+  SPATIAL: 'The Spatial View displays data with spatial coordinates, including spatially-resolved cell segmentations as polygons (from the obsSegmentations data type) and molecule positions as points (from the obsLocations data type).',
+  DESCRIPTION: 'The Description View displays the details of a dataset or a data analysis process. When the spatial view is used for visualization of imaging data, the description view also renders a dropdown containing image metadata.',
+  STATUS: 'The Status View displays debugging messages, including app-wide error messages when datasets fail to load or when schemas fail to validate. Details about the entity under the mouse cursor (cell, gene, and/or molecule) are displayed during hover interactions.',
+  LAYER_CONTROLLER: 'The Spatial Layers view provides an interface for manipulating the visualization layers displayed in the spatial view.',
+  GENOMIC_PROFILES: 'The Genomic Profiles view displays genome browser tracks (using the genomic-profiles data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis. ',
+  GATING: 'The Gating View displays a 2-dimensional scatterplot of gene expression data. Users select two genes, and a scatterplot is dynamically generated using the obsFeatureMatrix data. Gating can then be performed by using the lasso or box select tools. Use with datasets containing the obsFeatureMatrix data types. Optionally, the obsSets and obsFeatureMatrix data types can be used for coloring cells on the plot.',
+  FEATURE_LIST: 'The Feature List View displays an interactive list of features (i.e., genes when featureType: "gene").',
+  OBS_SETS: 'The Cell Sets View displays an interactive list of (potentially hierarchical) observation sets (e.g., cell sets) when used with datasets containing the obsSets data type. This can be useful for managing cell sets representing clustering algorithm outputs or cell type annotations.',
+  OBS_SET_SIZES: 'The Cell Set Sizes View displays a bar plot with the currently-selected observation sets (e.g., cell sets) using the obsSets data type and obsSetSelection coordination type on the x-axis and bars representing their size (e.g., by number of cells) on the y-axis.',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'The Expression by Cell Set View displays a violin plot with values (e.g., expression values) for the selected feature (e.g., gene).',
+  FEATURE_VALUE_HISTOGRAM: 'The Feature Value Histogram View displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
+  DOT_PLOT: 'The Dot Plot View displays summary information about expression of the selected feature (e.g., gene) for each selected observation set (e.g., cell set).',
+  FEATURE_BAR_PLOT: 'The Feature Bar Plot displays one bar per observation, where the value of a selected feature is encoded along the y-axis.',
+};
