@@ -1,5 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
+import Markdown from 'react-markdown';
+import { DescriptionType } from '@vitessce/constants-internal';
 
 const useStyles = makeStyles(theme => ({
   description: {
@@ -38,12 +40,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Description(props) {
-  const { description, metadata } = props;
+  const { description, metadata, descriptionType } = props;
   const classes = useStyles();
   return (
     <div className={classes.description}>
-      <p>{description}</p>
-
+      {descriptionType && descriptionType === DescriptionType.MARKUP
+        ? <Markdown>{description}</Markdown> : <p>{description}</p>}
       {metadata && Array.from(metadata.entries())
         .map(([layerIndex, { name: layerName, metadata: metadataRecord }]) => (
           metadataRecord && Object.entries(metadataRecord).length > 0 ? (
