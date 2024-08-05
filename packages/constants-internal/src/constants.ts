@@ -302,6 +302,6 @@ export const ViewHelpMapping = {
   OBS_SET_SIZES: 'The Cell Set Sizes View displays a bar plot with the currently-selected observation sets (e.g., cell sets) using the obsSets data type and obsSetSelection coordination type on the x-axis and bars representing their size (e.g., by number of cells) on the y-axis.',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'The Expression by Cell Set View displays a violin plot with values (e.g., expression values) for the selected feature (e.g., gene).',
   FEATURE_VALUE_HISTOGRAM: 'The Feature Value Histogram View displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
-  DOT_PLOT: 'Dot Plot',
-  FEATURE_BAR_PLOT: 'Feature BarPlot',
+  DOT_PLOT: 'The Dot Plot View displays summary information about expression of the selected feature (e.g., gene) for each selected observation set (e.g., cell set).',
+  FEATURE_BAR_PLOT: 'The Feature Bar Plot displays one bar per observation, where the value of a selected feature is encoded along the y-axis.',
 };
