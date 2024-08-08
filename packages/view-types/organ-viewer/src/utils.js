@@ -134,7 +134,7 @@ export async function getBlocksFromOrgan(organName, gender, uuid = null) {
     .then(async data => {
       let hubMapEntityCollection = new Map();
       for (const hit of data.hits.hits) {
-        console.log(hit._source);
+        // console.log(hit._source);
         let entity = hit._source;
         let ruiLocation = entity.rui_location;
         entity.rui_location = JSON.parse(entity.rui_location);
@@ -174,7 +174,6 @@ export async function getBlocksFromOrgan(organName, gender, uuid = null) {
 }
 
 export async function getOrganInformation(organUberon, sex) {
-  // Get all the blocks for the left kidney
   const url = 'https://ccf-api.hubmapconsortium.org/v1/reference-organ-scene?organ-iri=' + organUberon + '&sex=' + sex;
   return fetch(url, {
     method: 'GET',

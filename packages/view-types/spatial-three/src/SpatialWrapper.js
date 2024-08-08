@@ -5,7 +5,10 @@ import { SpatialThree } from './SpatialThree.js';
 
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => (
-  <div style={{ width: '100%', height: '100%' }}>
+  <div style={{
+    width: '100%',
+    height: '100%'
+  }}>
     <XRButton
       mode="AR"
       sessionInit={{ optionalFeatures: ['hand-tracking'] }}
@@ -32,15 +35,22 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => (
       ) : null)}
     </XRButton>
     <Canvas
-      style={{ position: 'absolute', top: 0, left: 0 }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0
+      }}
       camera={{
-        fov: 50,
+        fov: 35,
         up: [0, 1, 0],
         position: [0, 0, 800],
         near: 0.1,
         far: 3000,
       }}
-      gl={{ antialias: true, logarithmicDepthBuffer: false }}
+      gl={{
+        antialias: true,
+        logarithmicDepthBuffer: false
+      }}
       ref={canvasRef}
     >
       <XR>

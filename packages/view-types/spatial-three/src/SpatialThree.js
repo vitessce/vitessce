@@ -54,6 +54,7 @@ import {
 export function SpatialThree(props) {
   const materialRef = useRef(null);
   const orbitRef = useRef(null);
+
   const [initialStartup, setInitialStartup] = useState(false);
   const [dataReady, setDataReady] = useState(false);
   const [segmentationGroup, setSegmentationGroup] = useState(null);
@@ -537,6 +538,10 @@ export function SpatialThree(props) {
         dampingFactor={0.0}
         zoomDampingFactor={0.0}
         smoothZoom={false}
+        onChange={() => {
+          console.log("PolarAngle: ", orbitRef.current.getPolarAngle(),"Target: ", orbitRef.current.target, "Distance: " + orbitRef.current.getDistance(),
+            "Object Position", orbitRef.current.object.position)
+        }}
       />
     </group>
   );

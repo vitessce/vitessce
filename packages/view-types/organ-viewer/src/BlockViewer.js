@@ -26,6 +26,7 @@ function BlockScene(props) {
     async function fetchData() {
       let blockGroup = new Group()
       let result = await getInfo([uuidInput])
+      console.log(result)
       let x = result.hits.hits[0]._source.rui_location.split("\"x_dimension\": ")[1].split(",")[0]
       let y = result.hits.hits[0]._source.rui_location.split("\"y_dimension\": ")[1].split(",")[0]
       let z = result.hits.hits[0]._source.rui_location.split("\"z_dimension\": ")[1].split(",")[0]

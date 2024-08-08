@@ -21,8 +21,9 @@ function generateJainKidney() {
     });
 
     // const organViewer = config.addView(dataset, 'organViewer').setProps({uberon: "http://purl.obolibrary.org/obo/UBERON_0004538"}); // organ with uberon
-    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "b1d41395cc87b8eff3f580cfa168283b"});
-    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "5f043da4d6347e2b6f93509c000804d1"});
+    // const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "b1d41395cc87b8eff3f580cfa168283b"}); // specific organ - only showing one block
+    const organViewer = config.addView(dataset, 'organViewer').setProps({uuidInput: "088adc477043f3970311122b0365bba8"});
+    const blockViewer = config.addView(dataset, 'blockViewer').setProps({uuidInput: "088adc477043f3970311122b0365bba8"});
     config.layout(hconcat(organViewer, blockViewer));
 
     const configJSON = config.toJSON();
