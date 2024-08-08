@@ -30,7 +30,9 @@ import {
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
-  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
+  ObservationScatterplot,
+  ScatterplotTooltipSubscriber,
+  ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
 } from '@vitessce/scatterplot';
@@ -490,7 +492,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         />
       )}
     >
-      <Scatterplot
+      <ObservationScatterplot
         ref={deckRef}
         uuid={uuid}
         theme={theme}
