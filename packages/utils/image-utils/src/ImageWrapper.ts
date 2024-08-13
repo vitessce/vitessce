@@ -34,6 +34,29 @@ export default class ImageWrapper implements AbstractImageWrapper {
     this.vivLoader = vivLoader;
   }
 
+  loadThumbnail(): Promise<any> {
+    // TODO: accept parameters like maxSize, c, z, t, ...
+    // TODO: accept signal parameter, pass into getRaster
+    const maxSize = 256;
+    const selection = { c: 0, t: 0, z: 0 }; // TODO: support multi-channel + RGB
+
+    if(this.getType() === 'ome-tiff') {
+      const loaders = this.vivLoader.data;
+
+      const smallLoaders = loaders.filter(loader => {
+        const { labels, shape } = loader;
+        return shape[labels.indexOf('x')] <= maxSize && shape[labels.indexOf('y')] <= maxSize;
+      });
+      const firstSmallLoader = smallLoaders?.[0];
+      if (firstSmallLoader) {
+        return firstSmallLoader.getRaster({ selection });
+      }
+      throw new Error('No small loader found.');
+    } else {
+      throw new Error('OME-Zarr thumbnails are not yet supported.');
+    }
+  }
+
   getType(): 'ome-tiff' | 'ome-zarr' {
     if ('Pixels' in this.vivLoader.metadata) {
       return 'ome-tiff';

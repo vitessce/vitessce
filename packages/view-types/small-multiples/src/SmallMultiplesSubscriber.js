@@ -38,6 +38,7 @@ import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vites
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
+import { SmallMultiples } from './SmallMultiples.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -135,7 +136,9 @@ export function SmallMultiplesSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
     >
-      <p>TODO</p>
+      <SmallMultiples
+      
+      />
     </TitleInfo>
   );
 }

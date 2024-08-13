@@ -12,7 +12,7 @@ export const satija2020 = {
       files: [
         {
           fileType: 'anndata.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/satija-2020/satija_2020.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/satija-2020/satija_2020.h5ad.zarr',
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',
@@ -36,7 +36,7 @@ export const satija2020 = {
         },
         {
           fileType: 'obsSets.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/satija-2020/satija_2020.cell-sets.json',
+          url: 'https://data-1.vitessce.io/0.0.33/main/satija-2020/satija_2020.cell-sets.json',
           coordinationValues: {
             obsType: 'cell',
           },

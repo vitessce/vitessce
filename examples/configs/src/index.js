@@ -69,6 +69,15 @@ import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 
+// Nature Methods figures
+import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
+import { codex } from './view-configs/paper-figures/codex.js';
+import { ims } from './view-configs/paper-figures/ims.js';
+import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
+import { multiome } from './view-configs/paper-figures/multiome.js';
+import { osmFish } from './view-configs/paper-figures/osmfish.js';
+import { visium } from './view-configs/paper-figures/visium.js';
+
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
   [vapi.ct.EMBEDDING_TARGET_X]: embeddingTargetXConfig,
@@ -150,6 +159,15 @@ export const configs = {
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
   'hakimian-2021': threeMinimalLight,
+
+  // Nature Methods figures
+  'figure-cite-seq': citeSeq,
+  'figure-codex': codex,
+  'figure-ims': ims,
+  'figure-multimodal-ims': multimodalIms,
+  'figure-multiome': multiome,
+  'figure-osmfish': osmFish,
+  'figure-visium': visium,
 
   // For documentation of coordination types:
   ...coordinationTypeConfigs,

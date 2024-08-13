@@ -13,11 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [16, 18, 20]
+        node: [18.20.0, 20.10.0, 22]
         os: [ubuntu-latest]
         include:
           - os: windows-2022
-            node: 18
+            node: 18.20.0
     
     name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
 
@@ -36,11 +36,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - run: pnpm run changeset-status
       - id: get-options
@@ -68,11 +67,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
@@ -107,11 +105,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
@@ -145,11 +142,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
           run_install: true
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps

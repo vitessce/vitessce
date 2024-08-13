@@ -150,7 +150,7 @@ export function TitleInfo(props) {
               urls={urls}
             />
           ) : null}
-          {closeButtonVisible ? (
+          {closeButtonVisible && removeGridComponent ? (
             <ClosePaneButton
               removeGridComponent={removeGridComponent}
             />

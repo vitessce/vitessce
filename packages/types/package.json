@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/types",
-  "version": "3.4.5",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,12 +30,12 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@hms-dbmi/viv": "~0.13.8",
-    "@zarrita/storage": "0.1.0-next.4"
+    "@hms-dbmi/viv": "catalog:",
+    "@zarrita/storage": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^18.0.28",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "@types/react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

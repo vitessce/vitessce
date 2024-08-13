@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/workers",
-  "version": "3.4.5",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -25,7 +25,7 @@
     "build-lib": "rollup --config rollup.config.js"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",

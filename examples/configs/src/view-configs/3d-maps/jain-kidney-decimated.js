@@ -11,16 +11,16 @@ function generateJainKidneyDecimatedConfig() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/washu-kidney/LS_20x_5_Stitched.pyramid.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/LS_20x_5_Stitched.pyramid.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.amazonaws.com/data/washu-kidney/LS_20x_5_Stitched.pyramid.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/washu-kidney/LS_20x_5_Stitched.pyramid.offsets.json',
     },
     coordinationValues: {
       fileUid: 'kidney',
     },
   }).addFile({
     fileType: 'obsSegmentations.glb',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/washu-kidney/decimated.glb',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/decimated.glb',
     options: {
       targetX: 430,
       targetY: -520,
@@ -39,7 +39,7 @@ function generateJainKidneyDecimatedConfig() {
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: 'https://vitessce-data-v2.s3.amazonaws.com/data/washu-kidney/statistics.csv',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/statistics.csv',
     coordinationValues: {
       obsType: 'gloms',
       featureType: 'feature',

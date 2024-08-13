@@ -1,4 +1,46 @@
 
+## 3.4.9
+
+### Patch Changes
+
+- Fix issue in versioned URLs. (`vitessce`) ([#1917](https://github.com/vitessce/vitessce/pull/1917))
+
+
+## 3.4.8
+
+### Patch Changes
+
+- Add configs for paper figures. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`, `@vitessce/example-configs`) ([#1915](https://github.com/vitessce/vitessce/pull/1915))
+
+
+## 3.4.7
+
+### Patch Changes
+
+- Update GH actions. (`vitessce`) ([#1913](https://github.com/vitessce/vitessce/pull/1913))
+
+- Add sampleSets and sampleEdges data types, with file types for CSV and AnnData, respectively. (`@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/schemas`) ([#1793](https://github.com/vitessce/vitessce/pull/1793))
+
+- Switch from using TypeScript v5.5 via nightly release to the official release (`vitessce`) ([#1902](https://github.com/vitessce/vitessce/pull/1902))
+
+- Add support for pageMode prop on Vitessce and VitS components. (`@vitessce/vit-s`) ([#1885](https://github.com/vitessce/vitessce/pull/1885))
+
+- Add support for plugin async functions. (`@vitessce/constants-internal`, `@vitessce/plugins`, `@vitessce/vit-s`) ([#1887](https://github.com/vitessce/vitessce/pull/1887))
+
+- Use PNPM v9.5 and the catalog: feature. (`vitessce`) ([#1907](https://github.com/vitessce/vitessce/pull/1907))
+
+- Updated GH actions to deploy to S3. Updated old S3 urls to use vitessce.io subdomains. (`vitessce`) ([#1910](https://github.com/vitessce/vitessce/pull/1910))
+
+
+## 3.4.6
+
+### Patch Changes
+
+- Add expand=true URL parameter for docs site. (`docs`) ([#1884](https://github.com/vitessce/vitessce/pull/1884))
+
+- Fix status check for Enter XR button. (`@vitessce/spatial-three`) ([#1876](https://github.com/vitessce/vitessce/pull/1876))
+
+
 ## 3.4.5
 
 ### Patch Changes
