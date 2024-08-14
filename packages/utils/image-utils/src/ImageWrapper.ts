@@ -34,11 +34,15 @@ export default class ImageWrapper implements AbstractImageWrapper {
     this.vivLoader = vivLoader;
   }
 
-  loadThumbnail(): Promise<any> {
+  async loadThumbnail(): Promise<any> {
     // TODO: accept parameters like maxSize, c, z, t, ...
     // TODO: accept signal parameter, pass into getRaster
     const maxSize = 256;
-    const selection = { c: 0, t: 0, z: 0 }; // TODO: support multi-channel + RGB
+    const selections = [
+      { c: 0, t: 0, z: 0 },
+      { c: 1, t: 0, z: 0 },
+      { c: 2, t: 0, z: 0 }
+    ]; // TODO: support multi-channel + RGB
 
     if(this.getType() === 'ome-tiff') {
       const loaders = this.vivLoader.data;
@@ -49,7 +53,16 @@ export default class ImageWrapper implements AbstractImageWrapper {
       });
       const firstSmallLoader = smallLoaders?.[0];
       if (firstSmallLoader) {
-        return firstSmallLoader.getRaster({ selection });
+        const promises = selections.map(selection => firstSmallLoader.getRaster({ selection }));
+        const tiles = await Promise.all(promises);
+        return {
+          ...firstSmallLoader,
+          data: {
+            data: tiles.map((d) => d.data),
+            width: tiles[0].width,
+            height: tiles[0].height,
+          },
+        };
       }
       throw new Error('No small loader found.');
     } else {

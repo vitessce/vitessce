@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo, useref } from 'react';
 // import { pMap } from 'p-map';
-import { viv } from '@vitessce/gl';
+import { viv, deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import { ImageWrapper } from '@vitessce/image-utils';
 
 
@@ -70,22 +70,34 @@ async function loadOffsets(tiffUrl) {
     return undefined
 }
 
-async function loadImages() {
-    const promises = histologyUrls.case.map(async (tiffUrl) => {
 
-        const offsets = await loadOffsets(tiffUrl);
-        const loader = await viv.loadOmeTiff(tiffUrl, { offsets });
-        const imageWrapper = new ImageWrapper(loader);
-        const thumbnail = await imageWrapper.loadThumbnail();
-        return thumbnail;
-    });
-    const thumbnails = await Promise.all(promises);
-
-    console.log(thumbnails);
-}
 
 
 export function SmallMultiples(props) {
+    const {
+        deckRef,
+        uuid,
+        width,
+        height,
+    } = props;
+
+    const [thumbnails, setThumbnails] = useState(null);
+
+    async function loadImages() {
+      const promises = histologyUrls.case.map(async (tiffUrl) => {
+  
+          const offsets = await loadOffsets(tiffUrl);
+          const loader = await viv.loadOmeTiff(tiffUrl, { offsets });
+          const imageWrapper = new ImageWrapper(loader);
+          const thumbnail = await imageWrapper.loadThumbnail();
+          return thumbnail;
+      });
+      const thumbnailsInner = await Promise.all(promises);
+  
+  
+      console.log(thumbnailsInner);
+      setThumbnails(thumbnailsInner);
+  }
 
     // TODO: load via react-query?
     // TODO: load both case and control arrays.
@@ -96,10 +108,67 @@ export function SmallMultiples(props) {
         
     }, []);
 
+    function scaleBounds(x, y, tileWidth, tileHeight) {
+      return [
+        x/thumbnails.length * width,
+        y/thumbnails.length * height,
+        (x/thumbnails.length * width) + tileWidth,
+        (y/thumbnails.length * height) + tileHeight,
+      ];
+    }
+
+
+    const layers = useMemo(() => {
+      if(!thumbnails) {
+        return []
+      }
+      return thumbnails.map((thumbnail, i) => {
+        const y = i;
+        const x = i;
+        return new viv.XRLayer({
+          channelData: thumbnail.data,
+          channelsVisible: [true, true, true],
+          contrastLimits: [[0, 255], [0, 255], [0, 255]],
+          bounds: scaleBounds(x, y, thumbnail.data.width, thumbnail.data.height),
+          id: `${uuid}-GridLayer-${i}`,
+          dtype: thumbnail.dtype || "Uint8", // fallback if missing,
+          pickable: false,
+          extensions: [new viv.ColorPaletteExtension()],
+          selections: [
+            { c: 0, t: 0, z: 0 },
+            { c: 1, t: 0, z: 0 },
+            { c: 2, t: 0, z: 0 }
+          ],
+        });
+      })
+    }, [thumbnails]);
+
     // TODO: use DeckGL + viv.XRLayer to render each thumbnail
     // Reference: https://github.com/hms-dbmi/vizarr/blob/456ee8d412f7138f6d6c07bab354def5e6827d5b/src/gridLayer.ts#L142C5-L155C8
 
-    return (
-        <p>TODO</p>
-    );
+  return (
+    <>
+      <deck.DeckGL
+        id={`deckgl-overlay-${uuid}`}
+        ref={deckRef}
+        views={[
+          new deck.OrthographicView({
+            id: 'ortho',
+          })
+        ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+        layers={
+          layers
+        }
+        initialViewState={{ zoom: 0, target: [0, 0, 0] }}
+        glOptions={DEFAULT_GL_OPTIONS}
+        //onWebGLInitialized={this.onWebGLInitialized}
+        //onViewStateChange={this.onViewStateChange}
+        //viewState={viewState}
+        useDevicePixels={true}
+        controller={true}
+        //getCursor={tool ? getCursorWithTool : getCursor}
+        //onHover={this.onHover}
+      />
+    </>
+  );
 }

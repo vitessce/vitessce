@@ -125,6 +125,8 @@ export function SmallMultiplesSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SMALL_MULTIPLES], coordinationScopes);
 
   const isReady = true;
+
+  const [width, height, deckRef] = useDeckCanvasSize();
   
   return (
     <TitleInfo
@@ -137,7 +139,10 @@ export function SmallMultiplesSubscriber(props) {
       isReady={isReady}
     >
       <SmallMultiples
-      
+        uuid={uuid}
+        width={width}
+        height={height}
+        deckRef={deckRef}
       />
     </TitleInfo>
   );
