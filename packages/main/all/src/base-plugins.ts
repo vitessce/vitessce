@@ -5,6 +5,7 @@ import {
   DataType,
   ViewType,
   CoordinationType,
+  AsyncFunctionType,
   COMPONENT_COORDINATION_TYPES,
   ALT_ZARR_STORE_TYPES,
 } from '@vitessce/constants-internal';
@@ -13,6 +14,7 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
+  PluginAsyncFunction,
 } from '@vitessce/plugins';
 import type {
   DataLoader,
@@ -178,6 +180,13 @@ import {
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
 
+// Biomarker select UI and default async functions.
+import {
+  BiomarkerSelectSubscriber,
+  autocompleteFeature,
+  transformFeature,
+} from '@vitessce/biomarker-select';
+
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
   return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
@@ -214,6 +223,7 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -508,4 +518,9 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
+];
+
+export const baseAsyncFunctions = [
+  new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
+  new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
 ];

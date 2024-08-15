@@ -1092,6 +1092,16 @@ export function useMergeCoordination() {
 }
 
 /**
+ * Obtain the current view config object from
+ * the global app state.
+ * @returns {object} The view config object
+ * in the `useViewConfigStore` store.
+ */
+export function useViewConfig() {
+  return useViewConfigStore(state => state.viewConfig);
+}
+
+/**
  * Obtain the view config setter function from
  * the global app state.
  * @returns {function} The view config setter function
@@ -1102,6 +1112,7 @@ export function useSetViewConfig(viewConfigStoreApi) {
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
 }
+
 
 /**
  * Obtain the component hover value from
