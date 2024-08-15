@@ -283,3 +283,8 @@ export const STATUS = {
   SUCCESS: 'success',
   ERROR: 'error',
 };
+
+export const DescriptionType = {
+  PLAIN: 'plain',
+  MARKDOWN: 'markdown',
+};
