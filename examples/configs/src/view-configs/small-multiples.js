@@ -65,7 +65,7 @@ import {
   
     vc.layout(hconcat(
       vconcat(
-        scatterplot,
+        smallMultiples,
         hconcat(
           obsSets,
           obsSetSizes,
@@ -73,7 +73,7 @@ import {
       ),
       vconcat(
         featureList,
-        smallMultiples,
+        scatterplot,
       ),
     ));
     const configJSON = vc.toJSON();
