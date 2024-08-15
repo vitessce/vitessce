@@ -27,6 +27,7 @@ import {
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
 import { DbProvider } from './duckdb.js';
+import { AsyncFunctionsContext } from './contexts.js';
 
 
 /**
@@ -61,6 +62,7 @@ import { DbProvider } from './duckdb.js';
  * @param {array} props.jointFileTypes Plugin joint file types.
  * @param {array} props.coordinationTypes Plugin coordination types.
  * @param {null|object} props.warning A warning to render within the Vitessce grid,
+ * @param {boolean} props.pageMode Whether to render in page mode. By default, false.
  * provided by the parent.
  */
 export function VitS(props) {
@@ -82,7 +84,10 @@ export function VitS(props) {
     fileTypes: fileTypesProp,
     jointFileTypes: jointFileTypesProp,
     coordinationTypes: coordinationTypesProp,
+    asyncFunctions: asyncFunctionsProp,
     warning,
+    pageMode = false,
+    children,
   } = props;
 
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
@@ -94,6 +99,15 @@ export function VitS(props) {
   const coordinationTypes = useMemo(
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
+  );
+  const asyncFunctions = useMemo(
+    () => Object.fromEntries(
+      // Convert the array of PluginAsyncFunction instances to a mapping
+      // from function type strings to async functions.
+      asyncFunctionsProp?.map(p => ([p.functionType, p.asyncFunction]))
+      || [],
+    ),
+    [asyncFunctionsProp],
   );
 
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
@@ -221,26 +235,31 @@ export function VitS(props) {
               {...(remountOnUidChange ? ({ key: configKey }) : {})}
             >
               <AuxiliaryProvider createStore={createAuxiliaryStore}>
-                <VitessceGrid
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={stores}
-                />
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
+                <AsyncFunctionsContext.Provider value={asyncFunctions}>
+                  <VitessceGrid
+                    pageMode={pageMode}
+                    success={success}
+                    configKey={configKey}
+                    viewTypes={viewTypes}
+                    fileTypes={fileTypes}
+                    coordinationTypes={coordinationTypes}
+                    config={configOrWarning}
+                    rowHeight={rowHeight}
+                    height={height}
+                    theme={theme}
+                    isBounded={isBounded}
+                    stores={stores}
+                  >
+                    {children}
+                  </VitessceGrid>
+                  <CallbackPublisher
+                    onWarn={onWarn}
+                    onConfigChange={onConfigChange}
+                    onLoaderChange={onLoaderChange}
+                    validateOnConfigChange={validateOnConfigChange}
+                    pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                  />
+                </AsyncFunctionsContext.Provider>
               </AuxiliaryProvider>
             </ViewConfigProvider>
           </DbProvider>

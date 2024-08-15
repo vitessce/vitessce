@@ -425,6 +425,41 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
 }
 
 /**
+ * Given a tree with state, get the cellIds and cellColors,
+ * based on the nodes currently marked as "visible".
+ * @param {object} currTree A tree object.
+ *  @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} cellSetColor Array of objects with the
+ * properties `path` and `color`.
+ * @param {string} theme "light" or "dark" for the vitessce theme
+ * @returns {array} Tuple of [cellIds, cellColors]
+ * where cellIds is an array of strings,
+ * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
+ */
+export function treeToSelectedSetMap(currTree, selectedNamePaths) {
+  let result = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      result = [
+        ...result,
+        ...nodeSet.map(([cellId]) => [
+          cellId,
+          // TODO: should this be the full path
+          // (rather than only the node name)?
+          // Or the index of the selected set
+          // with respect to the selectedNamePaths array?
+          setNamePath,
+        ]),
+      ];
+    }
+  });
+  return new Map(result);
+}
+
+/**
  * Given a tree with state, get a mapping from cell ID to cell set color index,
  * based on the nodes currently marked as "visible".
  * @param {object} currTree A tree object.
@@ -583,6 +618,67 @@ export function treeToSetSizesBySetNames(
     }
   });
   return sizes;
+}
+
+/**
+ * Given a tree with state, get the indices of observations
+ * contained in each selected obs set.
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @returns {object[]} Array of objects
+ * with the properties `name`, `size`, `key`,
+ * and `color`.
+ */
+export function treeToObsIdsBySetNames(currTree, selectedNamePaths) {
+  const indices = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      indices.push({
+        key: generateKey(),
+        name: node.name,
+        path: setNamePath,
+        size: nodeSet.length,
+        // TODO: handle the case where the ID is in the set but missing
+        // from the obsIndexMap
+        ids: nodeSet.map(([obsId]) => obsId),
+      });
+    }
+  });
+  return indices;
+}
+
+/**
+ * Given a tree with state, get the indices of observations
+ * contained in each selected obs set.
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings,
+ * representing set "paths".
+ * @param {object[]} obsIndex The observation index.
+ * @returns {object[]} Array of objects
+ * with the properties `name`, `size`, `key`,
+ * and `color`.
+ */
+export function treeToObsIndicesBySetNames(currTree, selectedNamePaths, obsIndexMap) {
+  const indices = [];
+  selectedNamePaths.forEach((setNamePath) => {
+    const node = treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      indices.push({
+        key: generateKey(),
+        name: node.name,
+        path: setNamePath,
+        size: nodeSet.length,
+        // TODO: handle the case where the ID is in the set but missing
+        // from the obsIndexMap
+        indices: nodeSet.map(([obsId]) => obsIndexMap[obsId]),
+      });
+    }
+  });
+  return indices;
 }
 
 /**

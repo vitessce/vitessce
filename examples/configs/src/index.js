@@ -57,6 +57,25 @@ import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
 import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
 
+// 3D Maps
+import { jainkidneyDecimated } from './view-configs/3d-maps/jain-kidney-decimated.js';
+import { humanLiver } from './view-configs/3d-maps/human-liver.js';
+import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
+import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
+import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
+import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
+import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
+import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
+import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+
+// Nature Methods figures
+import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
+import { codex } from './view-configs/paper-figures/codex.js';
+import { ims } from './view-configs/paper-figures/ims.js';
+import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
+import { multiome } from './view-configs/paper-figures/multiome.js';
+import { osmFish } from './view-configs/paper-figures/osmfish.js';
+import { visium } from './view-configs/paper-figures/visium.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -127,6 +146,26 @@ export const configs = {
   'lightsheet-2023': lightsheetOop2023,
   'visium-2023-polygons': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
+
+  // 3D Maps
+  'jain-2024': jainkidneyDecimated,
+  'tian-2024': humanLiver,
+  'sorger-2024': bloodVessel,
+  'sorger-2024-2': bloodVesselNamed,
+  'sorger-2024-3': sorgerBiggerNeighborhood,
+  'sorger-2024-4': bloodVesselNeighborhood,
+  'sorger-2024-5': cellNeighborhood,
+  'kiemen-2024': threeMinimal,
+  'hakimian-2021': threeMinimalLight,
+
+  // Nature Methods figures
+  'figure-cite-seq': citeSeq,
+  'figure-codex': codex,
+  'figure-ims': ims,
+  'figure-multimodal-ims': multimodalIms,
+  'figure-multiome': multiome,
+  'figure-osmfish': osmFish,
+  'figure-visium': visium,
 
   // For documentation of coordination types:
   ...coordinationTypeConfigs,

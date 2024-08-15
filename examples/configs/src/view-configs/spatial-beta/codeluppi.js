@@ -15,7 +15,7 @@ function generateCodeluppiConfig() {
   });
   const dataset = config.addDataset('Codeluppi').addFile({
     fileType: 'anndata.zarr',
-    url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr',
+    url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.cells.h5ad.zarr',
     options: {
       obsFeatureMatrix: {
         path: 'X',
@@ -51,7 +51,7 @@ function generateCodeluppiConfig() {
     },
   }).addFile({
     fileType: 'anndata.zarr',
-    url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
+    url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
     options: {
       obsPoints: {
         path: 'obsm/X_spatial',

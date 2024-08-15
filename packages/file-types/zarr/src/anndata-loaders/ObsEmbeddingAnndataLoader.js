@@ -1,30 +1,39 @@
+// @ts-check
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/vit-s';
-import { makeTable, vectorFromArray, makeVector, Utf8 as arrowUtf8 } from 'apache-arrow';
+import { Table, vectorFromArray, makeVector, Utf8 as arrowUtf8 } from 'apache-arrow';
 
+
+/** @import AnnDataSource from '../AnnDataSource.js' */
+/** @import { ObsEmbeddingData, MatrixResult } from '@vitessce/types' */
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.
+ * @template {AnnDataSource} DataSourceType
+ * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   /**
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
-   * @returns {Promise} A promise for an array of columns.
+   * @returns {Promise<MatrixResult>} A promise for an array of columns.
    */
   async loadEmbedding() {
     const { path, dims = [0, 1] } = this.options;
     if (this.embedding) {
-      return this.embedding;
+      return /** @type {Promise<MatrixResult>} */ (this.embedding);
     }
     if (!this.embedding) {
       this.embedding = this.dataSource.loadNumericForDims(path, dims);
-      return this.embedding;
+      return /** @type {Promise<MatrixResult>} */ (this.embedding);
     }
-    this.embedding = Promise.resolve(null);
     return this.embedding;
   }
 
+  /**
+   *
+   * @returns {Promise<LoaderResult<ObsEmbeddingData>>}
+   */
   async load() {
     const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
@@ -47,10 +56,10 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
     const result = await this.load();
     const { obsIndex, obsEmbedding } = result.data;
 
-    return makeTable({
+    return new Table({
       obsIndex: vectorFromArray(obsIndex, new arrowUtf8()),
-      x: makeVector(obsEmbedding.data[0]),
-      y: makeVector(obsEmbedding.data[1]),
+      x: makeVector(/** @type {Float32Array} */ (obsEmbedding.data[0])),
+      y: makeVector(/** @type {Float32Array} */ (obsEmbedding.data[1])),
     });
   }
 }

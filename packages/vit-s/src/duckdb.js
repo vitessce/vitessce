@@ -1,4 +1,4 @@
-import DuckDB from '@jetblack/duckdb-react';
+import DuckDB from 'lazy-duckdb-react';
 
 const BUNDLES = {
   mvp: {

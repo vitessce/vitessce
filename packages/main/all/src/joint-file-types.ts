@@ -192,6 +192,17 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         },
       }]
     ) : []),
+    // sampleEdges
+    ...(options.sampleEdges ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.SAMPLE_EDGES_ANNDATA_ZARR),
+      options: options.sampleEdges,
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        sampleType: fileDef.coordinationValues?.sampleType || 'sample',
+      },
+    }] : []),
   ];
 }
 

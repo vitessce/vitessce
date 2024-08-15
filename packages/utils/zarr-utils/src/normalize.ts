@@ -5,13 +5,16 @@ import { ZipFileStore } from '@zarrita/storage';
 
 
 export function zarrOpenRoot(
-  url: string, fileType: null | string, requestInit: RequestInit,
+  url: string,
+  fileType: null | string,
+  requestInit: RequestInit | undefined,
 ) {
   let store: Readable;
+  const opts = requestInit ? { overrides: requestInit } : undefined;
   if (fileType && fileType.endsWith('.zip')) {
-    store = ZipFileStore.fromUrl(url, { overrides: requestInit });
+    store = ZipFileStore.fromUrl(url, opts);
   } else {
-    store = new FetchStore(url, { overrides: requestInit });
+    store = new FetchStore(url, opts);
   }
 
   // Wrap remote stores in a cache

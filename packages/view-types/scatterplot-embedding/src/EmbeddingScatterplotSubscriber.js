@@ -1,7 +1,7 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import { extent } from 'd3-array';
+import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
 import {
   TitleInfo,
@@ -16,6 +16,8 @@ import {
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
   useMultiObsLabels,
+  useSampleSetsData,
+  useSampleEdgesData,
   useCoordination,
   useLoaders,
   useSetComponentHover,
@@ -28,6 +30,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
+  stratifyArrays,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
@@ -38,6 +41,8 @@ import {
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { deck } from '@vitessce/gl';
+import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
+
 
 /**
  * A subscriber component for the scatterplot.
@@ -76,6 +81,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsType,
     featureType,
     featureValueType,
+    sampleType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -98,6 +104,14 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    sampleSetSelection,
+    sampleSetColor,
+    embeddingPointsVisible,
+    embeddingContoursVisible,
+    embeddingContoursFilled,
+    embeddingContourPercentiles: contourPercentiles,
+    contourColorEncoding,
+    contourColor,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -119,6 +133,11 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setEmbeddingPointsVisible,
+    setEmbeddingContoursVisible,
+    setEmbeddingContoursFilled,
+    setEmbeddingContourPercentiles: setContourPercentiles,
+    setContourColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -341,18 +360,32 @@ export function EmbeddingScatterplotSubscriber(props) {
     { featureType },
   );
 
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+    loaders, dataset, false, {}, {},
+    { sampleType },
+  );
+
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+    loaders, dataset, false, {}, {},
+    { obsType, sampleType },
+  );
+
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
     featureSelectionStatus,
     featureLabelsStatus,
     matrixIndicesStatus,
+    sampleSetsStatus,
+    sampleEdgesStatus,
   ]);
   const urls = useUrls([
     obsEmbeddingUrls,
     obsSetsUrls,
     matrixIndicesUrls,
     featureLabelsUrls,
+    sampleSetsUrl,
+    sampleEdgesUrl,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -486,6 +519,98 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  // Sort the expression data array so that we can compute percentiles
+  // using the d3 quantileSorted function for improved performance.
+  const sortedWeights = useMemo(() => {
+    if (uint8ExpressionData?.[0]) {
+      const weights = uint8ExpressionData[0];
+      return weights.toSorted();
+    }
+    return null;
+  }, [uint8ExpressionData]);
+
+  // Compute contour thresholds based on the entire expression data distribution
+  // (not per-cellSet or per-sampleSet).
+  const contourThresholds = useMemo(() => {
+    if (sortedWeights) {
+      const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
+        .map(p => quantileSorted(sortedWeights, p))
+        .map(t => Math.max(t, 1.0));
+      return thresholds;
+    }
+    return null;
+  }, [contourPercentiles, sortedWeights]);
+
+  // It is possible for the embedding index+data to be out of order
+  // with respect to the matrix index+data. Here, we align the embedding
+  // data so that the rows are ordered the same as the matrix rows.
+  // TODO: refactor this as a hook that can be used elsewhere to align data
+  // from different data types with the expression matrix data.
+  // Need to fallback to the original ordering if no matrix data is present.
+  // TODO: do this everywhere and remove the need for the
+  // useExpressionValueGetter hook and getter function.
+  const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
+    // Sort the embedding data according to the matrix obsIndex.
+    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
+
+      const newEmbeddingIndex = new Array(obsEmbeddingIndex.length);
+      const newEmbeddingData = [
+        new obsEmbedding.data[0].constructor(obsEmbedding.data[0].length),
+        new obsEmbedding.data[1].constructor(obsEmbedding.data[1].length),
+      ];
+      for (let i = 0; i < obsEmbeddingIndex.length; i++) {
+        const matrixRowIndex = toMatrixIndex[i];
+        newEmbeddingData[0][matrixRowIndex] = obsEmbedding.data[0][i];
+        newEmbeddingData[1][matrixRowIndex] = obsEmbedding.data[1][i];
+        newEmbeddingIndex[matrixRowIndex] = obsEmbeddingIndex[i];
+      }
+      return [newEmbeddingIndex, { ...obsEmbedding, data: newEmbeddingData }];
+    }
+    // Fall back to original ordering if no matrix data is present to align with.
+    return [obsEmbeddingIndex, obsEmbedding];
+  }, [matrixObsIndex, obsEmbeddingIndex, obsEmbedding]);
+
+  const sampleIdToObsIdsMap = useMemo(() => {
+    // sampleEdges maps obsId -> sampleId.
+    // However when we stratify we want to map sampleId -> [obsId1, obsId2, ...].
+    // Here we create this reverse mapping.
+    if (sampleEdges) {
+      const result = new Map();
+      Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
+        if (!result.has(sampleId)) {
+          result.set(sampleId, [obsId]);
+        } else {
+          result.get(sampleId).push(obsId);
+        }
+      });
+      return result;
+    }
+    return null;
+  }, [sampleEdges]);
+
+  // Stratify multiple arrays: per-cellSet and per-sampleSet.
+  const stratifiedData = useMemo(() => {
+    if (alignedEmbeddingData?.data) {
+      const result = stratifyArrays(
+        sampleEdges, sampleIdToObsIdsMap,
+        sampleSets, sampleSetSelection,
+        alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
+          obsEmbeddingX: alignedEmbeddingData.data[0],
+          obsEmbeddingY: alignedEmbeddingData.data[1],
+          // TODO: aggregate and transform expression data if needed prior to passing here
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
+        },
+      );
+      return result;
+    }
+    return null;
+  }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
+    sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
+    cellSetSelection, mergedCellSets,
+  ]);
+
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -528,6 +653,17 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          embeddingPointsVisible={embeddingPointsVisible}
+          setEmbeddingPointsVisible={setEmbeddingPointsVisible}
+          embeddingContoursVisible={embeddingContoursVisible}
+          setEmbeddingContoursVisible={setEmbeddingContoursVisible}
+          embeddingContoursFilled={embeddingContoursFilled}
+          setEmbeddingContoursFilled={setEmbeddingContoursFilled}
+          contourPercentiles={contourPercentiles}
+          setContourPercentiles={setContourPercentiles}
+          defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
+          contourColorEncoding={contourColorEncoding}
+          setContourColorEncoding={setContourColorEncoding}
         />
       )}
     >
@@ -563,6 +699,19 @@ export function EmbeddingScatterplotSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
+        obsSetSelection={cellSetSelection}
+        sampleSetSelection={sampleSetSelection}
+        // InternMap data structures where keys are
+        // obsSet -> sampleSet -> arrayKey -> [].
+        stratifiedData={stratifiedData}
+        obsSetColor={cellSetColor}
+        sampleSetColor={sampleSetColor}
+        contourThresholds={contourThresholds}
+        contourColorEncoding={contourColorEncoding}
+        contourColor={contourColor}
+        contoursFilled={embeddingContoursFilled}
+        embeddingPointsVisible={embeddingPointsVisible}
+        embeddingContoursVisible={embeddingContoursVisible}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
@@ -583,7 +732,14 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        obsSetSelection={cellSetSelection}
         extent={expressionExtents?.[0]}
+        // Contour percentile legend
+        pointsVisible={embeddingPointsVisible}
+        contoursVisible={embeddingContoursVisible}
+        contoursFilled={embeddingContoursFilled}
+        contourPercentiles={contourPercentiles || DEFAULT_CONTOUR_PERCENTILES}
+        contourThresholds={contourThresholds}
       />
     </TitleInfo>
   );

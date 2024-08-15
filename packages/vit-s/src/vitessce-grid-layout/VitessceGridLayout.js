@@ -20,6 +20,7 @@ export function VitessceGridLayout(props) {
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
+    pageMode, children,
   } = props;
 
   const getComponent = useCallback((viewType) => {
@@ -121,56 +122,87 @@ export function VitessceGridLayout(props) {
     setLastValidGridLayouts(gridLayouts);
   }, [gridLayouts]);
 
-  const layoutChildren = useMemo(() => Object.values(gridComponents).map((v) => {
-    const Component = getComponent(v.component);
+  const layoutChildren = useMemo(() => {
+    const gridComponentsValues = Object.values(gridComponents);
+    if (pageMode) {
+      // This is pageMode, so we render based on the children.
+      return children.map((child) => {
+        const childId = child.props.id;
+        const v = gridComponentsValues.find(el => el.uid === childId);
+        if (!v) {
+          // The child did not map to any view in the config, so return as-is.
+          return child;
+        }
+        // The child mapped to a view in the config,
+        // so we want to render the corresponding component as a subchild.
+        const Component = getComponent(v.component);
+        return React.cloneElement(child, { key: v.uid }, (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Component
+              {... v.props}
+              uuid={v.uid}
+              coordinationScopes={v.coordinationScopes}
+              coordinationScopesBy={v.coordinationScopesBy}
+              theme={theme}
+              removeGridComponent={null}
+            />
+          </div>
+        ));
+      });
+    }
+    // Not pageMode, so no children to render.
+    // We render the grid components based on the layout information.
+    return gridComponentsValues.map((v) => {
+      const Component = getComponent(v.component);
+      const removeGridComponent = () => {
+        onRemoveComponent(v.uid);
+      };
+      return (
+        <div key={v.uid}>
+          <Component
+            {... v.props}
+            uuid={v.uid}
+            coordinationScopes={v.coordinationScopes}
+            coordinationScopesBy={v.coordinationScopesBy}
+            theme={theme}
+            removeGridComponent={removeGridComponent}
+          />
+        </div>
+      );
+    });
+  }, [gridComponents, getComponent, onRemoveComponent, theme]);
 
-    const removeGridComponent = () => {
-      onRemoveComponent(v.uid);
-    };
-
-    return (
-      <div key={v.uid}>
-        <Component
-          {... v.props}
-          uuid={v.uid}
-          coordinationScopes={v.coordinationScopes}
-          coordinationScopesBy={v.coordinationScopesBy}
-          theme={theme}
-          removeGridComponent={removeGridComponent}
-        />
-      </div>
-    );
-  }), [gridComponents, getComponent, onRemoveComponent, theme]);
-
-  return (gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
-    <>
-      {style}
-      <ResponsiveHeightGridLayout
-        className="layout"
-        cols={gridCols}
-        layouts={tempGridLayouts || gridLayouts}
-        breakpoints={gridBreakpoints}
-        height={height}
-        rowHeight={
+  return (pageMode
+    ? layoutChildren
+    : ((gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
+      <>
+        {style}
+        <ResponsiveHeightGridLayout
+          className="layout"
+          cols={gridCols}
+          layouts={tempGridLayouts || gridLayouts}
+          breakpoints={gridBreakpoints}
+          height={height}
+          rowHeight={
           rowHeight
           || (
             (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
             / maxRows
           )}
-        containerPadding={containerPadding}
-        margin={margin}
-        draggableHandle={draggableHandle}
-        onLayoutChange={onLayoutChange}
-        isBounded={isBounded}
-        onResizeStart={saveCurrentLayouts}
-        onDragStart={saveCurrentLayouts}
-        onResize={onResize}
-        onResizeStop={onResizeStop}
-      >
-        {layoutChildren}
-      </ResponsiveHeightGridLayout>
-    </>
-  );
+          containerPadding={containerPadding}
+          margin={margin}
+          draggableHandle={draggableHandle}
+          onLayoutChange={onLayoutChange}
+          isBounded={isBounded}
+          onResizeStart={saveCurrentLayouts}
+          onDragStart={saveCurrentLayouts}
+          onResize={onResize}
+          onResizeStop={onResizeStop}
+        >
+          {layoutChildren}
+        </ResponsiveHeightGridLayout>
+      </>
+    )));
 }
 
 VitessceGridLayout.defaultProps = {
