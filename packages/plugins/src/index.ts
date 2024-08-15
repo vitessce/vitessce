@@ -56,7 +56,7 @@ export class PluginFileType<
 // TODO: cleaning up any type requires refactoring
 // latestFileDefSchema out of @vitessce/schemas to avoid circular dependency
 // eslint-disable-next-line no-unused-vars
-type ExpandFunction = (a: any) => Array<any>;
+type ExpandFunction = ((a: any) => (Array<any>)) | ((a: any) => Promise<Array<any>>);
 
 export class PluginJointFileType<T1 extends z.ZodTypeAny> {
   name: string;

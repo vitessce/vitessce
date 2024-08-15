@@ -27,6 +27,7 @@ import {
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
 import { AsyncFunctionsContext } from './contexts.js';
+import { VitS2 } from './VitS2.js';
 
 
 /**
@@ -125,69 +126,6 @@ export function VitS(props) {
     return JSON.stringify(config);
   }, [config]);
 
-  const pluginSpecificConfigSchema = useMemo(() => buildConfigSchema(
-    fileTypes,
-    jointFileTypes,
-    coordinationTypes,
-    viewTypes,
-  ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes]);
-
-  // Process the view config and memoize the result:
-  // - Validate.
-  // - Upgrade, if legacy schema.
-  // - Validate after upgrade, if legacy schema.
-  // - Initialize (based on initStrategy).
-  const [configOrWarning, success] = useMemo(() => {
-    if (warning) {
-      return [warning, false];
-    }
-    logConfig(config, 'input view config');
-    if (!validateConfig) {
-      return [config, true];
-    }
-    const result = latestConfigSchema.safeParse(config);
-    if (result.success) {
-      const upgradedConfig = result.data;
-      logConfig(upgradedConfig, 'parsed view config');
-      // Perform second round of parsing against plugin-specific config schema.
-      const pluginSpecificResult = pluginSpecificConfigSchema.safeParse(upgradedConfig);
-      // Initialize the view config according to the initStrategy.
-      if (pluginSpecificResult.success) {
-        try {
-          const upgradedConfigWithValidPlugins = pluginSpecificResult.data;
-          const initializedConfig = initialize(
-            upgradedConfigWithValidPlugins,
-            jointFileTypes,
-            coordinationTypes,
-            viewTypes,
-          );
-          logConfig(initializedConfig, 'initialized view config');
-          return [initializedConfig, true];
-        } catch (e) {
-          return [
-            {
-              title: 'Config initialization failed.',
-              unformatted: e.message,
-            },
-            false,
-          ];
-        }
-      }
-      return [
-        {
-          title: 'Config validation failed on second pass.',
-          unformatted: pluginSpecificResult.error.message,
-        },
-        false,
-      ];
-    }
-    return [{
-      title: 'Config validation failed on first pass.',
-      unformatted: result.error.message,
-    }, result.success];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configKey, configVersion, pluginSpecificConfigSchema, warning]);
-
   const queryClient = useMemo(() => new QueryClient({
     // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
     defaultOptions: {
@@ -198,75 +136,39 @@ export function VitS(props) {
     },
   }), [configKey]);
 
-  // Emit the upgraded/initialized view config
-  // to onConfigChange if necessary.
-  useEffect(() => {
-    if (success && !isEqual(configOrWarning, config) && onConfigChange) {
-      onConfigChange(configOrWarning);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success, configKey, configOrWarning, onConfigChange]);
 
-  // Initialize the view config and loaders in the global state.
-  const createViewConfigStoreClosure = useCallback(() => {
-    if (success) {
-      const loaders = createLoaders(
-        configOrWarning.datasets,
-        configOrWarning.description,
-        fileTypes,
-        coordinationTypes,
-        stores,
-      );
-      return createViewConfigStore(loaders, configOrWarning);
-    }
-    // No config found, so clear the loaders.
-    return createViewConfigStore(null, null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success, configKey]);
 
-  return success ? (
+  return (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider
-            createStore={createViewConfigStoreClosure}
-            {...(remountOnUidChange ? ({ key: configKey }) : {})}
+          <VitS2
+            config={config}
+            stores={stores}
+            rowHeight={rowHeight}
+            height={height}
+            theme={theme}
+            onWarn={onWarn}
+            onConfigChange={onConfigChange}
+            onLoaderChange={onLoaderChange}
+            validateConfig={validateConfig}
+            validateOnConfigChange={validateOnConfigChange}
+            isBounded={isBounded}
+            uid={uid}
+            remountOnUidChange={remountOnUidChange}
+            configKey={configKey}
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            jointFileTypes={jointFileTypes}
+            coordinationTypes={coordinationTypes}
+            asyncFunctions={asyncFunctions}
+            warning={warning}
+            pageMode={pageMode}
+            configVersion={configVersion}
           >
-            <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={stores}
-                >
-                  {children}
-                </VitessceGrid>
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
-              </AsyncFunctionsContext.Provider>
-            </AuxiliaryProvider>
-          </ViewConfigProvider>
+            {children}
+          </VitS2>
         </QueryClientProvider>
-      </ThemeProvider>
-    </StylesProvider>
-  ) : (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <Warning {...configOrWarning} />
       </ThemeProvider>
     </StylesProvider>
   );

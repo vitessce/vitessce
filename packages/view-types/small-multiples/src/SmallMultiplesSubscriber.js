@@ -51,7 +51,7 @@ const histologyUrls = {
   // Histology, Left Kidney, Male (21)
   // https://portal.hubmapconsortium.org/search?raw_dataset_type_keyword-assay_display_name_keyword[Histology][0]=H%26E%20Stained%20Microscopy&raw_dataset_type_keyword-assay_display_name_keyword[Histology][1]=PAS%20Stained%20Microscopy&raw_dataset_type_keyword-assay_display_name_keyword[Histology][2]=PAS%20Stained%20Microscopy%20%5BKaggle-1%20Glomerulus%20Segmentation%5D&origin_samples.mapped_organ[0]=Kidney%20%28Left%29&donor.mapped_metadata.sex[0]=Male&entity_type[0]=Dataset
   case: [
-      'https://assets.hubmapconsortium.org/8f528475e216c283851e6941841d7173/ometiff-pyramids/processedMicroscopy/VAN0016-LK-202-89-PAS_images/VAN0016-LK-202-89-PAS_registered.ome.tif?token=',
+      //'https://kpmp-knowledge-environment.s3.amazonaws.com/f8b97edb-c306-4f37-bba3-d4ffd726ca97/derived/6288a2a1-a45c-47f4-94c5-6e8318452c9e_S-2101-000938_SIL_1of2-ome.tif?AWSAccessKeyId=AKIATCLUH4TBFWZXNON5&Signature=dadZcy8NANgfMYu5MuE4YOGOVFs%3D&Expires=1723733417',
       'https://assets.hubmapconsortium.org/0ca61e7926956da9b8bdde2b1f3c43af/ometiff-pyramids/processedMicroscopy/VAN0010-LK-155-40-PAS_images/VAN0010-LK-155-40-PAS_registered.ome.tif?token=',
       'https://assets.hubmapconsortium.org/f4188a148e4c759092d19369d310883b/ometiff-pyramids/processedMicroscopy/VAN0006-LK-2-85-PAS_images/VAN0006-LK-2-85-PAS_registered.ome.tif?token=',
       'https://assets.hubmapconsortium.org/bd42ab2f422e45ce6b0f3f55171de8aa/ometiff-pyramids/processed_microscopy/VAN0054-LK-3-21-PAS_images/VAN0054-LK-3-21-PAS-registered.ome.tif?token=',
@@ -102,7 +102,7 @@ const histologyUrls = {
 
 // TODO: do the same for Visium, etc. Use SpatialData to store multiple in same container?
 async function loadOffsets(tiffUrl) {
-  const offsetsUrl = tiffUrl.replace('.ome.tif', '.offsets.json');
+  const offsetsUrl = tiffUrl.replace('ome.tif', 'offsets.json');
   const res = await fetch(offsetsUrl);
   if (res.ok) {
       const offsets = await res.json();
@@ -134,6 +134,7 @@ export function SmallMultiplesSubscriber(props) {
     removeGridComponent,
     theme,
     title = 'Small Multiples',
+    tempKey = 'case',
   } = props;
 
   const loaders = useLoaders();
@@ -198,13 +199,11 @@ export function SmallMultiplesSubscriber(props) {
   }, [setZoom, setTargetX, setTargetY, setTargetZ]);
 
 
-
-
   // TEMP
   const [thumbnails, setThumbnails] = useState(null);
 
   async function loadImages() {
-    const promises = histologyUrls.case.map(async (tiffUrl) => {
+    const promises = histologyUrls[tempKey].map(async (tiffUrl) => {
 
         const offsets = await loadOffsets(tiffUrl);
         const loader = await viv.loadOmeTiff(tiffUrl, { offsets });
@@ -223,9 +222,7 @@ export function SmallMultiplesSubscriber(props) {
   // TODO: load both case and control arrays.
   // TODO: load based on sampleSets
   useEffect(() => {
-
-      loadImages();
-      
+    loadImages();
   }, []);
   // END TEMP  
   

@@ -214,30 +214,31 @@ function assignViewUids(config) {
  * convenience file types.
  * @returns The view config containing expanded minimal file types.
  */
-function expandConvenienceFileDefs(config, jointFileTypes) {
+async function expandConvenienceFileDefs(config, jointFileTypes) {
   const convenienceFileTypes = Object.fromEntries(
     jointFileTypes.map(ft => ([ft.name, ft.expandFunction])),
   );
   const { datasets: currDatasets } = config;
   const datasets = cloneDeep(currDatasets);
-  currDatasets.forEach((dataset, i) => {
+  for(let i = 0; i < currDatasets.length; i++) {
+    const dataset = currDatasets[i];
     const { files = [] } = dataset;
     let newFiles = [];
-    files.forEach((fileDef) => {
+    for(let fileDef of files) {
       const { fileType } = fileDef;
       const expansionFunc = convenienceFileTypes[fileType];
       if (expansionFunc && typeof expansionFunc === 'function') {
         // This was a convenience file type, so expand it.
-        const expandedFileDefs = expansionFunc(fileDef);
+        const expandedFileDefs = await expansionFunc(fileDef);
         newFiles = newFiles.concat(expandedFileDefs);
       } else {
         // This was not a convenience file type,
         // so keep it in the files array as-is.
         newFiles.push(fileDef);
       }
-    });
+    }
     datasets[i].files = newFiles;
-  });
+  }
   return {
     ...config,
     datasets,
@@ -259,13 +260,13 @@ function expandConvenienceFileDefs(config, jointFileTypes) {
  * @param {PluginViewType[]} viewTypes
  * @returns The initialized view config.
  */
-export function initialize(config, jointFileTypes, coordinationTypes, viewTypes) {
+export async function initialize(config, jointFileTypes, coordinationTypes, viewTypes) {
   let newConfig = cloneDeep(config);
   if (newConfig.initStrategy === 'auto') {
     // TODO: pass coordination types with defaults
     // TODO: pass view types with per-view coordination type lists
     newConfig = initializeAuto(config, coordinationTypes, viewTypes);
   }
-  newConfig = expandConvenienceFileDefs(newConfig, jointFileTypes);
+  newConfig = await expandConvenienceFileDefs(newConfig, jointFileTypes);
   return assignViewUids(newConfig);
 }

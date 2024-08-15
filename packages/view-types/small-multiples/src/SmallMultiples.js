@@ -3,11 +3,6 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { viv, deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import { ImageWrapper } from '@vitessce/image-utils';
 
-
-
-
-
-
 export function SmallMultiples(props) {
     const {
         deckRef,
@@ -22,6 +17,7 @@ export function SmallMultiples(props) {
     } = props;
 
     const getBounds = useCallback((i, shapeWidth, shapeHeight) => {
+      // TODO: extract as utility function to enable testing.
       const numCols = Math.floor(width / thumbnailSize);
 
 
@@ -40,7 +36,6 @@ export function SmallMultiples(props) {
       const boundsWidth = isPortrait ? thumbnailSize * aspectRatio : thumbnailSize;
       const boundsHeight = isPortrait ? thumbnailSize : thumbnailSize / aspectRatio;
 
-
       const bounds = [
         left + x,
         top + y,
@@ -52,15 +47,6 @@ export function SmallMultiples(props) {
     }, [thumbnails, thumbnailSize, width, height]);
 
 
-    function scaleBounds(x, y, tileWidth, tileHeight) {
-      return [
-        x/thumbnails.length * width,
-        y/thumbnails.length * height,
-        (x/thumbnails.length * width) + tileWidth,
-        (y/thumbnails.length * height) + tileHeight,
-      ];
-    }
-
     const layers = useMemo(() => {
       if(!thumbnails) {
         return []
@@ -71,7 +57,7 @@ export function SmallMultiples(props) {
           channelsVisible: [true, true, true],
           contrastLimits: [[0, 255], [0, 255], [0, 255]],
           bounds: getBounds(i, thumbnail.data.width, thumbnail.data.height),
-          id: `${uuid}-GridLayer-${i}`,
+          id: `${uuid}-thumbnail-${i}`,
           dtype: thumbnail.dtype || "Uint8", // fallback if missing,
           pickable: false,
           extensions: [new viv.ColorPaletteExtension()],
