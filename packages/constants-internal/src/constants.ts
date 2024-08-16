@@ -294,7 +294,7 @@ export const DescriptionType = {
  * each view.
  */
 export const ViewHelpMapping = {
-  SCATTERPLOT:'The Scatterplot View displays two-dimensional (pre-computed) embeddings / projections (such as t-SNE or UMAP). Each point on the scatterplot represents a cell.',
+  SCATTERPLOT: 'The Scatterplot View displays two-dimensional (pre-computed) embeddings / projections (such as t-SNE or UMAP). Each point on the scatterplot represents a cell.',
   HEATMAP: 'The Heatmap View displays a normalized cell-by-gene or gene-by-cell matrix visualization.',
   SPATIAL: 'The Spatial View displays data with spatial coordinates, including spatially-resolved cell segmentations as polygons (from the obsSegmentations data type) and molecule positions as points (from the obsLocations data type).',
   DESCRIPTION: 'The Description View displays the details of a dataset or a data analysis process. When the spatial view is used for visualization of imaging data, the description view also renders a dropdown containing image metadata.',

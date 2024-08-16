@@ -7,9 +7,11 @@ export function HelpOverlay({ helpOverlayText, onHandleCloseOverlay }) {
   const classes = useHelpStyles();
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       className={classes.overlay}
       onClick={onHandleCloseOverlay}
+      onKeyDown={onHandleCloseOverlay}
     >
       <div
         className={classes.overlayContent}
