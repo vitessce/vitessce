@@ -3,6 +3,10 @@ import {
   TitleInfo,
   useViewConfigStoreApi,
 } from '@vitessce/vit-s';
+import {
+  FormControlLabel, Switch, Box
+} from '@material-ui/core';
+
 
 export default function LinkController(props) {
   const {
@@ -41,7 +45,7 @@ export default function LinkController(props) {
 
 
   useEffect(() => {
-    if(linkIDInit != null) {
+    if (linkIDInit != null) {
       setLinkID(linkIDInit)
     }
     if (linkID == null) {
@@ -60,7 +64,7 @@ export default function LinkController(props) {
 
   useEffect(() => viewConfigStoreApi.subscribe(
     // The function to run on each publish.
-    ({ viewConfig, mostRecentConfigSource }) => {
+    ({viewConfig, mostRecentConfigSource}) => {
       console.log(viewConfig, mostRecentConfigSource)
       if (onConfigChange && viewConfig && mostRecentConfigSource == 'internal') {
         onConfigChange(viewConfig);
@@ -68,7 +72,7 @@ export default function LinkController(props) {
     },
     // The function to specify which part of the store
     // we want to subscribe to.
-    state => ({ viewConfig: state.viewConfig, mostRecentConfigSource: state.mostRecentConfigSource }),
+    state => ({viewConfig: state.viewConfig, mostRecentConfigSource: state.mostRecentConfigSource}),
   ), [viewConfigStoreApi, onConfigChange]);
 
 
@@ -110,14 +114,24 @@ export default function LinkController(props) {
     }
   }, [viewConfigStoreApi, socketOpen, linkID]);
 
-
   return (
     <>
-            <span>Send:
-                <input type={"checkbox"} name={"send"} defaultChecked={false}
-                       onChange={e => setSend(e.target.checked)}/>
-            </span>
-      <p>Your code is: {linkID}</p>
+      {/*<span>Send:*/}
+      {/*      <FormControlLabel onChange={e => setSend(e.target.checked)}/>*/}
+      <span>
+        <FormControlLabel
+          style={{marginLeft:"0px"}}
+          control={<Switch color="primary" checked={send}  onChange={e => setSend(e.target.checked)}/>}
+          // label="Send"
+          label={
+            <Box component="div" fontSize={15}>
+              Small
+            </Box>
+          }
+          labelPlacement="start"
+        />
+      </span>
+      <p>Code: <b>{linkID}</b></p>
     </>
   )
 }
