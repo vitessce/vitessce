@@ -284,6 +284,11 @@ export const STATUS = {
   ERROR: 'error',
 };
 
+export const DescriptionType = {
+  PLAIN: 'plain',
+  MARKDOWN: 'markdown',
+};
+
 /**
  * Constants representing the help text for
  * each view.

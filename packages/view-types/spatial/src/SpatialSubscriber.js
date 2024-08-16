@@ -651,6 +651,7 @@ export function SpatialSubscriber(props) {
         featureType={featureType}
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
+        obsSetSelection={cellSetSelection}
         featureSelection={geneSelection}
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}

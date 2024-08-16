@@ -23,6 +23,7 @@ export function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
+    descriptionType,
     removeGridComponent,
     theme,
     title = 'Description',
@@ -79,6 +80,7 @@ export function DescriptionSubscriber(props) {
     >
       <Description
         description={descriptionOverride || description}
+        descriptionType={descriptionType}
         metadata={metadata}
       />
     </TitleInfo>

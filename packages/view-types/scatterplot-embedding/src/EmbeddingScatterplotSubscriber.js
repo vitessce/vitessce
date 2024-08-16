@@ -559,6 +559,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        obsSetSelection={cellSetSelection}
         extent={expressionExtents?.[0]}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
