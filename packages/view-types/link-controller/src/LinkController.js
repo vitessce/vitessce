@@ -5,6 +5,9 @@ import {
 } from '@vitessce/vit-s';
 
 export default function LinkController(props) {
+    const {
+        linkID
+    } = props
     const viewConfigStoreApi = useViewConfigStoreApi();
 
     const [socketOpen, setSocketOpen] = useState(false);
@@ -53,8 +56,7 @@ export default function LinkController(props) {
 
     useEffect(() => {
         var authToken = 'mr-vitessce';
-        var spaceID = "1234"
-        const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, spaceID]);
+        const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, linkID]);
         ws.addEventListener('open', (event) => {
             console.log('Open', event);
             setSocketOpen(true);
@@ -94,7 +96,7 @@ export default function LinkController(props) {
             <span>Send:
                 <input type={"checkbox"} name={"send"} defaultChecked={false} onChange={e => setSend(e.target.checked)} />
             </span>
-            <p>Your code is 1234.</p>
+            <p>Your code is: {linkID}</p>
         </>
     )
 }
