@@ -12,7 +12,7 @@ export function LinkControllerSubscriber(props) {
     theme,
     title = 'Link Controller',
     closeButtonVisible,
-    studyID, linkIDInit
+    studyID, linkID
   } = props;
 
   return (
@@ -24,7 +24,7 @@ export function LinkControllerSubscriber(props) {
       theme={theme}
       isReady={true}
     >
-      <LinkController studyID={studyID} linkIDInit={linkIDInit}/>
+      <LinkController studyID={studyID} linkIDInit={linkID}/>
     </TitleInfo>
   );
 }

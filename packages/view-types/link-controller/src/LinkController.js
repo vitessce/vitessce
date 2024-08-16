@@ -79,7 +79,7 @@ export default function LinkController(props) {
   useEffect(() => {
     var authToken = 'mr-vitessce';
     if (linkID !== null) {
-      const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, 1234]);
+      const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, linkID]);
       ws.addEventListener('open', (event) => {
         console.log('Open', event);
         setSocketOpen(true);
@@ -121,17 +121,17 @@ export default function LinkController(props) {
       <span>
         <FormControlLabel
           style={{marginLeft:"0px"}}
-          control={<Switch color="primary" checked={send}  onChange={e => setSend(e.target.checked)}/>}
+          control={<Switch color="primary" checked={send} onChange={e => setSend(e.target.checked)}/>}
           // label="Send"
           label={
             <Box component="div" fontSize={15}>
-              Small
+              Send:
             </Box>
           }
           labelPlacement="start"
         />
       </span>
-      <p>Code: <b>{linkID}</b></p>
+      <p>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
     </>
   )
 }
