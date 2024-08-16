@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core';
 export const useHelpStyles = makeStyles(theme => ({
 
   overlay: {
-    position: 'fixed',
+    position: 'relative',
     top: 0,
     left: 0,
     width: '100%',
