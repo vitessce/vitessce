@@ -12,31 +12,8 @@ export function LinkControllerSubscriber(props) {
     theme,
     title = 'Link Controller',
     closeButtonVisible,
-    studyID,
-    linkIDInit
+    studyID, linkIDInit
   } = props;
-
-  const [linkID, setLinkID] = useState(null)
-
-  useEffect(() => {
-    if(linkIDInit != null) {
-      setLinkID(linkIDInit)
-    }
-    if (linkID == null) {
-      fetch("https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link?study_id=" + studyID, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        }
-      }).then(response => response.json()).then(function (response) {
-        console.log(response.link_id)
-        setLinkID(response.link_id);
-      }).catch(function (err) {
-        console.log('Fetch Error :-S', err);
-      });
-    }
-  }, [linkID])
-
 
   return (
     <TitleInfo
@@ -47,7 +24,7 @@ export function LinkControllerSubscriber(props) {
       theme={theme}
       isReady={true}
     >
-      <LinkController linkID={linkID}/>
+      <LinkController studyID={studyID} linkIDInit={linkIDInit}/>
     </TitleInfo>
   );
 }
