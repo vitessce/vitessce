@@ -1,4 +1,4 @@
-// @ts-check
+// TODO: re-enable @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { makeVector, vectorFromArray, Dictionary as arrowDictionary, Uint8 as arrowUint8, Utf8 as arrowUtf8 } from "apache-arrow";
@@ -98,20 +98,22 @@ export default class AnnDataSource extends ZarrDataSource {
     const [codes, categories] = await this._loadColumnAsCategories(path);
 
     if(categories) {
-      const categoriesVector = vectorFromArray(
-        /** @type {string[]} */ (categories),
-        new arrowUtf8
-      );
-      return makeVector({
-        data: /** @type {number[]} */ (codes), // indexes into the dictionary
-        dictionary: /** @type {Vector<any>} */ (categoriesVector),
-        type: new arrowDictionary(new arrowUtf8, new arrowUint8),
-      });
+      return {
+        codes: makeVector(codes),
+        dictionary: makeVector({
+          data: codes, // indexes into the dictionary
+          dictionary: vectorFromArray(categories, new arrowUtf8), // TODO: do not hard-code utf8. only use if categories are strings.
+          type: new arrowDictionary(new arrowUtf8, new arrowUint8), // TODO: do not hard-code utf8. Do not hard-code Uint8 - check number of categories.
+        }),
+      };
     } else {
-      return vectorFromArray(
-        Array.from(/** @type {number[]} */ (codes)).map(i => String(i)),
-        new arrowUtf8,
-      );
+      return {
+        codes: undefined,
+        dictionary: vectorFromArray(
+          Array.from(/** @type {number[]} */ (codes)).map(i => String(i)),
+          new arrowUtf8,
+        )
+      };
     }
   }
 

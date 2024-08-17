@@ -6,8 +6,7 @@ import {
   treeToMembershipMap,
   dataToCellSetsTree,
 } from '@vitessce/sets-utils';
-import { vectorFromArray, makeTable, Dictionary as arrowDictionary, Utf8 as arrowUtf8, Uint8 as arrowUint8, Uint32 as arrowUint32 } from 'apache-arrow';
-import { range } from 'lodash-es';
+import { vectorFromArray, Table, Dictionary as arrowDictionary, Utf8 as arrowUtf8, Uint8 as arrowUint8, Uint32 as arrowUint32 } from 'apache-arrow';
 
 export function repeatString(val, numRows) {
   return vectorFromArray(
@@ -93,7 +92,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     ]);
     const colTables = obsSetsCols.map((colVector, j) => {
       const { name } = options[j];
-      return makeTable({
+      return new Table({
         obsIndex: vectorFromArray(obsIndex, new arrowUtf8),
         setGroup: repeatString(name, obsIndex.length),
         setName: colVector,
