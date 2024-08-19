@@ -121,17 +121,17 @@ export default function LinkController(props) {
       <span>
         <FormControlLabel
           style={{marginLeft:"0px"}}
-          control={<Switch color="primary" checked={send} onChange={e => setSend(e.target.checked)}/>}
+          control={<Switch color="primary" size={"medium"} checked={send} onChange={e => setSend(e.target.checked)}/>}
           // label="Send"
           label={
-            <Box component="div" fontSize={15}>
+            <Box component="div" style={{fontSize:"25px"}}>
               Send:
             </Box>
           }
           labelPlacement="start"
         />
       </span>
-      <p>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
+      <p style={{fontSize:"25px"}}>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
     </>
   )
 }

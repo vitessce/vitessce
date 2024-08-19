@@ -22,9 +22,9 @@ function generateLinkControllerMinimalConfig() {
 
   const linkController = config.addView(dataset, 'linkController', {
     x: 0,
-    y: 4,
+    y: 0,
     w: 3,
-    h: 1,
+    h: 8,
   }).setProps({linkID: 1234});
 
   // config.addView(linkController);
