@@ -8,7 +8,6 @@ import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
-import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
 import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
@@ -87,7 +86,7 @@ function IndexWithHashParams() {
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
   const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
-
+  // const edit = true;
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validConfig, setValidConfig] = useState(null);
@@ -141,6 +140,7 @@ function IndexWithHashParams() {
   }, [isExpanded]);
 
   useEffect(() => {
+    console.log('parent use effect', pendingJson);
     let unmounted = false;
     async function processParams() {
       if (url) {
@@ -159,7 +159,7 @@ function IndexWithHashParams() {
               // User wants to edit the URL-based config.
               try {
                 const responseJson = JSON.parse(responseText);
-                setPendingJson(JSON.stringify(responseJson, null, 2));
+                setPendingJson(() => JSON.stringify(responseJson, null, 2));
               } catch (e) {
                 // However, this may be an invalid JSON object
                 // so we can just let the user edit the unformatted string.
@@ -226,7 +226,7 @@ function IndexWithHashParams() {
       edit: false,
     });
   }
-
+  // console.log(edit, isDemo, loading);
   return (edit ? (
     <>
       <AppStyles />
@@ -244,6 +244,7 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
+      <h1>Hello</h1>
       {isDemo ? (
         <div className={clsx('demo-header', { 'vitessce-expanded': isExpanded })}>
           <DemoStyles />
@@ -287,7 +288,7 @@ function IndexWithHashParams() {
       </div>
     </div>
   ) : (!loading ? (
-    <Home />
+    <p>Test</p>
   ) : (
     <p>Loading...</p>
   )));

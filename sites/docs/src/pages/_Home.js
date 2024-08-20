@@ -4,56 +4,7 @@ import clsx from 'clsx';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useColorMode } from '@docusaurus/theme-common';
-import ScreenshotImage from './_ScreenshotImage.js';
 import styles from './styles.module.css';
-
-const features = [
-  {
-    title: 'Interactive',
-    description: (
-      <>
-        Vitessce consists of reusable interactive views including a scatterplot,
-        spatial+imaging plot, genome browser tracks, statistical plots,
-        and control views, built on web technologies such as WebGL.
-      </>
-    ),
-  },
-  {
-    title: 'Integrative',
-    description: (
-      <>
-        Vitessce enables visual analysis of multi-modal assay types
-        which probe biological systems through techniques such as microscopy,
-        genomics, and transcriptomics.
-      </>
-    ),
-  },
-  {
-    title: 'Serverless',
-    description: (
-      <>
-        Visualize large datasets stored in static cloud object
-        stores such as AWS S3. No need to manage or pay for expensive
-        compute infrastructure for visualization purposes.
-      </>
-    ),
-  },
-];
-
-function Feature({ imageUrl, title, description }) {
-  const imgUrl = useBaseUrl(imageUrl);
-  return (
-    <div className={clsx('col', styles.feature)}>
-      {imgUrl && (
-        <div className="text--center">
-          <img className={styles.featureImage} src={imgUrl} alt={title} />
-        </div>
-      )}
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
-  );
-}
 
 export default function Home() {
   const { siteConfig = {} } = useDocusaurusContext();
@@ -72,23 +23,15 @@ export default function Home() {
         </div>
       </header>
       <main>
-        <section className={styles.homeScreenshots}>
-          <a href={`${introUrl}#web-application`}><ScreenshotImage filename="web.png" alt="Vitessce as a web application" /></a>
-          <a href={`${introUrl}#embedded-component`}><ScreenshotImage filename="hubmap.png" alt="Vitessce as an embedded web component (HuBMAP Portal)" /></a>
-          <a href={`${introUrl}#python-jupyter-widget`}><ScreenshotImage filename="jupyterlab.png" alt="Vitessce as an ipywidget in JupyterLab" /></a>
-          <a href={`${introUrl}#r-htmlwidget`}><ScreenshotImage filename="rstudio.png" alt="Vitessce as an htmlwidget in RStudio" /></a>
+        <section>
+          <div className={styles.container}>
+            <form className="form">
+              <label htmlFor="inputField">Enter your study id:</label>
+              <input type="text" id="inputField" className={styles.textBox} />
+              <button type="submit" className={styles.submitButton}>Submit</button>
+            </form>
+          </div>
         </section>
-        {features && features.length > 0 && (
-          <section className={styles.features}>
-            <div className="container">
-              <div className="row">
-                {features.map((props, idx) => (
-                  <Feature key={idx} {...props} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
       </main>
     </>
   );

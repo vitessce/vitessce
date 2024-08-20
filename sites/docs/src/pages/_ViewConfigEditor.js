@@ -1,10 +1,9 @@
 /* eslint-disable no-nested-ternary */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
-import {
-  LiveProvider, LiveContext, LiveError, LivePreview,
-} from 'react-live';
+
+import StudyIdInput from '../components/StudyIdInput.js';
 import {
   VitessceConfig,
   generateConfig,
@@ -17,8 +16,6 @@ import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
 import { upgradeAndParse } from '@vitessce/schemas';
-import { List, ListItem, ListItemText } from '@material-ui/core';
-import ThemedControlledEditor from './_ThemedControlledEditor.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples.js';
@@ -60,6 +57,7 @@ const scope = {
 };
 
 export default function ViewConfigEditor(props) {
+  console.log('view mounted')
   const {
     pendingJson,
     setPendingJson,
@@ -79,13 +77,15 @@ export default function ViewConfigEditor(props) {
   const [datasetUrls, setDatasetUrls] = useState('');
   const [pendingFileContents, setPendingFileContents] = useState('');
   const [generateConfigError, setGenerateConfigError] = useState(null);
+  const [inputURL, setInputURL] = useState('');
+  // const [generateConfigError, setGenerateConfigError] = useState(null);
 
-  const [syntaxType, setSyntaxType] = useState('JSON');
+  // const [syntaxType, setSyntaxType] = useState('JSON');
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  const [hintOptions, setHintOptions] = useState([]);
+  // const [hintOptions, setHintOptions] = useState([]);
 
   function sanitiseURLs(urls) {
     return urls
@@ -122,13 +122,14 @@ export default function ViewConfigEditor(props) {
     return [upgradeSuccess, failureReason];
   }
 
-  function handleEditorGo() {
+  async function handleEditorGo() {
+    if(inputURL === '') {
+      setError('No dataset URL is provided');
+      return
+    }
     let nextUrl;
     if (loadFrom === 'editor') {
       let nextConfig = pendingJson;
-      if (syntaxType === 'JS') {
-        nextConfig = window[JSON_TRANSLATION_KEY];
-      }
       nextUrl = `data:,${encodeURIComponent(nextConfig)}`;
       const [valid, failureReason] = validateConfig(nextConfig);
       if (!valid) {
@@ -140,21 +141,33 @@ export default function ViewConfigEditor(props) {
     } else if (loadFrom === 'file') {
       nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
     }
+
+    await getLinkId();
+
     setUrl(nextUrl);
   }
 
-  async function handleConfigGeneration(hintOption) {
-    setGenerateConfigError(null);
-    const sanitisedUrls = sanitiseURLs(datasetUrls);
+  async function getLinkId() {
+    console.log("linkId")
+  }
 
-    await generateConfig(sanitisedUrls, hintOption)
-      .then((configJson) => {
-        setPendingJson(JSON.stringify(configJson, null, 2));
-        setLoadFrom('editor');
-      })
-      .catch((e) => {
-        setGenerateConfigError(e.message);
-      });
+  async function handleConfigGeneration(exampleURL) {
+    setInputURL(exampleURL);
+    setDatasetUrls(exampleURL);
+    const sanitisedUrls = sanitiseURLs(exampleURL);
+    if (sanitisedUrls.length === 0) {
+      return;
+    }
+    setGenerateConfigError(null);
+    setError(null);
+    try {
+      const configJson = await generateConfig(sanitisedUrls, 'Basic');
+      setPendingJson(() => JSON.stringify(configJson, null, 2));
+      setLoadFrom('editor');
+    } catch (e) {
+      setGenerateConfigError(e.message);
+      throw e;
+    }
   }
 
   function handleUrlChange(event) {
@@ -163,14 +176,15 @@ export default function ViewConfigEditor(props) {
   }
 
   function handleDatasetUrlChange(newDatasetUrls) {
+    console.log("entered")
     setDatasetUrls(newDatasetUrls);
+    setInputURL(newDatasetUrls)
     const sanitisedUrls = sanitiseURLs(newDatasetUrls);
     if (sanitisedUrls.length === 0) return;
     try {
       const newHintsOptions = getHintOptions(sanitisedUrls);
       setGenerateConfigError(null);
       setPendingJson(baseJson);
-      setHintOptions(newHintsOptions);
     } catch (e) {
       setGenerateConfigError(e.message);
     }
@@ -200,7 +214,7 @@ export default function ViewConfigEditor(props) {
     setDatasetUrls('');
   }
 
-  const showReset = (syntaxType === 'JSON' && pendingJson !== baseJson) || (syntaxType === 'JS' && pendingJs !== baseJs);
+  const showReset = (pendingJson !== baseJson);
 
   return (
     loading ? (
@@ -210,120 +224,44 @@ export default function ViewConfigEditor(props) {
         {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
         )}
-        <p className={styles.viewConfigEditorInfo}>
-          To use Vitessce, enter a&nbsp;
-          <a href={syntaxType === 'JS' ? viewConfigDocsJsUrl : viewConfigDocsJsonUrl}>view config</a>
-            &nbsp;using the editor below.&nbsp;
-          <button type="button" onClick={tryExample}>Try an example</button>&nbsp;
-          {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
-        </p>
-        <div className={styles.viewConfigEditorType}>
-          <label htmlFor="editor-syntax">
-            <select
-              className={styles.viewConfigEditorTypeSelect}
-              value={syntaxType}
-              onChange={handleSyntaxChange}
-              id="editor-syntax"
-            >
-              <option value="JSON">JSON</option>
-              <option value="JS">JS</option>
-            </select>
-          </label>
-        </div>
         <div className={styles.viewConfigEditorInputsSplit}>
           <div className={styles.viewConfigEditor}>
-            {syntaxType === 'JSON' ? (
-              <div className={styles.viewConfigEditorPreviewJSSplit}>
-                <ThemedControlledEditor
-                  value={pendingJson}
-                  onChange={(value) => {
-                    setPendingJson(value);
-                    setLoadFrom('editor');
-                  }}
-                  language="json"
-                />
-
-                <div>
-                  <div className={styles.viewConfigInputs}>
-                    <div className={styles.viewConfigInputUrlOrFile}>
-                      <p className={styles.viewConfigInputUrlOrFileText}>
-                        Alternatively, enter the URLs to one or more data files
-                        (semicolon-separated) to populate the editor with a&nbsp;
-                        <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
-                        <button
-                          type="button"
-                          onClick={() => handleDatasetUrlChange(exampleURL)}
-                        >Try an example
-                        </button>
-                      </p>
-                      <div className={styles.generateConfigInputUrl}>
-                        <textarea
-                          type="text"
-                          className={styles.viewConfigUrlTextarea}
-                          placeholder="One or more file URLs (semicolon-separated)"
-                          value={datasetUrls}
-                          onChange={e => handleDatasetUrlChange(e.target.value)}
-                        />
-                      </div>
+            <div className={styles.viewConfigEditorPreviewJSSplit}>
+              <div>
+                <div className={styles.viewConfigInputs}>
+                  <div className={styles.viewConfigInputUrlOrFile}>
+                    <p className={styles.viewConfigInputUrlOrFileText}>
+                      Enter the URLs to one or more data files
+                      (semicolon-separated) to populate the editor with a&nbsp;
+                      <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
+                      <button
+                        type="button"
+                        onClick={() => handleConfigGeneration(exampleURL)}
+                      >Try an example
+                      </button>
+                    </p>
+                    <div className={styles.generateConfigInputUrl}>
+                      <textarea
+                        type="text"
+                        className={styles.viewConfigUrlTextarea}
+                        placeholder="One or more file URLs (semicolon-separated)"
+                        value={datasetUrls}
+                        onChange={e => handleDatasetUrlChange(e.target.value)}
+                      />
                     </div>
                   </div>
-                  {datasetUrls !== '' ? (
-                    !generateConfigError ? (
-                      <List
-                        subheader={(
-                          <p id="nested-list-subheader" className={styles.viewConfigEditorInfo}>
-                            Select a view layout for the provided URLs:
-                          </p>
-                        )}
-                      >
-                        {hintOptions.map(hintOption => (
-                          <ListItem key={hintOption}>
-                            <button
-                              type="button"
-                              onClick={() => handleConfigGeneration(hintOption)}
-                              key={hintOption}
-                            >
-                              <ListItemText primary={hintOption} />
-                            </button>
-                          </ListItem>
-                        ))}
-                      </List>
-                    ) : (
-                      <pre className={styles.vitessceAppLoadError}>
-                        {generateConfigError}
-                      </pre>
-                    )
-                  ) : null}
                 </div>
               </div>
-            ) : (
-              <div className={styles.viewConfigEditorPreviewJSSplit}>
-                <LiveProvider code={pendingJs} scope={scope} transformCode={transformCode}>
-                  <LiveContext.Consumer>
-                    {({ code }) => (
-                      <div className={styles.viewConfigEditorJS}>
-                        <ThemedControlledEditor
-                          value={code}
-                          onChange={(value) => {
-                            setPendingJs(value);
-                            setLoadFrom('editor');
-                          }}
-                          language="javascript"
-                        />
-                      </div>
-                    )}
-                  </LiveContext.Consumer>
-                  <div className={styles.viewConfigPreviewErrorSplit}>
-                    <p className={styles.livePreviewHeader}>Translation to JSON</p>
-                    <div className={styles.viewConfigPreviewScroll}>
-                      <LiveError className={styles.viewConfigErrorJS} />
-                      <LivePreview className={styles.viewConfigPreviewJS} />
-                    </div>
-                  </div>
-                </LiveProvider>
+              <StudyIdInput />
               </div>
-            )}
-          </div>
+              {datasetUrls !== '' ? (
+                generateConfigError ? (
+                  <pre className={styles.vitessceAppLoadError}>
+                    {generateConfigError}
+                  </pre>
+                ) : null
+              ) : null}
+            </div>
           <div className={styles.viewConfigInputs}>
             <div className={styles.viewConfigInputUrlOrFile}>
               <p className={styles.viewConfigInputUrlOrFileText}>

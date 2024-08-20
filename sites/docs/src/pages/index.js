@@ -7,8 +7,7 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 export default function WrappedIndex() {
   return (
     <Layout
-      description="Vitessce is a visual integration tool for exploration of spatial single-cell experiments."
-      image="http://beta.vitessce.io/img/logo-card.png"
+      description="Experience Vitessce with Mixed Reality"
     >
       <BrowserOnly>
         {() => {
