@@ -75,12 +75,33 @@
   margin-left: 25%;
 }
 
-.viewConfigEditor {
+.studyInput {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0 0.5rem 20px;
+  position: relative;
+  display: block;
+  margin-left: 20px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.goButtonDiv {
+  /* padding: 0.5rem 1rem; */
+  margin: 0.5rem 0 0.5rem 20px;
+  position: relative;
+  display: block;
+  margin-left: 20px;
+  cursor: pointer;
+  text-align: center;
+  height: 100%;
+}
+
+/* .viewConfigEditor {
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 0.5rem;
   position: relative;
-}
+} */
 .tryButtonJSON {
   position: absolute;
   width: 170px;
@@ -291,10 +312,11 @@
 
 
 .viewConfigEditorMain {
+  padding-top: 4rem;
   padding-bottom: 4rem;
-  display: flex;
+  /* display: flex;
   align-items: center;
-  align-content: center;
+  align-content: center; */
   /* position: relative; */
 }
 

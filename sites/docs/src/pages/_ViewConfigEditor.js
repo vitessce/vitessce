@@ -23,6 +23,7 @@ import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
 
+const ID_LENGTH = 4;
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
 // because this code will wrap the user's code to
@@ -78,14 +79,22 @@ export default function ViewConfigEditor(props) {
   const [pendingFileContents, setPendingFileContents] = useState('');
   const [generateConfigError, setGenerateConfigError] = useState(null);
   const [inputURL, setInputURL] = useState('');
-  // const [generateConfigError, setGenerateConfigError] = useState(null);
+  const [studyId, setStudyId] = useState(null);
 
-  // const [syntaxType, setSyntaxType] = useState('JSON');
+
   const [loadFrom, setLoadFrom] = useState('editor');
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
-  // const [hintOptions, setHintOptions] = useState([]);
+
+  function handleSetStudyId(id) {
+    console.log('id', id);
+    setStudyId(id);
+  }
+
+  function handleInputError(errMessage) {
+    setError(errMessage)
+  }
 
   function sanitiseURLs(urls) {
     return urls
@@ -142,9 +151,15 @@ export default function ViewConfigEditor(props) {
       nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
     }
 
-    await getLinkId();
-
-    setUrl(nextUrl);
+    if(studyId && studyId !== '' && studyId.length === ID_LENGTH){
+      await getLinkId();
+      setUrl(nextUrl);
+    }
+    else {
+      setError('Enter a valid Study Id')
+    }
+   
+   
   }
 
   async function getLinkId() {
@@ -224,77 +239,78 @@ export default function ViewConfigEditor(props) {
         {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
         )}
-        <div className={styles.viewConfigEditorInputsSplit}>
-          <div className={styles.viewConfigEditor}>
-            <div className={styles.viewConfigEditorPreviewJSSplit}>
-              <div>
-                <div className={styles.viewConfigInputs}>
-                  <div className={styles.viewConfigInputUrlOrFile}>
-                    <p className={styles.viewConfigInputUrlOrFileText}>
-                      Enter the URLs to one or more data files
-                      (semicolon-separated) to populate the editor with a&nbsp;
-                      <a href={defaultViewConfigDocsUrl}>default view config</a>.&nbsp;
-                      <button
-                        type="button"
-                        onClick={() => handleConfigGeneration(exampleURL)}
-                      >Try an example
-                      </button>
-                    </p>
-                    <div className={styles.generateConfigInputUrl}>
-                      <textarea
-                        type="text"
-                        className={styles.viewConfigUrlTextarea}
-                        placeholder="One or more file URLs (semicolon-separated)"
-                        value={datasetUrls}
-                        onChange={e => handleDatasetUrlChange(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <StudyIdInput />
-              </div>
-              {datasetUrls !== '' ? (
-                generateConfigError ? (
-                  <pre className={styles.vitessceAppLoadError}>
-                    {generateConfigError}
-                  </pre>
-                ) : null
-              ) : null}
-            </div>
-          <div className={styles.viewConfigInputs}>
-            <div className={styles.viewConfigInputUrlOrFile}>
-              <p className={styles.viewConfigInputUrlOrFileText}>
-                Alternatively, provide a URL or drag &amp; drop a view config file.
-              </p>
-              <div className={styles.viewConfigInputUrlOrFileSplit}>
-                <input
-                  type="text"
-                  className={styles.viewConfigUrlInput}
-                  placeholder="Enter a URL"
-                  value={pendingUrl}
-                  onChange={handleUrlChange}
-                />
-                <div {...getRootProps()} className={styles.dropzone}>
-                  <input {...getInputProps()} className={styles.dropzoneInfo} />
-                  {isDragActive
-                    ? <span>Drop the file here ...</span>
-                    : (pendingFileContents ? (
-                      <span>Successfully read the file.</span>
-                    ) : (
-                      <span>Drop a file</span>
-                    )
-                    )}
-                </div>
-              </div>
-            </div>
-            <div className={styles.viewConfigInputButton}>
+        <div className={styles.viewConfigInputs}>
+          <div className={styles.viewConfigInputUrlOrFile}>
+            <p className={styles.viewConfigInputUrlOrFileText}>
+              Enter the URLs to one or more data files
+              (semicolon-separated).
               <button
                 type="button"
-                className={styles.viewConfigGo}
-                onClick={handleEditorGo}
-              >Load from {loadFrom}
+                onClick={() => handleConfigGeneration(exampleURL)}
+              >Try an example
               </button>
+            </p>
+            <div className={styles.viewConfigInputUrlOrFileSplit}>
+              <textarea
+                type="text"
+                className={styles.viewConfigUrlTextarea}
+                placeholder="One or more file URLs (semicolon-separated)"
+                value={datasetUrls}
+                onChange={e => handleDatasetUrlChange(e.target.value)}
+              />
+              <div className={styles.studyInput}>
+                <StudyIdInput
+                  idLength={ID_LENGTH}
+                  onInputError={handleInputError}
+                  onInputChange={handleSetStudyId}
+                />
+              </div>
+            </div>
+            <div className={styles.viewConfigInputUrlOrFileSplit}>
+              <div></div>
+              {/* <div className={`${styles.studyInput} ${styles.viewConfigInputButton}`}> */}
+              <div className={styles.goButtonDiv}>
+                <button
+                  type="button"
+                  className={styles.viewConfigGo}
+                  onClick={handleEditorGo}
+                >Load from {loadFrom}
+                </button>
+             </div>
+            </div>
+          </div>
+          {datasetUrls !== '' ? (
+            generateConfigError ? (
+              <pre className={styles.vitessceAppLoadError}>
+                {generateConfigError}
+              </pre>
+            ) : null
+          ) : null}
+        </div>
+        <div className={styles.viewConfigInputs}>
+          <div className={styles.viewConfigInputUrlOrFile}>
+            <p className={styles.viewConfigInputUrlOrFileText}>
+              Alternatively, provide a URL or drag &amp; drop a view config file.
+            </p>
+            <div className={styles.viewConfigInputUrlOrFileSplit}>
+              <input
+                type="text"
+                className={styles.viewConfigUrlInput}
+                placeholder="Enter a URL"
+                value={pendingUrl}
+                onChange={handleUrlChange}
+              />
+              <div {...getRootProps()} className={styles.dropzone}>
+                <input {...getInputProps()} className={styles.dropzoneInfo} />
+                {isDragActive
+                  ? <span>Drop the file here ...</span>
+                  : (pendingFileContents ? (
+                    <span>Successfully read the file.</span>
+                  ) : (
+                    <span>Drop a file</span>
+                  )
+                  )}
+              </div>
             </div>
           </div>
         </div>
