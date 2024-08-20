@@ -3,7 +3,6 @@ module.exports = {
   title: 'Vitessce-Link',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io/',
-  // baseUrl: `${process.env.VITESSCE_DOCS_BASE_URL}#?edit=true` || '/#?edit=true',
   baseUrl: process.env.VITESSCE_DOCS_BASE_URL || '/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -25,7 +24,7 @@ module.exports = {
     navbar: {
       title: 'VitessceLink',
       logo: {
-        href: '/',
+        href: '/#?edit=true',
         alt: 'Vitessce Logo',
         src: 'img/logo-v.png',
       },
@@ -61,7 +60,11 @@ module.exports = {
     {
       src: "https://www.googletagmanager.com/gtag/js?id=UA-96954979-2",
       async: true,
-    }
+    },
+    {
+      src: '/js/redirect.js',
+      async: true,
+    },
   ],
   clientModules: [
     require.resolve('./analytics.js'),

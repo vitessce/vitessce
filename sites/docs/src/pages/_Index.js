@@ -86,7 +86,6 @@ function IndexWithHashParams() {
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
   const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
-  // const edit = true;
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validConfig, setValidConfig] = useState(null);
@@ -140,7 +139,6 @@ function IndexWithHashParams() {
   }, [isExpanded]);
 
   useEffect(() => {
-    console.log('parent use effect', pendingJson);
     let unmounted = false;
     async function processParams() {
       if (url) {
