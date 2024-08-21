@@ -3,8 +3,6 @@ import React, { useCallback, useState, useEffect } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
 
-import StudyIdInput from '../components/StudyIdInput.js';
-import LoadingOverlay from '../components/loadingOverlay.js';
 
 import {
   VitessceConfig,
@@ -18,6 +16,8 @@ import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
 import { upgradeAndParse } from '@vitessce/schemas';
+import LoadingOverlay from '../components/loadingOverlay.js';
+import StudyIdInput from '../components/StudyIdInput.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples.js';
@@ -97,7 +97,7 @@ export default function ViewConfigEditor(props) {
   }
 
   function handleInputError(errMessage) {
-    setError(errMessage)
+    setError(errMessage);
   }
 
   function sanitiseURLs(urls) {
@@ -136,13 +136,13 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleEditorGo() {
-    if(inputURL === '') {
+    if (inputURL === '') {
       setError('No dataset URL is provided');
-      return
+      return;
     }
     let nextUrl;
     if (loadFrom === 'editor') {
-      let nextConfig = pendingJson;
+      const nextConfig = pendingJson;
       nextUrl = `data:,${encodeURIComponent(nextConfig)}`;
       const [valid, failureReason] = validateConfig(nextConfig);
       if (!valid) {
@@ -155,38 +155,33 @@ export default function ViewConfigEditor(props) {
       nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
     }
 
-    if(studyId && studyId !== '' && studyId.length === ID_LENGTH){
-      setLoadingOverlay(true)
+    if (studyId && studyId !== '' && studyId.length === ID_LENGTH) {
+      setLoadingOverlay(true);
       const linkId = await getLinkId();
-      console.log(linkId)
-      setLoadingOverlay(false)
+      console.log(linkId);
+      setLoadingOverlay(false);
       setUrl(nextUrl);
+    } else {
+      setError('Enter a valid Study Id');
     }
-    else {
-      setError('Enter a valid Study Id')
-    }
-   
-   
   }
   async function getLinkId() {
     const url = `${LINK_ID_URL}${studyId}`;
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-        });
+      const response = await fetch(url, {
+        method: 'GET',
+      });
 
-        if (!response.ok) {
-          setError('Error reading the LinkId');
-          throw new Error(`HTTP error! status: ${response.status}`);
-            
-        }
-        const data = await response.json(); // Assuming the response is JSON. Adjust as needed.
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
+      if (!response.ok) {
         setError('Error reading the LinkId');
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json(); // Assuming the response is JSON. Adjust as needed.
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Error reading the LinkId');
     }
-
   }
 
   async function handleConfigGeneration(exampleURL) {
@@ -213,24 +208,24 @@ export default function ViewConfigEditor(props) {
     setLoadFrom('url');
   }
 
-    const handleInputChange = (e) => {
-      const value = e.target.value;
-      if (value === '') {
-          setError('Study ID cannot be empty');
-      } else if (!/^\d+$/.test(value)) {
-          setError('Study ID must be numbers only');
+  const handleInputChange = (e) => {
+    const { value } = e.target;
+    if (value === '') {
+      setError('Study ID cannot be empty');
+    } else if (!/^\d+$/.test(value)) {
+      setError('Study ID must be numbers only');
       // } else {
       //     setError(null);
-      }
-      setStudyId(value);
+    }
+    setStudyId(value);
   };
-  
+
 
   function handleDatasetUrlChange(newDatasetUrls) {
     setDatasetUrls(newDatasetUrls);
     setInputURL(newDatasetUrls);
     const sanitisedUrls = sanitiseURLs(newDatasetUrls);
-    console.log(sanitiseURLs)
+    console.log(sanitiseURLs);
     if (sanitisedUrls.length === 0) {
       setError('Incorrect URL');
       return;
@@ -278,34 +273,34 @@ export default function ViewConfigEditor(props) {
       <main className={styles.viewConfigEditorMain}>
         <LoadingOverlay isLoading={loadingOverlay} />
         <div className={styles.mainContainer}>
-        {error && (
+          {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
-        )}
-        <div className={styles.viewConfigInputs}>
-          <div className={styles.viewConfigInputUrlOrFile}>
-            <p className={styles.viewConfigInputUrlOrFileText}>
-              Enter the URLs to one or more data files
-              (semicolon-separated).
-              <button
-                type="button"
-                onClick={() => handleConfigGeneration(exampleURL)}
-              >Try an example
-              </button>
-            </p>
-            <div className={styles.viewConfigInputUrlOrFileSplit}>
-              <textarea
-                type="text"
-                className={styles.viewConfigUrlTextarea}
-                placeholder="One or more file URLs (semicolon-separated)"
-                value={datasetUrls}
-                onChange={e => handleDatasetUrlChange(e.target.value)}
-              />
-              <div className={styles.studyInput}>
-                <StudyIdInput
-                  idLength={ID_LENGTH}
-                  onInputError={handleInputError}
-                  onInputChange={handleSetStudyId}
+          )}
+          <div className={styles.viewConfigInputs}>
+            <div className={styles.viewConfigInputUrlOrFile}>
+              <p className={styles.viewConfigInputUrlOrFileText}>
+                Enter the URLs to one or more data files
+                (semicolon-separated).
+                <button
+                  type="button"
+                  onClick={() => handleConfigGeneration(exampleURL)}
+                >Try an example
+                </button>
+              </p>
+              <div className={styles.viewConfigInputUrlOrFileSplit}>
+                <textarea
+                  type="text"
+                  className={styles.viewConfigUrlTextarea}
+                  placeholder="One or more file URLs (semicolon-separated)"
+                  value={datasetUrls}
+                  onChange={e => handleDatasetUrlChange(e.target.value)}
                 />
+                <div className={styles.studyInput}>
+                  <StudyIdInput
+                    idLength={ID_LENGTH}
+                    onInputError={handleInputError}
+                    onInputChange={handleSetStudyId}
+                  />
                   {/* <p className={styles.viewConfigInputUrlOrFileText} htmlFor="inputField"> Enter your study id
                     <span className={styles.requiredField}>*</span>
                   </p>
@@ -316,58 +311,58 @@ export default function ViewConfigEditor(props) {
                     placeholder={`${ID_LENGTH}-Digit Id`}
                     onChange={handleInputChange}
                 /> */}
+                </div>
               </div>
-            </div>
-            <div className={styles.viewConfigInputUrlOrFileSplit}>
-              <div></div>
-              {/* placeholder to align with the next grid div */}
-              <div className={styles.goButtonDiv}>
-                <button
-                  type="button"
-                  className={styles.viewConfigGo}
-                  onClick={handleEditorGo}
-                >Load from {loadFrom}
-                </button>
-             </div>
-            </div>
-          </div>
-        </div>
-        {datasetUrls !== '' ? (
-          generateConfigError ? (
-            <pre className={styles.vitessceAppLoadError}>
-              {generateConfigError}
-            </pre>
-          ) : null
-        ) : null}
- 
-        <div className={styles.viewConfigInputs}>
-          <div className={styles.viewConfigInputUrlOrFile}>
-            <p className={styles.viewConfigInputUrlOrFileText}>
-              Alternatively, provide a URL or drag &amp; drop a view config file.
-            </p>
-            <div className={styles.viewConfigInputUrlOrFileSplit}>
-              <input
-                type="text"
-                className={styles.viewConfigUrlInput}
-                placeholder="Enter a URL"
-                value={pendingUrl}
-                onChange={handleUrlChange}
-              />
-              <div {...getRootProps()} className={styles.dropzone}>
-                <input {...getInputProps()} className={styles.dropzoneInfo} />
-                {isDragActive
-                  ? <span>Drop the file here ...</span>
-                  : (pendingFileContents ? (
-                    <span>Successfully read the file.</span>
-                  ) : (
-                    <span>Drop a file</span>
-                  )
-                  )}
+              <div className={styles.viewConfigInputUrlOrFileSplit}>
+                <div />
+                {/* placeholder to align with the next grid div */}
+                <div className={styles.goButtonDiv}>
+                  <button
+                    type="button"
+                    className={styles.viewConfigGo}
+                    onClick={handleEditorGo}
+                  >Load from {loadFrom}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+          {datasetUrls !== '' ? (
+            generateConfigError ? (
+              <pre className={styles.vitessceAppLoadError}>
+                {generateConfigError}
+              </pre>
+            ) : null
+          ) : null}
+
+          <div className={styles.viewConfigInputs}>
+            <div className={styles.viewConfigInputUrlOrFile}>
+              <p className={styles.viewConfigInputUrlOrFileText}>
+                Alternatively, provide a URL or drag &amp; drop a view config file.
+              </p>
+              <div className={styles.viewConfigInputUrlOrFileSplit}>
+                <input
+                  type="text"
+                  className={styles.viewConfigUrlInput}
+                  placeholder="Enter a URL"
+                  value={pendingUrl}
+                  onChange={handleUrlChange}
+                />
+                <div {...getRootProps()} className={styles.dropzone}>
+                  <input {...getInputProps()} className={styles.dropzoneInfo} />
+                  {isDragActive
+                    ? <span>Drop the file here ...</span>
+                    : (pendingFileContents ? (
+                      <span>Successfully read the file.</span>
+                    ) : (
+                      <span>Drop a file</span>
+                    )
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-       </div>
       </main>
     )
   );

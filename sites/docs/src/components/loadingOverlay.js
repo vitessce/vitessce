@@ -6,7 +6,7 @@ export default function LoadingOverlay({ isLoading }) {
 
   return (
     <div className={styles.loadingOverlay}>
-      <div className={styles.spinner}></div>
+      <div className={styles.spinner} />
     </div>
   );
-};
+}
