@@ -1,62 +1,28 @@
 /* eslint-disable no-nested-ternary */
-import React, { useCallback, useState, useEffect } from 'react';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-
-import {
-  VitessceConfig,
-  generateConfig,
-  getHintOptions,
-  hconcat,
-  vconcat,
-  CoordinationLevel,
-} from '@vitessce/config';
-import {
-  CoordinationType, ViewType, DataType, FileType,
-} from '@vitessce/constants';
+import { generateConfig } from '@vitessce/config';
 import { upgradeAndParse } from '@vitessce/schemas';
 import LoadingOverlay from '../components/loadingOverlay.js';
 import StudyIdInput from '../components/StudyIdInput.js';
-import {
-  baseJs, baseJson, exampleJs, exampleJson,
-} from './_live-editor-examples.js';
+import { baseJson } from './_live-editor-examples.js';
 
-import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
-// import { getLinkId } from './utils.js';
 
-const ID_LENGTH = 4;
-const LINK_ID_URL = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link?study_id=';
-const NO_DATASET_URL_ERROR = 'No dataset URL is provided';
-
-const scope = {
-  VitessceConfig,
-  hconcat,
-  vconcat,
-  ViewType,
-  DataType,
-  FileType,
-  CoordinationType,
-  vt: ViewType,
-  dt: DataType,
-  ft: FileType,
-  ct: CoordinationType,
-  CoordinationLevel,
-  CL: CoordinationLevel,
-  Highlight: JsonHighlight,
-};
+import {STUDY_ID_LENGTH, NO_DATASET_URL_ERROR} from './_editor-utils.js';
 
 export default function ViewConfigEditor(props) {
   const {
     pendingJson,
     setPendingJson,
-    pendingJs,
-    setPendingJs,
+    // pendingJs,
+    // setPendingJs,
     error,
     setError,
     loading,
     setUrl,
+    setStudyIdInput,
   } = props;
 
   // const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
@@ -128,51 +94,28 @@ export default function ViewConfigEditor(props) {
       setError(NO_DATASET_URL_ERROR);
       return;
     }
-    let nextUrl;
-    if (loadFrom === 'editor') {
-      const nextConfig = pendingJson;
-      nextUrl = `data:,${encodeURIComponent(nextConfig)}`;
-      const [valid, failureReason] = validateConfig(nextConfig);
-      if (!valid) {
-        setError(failureReason);
-        return;
+    if (studyId && studyId !== '' && studyId.length === STUDY_ID_LENGTH) {
+      let nextUrl;
+      if (loadFrom === 'editor') {
+        const nextConfig = pendingJson;
+        nextUrl = `data:,${encodeURIComponent(nextConfig)}`;
+        const [valid, failureReason] = validateConfig(nextConfig);
+        if (!valid) {
+          setError(failureReason);
+          return;
+        }
+      } else if (loadFrom === 'url') {
+        nextUrl = pendingUrl;
+      } else if (loadFrom === 'file') {
+        nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
       }
-    } else if (loadFrom === 'url') {
-      nextUrl = pendingUrl;
-    } else if (loadFrom === 'file') {
-      nextUrl = `data:,${encodeURIComponent(pendingFileContents)}`;
-    }
-
-    if (studyId && studyId !== '' && studyId.length === ID_LENGTH) {
-      setLoadingOverlay(true);
-      const linkId = await getLinkId();
-      console.log(linkId);
-      if(linkId)
-        setUrl(nextUrl);
-    } else {
+      setUrl(nextUrl);
+      setStudyIdInput(studyId);
+      } 
+    else {
       setError('Enter a valid Study Id');
     }
   }
-
-  async function getLinkId() {
-    const url = `${LINK_ID_URL}${studyId}`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-      });
-      if (!response.ok) {
-        setError(`HTTP error! status: ${response.status}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setLoadingOverlay(false);
-      return data;
-    } catch (error) {
-      setLoadingOverlay(false);
-      setError('Error in getting the LinkId');
-    }
-  }
-  
 
   async function handleConfigGeneration(exampleURL) {
     setInputURL(exampleURL);
@@ -210,22 +153,6 @@ export default function ViewConfigEditor(props) {
       setError(null)
   }
 
-  // const handleInputChange = (e) => {
-  //   const { value } = e.target;
-  //   console.log(value);
-  //   if (value === '') {
-  //     setError('Study ID cannot be empty');
-  //   } 
-  //   else if (!/^\d+$/.test(value)) {
-  //     setError('Study ID must be numbers only');
-  //   } 
-  //   else if (value.length < ID_LENGTH) {
-  //         setError(`Study ID must be ${ID_LENGTH} digits`);
-  //     }
-  //   else 
-  //     setStudyId(value);
-  // };
-
 
   function handleTextAreaURLChange(newDatasetUrls) {
     setDatasetUrls(newDatasetUrls);
@@ -253,31 +180,6 @@ export default function ViewConfigEditor(props) {
       setError(NO_DATASET_URL_ERROR);
       setShowReset(false);
     }
-
-
-  // function handleSyntaxChange(event) {
-  //   setSyntaxType(event.target.value);
-  // }
-
-  // function tryExample() {
-  //   if (syntaxType === 'JSON') {
-  //     setPendingJson(exampleJson);
-  //   } else {
-  //     setPendingJs(exampleJs);
-  //   }
-  //   setDatasetUrls('');
-  //   setLoadFrom('editor');
-  // }
-
-  // function resetTextArea() {
-  //   if (syntaxType === 'JSON') {
-  //     setPendingJson(baseJson);
-  //     setDatasetUrls('');
-  //   } else {
-  //     setPendingJs(baseJs);
-  //   }
-  //   setDatasetUrls('');
-  // }
 
   return (
     loading ? (
@@ -312,7 +214,7 @@ export default function ViewConfigEditor(props) {
                 />
                 <div className={styles.studyInput}>
                   <StudyIdInput
-                    idLength={ID_LENGTH}
+                    idLength={STUDY_ID_LENGTH}
                     onInputError={handleInputError}
                     onInputChange={handleSetStudyId}
                   />
@@ -323,7 +225,7 @@ export default function ViewConfigEditor(props) {
                     type="text"
                     id="inputField"
                     className={styles.viewConfigUrlInput}
-                    placeholder={`${ID_LENGTH}-Digit Id`}
+                    placeholder={`${STUDY_ID_LENGTH}-Digit Id`}
                     onChange={handleInputChange}
                 /> */}
                 </div>

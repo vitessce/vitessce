@@ -11,8 +11,8 @@ import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import DemoHeader from './_DemoHeader.js';
 import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
-import { baseJs, baseJson } from './_live-editor-examples.js';
-
+import { baseJson } from './_live-editor-examples.js';
+import { addStudyIdToConfig } from './utils.js'
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
 const betaXrKeys = [
   'Figure3a_blood_vessel',
@@ -91,12 +91,13 @@ function IndexWithHashParams() {
   const [validConfig, setValidConfig] = useState(null);
 
   const [pendingJson, setPendingJson] = useState(baseJson);
-  const [pendingJs, setPendingJs] = useState(baseJs);
+  const [studyIdInput, setStudyIdInput] = useState(null)
+  // const [pendingJs, setPendingJs] = useState(baseJs);
 
   function clearConfigs() {
     setValidConfig(null);
     setPendingJson(baseJson);
-    setPendingJs(baseJs);
+    // setPendingJs(baseJs);
   }
 
   const isDemo = demo && Object.keys(configs).includes(demo);
@@ -153,8 +154,7 @@ function IndexWithHashParams() {
             if (unmounted) {
               return;
             }
-            if (edit) {
-              // User wants to edit the URL-based config.
+            if (edit) { //leave for the edit button probably
               try {
                 const responseJson = JSON.parse(responseText);
                 setPendingJson(() => JSON.stringify(responseJson, null, 2));
@@ -167,6 +167,8 @@ function IndexWithHashParams() {
             } else {
               try {
                 const responseJson = JSON.parse(responseText);
+                responseJson.studyId = studyIdInput;
+                console.log(responseJson);
                 setValidConfig(responseJson);
               } catch (e) {
                 setError({
@@ -192,11 +194,6 @@ function IndexWithHashParams() {
           setLoading(false);
           clearConfigs();
         }
-      } else if (demo && configs[demo]) {
-        setValidConfig(configs[demo]);
-        setPendingJson(JSON.stringify(configs[demo], null, 2));
-        setError(null);
-        setLoading(false);
       } else {
         setError(null);
         setLoading(false);
@@ -231,28 +228,16 @@ function IndexWithHashParams() {
       <ViewConfigEditor
         pendingJson={pendingJson}
         setPendingJson={setPendingJson}
-        pendingJs={pendingJs}
-        setPendingJs={setPendingJs}
         error={error}
         setError={setError}
         loading={loading}
         setLoading={setLoading}
         setUrl={setUrlFromEditor}
+        setStudyIdInput={setStudyIdInput}
       />
     </>
-  ) : validConfig ? (
+  ) : validConfig ? ( // to remove this and add Eric's component here
     <div>
-      {isDemo ? (
-        <div className={clsx('demo-header', { 'vitessce-expanded': isExpanded })}>
-          <DemoStyles />
-          <DemoHeader
-            demo={demo}
-            config={configs[demo]}
-          />
-        </div>
-      ) : (
-        <AppStyles dimNavbar />
-      )}
       <div className={clsx('vitessce-and-toolbar', { 'vitessce-expanded': isExpanded })}>
         <div className={clsx('vitessce-toolbar', { 'vitessce-expanded': isExpanded })}>
           <div className={clsx('vitessce-toolbar-buttons', { 'vitessce-expanded': isExpanded })}>
@@ -301,6 +286,7 @@ function IndexWithQueryParamRedirect() {
   const [url] = useQueryParam('url', StringParam);
 
   useEffect(() => {
+    console.log("use effect url", url)
     const hasQueryParams = demo || url;
     if (hasQueryParams) {
       const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);

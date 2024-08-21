@@ -1,3 +1,10 @@
+// export function addStudyIdToConfig(configString, studyId) {
+//     const jsonConfig = JSON.parse(configString, null, 2);
+//     jsonConfig.studyId = studyId;
+//     return JSON.stringify(jsonConfig);
+// }
+
+
 // export default function isValidUrl(string) {
 //   const urlPattern = new RegExp(
 //     '^(https?:\\/\\/)?' // protocol
