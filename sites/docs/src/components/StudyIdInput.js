@@ -8,9 +8,11 @@ export default function StudyIdInput({ onInputError, onInputChange, idLength }) 
       onInputError('Study ID cannot be empty');
     } else if (!/^\d+$/.test(value)) {
       onInputError('Study ID must be numbers only');
-    } else {
-      onInputError(null);
+    } 
+    else if (value.length < idLength) {
+      onInputError(`Study ID must be ${idLength} digits`);
     }
+    else onInputError(null)
     onInputChange(value);
   };
   return (

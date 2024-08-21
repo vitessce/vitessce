@@ -21,28 +21,14 @@ import StudyIdInput from '../components/StudyIdInput.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples.js';
-// import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
+
 import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
+// import { getLinkId } from './utils.js';
 
-// import { } from './utils.js'
 const ID_LENGTH = 4;
 const LINK_ID_URL = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link?study_id=';
-// To simplify the JS editor, the user only needs to write
-// the inner part of the createConfig() function,
-// because this code will wrap the user's code to
-// return a React component for react-live.
-// function transformCode(code) {
-//   return `function vitessceConfigEditor() {
-//     function createConfig() {
-//       ${code}
-//     }
-//     const vcJson = createConfig();
-//     return (
-//       <Highlight json={vcJson} />
-//     );
-//   }`;
-// }
+const NO_DATASET_URL_ERROR = 'No dataset URL is provided';
 
 const scope = {
   VitessceConfig,
@@ -83,7 +69,8 @@ export default function ViewConfigEditor(props) {
   const [generateConfigError, setGenerateConfigError] = useState(null);
   const [inputURL, setInputURL] = useState('');
   const [studyId, setStudyId] = useState(null);
-  const [loadingOverlay, setLoadingOverlay] = useState(null);
+  const [loadingOverlay, setLoadingOverlay] = useState(false);
+  const [showReset, setShowReset] = useState(null);
 
 
   const [loadFrom, setLoadFrom] = useState('editor');
@@ -92,7 +79,6 @@ export default function ViewConfigEditor(props) {
 
 
   function handleSetStudyId(id) {
-    console.log('id', id);
     setStudyId(id);
   }
 
@@ -114,6 +100,7 @@ export default function ViewConfigEditor(props) {
         const { result } = reader;
         setPendingFileContents(result);
         setLoadFrom('file');
+        setError(null);
       });
       reader.readAsText(acceptedFiles[0]);
     }
@@ -136,8 +123,9 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleEditorGo() {
-    if (inputURL === '') {
-      setError('No dataset URL is provided');
+    console.log(inputURL, error, inputURL === '')
+    if (inputURL === '' && error) {
+      setError(NO_DATASET_URL_ERROR);
       return;
     }
     let nextUrl;
@@ -159,34 +147,37 @@ export default function ViewConfigEditor(props) {
       setLoadingOverlay(true);
       const linkId = await getLinkId();
       console.log(linkId);
-      setLoadingOverlay(false);
-      setUrl(nextUrl);
+      if(linkId)
+        setUrl(nextUrl);
     } else {
       setError('Enter a valid Study Id');
     }
   }
+
   async function getLinkId() {
     const url = `${LINK_ID_URL}${studyId}`;
     try {
       const response = await fetch(url, {
         method: 'GET',
       });
-
       if (!response.ok) {
-        setError('Error reading the LinkId');
+        setError(`HTTP error! status: ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json(); // Assuming the response is JSON. Adjust as needed.
+      const data = await response.json();
+      setLoadingOverlay(false);
       return data;
     } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Error reading the LinkId');
+      setLoadingOverlay(false);
+      setError('Error in getting the LinkId');
     }
   }
+  
 
   async function handleConfigGeneration(exampleURL) {
     setInputURL(exampleURL);
     setDatasetUrls(exampleURL);
+    setShowReset(true);
     const sanitisedUrls = sanitiseURLs(exampleURL);
     if (sanitisedUrls.length === 0) {
       return;
@@ -204,34 +195,50 @@ export default function ViewConfigEditor(props) {
   }
 
   function handleUrlChange(event) {
-    setPendingUrl(event.target.value);
+    const url = event.target.value;
+    console.log(url)
+    setPendingUrl(url);
     setLoadFrom('url');
+    console.log(pendingUrl);
+    setInputURL(url)
+    const sanitisedUrls = sanitiseURLs(event.target.value);
+    if(sanitisedUrls.length === 0) {
+      setError('Enter a correct URL');
+      return;
+    }
+    else
+      setError(null)
   }
 
-  const handleInputChange = (e) => {
-    const { value } = e.target;
-    if (value === '') {
-      setError('Study ID cannot be empty');
-    } else if (!/^\d+$/.test(value)) {
-      setError('Study ID must be numbers only');
-      // } else {
-      //     setError(null);
-    }
-    setStudyId(value);
-  };
+  // const handleInputChange = (e) => {
+  //   const { value } = e.target;
+  //   console.log(value);
+  //   if (value === '') {
+  //     setError('Study ID cannot be empty');
+  //   } 
+  //   else if (!/^\d+$/.test(value)) {
+  //     setError('Study ID must be numbers only');
+  //   } 
+  //   else if (value.length < ID_LENGTH) {
+  //         setError(`Study ID must be ${ID_LENGTH} digits`);
+  //     }
+  //   else 
+  //     setStudyId(value);
+  // };
 
 
-  function handleDatasetUrlChange(newDatasetUrls) {
+  function handleTextAreaURLChange(newDatasetUrls) {
     setDatasetUrls(newDatasetUrls);
     setInputURL(newDatasetUrls);
     const sanitisedUrls = sanitiseURLs(newDatasetUrls);
-    console.log(sanitiseURLs);
+    console.log("san", sanitiseURLs);
     if (sanitisedUrls.length === 0) {
+      // setShowReset(true);
       setError('Incorrect URL');
       return;
     }
     try {
-      const newHintsOptions = getHintOptions(sanitisedUrls);
+      // const newHintsOptions = getHintOptions(sanitisedUrls);
       setGenerateConfigError(null);
       setPendingJson(baseJson);
     } catch (e) {
@@ -239,31 +246,38 @@ export default function ViewConfigEditor(props) {
     }
   }
 
-  function handleSyntaxChange(event) {
-    setSyntaxType(event.target.value);
-  }
-
-  function tryExample() {
-    if (syntaxType === 'JSON') {
-      setPendingJson(exampleJson);
-    } else {
-      setPendingJs(exampleJs);
-    }
-    setDatasetUrls('');
-    setLoadFrom('editor');
-  }
-
-  function resetEditor() {
-    if (syntaxType === 'JSON') {
+    function resetEditor() {
       setPendingJson(baseJson);
       setDatasetUrls('');
-    } else {
-      setPendingJs(baseJs);
+      setInputURL('');
+      setError(NO_DATASET_URL_ERROR);
+      setShowReset(false);
     }
-    setDatasetUrls('');
-  }
 
-  // const showReset = (pendingJson !== baseJson);
+
+  // function handleSyntaxChange(event) {
+  //   setSyntaxType(event.target.value);
+  // }
+
+  // function tryExample() {
+  //   if (syntaxType === 'JSON') {
+  //     setPendingJson(exampleJson);
+  //   } else {
+  //     setPendingJs(exampleJs);
+  //   }
+  //   setDatasetUrls('');
+  //   setLoadFrom('editor');
+  // }
+
+  // function resetTextArea() {
+  //   if (syntaxType === 'JSON') {
+  //     setPendingJson(baseJson);
+  //     setDatasetUrls('');
+  //   } else {
+  //     setPendingJs(baseJs);
+  //   }
+  //   setDatasetUrls('');
+  // }
 
   return (
     loading ? (
@@ -286,6 +300,7 @@ export default function ViewConfigEditor(props) {
                   onClick={() => handleConfigGeneration(exampleURL)}
                 >Try an example
                 </button>
+                {showReset && <button type="button" onClick={resetEditor}>Reset the editor</button>}
               </p>
               <div className={styles.viewConfigInputUrlOrFileSplit}>
                 <textarea
@@ -293,7 +308,7 @@ export default function ViewConfigEditor(props) {
                   className={styles.viewConfigUrlTextarea}
                   placeholder="One or more file URLs (semicolon-separated)"
                   value={datasetUrls}
-                  onChange={e => handleDatasetUrlChange(e.target.value)}
+                  onChange={e => handleTextAreaURLChange(e.target.value)}
                 />
                 <div className={styles.studyInput}>
                   <StudyIdInput
