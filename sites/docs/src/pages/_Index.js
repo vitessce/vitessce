@@ -242,7 +242,6 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      <h1>Hello</h1>
       {isDemo ? (
         <div className={clsx('demo-header', { 'vitessce-expanded': isExpanded })}>
           <DemoStyles />

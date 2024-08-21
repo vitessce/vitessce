@@ -4,6 +4,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useDropzone } from 'react-dropzone';
 
 import StudyIdInput from '../components/StudyIdInput.js';
+import LoadingOverlay from '../components/loadingOverlay.js';
+
 import {
   VitessceConfig,
   generateConfig,
@@ -19,26 +21,28 @@ import { upgradeAndParse } from '@vitessce/schemas';
 import {
   baseJs, baseJson, exampleJs, exampleJson,
 } from './_live-editor-examples.js';
-import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
+// import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
 import JsonHighlight from './_JsonHighlight.js';
 import styles from './styles.module.css';
 
+// import { } from './utils.js'
 const ID_LENGTH = 4;
+const LINK_ID_URL = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link?study_id=';
 // To simplify the JS editor, the user only needs to write
 // the inner part of the createConfig() function,
 // because this code will wrap the user's code to
 // return a React component for react-live.
-function transformCode(code) {
-  return `function vitessceConfigEditor() {
-    function createConfig() {
-      ${code}
-    }
-    const vcJson = createConfig();
-    return (
-      <Highlight json={vcJson} />
-    );
-  }`;
-}
+// function transformCode(code) {
+//   return `function vitessceConfigEditor() {
+//     function createConfig() {
+//       ${code}
+//     }
+//     const vcJson = createConfig();
+//     return (
+//       <Highlight json={vcJson} />
+//     );
+//   }`;
+// }
 
 const scope = {
   VitessceConfig,
@@ -58,7 +62,6 @@ const scope = {
 };
 
 export default function ViewConfigEditor(props) {
-  console.log('view mounted')
   const {
     pendingJson,
     setPendingJson,
@@ -70,9 +73,9 @@ export default function ViewConfigEditor(props) {
     setUrl,
   } = props;
 
-  const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
-  const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
-  const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
+  // const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
+  // const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
+  // const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('');
@@ -80,6 +83,7 @@ export default function ViewConfigEditor(props) {
   const [generateConfigError, setGenerateConfigError] = useState(null);
   const [inputURL, setInputURL] = useState('');
   const [studyId, setStudyId] = useState(null);
+  const [loadingOverlay, setLoadingOverlay] = useState(null);
 
 
   const [loadFrom, setLoadFrom] = useState('editor');
@@ -152,7 +156,10 @@ export default function ViewConfigEditor(props) {
     }
 
     if(studyId && studyId !== '' && studyId.length === ID_LENGTH){
-      await getLinkId();
+      setLoadingOverlay(true)
+      const linkId = await getLinkId();
+      console.log(linkId)
+      setLoadingOverlay(false)
       setUrl(nextUrl);
     }
     else {
@@ -161,9 +168,25 @@ export default function ViewConfigEditor(props) {
    
    
   }
-
   async function getLinkId() {
-    console.log("linkId")
+    const url = `${LINK_ID_URL}${studyId}`;
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+          setError('Error reading the LinkId');
+          throw new Error(`HTTP error! status: ${response.status}`);
+            
+        }
+        const data = await response.json(); // Assuming the response is JSON. Adjust as needed.
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Error reading the LinkId');
+    }
+
   }
 
   async function handleConfigGeneration(exampleURL) {
@@ -190,12 +213,28 @@ export default function ViewConfigEditor(props) {
     setLoadFrom('url');
   }
 
+    const handleInputChange = (e) => {
+      const value = e.target.value;
+      if (value === '') {
+          setError('Study ID cannot be empty');
+      } else if (!/^\d+$/.test(value)) {
+          setError('Study ID must be numbers only');
+      // } else {
+      //     setError(null);
+      }
+      setStudyId(value);
+  };
+  
+
   function handleDatasetUrlChange(newDatasetUrls) {
-    console.log("entered")
     setDatasetUrls(newDatasetUrls);
-    setInputURL(newDatasetUrls)
+    setInputURL(newDatasetUrls);
     const sanitisedUrls = sanitiseURLs(newDatasetUrls);
-    if (sanitisedUrls.length === 0) return;
+    console.log(sanitiseURLs)
+    if (sanitisedUrls.length === 0) {
+      setError('Incorrect URL');
+      return;
+    }
     try {
       const newHintsOptions = getHintOptions(sanitisedUrls);
       setGenerateConfigError(null);
@@ -229,13 +268,15 @@ export default function ViewConfigEditor(props) {
     setDatasetUrls('');
   }
 
-  const showReset = (pendingJson !== baseJson);
+  // const showReset = (pendingJson !== baseJson);
 
   return (
     loading ? (
       <pre>Loading...</pre>
     ) : (
+
       <main className={styles.viewConfigEditorMain}>
+        <LoadingOverlay isLoading={loadingOverlay} />
         <div className={styles.mainContainer}>
         {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
@@ -265,6 +306,16 @@ export default function ViewConfigEditor(props) {
                   onInputError={handleInputError}
                   onInputChange={handleSetStudyId}
                 />
+                  {/* <p className={styles.viewConfigInputUrlOrFileText} htmlFor="inputField"> Enter your study id
+                    <span className={styles.requiredField}>*</span>
+                  </p>
+                <input
+                    type="text"
+                    id="inputField"
+                    className={styles.viewConfigUrlInput}
+                    placeholder={`${ID_LENGTH}-Digit Id`}
+                    onChange={handleInputChange}
+                /> */}
               </div>
             </div>
             <div className={styles.viewConfigInputUrlOrFileSplit}>
@@ -280,14 +331,15 @@ export default function ViewConfigEditor(props) {
              </div>
             </div>
           </div>
-          {datasetUrls !== '' ? (
-            generateConfigError ? (
-              <pre className={styles.vitessceAppLoadError}>
-                {generateConfigError}
-              </pre>
-            ) : null
-          ) : null}
         </div>
+        {datasetUrls !== '' ? (
+          generateConfigError ? (
+            <pre className={styles.vitessceAppLoadError}>
+              {generateConfigError}
+            </pre>
+          ) : null
+        ) : null}
+ 
         <div className={styles.viewConfigInputs}>
           <div className={styles.viewConfigInputUrlOrFile}>
             <p className={styles.viewConfigInputUrlOrFileText}>

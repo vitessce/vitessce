@@ -79,9 +79,13 @@
   padding: 0.5rem 1rem;
   margin: 0.5rem 0 0.5rem 20px;
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   margin-left: 20px;
   cursor: pointer;
+
+  /* background-color: var(--vit-input-background); */
   /* text-align: center; */
 }
 
@@ -102,7 +106,7 @@
   margin-bottom: 0.5rem;
   position: relative;
 } */
-.tryButtonJSON {
+/* .tryButtonJSON {
   position: absolute;
   width: 170px;
   height: 40px;
@@ -120,7 +124,7 @@
   padding: 5px 10px;
   cursor: pointer;
   box-shadow: -3px 3px 9px 9px rgba(0,0,0,.1);
-}
+} */
 
 .viewConfigPreviewJSCode {
   overflow: visible;
@@ -197,7 +201,7 @@
 
 .viewConfigInputUrlOrFileSplit {
   display: grid;
-  grid-template-columns: 4fr 1fr;
+  grid-template-columns: 4fr 1.5fr;
 }
 
 .generateConfigInputUrl {
@@ -215,6 +219,18 @@
 }
 
 .viewConfigUrlInput, .viewConfigUrlTextarea {
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+  margin: 0.5rem 0 0.5rem 20px;
+  border: 0;
+  box-shadow: -3px 3px 5px 5px rgba(0,0,0,.06);
+  outline: none;
+  color: var(--vit-input-foreground);
+  background-color: var(--vit-input-background);
+  box-sizing: border-box;
+}
+
+.viewConfigUrlInputStudy{
   padding: 0.5rem 1rem;
   font-size: 16px;
   margin: 0.5rem 0 0.5rem 20px;
@@ -326,7 +342,7 @@
 .mainContainer {
   display: block; 
   width: 100%;    
-  /* max-width: 80%; */
+  max-width: 80%;
   margin: 0 auto; 
   padding: 0 1rem; 
   box-sizing: border-box; 

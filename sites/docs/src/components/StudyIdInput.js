@@ -15,7 +15,7 @@ export default function StudyIdInput({ onInputError, onInputChange, idLength }) 
     };
     return (
         <>
-            <form className="form" >
+            {/* <form className="form" > */}
                 <p className={styles.viewConfigInputUrlOrFileText} htmlFor="inputField"> Enter your study id
                     <span className={styles.requiredField}>*</span>
                 </p>
@@ -26,7 +26,7 @@ export default function StudyIdInput({ onInputError, onInputChange, idLength }) 
                     placeholder={`${idLength}-Digit Id`}
                     onChange={handleInputChange}
                 />
-            </form>
+            {/* </form> */}
         </>
     );
 }
