@@ -236,6 +236,7 @@ export default function ViewConfigEditor(props) {
       <pre>Loading...</pre>
     ) : (
       <main className={styles.viewConfigEditorMain}>
+        <div className={styles.mainContainer}>
         {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
         )}
@@ -268,7 +269,7 @@ export default function ViewConfigEditor(props) {
             </div>
             <div className={styles.viewConfigInputUrlOrFileSplit}>
               <div></div>
-              {/* <div className={`${styles.studyInput} ${styles.viewConfigInputButton}`}> */}
+              {/* placeholder to align with the next grid div */}
               <div className={styles.goButtonDiv}>
                 <button
                   type="button"
@@ -314,6 +315,7 @@ export default function ViewConfigEditor(props) {
             </div>
           </div>
         </div>
+       </div>
       </main>
     )
   );

@@ -82,7 +82,7 @@
   display: block;
   margin-left: 20px;
   cursor: pointer;
-  text-align: center;
+  /* text-align: center; */
 }
 
 .goButtonDiv {
@@ -235,6 +235,9 @@
   opacity: 1;
 }
 
+.requiredField {
+  color: rgb(189, 44, 44);
+}
 
 .vitessceClear {
   text-align: center;
@@ -318,6 +321,15 @@
   align-items: center;
   align-content: center; */
   /* position: relative; */
+}
+
+.mainContainer {
+  display: block; 
+  width: 100%;    
+  /* max-width: 80%; */
+  margin: 0 auto; 
+  padding: 0 1rem; 
+  box-sizing: border-box; 
 }
 
 .copyButtonContainer {
@@ -445,3 +457,4 @@
 .demoGridItem .demoGridItemPill.spatialdata {
   background-color: rgb(99, 215, 177);
 }
+

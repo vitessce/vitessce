@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './styles.module.css';
+import styles from '../pages/styles.module.css';
 
 export default function StudyIdInput({ onInputError, onInputChange, idLength }) {
     const handleInputChange = (e) => {
@@ -16,11 +16,13 @@ export default function StudyIdInput({ onInputError, onInputChange, idLength }) 
     return (
         <>
             <form className="form" >
-                <p htmlFor="inputField">Enter your study id <span className={styles.errorMessage}>*</span></p>
+                <p className={styles.viewConfigInputUrlOrFileText} htmlFor="inputField"> Enter your study id
+                    <span className={styles.requiredField}>*</span>
+                </p>
                 <input
                     type="text"
                     id="inputField"
-                    className={styles.textBox}
+                    className={styles.viewConfigUrlInput}
                     placeholder={`${idLength}-Digit Id`}
                     onChange={handleInputChange}
                 />
