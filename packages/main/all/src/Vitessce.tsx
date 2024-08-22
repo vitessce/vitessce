@@ -22,6 +22,7 @@ export function Vitessce(props: any) {
     pluginFileTypes: pluginFileTypesProp,
     pluginCoordinationTypes: pluginCoordinationTypesProp,
     pluginJointFileTypes: pluginJointFileTypesProp,
+    pluginAsyncFunctions,
   } = props;
 
   // If config.uid exists, then use it for hook dependencies to detect changes
@@ -64,6 +65,7 @@ export function Vitessce(props: any) {
     ...baseCoordinationTypes, ...(pluginCoordinationTypesProp || []),
   ]), [pluginCoordinationTypesProp]);
 
+  // TODO: merge with a set of "base" async functions
 
   return (
     <VitS
@@ -73,6 +75,7 @@ export function Vitessce(props: any) {
       fileTypes={mergedPluginFileTypes}
       jointFileTypes={mergedPluginJointFileTypes}
       coordinationTypes={mergedPluginCoordinationTypes}
+      asyncFunctions={pluginAsyncFunctions}
       warning={(success ? null : configOrWarning)}
     />
   );

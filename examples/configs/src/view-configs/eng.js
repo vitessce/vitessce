@@ -11,7 +11,7 @@ export const eng2019 = {
       files: [
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
             embeddingType: 't-SNE',
@@ -23,7 +23,7 @@ export const eng2019 = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
             embeddingType: 'UMAP',
@@ -35,7 +35,7 @@ export const eng2019 = {
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
           },
@@ -46,7 +46,7 @@ export const eng2019 = {
         },
         {
           fileType: 'obsSets.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.csv',
           coordinationValues: {
             obsType: 'cell',
           },
@@ -66,7 +66,7 @@ export const eng2019 = {
         },
         {
           fileType: 'obsSegmentations.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/eng-2019/eng_2019_nature.cells.segmentations.json',
+          url: 'https://data-1.vitessce.io/0.0.33/main/eng-2019/eng_2019_nature.cells.segmentations.json',
           coordinationValues: {
             obsType: 'cell',
           },
@@ -117,6 +117,10 @@ export const eng2019 = {
   layout: [
     {
       component: 'description',
+      props: {
+        description: 'Transcriptome-scale,  super-resolved imaging in tissues by RNA *seqFISH*',
+        descriptionType: 'markdown',
+      },
       x: 9,
       y: 0,
       w: 3,

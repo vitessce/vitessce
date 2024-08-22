@@ -102,6 +102,7 @@ export function VitessceDemo() {
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
+    const pageMode = urlParams.get('pageMode') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -121,7 +122,13 @@ export function VitessceDemo() {
             isBounded={isBounded}
             stores={stores}
             {...pluginProps}
-          />
+            pageMode={pageMode}
+          >
+            <h1>Test</h1>
+            <div id="A" style={{ border: '5px solid red', width: '600px', height: '600px' }} />
+            <h2>Another test</h2>
+            <div id="B" style={{ border: '5px solid red', width: '600px', height: '400px' }} />
+          </Vitessce>
         </ContainerComponent>
       );
     }

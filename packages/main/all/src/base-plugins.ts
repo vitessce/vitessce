@@ -63,6 +63,7 @@ import {
   cellsLayerObj,
   neighborhoodsLayerObj,
   moleculesLayerObj,
+  meshGlbSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -82,6 +83,8 @@ import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
   ExpressionHistogramSubscriber,
+  DotPlotSubscriber,
+  FeatureBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -152,6 +155,10 @@ import {
   OmeTiffLoader,
   OmeTiffSource,
 } from '@vitessce/ome-tiff';
+import {
+  GlbSource,
+  GlbLoader,
+} from '@vitessce/glb';
 
 // Joint file types
 import {
@@ -209,8 +216,10 @@ export const baseViewTypes = [
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
   makeViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),
+  makeViewType(ViewType.FEATURE_BAR_PLOT, FeatureBarPlotSubscriber),
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
+  makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -264,6 +273,8 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+
+  makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -413,6 +424,11 @@ export const baseCoordinationTypes = [
     z.number(),
   ),
   new PluginCoordinationType(
+    CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
+    0,
+    z.number(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.TOOLTIPS_VISIBLE,
     true,
     z.boolean(),
@@ -448,7 +464,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.IMAGE_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().or(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
@@ -482,6 +498,21 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
-  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
+  // TODO: remove one array level and use multi-coordination for sampleSetSelection?
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.SAMPLE_SET_COLOR,
+    null,
+    z.array(z.object({
+      path: obsSetPath,
+      color: rgbArray,
+    })).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
 ];

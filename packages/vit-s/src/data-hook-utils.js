@@ -66,11 +66,11 @@ export async function dataQueryFn(ctx) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
-    const { data, url, coordinationValues } = payload;
+    const { data, url, requestInit, coordinationValues } = payload;
     // Status: success
     // Array of objects like  { url, name }.
     const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
-    return { data, coordinationValues, urls };
+    return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
   if (isRequired) {
@@ -129,6 +129,8 @@ export function useDataType(
 
   const coordinationValues = data?.coordinationValues;
   const urls = data?.urls;
+  const requestInit = data?.requestInit;
+
 
   useEffect(() => {
     initCoordinationSpace(
@@ -145,7 +147,7 @@ export function useDataType(
   }, [error, setWarning]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, requestInit];
 }
 
 /**

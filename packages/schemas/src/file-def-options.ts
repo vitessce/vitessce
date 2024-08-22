@@ -161,6 +161,26 @@ export const obsSetsSpatialdataSchema = z.object({
   obsSets: annDataObsSets,
 });
 
+// GLB
+export const meshGlbSchema = z.object({
+  targetX: z.number(),
+  targetY: z.number(),
+  targetZ: z.number(),
+  rotationX: z.number(),
+  rotationY: z.number(),
+  rotationZ: z.number(),
+  scaleX: z.number(),
+  scaleY: z.number(),
+  scaleZ: z.number(),
+  sceneRotationX: z.number(),
+  sceneRotationY: z.number(),
+  sceneRotationZ: z.number(),
+  sceneScaleX: z.number(),
+  sceneScaleY: z.number(),
+  sceneScaleZ: z.number(),
+  materialSide: z.enum(['front', 'back']),
+}).partial().nullable();
+
 /**
  * Options schemas for atomic file types.
  */
@@ -251,6 +271,7 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+  sampleEdges: annDataSampleEdges,
 }).partial();
 
 export const anndataH5adSchema = anndataZarrSchema.extend({

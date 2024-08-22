@@ -52,12 +52,12 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessce-python/',
+          href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessceR/',
+          href: 'https://r-docs.vitessce.io/',
           label: 'For R',
           position: 'left',
         },
@@ -158,6 +158,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    './plugins/vitessce-plugin',
     './plugins/monaco-editor-plugin',
     //path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/schemas",
-  "version": "3.3.6",
+  "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,23 +30,22 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.191",
-    "@types/lodash-es": "^4.17.7",
-    "@types/semver": "^7.3.13",
-    "@types/uuid": "^9.0.1",
+    "@types/lodash-es": "catalog:",
+    "@types/semver": "catalog:",
+    "@types/uuid": "catalog:",
     "@vitessce/constants": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "lodash-es": "^4.17.21",
-    "semver": "^7.3.8",
-    "uuid": "^9.0.0",
-    "zod": "^3.21.4"
+    "lodash-es": "catalog:",
+    "semver": "catalog:",
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "json-schema-to-zod": "^0.6.3",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2",
+    "vite": "catalog:",
+    "vitest": "catalog:",
     "zod-to-json-schema": "^3.20.4"
   }
 }
