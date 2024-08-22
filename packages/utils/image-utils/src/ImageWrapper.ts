@@ -37,7 +37,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   async loadThumbnail(): Promise<any> {
     // TODO: accept parameters like maxSize, c, z, t, ...
     // TODO: accept signal parameter, pass into getRaster
-    const maxSize = 1024;
+    const maxSize = 256;
     const selections = [
       { c: 0, t: 0, z: 0 },
       { c: 1, t: 0, z: 0 },
