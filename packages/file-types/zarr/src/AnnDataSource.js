@@ -1,4 +1,4 @@
-// disable @ts-check
+// @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { dirname } from './utils.js';
@@ -132,7 +132,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
+      i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
     return mappedValues;
   }
@@ -184,7 +184,7 @@ export default class AnnDataSource extends ZarrDataSource {
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
     if (data.data?.[Symbol.iterator]) {
-      return Array.from(data.data);
+      return /** @type {string[]} */ (Array.from(data.data));
     }
     return /** @type {string[]} */ (data.data);
   }

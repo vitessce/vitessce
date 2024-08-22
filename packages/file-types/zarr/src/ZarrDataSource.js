@@ -1,4 +1,4 @@
-// disable @ts-check
+// @ts-check
 import { zarrOpenRoot } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot } from 'zarrita';
 

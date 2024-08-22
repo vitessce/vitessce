@@ -196,7 +196,7 @@ function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: s
       const extendedOptionsSchema = key === 'h5ad' ? optionsSchema.extend({
         refSpecUrl: z.string(),
       }) : optionsSchema;
-      new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema)
+      return new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema)
     }),
   ];
 }

@@ -73,7 +73,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: getFileType(FileType.OBS_SETS_ANNDATA_ZARR),
       options: {
         ...sharedOptions,
-        ...options.obsSets,
+        obsSets: options.obsSets,
       },
       coordinationValues: {
         ...extraCoordinationValues,
