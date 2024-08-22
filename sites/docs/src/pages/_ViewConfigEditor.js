@@ -2,9 +2,9 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { generateConfig } from '@vitessce/config';
+import { generateConfig, getHintOptions } from '@vitessce/config';
 import { upgradeAndParse } from '@vitessce/schemas';
-import LoadingOverlay from '../components/loadingOverlay.js';
+// import LoadingOverlay from '../components/loadingOverlay.js';
 import StudyIdInput from '../components/StudyIdInput.js';
 import { baseJson } from './_live-editor-examples.js';
 
@@ -16,8 +16,6 @@ export default function ViewConfigEditor(props) {
   const {
     pendingJson,
     setPendingJson,
-    // pendingJs,
-    // setPendingJs,
     error,
     setError,
     loading,
@@ -25,9 +23,6 @@ export default function ViewConfigEditor(props) {
     setStudyIdInput,
   } = props;
 
-  // const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
-  // const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
-  // const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
 
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('');
@@ -35,11 +30,9 @@ export default function ViewConfigEditor(props) {
   const [generateConfigError, setGenerateConfigError] = useState(null);
   const [inputURL, setInputURL] = useState('');
   const [studyId, setStudyId] = useState(null);
-  const [loadingOverlay, setLoadingOverlay] = useState(false);
   const [showReset, setShowReset] = useState(null);
-
-
   const [loadFrom, setLoadFrom] = useState('editor');
+
 
   const exampleURL = 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif';
 
@@ -89,8 +82,8 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleEditorGo() {
-    console.log(inputURL, error, inputURL === '')
-    if (inputURL === '' && error) {
+    console.log(inputURL, error, inputURL === '', datasetUrls);
+    if ((inputURL === '' && datasetUrls === '') || error) {
       setError(NO_DATASET_URL_ERROR);
       return;
     }
@@ -118,7 +111,6 @@ export default function ViewConfigEditor(props) {
   }
 
   async function handleConfigGeneration(exampleURL) {
-    setInputURL(exampleURL);
     setDatasetUrls(exampleURL);
     setShowReset(true);
     const sanitisedUrls = sanitiseURLs(exampleURL);
@@ -139,14 +131,18 @@ export default function ViewConfigEditor(props) {
 
   function handleUrlChange(event) {
     const url = event.target.value;
-    console.log(url)
     setPendingUrl(url);
     setLoadFrom('url');
-    console.log(pendingUrl);
-    setInputURL(url)
+    setInputURL(url);
     const sanitisedUrls = sanitiseURLs(event.target.value);
     if(sanitisedUrls.length === 0) {
-      setError('Enter a correct URL');
+      if(datasetUrls === ''){
+        setError('Enter a correct URL');
+      }
+      else {
+        setError(null);
+        setLoadFrom('editor');
+      }
       return;
     }
     else
@@ -158,14 +154,14 @@ export default function ViewConfigEditor(props) {
     setDatasetUrls(newDatasetUrls);
     setInputURL(newDatasetUrls);
     const sanitisedUrls = sanitiseURLs(newDatasetUrls);
-    console.log("san", sanitiseURLs);
+    console.log("san", sanitisedUrls);
     if (sanitisedUrls.length === 0) {
-      // setShowReset(true);
       setError('Incorrect URL');
       return;
     }
     try {
-      // const newHintsOptions = getHintOptions(sanitisedUrls);
+      // This errors if file type is incorrect
+      getHintOptions(sanitisedUrls);
       setGenerateConfigError(null);
       setPendingJson(baseJson);
     } catch (e) {
@@ -176,8 +172,14 @@ export default function ViewConfigEditor(props) {
     function resetEditor() {
       setPendingJson(baseJson);
       setDatasetUrls('');
-      setInputURL('');
-      setError(NO_DATASET_URL_ERROR);
+      if(inputURL === '' && datasetUrls === '') {
+        setError(NO_DATASET_URL_ERROR);
+      }
+      else if(inputURL !== '' && sanitiseURLs(inputURL)?.length > 0){
+        setLoadFrom('url')
+      }
+       
+        
       setShowReset(false);
     }
 
@@ -187,7 +189,7 @@ export default function ViewConfigEditor(props) {
     ) : (
 
       <main className={styles.viewConfigEditorMain}>
-        <LoadingOverlay isLoading={loadingOverlay} />
+        {/* <LoadingOverlay isLoading={loadingOverlay} /> */}
         <div className={styles.mainContainer}>
           {error && (
           <pre className={styles.vitessceAppLoadError}>{error}</pre>
@@ -218,16 +220,6 @@ export default function ViewConfigEditor(props) {
                     onInputError={handleInputError}
                     onInputChange={handleSetStudyId}
                   />
-                  {/* <p className={styles.viewConfigInputUrlOrFileText} htmlFor="inputField"> Enter your study id
-                    <span className={styles.requiredField}>*</span>
-                  </p>
-                <input
-                    type="text"
-                    id="inputField"
-                    className={styles.viewConfigUrlInput}
-                    placeholder={`${STUDY_ID_LENGTH}-Digit Id`}
-                    onChange={handleInputChange}
-                /> */}
                 </div>
               </div>
               <div className={styles.viewConfigInputUrlOrFileSplit}>
