@@ -5,64 +5,64 @@ import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
 import clsx from 'clsx';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+// import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
-import ThemedVitessce from './_ThemedVitessce.js';
+// import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJson } from './_live-editor-examples.js';
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
-const betaXrKeys = [
-  'Figure3a_blood_vessel',
-  'Figure3d_tumor_cytoskeleton',
-  'Figure6n_cell_community',
-];
-// End TODO
+// const betaXrKeys = [
+//   'Figure3a_blood_vessel',
+//   'Figure3d_tumor_cytoskeleton',
+//   'Figure6n_cell_community',
+// ];
+// // End TODO
 
-// TODO: temporary until paper reviews are complete.
-const betaMrKeys = [
-  'D1',
-  'D2',
-  '123',
-];
-// End TODO
+// // TODO: temporary until paper reviews are complete.
+// const betaMrKeys = [
+//   'D1',
+//   'D2',
+//   '123',
+// ];
+// // End TODO
 
 
-function logConfigUpgrade(prevConfig, nextConfig) {
-  // eslint-disable-next-line no-console
-  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
-  // eslint-disable-next-line no-console
-  console.log(prevConfig);
-  // eslint-disable-next-line no-console
-  console.log(nextConfig);
-}
+// function logConfigUpgrade(prevConfig, nextConfig) {
+//   // eslint-disable-next-line no-console
+//   console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+//   // eslint-disable-next-line no-console
+//   console.log(prevConfig);
+//   // eslint-disable-next-line no-console
+//   console.log(nextConfig);
+// }
 
-function AppStyles(props) {
-  const {
-    dimNavbar = false,
-  } = props;
-  return (
-    <style>{`
-        .navbar__brand + a.navbar__item.navbar__link {
-          color: var(--ifm-navbar-link-hover-color);
-          text-decoration: none;
-        }
-        ${dimNavbar ? (`
-        .footer {
-          display: none;
-        }
-        .navbar__item {
-          opacity: 0.2;
-          transition: opacity 0.25s;
-        }
-        .navbar:hover .navbar__item {
-          opacity: 1;
-        }
-        `) : ''}
-      `}
-    </style>
-  );
-}
+// function AppStyles(props) {
+//   const {
+//     dimNavbar = false,
+//   } = props;
+//   return (
+//     <style>{`
+//         .navbar__brand + a.navbar__item.navbar__link {
+//           color: var(--ifm-navbar-link-hover-color);
+//           text-decoration: none;
+//         }
+//         ${dimNavbar ? (`
+//         .footer {
+//           display: none;
+//         }
+//         .navbar__item {
+//           opacity: 0.2;
+//           transition: opacity 0.25s;
+//         }
+//         .navbar:hover .navbar__item {
+//           opacity: 1;
+//         }
+//         `) : ''}
+//       `}
+//     </style>
+//   );
+// }
 
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
@@ -210,7 +210,7 @@ function IndexWithHashParams() {
   // console.log(edit, isDemo, loading);
   return (edit ? (
     <>
-      <AppStyles />
+      {/* <AppStyles /> */}
       <ViewConfigEditor
         pendingJson={pendingJson}
         setPendingJson={setPendingJson}
@@ -224,69 +224,41 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? ( // to remove this and add Eric's component here
     <div>
-      <div className={clsx('vitessce-and-toolbar', { 'vitessce-expanded': isExpanded })}>
-        <div className={clsx('vitessce-toolbar', { 'vitessce-expanded': isExpanded })}>
-          <div className={clsx('vitessce-toolbar-buttons', { 'vitessce-expanded': isExpanded })}>
-            {isDemo ? (
-              <button
-                type="button"
-                onClick={() => setIsExpanded(prev => !prev)}
-              >
-                { isExpanded ? 'Collapse' : 'Expand' }
-              </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
-          </div>
-        </div>
-        <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded })}>
-          <ThemedVitessce
-            validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            config={validConfig}
-            handleEdit={handleEdit}
-            height={isExpanded ? undefined : 800}
-          />
-        </main>
-      </div>
+        <p>Vitessce Placeholder</p>
     </div>
   ) : (!loading ? (
-    <p>Test</p>
+    <p>Error in configuration</p>
   ) : (
     <p>Loading...</p>
   )));
 }
 
-function IndexWithQueryParamRedirect() {
-  // Determine whether query parameters were used.
-  // If so, redirect to the hash parameter equivalent.
-  // Reference: https://github.com/vitessce/vitessce/pull/810#discussion_r745842290
-  const baseUrl = useBaseUrl('/#?');
-  const [demo] = useQueryParam('dataset', StringParam);
-  const [wsCode] = useQueryParam('code', StringParam);
-  const [url] = useQueryParam('url', StringParam);
+// function IndexWithQueryParamRedirect() {
+//   // Determine whether query parameters were used.
+//   // If so, redirect to the hash parameter equivalent.
+//   // Reference: https://github.com/vitessce/vitessce/pull/810#discussion_r745842290
+//   const baseUrl = useBaseUrl('/#?');
+//   const [demo] = useQueryParam('dataset', StringParam);
+//   const [wsCode] = useQueryParam('code', StringParam);
+//   const [url] = useQueryParam('url', StringParam);
 
-  useEffect(() => {
-    console.log('use effect url', url);
-    const hasQueryParams = demo || url;
-    if (hasQueryParams) {
-      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
-      window.location.href = baseUrl + params;
-    }
-  }, [baseUrl, demo, url]);
+//   useEffect(() => {
+//     console.log('use effect url', url);
+//     const hasQueryParams = demo || url;
+//     if (hasQueryParams) {
+//       const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
+//       window.location.href = baseUrl + params;
+//     }
+//   }, [baseUrl, demo, url]);
 
-  return (<IndexWithHashParams />);
-}
+//   return (<IndexWithHashParams />);
+// }
 
 export default function Index() {
   return (
     <QueryParamProvider>
-      <IndexWithQueryParamRedirect />
+      <IndexWithHashParams />
+      {/* <IndexWithQueryParamRedirect /> */}
     </QueryParamProvider>
   );
 }

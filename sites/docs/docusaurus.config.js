@@ -34,13 +34,13 @@ module.exports = {
     [
       '@docusaurus/preset-classic',
       {
-        docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
-        },
-        blog: {
-          showReadingTime: true,
-        },
+        // docs: {
+        //   sidebarPath: require.resolve('./sidebars.js'),
+        //   editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
+        // },
+        // blog: {
+        //   showReadingTime: true,
+        // },
         theme: {
           customCss: [
             require.resolve('./src/css/custom.css'),

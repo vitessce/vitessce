@@ -1,1 +1,0 @@
-View data processing code on [GitHub](https://github.com/vitessce/vitessce-python/tree/main/demos/human-lymph-node-10x-visium)

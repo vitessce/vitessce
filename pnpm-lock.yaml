@@ -2115,43 +2115,6 @@ importers:
         specifier: ^1.0.0
         version: 1.6.1(rollup@2.79.1)
 
-  sites/demo:
-    dependencies:
-      '@vitessce/constants-internal':
-        specifier: workspace:*
-        version: link:../../packages/constants-internal
-      '@vitessce/example-configs':
-        specifier: workspace:*
-        version: link:../../examples/configs
-      '@vitessce/example-plugins':
-        specifier: workspace:*
-        version: link:../../examples/plugins
-      react:
-        specifier: ^18.0.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.0.0
-        version: 18.2.0(react@18.2.0)
-      vitessce:
-        specifier: workspace:*
-        version: link:../../packages/main/prod
-    devDependencies:
-      '@vitejs/plugin-basic-ssl':
-        specifier: ^1.0.2
-        version: 1.0.2(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
-      '@vitejs/plugin-react':
-        specifier: ^4.0.0
-        version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
-      cypress:
-        specifier: ^12.15.0
-        version: 12.15.0
-      sass:
-        specifier: ^1.55.0
-        version: 1.55.0
-      vite:
-        specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
-
   sites/docs:
     dependencies:
       '@babel/preset-env':
@@ -3244,8 +3207,8 @@ packages:
     peerDependencies:
       '@deck.gl/core': ^8.0.0
       '@types/react': '>= 16.3'
-      react: '>=16.3 || 18'
-      react-dom: '>=16.3 || 18'
+      react: '>=16.3'
+      react-dom: '>=16.3'
 
   '@docsearch/css@3.2.1':
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
@@ -5180,12 +5143,6 @@ packages:
     peerDependencies:
       react: '>= 16.8.0'
 
-  '@vitejs/plugin-basic-ssl@1.0.2':
-    resolution: {integrity: sha512-DKHKVtpI+eA5fvObVgQ3QtTGU70CcCnedalzqmGSR050AzKZMdUzgC8KmlOneHWH8dF2hJ3wkC9+8FDVAaDRCw==}
-    engines: {node: '>=14.6.0'}
-    peerDependencies:
-      vite: ^3.0.0 || ^4.0.0 || ^5.0.0
-
   '@vitejs/plugin-react@4.0.0':
     resolution: {integrity: sha512-HX0XzMjL3hhOYm+0s95pb0Z7F8O81G7joUHgfDd/9J/ZZf5k4xX6QAMFkKsHFxaHlf6X7GD7+XuaZ66ULiJuhQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -5246,7 +5203,7 @@ packages:
     resolution: {integrity: sha512-ih872YZS9H7JrPDYlZqZ2qDiXPWXT8fVx6cA0OouFO2bDOw8q1E2MN36lhN2pUYjL2aC2NmLgS1yq2zN0bblXQ==}
     peerDependencies:
       '@deck.gl/react': ~8.8.27
-      react: ^16.8.0 || ^17.0.0 || 18
+      react: ^16.8.0 || ^17.0.0
 
   '@vivjs/views@0.16.0':
     resolution: {integrity: sha512-OQ4/3X5DLcu2yKVFeopmWW6iZ+hfTgkle84wfNPwPvvhtV3b1vEeUMzyBt5p1RSvpTzKGKv8CR5R4SdTunkUEQ==}
@@ -18235,10 +18192,6 @@ snapshots:
     dependencies:
       '@use-gesture/core': 10.3.0
       react: 18.2.0
-
-  '@vitejs/plugin-basic-ssl@1.0.2(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))':
-    dependencies:
-      vite: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
 
   '@vitejs/plugin-react@4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))':
     dependencies:

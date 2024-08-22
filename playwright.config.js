@@ -71,7 +71,7 @@ module.exports = defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm run start-demo',
+    command: 'pnpm run start-docs',
     url: 'http://localhost:3000/',
   //   reuseExistingServer: !process.env.CI,
   },
