@@ -8,11 +8,9 @@ import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
-import DemoHeader from './_DemoHeader.js';
 import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJson } from './_live-editor-examples.js';
-import { addStudyIdToConfig } from './utils.js'
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
 const betaXrKeys = [
   'Figure3a_blood_vessel',
@@ -66,18 +64,6 @@ function AppStyles(props) {
   );
 }
 
-function DemoStyles() {
-  return (
-    <style>{`
-         .navbar__brand + a.navbar__item.navbar__link + a.navbar__item.navbar__link {
-            color: var(--ifm-navbar-link-hover-color);
-            text-decoration: none;
-          }
-      `}
-    </style>
-  );
-}
-
 function IndexWithHashParams() {
   const setHashParams = useSetHashParams();
   const [wsCode] = useHashParam('code', undefined, 'string');
@@ -91,7 +77,7 @@ function IndexWithHashParams() {
   const [validConfig, setValidConfig] = useState(null);
 
   const [pendingJson, setPendingJson] = useState(baseJson);
-  const [studyIdInput, setStudyIdInput] = useState(null)
+  const [studyIdInput, setStudyIdInput] = useState(null);
   // const [pendingJs, setPendingJs] = useState(baseJs);
 
   function clearConfigs() {
@@ -154,7 +140,7 @@ function IndexWithHashParams() {
             if (unmounted) {
               return;
             }
-            if (edit) { //leave for the edit button probably
+            if (edit) { // leave for the edit button probably
               try {
                 const responseJson = JSON.parse(responseText);
                 setPendingJson(() => JSON.stringify(responseJson, null, 2));
@@ -286,7 +272,7 @@ function IndexWithQueryParamRedirect() {
   const [url] = useQueryParam('url', StringParam);
 
   useEffect(() => {
-    console.log("use effect url", url)
+    console.log('use effect url', url);
     const hasQueryParams = demo || url;
     if (hasQueryParams) {
       const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);

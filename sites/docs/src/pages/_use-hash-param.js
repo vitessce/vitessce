@@ -30,7 +30,7 @@ const getTypedHashParam = (key, varType) => {
 
 const setHashParam = (key, value, location = window.location) => {
   const [prefix, searchParams] = getHashSearchParams(location);
-  console.log("seHas params", prefix, searchParams);
+  console.log('seHas params', prefix, searchParams);
 
   if (typeof value === 'undefined' || value === '') {
     searchParams.delete(key);
