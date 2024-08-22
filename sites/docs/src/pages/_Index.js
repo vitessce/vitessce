@@ -2,9 +2,9 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import {
-  QueryParamProvider, useQueryParam, StringParam,
+  QueryParamProvider,
 } from 'use-query-params';
-import clsx from 'clsx';
+// import clsx from 'clsx';
 // import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
