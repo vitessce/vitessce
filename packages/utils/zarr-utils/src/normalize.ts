@@ -1,7 +1,8 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L26
 import type { Readable } from '@zarrita/storage';
 import { root as zarrRoot, FetchStore } from 'zarrita';
-import { ZipFileStore, ReferenceStore } from '@zarrita/storage';
+import ZipFileStore from '@zarrita/storage/zip';
+import ReferenceStore from '@zarrita/storage/ref';
 
 type ZarrOpenRootOptions = {
   requestInit?: RequestInit,

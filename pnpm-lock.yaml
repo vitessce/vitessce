@@ -250,11 +250,6 @@ overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
 
-patchedDependencies:
-  '@zarrita/storage@0.1.0-next.6':
-    hash: 7gerjkpoleffzjkwzbzmmpxso4
-    path: patches/@zarrita__storage@0.1.0-next.6.patch
-
 importers:
 
   .:
@@ -632,7 +627,7 @@ importers:
         version: 0.1.0-next.14
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+        version: 0.1.0-next.6
       '@zarrita/typedarray':
         specifier: 'catalog:'
         version: 0.1.0-next.3
@@ -1081,7 +1076,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+        version: 0.1.0-next.6
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1209,7 +1204,7 @@ importers:
         version: 0.1.0-next.16
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+        version: 0.1.0-next.6
       zarrita:
         specifier: 'catalog:'
         version: 0.4.0-next.16
@@ -18771,7 +18766,7 @@ snapshots:
 
   '@zarrita/core@0.1.0-next.14':
     dependencies:
-      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+      '@zarrita/storage': 0.1.0-next.6
       '@zarrita/typedarray': 0.1.0-next.3
       numcodecs: 0.3.1
 
@@ -18784,7 +18779,7 @@ snapshots:
   '@zarrita/indexing@0.1.0-next.16':
     dependencies:
       '@zarrita/core': 0.1.0-next.14
-      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+      '@zarrita/storage': 0.1.0-next.6
       '@zarrita/typedarray': 0.1.0-next.3
 
   '@zarrita/storage@0.1.0-next.5':
@@ -18792,7 +18787,7 @@ snapshots:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
 
-  '@zarrita/storage@0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)':
+  '@zarrita/storage@0.1.0-next.6':
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
@@ -27704,7 +27699,7 @@ snapshots:
     dependencies:
       '@zarrita/core': 0.1.0-next.14
       '@zarrita/indexing': 0.1.0-next.16
-      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+      '@zarrita/storage': 0.1.0-next.6
 
   zod-to-json-schema@3.21.1(zod@3.22.4):
     dependencies:
