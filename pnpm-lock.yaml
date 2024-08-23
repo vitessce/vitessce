@@ -80,14 +80,14 @@ catalogs:
       specifier: ^4.0.0
       version: 4.0.0
     '@zarrita/core':
-      specifier: 0.1.0-next.13
-      version: 0.1.0-next.13
+      specifier: 0.1.0-next.14
+      version: 0.1.0-next.14
     '@zarrita/indexing':
-      specifier: 0.1.0-next.15
-      version: 0.1.0-next.15
+      specifier: 0.1.0-next.16
+      version: 0.1.0-next.16
     '@zarrita/storage':
-      specifier: 0.1.0-next.5
-      version: 0.1.0-next.5
+      specifier: 0.1.0-next.6
+      version: 0.1.0-next.6
     '@zarrita/typedarray':
       specifier: 0.1.0-next.3
       version: 0.1.0-next.3
@@ -170,8 +170,8 @@ catalogs:
       specifier: ^0.32.2
       version: 0.32.2
     zarrita:
-      specifier: 0.4.0-next.15
-      version: 0.4.0-next.15
+      specifier: 0.4.0-next.16
+      version: 0.4.0-next.16
     zod:
       specifier: ^3.21.4
       version: 3.22.4
@@ -249,6 +249,11 @@ catalogs:
 overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
+
+patchedDependencies:
+  '@zarrita/storage@0.1.0-next.6':
+    hash: 7gerjkpoleffzjkwzbzmmpxso4
+    path: patches/@zarrita__storage@0.1.0-next.6.patch
 
 importers:
 
@@ -542,7 +547,7 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.15
+        version: 0.4.0-next.16
       zod:
         specifier: 'catalog:'
         version: 3.22.4
@@ -617,17 +622,17 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.15
+        version: 0.4.0-next.16
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
       '@zarrita/core':
         specifier: 'catalog:'
-        version: 0.1.0-next.13
+        version: 0.1.0-next.14
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.5
+        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
       '@zarrita/typedarray':
         specifier: 'catalog:'
         version: 0.1.0-next.3
@@ -1076,7 +1081,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.5
+        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1192,22 +1197,22 @@ importers:
         version: 9.5.2
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.15
+        version: 0.4.0-next.16
 
   packages/utils/zarr-utils:
     dependencies:
       '@zarrita/core':
         specifier: 'catalog:'
-        version: 0.1.0-next.13
+        version: 0.1.0-next.14
       '@zarrita/indexing':
         specifier: 'catalog:'
-        version: 0.1.0-next.15
+        version: 0.1.0-next.16
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.5
+        version: 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.15
+        version: 0.4.0-next.16
 
   packages/vega:
     dependencies:
@@ -5350,23 +5355,20 @@ packages:
   '@zarrita/core@0.1.0-next.13':
     resolution: {integrity: sha512-aoGq1mS3SAfDhmMVtCQAcgNeD4O2SKbCqFmJ/hyAeHoCpAwOWpc+6grpKqMtuVNQdFtRl+r4pt7UQPZgsxdIrQ==}
 
-  '@zarrita/core@0.1.0-next.8':
-    resolution: {integrity: sha512-WdpTxX4JLVfpP1LAt4aAoQsC/dkgpZzhFTHKykPOGSQ7tkLRfn3ON4T7dxYVcD9uQkRE+ZTTBjhkAFnVQkNasQ==}
-
-  '@zarrita/indexing@0.1.0-next.10':
-    resolution: {integrity: sha512-WOquXdNUNBf22Kl3qkdJmWnzMDLKxpyrgdC87HNR8Y8imQMTdRjejFiI7FvOrY/7HqViDgrckYsyxRrkbLUHjg==}
+  '@zarrita/core@0.1.0-next.14':
+    resolution: {integrity: sha512-tsCZhqGU4S1YlNfPMAvw3nJodPxLgXqRSrpYF5Mf4gsi2fxDymNmJA2oSxuA4lLqTDCcvPBCubYykyF9ADxArw==}
 
   '@zarrita/indexing@0.1.0-next.15':
     resolution: {integrity: sha512-1WAHDZvWYq0bnMquwWbCsKnx1rsuvDNcgersD5e6tNMpYnqPRUZUyOFpYaxBhrvJjEf5AM9CI3uCPE8RGYg7ag==}
 
-  '@zarrita/storage@0.1.0-next.4':
-    resolution: {integrity: sha512-+Gqaw/dA3VD53gLdXfQs3UKZmchE5CL0N35A1mXrT/QS9dxGQrcp9q7Tcdx9VlqU1eirh8cPVM0z+xPFLiYYyw==}
+  '@zarrita/indexing@0.1.0-next.16':
+    resolution: {integrity: sha512-cNHwpcudHz3R3mOkLe14UgTBf4Jq+gFNG4Dv+AtX93WSTLCg42YSSX6gnLBnrRIoB7KB0FUwpglDDi2R4jIZKw==}
 
   '@zarrita/storage@0.1.0-next.5':
     resolution: {integrity: sha512-E1VSxhNGZHL4RsKfIuyaz0HRsDk7hOU8Y7R+8yvKolaHDjK31XQsUgu97oaR24qS1j1OOg5vGyFyd+y0q7FNOA==}
 
-  '@zarrita/typedarray@0.1.0-next.2':
-    resolution: {integrity: sha512-utFKMocqLk5j4GXCKkuZQr3mAakskjq77GoUV5B55HJh0leXH9idDIelzpUszEsLpSIkFwO2Id/NHuClhCuzSw==}
+  '@zarrita/storage@0.1.0-next.6':
+    resolution: {integrity: sha512-7e1rxCCGA6aaulYiMAZOdMJ+GxVrD01QRvIjCCc1RMKo0otYUAarX2wnoatpSy+m3e+TFjB70M+GQce0XMhNwA==}
 
   '@zarrita/typedarray@0.1.0-next.3':
     resolution: {integrity: sha512-DpSaU3Cr6HmYDC/v8oM+e219cHU/kzKma309Z9E+QbpRnZycKNbSTKcxFR7FqB6HgB9640gzNUVFG5P+wzX5Xg==}
@@ -12480,8 +12482,8 @@ packages:
   zarrita@0.4.0-next.10:
     resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
 
-  zarrita@0.4.0-next.15:
-    resolution: {integrity: sha512-s2ZElXObBqmsTZOkSMuamc1c05pc2Ar+OBlPndFPvzAcnx/G8cQoLe5Yo3mdqwTd7a28Lq/zrTvFc/Qbpj22VA==}
+  zarrita@0.4.0-next.16:
+    resolution: {integrity: sha512-nCkhzMopRwDFUFDmK5RGvgvVTTf9vlElBZsrsZF97sEM3oAfv95D9VYDY7Xp489IjE6XGB8nYwsSzRO0EsUiUw==}
 
   zod-to-json-schema@3.21.1:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
@@ -18767,17 +18769,11 @@ snapshots:
       '@zarrita/typedarray': 0.1.0-next.3
       numcodecs: 0.3.1
 
-  '@zarrita/core@0.1.0-next.8':
+  '@zarrita/core@0.1.0-next.14':
     dependencies:
-      '@zarrita/storage': 0.1.0-next.4
-      '@zarrita/typedarray': 0.1.0-next.2
+      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+      '@zarrita/typedarray': 0.1.0-next.3
       numcodecs: 0.3.1
-
-  '@zarrita/indexing@0.1.0-next.10':
-    dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/storage': 0.1.0-next.4
-      '@zarrita/typedarray': 0.1.0-next.2
 
   '@zarrita/indexing@0.1.0-next.15':
     dependencies:
@@ -18785,17 +18781,21 @@ snapshots:
       '@zarrita/storage': 0.1.0-next.5
       '@zarrita/typedarray': 0.1.0-next.3
 
-  '@zarrita/storage@0.1.0-next.4':
+  '@zarrita/indexing@0.1.0-next.16':
     dependencies:
-      reference-spec-reader: 0.2.0
-      unzipit: 1.4.3
+      '@zarrita/core': 0.1.0-next.14
+      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
+      '@zarrita/typedarray': 0.1.0-next.3
 
   '@zarrita/storage@0.1.0-next.5':
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
 
-  '@zarrita/typedarray@0.1.0-next.2': {}
+  '@zarrita/storage@0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)':
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 1.4.3
 
   '@zarrita/typedarray@0.1.0-next.3': {}
 
@@ -27696,15 +27696,15 @@ snapshots:
 
   zarrita@0.4.0-next.10:
     dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/indexing': 0.1.0-next.10
-      '@zarrita/storage': 0.1.0-next.4
-
-  zarrita@0.4.0-next.15:
-    dependencies:
       '@zarrita/core': 0.1.0-next.13
       '@zarrita/indexing': 0.1.0-next.15
       '@zarrita/storage': 0.1.0-next.5
+
+  zarrita@0.4.0-next.16:
+    dependencies:
+      '@zarrita/core': 0.1.0-next.14
+      '@zarrita/indexing': 0.1.0-next.16
+      '@zarrita/storage': 0.1.0-next.6(patch_hash=7gerjkpoleffzjkwzbzmmpxso4)
 
   zod-to-json-schema@3.21.1(zod@3.22.4):
     dependencies:

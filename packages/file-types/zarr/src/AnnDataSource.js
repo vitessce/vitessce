@@ -88,7 +88,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns
    */
   async _loadColumn(path) {
-    const storeRoot = await this.storeRoot;
+    const { storeRoot } = this;
     const prefix = dirname(path);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     /** @type {string[]} */
@@ -143,9 +143,9 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
-    const storeRoot = await this.storeRoot;
-    const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
-    return zarrGet(arr);
+    const { storeRoot } = this;
+    return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
+      .then(arr => zarrGet(arr));
   }
 
   /**
@@ -158,7 +158,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * }>} A promise for a zarr array containing the data.
    */
   async loadNumericForDims(path, dims) {
-    const storeRoot = await this.storeRoot;
+    const { storeRoot } = this;
     const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
       dims.map(dim => arr.then(
@@ -179,7 +179,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<string[]>} The data from the zarr array.
    */
   async getFlatArrDecompressed(path) {
-    const storeRoot = await this.storeRoot;
+    const { storeRoot } = this;
     const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
@@ -262,7 +262,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<string>}
    */
   async _loadString(path) {
-    const storeRoot = await this.storeRoot;
+    const { storeRoot } = this;
     const zattrs = await this._loadAttrs(path);
     if ('encoding-type' in zattrs && 'encoding-version' in zattrs) {
       const {

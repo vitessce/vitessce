@@ -8,7 +8,7 @@ type ZarrOpenRootOptions = {
   refSpecUrl?: string,
 };
 
-export async function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
+export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
   let store: Readable;
   if(fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, { overrides: opts?.requestInit });
@@ -16,20 +16,22 @@ export async function zarrOpenRoot(url: string, fileType: null | string, opts?: 
     if(!opts?.refSpecUrl) {
       throw new Error('refSpecUrl is required for H5AD files');
     }
-    const referenceRes = await fetch(opts.refSpecUrl);
-    const referenceSpec = await referenceRes.json();
-    // We want ReferenceStore.fromSpec to use our `target` URL option regardless
-    // of what target URL(s) are specified in the reference spec JSON.
-    // Reference: https://github.com/manzt/zarrita.js/pull/155
-    const referenceSpecWithNullTargets = Object.fromEntries(
-      Object.entries(referenceSpec).map(([key, entry]) => {
-        if(Array.isArray(entry) && entry.length >= 1) {
-          entry[0] = null;
-        }
-        return [key, entry];
-      })
-    );
-    store = await ReferenceStore.fromSpec(referenceSpecWithNullTargets,
+    const referenceSpecPromise = fetch(opts.refSpecUrl)
+      .then(res => res.json())
+      .then(referenceSpec => {
+        // We want ReferenceStore.fromSpec to use our `target` URL option regardless
+        // of what target URL(s) are specified in the reference spec JSON.
+        // Reference: https://github.com/manzt/zarrita.js/pull/155
+        return Object.fromEntries(
+          Object.entries(referenceSpec).map(([key, entry]) => {
+            if(Array.isArray(entry) && entry.length >= 1) {
+              entry[0] = null;
+            }
+            return [key, entry];
+          })
+        );
+      });
+    store = ReferenceStore.fromSpec(referenceSpecPromise,
       { target: url, overrides: opts?.requestInit },
     );
   } else {

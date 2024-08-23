@@ -92,7 +92,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async _openSparseArrays() {
     const { path: matrix } = this.getOptions();
-    const storeRoot = await this.dataSource.storeRoot;
+    const { storeRoot } = this.dataSource;
     if (this.sparseArrays) {
       return this.sparseArrays;
     }
@@ -234,7 +234,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Promise} A promise for the zarr array contianing the cell x gene data.
    */
   async loadCellXGene() {
-    const storeRoot = await this.dataSource.storeRoot;
+    const { storeRoot } = this.dataSource;
     if (this.cellXGene) {
       return this.cellXGene;
     }
@@ -295,7 +295,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    */
   async loadGeneSelection({ selection }) {
     const { path: matrix } = this.getOptions();
-    const storeRoot = await this.dataSource.storeRoot;
+    const { storeRoot } = this.dataSource;
     if (!this._matrixZattrs) {
       this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
     }

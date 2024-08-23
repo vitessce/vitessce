@@ -28,11 +28,10 @@ export default class ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns {Promise<ZarrLocation<Readable>>}
+   * @returns {ZarrLocation<Readable>}
    */
-  async getStoreRoot(path) {
-    const storeRoot = await this.storeRoot;
-    return storeRoot.resolve(path);
+  getStoreRoot(path) {
+    return this.storeRoot.resolve(path);
   }
 
   /**
@@ -46,8 +45,7 @@ export default class ZarrDataSource {
    */
   async getJson(key, storeRootParam = null) {
     const { storeRoot } = this;
-
-    const storeRootToUse = await (storeRootParam || storeRoot);
+    const storeRootToUse = storeRootParam || storeRoot;
 
     let dirKey = key;
     // TODO: update calls to not include these file names in the first place.
