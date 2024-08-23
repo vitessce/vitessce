@@ -25,7 +25,7 @@ function generateLinkControllerMinimalConfig() {
     y: 0,
     w: 3,
     h: 8,
-  }).setProps({linkID: 1234});
+  }).setProps({linkID: 1234, send:true, receive:true});
 
   // config.addView(linkController);
 

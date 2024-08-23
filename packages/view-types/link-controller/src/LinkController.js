@@ -10,12 +10,13 @@ import {
 
 export default function LinkController(props) {
   const {
-    studyID, linkIDInit
+    studyID, linkIDInit, sendInit, receiveInit
   } = props
   const viewConfigStoreApi = useViewConfigStoreApi();
 
   const [socketOpen, setSocketOpen] = useState(false);
-  const [send, setSend] = useState(false)
+  const [send, setSend] = useState(sendInit)
+  const [receive, setReceive] = useState(receiveInit)
   const connection = useRef(null);
   const [linkID, setLinkID] = useState(null)
   const id = useMemo(() => {
@@ -102,36 +103,51 @@ export default function LinkController(props) {
           } else {
             console.log('Message from server ');
             console.log(JSON.parse(unescape(atob(event.data.split(';')[1]))))
-            setConfig({
-              ...JSON.parse(unescape(atob(event.data.split(';')[1]))),
-              uid: 'id' + (Math.floor(Math.random() * 1000))
-            });
+            if (receive) {
+              setConfig({
+                ...JSON.parse(unescape(atob(event.data.split(';')[1]))),
+                uid: 'id' + (Math.floor(Math.random() * 1000))
+              });
+            }
           }
         }
       });
       connection.current = ws;
       return () => ws.close();
     }
-  }, [viewConfigStoreApi, socketOpen, linkID]);
+  }, [viewConfigStoreApi, socketOpen, linkID, receive]);
 
   return (
     <>
-      {/*<span>Send:*/}
-      {/*      <FormControlLabel onChange={e => setSend(e.target.checked)}/>*/}
       <span>
+        <p style={{textAlign: "justify"}}>To join the same instance navigate to <a
+          href={"vitessce.link"}>Vitessce.Link</a> and enter the <b>Code</b> displayed here in the view.
+        The <b>send</b> switch controlls sending updates to other instances and the <b>receive</b> switch if this instance wants to listen to updates from the others</p>
+        <p style={{fontSize: "45px"}}>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
         <FormControlLabel
-          style={{marginLeft:"0px"}}
+          style={{marginLeft: "0px"}}
           control={<Switch color="primary" size={"medium"} checked={send} onChange={e => setSend(e.target.checked)}/>}
           // label="Send"
           label={
-            <Box component="div" style={{fontSize:"25px"}}>
+            <Box component="div" style={{fontSize: "25px"}}>
               Send:
             </Box>
           }
           labelPlacement="start"
         />
+        <FormControlLabel
+          style={{marginLeft: "15 px"}}
+          control={<Switch color="primary" size={"medium"} checked={receive} onChange={e => setReceive(e.target.checked)}/>}
+          // label="Send"
+          label={
+            <Box component="div" style={{fontSize: "25px"}}>
+              Receive:
+            </Box>
+          }
+          labelPlacement="start"
+        />
       </span>
-      <p style={{fontSize:"25px"}}>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
+
     </>
   )
 }

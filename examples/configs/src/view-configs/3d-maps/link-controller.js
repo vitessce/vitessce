@@ -49,7 +49,7 @@ function generateLinkControllerConfig() {
     y: 1,
     w: 4,
     h: 2,
-  }).setProps({linkID: 1234});
+  }).setProps({linkID: 1234, send:true, receive:true});
   const [
     glomsObsTypeScope,
     glomsFeatureTypeScope,
