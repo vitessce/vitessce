@@ -120,8 +120,8 @@ export default function LinkController(props) {
   return (
     <>
       <span>
-        <p style={{textAlign: "justify"}}>To join the same instance navigate to <a
-          href={"vitessce.link"}>Vitessce.Link</a> and enter the <b>Code</b> displayed here in the view.
+        <p style={{textAlign: "justify"}}>To join the same session navigate to <a
+          href={"https://vitessce.link"}>https://vitessce.link</a> and enter the <b>Code</b> displayed here in the view.
         The <b>send</b> switch controlls sending updates to other instances and the <b>receive</b> switch if this instance wants to listen to updates from the others</p>
         <p style={{fontSize: "45px"}}>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
         <FormControlLabel
@@ -130,7 +130,7 @@ export default function LinkController(props) {
           // label="Send"
           label={
             <Box component="div" style={{fontSize: "25px"}}>
-              Send:
+              Send Updates:
             </Box>
           }
           labelPlacement="start"
@@ -141,7 +141,7 @@ export default function LinkController(props) {
           // label="Send"
           label={
             <Box component="div" style={{fontSize: "25px"}}>
-              Receive:
+              Receive Updates:
             </Box>
           }
           labelPlacement="start"
