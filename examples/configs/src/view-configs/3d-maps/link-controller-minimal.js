@@ -12,11 +12,8 @@ function generateLinkControllerMinimalConfig() {
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
     url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
-    options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/redBloodCell.offsets.json',
-    },
     coordinationValues: {
-      fileUid: 'melanoma',
+      fileUid: 'file',
     },
   })
 
@@ -25,7 +22,7 @@ function generateLinkControllerMinimalConfig() {
     y: 0,
     w: 3,
     h: 8,
-  }).setProps({linkID: 1234, send:true, receive:true});
+  }).setProps({linkID: 5454});
 
   // config.addView(linkController);
 

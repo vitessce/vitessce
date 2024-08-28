@@ -4,19 +4,18 @@ import {
   useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import {
-  FormControlLabel, Switch, Box
+  FormControlLabel, Switch, Box, Checkbox, Grid
 } from '@material-ui/core';
 
 
 export default function LinkController(props) {
   const {
-    studyID, linkIDInit, sendInit, receiveInit
+    linkIDInit
   } = props
   const viewConfigStoreApi = useViewConfigStoreApi();
 
   const [socketOpen, setSocketOpen] = useState(false);
-  const [send, setSend] = useState(sendInit)
-  const [receive, setReceive] = useState(receiveInit)
+  const [sync, setSync] = useState(true)
   const connection = useRef(null);
   const [linkID, setLinkID] = useState(null)
   const id = useMemo(() => {
@@ -31,7 +30,7 @@ export default function LinkController(props) {
 
   const onConfigChange = useCallback((configValue) => {
     // console.log(send, socketOpen)
-    if (send && socketOpen) {
+    if (sync && socketOpen) {
       try {
         console.log(configValue)
         let configString = id + ';' + btoa(escape(JSON.stringify(configValue)));
@@ -42,7 +41,7 @@ export default function LinkController(props) {
         console.log(error)
       }
     }
-  }, [id, socketOpen, send]);
+  }, [id, socketOpen, sync]);
 
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export default function LinkController(props) {
       setLinkID(linkIDInit)
     }
     if (linkID == null) {
-      fetch("https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link?study_id=" + studyID, {
+      fetch("https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link", {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -80,6 +79,7 @@ export default function LinkController(props) {
   useEffect(() => {
     var authToken = 'mr-vitessce';
     if (linkID !== null) {
+      console.log("here")
       const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, linkID]);
       ws.addEventListener('open', (event) => {
         console.log('Open', event);
@@ -103,7 +103,7 @@ export default function LinkController(props) {
           } else {
             console.log('Message from server ');
             console.log(JSON.parse(unescape(atob(event.data.split(';')[1]))))
-            if (receive) {
+            if (sync) {
               setConfig({
                 ...JSON.parse(unescape(atob(event.data.split(';')[1]))),
                 uid: 'id' + (Math.floor(Math.random() * 1000))
@@ -115,39 +115,23 @@ export default function LinkController(props) {
       connection.current = ws;
       return () => ws.close();
     }
-  }, [viewConfigStoreApi, socketOpen, linkID, receive]);
+  }, [viewConfigStoreApi, socketOpen, linkID, sync]);
 
   return (
     <>
       <span>
         <p style={{textAlign: "justify"}}>To join the same session navigate to <a
-          href={"https://vitessce.link"}>https://vitessce.link</a> and enter the <b>Code</b> displayed here in the view.
-        The <b>send</b> switch controlls sending updates to other instances and the <b>receive</b> switch if this instance wants to listen to updates from the others</p>
-        <p style={{fontSize: "45px"}}>Code:&nbsp;&nbsp;<b>{linkID}</b></p>
-        <FormControlLabel
-          style={{marginLeft: "0px"}}
-          control={<Switch color="primary" size={"medium"} checked={send} onChange={e => setSend(e.target.checked)}/>}
-          // label="Send"
-          label={
-            <Box component="div" style={{fontSize: "25px"}}>
-              Send Updates:
-            </Box>
-          }
-          labelPlacement="start"
-        />
-        <FormControlLabel
-          style={{marginLeft: "15 px"}}
-          control={<Switch color="primary" size={"medium"} checked={receive} onChange={e => setReceive(e.target.checked)}/>}
-          // label="Send"
-          label={
-            <Box component="div" style={{fontSize: "25px"}}>
-              Receive Updates:
-            </Box>
-          }
-          labelPlacement="start"
-        />
+          href={"https://vitessce.link"}>https://vitessce.link</a> and enter the <b>Link ID</b> displayed here in the view. The session is synced as long as the <b>Link Active</b> Checkbox is activated.</p>
+        <Grid container direction="row" style={{gridGap: "10px"}}>
+          <Grid item xs={5}>
+            <p style={{fontSize: "25px"}}>Link ID:&nbsp;&nbsp;<b>{linkID}</b></p>
+          </Grid>
+          <Grid item xs={5} style={{fontSize: "25px"}}>
+            Link Active: <Checkbox style={{marginTop: "-2px", marginLeft: "-10px"}} color="primary" checked={sync}
+                                   onChange={e => setSync(e.target.checked)}/>
+          </Grid>
+        </Grid>
       </span>
-
     </>
   )
 }

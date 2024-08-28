@@ -10,9 +10,9 @@ export function LinkControllerSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'Link Controller',
+    title = 'Vitessce Link',
     closeButtonVisible,
-    studyID, linkID, send, receive
+    linkID
   } = props;
 
   return (
@@ -24,7 +24,7 @@ export function LinkControllerSubscriber(props) {
       theme={theme}
       isReady={true}
     >
-      <LinkController studyID={studyID} linkIDInit={linkID} sendInit={send} receiveInit={receive}/>
+      <LinkController linkIDInit={linkID}/>
     </TitleInfo>
   );
 }
