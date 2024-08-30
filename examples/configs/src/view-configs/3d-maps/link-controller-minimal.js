@@ -9,20 +9,21 @@ function generateLinkControllerMinimalConfig() {
     schemaVersion: '1.0.16',
     name: 'Link controller demo',
   });
-  const dataset = config.addDataset('My dataset').addFile({
-    fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
-    coordinationValues: {
-      fileUid: 'file',
-    },
-  })
+  const dataset = config.addDataset('Template')
+  // .addFile({
+  //   fileType: 'image.ome-tiff',
+    // url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
+    // coordinationValues: {
+    //   fileUid: 'file',
+    // },
+  // })
 
   const linkController = config.addView(dataset, 'linkController', {
     x: 0,
     y: 0,
-    w: 3,
+    w: 5,
     h: 8,
-  }).setProps({linkID: 5454});
+  }).setProps({linkID: 2831});
 
   // config.addView(linkController);
 
