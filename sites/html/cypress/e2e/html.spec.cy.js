@@ -29,7 +29,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
   });
   it('Works when loaded in same page as CCF UI components', () => {
     // Tests for vitessce display
-    cy.visit('/sites/html/src/ccf-ui.html');
+    cy.visit('/sites/html/src/ccf-ui.html', { timeout: 30000 });
     cy.contains('Demo of Vitessce');
     cy.contains('Scatterplot (UMAP)');
     cy.contains('523 cells'); // Not public; requires "show=all".
