@@ -34,13 +34,13 @@ describe('src/app/view-config-utils.js', () => {
       expect(upgradeFrom1_0_15(implicitPerDatasetCoordinations))
         .toEqual(explicitPerDatasetCoordinations);
     });
-    it('upgrades more than once', () => {
-      const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
-      expect(latestConfig.version).toEqual('1.0.16');
-    });
     it('upgrade view config from v1.0.16 to v1.0.17', () => {
       expect(upgradeFrom1_0_16(annDataOptionsArrays))
         .toEqual(annDataOptionsObjects);
+    });
+    it('upgrades more than once', () => {
+      const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
+      expect(latestConfig.version).toEqual('1.0.17');
     });
   });
 });
