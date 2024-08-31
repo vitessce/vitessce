@@ -257,3 +257,9 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
     }),
   ),
 });
+
+// Only coordination type or behavioral changes.
+export const configSchema1_0_17 = configSchema1_0_16.extend({
+  version: z.literal('1.0.17'),
+});
+
