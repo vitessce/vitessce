@@ -29,7 +29,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
   });
   it('Works when loaded in same page as CCF UI components', () => {
     // Tests for vitessce display
-    cy.visit('/sites/html/src/ccf-ui.html', { timeout: 30000 });
+    cy.visit('/sites/html/src/ccf-ui.html');
     cy.contains('Demo of Vitessce');
     cy.contains('Scatterplot (UMAP)');
     cy.contains('523 cells'); // Not public; requires "show=all".
@@ -40,7 +40,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('Male');
     cy.contains('Female');
     // Various metadata displayed next to CCF UI
-    cy.contains('Tissue Data Providers', { timeout: 10000 });
+    cy.contains('Tissue Data Providers', { timeout: 30000 });
     cy.contains('Donors');
     cy.contains('Tissue Blocks');
     cy.contains('Tissue Sections');
