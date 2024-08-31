@@ -12,7 +12,7 @@ function createHabib2017(storeType) {
     extraOptions.refSpecUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.reference.json';
   }
   return {
-    version: '1.0.15',
+    version: '1.0.17',
     name: 'Habib et al., 2017 Nature Methods',
     description: 'Archived frozen adult human post-mortem brain tissue profiled by snRNA-seq (DroNc-seq)',
     datasets: [{
@@ -31,7 +31,10 @@ function createHabib2017(storeType) {
           ...extraOptions,
           obsFeatureMatrix: {
             path: 'X',
-            initialFeatureFilterPath: 'var/top_highly_variable',
+            initialFeatureFilterPath: (storeType === 'h5ad'
+              ? 'var/highly_variable'
+              : 'var/top_highly_variable'
+            ),
           },
           obsEmbedding: {
             path: 'obsm/X_umap',
