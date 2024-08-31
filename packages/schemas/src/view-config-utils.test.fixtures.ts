@@ -914,15 +914,15 @@ export const annDataOptionsArrays: z.infer<typeof configSchema1_0_16> = {
           url: 'https://example.com',
           options: [
             { path: 'obs/celltype', name: 'Cell Type' },
-          ]
+          ],
         },
         {
           fileType: 'obsFeatureColumns.anndata.zarr',
           url: 'https://example.com',
           options: [
             { path: 'obs/qc_metric', name: 'Some metric' },
-          ]
-        }
+          ],
+        },
       ],
       name: 'First dataset',
       uid: 'first',
@@ -945,7 +945,7 @@ export const annDataOptionsObjects: z.infer<typeof configSchema1_0_17> = {
           options: {
             obsSets: [
               { path: 'obs/celltype', name: 'Cell Type' },
-            ]
+            ],
           },
         },
         {
@@ -954,9 +954,9 @@ export const annDataOptionsObjects: z.infer<typeof configSchema1_0_17> = {
           options: {
             obsFeatureColumns: [
               { path: 'obs/qc_metric', name: 'Some metric' },
-            ]
-          }
-        }
+            ],
+          },
+        },
       ],
       name: 'First dataset',
       uid: 'first',

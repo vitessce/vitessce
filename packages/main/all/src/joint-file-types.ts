@@ -58,7 +58,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
       fileType: getFileType(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR),
       options: {
         ...sharedOptions,
-        ...options.obsFeatureMatrix
+        ...options.obsFeatureMatrix,
       },
       coordinationValues: {
         ...extraCoordinationValues,
@@ -97,7 +97,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     ...(options.obsPoints ? [{
       ...baseFileDef,
       fileType: getFileType(FileType.OBS_POINTS_ANNDATA_ZARR),
-      options:  {
+      options: {
         ...sharedOptions,
         ...options.obsPoints,
       },
@@ -110,7 +110,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     ...(options.obsLocations ? [{
       ...baseFileDef,
       fileType: getFileType(FileType.OBS_LOCATIONS_ANNDATA_ZARR),
-      options:  {
+      options: {
         ...sharedOptions,
         ...options.obsLocations,
       },
@@ -123,7 +123,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
     ...(options.obsSegmentations ? [{
       ...baseFileDef,
       fileType: getFileType(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR),
-      options:  {
+      options: {
         ...sharedOptions,
         ...options.obsSegmentations,
       },

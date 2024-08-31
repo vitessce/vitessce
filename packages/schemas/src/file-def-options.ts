@@ -71,7 +71,6 @@ const annDataObsFeatureColumnsArr = z.array(
 
 // Need to nest this within an object
 // to allow for additional properties like `refSpecUrl`.
-// TODO: Will require updates within the loader class (options.obsFeatureColumns rather than options).
 const annDataObsFeatureColumns = z.object({
   obsFeatureColumns: annDataObsFeatureColumnsArr,
 });

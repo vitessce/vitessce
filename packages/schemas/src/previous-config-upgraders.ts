@@ -748,8 +748,10 @@ export function upgradeFrom1_0_16(
   const newConfig = cloneDeep(config);
 
   const { datasets } = newConfig;
-  const newDatasets = datasets.map((dataset): z.infer<typeof configSchema1_0_17.shape.datasets.element> => {
-    const { files } = dataset;
+  // eslint-disable-next-line max-len
+  const newDatasets = datasets.map((datasetDef): z.infer<typeof configSchema1_0_17.shape.datasets.element> => {
+    const { files } = datasetDef;
+    // eslint-disable-next-line max-len
     const newFiles = files.map((fileDef): z.infer<typeof configSchema1_0_17.shape.datasets.element.shape.files.element> => {
       const { fileType, options } = fileDef;
       if (fileType === 'obsSets.anndata.zarr') {
@@ -771,7 +773,7 @@ export function upgradeFrom1_0_16(
       return fileDef;
     });
     return {
-      ...dataset,
+      ...datasetDef,
       files: newFiles,
     };
   });

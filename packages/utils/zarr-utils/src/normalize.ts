@@ -11,30 +11,28 @@ type ZarrOpenRootOptions = {
 
 export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
   let store: Readable;
-  if(fileType && fileType.endsWith('.zip')) {
+  if (fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, { overrides: opts?.requestInit });
-  } else if(fileType && fileType.endsWith('.h5ad')) {
-    if(!opts?.refSpecUrl) {
+  } else if (fileType && fileType.endsWith('.h5ad')) {
+    if (!opts?.refSpecUrl) {
       throw new Error('refSpecUrl is required for H5AD files');
     }
     const referenceSpecPromise = fetch(opts.refSpecUrl)
       .then(res => res.json())
-      .then(referenceSpec => {
+      .then(referenceSpec => Object.fromEntries(
         // We want ReferenceStore.fromSpec to use our `target` URL option regardless
         // of what target URL(s) are specified in the reference spec JSON.
         // Reference: https://github.com/manzt/zarrita.js/pull/155
-        return Object.fromEntries(
           Object.entries(referenceSpec).map(([key, entry]) => {
-            if(Array.isArray(entry) && entry.length >= 1) {
+            if (Array.isArray(entry) && entry.length >= 1) {
+              // eslint-disable-next-line no-param-reassign
               entry[0] = null;
             }
             return [key, entry];
-          })
-        );
-      });
+          }),
+        ));
     store = ReferenceStore.fromSpec(referenceSpecPromise,
-      { target: url, overrides: opts?.requestInit },
-    );
+      { target: url, overrides: opts?.requestInit });
   } else {
     store = new FetchStore(url, { overrides: opts?.requestInit });
   }
