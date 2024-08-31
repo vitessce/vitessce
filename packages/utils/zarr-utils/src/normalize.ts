@@ -23,14 +23,14 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
         // We want ReferenceStore.fromSpec to use our `target` URL option regardless
         // of what target URL(s) are specified in the reference spec JSON.
         // Reference: https://github.com/manzt/zarrita.js/pull/155
-          Object.entries(referenceSpec).map(([key, entry]) => {
-            if (Array.isArray(entry) && entry.length >= 1) {
-              // eslint-disable-next-line no-param-reassign
-              entry[0] = null;
-            }
-            return [key, entry];
-          }),
-        ));
+        Object.entries(referenceSpec).map(([key, entry]) => {
+          if (Array.isArray(entry) && entry.length >= 1) {
+            // eslint-disable-next-line no-param-reassign
+            entry[0] = null;
+          }
+          return [key, entry];
+        }),
+      ));
     store = ReferenceStore.fromSpec(referenceSpecPromise,
       { target: url, overrides: opts?.requestInit });
   } else {
