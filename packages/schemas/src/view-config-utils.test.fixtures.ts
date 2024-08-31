@@ -6,6 +6,7 @@ import {
   configSchema1_0_1,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
 } from './previous-config-schemas.js';
 
 /* eslint-disable camelcase */
@@ -898,4 +899,68 @@ export const explicitPerDatasetCoordinations: z.infer<typeof configSchema1_0_16>
       y: 2,
     },
   ],
+};
+
+export const annDataOptionsArrays: z.infer<typeof configSchema1_0_16> = {
+  version: '1.0.16',
+  name: 'Anndata options arrays',
+  description: 'My config description',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      files: [
+        {
+          fileType: 'obsSets.anndata.zarr',
+          url: 'https://example.com',
+          options: [
+            { path: 'obs/celltype', name: 'Cell Type' },
+          ]
+        },
+        {
+          fileType: 'obsFeatureColumns.anndata.zarr',
+          url: 'https://example.com',
+          options: [
+            { path: 'obs/qc_metric', name: 'Some metric' },
+          ]
+        }
+      ],
+      name: 'First dataset',
+      uid: 'first',
+    },
+  ],
+  layout: [],
+};
+
+export const annDataOptionsObjects: z.infer<typeof configSchema1_0_17> = {
+  version: '1.0.17',
+  name: 'Anndata options arrays',
+  description: 'My config description',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      files: [
+        {
+          fileType: 'obsSets.anndata.zarr',
+          url: 'https://example.com',
+          options: {
+            obsSets: [
+              { path: 'obs/celltype', name: 'Cell Type' },
+            ]
+          },
+        },
+        {
+          fileType: 'obsFeatureColumns.anndata.zarr',
+          url: 'https://example.com',
+          options: {
+            obsFeatureColumns: [
+              { path: 'obs/qc_metric', name: 'Some metric' },
+            ]
+          }
+        }
+      ],
+      name: 'First dataset',
+      uid: 'first',
+    },
+  ],
+  layout: [],
 };
