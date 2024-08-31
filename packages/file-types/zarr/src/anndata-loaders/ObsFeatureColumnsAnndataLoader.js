@@ -17,7 +17,7 @@ export default class ObsFeatureColumnsAnndataLoader extends AbstractTwoStepLoade
       return this.obsFeatureColumns;
     }
     if (!this.obsFeatureColumns) {
-      const colPaths = options.map(({ path }) => path);
+      const colPaths = options.obsFeatureColumns?.map(({ path }) => path);
       const firstPath = colPaths[0];
       const obsIndex = await this.dataSource.loadObsIndex(firstPath);
       const featureIndex = colPaths.map(colPath => basename(colPath));
