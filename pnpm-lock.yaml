@@ -80,17 +80,17 @@ catalogs:
       specifier: ^4.0.0
       version: 4.0.0
     '@zarrita/core':
-      specifier: 0.1.0-next.8
-      version: 0.1.0-next.8
+      specifier: 0.1.0-next.14
+      version: 0.1.0-next.14
     '@zarrita/indexing':
-      specifier: 0.1.0-next.10
-      version: 0.1.0-next.10
+      specifier: 0.1.0-next.16
+      version: 0.1.0-next.16
     '@zarrita/storage':
-      specifier: 0.1.0-next.4
-      version: 0.1.0-next.4
+      specifier: 0.1.0-next.6
+      version: 0.1.0-next.6
     '@zarrita/typedarray':
-      specifier: 0.1.0-next.2
-      version: 0.1.0-next.2
+      specifier: 0.1.0-next.3
+      version: 0.1.0-next.3
     clsx:
       specifier: ^1.1.1
       version: 1.2.1
@@ -170,8 +170,8 @@ catalogs:
       specifier: ^0.32.2
       version: 0.32.2
     zarrita:
-      specifier: 0.4.0-next.10
-      version: 0.4.0-next.10
+      specifier: 0.4.0-next.16
+      version: 0.4.0-next.16
     zod:
       specifier: ^3.21.4
       version: 3.22.4
@@ -542,7 +542,7 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.10
+        version: 0.4.0-next.16
       zod:
         specifier: 'catalog:'
         version: 3.22.4
@@ -617,20 +617,20 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.10
+        version: 0.4.0-next.16
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
       '@zarrita/core':
         specifier: 'catalog:'
-        version: 0.1.0-next.8
+        version: 0.1.0-next.14
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.4
+        version: 0.1.0-next.6
       '@zarrita/typedarray':
         specifier: 'catalog:'
-        version: 0.1.0-next.2
+        version: 0.1.0-next.3
 
   packages/gl:
     dependencies:
@@ -1076,7 +1076,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.4
+        version: 0.1.0-next.6
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1192,22 +1192,22 @@ importers:
         version: 9.5.2
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.10
+        version: 0.4.0-next.16
 
   packages/utils/zarr-utils:
     dependencies:
       '@zarrita/core':
         specifier: 'catalog:'
-        version: 0.1.0-next.8
+        version: 0.1.0-next.14
       '@zarrita/indexing':
         specifier: 'catalog:'
-        version: 0.1.0-next.10
+        version: 0.1.0-next.16
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0-next.4
+        version: 0.1.0-next.6
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0-next.10
+        version: 0.4.0-next.16
 
   packages/vega:
     dependencies:
@@ -2146,8 +2146,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
       cypress:
-        specifier: ^12.15.0
-        version: 12.15.0
+        specifier: ^13.14.1
+        version: 13.14.1
       sass:
         specifier: ^1.55.0
         version: 1.55.0
@@ -2313,8 +2313,8 @@ importers:
         version: link:../../packages/main/prod
     devDependencies:
       cypress:
-        specifier: ^12.15.0
-        version: 12.15.0
+        specifier: ^13.14.1
+        version: 13.14.1
       http-server:
         specifier: ^14.0.0
         version: 14.1.1
@@ -3179,8 +3179,8 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@cypress/request@2.88.10':
-    resolution: {integrity: sha512-Zp7F+R93N0yZyG34GutyTNr+okam7s/Fzc1+i3kcqOP8vk6OuajuE9qZJ6Rs+10/1JFtXFYMdyarnU1rZuJesg==}
+  '@cypress/request@3.0.1':
+    resolution: {integrity: sha512-TWivJlJi8ZDx2wGOw1dbLuHJKUYX7bWySw377nlnGOW3hP9/MUKIsEdXT/YngWxVdgNCHRBmFlBipE+5/2ZZlQ==}
     engines: {node: '>= 6'}
 
   '@cypress/xvfb@1.2.4':
@@ -5347,17 +5347,26 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@zarrita/core@0.1.0-next.8':
-    resolution: {integrity: sha512-WdpTxX4JLVfpP1LAt4aAoQsC/dkgpZzhFTHKykPOGSQ7tkLRfn3ON4T7dxYVcD9uQkRE+ZTTBjhkAFnVQkNasQ==}
+  '@zarrita/core@0.1.0-next.13':
+    resolution: {integrity: sha512-aoGq1mS3SAfDhmMVtCQAcgNeD4O2SKbCqFmJ/hyAeHoCpAwOWpc+6grpKqMtuVNQdFtRl+r4pt7UQPZgsxdIrQ==}
 
-  '@zarrita/indexing@0.1.0-next.10':
-    resolution: {integrity: sha512-WOquXdNUNBf22Kl3qkdJmWnzMDLKxpyrgdC87HNR8Y8imQMTdRjejFiI7FvOrY/7HqViDgrckYsyxRrkbLUHjg==}
+  '@zarrita/core@0.1.0-next.14':
+    resolution: {integrity: sha512-tsCZhqGU4S1YlNfPMAvw3nJodPxLgXqRSrpYF5Mf4gsi2fxDymNmJA2oSxuA4lLqTDCcvPBCubYykyF9ADxArw==}
 
-  '@zarrita/storage@0.1.0-next.4':
-    resolution: {integrity: sha512-+Gqaw/dA3VD53gLdXfQs3UKZmchE5CL0N35A1mXrT/QS9dxGQrcp9q7Tcdx9VlqU1eirh8cPVM0z+xPFLiYYyw==}
+  '@zarrita/indexing@0.1.0-next.15':
+    resolution: {integrity: sha512-1WAHDZvWYq0bnMquwWbCsKnx1rsuvDNcgersD5e6tNMpYnqPRUZUyOFpYaxBhrvJjEf5AM9CI3uCPE8RGYg7ag==}
 
-  '@zarrita/typedarray@0.1.0-next.2':
-    resolution: {integrity: sha512-utFKMocqLk5j4GXCKkuZQr3mAakskjq77GoUV5B55HJh0leXH9idDIelzpUszEsLpSIkFwO2Id/NHuClhCuzSw==}
+  '@zarrita/indexing@0.1.0-next.16':
+    resolution: {integrity: sha512-cNHwpcudHz3R3mOkLe14UgTBf4Jq+gFNG4Dv+AtX93WSTLCg42YSSX6gnLBnrRIoB7KB0FUwpglDDi2R4jIZKw==}
+
+  '@zarrita/storage@0.1.0-next.5':
+    resolution: {integrity: sha512-E1VSxhNGZHL4RsKfIuyaz0HRsDk7hOU8Y7R+8yvKolaHDjK31XQsUgu97oaR24qS1j1OOg5vGyFyd+y0q7FNOA==}
+
+  '@zarrita/storage@0.1.0-next.6':
+    resolution: {integrity: sha512-7e1rxCCGA6aaulYiMAZOdMJ+GxVrD01QRvIjCCc1RMKo0otYUAarX2wnoatpSy+m3e+TFjB70M+GQce0XMhNwA==}
+
+  '@zarrita/typedarray@0.1.0-next.3':
+    resolution: {integrity: sha512-DpSaU3Cr6HmYDC/v8oM+e219cHU/kzKma309Z9E+QbpRnZycKNbSTKcxFR7FqB6HgB9640gzNUVFG5P+wzX5Xg==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -6392,9 +6401,9 @@ packages:
   cubic-hermite-spline@1.0.1:
     resolution: {integrity: sha512-OlfZfJqnCi44aYNg3YMn0IqYcvlUGv3SzRqNbm19cnZNTaMiWjFeA5l6rF/WLnmh1VBZs/kYc2QwAkD1t2Zhdg==}
 
-  cypress@12.15.0:
-    resolution: {integrity: sha512-FqGbxsH+QgjStuTO9onXMIeF44eOrgVwPvlcvuzLIaePQMkl72YgBvpuHlBGRcrw3Q4SvqKfajN8iV5XWShAiQ==}
-    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
+  cypress@13.14.1:
+    resolution: {integrity: sha512-Wo+byPmjps66hACEH5udhXINEiN3qS3jWNGRzJOjrRJF3D0+YrcP2LVB1T7oYaVQM/S+eanqEvBWYc8cf7Vcbg==}
+    engines: {node: ^16.0.0 || ^18.0.0 || >=20.0.0}
     hasBin: true
 
   d3-array@1.2.4:
@@ -10037,12 +10046,12 @@ packages:
   pure-color@1.3.0:
     resolution: {integrity: sha512-QFADYnsVoBMw1srW7OVKEYjG+MbIa49s54w1MA1EDY6r2r/sTcKKYqRX1f4GYvnXP7eN/Pe9HFcX+hwzmrXRHA==}
 
-  qs@6.11.0:
-    resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
+  qs@6.10.4:
+    resolution: {integrity: sha512-OQiU+C+Ds5qiH91qh/mg0w+8nwQuLjM4F4M/PbmhDOoYehPh+Fb0bDjtR1sOvy7YKxvj28Y/M0PhP5uVX0kB+g==}
     engines: {node: '>=0.6'}
 
-  qs@6.5.3:
-    resolution: {integrity: sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==}
+  qs@6.11.0:
+    resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
     engines: {node: '>=0.6'}
 
   quadbin@0.1.5:
@@ -10814,6 +10823,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.6.3:
+    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
     engines: {node: '>= 0.8.0'}
@@ -11331,9 +11345,9 @@ packages:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
     engines: {node: '>=0.6.0'}
 
-  tmp@0.2.1:
-    resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
-    engines: {node: '>=8.17.0'}
+  tmp@0.2.3:
+    resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
+    engines: {node: '>=14.14'}
 
   to-fast-properties@2.0.0:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
@@ -11363,12 +11377,12 @@ packages:
     resolution: {integrity: sha512-eM+pCBxXO/njtF7vdFsHuqb+ElbxqtI4r5EAvk6grfAFyJ6IvWlSkfZ5T9ozC6xWw3Fj1fGoSmrl0gUs46JVIw==}
     engines: {node: '>=6'}
 
-  tough-cookie@2.5.0:
-    resolution: {integrity: sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==}
-    engines: {node: '>=0.8'}
-
   tough-cookie@4.1.2:
     resolution: {integrity: sha512-G9fqXWoYFZgTc2z8Q5zaHy/vJMjm+WV0AkAeHxVCQiEB1b+dGvWzFW6QV07cY5jQ5gRkeid2qIkzkxUnmoQZUQ==}
+    engines: {node: '>=6'}
+
+  tough-cookie@4.1.4:
+    resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
     engines: {node: '>=6'}
 
   tr46@0.0.3:
@@ -12314,6 +12328,9 @@ packages:
 
   zarrita@0.4.0-next.10:
     resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
+
+  zarrita@0.4.0-next.16:
+    resolution: {integrity: sha512-nCkhzMopRwDFUFDmK5RGvgvVTTf9vlElBZsrsZF97sEM3oAfv95D9VYDY7Xp489IjE6XGB8nYwsSzRO0EsUiUw==}
 
   zod-to-json-schema@3.21.1:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
@@ -14700,7 +14717,7 @@ snapshots:
   '@colors/colors@1.5.0':
     optional: true
 
-  '@cypress/request@2.88.10':
+  '@cypress/request@3.0.1':
     dependencies:
       aws-sign2: 0.7.0
       aws4: 1.11.0
@@ -14715,9 +14732,9 @@ snapshots:
       json-stringify-safe: 5.0.1
       mime-types: 2.1.35
       performance-now: 2.1.0
-      qs: 6.5.3
+      qs: 6.10.4
       safe-buffer: 5.2.1
-      tough-cookie: 2.5.0
+      tough-cookie: 4.1.4
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
@@ -18593,24 +18610,41 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zarrita/core@0.1.0-next.8':
+  '@zarrita/core@0.1.0-next.13':
     dependencies:
-      '@zarrita/storage': 0.1.0-next.4
-      '@zarrita/typedarray': 0.1.0-next.2
+      '@zarrita/storage': 0.1.0-next.5
+      '@zarrita/typedarray': 0.1.0-next.3
       numcodecs: 0.3.1
 
-  '@zarrita/indexing@0.1.0-next.10':
+  '@zarrita/core@0.1.0-next.14':
     dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/storage': 0.1.0-next.4
-      '@zarrita/typedarray': 0.1.0-next.2
+      '@zarrita/storage': 0.1.0-next.6
+      '@zarrita/typedarray': 0.1.0-next.3
+      numcodecs: 0.3.1
 
-  '@zarrita/storage@0.1.0-next.4':
+  '@zarrita/indexing@0.1.0-next.15':
+    dependencies:
+      '@zarrita/core': 0.1.0-next.13
+      '@zarrita/storage': 0.1.0-next.5
+      '@zarrita/typedarray': 0.1.0-next.3
+
+  '@zarrita/indexing@0.1.0-next.16':
+    dependencies:
+      '@zarrita/core': 0.1.0-next.14
+      '@zarrita/storage': 0.1.0-next.6
+      '@zarrita/typedarray': 0.1.0-next.3
+
+  '@zarrita/storage@0.1.0-next.5':
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
 
-  '@zarrita/typedarray@0.1.0-next.2': {}
+  '@zarrita/storage@0.1.0-next.6':
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 1.4.3
+
+  '@zarrita/typedarray@0.1.0-next.3': {}
 
   abab@2.0.6: {}
 
@@ -19848,11 +19882,10 @@ snapshots:
 
   cubic-hermite-spline@1.0.1: {}
 
-  cypress@12.15.0:
+  cypress@13.14.1:
     dependencies:
-      '@cypress/request': 2.88.10
+      '@cypress/request': 3.0.1
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
-      '@types/node': 14.18.32
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
@@ -19885,11 +19918,12 @@ snapshots:
       minimist: 1.2.8
       ospath: 1.2.2
       pretty-bytes: 5.6.0
+      process: 0.11.10
       proxy-from-env: 1.0.0
       request-progress: 3.0.0
-      semver: 7.3.8
+      semver: 7.6.3
       supports-color: 8.1.1
-      tmp: 0.2.1
+      tmp: 0.2.3
       untildify: 4.0.0
       yauzl: 2.10.0
 
@@ -24371,11 +24405,13 @@ snapshots:
 
   pure-color@1.3.0: {}
 
-  qs@6.11.0:
+  qs@6.10.4:
     dependencies:
       side-channel: 1.0.4
 
-  qs@6.5.3: {}
+  qs@6.11.0:
+    dependencies:
+      side-channel: 1.0.4
 
   quadbin@0.1.5:
     dependencies:
@@ -25417,6 +25453,8 @@ snapshots:
     dependencies:
       lru-cache: 6.0.0
 
+  semver@7.6.3: {}
+
   send@0.18.0:
     dependencies:
       debug: 2.6.9
@@ -26005,9 +26043,7 @@ snapshots:
     dependencies:
       os-tmpdir: 1.0.2
 
-  tmp@0.2.1:
-    dependencies:
-      rimraf: 3.0.2
+  tmp@0.2.3: {}
 
   to-fast-properties@2.0.0: {}
 
@@ -26027,12 +26063,14 @@ snapshots:
 
   totalist@3.0.0: {}
 
-  tough-cookie@2.5.0:
+  tough-cookie@4.1.2:
     dependencies:
       psl: 1.9.0
       punycode: 2.1.1
+      universalify: 0.2.0
+      url-parse: 1.5.10
 
-  tough-cookie@4.1.2:
+  tough-cookie@4.1.4:
     dependencies:
       psl: 1.9.0
       punycode: 2.1.1
@@ -27281,9 +27319,15 @@ snapshots:
 
   zarrita@0.4.0-next.10:
     dependencies:
-      '@zarrita/core': 0.1.0-next.8
-      '@zarrita/indexing': 0.1.0-next.10
-      '@zarrita/storage': 0.1.0-next.4
+      '@zarrita/core': 0.1.0-next.13
+      '@zarrita/indexing': 0.1.0-next.15
+      '@zarrita/storage': 0.1.0-next.5
+
+  zarrita@0.4.0-next.16:
+    dependencies:
+      '@zarrita/core': 0.1.0-next.14
+      '@zarrita/indexing': 0.1.0-next.16
+      '@zarrita/storage': 0.1.0-next.6
 
   zod-to-json-schema@3.21.1(zod@3.22.4):
     dependencies:

@@ -19,11 +19,11 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   async loadEmbedding() {
     const { path, dims = [0, 1] } = this.options;
     if (this.embedding) {
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      return /** @type {MatrixResult} */ (this.embedding);
     }
     if (!this.embedding) {
-      this.embedding = this.dataSource.loadNumericForDims(path, dims);
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      this.embedding = await this.dataSource.loadNumericForDims(path, dims);
+      return /** @type {MatrixResult} */ (this.embedding);
     }
     return this.embedding;
   }

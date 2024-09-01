@@ -8,7 +8,7 @@
       "ESNext"
     ],
     "jsx": "react-jsx",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "allowJs": true,
     "skipLibCheck": true,

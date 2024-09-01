@@ -53,6 +53,7 @@ export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
   ANNDATA_ZARR_ZIP: 'anndata.zarr.zip',
+  ANNDATA_H5AD: 'anndata.h5ad',
   SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
@@ -93,6 +94,18 @@ export const FileType = {
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
+  // AnnData - h5ad via reference spec
+  OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
+  OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
+  OBS_SETS_ANNDATA_H5AD: 'obsSets.anndata.h5ad',
+  OBS_EMBEDDING_ANNDATA_H5AD: 'obsEmbedding.anndata.h5ad',
+  OBS_SPOTS_ANNDATA_H5AD: 'obsSpots.anndata.h5ad',
+  OBS_POINTS_ANNDATA_H5AD: 'obsPoints.anndata.h5ad',
+  OBS_LOCATIONS_ANNDATA_H5AD: 'obsLocations.anndata.h5ad',
+  OBS_SEGMENTATIONS_ANNDATA_H5AD: 'obsSegmentations.anndata.h5ad',
+  OBS_LABELS_ANNDATA_H5AD: 'obsLabels.anndata.h5ad',
+  FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
+  SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
