@@ -1,4 +1,23 @@
 
+## 3.4.10
+
+### Patch Changes
+
+- Support anndata-as-h5ad via Zarr reference specs. (`@vitessce/constants-internal`, `@vitessce/zarr-utils`, `@vitessce/schemas`) ([#1811](https://github.com/vitessce/vitessce/pull/1811))
+
+- Fixes the svg length error for legends in dev environment due to missing props (`@vitessce/scatterplot-embedding`, `@vitessce/heatmap`, `@vitessce/spatial`) ([#1925](https://github.com/vitessce/vitessce/pull/1925))
+
+- Implement sequence transformation for OME-NGFF / SpatialData. (`@vitessce/spatial-utils`) ([#1900](https://github.com/vitessce/vitessce/pull/1900))
+
+- Increase timeout for CCF test due to long loading time for CCF web component. (`vitessce`) ([#1931](https://github.com/vitessce/vitessce/pull/1931))
+
+- Fixes type for the constants (`@vitessce/constants`, `vitessce`, `@vitessce/dev`) ([#1914](https://github.com/vitessce/vitessce/pull/1914))
+
+- Support for markdown (rich text) in the description view (`@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/example-configs`) ([#1924](https://github.com/vitessce/vitessce/pull/1924))
+
+- Bump higlass version to fix css issue. (`@vitessce/genomic-profiles`) ([#1930](https://github.com/vitessce/vitessce/pull/1930))
+
+
 ## 3.4.9
 
 ### Patch Changes
