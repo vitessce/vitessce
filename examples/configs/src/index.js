@@ -29,6 +29,7 @@ import {
   habib2017natureMethodsH5ad,
   habib2017withQualityMetrics,
 } from './view-configs/habib_2017_nature_methods.js';
+import { nakshatri2024natureMedH5ad } from './view-configs/nakshatri_2024.js';
 import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium.js';
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
@@ -133,6 +134,7 @@ export const configs = {
   'lake-2023': lake2023,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
+  'nakshatri-2024': nakshatri2024natureMedH5ad,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
