@@ -879,6 +879,9 @@ importers:
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
+      '@vitessce/small-multiples':
+        specifier: workspace:*
+        version: link:../../view-types/small-multiples
       '@vitessce/spatial':
         specifier: workspace:*
         version: link:../../view-types/spatial
@@ -1719,6 +1722,73 @@ importers:
         version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: 'catalog:'
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/view-types/small-multiples:
+    dependencies:
+      '@material-ui/core':
+        specifier: ~4.12.3
+        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/gl':
+        specifier: workspace:*
+        version: link:../../gl
+      '@vitessce/image-utils':
+        specifier: workspace:*
+        version: link:../../utils/image-utils
+      '@vitessce/legend':
+        specifier: workspace:*
+        version: link:../../legend
+      '@vitessce/scatterplot':
+        specifier: workspace:*
+        version: link:../scatterplot
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
+      '@vitessce/spatial-three':
+        specifier: workspace:*
+        version: link:../spatial-three
+      '@vitessce/spatial-utils':
+        specifier: workspace:*
+        version: link:../../utils/spatial-utils
+      '@vitessce/tooltip':
+        specifier: workspace:*
+        version: link:../../tooltip
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      d3-array:
+        specifier: ^2.4.0
+        version: 2.12.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+      math.gl:
+        specifier: ^3.5.6
+        version: 3.6.3
+      mathjs:
+        specifier: ^9.2.0
+        version: 9.5.2
+      plur:
+        specifier: ^5.1.0
+        version: 5.1.0
+      short-number:
+        specifier: ^1.0.6
+        version: 1.0.7
+    devDependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/view-types/spatial:
@@ -15962,7 +16032,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@17.0.50)
@@ -15981,7 +16051,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@18.2.7)
@@ -19983,7 +20053,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-geo: 3.0.1
 
   d3-geo@1.7.1:
@@ -19996,7 +20066,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-hexbin@0.2.2: {}
 
@@ -20039,7 +20109,7 @@ snapshots:
 
   d3-scale@4.0.2:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-format: 3.1.0
       d3-interpolate: 3.0.1
       d3-time: 3.0.0
@@ -20069,7 +20139,7 @@ snapshots:
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-timer@2.0.0: {}
 

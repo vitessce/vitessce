@@ -51,6 +51,7 @@
     "@vitessce/schemas": "workspace:*",
     "@vitessce/spatial": "workspace:*",
     "@vitessce/spatial-beta": "workspace:*",
+    "@vitessce/small-multiples": "workspace:*",
     "@vitessce/statistical-plots": "workspace:*",
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",

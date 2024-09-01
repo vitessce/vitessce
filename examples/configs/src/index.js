@@ -43,6 +43,7 @@ import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdat
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023 } from './view-configs/multi-sample.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
+import { smallMultiples } from './view-configs/small-multiples.js';
 
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -127,6 +128,7 @@ export const configs = {
   'lake-2023': lake2023,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
+  'small-multiples': smallMultiples,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
