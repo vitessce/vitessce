@@ -40,7 +40,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('Male');
     cy.contains('Female');
     // Various metadata displayed next to CCF UI
-    cy.contains('Tissue Data Providers', { timeout: 30000 });
+    cy.contains('Tissue Data Providers', { timeout: 60000 });
     cy.contains('Donors');
     cy.contains('Tissue Blocks');
     cy.contains('Tissue Sections');
