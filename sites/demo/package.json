@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "3.3.22",
+  "version": "3.3.23",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
-    "cypress": "^12.15.0",
+    "cypress": "^13.14.1",
     "sass": "^1.55.0",
     "vite": "^4.3.0",
     "@vitejs/plugin-basic-ssl": "^1.0.2"
