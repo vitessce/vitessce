@@ -43,6 +43,18 @@ const useStyles = makeStyles(theme => ({
   downloadLink: {
     color: theme.palette.primaryForeground,
   },
+  helpTextSpan: {
+    maxWidth: '400px',
+    padding: '5px 10px',
+    display: 'inline-block',
+    textAlign: 'justify',
+    fontSize: '14px',
+    backgroundColor: theme.palette.gridLayoutBackground,
+    color: theme.palette.tooltipText,
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+    border: '10px solid grey',
+  },
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -108,22 +120,25 @@ function DownloadOptions(props) {
   ) : null);
 }
 
-function HelpButton({ onHandleHelpIconClick, helpText }) {
+function HelpButton(props) {
+  const { helpText } = props;
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   return (
-    <>
-      <IconButton
-        onClick={() => onHandleHelpIconClick(helpText)}
-        size="small"
-        className={classes.iconButton}
-        title="close"
-        aria-label="Info for each view"
-      >
-        <HelpIcon />
-      </IconButton>
-    </>
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<HelpIcon />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      aria-label="Open help info"
+      withPaper={false}
+    >
+      <span className={classes.helpTextSpan}>{helpText}</span>
+    </PopperMenu>
   );
 }
+
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
@@ -145,7 +160,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    onHandleHelpIconClick, helpText,
+    helpText,
   } = props;
 
   const classes = useTitleStyles();
@@ -169,10 +184,11 @@ export function TitleInfo(props) {
               urls={urls}
             />
           ) : null}
-          <HelpButton
-            onHandleHelpIconClick={onHandleHelpIconClick}
-            helpText={helpText}
-          />
+          {helpText ? (
+            <HelpButton
+              helpText={helpText}
+            />
+          ) : null}
           {closeButtonVisible && removeGridComponent ? (
             <ClosePaneButton
               removeGridComponent={removeGridComponent}
@@ -193,7 +209,7 @@ export function TitleInfo(props) {
         aria-busy={!isReady}
         role="main"
       >
-        { !isReady && <LoadingIndicator /> }
+        { !isReady ? <LoadingIndicator /> : null }
         {children}
       </div>
     </>

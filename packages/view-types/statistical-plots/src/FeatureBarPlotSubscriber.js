@@ -24,7 +24,6 @@ export function FeatureBarPlotSubscriber(props) {
     yMin = 0,
     yUnits = null,
     helpText = ViewHelpMapping.FEATURE_BAR_PLOT,
-    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -129,7 +128,6 @@ export function FeatureBarPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (

@@ -33,7 +33,6 @@ export function DotPlotSubscriber(props) {
     title = 'Dot Plot',
     transpose = true,
     helpText = ViewHelpMapping.DOT_PLOT,
-    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -136,7 +135,6 @@ export function DotPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

@@ -25,7 +25,6 @@ export function StatusSubscriber(props) {
     theme,
     title = 'Status',
     helpText = ViewHelpMapping.STATUS,
-    onHandleHelpIconClick,
   } = props;
 
   // Get "props" from the coordination space.
@@ -62,7 +61,6 @@ export function StatusSubscriber(props) {
       isScroll
       isReady
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <Status warn={warn} info={info} />
     </TitleInfo>

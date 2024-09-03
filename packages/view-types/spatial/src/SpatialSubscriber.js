@@ -65,7 +65,6 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
-    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -553,7 +552,6 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <div style={{
         position: 'absolute',

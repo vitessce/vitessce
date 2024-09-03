@@ -34,7 +34,6 @@ export function CellSetSizesPlotSubscriber(props) {
     theme,
     title: titleOverride,
     helpText = ViewHelpMapping.OBS_SET_SIZES,
-    onHandleHelpIconClick,
   } = props;
 
   const classes = useStyles();
@@ -140,7 +139,6 @@ export function CellSetSizesPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot

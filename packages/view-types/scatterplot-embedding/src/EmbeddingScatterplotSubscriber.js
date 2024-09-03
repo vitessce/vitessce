@@ -63,7 +63,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     observationsLabelOverride,
     title: titleOverride,
     helpText = ViewHelpMapping.SCATTERPLOT,
-    onHandleHelpIconClick,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
   } = props;
@@ -454,7 +453,6 @@ export function EmbeddingScatterplotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}

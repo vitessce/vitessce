@@ -49,7 +49,6 @@ export function HeatmapSubscriber(props) {
     variablesLabelOverride,
     title = 'Heatmap',
     helpText = ViewHelpMapping.HEATMAP,
-    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -202,7 +201,6 @@ export function HeatmapSubscriber(props) {
     <TitleInfo
       title={title}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
       info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
              with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}

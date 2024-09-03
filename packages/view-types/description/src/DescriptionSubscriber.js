@@ -29,7 +29,6 @@ export function DescriptionSubscriber(props) {
     title = 'Description',
     closeButtonVisible,
     helpText = ViewHelpMapping.DESCRIPTION,
-    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -76,7 +75,6 @@ export function DescriptionSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       <Description
         description={descriptionOverride || description}

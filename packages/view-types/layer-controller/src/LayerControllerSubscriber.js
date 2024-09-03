@@ -81,7 +81,6 @@ const LayerControllerMemoized = React.memo(
       handleImageAdd,
       enableLayerButtonsWithOneLayer,
       helpText,
-      onHandleHelpIconClick,
     } = props;
     const shouldShowImageLayerButton = Boolean(
       enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
@@ -96,7 +95,6 @@ const LayerControllerMemoized = React.memo(
         theme={theme}
         isReady={isReady}
         helpText={helpText}
-        onHandleHelpIconClick={onHandleHelpIconClick}
       >
         <div className="layer-controller-container" ref={ref}>
           {moleculesLayer && (
@@ -324,7 +322,6 @@ export function LayerControllerSubscriber(props) {
     disableChannelsIfRgbDetected,
     enableLayerButtonsWithOneLayer,
     helpText = ViewHelpMapping.LAYER_CONTROLLER,
-    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -474,7 +471,6 @@ export function LayerControllerSubscriber(props) {
       cellsLayer={cellsLayer}
       setCellsLayer={setCellsLayer}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
 
       rasterLayers={rasterLayers}
       imageLayerLoaders={imageLayerLoaders}

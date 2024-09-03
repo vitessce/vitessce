@@ -75,7 +75,6 @@ export function ObsSetsManagerSubscriber(props) {
     theme,
     title: titleOverride,
     helpText = ViewHelpMapping.OBS_SETS,
-    onHandleHelpIconClick,
   } = props;
 
   const loaders = useLoaders();
@@ -662,7 +661,6 @@ export function ObsSetsManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      onHandleHelpIconClick={onHandleHelpIconClick}
     >
       {manager}
     </TitleInfo>
