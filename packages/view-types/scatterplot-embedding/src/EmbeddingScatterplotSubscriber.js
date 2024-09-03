@@ -35,7 +35,7 @@ import {
   getPointOpacity,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 
@@ -62,6 +62,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
     observationsLabelOverride,
     title: titleOverride,
+    helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
   } = props;
@@ -451,6 +452,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}

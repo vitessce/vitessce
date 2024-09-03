@@ -301,3 +301,25 @@ export const DescriptionType = {
   PLAIN: 'plain',
   MARKDOWN: 'markdown',
 };
+
+/**
+ * Constants representing the help text for
+ * each view.
+ */
+export const ViewHelpMapping = {
+  SCATTERPLOT: 'The scatterplot displays two-dimensional (pre-computed) dimensionality reduction results (such as from t-SNE or UMAP). Each point on the scatterplot represents an observation (e.g., cell).',
+  HEATMAP: 'The heatmap displays an observation-by-feature (e.g., cell-by-gene) matrix, typically with transformed (e.g., normalized or standardized) values.',
+  SPATIAL: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  DESCRIPTION: 'The description view displays additional information about a dataset. When images are included in a dataset, the description view also includes image metadata (if contained in the image files).',
+  STATUS: 'The status view displays debugging messages, including app-wide error messages when datasets fail to load or when schemas fail to validate. Details about the entity under the mouse cursor (cell, gene, and/or molecule) are displayed during hover interactions.',
+  LAYER_CONTROLLER: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
+  GENOMIC_PROFILES: 'The genomic profiles view displays genome browser tracks (using the genomic-profiles data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis.',
+  GATING: 'The gating scatterplot displays expression data for two genes (along the X and Y axes). Users can select two genes, and the scatterplot is dynamically generated using observation-by-feature matrix data. Gating can then be performed by using the lasso or box select tools.',
+  FEATURE_LIST: 'The feature list controller displays an interactive list of features (e.g., genes).',
+  OBS_SETS: 'The observation sets controller displays an interactive list of (potentially hierarchical) observation sets (e.g., cell clusters or cell type annotations).',
+  OBS_SET_SIZES: 'The observation set sizes view displays a bar plot with the currently-selected observation sets (e.g., cell types) on the x-axis and bars representing their size (e.g., number of cells) on the y-axis.',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'The observation set feature value distribution view displays a violin plot with values (e.g., expression values) per set (e.g., cell type) for the selected feature (e.g., gene).',
+  FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
+  DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
+  FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
+};
