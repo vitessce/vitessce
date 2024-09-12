@@ -1,18 +1,21 @@
 import React, {useMemo, useEffect, useRef, useCallback, useState} from 'react';
 import {
   TitleInfo,
-  useViewConfigStoreApi,
+  useViewConfigStoreApi,VitS
 } from '@vitessce/vit-s';
 import {
   FormControlLabel, Switch, Box, Checkbox, Grid
 } from '@material-ui/core';
+import {createLoaders} from "@vitessce/vit-s/src/vitessce-grid-utils.js";
 
 
 export default function LinkController(props) {
   const {
-    linkIDInit
+    linkIDInit,viewTypes, fileTypes, coordinationTypes, stores
   } = props
   const viewConfigStoreApi = useViewConfigStoreApi();
+
+  console.log(viewTypes, fileTypes, coordinationTypes, stores)
 
   const [socketOpen, setSocketOpen] = useState(false);
   const [sync, setSync] = useState(true)
@@ -25,16 +28,20 @@ export default function LinkController(props) {
   // Reference: https://github.com/pmndrs/zustand/tree/v3.7.2?tab=readme-ov-file#readingwriting-state-and-reacting-to-changes-outside-of-components
   //const config = viewConfigStoreApi.getState().viewConfig;
   const setConfig = useCallback((newConfig) => {
-    viewConfigStoreApi.setState({viewConfig: newConfig, mostRecentConfigSource: 'external'});
+    console.log(fileTypes,coordinationTypes,stores)
+    viewConfigStoreApi.setState({viewConfig: newConfig, mostRecentConfigSource: 'external', loaders: createLoaders(
+        newConfig.datasets,
+        newConfig.description, fileTypes, coordinationTypes, stores
+      )});
   }, [viewConfigStoreApi]);
 
   const onConfigChange = useCallback((configValue) => {
     // console.log(send, socketOpen)
     if (sync && socketOpen) {
       try {
-        console.log(configValue)
+        //console.log(configValue)
         let configString = id + ';' + btoa(escape(JSON.stringify(configValue)));
-        console.log("Send Message")
+        //console.log("Send Message")
         connection.current?.send('{"action": "sendMessage","message": "' + configString + '"}');
         // connection.current?.send('{"action": "sendMessage","message": "mesage"}');
       } catch (error) {
@@ -65,7 +72,7 @@ export default function LinkController(props) {
   useEffect(() => viewConfigStoreApi.subscribe(
     // The function to run on each publish.
     ({viewConfig, mostRecentConfigSource}) => {
-      console.log(viewConfig, mostRecentConfigSource)
+      //console.log(viewConfig, mostRecentConfigSource)
       if (onConfigChange && viewConfig && mostRecentConfigSource == 'internal') {
         onConfigChange(viewConfig);
       }
@@ -79,7 +86,6 @@ export default function LinkController(props) {
   useEffect(() => {
     var authToken = 'mr-vitessce';
     if (linkID !== null) {
-      console.log("here")
       const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, linkID]);
       ws.addEventListener('open', (event) => {
         console.log('Open', event);
@@ -102,7 +108,7 @@ export default function LinkController(props) {
             console.log('Message from ourselves');
           } else {
             console.log('Message from server ');
-            console.log(JSON.parse(unescape(atob(event.data.split(';')[1]))))
+        //    console.log(JSON.parse(unescape(atob(event.data.split(';')[1]))))
             if (sync) {
               setConfig({
                 ...JSON.parse(unescape(atob(event.data.split(';')[1]))),

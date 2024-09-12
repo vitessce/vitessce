@@ -12,10 +12,10 @@ function generateLinkControllerMinimalConfig() {
   const dataset = config.addDataset('Template')
   // .addFile({
   //   fileType: 'image.ome-tiff',
-    // url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
-    // coordinationValues: {
-    //   fileUid: 'file',
-    // },
+  //  // url: 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff',
+  //   coordinationValues: {
+  //     fileUid: 'file',
+  //   },
   // })
 
   const linkController = config.addView(dataset, 'linkController', {
@@ -23,7 +23,7 @@ function generateLinkControllerMinimalConfig() {
     y: 0,
     w: 5,
     h: 8,
-  }).setProps({linkID: 2831});
+  }).setProps({linkID: 5454});
 
   // config.addView(linkController);
 

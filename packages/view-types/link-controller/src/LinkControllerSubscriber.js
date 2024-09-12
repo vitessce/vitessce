@@ -12,8 +12,10 @@ export function LinkControllerSubscriber(props) {
     theme,
     title = 'Vitessce Link',
     closeButtonVisible,
-    linkID
+    linkID, viewTypes, fileTypes, coordinationTypes, stores
   } = props;
+
+  console.log("viewTypes", viewTypes, "fileTypes", fileTypes, "coordinationTypes", coordinationTypes, "stores", stores)
 
   return (
     <TitleInfo
@@ -22,9 +24,16 @@ export function LinkControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
+      viewTypes={viewTypes}
+      fileTypes={fileTypes}
+      stores={stores}
+      coordinationTypes={coordinationTypes}
       isReady={true}
     >
-      <LinkController linkIDInit={linkID}/>
+      <LinkController linkIDInit={linkID} viewTypes={viewTypes}
+                      fileTypes={fileTypes}
+                      stores={stores}
+                      coordinationTypes={coordinationTypes}/>
     </TitleInfo>
   );
 }
