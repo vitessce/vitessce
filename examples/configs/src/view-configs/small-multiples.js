@@ -88,8 +88,8 @@ async function generateSmallMultiplesConfig() {
   const obsSets = vc.addView(dataset, 'obsSets');
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
-  const smallMultiples = vc.addView(dataset, 'smallMultiples');
-  const smallMultiples2 = vc.addView(dataset, 'smallMultiples').setProps({ tempKey: 'control' });
+  const smallMultiples = vc.addView(dataset, 'smallMultiples').setProps({ title: 'Control'});
+  const smallMultiples2 = vc.addView(dataset, 'smallMultiples').setProps({ title: 'Case', tempKey: 'control' });
 
   vc.linkViews([scatterplot], ['embeddingType'], ['UMAP']);
 
