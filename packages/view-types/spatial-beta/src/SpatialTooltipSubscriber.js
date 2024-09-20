@@ -47,6 +47,35 @@ function getXY(
   return [projectedObsCoord?.[0], projectedObsCoord?.[1]];
 }
 
+function getObsData(data, obsId, obsLabel) {
+  const result = {};
+
+  Object.keys(data).forEach((obsType) => {
+    Object.keys(data[obsType]).forEach((obs) => {
+      if (!obs.includes('init')) {
+        const obsSetsMembership = data[obsType][obs]?.obsSetsMembership;
+
+        if (obsSetsMembership) {
+          const obsMembership = obsSetsMembership.get(obsId) || [];
+          const obsInfo = {
+            [`${capitalize(obsLabel)} ID`]: obsId,
+            ...Object.fromEntries(
+              obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => [
+                `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+                pathEl,
+              ])),
+            ),
+          };
+
+          Object.assign(result, obsInfo);
+        }
+      }
+    });
+  });
+
+  return result;
+}
+
 export default function SpatialTooltipSubscriber(props) {
   const {
     parentUuid,
@@ -69,6 +98,7 @@ export default function SpatialTooltipSubscriber(props) {
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
+    obsSegmentationsSetsData,
 
     // Images
     imageLayerScopes,
@@ -114,6 +144,7 @@ export default function SpatialTooltipSubscriber(props) {
             obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialChannelVisible,
           } = segmentationChannelCoordination?.[0]
             ?.[layerScope]?.[channelScope] || {};
+          const obsInfo = getObsData(obsSegmentationsSetsData, obsHighlight, obsType);
           if (
             !obsHighlight
             || !spatialChannelVisible
@@ -136,11 +167,9 @@ export default function SpatialTooltipSubscriber(props) {
               tooltipCrosshairsVisible={tooltipCrosshairsVisible}
               width={width}
               height={height}
-              info={{
-                [`${capitalize(obsType)} ID`]: obsHighlight,
-              }}
+              info={obsInfo}
               x={x}
-              y={y + (yOffset += 30)}
+              y={y + (yOffset += 50)} // to add vertical space in case of multiple tooltips
             />
           );
         })

@@ -955,6 +955,7 @@ export function SpatialSubscriber(props) {
           segmentationLayerScopes={segmentationLayerScopes}
           segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
           segmentationChannelCoordination={segmentationChannelCoordination}
+          obsSegmentationsSetsData={obsSegmentationsSetsData}
 
           // Images
           imageLayerScopes={imageLayerScopes}
