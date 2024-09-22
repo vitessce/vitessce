@@ -25,7 +25,7 @@ import {
 
 describe('arrow utils', () => {
   it('can create a dictionary-encoded vector from a string', () => {
-    const vector = repeatValueAsArrowVector('foo', 5);
+    const vector = repeatValueAsDictVector('foo', 5).dictVector;
 
     expect(vector.type.typeId).toEqual(-1); // Dictionary
     expect(vector.type.dictionary.typeId).toEqual(5); // Utf8
@@ -35,7 +35,7 @@ describe('arrow utils', () => {
   });
 
   it('can create a dictionary-encoded vector from a float', () => {
-    const vector = repeatValueAsArrowVector(3.14, 5);
+    const vector = repeatValueAsDictVector(3.14, 5).dictVector;
 
     expect(vector.type.typeId).toEqual(-1); // Dictionary
     expect(vector.type.dictionary.typeId).toEqual(3); // Float32
