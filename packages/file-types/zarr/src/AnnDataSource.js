@@ -1,14 +1,22 @@
-// TODO: re-enable @ts-check
+// disable @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
-import { makeVector, vectorFromArray, Dictionary as arrowDictionary, Uint8 as arrowUint8, Utf8 as arrowUtf8 } from "apache-arrow";
+import {
+  repeatValueAsDictVector,
+  isTypedArray,
+  arrayClassToVectorClass,
+  zarrColumnToDictVector,
+  zarrColumnToPlainVector,
+  plainVectorToDictVector,
+  concatenateTables,
+} from '@vitessce/arrow-utils';
+import { vectorFromArray, Table, Dictionary as arrowDictionary, Utf8 as arrowUtf8, Uint8 as arrowUint8, Uint16 as arrowUint16, Uint32 as arrowUint32, Int8 as arrowInt8, Int16 as arrowInt16, Int32 as arrowInt32, makeVector, Float16 as arrowFloat16, Float32 as arrowFloat32 } from 'apache-arrow';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { ByteStringArray } from '@zarrita/typedarray' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
-/** @import { Vector } from 'apache-arrow' */
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
@@ -21,7 +29,7 @@ export default class AnnDataSource extends ZarrDataSource {
    */
   constructor(params) {
     super(params);
-    /** @type {Map<string, Promise<(undefined | string[] | string[][] | Vector<any>)>>} */
+    /** @type {Map<string, Promise<(undefined | string[] | string[][])>>} */
     this.promises = new Map();
   }
 
@@ -29,8 +37,7 @@ export default class AnnDataSource extends ZarrDataSource {
    *
    * @param {string[]} paths Paths to multiple string-valued columns
    * within the obs dataframe.
-   * @param {boolean} [asVector]
-   * @returns {Promise<(undefined | string[] | string[][] | Vector<any>)[]>} Returns
+   * @returns {Promise<(undefined | string[] | string[][])[]>} Returns
    * each column as an array of strings,
    * ordered the same as the paths.
    */
@@ -42,12 +49,12 @@ export default class AnnDataSource extends ZarrDataSource {
    *
    * @param {string[]} paths Paths to multiple string-valued columns
    * within the var dataframe.
-   * @returns {Promise<(undefined | string[] | string[][] | Vector<any>)[]>} Returns
+   * @returns {Promise<(undefined | string[] | string[][])[]>} Returns
    * each column as an array of strings,
    * ordered the same as the paths.
    */
-  loadVarColumns(paths) {
-    return this._loadColumns(paths);
+  loadVarColumns(paths, asVector = false) {
+    return this._loadColumns(paths, asVector);
   }
 
   /**
@@ -56,19 +63,16 @@ export default class AnnDataSource extends ZarrDataSource {
    * which have different ways of specifying location.
    * @param {string[] | string[][]} paths An array of strings like
    * "obs/leiden" or "obs/bulk_labels."
-   * @param {boolean} [asVector]
    * @returns {Promise<(undefined | string[] | string[][])[]>} A promise
    * for an array of ids with one per cell.
    */
   _loadColumns(paths, asVector = false) {
     const promises = paths.map((path) => {
-      /** @type {(a: string) => Promise<string[] | string[][]>} */
+      /** @type {(a: string) => Promise<string[]>} */
       const getCol = (col) => {
+        // TODO: use pMap package?
         if (!this.promises.has(col)) {
-          const obsPromise = (asVector
-              ? this._loadColumnAsVector(col)
-              : this._loadColumn(col)
-            ).catch((err) => {
+          const obsPromise = (asVector ? this._loadColumnAsVector(col) : this._loadColumn(col)).catch((err) => {
             // clear from cache if promise rejects
             this.promises.delete(col);
             // propagate error
@@ -86,47 +90,19 @@ export default class AnnDataSource extends ZarrDataSource {
       }
       return getCol(path);
     });
-    return /** @type {Promise<(undefined | string[] | string[][])[]>} */ (Promise.all(promises));
+    return Promise.all(promises);
   }
 
   /**
-   * 
-   * @param {string} path 
-   * @returns {Promise<Vector<any>>} A promise
-   */
-  async _loadColumnAsVector(path) {
-    const [codes, categories] = await this._loadColumnAsCategories(path);
-
-    if(categories) {
-      return {
-        codes: makeVector(codes),
-        dictionary: makeVector({
-          data: codes, // indexes into the dictionary
-          dictionary: vectorFromArray(categories, new arrowUtf8), // TODO: do not hard-code utf8. only use if categories are strings.
-          type: new arrowDictionary(new arrowUtf8, new arrowUint8), // TODO: do not hard-code utf8. Do not hard-code Uint8 - check number of categories.
-        }),
-      };
-    } else {
-      return {
-        codes: undefined,
-        dictionary: vectorFromArray(
-          Array.from(/** @type {number[]} */ (codes)).map(i => String(i)),
-          new arrowUtf8,
-        )
-      };
-    }
-  }
-
-  /**
-   *
+   * Preserve dictionary encoding if data was already dictionary-encoded in Zarr.
    * @param {string} path
-   * @returns {Promise<[number[]|string[], undefined|string[]]>}
+   * @returns {Promise<[Array<any>, undefined|string[]]>}
    */
-  async _loadColumnAsCategories(path) {
+  async _loadColumnWithDictionaryEncoding(path) {
     const { storeRoot } = this;
     const prefix = dirname(path);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
-    /** @type {undefined|string[]} */
+    /** @type {string[]|undefined} */
     let categoriesValues;
     /** @type {undefined | string} */
     let codesPath;
@@ -157,7 +133,7 @@ export default class AnnDataSource extends ZarrDataSource {
         { kind: 'array' },
       );
       if (dtype === 'v2:object') {
-        return [await this.getFlatArrDecompressed(path), categoriesValues];
+        return [await this.getFlatArrDecompressed(path), undefined];
       }
     }
     const arr = await zarrOpen(
@@ -166,21 +142,35 @@ export default class AnnDataSource extends ZarrDataSource {
     );
     const values = await zarrGet(arr, [null]);
     const { data } = values;
-    return [/** @type {number[]} */ (data), categoriesValues];
+    const dataArr = Array.from(data);
+    if (!categoriesValues) {
+      return [dataArr.map(i => String(i)), undefined];
+    }
+    return [dataArr, categoriesValues];
   }
 
   /**
-   * 
-   * @param {string} path 
-   * @returns {Promise<(string[])>}
+   *
+   * @param {string} path
+   * @returns
    */
   async _loadColumn(path) {
-    const [data, categoriesValues] = await this._loadColumnAsCategories(path);
-
-    const mappedValues = Array.from(/** @type{number[]} */ (data)).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
-    );
+    const [codes, categories] = await this._loadColumnWithDictionaryEncoding(path);
+    let mappedValues = codes;
+    if (categories) {
+      mappedValues = codes.map(i => categories[i]);
+    }
     return mappedValues;
+  }
+
+  async _loadColumnAsVector(path) {
+    const [codes, categories] = await this._loadColumnWithDictionaryEncoding(path);
+
+    if (categories) {
+      return zarrColumnToDictVector(codes, categories);
+    } else {
+      return zarrColumnToPlainVector(codes);
+    }
   }
 
   /**
@@ -191,7 +181,7 @@ export default class AnnDataSource extends ZarrDataSource {
   loadNumeric(path) {
     const { storeRoot } = this;
     return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
-      .then(arr => /** @type {Promise<Chunk<any>>} */ (zarrGet(arr)));
+      .then(arr => zarrGet(arr));
   }
 
   /**
@@ -230,7 +220,7 @@ export default class AnnDataSource extends ZarrDataSource {
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
     if (data.data?.[Symbol.iterator]) {
-      return /** @type {string[]} */ (Array.from(data.data));
+      return Array.from(data.data);
     }
     return /** @type {string[]} */ (data.data);
   }
@@ -319,7 +309,7 @@ export default class AnnDataSource extends ZarrDataSource {
       if (encodingType === 'string' && encodingVersion === '0.2.0') {
         const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
         // TODO: Use zarrGet once it supports zero-dimensional array access.
-        const { data } = /** @type {{ data: ByteStringArray }} */ (/** @type {unknown} */ (await arr.getChunk([])));
+        const { data } = /** @type {{ data: ByteStringArray }} */ (await arr.getChunk([]));
         return data.get(0);
       }
       throw new Error(`Unsupported encoding type ${encodingType} and version ${encodingVersion} in AnnDataSource._loadString`);

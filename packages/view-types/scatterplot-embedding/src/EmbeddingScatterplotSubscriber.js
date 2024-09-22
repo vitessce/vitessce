@@ -161,7 +161,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
 
   const [queryResult, queryStatus] = useSql(insertionStatus, `
-    SELECT oet.obsIndex, oet.x, oet.y, ost.setName
+    SELECT oet.x, oet.y, ost.setName_codes
     FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })} oet
     JOIN ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })} ost
     ON (oet.obsIndex = ost.obsIndex)
@@ -178,12 +178,12 @@ export function EmbeddingScatterplotSubscriber(props) {
   `, { singleRow: true });
 
   const [distinctQueryResult, distinctQueryStatus] = useSql(insertionStatus, `
-    SELECT DISTINCT setName
+    SELECT DISTINCT setName_codes
     FROM ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })}
     WHERE setGroup = '${'Cell Type'}'
   `);
   //console.log(distinctQueryResult?.toArray().map(row => row.setName));
-  console.log(queryResult)
+  // console.log(queryResult)
   
 
   const isReady = useReady([
@@ -263,21 +263,25 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetZ(newTarget[2] || 0);
   }, [setZoom, setTargetX, setTargetY, setTargetZ]);
 
+  
+
 
   const deckData = useMemo(() => {
-    return ({
+    return queryResult?.batches.map(batch => ({
       src: {
-        x: queryResult?.getChild('x').toArray(),
-        y: queryResult?.getChild('y').toArray(),
+        x: batch?.getChild('x').data[0].values,
+        y: batch?.getChild('y').data[0].values,
       },
-      length: queryResult?.numRows,
-    });
+      length: batch?.data.length,
+    }));
   }, [queryResult]);
 
-  const layers = useMemo(() => ([
+  const layers = useMemo(() => (deckData ? deckData.map((batchData, batchIdx) =>
+    // TODO: create CompositeLayer to optimize
+    // Reference: https://github.com/geoarrow/deck.gl-layers/blob/598a62cdae112129e12d43067d4f724f3742c9ed/src/layers/scatterplot-layer.ts#L98
     new deck.ScatterplotLayer({
-      id: 'scatterplot',
-      data: deckData,
+      id: `scatterplot-batch-${batchIdx}`,
+      data: batchData,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       radiusScale: 0.01,
       opacity: cellOpacity,
@@ -295,8 +299,8 @@ export function EmbeddingScatterplotSubscriber(props) {
       },
       getFillColor: [255, 255, 255],
       getRadius: 1,
-    }),
-  ]), [deckData, cellRadius, cellOpacity]);
+    })
+  ) : []), [deckData, cellRadius, cellOpacity]);
 
   const views = useMemo(() => ([
     new deck.OrthographicView({ id: 'ortho' })

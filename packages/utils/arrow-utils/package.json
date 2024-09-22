@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/zarr",
+  "name": "@vitessce/arrow-utils",
   "version": "3.4.9",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
@@ -30,25 +30,6 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/image-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/zarr-utils": "workspace:*",
-    "@vitessce/arrow-utils": "workspace:*",
-    "@vitessce/config": "workspace:*",
-    "d3-array": "catalog:",
-    "lodash-es": "catalog:",
-    "zarrita": "catalog:",
     "apache-arrow": "catalog:"
-  },
-  "devDependencies": {
-    "@vitessce/types": "workspace:*",
-    "@zarrita/core": "catalog:",
-    "@zarrita/storage": "catalog:",
-    "@zarrita/typedarray": "catalog:"
   }
 }

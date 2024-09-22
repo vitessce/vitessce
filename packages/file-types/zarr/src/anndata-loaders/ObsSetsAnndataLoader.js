@@ -6,14 +6,17 @@ import {
   treeToMembershipMap,
   dataToCellSetsTree,
 } from '@vitessce/sets-utils';
+import {
+  repeatValueAsDictVector,
+  isTypedArray,
+  arrayClassToVectorClass,
+  zarrColumnToDictVector,
+  zarrColumnToPlainVector,
+  plainVectorToDictVector,
+  concatenateTables,
+} from '@vitessce/arrow-utils';
 import { vectorFromArray, Table, Dictionary as arrowDictionary, Utf8 as arrowUtf8, Uint8 as arrowUint8, Uint32 as arrowUint32 } from 'apache-arrow';
 
-export function repeatString(val, numRows) {
-  return vectorFromArray(
-    Array.from({ length: numRows }).fill(val),
-    new arrowDictionary(new arrowUtf8, new arrowUint8),
-  )
-}
 
 /**
  * Loader for converting zarr into the cell sets json schema.
@@ -85,21 +88,23 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
 
   async loadArrow() {
     const { options } = this;
-    const asVector = true;
+    const asVector = true; // TODO: remove
     const [obsIndex, obsSetsCols] = await Promise.all([
       this.dataSource.loadObsIndex(),
       this.loadCellSetIds(asVector),
     ]);
     const colTables = obsSetsCols.map((colVector, j) => {
       const { name } = options[j];
+      const setGroup = repeatValueAsDictVector(name, obsIndex.length);
       return new Table({
         obsIndex: vectorFromArray(obsIndex, new arrowUtf8),
-        setGroup: repeatString(name, obsIndex.length),
-        setName: colVector,
+        setGroup: setGroup.dictVector,
+        setGroup_codes: setGroup.codesVector,
+        setName: colVector.dictVector,
+        setName_codes: colVector.codesVector,
       })
     });
-    const arrowTable = colTables
-      .reduce((acc, table) => acc.concat(table), colTables[0]);
+    const arrowTable = concatenateTables(colTables);
     return arrowTable;
   }
 }
