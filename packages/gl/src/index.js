@@ -6,6 +6,7 @@ export { default as HeatmapBitmapLayer } from './HeatmapBitmapLayer.js';
 export { default as PixelatedBitmapLayer } from './PixelatedBitmapLayer.js';
 export { default as HeatmapCompositeTextLayer } from './HeatmapCompositeTextLayer.js';
 export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressionHeatmapBitmapLayer.js';
+export { default as ArrowScatterplotLayer } from './ArrowScatterplotLayer.js';
 
 export {
   GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TYPE,

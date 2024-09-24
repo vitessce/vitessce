@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useRef,
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -40,7 +40,7 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { deck } from '@vitessce/gl';
+import { deck, ArrowScatterplotLayer } from '@vitessce/gl';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 
@@ -248,7 +248,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
+    width, height, zoom, initialZoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -262,26 +262,26 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetY(newTarget[1]);
     setTargetZ(newTarget[2] || 0);
   }, [setZoom, setTargetX, setTargetY, setTargetZ]);
-
   
-
 
   const deckData = useMemo(() => {
     return queryResult?.batches.map(batch => ({
       src: {
         x: batch?.getChild('x').data[0].values,
         y: batch?.getChild('y').data[0].values,
+        setName_codes: batch?.getChild('setName_codes').data[0].values,
       },
       length: batch?.data.length,
     }));
   }, [queryResult]);
 
-  const layers = useMemo(() => (deckData ? deckData.map((batchData, batchIdx) =>
+  const layers = useMemo(() => deckData ? 
     // TODO: create CompositeLayer to optimize
     // Reference: https://github.com/geoarrow/deck.gl-layers/blob/598a62cdae112129e12d43067d4f724f3742c9ed/src/layers/scatterplot-layer.ts#L98
-    new deck.ScatterplotLayer({
-      id: `scatterplot-batch-${batchIdx}`,
-      data: batchData,
+    new ArrowScatterplotLayer({
+      id: `arrow-scatterplot-composite`,
+      data: deckData,
+      
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       radiusScale: 0.01,
       opacity: cellOpacity,
@@ -291,16 +291,9 @@ export function EmbeddingScatterplotSubscriber(props) {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition: (object, { index, data, target }) => {
-        target[0] = data.src.x[index];
-        target[1] = -data.src.y[index];
-        target[2] = 0;
-        return target;
-      },
-      getFillColor: [255, 255, 255],
       getRadius: 1,
     })
-  ) : []), [deckData, cellRadius, cellOpacity]);
+    : [], [deckData, cellOpacity, cellRadius]);
 
   const views = useMemo(() => ([
     new deck.OrthographicView({ id: 'ortho' })
