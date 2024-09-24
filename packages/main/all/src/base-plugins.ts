@@ -330,6 +330,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
   new PluginCoordinationType(CoordinationType.OBS_LABELS_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABELS_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ROTATION, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),
