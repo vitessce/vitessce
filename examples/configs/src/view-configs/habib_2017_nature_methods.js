@@ -92,6 +92,7 @@ function createHabib2017(storeType) {
       },
       uid: 'C',
     },
+    /*
     {
       component: 'heatmap',
       h: 4,
@@ -108,7 +109,7 @@ function createHabib2017(storeType) {
         transpose: true,
       },
       uid: 'D',
-    },
+    },*/
     {
       component: 'featureList',
       h: 4,

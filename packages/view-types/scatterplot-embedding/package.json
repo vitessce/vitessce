@@ -36,6 +36,7 @@
     "@vitessce/scatterplot": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/arrow-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "d3-array": "catalog:",

@@ -147,3 +147,20 @@ export function concatenateTables(tables) {
   return tables
     .reduce((acc, table) => acc.concat(table), tables[0]);
 }
+
+/**
+ * 
+ * @param {Table} categoriesTable Two-column Arrow table like [category, code].
+ * @returns {null | { categoryToCode: Record<string, number>, codeToCategory: Record<number, string> }}
+ */
+export function getCategoryMappings(categoriesTable) {
+  if (categoriesTable) {
+    // TODO: assert that schema contains two fields like [something, int]
+    const categoriesArr = categoriesTable.toArray();
+    return {
+      categoryToCode: Object.fromEntries(categoriesArr.map(d => d.toArray())),
+      codeToCategory: Object.fromEntries(categoriesArr.map(d => d.toArray().reverse())),
+    };
+  }
+  return null;
+}

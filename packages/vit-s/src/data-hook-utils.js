@@ -156,10 +156,20 @@ export function useSql(insertionStatus, queryString, options) {
     queryFn: async (ctx) => {
       const { duckdb, options } = ctx.meta;
       const [queryString] = ctx.queryKey;
-      const { singleRow } = options || {}
+      const { singleRow, extensions } = options || {}
       const conn = await duckdb.db.connect();
+      if(Array.isArray(extensions)) {
+        for(const extension of extensions) {
+          await conn.query(`INSTALL ${extension}`);
+        }
+        for(const extension of extensions) {
+          await conn.query(`LOAD ${extension}`);
+        }
+      }
       const result = await conn.query(queryString);
-      await conn.close();
+      if(options.last) {
+        await conn.close();
+      }
       if(singleRow) {
         return result.toArray()[0];
       }

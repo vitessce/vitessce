@@ -4,8 +4,10 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ArrowScatterplotLayer,
 } from '@vitessce/gl';
-import { getDefaultColor } from '@vitessce/utils';
+import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { getCategoryMappings } from '@vitessce/arrow-utils';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
@@ -200,8 +202,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       geneExpressionColormap,
       geneExpressionColormapRange = [0.0, 1.0],
       cellColorEncoding,
+      obsSetsTable,
     } = this.props;
-    return new deck.ScatterplotLayer({
+    const obsSetCategoryMappings = getCategoryMappings(obsSetsTable);
+
+    return new ArrowScatterplotLayer({
       id: CELLS_LAYER_ID,
       // Note that the reference for the object passed to the data prop should not change,
       // otherwise DeckGL will need to do a full re-render every time .createCellsLayer is called,
@@ -222,8 +227,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      getPosition,
-      getFillColor: getCellColor,
+      getPosition: (object, { index, data, target }) => {
+        target[0] = data.src.x[index];
+        target[1] = data.src.y[index];
+        target[2] = 0;
+        return target;
+      },
+      // TODO: map to R, G, B values at DB-level?
+      getFillColor: (object, { index, data, target }) => {
+        const code = data.src.setName_codes[index]; // TODO: use more generic column name
+        const [r, g, b, a] = code ? PALETTE[code % PALETTE.length] : getDefaultColor(theme);
+        return [r, g, b, 255 * (a || 1)];
+      },
+      //getFillColor: getCellColor,
       getLineColor: getCellColor,
       getRadius: 1,
       getExpressionValue,
@@ -277,12 +293,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       }));
     }
 
-    if (cellSetLabelsVisible) {
+    if (cellSetPolygons && cellSetLabelsVisible) {
       const { zoom } = viewState;
+      console.log(cellSetPolygons)
       const nodes = cellSetPolygons.map(p => ({
         x: p.centroid[0],
         y: p.centroid[1],
-        label: p.name,
+        label: `${p.name}`,
       }));
 
       const collisionForce = this.cellSetsForceSimulation
@@ -358,16 +375,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellsData() {
-    const { obsEmbedding } = this.props;
+    const { obsEmbedding, obsTable } = this.props;
     if (obsEmbedding) {
       const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
       this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
-      this.cellsData = {
+      this.cellsData = obsTable?.batches.map(batch => ({
         src: {
-          obsEmbedding,
+          x: batch?.getChild('x').data[0].values,
+          y: batch?.getChild('y').data[0].values,
+          setName_codes: batch?.getChild('setName_codes').data[0].values,
         },
-        length: obsEmbedding.shape[1],
-      };
+        length: batch?.data.length,
+      }));
     }
   }
 
@@ -475,7 +494,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
     const shallowDiff = propName => (prevProps[propName] !== this.props[propName]);
     let forceUpdate = false;
-    if (['obsEmbedding', 'obsEmbeddingIndex'].some(shallowDiff)) {
+    if (['obsEmbedding', 'obsEmbeddingIndex', 'obsTable', 'obsSetsTable'].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateCellsData();
       forceUpdate = true;
@@ -491,7 +510,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
-      'getExpressionValue', 'embeddingPointsVisible',
+      'getExpressionValue', 'embeddingPointsVisible', 'obsTable', 'obsSetsTable',
     ].some(shallowDiff)) {
       // Cells layer props changed.
       this.onUpdateCellsLayer();

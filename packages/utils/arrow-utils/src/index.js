@@ -6,4 +6,5 @@ export {
   zarrColumnToPlainVector,
   plainVectorToDictVector,
   concatenateTables,
+  getCategoryMappings,
 } from './typedarray-utils.js';

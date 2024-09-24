@@ -37,6 +37,7 @@
     "@vitessce/icons": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/arrow-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "d3-force": "catalog:",
