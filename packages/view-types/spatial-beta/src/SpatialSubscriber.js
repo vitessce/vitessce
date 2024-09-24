@@ -670,9 +670,8 @@ export function SpatialSubscriber(props) {
             let obsId;
             if (layerType === 'segmentation-bitmask') {
               const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
-              // We subtract one because we use 0 to represent background.
-              obsI -= 1;
               if (obsIndex && bitmaskValueIsIndex) {
+                obsI -= 1; // We subtract one because we use 0 to represent background.
                 obsId = obsIndex?.[obsI];
               } else {
                 // When there is not a corresponding obsIndex to use,
@@ -955,6 +954,7 @@ export function SpatialSubscriber(props) {
           segmentationLayerScopes={segmentationLayerScopes}
           segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
           segmentationChannelCoordination={segmentationChannelCoordination}
+          obsSegmentationsSetsData={obsSegmentationsSetsData}
 
           // Images
           imageLayerScopes={imageLayerScopes}
