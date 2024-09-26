@@ -43,7 +43,8 @@
     "d3-force": "catalog:",
     "d3-quadtree": "catalog:",
     "lodash-es": "catalog:",
-    "react-aria": "catalog:"
+    "react-aria": "catalog:",
+    "apache-arrow": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

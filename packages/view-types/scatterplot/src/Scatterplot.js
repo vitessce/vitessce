@@ -2,6 +2,7 @@
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
+import { makeVector, Float32, vectorFromArray, Int32, Float16, Float64, Int16, Uint32, Uint16, Uint8, util } from 'apache-arrow';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
   ArrowScatterplotLayer,
@@ -227,18 +228,23 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // Our radius pixel setters measure in pixels.
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
+      /*
       getPosition: (object, { index, data, target }) => {
         target[0] = data.src.x[index];
         target[1] = data.src.y[index];
         target[2] = 0;
         return target;
       },
+      */
       // TODO: map to R, G, B values at DB-level?
+      /*
       getFillColor: (object, { index, data, target }) => {
         const code = data.src.setName_codes[index]; // TODO: use more generic column name
         const [r, g, b, a] = code ? PALETTE[code % PALETTE.length] : getDefaultColor(theme);
         return [r, g, b, 255 * (a || 1)];
       },
+      */
+     //getFillColor: [255, 0, 0],
       //getFillColor: getCellColor,
       getLineColor: getCellColor,
       getRadius: 1,
@@ -295,7 +301,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
     if (cellSetPolygons && cellSetLabelsVisible) {
       const { zoom } = viewState;
-      console.log(cellSetPolygons)
+      //console.log(cellSetPolygons)
       const nodes = cellSetPolygons.map(p => ({
         x: p.centroid[0],
         y: p.centroid[1],
@@ -380,11 +386,24 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
       this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
       this.cellsData = obsTable?.batches.map(batch => ({
+        data: batch,
+        attributes: {
+          getPosition: {
+            value: batch?.getChild('my_point').data[0].children[0].values,
+            size: 2,
+          },
+          getFillColor: {
+            value: batch?.getChild('my_color').data[0].children[0].values,
+            size: 3,
+          },
+        },
+        /*
         src: {
           x: batch?.getChild('x').data[0].values,
           y: batch?.getChild('y').data[0].values,
           setName_codes: batch?.getChild('setName_codes').data[0].values,
-        },
+        }
+        */
         length: batch?.data.length,
       }));
     }

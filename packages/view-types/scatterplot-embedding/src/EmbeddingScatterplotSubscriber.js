@@ -203,15 +203,30 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   // TODO: create as a TEMP table? Will need a way to not close the DB Connection until after the temp table is needed.
   const [obsTable, queryStatus] = useSql(insertionStatus, `
+    CREATE TABLE obsSetColors (
+      setName VARCHAR,
+      r UTINYINT,
+      g UTINYINT,
+      b UTINYINT
+    );
+    INSERT INTO obsSetColors
+    VALUES ('malignant cell', 255, 0, 0);
+    INSERT INTO obsSetColors
+    VALUES ('neutrophil', 0, 255, 0);
     CREATE TABLE obsTable AS (
-      SELECT oet.x, (oet.y * -1) AS y, ost.setName_codes
+      SELECT oet.x, (oet.y * -1) AS y, ost.setName, ost.setName_codes
       FROM ${getTableName({ dataType: 'obsEmbedding', dataset, matchOn: { obsType, embeddingType: mapping } })} oet
       JOIN ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })} ost
       ON (oet.obsIndex = ost.obsIndex)
       WHERE ost.setGroup = '${'Cell Type'}'
     );
-    SELECT * FROM obsTable;
-  `, { first: true });
+    SELECT [x, y]::FLOAT[2] AS my_point, [r0, g0, b0]::UTINYINT[3] AS my_color FROM (
+      SELECT obsTable.x, obsTable.y, ifnull(obsSetColors.r, 255) AS r0, ifnull(obsSetColors.g, 255) AS g0, ifnull(obsSetColors.b, 255) AS b0
+      FROM obsTable
+      LEFT JOIN obsSetColors
+      ON (obsTable.setName = obsSetColors.setName)
+    );
+  `);
 
   const [xyExtentTable, extentQueryStatus] = useSql(insertionStatus, `
     SELECT
@@ -227,20 +242,21 @@ export function EmbeddingScatterplotSubscriber(props) {
     FROM ${getTableName({ dataType: 'obsSets', dataset, matchOn: { obsType } })}
     WHERE setGroup = '${'Cell Type'}'
   `);
+
   const [hullTable, hullQueryStatus] = useSql(insertionStatus, `
     SELECT
-      ST_AsGeoJSON(ST_ConvexHull(collected.point_union)) AS hull_polygon, ST_AsGeoJSON(ST_Centroid(collected.point_union)) AS centroid, collected.setName_codes
+      ST_AsGeoJSON(ST_ConvexHull(collected.point_union)) AS hull_polygon, ST_AsGeoJSON(ST_Centroid(collected.point_union)) AS centroid, collected.setName
     FROM (
       SELECT
-        ST_Collect(list(tmp.my_point)) AS point_union, tmp.setName_codes
+        ST_Collect(list(tmp.my_point)) AS point_union, tmp.setName
       FROM (
-        SELECT ST_Point(x, y) AS my_point, setName_codes
+        SELECT ST_Point(x, y) AS my_point, setName
         FROM obsTable
       ) AS tmp
-      GROUP BY tmp.setName_codes
+      GROUP BY tmp.setName
     ) AS collected
   `, { extensions: ['spatial'], last: true });
-  console.log(hullTable?.toArray());
+  //console.log(hullTable?.toArray());
   // End duckdb queries
 
   const isReady = useReady([
@@ -256,7 +272,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     queryStatus,
     extentQueryStatus,
     distinctQueryStatus,
-    hullQueryStatus
   ]);
   const urls = useUrls([
     obsEmbeddingUrls,
@@ -303,7 +318,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         .map(row => ({
           hull: JSON.parse(row.hull_polygon).coordinates,
           centroid: JSON.parse(row.centroid).coordinates,
-          name: row.setName_codes,
+          name: row.setName,
           color: [255, 0, 0]
         }));
       return newCellSetPolygons;

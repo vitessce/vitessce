@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDuckDB } from 'lazy-duckdb-react';
 import {
   capitalize,
@@ -100,6 +100,70 @@ export function getTableName({ dataset, dataType, matchOn }) {
 
 export function useSqlInsert(loaders, dataToInsert) {
   const duckdb = useDuckDB();
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (mutateParams) => {
+      console.log(mutateParams)
+      const [dataType, dataset, matchOn] = mutateParams.queryKey;
+      const { loaders, duckdb } = mutateParams.meta;
+      const loader = getMatchingLoader(loaders, dataset, dataType, matchOn);
+      if(loader) {
+        const implementsLoadArrow = typeof loader.loadArrow === 'function';
+        if(implementsLoadArrow) {
+          const arrowTable = await loader.loadArrow();
+          console.log('start insert for', dataType)
+          const conn = await duckdb.db.connect();
+          // TODO: convert to IPC first?
+          // Reference: https://github.com/observablehq/feedback/issues/623
+          const arrowBuffer = tableToIPC(arrowTable, 'stream');
+          console.log(arrowBuffer.byteLength);
+          const tableName = getTableName({ dataset, dataType, matchOn });
+          await conn.insertArrowFromIPCStream(arrowBuffer, {
+            create: true, // TODO: determine when to insert vs. create
+            name: tableName,
+            // TODO: what does the 'schema' option do?
+          });
+          await conn.close();
+          console.log('end insert for', dataType)
+          return {
+            success: true,
+            queryKeyToInvalidate: ['db', 'obsTable'],
+          };
+        }
+      }
+      return {
+        success: false,
+      }
+    },
+    onSuccess: (data, variables, context) => {
+      console.log('onSuccess', data, variables, context);
+      // I will fire first
+      // If true, Invalidate every query with a key that starts with `todos`
+      if(data.success) {
+        queryClient.invalidateQueries({ queryKey: data.queryKeyToInvalidate })
+      }
+    },
+    onError: (error, variables, context) => {
+      // I will fire first
+    },
+    onSettled: (data, error, variables, context) => {
+      // I will fire first
+    },
+  });
+
+  useEffect(() => {
+    if(!duckdb.loading && !duckdb.error) {
+      dataToInsert.forEach(({ dataType, dataset, matchOn }) => {
+        mutation.mutate({
+          queryKey: [dataType, dataset, matchOn, 'sql-insert'],
+          meta: { loaders, duckdb }
+        });
+      });
+    }
+  }, [duckdb.loading, duckdb.error]);
+
+/*
 
   const insertQueries = useQueries({
     queries: dataToInsert.map(({ dataType, dataset, matchOn }) => ({
@@ -136,13 +200,14 @@ export function useSqlInsert(loaders, dataToInsert) {
     })),
   });
   
+  
   const anyLoading = insertQueries.some(q => q.isFetching || q.isLoading);
   const anyError = insertQueries.some(q => q.isError);
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const isSuccess = dataStatus === STATUS.SUCCESS;
-
-  return [isSuccess];
+  */
+  return [mutation.isSuccess];
 }
 
 export function useSql(insertionStatus, queryString, options) {
@@ -152,11 +217,11 @@ export function useSql(insertionStatus, queryString, options) {
   const sqlQuery = useQuery({
     enabled: insertionStatus,
     meta: { duckdb, options },
-    queryKey: [queryString, 'sql-query'],
+    queryKey: ['db', 'obsTable', queryString, 'sql-query'],
     queryFn: async (ctx) => {
       const { duckdb, options } = ctx.meta;
-      const [queryString] = ctx.queryKey;
-      const { singleRow, extensions } = options || {}
+      const [c0, c1, queryString] = ctx.queryKey;
+      const { singleRow, extensions, last: isLastUsage } = options || {}
       const conn = await duckdb.db.connect();
       if(Array.isArray(extensions)) {
         for(const extension of extensions) {
@@ -167,7 +232,7 @@ export function useSql(insertionStatus, queryString, options) {
         }
       }
       const result = await conn.query(queryString);
-      if(options.last) {
+      if(isLastUsage) {
         await conn.close();
       }
       if(singleRow) {
