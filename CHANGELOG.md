@@ -1,4 +1,15 @@
 
+## 3.4.11
+
+### Patch Changes
+
+- Update showcase page of docs. (`docs`) ([#1939](https://github.com/vitessce/vitessce/pull/1939))
+
+- Add obsSets to tooltip for Segmetations (`@vitessce/spatial-beta`) ([#1936](https://github.com/vitessce/vitessce/pull/1936))
+
+- Added help text overlay for the views (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/status`, `@vitessce/vit-s`) ([#1911](https://github.com/vitessce/vitessce/pull/1911))
+
+
 ## 3.4.10
 
 ### Patch Changes
