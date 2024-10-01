@@ -154,7 +154,7 @@ export const obsSetsSpatialdataSchema = z.object({
   tablePath: z.string()
     .optional()
     .describe('The path to a table which contains the index for the set values.'),
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
 });
 
 // GLB
