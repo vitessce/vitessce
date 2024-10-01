@@ -7,6 +7,5 @@ export default class SpatialDataObsSetsLoader extends ObsSetsAnndataLoader {
   constructor(dataSource, params) {
     super(dataSource, params);
     this.region = this.options.region;
-    this.options = this.options.obsSets;
   }
 }
