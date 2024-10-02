@@ -1,4 +1,13 @@
 
+## 3.4.12
+
+### Patch Changes
+
+- Add more exports that are required for accessing multi-level coordination from python-defined plugin views. (`@vitessce/all`) ([#1942](https://github.com/vitessce/vitessce/pull/1942))
+
+- Fix incorrect obsSets.spatialdata.zarr file definition schema. Add featureLabelsType coordination type. (`@vitessce/constants-internal`, `@vitessce/schemas`) ([#1938](https://github.com/vitessce/vitessce/pull/1938))
+
+
 ## 3.4.11
 
 ### Patch Changes
