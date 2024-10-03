@@ -54,7 +54,7 @@ import { salcher2022 } from './view-configs/salcher_2022.js';
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
 import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorithm-comparison.js';
-import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
+import { neumanOop2023, neumannAutoInit } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
@@ -151,6 +151,7 @@ export const configs = {
   // TODO(spatialBeta): clean up
   'ims-algorithm-comparison': imsAlgorithmComparison,
   'neumann-2020-2': neumanOop2023,
+  'neumann-2020-3': neumannAutoInit,
   'lightsheet-2023': lightsheetOop2023,
   'visium-2023-polygons': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
