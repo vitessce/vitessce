@@ -8,7 +8,7 @@ import {
   useCoordination, useLoaders,
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy.js';
 import { useStyles } from './styles.js';
 
@@ -80,6 +80,7 @@ export function GenomicProfilesSubscriber(props) {
     assembly = 'hg38',
     title = 'Genomic Profiles',
     showGeneAnnotations = true,
+    helpText = ViewHelpMapping.GENOMIC_PROFILES,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -96,7 +97,10 @@ export function GenomicProfilesSubscriber(props) {
     coordinationScopes,
   );
 
-  const [genomicProfilesAttrs, genomicProfilesStatus, genomicProfilesUrls] = useGenomicProfilesData(
+  const [
+    genomicProfilesAttrs, genomicProfilesStatus,
+    genomicProfilesUrls, genomicProfilesRequestInit,
+  ] = useGenomicProfilesData(
     loaders, dataset, true, {}, {},
     {},
   );
@@ -189,6 +193,10 @@ export function GenomicProfilesSubscriber(props) {
       const setColor = isPath ? cellSetColor?.find(s => isEqual(s.path, trackUid))?.color : null;
       // Get the track UID as a string before passing to HiGlass.
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
+      // Get the requestInit object from the current loader, if it exists.
+      const options = genomicProfilesRequestInit
+        ? { overrides: genomicProfilesRequestInit }
+        : undefined;
       // Create the HiGlass track definition for this profile.
       const track = {
         type: 'horizontal-bar',
@@ -196,6 +204,7 @@ export function GenomicProfilesSubscriber(props) {
         data: {
           type: 'zarr-multivec',
           url,
+          options,
           row: i,
         },
         options: {
@@ -261,6 +270,7 @@ export function GenomicProfilesSubscriber(props) {
         theme={theme}
         isReady={isReady}
         urls={urls}
+        helpText={helpText}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
           {hgViewConfig ? (

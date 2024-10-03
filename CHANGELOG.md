@@ -1,4 +1,140 @@
 
+## 3.4.12
+
+### Patch Changes
+
+- Add more exports that are required for accessing multi-level coordination from python-defined plugin views. (`@vitessce/all`) ([#1942](https://github.com/vitessce/vitessce/pull/1942))
+
+- Fix incorrect obsSets.spatialdata.zarr file definition schema. Add featureLabelsType coordination type. (`@vitessce/constants-internal`, `@vitessce/schemas`) ([#1938](https://github.com/vitessce/vitessce/pull/1938))
+
+
+## 3.4.11
+
+### Patch Changes
+
+- Update showcase page of docs. (`docs`) ([#1939](https://github.com/vitessce/vitessce/pull/1939))
+
+- Add obsSets to tooltip for Segmetations (`@vitessce/spatial-beta`) ([#1936](https://github.com/vitessce/vitessce/pull/1936))
+
+- Added help text overlay for the views (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/status`, `@vitessce/vit-s`) ([#1911](https://github.com/vitessce/vitessce/pull/1911))
+
+
+## 3.4.10
+
+### Patch Changes
+
+- Support anndata-as-h5ad via Zarr reference specs. (`@vitessce/constants-internal`, `@vitessce/zarr-utils`, `@vitessce/schemas`) ([#1811](https://github.com/vitessce/vitessce/pull/1811))
+
+- Fixes the svg length error for legends in dev environment due to missing props (`@vitessce/scatterplot-embedding`, `@vitessce/heatmap`, `@vitessce/spatial`) ([#1925](https://github.com/vitessce/vitessce/pull/1925))
+
+- Implement sequence transformation for OME-NGFF / SpatialData. (`@vitessce/spatial-utils`) ([#1900](https://github.com/vitessce/vitessce/pull/1900))
+
+- Increase timeout for CCF test due to long loading time for CCF web component. (`vitessce`) ([#1931](https://github.com/vitessce/vitessce/pull/1931))
+
+- Fixes type for the constants (`@vitessce/constants`, `vitessce`, `@vitessce/dev`) ([#1914](https://github.com/vitessce/vitessce/pull/1914))
+
+- Support for markdown (rich text) in the description view (`@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/example-configs`) ([#1924](https://github.com/vitessce/vitessce/pull/1924))
+
+- Bump higlass version to fix css issue. (`@vitessce/genomic-profiles`) ([#1930](https://github.com/vitessce/vitessce/pull/1930))
+
+
+## 3.4.9
+
+### Patch Changes
+
+- Fix issue in versioned URLs. (`vitessce`) ([#1917](https://github.com/vitessce/vitessce/pull/1917))
+
+
+## 3.4.8
+
+### Patch Changes
+
+- Add configs for paper figures. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`, `@vitessce/example-configs`) ([#1915](https://github.com/vitessce/vitessce/pull/1915))
+
+
+## 3.4.7
+
+### Patch Changes
+
+- Update GH actions. (`vitessce`) ([#1913](https://github.com/vitessce/vitessce/pull/1913))
+
+- Add sampleSets and sampleEdges data types, with file types for CSV and AnnData, respectively. (`@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/schemas`) ([#1793](https://github.com/vitessce/vitessce/pull/1793))
+
+- Switch from using TypeScript v5.5 via nightly release to the official release (`vitessce`) ([#1902](https://github.com/vitessce/vitessce/pull/1902))
+
+- Add support for pageMode prop on Vitessce and VitS components. (`@vitessce/vit-s`) ([#1885](https://github.com/vitessce/vitessce/pull/1885))
+
+- Add support for plugin async functions. (`@vitessce/constants-internal`, `@vitessce/plugins`, `@vitessce/vit-s`) ([#1887](https://github.com/vitessce/vitessce/pull/1887))
+
+- Use PNPM v9.5 and the catalog: feature. (`vitessce`) ([#1907](https://github.com/vitessce/vitessce/pull/1907))
+
+- Updated GH actions to deploy to S3. Updated old S3 urls to use vitessce.io subdomains. (`vitessce`) ([#1910](https://github.com/vitessce/vitessce/pull/1910))
+
+
+## 3.4.6
+
+### Patch Changes
+
+- Add expand=true URL parameter for docs site. (`docs`) ([#1884](https://github.com/vitessce/vitessce/pull/1884))
+
+- Fix status check for Enter XR button. (`@vitessce/spatial-three`) ([#1876](https://github.com/vitessce/vitessce/pull/1876))
+
+
+## 3.4.5
+
+### Patch Changes
+
+- Fix css for Enter XR button. (`@vitessce/spatial-three`) ([#1874](https://github.com/vitessce/vitessce/pull/1874))
+
+
+## 3.4.4
+
+### Patch Changes
+
+- Fix bug in colors. (`@vitessce/statistical-plots`) ([#1872](https://github.com/vitessce/vitessce/pull/1872))
+
+
+## 3.4.3
+
+### Patch Changes
+
+- Fix bugs with selecting meshes in spatial-three component. (`@vitessce/spatial-three`, `@vitessce/spatial-beta`) ([#1870](https://github.com/vitessce/vitessce/pull/1870))
+
+
+## 3.4.2
+
+### Patch Changes
+
+- Mark existing obsSets as optional for obs component so users can generate their own observations (`@vitessce/obs-sets-manager`) ([#1868](https://github.com/vitessce/vitessce/pull/1868))
+
+
+## 3.4.1
+
+### Patch Changes
+
+- Fix bugs in featureBarPlot. Update jain-2024 file URLs. (`@vitessce/statistical-plots`, `@vitessce/spatial-three`) ([#1865](https://github.com/vitessce/vitessce/pull/1865))
+
+
+## 3.4.0
+
+### Minor Changes
+
+- Adds a ThreeJS-based spatial view for mesh and volumetric rendering. (`@vitessce/statistical-plots`, `@vitessce/spatial-three`, `@vitessce/glb`, `@vitessce/example-configs`) ([#1861](https://github.com/vitessce/vitessce/pull/1861))
+
+
+## 3.3.12
+
+### Patch Changes
+
+- Added support for providing requestInit options to genomic profiles requests (`@vitessce/genomic-profiles`) ([#1854](https://github.com/vitessce/vitessce/pull/1854))
+
+- Add documentation about spatialdata.zarr file type options. (`docs`) ([#1847](https://github.com/vitessce/vitessce/pull/1847))
+
+- (feat): add support for int64 data types (+ testing for anndata 0.9-10) (`@vitessce/zarr`) ([#1830](https://github.com/vitessce/vitessce/pull/1830))
+
+- Update table path regex for SpatialDataTableSource to support both table/ and tables/. (`@vitessce/zarr`) ([#1850](https://github.com/vitessce/vitessce/pull/1850))
+
+
 ## 3.3.11
 
 ### Patch Changes

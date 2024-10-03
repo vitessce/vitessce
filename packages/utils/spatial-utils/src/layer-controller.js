@@ -40,8 +40,7 @@ async function getSingleSelectionStats3D({ loader, selection }) {
   const lowResSource = loader[loader.length - 1];
   const filteredSelection = filterSelection(lowResSource, selection);
   const { shape, labels } = lowResSource;
-  // eslint-disable-next-line no-bitwise
-  const sizeZ = shape[labels.indexOf('z')] >> (loader.length - 1);
+  const sizeZ = shape[labels.indexOf('z')];
   const raster0 = await lowResSource.getRaster({
     selection: { ...filteredSelection, z: 0 },
   });

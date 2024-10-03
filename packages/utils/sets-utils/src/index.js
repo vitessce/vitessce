@@ -1,8 +1,11 @@
 export {
+  treeToSelectedSetMap,
   treeToCellColorsBySetNames,
   treeToCellSetColorIndicesBySetNames,
   treeToSetSizesBySetNames,
   treeToObjectsBySetNames,
+  treeToObsIdsBySetNames,
+  treeToObsIndicesBySetNames,
   treeExportLevelZeroNode,
   treeExportSet,
   treeToExpectedCheckedLevel,
@@ -63,3 +66,8 @@ export {
 export {
   getCellColors,
 } from './interpolate-colors.js';
+export {
+  stratifyArrays,
+  stratifyExpressionData,
+  aggregateStratifiedExpressionData,
+} from './expr-utils.js';

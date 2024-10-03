@@ -41,7 +41,7 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
-const annDataObsSets = z.array(
+const annDataObsSetsArr = z.array(
   z.object({
     name: z.string()
       .describe("The display name for the set, like 'Cell Type' or 'Louvain.'"),
@@ -57,11 +57,23 @@ const annDataObsSets = z.array(
   }),
 );
 
-const annDataObsFeatureColumns = z.array(
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsSets = z.object({
+  obsSets: annDataObsSetsArr,
+});
+
+const annDataObsFeatureColumnsArr = z.array(
   z.object({
     path: z.string(),
   }),
 );
+
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsFeatureColumns = z.object({
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
+});
 
 const annDataObsSpots = annDataObsm;
 const annDataObsPoints = annDataObsm;
@@ -159,8 +171,28 @@ export const obsSetsSpatialdataSchema = z.object({
   tablePath: z.string()
     .optional()
     .describe('The path to a table which contains the index for the set values.'),
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
 });
+
+// GLB
+export const meshGlbSchema = z.object({
+  targetX: z.number(),
+  targetY: z.number(),
+  targetZ: z.number(),
+  rotationX: z.number(),
+  rotationY: z.number(),
+  rotationZ: z.number(),
+  scaleX: z.number(),
+  scaleY: z.number(),
+  scaleZ: z.number(),
+  sceneRotationX: z.number(),
+  sceneRotationY: z.number(),
+  sceneRotationZ: z.number(),
+  sceneScaleX: z.number(),
+  sceneScaleY: z.number(),
+  sceneScaleZ: z.number(),
+  materialSide: z.enum(['front', 'back']),
+}).partial().nullable();
 
 /**
  * Options schemas for atomic file types.
@@ -243,7 +275,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,
@@ -252,7 +284,12 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+  sampleEdges: annDataSampleEdges,
 }).partial();
+
+export const anndataH5adSchema = anndataZarrSchema.extend({
+  refSpecUrl: z.string(),
+});
 
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema

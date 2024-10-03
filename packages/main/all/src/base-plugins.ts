@@ -41,6 +41,7 @@ import {
   sampleEdgesAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
+  anndataH5adSchema,
   spatialdataZarrSchema,
   anndataCellsZarrSchema,
   anndataCellSetsZarrSchema,
@@ -62,6 +63,7 @@ import {
   cellsLayerObj,
   neighborhoodsLayerObj,
   moleculesLayerObj,
+  meshGlbSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -81,6 +83,8 @@ import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
   ExpressionHistogramSubscriber,
+  DotPlotSubscriber,
+  FeatureBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -151,6 +155,10 @@ import {
   OmeTiffLoader,
   OmeTiffSource,
 } from '@vitessce/ome-tiff';
+import {
+  GlbSource,
+  GlbLoader,
+} from '@vitessce/glb';
 
 // Joint file types
 import {
@@ -180,11 +188,16 @@ function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
 // For when we have multiple file types with the same data type and options schema.
-function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
-  const altFileTypes = Object.values(ALT_ZARR_STORE_TYPES[name]);
+function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
+  const altFileTypes = ALT_ZARR_STORE_TYPES[name];
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
-    ...altFileTypes.map(n => new PluginFileType(n, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema)),
+    ...Object.entries(altFileTypes).map(([key, fileType]) => {
+      const extendedOptionsSchema = key === 'h5ad' ? optionsSchema.extend({
+        refSpecUrl: z.string(),
+      }) : optionsSchema;
+      return new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema);
+    }),
   ];
 }
 
@@ -203,8 +216,10 @@ export const baseViewTypes = [
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
   makeViewType(ViewType.FEATURE_VALUE_HISTOGRAM, ExpressionHistogramSubscriber),
+  makeViewType(ViewType.FEATURE_BAR_PLOT, FeatureBarPlotSubscriber),
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
+  makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -258,6 +273,8 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+
+  makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -279,6 +296,7 @@ export const baseFileTypes = [
 export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_ZARR_ZIP, expandAnndataZarr, anndataZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_H5AD, expandAnndataZarr, anndataH5adSchema),
   new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
@@ -312,6 +330,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
   new PluginCoordinationType(CoordinationType.OBS_LABELS_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABELS_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ROTATION, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),
@@ -406,6 +425,11 @@ export const baseCoordinationTypes = [
     z.number(),
   ),
   new PluginCoordinationType(
+    CoordinationType.FEATURE_VALUE_POSITIVITY_THRESHOLD,
+    0,
+    z.number(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.TOOLTIPS_VISIBLE,
     true,
     z.boolean(),
@@ -441,7 +465,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.IMAGE_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().or(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
@@ -475,6 +499,21 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
-  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
+  // TODO: remove one array level and use multi-coordination for sampleSetSelection?
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.SAMPLE_SET_COLOR,
+    null,
+    z.array(z.object({
+      path: obsSetPath,
+      color: rgbArray,
+    })).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
+  new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
 ];

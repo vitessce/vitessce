@@ -1,7 +1,7 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.3.11",
+  "version": "3.4.12",
   "description": "Vitessce app and React component library",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io/",
@@ -27,22 +27,18 @@
     "clean": "pnpm -r exec -- rm -rf dist dist-tsc tsconfig.tsbuildinfo",
     "clean-deps": "pnpm -r exec -- rm -rf node_modules",
     "clean-all": "pnpm run clean && pnpm run clean-deps",
-    "meta-update": "cross-env META_UPDATER_MODE=write pnpm meta-updater",
-    "meta-dryrun": "cross-env META_UPDATER_MODE=dryrun pnpm meta-updater",
-    "meta-version-only": "cross-env META_UPDATER_MODE=versiononly pnpm meta-updater",
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
     "changeset-status": "changeset status --since=origin/main",
     "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs"
   },
   "devDependencies": {
-    "@pnpm/meta-updater": "^0.0.6",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@testing-library/user-event": "^14.2.1",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/react-hooks": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@typescript-eslint/eslint-plugin": "^5.59.2",
     "@typescript-eslint/parser": "^5.59.2",
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "catalog:",
     "@vitest/ui": "^0.32.2",
     "@vitest/coverage-v8": "^0.32.2",
     "eslint": "^8.18.0",
@@ -56,14 +52,14 @@
     "jest-canvas-mock": "2.5.0",
     "jsdom": "^20.0.0",
     "jsdom-worker": "^0.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "sass": "^1.55.0",
     "serve-static": "^1.15.0",
     "terser": "^5.15.0",
-    "typescript": "5.5.0-dev.20240330",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2",
+    "typescript": "^5.5.3",
+    "vite": "catalog:",
+    "vitest": "catalog:",
     "cross-env": "^7.0.0",
     "json-diff-ts": "^1.2.5",
     "@changesets/cli": "^2.17.0",
@@ -73,11 +69,12 @@
     "remark-parse": "^7.0.1",
     "remark-stringify": "^7.0.3",
     "unified": "^8.3.2",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "catalog:",
     "publint": "^0.1.11",
     "@ast-grep/cli": "^0.6.3",
     "isomorphic-git": "^1.24.5",
-    "@playwright/test": "^1.40.1"
+    "@playwright/test": "^1.40.1",
+    "set.prototype.intersection": "^1.1.5"
   },
   "pnpm": {
     "overrides": {
@@ -91,5 +88,6 @@
       }
     }
   },
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "pnpm@9.5.0"
 }

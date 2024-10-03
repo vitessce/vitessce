@@ -1,7 +1,7 @@
 // Purpose: check that all subdirectories with tsconfig.json files are referenced
 // from the root tsconfig.json.
 // Reference: https://www.typescriptlang.org/docs/handbook/project-references.html
-import tsconfig from '../tsconfig.json' assert { type: 'json' };
+import tsconfig from '../tsconfig.json' with { type: 'json' };
 import { dirname, basename, join, normalize } from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { difference } from 'lodash-es';

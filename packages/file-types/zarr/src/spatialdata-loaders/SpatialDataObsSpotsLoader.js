@@ -7,6 +7,10 @@ import {
   coordinateTransformationsToMatrix,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
+import { tableFromIPC, util } from 'apache-arrow';
+import { GeometryReader } from "simple-features-wkb-js";
+
+console.log(GeometryReader);
 
 function getCoordsPath(path) {
   return `${path}/coords`;
@@ -18,6 +22,10 @@ function getRadiusPath(path) {
 
 function getAttrsPath(path) {
   return `${path}/.zattrs`;
+}
+
+function getParquetPath(path) {
+  return `${path}/shapes.parquet`;
 }
 
 const DEFAULT_AXES = [
@@ -68,6 +76,15 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
   },
 ];
 
+async function getReadParquet() {
+  // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
+  const module = await import("parquet-wasm");
+  const responsePromise = await fetch(new URL("parquet-wasm/esm/parquet_wasm_bg.wasm", import.meta.url).href);
+  const wasmBuffer = await responsePromise.arrayBuffer();
+  module.initSync(wasmBuffer);
+  return module.readParquet;
+}
+
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
@@ -84,15 +101,15 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     const {
       "encoding-type": encodingType,
       "spatialdata_attrs": {
-        geos: { name: geosName, type: geosType },
+        geos = {},
         version: attrsVersion,
       },
     } = zattrs;
     const hasExpectedAttrs = (
       encodingType === 'ngff:shapes'
-      && geosName === 'POINT'
-      && geosType === 0
-      && attrsVersion === "0.1"
+      && ((geos?.name === 'POINT'
+      && geos?.type === 0
+      && attrsVersion === "0.1") || attrsVersion === "0.2")
     );
     if (!hasExpectedAttrs) {
       throw new AbstractLoaderError(
@@ -129,18 +146,74 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     return this.modelMatrix;
   }
 
+  async getFormatVersion(path) {
+    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
+    const formatVersion = zattrs["spatialdata_attrs"]["version"];
+    if(!(formatVersion === "0.1" || formatVersion === "0.2")) {
+      throw new AbstractLoaderError(
+        `Unexpected version for shapes spatialdata_attrs: ${formatVersion}`,
+      );
+    }
+    return formatVersion;
+  }
+
+  async loadSpotsFromZarr(path) {
+    const dims = [0, 1];
+    return await this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
+  }
+
+  async loadSpotsFromParquet(path) {
+    const readParquet = await getReadParquet();
+    const parquetPath = getParquetPath(path);
+    const parquetBytes = await this.dataSource.storeRoot.store.get("/" + parquetPath);
+    const wasmTable = readParquet(parquetBytes);
+    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
+    const geometryColumn = arrowTable.getChild('geometry');
+
+    //const flatCoords = geometryColumn.getChildAt(0).data[0].values;
+    console.log('arrowTable', arrowTable)
+    console.log('geometryColumn', geometryColumn)
+    console.log('geometryColumn.data', geometryColumn.toArray());
+    
+    const geometry = GeometryReader.readPoint(new Uint8Array(geometryColumn.toArray()[0]).buffer, false, false);
+    console.log('geometry', geometry)
+    return null;
+    /*
+    const rootUrl = this.dataSource.storeRoot?.store?.url;
+    let parquetData;
+    if(rootUrl) {
+      const parquetUrl = `${rootUrl}/${parquetPath}`;
+      console.log(parquetUrl);
+      parquetData = await readParquet(parquetUrl);
+    } else {
+      // Use zarr to get the raw bytes of the parquet since no URL
+      const parquetBytes = await this.dataSource.storeRoot.store.get(parquetPath);
+      parquetData = await readParquet(parquetBytes);
+    }
+    console.log(parquetData)
+    return null;*/
+  }
+
   /**
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
   async loadSpots() {
-    const { path, dims = [0, 1] } = this.options;
+    const { path } = this.options;
+
     if (this.locations) {
       return this.locations;
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
+
+      const formatVersion = await this.getFormatVersion(path);
+      if(formatVersion === "0.1") {
+        this.locations = await this.loadSpotsFromZarr(path);
+      } else {
+        this.locations = await this.loadSpotsFromParquet(path);
+      }
+
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader
       // (or DeckGL layer)

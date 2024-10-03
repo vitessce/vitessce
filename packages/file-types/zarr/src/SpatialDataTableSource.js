@@ -6,7 +6,8 @@ import AnnDataSource from './AnnDataSource.js';
 
 // If the array path starts with table/something/rest
 // capture table/something.
-const regex = /^table\/([^/]*)\/(.*)$/;
+const pluralRegex = /^tables\/([^/]*)\/(.*)$/;
+const singularRegex = /^table\/([^/]*)\/(.*)$/;
 
 /**
  *
@@ -15,9 +16,14 @@ const regex = /^table\/([^/]*)\/(.*)$/;
  */
 function getTablePrefix(arrPath) {
   if (arrPath) {
-    const matches = arrPath.match(regex);
-    if (matches && matches.length === 3) {
-      return `table/${matches[1]}/`;
+    // First try the plural "tables/{something}"
+    const pluralMatches = arrPath.match(pluralRegex);
+    if (pluralMatches && pluralMatches.length === 3) {
+      return `tables/${pluralMatches[1]}/`;
+    }
+    const singularMatches = arrPath.match(singularRegex);
+    if (singularMatches && singularMatches.length === 3) {
+      return `table/${singularMatches[1]}/`;
     }
   }
   // TODO: what to do here when there are multiple tables?

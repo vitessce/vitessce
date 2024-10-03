@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/plugins",
-  "version": "3.3.11",
+  "version": "3.4.12",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,11 +30,11 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "zod": "^3.21.4"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^18.0.28",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "@types/react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }
