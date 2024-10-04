@@ -26,7 +26,7 @@ function generateVisiumXeniumConfig() {
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
     url: baseUrl,
     options: {
-      path: 'table/table/X',
+      path: 'tables/table/X',
       region: 'CytAssist_FFPE_Human_Breast_Cancer',
     },
     coordinationValues: {
@@ -37,7 +37,7 @@ function generateVisiumXeniumConfig() {
     url: baseUrl,
     options: {
       path: 'shapes/CytAssist_FFPE_Human_Breast_Cancer',
-      tablePath: 'table/table',
+      tablePath: 'tables/table',
       region: 'CytAssist_FFPE_Human_Breast_Cancer',
     },
     coordinationValues: {

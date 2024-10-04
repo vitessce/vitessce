@@ -7,8 +7,6 @@ import {
   coordinateTransformationsToMatrix,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
-import { tableFromIPC } from 'apache-arrow';
-import { WKB } from "ol/format";
 
 function getCoordsPath(path) {
   return `${path}/coords`;
@@ -20,10 +18,6 @@ function getRadiusPath(path) {
 
 function getAttrsPath(path) {
   return `${path}/.zattrs`;
-}
-
-function getParquetPath(path) {
-  return `${path}/shapes.parquet`;
 }
 
 const DEFAULT_AXES = [
@@ -74,14 +68,7 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
   },
 ];
 
-async function getReadParquet() {
-  // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
-  const module = await import("parquet-wasm");
-  const responsePromise = await fetch(new URL("parquet-wasm/esm/parquet_wasm_bg.wasm", import.meta.url).href);
-  const wasmBuffer = await responsePromise.arrayBuffer();
-  module.initSync(wasmBuffer);
-  return module.readParquet;
-}
+
 
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
@@ -144,69 +131,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     return this.modelMatrix;
   }
 
-  async getFormatVersion(path) {
-    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
-    const formatVersion = zattrs["spatialdata_attrs"]["version"];
-    if(!(formatVersion === "0.1" || formatVersion === "0.2")) {
-      throw new AbstractLoaderError(
-        `Unexpected version for shapes spatialdata_attrs: ${formatVersion}`,
-      );
-    }
-    return formatVersion;
-  }
-
-  async loadSpotsFromZarr(path) {
-    const dims = [0, 1];
-    return await this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
-  }
-
-  async loadRadiusFromZarr(path) {
-    return await this.dataSource.loadNumeric(getRadiusPath(path));
-  }
-
-  async loadParquetTable(path) { // TODO: move into SpatialDataShapesSource
-    if (this.parquetTable) {
-      // Return cached table if present.
-      return this.parquetTable;
-    }
-    const readParquet = await getReadParquet();
-    const parquetPath = getParquetPath(path);
-    const parquetBytes = await this.dataSource.storeRoot.store.get("/" + parquetPath);
-    const wasmTable = readParquet(parquetBytes);
-    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-    this.parquetTable = arrowTable;
-    return this.parquetTable;
-  }
-
-  async loadSpotsFromParquet(path) {
-    const arrowTable = await this.loadParquetTable(path);
-    const geometryColumn = arrowTable.getChild('geometry');
-    // From GeoPandas.to_parquet docs: "By default, all geometry columns present are serialized to WKB format in the file"
-    // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
-
-    // TODO: support geoarrow serialization schemes in addition to WKB.
-    const wkb = new WKB();
-    const points = Array.from(geometryColumn.toArray())
-      .map(geom => wkb.readGeometry(geom).getFlatCoordinates());
-    return {
-      shape: [2, points.length],
-      data: [
-        new Float32Array(points.map(p => p[0])),
-        new Float32Array(points.map(p => p[1])),
-      ],
-    };
-  }
-
-  async loadRadiusFromParquet(path) {
-    const arrowTable = await this.loadParquetTable(path);
-    const radiusColumnArr = Array.from(arrowTable.getChild('radius').toArray());
-    return {
-      shape: [radiusColumnArr.length],
-      data: new Float32Array(radiusColumnArr),
-    };
-  }
-    
-
   /**
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
@@ -219,13 +143,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      console.log('points matrix', modelMatrix)
-      const formatVersion = await this.getFormatVersion(path);
-      if(formatVersion === "0.1") {
-        this.locations = await this.loadSpotsFromZarr(path);
-      } else {
-        this.locations = await this.loadSpotsFromParquet(path);
-      }
+      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
 
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader
@@ -250,13 +168,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return this.radius;
     }
     if (!this.radius) {
-      const modelMatrix = await this.loadModelMatrix();
-      const formatVersion = await this.getFormatVersion(path);
-      if(formatVersion === "0.1") {
-        this.radius = await this.loadRadiusFromZarr(path);
-      } else {
-        this.radius = await this.loadRadiusFromParquet(path);
-      }
+      this.radius = await this.dataSource.loadNumeric(getRadiusPath(path));
       const scaleFactors = modelMatrix.getScale();
       const xScaleFactor = scaleFactors[0];
       const yScaleFactor = scaleFactors[1];
