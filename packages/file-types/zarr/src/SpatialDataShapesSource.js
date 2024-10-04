@@ -10,7 +10,7 @@ import { basename } from './utils.js';
 
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
-  const module = await import('parquet-wasm');
+  const module = await import('parquet-wasm/esm');
   const responsePromise = await fetch(new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href);
   const wasmBuffer = await responsePromise.arrayBuffer();
   module.initSync(wasmBuffer);
