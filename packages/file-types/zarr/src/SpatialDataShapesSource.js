@@ -220,6 +220,9 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       if (!geometryColumn) {
         throw new Error(`Column ${columnName} not found in parquet table`);
       }
+      if(geometryColumn.type.toString() !== "Binary") {
+        throw new Error(`Expected geometry column to have Binary type (WKB) but got ${geometryColumn.type.toString()}`);
+      }
       // From GeoPandas.to_parquet docs:
       // "By default, all geometry columns present are serialized to WKB format in the file"
       // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html

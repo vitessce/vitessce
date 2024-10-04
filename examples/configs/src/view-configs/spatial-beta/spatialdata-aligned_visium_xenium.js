@@ -21,6 +21,7 @@ function generateVisiumXeniumConfig() {
     url: baseUrl,
     options: {
       path: 'images/CytAssist_FFPE_Human_Breast_Cancer_full_image',
+      coordinateSystem: 'aligned',
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
@@ -39,6 +40,7 @@ function generateVisiumXeniumConfig() {
       path: 'shapes/CytAssist_FFPE_Human_Breast_Cancer',
       tablePath: 'tables/table',
       region: 'CytAssist_FFPE_Human_Breast_Cancer',
+      coordinateSystem: 'aligned',
     },
     coordinationValues: {
       obsType: 'spot',
@@ -53,22 +55,24 @@ function generateVisiumXeniumConfig() {
   const featureList = config.addView(dataset1, 'featureList');
 
   const [featureSelectionScope, obsColorEncodingScope] = config.addCoordination('featureSelection', 'obsColorEncoding');
-  featureSelectionScope.setValue(['Slc25a4']);
+  featureSelectionScope.setValue(['A2M']);
   obsColorEncodingScope.setValue('geneSelection');
 
-
+  /*
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       photometricInterpretation: 'RGB',
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+  */
+
   config.linkViewsByObject([spatialView, lcView], {
     spotLayer: CL({
       featureSelection: featureSelectionScope,
       obsColorEncoding: obsColorEncodingScope,
-      spatialSpotRadius: 100,
+      //spatialSpotRadius: 100,
     }),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSpots') });
 
   featureList.useCoordination(featureSelectionScope);
   featureList.useCoordination(obsColorEncodingScope);
