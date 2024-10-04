@@ -44,7 +44,7 @@
     "zarrita": "catalog:",
     "apache-arrow": "catalog:",
     "parquet-wasm": "catalog:",
-    "simple-features-wkb-js": "^1.1.2"
+    "ol": "^10.2.1"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",

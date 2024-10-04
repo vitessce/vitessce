@@ -7,10 +7,8 @@ import {
   coordinateTransformationsToMatrix,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
-import { tableFromIPC, util } from 'apache-arrow';
-import { GeometryReader } from "simple-features-wkb-js";
-
-console.log(GeometryReader);
+import { tableFromIPC } from 'apache-arrow';
+import { WKB } from "ol/format";
 
 function getCoordsPath(path) {
   return `${path}/coords`;
@@ -162,37 +160,52 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     return await this.dataSource.loadNumericForDims(getCoordsPath(path), dims);
   }
 
-  async loadSpotsFromParquet(path) {
+  async loadRadiusFromZarr(path) {
+    return await this.dataSource.loadNumeric(getRadiusPath(path));
+  }
+
+  async loadParquetTable(path) { // TODO: move into SpatialDataShapesSource
+    if (this.parquetTable) {
+      // Return cached table if present.
+      return this.parquetTable;
+    }
     const readParquet = await getReadParquet();
     const parquetPath = getParquetPath(path);
     const parquetBytes = await this.dataSource.storeRoot.store.get("/" + parquetPath);
     const wasmTable = readParquet(parquetBytes);
     const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-    const geometryColumn = arrowTable.getChild('geometry');
-
-    //const flatCoords = geometryColumn.getChildAt(0).data[0].values;
-    console.log('arrowTable', arrowTable)
-    console.log('geometryColumn', geometryColumn)
-    console.log('geometryColumn.data', geometryColumn.toArray());
-    
-    const geometry = GeometryReader.readPoint(new Uint8Array(geometryColumn.toArray()[0]).buffer, false, false);
-    console.log('geometry', geometry)
-    return null;
-    /*
-    const rootUrl = this.dataSource.storeRoot?.store?.url;
-    let parquetData;
-    if(rootUrl) {
-      const parquetUrl = `${rootUrl}/${parquetPath}`;
-      console.log(parquetUrl);
-      parquetData = await readParquet(parquetUrl);
-    } else {
-      // Use zarr to get the raw bytes of the parquet since no URL
-      const parquetBytes = await this.dataSource.storeRoot.store.get(parquetPath);
-      parquetData = await readParquet(parquetBytes);
-    }
-    console.log(parquetData)
-    return null;*/
+    this.parquetTable = arrowTable;
+    return this.parquetTable;
   }
+
+  async loadSpotsFromParquet(path) {
+    const arrowTable = await this.loadParquetTable(path);
+    const geometryColumn = arrowTable.getChild('geometry');
+    // From GeoPandas.to_parquet docs: "By default, all geometry columns present are serialized to WKB format in the file"
+    // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
+
+    // TODO: support geoarrow serialization schemes in addition to WKB.
+    const wkb = new WKB();
+    const points = Array.from(geometryColumn.toArray())
+      .map(geom => wkb.readGeometry(geom).getFlatCoordinates());
+    return {
+      shape: [2, points.length],
+      data: [
+        new Float32Array(points.map(p => p[0])),
+        new Float32Array(points.map(p => p[1])),
+      ],
+    };
+  }
+
+  async loadRadiusFromParquet(path) {
+    const arrowTable = await this.loadParquetTable(path);
+    const radiusColumnArr = Array.from(arrowTable.getChild('radius').toArray());
+    return {
+      shape: [radiusColumnArr.length],
+      data: new Float32Array(radiusColumnArr),
+    };
+  }
+    
 
   /**
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
@@ -206,7 +219,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-
+      console.log('points matrix', modelMatrix)
       const formatVersion = await this.getFormatVersion(path);
       if(formatVersion === "0.1") {
         this.locations = await this.loadSpotsFromZarr(path);
@@ -238,7 +251,12 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     if (!this.radius) {
       const modelMatrix = await this.loadModelMatrix();
-      this.radius = await this.dataSource.loadNumeric(getRadiusPath(path));
+      const formatVersion = await this.getFormatVersion(path);
+      if(formatVersion === "0.1") {
+        this.radius = await this.loadRadiusFromZarr(path);
+      } else {
+        this.radius = await this.loadRadiusFromParquet(path);
+      }
       const scaleFactors = modelMatrix.getScale();
       const xScaleFactor = scaleFactors[0];
       const yScaleFactor = scaleFactors[1];
