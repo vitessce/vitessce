@@ -1,20 +1,34 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
-import { tableFromIPC } from 'apache-arrow/ipc/serialization';
-import WKB from 'ol/format/WKB.js';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
-/** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
+/** @import { TypedArray as ZarrTypedArray, Chunk, Uint8 } from '@zarrita/core' */
 
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
-  const module = await import('parquet-wasm/esm');
-  const responsePromise = await fetch(new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href);
-  const wasmBuffer = await responsePromise.arrayBuffer();
-  module.initSync(wasmBuffer);
-  return module.readParquet;
+  const module = await import('hyparquet');
+  /**
+   * 
+   * @param {ArrayBuffer} arrayBuffer 
+   * @returns 
+   */
+  const readParquet = (arrayBuffer) => new Promise((resolve) => {
+    // TODO: pass compressors? which types of compression will be used on the python side?
+    const metadata = module.parquetMetadata(arrayBuffer);
+    return module.parquetRead({
+      file: arrayBuffer,
+      onComplete: (table) => resolve({ ...metadata, data: table }),
+    });
+  });
+  return readParquet;
+}
+
+async function getReadWkb() {
+  const module = await import('ol/format/WKB.js');
+  const WKB = module.default;
+  return new WKB();
 }
 
 
@@ -73,6 +87,31 @@ export function getAttrsPath(arrPath) {
   return `${getShapesPrefix(arrPath)}.zattrs`;
 }
 
+/**
+ * 
+ * @param {string} str 
+ * @returns {Uint8Array}
+ */
+function byteStringToUint8Array(str) {
+  const bytes = [];
+  for (let i = 0; i < str.length; i++) {
+    const codeUnit = str.charCodeAt(i);
+    bytes.push(codeUnit);
+  }
+  return Uint8Array.from(bytes);
+}
+
+/**
+ * 
+ * @param {{ data: any[], schema: { name: string }[] }} hyparquetTable 
+ * @param {string} columnName 
+ * @returns 
+ */
+function getHyparquetColumn(hyparquetTable, columnName) {
+  const columnIndex = hyparquetTable.schema
+    .findIndex((field) => field.name === columnName) - 1;
+  return hyparquetTable.data.map((row) => row[columnIndex]);
+}
 
 export default class SpatialDataShapesSource extends AnnDataSource {
   /**
@@ -130,10 +169,19 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     if (!parquetBytes) {
       throw new Error('Failed to load parquet data from store.');
     }
-    const wasmTable = readParquet(parquetBytes);
-    // TODO: use streaming?
-    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-    this.parquetTable = arrowTable;
+    const hyparquetTable = await readParquet(parquetBytes.buffer);
+    hyparquetTable.schema
+      .filter((/** @type {{ type: string }} */ field) => field.type)
+      .forEach((/** @type {{ type: string }} */ field, /** @type {number} */ fieldIndex) => {
+        // Hyparquet returns byte arrays as strings.
+        if(field.type === "BYTE_ARRAY") {
+          hyparquetTable.data = hyparquetTable.data.map((/** @type {any[]} */ row) => {
+            row[fieldIndex] = byteStringToUint8Array(row[fieldIndex]);
+            return row;
+          });
+        }
+      });
+    this.parquetTable = hyparquetTable;
     return this.parquetTable;
   }
 
@@ -181,7 +229,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       return super.loadNumeric(path);
     }
     const arrowTable = await this.loadParquetTable(path);
-    const columnArr = arrowTable.getChild(basename(path))?.toArray();
+    const columnName = basename(path);
+    const columnArr = getHyparquetColumn(arrowTable, columnName);
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
@@ -211,7 +260,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     }
     const arrowTable = await this.loadParquetTable(path);
     if (columnName === 'geometry' && dims[0] === 0 && dims[1] === 1) {
-      const geometryColumn = arrowTable.getChild(columnName);
+      const geometryColumn = getHyparquetColumn(arrowTable, columnName);
+      console.log(geometryColumn)
       if (!geometryColumn) {
         throw new Error(`Column ${columnName} not found in parquet table`);
       }
@@ -219,8 +269,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       // "By default, all geometry columns present are serialized to WKB format in the file"
       // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
       // TODO: support geoarrow serialization schemes in addition to WKB.
-      const wkb = new WKB();
-      const points = geometryColumn.toArray()
+      const wkb = await getReadWkb();
+      const points = geometryColumn
       // @ts-ignore
         .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getFlatCoordinates());
       return {

@@ -142,9 +142,6 @@ catalogs:
     mathjs:
       specifier: ^9.2.0
       version: 9.5.2
-    parquet-wasm:
-      specifier: ^0.6.1
-      version: 0.6.1
     pluralize:
       specifier: ^8.0.0
       version: 8.0.0
@@ -621,15 +618,15 @@ importers:
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
+      hyparquet:
+        specifier: ^1.4.0
+        version: 1.4.0
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
       ol:
         specifier: ^10.2.1
         version: 10.2.1
-      parquet-wasm:
-        specifier: 'catalog:'
-        version: 0.6.1
       zarrita:
         specifier: 'catalog:'
         version: 0.4.0-next.16
@@ -8071,6 +8068,9 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
+  hyparquet@1.4.0:
+    resolution: {integrity: sha512-95i+s3nOH080+el1SRiDnZyLjt2AwfxNr/5bwx6Nu132V5bFO6+sGhiy+HExggzpETlGXaja1+IwluudcICQ+Q==}
+
   hyphenate-style-name@1.0.4:
     resolution: {integrity: sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==}
 
@@ -9576,9 +9576,6 @@ packages:
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
-
-  parquet-wasm@0.6.1:
-    resolution: {integrity: sha512-wTM/9Y4EHny8i0qgcOlL9UHsTXftowwCqDsAD8axaZbHp0Opp3ue8oxexbzTVNhqBjFhyhLiU3MT0rnEYnYU0Q==}
 
   parse-entities@1.2.2:
     resolution: {integrity: sha512-NzfpbxW/NPrzZ/yYSoQxyqUZMZXIdCfE0OIN4ESsnptHJECoUk3FZktxNuzQf4tjt5UEopnxpYJbvYuxIFDdsg==}
@@ -22267,6 +22264,8 @@ snapshots:
 
   human-signals@2.1.0: {}
 
+  hyparquet@1.4.0: {}
+
   hyphenate-style-name@1.0.4: {}
 
   iconv-lite@0.4.24:
@@ -23903,8 +23902,6 @@ snapshots:
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
-
-  parquet-wasm@0.6.1: {}
 
   parse-entities@1.2.2:
     dependencies:

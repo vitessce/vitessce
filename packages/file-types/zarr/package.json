@@ -43,7 +43,7 @@
     "lodash-es": "catalog:",
     "zarrita": "catalog:",
     "apache-arrow": "catalog:",
-    "parquet-wasm": "catalog:",
+    "hyparquet": "catalog:",
     "ol": "^10.2.1"
   },
   "devDependencies": {
