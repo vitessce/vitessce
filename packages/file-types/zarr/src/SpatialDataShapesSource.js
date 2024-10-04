@@ -1,7 +1,6 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 import { tableFromIPC } from 'apache-arrow/ipc/serialization';
-import WKB from 'ol/format/WKB.js';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
@@ -15,6 +14,12 @@ async function getReadParquet() {
   const wasmBuffer = await responsePromise.arrayBuffer();
   module.initSync(wasmBuffer);
   return module.readParquet;
+}
+
+async function getReadWkb() {
+  const module = await import('ol/format/WKB.js');
+  const WKB = module.default;
+  return new WKB();
 }
 
 
@@ -219,7 +224,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       // "By default, all geometry columns present are serialized to WKB format in the file"
       // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
       // TODO: support geoarrow serialization schemes in addition to WKB.
-      const wkb = new WKB();
+      const wkb = await getReadWkb();
       const points = geometryColumn.toArray()
       // @ts-ignore
         .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getFlatCoordinates());
