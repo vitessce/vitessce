@@ -1,7 +1,7 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
-import { tableFromIPC } from 'apache-arrow';
-import { WKB } from 'ol/format';
+import { tableFromIPC } from 'apache-arrow/ipc/serialization';
+import WKB from 'ol/format/WKB.js';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
