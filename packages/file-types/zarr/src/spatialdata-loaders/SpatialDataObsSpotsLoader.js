@@ -69,14 +69,12 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
 ];
 
 
-
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
 export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
-  
   async loadModelMatrix() {
-    const { path, coordinateSystem = "global" } = this.options;
+    const { path, coordinateSystem = 'global' } = this.options;
     if (this.modelMatrix) {
       return this.modelMatrix;
     }
@@ -84,8 +82,8 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     const zattrs = await this.dataSource.getJson(getAttrsPath(path));
 
     const {
-      "encoding-type": encodingType,
-      "spatialdata_attrs": {
+      'encoding-type': encodingType,
+      spatialdata_attrs: {
         geos = {},
         version: attrsVersion,
       },
@@ -94,7 +92,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       encodingType === 'ngff:shapes'
       && ((geos?.name === 'POINT'
       && geos?.type === 0
-      && attrsVersion === "0.1") || attrsVersion === "0.2")
+      && attrsVersion === '0.1') || attrsVersion === '0.2')
     );
     if (!hasExpectedAttrs) {
       throw new AbstractLoaderError(
@@ -115,7 +113,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     const coordinateTransformationsFromFile = (
       zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === "xy" && outputName === coordinateSystem
+      inputName === 'xy' && outputName === coordinateSystem
     ));
     const axes = zattrs?.axes || DEFAULT_AXES;
     // This new spec is very flexible,
@@ -153,7 +151,9 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
         const yCoord = this.locations.data[1][i];
         const transformed = new math.Vector2(xCoord, yCoord)
           .transformAsPoint(modelMatrix);
+        // eslint-disable-next-line prefer-destructuring
         this.locations.data[0][i] = transformed[0];
+        // eslint-disable-next-line prefer-destructuring
         this.locations.data[1][i] = transformed[1];
       }
       return this.locations;
@@ -168,6 +168,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return this.radius;
     }
     if (!this.radius) {
+      const modelMatrix = await this.loadModelMatrix();
       this.radius = await this.dataSource.loadNumeric(getRadiusPath(path));
       const scaleFactors = modelMatrix.getScale();
       const xScaleFactor = scaleFactors[0];

@@ -313,7 +313,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
       fileType: FileType.IMAGE_SPATIALDATA_ZARR,
       options: {
         coordinateSystem: defaultCoordinateSystem,
-        ...options.image
+        ...options.image,
       },
       coordinationValues: {
         ...extraCoordinationValues,

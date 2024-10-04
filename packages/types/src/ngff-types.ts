@@ -74,33 +74,33 @@ export type RotationTransformation = {
   rotation: number[];
 };
 export type InverseOfTransformation = {
-  type: "inverseOf";
+  type: 'inverseOf';
   transformation: NgffCoordinateTransformation;
 };
 export type SequenceTransformation = {
-  type: "sequence";
+  type: 'sequence';
   transformations: NgffCoordinateTransformation[];
   // Sometimes, the axes are not explicitly specified,
   // and instead they are inferred. May need to throw error
   // if ambiguous.
 };
 export type CoordinatesTransformation = {
-  type: "coordinates";
+  type: 'coordinates';
   path: string;
-  interpolation: "nearest" | "linear" | "cubic";
+  interpolation: 'nearest' | 'linear' | 'cubic';
 };
 export type DisplacementsTransformation = {
-  type: "displacements";
+  type: 'displacements';
   path: string;
-  interpolation: "nearest" | "linear" | "cubic";
+  interpolation: 'nearest' | 'linear' | 'cubic';
 };
 export type ByDimensionTransformation = {
   // Weird behavior, we can parse and just throw error/warning.
-  type: "byDimension";
+  type: 'byDimension';
   transformations: NgffCoordinateTransformation[];
 };
 export type BijectionTransformation = {
-  type: "bijection";
+  type: 'bijection';
   forward: object;
   inverse: object;
 };
