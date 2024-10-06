@@ -8,6 +8,7 @@ import { basename } from './utils.js';
 
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
+  // eslint-disable-next-line import/no-unresolved
   const module = await import('parquet-wasm/esm');
   const responsePromise = await fetch(new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href);
   const wasmBuffer = await responsePromise.arrayBuffer();
@@ -227,7 +228,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       if (!geometryColumn) {
         throw new Error(`Column ${columnName} not found in parquet table`);
       }
-      if(geometryColumn.type.toString() !== "Binary") {
+      if (geometryColumn.type.toString() !== 'Binary') {
         throw new Error(`Expected geometry column to have Binary type (WKB) but got ${geometryColumn.type.toString()}`);
       }
       // From GeoPandas.to_parquet docs:

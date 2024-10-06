@@ -1,5 +1,4 @@
 // Reference: https://github.com/ome/ngff/blob/bc4f395193b63ed671d4e4bdc0d7477c58abada8/latest/schemas/axes.schema
-export type NgffAxes = NgffAxis[];
 export type NgffAxis = {
   /**
    * Name of the axis
@@ -22,38 +21,17 @@ export type NgffAxis = {
    */
   unit?: string
 };
+export type NgffAxes = NgffAxis[];
+
 
 // Reference: https://github.com/ome/ngff/blob/bc4f395193b63ed671d4e4bdc0d7477c58abada8/latest/schemas/coordinate_systems.schema
-export type NgffCoordinateSystems = NgffCoordinateSystem[];
 export type NgffCoordinateSystem = {
   name: string;
   axes: NgffAxes;
 };
+export type NgffCoordinateSystems = NgffCoordinateSystem[];
 
 // Reference: https://github.com/ome/ngff/blob/bc4f395193b63ed671d4e4bdc0d7477c58abada8/latest/schemas/coordinateTransformations.schema
-export type NgffCoordinateTransformations = NgffCoordinateTransformation[];
-export type NgffCoordinateTransformation = {
-  // Note: in the latest version of the NGFF coordinate systems proposal,
-  // the `input` and `output` fields are only allowed to be strings referencing
-  // coordinate systems within the `coordinateSystems` array.
-  // Here, we also support an earlier version in which these coordinate systems
-  // are defined inline a bit redundantly (because there is not a
-  // `coordinateSystems` property more globally).
-  input: string | NgffCoordinateSystem;
-  output: string | NgffCoordinateSystem;
-} & (
-  ScaleTransformation
-  | TranslationTransformation
-  | AffineTransformation
-  | RotationTransformation
-  | InverseOfTransformation
-  | SequenceTransformation
-  | CoordinatesTransformation
-  | DisplacementsTransformation
-  | ByDimensionTransformation
-  | BijectionTransformation
-);
-
 export type ScaleTransformation = {
   type: 'scale';
   scale: number[];
@@ -75,10 +53,12 @@ export type RotationTransformation = {
 };
 export type InverseOfTransformation = {
   type: 'inverseOf';
+  // eslint-disable-next-line no-use-before-define
   transformation: NgffCoordinateTransformation;
 };
 export type SequenceTransformation = {
   type: 'sequence';
+  // eslint-disable-next-line no-use-before-define
   transformations: NgffCoordinateTransformation[];
   // Sometimes, the axes are not explicitly specified,
   // and instead they are inferred. May need to throw error
@@ -97,6 +77,7 @@ export type DisplacementsTransformation = {
 export type ByDimensionTransformation = {
   // Weird behavior, we can parse and just throw error/warning.
   type: 'byDimension';
+  // eslint-disable-next-line no-use-before-define
   transformations: NgffCoordinateTransformation[];
 };
 export type BijectionTransformation = {
@@ -104,6 +85,28 @@ export type BijectionTransformation = {
   forward: object;
   inverse: object;
 };
+export type NgffCoordinateTransformation = {
+  // Note: in the latest version of the NGFF coordinate systems proposal,
+  // the `input` and `output` fields are only allowed to be strings referencing
+  // coordinate systems within the `coordinateSystems` array.
+  // Here, we also support an earlier version in which these coordinate systems
+  // are defined inline a bit redundantly (because there is not a
+  // `coordinateSystems` property more globally).
+  input: string | NgffCoordinateSystem;
+  output: string | NgffCoordinateSystem;
+} & (
+  ScaleTransformation
+  | TranslationTransformation
+  | AffineTransformation
+  | RotationTransformation
+  | InverseOfTransformation
+  | SequenceTransformation
+  | CoordinatesTransformation
+  | DisplacementsTransformation
+  | ByDimensionTransformation
+  | BijectionTransformation
+);
+export type NgffCoordinateTransformations = NgffCoordinateTransformation[];
 
 // Reference: https://github.com/ome/ngff/blob/bc4f395193b63ed671d4e4bdc0d7477c58abada8/latest/schemas/coordinate_systems_and_transforms.schema
 export type NgffCoordinateSystemsAndTransformations = {

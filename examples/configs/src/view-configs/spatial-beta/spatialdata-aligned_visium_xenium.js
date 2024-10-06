@@ -50,7 +50,7 @@ function generateVisiumXeniumConfig() {
   featureSelectionScope.setValue(['STARD3']);
   obsColorEncodingScope.setValue('geneSelection');
 
-  
+
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       photometricInterpretation: 'RGB',
@@ -61,7 +61,7 @@ function generateVisiumXeniumConfig() {
     spotLayer: CL({
       featureSelection: featureSelectionScope,
       obsColorEncoding: obsColorEncodingScope,
-      //spatialSpotRadius: 100,
+      // spatialSpotRadius: 100,
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSpots') });
 
