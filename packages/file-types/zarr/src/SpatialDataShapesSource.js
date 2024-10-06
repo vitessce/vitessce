@@ -1,32 +1,31 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
+import { tableFromIPC } from 'apache-arrow';
+import WKB from 'ol/format/WKB.js';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
 
+// TODO: host somewhere we control, like cdn.vitessce.io?
+const PARQUET_WASM_URL = 'https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm';
+
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
   // eslint-disable-next-line import/no-unresolved
   const module = await import('parquet-wasm/esm');
-  const responsePromise = await fetch(new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href);
+  // The following becomes inlined by Vite in library mode
+  // eliminating the benefit of dynamic import.
+  // Reference: https://github.com/vitejs/vite/issues/4454
+  // const responsePromise = await fetch(
+  //   new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href
+  // );
+  const responsePromise = await fetch(PARQUET_WASM_URL);
   const wasmBuffer = await responsePromise.arrayBuffer();
   module.initSync(wasmBuffer);
   return module.readParquet;
 }
-
-async function getReadWkb() {
-  const module = await import('ol/format/WKB.js');
-  const WKB = module.default;
-  return new WKB();
-}
-
-async function getTableFromIPC() {
-  const module = await import('apache-arrow/ipc/serialization');
-  return module.tableFromIPC;
-}
-
 
 // If the array path starts with table/something/rest
 // capture table/something.
@@ -134,10 +133,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       // Return cached table if present.
       return this.parquetTable;
     }
-    const [readParquet, tableFromIPC] = await Promise.all([
-      getReadParquet(),
-      getTableFromIPC(),
-    ]);
+    const readParquet = await getReadParquet();
     const parquetPath = getParquetPath(path);
     const parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
     if (!parquetBytes) {
@@ -235,7 +231,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       // "By default, all geometry columns present are serialized to WKB format in the file"
       // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
       // TODO: support geoarrow serialization schemes in addition to WKB.
-      const wkb = await getReadWkb();
+      const wkb = new WKB();
       const points = geometryColumn.toArray()
       // @ts-ignore
         .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getFlatCoordinates());

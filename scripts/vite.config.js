@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
 
+
 const cwd = process.cwd();
 
 // Need to make vit-s external for dependents (but vit-s is not dependent on itself),
