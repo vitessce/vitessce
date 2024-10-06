@@ -1,6 +1,5 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
-import { tableFromIPC } from 'apache-arrow/ipc/serialization';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
@@ -20,6 +19,11 @@ async function getReadWkb() {
   const module = await import('ol/format/WKB.js');
   const WKB = module.default;
   return new WKB();
+}
+
+async function getTableFromIPC() {
+  const module = await import('apache-arrow/ipc/serialization');
+  return module.tableFromIPC;
 }
 
 
@@ -129,7 +133,10 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       // Return cached table if present.
       return this.parquetTable;
     }
-    const readParquet = await getReadParquet();
+    const [readParquet, tableFromIPC] = await Promise.all([
+      getReadParquet(),
+      getTableFromIPC(),
+    ]);
     const parquetPath = getParquetPath(path);
     const parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
     if (!parquetBytes) {

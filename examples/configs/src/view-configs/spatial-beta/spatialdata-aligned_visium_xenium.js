@@ -17,36 +17,28 @@ function generateVisiumXeniumConfig() {
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-october-2024/visium_associated_xenium_io_aligned.zarr';
   const dataset1 = config.addDataset('D1').addFile({
-    fileType: 'image.spatialdata.zarr',
+    fileType: 'spatialdata.zarr',
     url: baseUrl,
     options: {
-      path: 'images/CytAssist_FFPE_Human_Breast_Cancer_full_image',
-      coordinateSystem: 'aligned',
-    },
-  }).addFile({
-    fileType: 'obsFeatureMatrix.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      path: 'tables/table/X',
-      region: 'CytAssist_FFPE_Human_Breast_Cancer',
-    },
-    coordinationValues: {
-      obsType: 'spot',
-    },
-  }).addFile({
-    fileType: 'obsSpots.spatialdata.zarr',
-    url: baseUrl,
-    options: {
-      path: 'shapes/CytAssist_FFPE_Human_Breast_Cancer',
-      tablePath: 'tables/table',
-      region: 'CytAssist_FFPE_Human_Breast_Cancer',
-      coordinateSystem: 'aligned',
+      image: {
+        path: 'images/CytAssist_FFPE_Human_Breast_Cancer_full_image',
+        coordinateSystem: 'aligned',
+      },
+      obsFeatureMatrix: {
+        path: 'tables/table/X',
+        region: 'CytAssist_FFPE_Human_Breast_Cancer',
+      },
+      obsSpots: {
+        path: 'shapes/CytAssist_FFPE_Human_Breast_Cancer',
+        tablePath: 'tables/table',
+        region: 'CytAssist_FFPE_Human_Breast_Cancer',
+        coordinateSystem: 'aligned',
+      },
     },
     coordinationValues: {
       obsType: 'spot',
     },
   });
-  // TODO: add second image in second dataset.
 
   const spatialView = config.addView(dataset1, 'spatialBeta');
   const lcView = config.addView(dataset1, 'layerControllerBeta');
@@ -55,16 +47,15 @@ function generateVisiumXeniumConfig() {
   const featureList = config.addView(dataset1, 'featureList');
 
   const [featureSelectionScope, obsColorEncodingScope] = config.addCoordination('featureSelection', 'obsColorEncoding');
-  featureSelectionScope.setValue(['A2M']);
+  featureSelectionScope.setValue(['STARD3']);
   obsColorEncodingScope.setValue('geneSelection');
 
-  /*
+  
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       photometricInterpretation: 'RGB',
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
-  */
 
   config.linkViewsByObject([spatialView, lcView], {
     spotLayer: CL({
