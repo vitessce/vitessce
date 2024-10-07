@@ -1,10 +1,10 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-unresolved */
+/* eslint-disable no-undef */
 import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import { tableFromIPC } from 'apache-arrow';
 import WKB from 'ol/format/WKB.js';
-import { asEsModule } from '@vitessce/utils';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
