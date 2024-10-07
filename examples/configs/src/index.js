@@ -189,7 +189,7 @@ export const publicConfigs = [
   'wang-2018',
   'spraggins-2020',
   'satija-2020',
-  'blin-2019-zip',
+  'blin-2019',
   'rgb-ome-tiff',
   'segmentations-ome-tiff',
 ];

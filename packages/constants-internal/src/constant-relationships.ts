@@ -126,6 +126,7 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
 // corresponding to alternative store implementations,
 // to avoid having to rely on file extensions.
 export const ALT_ZARR_STORE_TYPES = {
+  // For AnnData:
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: {
     zip: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP,
     h5ad: FileType.OBS_FEATURE_MATRIX_ANNDATA_H5AD,
@@ -170,10 +171,7 @@ export const ALT_ZARR_STORE_TYPES = {
     zip: FileType.SAMPLE_EDGES_ANNDATA_ZARR_ZIP,
     h5ad: FileType.SAMPLE_EDGES_ANNDATA_H5AD,
   },
-};
-
-
-export const ALT_OME_ZARR_STORE_TYPES = {
+  // For OME-Zarr:
   [FileType.IMAGE_OME_ZARR]: {
     zip: FileType.IMAGE_OME_ZARR_ZIP,
   },
