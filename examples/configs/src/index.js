@@ -37,7 +37,7 @@ import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
-import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
+import { blinOop2019, blinOop2019Zip, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
@@ -118,6 +118,7 @@ export const configs = {
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
+  'blin-2019-zip': blinOop2019Zip,
   'ome-ngff-multi': multipleOmeZarrViaRasterJson,
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
