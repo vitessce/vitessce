@@ -1,20 +1,30 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-unresolved */
+import dynamicImportPolyfill from 'dynamic-import-polyfill';
 import { tableFromIPC } from 'apache-arrow';
 import WKB from 'ol/format/WKB.js';
+import { asEsModule } from '@vitessce/utils';
 import AnnDataSource from './AnnDataSource.js';
 import { basename } from './utils.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
 
+// Initialize the dynamic __import__() function.
+if (dynamicImportPolyfill) {
+  dynamicImportPolyfill.initialize();
+}
+
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
   // TODO: host somewhere we control, like cdn.vitessce.io?
   // @ts-ignore
-  const module = await import('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
+  const module = await __import__('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
   await module.default();
+  // We cannot use regulary dynamic import here because it breaks NextJS builds
+  // due to pointing to a remote URL.
+  // I could not figure out a NextJS webpack configuration to resolve it.
   // The following becomes inlined by Vite in library mode
   // eliminating the benefit of dynamic import.
   // Reference: https://github.com/vitejs/vite/issues/4454
