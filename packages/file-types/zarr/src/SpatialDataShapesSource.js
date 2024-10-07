@@ -8,20 +8,19 @@ import { basename } from './utils.js';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
 
-// TODO: host somewhere we control, like cdn.vitessce.io?
-const PARQUET_WASM_URL = 'https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm';
-
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
+  // TODO: host somewhere we control, like cdn.vitessce.io?
   // eslint-disable-next-line import/no-unresolved
-  const module = await import('parquet-wasm/esm');
+  // @ts-ignore
+  const module = await import('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
   // The following becomes inlined by Vite in library mode
   // eliminating the benefit of dynamic import.
   // Reference: https://github.com/vitejs/vite/issues/4454
   // const responsePromise = await fetch(
   //   new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href
   // );
-  const responsePromise = await fetch(PARQUET_WASM_URL);
+  const responsePromise = await fetch('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm');
   const wasmBuffer = await responsePromise.arrayBuffer();
   module.initSync(wasmBuffer);
   return module.readParquet;
