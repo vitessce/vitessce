@@ -1,4 +1,11 @@
 
+## 3.4.14
+
+### Patch Changes
+
+- Support parquet-based spatialdata shapes for obsSpots. Incremental update to spatialdata file options schema. (`@vitessce/zarr`, `@vitessce/schemas`, `@vitessce/types`) ([#1849](https://github.com/vitessce/vitessce/pull/1849))
+
+
 ## 3.4.13
 
 ### Patch Changes
