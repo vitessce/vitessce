@@ -1,4 +1,13 @@
 
+## 3.4.13
+
+### Patch Changes
+
+- Added support for ome-zarr-zip files (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`) ([#1945](https://github.com/vitessce/vitessce/pull/1945))
+
+- Add a config that uses a spatialBeta view and relies on auto-initialization of the coordination space. (`@vitessce/example-configs`) ([#1901](https://github.com/vitessce/vitessce/pull/1901))
+
+
 ## 3.4.12
 
 ### Patch Changes
