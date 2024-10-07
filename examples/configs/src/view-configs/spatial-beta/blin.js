@@ -16,7 +16,7 @@ function generateBlinConfig(storeType) {
 
   if (storeType === 'zip') {
     omeFileType = 'image.ome-zarr.zip';
-    omeUrl = 'https://drive.google.com/file/d/1lApt_MbtBEtJ3Cr2DmHwSA5kjRyMjJ5X/view?usp=sharing';
+    omeUrl = 'https://drive.google.com/file/d/1-QwsYNxARvt2ThgUJ0YJ7MtJAHkn9W1h/view?usp=sharing';
     omeFileUid = 'placeholder';
   }
 
