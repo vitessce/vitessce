@@ -14,15 +14,21 @@ async function getReadParquet() {
   // eslint-disable-next-line import/no-unresolved
   // @ts-ignore
   const module = await import('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
+  await module.default();
   // The following becomes inlined by Vite in library mode
   // eliminating the benefit of dynamic import.
   // Reference: https://github.com/vitejs/vite/issues/4454
   // const responsePromise = await fetch(
   //   new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href
   // );
-  const responsePromise = await fetch('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm');
-  const wasmBuffer = await responsePromise.arrayBuffer();
-  module.initSync(wasmBuffer);
+  // const responsePromise = await fetch('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm');
+  // const wasmBuffer = await responsePromise.arrayBuffer();
+  // module.initSync(wasmBuffer);
+  // Another issue is that when we import parquet-wasm JS from node_modules,
+  // running module.default there is a MIME type issue because the Vite dev
+  // server does not serve the .wasm with a MIME type of application/wasm.
+  // I can't seem to get a custom Vite plugin that sets the MIME type in
+  // request headers to work.
   return module.readParquet;
 }
 
