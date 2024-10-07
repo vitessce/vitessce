@@ -135,7 +135,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultT,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultT || 0;
@@ -150,7 +150,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultZ,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultZ || 0;
@@ -443,7 +443,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             model,
-          },
+          } = {},
         },
       } = loader.metadata;
       if (model === 'color') {

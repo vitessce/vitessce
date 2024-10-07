@@ -261,8 +261,10 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     }
   });
   const { options = {} } = fileDef;
+  const defaultCoordinateSystem = options.coordinateSystem;
   return [
     // obsFeatureMatrix
+    // TODO: handle multiple obsFeatureMatrix?
     ...(options.obsFeatureMatrix ? [{
       ...baseFileDef,
       fileType: FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR,
@@ -275,6 +277,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
       },
     }] : []),
     // obsSets
+    // TODO: handle multiple obsSets?
     ...(options.obsSets ? [{
       ...baseFileDef,
       fileType: FileType.OBS_SETS_SPATIALDATA_ZARR,
@@ -285,10 +288,14 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
       },
     }] : []),
     // obsSpots
+    // TODO: handle multiple obsSpots?
     ...(options.obsSpots ? [{
       ...baseFileDef,
       fileType: FileType.OBS_SPOTS_SPATIALDATA_ZARR,
-      options: options.obsSpots,
+      options: {
+        coordinateSystem: defaultCoordinateSystem,
+        ...options.obsSpots,
+      },
       coordinationValues: {
         ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
@@ -296,11 +303,18 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     }] : []),
     // TODO: obsPoints?
     // TODO: obsLocations?
+    // TODO: obsLabels
+    // TODO: featureLabels
+    // TODO: obsEmbedding
     // image
+    // TODO: handle multiple images
     ...(options.image ? [{
       ...baseFileDef,
       fileType: FileType.IMAGE_SPATIALDATA_ZARR,
-      options: options.image,
+      options: {
+        coordinateSystem: defaultCoordinateSystem,
+        ...options.image,
+      },
       coordinationValues: {
         ...extraCoordinationValues,
         featureType: baseFileDef.coordinationValues.featureType,
@@ -308,10 +322,14 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
       },
     }] : []),
     // labels
+    // TODO: handle multiple labels?
     ...(options.labels ? [{
       ...baseFileDef,
       fileType: FileType.LABELS_SPATIALDATA_ZARR,
-      options: options.labels,
+      options: {
+        coordinateSystem: defaultCoordinateSystem,
+        ...options.labels,
+      },
       coordinationValues: {
         ...extraCoordinationValues,
         obsType: baseFileDef.coordinationValues.obsType,
