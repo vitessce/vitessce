@@ -7,6 +7,7 @@ import {
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
   ALT_ZARR_STORE_TYPES,
+  ALT_OME_ZARR_STORE_TYPES,
 } from '@vitessce/constants-internal';
 import {
   PluginFileType,
@@ -179,6 +180,12 @@ import {
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
 
+type FileTypes = {
+  [key: string]: {
+    [key: string]: string;
+  };
+};
+
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
   return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
@@ -188,8 +195,8 @@ function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
 // For when we have multiple file types with the same data type and options schema.
-function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
-  const altFileTypes = ALT_ZARR_STORE_TYPES[name];
+function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>, fileTypes:FileTypes) {
+  const altFileTypes = fileTypes[name];
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
     ...Object.entries(altFileTypes).map(([key, fileType]) => {
@@ -237,17 +244,17 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource, z.null()),
   makeFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource, z.null()),
   // All AnnData file types
-  ...makeZarrFileTypes(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource, obsEmbeddingAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_SPOTS_ANNDATA_ZARR, DataType.OBS_SPOTS, ObsSpotsAnndataLoader, AnnDataSource, obsSpotsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_POINTS_ANNDATA_ZARR, DataType.OBS_POINTS, ObsPointsAnndataLoader, AnnDataSource, obsPointsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_LOCATIONS_ANNDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_LABELS_ANNDATA_ZARR, DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource, obsLabelsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource, obsFeatureMatrixAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureColumnsAnndataLoader, AnnDataSource, obsFeatureColumnsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
-  ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
-  ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource, obsEmbeddingAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_SPOTS_ANNDATA_ZARR, DataType.OBS_SPOTS, ObsSpotsAnndataLoader, AnnDataSource, obsSpotsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_POINTS_ANNDATA_ZARR, DataType.OBS_POINTS, ObsPointsAnndataLoader, AnnDataSource, obsPointsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_LOCATIONS_ANNDATA_ZARR, DataType.OBS_LOCATIONS, ObsLocationsAnndataLoader, AnnDataSource, obsLocationsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_LABELS_ANNDATA_ZARR, DataType.OBS_LABELS, ObsLabelsAnndataLoader, AnnDataSource, obsLabelsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, AnnDataSource, obsFeatureMatrixAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureColumnsAnndataLoader, AnnDataSource, obsFeatureColumnsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema, ALT_ZARR_STORE_TYPES),
+  ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema, ALT_ZARR_STORE_TYPES),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -259,9 +266,9 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_MUDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, MuDataSource, obsSegmentationsAnndataSchema),
   makeFileType(FileType.FEATURE_LABELS_MUDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, MuDataSource, featureLabelsAnndataSchema),
   // All OME file types
-  makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema, ALT_OME_ZARR_STORE_TYPES),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema, ALT_OME_ZARR_STORE_TYPES),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),

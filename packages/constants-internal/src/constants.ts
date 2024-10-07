@@ -70,6 +70,9 @@ export const FileType = {
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
+  // OME-Zarr - Zipped
+  IMAGE_OME_ZARR_ZIP: 'image.ome-zarr.zip',
+  OBS_SEGMENTATIONS_OME_ZARR_ZIP: 'obsSegmentations.ome-zarr.zip',
   // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR: 'obsFeatureColumns.anndata.zarr',

@@ -171,3 +171,13 @@ export const ALT_ZARR_STORE_TYPES = {
     h5ad: FileType.SAMPLE_EDGES_ANNDATA_H5AD,
   },
 };
+
+
+export const ALT_OME_ZARR_STORE_TYPES = {
+  [FileType.IMAGE_OME_ZARR]: {
+    zip: FileType.IMAGE_OME_ZARR_ZIP,
+  },
+  [FileType.OBS_SEGMENTATIONS_OME_ZARR]: {
+    zip: FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP,
+  },
+};
