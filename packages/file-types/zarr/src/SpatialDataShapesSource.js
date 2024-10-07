@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import WKB from 'ol/format/WKB.js';
 import AnnDataSource from './AnnDataSource.js';
@@ -11,7 +12,6 @@ import { basename } from './utils.js';
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
   // TODO: host somewhere we control, like cdn.vitessce.io?
-  // eslint-disable-next-line import/no-unresolved
   // @ts-ignore
   const module = await import('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
   await module.default();
