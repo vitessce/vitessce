@@ -57,8 +57,9 @@ const rectMarginX = 2;
  *
  * @param {object} props The props for the Legend component.
  * @param {boolean} props.visible Whether the legend is visible.
- * @param {Array<[number, number]> | null} props.extent The extent of the
- * data in the form of an array of [min, max] values for each feature.
+ * @param {[number, number] | null} props.extent The extent of the
+ * data in tuple [min, max].
+ * @param {number | null} props.missing The fraction of missing values.
  * @returns {ReactElement}
  */
 export default function Legend(props) {
@@ -79,6 +80,7 @@ export default function Legend(props) {
     obsSetSelection,
     obsSetColor,
     extent,
+    missing,
     width = 100,
     height = 36,
     theme,
@@ -313,13 +315,15 @@ export default function Legend(props) {
       });
     }
 
-    const featureSelectionLabel = (
+    const featureSelectionLabelRaw = (
       featureSelection
       && featureSelection.length >= 1
       && !isStaticColor
     )
       ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
       : null;
+    // if there are missing values, mention them in the label
+    const featureSelectionLabel = missing ? `${featureSelectionLabelRaw} (${Math.round(missing * 100)}% missing)` : featureSelectionLabelRaw;
 
     // Include obsType in the label text (perhaps only when multi-obsType).
     const obsLabel = capitalize(obsType);

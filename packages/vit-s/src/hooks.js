@@ -228,10 +228,11 @@ export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
  * @returns {{
  *  normData: Uint8Array[] | null,
  *  extents: [number, number][] | null,
- *  missing: boolean[][] | null
- * }} An object tuple {normData, extents} where
- * normData is an array of Uint8Arrays (or null), and extents is
- * an array of [min, max] values for each feature (or null).
+ *  missing: number[]
+ * }} An object tuple {normData, extents, missing} where
+ * normData is an array of Uint8Arrays (or null),
+ * extents is an array of [min, max] values for each feature (or null), and
+ * missing is an array of numbers (between 0 and 1) for each feature (or null).
  */
 export function useUint8FeatureSelection(expressionData) {
   return useMemo(() => {
@@ -246,7 +247,10 @@ export function useUint8FeatureSelection(expressionData) {
         arr.map(j => Math.floor((j - min) * ratio)),
       );
     });
-    const missing = expressionData.map(arr => arr.map(Number.isNaN));
+    const missing = expressionData.map((arr) => {
+      const numMissing = arr.reduce((prev, curr) => (Number.isNaN(curr) ? prev + 1 : prev), 0);
+      return numMissing / arr.length;
+    });
     return { normData, extents, missing };
   }, [expressionData]);
 }

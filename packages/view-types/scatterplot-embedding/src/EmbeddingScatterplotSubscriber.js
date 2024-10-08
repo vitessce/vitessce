@@ -336,6 +336,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
+    missing: expressionMissing,
   } = useUint8FeatureSelection(expressionData);
 
   // Set up a getter function for gene expression values, to be used
@@ -562,6 +563,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormapRange={geneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
         extent={expressionExtents?.[0]}
+        missing={expressionMissing?.[0]}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
         contoursVisible={embeddingContoursVisible}
