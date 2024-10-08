@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
-import { isEqual } from 'lodash-es';
-import { getMaxRows, resolveLayout } from './layout-utils.js';
+import React, {useState, useMemo, useCallback} from 'react';
+import {Responsive, WidthProvider} from 'react-grid-layout-with-lodash';
+import {isEqual} from 'lodash-es';
+import {getMaxRows, resolveLayout} from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -16,7 +16,7 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
+    viewTypes, stores, coordinationTypes, fileTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
@@ -106,7 +106,7 @@ export function VitessceGridLayout(props) {
     setTempGridLayouts(allLayouts);
     // Then we wait 50ms and validate/set the new layout.
     setTimeout(() => {
-      if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
+      if (!isBounded || getMaxRows({ID: newLayout}) <= maxRows) {
         // Good, new layout was valid with respect to isBounded, so set in parent.
         onValidLayoutChange(newLayout);
         setLastValidGridLayouts(allLayouts);
@@ -136,14 +136,18 @@ export function VitessceGridLayout(props) {
         // The child mapped to a view in the config,
         // so we want to render the corresponding component as a subchild.
         const Component = getComponent(v.component);
-        return React.cloneElement(child, { key: v.uid }, (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        return React.cloneElement(child, {key: v.uid}, (
+          <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
             <Component
-              {... v.props}
+              {...v.props}
               uuid={v.uid}
               coordinationScopes={v.coordinationScopes}
               coordinationScopesBy={v.coordinationScopesBy}
               theme={theme}
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              stores={stores}
+              coordinationTypes={coordinationTypes}
               removeGridComponent={null}
             />
           </div>
@@ -160,11 +164,15 @@ export function VitessceGridLayout(props) {
       return (
         <div key={v.uid}>
           <Component
-            {... v.props}
+            {...v.props}
             uuid={v.uid}
             coordinationScopes={v.coordinationScopes}
             coordinationScopesBy={v.coordinationScopesBy}
             theme={theme}
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            stores={stores}
+            coordinationTypes={coordinationTypes}
             removeGridComponent={removeGridComponent}
           />
         </div>
@@ -184,11 +192,11 @@ export function VitessceGridLayout(props) {
           breakpoints={gridBreakpoints}
           height={height}
           rowHeight={
-          rowHeight
-          || (
-            (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
-            / maxRows
-          )}
+            rowHeight
+            || (
+              (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
+              / maxRows
+            )}
           containerPadding={containerPadding}
           margin={margin}
           draggableHandle={draggableHandle}

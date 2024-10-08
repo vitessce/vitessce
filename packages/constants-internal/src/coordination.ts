@@ -447,4 +447,5 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
+  [ViewType.LINK_CONTROLLER]: [],
 };
