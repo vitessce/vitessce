@@ -52,6 +52,15 @@ const rectHeight = 8;
 const rectMarginY = 2;
 const rectMarginX = 2;
 
+/**
+ * A component for displaying a legend.
+ *
+ * @param {object} props The props for the Legend component.
+ * @param {boolean} props.visible Whether the legend is visible.
+ * @param {Array<[number, number]> | null} props.extent The extent of the
+ * data in the form of an array of [min, max] values for each feature.
+ * @returns {ReactElement}
+ */
 export default function Legend(props) {
   const {
     visible: visibleProp,
