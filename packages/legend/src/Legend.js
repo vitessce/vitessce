@@ -323,7 +323,7 @@ export default function Legend(props) {
       ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
       : null;
     // if there are missing values, mention them in the label
-    const featureSelectionLabel = missing ? `${featureSelectionLabelRaw} (${Math.round(missing * 100)}% missing)` : featureSelectionLabelRaw;
+    const featureSelectionLabel = missing ? `${featureSelectionLabelRaw} (${Math.round(missing * 100)}% NaN)` : featureSelectionLabelRaw;
 
     // Include obsType in the label text (perhaps only when multi-obsType).
     const obsLabel = capitalize(obsType);
