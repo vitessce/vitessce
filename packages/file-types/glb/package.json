@@ -1,0 +1,45 @@
+{
+  "name": "@vitessce/glb",
+  "version": "3.4.14",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@react-three/drei": "catalog:",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "three": "catalog:"
+  }
+}

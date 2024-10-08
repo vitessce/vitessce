@@ -164,6 +164,7 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
           url,
           fileType,
           requestInit,
+          refSpecUrl: options?.refSpecUrl,
           // Optionally, pass a Zarrita store to the data source,
           // if one was mapped to this URL.
           store: stores?.[url],

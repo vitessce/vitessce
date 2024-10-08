@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/layer-controller-beta",
-  "version": "3.3.12",
+  "version": "3.4.14",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,8 +30,8 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
-    "@material-ui/icons": "~4.11.2",
+    "@material-ui/core": "catalog:",
+    "@material-ui/icons": "catalog:",
     "@tanstack/react-query": "^4.29.12",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
@@ -42,17 +42,17 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "clsx": "^1.1.1",
-    "lodash-es": "^4.17.21",
-    "math.gl": "^3.5.6",
+    "clsx": "catalog:",
+    "lodash-es": "catalog:",
+    "math.gl": "catalog:",
     "plur": "^5.1.0",
-    "react-aria": "^3.28.0",
+    "react-aria": "catalog:",
     "react-color-with-lodash": "^2.19.5"
   },
   "devDependencies": {
-    "react": "^18.0.0",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

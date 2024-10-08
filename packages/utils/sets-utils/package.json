@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/sets-utils",
-  "version": "3.3.12",
+  "version": "3.4.14",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,16 +30,16 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@turf/centroid": "^6.5.0",
-    "@turf/helpers": "^6.5.0",
+    "@turf/centroid": "catalog:turf",
+    "@turf/helpers": "catalog:turf",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "concaveman": "^1.2.1",
-    "d3-dsv": "^1.1.1",
-    "internmap": "^2.0.3",
+    "d3-dsv": "catalog:",
+    "internmap": "catalog:",
     "json2csv": "^5.0.0",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "catalog:",
     "tinycolor2": "^1.4.1",
-    "uuid": "^9.0.0"
+    "uuid": "catalog:"
   }
 }

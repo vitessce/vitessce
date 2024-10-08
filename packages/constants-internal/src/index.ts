@@ -1,5 +1,5 @@
 export {
-  ViewType, DataType, FileType, CoordinationType, STATUS,
+  ViewType, DataType, FileType, CoordinationType, STATUS, ViewHelpMapping, DescriptionType,
 } from './constants.js';
 export {
   FILE_TYPE_DATA_TYPE_MAPPING,

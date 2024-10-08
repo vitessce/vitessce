@@ -5,7 +5,7 @@ import {
   useCoordination, useLoaders,
   useDescription, useImageData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import Description from './Description.js';
 
 /**
@@ -23,10 +23,12 @@ export function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
+    descriptionType,
     removeGridComponent,
     theme,
     title = 'Description',
     closeButtonVisible,
+    helpText = ViewHelpMapping.DESCRIPTION,
   } = props;
 
   const loaders = useLoaders();
@@ -72,9 +74,11 @@ export function DescriptionSubscriber(props) {
       isScroll
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
     >
       <Description
         description={descriptionOverride || description}
+        descriptionType={descriptionType}
         metadata={metadata}
       />
     </TitleInfo>

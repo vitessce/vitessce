@@ -9,12 +9,21 @@ import {
   useSampleSetsData,
   useSampleEdgesData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, getValueTransformFunction } from '@vitessce/utils';
-import { treeToObjectsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
+import {
+  treeToSetSizesBySetNames,
+  mergeObsSets,
+  stratifyExpressionData,
+  aggregateStratifiedExpressionData,
+} from '@vitessce/sets-utils';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import CellSetExpressionPlot from './CellSetExpressionPlot.js';
 import { useStyles } from './styles.js';
+import {
+  summarizeStratifiedExpressionData,
+  histogramStratifiedExpressionData,
+} from './expr-hooks.js';
 
 /**
  * Get expression data for the cells
@@ -34,14 +43,13 @@ import { useStyles } from './styles.js';
  * feature value transform function.
  * @param {number} featureValueTransformCoefficient A coefficient
  * to be used in the transform function.
- * @param {string} theme "light" or "dark" for the vitessce theme
- * `path` and `color`.
  */
 function useExpressionByCellSet(
+  sampleEdges, sampleSets, sampleSetSelection,
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme,
+  theme, yMinProp,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -51,37 +59,29 @@ function useExpressionByCellSet(
   // From the expression matrix and the list of selected genes / cell sets,
   // generate the array of data points for the plot.
   const [expressionArr, expressionMax] = useMemo(() => {
-    if (mergedCellSets && cellSetSelection
-        && geneSelection && geneSelection.length >= 1
-        && expressionData
-    ) {
-      const cellObjects = treeToObjectsBySetNames(
-        mergedCellSets, cellSetSelection, cellSetColor, theme,
+    const [stratifiedData, exprMax] = stratifyExpressionData(
+      sampleEdges, sampleSets, sampleSetSelection,
+      expressionData, obsIndex, mergedCellSets,
+      geneSelection, cellSetSelection, cellSetColor,
+      featureValueTransform, featureValueTransformCoefficient,
+    );
+    if (stratifiedData) {
+      const aggregateData = aggregateStratifiedExpressionData(
+        stratifiedData, geneSelection,
       );
-
-      const firstGeneSelected = geneSelection[0];
-      // Create new cellColors map based on the selected gene.
-      let exprMax = -Infinity;
-      const cellIndices = {};
-      for (let i = 0; i < obsIndex.length; i += 1) {
-        cellIndices[obsIndex[i]] = i;
-      }
-      const exprValues = cellObjects.map((cell) => {
-        const cellIndex = cellIndices[cell.obsId];
-        const value = expressionData[0][cellIndex];
-        const transformFunction = getValueTransformFunction(
-          featureValueTransform, featureValueTransformCoefficient,
-        );
-        const transformedValue = transformFunction(value);
-        exprMax = Math.max(transformedValue, exprMax);
-        return { value: transformedValue, gene: firstGeneSelected, set: cell.name };
-      });
-      return [exprValues, exprMax];
+      const summarizedData = summarizeStratifiedExpressionData(
+        aggregateData, true,
+      );
+      const histogramData = histogramStratifiedExpressionData(
+        summarizedData, 16, yMinProp,
+      );
+      return [histogramData, exprMax];
     }
     return [null, null];
   }, [expressionData, obsIndex, geneSelection, theme,
     mergedCellSets, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
+    yMinProp, sampleEdges, sampleSets, sampleSetSelection,
   ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -95,7 +95,6 @@ function useExpressionByCellSet(
 
   return [expressionArr, setArr, expressionMax];
 }
-
 
 /**
  * A subscriber component for `CellSetExpressionPlot`,
@@ -117,6 +116,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     jitter = false,
     yMin = null,
     yUnits = null,
+    helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
   } = props;
 
   const classes = useStyles();
@@ -135,9 +135,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     obsSetColor: cellSetColor,
     additionalObsSets: additionalCellSets,
     sampleType,
+    sampleSetSelection,
+    sampleSetColor,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setSampleSetColor,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
@@ -167,13 +170,13 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType },
   );
 
-  // eslint-disable-next-line no-unused-vars
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
-    loaders, dataset, false, {}, {},
+    loaders, dataset, false,
+    { setSampleSetColor },
+    { sampleSetColor },
     { sampleType },
   );
 
-  // eslint-disable-next-line no-unused-vars
   const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
@@ -195,11 +198,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesUrls,
   ]);
 
-  const [expressionArr, setArr] = useExpressionByCellSet(
+  const [histogramData, setArr, exprMax] = useExpressionByCellSet(
+    sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme,
+    theme, yMin,
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
@@ -219,6 +223,7 @@ export function CellSetExpressionPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}
@@ -230,13 +235,17 @@ export function CellSetExpressionPlotSubscriber(props) {
       )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {expressionArr ? (
+        {histogramData ? (
           <CellSetExpressionPlot
             yMin={yMin}
             yUnits={yUnits}
             jitter={jitter}
+            cellSetSelection={cellSetSelection}
+            sampleSetSelection={sampleSetSelection}
+            sampleSetColor={sampleSetColor}
             colors={setArr}
-            data={expressionArr}
+            data={histogramData}
+            exprMax={exprMax}
             theme={theme}
             width={width}
             height={height}

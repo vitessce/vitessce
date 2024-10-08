@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/utils",
-  "version": "3.3.12",
+  "version": "3.4.14",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "bowser": "^2.11.0",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "catalog:",
     "lz-string": "^1.4.4",
-    "pluralize": "^8.0.0"
+    "pluralize": "catalog:"
   }
 }

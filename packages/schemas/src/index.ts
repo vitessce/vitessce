@@ -24,6 +24,7 @@ export {
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
   anndataZarrSchema,
+  anndataH5adSchema,
   spatialdataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
@@ -35,6 +36,7 @@ export {
   obsSpotsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  meshGlbSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

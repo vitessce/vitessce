@@ -17,6 +17,8 @@ sites/**/CHANGELOG.md
 examples/**/CHANGELOG.md
 RELEASE_NOTES.md
 coverage/
+.idea/
+.vscode/
 test-results/
 playwright-report/
 blob-report/

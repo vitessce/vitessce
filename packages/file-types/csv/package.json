@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/csv",
-  "version": "3.3.12",
+  "version": "3.4.14",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,7 +34,7 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/config": "workspace:*",
-    "d3-array": "^2.4.0",
-    "d3-dsv": "^1.1.1"
+    "d3-array": "catalog:",
+    "d3-dsv": "catalog:"
   }
 }

@@ -32,7 +32,7 @@ import {
 } from '@vitessce/sets-utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -64,6 +64,7 @@ export function SpatialSubscriber(props) {
     globalDisable3d,
     useFullResolutionImage = {},
     channelNamesVisible = false,
+    helpText = ViewHelpMapping.SPATIAL,
   } = props;
 
   const loaders = useLoaders();
@@ -550,6 +551,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       options={options}
+      helpText={helpText}
     >
       <div style={{
         position: 'absolute',
@@ -647,6 +649,7 @@ export function SpatialSubscriber(props) {
         featureType={featureType}
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
+        obsSetSelection={cellSetSelection}
         featureSelection={geneSelection}
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}

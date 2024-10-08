@@ -12,7 +12,7 @@ import { rgb } from 'd3-color';
 import colormaps from 'colormap/colorScale.js';
 
 // Reference: https://observablehq.com/@mjmdavis/color-encoding
-function getInterpolateFunction(cmap) {
+export function getInterpolateFunction(cmap) {
   const colormapData = colormaps[cmap].map(d => d.rgb);
   const colormapRgb = colormapData.map(x => rgb(...x));
   // Perform piecewise interpolation between each color in the range.
