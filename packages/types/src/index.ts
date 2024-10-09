@@ -7,6 +7,7 @@ export type {
   ObsPointsData,
   ObsSpotsData,
   FeatureLabelsData,
+  FeatureStatsData,
   ObsLabelsData,
   ObsSetsData,
   ObsSegmentationsPolygons,
