@@ -161,8 +161,8 @@ function PageComponent() {
       }
       `}</style>
       <div style={{ width: '100%' }}>
-        <div style={{ width: '70%', marginLeft: '15%' }}>
-        <h1>Comparisce: comparative visualization of single-cell atlas data</h1>
+        <div style={{ width: '70%', marginLeft: '15%', height: '1200px' }}>
+        <h1>Comparative visualization of single-cell atlas data</h1>
           <BiomarkerSelect />
         </div>
       </div>
@@ -198,7 +198,7 @@ function PageComponent() {
           <h3>Participant-level representations</h3>
           <h1>TODO</h1>
         </div>
-        <div style={{ width: '14%', height: '500px' }}>
+        <div style={{ width: '14%', height: '500px', marginTop: '213px' }}>
           <CellSets />
         </div>
       </div>
