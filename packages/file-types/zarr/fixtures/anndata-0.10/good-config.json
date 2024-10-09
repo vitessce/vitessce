@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.17",
   "name": "3ac0768d61c6c84f0ec59d766e123e05",
   "datasets": [
     {
@@ -7,80 +7,35 @@
       "name": "40334a99-2be7-4904-bc75-102609fe53e9",
       "files": [
         {
-          "type": "cells",
-          "fileType": "anndata-cells.zarr",
+          "fileType": "anndata.zarr",
           "url": "http://127.0.0.1:8080/anndata-0.10/anndata-dense.zarr",
           "options": {
-            "mappings": {
-              "UMAP": {
-                "key": "obsm/X_umap",
-                "dims": [
-                  0,
-                  1
-                ]
+            "obsFeatureMatrix": {
+              "path": "X"
+            },
+            "featureAnnotations": {
+              "path": "var"
+            },
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "embeddingType": "UMAP"
               }
-            },
-            "factors": [
-              "obs/leiden"
+            ],
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": ["obs/leiden"]
+              }
             ]
-          },
-          "requestInit": {
-            "method": "GET",
-            "headers": {
-              "x-foo": "FAKE"
-            },
-            "mode": "cors",
-            "credentials": "omit",
-            "cache": "no-store",
-            "redirect": "error",
-            "referrer": "FAKE",
-            "integrity": "FAKE"
-          }
-        },
-        {
-          "type": "cell-sets",
-          "fileType": "anndata-cell-sets.zarr",
-          "url": "http://127.0.0.1:8080/anndata-0.10/anndata-dense.zarr",
-          "options": [
-            {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            }
-          ],
-          "requestInit": {
-            "method": "GET",
-            "headers": {
-              "x-foo": "FAKE"
-            },
-            "mode": "cors",
-            "credentials": "omit",
-            "cache": "no-store",
-            "redirect": "error",
-            "referrer": "FAKE",
-            "integrity": "FAKE"
-          }
-        },
-        {
-          "type": "expression-matrix",
-          "fileType": "anndata-expression-matrix.zarr",
-          "url": "http://127.0.0.1:8080/anndata-0.10/anndata-dense.zarr",
-          "options": {
-            "matrix": "X"
-          },
-          "requestInit": {
-            "method": "GET",
-            "headers": {
-              "x-foo": "FAKE"
-            },
-            "mode": "cors",
-            "credentials": "omit",
-            "cache": "no-store",
-            "redirect": "error",
-            "referrer": "FAKE",
-            "integrity": "FAKE"
           }
         }
-      ]
+      ],
+      "coordinationValues": {
+            "obsType": "cell",
+            "featureType": "gene",
+            "featureValueType": "expression"
+      }
     }
   ],
   "initStrategy": "auto",
@@ -91,7 +46,7 @@
   },
   "layout": [
     {
-      "component": "cellSets",
+      "component": "obsSets",
       "h": 3,
       "w": 3,
       "x": 9,
@@ -99,7 +54,7 @@
       "coordinationScopes": {}
     },
     {
-      "component": "genes",
+      "component": "featureList",
       "h": 3,
       "w": 3,
       "x": 9,
@@ -115,6 +70,13 @@
       "coordinationScopes": {
         "embeddingType": "UMAP"
       }
+    },
+    {
+      "component": "featureAnnotationBarPlot",
+      "h": 3,
+      "w": 4,
+      "x": 5,
+      "y": 0
     },
     {
       "component": "heatmap",

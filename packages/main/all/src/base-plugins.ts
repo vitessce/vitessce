@@ -38,6 +38,7 @@ import {
   obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
+  featureAnnotationsAnndataSchema,
   sampleEdgesAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
@@ -85,6 +86,7 @@ import {
   ExpressionHistogramSubscriber,
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
+  FeatureAnnotationBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -132,6 +134,7 @@ import {
   ObsSetsAnndataLoader,
   ObsLabelsAnndataLoader,
   FeatureLabelsAnndataLoader,
+  FeatureAnnotationsAnndataLoader,
   SampleEdgesAnndataLoader,
   // MuData
   MuDataSource,
@@ -220,6 +223,7 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.FEATURE_ANNOTATION_BAR_PLOT, FeatureAnnotationBarPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -248,6 +252,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_ANNOTATIONS_ANNDATA_ZARR, DataType.FEATURE_ANNOTATION, FeatureAnnotationsAnndataLoader, AnnDataSource, featureAnnotationsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -331,6 +336,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
   new PluginCoordinationType(CoordinationType.OBS_LABELS_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_LABELS_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_ANNOTATION_SELECTION, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ROTATION, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),

@@ -116,6 +116,33 @@ export default class AnnDataSource extends ZarrDataSource {
         );
       }
       codesPath = `/${path}/codes`;
+    } else if (encodingType.includes("nullable")) {
+      const { dtype } = await zarrOpen(
+        storeRoot.resolve(`/${path}/values`),
+        { kind: 'array' },
+      );
+      /** @type {any[]} */
+      let values;
+      if (dtype === 'v2:object') {
+        values = await this.getFlatArrDecompressed(
+          `/${path}/values`,
+        );
+      } else {
+        const arr = await zarrOpen(
+          storeRoot.resolve(`/${path}/values`,),
+          { kind: 'array' },
+        );
+        let zarrVals = await zarrGet(arr, [null]);
+        values = Array.from(zarrVals.data);
+      }
+      const arr = await zarrOpen(
+        storeRoot.resolve(`/${path}/mask`,),
+        { kind: 'array' },
+      );
+      const mask = await zarrGet(arr, [null]);
+      return Array.from(mask.data).map(
+        (isNa, index) => !isNa ? values[/** @type {number} */ (index)] : null
+      )
     } else {
       const { dtype } = await zarrOpen(
         storeRoot.resolve(`/${path}`),
@@ -250,7 +277,7 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns {Promise<object>}
+   * @returns {Promise<any>}
    */
   async _loadAttrs(path) {
     return this.getJson(`${path}/.zattrs`);

@@ -43,6 +43,14 @@ export type FeatureLabelsData = {
   featureLabelsMap: Map<string, string>;
 };
 
+export type FeatureAnnotation = {
+  annotation: string[];
+};
+
+export type Keys = {
+  keys: string[];
+};
+
 export type ObsLabelsData = {
   obsIndex: string[];
   obsLabels: string[];

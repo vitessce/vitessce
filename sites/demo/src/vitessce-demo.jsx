@@ -103,7 +103,6 @@ export function VitessceDemo() {
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
     const pageMode = urlParams.get('pageMode') === 'true';
-
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
     if (datasetId) {

@@ -186,6 +186,63 @@ export function useFeatureLabelsData(
   );
 }
 
+export function useFeatureAnnotationKeys(
+  loaders, dataset, matchOn,
+) {
+  const featureAnnotationQuery = useQuery({
+    structuralSharing: false,
+    placeholderData: [],
+    queryKey: [dataset, DataType.FEATURE_ANNOTATION, matchOn, 'useFeatureAnnotationKeys'],
+    // Query function should return an object
+    // { data, dataKey } where dataKey is the loaded gene selection.
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        // TODO: var filter
+        const payload = await loader.loadKeys();
+        if (!payload) return [];
+        const { data } = payload;
+        return data.keys;
+      }
+      return [];
+    },
+    meta: { loaders },
+  });
+  const { data, status, isFetching, error } = featureAnnotationQuery;
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [data, dataStatus];
+}
+
+export function useFeatureAnnotationSelection(
+  loaders, dataset, selection, matchOn,
+) {
+  const featureAnnotationQuery = useQuery({
+    structuralSharing: false,
+    placeholderData: [],
+    queryKey: [dataset, DataType.FEATURE_ANNOTATION, matchOn, selection, 'useFeatureAnnotationSelection'],
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader && selection) {
+        // TODO: var filter
+        const payload = await loader.loadSelection(selection);
+        console.log(payload)
+        if (!payload) return [];
+        const { data } = payload;
+        return data.annotation;
+      }
+      return [];
+    },
+    meta: { loaders },
+  });
+  const { data, status, isFetching, error } = featureAnnotationQuery;
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [data, dataStatus];
+}
+
 export function useImageData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,

@@ -11,7 +11,7 @@ import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
-import CellSetSizesPlot from './CellSetSizesPlot.js';
+import AnnotationBarPlot from './AnnotationBarPlot.js';
 import { useStyles } from './styles.js';
 
 /**
@@ -141,7 +141,7 @@ export function CellSetSizesPlotSubscriber(props) {
       helpText={helpText}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        <CellSetSizesPlot
+        <AnnotationBarPlot
           data={data}
           onBarSelect={onBarSelect}
           theme={theme}
