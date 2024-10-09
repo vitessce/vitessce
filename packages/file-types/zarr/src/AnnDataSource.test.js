@@ -40,7 +40,7 @@ describe('sources/AnnDataSource', () => {
           store: createStoreFromMapContents(fixture),
         });
         const names = await dataSource.loadObsIndex();
-        expect(names).toEqual(['CTG', 'GCA', 'CTG']);
+        expect(names).toEqual(['CTG', 'GCA', 'ACG']);
       });
     });
   });
