@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
 import AnnotationBarPlot from './AnnotationBarPlot.js';
+import ExpressionHistogram from './ExpressionHistogram.js';
 
 import { useId } from 'react-aria';
 import { TableCell, TableRow } from '@material-ui/core';
@@ -126,12 +127,13 @@ export function FeatureAnnotationBarPlotSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
-  const [featureAnnotationData, featureAnnotationStatus] = useFeatureAnnotationSelection(
+  const [featureAnnotationData, encodingType, featureAnnotationStatus] = useFeatureAnnotationSelection(
     loaders, dataset, featureAnnotationSelection,
     { featureType },
   );
-  const data = useMemo(() => dataToSetSizes(featureAnnotationData), [featureAnnotationData])
-
+  const isBarPlot = encodingType === 'categorical' || encodingType.includes('nullable');
+  const data = useMemo(() => isBarPlot ? dataToSetSizes(featureAnnotationData) : featureAnnotationData.map(value => ({ value: Number(value) })), [featureAnnotationData])
+  console.log(data)
   const [featureAnnotationKeys, featureAnnotationKeysStatus] = useFeatureAnnotationKeys(
     loaders, dataset, { featureType },
   );
@@ -139,10 +141,9 @@ export function FeatureAnnotationBarPlotSubscriber(props) {
     featureAnnotationStatus,
     featureAnnotationKeysStatus
   ]);
-
   return (
     <TitleInfo
-      title={`Categorical ${capitalize(featureType)} Annotations`}
+      title={`${capitalize(featureType)} Annotation Plots`}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
@@ -152,13 +153,23 @@ export function FeatureAnnotationBarPlotSubscriber(props) {
       })}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        <AnnotationBarPlot
-          data={data}
-          theme={theme}
-          width={width}
-          height={height}
-          obsType={featureType}
-        />
+        {isBarPlot ?
+          <AnnotationBarPlot
+            data={data}
+            theme={theme}
+            width={width}
+            height={height}
+            obsType={featureType}
+          /> :
+          <ExpressionHistogram
+            geneSelection={[featureAnnotationSelection]}
+            obsType={featureType}
+            data={data}
+            theme={theme}
+            width={width}
+            height={height}
+          />
+        }
       </div>
     </TitleInfo>
   );
