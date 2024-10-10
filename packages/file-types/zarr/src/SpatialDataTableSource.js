@@ -95,7 +95,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     if (indexPath in this.obsIndices) {
       return this.obsIndices[indexPath];
     }
-    this.obsIndices[indexPath] = this._loadColumn(indexPath);
+    this.obsIndices[indexPath] = this._loadColumn(indexPath).then(({ data }) => data);
     return this.obsIndices[indexPath];
   }
 

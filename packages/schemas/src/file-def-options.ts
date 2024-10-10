@@ -29,6 +29,7 @@ const annDataConvenienceObsEmbeddingItem = z.object({
 });
 
 const annDataObsLabels = annDataObs;
+const annDataFeatureAnnotations = annDataObs;
 const annDataFeatureLabels = annDataObs;
 const annDataSampleEdges = annDataObs;
 const annDataObsFeatureMatrix = z.object({
@@ -207,6 +208,7 @@ export const obsSetsAnndataSchema = annDataObsSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
+export const featureAnnotationsAnndataSchema = annDataFeatureAnnotations;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
 

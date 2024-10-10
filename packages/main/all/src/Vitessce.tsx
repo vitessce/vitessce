@@ -24,7 +24,6 @@ export function Vitessce(props: any) {
     pluginJointFileTypes: pluginJointFileTypesProp,
     pluginAsyncFunctions,
   } = props;
-
   // If config.uid exists, then use it for hook dependencies to detect changes
   // (controlled component case). If not, then use the config object itself
   // and assume the un-controlled component case.
@@ -66,7 +65,6 @@ export function Vitessce(props: any) {
   ]), [pluginCoordinationTypesProp]);
 
   // TODO: merge with a set of "base" async functions
-
   return (
     <VitS
       {...props}

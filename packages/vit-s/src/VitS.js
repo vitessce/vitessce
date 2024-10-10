@@ -88,7 +88,6 @@ export function VitS(props) {
     pageMode = false,
     children,
   } = props;
-
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(

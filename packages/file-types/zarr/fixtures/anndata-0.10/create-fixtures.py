@@ -24,7 +24,7 @@ def create_zarr_anndata(output_dir, **kwargs):
         # Generate a fairly sparse matrix
         X=layers['float32'],
         obs=pd.DataFrame(index=["CTG", "GCA", "ACG"], data={"leiden": pd.Categorical(["1", "1", "2"])}),
-        var=pd.DataFrame(index=[f"gene_{i}" for i in range(15)]),
+        var=pd.DataFrame(index=[f"gene_{i}" for i in range(15)], data={ "nullable-bool": pd.array(([True] * 5) + ([False] * 5) + ([pd.NA] * 5), dtype="boolean"), "continuous": np.arange(0, 15), "cat": pd.Categorical((["baz"] * 5) + (["bar"] * 5) + (["foo"] * 5)) }),
         obsm={"X_umap": np.array([[-1, -1], [0, 0], [1, 1]], dtype=np.dtype('<i4'))},
         layers=layers
     )

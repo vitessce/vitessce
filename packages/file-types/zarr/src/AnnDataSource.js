@@ -67,7 +67,7 @@ export default class AnnDataSource extends ZarrDataSource {
             // propagate error
             throw err;
           });
-          this.promises.set(col, obsPromise);
+          this.promises.set(col, obsPromise.then(({ data }) => data));
         }
         return /** @type {Promise<string[]>} */ (this.promises.get(col));
       };
@@ -85,7 +85,7 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns
+   * @returns {Promise<({ data: any[], encodingType: string })>}
    */
   async _loadColumn(path) {
     const { storeRoot } = this;
@@ -116,14 +116,44 @@ export default class AnnDataSource extends ZarrDataSource {
         );
       }
       codesPath = `/${path}/codes`;
-    } else {
+    } else if (encodingType.includes("nullable")) {
       const { dtype } = await zarrOpen(
+        storeRoot.resolve(`/${path}/values`),
+        { kind: 'array' },
+      );
+      /** @type {any[]} */
+      let values;
+      if (dtype === 'v2:object') {
+        values = await this.getFlatArrDecompressed(
+          `/${path}/values`,
+        );
+      } else {
+        const arr = await zarrOpen(
+          storeRoot.resolve(`/${path}/values`,),
+          { kind: 'array' },
+        );
+        let zarrVals = await zarrGet(arr, [null]);
+        values = Array.from(zarrVals.data);
+      }
+      const arr = await zarrOpen(
+        storeRoot.resolve(`/${path}/mask`,),
+        { kind: 'array' },
+      );
+      const mask = await zarrGet(arr, [null]);
+      return { data: Array.from(mask.data).map(
+        (isNa, index) => !isNa ? values[/** @type {number} */ (index)] : null
+      ), encodingType };
+    } else {
+      const arr = await zarrOpen(
         storeRoot.resolve(`/${path}`),
         { kind: 'array' },
       );
+      const { dtype } = arr;
       if (dtype === 'v2:object') {
-        return this.getFlatArrDecompressed(path);
+        return { data: await this.getFlatArrDecompressed(path), encodingType };
       }
+      const { data } = await zarrGet(arr, [null]);
+      return { encodingType, data: Array.from(data) };
     }
     const arr = await zarrOpen(
       storeRoot.resolve(codesPath || path),
@@ -134,7 +164,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const mappedValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
-    return mappedValues;
+    return { encodingType, data: mappedValues};
   }
 
   /**
@@ -250,7 +280,7 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns {Promise<object>}
+   * @returns {Promise<any>}
    */
   async _loadAttrs(path) {
     return this.getJson(`${path}/.zattrs`);

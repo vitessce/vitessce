@@ -275,6 +275,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
   ],
+  [ViewType.FEATURE_ANNOTATION_BAR_PLOT]: [
+    CoordinationType.DATASET,
+    CoordinationType.FEATURE_ANNOTATION_SELECTION,
+    CoordinationType.FEATURE_TYPE,
+  ],
   [ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,

@@ -190,7 +190,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       return this.obsIndices[indexPath];
     }
     // TODO: support loading from parquet if no tablePath was provided.
-    this.obsIndices[indexPath] = this._loadColumn(indexPath);
+    this.obsIndices[indexPath] = this._loadColumn(indexPath).then(({data}) => data);
     return this.obsIndices[indexPath];
   }
 

@@ -23,7 +23,7 @@ import { capitalize, getDefaultColor } from '@vitessce/utils';
  * each data point. Assumes all key strings have the same length.
  * By default, 36.
  */
-export default function CellSetSizesPlot(props) {
+export default function AnnotationBarPlot(props) {
   const {
     data: rawData,
     theme,
@@ -32,7 +32,7 @@ export default function CellSetSizesPlot(props) {
     marginRight = 90,
     marginBottom = 120,
     keyLength = 36,
-    obsType,
+    obsType: label,
     onBarSelect,
   } = props;
 
@@ -59,7 +59,7 @@ export default function CellSetSizesPlot(props) {
       return `rgba(${r}, ${g}, ${b}, 1)`;
     }),
   };
-  const captializedObsType = capitalize(obsType);
+  const captializedLabel = capitalize(label);
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
@@ -105,7 +105,7 @@ export default function CellSetSizesPlot(props) {
       y: {
         field: 'size',
         type: 'quantitative',
-        title: `${captializedObsType} Set Size`,
+        title: `${captializedLabel} Set Size`,
       },
       color: {
         field: 'key',
@@ -157,10 +157,10 @@ export default function CellSetSizesPlot(props) {
 
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
-    [`${captializedObsType} Set`]: item.datum.name,
-    [`${captializedObsType} Set Size`]: item.datum.size,
+    [`${captializedLabel} Set`]: item.datum.name,
+    [`${captializedLabel} Set Size`]: item.datum.size,
   }
-  ), [captializedObsType]);
+  ), [captializedLabel]);
 
   return (
     <VegaPlot

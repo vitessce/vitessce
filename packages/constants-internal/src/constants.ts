@@ -17,6 +17,7 @@ export const ViewType = {
   FEATURE_LIST: 'featureList',
   OBS_SETS: 'obsSets',
   OBS_SET_SIZES: 'obsSetSizes',
+  FEATURE_ANNOTATION_BAR_PLOT: 'featureAnnotationBarPlot',
   OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'obsSetFeatureValueDistribution',
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
@@ -29,6 +30,7 @@ export const DataType = {
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
+  FEATURE_ANNOTATION: 'featureAnnotation',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
@@ -84,6 +86,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  FEATURE_ANNOTATIONS_ANNDATA_ZARR: 'featureAnnotations.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   // AnnData - zipped
   OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
@@ -96,6 +99,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
+  FEATURE_ANNOTATIONS_ANNDATA_ZARR_ZIP: 'featureAnnotations.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   // AnnData - h5ad via reference spec
   OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
@@ -108,6 +112,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_H5AD: 'obsSegmentations.anndata.h5ad',
   OBS_LABELS_ANNDATA_H5AD: 'obsLabels.anndata.h5ad',
   FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
+  FEATURE_ANNOTATIONS_ANNDATA_H5AD: 'featureAnnotations.anndata.h5ad',
   SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
@@ -185,6 +190,7 @@ export const CoordinationType = {
   FEATURE_VALUE_TYPE: 'featureValueType',
   OBS_LABELS_TYPE: 'obsLabelsType',
   FEATURE_LABELS_TYPE: 'featureLabelsType',
+  FEATURE_ANNOTATION_SELECTION: 'featureAnnotationSelection',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
@@ -326,4 +332,5 @@ export const ViewHelpMapping = {
   FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
+  FEATURE_ANNOTATION_BAR_PLOT: 'The feature annotation bar plot displays one bar per categorical annotation of a feature (e.g., GRN membership) along the x-axis, where the size of the selected annotation categories is encoded along the y-axis.',
 };
