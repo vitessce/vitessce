@@ -28,9 +28,11 @@ export default class FeatureAnnotationsAnndataLoader extends AbstractTwoStepLoad
      * @returns {Promise<LoaderResult<FeatureAnnotation>>}
      */
     async loadSelection(selection) {
+        const { data, encodingType } = await this.dataSource._loadColumn(`var/${selection}`)
         return new LoaderResult(
             {
-                annotation: await this.dataSource._loadColumn(`var/${selection}`),
+                annotation: data,
+                encodingType
             },
             null,
         )

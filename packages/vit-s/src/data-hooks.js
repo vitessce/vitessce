@@ -218,9 +218,10 @@ export function useFeatureAnnotationKeys(
 export function useFeatureAnnotationSelection(
   loaders, dataset, selection, matchOn,
 ) {
+  const placeholderData = { annotation: [], encodingType: '' }
   const featureAnnotationQuery = useQuery({
     structuralSharing: false,
-    placeholderData: [],
+    placeholderData: placeholderData,
     queryKey: [dataset, DataType.FEATURE_ANNOTATION, matchOn, selection, 'useFeatureAnnotationSelection'],
     queryFn: async (ctx) => {
       const loader = getMatchingLoader(
@@ -229,18 +230,17 @@ export function useFeatureAnnotationSelection(
       if (loader && selection) {
         // TODO: var filter
         const payload = await loader.loadSelection(selection);
-        console.log(payload)
-        if (!payload) return [];
+        if (!payload) return placeholderData;
         const { data } = payload;
-        return data.annotation;
+        return data;
       }
-      return [];
+      return placeholderData;
     },
     meta: { loaders },
   });
   const { data, status, isFetching, error } = featureAnnotationQuery;
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  return [data, dataStatus];
+  return [data.annotation, data.encodingType, dataStatus];
 }
 
 export function useImageData(

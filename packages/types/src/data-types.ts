@@ -45,6 +45,7 @@ export type FeatureLabelsData = {
 
 export type FeatureAnnotation = {
   annotation: string[];
+  encodingType: string;
 };
 
 export type Keys = {

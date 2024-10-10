@@ -21,7 +21,7 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
     }
     if (!this.labels) {
       // eslint-disable-next-line no-underscore-dangle
-      this.labels = this.dataSource._loadColumn(path);
+      this.labels = this.dataSource._loadColumn(path).then(({ data }) => data);
       return this.labels;
     }
     return this.labels;

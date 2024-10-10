@@ -18,7 +18,7 @@ export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
     }
     if (!this.labels) {
       // eslint-disable-next-line no-underscore-dangle
-      this.labels = await this.dataSource._loadColumn(path);
+      this.labels = await this.dataSource._loadColumn(path).then(({ data }) => data);
       return this.labels;
     }
     this.labels = Promise.resolve(null);

@@ -67,7 +67,7 @@ export default class AnnDataSource extends ZarrDataSource {
             // propagate error
             throw err;
           });
-          this.promises.set(col, obsPromise);
+          this.promises.set(col, obsPromise.then(({ data }) => data));
         }
         return /** @type {Promise<string[]>} */ (this.promises.get(col));
       };
@@ -85,7 +85,7 @@ export default class AnnDataSource extends ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns
+   * @returns {Promise<({ data: any[], encodingType: string })>}
    */
   async _loadColumn(path) {
     const { storeRoot } = this;
@@ -140,17 +140,20 @@ export default class AnnDataSource extends ZarrDataSource {
         { kind: 'array' },
       );
       const mask = await zarrGet(arr, [null]);
-      return Array.from(mask.data).map(
+      return { data: Array.from(mask.data).map(
         (isNa, index) => !isNa ? values[/** @type {number} */ (index)] : null
-      )
+      ), encodingType };
     } else {
-      const { dtype } = await zarrOpen(
+      const arr = await zarrOpen(
         storeRoot.resolve(`/${path}`),
         { kind: 'array' },
       );
+      const { dtype } = arr;
       if (dtype === 'v2:object') {
-        return this.getFlatArrDecompressed(path);
+        return { data: await this.getFlatArrDecompressed(path), encodingType };
       }
+      const { data } = await zarrGet(arr, [null]);
+      return { encodingType, data: Array.from(data) };
     }
     const arr = await zarrOpen(
       storeRoot.resolve(codesPath || path),
@@ -161,7 +164,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const mappedValues = Array.from(data).map(
       i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
-    return mappedValues;
+    return { encodingType, data: mappedValues};
   }
 
   /**
