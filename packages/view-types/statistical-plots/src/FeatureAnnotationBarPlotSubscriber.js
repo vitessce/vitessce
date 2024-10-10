@@ -142,7 +142,7 @@ export function FeatureAnnotationBarPlotSubscriber(props) {
 
   return (
     <TitleInfo
-      title={'Categorical Feature Annotations'}
+      title={`Categorical ${capitalize(featureType)} Annotations`}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
@@ -157,7 +157,7 @@ export function FeatureAnnotationBarPlotSubscriber(props) {
           theme={theme}
           width={width}
           height={height}
-          obsType={"Feature"}
+          obsType={featureType}
         />
       </div>
     </TitleInfo>
