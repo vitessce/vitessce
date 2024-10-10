@@ -221,28 +221,37 @@ export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
 /**
  * Normalize a feature selection (data for selected
  * columns of an obsFeatureMatrix) to a Uint8Array.
- * @param {array|null} expressionData The expressionData
+ * @param {Float32Array[] | null} expressionData The expressionData
  * returned by the useFeatureSelection hook,
  * where each element corresponds to an
  * array of values for a selected feature.
- * @returns {array} A tuple [normData, extents] where
- * normData is an array of Uint8Arrays (or null), and extents is
- * an array of [min, max] values for each feature (or null).
+ * @returns {{
+ *  normData: Uint8Array[] | null,
+ *  extents: [number, number][] | null,
+ *  missing: number[]
+ * }} An object tuple {normData, extents, missing} where
+ * normData is an array of Uint8Arrays (or null),
+ * extents is an array of [min, max] values for each feature (or null), and
+ * missing is an array of numbers (between 0 and 1) for each feature (or null).
  */
 export function useUint8FeatureSelection(expressionData) {
   return useMemo(() => {
-    if (expressionData && expressionData[0]) {
-      const extents = expressionData.map(arr => extent(arr));
-      const normData = expressionData.map((arr, i) => {
-        const [min, max] = extents[i];
-        const ratio = 255 / (max - min);
-        return new Uint8Array(
-          arr.map(j => Math.floor((j - min) * ratio)),
-        );
-      });
-      return [normData, extents];
+    if (expressionData?.[0] == null) {
+      return { normData: null, extents: null, missing: null };
     }
-    return [null, null];
+    const extents = expressionData.map(arr => extent(arr));
+    const normData = expressionData.map((arr, i) => {
+      const [min, max] = extents[i];
+      const ratio = 255 / (max - min);
+      return new Uint8Array(
+        arr.map(j => Math.floor((j - min) * ratio)),
+      );
+    });
+    const missing = expressionData.map((arr) => {
+      const numMissing = arr.reduce((prev, curr) => (Number.isNaN(curr) ? prev + 1 : prev), 0);
+      return numMissing / arr.length;
+    });
+    return { normData, extents, missing };
   }, [expressionData]);
 }
 

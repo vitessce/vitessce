@@ -413,7 +413,10 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const {
+    normData: uint8ExpressionData,
+    extents: expressionExtents,
+  } = useUint8FeatureSelection(expressionData);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.

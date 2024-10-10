@@ -325,7 +325,7 @@ export function GatingSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData] = useUint8FeatureSelection(expressionDataColor);
+  const { normData: uint8ExpressionData } = useUint8FeatureSelection(expressionDataColor);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
