@@ -44,8 +44,7 @@
     "zarrita": "catalog:",
     "apache-arrow": "catalog:",
     "parquet-wasm": "catalog:",
-    "ol": "^10.2.1",
-    "dynamic-import-polyfill": "^0.1.1"
+    "ol": "^10.2.1"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
