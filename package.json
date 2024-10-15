@@ -3,7 +3,7 @@
   "private": true,
   "version": "3.4.14",
   "description": "Vitessce app and React component library",
-  "author": "Gehlenborg Lab",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io/",
   "repository": "https://github.com/vitessce/vitessce/",
   "scripts": {

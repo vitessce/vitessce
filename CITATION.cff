@@ -28,7 +28,7 @@ authors:
 url: "https://github.com/vitessce/vitessce"
 preferred-citation:
   type: article
-  title: "Vitessce: a framework for integrative visualization of multi-modal and spatially-resolved single-cell data"
+  title: "Vitessce: integrative visualization of multimodal and spatially resolved single-cell data"
   authors:
     - given-names: "Mark S."
       family-names: "Keller"
@@ -54,7 +54,7 @@ preferred-citation:
       family-names: "Gehlenborg"
       affiliation: "Harvard Medical School"
       orcid: "https://orcid.org/0000-0003-0327-8297"
-  journal: "OSF preprint"
-  doi: 10.31219/osf.io/y8thv
-  month: 10
-  year: 2021
+  journal: "Nature Methods"
+  doi: 10.1038/s41592-024-02436-x
+  month: 09
+  year: 2024
