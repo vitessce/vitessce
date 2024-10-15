@@ -148,9 +148,9 @@ function Footer() {
                   hash=<code>{META_VERSION.hash}</code>,&nbsp;
                   date={META_VERSION.date}
 
-                  <br/>
+                  <br />
                   <span style={{ textAlign: 'left', display: 'inline-block', width: '60%', marginTop: '20px' }}>
-                  Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V., Gehlenborg, N. Vitessce: integrative visualization of multimodal and spatially resolved single-cell data. <i>Nature Methods</i> (2024). https://doi.org/10.1038/s41592-024-02436-x
+                    Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V., Gehlenborg, N. Vitessce: integrative visualization of multimodal and spatially resolved single-cell data. <i>Nature Methods</i> (2024). https://doi.org/10.1038/s41592-024-02436-x
                   </span>
                 </p>
               </div>
