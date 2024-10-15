@@ -295,7 +295,7 @@ importers:
         version: 5.59.7(eslint@8.25.0)(typescript@5.5.3)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))
+        version: 4.0.0(vite@4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1))
       '@vitest/coverage-v8':
         specifier: ^0.32.2
         version: 0.32.2(vitest@0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1))
@@ -385,7 +385,7 @@ importers:
         version: 8.4.2
       vite:
         specifier: 'catalog:'
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
@@ -452,7 +452,7 @@ importers:
     devDependencies:
       vite:
         specifier: 'catalog:'
-        version: 4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: 'catalog:'
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
@@ -624,9 +624,6 @@ importers:
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
-      dynamic-import-polyfill:
-        specifier: ^0.1.1
-        version: 0.1.1
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -6971,9 +6968,6 @@ packages:
 
   duplexify@3.7.1:
     resolution: {integrity: sha512-07z8uv2wMyS51kKhD1KsdXJg5WQ6t93RneqRxUHnskXVtlYYkLqM0gqStQZ3pj073g687jPCHrqNfCzawLYh5g==}
-
-  dynamic-import-polyfill@0.1.1:
-    resolution: {integrity: sha512-m953zv0w5oDagTItWm6Auhmk/pY7EiejaqiVbnzSS3HIjh1FCUeK7WzuaVtWPNs58A+/xpIE+/dVk6pKsrua8g==}
 
   earcut@2.2.4:
     resolution: {integrity: sha512-/pjZsA1b4RPHbeWZQn66SWS8nZZWLQQ23oE3Eam7aroEFGEvwKAsJfZ9ytiEMycfzXWpca4FA9QIOehf7PocBQ==}
@@ -18533,16 +18527,6 @@ snapshots:
     dependencies:
       vite: 4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1)
 
-  '@vitejs/plugin-react@4.0.0(vite@4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1))':
-    dependencies:
-      '@babel/core': 7.22.0
-      '@babel/plugin-transform-react-jsx-self': 7.21.0(@babel/core@7.22.0)
-      '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.22.0)
-      react-refresh: 0.14.0
-      vite: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
-    transitivePeerDependencies:
-      - supports-color
-
   '@vitejs/plugin-react@4.0.0(vite@4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1))':
     dependencies:
       '@babel/core': 7.22.0
@@ -20691,8 +20675,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 2.3.7
       stream-shift: 1.0.1
-
-  dynamic-import-polyfill@0.1.1: {}
 
   earcut@2.2.4: {}
 
