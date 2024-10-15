@@ -21,6 +21,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  LINK_CONTROLLER: 'linkController',
 };
 
 export const DataType = {
