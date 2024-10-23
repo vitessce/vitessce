@@ -639,13 +639,25 @@ export class VitessceConfig {
   addCoordination(...args) {
     const cTypes = args;
     const result = [];
-    cTypes.forEach((cType) => {
-      const prevScopes = (
-        this.config.coordinationSpace[cType]
-          ? Object.keys(this.config.coordinationSpace[cType])
-          : []
-      );
-      const scope = new VitessceConfigCoordinationScope(cType, this.getNextScope(prevScopes));
+    cTypes.forEach((cTypeOrObj) => {
+      let cType;
+      let cScope;
+      let cValue;
+      if(typeof cTypeOrObj === 'string') {
+        cType = cTypeOrObj;
+        const prevScopes = (
+          this.config.coordinationSpace[cType]
+            ? Object.keys(this.config.coordinationSpace[cType])
+            : []
+        );
+        cScope = this.getNextScope(prevScopes);
+      } else {
+        // If not a string, assume it is an object like { cType: string, cScope: string }.
+        cType = cTypeOrObj.cType;
+        cScope = cTypeOrObj.cScope;
+        cValue = cTypeOrObj.cValue;
+      }
+      const scope = new VitessceConfigCoordinationScope(cType, cScope, cValue);
       if (!this.config.coordinationSpace[scope.cType]) {
         this.config.coordinationSpace[scope.cType] = {};
       }

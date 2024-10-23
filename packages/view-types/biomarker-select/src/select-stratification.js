@@ -19,6 +19,12 @@ export function SelectStratification(props) {
     );
   }
 
+  const sampleSetOptions = stratifications?.filter(s => s.stratificationType === 'sampleSet');
+  const structuralRegionOptions = stratifications?.filter(s => s.stratificationType === 'structural-region');
+
+  const hasSampleSetOptions = sampleSetOptions && sampleSetOptions.length > 0;
+  const hasStructuralRegionOptions = structuralRegionOptions && structuralRegionOptions.length > 0;
+
   return (
     <Grid item xs={12}>
       <Typography variant="h6">
@@ -32,14 +38,22 @@ export function SelectStratification(props) {
           name="radio-buttons-group"
         >
           <FormControlLabel value="__all__" control={<Radio />} label="No stratification" />
-          <FormLabel>By participant group (clinical):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.groupType === 'clinical').map(s => (
-            <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
-          )) : null}
-          <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.groupType === 'structural-region').map(s => (
-            <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
-          )) : null}
+          {hasSampleSetOptions ? (
+            <>
+              <FormLabel>By participant group (clinical):</FormLabel>
+              {sampleSetOptions.map(s => (
+                <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
+              ))}
+            </>
+          ) : null}
+          {hasStructuralRegionOptions ? (
+            <>
+              <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
+              {structuralRegionOptions.map(s => (
+                <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
+              ))}
+            </>
+          ) : null}
         </RadioGroup>
       </FormControl>
       {/* // TODO: store participant-level and region-level stratification options independently
@@ -54,7 +68,7 @@ export function SelectStratification(props) {
           name="radio-buttons-group-2"
         >
           <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.groupType === 'structural-region').map((s) => (
+          {stratifications ? stratifications.filter(s => s.stratificationType === 'structural-region').map((s) => (
             <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
           )) : null}
         </RadioGroup>

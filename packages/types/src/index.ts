@@ -36,7 +36,7 @@ export type {
   KgNode,
   KgNodeType,
   TargetModalityType,
-  GroupType,
+  StratificationType,
   KgNodeReason,
   KgNodeMethod,
   KgEdge,

@@ -1,7 +1,7 @@
 // Here, "Kg" stands for "knowledge graph"
 export type KgNodeType = 'gene' | 'protein' | 'pathway' | 'cell-type';
 export type TargetModalityType = 'gene' | 'protein'; // TODO: support protein, genomic region, etc.
-export type GroupType = 'clinical' | 'structural-region' | 'structural-presence';
+export type StratificationType = 'sampleSet' | 'structural-region' | 'structural-presence';
 
 // Why was this node included in the list?
 export type KgNodeReason = (
@@ -41,7 +41,11 @@ export type KgEdge = {
 export type KgStratification = {
   name: string;
   stratificationId: string;
-  groupType: GroupType;
+  stratificationType: StratificationType;
+  sampleSets?: [
+    string[], // Control sampleSet path
+    string[], // Case sampleSet path
+  ];
 };
 
 // Async function types that operate on KgNodes.

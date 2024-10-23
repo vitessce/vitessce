@@ -76,7 +76,94 @@ function generateLake2023Config() {
     },
   });
 
-  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' }).setProps({
+    stratificationOptions: [
+      {
+        stratificationId: 'aki-vs-hr',
+        name: 'Acute kidney injury (AKI) vs. Healthy reference',
+        stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
+        sampleSets: [
+          ['Tissue Type', 'AKI'],
+          ['Tissue Type', 'Healthy Reference'],
+        ],
+      },
+      {
+        stratificationId: 'aki-vs-hckd',
+        name: 'Acute kidney injury (AKI) vs. Chronic kidney disease attributed to hypertension (H-CKD)',
+        stratificationType: 'sampleSet',
+        sampleSets: [
+          ['Tissue Type', 'AKI'],
+          ['Tissue Type', 'CKD'],
+        ]
+      },
+      {
+        stratificationId: 'dckd-vs-hr',
+        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Healthy reference',
+        stratificationType: 'sampleSet',
+        sampleSets: [
+          ['Tissue Type', 'CKD'],
+          ['Tissue Type', 'Healthy Reference'],
+        ],
+      },
+      /*
+      {
+        stratificationId: 'dckd-vs-hckd',
+        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Chronic kidney disease attributed to hypertension (H-CKD)',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'dckd-vs-dkdr',
+        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Diabetic kidney disease "resisters"',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'sglt2-vs-no-sglt2',
+        name: 'Chronic kidney disease attributed to diabetes (D-CKD) with SGLT2 inhibitor vs. D-CKD without SGLT2 inhibitor',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'ati-vs-hr',
+        name: 'Acute tubular injury vs. Healthy reference',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'ain-vs-hr',
+        name: 'Acute interstitial injury vs. Healthy reference',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'ati-vs-ain',
+        name: 'Acute tubular injury vs. Acute interstitial nephritis',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'raki-vs-waki',
+        name: 'Recovering AKI vs. Worsening AKI',
+        groupType: 'clinical',
+      },
+      {
+        stratificationId: 'ifta-vs-non-ifta-presence',
+        name: 'Interstitial fibrosis and tubular atrophy (IFTA) vs. non-IFTA',
+        groupType: 'structural-presence',
+      },
+      {
+        stratificationId: 'gsg-vs-ngsg-presence',
+        name: 'Globally sclerotic glomeruli (GSG) vs. non-GSG',
+        groupType: 'structural-presence',
+      },
+      {
+        stratificationId: 'ifta-vs-non-ifta-region',
+        name: 'Interstitial fibrosis and tubular atrophy (IFTA) vs. non-IFTA',
+        groupType: 'structural-region',
+      },
+      {
+        stratificationId: 'gsg-vs-ngsg-region',
+        name: 'Globally sclerotic glomeruli (GSG) vs. non-GSG',
+        groupType: 'structural-region',
+      },
+      */
+    ],
+  })
   const scatterplot = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-case' }).setProps({ title: 'CKD' });
   const scatterplot2 = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-control' }).setProps({ title: 'Healthy Reference' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
@@ -85,26 +172,37 @@ function generateLake2023Config() {
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot'});
 
+  // TODO: construct coordination scopes for sampleSetSelection with names:
+  // - case
+  // - control
+  // - case-control
+
+  const [sampleSetScope_case, sampleSetScope_control, sampleSetScope_caseControl] = vc.addCoordination(
+    { cType: 'sampleSetSelection', cScope: 'case', cValue: [['Tissue Type', 'CKD']] },
+    { cType: 'sampleSetSelection', cScope: 'control', cValue: [['Tissue Type', 'Healthy Reference']] },
+    { cType: 'sampleSetSelection', cScope: 'case-control', cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']] },
+  );
 
   vc.linkViewsByObject([scatterplot], {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
     sampleType: 'sample',
-    sampleSetSelection: [['Tissue Type', 'CKD']],
+    sampleSetSelection: sampleSetScope_case,
   }, { meta: false });
   vc.linkViewsByObject([scatterplot2], {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
     sampleType: 'sample',
-    sampleSetSelection: [['Tissue Type', 'Healthy Reference']],
+    sampleSetSelection: sampleSetScope_control,
   }, { meta: false });
 
-  vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType', 'sampleSetSelection'], ['sample', [
-    ['Tissue Type', 'CKD'],
-    ['Tissue Type', 'Healthy Reference'],
-  ]]);
+
+  vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
+    sampleSetSelection: sampleSetScope_caseControl,
+  }, { meta: false });
   vc.linkViewsByObject([scatterplot, scatterplot2, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
