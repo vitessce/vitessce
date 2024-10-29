@@ -259,7 +259,7 @@ function PageComponent() {
       }
       `}</style>
       <div style={{ width: '100%' }}>
-        <div style={{ width: '70%', marginLeft: '15%', height: '1200px' }}>
+        <div style={{ width: '70%', marginLeft: '15%' }}>
         <h1>Comparative visualization of single-cell atlas data</h1>
           <BiomarkerSelect />
         </div>
