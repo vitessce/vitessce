@@ -874,4 +874,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   );
 });
 
+Heatmap.displayName = 'Heatmap';
+
 export default Heatmap;

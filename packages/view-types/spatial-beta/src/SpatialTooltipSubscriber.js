@@ -47,6 +47,27 @@ function getXY(
   return [projectedObsCoord?.[0], projectedObsCoord?.[1]];
 }
 
+function getObsInfo(obsSetsData, obsType, obsId) {
+  let result = {
+    [`${capitalize(obsType)} ID`]: obsId,
+  };
+  if (obsSetsData?.obsSetsMembership) {
+    const obsMembership = obsSetsData.obsSetsMembership.get(obsId) || [];
+    if (obsMembership) {
+      result = {
+        ...result,
+        ...Object.fromEntries(
+          obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => [
+            `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+            pathEl,
+          ])),
+        ),
+      };
+    }
+  }
+  return result;
+}
+
 export default function SpatialTooltipSubscriber(props) {
   const {
     parentUuid,
@@ -69,6 +90,7 @@ export default function SpatialTooltipSubscriber(props) {
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
+    obsSegmentationsSetsData,
 
     // Images
     imageLayerScopes,
@@ -114,6 +136,8 @@ export default function SpatialTooltipSubscriber(props) {
             obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialChannelVisible,
           } = segmentationChannelCoordination?.[0]
             ?.[layerScope]?.[channelScope] || {};
+          const obsSetsData = obsSegmentationsSetsData?.[layerScope]?.[channelScope];
+          const obsInfo = getObsInfo(obsSetsData, obsType, obsHighlight);
           if (
             !obsHighlight
             || !spatialChannelVisible
@@ -136,11 +160,9 @@ export default function SpatialTooltipSubscriber(props) {
               tooltipCrosshairsVisible={tooltipCrosshairsVisible}
               width={width}
               height={height}
-              info={{
-                [`${capitalize(obsType)} ID`]: obsHighlight,
-              }}
+              info={obsInfo}
               x={x}
-              y={y + (yOffset += 30)}
+              y={y + (yOffset += (20 + 15 * Object.keys(obsInfo).length))}
             />
           );
         })

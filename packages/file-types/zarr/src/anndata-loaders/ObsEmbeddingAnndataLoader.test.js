@@ -51,7 +51,7 @@ describe('loaders/ObsEmbeddingAnndataLoader for AnnData', () => {
     expect(result).toBeInstanceOf(LoaderResult);
     const payload = result.data;
     expect(Object.keys(payload)).toEqual(['obsIndex', 'obsEmbedding']);
-    expect(payload.obsIndex).toEqual(['CTG', 'GCA', 'CTG']);
+    expect(payload.obsIndex).toEqual(['CTG', 'GCA', 'ACG']);
     expect(payload.obsEmbedding.shape).toEqual([2, 3]);
     expect(Array.from(payload.obsEmbedding.data[0])).toEqual([-1, 0, 1]);
     expect(Array.from(payload.obsEmbedding.data[1])).toEqual([-1, 0, 1]);

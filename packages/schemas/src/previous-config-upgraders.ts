@@ -23,6 +23,7 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
 } from './previous-config-schemas.js';
 
 
@@ -735,5 +736,51 @@ export function upgradeFrom1_0_15(
     ...newConfig,
     layout: newLayout,
     version: '1.0.16',
+  };
+}
+
+// Added in version 1.0.17:
+// - Convert obsSets.anndata.zarr and obsFeatureColumns.anndata.zarr options
+// from array into object property.
+export function upgradeFrom1_0_16(
+  config: z.infer<typeof configSchema1_0_16>,
+): z.infer<typeof configSchema1_0_17> {
+  const newConfig = cloneDeep(config);
+
+  const { datasets } = newConfig;
+  // eslint-disable-next-line max-len
+  const newDatasets = datasets.map((datasetDef): z.infer<typeof configSchema1_0_17.shape.datasets.element> => {
+    const { files } = datasetDef;
+    // eslint-disable-next-line max-len
+    const newFiles = files.map((fileDef): z.infer<typeof configSchema1_0_17.shape.datasets.element.shape.files.element> => {
+      const { fileType, options } = fileDef;
+      if (fileType === 'obsSets.anndata.zarr') {
+        return {
+          ...fileDef,
+          options: {
+            obsSets: options,
+          },
+        };
+      }
+      if (fileType === 'obsFeatureColumns.anndata.zarr') {
+        return {
+          ...fileDef,
+          options: {
+            obsFeatureColumns: options,
+          },
+        };
+      }
+      return fileDef;
+    });
+    return {
+      ...datasetDef,
+      files: newFiles,
+    };
+  });
+
+  return {
+    ...newConfig,
+    datasets: newDatasets,
+    version: '1.0.17',
   };
 }

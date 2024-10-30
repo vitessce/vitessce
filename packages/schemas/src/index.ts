@@ -24,6 +24,7 @@ export {
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
   anndataZarrSchema,
+  anndataH5adSchema,
   spatialdataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
