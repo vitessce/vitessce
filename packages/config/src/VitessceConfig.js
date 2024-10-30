@@ -643,7 +643,7 @@ export class VitessceConfig {
       let cType;
       let cScope;
       let cValue;
-      if(typeof cTypeOrObj === 'string') {
+      if (typeof cTypeOrObj === 'string') {
         cType = cTypeOrObj;
         const prevScopes = (
           this.config.coordinationSpace[cType]
@@ -653,8 +653,11 @@ export class VitessceConfig {
         cScope = this.getNextScope(prevScopes);
       } else {
         // If not a string, assume it is an object like { cType: string, cScope: string }.
+        // eslint-disable-next-line prefer-destructuring
         cType = cTypeOrObj.cType;
+        // eslint-disable-next-line prefer-destructuring
         cScope = cTypeOrObj.cScope;
+        // eslint-disable-next-line prefer-destructuring
         cValue = cTypeOrObj.cValue;
       }
       const scope = new VitessceConfigCoordinationScope(cType, cScope, cValue);
@@ -1016,7 +1019,9 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid);
+      const newView = new VitessceConfigView(
+        c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid,
+      );
       vc.config.layout.push(newView);
     });
     return vc;

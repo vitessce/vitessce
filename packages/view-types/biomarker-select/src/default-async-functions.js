@@ -1,16 +1,14 @@
 // @ts-check
+/* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
 import { csvParse } from 'd3-dsv';
+// eslint-disable-next-line import/no-unresolved
 import Fuse from 'fuse.js/basic';
 
-/** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 /** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc } from '@vitessce/types' */
-
+/** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 
 const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
-
-// TODO: parent app could pass in queryClient (to every async function) to be able to call .fetchQuery
-// Reference https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientfetchquery
-
 
 /**
  * @returns {Promise<KgNode[]>}
@@ -62,6 +60,10 @@ function loadPathwayNodes() {
       }));
     });
 }
+
+// Parent app can pass in queryClient
+// (to every async function) so that functions can call .fetchQuery
+// Reference: https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientfetchquery
 
 /**
  *

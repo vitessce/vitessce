@@ -42,7 +42,12 @@ export function SelectStratification(props) {
             <>
               <FormLabel>By participant group (clinical):</FormLabel>
               {sampleSetOptions.map(s => (
-                <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
+                <FormControlLabel
+                  value={s.stratificationId}
+                  control={<Radio />}
+                  key={s.name}
+                  label={s.name}
+                />
               ))}
             </>
           ) : null}
@@ -50,7 +55,12 @@ export function SelectStratification(props) {
             <>
               <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
               {structuralRegionOptions.map(s => (
-                <FormControlLabel value={s.stratificationId} control={<Radio />} key={s.name} label={s.name} />
+                <FormControlLabel
+                  value={s.stratificationId}
+                  control={<Radio />}
+                  key={s.name}
+                  label={s.name}
+                />
               ))}
             </>
           ) : null}
@@ -68,9 +78,10 @@ export function SelectStratification(props) {
           name="radio-buttons-group-2"
         >
           <FormLabel>By segmentation-defined spatial region (structural):</FormLabel>
-          {stratifications ? stratifications.filter(s => s.stratificationType === 'structural-region').map((s) => (
-            <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
-          )) : null}
+          {stratifications ? stratifications
+            .filter(s => s.stratificationType === 'structural-region').map((s) => (
+              <FormControlLabel value={s.stratificationId} control={<Radio />} label={s.name} />
+            )) : null}
         </RadioGroup>
       </FormControl>
       */}

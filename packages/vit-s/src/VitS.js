@@ -26,7 +26,7 @@ import {
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
-import { AsyncFunctionsContext, PageModeViewContext } from './contexts.js';
+import { AsyncFunctionsContext } from './contexts.js';
 
 
 /**

@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
+/* eslint-disable camelcase */
 import {
   VitessceConfig,
   hconcat,
   vconcat,
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
-import { BiomarkerSelectSubscriber } from '@vitessce/biomarker-select';
 
 function generateLake2023Config() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -94,7 +94,7 @@ function generateLake2023Config() {
         sampleSets: [
           ['Tissue Type', 'AKI'],
           ['Tissue Type', 'CKD'],
-        ]
+        ],
       },
       {
         stratificationId: 'dckd-vs-hr',
@@ -163,14 +163,14 @@ function generateLake2023Config() {
       },
       */
     ],
-  })
+  });
   const scatterplot = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-case' }).setProps({ title: 'CKD' });
   const scatterplot2 = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-control' }).setProps({ title: 'Healthy Reference' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
-  const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot'});
+  const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
 
   // TODO: construct coordination scopes for sampleSetSelection with names:
   // - case
@@ -257,10 +257,11 @@ function PageComponent() {
       h3 {
         font-size: 28px;
       }
-      `}</style>
+      `}
+      </style>
       <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
-        <h1>Comparative visualization of single-cell atlas data</h1>
+          <h1>Comparative visualization of single-cell atlas data</h1>
           <BiomarkerSelect />
         </div>
       </div>
@@ -300,7 +301,7 @@ function PageComponent() {
           <CellSets />
         </div>
       </div>
-      
+
     </>
   );
 }

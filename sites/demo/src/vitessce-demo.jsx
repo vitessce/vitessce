@@ -120,7 +120,8 @@ export function VitessceDemo() {
               width: 100%;
               overflow: hidden;
             }
-            `}</style>
+            `}
+            </style>
           ) : null}
           <Vitessce
             config={config}

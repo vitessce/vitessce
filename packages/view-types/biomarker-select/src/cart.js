@@ -7,10 +7,13 @@ import { useStyles } from './styles.js';
 export function ConfirmatoryCart(props) {
   const {
     currentModalityAgnosticSelection,
+    // eslint-disable-next-line no-unused-vars
     setCurrentModalityAgnosticSelection,
     currentModalitySpecificSelection,
+    // eslint-disable-next-line no-unused-vars
     setCurrentModalitySpecificSelection,
     currentStratificationSelection,
+    // eslint-disable-next-line no-unused-vars
     setCurrentStratificationSelection,
   } = props;
   const classes = useStyles();

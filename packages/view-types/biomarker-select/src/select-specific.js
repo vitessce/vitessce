@@ -24,12 +24,8 @@ const columns = [
 export function SelectSpecific(props) {
   const {
     currentModalityAgnosticSelection,
-    setCurrentModalityAgnosticSelection,
     currentModalitySpecificSelection,
     setCurrentModalitySpecificSelection,
-    currentStratificationSelection,
-    setCurrentStratificationSelection,
-
     getEdges,
   } = props;
   const classes = useStyles();
@@ -37,7 +33,7 @@ export function SelectSpecific(props) {
   const queries = useQueries({
     queries: currentModalityAgnosticSelection?.map(item => ({
       queryKey: [item.nodeType, item.kgId],
-      queryFn: async (ctx) => {
+      queryFn: async () => {
         const matchingGenes = await getEdges(item, 'gene');
         return matchingGenes.map(d => ({ target: d, source: item }));
       },
@@ -46,6 +42,7 @@ export function SelectSpecific(props) {
 
   const anyLoading = queries.some(q => q.isFetching);
   const anyError = queries.some(q => q.isError);
+  // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? 'loading' : (anyError ? 'error' : 'success');
 
   const data = queries
@@ -59,12 +56,15 @@ export function SelectSpecific(props) {
       ? 'Directly-selected gene'
       : `Member of ${d.source.label} ${d.source.nodeType}`
     ),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [currentModalityAgnosticSelection, dataStatus]);
 
   // Derive the set of selected row ids from the
   // currentModalitySpecificSelection.
-  const rowSelectionModel = useMemo(() => currentModalitySpecificSelection?.map(d => d.kgId) || [], [rows, currentModalitySpecificSelection]);
-
+  const rowSelectionModel = useMemo(
+    () => currentModalitySpecificSelection?.map(d => d.kgId) || [],
+    [rows, currentModalitySpecificSelection],
+  );
 
   function handleSelection(newRowSelectionModel) {
     const newSelection = newRowSelectionModel

@@ -1,10 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import {
-  Grid,
-  Button,
-  TextField,
-  Typography,
-} from '@material-ui/core';
+import { Grid, Button, TextField, Typography } from '@material-ui/core';
 import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { VariableSizeList } from 'react-window';
@@ -74,14 +69,8 @@ const ListboxComponent = React.forwardRef((props, ref) => {
 export function SelectAgnostic(props) {
   const {
     autocompleteNode,
-
     currentModalityAgnosticSelection,
     setCurrentModalityAgnosticSelection,
-    currentModalitySpecificSelection,
-    setCurrentModalitySpecificSelection,
-    currentStratificationSelection,
-    setCurrentStratificationSelection,
-
   } = props;
   const classes = useStyles();
 
@@ -100,6 +89,7 @@ export function SelectAgnostic(props) {
 
 
   function confirmSelectedItem() {
+    // eslint-disable-next-line max-len
     if (selectedItem && !currentModalityAgnosticSelection?.find(item => item.kgId === selectedItem?.kgId)) {
       setCurrentModalityAgnosticSelection([
         ...(currentModalityAgnosticSelection || []),
@@ -128,18 +118,36 @@ export function SelectAgnostic(props) {
             )}
             ListboxComponent={ListboxComponent}
             getOptionLabel={option => option.label}
-            renderOption={option => <Typography noWrap>{option.label} ({option.nodeType})</Typography>}
+            renderOption={option => (
+              <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+            )}
           />
         </Grid>
-        <Grid item xs={8} style={{ border: selectedItem ? '1px solid gray' : '1px solid transparent', borderRadius: '4px' }}>
+        <Grid
+          item
+          xs={8}
+          style={{
+            border: selectedItem ? '1px solid gray' : '1px solid transparent',
+            borderRadius: '4px',
+          }}
+        >
           {selectedItem ? (
             <>
               <Grid container item xs={12}>
                 <Grid item xs={9}>
-                  <Typography variant="h4" title={selectedItem.term}>{selectedItem.label}</Typography>
+                  <Typography variant="h4" title={selectedItem.term}>
+                    {selectedItem.label}
+                  </Typography>
                 </Grid>
                 <Grid item xs={3} style={{ position: 'relative' }}>
-                  <Button className={classes.selectButton} variant="contained" startIcon={<AddIcon />} onClick={confirmSelectedItem}>Select</Button>
+                  <Button
+                    className={classes.selectButton}
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={confirmSelectedItem}
+                  >
+                    Select
+                  </Button>
                 </Grid>
               </Grid>
               <Grid container item xs={12}>
@@ -147,7 +155,13 @@ export function SelectAgnostic(props) {
                 <Typography variant="h6">About this {selectedItem.nodeType}</Typography>
               </Grid>
               <Grid container item xs={12} key={selectedItem.term}>
-                <iframe src={`https://identifiers.org/${selectedItem.term}`} width="100%" height="500" style={{ border: 0 }} />
+                <iframe
+                  title={`Embedded metadata page for ontology term ${selectedItem.term}`}
+                  src={`https://identifiers.org/${selectedItem.term}`}
+                  width="100%"
+                  height="500"
+                  style={{ border: 0 }}
+                />
               </Grid>
             </>
           ) : null}

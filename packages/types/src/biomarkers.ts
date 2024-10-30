@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // Here, "Kg" stands for "knowledge graph"
 export type KgNodeType = 'gene' | 'protein' | 'pathway' | 'cell-type';
 export type TargetModalityType = 'gene' | 'protein'; // TODO: support protein, genomic region, etc.
@@ -5,10 +6,16 @@ export type StratificationType = 'sampleSet' | 'structural-region' | 'structural
 
 // Why was this node included in the list?
 export type KgNodeReason = (
-    'modality-agnostic' // The user selected during modality-agnostic selection.
-    | KgNode // The user selected the linked node during modality-agnostic selection. This node may then be modality-specific after some feature transformation to a different modality.
+  // The user selected during modality-agnostic selection.
+  'modality-agnostic'
+  // The user selected the linked node during modality-agnostic selection.
+  // This node may then be modality-specific after some feature
+  // transformation to a different modality.
+  // eslint-disable-next-line no-use-before-define
+  | KgNode
 );
-// Why did the data source include this node? Is the knowledge canonical or data-driven?
+// Why did the data source include this node?
+// Is the knowledge canonical or data-driven?
 export type KgNodeMethod = 'canonical' | 'data-driven';
 // If this is a node from a suggestion,
 // export type SuggestionReason = 'ligand-receptor' | 'pathway-membership';
@@ -16,18 +23,25 @@ export type KgNodeMethod = 'canonical' | 'data-driven';
 
 // A node from a knowledge graph.
 export type KgNode = {
-  kgId: string; // ID in the knowledge graph. Not necessarily human-readable.
+  // ID in the knowledge graph. Not necessarily human-readable.
+  kgId: string;
   nodeType: KgNodeType;
 
   // Alternate identifiers
-  label: string; // Human-readable name of the node.
-  term?: string; // Ontology term for this node. Should be a CURIE.
-  altIds?: string[]; // Alternative identifiers like gene symbols or Ensembl IDs, in CURIE string format.
+  // Human-readable name of the node.
+  label: string;
+  // Ontology term for this node. Should be a CURIE.
+  term?: string;
+  // Alternative identifiers like gene symbols or Ensembl IDs, in CURIE string format.
+  altIds?: string[];
 
   // Provenance info
-  source?: string; // Name of a data source like 'EnrichrKG'.
+  // Name of a data source like 'EnrichrKG'.
+  source?: string;
   sourceMethod?: KgNodeMethod;
-  sourceVersion?: string; // Version of the data source.
+  // Version of the data source.
+  sourceVersion?: string;
+  // Note: this is a recursive type.
   reason?: KgNodeReason;
 };
 

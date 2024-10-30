@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+/* eslint-disable max-len */
 import { InternMap } from 'internmap';
 import { scaleLinear } from 'd3-scale';
 import {
@@ -116,13 +117,15 @@ export function summarizeStratifiedExpressionData(
 export function histogramStratifiedExpressionData(
   summarizedResult, binCount, yMinProp,
 ) {
-  const groupSummaries = Array.from(summarizedResult.entries()).map(([cellSetKey, firstLevelInternMap]) => ({
-    key: cellSetKey,
-    value: Array.from(firstLevelInternMap.entries()).map(([sampleSetKey, secondLevelInternMap]) => ({
-      key: sampleSetKey,
-      value: secondLevelInternMap,
-    })),
-  }));
+  const groupSummaries = Array.from(summarizedResult.entries())
+    .map(([cellSetKey, firstLevelInternMap]) => ({
+      key: cellSetKey,
+      value: Array.from(firstLevelInternMap.entries())
+        .map(([sampleSetKey, secondLevelInternMap]) => ({
+          key: sampleSetKey,
+          value: secondLevelInternMap,
+        })),
+    }));
 
   const groupData = groupSummaries
     .map(({ key, value }) => ({
@@ -131,7 +134,9 @@ export function histogramStratifiedExpressionData(
         { key: subKey, value: subValue.nonOutliers }
       )),
     }));
-  const trimmedData = groupData.map(kv => kv.value.map(subKv => subKv.value).flat()).flat();
+  const trimmedData = groupData
+    .map(kv => kv.value.map(subKv => subKv.value).flat())
+    .flat();
 
   const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
 
@@ -149,8 +154,10 @@ export function histogramStratifiedExpressionData(
     value: kv.value.map(subKv => (
       { key: subKv.key, value: histogram(subKv.value) }
     )) }));
-  const groupBinsMax = max(groupBins
-    .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
+  const groupBinsMax = max(
+    groupBins
+      .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))),
+  );
 
   return {
     // Array of [{ key, value: [

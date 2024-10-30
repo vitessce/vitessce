@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Button, ButtonGroup, Grid, Typography, Tooltip } from '@material-ui/core';
+import { Button, ButtonGroup, Grid, Tooltip } from '@material-ui/core';
 import { ConfirmatoryStepper } from './confirmatory-stepper.js';
 import { useStyles } from './styles.js';
 
@@ -35,9 +36,7 @@ export function ScmdUi(props) {
     <Grid container style={{ border: '0px solid red' }}>
       {/* Header */}
       <Grid item container xs={12} className={classes.header}>
-        <Grid item xs={8}>
-          <button onClick={() => setTempIsVisible(prev => !prev)}>toggle</button>
-        </Grid>
+        <Grid item xs={8} />
         <Grid item container xs={4} justifyContent="flex-end">
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
             <Tooltip arrow title="Start from biomarker(s) of interest">
