@@ -12,14 +12,14 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  */
 export default class ZarrDataSource {
   /**
-   * @param {DataSourceParams} params The parameters object.
+   * @param {DataSourceParams & { refSpecUrl?: string }} params The parameters object.
    */
-  constructor({ url, requestInit, store, fileType }) {
+  constructor({ url, requestInit, refSpecUrl, store, fileType }) {
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else if (url) {
-      this.storeRoot = zarrOpenRoot(url, fileType, requestInit);
+      this.storeRoot = zarrOpenRoot(url, fileType, { requestInit, refSpecUrl });
     } else {
       throw new Error('Either a store or a URL must be provided to the ZarrDataSource constructor.');
     }
@@ -45,7 +45,6 @@ export default class ZarrDataSource {
    */
   async getJson(key, storeRootParam = null) {
     const { storeRoot } = this;
-
     const storeRootToUse = storeRootParam || storeRoot;
 
     let dirKey = key;

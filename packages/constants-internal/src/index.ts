@@ -4,6 +4,8 @@ export {
   FileType,
   CoordinationType,
   AsyncFunctionType,
+  ViewHelpMapping,
+  DescriptionType,
   STATUS,
 } from './constants.js';
 export {

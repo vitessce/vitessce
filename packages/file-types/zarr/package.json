@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/zarr",
-  "version": "3.4.9",
-  "author": "Gehlenborg Lab",
+  "version": "3.4.14",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -41,7 +41,11 @@
     "@vitessce/config": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
-    "zarrita": "catalog:"
+    "zarrita": "catalog:",
+    "apache-arrow": "catalog:",
+    "parquet-wasm": "catalog:",
+    "ol": "^10.2.1",
+    "dynamic-import-polyfill": "^0.1.1"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",

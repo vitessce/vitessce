@@ -35,7 +35,7 @@ import {
   getPointOpacity,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 
@@ -62,6 +62,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
     observationsLabelOverride,
     title: titleOverride,
+    helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
   } = props;
@@ -332,7 +333,11 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const {
+    normData: uint8ExpressionData,
+    extents: expressionExtents,
+    missing: expressionMissing,
+  } = useUint8FeatureSelection(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -451,6 +456,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
@@ -555,7 +561,9 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        obsSetSelection={cellSetSelection}
         extent={expressionExtents?.[0]}
+        missing={expressionMissing?.[0]}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
         contoursVisible={embeddingContoursVisible}
