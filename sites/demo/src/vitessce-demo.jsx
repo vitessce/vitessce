@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Vitessce } from 'vitessce';
 
-import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
+import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
 
@@ -110,8 +110,19 @@ export function VitessceDemo() {
       const config = getConfig(datasetId);
       const pluginProps = getPlugins(datasetId);
       const stores = getStores(datasetId);
+      const PageComponent = getPage(datasetId);
       return (
         <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}
+            </style>
+          ) : null}
           <Vitessce
             config={config}
             rowHeight={rowHeight}
@@ -124,10 +135,7 @@ export function VitessceDemo() {
             {...pluginProps}
             pageMode={pageMode}
           >
-            <h1>Test</h1>
-            <div id="A" style={{ border: '5px solid red', width: '600px', height: '600px' }} />
-            <h2>Another test</h2>
-            <div id="B" style={{ border: '5px solid red', width: '600px', height: '400px' }} />
+            {pageMode ? <PageComponent /> : null}
           </Vitessce>
         </ContainerComponent>
       );
@@ -170,11 +178,6 @@ export function VitessceDemo() {
         width: 100%;
         overflow: scroll;
         background-color: #333333;
-      }
-      #root .vitessce-container {
-        height: max(100%,100vh);
-        width: 100%;
-        overflow: hidden;
       }
       `}
       </style>

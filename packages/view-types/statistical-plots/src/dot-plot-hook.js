@@ -1,4 +1,4 @@
-
+/* eslint-disable max-len */
 import { useMemo } from 'react';
 import { InternMap } from 'internmap';
 import { v4 as uuidv4 } from 'uuid';
@@ -68,10 +68,9 @@ export function useExpressionSummaries(
       );
 
       const result = [];
-      Array.from(dotData.keys()).forEach((cellSetKey) => {
-        Array.from(dotData.get(cellSetKey).keys()).forEach((sampleSetKey) => {
-          Array.from(dotData.get(cellSetKey).get(sampleSetKey).keys()).forEach((geneKey) => {
-            const dotObj = dotData.get(cellSetKey).get(sampleSetKey).get(geneKey);
+      Array.from(dotData.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
+        Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
+          Array.from(secondLevelInternMap.entries()).forEach(([geneKey, dotObj]) => {
             const featureName = geneKey;
             result.push({
               key: uuidv4(), // Unique key for this dot.

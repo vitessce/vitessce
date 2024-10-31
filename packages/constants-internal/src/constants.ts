@@ -21,6 +21,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  BIOMARKER_SELECT: 'biomarkerSelect',
 };
 
 export const DataType = {
@@ -41,13 +42,18 @@ export const DataType = {
 };
 
 export const AsyncFunctionType = {
-  FEATURE_METADATA: 'featureMetadata', // (featureName, featureType) -> metadata object
-  FEATURE_EDGES: 'featureEdges', // (featureName, featureType, targetFeatureType) -> list of features from target modality
-  FEATURE_TO_INTERVAL: 'featureToInterval', // (featureName, featureType) -> genomic interval { chr, start, end }
-  OBS_SET_TO_FEATURES: 'obsSetToFeatures', // (cell type name) -> list of feature names
-  FEATURES_TO_OBS_SET: 'featuresToObsSet', // (list of feature names) -> cell type name
-};
+  // String input (rather than Node input)
+  AUTOCOMPLETE_FEATURE: 'autocompleteFeature', // (partial: string, targetModality: null | 'gene' | 'protein' | 'genomic-region' | 'cell-type') -> list of feature nodes
 
+  TRANSFORM_FEATURE: 'transformFeature', // (featureNode, targetModality) -> list of feature nodes from target modality
+  RELATED_FEATURES: 'relatedFeatures', // (featureNode) -> list of related feature nodes
+  FEATURE_TO_URL: 'featureToUrl', // (featureNode) -> URL
+  FEATURE_TO_INTERVAL: 'featureToInterval', // (featureNode) -> genomic interval { chr, start, end }
+
+  // Cell2Sentence/LLM-based?
+  OBS_SET_TO_FEATURES: 'obsSetToFeatures', // (cell type node) -> list of feature nodes
+  FEATURES_TO_OBS_SET: 'featuresToObsSet', // (list of feature nodes) -> cell type node
+};
 
 export const FileType = {
   // Joint file types

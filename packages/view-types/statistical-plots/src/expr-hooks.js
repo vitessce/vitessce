@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+/* eslint-disable max-len */
 import { InternMap } from 'internmap';
 import { scaleLinear } from 'd3-scale';
 import {
@@ -57,26 +58,23 @@ export function dotStratifiedExpressionData(
   stratifiedResult, posThreshold,
 ) {
   const result = new InternMap([], JSON.stringify);
-  Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
+  Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
     result.set(cellSetKey, new InternMap([], JSON.stringify));
-    Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
+    Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
       result.get(cellSetKey).set(sampleSetKey, new InternMap([], JSON.stringify));
+      Array.from(secondLevelInternMap.entries()).forEach(([geneKey, values]) => {
+        if (values) {
+          const exprMean = d3_mean(values);
+          const numPos = values.reduce((acc, val) => (val > posThreshold ? acc + 1 : acc), 0);
+          const fracPos = numPos / values.length;
 
-      const allGenes = stratifiedResult.get(cellSetKey).get(sampleSetKey);
+          const dotSummary = {
+            meanExpInGroup: exprMean,
+            fracPosInGroup: fracPos,
+          };
 
-      Array.from(allGenes.keys()).forEach((geneKey) => {
-        const values = allGenes.get(geneKey);
-
-        const exprMean = d3_mean(values);
-        const numPos = values.reduce((acc, val) => (val > posThreshold ? acc + 1 : acc), 0);
-        const fracPos = numPos / values.length;
-
-        const dotSummary = {
-          meanExpInGroup: exprMean,
-          fracPosInGroup: fracPos,
-        };
-
-        result.get(cellSetKey).get(sampleSetKey).set(geneKey, dotSummary);
+          result.get(cellSetKey).get(sampleSetKey).set(geneKey, dotSummary);
+        }
       });
     });
   });
@@ -95,10 +93,10 @@ export function summarizeStratifiedExpressionData(
 ) {
   const summarizedResult = new InternMap([], JSON.stringify);
 
-  Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
+  Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
     summarizedResult.set(cellSetKey, new InternMap([], JSON.stringify));
-    Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
-      const values = stratifiedResult.get(cellSetKey).get(sampleSetKey);
+    Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
+      const values = secondLevelInternMap;
       const summary = summarize(values, keepZeros);
       summarizedResult.get(cellSetKey).set(sampleSetKey, summary);
     });
@@ -119,13 +117,15 @@ export function summarizeStratifiedExpressionData(
 export function histogramStratifiedExpressionData(
   summarizedResult, binCount, yMinProp,
 ) {
-  const groupSummaries = Array.from(summarizedResult.keys()).map(cellSetKey => ({
-    key: cellSetKey,
-    value: Array.from(summarizedResult.get(cellSetKey).keys()).map(sampleSetKey => ({
-      key: sampleSetKey,
-      value: summarizedResult.get(cellSetKey).get(sampleSetKey),
-    })),
-  }));
+  const groupSummaries = Array.from(summarizedResult.entries())
+    .map(([cellSetKey, firstLevelInternMap]) => ({
+      key: cellSetKey,
+      value: Array.from(firstLevelInternMap.entries())
+        .map(([sampleSetKey, secondLevelInternMap]) => ({
+          key: sampleSetKey,
+          value: secondLevelInternMap,
+        })),
+    }));
 
   const groupData = groupSummaries
     .map(({ key, value }) => ({
@@ -134,7 +134,9 @@ export function histogramStratifiedExpressionData(
         { key: subKey, value: subValue.nonOutliers }
       )),
     }));
-  const trimmedData = groupData.map(kv => kv.value.map(subKv => subKv.value).flat()).flat();
+  const trimmedData = groupData
+    .map(kv => kv.value.map(subKv => subKv.value).flat())
+    .flat();
 
   const yMin = (yMinProp === null ? Math.min(0, min(trimmedData)) : yMinProp);
 
@@ -152,8 +154,10 @@ export function histogramStratifiedExpressionData(
     value: kv.value.map(subKv => (
       { key: subKv.key, value: histogram(subKv.value) }
     )) }));
-  const groupBinsMax = max(groupBins
-    .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))));
+  const groupBinsMax = max(
+    groupBins
+      .flatMap(d => d.value.flatMap(subKv => subKv.value.map(v => v.length))),
+  );
 
   return {
     // Array of [{ key, value: [
