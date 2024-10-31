@@ -743,7 +743,7 @@ export function SpatialSubscriber(props) {
     // will not bubble up to the onHover callback of the DeckGL canvas."
     // Reference: https://deck.gl/docs/api-reference/core/layer#interaction-properties
     return false;
-  }, []);
+  }, [obsSegmentationsData, obsSpotsData, obsPointsData, segmentationMultiIndicesData]);
 
   const isSelectable = (
     spotLayerScopes.length > 0
