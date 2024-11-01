@@ -20,8 +20,9 @@ const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 // We want the remaining layers to render below the text layers.
 // eslint-disable-next-line no-unused-vars
 const TEXT_LAYER_Z_INDEX = 0;
-// For some reason, setting this to -10, while it solves the issue for text+contour+points,
-// it also results in the points not appearing at certain zoom levels.
+// For some reason, setting this to -10, while it solves the issue for
+// text+contour+points, it also results in the points not appearing at
+// certain zoom levels.
 const POINT_LAYER_Z_INDEX = 0;
 
 // Default getter function props.
