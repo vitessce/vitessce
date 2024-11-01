@@ -20,7 +20,7 @@ const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 // We want the remaining layers to render below the text layers.
 // eslint-disable-next-line no-unused-vars
 const TEXT_LAYER_Z_INDEX = 0;
-const POINT_LAYER_Z_INDEX = -10;
+const POINT_LAYER_Z_INDEX = 0;
 
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {

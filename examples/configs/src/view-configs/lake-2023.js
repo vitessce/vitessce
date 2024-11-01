@@ -198,7 +198,6 @@ function generateLake2023Config() {
     sampleSetSelection: sampleSetScope_control,
   }, { meta: false });
 
-
   vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
   vc.linkViewsByObject([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
@@ -213,6 +212,13 @@ function generateLake2023Config() {
     embeddingTargetX: null,
     embeddingTargetY: null,
   }, { meta: false });
+
+  /*
+  const [donorSelectionScope, cellTypeSelectionScope] = vc.addCoordination(
+    { cType: 'obsSetSelection', cScope: 'donor', cValue: [['Donor ID', '3593'], ['Donor ID', '3535']] },
+    { cType: 'obsSetSelection', cScope: 'cellType', cValue: [['Cell Type', 'leukocyte'], ['Cell Type', 'kidney collecting duct intercalated cell']] },
+  );
+  */
 
   vc.layout(hconcat(
     vconcat(
