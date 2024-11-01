@@ -1,4 +1,27 @@
 
+## 3.5.0
+
+### Minor Changes
+
+- Add NaN percentage to legend (`@vitessce/legend`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1947](https://github.com/vitessce/vitessce/pull/1947))
+
+### Patch Changes
+
+- Fix obs index within AnnData-Zarr test fixture. (`@vitessce/zarr`) ([#1948](https://github.com/vitessce/vitessce/pull/1948))
+
+- Fix scatterplot point layer z-index bug. (`@vitessce/scatterplot`) ([#1967](https://github.com/vitessce/vitessce/pull/1967))
+
+- Correct x-axis label in `CellSetSizesPlot` (`@vitessce/statistical-plots`) ([#1949](https://github.com/vitessce/vitessce/pull/1949))
+
+- Add biomarker-select view. Update pageMode functionality. Register default async function plugins, allow them to use queryClient. Add types related to knowledge. (`@vitessce/biomarker-select`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/config`, `@vitessce/types`, `@vitessce/vit-s`) ([#1889](https://github.com/vitessce/vitessce/pull/1889))
+
+- Fix tooltips in spatialBeta polygon segmentation (`@vitessce/spatial-beta`) ([#1966](https://github.com/vitessce/vitessce/pull/1966))
+
+- Update citation info. (`docs`) ([#1959](https://github.com/vitessce/vitessce/pull/1959))
+
+- Try removing dynamic import polyfill via a webpack ignore comment. (`@vitessce/zarr`) ([#1960](https://github.com/vitessce/vitessce/pull/1960))
+
+
 ## 3.4.14
 
 ### Patch Changes
