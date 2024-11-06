@@ -18,17 +18,17 @@ function generateLinkControllerConfig() {
     coordinationValues: {
       fileUid: 'file',
     },
-  })
+  });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta', {x: 0, y: 0, w: 8, h: 8})
-    .setProps({three: true});
-  const lcView = config.addView(dataset, 'layerControllerBeta', {x: 8, y: 0, w: 4, h: 6});
+  const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 })
+    .setProps({ three: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
   const linkController = config.addView(dataset, 'linkController', {
     x: 8,
     y: 1,
     w: 4,
     h: 2,
-  }).setProps({linkID: 5454});
+  }).setProps({ linkID: 5454 });
 
   config.linkViewsByObject([spatialThreeView, lcView, linkController], {
     spatialTargetZ: 0,
@@ -49,7 +49,7 @@ function generateLinkControllerConfig() {
           },
         ]),
       },
-    ])
+    ]),
   });
 
   const configJSON = config.toJSON();

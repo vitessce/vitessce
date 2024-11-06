@@ -1,21 +1,17 @@
-import React, {useMemo, useEffect, useRef, useCallback, useState} from 'react';
+import React from 'react';
 import {
   TitleInfo,
-  useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import LinkController from './LinkController.js';
 
 export function LinkControllerSubscriber(props) {
   const {
-    coordinationScopes,
     removeGridComponent,
     theme,
     title = 'Vitessce Link',
     closeButtonVisible,
-    linkID, viewTypes, fileTypes, coordinationTypes, stores
+    linkID, viewTypes, fileTypes, coordinationTypes, stores,
   } = props;
-
-  console.log("viewTypes", viewTypes, "fileTypes", fileTypes, "coordinationTypes", coordinationTypes, "stores", stores)
 
   return (
     <TitleInfo
@@ -28,12 +24,15 @@ export function LinkControllerSubscriber(props) {
       fileTypes={fileTypes}
       stores={stores}
       coordinationTypes={coordinationTypes}
-      isReady={true}
+      isReady
     >
-      <LinkController linkIDInit={linkID} viewTypes={viewTypes}
-                      fileTypes={fileTypes}
-                      stores={stores}
-                      coordinationTypes={coordinationTypes}/>
+      <LinkController
+        linkIDInit={linkID}
+        viewTypes={viewTypes}
+        fileTypes={fileTypes}
+        stores={stores}
+        coordinationTypes={coordinationTypes}
+      />
     </TitleInfo>
   );
 }

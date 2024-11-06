@@ -1,7 +1,7 @@
-import React, {useState, useMemo, useCallback} from 'react';
-import {Responsive, WidthProvider} from 'react-grid-layout-with-lodash';
-import {isEqual} from 'lodash-es';
-import {getMaxRows, resolveLayout} from './layout-utils.js';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
+import { isEqual } from 'lodash-es';
+import { getMaxRows, resolveLayout } from './layout-utils.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -106,7 +106,7 @@ export function VitessceGridLayout(props) {
     setTempGridLayouts(allLayouts);
     // Then we wait 50ms and validate/set the new layout.
     setTimeout(() => {
-      if (!isBounded || getMaxRows({ID: newLayout}) <= maxRows) {
+      if (!isBounded || getMaxRows({ ID: newLayout }) <= maxRows) {
         // Good, new layout was valid with respect to isBounded, so set in parent.
         onValidLayoutChange(newLayout);
         setLastValidGridLayouts(allLayouts);
@@ -136,8 +136,8 @@ export function VitessceGridLayout(props) {
         // The child mapped to a view in the config,
         // so we want to render the corresponding component as a subchild.
         const Component = getComponent(v.component);
-        return React.cloneElement(child, {key: v.uid}, (
-          <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+        return React.cloneElement(child, { key: v.uid }, (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <Component
               {...v.props}
               uuid={v.uid}
