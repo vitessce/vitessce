@@ -156,8 +156,8 @@ function generateCodexConfig() {
         spatialLayerOpacity: 1,
         segmentationChannel: CL([
           {
-            obsType: 'cell',
-            spatialTargetC: 0,
+            obsType: 'cells',
+            spatialTargetC: 'cells',
             spatialChannelColor: [255, 255, 255],
             spatialChannelOpacity: 1.0,
             featureType: 'gene',
@@ -171,8 +171,8 @@ function generateCodexConfig() {
             obsSetColor: colorScope,
           },
           {
-            obsType: 'nucleus',
-            spatialTargetC: 1,
+            obsType: 'nuclei',
+            spatialTargetC: 'nucleus',
             spatialChannelColor: [91, 181, 231],
             spatialChannelOpacity: 0.8,
             featureType: 'gene',

@@ -564,6 +564,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
     return spatialRenderingMode === '3D';
   }
 
+  getTargetC(currChannelObsType, imageWrapperInstance) {
+    // console.log("obsType", currChannelObsType);
+    const channels = imageWrapperInstance['vivLoader']['metadata']['Pixels'].Channels;
+    const channel = channels.find(c => c.Name === currChannelObsType);
+    console.log(channels)
+    console.log("channel", channels, channel, channel ? parseInt(channel.ID.split(':').pop(), 10) : -1);
+    return channel ? parseInt(channel.ID.split(':').pop(), 10) : -1;
+  }
+
+  // const segmentationChannelCoordination = useMemo(() => {
+  //   // Use obsSegmentationsData?.[layer].instance.getChannelObjects()
+  //   // Look up channel index using
+  //   // segmentationChannelCoordinationOriginal
+  //   // ?.[layer]?.[channel]?.obsType and fill in .spatialTargetC
+
+  // }, [segmentationChannelCoordinationOriginal]);
+
+  // console.log(obsSegmentationsData, segmentationChannelCoordination);
+
   // New createImageLayer function.
   createBitmaskSegmentationLayer(
     layerScope, layerCoordination, channelScopes, channelCoordination,
@@ -590,12 +609,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
+    // console.log("coor", CoordinationType);
+    
     const nextLoaderSelection = channelScopes
-      .map(cScope => filterSelection(data, {
+      .map(cScope => {
+        // this. getTargetC(channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],  image?.obsSegmentations?.instance);
+        console.log(channelCoordination[cScope]);
+        return filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-      }));
+        c: this. getTargetC(channelCoordination[cScope].obsType, image?.obsSegmentations?.instance)
+      })
+    }
+    );
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
       selections = prevLoaderSelection;
@@ -694,6 +720,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!data) {
       return null;
     }
+
     const imageWrapperInstance = image.image.instance;
 
     const is3dMode = spatialRenderingMode === '3D';
