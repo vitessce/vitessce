@@ -38,6 +38,7 @@ import {
   mouseToCellColorPosition,
 } from './utils.js';
 import HeatmapWorkerPool from './HeatmapWorkerPool.js';
+import { useMappedGeneList } from '@vitessce/vit-s';
 // Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 
@@ -139,6 +140,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
   const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
+  const mappedFeatureIndex = useMappedGeneList(featureIndex, featureLabelsMap);
 
   const tilesRef = useRef();
   const dataRef = useRef();
@@ -195,26 +197,26 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Set the genes ordering.
   useEffect(() => {
-    if (!featureIndex) {
+    if (!mappedFeatureIndex || mappedFeatureIndex.length === 0) {
       return;
     }
     if (transpose) {
-      setAxisLeftLabels(featureIndex);
+      setAxisLeftLabels(mappedFeatureIndex);
     } else {
-      setAxisTopLabels(featureIndex);
+      setAxisTopLabels(mappedFeatureIndex);
     }
-  }, [featureIndex, transpose]);
+  }, [mappedFeatureIndex, transpose]);
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
-    if (!obsIndex || !featureIndex) {
+    if (!obsIndex || !mappedFeatureIndex) {
       return ['', ''];
     }
 
     return [
       getLongestString(obsIndex),
-      getLongestString([...featureIndex, ...cellColorLabels]),
+      getLongestString([...mappedFeatureIndex, ...cellColorLabels]),
     ];
-  }, [featureIndex, cellColorLabels, obsIndex]);
+  }, [mappedFeatureIndex, cellColorLabels, obsIndex]);
 
   // Creating a look up dictionary once is faster than calling indexOf many times
   // i.e when cell ordering changes.
@@ -353,7 +355,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        cols: featureIndex,
+        cols: mappedFeatureIndex,
         transpose,
         data: uint8ObsFeatureMatrix.buffer.slice(),
         expressionRowLookUp,
@@ -372,7 +374,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, mappedFeatureIndex]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -424,7 +426,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     axisLeftLabels,
     uint8ObsFeatureMatrix,
     expressionRowLookUp,
-    featureIndex,
+    mappedFeatureIndex,
     gl,
   ]);
 
@@ -502,7 +504,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [uint8ObsFeatureMatrix, backlog.length, transpose, axisTopLabels, axisLeftLabels,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, mappedFeatureIndex]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -757,18 +759,18 @@ const Heatmap = forwardRef((props, deckRef) => {
     const obsI = obsIndex.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
-    const varI = featureIndex.indexOf(transpose
+    const varI = mappedFeatureIndex.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
     const obsId = obsIndex[obsI];
 
-    // We need to use featureIndex here,
-    // because featureIndex may be mapped to
+    // We need to use mappedFeatureIndex here,
+    // because mappedFeatureIndex may be mapped to
     // use featureLabels (if those were available in the dataset).
     // Highlights and selections are assumed to be in terms of
-    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
-    const varId = featureIndex[varI];
+    // obsIndex/mappedFeatureIndex (as opposed to obsLabels/featureLabels).
+    const varId = mappedFeatureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();
