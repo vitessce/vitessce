@@ -30,6 +30,7 @@ import {
 } from '@vitessce/utils';
 
 
+import { useMappedGeneList } from '@vitessce/vit-s';
 import {
   layerFilter,
   getAxisSizes,
@@ -38,7 +39,6 @@ import {
   mouseToCellColorPosition,
 } from './utils.js';
 import HeatmapWorkerPool from './HeatmapWorkerPool.js';
-import { useMappedGeneList } from '@vitessce/vit-s';
 // Only allocate the memory once for the container
 const paddedExpressionContainer = new Uint8Array(DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE);
 

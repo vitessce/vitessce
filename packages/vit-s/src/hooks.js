@@ -328,59 +328,52 @@ export const useMappedGeneList = (geneObject, featureMap) => {
   const [mappedGeneList, setMappedGeneList] = useState(geneObject);
   useEffect(() => {
     const processFeatureLabelMap = async () => {
-      // Assuming featureMap is set for symbolic genes 
+      // Assuming featureMap is set for symbolic genes
       if (featureMap !== undefined) {
         setMappedGeneList(geneObject);
         return;
       }
       try {
         let ensbGenes = false;
-        if (Array.isArray(geneObject))
-          ensbGenes = geneObject?.some(value => value?.toUpperCase().startsWith("ENSG"));
+        if (Array.isArray(geneObject)) ensbGenes = geneObject?.some(value => value?.toUpperCase().startsWith('ENSG'));
         else {
-          ensbGenes = Object.entries(geneObject)?.some(([key, value]) => 
-            key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG')
-          );
+          ensbGenes = Object.entries(geneObject)?.some(([key, value]) => key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG'));
         }
         // console.log(ensbGenes)
-        if(!ensbGenes) return;
-        else {
-          let updatedGeneObject = { ...geneObject };
-          const response = await fetch('https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json');
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const jsonData = await response.json();
+        if (!ensbGenes) return;
 
-          if (Array.isArray(geneObject)) {
-            updatedGeneObject = geneObject.map(gene => {
-              if (gene.toUpperCase().startsWith("ENSG")) {
-                const trimmedValue = gene.split('.')[0]; // Trim after the dot
-                return jsonData[trimmedValue];
-              }
-            })
-            updatedGeneObject = updatedGeneObject.filter(gene => gene !== undefined);
-          }
-          else {
-            Object.entries(geneObject).forEach(([key, value]) => {
-              if (key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG')) {
-                console.log("key", key, value);
-                const trimmedValue = value.split('.')[0]; 
-                console.log(trimmedValue)
-                updatedGeneObject[key] = jsonData[trimmedValue];
-              }
-            });
-          } 
-         
-          setMappedGeneList(updatedGeneObject);
-          return updatedGeneObject
-      }
-    } catch (err) {
+        let updatedGeneObject = { ...geneObject };
+        const response = await fetch('https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const jsonData = await response.json();
+
+        if (Array.isArray(geneObject)) {
+          updatedGeneObject = geneObject.map((gene) => {
+            if (gene.toUpperCase().startsWith('ENSG')) {
+              const trimmedValue = gene.split('.')[0]; // Trim after the dot
+              return jsonData[trimmedValue];
+            }
+            return null;
+          });
+          updatedGeneObject = updatedGeneObject.filter(Boolean);
+        } else {
+          Object.entries(geneObject).forEach(([key, value]) => {
+            if (key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG')) {
+              const trimmedValue = value.split('.')[0];
+              updatedGeneObject[key] = jsonData[trimmedValue];
+            }
+          });
+        }
+        setMappedGeneList(updatedGeneObject);
+      } catch (err) {
+        /* eslint-disable-next-line no-console */
         console.log(err.message);
       }
     };
     processFeatureLabelMap();
-  }, [geneObject]);
+  }, [geneObject, featureMap]);
 
   return mappedGeneList;
-}
+};

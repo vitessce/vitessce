@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core';
 import { useMappedGeneList } from '@vitessce/vit-s';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
+
 const useStyles = makeStyles(() => ({
   searchBar: {
     marginBottom: '4px',
