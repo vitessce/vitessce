@@ -7,6 +7,8 @@ import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
+import { useSetWarning } from './state/hooks.js';
+
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -323,57 +325,106 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
   }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
 }
 
+/**
+ * For datasets, with only ensembile gene ids (e.g. ["ENSG00000123456.1", "ENSG00000987654.2"]),
+ * this hook maps a given `geneObject` to their corresponding
+ * gene symbols using a gene mapping dataset.
+ *
+ * @param {string[]|Object} geneObject
+ *      - An array of gene strings, or object containing genes as keys
+ * @param {Object|undefined} featureMap
+ *      - An optional feature map. If provided, the `geneObject` is returned unchanged.
+ *
+ * @returns {string[]|Object}
+ *      - Mapped Gene List or object
+ *
+ * @example
+ * // Example with an array of gene strings (featureList):
+ * const geneObject = ["ENSG00000123456.1", "ENSG00000987654.2"];
+ * // Example with an object of genes, used in the tooltip:
+ * const geneObject = {
+ *   "Gene ID": "ENSG00000123456.1",
+ *   "Cell ID": "Cell1234",
+ *   "Marker Gene": "ENSG00000987654.2"
+ * };
+ */
 
 export const useMappedGeneList = (geneObject, featureMap) => {
+  const setWarning = useSetWarning();
   const [mappedGeneList, setMappedGeneList] = useState(geneObject);
-  useEffect(() => {
-    const processFeatureLabelMap = async () => {
-      // Assuming featureMap is set for symbolic genes
-      if (featureMap !== undefined) {
-        setMappedGeneList(geneObject);
-        return;
-      }
-      try {
-        let ensbGenes = false;
-        if (Array.isArray(geneObject)) ensbGenes = geneObject?.some(value => value?.toUpperCase().startsWith('ENSG'));
-        else {
-          ensbGenes = Object.entries(geneObject)?.some(([key, value]) => key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG'));
-        }
-        // console.log(ensbGenes)
-        if (!ensbGenes) return;
+  const [fetchedGenesList, setFetchedGenesList] = useState(null);
 
-        let updatedGeneObject = { ...geneObject };
-        const response = await fetch('https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json');
+  useEffect(() => {
+    // Assuming featureMap is set for symbolic genes
+    if (featureMap !== undefined) {
+      setMappedGeneList(geneObject);
+      return;
+    }
+    const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
+    const isGeneKey = key => key.toLowerCase().includes('gene');
+    const ensbGenes = Array.isArray(geneObject)
+      ? geneObject?.some(isEnsembleGene)
+      : geneObject && Object.entries(geneObject)?.some(([key, value]) => isGeneKey(key)
+              && isEnsembleGene(value));
+    if (!ensbGenes) return;
+
+    const fetchGeneData = async () => {
+      const controller = new AbortController();
+      const { signal } = controller;
+
+      try {
+        const response = await fetch('https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json', { signal });
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const jsonData = await response.json();
+        const data = await response.json();
+        setFetchedGenesList(data);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setWarning(err.message);
+        }
+      }
 
-        if (Array.isArray(geneObject)) {
-          updatedGeneObject = geneObject.map((gene) => {
-            if (gene.toUpperCase().startsWith('ENSG')) {
+      return () => controller.abort();
+    };
+
+    fetchGeneData();
+  }, [geneObject, featureMap]);
+
+
+  useEffect(() => {
+    if (!fetchedGenesList || featureMap !== undefined) return;
+
+    const mapGenes = () => {
+      const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
+      const isGeneKey = key => key.toLowerCase().includes('gene');
+
+      let updatedGeneObject = { ...geneObject };
+
+      if (Array.isArray(geneObject)) {
+        updatedGeneObject = geneObject
+          .map((gene) => {
+            if (isEnsembleGene(gene)) {
               const trimmedValue = gene.split('.')[0]; // Trim after the dot
-              return jsonData[trimmedValue];
+              return fetchedGenesList[trimmedValue];
             }
             return null;
-          });
-          updatedGeneObject = updatedGeneObject.filter(Boolean);
-        } else {
-          Object.entries(geneObject).forEach(([key, value]) => {
-            if (key.toLowerCase().includes('gene') && value?.toUpperCase().startsWith('ENSG')) {
-              const trimmedValue = value.split('.')[0];
-              updatedGeneObject[key] = jsonData[trimmedValue];
-            }
-          });
-        }
-        setMappedGeneList(updatedGeneObject);
-      } catch (err) {
-        /* eslint-disable-next-line no-console */
-        console.log(err.message);
+          })
+          .filter(Boolean);
+      } else {
+        Object.entries(geneObject).forEach(([key, value]) => {
+          if (isGeneKey(key) && isEnsembleGene(value)) {
+            const trimmedValue = value.split('.')[0];
+            updatedGeneObject[key] = fetchedGenesList[trimmedValue];
+          }
+        });
       }
+
+      setMappedGeneList(updatedGeneObject);
     };
-    processFeatureLabelMap();
-  }, [geneObject, featureMap]);
+
+    mapGenes();
+  }, [fetchedGenesList, geneObject, featureMap]);
 
   return mappedGeneList;
 };
