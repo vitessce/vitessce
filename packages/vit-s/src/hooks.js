@@ -5,9 +5,8 @@ import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { capitalize } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
-import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { useGridResize, useEmitGridResize, useSetWarning } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
-import { useSetWarning } from './state/hooks.js';
 
 
 function getWindowDimensions() {
@@ -390,7 +389,6 @@ export const useMappedGeneList = (geneObject, featureMap) => {
 
     fetchGeneData();
   }, [geneObject, featureMap]);
-
 
   useEffect(() => {
     if (!fetchedGenesList || featureMap !== undefined) return;
