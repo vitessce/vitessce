@@ -86,12 +86,13 @@ export default function ChannelNamesLegend(props) {
 
               const rgbColor = colorArrayToString(spatialChannelColor);
               const channelNames = images?.[layerScope]?.image?.instance.getChannelNames();
-              const channelName = channelNames?.[spatialTargetC];
+              const channelIndex = images?.[layerScope]?.image?.instance.getChannelIndex(spatialTargetC);
+              const channelName = channelNames?.[channelIndex];
 
               return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
                 <Typography
                   variant="h6"
-                  key={`${layerScope}-${cScope}-${spatialTargetC}-${rgbColor}`}
+                  key={`${layerScope}-${cScope}-${channelIndex}-${rgbColor}`}
                   className={classes.channelNameText}
                   style={{
                     color: rgbColor,
