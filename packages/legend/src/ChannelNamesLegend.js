@@ -85,8 +85,9 @@ export default function ChannelNamesLegend(props) {
               } = channelCoordination[cScope];
 
               const rgbColor = colorArrayToString(spatialChannelColor);
-              const channelNames = images?.[layerScope]?.image?.instance.getChannelNames();
-              const channelIndex = images?.[layerScope]?.image?.instance.getChannelIndex(spatialTargetC);
+              const imageWrapperInstance = images?.[layerScope]?.image?.instance;
+              const channelNames = imageWrapperInstance?.getChannelNames();
+              const channelIndex = imageWrapperInstance?.getChannelIndex(spatialTargetC);
               const channelName = channelNames?.[channelIndex];
 
               return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
