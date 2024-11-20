@@ -92,20 +92,6 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
   return [new viv.ColorPaletteExtension()];
 }
 
-function getTargetC(currChannelTarget, imageWrapperInstance) {
-  const channels = imageWrapperInstance.vivLoader.metadata.Pixels.Channels;
-  const channel = channels.find(c => c.Name === currChannelTarget);
-  const mappedChannel = channel ? parseInt(channel.ID.split(':').pop(), 10) : -1;
-  if (typeof currChannelTarget === 'string') {
-    return mappedChannel;
-  }
-
-  if (typeof currChannelTarget === 'number' && mappedChannel !== currChannelTarget) {
-    console.warn('SpatialTargetC does not match image channel name');
-  }
-  return currChannelTarget;
-}
-
 
 /**
  * React component which expresses the spatial relationships between cells and molecules.
@@ -609,9 +595,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: getTargetC(
+        c: image?.obsSegmentations?.instance?.getChannelIndex(
           channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-          image?.obsSegmentations?.instance,
         ),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
@@ -755,7 +740,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        c: image?.image?.instance?.getChannelIndex(
+          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        ),
       }));
     const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
