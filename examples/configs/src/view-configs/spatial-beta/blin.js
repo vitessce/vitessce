@@ -32,7 +32,7 @@ function generateBlinConfig(storeType) {
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
   config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 30,
+    //spatialTargetZ: 30,
   }, { meta: false });
 
   config.linkViewsByObject([spatialView, lcView], {

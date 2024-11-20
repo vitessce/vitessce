@@ -111,7 +111,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         // Old
         spatialImageLayer: autoImageLayers,
         // New
-        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+        // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
         spatialTargetT: imageWrapper.getDefaultTargetT(),
         imageLayer: CL([
           {

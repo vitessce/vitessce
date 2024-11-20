@@ -15,6 +15,10 @@ export function getInitialSpatialTargets({
   images,
   is3dMode: use3d,
   isReady,
+  spatialTargetX,
+  spatialTargetY,
+  spatialTargetZ,
+  spatialZoom,
 }) {
   let globalXMin = null;
   let globalXMax = null;
@@ -22,6 +26,11 @@ export function getInitialSpatialTargets({
   let globalYMax = null;
   let globalZMin = null;
   let globalZMax = null;
+
+  // These values will heavily depend on the order of the following logic.
+  // If a subsequent image/segmentation defines default, it will overwrite the previous value.
+  let defaultZFromFile = null;
+  let defaultTFromFile = null;
 
 
   // Some backoff from completely filling the screen.
@@ -57,6 +66,9 @@ export function getInitialSpatialTargets({
       globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
       globalZMin = globalZMin === null ? zMin : Math.min(globalZMin, zMin);
       globalZMax = globalZMax === null ? zMax : Math.max(globalZMax, zMax);
+
+      defaultZFromFile = layerData.image.instance.getDefaultTargetZ();
+      defaultTFromFile = layerData.image.instance.getDefaultTargetT();
     }
   });
 
@@ -126,6 +138,9 @@ export function getInitialSpatialTargets({
             globalYMax = globalYMax === null ? yMax : Math.max(globalYMax, yMax);
             globalZMin = globalZMin === null ? zMin : Math.min(globalZMin, zMin);
             globalZMax = globalZMax === null ? zMax : Math.max(globalZMax, zMax);
+
+            defaultZFromFile = layerData.obsSegmentations.instance.getDefaultTargetZ();
+            defaultTFromFile = layerData.obsSegmentations.instance.getDefaultTargetT();
           }
         }
       }
@@ -178,13 +193,18 @@ export function getInitialSpatialTargets({
   const xRange = globalXMax - globalXMin;
   const yRange = globalYMax - globalYMin;
   const zRange = globalZMax - globalZMin;
-
-  const initialTargetX = globalXMin + xRange / 2;
-  const initialTargetY = globalYMin + yRange / 2;
-  const initialTargetZ = (globalZMin === null || globalZMax === null)
-    ? null
-    : (globalZMin + zRange / 2);
-  const initialZoom = Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff;
+  
+  const initialTargetX = typeof spatialTargetX === 'number' ? spatialTargetX : (globalXMin + xRange / 2);
+  const initialTargetY = typeof spatialTargetY === 'number' ? spatialTargetY : (globalYMin + yRange / 2);
+  // User-defined value should take precedence if it exists (is number).
+  // Default value from the file should come next.
+  // Finally, we can take the "middle" z slice if the former options are not available.
+  const initialTargetZ = typeof spatialTargetZ === 'number' ? spatialTargetZ : (
+    defaultZFromFile ?? ((globalZMin === null || globalZMax === null)
+      ? null
+      : (globalZMin + zRange / 2))
+    );
+  const initialZoom = typeof spatialZoom === 'number' ? spatialZoom : (Math.log2(Math.min(width / xRange, height / yRange)) - zoomBackoff);
 
   return {
     initialTargetX, initialTargetY, initialZoom, initialTargetZ,

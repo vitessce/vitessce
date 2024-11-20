@@ -110,7 +110,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
         // Old
         spatialSegmentationLayer: autoImageLayers,
         // New
-        spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+        // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
         spatialTargetT: imageWrapper.getDefaultTargetT(),
         segmentationLayer: CL([
           {

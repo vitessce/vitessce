@@ -177,7 +177,8 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       // Old
       spatialImageLayer: autoImageLayers,
       // New
-      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      // TODO: use getDefaultTargetZ/T within getInitialSpatialTargets
+      //spatialTargetZ: imageWrapper.getDefaultTargetZ(),
       spatialTargetT: imageWrapper.getDefaultTargetT(),
       imageLayer: CL([
         {

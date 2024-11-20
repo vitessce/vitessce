@@ -34,7 +34,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
     }));
 
     const coordinationValues = {
-      spatialTargetZ: imageWrapper.getDefaultTargetZ(),
+      // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
       spatialTargetT: imageWrapper.getDefaultTargetT(),
       segmentationLayer: CL([
         {

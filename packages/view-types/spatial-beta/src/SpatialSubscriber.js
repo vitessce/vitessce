@@ -190,7 +190,7 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
-
+  
   const observationsLabel = observationsLabelOverride || obsType;
 
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
@@ -511,6 +511,10 @@ export function SpatialSubscriber(props) {
     images: imageData,
     is3dMode,
     isReady: isReadyToComputeInitialViewState,
+    spatialTargetX: targetX,
+    spatialTargetY: targetY,
+    spatialTargetZ: targetZ,
+    spatialZoom: zoom,
   }),
   // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
   // an indirect dependency instead.
