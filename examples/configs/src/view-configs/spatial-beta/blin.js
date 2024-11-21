@@ -2,6 +2,7 @@ import {
   VitessceConfig,
   CoordinationLevel as CL,
   hconcat,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 function generateBlinConfig(storeType) {
@@ -31,7 +32,10 @@ function generateBlinConfig(storeType) {
   const lcView = config.addView(dataset, 'layerControllerBeta');
 
   config.linkViewsByObject([spatialView, lcView], {
-    spatialTargetZ: 0,
+    spatialTargetZ: 30,
+  }, { meta: false });
+
+  config.linkViewsByObject([spatialView, lcView], {
     spatialTargetT: 0,
     imageLayer: CL([
       {
@@ -42,14 +46,14 @@ function generateBlinConfig(storeType) {
         spatialTargetResolution: null,
         imageChannel: CL([
           {
-            spatialTargetC: 0,
+            spatialTargetC: 'Dapi',
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
             spatialChannelWindow: null,
           },
           {
-            spatialTargetC: 1,
+            spatialTargetC: 'LaminB1',
             spatialChannelColor: [0, 255, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
@@ -58,7 +62,7 @@ function generateBlinConfig(storeType) {
         ]),
       },
     ]),
-  });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
   config.layout(hconcat(spatialView, lcView));
 
