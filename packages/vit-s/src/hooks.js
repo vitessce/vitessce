@@ -350,13 +350,11 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
 
 export const useMappedGeneList = (geneObject, featureMap) => {
   const setWarning = useSetWarning();
-  const [mappedGeneList, setMappedGeneList] = useState(geneObject);
   const [fetchedGenesList, setFetchedGenesList] = useState(null);
 
   useEffect(() => {
     // Assuming featureMap is set for symbolic genes
     if (featureMap !== undefined) {
-      setMappedGeneList(geneObject);
       return;
     }
     const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
@@ -388,40 +386,35 @@ export const useMappedGeneList = (geneObject, featureMap) => {
     };
 
     fetchGeneData();
-  }, [geneObject, featureMap]);
+  }, [geneObject, featureMap, setWarning]);
 
-  useEffect(() => {
-    if (!fetchedGenesList || featureMap !== undefined) return;
+  const mappedGeneList = useMemo(() => {
+    if (!fetchedGenesList || featureMap !== undefined) return geneObject;
 
-    const mapGenes = () => {
-      const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
-      const isGeneKey = key => key.toLowerCase().includes('gene');
+    const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
+    const isGeneKey = key => key.toLowerCase().includes('gene');
 
-      let updatedGeneObject = { ...geneObject };
+    let updatedGeneObject = { ...geneObject };
 
-      if (Array.isArray(geneObject)) {
-        updatedGeneObject = geneObject
-          .map((gene) => {
-            if (isEnsembleGene(gene)) {
-              const trimmedValue = gene.split('.')[0]; // Trim after the dot
-              return fetchedGenesList[trimmedValue];
-            }
-            return null;
-          })
-          .filter(Boolean);
-      } else {
-        Object.entries(geneObject).forEach(([key, value]) => {
-          if (isGeneKey(key) && isEnsembleGene(value)) {
-            const trimmedValue = value.split('.')[0];
-            updatedGeneObject[key] = fetchedGenesList[trimmedValue];
+    if (Array.isArray(geneObject)) {
+      updatedGeneObject = geneObject
+        .map((gene) => {
+          if (isEnsembleGene(gene)) {
+            const trimmedValue = gene.split('.')[0]; // Trim after the dot
+            return fetchedGenesList[trimmedValue];
           }
-        });
-      }
-
-      setMappedGeneList(updatedGeneObject);
-    };
-
-    mapGenes();
+          return null;
+        })
+        .filter(Boolean);
+    } else {
+      Object.entries(geneObject).forEach(([key, value]) => {
+        if (isGeneKey(key) && isEnsembleGene(value)) {
+          const trimmedValue = value.split('.')[0];
+          updatedGeneObject[key] = fetchedGenesList[trimmedValue];
+        }
+      });
+    }
+    return updatedGeneObject;
   }, [fetchedGenesList, geneObject, featureMap]);
 
   return mappedGeneList;
