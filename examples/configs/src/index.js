@@ -34,6 +34,7 @@ import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_vis
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
+import { kpmpSpatialAtlasOct2024 } from './view-configs/kpmp_spatial_atlas_oct_2024.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
@@ -111,6 +112,7 @@ export const configs = {
   'kuppe-2022': kuppe2022nature,
   'marshall-2022': marshall2022iScience,
   'meta-2022-azimuth': meta2022azimuth,
+  'kpmp-spatial-atlas-oct-2024': kpmpSpatialAtlasOct2024,
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
