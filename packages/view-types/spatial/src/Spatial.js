@@ -182,7 +182,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       };
 
     const onHoverCallback = (info) => {
-      const standardOnHoverCallback = getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover);
+      const standardOnHoverCallback = getOnHoverCallback(
+        obsIndex,
+        setCellHighlight,
+        setComponentHover,
+      );
       const obsId = obsIndex[info.index];
       setHoverInfo([obsId], [info.x, info.y]);
       standardOnHoverCallback(info);
