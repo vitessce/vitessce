@@ -46,7 +46,7 @@ export const kpmpSpatialAtlasOct2024 = {
     },
     embeddingObsSetLabelsVisible: {
       A: true,
-    }
+    },
   },
   layout: [{
     component: 'obsSets',
