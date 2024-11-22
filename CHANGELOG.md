@@ -1,4 +1,15 @@
 
+## 3.5.1
+
+### Patch Changes
+
+- Added support to map channelNames to channelIndices provided via SpatialTargetC (`@vitessce/spatial-beta`) ([#1971](https://github.com/vitessce/vitessce/pull/1971))
+
+- Export usePageModeView from main vitessce package. (`@vitessce/all`) ([#1986](https://github.com/vitessce/vitessce/pull/1986))
+
+- Add Spatial Atlas example config. (`@vitessce/example-configs`) ([#1985](https://github.com/vitessce/vitessce/pull/1985))
+
+
 ## 3.5.0
 
 ### Minor Changes
