@@ -158,6 +158,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       cellSelection,
       setCellHighlight,
       setComponentHover,
+      setHoverInfo,
       getCellIsSelected = makeDefaultGetCellIsSelected(
         obsIndex.length === cellSelection.length ? null : cellSelection,
       ),
@@ -179,6 +180,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const r = radius;
         return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
       };
+
+    const onHoverCallback = (info) => {
+      const standardOnHoverCallback = getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover);
+      const obsId = obsIndex[info.index];
+      setHoverInfo([obsId], [info.x, info.y]);
+      standardOnHoverCallback(info);
+    };
+
     return new deck.PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,
@@ -213,7 +222,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
-      onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
+      onHover: onHoverCallback,
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
