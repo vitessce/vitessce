@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
+import { useMappedGeneList } from '@vitessce/vit-s';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
@@ -32,7 +33,8 @@ export default function FeatureList(props) {
   const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState(geneList);
+  const mappedGeneList = useMappedGeneList(geneList, featureLabelsMap);
+  const [searchResults, setSearchResults] = useState(mappedGeneList);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
@@ -41,13 +43,13 @@ export default function FeatureList(props) {
 
 
   useEffect(() => {
-    const results = geneList
+    const results = mappedGeneList
       .filter(gene => (
         gene.toLowerCase().includes(searchTerm.toLowerCase())
         || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
       ));
     setSearchResults(results);
-  }, [searchTerm, geneList, featureLabelsMap]);
+  }, [searchTerm, mappedGeneList, featureLabelsMap]);
 
   function onChange(selection) {
     if (setGeneSelection && selection) {
