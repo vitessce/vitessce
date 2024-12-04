@@ -1,4 +1,11 @@
 
+## 3.5.2
+
+### Patch Changes
+
+- Fix tooltips in segmentations without locations in spatial layer (`@vitessce/spatial`) ([#1982](https://github.com/vitessce/vitessce/pull/1982))
+
+
 ## 3.5.1
 
 ### Patch Changes
