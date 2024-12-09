@@ -5,13 +5,21 @@ import {
   createLoaders,
 } from '@vitessce/vit-s';
 import {
-  Checkbox, Grid,
+  Checkbox,
+  Grid,
 } from '@material-ui/core';
 
 
 export default function LinkController(props) {
   const {
-    linkIDInit, fileTypes, coordinationTypes, stores,
+    linkIDInit,
+    authToken = 'mr-vitessce',
+    linkEndpoint = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link',
+    websocketEndpoint = 'wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production',
+    // Props injected by VitessceGridLayout:
+    fileTypes,
+    coordinationTypes,
+    stores,
   } = props;
   const viewConfigStoreApi = useViewConfigStoreApi();
 
@@ -23,12 +31,17 @@ export default function LinkController(props) {
 
   // Reference: https://github.com/pmndrs/zustand/tree/v3.7.2?tab=readme-ov-file#readingwriting-state-and-reacting-to-changes-outside-of-components
   const setConfig = useCallback((newConfig) => {
-    viewConfigStoreApi.setState({ viewConfig: newConfig,
+    viewConfigStoreApi.setState({
+      viewConfig: newConfig,
       mostRecentConfigSource: 'external',
       loaders: createLoaders(
         newConfig.datasets,
-        newConfig.description, fileTypes, coordinationTypes, stores,
-      ) });
+        newConfig.description,
+        fileTypes,
+        coordinationTypes,
+        stores,
+      ),
+    });
   }, [viewConfigStoreApi]);
 
   const onConfigChange = useCallback((configValue) => {
@@ -46,13 +59,12 @@ export default function LinkController(props) {
     }
   }, [id, socketOpen, sync]);
 
-
   useEffect(() => {
     if (linkIDInit != null) {
       setLinkID(linkIDInit);
     }
     if (linkID === null) {
-      fetch('https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link', {
+      fetch(linkEndpoint, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -63,7 +75,7 @@ export default function LinkController(props) {
         console.error('Fetch Error :-S', err);
       });
     }
-  }, [linkID]);
+  }, [linkID, linkEndpoint]);
 
   useEffect(() => viewConfigStoreApi.subscribe(
     ({ viewConfig, mostRecentConfigSource }) => {
@@ -79,9 +91,8 @@ export default function LinkController(props) {
 
 
   useEffect(() => {
-    const authToken = 'mr-vitessce';
     if (linkID !== null) {
-      const ws = new WebSocket('wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production', ['Authorization', authToken, linkID]);
+      const ws = new WebSocket(websocketEndpoint, ['Authorization', authToken, linkID]);
       ws.addEventListener('open', (event) => {
         console.log('Open', event);
         setSocketOpen(true);
@@ -118,7 +129,7 @@ export default function LinkController(props) {
     }
     // No-op when websocket was not constructed.
     return () => {};
-  }, [viewConfigStoreApi, socketOpen, linkID, sync]);
+  }, [viewConfigStoreApi, socketOpen, linkID, sync, authToken, websocketEndpoint]);
 
   return (
     <>
