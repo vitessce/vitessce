@@ -17,7 +17,8 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    viewTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
+    viewTypes, coordinationTypes, fileTypes, stores,
+    padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
@@ -137,6 +138,11 @@ export function VitessceGridLayout(props) {
             coordinationScopesBy={v.coordinationScopesBy}
             theme={theme}
             removeGridComponent={null}
+            // Props used by LinkControllerSubscriber:
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            coordinationTypes={coordinationTypes}
+            stores={stores}
           />
         </div>
       )];
@@ -152,12 +158,17 @@ export function VitessceGridLayout(props) {
       return (
         <div key={v.uid}>
           <Component
-            {... v.props}
+            {...v.props}
             uuid={v.uid}
             coordinationScopes={v.coordinationScopes}
             coordinationScopesBy={v.coordinationScopesBy}
             theme={theme}
             removeGridComponent={removeGridComponent}
+            // Props used by LinkControllerSubscriber:
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            coordinationTypes={coordinationTypes}
+            stores={stores}
           />
         </div>
       );
@@ -179,11 +190,11 @@ export function VitessceGridLayout(props) {
           breakpoints={gridBreakpoints}
           height={height}
           rowHeight={
-          rowHeight
-          || (
-            (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
-            / maxRows
-          )}
+            rowHeight
+            || (
+              (window.innerHeight - 2 * padding - (maxRows - 1) * margin)
+              / maxRows
+            )}
           containerPadding={containerPadding}
           margin={margin}
           draggableHandle={draggableHandle}
