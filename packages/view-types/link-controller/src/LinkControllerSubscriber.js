@@ -10,7 +10,15 @@ export function LinkControllerSubscriber(props) {
     theme,
     title = 'Vitessce Link',
     closeButtonVisible,
-    linkID, viewTypes, fileTypes, coordinationTypes, stores,
+    // Props for the link controller:
+    linkID,
+    authToken = 'mr-vitessce',
+    linkEndpoint = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link',
+    websocketEndpoint = 'wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production',
+    // Props injected by VitessceGridLayout:
+    fileTypes,
+    coordinationTypes,
+    stores,
   } = props;
 
   return (
@@ -20,15 +28,13 @@ export function LinkControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isScroll
       theme={theme}
-      viewTypes={viewTypes}
-      fileTypes={fileTypes}
-      stores={stores}
-      coordinationTypes={coordinationTypes}
       isReady
     >
       <LinkController
         linkIDInit={linkID}
-        viewTypes={viewTypes}
+        authToken={authToken}
+        linkEndpoint={linkEndpoint}
+        websocketEndpoint={websocketEndpoint}
         fileTypes={fileTypes}
         stores={stores}
         coordinationTypes={coordinationTypes}

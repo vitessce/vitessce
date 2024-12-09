@@ -13,10 +13,9 @@ import {
 export default function LinkController(props) {
   const {
     linkIDInit,
-    authToken = 'mr-vitessce',
-    linkEndpoint = 'https://nwe7zm1a12.execute-api.us-east-1.amazonaws.com/link',
-    websocketEndpoint = 'wss://irrmj4anbk.execute-api.us-east-1.amazonaws.com/production',
-    // Props injected by VitessceGridLayout:
+    authToken,
+    linkEndpoint,
+    websocketEndpoint,
     fileTypes,
     coordinationTypes,
     stores,
