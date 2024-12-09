@@ -30,7 +30,7 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 # Install packed tgz
 cd consumer
-npm install react react-dom
+npm install react@18 react-dom@18
 npm install --save-dev vite@3.0.0
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
