@@ -1,6 +1,5 @@
 import {
   VitessceConfig,
-  CoordinationLevel as CL,
 } from '@vitessce/config';
 
 
@@ -10,7 +9,7 @@ function generateLinkControllerMinimalConfig() {
     name: 'Link controller demo',
   });
   const dataset = config.addDataset('Template');
-  const linkController = config.addView(dataset, 'linkController', {
+  config.addView(dataset, 'linkController', {
     x: 0,
     y: 0,
     w: 5,

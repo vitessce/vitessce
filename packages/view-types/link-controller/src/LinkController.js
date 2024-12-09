@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useMemo, useEffect, useRef, useCallback, useState } from 'react';
 import {
   useViewConfigStoreApi,
@@ -10,11 +11,9 @@ import {
 
 export default function LinkController(props) {
   const {
-    linkIDInit, viewTypes, fileTypes, coordinationTypes, stores,
+    linkIDInit, fileTypes, coordinationTypes, stores,
   } = props;
   const viewConfigStoreApi = useViewConfigStoreApi();
-
-  console.log(viewTypes, fileTypes, coordinationTypes, stores);
 
   const [socketOpen, setSocketOpen] = useState(false);
   const [sync, setSync] = useState(true);
@@ -72,7 +71,10 @@ export default function LinkController(props) {
         onConfigChange(viewConfig);
       }
     },
-    state => ({ viewConfig: state.viewConfig, mostRecentConfigSource: state.mostRecentConfigSource }),
+    state => ({
+      viewConfig: state.viewConfig,
+      mostRecentConfigSource: state.mostRecentConfigSource,
+    }),
   ), [viewConfigStoreApi, onConfigChange]);
 
 
@@ -114,15 +116,16 @@ export default function LinkController(props) {
       connection.current = ws;
       return () => ws.close();
     }
+    // No-op when websocket was not constructed.
+    return () => {};
   }, [viewConfigStoreApi, socketOpen, linkID, sync]);
 
   return (
     <>
       <span>
-        <p style={{ textAlign: 'justify' }}>To join the same session navigate to <a
-          href="https://vitessce.link"
-        >https://vitessce.link
-        </a> and enter the <b>Link ID</b> displayed here in the view. The session is synced as long as the <b>Link Active</b> Checkbox is activated.
+        <p style={{ textAlign: 'justify' }}>
+          To join the same session navigate to <a href="https://vitessce.link">https://vitessce.link</a> and enter the <b>Link ID</b> displayed here in the view.
+          The session is synced as long as the <b>Link Active</b> Checkbox is activated.
         </p>
         <Grid container direction="row" style={{ gridGap: '10px' }}>
           <Grid item xs={5} style={{ whiteSpace: 'nowrap' }}>

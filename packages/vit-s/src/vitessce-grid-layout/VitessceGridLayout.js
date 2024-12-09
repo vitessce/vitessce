@@ -17,7 +17,8 @@ class ResponsiveHeightGridLayout extends ResponsiveGridLayout {
 export function VitessceGridLayout(props) {
   const {
     layout,
-    viewTypes, stores, coordinationTypes, fileTypes, padding, margin: marginProp, draggableHandle: draggableHandleClass,
+    viewTypes, coordinationTypes, fileTypes, stores,
+    padding, margin: marginProp, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
