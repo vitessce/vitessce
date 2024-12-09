@@ -6,7 +6,7 @@ import {
   useObsSetsData,
 } from '@vitessce/vit-s';
 import { isEqual } from 'lodash-es';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
 } from '@vitessce/sets-utils';
@@ -33,6 +33,7 @@ export function CellSetSizesPlotSubscriber(props) {
     removeGridComponent,
     theme,
     title: titleOverride,
+    helpText = ViewHelpMapping.OBS_SET_SIZES,
   } = props;
 
   const classes = useStyles();
@@ -137,6 +138,7 @@ export function CellSetSizesPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot

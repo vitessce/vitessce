@@ -21,6 +21,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  BIOMARKER_SELECT: 'biomarkerSelect',
   LINK_CONTROLLER: 'linkController',
 };
 
@@ -42,18 +43,24 @@ export const DataType = {
 };
 
 export const AsyncFunctionType = {
-  FEATURE_METADATA: 'featureMetadata', // (featureName, featureType) -> metadata object
-  FEATURE_EDGES: 'featureEdges', // (featureName, featureType, targetFeatureType) -> list of features from target modality
-  FEATURE_TO_INTERVAL: 'featureToInterval', // (featureName, featureType) -> genomic interval { chr, start, end }
-  OBS_SET_TO_FEATURES: 'obsSetToFeatures', // (cell type name) -> list of feature names
-  FEATURES_TO_OBS_SET: 'featuresToObsSet', // (list of feature names) -> cell type name
-};
+  // String input (rather than Node input)
+  AUTOCOMPLETE_FEATURE: 'autocompleteFeature', // (partial: string, targetModality: null | 'gene' | 'protein' | 'genomic-region' | 'cell-type') -> list of feature nodes
 
+  TRANSFORM_FEATURE: 'transformFeature', // (featureNode, targetModality) -> list of feature nodes from target modality
+  RELATED_FEATURES: 'relatedFeatures', // (featureNode) -> list of related feature nodes
+  FEATURE_TO_URL: 'featureToUrl', // (featureNode) -> URL
+  FEATURE_TO_INTERVAL: 'featureToInterval', // (featureNode) -> genomic interval { chr, start, end }
+
+  // Cell2Sentence/LLM-based?
+  OBS_SET_TO_FEATURES: 'obsSetToFeatures', // (cell type node) -> list of feature nodes
+  FEATURES_TO_OBS_SET: 'featuresToObsSet', // (list of feature nodes) -> cell type node
+};
 
 export const FileType = {
   // Joint file types
   ANNDATA_ZARR: 'anndata.zarr',
   ANNDATA_ZARR_ZIP: 'anndata.zarr.zip',
+  ANNDATA_H5AD: 'anndata.h5ad',
   SPATIALDATA_ZARR: 'spatialdata.zarr',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
@@ -70,6 +77,9 @@ export const FileType = {
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
+  // OME-Zarr - Zipped
+  IMAGE_OME_ZARR_ZIP: 'image.ome-zarr.zip',
+  OBS_SEGMENTATIONS_OME_ZARR_ZIP: 'obsSegmentations.ome-zarr.zip',
   // AnnData
   OBS_FEATURE_MATRIX_ANNDATA_ZARR: 'obsFeatureMatrix.anndata.zarr',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR: 'obsFeatureColumns.anndata.zarr',
@@ -94,6 +104,18 @@ export const FileType = {
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
+  // AnnData - h5ad via reference spec
+  OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
+  OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
+  OBS_SETS_ANNDATA_H5AD: 'obsSets.anndata.h5ad',
+  OBS_EMBEDDING_ANNDATA_H5AD: 'obsEmbedding.anndata.h5ad',
+  OBS_SPOTS_ANNDATA_H5AD: 'obsSpots.anndata.h5ad',
+  OBS_POINTS_ANNDATA_H5AD: 'obsPoints.anndata.h5ad',
+  OBS_LOCATIONS_ANNDATA_H5AD: 'obsLocations.anndata.h5ad',
+  OBS_SEGMENTATIONS_ANNDATA_H5AD: 'obsSegmentations.anndata.h5ad',
+  OBS_LABELS_ANNDATA_H5AD: 'obsLabels.anndata.h5ad',
+  FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
+  SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -169,6 +191,7 @@ export const CoordinationType = {
   FEATURE_TYPE: 'featureType',
   FEATURE_VALUE_TYPE: 'featureValueType',
   OBS_LABELS_TYPE: 'obsLabelsType',
+  FEATURE_LABELS_TYPE: 'featureLabelsType',
   // Other types
   EMBEDDING_TYPE: 'embeddingType',
   EMBEDDING_ZOOM: 'embeddingZoom',
@@ -288,4 +311,26 @@ export const STATUS = {
 export const DescriptionType = {
   PLAIN: 'plain',
   MARKDOWN: 'markdown',
+};
+
+/**
+ * Constants representing the help text for
+ * each view.
+ */
+export const ViewHelpMapping = {
+  SCATTERPLOT: 'The scatterplot displays two-dimensional (pre-computed) dimensionality reduction results (such as from t-SNE or UMAP). Each point on the scatterplot represents an observation (e.g., cell).',
+  HEATMAP: 'The heatmap displays an observation-by-feature (e.g., cell-by-gene) matrix, typically with transformed (e.g., normalized or standardized) values.',
+  SPATIAL: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  DESCRIPTION: 'The description view displays additional information about a dataset. When images are included in a dataset, the description view also includes image metadata (if contained in the image files).',
+  STATUS: 'The status view displays debugging messages, including app-wide error messages when datasets fail to load or when schemas fail to validate. Details about the entity under the mouse cursor (cell, gene, and/or molecule) are displayed during hover interactions.',
+  LAYER_CONTROLLER: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
+  GENOMIC_PROFILES: 'The genomic profiles view displays genome browser tracks (using the genomic-profiles data type) containing bar plots, where the genome is along the x-axis and the value at each genome position is encoded with a bar along the y-axis.',
+  GATING: 'The gating scatterplot displays expression data for two genes (along the X and Y axes). Users can select two genes, and the scatterplot is dynamically generated using observation-by-feature matrix data. Gating can then be performed by using the lasso or box select tools.',
+  FEATURE_LIST: 'The feature list controller displays an interactive list of features (e.g., genes).',
+  OBS_SETS: 'The observation sets controller displays an interactive list of (potentially hierarchical) observation sets (e.g., cell clusters or cell type annotations).',
+  OBS_SET_SIZES: 'The observation set sizes view displays a bar plot with the currently-selected observation sets (e.g., cell types) on the x-axis and bars representing their size (e.g., number of cells) on the y-axis.',
+  OBS_SET_FEATURE_VALUE_DISTRIBUTION: 'The observation set feature value distribution view displays a violin plot with values (e.g., expression values) per set (e.g., cell type) for the selected feature (e.g., gene).',
+  FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
+  DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
+  FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
 };

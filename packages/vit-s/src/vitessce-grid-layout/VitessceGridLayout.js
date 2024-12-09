@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import { isEqual } from 'lodash-es';
 import { getMaxRows, resolveLayout } from './layout-utils.js';
+import { PageModeViewContext } from '../contexts.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -122,41 +123,33 @@ export function VitessceGridLayout(props) {
     setLastValidGridLayouts(gridLayouts);
   }, [gridLayouts]);
 
-  const layoutChildren = useMemo(() => {
+  const [layoutChildren, pageModeViews] = useMemo(() => {
     const gridComponentsValues = Object.values(gridComponents);
-    if (pageMode) {
-      // This is pageMode, so we render based on the children.
-      return children.map((child) => {
-        const childId = child.props.id;
-        const v = gridComponentsValues.find(el => el.uid === childId);
-        if (!v) {
-          // The child did not map to any view in the config, so return as-is.
-          return child;
-        }
-        // The child mapped to a view in the config,
-        // so we want to render the corresponding component as a subchild.
-        const Component = getComponent(v.component);
-        return React.cloneElement(child, { key: v.uid }, (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Component
-              {...v.props}
-              uuid={v.uid}
-              coordinationScopes={v.coordinationScopes}
-              coordinationScopesBy={v.coordinationScopesBy}
-              theme={theme}
-              viewTypes={viewTypes}
-              fileTypes={fileTypes}
-              stores={stores}
-              coordinationTypes={coordinationTypes}
-              removeGridComponent={null}
-            />
-          </div>
-        ));
-      });
-    }
+
+    const contextValue = Object.fromEntries(gridComponentsValues.map((v) => {
+      const Component = getComponent(v.component);
+      return [v.uid, () => (
+        <div key={v.uid} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Component
+            {... v.props}
+            uuid={v.uid}
+            coordinationScopes={v.coordinationScopes}
+            coordinationScopesBy={v.coordinationScopesBy}
+            theme={theme}
+            removeGridComponent={null}
+            // Props used by LinkControllerSubscriber:
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            coordinationTypes={coordinationTypes}
+            stores={stores}
+          />
+        </div>
+      )];
+    }));
+
     // Not pageMode, so no children to render.
     // We render the grid components based on the layout information.
-    return gridComponentsValues.map((v) => {
+    return [gridComponentsValues.map((v) => {
       const Component = getComponent(v.component);
       const removeGridComponent = () => {
         onRemoveComponent(v.uid);
@@ -169,20 +162,24 @@ export function VitessceGridLayout(props) {
             coordinationScopes={v.coordinationScopes}
             coordinationScopesBy={v.coordinationScopesBy}
             theme={theme}
+            removeGridComponent={removeGridComponent}
+            // Props used by LinkControllerSubscriber:
             viewTypes={viewTypes}
             fileTypes={fileTypes}
-            stores={stores}
             coordinationTypes={coordinationTypes}
-            removeGridComponent={removeGridComponent}
+            stores={stores}
           />
         </div>
       );
-    });
+    }), contextValue];
   }, [gridComponents, getComponent, onRemoveComponent, theme]);
 
   return (pageMode
-    ? layoutChildren
-    : ((gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
+    ? (
+      <PageModeViewContext.Provider value={pageModeViews}>
+        {children}
+      </PageModeViewContext.Provider>
+    ) : ((gridLayouts && gridComponents && gridBreakpoints && gridCols) && (
       <>
         {style}
         <ResponsiveHeightGridLayout

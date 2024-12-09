@@ -132,7 +132,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
+      i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
     return mappedValues;
   }
@@ -142,7 +142,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
-  loadNumeric(path) {
+  async loadNumeric(path) {
     const { storeRoot } = this;
     return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
       .then(arr => zarrGet(arr));
@@ -157,7 +157,7 @@ export default class AnnDataSource extends ZarrDataSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  loadNumericForDims(path, dims) {
+  async loadNumericForDims(path, dims) {
     const { storeRoot } = this;
     const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
@@ -184,7 +184,7 @@ export default class AnnDataSource extends ZarrDataSource {
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
     if (data.data?.[Symbol.iterator]) {
-      return Array.from(data.data);
+      return /** @type {string[]} */ (Array.from(data.data));
     }
     return /** @type {string[]} */ (data.data);
   }

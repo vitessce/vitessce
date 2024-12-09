@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/all",
-  "version": "3.4.9",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.2",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -57,6 +57,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
+    "@vitessce/biomarker-select": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

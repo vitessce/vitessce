@@ -448,4 +448,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
   [ViewType.LINK_CONTROLLER]: [],
+  [ViewType.BIOMARKER_SELECT]: [
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.SAMPLE_SET_SELECTION,
+    // TODO: create coordination types for internal state of the biomarker selection view?
+  ],
 };

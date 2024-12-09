@@ -1,12 +1,11 @@
 import React, { useMemo, useEffect, useRef, useCallback, useState } from 'react';
 import {
-  TitleInfo,
-  useViewConfigStoreApi, VitS,
+  useViewConfigStoreApi,
+  createLoaders,
 } from '@vitessce/vit-s';
 import {
   Checkbox, Grid,
 } from '@material-ui/core';
-import { createLoaders } from '@vitessce/vit-s/src/vitessce-grid-utils.js';
 
 
 export default function LinkController(props) {

@@ -29,8 +29,7 @@ export default function SpatialTooltipSubscriber(props) {
     const obsId = getObsIdFromHoverData(hoverData);
     if (obsId) {
       [cellInfo, x, y] = [
-        getObsInfo(obsId),
-        ...(viewInfo && viewInfo.project ? viewInfo.project(hoverCoord) : [null, null]),
+        getObsInfo(obsId), ...hoverCoord,
       ];
     }
   } else if (!useHoverInfoForTooltip && getObsInfo && obsHighlight) {

@@ -123,8 +123,8 @@ export default function VitessceGrid(props) {
           theme={theme}
           viewTypes={viewTypes}
           fileTypes={fileTypes}
-          stores={stores}
           coordinationTypes={coordinationTypes}
+          stores={stores}
           draggableHandle={titleClasses.title}
           margin={margin}
           padding={padding}

@@ -5,6 +5,7 @@ import {
   DataType,
   ViewType,
   CoordinationType,
+  AsyncFunctionType,
   COMPONENT_COORDINATION_TYPES,
   ALT_ZARR_STORE_TYPES,
 } from '@vitessce/constants-internal';
@@ -13,6 +14,7 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
+  PluginAsyncFunction,
 } from '@vitessce/plugins';
 import type {
   DataLoader,
@@ -41,6 +43,7 @@ import {
   sampleEdgesAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
+  anndataH5adSchema,
   spatialdataZarrSchema,
   anndataCellsZarrSchema,
   anndataCellSetsZarrSchema,
@@ -162,6 +165,11 @@ import {
 
 // Joint file types
 import {
+  BiomarkerSelectSubscriber,
+  autocompleteFeature,
+  transformFeature,
+} from '@vitessce/biomarker-select';
+import {
   expandAnndataZarr,
   expandSpatialdataZarr,
 } from './joint-file-types.js';
@@ -179,6 +187,8 @@ import {
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
 
+// Biomarker select UI and default async functions.
+
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
   return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
@@ -188,11 +198,16 @@ function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
 // For when we have multiple file types with the same data type and options schema.
-function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
-  const altFileTypes = Object.values(ALT_ZARR_STORE_TYPES[name]);
+function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
+  const altFileTypes = ALT_ZARR_STORE_TYPES[name];
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
-    ...altFileTypes.map(n => new PluginFileType(n, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema)),
+    ...Object.entries(altFileTypes).map(([key, fileType]) => {
+      const extendedOptionsSchema = key === 'h5ad' ? optionsSchema.extend({
+        refSpecUrl: z.string(),
+      }) : optionsSchema;
+      return new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema);
+    }),
   ];
 }
 
@@ -215,6 +230,7 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
 ];
 
@@ -255,9 +271,9 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_MUDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, MuDataSource, obsSegmentationsAnndataSchema),
   makeFileType(FileType.FEATURE_LABELS_MUDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, MuDataSource, featureLabelsAnndataSchema),
   // All OME file types
-  makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
@@ -292,6 +308,7 @@ export const baseFileTypes = [
 export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_ZARR_ZIP, expandAnndataZarr, anndataZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_H5AD, expandAnndataZarr, anndataH5adSchema),
   new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
@@ -325,6 +342,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
   new PluginCoordinationType(CoordinationType.OBS_LABELS_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABELS_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ROTATION, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),
@@ -510,4 +528,9 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
+];
+
+export const baseAsyncFunctions = [
+  new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
+  new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
 ];

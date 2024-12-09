@@ -1,4 +1,100 @@
 
+## 3.5.2
+
+### Patch Changes
+
+- Fix tooltips in segmentations without locations in spatial layer (`@vitessce/spatial`) ([#1982](https://github.com/vitessce/vitessce/pull/1982))
+
+
+## 3.5.1
+
+### Patch Changes
+
+- Added support to map channelNames to channelIndices provided via SpatialTargetC (`@vitessce/spatial-beta`) ([#1971](https://github.com/vitessce/vitessce/pull/1971))
+
+- Export usePageModeView from main vitessce package. (`@vitessce/all`) ([#1986](https://github.com/vitessce/vitessce/pull/1986))
+
+- Add Spatial Atlas example config. (`@vitessce/example-configs`) ([#1985](https://github.com/vitessce/vitessce/pull/1985))
+
+
+## 3.5.0
+
+### Minor Changes
+
+- Add NaN percentage to legend (`@vitessce/legend`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1947](https://github.com/vitessce/vitessce/pull/1947))
+
+### Patch Changes
+
+- Fix obs index within AnnData-Zarr test fixture. (`@vitessce/zarr`) ([#1948](https://github.com/vitessce/vitessce/pull/1948))
+
+- Fix scatterplot point layer z-index bug. (`@vitessce/scatterplot`) ([#1967](https://github.com/vitessce/vitessce/pull/1967))
+
+- Correct x-axis label in `CellSetSizesPlot` (`@vitessce/statistical-plots`) ([#1949](https://github.com/vitessce/vitessce/pull/1949))
+
+- Add biomarker-select view. Update pageMode functionality. Register default async function plugins, allow them to use queryClient. Add types related to knowledge. (`@vitessce/biomarker-select`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/config`, `@vitessce/types`, `@vitessce/vit-s`) ([#1889](https://github.com/vitessce/vitessce/pull/1889))
+
+- Fix tooltips in spatialBeta polygon segmentation (`@vitessce/spatial-beta`) ([#1966](https://github.com/vitessce/vitessce/pull/1966))
+
+- Update citation info. (`docs`) ([#1959](https://github.com/vitessce/vitessce/pull/1959))
+
+- Try removing dynamic import polyfill via a webpack ignore comment. (`@vitessce/zarr`) ([#1960](https://github.com/vitessce/vitessce/pull/1960))
+
+
+## 3.4.14
+
+### Patch Changes
+
+- Support parquet-based spatialdata shapes for obsSpots. Incremental update to spatialdata file options schema. (`@vitessce/zarr`, `@vitessce/schemas`, `@vitessce/types`) ([#1849](https://github.com/vitessce/vitessce/pull/1849))
+
+
+## 3.4.13
+
+### Patch Changes
+
+- Added support for ome-zarr-zip files (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`) ([#1945](https://github.com/vitessce/vitessce/pull/1945))
+
+- Add a config that uses a spatialBeta view and relies on auto-initialization of the coordination space. (`@vitessce/example-configs`) ([#1901](https://github.com/vitessce/vitessce/pull/1901))
+
+
+## 3.4.12
+
+### Patch Changes
+
+- Add more exports that are required for accessing multi-level coordination from python-defined plugin views. (`@vitessce/all`) ([#1942](https://github.com/vitessce/vitessce/pull/1942))
+
+- Fix incorrect obsSets.spatialdata.zarr file definition schema. Add featureLabelsType coordination type. (`@vitessce/constants-internal`, `@vitessce/schemas`) ([#1938](https://github.com/vitessce/vitessce/pull/1938))
+
+
+## 3.4.11
+
+### Patch Changes
+
+- Update showcase page of docs. (`docs`) ([#1939](https://github.com/vitessce/vitessce/pull/1939))
+
+- Add obsSets to tooltip for Segmetations (`@vitessce/spatial-beta`) ([#1936](https://github.com/vitessce/vitessce/pull/1936))
+
+- Added help text overlay for the views (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/status`, `@vitessce/vit-s`) ([#1911](https://github.com/vitessce/vitessce/pull/1911))
+
+
+## 3.4.10
+
+### Patch Changes
+
+- Support anndata-as-h5ad via Zarr reference specs. (`@vitessce/constants-internal`, `@vitessce/zarr-utils`, `@vitessce/schemas`) ([#1811](https://github.com/vitessce/vitessce/pull/1811))
+
+- Fixes the svg length error for legends in dev environment due to missing props (`@vitessce/scatterplot-embedding`, `@vitessce/heatmap`, `@vitessce/spatial`) ([#1925](https://github.com/vitessce/vitessce/pull/1925))
+
+- Implement sequence transformation for OME-NGFF / SpatialData. (`@vitessce/spatial-utils`) ([#1900](https://github.com/vitessce/vitessce/pull/1900))
+
+- Increase timeout for CCF test due to long loading time for CCF web component. (`vitessce`) ([#1931](https://github.com/vitessce/vitessce/pull/1931))
+
+- Fixes type for the constants (`@vitessce/constants`, `vitessce`, `@vitessce/dev`) ([#1914](https://github.com/vitessce/vitessce/pull/1914))
+
+- Support for markdown (rich text) in the description view (`@vitessce/description`, `@vitessce/constants-internal`, `@vitessce/example-configs`) ([#1924](https://github.com/vitessce/vitessce/pull/1924))
+
+- Bump higlass version to fix css issue. (`@vitessce/genomic-profiles`) ([#1930](https://github.com/vitessce/vitessce/pull/1930))
+
+
 ## 3.4.9
 
 ### Patch Changes

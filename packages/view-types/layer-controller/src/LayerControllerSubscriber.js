@@ -16,7 +16,7 @@ import {
   useAuxiliaryCoordination,
   useComponentLayout,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController.js';
@@ -80,6 +80,7 @@ const LayerControllerMemoized = React.memo(
       spatialLayout,
       handleImageAdd,
       enableLayerButtonsWithOneLayer,
+      helpText,
     } = props;
     const shouldShowImageLayerButton = Boolean(
       enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
@@ -93,6 +94,7 @@ const LayerControllerMemoized = React.memo(
         removeGridComponent={removeGridComponent}
         theme={theme}
         isReady={isReady}
+        helpText={helpText}
       >
         <div className="layer-controller-container" ref={ref}>
           {moleculesLayer && (
@@ -319,6 +321,7 @@ export function LayerControllerSubscriber(props) {
     globalDisable3d,
     disableChannelsIfRgbDetected,
     enableLayerButtonsWithOneLayer,
+    helpText = ViewHelpMapping.LAYER_CONTROLLER,
   } = props;
 
   const loaders = useLoaders();
@@ -467,6 +470,7 @@ export function LayerControllerSubscriber(props) {
       setMoleculesLayer={setMoleculesLayer}
       cellsLayer={cellsLayer}
       setCellsLayer={setCellsLayer}
+      helpText={helpText}
 
       rasterLayers={rasterLayers}
       imageLayerLoaders={imageLayerLoaders}

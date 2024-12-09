@@ -172,7 +172,15 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
   loaders: initialLoaders,
   // Reducer functions which update the state
   // (although technically also part of state):
-  setViewConfig: viewConfig => set({ viewConfig, initialViewConfig: viewConfig, mostRecentConfigSource: 'internal' }),
+  setViewConfig: viewConfig => set({
+    viewConfig,
+    initialViewConfig:
+    viewConfig,
+    // mostRecentConfigSource is used by the LinkController to determine
+    // whether the config was set by this instance or an external linked
+    // instance of Vitessce, and used to prevent infinite loops.
+    mostRecentConfigSource: 'internal',
+  }),
   setLoaders: loaders => set({ loaders }),
   setCoordinationValue: ({
     parameter, value, coordinationScopes,
@@ -350,7 +358,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
 export const useComponentLayout = (component, scopes, coordinationScopes) => useViewConfigStore(
   state => state.viewConfig.layout.filter(l => l.component === component).filter(
     l => scopes.every(scope => l.coordinationScopes[scope]
-      === coordinationScopes[scope]),
+          === coordinationScopes[scope]),
   ),
 );
 
@@ -501,7 +509,7 @@ export function useCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
@@ -744,8 +752,8 @@ export function useComplexCoordination(
       }));
     }
     return {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    // parameters is assumed to be a constant array.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // parameters is assumed to be a constant array.
   }, [coordinationScopes]);
 
   return [values, setters];
@@ -960,7 +968,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
       value,
     });
     return [setterName, setterFunc];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
 
   return [values, setters];
@@ -1097,6 +1105,16 @@ export function useMergeCoordination() {
 }
 
 /**
+ * Obtain the current view config object from
+ * the global app state.
+ * @returns {object} The view config object
+ * in the `useViewConfigStore` store.
+ */
+export function useViewConfig() {
+  return useViewConfigStore(state => state.viewConfig);
+}
+
+/**
  * Obtain the view config setter function from
  * the global app state.
  * @returns {function} The view config setter function
@@ -1107,6 +1125,7 @@ export function useSetViewConfig(viewConfigStoreApi) {
   const setViewConfig = setViewConfigRef.current;
   return setViewConfig;
 }
+
 
 /**
  * Obtain the component hover value from
