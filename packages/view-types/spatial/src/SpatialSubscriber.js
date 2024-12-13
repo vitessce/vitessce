@@ -92,7 +92,7 @@ export function SpatialSubscriber(props) {
     spatialNeighborhoodLayer: neighborhoodsLayer,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
-    moleculeHighlight: moleculeHighlight,
+    moleculeHighlight,
     featureSelection: geneSelection,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
@@ -301,12 +301,12 @@ export function SpatialSubscriber(props) {
     use3d,
     modelMatrices: meta.map(({ metadata }) => metadata?.transform?.matrix),
   }),
-    // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
-    // an indirect dependency instead.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType,
-      width, height,
-    ]);
+  // Deliberate dependency omissions: imageLayerLoaders and meta - using `image` as
+  // an indirect dependency instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [image, use3d, hasImageData, obsCentroids, obsSegmentations, obsSegmentationsType,
+    width, height,
+  ]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
@@ -365,12 +365,12 @@ export function SpatialSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
-  const getTooltipObsInfo = (obsId, obsType) => {
-    if (obsType === 'cell') {
-      return getObsInfo(obsId);
-    } else if (obsType === 'molecule') {
+  const getTooltipObsInfo = (tooltipObsId, tooltipObsType) => {
+    if (tooltipObsType === 'cell') {
+      return getObsInfo(tooltipObsId);
+    } if (tooltipObsType === 'molecule') {
       // TODO: Augment getObsInfo to work with molecule obsTypes and obsLocationsLabels.
-      return { 'Molecule ID': obsId, 'Molecule Name': obsLocationsLabels[obsId] };
+      return { 'Molecule ID': tooltipObsId, 'Molecule Name': obsLocationsLabels[tooltipObsId] };
     }
     return null;
   };
@@ -385,11 +385,12 @@ export function SpatialSubscriber(props) {
   // the other option is to use the mouse location.
   const useHoverInfoForTooltip = !obsCentroids;
 
-  const setHoverInfo = useCallback(debounce((data, coord, obsType) => {
+  const setHoverInfo = useCallback(debounce((data, coord, hoveredObsType) => {
     setHoverData(data);
     setHoverCoord(coord);
-    setHoverObsType(obsType);
-  }, 10, { trailing: true }), [setHoverData, setHoverCoord, setHoverObsType, useHoverInfoForTooltip]);
+    setHoverObsType(hoveredObsType);
+  }, 10, { trailing: true }),
+  [setHoverData, setHoverCoord, setHoverObsType]);
 
   const getObsIdFromHoverData = useCallback((data) => {
     if (data) {

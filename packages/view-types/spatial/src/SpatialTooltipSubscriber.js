@@ -21,8 +21,8 @@ export default function SpatialTooltipSubscriber(props) {
 
   let [cellInfo, x, y] = [null, null, null];
   if (
-    obsHighlightType === 'cell' &&
-    useHoverInfoForTooltip && getObsIdFromHoverData
+    obsHighlightType === 'cell'
+    && useHoverInfoForTooltip && getObsIdFromHoverData
     && hoverData && parentUuid === sourceUuid
   ) {
     // No observation centroid coordinates were provided, so use
@@ -30,7 +30,7 @@ export default function SpatialTooltipSubscriber(props) {
     const obsId = getObsIdFromHoverData(hoverData);
     if (obsId) {
       [cellInfo, x, y] = [
-        getObsInfo(obsId, obsHighlightType), ...(hoverCoord ? hoverCoord : [null, null]),
+        getObsInfo(obsId, obsHighlightType), ...(hoverCoord || [null, null]),
       ];
     }
   } else if (obsHighlightType === 'cell' && !useHoverInfoForTooltip && getObsInfo && obsHighlight) {
@@ -47,7 +47,7 @@ export default function SpatialTooltipSubscriber(props) {
     if (obsId) {
       [cellInfo, x, y] = [
         getObsInfo(obsId, obsHighlightType),
-        ...(hoverCoord ? hoverCoord : [null, null]),
+        ...(hoverCoord || [null, null]),
       ];
     }
   }
