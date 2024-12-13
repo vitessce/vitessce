@@ -6,6 +6,7 @@ export default function SpatialTooltipSubscriber(props) {
   const {
     parentUuid,
     obsHighlight,
+    obsHighlightType,
     width,
     height,
     getObsInfo,
@@ -20,26 +21,35 @@ export default function SpatialTooltipSubscriber(props) {
 
   let [cellInfo, x, y] = [null, null, null];
   if (
+    obsHighlightType === 'cell' &&
     useHoverInfoForTooltip && getObsIdFromHoverData
-    && hoverData && hoverCoord
-    && parentUuid === sourceUuid
+    && hoverData && parentUuid === sourceUuid
   ) {
     // No observation centroid coordinates were provided, so use
     // the mouse hover info to position the tooltip.
     const obsId = getObsIdFromHoverData(hoverData);
     if (obsId) {
       [cellInfo, x, y] = [
-        getObsInfo(obsId), ...hoverCoord,
+        getObsInfo(obsId, obsHighlightType), ...(hoverCoord ? hoverCoord : [null, null]),
       ];
     }
-  } else if (!useHoverInfoForTooltip && getObsInfo && obsHighlight) {
+  } else if (obsHighlightType === 'cell' && !useHoverInfoForTooltip && getObsInfo && obsHighlight) {
     // Observation centroid coordinates were provided, so use
     // those coordinates to position the tooltip.
     const obsId = obsHighlight;
     [cellInfo, x, y] = [
-      getObsInfo(obsId),
+      getObsInfo(obsId, obsHighlightType),
       ...(viewInfo && viewInfo.projectFromId ? viewInfo.projectFromId(obsId) : [null, null]),
     ];
+  } else if (obsHighlightType === 'molecule' && hoverData && hoverCoord) {
+    // Molecule is hovered, use mouse hover info to position the tooltip.
+    const obsId = getObsIdFromHoverData(hoverData);
+    if (obsId) {
+      [cellInfo, x, y] = [
+        getObsInfo(obsId, obsHighlightType),
+        ...(hoverCoord ? hoverCoord : [null, null]),
+      ];
+    }
   }
 
   return (

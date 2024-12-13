@@ -181,17 +181,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
       };
 
-    const onHoverCallback = (info) => {
-      const standardOnHoverCallback = getOnHoverCallback(
-        obsIndex,
-        setCellHighlight,
-        setComponentHover,
-      );
-      const obsId = obsIndex[info.index];
-      setHoverInfo([obsId], [info.x, info.y]);
-      standardOnHoverCallback(info);
-    };
-
     return new deck.PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,
@@ -226,7 +215,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
-      onHover: onHoverCallback,
+      onHover: (info) => {
+        const standardOnHoverCallback = getOnHoverCallback(
+          obsIndex,
+          setCellHighlight,
+          setComponentHover,
+        );
+        const obsId = obsIndex[info.index];
+        setHoverInfo([obsId], [info.x, info.y], 'cell');
+        standardOnHoverCallback(info);
+      },
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
@@ -245,6 +243,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocations,
       obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
+      setHoverInfo,
+      setComponentHover,
+      obsLocationsIndex,
     } = this.props;
     const getMoleculeColor = (object, { data, index }) => {
       const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
@@ -272,13 +273,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
-        if (setMoleculeHighlight) {
-          if (info.object) {
-            setMoleculeHighlight(info.object[3]);
-          } else {
-            setMoleculeHighlight(null);
-          }
-        }
+        const standardOnHoverCallback = getOnHoverCallback(
+          obsLocationsIndex,
+          setMoleculeHighlight,
+          setComponentHover,
+        );
+        const obsId = obsLocationsIndex[info.index];
+        setHoverInfo([obsId], [info.x, info.y], 'molecule');
+        standardOnHoverCallback(info);
       },
       updateTriggers: {
         getRadius: [layerDef],
