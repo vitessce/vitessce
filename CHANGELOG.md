@@ -1,4 +1,11 @@
 
+## 3.5.3
+
+### Patch Changes
+
+- Add linkController view type. Update state hooks in vit-s subpackage to set the mostRecentConfigSource value. (`@vitessce/link-controller`) ([#1933](https://github.com/vitessce/vitessce/pull/1933))
+
+
 ## 3.5.2
 
 ### Patch Changes
