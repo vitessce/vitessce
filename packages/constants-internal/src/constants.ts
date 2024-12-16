@@ -22,6 +22,7 @@ export const ViewType = {
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  LINK_CONTROLLER: 'linkController',
 };
 
 export const DataType = {

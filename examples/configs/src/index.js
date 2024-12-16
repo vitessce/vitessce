@@ -75,6 +75,8 @@ import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.j
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
+import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
@@ -171,6 +173,8 @@ export const configs = {
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
   'hakimian-2021': threeMinimalLight,
+  'link-controller': linkControllerDemo,
+  'link-controller-minimal': linkControllerMinimal,
 
   // Nature Methods figures
   'figure-cite-seq': citeSeq,

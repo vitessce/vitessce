@@ -43,6 +43,7 @@
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/layer-controller-beta": "workspace:*",
+    "@vitessce/link-controller": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/ome-tiff": "workspace:*",
     "@vitessce/plugins": "workspace:*",

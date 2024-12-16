@@ -108,3 +108,4 @@ export {
 } from './shared-plot-options/index.js';
 export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
+export { createLoaders } from './vitessce-grid-utils.js';
