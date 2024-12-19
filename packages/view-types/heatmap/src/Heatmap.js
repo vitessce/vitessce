@@ -27,10 +27,10 @@ import {
   createDefaultUpdateViewInfo,
   copyUint8Array,
   getDefaultColor,
+  cleanFeatureId,
 } from '@vitessce/utils';
 
 
-import { useMappedGeneList } from '@vitessce/vit-s';
 import {
   layerFilter,
   getAxisSizes,
@@ -140,7 +140,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisTopTitle = (transpose ? observationsTitle : variablesTitle);
 
   const workerPool = useMemo(() => new HeatmapWorkerPool(), []);
-  const mappedFeatureIndex = useMappedGeneList(featureIndex, featureLabelsMap);
 
   const tilesRef = useRef();
   const dataRef = useRef();
@@ -197,26 +196,26 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   // Set the genes ordering.
   useEffect(() => {
-    if (!mappedFeatureIndex || mappedFeatureIndex.length === 0) {
+    if (!featureIndex) {
       return;
     }
     if (transpose) {
-      setAxisLeftLabels(mappedFeatureIndex);
+      setAxisLeftLabels(featureIndex);
     } else {
-      setAxisTopLabels(mappedFeatureIndex);
+      setAxisTopLabels(featureIndex);
     }
-  }, [mappedFeatureIndex, transpose]);
+  }, [featureIndex, transpose]);
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
-    if (!obsIndex || !mappedFeatureIndex) {
+    if (!obsIndex || !featureIndex) {
       return ['', ''];
     }
 
     return [
       getLongestString(obsIndex),
-      getLongestString([...mappedFeatureIndex, ...cellColorLabels]),
+      getLongestString([...featureIndex, ...cellColorLabels]),
     ];
-  }, [mappedFeatureIndex, cellColorLabels, obsIndex]);
+  }, [featureIndex, cellColorLabels, obsIndex]);
 
   // Creating a look up dictionary once is faster than calling indexOf many times
   // i.e when cell ordering changes.
@@ -355,7 +354,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         tileJ: j,
         tileSize: TILE_SIZE,
         cellOrdering: transpose ? axisTopLabels : axisLeftLabels,
-        cols: mappedFeatureIndex,
+        cols: featureIndex,
         transpose,
         data: uint8ObsFeatureMatrix.buffer.slice(),
         expressionRowLookUp,
@@ -374,7 +373,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp, mappedFeatureIndex]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -426,7 +425,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     axisLeftLabels,
     uint8ObsFeatureMatrix,
     expressionRowLookUp,
-    mappedFeatureIndex,
+    featureIndex,
     gl,
   ]);
 
@@ -504,7 +503,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [uint8ObsFeatureMatrix, backlog.length, transpose, axisTopLabels, axisLeftLabels,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, mappedFeatureIndex]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -513,11 +512,11 @@ const Heatmap = forwardRef((props, deckRef) => {
   // We do the mapping with featureLabelsMap here at one of the final steps before rendering
   // since it is for presentational purposes.
   const axisTopLabelData = useMemo(() => (!transpose && featureLabelsMap
-    ? axisTopLabels.map(d => featureLabelsMap.get(d) || d)
+    ? axisTopLabels.map(d => featureLabelsMap.get(d) || featureLabelsMap.get(cleanFeatureId(d)) || d)
     : axisTopLabels
   ).map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes, transpose, featureLabelsMap]);
   const axisLeftLabelData = useMemo(() => (transpose && featureLabelsMap
-    ? axisLeftLabels.map(d => featureLabelsMap.get(d) || d)
+    ? axisLeftLabels.map(d => featureLabelsMap.get(d) || featureLabelsMap.get(cleanFeatureId(d)) || d)
     : axisLeftLabels
   ).map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes, transpose, featureLabelsMap]);
   const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);
@@ -759,18 +758,18 @@ const Heatmap = forwardRef((props, deckRef) => {
     const obsI = obsIndex.indexOf(transpose
       ? axisTopLabels[colI]
       : axisLeftLabels[rowI]);
-    const varI = mappedFeatureIndex.indexOf(transpose
+    const varI = featureIndex.indexOf(transpose
       ? axisLeftLabels[rowI]
       : axisTopLabels[colI]);
 
     const obsId = obsIndex[obsI];
 
-    // We need to use mappedFeatureIndex here,
-    // because mappedFeatureIndex may be mapped to
+    // We need to use featureIndex here,
+    // because featureIndex may be mapped to
     // use featureLabels (if those were available in the dataset).
     // Highlights and selections are assumed to be in terms of
-    // obsIndex/mappedFeatureIndex (as opposed to obsLabels/featureLabels).
-    const varId = mappedFeatureIndex[varI];
+    // obsIndex/featureIndex (as opposed to obsLabels/featureLabels).
+    const varId = featureIndex[varI];
 
     if (setComponentHover) {
       setComponentHover();

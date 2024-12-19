@@ -1,11 +1,19 @@
-import React from 'react';
-import { useMappedGeneList } from '@vitessce/vit-s';
+import React, { useMemo } from 'react';
+import { transformInfoValues } from './utils.js';
 
 export default function TooltipContent(props) {
   const {
     info,
+    featureType,
+    featureLabelsMap,
   } = props;
-  const mappedInfo = useMappedGeneList(info, undefined);
+
+  const mappedInfo = useMemo(() => {
+    if(!featureType || !featureLabelsMap) {
+      return info;
+    }
+    return transformInfoValues(info, featureType, featureLabelsMap);
+  }, [info, featureType, featureLabelsMap]);
 
   return (
     <table>

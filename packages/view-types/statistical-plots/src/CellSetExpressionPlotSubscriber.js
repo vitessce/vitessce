@@ -8,9 +8,10 @@ import {
   useFeatureLabelsData,
   useSampleSetsData,
   useSampleEdgesData,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize } from '@vitessce/utils';
+import { VALUE_TRANSFORM_OPTIONS, capitalize, cleanFeatureId } from '@vitessce/utils';
 import {
   treeToSetSizesBySetNames,
   mergeObsSets,
@@ -157,9 +158,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
+  );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true }
   );
   const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
@@ -187,6 +191,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     matrixIndicesStatus,
     obsSetsStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     sampleSetsStatus,
     sampleEdgesStatus,
   ]);
@@ -207,7 +212,11 @@ export function CellSetExpressionPlotSubscriber(props) {
   );
 
   const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
+    ? (
+      featureLabelsMap?.get(geneSelection[0])
+      || featureLabelsMap?.get(cleanFeatureId(geneSelection[0]))
+      || geneSelection[0]
+    )
     : null;
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,

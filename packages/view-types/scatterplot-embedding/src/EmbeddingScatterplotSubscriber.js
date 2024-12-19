@@ -23,6 +23,7 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
   useInitialCoordination,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -179,9 +180,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
+  );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true }
   );
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
@@ -199,6 +203,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsSetsStatus,
     featureSelectionStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixIndicesStatus,
     sampleSetsStatus,
     sampleEdgesStatus,
@@ -549,6 +554,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         width={width}
         height={height}
         getObsInfo={getObsInfo}
+        featureType={featureType}
+        featureLabelsMap={featureLabelsMap}
       />
       )}
       <Legend

@@ -349,13 +349,16 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
  *   "Marker Gene": "ENSG00000987654.2"
  * };
  */
-export const useExpandedFeatureLabelsMap = (featureType, featureLabelsMap, options) => {
+export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, options) {
+  // TODO: Should this be done via a hook?
+  // We could alternatively expand these types of mappings in the featureLabels data loader class.
+  // TODO: Add an option to opt-out?
   const { stripCuriePrefixes = true } = options || {};
   const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
   
   const termMappingQuery = useQuery({
     enabled: (featureType === 'gene'),
-    queryKey: ['termMapping', 'ensembl', 'hgnc'],
+    queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
     queryFn: async () => getTermMapping('ensembl', 'hgnc'),
   });
   const { data: fetchedMapping, status, isFetching } = termMappingQuery;
@@ -373,6 +376,3 @@ export const useExpandedFeatureLabelsMap = (featureType, featureLabelsMap, optio
   const dataStatus = isFetching ? STATUS.LOADING : status;
   return [updatedFeatureLabelsMap, dataStatus];
 };
-
-// TODO: remove this
-export const useMappedGeneList = (geneList, featureLabelsMap) => { return geneList};

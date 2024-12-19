@@ -42,6 +42,20 @@ export function getLongestString(strings: string[]) {
 }
 
 /**
+ * Try to clean up a gene ID.
+ * For example, remove the version number from an ENSG ID.
+ * @param {string} featureName A gene ID.
+ * @returns {string} The cleaned gene ID.
+ */
+export function cleanFeatureId(featureName: string) {
+  if (featureName.startsWith('ENSG')) {
+    // Strip the version number from the ENSG ID.
+    return featureName.split('.')[0];
+  }
+  return featureName;
+}
+
+/**
  * Generate a new scope name which does not
  * conflict / overlap with a previous scope name.
  * Really these just need to be unique within the coordination object.
