@@ -172,7 +172,15 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
   loaders: initialLoaders,
   // Reducer functions which update the state
   // (although technically also part of state):
-  setViewConfig: viewConfig => set({ viewConfig, initialViewConfig: viewConfig }),
+  setViewConfig: viewConfig => set({
+    viewConfig,
+    initialViewConfig:
+    viewConfig,
+    // mostRecentConfigSource is used by the LinkController to determine
+    // whether the config was set by this instance or an external linked
+    // instance of Vitessce, and used to prevent infinite loops.
+    mostRecentConfigSource: 'internal',
+  }),
   setLoaders: loaders => set({ loaders }),
   setCoordinationValue: ({
     parameter, value, coordinationScopes,
@@ -202,6 +210,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           },
         },
       },
+      mostRecentConfigSource: 'internal',
     };
   }),
   mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
@@ -282,7 +291,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
     };
     // console.log('newViewConfig', newViewConfig);
     return {
-      viewConfig: newViewConfig,
+      viewConfig: newViewConfig, mostRecentConfigSource: 'internal',
     };
   }),
   removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
@@ -297,6 +306,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           coordinationSpace,
         ),
       },
+      mostRecentConfigSource: 'internal',
     };
   }),
   addImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope) => set((state) => {
@@ -310,6 +320,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
           coordinationSpace,
         ),
       },
+      mostRecentConfigSource: 'internal',
     };
   }),
   removeComponent: uid => set((state) => {
@@ -319,6 +330,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         ...state.viewConfig,
         layout: newLayout,
       },
+      mostRecentConfigSource: 'internal',
     };
   }),
   changeLayout: newComponentProps => set((state) => {
@@ -333,6 +345,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         ...state.viewConfig,
         layout: newLayout,
       },
+      mostRecentConfigSource: 'internal',
     };
   }),
 }));

@@ -1,7 +1,7 @@
 {
-  "name": "@vitessce/statistical-plots",
-  "version": "3.5.2",
-  "author": "HIDIVE Lab at HMS",
+  "name": "@vitessce/link-controller",
+  "version": "3.4.9",
+  "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -32,24 +32,11 @@
   "dependencies": {
     "@material-ui/core": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/vega": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "d3-array": "catalog:",
-    "d3-scale": "catalog:",
-    "d3-shape": "catalog:",
-    "d3-axis": "catalog:",
-    "d3-selection": "catalog:",
-    "d3-format": "catalog:",
-    "vega-scale": "catalog:",
-    "lodash-es": "catalog:",
-    "react-aria": "catalog:",
-    "internmap": "catalog:",
-    "uuid": "catalog:"
+    "@vitessce/vit-s": "workspace:*"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
     "react": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
