@@ -124,7 +124,7 @@ export default function ToolMenu(props) {
         alt={pointerIconAltText}
         onClick={() => setActiveTool(null)}
         isActive={activeTool === null}
-      ><PointerIconSVG aria-label={pointerIconAltText} />
+      ><PointerIconSVG />
       </IconTool>
       )}
       {visibleTools.selectLasso ? (
