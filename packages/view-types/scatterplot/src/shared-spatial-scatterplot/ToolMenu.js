@@ -132,7 +132,7 @@ export default function ToolMenu(props) {
           alt={lassoIconAltText}
           onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
           isActive={activeTool === SELECTION_TYPE.POLYGON}
-        ><SelectLassoIconSVG aria-label={lassoIconAltText} />
+        ><SelectLassoIconSVG />
         </IconTool>
       ) : null}
       <IconButton

@@ -137,7 +137,7 @@ export function SetOperationButtons(props) {
             type="submit"
             disabled={!hasCheckedSetsToUnion}
           >
-            <SetUnionSVG aria-label={`Icon to select a ${unionText}`} />
+            <SetUnionSVG />
           </button>
           <button
             onClick={onIntersection}
@@ -145,7 +145,7 @@ export function SetOperationButtons(props) {
             type="submit"
             disabled={!hasCheckedSetsToIntersect}
           >
-            <SetIntersectionSVG aria-label={`Icon to select a ${intersectionText}`} />
+            <SetIntersectionSVG />
           </button>
           <button
             onClick={onComplement}
@@ -153,7 +153,7 @@ export function SetOperationButtons(props) {
             type="submit"
             disabled={!hasCheckedSetsToComplement}
           >
-            <SetComplementSVG aria-label={`Icon to select a ${complementText}`} />
+            <SetComplementSVG />
           </button>
         </>
       )}
