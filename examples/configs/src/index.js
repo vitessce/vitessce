@@ -51,7 +51,6 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
-
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';

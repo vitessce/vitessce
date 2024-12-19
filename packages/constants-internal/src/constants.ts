@@ -45,6 +45,8 @@ export const DataType = {
 export const AsyncFunctionType = {
   // String input (rather than Node input)
   AUTOCOMPLETE_FEATURE: 'autocompleteFeature', // (partial: string, targetModality: null | 'gene' | 'protein' | 'genomic-region' | 'cell-type') -> list of feature nodes
+  GET_ALTERNATIVE_TERMS: 'getAlternativeTerms', // (curieString) -> list of alternative curie strings
+  GET_TERM_MAPPING: 'getTermMapping', // (keyCuriePrefix, valueCuriePrefix) -> Record<curieString, curieString> for key to value
 
   TRANSFORM_FEATURE: 'transformFeature', // (featureNode, targetModality) -> list of feature nodes from target modality
   RELATED_FEATURES: 'relatedFeatures', // (featureNode) -> list of related feature nodes

@@ -3,6 +3,7 @@ export {
   commaNumber,
   capitalize,
   pluralize,
+  cleanFeatureId,
   getLongestString,
   getNextScope,
   getNextScopeNumeric,
