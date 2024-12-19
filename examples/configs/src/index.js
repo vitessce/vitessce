@@ -51,7 +51,6 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
-import { testConfig } from './view-configs/test.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -99,7 +98,6 @@ export const coordinationTypeConfigs = {
 // resulting ordering of elements in the DOM.
 
 export const configs = {
-  'test-config': testConfig,
   'just-scatter': justScatter,
   'just-scatter-expression': justScatterExpression,
   'just-spatial': justSpatial,
