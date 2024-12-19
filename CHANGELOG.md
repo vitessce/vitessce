@@ -1,4 +1,13 @@
 
+## 3.5.3
+
+### Patch Changes
+
+- Added support for mapping ensemble gene ids to gene symbols. (`@vitessce/feature-list`, `@vitessce/heatmap`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1970](https://github.com/vitessce/vitessce/pull/1970))
+
+- Add linkController view type. Update state hooks in vit-s subpackage to set the mostRecentConfigSource value. (`@vitessce/link-controller`) ([#1933](https://github.com/vitessce/vitessce/pull/1933))
+
+
 ## 3.5.2
 
 ### Patch Changes
