@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@material-ui/core": "catalog:",
-    "@vitessce/vit-s": "workspace:*"
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/utils": "workspace:*"
   },
   "devDependencies": {
     "react": "catalog:",

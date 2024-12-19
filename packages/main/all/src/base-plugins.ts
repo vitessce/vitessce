@@ -168,6 +168,8 @@ import {
   BiomarkerSelectSubscriber,
   autocompleteFeature,
   transformFeature,
+  getAlternativeTerms,
+  getTermMapping,
 } from '@vitessce/biomarker-select';
 import {
   expandAnndataZarr,
@@ -533,4 +535,6 @@ export const baseCoordinationTypes = [
 export const baseAsyncFunctions = [
   new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
   new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
+  new PluginAsyncFunction(AsyncFunctionType.GET_ALTERNATIVE_TERMS, getAlternativeTerms),
+  new PluginAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING, getTermMapping),
 ];
