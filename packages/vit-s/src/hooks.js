@@ -327,27 +327,15 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
 }
 
 /**
- * For datasets, with only ensembile gene ids (e.g. ["ENSG00000123456.1", "ENSG00000987654.2"]),
- * this hook maps a given `geneObject` to their corresponding
- * gene symbols using a gene mapping dataset.
- *
- * @param {string[]|Object} geneObject
- *      - An array of gene strings, or object containing genes as keys
- * @param {Object|undefined} featureMap
- *      - An optional feature map. If provided, the `geneObject` is returned unchanged.
- *
- * @returns {string[]|Object}
- *      - Mapped Gene List or object
- *
- * @example
- * // Example with an array of gene strings (featureList):
- * const geneObject = ["ENSG00000123456.1", "ENSG00000987654.2"];
- * // Example with an object of genes, used in the tooltip:
- * const geneObject = {
- *   "Gene ID": "ENSG00000123456.1",
- *   "Cell ID": "Cell1234",
- *   "Marker Gene": "ENSG00000987654.2"
- * };
+ * This hook expands a featureLabelsMap
+ * by including mappings from ENSEMBL to HGNC IDs.
+ * User-provided mappings should take precedence,
+ * but they are not always provided in the config or contained
+ * in a column of the AnnData.var dataframe, for example.
+ * @param {string} featureType A feature type. Fetching is only done for 'gene'.
+ * @param {Map|null} featureLabelsMap An optional user-supplied feature labels
+ * mapping from the dataset.
+ * @returns {{ stripCuriePrefixes: boolean }|null} An options object.
  */
 export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, options) {
   // TODO: Should this be done via a hook?
@@ -375,4 +363,4 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
   }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
   const dataStatus = isFetching ? STATUS.LOADING : status;
   return [updatedFeatureLabelsMap, dataStatus];
-};
+}
