@@ -5,6 +5,7 @@ import {
   useReady, useUrls,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
@@ -79,17 +80,22 @@ export function FeatureListSubscriber(props) {
     loaders, dataset, true,
     { obsType, featureType },
   );
+  const [expandedFeatureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMap, { stripCuriePrefixes: true }
+  );
   const isReady = useReady([
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixIndicesStatus,
   ]);
   const urls = useUrls([
     featureLabelsUrls,
     obsFeatureMatrixUrls,
   ]);
+
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
-  const hasFeatureLabels = Boolean(featureLabelsMap);
+  const hasFeatureLabels = Boolean(expandedFeatureLabelsMap);
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
@@ -125,7 +131,7 @@ export function FeatureListSubscriber(props) {
           setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
-          hasFeatureLabels={Boolean(featureLabelsMap)}
+          hasFeatureLabels={hasFeatureLabels}
           primaryColumnName={primaryColumnName}
         />
       )}
@@ -136,7 +142,7 @@ export function FeatureListSubscriber(props) {
         geneList={geneList}
         featureListSort={featureListSort}
         featureListSortKey={featureListSortKey || initialSortKey}
-        featureLabelsMap={featureLabelsMap}
+        featureLabelsMap={expandedFeatureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
@@ -144,7 +150,7 @@ export function FeatureListSubscriber(props) {
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
         enableMultiSelect={enableMultiSelect}
-        hasFeatureLabels={Boolean(featureLabelsMap)}
+        hasFeatureLabels={hasFeatureLabels}
         primaryColumnName={primaryColumnName}
       />
     </TitleInfo>

@@ -15,6 +15,7 @@ export {
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
+  useExpandedFeatureLabelsMap,
   useMappedGeneList,
 } from './hooks.js';
 export {
