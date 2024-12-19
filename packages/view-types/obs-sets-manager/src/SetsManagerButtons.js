@@ -113,6 +113,10 @@ export function PlusButton(props) {
  * If not, the union, intersection, and complement buttons will not be rendered.
  */
 export function SetOperationButtons(props) {
+  const unionText = 'New set from union of checked sets';
+  const intersectionText = 'New set from intersection of checked sets';
+  const complementText = 'New set from complement of checked sets';
+
   const {
     onUnion,
     onIntersection,
@@ -129,7 +133,7 @@ export function SetOperationButtons(props) {
         <>
           <button
             onClick={onUnion}
-            title="New set from union of checked sets"
+            title={unionText}
             type="submit"
             disabled={!hasCheckedSetsToUnion}
           >
@@ -137,7 +141,7 @@ export function SetOperationButtons(props) {
           </button>
           <button
             onClick={onIntersection}
-            title="New set from intersection of checked sets"
+            title={intersectionText}
             type="submit"
             disabled={!hasCheckedSetsToIntersect}
           >
@@ -145,7 +149,7 @@ export function SetOperationButtons(props) {
           </button>
           <button
             onClick={onComplement}
-            title="New set from complement of checked sets"
+            title={complementText}
             type="submit"
             disabled={!hasCheckedSetsToComplement}
           >
