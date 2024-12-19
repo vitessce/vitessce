@@ -6,7 +6,7 @@ import { extent } from 'd3-array';
 import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
-import { useGridResize, useEmitGridResize, useSetWarning } from './state/hooks.js';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { useAsyncFunction } from './contexts.js';
 
@@ -343,7 +343,7 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
   // TODO: Add an option to opt-out?
   const { stripCuriePrefixes = true } = options || {};
   const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
-  
+
   const termMappingQuery = useQuery({
     enabled: (featureType === 'gene'),
     queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
@@ -358,7 +358,7 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
         ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
         : fetchedMapping
       ),
-      ...(featureLabelsMap ? featureLabelsMap : []),
+      ...(featureLabelsMap || []),
     ]);
   }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
   const dataStatus = isFetching ? STATUS.LOADING : status;

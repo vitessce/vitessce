@@ -512,11 +512,19 @@ const Heatmap = forwardRef((props, deckRef) => {
   // We do the mapping with featureLabelsMap here at one of the final steps before rendering
   // since it is for presentational purposes.
   const axisTopLabelData = useMemo(() => (!transpose && featureLabelsMap
-    ? axisTopLabels.map(d => featureLabelsMap.get(d) || featureLabelsMap.get(cleanFeatureId(d)) || d)
+    ? axisTopLabels.map(d => (
+      featureLabelsMap.get(d)
+      || featureLabelsMap.get(cleanFeatureId(d))
+      || d
+    ))
     : axisTopLabels
   ).map((d, i) => [i, (axisTopDashes ? `- ${d}` : d)]), [axisTopLabels, axisTopDashes, transpose, featureLabelsMap]);
   const axisLeftLabelData = useMemo(() => (transpose && featureLabelsMap
-    ? axisLeftLabels.map(d => featureLabelsMap.get(d) || featureLabelsMap.get(cleanFeatureId(d)) || d)
+    ? axisLeftLabels.map(d => (
+      featureLabelsMap.get(d)
+      || featureLabelsMap.get(cleanFeatureId(d))
+      || d
+    ))
     : axisLeftLabels
   ).map((d, i) => [i, (axisLeftDashes ? `${d} -` : d)]), [axisLeftLabels, axisLeftDashes, transpose, featureLabelsMap]);
   const cellColorLabelsData = useMemo(() => cellColorLabels.map((d, i) => [i, d && (transpose ? `${d} -` : `- ${d}`)]), [cellColorLabels, transpose]);

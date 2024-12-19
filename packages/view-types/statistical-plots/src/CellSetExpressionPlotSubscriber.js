@@ -158,12 +158,13 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
+  // eslint-disable-next-line max-len
   const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
-    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true }
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
   const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
     loaders, dataset, false,

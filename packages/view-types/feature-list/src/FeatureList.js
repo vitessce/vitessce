@@ -44,8 +44,10 @@ export default function FeatureList(props) {
     const results = geneList
       .filter(gene => (
         gene.toLowerCase().includes(searchTerm.toLowerCase())
-        || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
-        || featureLabelsMap?.get(cleanFeatureId(gene))?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(gene)
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(cleanFeatureId(gene))
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
       ));
     setSearchResults(results);
   }, [searchTerm, geneList, featureLabelsMap]);

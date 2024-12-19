@@ -9,7 +9,7 @@ export default function TooltipContent(props) {
   } = props;
 
   const mappedInfo = useMemo(() => {
-    if(!featureType || !featureLabelsMap) {
+    if (!featureType || !featureLabelsMap) {
       return info;
     }
     return transformInfoValues(info, featureType, featureLabelsMap);

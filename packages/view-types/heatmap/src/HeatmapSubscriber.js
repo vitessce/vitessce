@@ -111,14 +111,15 @@ export function HeatmapSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
+  // eslint-disable-next-line max-len
   const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
-    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true }
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
-  
+
   const [
     { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
   ] = useObsFeatureMatrixData(

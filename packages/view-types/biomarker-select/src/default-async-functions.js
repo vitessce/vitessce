@@ -218,8 +218,8 @@ export async function getAlternativeTerms({ queryClient }, curie) {
     // In our current JSON file, the ENSG IDs are not prefixed with 'ENSEMBL:'.
     const ensemblId = curie.split(':')[1];
     let geneSymbol = idMapping?.[ensemblId];
-    if(geneSymbol) {
-      if(!geneSymbol.toUpperCase().startsWith('HGNC:')) {
+    if (geneSymbol) {
+      if (!geneSymbol.toUpperCase().startsWith('HGNC:')) {
         // In our current JSON file, the gene symbols are not prefixed with 'HGNC:'.
         geneSymbol = `HGNC:${geneSymbol}`;
       }

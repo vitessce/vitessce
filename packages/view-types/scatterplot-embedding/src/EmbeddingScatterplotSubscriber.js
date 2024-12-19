@@ -180,12 +180,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+  // eslint-disable-next-line max-len
   const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
-    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true }
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(

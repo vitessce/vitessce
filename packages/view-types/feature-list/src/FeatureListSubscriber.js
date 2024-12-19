@@ -77,7 +77,7 @@ export function FeatureListSubscriber(props) {
     { featureType },
   );
   const [expandedFeatureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
-    featureType, featureLabelsMap, { stripCuriePrefixes: true }
+    featureType, featureLabelsMap, { stripCuriePrefixes: true },
   );
   const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
     loaders, dataset, true,
