@@ -13,6 +13,8 @@ export default function SpatialTooltipSubscriber(props) {
     hoverCoord,
     useHoverInfoForTooltip,
     getObsIdFromHoverData,
+    featureType,
+    featureLabelsMap,
   } = props;
 
   const sourceUuid = useComponentHover();
@@ -52,7 +54,11 @@ export default function SpatialTooltipSubscriber(props) {
         parentWidth={width}
         parentHeight={height}
       >
-        <TooltipContent info={cellInfo} />
+        <TooltipContent
+          info={cellInfo}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
       </Tooltip2D>
     ) : null)
   );

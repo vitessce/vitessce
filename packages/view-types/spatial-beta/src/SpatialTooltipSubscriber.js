@@ -13,6 +13,8 @@ function TooltipChild(props) {
     info,
     tooltipsVisible,
     tooltipCrosshairsVisible,
+    featureType,
+    featureLabelsMap,
   } = props;
 
   const visible = parentUuid === sourceUuid ? tooltipsVisible : tooltipCrosshairsVisible;
@@ -26,7 +28,11 @@ function TooltipChild(props) {
       parentWidth={width}
       parentHeight={height}
     >
-      <TooltipContent info={info} />
+      <TooltipContent
+        info={info}
+        featureType={featureType}
+        featureLabelsMap={featureLabelsMap}
+      />
     </Tooltip2D>
   ) : null);
 }
@@ -74,6 +80,8 @@ export default function SpatialTooltipSubscriber(props) {
     width,
     height,
     hoverCoord,
+    featureType,
+    featureLabelsMap,
 
     // Points
     obsPoints,
@@ -127,6 +135,8 @@ export default function SpatialTooltipSubscriber(props) {
             }}
             x={projectedHoverCoord?.[0]}
             y={projectedHoverCoord?.[1] + (yOffset += 30)}
+            featureType={featureType}
+            featureLabelsMap={featureLabelsMap}
           />
         ) : null);
       })}
@@ -163,6 +173,8 @@ export default function SpatialTooltipSubscriber(props) {
               info={obsInfo}
               x={x}
               y={y + (yOffset += (20 + 15 * Object.keys(obsInfo).length))}
+              featureType={featureType}
+              featureLabelsMap={featureLabelsMap}
             />
           );
         })
@@ -197,6 +209,8 @@ export default function SpatialTooltipSubscriber(props) {
             }}
             x={x}
             y={y + (yOffset += 30)}
+            featureType={featureType}
+            featureLabelsMap={featureLabelsMap}
           />
         );
       })}
@@ -230,6 +244,8 @@ export default function SpatialTooltipSubscriber(props) {
             }}
             x={x}
             y={y + (yOffset += 30)}
+            featureType={featureType}
+            featureLabelsMap={featureLabelsMap}
           />
         );
       })}

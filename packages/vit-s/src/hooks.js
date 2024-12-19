@@ -3,10 +3,12 @@ import {
 } from 'react';
 import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
+import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
-import { STATUS } from '@vitessce/constants-internal';
-import { useGridResize, useEmitGridResize, useSetWarning } from './state/hooks.js';
+import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
+import { useAsyncFunction } from './contexts.js';
 
 
 function getWindowDimensions() {
@@ -325,97 +327,40 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
 }
 
 /**
- * For datasets, with only ensembile gene ids (e.g. ["ENSG00000123456.1", "ENSG00000987654.2"]),
- * this hook maps a given `geneObject` to their corresponding
- * gene symbols using a gene mapping dataset.
- *
- * @param {string[]|Object} geneObject
- *      - An array of gene strings, or object containing genes as keys
- * @param {Object|undefined} featureMap
- *      - An optional feature map. If provided, the `geneObject` is returned unchanged.
- *
- * @returns {string[]|Object}
- *      - Mapped Gene List or object
- *
- * @example
- * // Example with an array of gene strings (featureList):
- * const geneObject = ["ENSG00000123456.1", "ENSG00000987654.2"];
- * // Example with an object of genes, used in the tooltip:
- * const geneObject = {
- *   "Gene ID": "ENSG00000123456.1",
- *   "Cell ID": "Cell1234",
- *   "Marker Gene": "ENSG00000987654.2"
- * };
+ * This hook expands a featureLabelsMap
+ * by including mappings from ENSEMBL to HGNC IDs.
+ * User-provided mappings should take precedence,
+ * but they are not always provided in the config or contained
+ * in a column of the AnnData.var dataframe, for example.
+ * @param {string} featureType A feature type. Fetching is only done for 'gene'.
+ * @param {Map|null} featureLabelsMap An optional user-supplied feature labels
+ * mapping from the dataset.
+ * @returns {{ stripCuriePrefixes: boolean }|null} An options object.
  */
+export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, options) {
+  // TODO: Should this be done via a hook?
+  // We could alternatively expand these types of mappings in the featureLabels data loader class.
+  // TODO: Add an option to opt-out?
+  const { stripCuriePrefixes = true } = options || {};
+  const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
 
-export const useMappedGeneList = (geneObject, featureMap) => {
-  const setWarning = useSetWarning();
-  const [fetchedGenesList, setFetchedGenesList] = useState(null);
+  const termMappingQuery = useQuery({
+    enabled: (featureType === 'gene'),
+    queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
+    queryFn: async () => getTermMapping('ensembl', 'hgnc'),
+  });
+  const { data: fetchedMapping, status, isFetching } = termMappingQuery;
 
-  useEffect(() => {
-    // Assuming featureMap is set for symbolic genes
-    if (featureMap !== undefined) {
-      return;
-    }
-    const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
-    const isGeneKey = key => key.toLowerCase().includes('gene');
-    const ensbGenes = Array.isArray(geneObject)
-      ? geneObject?.some(isEnsembleGene)
-      : geneObject && Object.entries(geneObject)?.some(([key, value]) => isGeneKey(key)
-              && isEnsembleGene(value));
-    if (!ensbGenes) return;
-
-    const fetchGeneData = async () => {
-      const controller = new AbortController();
-      const { signal } = controller;
-
-      try {
-        const response = await fetch('https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json', { signal });
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setFetchedGenesList(data);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setWarning(err.message);
-        }
-      }
-
-      return () => controller.abort();
-    };
-
-    fetchGeneData();
-  }, [geneObject, featureMap, setWarning]);
-
-  const mappedGeneList = useMemo(() => {
-    if (!fetchedGenesList || featureMap !== undefined) return geneObject;
-
-    const isEnsembleGene = value => value?.toUpperCase().startsWith('ENSG');
-    const isGeneKey = key => key.toLowerCase().includes('gene');
-
-    let updatedGeneObject = { ...geneObject };
-
-    if (Array.isArray(geneObject)) {
-      updatedGeneObject = geneObject
-        .map((gene) => {
-          if (isEnsembleGene(gene)) {
-            const trimmedValue = gene.split('.')[0]; // Trim after the dot
-            return fetchedGenesList[trimmedValue];
-          }
-          return null;
-        })
-        .filter(Boolean);
-    } else {
-      Object.entries(geneObject).forEach(([key, value]) => {
-        if (isGeneKey(key) && isEnsembleGene(value)) {
-          const trimmedValue = value.split('.')[0];
-          updatedGeneObject[key] = fetchedGenesList[trimmedValue];
-        }
-      });
-    }
-    return updatedGeneObject;
-  }, [fetchedGenesList, geneObject, featureMap]);
-
-  return mappedGeneList;
-};
+  const updatedFeatureLabelsMap = useMemo(() => {
+    if (!fetchedMapping) return featureLabelsMap;
+    return new Map([
+      ...(stripCuriePrefixes
+        ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
+        : fetchedMapping
+      ),
+      ...(featureLabelsMap || []),
+    ]);
+  }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [updatedFeatureLabelsMap, dataStatus];
+}

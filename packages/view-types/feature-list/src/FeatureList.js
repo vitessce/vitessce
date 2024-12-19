@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
-import { useMappedGeneList } from '@vitessce/vit-s';
+import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
@@ -33,23 +33,24 @@ export default function FeatureList(props) {
   const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const mappedGeneList = useMappedGeneList(geneList, featureLabelsMap);
-  const [searchResults, setSearchResults] = useState(mappedGeneList);
+  const [searchResults, setSearchResults] = useState(geneList);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
   // passing to the SelectableTable component.
   const selectableTableSortKey = (featureListSortKey === 'featureIndex' ? 'key' : 'name');
 
-
   useEffect(() => {
-    const results = mappedGeneList
+    const results = geneList
       .filter(gene => (
         gene.toLowerCase().includes(searchTerm.toLowerCase())
-        || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(gene)
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(cleanFeatureId(gene))
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
       ));
     setSearchResults(results);
-  }, [searchTerm, mappedGeneList, featureLabelsMap]);
+  }, [searchTerm, geneList, featureLabelsMap]);
 
   function onChange(selection) {
     if (setGeneSelection && selection) {
@@ -71,7 +72,11 @@ export default function FeatureList(props) {
       .map(
         gene => ({
           key: gene,
-          name: featureLabelsMap?.get(gene) || gene,
+          name: (
+            featureLabelsMap?.get(gene)
+            || featureLabelsMap?.get(cleanFeatureId(gene))
+            || gene
+          ),
           value: (geneSelection ? geneSelection.includes(gene) : false),
         }),
       );
