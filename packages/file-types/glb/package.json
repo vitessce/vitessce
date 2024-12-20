@@ -37,7 +37,6 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
     "@react-three/drei": "catalog:",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
