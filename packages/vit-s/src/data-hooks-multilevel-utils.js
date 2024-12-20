@@ -3,12 +3,12 @@ import { useQueries } from '@tanstack/react-query';
 import { extent } from 'd3-array';
 import { DataType, STATUS } from '@vitessce/constants-internal';
 import {
+  LoaderNotFoundError,
+} from '@vitessce/abstract';
+import {
   getMatchingLoader,
   useSetWarning,
 } from './state/hooks.js';
-import {
-  LoaderNotFoundError,
-} from '@vitessce/abstract';
 import {
   warn,
   dataQueryFn,

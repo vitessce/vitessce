@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
+  LoaderNotFoundError,
+} from '@vitessce/abstract';
+import {
   useMultiCoordinationValues,
   useComplexCoordination,
   useSetWarning,
   getMatchingLoader,
 } from './state/hooks.js';
-import {
-  LoaderNotFoundError,
-} from '@vitessce/abstract';
 import {
   warn,
   useDataType,
