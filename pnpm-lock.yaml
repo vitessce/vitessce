@@ -416,6 +416,9 @@ importers:
       '@material-ui/core':
         specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../../packages/file-types/abstract
       '@vitessce/constants':
         specifier: workspace:*
         version: link:../../packages/constants
