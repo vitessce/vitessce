@@ -1,4 +1,4 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import { DEFAULT_CELLS_LAYER, square } from '@vitessce/spatial-utils';
 import { cellsSchema } from './schemas/cells.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';

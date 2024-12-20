@@ -1,5 +1,5 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import OmeZarrLoader from './OmeZarrLoader.js';
 
 export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {

@@ -1,6 +1,6 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 import {
   initializeCellSetColor,
   treeToMembershipMap,

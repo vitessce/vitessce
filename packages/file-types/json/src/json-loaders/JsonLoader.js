@@ -4,7 +4,7 @@ import {
   LoaderValidationError,
   AbstractLoaderError,
   LoaderResult,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 
 import { obsSetsSchema, rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import { cellsSchema } from '../legacy-loaders/schemas/cells.js';

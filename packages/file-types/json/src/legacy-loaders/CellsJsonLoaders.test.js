@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding.js';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels.js';
 import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations.js';

@@ -1,4 +1,4 @@
-import { LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
+import { LoaderResult, AbstractLoaderError } from '@vitessce/abstract';
 import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 

@@ -3,7 +3,7 @@ import { open as zarrOpen, get as zarrGet, slice } from 'zarrita';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 import { maybeDowncastInt64, concatenateColumnVectors } from './utils.js';
 
 // Put array of data into an object,
