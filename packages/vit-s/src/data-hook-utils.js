@@ -13,7 +13,7 @@ import {
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from './errors/index.js';
+} from '@vitessce/abstract';
 
 /**
  * Warn via publishing to the console

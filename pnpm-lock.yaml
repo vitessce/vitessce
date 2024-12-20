@@ -464,13 +464,16 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/abstract:
-    dependencies:
+    devDependencies:
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
 
   packages/file-types/csv:
     dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../abstract
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../config
@@ -480,9 +483,6 @@ importers:
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
@@ -495,6 +495,9 @@ importers:
       '@react-three/drei':
         specifier: 'catalog:'
         version: 9.99.7(@react-three/fiber@8.15.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0))(@types/react@18.2.7)(@types/three@0.162.0)(immer@9.0.15)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.154.0)
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../abstract
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -528,6 +531,9 @@ importers:
 
   packages/file-types/json:
     dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../abstract
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../config
@@ -549,9 +555,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../utils/zarr-utils
@@ -570,6 +573,9 @@ importers:
 
   packages/file-types/ome-tiff:
     dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../abstract
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../config
@@ -591,9 +597,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
@@ -603,6 +606,9 @@ importers:
 
   packages/file-types/zarr:
     dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../abstract
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../config
@@ -624,9 +630,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../utils/zarr-utils
@@ -861,6 +864,9 @@ importers:
       '@material-ui/core':
         specifier: 'catalog:'
         version: 4.12.4(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../../file-types/abstract
       '@vitessce/biomarker-select':
         specifier: workspace:*
         version: link:../../view-types/biomarker-select
@@ -986,6 +992,9 @@ importers:
 
   packages/main/prod:
     dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../../file-types/abstract
       '@vitessce/all':
         specifier: workspace:*
         version: link:../all
@@ -2147,6 +2156,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.29.12
         version: 4.29.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../file-types/abstract
       '@vitessce/config':
         specifier: workspace:*
         version: link:../config

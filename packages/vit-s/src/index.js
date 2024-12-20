@@ -90,18 +90,6 @@ export {
   useHasLoader,
 } from './data-hook-utils.js';
 export {
-  AbstractLoader,
-  AbstractTwoStepLoader,
-  LoaderResult,
-} from './data/index.js';
-export {
-  AbstractLoaderError,
-  DatasetNotFoundError,
-  LoaderNotFoundError,
-  LoaderValidationError,
-  DataSourceFetchError,
-} from './errors/index.js';
-export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,

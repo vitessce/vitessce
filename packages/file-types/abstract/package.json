@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/abstract",
   "version": "3.5.2",
-  "author": "HIDIVE Lab at HMS",
+  "author": "HiDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
-  "dependencies": {
+  "devDependencies": {
     "@vitessce/types": "workspace:*"
   }
 }

@@ -9,7 +9,7 @@ import {
 } from './state/hooks.js';
 import {
   LoaderNotFoundError,
-} from './errors/index.js';
+} from '@vitessce/abstract';
 import {
   warn,
   useDataType,
