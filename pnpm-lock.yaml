@@ -516,9 +516,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../../utils/other-utils
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../vit-s
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
