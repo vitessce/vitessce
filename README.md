@@ -42,6 +42,11 @@ npm install vitessce
 
 For more details, please visit the [documentation](http://vitessce.io/docs/js-overview/).
 
+## How to Contribute
+
+We welcome contributions! Please check out our [Contributing Guide](CONTRIBUTING.md) for detailed instructions.
+
+
 ## Development
 
 First install [PNPM](https://pnpm.io/installation) v9.5. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
