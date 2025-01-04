@@ -4,6 +4,16 @@ Thank you for your interest in contributing to Vitessce! We welcome contribution
 
 ---
 
+## Issues and Bug Reporting
+If you encounter a bug, briefly search the [existing issues](https://github.com/vitessce/vitessce/issues) to see if it has already been reported. If not, create a new issue with the following details:
+1. A clear title summarizing the problem.
+2. Steps to reproduce the issue.
+3. Expected and actual behavior.
+4. Any relevant logs, screenshots, or environment details.
+5. If relevant to a cell atlasing effort or consortium, feel free to mention this so that we are aware of the context.
+
+---
+
 ## How to Contribute
 
 ### 1. Fork the Repository
@@ -27,13 +37,13 @@ Please use one of the following naming conventions for new branches:
 
 
 ### 4. Make Your Changes
-Make your changes in the codebase. Ensure that your code adheres to the project’s coding style and conventions (). If you’re adding new features, consider including tests and documentation updates.
+Make your changes in the codebase. Ensure that your code adheres to the project’s coding [style and conventions](./dev-docs/design-guidelines.md). If you’re adding new features, consider including tests and documentation updates.
 
 #### Development Guidelines
 For detailed information about setting up the development environment, please refer to the [Development](README.md#development) section in the README.
 
 ### 5. Run Tests
-Before submitting your changes, run the existing tests following the [testing guidelines](README.md#testing) to ensure your changes don’t break anything:
+Before submitting your changes, run the existing tests following the [testing guidelines](README.md#testing) to ensure your changes don’t break anything.
 
 If applicable, write new tests for the functionality you’ve added or modified.
 
@@ -55,14 +65,5 @@ Go to the [Vitessce repository](https://github.com/vitessce/vitessce) and open a
 - Links to any relevant issues.
 - Any special instructions for reviewers.
 
----
 
-## Issues and Bug Reporting
-If you encounter a bug, check the [existing issues](https://github.com/vitessce/vitessce/issues) to see if it has already been reported. If not, create a new issue with the following details:
-1. A clear title summarizing the problem.
-2. Steps to reproduce the issue.
-3. Expected and actual behavior.
-4. Any relevant logs, screenshots, or environment details.
-
-
-Thank you for contributing to Vitessce! If you have any questions or need help, feel free to open an issue or reach out to the maintainers.
+If you have any questions or need help, feel free to open an issue.
