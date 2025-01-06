@@ -7,7 +7,7 @@ import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
-import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
+import { getLayerLoaderTuple, HOVER_MODE, renderSubBitmaskLayers } from './utils.js';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -222,7 +222,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           setComponentHover,
         );
         const obsId = obsIndex[info.index];
-        setHoverInfo([obsId], [info.x, info.y], 'cell');
+        setHoverInfo([obsId], [info.x, info.y], HOVER_MODE.CELL_LAYER);
         standardOnHoverCallback(info);
       },
       visible,
@@ -279,7 +279,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           setComponentHover,
         );
         const obsId = obsLocationsIndex[info.index];
-        setHoverInfo([obsId], [info.x, info.y], 'molecule');
+        setHoverInfo([obsId], [info.x, info.y], HOVER_MODE.MOLECULE_LAYER);
         standardOnHoverCallback(info);
       },
       updateTriggers: {
