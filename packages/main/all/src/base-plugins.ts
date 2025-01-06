@@ -79,6 +79,7 @@ import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
+import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import {
@@ -167,6 +168,8 @@ import {
   BiomarkerSelectSubscriber,
   autocompleteFeature,
   transformFeature,
+  getAlternativeTerms,
+  getTermMapping,
 } from '@vitessce/biomarker-select';
 import {
   expandAnndataZarr,
@@ -230,6 +233,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
+  makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -531,4 +535,6 @@ export const baseCoordinationTypes = [
 export const baseAsyncFunctions = [
   new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
   new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
+  new PluginAsyncFunction(AsyncFunctionType.GET_ALTERNATIVE_TERMS, getAlternativeTerms),
+  new PluginAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING, getTermMapping),
 ];

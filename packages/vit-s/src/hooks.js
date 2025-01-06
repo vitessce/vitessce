@@ -3,10 +3,13 @@ import {
 } from 'react';
 import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
+import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
-import { STATUS } from '@vitessce/constants-internal';
+import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
+import { useAsyncFunction } from './contexts.js';
+
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -321,4 +324,43 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
     }
     return null;
   }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
+}
+
+/**
+ * This hook expands a featureLabelsMap
+ * by including mappings from ENSEMBL to HGNC IDs.
+ * User-provided mappings should take precedence,
+ * but they are not always provided in the config or contained
+ * in a column of the AnnData.var dataframe, for example.
+ * @param {string} featureType A feature type. Fetching is only done for 'gene'.
+ * @param {Map|null} featureLabelsMap An optional user-supplied feature labels
+ * mapping from the dataset.
+ * @returns {{ stripCuriePrefixes: boolean }|null} An options object.
+ */
+export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, options) {
+  // TODO: Should this be done via a hook?
+  // We could alternatively expand these types of mappings in the featureLabels data loader class.
+  // TODO: Add an option to opt-out?
+  const { stripCuriePrefixes = true } = options || {};
+  const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
+
+  const termMappingQuery = useQuery({
+    enabled: (featureType === 'gene'),
+    queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
+    queryFn: async () => getTermMapping('ensembl', 'hgnc'),
+  });
+  const { data: fetchedMapping, status, isFetching } = termMappingQuery;
+
+  const updatedFeatureLabelsMap = useMemo(() => {
+    if (!fetchedMapping) return featureLabelsMap;
+    return new Map([
+      ...(stripCuriePrefixes
+        ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
+        : fetchedMapping
+      ),
+      ...(featureLabelsMap || []),
+    ]);
+  }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  return [updatedFeatureLabelsMap, dataStatus];
 }

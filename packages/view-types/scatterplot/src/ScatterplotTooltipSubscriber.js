@@ -9,6 +9,8 @@ export default function ScatterplotTooltipSubscriber(props) {
     width,
     height,
     getObsInfo,
+    featureType,
+    featureLabelsMap,
   } = props;
 
   const sourceUuid = useComponentHover();
@@ -31,7 +33,11 @@ export default function ScatterplotTooltipSubscriber(props) {
         parentWidth={width}
         parentHeight={height}
       >
-        <TooltipContent info={cellInfo} />
+        <TooltipContent
+          info={cellInfo}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
       </Tooltip2D>
     ) : null)
   );

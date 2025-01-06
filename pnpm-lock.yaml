@@ -888,6 +888,9 @@ importers:
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
+      '@vitessce/link-controller':
+        specifier: workspace:*
+        version: link:../../view-types/link-controller
       '@vitessce/obs-sets-manager':
         specifier: workspace:*
         version: link:../../view-types/obs-sets-manager
@@ -1082,6 +1085,9 @@ importers:
       '@material-ui/core':
         specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../utils/other-utils
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../vit-s
@@ -1320,7 +1326,7 @@ importers:
         version: 18.2.0
       vite:
         specifier: ^4.3.0
-        version: 4.3.9(@types/node@18.8.5)(sass@1.55.0)(terser@5.15.1)
+        version: 4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1)
       vitest:
         specifier: ^0.32.2
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
@@ -1603,6 +1609,34 @@ importers:
         specifier: ^2.19.5
         version: 2.19.5(react@18.2.0)
     devDependencies:
+      react:
+        specifier: 'catalog:'
+        version: 18.2.0
+      vite:
+        specifier: 'catalog:'
+        version: 4.3.9(@types/node@20.16.10)(sass@1.55.0)(terser@5.15.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
+
+  packages/view-types/link-controller:
+    dependencies:
+      '@material-ui/core':
+        specifier: 'catalog:'
+        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 5.16.5
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 'catalog:'
         version: 18.2.0
@@ -16195,7 +16229,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@17.0.50)
@@ -16214,7 +16248,7 @@ snapshots:
 
   '@material-ui/core@4.12.4(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.22.0
       '@material-ui/styles': 4.11.5(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/system': 4.12.2(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@material-ui/types': 5.1.0(@types/react@18.2.7)

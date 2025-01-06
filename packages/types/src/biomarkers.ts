@@ -72,3 +72,7 @@ export type FeatureToIntervalFunc = (node: KgNode, assembly: string) => Promise<
 // TODO: should the node types be more precise?
 export type ObsSetToFeaturesFunc = (node: KgNode) => Promise<KgNode[]>;
 export type FeaturesToObsSetFunc = (nodes: KgNode[]) => Promise<KgNode>;
+
+// Other async function types.
+export type GetAlternativeTermsFunc = (curie: string) => Promise<string[]>;
+export type GetTermMappingFunc = (keyCuriePrefix: string, valCuriePrefix: string) => Promise<Map<string, string>>;

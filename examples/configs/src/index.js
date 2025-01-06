@@ -51,7 +51,6 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
-
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -75,6 +74,8 @@ import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.j
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
+import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
@@ -171,6 +172,8 @@ export const configs = {
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
   'hakimian-2021': threeMinimalLight,
+  'link-controller': linkControllerDemo,
+  'link-controller-minimal': linkControllerMinimal,
 
   // Nature Methods figures
   'figure-cite-seq': citeSeq,

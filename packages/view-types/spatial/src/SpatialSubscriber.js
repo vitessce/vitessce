@@ -23,6 +23,7 @@ import {
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
   useHasLoader,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import {
   setObsSelection,
@@ -244,10 +245,15 @@ export function SpatialSubscriber(props) {
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  // eslint-disable-next-line max-len
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
 
   const isReady = useReady([
     obsLocationsStatus,
@@ -260,6 +266,7 @@ export function SpatialSubscriber(props) {
     imageStatus,
     neighborhoodsStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
   ]);
   const urls = useUrls([
     obsLocationsUrls,
@@ -662,6 +669,8 @@ export function SpatialSubscriber(props) {
           hoverCoord={hoverCoord}
           hoverMode={hoverMode}
           getObsIdFromHoverData={getObsIdFromHoverData}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
         />
       )}
       <Legend
