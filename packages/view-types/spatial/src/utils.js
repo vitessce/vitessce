@@ -198,6 +198,6 @@ export function renderSubBitmaskLayers(props) {
 }
 
 export const HOVER_MODE = {
-  CELL_LAYER: 'cell_layer_HOVER_MODE',
-  MOLECULE_LAYER: 'molecule_layer_HOVER_MODE',
+  CELL_LAYER: 'cell_layer_hover',
+  MOLECULE_LAYER: 'molecule_layer_hover',
 };
