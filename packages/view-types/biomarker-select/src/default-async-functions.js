@@ -5,10 +5,11 @@ import { csvParse } from 'd3-dsv';
 // eslint-disable-next-line import/no-unresolved
 import Fuse from 'fuse.js/basic';
 
-/** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc } from '@vitessce/types' */
+/** @import { KgNode, KgEdge, TargetModalityType, AutocompleteFeatureFunc, TransformFeatureFunc, GetAlternativeTermsFunc, GetTermMappingFunc } from '@vitessce/types' */
 /** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 
 const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
+const ENSG_TO_GENE_SYMBOL_URL = 'https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json';
 
 /**
  * @returns {Promise<KgNode[]>}
@@ -59,6 +60,14 @@ function loadPathwayNodes() {
         nodeType: 'pathway',
       }));
     });
+}
+
+/**
+ * @returns {Promise<Record<string,string>>}
+ */
+function loadEnsgToGeneSymbolMapping() {
+  return fetch(ENSG_TO_GENE_SYMBOL_URL)
+    .then(res => res.json());
 }
 
 // Parent app can pass in queryClient
@@ -184,4 +193,66 @@ export async function transformFeature({ queryClient }, node, targetModality) {
   }
   // TODO: handle other target modalities
   return [];
+}
+
+/**
+ * @satisfies {GetAlternativeTermsFunc}
+ * @param {object} ctx
+ * @param {QueryClient} ctx.queryClient
+ * @param {string} curie
+ * @returns {Promise<string[]>} A list of curie strings.
+ */
+export async function getAlternativeTerms({ queryClient }, curie) {
+  // Reference: https://registry.identifiers.org/registry/ensembl
+  // Currently, we only map Ensembl gene IDs to gene symbols,
+  // using our own JSON file.
+  // In the future, we can expand this functionality.
+  const inputIsEnsemblGeneId = curie.toUpperCase().startsWith('ENSEMBL:ENSG');
+
+  if (inputIsEnsemblGeneId) {
+    const idMapping = await queryClient.fetchQuery({
+      queryKey: ['ensgToGeneSymbolMapping'],
+      staleTime: Infinity,
+      queryFn: loadEnsgToGeneSymbolMapping,
+    });
+    // In our current JSON file, the ENSG IDs are not prefixed with 'ENSEMBL:'.
+    const ensemblId = curie.split(':')[1];
+    let geneSymbol = idMapping?.[ensemblId];
+    if (geneSymbol) {
+      if (!geneSymbol.toUpperCase().startsWith('HGNC:')) {
+        // In our current JSON file, the gene symbols are not prefixed with 'HGNC:'.
+        geneSymbol = `HGNC:${geneSymbol}`;
+      }
+      return [geneSymbol];
+    }
+  }
+  return [];
+}
+
+/**
+ * @satisfies {GetTermMappingFunc}
+ * @param {object} ctx
+ * @param {QueryClient} ctx.queryClient
+ * @param {string} keyCuriePrefix
+ * @param {string} valCuriePrefix
+ * @returns {Promise<Map<string, string>>} A mapping between curie strings.
+ */
+export async function getTermMapping({ queryClient }, keyCuriePrefix, valCuriePrefix) {
+  if (
+    (keyCuriePrefix.toUpperCase() === 'ENSEMBL' && valCuriePrefix.toUpperCase() === 'HGNC')
+    || (keyCuriePrefix.toUpperCase() === 'HGNC' && valCuriePrefix.toUpperCase() === 'ENSEMBL')
+  ) {
+    const idMapping = await queryClient.fetchQuery({
+      queryKey: ['ensgToGeneSymbolMapping'],
+      staleTime: Infinity,
+      queryFn: loadEnsgToGeneSymbolMapping,
+    });
+    const isReversed = (keyCuriePrefix.toUpperCase() === 'HGNC');
+    return new Map(Object.entries(idMapping).map(([key, value]) => (
+      isReversed
+        ? ([`HGNC:${value}`, `ENSEMBL:${key}`])
+        : ([`ENSEMBL:${key}`, `HGNC:${value}`])
+    )));
+  }
+  throw new Error(`Mapping between ${keyCuriePrefix} and ${valCuriePrefix} is not yet implemented.`);
 }

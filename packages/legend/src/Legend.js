@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
-import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -320,7 +320,11 @@ export default function Legend(props) {
       && featureSelection.length >= 1
       && !isStaticColor
     )
-      ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
+      ? (
+        featureLabelsMap?.get(featureSelection[0])
+        || featureLabelsMap?.get(cleanFeatureId(featureSelection[0]))
+        || featureSelection[0]
+      )
       : null;
     // if there are missing values, mention them in the label
     const featureSelectionLabel = missing ? `${featureSelectionLabelRaw} (${Math.round(missing * 100)}% NaN)` : featureSelectionLabelRaw;

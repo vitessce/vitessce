@@ -48,6 +48,8 @@ export type {
   FeatureToIntervalFunc,
   ObsSetToFeaturesFunc,
   FeaturesToObsSetFunc,
+  GetAlternativeTermsFunc,
+  GetTermMappingFunc,
 } from './biomarkers.js';
 
 // This is a types-only package.
