@@ -373,17 +373,15 @@ export function SpatialSubscriber(props) {
   );
 
   const getTooltipObsInfo = useCallback((tooltipObsId, tooltipObsType) => {
-    if (tooltipObsType === HOVER_MODE.CELL_LAYER) {
-      return getObsInfo(tooltipObsId);
-    }
     if (tooltipObsType === HOVER_MODE.MOLECULE_LAYER) {
       // TODO: Augment getObsInfo to work with molecule obsTypes and obsLocationsLabels.
       return {
         'Molecule ID': tooltipObsId,
         'Molecule Name': obsLocationsLabels[tooltipObsId],
       };
+    } else {
+      return getObsInfo(tooltipObsId);
     }
-    return null;
   }, [getObsInfo, obsLocationsLabels]);
 
   const [hoverData, setHoverData] = useState(null);
