@@ -379,9 +379,8 @@ export function SpatialSubscriber(props) {
         'Molecule ID': tooltipObsId,
         'Molecule Name': obsLocationsLabels[tooltipObsId],
       };
-    } else {
-      return getObsInfo(tooltipObsId);
     }
+    return getObsInfo(tooltipObsId);
   }, [getObsInfo, obsLocationsLabels]);
 
   const [hoverData, setHoverData] = useState(null);
