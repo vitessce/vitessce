@@ -1220,6 +1220,9 @@ importers:
 
   packages/utils/spatial-utils:
     dependencies:
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl

@@ -1,7 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
-import { DEFAULT_CELLS_LAYER } from '@vitessce/spatial-utils';
+import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 

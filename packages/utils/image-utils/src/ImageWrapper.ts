@@ -329,7 +329,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   getDtype(): string | undefined {
     const loader = this.vivLoader;
-    const source = getSourceFromLoader(loader) as any;
+    const source = getSourceFromLoader(loader, undefined) as any;
     if ('dtype' in source) {
       return source.dtype as string;
     }

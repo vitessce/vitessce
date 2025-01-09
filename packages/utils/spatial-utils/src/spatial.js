@@ -2,49 +2,14 @@ import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-import { viv } from '@vitessce/gl';
+import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
 import { getMultiSelectionStats } from './layer-controller.js';
-
-export function square(x, y, r) {
-  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
-
-export const GLOBAL_LABELS = ['z', 't'];
-
-export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
-
-export const DEFAULT_RASTER_LAYER_PROPS = {
-  visible: true,
-  colormap: null,
-  opacity: 1,
-  domainType: DEFAULT_RASTER_DOMAIN_TYPE,
-  transparentColor: [0, 0, 0],
-  renderingMode: viv.RENDERING_MODES.ADDITIVE,
-  use3d: false,
-};
-
-export const DEFAULT_MOLECULES_LAYER = {
-  opacity: 1, radius: 20, visible: true,
-};
-export const DEFAULT_CELLS_LAYER = {
-  opacity: 1, radius: 50, visible: true, stroked: false,
-};
-export const DEFAULT_NEIGHBORHOODS_LAYER = {
-  visible: false,
-};
-
-export const DEFAULT_LAYER_TYPE_ORDERING = [
-  'molecules',
-  'cells',
-  'neighborhoods',
-  'raster',
-];
 
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders
  * @param {object} loader { data: (PixelSource[]|PixelSource), metadata, channels } object
- * @param {number=} level Level of the multiscale loader from which to get a PixelSource
+ * @param {number | undefined} level Level of the multiscale loader from which to get a PixelSource
  * @returns {object} PixelSource object
  */
 export function getSourceFromLoader(loader, level) {

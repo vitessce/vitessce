@@ -33,6 +33,7 @@
     "@vitessce/gl": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
     "lodash-es": "catalog:",
     "zarrita": "catalog:",
     "math.gl": "catalog:",
