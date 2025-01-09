@@ -138,6 +138,13 @@ import {
   SampleEdgesAnndataLoader,
   // MuData
   MuDataSource,
+  // Legacy
+  ZarrDataSource,
+  MatrixZarrAsObsFeatureMatrixLoader,
+  GenomicProfilesZarrLoader,
+} from '@vitessce/zarr';
+
+import {
   // OME
   OmeZarrLoader,
   OmeZarrAsObsSegmentationsLoader,
@@ -148,11 +155,8 @@ import {
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
   SpatialDataObsSetsLoader,
-  // Legacy
-  ZarrDataSource,
-  MatrixZarrAsObsFeatureMatrixLoader,
-  GenomicProfilesZarrLoader,
-} from '@vitessce/zarr';
+} from '@vitessce/spatial-zarr';
+
 import {
   OmeTiffAsObsSegmentationsLoader,
   OmeTiffLoader,

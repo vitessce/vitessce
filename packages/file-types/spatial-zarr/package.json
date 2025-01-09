@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/zarr",
+  "name": "@vitessce/spatial-zarr",
   "version": "3.5.2",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
@@ -31,11 +31,10 @@
   },
   "dependencies": {
     "@vitessce/abstract": "workspace:*",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/zarr-utils": "workspace:*",
+    "@vitessce/zarr": "workspace:*",
     "@vitessce/config": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",

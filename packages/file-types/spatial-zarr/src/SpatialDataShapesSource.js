@@ -4,8 +4,7 @@
 /* eslint-disable no-undef */
 import { tableFromIPC } from 'apache-arrow';
 import WKB from 'ol/format/WKB.js';
-import AnnDataSource from './AnnDataSource.js';
-import { basename } from './utils.js';
+import { AnnDataSource, basename } from '@vitessce/zarr';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
