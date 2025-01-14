@@ -30,13 +30,13 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
     "@react-three/drei": "catalog:",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",

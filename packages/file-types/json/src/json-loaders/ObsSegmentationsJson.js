@@ -1,4 +1,4 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import JsonLoader from './JsonLoader.js';
 

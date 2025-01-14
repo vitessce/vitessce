@@ -9,7 +9,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
 import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 

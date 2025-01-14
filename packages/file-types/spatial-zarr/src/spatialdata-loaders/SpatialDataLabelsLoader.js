@@ -1,16 +1,26 @@
+import {
+  AbstractLoaderError,
+} from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { LoaderResult } from '@vitessce/vit-s';
-import OmeZarrLoader from './OmeZarrLoader.js';
+import SpatialDataImageLoader from './SpatialDataImageLoader.js';
 
-export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
+export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
   async load() {
-    const { obsTypesFromChannelNames } = this.options || {};
     const result = await super.load();
+    if (result instanceof AbstractLoaderError) {
+      return Promise.reject(result);
+    }
 
-    const imageWrapper = result.data.image.instance;
+    result.data = {
+      obsSegmentations: result.data.image,
+      obsSegmentationsType: 'bitmask',
+    };
+
+    const imageWrapper = result.data.obsSegmentations.instance;
     const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
+    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
       spatialTargetC: i,
+      // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
@@ -21,7 +31,6 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
-      ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 
     const coordinationValues = {
@@ -37,13 +46,8 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
       ]),
     };
 
-    return Promise.resolve(new LoaderResult(
-      {
-        obsSegmentationsType: 'bitmask',
-        obsSegmentations: result.data.image,
-      },
-      result.url,
-      coordinationValues,
-    ));
+    result.coordinationValues = coordinationValues;
+
+    return Promise.resolve(result);
   }
 }

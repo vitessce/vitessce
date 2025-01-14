@@ -1,26 +1,16 @@
-import {
-  AbstractLoaderError,
-} from '@vitessce/vit-s';
 import { CoordinationLevel as CL } from '@vitessce/config';
-import SpatialDataImageLoader from './SpatialDataImageLoader.js';
+import { LoaderResult } from '@vitessce/abstract';
+import OmeZarrLoader from './OmeZarrLoader.js';
 
-export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
+export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
   async load() {
+    const { obsTypesFromChannelNames } = this.options || {};
     const result = await super.load();
-    if (result instanceof AbstractLoaderError) {
-      return Promise.reject(result);
-    }
 
-    result.data = {
-      obsSegmentations: result.data.image,
-      obsSegmentationsType: 'bitmask',
-    };
-
-    const imageWrapper = result.data.obsSegmentations.instance;
+    const imageWrapper = result.data.image.instance;
     const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 7).map((channelObj, i) => ({
+    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
-      // obsType: channelObj.name,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
@@ -31,6 +21,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 
     const coordinationValues = {
@@ -46,8 +37,13 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
       ]),
     };
 
-    result.coordinationValues = coordinationValues;
-
-    return Promise.resolve(result);
+    return Promise.resolve(new LoaderResult(
+      {
+        obsSegmentationsType: 'bitmask',
+        obsSegmentations: result.data.image,
+      },
+      result.url,
+      coordinationValues,
+    ));
   }
 }

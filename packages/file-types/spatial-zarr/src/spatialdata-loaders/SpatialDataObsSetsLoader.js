@@ -1,4 +1,4 @@
-import ObsSetsAnndataLoader from '../anndata-loaders/ObsSetsAnndataLoader.js';
+import { ObsSetsAnndataLoader } from '@vitessce/zarr';
 
 /**
    * Loader for embedding arrays located in anndata.zarr stores.

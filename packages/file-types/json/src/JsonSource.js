@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { DataSourceFetchError } from '@vitessce/vit-s';
+import { DataSourceFetchError } from '@vitessce/abstract';
 
 export default class JsonSource {
   constructor({ url, requestInit }) {

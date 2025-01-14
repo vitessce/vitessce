@@ -13,7 +13,7 @@ import {
   AbstractLoaderError,
   LoaderResult,
   AbstractTwoStepLoader,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 
