@@ -7,7 +7,7 @@ import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
-import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
+import { getLayerLoaderTuple, HOVER_MODE, renderSubBitmaskLayers } from './utils.js';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -181,17 +181,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
       };
 
-    const onHoverCallback = (info) => {
-      const standardOnHoverCallback = getOnHoverCallback(
-        obsIndex,
-        setCellHighlight,
-        setComponentHover,
-      );
-      const obsId = obsIndex[info.index];
-      setHoverInfo([obsId], [info.x, info.y]);
-      standardOnHoverCallback(info);
-    };
-
     return new deck.PolygonLayer({
       id: CELLS_LAYER_ID,
       data: this.obsSegmentationsData,
@@ -226,7 +215,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
           onCellClick(info);
         }
       },
-      onHover: onHoverCallback,
+      onHover: (info) => {
+        const standardOnHoverCallback = getOnHoverCallback(
+          obsIndex,
+          setCellHighlight,
+          setComponentHover,
+        );
+        const obsId = obsIndex[info.index];
+        setHoverInfo([obsId], [info.x, info.y], HOVER_MODE.CELL_LAYER);
+        standardOnHoverCallback(info);
+      },
       visible,
       getLineWidth: stroked ? 1 : 0,
       lineWidthScale,
@@ -245,6 +243,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocations,
       obsLocationsFeatureIndex: obsLabelsTypes,
       setMoleculeHighlight,
+      setHoverInfo,
+      setComponentHover,
+      obsLocationsIndex,
     } = this.props;
     const getMoleculeColor = (object, { data, index }) => {
       const i = data.src.obsLabelsTypes.indexOf(data.src.obsLabels[index]);
@@ -272,13 +273,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineColor: getMoleculeColor,
       getFillColor: getMoleculeColor,
       onHover: (info) => {
-        if (setMoleculeHighlight) {
-          if (info.object) {
-            setMoleculeHighlight(info.object[3]);
-          } else {
-            setMoleculeHighlight(null);
-          }
-        }
+        const standardOnHoverCallback = getOnHoverCallback(
+          obsLocationsIndex,
+          setMoleculeHighlight,
+          setComponentHover,
+        );
+        const obsId = obsLocationsIndex[info.index];
+        setHoverInfo([obsId], [info.x, info.y], HOVER_MODE.MOLECULE_LAYER);
+        standardOnHoverCallback(info);
       },
       updateTriggers: {
         getRadius: [layerDef],

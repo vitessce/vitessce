@@ -38,7 +38,7 @@ import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
@@ -93,6 +93,7 @@ export function SpatialSubscriber(props) {
     spatialNeighborhoodLayer: neighborhoodsLayer,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
+    moleculeHighlight,
     featureSelection: geneSelection,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
@@ -371,8 +372,20 @@ export function SpatialSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const getTooltipObsInfo = useCallback((tooltipObsId, tooltipObsType) => {
+    if (tooltipObsType === HOVER_MODE.MOLECULE_LAYER) {
+      // TODO: Augment getObsInfo to work with molecule obsTypes and obsLocationsLabels.
+      return {
+        'Molecule ID': tooltipObsId,
+        'Molecule Name': obsLocationsLabels[tooltipObsId],
+      };
+    }
+    return getObsInfo(tooltipObsId);
+  }, [getObsInfo, obsLocationsLabels]);
+
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
+  const [hoverMode, setHoverMode] = useState(null);
 
   // Should hover position be used for tooltips?
   // If there are centroids for each observation, then we can use those
@@ -380,13 +393,15 @@ export function SpatialSubscriber(props) {
   // the other option is to use the mouse location.
   const useHoverInfoForTooltip = !obsCentroids;
 
-  const setHoverInfo = useCallback(debounce((data, coord) => {
+  const setHoverInfo = useCallback(debounce((data, coord, hoveredMode) => {
     setHoverData(data);
     setHoverCoord(coord);
-  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+    setHoverMode(hoveredMode);
+  }, 10, { trailing: true }),
+  [setHoverData, setHoverCoord, setHoverMode]);
 
   const getObsIdFromHoverData = useCallback((data) => {
-    if (useHoverInfoForTooltip) {
+    if (data) {
       // TODO: When there is support for multiple segmentation channels that may
       // contain different obsTypes, then do not hard-code the zeroth channel.
       const spatialTargetC = 0;
@@ -642,13 +657,14 @@ export function SpatialSubscriber(props) {
       {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
-          obsHighlight={cellHighlight}
+          obsHighlight={cellHighlight || moleculeHighlight}
           width={width}
           height={height}
-          getObsInfo={getObsInfo}
+          getObsInfo={getTooltipObsInfo}
           useHoverInfoForTooltip={useHoverInfoForTooltip}
           hoverData={hoverData}
           hoverCoord={hoverCoord}
+          hoverMode={hoverMode}
           getObsIdFromHoverData={getObsIdFromHoverData}
           featureType={featureType}
           featureLabelsMap={featureLabelsMap}
