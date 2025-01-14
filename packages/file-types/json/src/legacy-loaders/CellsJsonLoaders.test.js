@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { LoaderResult } from '@vitessce/abstract';
 import CellsJsonAsObsEmbeddingLoader from './CellsJsonAsObsEmbedding.js';
 import CellsJsonAsObsLabelsLoader from './CellsJsonAsObsLabels.js';
-import CellsJsonAsObsSegmentationsLoader from './CellsJsonAsObsSegmentations.js';
+import CellsJsonAsObsSegmentationsLoader, { square } from './CellsJsonAsObsSegmentations.js';
 import JsonSource from '../JsonSource.js';
 
 const createLoader = (ClassDef, config, url) => {
@@ -13,6 +13,14 @@ const createLoader = (ClassDef, config, url) => {
   const source = new JsonSource(configWithUrl);
   return new ClassDef(source, configWithUrl);
 };
+
+
+describe('square()', () => {
+  it('gives the right coordinates', () => {
+    expect(square(0, 0, 50)).toEqual([[0, 50], [50, 0], [0, -50], [-50, 0]]);
+  });
+});
+
 
 describe('loaders/cells-json-loaders', () => {
   describe('CellsJsonAsObsEmbeddingLoader', () => {

@@ -20,10 +20,6 @@ export const DEFAULT_LAYER_TYPE_ORDERING = [
   'raster',
 ];
 
-export function square(x: number, y: number, r: number) {
-  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
-
 export const DEFAULT_RASTER_LAYER_PROPS = {
   visible: true,
   colormap: null,

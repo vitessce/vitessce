@@ -1,7 +1,18 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
-import { DEFAULT_CELLS_LAYER, square } from '@vitessce/constants-internal';
+import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { cellsSchema } from './schemas/cells.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
+
+/**
+ *
+ * @param {number} x x
+ * @param {number} y y
+ * @param {number} r radius
+ * @returns
+ */
+export function square(x, y, r) {
+  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {
