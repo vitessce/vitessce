@@ -92,6 +92,7 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
   return [new viv.ColorPaletteExtension()];
 }
 
+
 /**
  * React component which expresses the spatial relationships between cells and molecules.
  * @param {object} props
@@ -594,7 +595,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        c: image?.obsSegmentations?.instance?.getChannelIndex(
+          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        ),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
@@ -694,6 +697,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!data) {
       return null;
     }
+
     const imageWrapperInstance = image.image.instance;
 
     const is3dMode = spatialRenderingMode === '3D';
@@ -736,7 +740,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        c: image?.image?.instance?.getChannelIndex(
+          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        ),
       }));
     const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {

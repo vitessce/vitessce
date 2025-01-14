@@ -6,14 +6,14 @@ import {
 } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import {
+  AbstractLoaderError,
+  LoaderNotFoundError,
+} from '@vitessce/abstract';
+import {
   getMatchingLoader,
   useMatchingLoader,
   useSetWarning,
 } from './state/hooks.js';
-import {
-  AbstractLoaderError,
-  LoaderNotFoundError,
-} from './errors/index.js';
 
 /**
  * Warn via publishing to the console

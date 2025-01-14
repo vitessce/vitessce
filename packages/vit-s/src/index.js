@@ -15,6 +15,7 @@ export {
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
+  useExpandedFeatureLabelsMap,
 } from './hooks.js';
 export {
   useCoordinationScopes,
@@ -89,18 +90,6 @@ export {
   useHasLoader,
 } from './data-hook-utils.js';
 export {
-  AbstractLoader,
-  AbstractTwoStepLoader,
-  LoaderResult,
-} from './data/index.js';
-export {
-  AbstractLoaderError,
-  DatasetNotFoundError,
-  LoaderNotFoundError,
-  LoaderValidationError,
-  DataSourceFetchError,
-} from './errors/index.js';
-export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
@@ -108,3 +97,4 @@ export {
 } from './shared-plot-options/index.js';
 export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
+export { createLoaders } from './vitessce-grid-utils.js';

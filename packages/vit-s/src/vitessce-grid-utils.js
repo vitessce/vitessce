@@ -4,7 +4,7 @@ import {
 import { InternMap } from 'internmap';
 import { isEqual, pick } from 'lodash-es';
 import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
-import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from './data/loader-registry.js';
+import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from '@vitessce/abstract';
 
 /**
  * Return the bottom coordinate of the layout.

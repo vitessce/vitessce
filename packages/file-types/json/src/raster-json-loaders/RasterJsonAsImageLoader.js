@@ -1,4 +1,4 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import RasterLoader from './RasterJsonLoader.js';
 
 export default class RasterJsonAsImageLoader extends RasterLoader {

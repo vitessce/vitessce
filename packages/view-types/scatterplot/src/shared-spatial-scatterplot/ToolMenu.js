@@ -103,6 +103,8 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
+  const pointerIconAltText = 'Pointer tool';
+  const lassoIconAltText = 'Select lasso';
   const {
     setActiveTool,
     activeTool,
@@ -119,7 +121,7 @@ export default function ToolMenu(props) {
     <div className={classes.tool}>
       {visibleTools.pan && (
       <IconTool
-        alt="pointer tool"
+        alt={pointerIconAltText}
         onClick={() => setActiveTool(null)}
         isActive={activeTool === null}
       ><PointerIconSVG />
@@ -127,7 +129,7 @@ export default function ToolMenu(props) {
       )}
       {visibleTools.selectLasso ? (
         <IconTool
-          alt="select lasso"
+          alt={lassoIconAltText}
           onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
           isActive={activeTool === SELECTION_TYPE.POLYGON}
         ><SelectLassoIconSVG />

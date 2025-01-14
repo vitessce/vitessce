@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/ome-tiff",
-  "version": "3.4.14",
+  "version": "3.5.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,6 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/gl": "workspace:*",
@@ -37,7 +38,6 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:"
   }

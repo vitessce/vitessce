@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  square,
   coordinateTransformationsToMatrix,
   normalizeCoordinateTransformations,
 } from './spatial.js';
@@ -14,11 +13,6 @@ const defaultAxes = [
 ];
 
 describe('Spatial.js', () => {
-  describe('square()', () => {
-    it('gives the right coordinates', () => {
-      expect(square(0, 0, 50)).toEqual([[0, 50], [50, 0], [0, -50], [-50, 0]]);
-    });
-  });
   describe('coordinateTransformationsToMatrix', () => {
     it('returns an Array instance', () => {
       const transformations = [

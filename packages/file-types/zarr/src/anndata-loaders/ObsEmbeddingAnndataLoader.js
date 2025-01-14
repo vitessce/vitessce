@@ -1,7 +1,7 @@
 // @ts-check
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { ObsEmbeddingData, MatrixResult } from '@vitessce/types' */

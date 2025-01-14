@@ -1,6 +1,6 @@
 /* eslint-disable func-names, camelcase */
 import { describe, it, expect } from 'vitest';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import ObsEmbeddingAnndataLoader from './ObsEmbeddingAnndataLoader.js';
 import AnnDataSource from '../AnnDataSource.js';

@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/example-plugins",
   "private": true,
-  "version": "3.4.14",
+  "version": "3.5.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -17,6 +17,7 @@
   "scripts": {},
   "dependencies": {
     "@material-ui/core": "catalog:",
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/plugins": "workspace:*",

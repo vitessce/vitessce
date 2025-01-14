@@ -8,6 +8,8 @@ export default function HeatmapTooltipSubscriber(props) {
     width, height, transpose,
     getObsInfo, getFeatureInfo,
     obsHighlight, featureHighlight,
+    featureType,
+    featureLabelsMap,
   } = props;
 
   const sourceUuid = useComponentHover();
@@ -44,7 +46,11 @@ export default function HeatmapTooltipSubscriber(props) {
         parentHeight={height}
         sourceUuid={sourceUuid}
       >
-        <TooltipContent info={{ ...geneInfo, ...cellInfo }} />
+        <TooltipContent
+          info={{ ...geneInfo, ...cellInfo }}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
       </Tooltip2D>
     ) : null)
   );

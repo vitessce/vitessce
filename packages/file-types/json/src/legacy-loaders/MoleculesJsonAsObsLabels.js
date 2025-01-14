@@ -1,5 +1,5 @@
 import { range, sum } from 'lodash-es';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import { moleculesSchema } from './schemas/molecules.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 

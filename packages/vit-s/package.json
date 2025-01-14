@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vit-s",
-  "version": "3.4.14",
+  "version": "3.5.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,6 +33,7 @@
     "@material-ui/core": "catalog:",
     "@material-ui/icons": "catalog:",
     "@tanstack/react-query": "^4.29.12",
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",

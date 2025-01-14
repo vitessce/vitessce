@@ -1,4 +1,60 @@
 
+## 3.5.3
+
+### Patch Changes
+
+- Molecular observations now have tooltips when hovered over. (`@vitessce/spatial`) ([#1998](https://github.com/vitessce/vitessce/pull/1998))
+
+- Added support for mapping ensemble gene ids to gene symbols. (`@vitessce/feature-list`, `@vitessce/heatmap`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1970](https://github.com/vitessce/vitessce/pull/1970))
+
+- Extracted abstract loaders and errors from core vit-s package to eliminate circular dependencies. Extracted spatial zarr utils to avoid pulling in spatial subdependencies when only concerned with basic zarr loading functionalities. (`@vitessce/abstract`, `@vitessce/ome-tiff`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/spatial-zarr`, `@vitessce/csv`, `@vitessce/glb`, `vitessce`, `@vitessce/all`, `@vitessce/example-plugins`, `@vitessce/vit-s`) ([#2006](https://github.com/vitessce/vitessce/pull/2006))
+
+- Add linkController view type. Update state hooks in vit-s subpackage to set the mostRecentConfigSource value. (`@vitessce/link-controller`) ([#1933](https://github.com/vitessce/vitessce/pull/1933))
+
+- Addressed accessibility issues with icons (`@vitessce/obs-sets-manager`, `@vitessce/scatterplot`) ([#2004](https://github.com/vitessce/vitessce/pull/2004))
+
+
+## 3.5.2
+
+### Patch Changes
+
+- Fix tooltips in segmentations without locations in spatial layer (`@vitessce/spatial`) ([#1982](https://github.com/vitessce/vitessce/pull/1982))
+
+
+## 3.5.1
+
+### Patch Changes
+
+- Added support to map channelNames to channelIndices provided via SpatialTargetC (`@vitessce/spatial-beta`) ([#1971](https://github.com/vitessce/vitessce/pull/1971))
+
+- Export usePageModeView from main vitessce package. (`@vitessce/all`) ([#1986](https://github.com/vitessce/vitessce/pull/1986))
+
+- Add Spatial Atlas example config. (`@vitessce/example-configs`) ([#1985](https://github.com/vitessce/vitessce/pull/1985))
+
+
+## 3.5.0
+
+### Minor Changes
+
+- Add NaN percentage to legend (`@vitessce/legend`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/vit-s`) ([#1947](https://github.com/vitessce/vitessce/pull/1947))
+
+### Patch Changes
+
+- Fix obs index within AnnData-Zarr test fixture. (`@vitessce/zarr`) ([#1948](https://github.com/vitessce/vitessce/pull/1948))
+
+- Fix scatterplot point layer z-index bug. (`@vitessce/scatterplot`) ([#1967](https://github.com/vitessce/vitessce/pull/1967))
+
+- Correct x-axis label in `CellSetSizesPlot` (`@vitessce/statistical-plots`) ([#1949](https://github.com/vitessce/vitessce/pull/1949))
+
+- Add biomarker-select view. Update pageMode functionality. Register default async function plugins, allow them to use queryClient. Add types related to knowledge. (`@vitessce/biomarker-select`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/config`, `@vitessce/types`, `@vitessce/vit-s`) ([#1889](https://github.com/vitessce/vitessce/pull/1889))
+
+- Fix tooltips in spatialBeta polygon segmentation (`@vitessce/spatial-beta`) ([#1966](https://github.com/vitessce/vitessce/pull/1966))
+
+- Update citation info. (`docs`) ([#1959](https://github.com/vitessce/vitessce/pull/1959))
+
+- Try removing dynamic import polyfill via a webpack ignore comment. (`@vitessce/zarr`) ([#1960](https://github.com/vitessce/vitessce/pull/1960))
+
+
 ## 3.4.14
 
 ### Patch Changes

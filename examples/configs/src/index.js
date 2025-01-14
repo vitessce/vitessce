@@ -34,6 +34,7 @@ import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_vis
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
+import { kpmpSpatialAtlasOct2024 } from './view-configs/kpmp_spatial_atlas_oct_2024.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
@@ -50,7 +51,6 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
-
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -74,6 +74,8 @@ import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.j
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
+import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
@@ -111,6 +113,7 @@ export const configs = {
   'kuppe-2022': kuppe2022nature,
   'marshall-2022': marshall2022iScience,
   'meta-2022-azimuth': meta2022azimuth,
+  'kpmp-spatial-atlas-oct-2024': kpmpSpatialAtlasOct2024,
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
@@ -169,6 +172,8 @@ export const configs = {
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
   'hakimian-2021': threeMinimalLight,
+  'link-controller': linkControllerDemo,
+  'link-controller-minimal': linkControllerMinimal,
 
   // Nature Methods figures
   'figure-cite-seq': citeSeq,

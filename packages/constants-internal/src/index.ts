@@ -18,3 +18,4 @@ export {
   COMPONENT_COORDINATION_TYPES,
 } from './coordination.js';
 export { default as META_VERSION } from './version.json';
+export * from './spatial-constants.js';

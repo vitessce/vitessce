@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.4.14",
+  "version": "3.5.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,6 +34,7 @@
   "dependencies": {
     "@material-ui/core": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
@@ -43,6 +44,7 @@
     "@vitessce/json": "workspace:*",
     "@vitessce/layer-controller": "workspace:*",
     "@vitessce/layer-controller-beta": "workspace:*",
+    "@vitessce/link-controller": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/ome-tiff": "workspace:*",
     "@vitessce/plugins": "workspace:*",
@@ -55,6 +57,7 @@
     "@vitessce/status": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/spatial-zarr": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
     "@vitessce/biomarker-select": "workspace:*",
     "zod": "catalog:"

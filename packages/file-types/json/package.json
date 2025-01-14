@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/json",
-  "version": "3.4.14",
+  "version": "3.5.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -36,7 +36,7 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "d3-array": "catalog:",

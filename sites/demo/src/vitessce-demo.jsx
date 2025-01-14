@@ -152,6 +152,16 @@ export function VitessceDemo() {
         )));
       return (
         <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}
+            </style>
+          ) : null}
           <AwaitResponse response={responsePromise} theme={theme} />
         </ContainerComponent>
       );

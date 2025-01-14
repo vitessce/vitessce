@@ -251,6 +251,20 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return [];
   }
 
+  getChannelIndex(channelSpecifier: string|number): number {
+    if (typeof channelSpecifier === 'number') {
+      return channelSpecifier;
+    }
+    // If not a number,
+    // then assume the user passed a string corresponding to a channel name.
+    const channelNames = this.getChannelNames();
+    const channelIndex = channelNames.indexOf(channelSpecifier);
+    if (channelIndex === -1) {
+      console.error(`Channel ${channelSpecifier} not found in image.`);
+    }
+    return channelIndex;
+  }
+
   // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
     // SpatialData cases (image-label and channels_metadata)
@@ -315,7 +329,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   getDtype(): string | undefined {
     const loader = this.vivLoader;
-    const source = getSourceFromLoader(loader) as any;
+    const source = getSourceFromLoader(loader, undefined) as any;
     if ('dtype' in source) {
       return source.dtype as string;
     }
