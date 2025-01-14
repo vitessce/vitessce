@@ -147,7 +147,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     if (!parquetBytes) {
       throw new Error('Failed to load parquet data from store.');
     }
-    if(!ArrayBuffer.isView(parquetBytes)) {
+    if (!ArrayBuffer.isView(parquetBytes)) {
       // This is required because in vitessce-python the
       // experimental.invoke store wrapper can return an ArrayBuffer,
       // but readParquet expects a Uint8Array.

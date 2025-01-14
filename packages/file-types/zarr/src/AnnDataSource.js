@@ -336,10 +336,10 @@ export default class AnnDataSource extends ZarrDataSource {
         /** @type {{ [k: string]: string|string[]|null|undefined }} */
         const result = {};
         await Promise.all(keys.map(async (key) => {
-          let val = undefined;
+          let val;
           try {
             val = await this._loadElement(`${path}/${key}`);
-          } catch(e) {
+          } catch (e) {
             console.error(`Error in _loadDict: could not load ${key}`);
           }
           result[key] = val;
