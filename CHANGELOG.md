@@ -1,4 +1,19 @@
 
+## 3.5.3
+
+### Patch Changes
+
+- Molecular observations now have tooltips when hovered over. (`@vitessce/spatial`) ([#1998](https://github.com/vitessce/vitessce/pull/1998))
+
+- Added support for mapping ensemble gene ids to gene symbols. (`@vitessce/feature-list`, `@vitessce/heatmap`, `@vitessce/tooltip`, `@vitessce/vit-s`) ([#1970](https://github.com/vitessce/vitessce/pull/1970))
+
+- Extracted abstract loaders and errors from core vit-s package to eliminate circular dependencies. Extracted spatial zarr utils to avoid pulling in spatial subdependencies when only concerned with basic zarr loading functionalities. (`@vitessce/abstract`, `@vitessce/ome-tiff`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/spatial-zarr`, `@vitessce/csv`, `@vitessce/glb`, `vitessce`, `@vitessce/all`, `@vitessce/example-plugins`, `@vitessce/vit-s`) ([#2006](https://github.com/vitessce/vitessce/pull/2006))
+
+- Add linkController view type. Update state hooks in vit-s subpackage to set the mostRecentConfigSource value. (`@vitessce/link-controller`) ([#1933](https://github.com/vitessce/vitessce/pull/1933))
+
+- Addressed accessibility issues with icons (`@vitessce/obs-sets-manager`, `@vitessce/scatterplot`) ([#2004](https://github.com/vitessce/vitessce/pull/2004))
+
+
 ## 3.5.2
 
 ### Patch Changes
