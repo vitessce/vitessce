@@ -18,3 +18,7 @@
     @include welcome-themable("light", $colors-light);
   }
 }
+
+.neuroglancer-container {
+  position: inherit !important //This is to override the inline-styling for this component
+}
