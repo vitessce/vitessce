@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json", 
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist-tsc",  
+    "rootDir": "src",     
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "declaration": true,   
+    "skipLibCheck": true,  
+    "baseUrl": ".",       
+    "paths": {
+      "neuroglancer-plugin": ["dist-tsc"]
+    }
+  },
+  "include": ["src"], 
+  "exclude": [
+    "node_modules",
+    "neuro-dist",
+  ]
+}

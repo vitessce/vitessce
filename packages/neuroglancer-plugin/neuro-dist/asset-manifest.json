@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.js": "/neuroglancer.bundle.js",
+    "main.css": "/static/css/main.b19b5d3c.css",
+    "index.html": "/index.html",
+    "neuroglancer.bundle.js.map": "/neuroglancer.bundle.js.map",
+    "main.b19b5d3c.css.map": "/static/css/main.b19b5d3c.css.map"
+  },
+  "entrypoints": [
+    "neuroglancer.bundle.js",
+    "static/css/main.b19b5d3c.css"
+  ]
+}
