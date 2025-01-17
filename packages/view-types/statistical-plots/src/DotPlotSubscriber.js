@@ -71,7 +71,7 @@ export function DotPlotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
   );
-
+  
   const multiObsSetSelection = useMultiCoordinationValues(
     CoordinationType.OBS_SET_SELECTION,
     coordinationScopes,

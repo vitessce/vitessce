@@ -23,6 +23,7 @@ export const ViewType = {
   FEATURE_BAR_PLOT: 'featureBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
   LINK_CONTROLLER: 'linkController',
+  DUAL_SCATTERPLOT: 'dualScatterplot',
 };
 
 export const DataType = {
