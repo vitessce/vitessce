@@ -81,6 +81,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
         <EmbeddingScatterplotSubscriber
           {...props}
+          title=""
           sampleSetSelection={ctrlSampleSetSelection}
         />
       </div>

@@ -164,9 +164,8 @@ function generateLake2023Config() {
       */
     ],
   });
-  //const scatterplot = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-case' }).setProps({ title: 'CKD' });
-  //const scatterplot2 = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-control' }).setProps({ title: 'Healthy Reference' });
-  const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ title: 'CKD vs. Healthy Reference' });
+  
+  const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
@@ -178,28 +177,19 @@ function generateLake2023Config() {
   // - control
   // - case-control
 
-  const [sampleSetScope_case, sampleSetScope_control, sampleSetScope_caseControl] = vc.addCoordination(
-    { cType: 'sampleSetSelection', cScope: 'case', cValue: [['Tissue Type', 'CKD']] },
-    { cType: 'sampleSetSelection', cScope: 'control', cValue: [['Tissue Type', 'Healthy Reference']] },
-    { cType: 'sampleSetSelection', cScope: 'case-control', cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']] },
+  const [sampleSetScope_caseControl] = vc.addCoordination(
+    {
+      cType: 'sampleSetSelection',
+      cScope: 'case-control',
+      cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']],
+    },
   );
   
   vc.linkViewsByObject([dualScatterplot], {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
-    //sampleType: 'sample',
-    //sampleSetSelection: sampleSetScope_case,
   }, { meta: false });
-  /*
-  vc.linkViewsByObject([scatterplot2], {
-    embeddingType: 'densMAP',
-    embeddingContoursVisible: true,
-    embeddingPointsVisible: false,
-    sampleType: 'sample',
-    sampleSetSelection: sampleSetScope_control,
-  }, { meta: false });
-  */
 
   vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
   vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
@@ -210,13 +200,6 @@ function generateLake2023Config() {
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
-  /*
-  vc.linkViewsByObject([scatterplot, scatterplot2], {
-    embeddingZoom: null,
-    embeddingTargetX: null,
-    embeddingTargetY: null,
-  }, { meta: false });
-  */
 
   /*
   const [donorSelectionScope, cellTypeSelectionScope] = vc.addCoordination(
@@ -236,10 +219,7 @@ function generateLake2023Config() {
         featureList,
       ),
     ),
-    //vconcat(
-      //scatterplot,
     vconcat(violinPlots, dotPlot),
-    //),
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -272,7 +252,7 @@ function PageComponent() {
       <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <h1>Comparative visualization of single-cell atlas data</h1>
-          {/*<BiomarkerSelect />*/}
+          <BiomarkerSelect />
         </div>
       </div>
 
