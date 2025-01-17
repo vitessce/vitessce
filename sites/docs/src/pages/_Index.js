@@ -54,11 +54,11 @@ function AppStyles(props) {
         .footer {
           display: none;
         }
-        .navbar__item {
+        .navbar__item, .DocSearch-Button {
           opacity: 0.2;
           transition: opacity 0.25s;
         }
-        .navbar:hover .navbar__item {
+        .navbar:hover .navbar__item, .navbar:hover .DocSearch-Button {
           opacity: 1;
         }
         `) : ''}

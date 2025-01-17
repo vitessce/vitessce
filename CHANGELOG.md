@@ -1,4 +1,11 @@
 
+## 3.5.4
+
+### Patch Changes
+
+- Fix bug when loading shapes.parquet files from RPC-based zarr stores in vitessce-python. (`@vitessce/spatial-zarr`) ([#2013](https://github.com/vitessce/vitessce/pull/2013))
+
+
 ## 3.5.3
 
 ### Patch Changes
