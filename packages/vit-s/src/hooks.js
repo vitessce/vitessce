@@ -344,8 +344,9 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
   const { stripCuriePrefixes = true } = options || {};
   const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
 
+  const enabled = (featureType === 'gene');
   const termMappingQuery = useQuery({
-    enabled: (featureType === 'gene'),
+    enabled,
     queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
     queryFn: async () => getTermMapping('ensembl', 'hgnc'),
   });
