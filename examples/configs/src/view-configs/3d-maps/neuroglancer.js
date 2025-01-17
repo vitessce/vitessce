@@ -1,32 +1,3 @@
-// {
-//     'name': 'Neuroglancer View',
-//     'component': 'Neuroglancer',
-//     'x': 0,
-//     'y': 0,
-//     'w': 12,
-//     'h': 12,
-    // 'props': {
-    //   'layers': [
-    //     {
-    //       'type': 'image',
-    //       'source': 'precomputed',
-    //       'url': 'https://your-data-server.com/path/to/data',
-    //       'name': 'Example Layer',
-    //       'opacity': 1.0,
-    //       'visible': true
-    //     }
-    //   ],
-    //   'initialState': {
-    //     'navigation': {
-    //       'orientation': 'sagittal',
-    //       'zoomFactor': 2.0
-    //     }
-    //   }
-    // }
-//   }
-  
-
-
 import {
   VitessceConfig,
   CoordinationLevel as CL,
@@ -56,24 +27,24 @@ function generateThreeMinimalConfiguration() {
     // },
   });
 
-  const spatialThreeView = config.addView(dataset, 'neuroglancer').setProps({
-    layers: [
-      {
+  const spatialThreeView = config.addView(dataset, 'neuroglancer').setProps({"viewerState" : {
+    layers: {
+      greyscale: {
         type: 'image',
-        source: 'precomputed',
-        url: 'https://storage.googleapis.com/vitessce-data/0.0.31/master_release/tian/human_3d.raster.pyramid.ome.tiff',
-        name: 'Example Layer',
-        opacity: 1.0,
-        visible: 'true',
+        source: 'dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg',
       },
-    ],
-    initialState: {
-      navigation: {
-        orientation: 'sagittal',
-        zoomFactor: 2.0,
+      segmentation: {
+        type: 'segmentation',
+        source: 'dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation',
+        segments: [],
       },
     },
-  });
+    perspectiveZoom: 50,
+    navigation: {
+      zoomFactor: 8,
+    },
+    layout: "yz",
+  }});
   // const lcView = config.addView(dataset, 'layerControllerBeta');
   // config.linkViewsByObject([spatialThreeView, lcView], {
   //   spatialTargetZ: 0,
