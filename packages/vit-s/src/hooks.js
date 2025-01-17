@@ -361,6 +361,11 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
       ...(featureLabelsMap || []),
     ]);
   }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
-  const dataStatus = isFetching ? STATUS.LOADING : status;
+  // If not enabled, return success
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = (enabled
+    ? (isFetching ? STATUS.LOADING : status)
+    : STATUS.SUCCESS
+  );
   return [updatedFeatureLabelsMap, dataStatus];
 }
