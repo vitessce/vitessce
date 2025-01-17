@@ -21,6 +21,12 @@ module.exports = {
       theme: require('./src/pages/_prism-light-theme.cjs.js'),
       darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
     },
+    algolia: {
+      appId: 'VM9PGXT4A9',
+      indexName: 'vitessce',
+      apiKey: '59c232c6c375fc719395f345c9a41f2c',
+      contextualSearch: true,
+    },
     navbar: {
       title: 'Vitessce',
       logo: {
@@ -83,6 +89,10 @@ module.exports = {
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
+        },
+        {
+          type: 'search',
+          position: 'right',
         },
       ],
     },
