@@ -24,7 +24,7 @@ module.exports = {
     algolia: {
       appId: 'VM9PGXT4A9',
       indexName: 'vitessce',
-      apiKey: '59c232c6c375fc719395f345c9a41f2c',
+      apiKey: process.env.ALGOLIA_API_KEY || 'none',
       contextualSearch: true,
     },
     navbar: {

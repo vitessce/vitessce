@@ -72,6 +72,8 @@ jobs:
       - name: Build demo site and docs site (twice)
         if: steps.changesets.outputs.should-release == 'true'
         run: ./scripts/build-sites.sh --action
+        env:
+          ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
       - name: Configure AWS credentials
         if: steps.changesets.outputs.should-release == 'true'
         uses: aws-actions/configure-aws-credentials@v4
