@@ -71,7 +71,10 @@ import {
 // Register view type plugins
 import { DescriptionSubscriber } from '@vitessce/description';
 import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
-import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
+import {
+  EmbeddingScatterplotSubscriber,
+  DualEmbeddingScatterplotSubscriber,
+} from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
 import { SpatialSubscriber } from '@vitessce/spatial';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
@@ -221,6 +224,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DESCRIPTION, DescriptionSubscriber),
   makeViewType(ViewType.OBS_SETS, ObsSetsManagerSubscriber),
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
+  makeViewType(ViewType.DUAL_SCATTERPLOT, DualEmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
   makeViewType(ViewType.SPATIAL, SpatialSubscriber),
   makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
@@ -407,6 +411,11 @@ export const baseCoordinationTypes = [
     z.array(obsSetPath).nullable(),
   ),
   new PluginCoordinationType(
+    CoordinationType.OBS_SET_FILTER,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.OBS_SET_EXPANSION,
     null,
     z.array(obsSetPath).nullable(),
@@ -520,6 +529,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_FILTER, null, z.array(z.array(z.string())).nullable()),
   new PluginCoordinationType(
     CoordinationType.SAMPLE_SET_COLOR,
     null,

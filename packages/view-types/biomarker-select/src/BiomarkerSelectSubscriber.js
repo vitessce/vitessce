@@ -82,7 +82,7 @@ export function BiomarkerSelectSubscriber(props) {
           onFinish={() => {
             // eslint-disable-next-line no-console
             console.log('Done selecting');
-            /*
+            
             console.log(viewConfig);
             setViewConfig({
               ...viewConfig,
@@ -98,7 +98,7 @@ export function BiomarkerSelectSubscriber(props) {
                 },
               },
             });
-            */
+            
           }}
         />
       ) : null}
