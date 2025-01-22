@@ -1,43 +1,8 @@
-import React, {
-  useState, useEffect, useCallback, useMemo,
-} from 'react';
-import { extent, quantileSorted } from 'd3-array';
-import { isEqual } from 'lodash-es';
+import React, { useMemo } from 'react';
 import {
-  TitleInfo,
-  useReady, useUrls,
-  useDeckCanvasSize,
-  useUint8FeatureSelection,
-  useExpressionValueGetter,
-  useGetObsInfo,
-  useObsEmbeddingData,
-  useObsSetsData,
-  useFeatureSelection,
-  useObsFeatureMatrixIndices,
-  useFeatureLabelsData,
-  useMultiObsLabels,
-  useSampleSetsData,
-  useSampleEdgesData,
   useCoordination,
-  useLoaders,
-  useSetComponentHover,
-  useSetComponentViewInfo,
-  useInitialCoordination,
-  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
-import {
-  setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyArrays,
-} from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
-import {
-  Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
-  getPointSizeDevicePixels,
-  getPointOpacity,
-} from '@vitessce/scatterplot';
-import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
+import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber.js';
 
 
@@ -64,19 +29,27 @@ export function DualEmbeddingScatterplotSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{
-    sampleSetSelection
+    sampleSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DUAL_SCATTERPLOT], coordinationScopes);
 
-  const caseSampleSetSelection = useMemo(() => sampleSetSelection?.[0] ? [sampleSetSelection[0]] : null, [sampleSetSelection]);
-  const ctrlSampleSetSelection = useMemo(() => sampleSetSelection?.[1] ? [sampleSetSelection[1]] : null, [sampleSetSelection]);
+  const caseSampleSetSelection = useMemo(() => (
+    sampleSetSelection?.[0]
+      ? [sampleSetSelection[0]]
+      : null
+  ), [sampleSetSelection]);
+  const ctrlSampleSetSelection = useMemo(() => (
+    sampleSetSelection?.[1]
+      ? [sampleSetSelection[1]]
+      : null
+  ), [sampleSetSelection]);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-          <EmbeddingScatterplotSubscriber
-            {...props}
-            sampleSetSelection={caseSampleSetSelection}
-          />
+        <EmbeddingScatterplotSubscriber
+          {...props}
+          sampleSetSelection={caseSampleSetSelection}
+        />
       </div>
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
         <EmbeddingScatterplotSubscriber

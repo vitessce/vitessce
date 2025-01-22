@@ -139,7 +139,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
-  
+
   const {
     embeddingZoom: initialZoom,
     embeddingTargetX: initialTargetX,
@@ -149,9 +149,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
-  const sampleSetSelection = (sampleSetSelectionFromProps
-    ? sampleSetSelectionFromProps
-    : sampleSetSelectionFromCoordination
+  const sampleSetSelection = (sampleSetSelectionFromProps || sampleSetSelectionFromCoordination
   );
 
   const [width, height, deckRef] = useDeckCanvasSize();

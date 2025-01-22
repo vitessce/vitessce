@@ -80,10 +80,6 @@ export function BiomarkerSelectSubscriber(props) {
           getEdges={getEdges}
           stratifications={stratificationOptions}
           onFinish={() => {
-            // eslint-disable-next-line no-console
-            console.log('Done selecting');
-            
-            console.log(viewConfig);
             setViewConfig({
               ...viewConfig,
               coordinationSpace: {
@@ -98,7 +94,6 @@ export function BiomarkerSelectSubscriber(props) {
                 },
               },
             });
-            
           }}
         />
       ) : null}

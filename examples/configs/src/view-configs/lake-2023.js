@@ -164,7 +164,7 @@ function generateLake2023Config() {
       */
     ],
   });
-  
+
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
@@ -184,7 +184,7 @@ function generateLake2023Config() {
       cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']],
     },
   );
-  
+
   vc.linkViewsByObject([dualScatterplot], {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
