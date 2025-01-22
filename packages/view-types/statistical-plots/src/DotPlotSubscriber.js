@@ -8,11 +8,8 @@ import {
   useFeatureLabelsData,
   useSampleSetsData,
   useSampleEdgesData,
-  useMultiCoordinationValues,
-  useCoordinationScopes,
-  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
-import { ViewType, CoordinationType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS } from '@vitessce/utils';
 import CellSetExpressionPlotOptions from './CellSetExpressionPlotOptions.js';
 import DotPlot from './DotPlot.js';
@@ -30,8 +27,7 @@ import { useExpressionSummaries } from './dot-plot-hook.js';
  */
 export function DotPlotSubscriber(props) {
   const {
-    coordinationScopes: coordinationScopesRaw,
-    coordinationScopesBy: coordinationScopesByRaw,
+    coordinationScopes,
     removeGridComponent,
     theme,
     title = 'Dot Plot',
@@ -41,10 +37,6 @@ export function DotPlotSubscriber(props) {
 
   const classes = useStyles();
   const loaders = useLoaders();
-
-  // Acccount for possible meta-coordination.
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
-  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -71,12 +63,6 @@ export function DotPlotSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
   );
-  
-  const multiObsSetSelection = useMultiCoordinationValues(
-    CoordinationType.OBS_SET_SELECTION,
-    coordinationScopes,
-  );
-  console.log(multiObsSetSelection);
 
   const [width, height, containerRef] = useGridItemSize();
 
