@@ -405,16 +405,19 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.HEATMAP_TARGET_Y, 0, z.number()),
   new PluginCoordinationType(CoordinationType.OBS_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.OBS_HIGHLIGHT, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.OBS_SELECTION, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_SELECTION,
     null,
     z.array(obsSetPath).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.OBS_SELECTION_MODE, null, z.enum(['obsSelection', 'obsSetSelection']).nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_FILTER,
     null,
     z.array(obsSetPath).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.OBS_FILTER_MODE, null, z.enum(['obsFilter', 'obsSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_EXPANSION,
     null,
@@ -441,6 +444,18 @@ export const baseCoordinationTypes = [
     null,
     z.array(z.string()).nullable(),
   ),
+  new PluginCoordinationType(
+    CoordinationType.FEATURE_SET_SELECTION,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.FEATURE_SELECTION_MODE, null, z.enum(['featureSelection', 'featureSetSelection']).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.FEATURE_SET_FILTER,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     null,
@@ -528,8 +543,12 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
+  new PluginCoordinationType(CoordinationType.SAMPLE_FILTER, null, z.array(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SELECTION, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_FILTER, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SELECTION_MODE, null, z.enum(['sampleSelection', 'sampleSetSelection']).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_FILTER_MODE, null, z.enum(['sampleFilter', 'sampleSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.SAMPLE_SET_COLOR,
     null,
