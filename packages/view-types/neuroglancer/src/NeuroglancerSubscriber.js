@@ -1,57 +1,46 @@
-import React, { useState, useEffect, useRef } from 'react';
-import NeuroglancerViewer from '@vitessce/neuroglancer-plugin';
-import zIndex from '@material-ui/core/styles/zIndex';
+import React, {
+  useState, useCallback, useMemo,
+} from 'react';
+import {
+  TitleInfo,
+
+} from '@vitessce/vit-s';
+// import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
+// import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
+// import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
+import { Neuroglancer } from './Neuroglancer.js';
+
 
 export function NeuroglancerSubscriber(props) {
-  // const [viewerState, setViewerState] = useState(props.viewerState);
-  const [updatedState, setUpdatedState] = useState(props.viewerState)
-
-  useEffect(() => {
-    if (updatedState && JSON.stringify(props.viewerState) !== JSON.stringify(updatedState)) {
-      console.log("Props viewerState updated:", props.viewerState);
-      // setViewerState(updatedState); // Update local state
-      // lastViewerStateRef.current = props.viewerState; // Update the ref to match the new props
-    }
-  }, [updatedState]); // Only run when props.viewerState changes
-
-  // This function handles updates when the viewer state changes
-  function handleStateChanged(newState) {
-    // Avoid updating if the state is already being updated (prevents recursion)
-    console.log("new state", newState.layout)
-    if (JSON.stringify(newState) === JSON.stringify(updatedState)) {
-      console.log("State is unchanged. Skipping update.");
-      return; 
-    }
-
-    // console.log("State changed:", newState);
-    // let updatedStateChanged = { ...newState };
-    // updatedStateChanged.layout = 'yz-3d'
-   
-    // // setViewerState(updatedStateChanged); 
-    // setUpdatedState(updatedStateChanged)
-  }
-
-  function colorChange(){
-
-
-    console.log("State changed:", updatedState);
-    let updatedStateChanged = { ...updatedState };
-    updatedStateChanged.layout = 'yz-3d'
-   
-    // setViewerState(updatedStateChanged); 
-    setUpdatedState(updatedStateChanged)
-
-
-
-  }
+  const {
+    uuid,
+    coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
+    closeButtonVisible,
+    downloadButtonVisible,
+    removeGridComponent,
+    observationsLabelOverride,
+    subobservationsLabelOverride: subobservationsLabel = 'molecule',
+    theme,
+    disableTooltip = false,
+    title = 'Neuroglancer',
+    bitmaskValueIsIndex = false, // TODO: move to coordination type
+    three: threeFor3d = false,
+  } = props;
 
   return (
-    <>
-      <button  style={{position:"absolute", backgroundColor: "red", zIndex:2000, height:"20px"}} onClick = {colorChange}></button>
-      <NeuroglancerViewer
-        viewerState={updatedState} // Controlled by local state
-        onViewerStateChanged={handleStateChanged} // Pass the handler to Neuroglancer
-      />
-    </>
+      <TitleInfo
+        title={title}
+        isSpatial
+      // urls={urls}
+        theme={theme}
+        closeButtonVisible={closeButtonVisible}
+        downloadButtonVisible={downloadButtonVisible}
+        removeGridComponent={removeGridComponent}
+        isReady
+      >
+      <Neuroglancer {...props} />
+      </TitleInfo>
+
   );
 }

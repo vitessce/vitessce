@@ -27,25 +27,57 @@ function generateThreeMinimalConfiguration() {
     // },
   });
 
-  const spatialThreeView = config.addView(dataset, 'neuroglancer').setProps({"viewerState" : {
-    layers: {
-      greyscale: {
-        type: 'image',
-        source: 'dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg',
-      },
-      segmentation: {
+  const spatialThreeView = config.addView(dataset, 'neuroglancer').setProps({ viewerState: {
+    dimensions: {
+      x: [
+        1e-9,
+        'm',
+      ],
+      y: [
+        1e-9,
+        'm',
+      ],
+      z: [
+        1e-9,
+        'm',
+      ],
+    },
+    position: [
+      49.5,
+      1000.5,
+      5209.5,
+    ],
+    crossSectionScale: 1,
+    projectionOrientation: [
+      -0.636204183101654,
+      -0.5028395652770996,
+      0.5443811416625977,
+      0.2145828753709793,
+    ],
+    projectionScale: 1024,
+    layers: [
+      {
         type: 'segmentation',
-        source: 'dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation',
-        segments: [],
+        source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/invasive_meshes',
+        tab: 'segments',
+        segments: [
+          '2',
+          '3',
+          '4',
+          '5',
+        ],
+        name: 'invasive_meshes',
       },
+    ],
+    showSlices: false,
+    selectedLayer: {
+      visible: true,
+      layer: 'invasive_meshes',
     },
-    perspectiveZoom: 50,
-    navigation: {
-      zoomFactor: 8,
-    },
-    layout: "yz",
-  }});
-  // const lcView = config.addView(dataset, 'layerControllerBeta');
+    layout: '3d',
+
+  } });
+  const lcView = config.addView(dataset, 'layerControllerBeta');
   // config.linkViewsByObject([spatialThreeView, lcView], {
   //   spatialTargetZ: 0,
   //   spatialTargetT: 0,
@@ -89,7 +121,7 @@ function generateThreeMinimalConfiguration() {
   //   ]),
   // });
 
-  config.layout(hconcat(spatialThreeView));
+  config.layout(hconcat(spatialThreeView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;

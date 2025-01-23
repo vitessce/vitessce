@@ -1,43 +1,35 @@
-// import React from 'react';
-// import Neuroglancer from '@janelia-flyem/react-neuroglancer';
+import React, { useState, useEffect } from 'react';
+import NeuroglancerViewer from '@vitessce/neuroglancer-plugin';
+
+export function Neuroglancer(props) {
+  const [updatedState, setUpdatedState] = useState(props.viewerState);
+
+  useEffect(() => {
+    if (updatedState && JSON.stringify(props.viewerState) !== JSON.stringify(updatedState)) {
+      console.log('Props viewerState updated:', props.viewerState);
+    }
+  }, [updatedState]);
 
 
-// const NeuroglancerViewer = (props) => {
-//   // const imageSourceUrl = 'https://data-2.vitessce.io/data/redBloodCell.ome.tiff';
-//   const onViewerStateChanged = () => {
-//     console.log("state changed", props)
-//   }
+  function handleStateChanged(newState) {
+    if (JSON.stringify(newState) === JSON.stringify(updatedState)) {
+      console.log('State is unchanged. Skipping update.');
+    }
+  }
 
-//   const viewerState = {
-//     layers: {
-//         grayscale: {
-//             type: "image",
-//             source:
-//               "dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg"
-//         },
-//         segmentation: {
-//             type: "segmentation",
-//             source:
-//               "dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation"
-//         }
-//     },
-//     perspectiveZoom: 20,
-//     navigation: {
-//         zoomFactor: 8
-//     }
-// }
-//   return (
-//     <div>
-//       <Neuroglancer
-//         viewerState={viewerState}
-//         perspectiveZoom={viewerState.perspectiveZoom}
-//         onViewerStateChanged={onViewerStateChanged}
-//            brainMapsClientId="NOT_A_VALID_ID"
-//   //  ngServer="https://clio-ng.janelia.org"
+  function colorChange() {
+    const updatedStateChanged = { ...updatedState };
+    updatedStateChanged.layout = 'yz-3d';
+    setUpdatedState(updatedStateChanged);
+  }
 
-//       />
-//     </div>
-//   );
-// };
-
-// export default NeuroglancerViewer;
+  return (
+    <>
+      {/* <button  style={{position:"absolute", backgroundColor: "red", zIndex:2000, height:"20px"}} onClick = {colorChange}></button> */}
+      <NeuroglancerViewer
+        viewerState={updatedState}
+        onViewerStateChanged={handleStateChanged}
+      />
+    </>
+  );
+}
