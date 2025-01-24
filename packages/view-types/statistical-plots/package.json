@@ -43,6 +43,7 @@
     "d3-axis": "catalog:",
     "d3-selection": "catalog:",
     "d3-format": "catalog:",
+    "d3-hierarchy": "catalog:",
     "vega-scale": "catalog:",
     "lodash-es": "catalog:",
     "react-aria": "catalog:",

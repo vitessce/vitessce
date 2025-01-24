@@ -171,6 +171,7 @@ function generateLake2023Config() {
   const featureList = vc.addView(dataset, 'featureList');
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
+  const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
 
   // TODO: construct coordination scopes for sampleSetSelection with names:
   // - case
@@ -191,8 +192,8 @@ function generateLake2023Config() {
     embeddingPointsVisible: false,
   }, { meta: false });
 
-  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
+  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap], {
     sampleSetSelection: sampleSetScope_caseControl,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
@@ -216,7 +217,10 @@ function generateLake2023Config() {
           obsSets,
           obsSetSizes,
         ),
-        featureList,
+        hconcat(
+          featureList,
+          treemap
+        ),
       ),
     ),
     vconcat(violinPlots, dotPlot),
@@ -231,6 +235,7 @@ function PageComponent() {
   const CellSets = usePageModeView('cell-sets');
   const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
+  const Treemap = usePageModeView('treemap');
 
   return (
     <>
@@ -264,6 +269,9 @@ function PageComponent() {
             <div style={{ width: '50%' }}><h2>Healthy Reference</h2></div>
           </div>
           <h3>Cell type-level representations</h3>
+          <div style={{ width: '100%', height: '300px' }}>
+            <Treemap />
+          </div>
           <div style={{ width: '100%', height: '500px' }}>
             <DualScatterplot />
           </div>
