@@ -1,31 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import NeuroglancerViewer from '@vitessce/neuroglancer-plugin';
 
-export function Neuroglancer(props) {
-  const [updatedState, setUpdatedState] = useState(props.viewerState);
-
-  useEffect(() => {
-    if (updatedState && JSON.stringify(props.viewerState) !== JSON.stringify(updatedState)) {
-      console.log('Props viewerState updated:', props.viewerState);
-    }
-  }, [updatedState]);
-
-
+export function Neuroglancer({ viewerState, onViewerStateChanged }) {
+  const [updatedState, setUpdatedState] = useState(viewerState);
   function handleStateChanged(newState) {
-    if (JSON.stringify(newState) === JSON.stringify(updatedState)) {
-      console.log('State is unchanged. Skipping update.');
+    if (JSON.stringify(newState) !== JSON.stringify(updatedState)) {
+      onViewerStateChanged(newState);
     }
   }
-
-  function colorChange() {
-    const updatedStateChanged = { ...updatedState };
-    updatedStateChanged.layout = 'yz-3d';
-    setUpdatedState(updatedStateChanged);
-  }
-
+  const changeLayout = () => {
+    setUpdatedState(prevState => ({
+      ...prevState,
+      layout: '4panel',
+    }));
+  };
   return (
     <>
-      {/* <button  style={{position:"absolute", backgroundColor: "red", zIndex:2000, height:"20px"}} onClick = {colorChange}></button> */}
+      {/* Test button to change the layout and get the updated state */}
+      <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <NeuroglancerViewer
         viewerState={updatedState}
         onViewerStateChanged={handleStateChanged}

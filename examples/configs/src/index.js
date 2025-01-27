@@ -70,7 +70,7 @@ import { humanLiver } from './view-configs/3d-maps/human-liver.js';
 import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
-import { humanLiverNeuroglancer } from './view-configs/3d-maps/neuroglancer.js';
+import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
@@ -175,7 +175,7 @@ export const configs = {
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
-  'tian-neuroglancer': humanLiverNeuroglancer,
+  'melanoma-neuroglancer': melanomaNeuroglancer,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,
