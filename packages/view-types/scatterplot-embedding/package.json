@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@mui/material": "catalog:",
+    "@mui/material": "catalog:mui",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/legend": "workspace:*",
     "@vitessce/scatterplot": "workspace:*",

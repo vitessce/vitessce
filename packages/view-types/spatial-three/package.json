@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@mui/material": "catalog:",
+    "@mui/material": "catalog:mui",
     "@react-three/fiber": "catalog:",
     "@react-three/drei": "catalog:",
     "@react-three/xr": "catalog:",

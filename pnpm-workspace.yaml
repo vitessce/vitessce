@@ -50,8 +50,6 @@ catalog:
   "apache-arrow": ^17.0.0
   "parquet-wasm": ^0.6.1
   # Material UI
-  "@mui/material": 5.16.14
-  "@mui/icons-material": 5.16.14
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19
@@ -112,3 +110,7 @@ catalogs:
     "@turf/boolean-within": ^6.5.0
     "@turf/centroid": ^6.5.0
     "@turf/helpers": ^6.5.0
+  mui:
+    "@mui/material": 6.4.1
+    "@mui/icons-material": 6.4.1
+    "@mui/styles": 6.4.1

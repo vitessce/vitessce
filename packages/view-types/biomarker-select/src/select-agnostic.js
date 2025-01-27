@@ -117,8 +117,10 @@ export function SelectAgnostic(props) {
             )}
             ListboxComponent={ListboxComponent}
             getOptionLabel={option => option.label}
-            renderOption={option => (
-              <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+            renderOption={(renderProps, option) => (
+              <li {...renderProps}>
+                <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+              </li>
             )}
           />
         </Grid>

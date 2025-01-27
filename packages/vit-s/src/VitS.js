@@ -1,8 +1,5 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
-import {
-  ThemeProvider,
-  StylesProvider,
-} from '@mui/material';
+import { ThemeProvider } from '@mui/material';
 import {
   QueryClient,
   QueryClientProvider,
@@ -25,7 +22,6 @@ import {
   logConfig,
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
-import { createGenerateClassName } from './mui-utils.js';
 import { AsyncFunctionsContext } from './contexts.js';
 
 
@@ -231,49 +227,45 @@ export function VitS(props) {
   }, [success, configKey]);
 
   return success ? (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider
-            createStore={createViewConfigStoreClosure}
-            {...(remountOnUidChange ? ({ key: configKey }) : {})}
-          >
-            <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={stores}
-                >
-                  {children}
-                </VitessceGrid>
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
-              </AsyncFunctionsContext.Provider>
-            </AuxiliaryProvider>
-          </ViewConfigProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </StylesProvider>
+    <ThemeProvider theme={muiTheme[theme]}>
+      <QueryClientProvider client={queryClient}>
+        <ViewConfigProvider
+          createStore={createViewConfigStoreClosure}
+          {...(remountOnUidChange ? ({ key: configKey }) : {})}
+        >
+          <AuxiliaryProvider createStore={createAuxiliaryStore}>
+            <AsyncFunctionsContext.Provider value={asyncFunctions}>
+              <VitessceGrid
+                pageMode={pageMode}
+                success={success}
+                configKey={configKey}
+                viewTypes={viewTypes}
+                fileTypes={fileTypes}
+                coordinationTypes={coordinationTypes}
+                config={configOrWarning}
+                rowHeight={rowHeight}
+                height={height}
+                theme={theme}
+                isBounded={isBounded}
+                stores={stores}
+              >
+                {children}
+              </VitessceGrid>
+              <CallbackPublisher
+                onWarn={onWarn}
+                onConfigChange={onConfigChange}
+                onLoaderChange={onLoaderChange}
+                validateOnConfigChange={validateOnConfigChange}
+                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+              />
+            </AsyncFunctionsContext.Provider>
+          </AuxiliaryProvider>
+        </ViewConfigProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   ) : (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <Warning {...configOrWarning} />
-      </ThemeProvider>
-    </StylesProvider>
+    <ThemeProvider theme={muiTheme[theme]}>
+      <Warning {...configOrWarning} />
+    </ThemeProvider>
   );
 }

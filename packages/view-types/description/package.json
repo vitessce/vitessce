@@ -30,7 +30,8 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@mui/material": "catalog:",
+    "@mui/material": "catalog:mui",
+    "@mui/styles": "catalog:mui",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "react-markdown": "^9.0.1"
