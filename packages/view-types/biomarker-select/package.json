@@ -33,7 +33,7 @@
     "@mui/material": "catalog:mui",
     "@mui/icons-material": "catalog:mui",
     "@mui/styles": "catalog:mui",
-    "@mui/x-data-grid": "^4.0.2",
+    "@mui/x-data-grid": "^7.24.1",
     "@tanstack/react-query": "^4.29.12",
     "react-window": "^1.8.10",
     "@vitessce/constants-internal": "workspace:*",
