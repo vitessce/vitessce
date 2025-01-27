@@ -3,6 +3,7 @@ import {
   TitleInfo,
 } from '@vitessce/vit-s';
 
+import { ViewHelpMapping } from '@vitessce/constants-internal';
 import { Neuroglancer } from './Neuroglancer.js';
 
 export function NeuroglancerSubscriber(props) {
@@ -13,11 +14,13 @@ export function NeuroglancerSubscriber(props) {
     theme,
     title = 'Neuroglancer',
     viewerState: viewerStateInitial = null,
+    helpText = ViewHelpMapping.NEUROGLANCER,
   } = props;
 
   return (
     <TitleInfo
       title={title}
+      helpText={helpText}
       isSpatial
       theme={theme}
       closeButtonVisible={closeButtonVisible}

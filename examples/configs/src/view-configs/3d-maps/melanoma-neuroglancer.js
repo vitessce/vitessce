@@ -16,7 +16,7 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanoma',
     },
   });
-  const spatialBetaView = config.addView(dataset, 'neuroglancer').setProps({ viewerState: {
+  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({ viewerState: {
     dimensions: {
       x: [
         1e-9,
@@ -67,7 +67,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   } });
 
-  config.layout(hconcat(spatialBetaView));
+  config.layout(hconcat(neuroglancerView));
 
   const configJSON = config.toJSON();
   return configJSON;
