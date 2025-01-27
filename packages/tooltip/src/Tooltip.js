@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Paper, Popper } from '@material-ui/core';
+import { Paper, Popper } from '@mui/material';
 import { useVitessceContainer } from '@vitessce/vit-s';
 import { styles } from './styles.js';
 

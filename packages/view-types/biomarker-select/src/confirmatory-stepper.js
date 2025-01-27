@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@material-ui/core';
+import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@mui/material';
 import { ConfirmatoryCart } from './cart.js';
 import { SelectAgnostic } from './select-agnostic.js';
 import { SelectSpecific } from './select-specific.js';

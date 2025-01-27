@@ -1,4 +1,4 @@
-import { createTheme, colors } from '@material-ui/core';
+import { createTheme, colors } from '@mui/material';
 
 const { grey } = colors;
 

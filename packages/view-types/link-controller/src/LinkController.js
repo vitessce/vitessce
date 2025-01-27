@@ -7,7 +7,7 @@ import {
 import {
   Checkbox,
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 
 
 export default function LinkController(props) {

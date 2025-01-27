@@ -7,7 +7,7 @@ import {
   TableRow,
   Slider,
   makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';

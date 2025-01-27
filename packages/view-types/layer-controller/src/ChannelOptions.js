@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@material-ui/core';
-import { MoreVert as MoreVertIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem } from '@mui/material';
+import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSpanStyles } from './styles.js';
 import ColorPalette from './ColorPalette.js';

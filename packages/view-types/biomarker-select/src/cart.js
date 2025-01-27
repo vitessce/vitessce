@@ -1,6 +1,6 @@
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useStyles } from './styles.js';
 
 

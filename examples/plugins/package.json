@@ -16,7 +16,7 @@
   ],
   "scripts": {},
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@mui/material": "catalog:",
     "@vitessce/abstract": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",

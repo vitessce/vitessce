@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   QueryClient,
   QueryClientProvider,

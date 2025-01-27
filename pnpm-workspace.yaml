@@ -1,12 +1,12 @@
 packages:
-  - 'packages/*'
-  - 'packages/view-types/*'
-  - 'packages/file-types/*'
-  - 'packages/utils/*'
-  - 'packages/main/*'
-  - 'sites/*'
-  - 'examples/*'
-  - '!consumer'
+  - "packages/*"
+  - "packages/view-types/*"
+  - "packages/file-types/*"
+  - "packages/utils/*"
+  - "packages/main/*"
+  - "sites/*"
+  - "examples/*"
+  - "!consumer"
 
 catalog:
   "zustand": ^3.5.10
@@ -50,8 +50,8 @@ catalog:
   "apache-arrow": ^17.0.0
   "parquet-wasm": ^0.6.1
   # Material UI
-  "@material-ui/core": ~4.12.3
-  "@material-ui/icons": ~4.11.2
+  "@mui/material": 5.16.14
+  "@mui/icons-material": 5.16.14
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19

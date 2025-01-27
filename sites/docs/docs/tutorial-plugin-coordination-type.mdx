@@ -1,6 +1,6 @@
 ---
 id: tutorial-plugin-coordination-type
-title: 'Tutorial: Develop a plugin coordination type'
+title: "Tutorial: Develop a plugin coordination type"
 sidebar_label: Plugin Coordination Type
 ---
 
@@ -9,8 +9,8 @@ See the [plugin coordination type development](https://github.com/vitessce/vites
 ### Minimal example
 
 ```js
-import React from 'react';
-import { Slider } from '@material-ui/core';
+import React from "react";
+import { Slider } from "@mui/material";
 import {
   Vitessce,
   CoordinationType,
@@ -18,15 +18,12 @@ import {
   registerPluginCoordinationType,
   TitleInfo,
   useCoordination,
-} from 'vitessce';
-import 'vitessce/dist/es/production/static/css/index.css';
-import './index.css';
+} from "vitessce";
+import "vitessce/dist/es/production/static/css/index.css";
+import "./index.css";
 
 function MyPluginSlider(props) {
-  const {
-    myCustomCoordinationType,
-    setMyCustomCoordinationType,
-  } = props;
+  const { myCustomCoordinationType, setMyCustomCoordinationType } = props;
 
   function handleChange(event, newValue) {
     setMyCustomCoordinationType(newValue);
@@ -51,21 +48,15 @@ function MyPluginSliderSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    title = 'My plugin slider',
+    title = "My plugin slider",
   } = props;
 
   // Get "props" from the coordination space.
-  const [{
-    myCustomCoordinationType,
-  }, {
-    setMyCustomCoordinationType,
-  }] = useCoordination(
-    [
-      CoordinationType.DATASET,
-      'myCustomCoordinationType',
-    ],
-    coordinationScopes,
-  );
+  const [{ myCustomCoordinationType }, { setMyCustomCoordinationType }] =
+    useCoordination(
+      [CoordinationType.DATASET, "myCustomCoordinationType"],
+      coordinationScopes
+    );
 
   return (
     <TitleInfo
@@ -82,35 +73,29 @@ function MyPluginSliderSubscriber(props) {
   );
 }
 
-registerPluginCoordinationType(
-  'myCustomCoordinationType',
-  0.75,
-);
+registerPluginCoordinationType("myCustomCoordinationType", 0.75);
 
 // Register the plugin view type.
-registerPluginViewType(
-  'myCustomSlider',
-  MyPluginSliderSubscriber,
-  [
-    CoordinationType.DATASET,
-    'myCustomCoordinationType',
-  ],
-);
+registerPluginViewType("myCustomSlider", MyPluginSliderSubscriber, [
+  CoordinationType.DATASET,
+  "myCustomCoordinationType",
+]);
 
 // Use the plugin view in the configuration.
 const configWithPluginCoordinationType = {
-  name: 'Test plugin views and coordination types',
-  version: '1.0.9',
-  description: 'Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.',
+  name: "Test plugin views and coordination types",
+  version: "1.0.9",
+  description:
+    "Demonstration of a plugin coordination type implementation. The left sliders should be coordinated, while the right sliders are independent.",
   public: true,
   datasets: [
     {
-      uid: 'plugin-test-dataset',
-      name: 'Plugin test dataset',
+      uid: "plugin-test-dataset",
+      name: "Plugin test dataset",
       files: [],
     },
   ],
-  initStrategy: 'auto',
+  initStrategy: "auto",
   coordinationSpace: {
     myCustomCoordinationType: {
       A: 0.5,
@@ -120,9 +105,9 @@ const configWithPluginCoordinationType = {
   },
   layout: [
     {
-      component: 'description',
+      component: "description",
       props: {
-        title: 'Description',
+        title: "Description",
       },
       x: 0,
       y: 0,
@@ -130,9 +115,9 @@ const configWithPluginCoordinationType = {
       h: 2,
     },
     {
-      component: 'myCustomSlider',
+      component: "myCustomSlider",
       coordinationScopes: {
-        myCustomCoordinationType: 'A',
+        myCustomCoordinationType: "A",
       },
       x: 2,
       y: 0,
@@ -140,9 +125,9 @@ const configWithPluginCoordinationType = {
       h: 1,
     },
     {
-      component: 'myCustomSlider',
+      component: "myCustomSlider",
       coordinationScopes: {
-        myCustomCoordinationType: 'A',
+        myCustomCoordinationType: "A",
       },
       x: 2,
       y: 1,
@@ -150,9 +135,9 @@ const configWithPluginCoordinationType = {
       h: 1,
     },
     {
-      component: 'myCustomSlider',
+      component: "myCustomSlider",
       coordinationScopes: {
-        myCustomCoordinationType: 'B',
+        myCustomCoordinationType: "B",
       },
       x: 4,
       y: 0,
@@ -160,7 +145,7 @@ const configWithPluginCoordinationType = {
       h: 1,
     },
     {
-      component: 'myCustomSlider',
+      component: "myCustomSlider",
       x: 4,
       y: 1,
       w: 2,
@@ -179,4 +164,3 @@ export default function MyApp() {
   );
 }
 ```
-

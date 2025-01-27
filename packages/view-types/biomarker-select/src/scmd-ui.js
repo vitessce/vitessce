@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Button, ButtonGroup, Grid, Tooltip } from '@material-ui/core';
+import { Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
 import { ConfirmatoryStepper } from './confirmatory-stepper.js';
 import { useStyles } from './styles.js';
 
