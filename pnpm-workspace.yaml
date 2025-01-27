@@ -114,3 +114,5 @@ catalogs:
     "@mui/material": 6.4.1
     "@mui/icons-material": 6.4.1
     "@mui/styles": 6.4.1
+    "@mui/material-pigment-css": 6.4.1
+    "@pigment-css/react": 0.0.30

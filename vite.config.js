@@ -2,6 +2,15 @@ import react from '@vitejs/plugin-react';
 import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { pigment } from '@pigment-css/vite-plugin';
+
+
+/**
+ * @type {import('@pigment-css/vite-plugin').PigmentOptions}
+ */
+const pigmentConfig = {
+  transformLibraries: ['@mui/material'],
+};
 
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
@@ -49,12 +58,17 @@ export function serveTestFixtures() {
 }
 
 // For tests.
-export default defineConfig({
+const config = defineConfig({
+  optimizeDeps: {
+    // https://github.com/mui/pigment-css/issues/176
+    include: ['prop-types', 'react-is'],
+  },
   plugins: [
     react({
       jsxRuntime: 'classic',
     }),
     serveTestFixtures(),
+    pigment(pigmentConfig),
   ],
   test: {
     api: 4204,
@@ -97,3 +111,5 @@ export default defineConfig({
     exclude: [],
   },
 });
+
+export default config;
