@@ -1,15 +1,26 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import Tooltip from './Tooltip.js';
+import { styled } from '@mui/material/styles';
+import Tooltip from './Tooltip.jsx';
 
-const useStyles = makeStyles(theme => ({
-  cellEmphasisCrosshair: {
+const PREFIX = 'Tooltip2D';
+
+const classes = {
+  cellEmphasisCrosshair: `${PREFIX}-cellEmphasisCrosshair`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.cellEmphasisCrosshair}`]: {
     zIndex: 50,
     position: 'absolute',
     pointerEvents: 'none',
     boxSizing: 'border-box',
     backgroundColor: theme.palette.secondaryForeground,
-  },
+  }
 }));
 
 /**
@@ -36,7 +47,7 @@ export default function Tooltip2D(props) {
     children,
   } = props;
 
-  const classes = useStyles();
+
 
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
@@ -46,7 +57,7 @@ export default function Tooltip2D(props) {
   const isTooltipVisible = (parentUuid === sourceUuid);
   const crosshairWidth = 1;
   return (
-    <>
+    (<Root>
       {isTooltipVisible ? (
         <Tooltip
           x={x}
@@ -82,6 +93,6 @@ export default function Tooltip2D(props) {
           ) : null}
         </>
       )}
-    </>
+    </Root>)
   );
 }

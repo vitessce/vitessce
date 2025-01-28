@@ -1,14 +1,20 @@
 import React, { useMemo } from 'react';
-import { makeStyles } from '@mui/styles';
+import { styled } from '@mui/material/styles';
 import Legend from './Legend.js';
 
 
-const useStyles = makeStyles(() => ({
-  multiLegend: {
+const PREFIX = 'MultiLegend';
+
+const classes = {
+  multiLegend: `${PREFIX}-multiLegend`
+};
+
+const Root = styled('div')(() => ({
+  [`&.${classes.multiLegend}`]: {
     position: 'absolute',
     top: '0px',
     right: '0px',
-  },
+  }
 }));
 
 export default function MultiLegend(props) {
@@ -30,7 +36,7 @@ export default function MultiLegend(props) {
     pointLayerCoordination,
   } = props;
 
-  const classes = useStyles();
+
 
   const reversedSegmentationLayerScopes = useMemo(() => (
     [...(segmentationLayerScopes || [])].reverse()
@@ -43,7 +49,7 @@ export default function MultiLegend(props) {
   ), [pointLayerScopes]);
 
   return (
-    <div className={classes.multiLegend}>
+    (<Root className={classes.multiLegend}>
       {/* Points */}
       {pointLayerScopes ? reversedPointLayerScopes.flatMap((layerScope) => {
         const layerCoordination = pointLayerCoordination[0][layerScope];
@@ -196,6 +202,6 @@ export default function MultiLegend(props) {
           ) : null;
         }) : null);
       }) : null}
-    </div>
+    </Root>)
   );
 }

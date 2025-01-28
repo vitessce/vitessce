@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Paper, Popper } from '@mui/material';
 import { useVitessceContainer } from '@vitessce/vit-s';
-import { styles } from './styles.js';
+import { styles } from './TooltipStyles.js';
 
 export default function Tooltip(props) {
   const {

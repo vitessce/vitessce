@@ -1,28 +1,43 @@
 import React, { useMemo } from 'react';
+import { styled } from '@mui/material/styles';
 import clsx from 'clsx';
 import { makeStyles, Typography } from '@mui/material';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
-const useStyles = makeStyles(() => ({
-  channelNamesLegendContainer: {
+const PREFIX = 'ChannelNamesLegend';
+
+const classes = {
+  channelNamesLegendContainer: `${PREFIX}-channelNamesLegendContainer`,
+  channelNamesLegendLayer: `${PREFIX}-channelNamesLegendLayer`,
+  channelNamesRow: `${PREFIX}-channelNamesRow`,
+  channelNamesCol: `${PREFIX}-channelNamesCol`,
+  channelNameText: `${PREFIX}-channelNameText`
+};
+
+const Root = styled('div')(() => ({
+  [`&.${classes.channelNamesLegendContainer}`]: {
     position: 'absolute',
     bottom: '0px',
     left: '0px',
     paddingLeft: '10px',
     paddingBottom: '10px',
   },
-  channelNamesLegendLayer: {
+
+  [`& .${classes.channelNamesLegendLayer}`]: {
     display: 'flex',
   },
-  channelNamesRow: {
+
+  [`& .${classes.channelNamesRow}`]: {
     flexDirection: 'column',
   },
-  channelNamesCol: {
+
+  [`& .${classes.channelNamesCol}`]: {
     flexDirection: 'row',
   },
-  channelNameText: {
+
+  [`& .${classes.channelNameText}`]: {
     marginRight: '10px',
-  },
+  }
 }));
 
 export default function ChannelNamesLegend(props) {
@@ -35,14 +50,14 @@ export default function ChannelNamesLegend(props) {
     imageChannelCoordination,
   } = props;
 
-  const classes = useStyles();
+
 
   const reversedImageLayerScopes = useMemo(() => (
     [...(imageLayerScopes || [])].reverse()
   ), [imageLayerScopes]);
 
   return (
-    <div className={classes.channelNamesLegendContainer}>
+    (<Root className={classes.channelNamesLegendContainer}>
       {/* Images */}
       {imageLayerScopes ? reversedImageLayerScopes.map((layerScope) => {
         const layerCoordination = imageLayerCoordination[0][layerScope];
@@ -107,6 +122,6 @@ export default function ChannelNamesLegend(props) {
           </div>
           ) : null);
       }) : null}
-    </div>
+    </Root>)
   );
 }

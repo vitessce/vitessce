@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
+import { styled } from '@mui/material/styles';
 import clsx from 'clsx';
-import { makeStyles } from '@mui/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
@@ -10,8 +10,19 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const useStyles = makeStyles(() => ({
-  legend: {
+const PREFIX = 'Legend';
+
+const classes = {
+  legend: `${PREFIX}-legend`,
+  legendAbsolute: `${PREFIX}-legendAbsolute`,
+  legendRelative: `${PREFIX}-legendRelative`,
+  legendHighContrast: `${PREFIX}-legendHighContrast`,
+  legendLowContrast: `${PREFIX}-legendLowContrast`,
+  legendInvisible: `${PREFIX}-legendInvisible`
+};
+
+const Root = styled('div')(() => ({
+  [`&.${classes.legend}`]: {
     top: '2px',
     right: '2px',
     zIndex: '100',
@@ -27,24 +38,29 @@ const useStyles = makeStyles(() => ({
       position: 'relative',
     },
   },
-  legendAbsolute: {
+
+  [`&.${classes.legendAbsolute}`]: {
     position: 'absolute',
     display: 'inline-block',
   },
-  legendRelative: {
+
+  [`&.${classes.legendRelative}`]: {
     position: 'relative',
     marginBottom: '2px',
     display: 'block',
   },
-  legendHighContrast: {
+
+  [`&.${classes.legendHighContrast}`]: {
     backgroundColor: 'rgba(215, 215, 215, 0.7)',
   },
-  legendLowContrast: {
+
+  [`&.${classes.legendLowContrast}`]: {
     backgroundColor: 'rgba(215, 215, 215, 0.2)',
   },
-  legendInvisible: {
+
+  [`&.${classes.legendInvisible}`]: {
     display: 'none',
-  },
+  }
 }));
 
 const titleHeight = 10;
@@ -93,7 +109,7 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const classes = useStyles();
+
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
@@ -375,7 +391,7 @@ export default function Legend(props) {
   ]);
 
   return (
-    <div
+    (<Root
       className={clsx(classes.legend, {
         [classes.legendRelative]: positionRelative,
         [classes.legendAbsolute]: !positionRelative,
@@ -391,6 +407,6 @@ export default function Legend(props) {
           height: `${dynamicHeight}px`,
         }}
       />
-    </div>
+    </Root>)
   );
 }

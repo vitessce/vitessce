@@ -3,13 +3,14 @@ import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { pigment } from '@pigment-css/vite-plugin';
-
+import { muiTheme } from '@vitessce/vit-s'
 
 /**
  * @type {import('@pigment-css/vite-plugin').PigmentOptions}
  */
 const pigmentConfig = {
-  transformLibraries: ['@mui/material'],
+  transformLibraries: ['@mui/material', ],
+  theme: muiTheme,
 };
 
 /**
