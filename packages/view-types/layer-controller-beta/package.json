@@ -32,6 +32,7 @@
   "dependencies": {
     "@mui/material": "catalog:mui",
     "@mui/material-pigment-css": "catalog:mui",
+    "@pigment-css/react": "catalog:mui",
     "@mui/icons-material": "catalog:mui",
     "@tanstack/react-query": "^4.29.12",
     "@vitessce/constants-internal": "workspace:*",

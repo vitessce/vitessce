@@ -32,6 +32,7 @@
   "dependencies": {
     "@mui/material": "catalog:mui",
     "@mui/material-pigment-css": "catalog:mui",
+    "@pigment-css/react": "catalog:mui",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/utils": "workspace:*"
   },
