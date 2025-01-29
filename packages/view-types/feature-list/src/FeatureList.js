@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
-import { makeStyles } from '@mui/styles';
 import { cleanFeatureId } from '@vitessce/utils';
+import { styled } from '@mui/material-pigment-css';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
-const useStyles = makeStyles(() => ({
-  searchBar: {
-    marginBottom: '4px',
-    border: '0',
-    padding: '2px',
-    borderRadius: '2px',
-  },
-}));
+
+const Searchbar = styled('input')({
+  marginBottom: '4px',
+  border: '0',
+  padding: '2px',
+  borderRadius: '2px',
+});
 
 export default function FeatureList(props) {
   const {
@@ -30,7 +29,6 @@ export default function FeatureList(props) {
     primaryColumnName,
   } = props;
 
-  const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(geneList);
@@ -111,8 +109,7 @@ export default function FeatureList(props) {
 
   return (
     <>
-      <input
-        className={classes.searchBar}
+      <Searchbar
         type="text"
         placeholder="Search"
         value={searchTerm}

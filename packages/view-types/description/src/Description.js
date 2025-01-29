@@ -1,49 +1,49 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
 import Markdown from 'react-markdown';
 import { DescriptionType } from '@vitessce/constants-internal';
+import { styled } from '@mui/material-pigment-css';
 
-const useStyles = makeStyles(theme => ({
-  description: {
-    '& p, details, table': {
-      fontSize: '80%',
-      opacity: '0.8',
-    },
-    '& details': {
-      marginBottom: '6px',
-    },
-    '& summary': {
-      // TODO(monorepo): lighten color by 10%
-      borderBottom: `1px solid ${theme.palette.primaryBackground}`,
-      cursor: 'pointer',
-    },
+const DescriptionContainer = styled('div')(({ theme }) => ({
+
+  '& p, details, table': {
+    fontSize: '80%',
+    opacity: '0.8',
   },
-  metadataContainer: {
-    paddingLeft: '14px',
-    '& table': {
-      width: '100%',
-      '& td, th': {
-        outline: 'none',
-        padding: '2px 2px',
-        maxWidth: '0',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        width: '50%',
-      },
-      '& tr:nth-child(even)': {
-        // TODO(monorepo): lighten color by 5%
-        backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
-      },
+  '& details': {
+    marginBottom: '6px',
+  },
+  '& summary': {
+    // TODO(monorepo): lighten color by 10%
+    borderBottom: `1px solid ${theme.palette.primaryBackground}`,
+    cursor: 'pointer',
+  },
+}));
+
+const MetadataContainer = styled('div')(({ theme }) => ({
+  paddingLeft: '14px',
+  '& table': {
+    width: '100%',
+    '& td, th': {
+      outline: 'none',
+      padding: '2px 2px',
+      maxWidth: '0',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      width: '50%',
+    },
+    '& tr:nth-child(even)': {
+      // TODO(monorepo): lighten color by 5%
+      backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
     },
   },
 }));
 
+
 export default function Description(props) {
   const { description, metadata, descriptionType } = props;
-  const classes = useStyles();
   return (
-    <div className={classes.description}>
+    <DescriptionContainer>
       {descriptionType && descriptionType === DescriptionType.MARKDOWN
         ? <Markdown>{description}</Markdown> : <p>{description}</p>}
       {metadata && Array.from(metadata.entries())
@@ -51,7 +51,7 @@ export default function Description(props) {
           metadataRecord && Object.entries(metadataRecord).length > 0 ? (
             <details key={layerIndex}>
               <summary>{layerName}</summary>
-              <div className={classes.metadataContainer}>
+              <MetadataContainer>
                 <table>
                   <tbody>
                     {Object.entries(metadataRecord)
@@ -63,9 +63,9 @@ export default function Description(props) {
                       ))}
                   </tbody>
                 </table>
-              </div>
+              </MetadataContainer>
             </details>
           ) : null))}
-    </div>
+    </DescriptionContainer>
   );
 }
