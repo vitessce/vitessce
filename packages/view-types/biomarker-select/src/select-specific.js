@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { Grid, FormHelperText, Typography, Select, FormControl } from '@mui/material';
+import { Grid, FormHelperText, Typography, FormControl } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { useStyles } from './styles.js';
+import { SelectInput } from './styles.js';
 
 
 const columns = [
@@ -28,7 +28,6 @@ export function SelectSpecific(props) {
     setCurrentModalitySpecificSelection,
     getEdges,
   } = props;
-  const classes = useStyles();
 
   const queries = useQueries({
     queries: currentModalityAgnosticSelection?.map(item => ({
@@ -81,17 +80,16 @@ export function SelectSpecific(props) {
       <Grid item container xs={6}>
         <Grid item>
           <FormControl fullWidth>
-            <Select
+            <SelectInput
               native
               defaultValue="gene"
-              classes={{ select: classes.selectInput }}
               inputProps={{
                 name: 'age',
                 id: 'uncontrolled-native',
               }}
             >
               <option value="gene">Gene (RNA-seq)</option>
-            </Select>
+            </SelectInput>
             <FormHelperText>Feature type (experimental modality)</FormHelperText>
           </FormControl>
         </Grid>

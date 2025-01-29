@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField } from '@mui/material';
+import { TableRow, TextField } from '@mui/material';
 import { OptionsContainer, StyledOptionSelect, LabelCell, InputCell, Slider, SliderValueLabel } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 

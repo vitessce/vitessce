@@ -4,7 +4,7 @@ import { ConfirmatoryCart } from './cart.js';
 import { SelectAgnostic } from './select-agnostic.js';
 import { SelectSpecific } from './select-specific.js';
 import { SelectStratification } from './select-stratification.js';
-import { useStyles } from './styles.js';
+import { FullWidthBox } from './styles.js';
 
 const steps = [
   'Select biomarkers (modality-agnostic)',
@@ -27,7 +27,6 @@ export function ConfirmatoryStepper(props) {
     stratifications,
     onFinish,
   } = props;
-  const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 
@@ -79,7 +78,7 @@ export function ConfirmatoryStepper(props) {
   return (
     <Grid item container xs={12}>
       <Grid item container xs={12}>
-        <Box className={classes.fullWidthBox}>
+        <FullWidthBox>
           <Stepper activeStep={activeStep}>
             {steps.map((label, index) => {
               const stepProps = {};
@@ -99,7 +98,7 @@ export function ConfirmatoryStepper(props) {
               );
             })}
           </Stepper>
-        </Box>
+        </FullWidthBox>
       </Grid>
       <Grid item container xs={12} style={{ marginTop: '20px' }} alignItems="flex-start">
         {/* Step contents to left of cart */}
@@ -173,7 +172,7 @@ export function ConfirmatoryStepper(props) {
           />
         </Grid>
         {/* Step navigation button footer */}
-        <Box className={classes.fullWidthBox}>
+        <FullWidthBox>
           {activeStep === steps.length ? (
             <>
               <Box style={{ display: 'flex', flexDirection: 'row', paddingTop: '20px' }}>
@@ -202,7 +201,7 @@ export function ConfirmatoryStepper(props) {
               </Button>
             </Box>
           )}
-        </Box>
+        </FullWidthBox>
       </Grid>
     </Grid>
   );

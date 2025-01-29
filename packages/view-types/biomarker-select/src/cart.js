@@ -1,7 +1,7 @@
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import { AccordionSummary, Typography } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
-import { useStyles } from './styles.js';
+import { Accordion, AccordionDetails, CartList } from './styles.js';
 
 
 export function ConfirmatoryCart(props) {
@@ -16,7 +16,6 @@ export function ConfirmatoryCart(props) {
     // eslint-disable-next-line no-unused-vars
     setCurrentStratificationSelection,
   } = props;
-  const classes = useStyles();
   const [expandedAccordions, setExpandedAccordions] = React.useState([
     'agnostic', 'specific', 'stratification',
   ]);
@@ -32,7 +31,7 @@ export function ConfirmatoryCart(props) {
   return (
     <>
       <Typography>Current selections</Typography>
-      <Accordion className={classes.accordion} expanded={expandedAccordions.includes('agnostic')} onChange={handleAccordionChange('agnostic')}>
+      <Accordion expanded={expandedAccordions.includes('agnostic')} onChange={handleAccordionChange('agnostic')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1bh-content"
@@ -42,17 +41,17 @@ export function ConfirmatoryCart(props) {
             Modality-agnostic biomarkers
           </Typography>
         </AccordionSummary>
-        <AccordionDetails className={classes.accordionDetails}>
-          <ul className={classes.cartUl}>
+        <AccordionDetails>
+          <CartList>
             {currentModalityAgnosticSelection ? (
               currentModalityAgnosticSelection.map(item => (
                 <li key={item.kgId}>{item.label} ({item.nodeType})</li>
               ))
             ) : null}
-          </ul>
+          </CartList>
         </AccordionDetails>
       </Accordion>
-      <Accordion className={classes.accordion} expanded={expandedAccordions.includes('specific')} onChange={handleAccordionChange('specific')}>
+      <Accordion expanded={expandedAccordions.includes('specific')} onChange={handleAccordionChange('specific')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel2bh-content"
@@ -62,17 +61,17 @@ export function ConfirmatoryCart(props) {
             Modality-specific signature
           </Typography>
         </AccordionSummary>
-        <AccordionDetails className={classes.accordionDetails}>
-          <ul className={classes.cartUl}>
+        <AccordionDetails>
+          <CartList>
             {currentModalitySpecificSelection ? (
               currentModalitySpecificSelection.map(item => (
                 <li key={item.kgId}>{item.label} ({item.nodeType})</li>
               ))
             ) : null}
-          </ul>
+          </CartList>
         </AccordionDetails>
       </Accordion>
-      <Accordion className={classes.accordion} expanded={expandedAccordions.includes('stratification')} onChange={handleAccordionChange('stratification')}>
+      <Accordion expanded={expandedAccordions.includes('stratification')} onChange={handleAccordionChange('stratification')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3bh-content"
@@ -82,12 +81,12 @@ export function ConfirmatoryCart(props) {
             Case-control stratification
           </Typography>
         </AccordionSummary>
-        <AccordionDetails className={classes.accordionDetails}>
-          <ul className={classes.cartUl}>
+        <AccordionDetails>
+          <CartList>
             {currentStratificationSelection ? (
               <li>{currentStratificationSelection.name}</li>
             ) : null}
-          </ul>
+          </CartList>
         </AccordionDetails>
       </Accordion>
     </>

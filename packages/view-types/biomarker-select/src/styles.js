@@ -1,33 +1,39 @@
-import { makeStyles } from '@mui/styles';
+import { styled } from '@mui/material-pigment-css';
+import { Button, Grid, Accordion as MuiAccordion, AccordionDetails as MuiAccordionDetails, TextField, Select } from '@mui/material';
 
-export const useStyles = makeStyles(() => ({
-  header: {
-    marginTop: '10px',
-    marginBottom: '10px',
-  },
-  fullWidthBox: {
-    width: '100%',
-  },
-  selectButton: {
-    position: 'absolute',
-    right: 0,
-  },
-  accordion: {
-    width: '100%',
-    margin: '0 !important',
-  },
-  accordionDetails: {
-    paddingTop: 0,
-  },
-  cartUl: {
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  selectInput: {
-    height: 'auto !important',
-  },
-  searchInput: {
-    lineHeight: 'initial',
-    height: 'auto !important',
-  },
-}));
+export const Header = styled(Grid)({
+  marginTop: '10px',
+  marginBottom: '10px',
+});
+
+export const FullWidthBox = styled('div')({
+  width: '100%',
+});
+
+export const SelectButton = styled(Button)({
+  position: 'absolute',
+  right: 0,
+});
+
+export const Accordion = styled(MuiAccordion)({
+  width: '100%',
+  margin: '0 !important',
+});
+
+export const AccordionDetails = styled(MuiAccordionDetails)({
+  paddingTop: 0,
+});
+
+export const CartList = styled('ul')({
+  marginTop: 0,
+  marginBottom: 0,
+});
+
+export const SearchInput = styled(TextField)({
+  lineHeight: 'initial',
+  height: 'auto !important',
+});
+
+export const SelectInput = styled(Select)({
+  height: 'auto !important',
+});

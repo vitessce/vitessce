@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
 import { ConfirmatoryStepper } from './confirmatory-stepper.js';
-import { useStyles } from './styles.js';
+import { Header } from './styles.js';
 
 
 export function ScmdUi(props) {
@@ -24,7 +24,6 @@ export function ScmdUi(props) {
     stratifications,
     onFinish,
   } = props;
-  const classes = useStyles();
 
   const mode = modeProp || 'confirmatory';
   const step = mode === 'confirmatory' ? (stepProp || 'select-biomarkers') : (stepProp || 'define-stratification');
@@ -35,7 +34,7 @@ export function ScmdUi(props) {
   return (
     <Grid container style={{ border: '0px solid red' }}>
       {/* Header */}
-      <Grid item container xs={12} className={classes.header}>
+      <Header item container xs={12}>
         <Grid item xs={8} />
         <Grid item container xs={4} justifyContent="flex-end">
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
@@ -47,7 +46,7 @@ export function ScmdUi(props) {
             </Tooltip>
           </ButtonGroup>
         </Grid>
-      </Grid>
+      </Header>
       {/* Stepper */}
       {tempIsVisible ? (
         <div style={{ border: '2px solid #eee', borderRadius: '5px' }}>
