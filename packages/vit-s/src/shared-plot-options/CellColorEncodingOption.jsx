@@ -1,9 +1,9 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow } from '@mui/material';
+import { TableRow } from '@mui/material';
 import { capitalize } from '@vitessce/utils';
-import OptionSelect from './OptionSelect.js';
-import { useStyles } from './styles.js';
+import { InputCell, LabelCell } from './styles.js';
+import { StyledOptionSelect } from './OptionSelect.jsx';
 
 export default function CellColorEncodingOption(props) {
   const {
@@ -12,7 +12,6 @@ export default function CellColorEncodingOption(props) {
     setCellColorEncoding,
   } = props;
 
-  const classes = useStyles();
 
   const cellColorEncodingId = useId();
 
@@ -24,16 +23,15 @@ export default function CellColorEncodingOption(props) {
 
   return (
     <TableRow>
-      <TableCell className={classes.labelCell} variant="head" scope="row">
+      <LabelCell variant="head" scope="row">
         <label
           htmlFor={`cell-color-encoding-select-${cellColorEncodingId}`}
         >
           {observationsLabelNice} Color Encoding
         </label>
-      </TableCell>
-      <TableCell className={classes.inputCell} variant="body">
-        <OptionSelect
-          className={classes.select}
+      </LabelCell>
+      <InputCell variant="body">
+        <StyledOptionSelect
           value={cellColorEncoding}
           onChange={handleColorEncodingChange}
           inputProps={{
@@ -42,8 +40,8 @@ export default function CellColorEncodingOption(props) {
         >
           <option value="cellSetSelection">Cell Sets</option>
           <option value="geneSelection">Gene Expression</option>
-        </OptionSelect>
-      </TableCell>
+        </StyledOptionSelect>
+      </InputCell>
     </TableRow>
   );
 }

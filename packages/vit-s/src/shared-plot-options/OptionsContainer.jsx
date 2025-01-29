@@ -1,19 +1,17 @@
 import React from 'react';
-import { Box, Table, TableBody, TableContainer } from '@mui/material';
-import { useStyles } from './styles.js';
+import { Table, TableBody } from '@mui/material';
+import { StyledTableContainer, BorderBox } from './styles.js';
 
 export default function OptionsContainer(props) {
   const {
     children,
   } = props;
 
-  const classes = useStyles();
 
   return (
-    <Box className={classes.box}>
-      <TableContainer className={classes.tableContainer}>
+    <BorderBox>
+      <StyledTableContainer>
         <Table
-          className={classes.table}
           size="small"
           aria-label="Menu of options available for the view"
         >
@@ -21,7 +19,7 @@ export default function OptionsContainer(props) {
             {children}
           </TableBody>
         </Table>
-      </TableContainer>
-    </Box>
+      </StyledTableContainer>
+    </BorderBox>
   );
 }

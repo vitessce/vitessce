@@ -15,7 +15,7 @@ import {
   baseAsyncFunctions,
 } from './base-plugins.js';
 
-import '@pigment-css/react/styles.css';
+import '@pigment-css/styles.css';
 
 export function Vitessce(props: any) {
   const {

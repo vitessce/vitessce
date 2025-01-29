@@ -1,26 +1,18 @@
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material-pigment-css';
 import Tooltip from './Tooltip.jsx';
 
-const PREFIX = 'Tooltip2D';
 
-const classes = {
-  cellEmphasisCrosshair: `${PREFIX}-cellEmphasisCrosshair`
-};
-
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
+const CellEmphasisCrosshair = styled('div')((
   {
-    theme
-  }
+    theme,
+  },
 ) => ({
-  [`& .${classes.cellEmphasisCrosshair}`]: {
-    zIndex: 50,
-    position: 'absolute',
-    pointerEvents: 'none',
-    boxSizing: 'border-box',
-    backgroundColor: theme.palette.secondaryForeground,
-  }
+  zIndex: 50,
+  position: 'absolute',
+  pointerEvents: 'none',
+  boxSizing: 'border-box',
+  backgroundColor: theme.palette.secondaryForeground,
 }));
 
 /**
@@ -48,7 +40,6 @@ export default function Tooltip2D(props) {
   } = props;
 
 
-
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
     return null;
@@ -56,43 +47,42 @@ export default function Tooltip2D(props) {
   // Show tooltip or crosshair?
   const isTooltipVisible = (parentUuid === sourceUuid);
   const crosshairWidth = 1;
-  return (
-    (<Root>
-      {isTooltipVisible ? (
-        <Tooltip
-          x={x}
-          y={y}
-          parentWidth={parentWidth}
-          parentHeight={parentHeight}
-        >
-          {children}
-        </Tooltip>
-      ) : (
-        <>
-          {x !== null ? (
-            <div
-              className={classes.cellEmphasisCrosshair}
-              style={{
-                left: `${x - crosshairWidth / 2}px`,
-                top: 0,
-                width: `${crosshairWidth}px`,
-                height: `${parentHeight}px`,
-              }}
-            />
-          ) : null}
-          {y !== null ? (
-            <div
-              className={classes.cellEmphasisCrosshair}
-              style={{
-                left: 0,
-                top: `${y - crosshairWidth / 2}px`,
-                width: `${parentWidth}px`,
-                height: `${crosshairWidth}px`,
-              }}
-            />
-          ) : null}
-        </>
-      )}
-    </Root>)
-  );
+
+  if (isTooltipVisible) {
+    return (
+      <Tooltip
+        x={x}
+        y={y}
+        parentWidth={parentWidth}
+        parentHeight={parentHeight}
+      >
+        {children}
+      </Tooltip>
+    );
+  }
+
+  const xCrosshair = x !== null ? ( <CellEmphasisCrosshair
+    style={{
+      left: `${x - crosshairWidth / 2}px`,
+      top: 0,
+      width: `${crosshairWidth}px`,
+      height: `${parentHeight}px`,
+    }}
+  />
+) : null}
+
+  const yCrosshair = y !== null ? ( <CellEmphasisCrosshair
+    style={{
+      left: 0,
+      top: `${y - crosshairWidth / 2}px`,
+      width: `${parentWidth}px`,
+      height: `${crosshairWidth}px`,
+    }}
+
+  />) : null;
+
+  return (<>
+    {xCrosshair}
+    {yCrosshair}
+  </>)
 }

@@ -1,5 +1,7 @@
 import { createTheme, colors } from '@mui/material';
 
+import { adaptV4Theme } from '@mui/material/styles';
+
 const { grey } = colors;
 
 const globalColors = {
@@ -81,9 +83,9 @@ const lightPalette = {
 };
 
 export const muiTheme = {
-  dark: createTheme({
+  dark: createTheme(adaptV4Theme({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: grey,
       secondary: grey,
       primaryBackground: '#222222',
@@ -107,16 +109,16 @@ export const muiTheme = {
     },
     ...sharedThemeOptions,
     cardBorderSize: '1px',
-  }),
-  light: createTheme({
+  })),
+  light: createTheme(adaptV4Theme({
     palette: {
       ...lightPalette,
       ...globalColors,
     },
     ...sharedThemeOptions,
     cardBorderSize: '1px',
-  }),
-  light2: createTheme({
+  })),
+  light2: createTheme(adaptV4Theme({
     palette: {
       ...lightPalette,
       primaryBackground: '#FFFFFF',
@@ -129,5 +131,5 @@ export const muiTheme = {
     },
     ...sharedThemeOptions,
     cardBorderSize: '2px',
-  }),
+  })),
 };

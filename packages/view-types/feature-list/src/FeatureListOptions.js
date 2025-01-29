@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
-import { TableCell, TableRow, Checkbox } from '@mui/material';
+import { OptionsContainer, Checkbox, StyledOptionSelect, LabelCell, InputCell } from '@vitessce/vit-s';
+import { TableCell, TableRow } from '@mui/material';
 import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';
 
 
@@ -32,18 +32,15 @@ export default function FeatureListOptions(props) {
     setShowFeatureTable(event.target.checked);
   }
 
-  const classes = usePlotOptionsStyles();
-
   return (
     <OptionsContainer>
       {children}
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label htmlFor={`feature-list-sort-option-${featureListId}`}>Sort Ordering</label>
-        </TableCell>
+        </LabelCell>
         <TableCell variant="body">
-          <OptionSelect
-            className={classes.select}
+          <StyledOptionSelect
             value={featureListSort}
             onChange={handleFeatureListSortChange}
             inputProps={{
@@ -53,18 +50,17 @@ export default function FeatureListOptions(props) {
             {FEATURELIST_SORT_OPTIONS.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
-          </OptionSelect>
+          </StyledOptionSelect>
         </TableCell>
       </TableRow>
       {hasFeatureLabels ? (
         <>
           <TableRow>
-            <TableCell className={classes.labelCell} variant="head" scope="row">
+            <LabelCell variant="head" scope="row">
               <label htmlFor={`feature-list-sort-key-${featureListId}`}>Sort Key</label>
-            </TableCell>
+            </LabelCell>
             <TableCell variant="body">
-              <OptionSelect
-                className={classes.select}
+              <StyledOptionSelect
                 disabled={featureListSort === 'original'}
                 value={featureListSortKey}
                 onChange={handleFeatureListSortKeyChange}
@@ -81,16 +77,15 @@ export default function FeatureListOptions(props) {
                 ) : (
                   <option value="featureIndex">{primaryColumnName}</option>
                 )}
-              </OptionSelect>
+              </StyledOptionSelect>
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className={classes.labelCell} variant="head" scope="row">
+            <LabelCell variant="head" scope="row">
               <label htmlFor={`feature-list-show-alternative-ids-${featureListId}`}>Show Alternate IDs</label>
-            </TableCell>
-            <TableCell className={classes.inputCell} variant="body">
+            </LabelCell>
+            <InputCell variant="body">
               <Checkbox
-                className={classes.tableCheckbox}
                 checked={showFeatureTable}
                 onChange={handleShowTableChange}
                 name="feature-list-show-table"
@@ -100,7 +95,7 @@ export default function FeatureListOptions(props) {
                   id: `feature-list-show-alternative-ids-${featureListId}`,
                 }}
               />
-            </TableCell>
+            </InputCell>
           </TableRow>
         </>
       ) : null}

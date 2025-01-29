@@ -1,49 +1,52 @@
-import { makeStyles } from '@mui/styles';
+import { styled } from '@mui/material-pigment-css';
 
-export const useStyles = makeStyles(theme => ({
-  box: {
-    boxSizing: 'border-box',
+import { Select as MuiSelect, TableContainer, Checkbox as MuiCheckbox, Slider as MuiSlider } from '@mui/material';
+
+export const BorderBox = styled('div')({
+  boxSizing: 'border-box',
+});
+
+export const Checkbox = styled(MuiCheckbox)({
+  padding: '3px',
+  color: 'primaryForeground',
+  '&:checked': {
+    color: 'primaryForeground',
   },
-  checkbox: {
-    padding: '3px',
-    color: theme.palette.primaryForeground,
-    '&:checked': {
-      color: theme.palette.primaryForeground,
-    },
-    '& input': {
-      height: '100%',
-    },
+  '& input': {
+    height: '100%',
   },
-  slider: {
-    color: theme.palette.primaryForeground,
-    minWidth: '60px',
-    padding: '10px 0 10px 0',
-  },
-  sliderValueLabel: {
+});
+
+export const Slider = styled(MuiSlider)(({ theme }) => ({
+  color: theme.palette.primaryForeground,
+  minWidth: '60px',
+  padding: '10px 0 10px 0',
+}));
+
+export const SliderValueLabel = styled('div')(({ theme }) => ({
+  '& span': {
     '& span': {
-      '& span': {
-        color: theme.palette.primaryBackground,
-      },
+      color: theme.palette.primaryBackground,
     },
-  },
-  tableContainer: {
-    overflow: 'hidden',
-    overflowX: 'hidden !important',
-  },
-  labelCell: {
-    padding: '2px 8px 2px 16px',
-  },
-  inputCell: {
-    padding: '2px 16px 2px 8px',
-    overflow: 'visible',
-  },
-  select: {
-    '& select': {
-      fontSize: '14px',
-    },
-  },
-  optionSelectRoot: {
-    padding: 0,
-    height: 'auto',
   },
 }));
+
+export const StyledTableContainer = styled(TableContainer)({
+  overflow: 'hidden',
+  overflowX: 'hidden !important',
+});
+
+export const LabelCell = styled('div')({
+  padding: '2px 8px 2px 16px',
+});
+
+export const InputCell = styled('div')({
+  padding: '2px 16px 2px 8px',
+  overflow: 'visible',
+});
+
+
+export const StyledSelect = styled(MuiSelect)({
+  padding: 0,
+  height: 'auto',
+});

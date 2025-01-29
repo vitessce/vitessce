@@ -3,13 +3,13 @@ import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { pigment } from '@pigment-css/vite-plugin';
-import { muiTheme } from '@vitessce/vit-s'
+import { muiTheme } from './packages/vit-s/src/shared-mui/styles.js';
 
 /**
  * @type {import('@pigment-css/vite-plugin').PigmentOptions}
  */
 const pigmentConfig = {
-  transformLibraries: ['@mui/material', ],
+  transformLibraries: ['@mui/material'],
   theme: muiTheme,
 };
 
@@ -37,9 +37,6 @@ export function serveTestFixtures() {
   return {
     name: 'serve-test-fixtures-dir',
     configureServer(server) {
-
-
-
       server.middlewares.use((req, res, next) => {
         if (/^\/@fixtures\/zarr\//.test(req.url)) {
           req.url = req.url.replace('/@fixtures/zarr/', '');
@@ -54,7 +51,7 @@ export function serveTestFixtures() {
           next();
         }
       });
-    }
+    },
   };
 }
 
@@ -100,8 +97,8 @@ const config = defineConfig({
       ],
       exclude: [
         // Exclude test fixtures.
-        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)'
-      ]
+        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)',
+      ],
     },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.

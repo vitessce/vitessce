@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField, Slider } from '@mui/material';
-import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import { TableCell, TableRow, TextField } from '@mui/material';
+import { OptionsContainer, StyledOptionSelect, LabelCell, InputCell, Slider, SliderValueLabel } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function CellSetExpressionPlotOptions(props) {
@@ -19,7 +19,6 @@ export default function CellSetExpressionPlotOptions(props) {
 
   const cellSetExpressionPlotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
 
   function handleFeatureValueColormapChange(event) {
     setFeatureValueColormap(event.target.value);
@@ -51,14 +50,13 @@ export default function CellSetExpressionPlotOptions(props) {
     <OptionsContainer>
       {setFeatureValueColormap ? (
         <TableRow>
-          <TableCell className={classes.labelCell} variant="head" scope="row">
+          <LabelCell variant="head" scope="row">
             <label htmlFor={`cellset-expression-feature-value-colormap-${cellSetExpressionPlotOptionsId}`}>
               Feature Value Colormap
             </label>
-          </TableCell>
-          <TableCell className={classes.inputCell} variant="body">
-            <OptionSelect
-              className={classes.select}
+          </LabelCell>
+          <InputCell variant="body">
+            <StyledOptionSelect
               value={featureValueColormap}
               onChange={handleFeatureValueColormapChange}
               inputProps={{
@@ -69,21 +67,20 @@ export default function CellSetExpressionPlotOptions(props) {
               {GLSL_COLORMAPS.map(cmap => (
                 <option key={cmap} value={cmap}>{cmap}</option>
               ))}
-            </OptionSelect>
-          </TableCell>
+            </StyledOptionSelect>
+          </InputCell>
         </TableRow>
       ) : null}
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label
             htmlFor={`cellset-expression-transform-select-${cellSetExpressionPlotOptionsId}`}
           >
             Transform
           </label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
-          <OptionSelect
-            className={classes.select}
+        </LabelCell>
+        <InputCell variant="body">
+          <StyledOptionSelect
             value={featureValueTransform === null ? '' : featureValueTransform}
             onChange={handleTransformChange}
             inputProps={{
@@ -95,18 +92,18 @@ export default function CellSetExpressionPlotOptions(props) {
                 {opt.name}
               </option>
             ))}
-          </OptionSelect>
-        </TableCell>
+          </StyledOptionSelect>
+        </InputCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label
             htmlFor={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           >
             Transform Coefficient
           </label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
+        </LabelCell>
+        <LabelCell variant="body">
           <TextField
             label="Transform Coefficient"
             type="number"
@@ -117,16 +114,18 @@ export default function CellSetExpressionPlotOptions(props) {
             }}
             id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
-        </TableCell>
+        </LabelCell>
       </TableRow>
       {setFeatureValuePositivityThreshold ? (
         <TableRow key="transform-coefficient-option-row">
-          <TableCell className={classes.labelCell}>
+          <LabelCell>
             Positivity Threshold
-          </TableCell>
-          <TableCell className={classes.inputCell}>
+          </LabelCell>
+          <InputCell>
             <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              component={{
+                ValueLabel: SliderValueLabel,
+              }}
               value={featureValuePositivityThreshold}
               onChange={handlePositivityThresholdChange}
               aria-labelledby="pos-threshold-slider"
@@ -135,7 +134,7 @@ export default function CellSetExpressionPlotOptions(props) {
               min={0.0}
               max={100.0}
             />
-          </TableCell>
+          </InputCell>
         </TableRow>
       ) : null}
     </OptionsContainer>

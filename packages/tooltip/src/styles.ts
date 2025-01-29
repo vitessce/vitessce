@@ -1,7 +1,8 @@
+import { Paper } from '@mui/material';
 import { styled } from '@mui/material-pigment-css';
 
 
-export const TooltipAnchor = styled('div')(theme => ({
+export const TooltipAnchor = styled('div')(({ theme }) => ({
   opacity: 0.9,
   padding: '5px',
   pointerEvents: 'none',
@@ -26,7 +27,7 @@ export const TooltipAnchor = styled('div')(theme => ({
   },
 }));
 
-export const TooltipContent = styled('div')(theme => ({
+export const TooltipContent = styled(Paper)(({ theme }) => ({
   opacity: 0.9,
   padding: '5px',
   pointerEvents: 'none',

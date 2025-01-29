@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow } from '@mui/material';
-import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
+import { TableRow } from '@mui/material';
+import { StyledOptionSelect, LabelCell, InputCell } from '@vitessce/vit-s';
 
 export default function EmbeddingScatterplotOptions(props) {
   const {
@@ -11,7 +11,6 @@ export default function EmbeddingScatterplotOptions(props) {
     setSelectedMapping,
   } = props;
 
-  const classes = usePlotOptionsStyles();
 
   const scatterplotOptionsId = useId();
 
@@ -23,16 +22,15 @@ export default function EmbeddingScatterplotOptions(props) {
   return mappingSelectEnabled
     ? (
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label
             htmlFor={`scatterplot-mapping-select-${scatterplotOptionsId}`}
           >
             Embedding Type
           </label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
-          <OptionSelect
-            className={classes.select}
+        </LabelCell>
+        <InputCell variant="body">
+          <StyledOptionSelect
             value={selectedMapping}
             onChange={handleSelectedMappingChange}
             inputProps={{
@@ -44,8 +42,8 @@ export default function EmbeddingScatterplotOptions(props) {
                 {name}
               </option>
             ))}
-          </OptionSelect>
-        </TableCell>
+          </StyledOptionSelect>
+        </InputCell>
       </TableRow>
     )
     : null;

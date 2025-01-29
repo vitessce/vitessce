@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { useId } from 'react-aria';
 import { debounce } from 'lodash-es';
-import { Checkbox, Slider, TableCell, TableRow } from '@mui/material';
-import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
+import { ,  TableRow } from '@mui/material';
+import { OptionsContainer, StyledOptionSelect, LabelCell, InputCell, Checkbox, Slider } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 export default function HeatmapOptions(props) {
@@ -14,8 +14,7 @@ export default function HeatmapOptions(props) {
     tooltipsVisible,
     setTooltipsVisible,
   } = props;
-
-  const classes = usePlotOptionsStyles();
+ 
   const heatmapOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
@@ -26,9 +25,10 @@ export default function HeatmapOptions(props) {
     setTooltipsVisible(event.target.checked);
   }
 
-  function handleColormapRangeChange(event, value) {
+  const handleColormapRangeChange = useCallback((event, value) {
     setGeneExpressionColormapRange(value);
-  }
+  }, [setGeneExpressionColormapRange]);
+
   const handleColormapRangeChangeDebounced = useCallback(
     debounce(handleColormapRangeChange, 5, { trailing: true }),
     [handleColormapRangeChange],
@@ -37,12 +37,11 @@ export default function HeatmapOptions(props) {
   return (
     <OptionsContainer>
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label htmlFor={`heatmap-gene-expression-colormap-${heatmapOptionsId}`}>Gene Expression Colormap</label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
-          <OptionSelect
-            className={classes.select}
+        </LabelCell>
+        <InputCell variant="body">
+          <StyledOptionSelect
             value={geneExpressionColormap}
             onChange={handleGeneExpressionColormapChange}
             inputProps={{
@@ -53,20 +52,19 @@ export default function HeatmapOptions(props) {
             {GLSL_COLORMAPS.map(cmap => (
               <option key={cmap} value={cmap}>{cmap}</option>
             ))}
-          </OptionSelect>
-        </TableCell>
+          </StyledOptionSelect>
+        </InputCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label
             htmlFor={`heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`}
           >
             Tooltips Visible
           </label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
+        </LabelCell>
+        <InputCell variant="body">
           <Checkbox
-            className={classes.checkbox}
             /**
              * We have to use "checked" here, not "value".
              * The checkbox state is not persisting with value.
@@ -81,19 +79,21 @@ export default function HeatmapOptions(props) {
               id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
             }}
           />
-        </TableCell>
+        </InputCell>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.labelCell} variant="head" scope="row">
+        <LabelCell variant="head" scope="row">
           <label
             htmlFor={`heatmap-gene-expression-colormap-range-${heatmapOptionsId}`}
           >
             Gene Expression Colormap Range
           </label>
-        </TableCell>
-        <TableCell className={classes.inputCell} variant="body">
-          <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+        </LabelCell>
+        <InputCell variant="body">
+          <StyledSlider
+            components={{
+              ValueLabel: StyledSliderValueLabel,
+            }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
@@ -103,7 +103,7 @@ export default function HeatmapOptions(props) {
             min={0.0}
             max={1.0}
           />
-        </TableCell>
+        </InputCell>
       </TableRow>
     </OptionsContainer>
   );

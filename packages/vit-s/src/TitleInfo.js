@@ -167,52 +167,54 @@ export function TitleInfo(props) {
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
-    <>
-      <div className={classes.title} role="banner">
-        <div className={classes.titleLeft} role="heading" aria-level="1">
-          {title}
-        </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
-        </div>
-        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
-          <PlotOptions
-            options={options}
-          />
-          {downloadButtonVisible ? (
-            <DownloadOptions
-              urls={urls}
-            />
-          ) : null}
-          {helpText ? (
-            <HelpButton
-              helpText={helpText}
-            />
-          ) : null}
-          {closeButtonVisible && removeGridComponent ? (
-            <ClosePaneButton
-              removeGridComponent={removeGridComponent}
-            />
-          ) : null}
-        </div>
-      </div>
-      <div
-        className={clsx(
-          TOOLTIP_ANCESTOR,
-          classes.card,
-          {
-            [classes.scrollCard]: isScroll,
-            [classes.spatialCard]: isSpatial,
-            [classes.noScrollCard]: !isScroll && !isSpatial,
-          },
-        )}
-        aria-busy={!isReady}
-        role="main"
-      >
-        { !isReady ? <LoadingIndicator /> : null }
-        {children}
-      </div>
-    </>
     // "pl-2" only matters when the window is very narrow.
+    (
+      <>
+        <div className={classes.title} role="banner">
+          <div className={classes.titleLeft} role="heading" aria-level="1">
+            {title}
+          </div>
+          <div className={classes.titleInfo} title={info} role="note">
+            {info}
+          </div>
+          <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
+            <PlotOptions
+              options={options}
+            />
+            {downloadButtonVisible ? (
+              <DownloadOptions
+                urls={urls}
+              />
+            ) : null}
+            {helpText ? (
+              <HelpButton
+                helpText={helpText}
+              />
+            ) : null}
+            {closeButtonVisible && removeGridComponent ? (
+              <ClosePaneButton
+                removeGridComponent={removeGridComponent}
+              />
+            ) : null}
+          </div>
+        </div>
+        <div
+          className={clsx(
+            TOOLTIP_ANCESTOR,
+            classes.card,
+            {
+              [classes.scrollCard]: isScroll,
+              [classes.spatialCard]: isSpatial,
+              [classes.noScrollCard]: !isScroll && !isSpatial,
+            },
+          )}
+          aria-busy={!isReady}
+          role="main"
+        >
+          { !isReady ? <LoadingIndicator /> : null }
+          {children}
+        </div>
+      </>
+    )
   );
 }
