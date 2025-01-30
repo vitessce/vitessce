@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Checkbox, Select } from '@mui/material';
-import { useSelectStyles } from './styles.js';
+import { SelectRoot } from './styles.js';
 
 /**
  * Dropdown for selecting a channel.
@@ -16,10 +16,12 @@ export function ChannelSelectionDropdown({
   channelOptions,
   selectionIndex,
 }) {
-  const classes = useSelectStyles();
   return (
     <Select
       classes={{ root: classes.selectRoot }}
+      component={{
+        root: SelectRoot,
+      }}
       native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}

@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
-import { useSelectStyles } from './styles.js';
+import { SelectRoot } from './styles.js';
 
 const useSlicerStyles = makeStyles(theme => createStyles({
   enabled: {},
@@ -117,7 +117,6 @@ function RenderingModeSelect({
   renderingMode,
   use3d,
 }) {
-  const classes = useSelectStyles();
   // Empty option allows for displaying the title of the dropdown fully in the UI.
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
@@ -133,7 +132,9 @@ function RenderingModeSelect({
           'aria-label': 'Select rendering mode option',
         }}
         disabled={!use3d}
-        classes={{ root: classes.selectRoot }}
+        component={{
+          root: SelectRoot,
+        }}
       >
         {options.map(name => (
           <option key={name} value={name}>

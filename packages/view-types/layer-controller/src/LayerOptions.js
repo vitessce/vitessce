@@ -16,9 +16,9 @@ import {
   formatBytes,
 } from '@vitessce/utils';
 import {
+  SelectRoot,
   useSelectionSliderStyles,
-  useSelectStyles,
-  useChannelSliderStyles,
+  ValueLabel,
 } from './styles.js';
 
 const DOMAIN_OPTIONS = ['Full', 'Min/Max'];
@@ -52,7 +52,6 @@ function VolumeDropdown({
   use3d,
   modelMatrix,
 }) {
-  const classes = useSelectStyles();
   const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
   const handleChange = async (val) => {
@@ -132,7 +131,9 @@ function VolumeDropdown({
         )
         }
         inputProps={{ 'aria-label': 'Resolution selector' }}
-        classes={{ root: classes.selectRoot }}
+        component={{
+          root: SelectRoot,
+        }}
       >
         <option key="2D" value="2D">
           2D Visualization
@@ -180,7 +181,6 @@ function VolumeDropdown({
  * @prop {function} handleChange Callback for every change in colormap.
  */
 function ColormapSelect({ value, inputId, handleChange }) {
-  const classes = useSelectStyles();
   return (
     <Select
       native
@@ -188,7 +188,9 @@ function ColormapSelect({ value, inputId, handleChange }) {
       value={value}
       inputProps={{ name: 'colormap', id: inputId, 'aria-label': 'Colormap selector' }}
       style={{ width: '100%' }}
-      classes={{ root: classes.selectRoot }}
+      component={{
+        root: SelectRoot,
+      }}
     >
       <option aria-label="None" value="">None</option>
       {COLORMAP_OPTIONS.map(name => (
@@ -225,11 +227,11 @@ function TransparentColorCheckbox({ value, inputId, handleChange }) {
  * @prop {function} handleChange Callback for every change in opacity.
  */
 function OpacitySlider({ value, inputId, handleChange }) {
-  const classes = useChannelSliderStyles();
-
   return (
     <Slider
-      classes={{ valueLabel: classes.valueLabel }}
+      component={{
+        valueLabel: ValueLabel,
+      }}
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"
@@ -250,7 +252,6 @@ function OpacitySlider({ value, inputId, handleChange }) {
  * @prop {function} handleChange Callback for every change in domain.
  */
 function SliderDomainSelector({ value, inputId, handleChange }) {
-  const classes = useSelectStyles();
   return (
     <Select
       native
@@ -259,7 +260,9 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
       id={inputId}
       inputProps={{ name: 'domain-selector', 'aria-label': 'Domain type selector' }}
       style={{ width: '100%' }}
-      classes={{ root: classes.selectRoot }}
+      component={{
+        root: SelectRoot,
+      }}
     >
       {DOMAIN_OPTIONS.map(name => (
         <option key={name} value={name}>

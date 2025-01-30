@@ -4,7 +4,7 @@ import React, {
   useMemo,
 } from 'react';
 import clsx from 'clsx';
-import { VITESSCE_CONTAINER } from './classNames.js';
+import { VITESSCE_CONTAINER, DRAG_HANDLE } from './classNames.js';
 import { VitessceGridLayout } from './vitessce-grid-layout/index.js';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils.js';
 import {
@@ -20,7 +20,6 @@ import {
   useClosestVitessceContainerSize,
 } from './hooks.js';
 import { useVitessceContainerStyles } from './shared-mui/container.js';
-import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
 
 const padding = 10;
@@ -62,7 +61,6 @@ export default function VitessceGrid(props) {
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const classes = useVitessceContainerStyles();
-  const titleClasses = useTitleStyles();
 
   const altText = useMemo(() => getAltText(config), [configKey]);
 
@@ -125,7 +123,7 @@ export default function VitessceGrid(props) {
           fileTypes={fileTypes}
           coordinationTypes={coordinationTypes}
           stores={stores}
-          draggableHandle={titleClasses.title}
+          draggableHandle={DRAG_HANDLE}
           margin={margin}
           padding={padding}
           onRemoveComponent={removeComponent}

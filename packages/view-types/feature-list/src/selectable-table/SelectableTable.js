@@ -10,7 +10,7 @@ import { Table } from 'react-virtualized/dist/commonjs/Table/index.js';
 import { v4 as uuidv4 } from 'uuid';
 import { union, difference, isEqual } from 'lodash-es';
 import clsx from 'clsx';
-import { useStyles } from './styles.js';
+import { HiddenInputColumn, InputContainer, SelectableTableCell, SelectableTableContainer, SelectableTableRow, TableCheckbox, TableRadio } from './styles.js';
 
 const SHIFT_KEYCODE = 16;
 
@@ -151,16 +151,17 @@ export default function SelectableTable(props) {
     }
   }, [selectedRows, allowMultiple]);
 
-  const classes = useStyles();
 
   // Generate a unique ID to use in (for, id) label-input pairs.
   const inputUuid = uuidv4();
+  const Input = isCheckingMultiple ? TableCheckbox : TableRadio;
+  const Container = showTableInputs ? InputContainer : HiddenInputColumn;
 
   const rowRenderer = ({ index, style }) => (
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus
-    <div
+    <SelectableTableRow
       key={data[index][idKey]}
-      className={clsx(classes.tableItem, classes.tableRow, { 'row-checked': isSelected(data[index][idKey]) })}
+      className={clsx({ 'row-checked': isSelected(data[index][idKey]) })}
       style={style}
       role="button"
       onClick={() => onSelectRow(
@@ -168,38 +169,36 @@ export default function SelectableTable(props) {
         !isSelected(data[index][idKey]) || !hasColorEncoding,
       )}
     >
-      <div className={clsx(classes.inputContainer, classes.tableCell, { [classes.hiddenInputColumn]: !showTableInputs })}>
+      <Container>
         <label htmlFor={`${inputUuid}_${data[index][idKey]}`}>
-          <input
+          <Input
             id={`${inputUuid}_${data[index][idKey]}`}
             type="checkbox"
-            className={clsx(classes.radioOrCheckbox, isCheckingMultiple ? classes.tableCheckbox : classes.tableRadio)}
             name={inputUuid}
             value={data[index][idKey]}
             onChange={handleInputChange}
             checked={isSelected(data[index][idKey])}
           />
         </label>
-      </div>
+      </Container>
       {columns.map(column => (
-        <div
-          className={classes.tableCell}
+        <SelectableTableCell
           key={column}
         >
           {data[index][column]}
-        </div>
+        </SelectableTableCell>
       ))}
-    </div>
+    </SelectableTableRow>
   );
 
   const headerRowRenderer = ({ style }) => (
-    <div className={classes.tableRow} style={style}>
-      {columnLabels.map(columnLabel => (<div key={columnLabel} className={classes.tableCell} style={{ fontWeight: 'bold' }}>{columnLabel}</div>))}
-    </div>
+    <SelectableTableRow style={style}>
+      {columnLabels.map(columnLabel => (<SelectableTableCell key={columnLabel} style={{ fontWeight: 'bold' }}>{columnLabel}</SelectableTableCell>))}
+    </SelectableTableRow>
   );
 
   return (
-    <div className={classes.selectableTable}>
+    <SelectableTableContainer>
       <AutoSizer>
         {({ width, height }) => (
           <Table
@@ -216,6 +215,6 @@ export default function SelectableTable(props) {
           />
         )}
       </AutoSizer>
-    </div>
+    </SelectableTableContainer>
   );
 }

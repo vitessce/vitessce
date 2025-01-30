@@ -1,7 +1,9 @@
 import React from 'react';
 
-import { Grid, Checkbox, Paper, Typography, Slider } from '@mui/material';
-import { useControllerSectionStyles } from './styles.js';
+import { Checkbox, Typography, Slider } from '@mui/material';
+import Grid from '@mui/material-pigment-css/Grid';
+import { LayerControllerPaper } from './styles.js';
+
 
 export default function VectorLayerController(props) {
   const {
@@ -27,10 +29,9 @@ export default function VectorLayerController(props) {
     handleLayerChange({ ...layer, visible: v });
   }
 
-  const classes = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
-      <Paper className={classes.layerControllerRoot}>
+      <LayerControllerPaper>
         <Typography
           style={{
             padding: '15px 8px 0px 8px',
@@ -64,7 +65,7 @@ export default function VectorLayerController(props) {
             />
           </Grid>
         </Grid>
-      </Paper>
+      </LayerControllerPaper>
     </Grid>
   );
 }

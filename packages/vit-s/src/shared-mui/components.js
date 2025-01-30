@@ -29,7 +29,7 @@ export function PopperMenu(props) {
     open,
     setOpen,
     children,
-    buttonClassName,
+    buttonComponent: ButtonComponent = IconButton,
     placement = 'bottom-end',
     withPaper = true,
     containerClassName,
@@ -53,16 +53,15 @@ export function PopperMenu(props) {
 
   return (
     <div ref={anchorRef} className={clsx(classes.container, containerClassName)}>
-      <IconButton
+      <ButtonComponent
         aria-describedby={id}
         onClick={handleClick}
         onTouchEnd={handleClick}
         size="small"
-        className={buttonClassName}
         aria-label={ariaLabel}
       >
         {buttonIcon}
-      </IconButton>
+      </ButtonComponent>
       <Popper
         id={id}
         open={open}
