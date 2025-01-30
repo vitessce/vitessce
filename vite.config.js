@@ -2,6 +2,16 @@ import react from '@vitejs/plugin-react';
 import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { pigment } from '@pigment-css/vite-plugin';
+import { muiTheme } from './packages/vit-s/src/shared-mui/styles.js';
+
+/**
+ * @type {import('@pigment-css/vite-plugin').PigmentOptions}
+ */
+const pigmentConfig = {
+  transformLibraries: ['@mui/material'],
+  theme: muiTheme,
+};
 
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
@@ -27,9 +37,6 @@ export function serveTestFixtures() {
   return {
     name: 'serve-test-fixtures-dir',
     configureServer(server) {
-
-
-
       server.middlewares.use((req, res, next) => {
         if (/^\/@fixtures\/zarr\//.test(req.url)) {
           req.url = req.url.replace('/@fixtures/zarr/', '');
@@ -44,17 +51,22 @@ export function serveTestFixtures() {
           next();
         }
       });
-    }
+    },
   };
 }
 
 // For tests.
-export default defineConfig({
+const config = defineConfig({
+  optimizeDeps: {
+    // https://github.com/mui/pigment-css/issues/176
+    include: ['prop-types', 'react-is'],
+  },
   plugins: [
     react({
       jsxRuntime: 'classic',
     }),
     serveTestFixtures(),
+    pigment(pigmentConfig),
   ],
   test: {
     api: 4204,
@@ -85,8 +97,8 @@ export default defineConfig({
       ],
       exclude: [
         // Exclude test fixtures.
-        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)'
-      ]
+        '**/*.{test,spec}.fixtures.?(c|m)[jt]s?(x)',
+      ],
     },
   },
   // To enable .js files that contain JSX to be imported by Vitest tests.
@@ -97,3 +109,5 @@ export default defineConfig({
     exclude: [],
   },
 });
+
+export default config;

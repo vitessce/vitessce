@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, CircularProgress } from '@material-ui/core';
+import { makeStyles, CircularProgress } from '@mui/material';
 
 const useStyles = makeStyles(() => ({
   loadingIndicatorBackdrop: {

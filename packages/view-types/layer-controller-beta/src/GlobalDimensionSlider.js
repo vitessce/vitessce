@@ -8,7 +8,7 @@ import {
   FormGroup,
   FormControlLabel,
   Switch,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   DimensionsSVG,
 } from '@vitessce/icons';

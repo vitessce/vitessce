@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
+import { makeStyles, MenuItem, IconButton, Link } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
@@ -8,12 +7,12 @@ import {
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
-import { TOOLTIP_ANCESTOR } from './classNames.js';
+import { TOOLTIP_ANCESTOR, DRAG_HANDLE } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
-import { useTitleStyles } from './title-styles.js';
+import { NoScrollCard, ScrollCard, SpatialCard, TitleButtons, TitleContainer, TitleLeft } from './title-styles.js';
 
 const useStyles = makeStyles(theme => ({
   iconButton: {
@@ -156,6 +155,16 @@ function ClosePaneButton(props) {
   );
 }
 
+const selectCardComponent = (isScroll, isSpatial) => {
+  if (isScroll) {
+    return ScrollCard;
+  }
+  if (isSpatial) {
+    return SpatialCard;
+  }
+  return NoScrollCard;
+};
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
@@ -163,56 +172,50 @@ export function TitleInfo(props) {
     helpText,
   } = props;
 
-  const classes = useTitleStyles();
+  const CardComponent = selectCardComponent(isScroll, isSpatial);
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
-    <>
-      <div className={classes.title} role="banner">
-        <div className={classes.titleLeft} role="heading" aria-level="1">
-          {title}
-        </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
-        </div>
-        <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
-          <PlotOptions
-            options={options}
-          />
-          {downloadButtonVisible ? (
-            <DownloadOptions
-              urls={urls}
-            />
-          ) : null}
-          {helpText ? (
-            <HelpButton
-              helpText={helpText}
-            />
-          ) : null}
-          {closeButtonVisible && removeGridComponent ? (
-            <ClosePaneButton
-              removeGridComponent={removeGridComponent}
-            />
-          ) : null}
-        </div>
-      </div>
-      <div
-        className={clsx(
-          TOOLTIP_ANCESTOR,
-          classes.card,
-          {
-            [classes.scrollCard]: isScroll,
-            [classes.spatialCard]: isSpatial,
-            [classes.noScrollCard]: !isScroll && !isSpatial,
-          },
-        )}
-        aria-busy={!isReady}
-        role="main"
-      >
-        { !isReady ? <LoadingIndicator /> : null }
-        {children}
-      </div>
-    </>
     // "pl-2" only matters when the window is very narrow.
+    (
+      <>
+        <TitleContainer role="banner" className={DRAG_HANDLE}>
+          <TitleLeft role="heading" aria-level="1">
+            {title}
+          </TitleLeft>
+          <TitleInfo title={info} role="note">
+            {info}
+          </TitleInfo>
+          <TitleButtons role="toolbar" aria-label="Plot options and controls">
+            <PlotOptions
+              options={options}
+            />
+            {downloadButtonVisible ? (
+              <DownloadOptions
+                urls={urls}
+              />
+            ) : null}
+            {helpText ? (
+              <HelpButton
+                helpText={helpText}
+              />
+            ) : null}
+            {closeButtonVisible && removeGridComponent ? (
+              <ClosePaneButton
+                removeGridComponent={removeGridComponent}
+              />
+            ) : null}
+          </TitleButtons>
+        </TitleContainer>
+        <CardComponent
+          className={TOOLTIP_ANCESTOR}
+          aria-busy={!isReady}
+          role="main"
+        >
+          { !isReady ? <LoadingIndicator /> : null }
+          {children}
+        </CardComponent>
+      </>
+    )
   );
 }

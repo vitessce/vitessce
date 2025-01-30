@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { Grid, Button, TextField, Typography } from '@material-ui/core';
-import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { Grid, Typography, Autocomplete } from '@mui/material';
+import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
 import { VariableSizeList } from 'react-window';
-import { useStyles } from './styles.js';
+import { SelectButton, SearchInput } from './styles.js';
 
 
 const LIST_ROW_HEIGHT = 48;
@@ -72,7 +71,6 @@ export function SelectAgnostic(props) {
     currentModalityAgnosticSelection,
     setCurrentModalityAgnosticSelection,
   } = props;
-  const classes = useStyles();
 
   const [selectedItem, setSelectedItem] = React.useState(null);
 
@@ -112,14 +110,15 @@ export function SelectAgnostic(props) {
             includeInputInList
             onInputChange={handleChange}
             onChange={(event, item) => setSelectedItem(item)}
-            classes={{ input: classes.searchInput }}
             renderInput={params => (
-              <TextField label="Search" variant="outlined" onChange={handleChange} {...params} />
+              <SearchInput label="Search" variant="outlined" onChange={handleChange} {...params} />
             )}
             ListboxComponent={ListboxComponent}
             getOptionLabel={option => option.label}
-            renderOption={option => (
-              <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+            renderOption={(renderProps, option) => (
+              <li {...renderProps}>
+                <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+              </li>
             )}
           />
         </Grid>
@@ -140,14 +139,13 @@ export function SelectAgnostic(props) {
                   </Typography>
                 </Grid>
                 <Grid item xs={3} style={{ position: 'relative' }}>
-                  <Button
-                    className={classes.selectButton}
+                  <SelectButton
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={confirmSelectedItem}
                   >
                     Select
-                  </Button>
+                  </SelectButton>
                 </Grid>
               </Grid>
               <Grid container item xs={12}>

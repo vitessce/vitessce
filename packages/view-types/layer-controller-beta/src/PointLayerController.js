@@ -13,12 +13,12 @@ import {
   Button,
   Select,
   Checkbox,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';

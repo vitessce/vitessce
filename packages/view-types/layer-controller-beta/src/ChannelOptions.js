@@ -2,8 +2,8 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, Select } from '@material-ui/core';
-import { MoreVert as MoreVertIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem, Select } from '@mui/material';
+import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 

@@ -3,7 +3,7 @@ import {
   Grid,
   Typography,
   Slider,
-} from '@material-ui/core';
+} from '@mui/material';
 import { abbreviateNumber } from '@vitessce/spatial-utils';
 
 function DimensionSlider(props) {

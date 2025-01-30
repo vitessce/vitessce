@@ -30,7 +30,9 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@mui/material": "catalog:mui",
+    "@mui/material-pigment-css": "catalog:mui",
+    "@pigment-css/react": "catalog:mui",
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "clsx": "catalog:",
