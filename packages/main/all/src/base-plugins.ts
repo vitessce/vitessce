@@ -91,6 +91,7 @@ import {
   ExpressionHistogramSubscriber,
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
+  TreemapSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -242,6 +243,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
+  makeViewType(ViewType.TREEMAP, TreemapSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -557,6 +559,7 @@ export const baseCoordinationTypes = [
       color: rgbArray,
     })).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.SAMPLE_HIGHLIGHT, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),

@@ -149,7 +149,9 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
-  const sampleSetSelection = (sampleSetSelectionFromProps || sampleSetSelectionFromCoordination
+  const sampleSetSelection = (
+    sampleSetSelectionFromProps
+    || sampleSetSelectionFromCoordination
   );
 
   const [width, height, deckRef] = useDeckCanvasSize();

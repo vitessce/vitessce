@@ -24,6 +24,7 @@ import { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber
  */
 export function DualEmbeddingScatterplotSubscriber(props) {
   const {
+    uuid,
     coordinationScopes,
   } = props;
 
@@ -48,13 +49,14 @@ export function DualEmbeddingScatterplotSubscriber(props) {
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
         <EmbeddingScatterplotSubscriber
           {...props}
+          uuid={`${uuid}-case`}
           sampleSetSelection={caseSampleSetSelection}
         />
       </div>
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
         <EmbeddingScatterplotSubscriber
           {...props}
-          title=""
+          uuid={`${uuid}-ctrl`}
           sampleSetSelection={ctrlSampleSetSelection}
         />
       </div>

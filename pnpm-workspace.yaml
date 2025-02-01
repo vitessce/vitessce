@@ -30,6 +30,7 @@ catalog:
   "d3-force": ^2.1.1
   "d3-format": ^3.1.0
   "d3-quadtree": ^1.0.7
+  "d3-hierarchy": ^3.1.2
   # note - packages/legend was on d3-scale ^3.2.3
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0
