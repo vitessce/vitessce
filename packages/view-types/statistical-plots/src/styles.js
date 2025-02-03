@@ -1,9 +1,7 @@
-import { makeStyles } from '@mui/styles';
+import { css } from '@mui/material-pigment-css';
 
-export const useStyles = makeStyles(() => ({
-  vegaContainer: {
-    display: 'flex',
-    flex: '1 1 auto',
-    overflow: 'hidden',
-  },
-}));
+export const vegaContainer = css({
+  display: 'flex',
+  flex: '1 1 auto',
+  overflow: 'hidden',
+});

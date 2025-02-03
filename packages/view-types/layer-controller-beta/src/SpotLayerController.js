@@ -4,7 +4,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
-  makeStyles,
   Grid,
   Checkbox,
   Paper,
@@ -22,6 +21,7 @@ import {
 import { PopperMenu } from '@vitessce/vit-s';
 import { SpotsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
+import { css } from '@mui/material-pigment-css';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -29,16 +29,15 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
-const useStyles = makeStyles(() => ({
-  layerTypeSpotIcon: {
-    height: '100%',
-    marginLeft: '1px',
-    fill: 'currentColor',
-    fontSize: '20px',
-    width: '50%',
-    maxWidth: '20px',
-  },
-}));
+const layerTypeSpotIcon = css({
+  height: '100%',
+  marginLeft: '1px',
+  fill: 'currentColor',
+  fontSize: '20px',
+  width: '50%',
+  maxWidth: '20px',
+});
+
 
 function SpotLayerEllipsisMenu(props) {
   const {
@@ -59,7 +58,6 @@ function SpotLayerEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -306,7 +304,7 @@ export default function SpotLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <SpotsIconSVG className={classes.layerTypeSpotIcon} />
+            <SpotsIconSVG className={layerTypeSpotIcon} />
           </Grid>
         </Grid>
       </Paper>

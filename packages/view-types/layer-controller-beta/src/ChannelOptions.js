@@ -2,22 +2,23 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, Select } from '@mui/material';
+import { MenuItem, Select } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
+import { css } from '@mui/material-pigment-css';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
-const useStyles = makeStyles(() => ({
-  channelMenuButton: {
-    backgroundColor: 'transparent',
-    padding: '3px 0',
-    marginTop: '3px',
-  },
-  menuItemButton: {
-    padding: '5px',
-    width: '100%',
-  },
-}));
+const channelMenuButton = css({
+  backgroundColor: 'transparent',
+  padding: '3px 0',
+  marginTop: '3px',
+});
+
+const menuItemButton = css({
+  padding: '5px',
+  width: '100%',
+});
+
 
 /**
  * Dropdown for options for a channel on the three dots button.
@@ -31,7 +32,6 @@ export default function ChannelOptions(props) {
   } = props;
   const [open, setOpen] = useState(false);
 
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -51,7 +51,7 @@ export default function ChannelOptions(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
-      buttonClassName={classes.channelMenuButton}
+      buttonClassName={channelMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       placement="bottom-end"
       withPaper
@@ -77,7 +77,7 @@ export default function ChannelOptions(props) {
         disableGutters
         component="button"
         onClick={onResetWindowUsingIQR}
-        className={classes.menuItemButton}
+        className={menuItemButton}
         aria-label="Click to use IQR for channel"
       >
         Reset window using IQR
@@ -87,7 +87,7 @@ export default function ChannelOptions(props) {
         disableGutters
         component="button"
         onClick={handleRemove}
-        className={classes.menuItemButton}
+        className={menuItemButton}
         aria-label="Click to remove channel"
       >
         Remove channel

@@ -1,8 +1,5 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
-import {
-  makeStyles,
-} from '@mui/material';
 import clsx from 'clsx';
 import { isEqual } from 'lodash-es';
 import { PopperMenu } from '@vitessce/vit-s';
@@ -10,51 +7,53 @@ import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
 import { getXlinkHref } from '@vitessce/legend';
+import { css } from '@mui/material-pigment-css';
 
+const colorIcon = css({
+  width: '18px !important',
+  height: '18px !important',
+  cursor: 'pointer',
+  position: 'relative',
+  outline: 'none',
+  float: 'left',
+  borderRadius: '4px',
+  margin: '8px',
+});
 
-const useStyles = makeStyles(() => ({
-  colorIcon: {
+const colorIconOutline = css({
+  border: '1px solid silver',
+});
+
+const colorIconButton = css({
+  height: '100%',
+});
+
+const colorPicker = css({
+  boxShadow: 'none !important',
+  margin: '0 auto',
+  /* Sets margins around color picker and centers */
+  '& > div:nth-child(3)': {
+    padding: '6px !important',
+    transform: 'translate(2px, 0)',
+  },
+  '& > div > div:nth-of-type(1)': {
+    fontSize: '12px',
+    width: '20px !important',
+  },
+  '& input': {
+    width: '60px !important',
+    fontSize: '12px',
+  },
+  /* Sets smaller color squares */
+  '& > div > span > div': {
     width: '18px !important',
     height: '18px !important',
-    cursor: 'pointer',
-    position: 'relative',
-    outline: 'none',
-    float: 'left',
-    borderRadius: '4px',
-    margin: '8px',
   },
-  colorIconOutline: {
+  '& > div > span > div[title="#ffffff"]': {
     border: '1px solid silver',
   },
-  colorIconButton: {
-    height: '100%',
-  },
-  colorPicker: {
-    boxShadow: 'none !important',
-    margin: '0 auto',
-    /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
-      padding: '6px !important',
-      transform: 'translate(2px, 0)',
-    },
-    '& > div > div:nth-of-type(1)': {
-      fontSize: '12px',
-      width: '20px !important',
-    },
-    '& input': {
-      width: '60px !important',
-      fontSize: '12px',
-    },
-    /* Sets smaller color squares */
-    '& > div > span > div': {
-      width: '18px !important',
-      height: '18px !important',
-    },
-    '& > div > span > div[title="#ffffff"]': {
-      border: '1px solid silver',
-    },
-  },
-}));
+});
+
 
 export default function ChannelColorPickerMenu(props) {
   const {
@@ -81,7 +80,6 @@ export default function ChannelColorPickerMenu(props) {
     }
   }
 
-  const classes = useStyles();
 
   const currentColor = color
     ? colorArrayToString(color)
@@ -95,16 +93,16 @@ export default function ChannelColorPickerMenu(props) {
         isStaticColor && visible ? (
           <div
             className={clsx(
-              classes.colorIcon,
+              colorIcon,
               {
-                [classes.colorIconOutline]: theme !== 'dark' && isEqual(color, [255, 255, 255]),
+                [colorIconOutline]: theme !== 'dark' && isEqual(color, [255, 255, 255]),
               },
             )}
             style={{ backgroundColor: currentColor }}
           />
         ) : (
           isColormap && visible && featureValueColormap ? (
-            <div className={classes.colorIcon}>
+            <div className={colorIcon}>
               <svg width="18" height="18">
                 <image
                   x={0}
@@ -118,16 +116,16 @@ export default function ChannelColorPickerMenu(props) {
               </svg>
             </div>
           ) : (
-            <div className={classes.colorIcon} />
+            <div className={colorIcon} />
           )
         )
       }
-      buttonClassName={classes.colorIconButton}
+      buttonClassName={colorIconButton}
       withPaper={false}
       aria-label="Open color picker menu"
     >
       <TwitterPicker
-        className={classes.colorPicker}
+        className={colorPicker}
         disableAlpha
         width={108}
         triangle="hide"

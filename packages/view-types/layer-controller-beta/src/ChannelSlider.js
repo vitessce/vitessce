@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { Slider, makeStyles } from '@mui/material';
+import { Slider } from '@mui/material';
 import { debounce } from 'lodash-es';
 import {
   abbreviateNumber,
   toRgbUIString,
   DOMAINS,
 } from '@vitessce/spatial-utils';
+import { css } from '@mui/material-pigment-css';
 
-const useStyles = makeStyles(() => ({
-  channelSlider: {
-    marginTop: '7px',
-  },
-}));
 
+const channelSlider = css({
+  marginTop: '7px',
+});
 
 /**
  * Slider for controlling current colormap.
@@ -42,7 +41,6 @@ export default function ChannelSlider(props) {
 
   const dtype = image?.getDtype();
   const fullDomain = dtype ? DOMAINS[dtype] : [0, 0];
-  const classes = useStyles();
 
   useEffect(() => {
     // If the `window` value is null, then assume it should be
@@ -76,7 +74,7 @@ export default function ChannelSlider(props) {
       max={max}
       step={step}
       orientation="horizontal"
-      className={classes.channelSlider}
+      className={channelSlider}
       style={{ color: rgbColor }}
       disabled={disabled}
     />

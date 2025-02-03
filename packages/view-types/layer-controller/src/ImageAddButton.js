@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@mui/material';
+import { IconButton, MenuItem } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
+import { styled } from '@mui/material-pigment-css';
 
-const useStyles = makeStyles(() => ({
-  addButton: {
-    marginTop: '10px',
-    marginBottom: '10px',
-    fontWeight: 400,
-  },
-}));
+const StyledAddButton = styled(IconButton)({
+  marginTop: '10px',
+  marginBottom: '10px',
+  fontWeight: 400,
+});
+
 
 function ImageAddIcon() {
   return (
@@ -22,7 +22,6 @@ function ImageAddIcon() {
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
 
   const handleAdd = (imgData) => {
     setOpen(prev => !prev);
@@ -35,7 +34,7 @@ function ImageAddButton({ imageOptions, handleImageAdd }) {
       open={open}
       setOpen={setOpen}
       buttonIcon={<ImageAddIcon />}
-      buttonClassName={classes.addButton}
+      buttonComponent={StyledAddButton}
       placement="bottom-start"
       aria-label="Add image menu"
     >

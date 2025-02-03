@@ -1,18 +1,14 @@
 import React from 'react';
-import {
-  makeStyles,
-  Select,
-} from '@mui/material';
+import Select from '@mui/material/Select';
+import { css } from '@mui/material-pigment-css';
 import { useSelectStyles } from './styles.js';
 
 
-const useStyles = makeStyles(() => ({
-  oneLineChannelSelect: {
-    width: '90%',
-    marginLeft: '5%',
-    fontSize: '12px',
-  },
-}));
+const oneLineChannelSelect = css({
+  width: '90%',
+  marginLeft: '5%',
+  fontSize: '12px',
+});
 
 /**
  * Dropdown for selecting a channel.
@@ -27,7 +23,6 @@ export default function ChannelSelectionDropdown(props) {
     setWindow,
     disabled,
   } = props;
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
 
   function handleChange(event) {
@@ -39,7 +34,7 @@ export default function ChannelSelectionDropdown(props) {
     <Select
       native
       classes={{ root: selectClasses.selectRoot }}
-      className={classes.oneLineChannelSelect}
+      className={oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
       onChange={handleChange}
       inputProps={{ 'aria-label': 'Channel selector' }}

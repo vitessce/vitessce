@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  makeStyles,
   Grid,
   Paper,
   Typography,
@@ -12,30 +11,32 @@ import {
 import {
   DimensionsSVG,
 } from '@vitessce/icons';
+import { css } from '@mui/material-pigment-css';
 import { useControllerSectionStyles } from './styles.js';
 
-
-const useStyles = makeStyles(theme => ({
-  dimensionsIcon: {
-    height: '40px',
-    width: '40px',
-    '& path': {
-      fill: theme.palette.primaryForeground,
-    },
-  },
-  switchFormGroup: {
-    float: 'right',
-    marginTop: '3px',
-  },
-  dimensionLabel: {
-    padding: 0,
-    marginBottom: '0 !important',
-    marginTop: '12px !important',
-  },
-  dimensionSlider: {
-    marginTop: '9px',
+const dimensionsIcon = css(({ theme }) => ({
+  height: '40px',
+  width: '40px',
+  '& path': {
+    fill: theme.palette.primaryForeground,
   },
 }));
+
+const switchFormGroup = css({
+  float: 'right',
+  marginTop: '3px',
+});
+
+const dimensionLabel = css({
+  padding: 0,
+  marginBottom: '0 !important',
+  marginTop: '12px !important',
+});
+
+const dimensionSlider = css({
+  marginTop: '9px',
+});
+
 
 export default function GlobalDimensionSlider(props) {
   const {
@@ -49,7 +50,6 @@ export default function GlobalDimensionSlider(props) {
   } = props;
 
   const lcClasses = useControllerSectionStyles();
-  const classes = useStyles();
   const isForZ = spatialRenderingMode !== null;
 
   function handleRenderingModeChange(event) {
@@ -66,10 +66,10 @@ export default function GlobalDimensionSlider(props) {
       <Paper className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
-            <DimensionsSVG className={classes.dimensionsIcon} />
+            <DimensionsSVG className={dimensionsIcon} />
           </Grid>
           <Grid item xs={1}>
-            <Typography className={classes.dimensionLabel}>
+            <Typography className={dimensionLabel}>
               {label}
             </Typography>
           </Grid>
@@ -80,7 +80,7 @@ export default function GlobalDimensionSlider(props) {
               max={max}
               step={1}
               onChange={(e, v) => setTargetValue(v)}
-              className={classes.dimensionSlider}
+              className={dimensionSlider}
               valueLabelDisplay="auto"
               orientation="horizontal"
               disabled={spatialRenderingMode === '3D'}
@@ -89,7 +89,7 @@ export default function GlobalDimensionSlider(props) {
           </Grid>
           <Grid item xs={2}>
             {isForZ ? (
-              <FormGroup row className={classes.switchFormGroup}>
+              <FormGroup row className={switchFormGroup}>
                 <FormControlLabel
                   control={<Switch color="primary" checked={spatialRenderingMode === '3D'} onChange={handleRenderingModeChange} name="is3dMode" />}
                   label="3D"

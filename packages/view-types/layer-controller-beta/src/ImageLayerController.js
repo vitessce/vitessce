@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
-  makeStyles,
   Grid,
   Paper,
   Typography,
@@ -28,6 +27,7 @@ import {
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
+import { css } from '@mui/material-pigment-css';
 import {
   useControllerSectionStyles,
   useSelectStyles,
@@ -36,39 +36,40 @@ import {
 import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
 
+const imageLayerButton = css({
+  borderStyle: 'dashed',
+  marginTop: '10px',
+  marginBottom: '10px',
+  fontWeight: 400,
+});
 
-const useStyles = makeStyles(() => ({
-  imageLayerButton: {
-    borderStyle: 'dashed',
-    marginTop: '10px',
-    marginBottom: '10px',
-    fontWeight: 400,
-  },
-  imageChannelControllerGrid: {
-    padding: '0',
-    flexWrap: 'nowrap',
-  },
-  channelExpansionButton: {
-    display: 'inline-block',
-    margin: 0,
-    padding: 0,
-    minWidth: 0,
-    lineHeight: 1,
-    width: '50%',
-  },
-  layerTypeImageIcon: {
-    height: '100%',
-    width: '50%',
-    maxWidth: '24px',
-  },
-  clippingPanesLabel: {
-    marginBottom: '0 !important',
-  },
-  clippingSliders: {
-    padding: '0 8px',
+const imageChannelControllerGrid = css({
+  padding: '0',
+  flexWrap: 'nowrap',
+});
 
-  },
-}));
+const channelExpansionButton = css({
+  display: 'inline-block',
+  margin: 0,
+  padding: 0,
+  minWidth: 0,
+  lineHeight: 1,
+  width: '50%',
+});
+
+const layerTypeImageIcon = css({
+  height: '100%',
+  width: '50%',
+  maxWidth: '24px',
+});
+
+const clippingPanesLabel = css({
+  marginBottom: '0 !important',
+});
+
+const clippingSliders = css({
+  padding: '0 8px',
+});
 
 function ImageLayerEllipsisMenu(props) {
   const {
@@ -374,7 +375,6 @@ export default function ImageLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
-  const classes = useStyles();
   const menuClasses = useEllipsisMenuStyles();
   const controllerSectionClasses = useControllerSectionStyles();
   const isMultiChannel = photometricInterpretation !== 'RGB';
@@ -435,11 +435,11 @@ export default function ImageLayerController(props) {
             />
           </Grid>
           <Grid item xs={1} container direction="row">
-            <ImageIcon className={classes.layerTypeImageIcon} />
+            <ImageIcon className={layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button
                 onClick={handleOpenChange}
-                className={classes.channelExpansionButton}
+                className={channelExpansionButton}
                 aria-label="Expand or collapse channel controls"
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
@@ -452,7 +452,7 @@ export default function ImageLayerController(props) {
             container
             direction="column"
             justifyContent="space-between"
-            className={classes.imageChannelControllerGrid}
+            className={imageChannelControllerGrid}
           >
             {channelScopes.map((cScope) => {
               const {
@@ -506,7 +506,7 @@ export default function ImageLayerController(props) {
               onClick={handleChannelAdd}
               fullWidth
               variant="outlined"
-              className={classes.imageLayerButton}
+              className={imageLayerButton}
               startIcon={<AddIcon />}
               size="small"
               aria-label="Add a channel to this layer"
@@ -520,10 +520,10 @@ export default function ImageLayerController(props) {
             container
             direction="column"
             justifyContent="space-between"
-            className={classes.imageChannelControllerGrid}
+            className={imageChannelControllerGrid}
           >
-            <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
-            <Grid item xs={12} className={classes.clippingSliders}>
+            <Typography className={clippingPanesLabel}>Clipping planes:</Typography>
+            <Grid item xs={12} className={clippingSliders}>
               <ClippingSliders
                 image={image}
                 spatialSliceX={spatialSliceX}

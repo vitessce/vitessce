@@ -1,16 +1,15 @@
 import React from 'react';
 import {
   Checkbox,
-  makeStyles,
 } from '@mui/material';
 import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
+import { css } from '@mui/material-pigment-css';
 
-const useStyles = makeStyles(() => ({
-  visibilityCheckbox: {
-    padding: '8px 0',
-  },
-}));
+
+const visibilityCheckbox = css({
+  padding: '8px 0',
+});
 
 function getCheckboxColor(colormapOn, color, theme) {
   if (theme !== 'dark' && isEqual(color, [255, 255, 255])) {
@@ -35,13 +34,12 @@ export default function ChannelVisibilityCheckbox(props) {
   } = props;
   const rgbColor = getCheckboxColor(colormapOn, color, theme);
 
-  const classes = useStyles();
   return (
     <Checkbox
       onChange={(e, v) => setVisible(v)}
       checked={visible}
       disabled={disabled}
-      className={classes.visibilityCheckbox}
+      className={visibilityCheckbox}
       style={{ color: rgbColor, '&$checked': { color: rgbColor } }}
       inputProps={{ 'aria-label': 'Toggle channel visibility' }}
     />

@@ -1,49 +1,46 @@
 import React from 'react';
-import { IconButton, makeStyles } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { Lens as LensIcon } from '@mui/icons-material';
 import { VIEWER_PALETTE } from '@vitessce/utils';
+import { styled } from '@mui/material-pigment-css';
 
-const useStyles = makeStyles(theme => ({
-  paletteContainer: {
-    width: '70px',
-    height: '40px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  button: {
-    padding: '3px',
-    width: '16px',
-  },
-  icon: {
-    width: '17px',
-    height: '17px',
-    stroke: theme.palette.action.selected,
-    'stroke-width': '1px',
-  },
+const PaletteContainer = styled('div')({
+  width: '70px',
+  height: '40px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+});
+
+const PaletteButton = styled(IconButton)({
+  padding: '3px',
+  width: '16px',
+});
+
+const StyledLensIcon = styled(LensIcon)(({ theme }) => ({
+  width: '17px',
+  height: '17px',
+  stroke: theme.palette.action.selected,
+  'stroke-width': '1px',
 }));
 
-const ColorPalette = ({ handleChange }) => {
-  const classes = useStyles();
-  return (
-    <div className={classes.paletteContainer} aria-label="Color swatch">
-      {VIEWER_PALETTE.map(color => (
-        <IconButton
-          className={classes.button}
-          key={color}
-          onClick={() => handleChange(color)}
-          aria-label={`Change color to ${color}`}
-        >
-          <LensIcon
-            fontSize="small"
-            style={{ color: `rgb(${color})` }}
-            className={classes.icon}
-          />
-        </IconButton>
-      ))}
-    </div>
-  );
-};
+
+const ColorPalette = ({ handleChange }) => (
+  <PaletteContainer aria-label="Color swatch">
+    {VIEWER_PALETTE.map(color => (
+      <PaletteButton
+        key={color}
+        onClick={() => handleChange(color)}
+        aria-label={`Change color to ${color}`}
+      >
+        <StyledLensIcon
+          fontSize="small"
+          style={{ color: `rgb(${color})` }}
+        />
+      </PaletteButton>
+    ))}
+  </PaletteContainer>
+);
 
 export default ColorPalette;

@@ -1,227 +1,257 @@
 /* eslint-disable max-len */
 import { makeStyles } from '@mui/styles';
+import { css, globalCss } from '@mui/material-pigment-css';
 
 const nodeHeight = 32;
 
-export const useStyles = makeStyles(theme => ({
-  setsManager: {
-    position: 'relative',
-    width: '100%',
-    display: 'block',
-    height: 'auto',
-  },
-  setOperationButtons: {
-    backgroundColor: theme.palette.grayLight,
-    borderRadius: '4px',
-    padding: '2px',
-    display: 'flex',
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: '28px',
-    right: '4px',
-    boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
-    '& button': {
-      cursor: 'pointer',
-      border: '0',
-      backgroundColor: 'transparent',
-      color: theme.palette.grayDarkL5,
-      '&[disabled]': {
-        pointerEvents: 'none',
-        '& svg': {
-          fill: 'silver',
-        },
-      },
+const setsManager = css({
+  position: 'relative',
+  width: '100%',
+  display: 'block',
+  height: 'auto',
+});
+
+export const setOperationButtons = css(({ theme }) => ({
+  backgroundColor: theme.palette.grayLight,
+  borderRadius: '4px',
+  padding: '2px',
+  display: 'flex',
+  flexDirection: 'row',
+  position: 'absolute',
+  bottom: '28px',
+  right: '4px',
+  boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
+  '& button': {
+    cursor: 'pointer',
+    border: '0',
+    backgroundColor: 'transparent',
+    color: theme.palette.grayDarkL5,
+    '&[disabled]': {
+      pointerEvents: 'none',
       '& svg': {
-        fill: theme.palette.grayDark,
-        verticalAlign: 'top',
-        height: '20px',
-        marginTop: '1px',
-      },
-      '&:hover,:hover path': {
-        color: theme.palette.grayDarkD15,
-        fill: theme.palette.grayDarkD15,
+        fill: 'silver',
       },
     },
-  },
-  setsManagerTree: {
-    position: 'relative',
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-    paddingRight: '17px', /* Increase/decrease this value for cross-browser compatibility */
-    boxSizing: 'content-box', /* So the width will be 100% + 17px */
-
-    '@global .rc-tree': {
-      paddingLeft: '0',
-      margin: '0',
-      border: '1px solid transparent',
-    },
-
-    '@global .level-0-treenode > .rc-tree-switcher i svg path': {
-      fill: theme.palette.primaryForegroundL5,
-    },
-    '@global .rc-tree-focused:not(.rc-tree-active-focused)': {
-      borderColor: 'cyan',
-    },
-    '@global .rc-tree-treenode': {
-      margin: '0',
-      padding: '0',
-      lineHeight: `${nodeHeight - 8}px`,
-      whiteSpace: 'nowrap',
-      listStyle: 'none',
-      outline: '0',
-    },
-
-    '@global .rc-tree-treenode .draggable': {
-      color: '#333',
-      userSelect: 'none',
-      /* Required to make elements draggable in old WebKit */
-      '-khtml-user-drag': 'element',
-      '-webkit-user-drag': 'element',
-      border: '2px transparent solid',
-    },
-    '@global .rc-tree-treenode.drag-over > .draggable': {
-      color: 'white',
-      backgroundColor: '#316ac5',
-      border: '2px #316ac5 solid',
-      opacity: '0.8',
-    },
-    '@global .rc-tree-treenode.drag-over-gap-top > .draggable': {
-      borderTop: '2px blue solid',
-    },
-    '@global .rc-tree-treenode.drag-over-gap-bottom > .draggable': {
-      borderBottom: '2px blue solid',
-    },
-    '@global .rc-tree-treenode.filter-node > .rc-tree-node-content-wrapper': {
-      color: '#a60000 !important',
-      fontWeight: 'bold !important',
-    },
-    '@global .rc-tree-treenode ul': {
-      margin: '0',
-      paddingLeft: '35px',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper': {
-      width: 'calc(100% - 20px)',
-      display: 'inline-block',
-      margin: '0',
-      padding: '0',
-      textDecoration: 'none',
+    '& svg': {
+      fill: theme.palette.grayDark,
       verticalAlign: 'top',
-      cursor: 'pointer',
-      position: 'relative',
+      height: '20px',
+      marginTop: '1px',
     },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span': {
-      position: 'relative',
-      width: '100%',
-      display: 'inline-block',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
-      position: 'relative',
-      /* To accomodate the checkbox and node menu button. */
-      maxWidth: 'calc(100% - 45px)',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
-      position: 'relative',
-      left: '0',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher, .rc-tree-treenode span.rc-tree-checkbox': {
-      display: 'inline-block',
-      marginTop: '4px',
-      marginRight: '6px',
-      verticalAlign: 'middle',
-      backgroundColor: 'transparent',
-
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'scroll',
-      border: '0 none',
-      outline: 'none',
-      cursor: 'pointer',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher svg': {
-      width: '15px',
-      height: '15px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher-noop': {
-      cursor: 'auto',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher_close': {
-      transform: 'rotate(-90deg)',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox': {
-      width: '13px',
-      height: '13px',
-      margin: '0 3px',
-      border: `2px solid ${theme.palette.grayMid}`,
-      borderRadius: '3px',
-      position: 'relative',
-      left: '0',
-      marginRight: '10px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-checked': {
-      backgroundColor: theme.palette.grayMid,
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
-      backgroundPosition: '-14px -28px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-disabled': {
-      backgroundPosition: '0 -56px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-checked.rc-tree-checkbox-disabled': {
-      backgroundPosition: '-14px -56px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled': {
-      position: 'relative',
-      background: '#ccc',
-      borderRadius: '3px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled::after': {
-      position: 'absolute',
-      top: '5px',
-      left: '3px',
-      width: '5px',
-      height: '0',
-      border: '2px solid #fff',
-      borderTop: '0',
-      borderLeft: '0',
-      transform: 'scale(1)',
-      content: "' '",
-    },
-    '@global .rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
-      background: 'none',
-    },
-    '@global .rc-tree.rc-tree-show-line .rc-tree-treenode:not(:last-child) > .rc-tree-switcher-noop': {
-      backgroundPosition: '-56px -18px',
-    },
-    '@global .rc-tree.rc-tree-show-line .rc-tree-treenode:last-child > .rc-tree-switcher-noop': {
-      backgroundPosition: '-56px -36px',
-    },
-    '@global .rc-tree-child-tree': {
-      display: 'none',
-    },
-    '@global .rc-tree-child-tree-open': {
-      display: 'block',
-    },
-    '@global .rc-tree-treenode-disabled > span:not(.rc-tree-switcher), .rc-tree-treenode-disabled > a, .rc-tree-treenode-disabled > a span': {
-      color: '#767676',
-      cursor: 'not-allowed',
-    },
-    '@global .rc-tree-treenode-active': {
-      background: 'rgba(0, 0, 0, 0.1)',
-    },
-    '@global .rc-tree-node-selected': {
-      backgroundColor: '#ffe6b0',
-      border: '1px #ffb951 solid',
-      opacity: '0.8',
-    },
-    '@global .rc-tree-indent-unit': {
-      display: 'inline-block',
-      paddingLeft: '18px',
+    '&:hover,:hover path': {
+      color: theme.palette.grayDarkD15,
+      fill: theme.palette.grayDarkD15,
     },
   },
+}));
+
+export const setsManagerTree = css({
+  position: 'relative',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: 'auto',
+  display: 'block',
+  paddingRight: '17px', /* Increase/decrease this value for cross-browser compatibility */
+  boxSizing: 'content-box', /* So the width will be 100% + 17px */
+});
+
+export const globalRcTreeStyles = globalCss(({ theme }) => ({
+  '.rc-tree': {
+    paddingLeft: '0',
+    margin: '0',
+    border: '1px solid transparent',
+  },
+
+  '.level-0-treenode > .rc-tree-switcher i svg path': {
+    fill: theme.palette.primaryForegroundL5,
+  },
+  '.rc-tree-focused:not(.rc-tree-active-focused)': {
+    borderColor: 'cyan',
+  },
+  '.rc-tree-treenode': {
+    margin: '0',
+    padding: '0',
+    lineHeight: `${nodeHeight - 8}px`,
+    whiteSpace: 'nowrap',
+    listStyle: 'none',
+    outline: '0',
+  },
+
+  '.rc-tree-treenode .draggable': {
+    color: '#333',
+    userSelect: 'none',
+    /* Required to make elements draggable in old WebKit */
+    '-khtml-user-drag': 'element',
+    '-webkit-user-drag': 'element',
+    border: '2px transparent solid',
+  },
+  '.rc-tree-treenode.drag-over > .draggable': {
+    color: 'white',
+    backgroundColor: '#316ac5',
+    border: '2px #316ac5 solid',
+    opacity: '0.8',
+  },
+  '.rc-tree-treenode.drag-over-gap-top > .draggable': {
+    borderTop: '2px blue solid',
+  },
+  '.rc-tree-treenode.drag-over-gap-bottom > .draggable': {
+    borderBottom: '2px blue solid',
+  },
+  '.rc-tree-treenode.filter-node > .rc-tree-node-content-wrapper': {
+    color: '#a60000 !important',
+    fontWeight: 'bold !important',
+  },
+  '.rc-tree-treenode ul': {
+    margin: '0',
+    paddingLeft: '35px',
+  },
+  '.rc-tree-treenode .rc-tree-node-content-wrapper': {
+    width: 'calc(100% - 20px)',
+    display: 'inline-block',
+    margin: '0',
+    padding: '0',
+    textDecoration: 'none',
+    verticalAlign: 'top',
+    cursor: 'pointer',
+    position: 'relative',
+  },
+  '.rc-tree-treenode .rc-tree-node-content-wrapper > span': {
+    position: 'relative',
+    width: '100%',
+    display: 'inline-block',
+  },
+  '.rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
+    position: 'relative',
+    /* To accomodate the checkbox and node menu button. */
+    maxWidth: 'calc(100% - 45px)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  '.rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
+    position: 'relative',
+    left: '0',
+  },
+  '.rc-tree-treenode span.rc-tree-switcher, .rc-tree-treenode span.rc-tree-checkbox': {
+    display: 'inline-block',
+    marginTop: '4px',
+    marginRight: '6px',
+    verticalAlign: 'middle',
+    backgroundColor: 'transparent',
+
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'scroll',
+    border: '0 none',
+    outline: 'none',
+    cursor: 'pointer',
+  },
+  '.rc-tree-treenode span.rc-tree-switcher svg': {
+    width: '15px',
+    height: '15px',
+  },
+  '.rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher-noop': {
+    cursor: 'auto',
+  },
+  '.rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher_close': {
+    transform: 'rotate(-90deg)',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox': {
+    width: '13px',
+    height: '13px',
+    margin: '0 3px',
+    border: `2px solid ${theme.palette.grayMid}`,
+    borderRadius: '3px',
+    position: 'relative',
+    left: '0',
+    marginRight: '10px',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox-checked': {
+    backgroundColor: theme.palette.grayMid,
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
+    backgroundPosition: '-14px -28px',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox-disabled': {
+    backgroundPosition: '0 -56px',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-checked.rc-tree-checkbox-disabled': {
+    backgroundPosition: '-14px -56px',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled': {
+    position: 'relative',
+    background: '#ccc',
+    borderRadius: '3px',
+  },
+  '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled::after': {
+    position: 'absolute',
+    top: '5px',
+    left: '3px',
+    width: '5px',
+    height: '0',
+    border: '2px solid #fff',
+    borderTop: '0',
+    borderLeft: '0',
+    transform: 'scale(1)',
+    content: "' '",
+  },
+  '.rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
+    background: 'none',
+  },
+  '.rc-tree.rc-tree-show-line .rc-tree-treenode:not(:last-child) > .rc-tree-switcher-noop': {
+    backgroundPosition: '-56px -18px',
+  },
+  '.rc-tree.rc-tree-show-line .rc-tree-treenode:last-child > .rc-tree-switcher-noop': {
+    backgroundPosition: '-56px -36px',
+  },
+  '.rc-tree-child-tree': {
+    display: 'none',
+  },
+  '.rc-tree-child-tree-open': {
+    display: 'block',
+  },
+  '.rc-tree-treenode-disabled > span:not(.rc-tree-switcher), .rc-tree-treenode-disabled > a, .rc-tree-treenode-disabled > a span': {
+    color: '#767676',
+    cursor: 'not-allowed',
+  },
+  '.rc-tree-treenode-active': {
+    background: 'rgba(0, 0, 0, 0.1)',
+  },
+  '.rc-tree-node-selected': {
+    backgroundColor: '#ffe6b0',
+    border: '1px #ffb951 solid',
+    opacity: '0.8',
+  },
+  '.rc-tree-indent-unit': {
+    display: 'inline-block',
+    paddingLeft: '18px',
+  },
+}));
+
+export const plusButton = css(({ theme }) => ({
+  border: '0',
+  backgroundColor: 'transparent',
+  color: theme.palette.primaryForegroundL5,
+  padding: '0',
+  fontSize: '18px',
+  marginBottom: '32px',
+  cursor: 'pointer',
+}));
+
+export const nodeMenuIcon = css(({ theme }) => ({
+  fill: theme.palette.grayMid,
+  cursor: 'pointer',
+  // Important needed due to Jupyter Notebook conflicting styles
+  height: '14px !important',
+  position: 'relative',
+  verticalAlign: 'top',
+  width: `${nodeHeight}px`,
+  top: '5.5px',
+  '&:hover': {
+    fill: theme.palette.grayMidL10,
+  },
+})
+
+export const useStyles = makeStyles(theme => ({
   plusButton: {
     border: '0',
     backgroundColor: 'transparent',

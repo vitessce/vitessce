@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import {
-  makeStyles,
   Paper,
   Popper,
   IconButton,
@@ -9,19 +8,20 @@ import {
   Fade,
 } from '@mui/material';
 import clsx from 'clsx';
+import { css } from '@mui/material-pigment-css';
 import { useVitessceContainer } from '../hooks.js';
 
-const useStyles = makeStyles(() => ({
-  paper: {
-    maxHeight: 200,
-    overflow: 'auto',
-  },
-  container: {
-    position: 'relative',
-    left: 0,
-    top: 0,
-  },
-}));
+const paper = css({
+  maxHeight: 200,
+  overflow: 'auto',
+});
+
+const container = css({
+  position: 'relative',
+  left: 0,
+  top: 0,
+});
+
 
 export function PopperMenu(props) {
   const {
@@ -35,7 +35,6 @@ export function PopperMenu(props) {
     containerClassName,
     'aria-label': ariaLabel,
   } = props;
-  const classes = useStyles();
 
   const anchorRef = useRef();
 
@@ -52,7 +51,7 @@ export function PopperMenu(props) {
   const getTooltipContainer = useVitessceContainer(anchorRef);
 
   return (
-    <div ref={anchorRef} className={clsx(classes.container, containerClassName)}>
+    <div ref={anchorRef} className={clsx(container, containerClassName)}>
       <ButtonComponent
         aria-describedby={id}
         onClick={handleClick}
@@ -75,7 +74,7 @@ export function PopperMenu(props) {
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
               {withPaper ? (
-                <Paper elevation={4} className={classes.paper}>
+                <Paper elevation={4} className={paper}>
                   <MenuList>{children}</MenuList>
                 </Paper>
               ) : children}

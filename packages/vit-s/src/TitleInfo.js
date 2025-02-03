@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { makeStyles, MenuItem, IconButton, Link } from '@mui/material';
+import { MenuItem, IconButton, Link } from '@mui/material';
 import {
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
@@ -9,51 +9,53 @@ import {
   Help as HelpIcon,
 } from '@mui/icons-material';
 
+import { css } from '@mui/material-pigment-css';
 import { TOOLTIP_ANCESTOR, DRAG_HANDLE } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { NoScrollCard, ScrollCard, SpatialCard, TitleButtons, TitleContainer, TitleLeft } from './title-styles.js';
 
-const useStyles = makeStyles(theme => ({
-  iconButton: {
-    border: 'none',
-    marginLeft: 0,
-    background: 'none',
-    color: theme.palette.primaryForeground,
-    paddingLeft: '0.25em',
-    paddingRight: '0.25em',
-    borderRadius: '2px',
-    '&:hover': {
-      backgroundColor: theme.palette.primaryBackgroundLight,
-    },
-    '&:first-child': {
-      marginLeft: '0.25em',
-    },
-    '&:last-child': {
-      marginRight: '0.25em',
-    },
-    '& svg': {
-      width: '0.7em',
-      height: '0.7em',
-      verticalAlign: 'middle',
-      overflow: 'visible',
-    },
+const iconButton = css(({ theme }) => ({
+  border: 'none',
+  marginLeft: 0,
+  background: 'none',
+  color: theme.palette.primaryForeground,
+  paddingLeft: '0.25em',
+  paddingRight: '0.25em',
+  borderRadius: '2px',
+  '&:hover': {
+    backgroundColor: theme.palette.primaryBackgroundLight,
   },
-  downloadLink: {
-    color: theme.palette.primaryForeground,
+  '&:first-child': {
+    marginLeft: '0.25em',
   },
-  helpTextSpan: {
-    maxWidth: '400px',
-    padding: '5px 10px',
-    display: 'inline-block',
-    textAlign: 'justify',
-    fontSize: '14px',
-    backgroundColor: theme.palette.gridLayoutBackground,
-    color: theme.palette.tooltipText,
-    borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
-    border: '10px solid grey',
+  '&:last-child': {
+    marginRight: '0.25em',
   },
+  '& svg': {
+    width: '0.7em',
+    height: '0.7em',
+    verticalAlign: 'middle',
+    overflow: 'visible',
+  },
+}));
+
+const downloadLink = css(({ theme }) => ({
+
+  color: theme.palette.primaryForeground,
+}));
+
+const helpTextSpan = css(({ theme }) => ({
+  maxWidth: '400px',
+  padding: '5px 10px',
+  display: 'inline-block',
+  textAlign: 'justify',
+  fontSize: '14px',
+  backgroundColor: theme.palette.gridLayoutBackground,
+  color: theme.palette.tooltipText,
+  borderRadius: '8px',
+  boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+  border: '10px solid grey',
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -68,7 +70,6 @@ function SettingsIconWithArrow({ open }) {
 function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
 
   const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
@@ -76,7 +77,7 @@ function PlotOptions(props) {
       open={open}
       setOpen={setOpen}
       buttonIcon={buttonIcon}
-      buttonClassName={classes.iconButton}
+      buttonClassName={iconButton}
       placement="bottom-end"
       aria-label="Open plot options menu"
     >
@@ -97,20 +98,19 @@ function CloudDownloadIconWithArrow({ open }) {
 function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
   return (urls && urls.length ? (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={buttonIcon}
-      buttonClassName={classes.iconButton}
+      buttonClassName={iconButton}
       placement="bottom-end"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
         <MenuItem dense key={`${url}_${name}`} aria-label={`Click to download ${name}`}>
-          <Link underline="always" href={url} target="_blank" rel="noopener" className={classes.downloadLink}>
+          <Link underline="always" href={url} target="_blank" rel="noopener" className={downloadLink}>
             Download {name}
           </Link>
         </MenuItem>
@@ -122,18 +122,17 @@ function DownloadOptions(props) {
 function HelpButton(props) {
   const { helpText } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   return (
     <PopperMenu
       open={open}
       setOpen={setOpen}
       buttonIcon={<HelpIcon />}
-      buttonClassName={classes.iconButton}
+      buttonClassName={iconButton}
       placement="bottom-end"
       aria-label="Open help info"
       withPaper={false}
     >
-      <span className={classes.helpTextSpan}>{helpText}</span>
+      <span className={helpTextSpan}>{helpText}</span>
     </PopperMenu>
   );
 }
@@ -141,12 +140,11 @@ function HelpButton(props) {
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
-  const classes = useStyles();
   return (
     <IconButton
       onClick={removeGridComponent}
       size="small"
-      className={classes.iconButton}
+      className={iconButton}
       title="close"
       aria-label="Close panel button"
     >
