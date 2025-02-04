@@ -1,10 +1,8 @@
-/* eslint-disable max-len */
-import { makeStyles } from '@mui/styles';
 import { css, globalCss } from '@mui/material-pigment-css';
 
 const nodeHeight = 32;
 
-const setsManager = css({
+export const setsManager = css({
   position: 'relative',
   width: '100%',
   display: 'block',
@@ -251,125 +249,108 @@ export const nodeMenuIcon = css(({ theme }) => ({
   },
 })
 
-export const useStyles = makeStyles(theme => ({
-  plusButton: {
-    border: '0',
-    backgroundColor: 'transparent',
-    color: theme.palette.primaryForegroundL5,
-    padding: '0',
-    fontSize: '18px',
-    marginBottom: '32px',
-    cursor: 'pointer',
-  },
-  nodeMenuIcon: {
-    fill: theme.palette.grayMid,
-    cursor: 'pointer',
-    // Important needed due to Jupyter Notebook conflicting styles
-    height: '14px !important',
-    position: 'relative',
-    verticalAlign: 'top',
-    width: `${nodeHeight}px`,
-    top: '5.5px',
-    '&:hover': {
-      fill: theme.palette.grayMidL10,
-    },
-  },
-  nodeSizeLabel: {
-    fontSize: '12px',
-    color: theme.palette.primaryForegroundD15,
-  },
-  levelButtonsContainer: {
-    height: '20px',
-    width: '100%',
-    position: 'relative',
-    paddingLeft: '4px',
-    left: '0',
-  },
-  levelRadioButton: {
-    cursor: 'pointer',
-    appearance: 'none',
-    /* create custom radiobutton appearance */
-    width: '12px',
-    height: '12px',
-    // Important needed due to Jupyter Notebook conflicting styles
-    padding: '5px !important',
-    /* background-color only for content */
-    backgroundClip: 'content-box',
-    border: `2px solid ${theme.palette.primaryForegroundL10}`,
-    backgroundColor: theme.palette.primaryForegroundL10,
-    borderRadius: '6px',
-    position: 'relative',
-    top: '3px',
-    left: '0px',
-    float: 'left',
-    marginRight: '10px',
-    '&:checked': {
-      backgroundClip: 'unset',
-    },
-  },
-  levelRadioButtonChecked: {
+export const nodeSizeLabel = css(({ theme }) => ({
+  fontSize: '12px',
+  color: theme.palette.primaryForegroundD15,
+}));
+
+export const levelButtonsContainer = css({
+  height: '20px',
+  width: '100%',
+  position: 'relative',
+  paddingLeft: '4px',
+  left: '0',
+});
+
+export const levelRadioButton = css(({ theme }) => ({
+  cursor: 'pointer',
+  appearance: 'none',
+  /* create custom radiobutton appearance */
+  width: '12px',
+  height: '12px',
+  // Important needed due to Jupyter Notebook conflicting styles
+  padding: '5px !important',
+  /* background-color only for content */
+  backgroundClip: 'content-box',
+  border: `2px solid ${theme.palette.primaryForegroundL10}`,
+  backgroundColor: theme.palette.primaryForegroundL10,
+  borderRadius: '6px',
+  position: 'relative',
+  top: '3px',
+  left: '0px',
+  float: 'left',
+  marginRight: '10px',
+  '&:checked': {
     backgroundClip: 'unset',
   },
-  titleButton: {
-    padding: 0,
-    margin: 0,
-    height: `${nodeHeight - 8}px`,
-    lineHeight: `${nodeHeight - 8}px`,
-    border: '1px solid transparent',
-    color: theme.palette.primaryForegroundL5,
-    background: 'transparent',
-    backgroundColor: 'transparent',
-    verticalAlign: 'top',
-    fontSize: '14px',
-    cursor: 'pointer',
-  },
-  titleButtonWithInput: {
-    padding: 0,
-    margin: 0,
-    display: 'block',
-    height: `${nodeHeight - 6}px`,
-    boxSizing: 'border-box',
-  },
-  titleInput: {
-    fontSize: '14px',
-    height: `${nodeHeight - 8}px`,
-    lineHeight: `${nodeHeight - 8}px`,
-    width: 'calc(100% - 60px)',
-    marginRight: '10px',
-    backgroundColor: theme.palette.grayLight,
-    color: theme.palette.black,
-    borderRadius: '4px',
-    outline: 'none',
-    padding: ' 4px 0px 4px 4px',
-    border: `1px solid ${theme.palette.grayLight}`,
-    '& :focus': {
-      border: `1px solid ${theme.palette.primaryForegroundActive}`,
-    },
-  },
-  titleSaveButton: {
-    backgroundColor: theme.palette.grayDark,
-    border: `1px solid ${theme.palette.grayDark}`,
-    color: theme.palette.grayLight,
-    borderRadius: '3px',
-    width: '50px',
-    height: `${nodeHeight - 8}px`,
-    lineHeight: '20px',
-    fontSize: '13px',
-    verticalAlign: 'top',
-    margin: 0,
-    padding: 0,
-    '&:hover': {
-      backgroundColor: theme.palette.grayDarkL5,
-      border: `1px solid ${theme.palette.grayDarkL5}`,
-    },
-  },
-  // TODO(monorepo): is this style used anywhere?
-  '@global .vitessce-tooltip .ant-tooltip-content .ant-tooltip-inner': {
-    fontSize: '12px',
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+});
+
+export const levelRadioButtonChecked = css({
+  backgroundClip: 'unset',
+});
+
+export const titleButton = css(({ theme }) => ({
+
+  padding: 0,
+  margin: 0,
+  height: `${nodeHeight - 8}px`,
+  lineHeight: `${nodeHeight - 8}px`,
+  border: '1px solid transparent',
+  color: theme.palette.primaryForegroundL5,
+  background: 'transparent',
+  backgroundColor: 'transparent',
+  verticalAlign: 'top',
+  fontSize: '14px',
+  cursor: 'pointer',
+});
+
+export const titleButtonWithInput = css({
+  padding: 0,
+  margin: 0,
+  display: 'block',
+  height: `${nodeHeight - 6}px`,
+  boxSizing: 'border-box',
+});
+
+export const titleInput = css(({ theme }) => ({
+  fontSize: '14px',
+  height: `${nodeHeight - 8}px`,
+  lineHeight: `${nodeHeight - 8}px`,
+  width: 'calc(100% - 60px)',
+  marginRight: '10px',
+  backgroundColor: theme.palette.grayLight,
+  color: theme.palette.black,
+  borderRadius: '4px',
+  outline: 'none',
+  padding: ' 4px 0px 4px 4px',
+  border: `1px solid ${theme.palette.grayLight}`,
+  '& :focus': {
+    border: `1px solid ${theme.palette.primaryForegroundActive}`,
   },
 }));
 
+export const titleSaveButton = css(({ theme }) => ({
+  backgroundColor: theme.palette.grayDark,
+  border: `1px solid ${theme.palette.grayDark}`,
+  color: theme.palette.grayLight,
+  borderRadius: '3px',
+  width: '50px',
+  height: `${nodeHeight - 8}px`,
+  lineHeight: '20px',
+  fontSize: '13px',
+  verticalAlign: 'top',
+  margin: 0,
+  padding: 0,
+  '&:hover': {
+    backgroundColor: theme.palette.grayDarkL5,
+    border: `1px solid ${theme.palette.grayDarkL5}`,
+  },
+}));
+
+export const antTooltip = globalCss(({
+  fontSize: '12px',
+  backgroundColor: 'rgba(0, 0, 0, 0.95)',
+}, { name: 'AntTooltip' }));
 
 /*
   Tooltips and popovers for showing help info to the user.
@@ -387,180 +368,194 @@ const helpTooltipCommon = {
   position: 'absolute',
 };
 
-export const useHelpTooltipStyles = makeStyles(theme => ({
-  helpTooltip: {
-    zIndex: 1060,
-    display: 'block',
-    maxWidth: '250px',
-    visibility: 'visible',
-    paddingTop: '8px', // Assumes placement: 'top'
-    ...helpTooltipCommon,
-    '@global .rc-tooltip-inner': {
-      fontSize: '10px',
-      minWidth: '30px',
-      padding: '6px 8px',
-      color: '#fff',
-      textAlign: 'left',
-      textDecoration: 'none',
-      wordWrap: 'break-word',
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-      borderRadius: '2px',
-      boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
-    },
-    '@global .rc-tooltip-arrow': {
-      display: 'none',
-    },
-  },
-  popover: {
-    top: 0,
-    left: 0,
-    zIndex: 1030,
-    fontWeight: 'normal',
-    whiteSpace: 'normal',
+export const helpTooltip = css(({ theme }) => ({
+  zIndex: 1060,
+  display: 'block',
+  maxWidth: '250px',
+  visibility: 'visible',
+  paddingTop: '8px', // Assumes placement: 'top'
+  ...helpTooltipCommon,
+  
+}));
+
+globalCss({
+  '.rc-tooltip-inner': {
+    fontSize: '10px',
+    minWidth: '30px',
+    padding: '6px 8px',
+    color: '#fff',
     textAlign: 'left',
-    cursor: 'auto',
-    userSelect: 'text',
-    paddingBottom: '10px', // Assumes placement: 'top'
-    '&.rc-tooltip-placement-top': {
-      paddingBottom: '10px',
-    },
-    '&.rc-tooltip-placement-right': {
-      paddingLeft: '10px',
-    },
-    '&.rc-tooltip-placement-bottom': {
-      paddingTop: '10px',
-    },
-    '&.rc-tooltip-placement-left': {
-      paddingRight: '10px',
-    },
-    '&.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow': {
-      bottom: '6px',
-      borderTopColor: 'transparent',
-      borderRightColor: '#fff',
-      borderBottomColor: '#fff',
-      borderLeftColor: 'transparent',
-      boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.07)',
-      left: '50%;',
-      transform: 'translateX(-50%) rotate(45deg)',
-    },
-    '&.rc-tooltip-placement-right > .rc-tooltip-content > .rc-tooltip-arrow': {
-      left: '6px',
-      borderTopColor: 'transparent',
-      borderRightColor: 'transparent',
-      borderBottomColor: '#fff',
-      borderLeftColor: '#fff',
-      boxShadow: '-3px 3px 7px rgba(0, 0, 0, 0.07)',
-      top: '50%',
-      transform: 'translateY(-50%) rotate(45deg)',
-    },
-    '&.rc-tooltip-placement-bottom > .rc-tooltip-content > .rc-tooltip-arrow': {
-      top: '6px',
-      borderTopColor: '#fff',
-      borderRightColor: 'transparent',
-      borderBottomColor: 'transparent',
-      borderLeftColor: '#fff',
-      boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
-      left: '50%',
-      transform: 'translateX(-50%) rotate(45deg)',
-    },
-    '&.rc-tooltip-placement-left > .rc-tooltip-content > .rc-tooltip-arrow': {
-      right: '6px',
-      borderTopColor: '#fff',
-      borderRightColor: '#fff',
-      borderBottomColor: 'transparent',
-      borderLeftColor: 'transparent',
-      boxShadow: '3px -3px 7px rgba(0, 0, 0, 0.07)',
-      top: '50%',
-      transform: 'translateY(-50%) rotate(45deg)',
-    },
-    ...helpTooltipCommon,
-    '& ::after': {
-      position: 'absolute',
-      background: 'rgba(255, 255, 255, 0.01)',
-      content: "''",
-    },
-    '@global .rc-tooltip-inner': {
-      boxSizing: 'border-box',
-      backgroundColor: theme.palette.white,
-      backgroundClip: 'padding-box',
-      borderRadius: '2px',
-      boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
-    },
-    '@global .rc-tooltip-content': {
-      padding: 0,
-    },
-    '@global .rc-tooltip-inner-content': {
-      padding: '12px 16px',
-      color: 'rgba(0, 0, 0, 0.65)',
-    },
-    '@global .rc-tooltip-arrow': {
-      position: 'absolute',
-      display: 'block',
-      width: '8px',
-      height: '8px',
-      background: 'transparent',
-      borderStyle: 'solid',
-      borderWidth: '4px',
-    },
+    textDecoration: 'none',
+    wordWrap: 'break-word',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    borderRadius: '2px',
+    boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
   },
-  popoverMenuList: {
-    listStyleType: 'none',
+  '.rc-tooltip-arrow': {
+    display: 'none',
+  }
+})
+
+export const helpTooltipPopover = css(({ theme }) => ({
+  top: 0,
+  left: 0,
+  zIndex: 1030,
+  fontWeight: 'normal',
+  whiteSpace: 'normal',
+  textAlign: 'left',
+  cursor: 'auto',
+  userSelect: 'text',
+  paddingBottom: '10px', // Assumes placement: 'top'
+  '&.rc-tooltip-placement-top': {
+    paddingBottom: '10px',
+  },
+  '&.rc-tooltip-placement-right': {
+    paddingLeft: '10px',
+  },
+  '&.rc-tooltip-placement-bottom': {
+    paddingTop: '10px',
+  },
+  '&.rc-tooltip-placement-left': {
+    paddingRight: '10px',
+  },
+  '&.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow': {
+    bottom: '6px',
+    borderTopColor: 'transparent',
+    borderRightColor: '#fff',
+    borderBottomColor: '#fff',
+    borderLeftColor: 'transparent',
+    boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.07)',
+    left: '50%;',
+    transform: 'translateX(-50%) rotate(45deg)',
+  },
+  '&.rc-tooltip-placement-right > .rc-tooltip-content > .rc-tooltip-arrow': {
+    left: '6px',
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#fff',
+    borderLeftColor: '#fff',
+    boxShadow: '-3px 3px 7px rgba(0, 0, 0, 0.07)',
+    top: '50%',
+    transform: 'translateY(-50%) rotate(45deg)',
+  },
+  '&.rc-tooltip-placement-bottom > .rc-tooltip-content > .rc-tooltip-arrow': {
+    top: '6px',
+    borderTopColor: '#fff',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: '#fff',
+    boxShadow: '-2px -2px 5px rgba(0, 0, 0, 0.06)',
+    left: '50%',
+    transform: 'translateX(-50%) rotate(45deg)',
+  },
+  '&.rc-tooltip-placement-left > .rc-tooltip-content > .rc-tooltip-arrow': {
+    right: '6px',
+    borderTopColor: '#fff',
+    borderRightColor: '#fff',
+    borderBottomColor: 'transparent',
+    borderLeftColor: 'transparent',
+    boxShadow: '3px -3px 7px rgba(0, 0, 0, 0.07)',
+    top: '50%',
+    transform: 'translateY(-50%) rotate(45deg)',
+  },
+  ...helpTooltipCommon,
+  '& ::after': {
+    position: 'absolute',
+    background: 'rgba(255, 255, 255, 0.01)',
+    content: "''",
+  },
+  '@global .rc-tooltip-inner': {
+    boxSizing: 'border-box',
+    backgroundColor: theme.palette.white,
+    backgroundClip: 'padding-box',
+    borderRadius: '2px',
+    boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
+  },
+  '@global .rc-tooltip-content': {
     padding: 0,
-    marginBottom: 0,
-    marginTop: 0,
-    '& dl, ol, ul': {
-      marginTop: 0,
-      marginBottom: '16px',
-    },
-    '& li button': {
-      border: 0,
-      padding: '4px 16px',
-      cursor: 'pointer',
-      width: '100%',
-      backgroundColor: 'transparent',
-      color: theme.palette.grayDarkD15,
-      borderRadius: '2px',
-      '&:hover': {
-        backgroundColor: theme.palette.grayLightL10,
-      },
-    },
-    '& li:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.grayMid}`,
-    },
-    '& button': {
-      appearance: 'button',
-      textTransform: 'none',
-      overflow: 'visible',
-      margin: 0,
-      fontFamily: 'inherit',
-      fontSize: '14px',
-      lineHeight: 'inherit',
-      borderRadius: 0,
-    },
   },
-  small: {
-    fontSize: '11px',
+  '@global .rc-tooltip-inner-content': {
+    padding: '12px 16px',
+    color: 'rgba(0, 0, 0, 0.65)',
   },
-  popoverMenuColor: {
-    boxShadow: 'none !important',
-    margin: '0 auto',
-    /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
-      padding: '6px !important',
-      transform: 'translate(2px, 0)',
-    },
-    '& > div > div:nth-of-type(1)': {
-      fontSize: '12px',
-      width: '20px !important',
-    },
-    '& input': {
-      width: '60px !important',
-      fontSize: '12px',
-    },
-    /* Sets smaller color squares */
-    '& > div > span > div': {
-      width: '18px !important',
-      height: '18px !important',
-    },
+  '@global .rc-tooltip-arrow': {
+    position: 'absolute',
+    display: 'block',
+    width: '8px',
+    height: '8px',
+    background: 'transparent',
+    borderStyle: 'solid',
+    borderWidth: '4px',
   },
 }));
+
+export const helpTooltipPopoverMenuList = css({
+  listStyleType: 'none',
+  padding: 0,
+  marginBottom: 0,
+  marginTop: 0,
+  '& dl, ol, ul': {
+    marginTop: 0,
+    marginBottom: '16px',
+  },
+  '& li button': {
+    border: 0,
+    padding: '4px 16px',
+    cursor: 'pointer',
+    width: '100%',
+    backgroundColor: 'transparent',
+    color: theme.palette.grayDarkD15,
+    borderRadius: '2px',
+    '&:hover': {
+      backgroundColor: theme.palette.grayLightL10,
+    },
+  },
+  '& li:not(:last-child)': {
+    borderBottom: `1px solid ${theme.palette.grayMid}`,
+  },
+  '& button': {
+    appearance: 'button',
+    textTransform: 'none',
+    overflow: 'visible',
+    margin: 0,
+    fontFamily: 'inherit',
+    fontSize: '14px',
+    lineHeight: 'inherit',
+    borderRadius: 0,
+  },
+});
+
+export const helpTooltipSmall = css({
+  fontSize: '11px',
+});
+
+export const helpTooltipPopoverMenuColor = css({
+  boxShadow: 'none !important',
+  margin: '0 auto',
+  /* Sets margins around color picker and centers */
+  '& > div:nth-child(3)': {
+    padding: '6px !important',
+    transform: 'translate(2px, 0)',
+  },
+  '& > div > div:nth-of-type(1)': {
+    fontSize: '12px',
+    width: '20px !important',
+  },
+  '& input': {
+    width: '60px !important',
+    fontSize: '12px',
+  },
+  /* Sets smaller color squares */
+  '& > div > span > div': {
+    width: '18px !important',
+    height: '18px !important',
+  },
+});
+
+export const useHelpTooltipStyles = () => ({
+  helpTooltip,
+  helpTooltipPopover,
+  helpTooltipPopoverMenuList,
+  helpTooltipSmall,
+  helpTooltipPopoverMenuColor,
+});
