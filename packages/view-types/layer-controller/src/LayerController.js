@@ -12,7 +12,7 @@ import {
 
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
-  AccordionDetails, AccordionSummary,
+  Accordion, AccordionDetails, AccordionSummary,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -24,14 +24,10 @@ import {
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';
 import {
-  LayerControllerAccordion,
-  AccordionSummaryRoot,
-  AccordionContent,
-  AccordionExpanded,
-  AccordionExpandIcon,
-  AccordionDetailsRoot,
-  OverflowEllipsisGridItem,
-  InputLabelRoot,
+  useControllerSectionStyles,
+  useInputLabelStyles,
+  useOverflowEllipsisGridStyles,
+  useAccordionStyles,
 } from './styles.js';
 
 
@@ -403,6 +399,10 @@ export default function LayerController(props) {
     );
   }
 
+  const controllerSectionClasses = useControllerSectionStyles();
+  const accordionClasses = useAccordionStyles();
+  const inputLabelClasses = useInputLabelStyles();
+  const overflowEllipsisGridClasses = useOverflowEllipsisGridStyles();
 
   const { visible } = layer;
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -470,7 +470,8 @@ export default function LayerController(props) {
     </>
   );
   return (
-    <LayerControllerAccordion
+    <Accordion
+      className={controllerSectionClasses.layerControllerRoot}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',
@@ -481,18 +482,18 @@ export default function LayerController(props) {
       id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
-        component={{
-          root: AccordionSummaryRoot,
-          content: AccordionContent,
-          expanded: AccordionExpanded,
-          expandIcon: AccordionExpandIcon,
+        classes={{
+          root: accordionClasses.accordionSummaryRoot,
+          content: accordionClasses.content,
+          expanded: accordionClasses.expanded,
+          expandIcon: accordionClasses.expandIcon,
         }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}
       >
         <Grid container direction="column" m={1} justifyContent="center">
-          <OverflowEllipsisGridItem item>
+          <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
               aria-label="Toggle layer visibility"
               onClick={(e) => {
@@ -513,7 +514,7 @@ export default function LayerController(props) {
               <Visibility />
             </Button>
             {name}
-          </OverflowEllipsisGridItem>
+          </Grid>
           {!disabled && !isExpanded && !use3d && (
             <Grid
               container
@@ -524,9 +525,7 @@ export default function LayerController(props) {
               <Grid item xs={6}>
                 <InputLabel
                   htmlFor={`layer-${name}-opacity-closed`}
-                  component={{
-                    root: InputLabelRoot,
-                  }}
+                  classes={{ root: inputLabelClasses.inputLabelRoot }}
                 >
                   Opacity:
                 </InputLabel>
@@ -549,9 +548,7 @@ export default function LayerController(props) {
         </Grid>
       </AccordionSummary>
       <AccordionDetails
-        component={{
-          root: AccordionDetailsRoot,
-        }}
+        classes={{ root: accordionClasses.accordionDetailsRoot }}
         id={`layer-${name}-controls`}
       >
         {useVolumeTabs ? (
@@ -619,6 +616,6 @@ export default function LayerController(props) {
           </Button>
         ) : null}
       </AccordionDetails>
-    </LayerControllerAccordion>
+    </Accordion>
   );
 }

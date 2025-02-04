@@ -15,7 +15,7 @@ import {
   ChannelSelectionDropdown,
   ChannelVisibilityCheckbox,
 } from './shared-channel-controls.js';
-import { ValueLabel } from './styles.js';
+import { useChannelSliderStyles } from './styles.js';
 
 /**
  * Slider for controlling current colormap.
@@ -45,12 +45,12 @@ function ChannelSlider({
     [handleChange],
   );
 
+  const classes = useChannelSliderStyles();
+
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
-      component={{
-        valueLabel: ValueLabel,
-      }}
+      classes={{ valueLabel: classes.valueLabel }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}

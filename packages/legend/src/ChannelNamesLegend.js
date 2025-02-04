@@ -1,51 +1,41 @@
 import React, { useMemo } from 'react';
-import { styled } from '@mui/material/styles';
+import { css } from '@mui/material-pigment-css';
 import clsx from 'clsx';
 import { Typography } from '@mui/material';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
-const PREFIX = 'ChannelNamesLegend';
+const channelNamesLegendContainer = css({
+  position: 'absolute',
+  bottom: '0px',
+  left: '0px',
+  paddingLeft: '10px',
+  paddingBottom: '10px',
+});
 
-const classes = {
-  channelNamesLegendContainer: `${PREFIX}-channelNamesLegendContainer`,
-  channelNamesLegendLayer: `${PREFIX}-channelNamesLegendLayer`,
-  channelNamesRow: `${PREFIX}-channelNamesRow`,
-  channelNamesCol: `${PREFIX}-channelNamesCol`,
-  channelNameText: `${PREFIX}-channelNameText`,
-};
+const channelNamesLegendLayer = css({
 
-const Root = styled('div')(() => ({
-  [`&.${classes.channelNamesLegendContainer}`]: {
-    position: 'absolute',
-    bottom: '0px',
-    left: '0px',
-    paddingLeft: '10px',
-    paddingBottom: '10px',
-  },
+  display: 'flex',
+});
 
-  [`& .${classes.channelNamesLegendLayer}`]: {
-    display: 'flex',
-  },
+const channelNamesRow = css({
+  flexDirection: 'column',
+});
 
-  [`& .${classes.channelNamesRow}`]: {
-    flexDirection: 'column',
-  },
+const channelNamesCol = css({
+  flexDirection: 'row',
 
-  [`& .${classes.channelNamesCol}`]: {
-    flexDirection: 'row',
-  },
+});
 
-  [`& .${classes.channelNameText}`]: {
-    marginRight: '10px',
-  },
-}));
+const channelNameText = css({
+  marginRight: '10px',
+});
+
 
 export default function ChannelNamesLegend(props) {
   const {
     images,
     imageLayerScopes,
     imageLayerCoordination,
-
     imageChannelScopesByLayer,
     imageChannelCoordination,
   } = props;
@@ -57,7 +47,7 @@ export default function ChannelNamesLegend(props) {
 
   return (
     (
-      <Root className={classes.channelNamesLegendContainer}>
+      <div className={channelNamesLegendContainer}>
         {/* Images */}
         {imageLayerScopes ? reversedImageLayerScopes.map((layerScope) => {
           const layerCoordination = imageLayerCoordination[0][layerScope];
@@ -84,10 +74,10 @@ export default function ChannelNamesLegend(props) {
           ) ? (
             <div
               className={clsx(
-                classes.channelNamesLegendLayer,
+                channelNamesLegendLayer,
                 {
-                  [classes.channelNamesCol]: isHorizontal,
-                  [classes.channelNamesRow]: !isHorizontal,
+                  [channelNamesCol]: isHorizontal,
+                  [channelNamesRow]: !isHorizontal,
                 },
               )}
               key={layerScope}
@@ -111,7 +101,7 @@ export default function ChannelNamesLegend(props) {
                   <Typography
                     variant="h6"
                     key={`${layerScope}-${cScope}-${channelIndex}-${rgbColor}`}
-                    className={classes.channelNameText}
+                    className={channelNameText}
                     style={{
                       color: rgbColor,
                       fontSize: `${spatialChannelLabelSize}px`,
@@ -124,7 +114,7 @@ export default function ChannelNamesLegend(props) {
             </div>
             ) : null);
         }) : null}
-      </Root>
+      </div>
     )
   );
 }

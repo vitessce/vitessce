@@ -247,7 +247,7 @@ export const nodeMenuIcon = css(({ theme }) => ({
   '&:hover': {
     fill: theme.palette.grayMidL10,
   },
-})
+}))
 
 export const nodeSizeLabel = css(({ theme }) => ({
   fontSize: '12px',
@@ -348,9 +348,27 @@ export const titleSaveButton = css(({ theme }) => ({
 }));
 
 export const antTooltip = globalCss(({
+  // TODO(monorepo): is this style used anywhere?
   fontSize: '12px',
   backgroundColor: 'rgba(0, 0, 0, 0.95)',
 }, { name: 'AntTooltip' }));
+
+export const useStyles = () => ({
+  setsManager,
+  setOperationButtons,
+  setsManagerTree,
+  plusButton,
+  nodeMenuIcon,
+  nodeSizeLabel,
+  levelButtonsContainer,
+  levelRadioButton,
+  levelRadioButtonChecked,
+  titleButton,
+  titleButtonWithInput,
+  titleInput,
+  titleSaveButton,
+  antTooltip,
+});
 
 /*
   Tooltips and popovers for showing help info to the user.
@@ -395,6 +413,7 @@ globalCss({
     display: 'none',
   }
 })
+
 
 export const helpTooltipPopover = css(({ theme }) => ({
   top: 0,
@@ -464,21 +483,21 @@ export const helpTooltipPopover = css(({ theme }) => ({
     background: 'rgba(255, 255, 255, 0.01)',
     content: "''",
   },
-  '@global .rc-tooltip-inner': {
+  '.rc-tooltip-inner': {
     boxSizing: 'border-box',
     backgroundColor: theme.palette.white,
     backgroundClip: 'padding-box',
     borderRadius: '2px',
     boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
   },
-  '@global .rc-tooltip-content': {
+  '.rc-tooltip-content': {
     padding: 0,
   },
-  '@global .rc-tooltip-inner-content': {
+  '.rc-tooltip-inner-content': {
     padding: '12px 16px',
     color: 'rgba(0, 0, 0, 0.65)',
   },
-  '@global .rc-tooltip-arrow': {
+  '.rc-tooltip-arrow': {
     position: 'absolute',
     display: 'block',
     width: '8px',

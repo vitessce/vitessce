@@ -3,7 +3,6 @@ import { MenuItem, IconButton } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { styled } from '@mui/material-pigment-css';
-import { Span } from './styles.js';
 import ColorPalette from './ColorPalette.js';
 
 
@@ -15,6 +14,13 @@ const ColorsMenuItem = styled(MenuItem)({
   '&:hover': {
     backgroundColor: 'transparent',
   },
+  paddingLeft: '2px',
+  paddingRight: '2px',
+});
+
+const Span = styled('span')({
+  width: '70px',
+  textAlign: 'center',
   paddingLeft: '2px',
   paddingRight: '2px',
 });

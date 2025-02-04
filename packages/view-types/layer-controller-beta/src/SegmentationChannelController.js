@@ -4,7 +4,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
-  makeStyles,
   Grid,
   Checkbox,
   Paper,

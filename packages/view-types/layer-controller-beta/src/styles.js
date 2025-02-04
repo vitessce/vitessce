@@ -49,7 +49,6 @@ export const useEllipsisMenuStyles = () => ({
 
 
 export {
-  useSpanStyles,
   useSelectStyles,
   useControllerSectionStyles,
   useAccordionStyles,

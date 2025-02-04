@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo } from 'react';
-import { styled } from '@mui/material/styles';
+import { css } from '@mui/material-pigment-css';
 import clsx from 'clsx';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
@@ -10,58 +10,45 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const PREFIX = 'Legend';
-
-const classes = {
-  legend: `${PREFIX}-legend`,
-  legendAbsolute: `${PREFIX}-legendAbsolute`,
-  legendRelative: `${PREFIX}-legendRelative`,
-  legendHighContrast: `${PREFIX}-legendHighContrast`,
-  legendLowContrast: `${PREFIX}-legendLowContrast`,
-  legendInvisible: `${PREFIX}-legendInvisible`
-};
-
-const Root = styled('div')(() => ({
-  [`&.${classes.legend}`]: {
-    top: '2px',
-    right: '2px',
-    zIndex: '100',
-    fontSize: '10px !important',
-    flexDirection: 'column',
-    backgroundColor: 'rgba(215, 215, 215, 0.7)',
-    borderRadius: '4px',
-    padding: '2px',
-    lineHeight: '10px !important',
-    '& svg': {
-      top: 0,
-      left: 0,
-      position: 'relative',
-    },
-  },
-
-  [`&.${classes.legendAbsolute}`]: {
-    position: 'absolute',
-    display: 'inline-block',
-  },
-
-  [`&.${classes.legendRelative}`]: {
+const legend = css({
+  top: '2px',
+  right: '2px',
+  zIndex: '100',
+  fontSize: '10px !important',
+  flexDirection: 'column',
+  backgroundColor: 'rgba(215, 215, 215, 0.7)',
+  borderRadius: '4px',
+  padding: '2px',
+  lineHeight: '10px !important',
+  '& svg': {
+    top: 0,
+    left: 0,
     position: 'relative',
-    marginBottom: '2px',
-    display: 'block',
   },
+});
 
-  [`&.${classes.legendHighContrast}`]: {
-    backgroundColor: 'rgba(215, 215, 215, 0.7)',
-  },
+const legendAbsolute = css({
+  position: 'absolute',
+  display: 'inline-block',
+});
 
-  [`&.${classes.legendLowContrast}`]: {
-    backgroundColor: 'rgba(215, 215, 215, 0.2)',
-  },
+const legendRelative = css({
+  position: 'relative',
+  marginBottom: '2px',
+  display: 'block',
+});
 
-  [`&.${classes.legendInvisible}`]: {
-    display: 'none',
-  }
-}));
+const legendHighContrast = css({
+  backgroundColor: 'rgba(215, 215, 215, 0.7)',
+});
+
+const legendLowContrast = css({
+  backgroundColor: 'rgba(215, 215, 215, 0.2)',
+});
+
+const legendInvisible = css({
+  display: 'none',
+});
 
 const titleHeight = 10;
 const rectHeight = 8;
@@ -391,22 +378,24 @@ export default function Legend(props) {
   ]);
 
   return (
-    (<Root
-      className={clsx(classes.legend, {
-        [classes.legendRelative]: positionRelative,
-        [classes.legendAbsolute]: !positionRelative,
-        [classes.legendHighContrast]: highContrast,
-        [classes.legendLowContrast]: !highContrast,
-        [classes.legendInvisible]: !visible,
-      })}
-    >
-      <svg
-        ref={svgRef}
-        style={{
-          width: `${width}px`,
-          height: `${dynamicHeight}px`,
-        }}
-      />
-    </Root>)
+    (
+      <div
+        className={clsx(legend, {
+          [legendRelative]: positionRelative,
+          [legendAbsolute]: !positionRelative,
+          [legendHighContrast]: highContrast,
+          [legendLowContrast]: !highContrast,
+          [legendInvisible]: !visible,
+        })}
+      >
+        <svg
+          ref={svgRef}
+          style={{
+            width: `${width}px`,
+            height: `${dynamicHeight}px`,
+          }}
+        />
+      </div>
+    )
   );
 }

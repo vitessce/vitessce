@@ -61,28 +61,32 @@ export default function Tooltip2D(props) {
     );
   }
 
-  const xCrosshair = x !== null ? ( <CellEmphasisCrosshair
-    style={{
-      left: `${x - crosshairWidth / 2}px`,
-      top: 0,
-      width: `${crosshairWidth}px`,
-      height: `${parentHeight}px`,
-    }}
-  />
-) : null}
+  const xCrosshair = x !== null ? (
+    <CellEmphasisCrosshair
+      style={{
+        left: `${x - crosshairWidth / 2}px`,
+        top: 0,
+        width: `${crosshairWidth}px`,
+        height: `${parentHeight}px`,
+      }}
+    />
+  ) : null;
 
-  const yCrosshair = y !== null ? ( <CellEmphasisCrosshair
-    style={{
-      left: 0,
-      top: `${y - crosshairWidth / 2}px`,
-      width: `${parentWidth}px`,
-      height: `${crosshairWidth}px`,
-    }}
+  const yCrosshair = y !== null ? (
+    <CellEmphasisCrosshair
+      style={{
+        left: 0,
+        top: `${y - crosshairWidth / 2}px`,
+        width: `${parentWidth}px`,
+        height: `${crosshairWidth}px`,
+      }}
+    />
+  ) : null;
 
-  />) : null;
-
-  return (<>
-    {xCrosshair}
-    {yCrosshair}
-  </>)
+  return (
+    <>
+      {xCrosshair}
+      {yCrosshair}
+    </>
+  );
 }

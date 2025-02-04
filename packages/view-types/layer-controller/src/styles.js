@@ -1,16 +1,6 @@
-import { styled } from '@mui/material-pigment-css';
-import Grid from '@mui/material-pigment-css/Grid';
-import Paper from '@mui/material/Paper';
-import Accordion from '@mui/material/Accordion';
+import { styled, css } from '@mui/material-pigment-css';
 
-export const Span = styled('span')({
-  width: '70px',
-  textAlign: 'center',
-  paddingLeft: '2px',
-  paddingRight: '2px',
-});
-
-export const ValueLabel = styled('span')(({ theme }) => ({
+export const valueLabel = css(({ theme }) => ({
   marginTop: '7px',
   '& span': {
     color: theme.palette.secondaryForeground, // Change color here
@@ -18,7 +8,11 @@ export const ValueLabel = styled('span')(({ theme }) => ({
   },
 }));
 
-export const SelectRoot = styled('div')({
+export const useChannelSliderStyles = () => ({
+  valueLabel,
+});
+
+export const selectRoot = css({
   padding: 0,
   height: 'auto',
   margin: '4px 0',
@@ -26,55 +20,65 @@ export const SelectRoot = styled('div')({
   width: '100%',
 });
 
-const LayerControllerStyles = {
-  width: '100%',
-  flexDirection: 'column',
-  padding: '0px 8px',
+export const useSelectStyles = () => ({
+  selectRoot,
+});
+
+export const controllerSectionStyles = ({
+  layerControllerRoot: css({
+    width: '100%',
+    flexDirection: 'column',
+    padding: '0px 8px',
+  }),
+  layerControllerGrid: css({
+    marginTop: '10px',
+  }),
+});
+
+export const useControllerSectionStyles = () => controllerSectionStyles;
+const accordionStyles = {
+  accordionDetailsRoot: css({
+    width: '100%',
+    flexDirection: 'column',
+    padding: '8px 8px 24px 8px',
+  }),
+  accordionSummaryRoot: css({
+    padding: '0px 8px',
+  }),
+  content: css({
+    margin: '4px 0px',
+    minWidth: '0px',
+  }),
+  expanded: css(({ theme }) => ({
+    marginBottom: theme.spacing(-3),
+    top: theme.spacing(-1),
+  })),
+  expandIcon: css(({ theme }) => ({
+    '&$expanded': {
+      top: theme.spacing(-1.3),
+    },
+  })),
 };
 
-export const LayerControllerPaper = styled(Paper)(LayerControllerStyles);
+export const useAccordionStyles = () => accordionStyles;
 
-export const LayerControllerAccordion = styled(Accordion)(LayerControllerStyles);
-
-export const LayerControllerGrid = styled(Grid)({
-  marginTop: '10px',
-});
-
-export const AccordionDetailsRoot = styled('div')({
-  width: '100%',
-  flexDirection: 'column',
-  padding: '8px 8px 24px 8px',
-});
-
-export const AccordionSummaryRoot = styled('div')({
-  padding: '0px 8px',
-});
-
-export const AccordionContent = styled('div')({
-  margin: '4px 0px',
-  minWidth: '0px',
-});
-
-export const AccordionExpanded = styled('div')(({ theme }) => ({
-  marginBottom: theme.spacing(-3),
-  top: theme.spacing(-1),
-}));
-
-export const AccordionExpandIcon = styled('div')(({ theme }) => ({
-  '&$expanded': {
-    top: theme.spacing(-1.3),
-  },
-}));
-
-export const InputLabelRoot = styled('div')({
+const inputLabelRoot = css({
   fontSize: '14px',
 });
 
-export const OverflowEllipsisGridItem = styled(Grid)({
+export const useInputLabelStyles = () => ({
+  inputLabelRoot,
+});
+
+const item = css({
   width: '100%',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
+});
+
+export const useOverflowEllipsisGridStyles = () => ({
+  item,
 });
 
 export const SelectionSliderRoot = styled('div')({
@@ -83,4 +87,17 @@ export const SelectionSliderRoot = styled('div')({
 
 export const MarkActive = styled('div')({
   backgroundColor: 'rgba(128, 128, 128, 0.7)',
+});
+
+const selectionSliderRoot = css({
+  marginTop: '7px',
+});
+
+const markActive = css({
+  backgroundColor: 'rgba(128, 128, 128, 0.7)',
+});
+
+export const useSelectionSliderStyles = () => ({
+  selectionSliderRoot,
+  markActive,
 });

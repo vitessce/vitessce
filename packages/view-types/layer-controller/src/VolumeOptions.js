@@ -12,7 +12,7 @@ import {
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { css } from '@mui/material-pigment-css';
-import { SelectRoot } from './styles.js';
+import { useSelectStyles } from './styles.js';
 
 const disabledClass = css(({ theme }) => ({
   color: theme.palette.text.disabled,
@@ -26,6 +26,7 @@ const disabledClass = css(({ theme }) => ({
     color: 'rgb(100, 100, 100, 1.0)',
   },
 }));
+
 
 const Slicer = ({
   xSlice,
@@ -95,7 +96,7 @@ const Slicer = ({
   return (
     <>
       <Typography
-        className={!use3d ? disabledClass : ''}
+        className={!use3d ? classes.disabled : classes.enabled}
         style={{ marginTop: 16, marginBottom: 0 }}
       >
         Clipping Planes:{' '}
@@ -112,6 +113,7 @@ function RenderingModeSelect({
   renderingMode,
   use3d,
 }) {
+  const classes = useSelectStyles();
   // Empty option allows for displaying the title of the dropdown fully in the UI.
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
@@ -127,9 +129,7 @@ function RenderingModeSelect({
           'aria-label': 'Select rendering mode option',
         }}
         disabled={!use3d}
-        component={{
-          root: SelectRoot,
-        }}
+        classes={{ root: classes.selectRoot }}
       >
         {options.map(name => (
           <option key={name} value={name}>

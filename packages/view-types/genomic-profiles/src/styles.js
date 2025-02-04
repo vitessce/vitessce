@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-import { styled } from '@mui/material-pigment-css';
+import { styled, css } from '@mui/material-pigment-css';
 
-export const HiglassTitleWrapper = styled('div')(({ theme }) => ({
+const higlassTitleWrapper = css(({ theme }) => ({
   height: 'calc(100% - 20px)',
   '& > div:nth-child(2)': {
     width: 'inherit',
@@ -11,12 +11,13 @@ export const HiglassTitleWrapper = styled('div')(({ theme }) => ({
   },
 }));
 
-export const HiglassLazyWrapper = styled('div')({
+
+const higlassLazyWrapper = css({
   width: 'inherit',
   height: 'inherit',
 });
 
-export const HiglassWrapperParent = styled('div')({
+const higlassWrapperParent = css({
   display: 'block',
   position: 'relative',
   boxSizing: 'border-box',
@@ -25,7 +26,7 @@ export const HiglassWrapperParent = styled('div')({
   overflow: 'hidden',
 });
 
-export const HiglassWrapper = styled('div')({
+const higlassWrapper = css({
   width: 'inherit',
   height: 'inherit',
   position: 'relative',
@@ -50,6 +51,14 @@ export const HiglassWrapper = styled('div')({
     fontSize: '12px',
   },
 });
+
+export const useStyles = () => ({
+  higlassTitleWrapper,
+  higlassLazyWrapper,
+  higlassWrapperParent,
+  higlassWrapper,
+});
+
 
 // export const useStyles = makeStyles(theme => ({
 //   higlassTitleWrapper: {
