@@ -247,7 +247,7 @@ export const nodeMenuIcon = css(({ theme }) => ({
   '&:hover': {
     fill: theme.palette.grayMidL10,
   },
-}))
+}));
 
 export const nodeSizeLabel = css(({ theme }) => ({
   fontSize: '12px',
@@ -283,7 +283,7 @@ export const levelRadioButton = css(({ theme }) => ({
   '&:checked': {
     backgroundClip: 'unset',
   },
-});
+}));
 
 export const levelRadioButtonChecked = css({
   backgroundClip: 'unset',
@@ -302,7 +302,7 @@ export const titleButton = css(({ theme }) => ({
   verticalAlign: 'top',
   fontSize: '14px',
   cursor: 'pointer',
-});
+}));
 
 export const titleButtonWithInput = css({
   padding: 0,
@@ -393,7 +393,7 @@ export const helpTooltip = css(({ theme }) => ({
   visibility: 'visible',
   paddingTop: '8px', // Assumes placement: 'top'
   ...helpTooltipCommon,
-  
+
 }));
 
 globalCss({
@@ -411,8 +411,8 @@ globalCss({
   },
   '.rc-tooltip-arrow': {
     display: 'none',
-  }
-})
+  },
+});
 
 
 export const helpTooltipPopover = css(({ theme }) => ({

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useId } from 'react-aria';
 import { debounce } from 'lodash-es';
-import { ,  TableRow } from '@mui/material';
+import { TableRow } from '@mui/material';
 import { OptionsContainer, StyledOptionSelect, LabelCell, InputCell, Checkbox, Slider } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
@@ -14,7 +14,7 @@ export default function HeatmapOptions(props) {
     tooltipsVisible,
     setTooltipsVisible,
   } = props;
- 
+
   const heatmapOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
@@ -25,7 +25,7 @@ export default function HeatmapOptions(props) {
     setTooltipsVisible(event.target.checked);
   }
 
-  const handleColormapRangeChange = useCallback((event, value) {
+  const handleColormapRangeChange = useCallback((event, value) => {
     setGeneExpressionColormapRange(value);
   }, [setGeneExpressionColormapRange]);
 
