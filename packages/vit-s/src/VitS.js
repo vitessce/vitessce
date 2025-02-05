@@ -9,6 +9,9 @@ import {
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import {
+  setLogLevel, setDebugMode, DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE
+} from '@vitessce/globals';
 import { muiTheme } from './shared-mui/styles.js';
 import {
   ViewConfigProvider,
@@ -87,6 +90,8 @@ export function VitS(props) {
     warning,
     pageMode = false,
     children,
+    debugMode = DEFAULT_DEBUG_MODE,
+    logLevel = DEFAULT_LOG_LEVEL,
   } = props;
 
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);

@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
-import { VITESSCE_CONTAINER } from './classNames.js';
+import { VITESSCE_CONTAINER } from '@vitessce/globals';
 import { useAsyncFunction } from './contexts.js';
 
 

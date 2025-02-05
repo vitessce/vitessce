@@ -3,7 +3,8 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import { Vitessce } from 'vitessce';
-
+import { LogLevels } from '@vitessce/constants-internal';
+import {DEFAULT_LOG_LEVEL} from "@vitessce/globals"
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -91,6 +92,20 @@ function validateTheme(theme) {
   return (['light', 'dark', 'light2'].includes(theme) ? theme : 'dark');
 }
 
+/**
+ * Use the debugMode provided if it is valid, otherwise fall back to the
+ * 'all' representing surfacing all logs.
+ * @param {string} debugMode A potentially invalid value.
+ * @returns {string} A valid debugMode value.
+ */
+function validatedebugMode(debugMode) {
+  return (debugMode || String(debugMode) === 'true');
+}
+
+function validateLogLevel(logLevel) {
+  return Object.values(LogLevels).includes(logLevel) ? logLevel : 'trace'; //DEFAULT_LOG_LEVEL;
+}
+
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};
@@ -103,6 +118,8 @@ export function VitessceDemo() {
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
     const pageMode = urlParams.get('pageMode') === 'true';
+    const debugMode = validatedebugMode(urlParams.get('debugMode'));
+    const logLevel = validateLogLevel(urlParams.get('logLevel'));
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -134,6 +151,8 @@ export function VitessceDemo() {
             stores={stores}
             {...pluginProps}
             pageMode={pageMode}
+            debugMode={debugMode}
+            logLevel={logLevel}
           >
             {pageMode ? <PageComponent /> : null}
           </Vitessce>

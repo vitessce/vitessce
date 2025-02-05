@@ -350,3 +350,15 @@ export const ViewHelpMapping = {
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
 };
+
+/*
+  Constants representing different modes for showing logs
+*/
+export const LogLevels = {
+  SILENT: 'silent',
+  INFO: 'info',
+  WARN: 'warn',
+  ERROR: 'error',
+  TRACE: 'trace', // default
+  DEBUG: 'debug',
+};

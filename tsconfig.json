@@ -26,6 +26,7 @@
     { "path": "packages/config" },
     { "path": "packages/constants-internal" },
     { "path": "packages/constants" },
+    { "path": "packages/globals" },
     { "path": "packages/file-types/abstract" },
     { "path": "packages/file-types/csv" },
     { "path": "packages/file-types/glb" },

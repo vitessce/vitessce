@@ -40,6 +40,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "clsx": "catalog:",
     "d3-array": "catalog:",
     "fast-deep-equal": "^3.1.3",

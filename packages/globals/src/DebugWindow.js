@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
-import { VITESSCE_CONTAINER } from '@vitessce/globals';
+import { VITESSCE_CONTAINER } from './classNames.js';
 
 const useStyles = makeStyles(theme => ({
   warningLayout: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export function Warning(props) {
+export function DebugWindow(props) {
   const {
     title,
     preformatted,
