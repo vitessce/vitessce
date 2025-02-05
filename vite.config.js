@@ -3,16 +3,7 @@ import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { pigment } from '@pigment-css/vite-plugin';
-import { muiTheme } from './packages/vit-s/src/shared-mui/styles.js';
-
-/**
- * @type {import('@pigment-css/vite-plugin').PigmentOptions}
- */
-const pigmentConfig = {
-  transformLibraries: ['@mui/material'],
-  theme: muiTheme,
-};
-
+import { pigmentConfig } fr./packages/vit-s/src/shared-mui/pigmentConfig.js-s/src/shared-mui/pigmentConfig.js';
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
  * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.js#L12
@@ -62,11 +53,11 @@ const config = defineConfig({
     include: ['prop-types', 'react-is'],
   },
   plugins: [
+    pigment(pigmentConfig),
     react({
       jsxRuntime: 'classic',
     }),
     serveTestFixtures(),
-    pigment(pigmentConfig),
   ],
   test: {
     api: 4204,

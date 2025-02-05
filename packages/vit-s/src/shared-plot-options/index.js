@@ -1,6 +1,6 @@
-export { default as CellColorEncodingOption } from './CellColorEncodingOption.jsx';
-export { default as OptionsContainer } from './OptionsContainer.jsx';
-export { default as OptionSelect, StyledOptionSelect } from './OptionSelect.jsx';
+export { default as CellColorEncodingOption } from './CellColorEncodingOption.js';
+export { default as OptionsContainer } from './OptionsContainer.js';
+export { default as OptionSelect, StyledOptionSelect } from './OptionSelect.js';
 export { BorderBox,
   Checkbox,
   Slider,

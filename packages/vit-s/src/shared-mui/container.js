@@ -22,7 +22,7 @@ export const vitessceContainer = css(({ theme }) => ({
 
 }));
 
-const globalVitessceStyles = css(({ theme }) => ({
+const globalVitessceStyles = css(() => ({
   // Manually converted styles from 'react-grid-layout/css/styles.css',
   // using https://cssinjs.org/jss-plugin-global/?v=v10.9.2
   // so that no CSS or SCSS import is required.

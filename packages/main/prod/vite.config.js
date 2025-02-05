@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // References:
 // - https://github.com/gosling-lang/gosling.js/blob/master/vite.config.js
 // - https://github.com/gosling-lang/gosling.js/blob/master/scripts/build-embed.js
@@ -6,7 +7,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { visualizer } from "rollup-plugin-visualizer";
+import { visualizer } from 'rollup-plugin-visualizer';
+import { pigment } from '@pigment-css/vite-plugin';
+import { pigmentConfig } from '@vitessce/vit-s';
 
 const isProduction = process.env.APP_ENV === 'production';
 
@@ -42,5 +45,6 @@ export default defineConfig({
   plugins: [
     react(),
     visualizer(),
+    pigment(pigmentConfig),
   ],
 });

@@ -111,7 +111,8 @@ catalogs:
     "@turf/centroid": ^6.5.0
     "@turf/helpers": ^6.5.0
   mui:
-    "@mui/material": 6.4.1
-    "@mui/icons-material": 6.4.1
-    "@mui/material-pigment-css": 6.4.1
+    "@mui/material": 6.4.2
+    "@mui/icons-material": 6.4.2
+    "@mui/material-pigment-css": 6.4.2
     "@pigment-css/react": 0.0.30
+    "@pigment-css/vite-plugin": 0.0.30

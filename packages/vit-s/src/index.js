@@ -1,3 +1,5 @@
+import pigmentConfig from './shared-mui/pigmentConfig.js';
+
 export { VitS } from './VitS.js';
 export { TitleInfo } from './TitleInfo.js';
 export { PopperMenu } from './shared-mui/components.js';
@@ -97,3 +99,4 @@ export {
 export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
+export { pigmentConfig } from './shared-mui/pigmentConfig.js';
