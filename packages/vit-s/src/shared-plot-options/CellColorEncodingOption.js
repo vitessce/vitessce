@@ -3,7 +3,7 @@ import { useId } from 'react-aria';
 import { TableRow } from '@mui/material';
 import { capitalize } from '@vitessce/utils';
 import { InputCell, LabelCell } from './styles.js';
-import { StyledOptionSelect } from './OptionSelect.jsx';
+import { StyledOptionSelect } from './OptionSelect.js';
 
 export default function CellColorEncodingOption(props) {
   const {

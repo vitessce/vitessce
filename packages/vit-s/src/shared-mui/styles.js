@@ -1,4 +1,5 @@
-import { createTheme, colors } from '@mui/material-pigment-css';
+import { createTheme, colors } from '@mui/material';
+
 
 const { grey } = colors;
 
