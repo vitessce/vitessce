@@ -8,5 +8,4 @@ export { BorderBox,
   StyledTableContainer,
   LabelCell,
   InputCell,
-  Select,
   StyledSelect } from './styles.js';

@@ -3,7 +3,7 @@ import serveStatic from 'serve-static';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { pigment } from '@pigment-css/vite-plugin';
-import { pigmentConfig } fr./packages/vit-s/src/shared-mui/pigmentConfig.js-s/src/shared-mui/pigmentConfig.js';
+import { pigmentConfig } from './packages/vit-s/src/shared-mui/pigmentConfig.js';
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
  * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.js#L12

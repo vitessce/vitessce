@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { MenuItem, IconButton, Link } from '@mui/material';
-import {
-  CloudDownload as CloudDownloadIcon,
-  ArrowDropDown as ArrowDropDownIcon,
-  ArrowDropUp as ArrowDropUpIcon,
-  Settings as SettingsIcon,
-  Close as CloseIcon,
-  Help as HelpIcon,
-} from '@mui/icons-material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import CloseIcon from '@mui/icons-material/Close';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import SettingsIcon from '@mui/icons-material/Settings';
+import HelpIcon from '@mui/icons-material/Help';
 
 import { css } from '@mui/material-pigment-css';
 import { TOOLTIP_ANCESTOR, DRAG_HANDLE } from './classNames.js';

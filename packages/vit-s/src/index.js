@@ -1,5 +1,3 @@
-import pigmentConfig from './shared-mui/pigmentConfig.js';
-
 export { VitS } from './VitS.js';
 export { TitleInfo } from './TitleInfo.js';
 export { PopperMenu } from './shared-mui/components.js';

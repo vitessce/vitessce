@@ -43,8 +43,8 @@ export default defineConfig({
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
   plugins: [
+    pigment(pigmentConfig),
     react(),
     visualizer(),
-    pigment(pigmentConfig),
   ],
 });
