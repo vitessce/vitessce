@@ -2,7 +2,8 @@
 /* eslint-disable-next-line camelcase */
 import { extent, max as d3_max } from 'd3-array';
 
-import { log } from '@vitessce/globals'
+import { log } from '@vitessce/globals';
+
 function normalize(arr) {
   const [min, max] = extent(arr);
   const ratio = 255 / (max - min);

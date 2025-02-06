@@ -12,9 +12,9 @@ export default class LoaderNotFoundError extends AbstractLoaderError {
     this.viewCoordinationValues = viewCoordinationValues;
     this.debugMode = getDebugMode();
     this.message = `Expected to match on { ${
-        Object.entries(viewCoordinationValues || {})
-          .map(([k, v]) => `${k}: ${v ?? 'null'}`)
-          .join(', ')
+      Object.entries(viewCoordinationValues || {})
+        .map(([k, v]) => `${k}: ${v ?? 'null'}`)
+        .join(', ')
     } }`;
 
     if (this.debugMode) {

@@ -3,8 +3,7 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import { Vitessce } from 'vitessce';
-import { LogLevels } from '@vitessce/constants-internal';
-import { DEFAULT_LOG_LEVEL } from '@vitessce/globals';
+import { DEFAULT_LOG_LEVEL, LogLevels } from '@vitessce/globals';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';

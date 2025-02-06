@@ -26,7 +26,6 @@ export function warn(error, setWarning) {
   log.warn(error.message);
   log.error(error.stack);
   if (error instanceof AbstractLoaderError) {
-    console.log("Test")
     error.warnInConsole();
   }
 }

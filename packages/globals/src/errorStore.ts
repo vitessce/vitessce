@@ -1,10 +1,12 @@
+import log from './globalSettings.js';
+
 const ERROR_STORAGE_KEY = 'vitessceGlobalErrors';
-import log  from './globalSettings.js';
+
 /**
  * Save an error to localStorage.
- * @param {Error} error - The error to save.
+ * @param {Record<string, any>} error - The error object to save.
  */
-export function saveError(error) {
+export function saveError(error: Record<string, any>) {
   try {
     // Check if localStorage is available and working
     if (typeof localStorage !== 'undefined') {
@@ -20,9 +22,9 @@ export function saveError(error) {
 
 /**
  * Retrieve all saved errors.
- * @returns {Array} List of saved errors.
+ * @returns {Array<Record<string, any>>} List of saved errors.
  */
-export function getErrors() {
+export function getErrors(): Array<Record<string, any>> {
   try {
     // Ensure localStorage is available before reading from it
     if (typeof localStorage !== 'undefined') {
@@ -39,7 +41,7 @@ export function getErrors() {
 /**
  * Clear all saved errors.
  */
-export function clearErrors() {
+export function clearErrors(): void {
   try {
     // Check if localStorage is available before clearing
     if (typeof localStorage !== 'undefined') {

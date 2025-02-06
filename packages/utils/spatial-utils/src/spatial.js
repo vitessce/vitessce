@@ -3,8 +3,8 @@ import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
-import { getMultiSelectionStats } from './layer-controller.js';
 import { log } from '@vitessce/globals';
+import { getMultiSelectionStats } from './layer-controller.js';
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders

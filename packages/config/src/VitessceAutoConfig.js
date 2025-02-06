@@ -1,10 +1,10 @@
 import { CoordinationType as ct, FileType } from '@vitessce/constants-internal';
+import { log } from '@vitessce/globals';
 import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
 import { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
-import { log } from '@vitessce/globals';
 /**
  * @param {Object} hintsConfig. The hints config for the given dataset.
  *

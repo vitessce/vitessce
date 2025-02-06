@@ -15,13 +15,12 @@ export function DebugWindow({ debugErrors }) {
                   <div>
                     <h1>Error Type: {error.name}</h1>
                     {Object.keys(error).map(
-                      (key) =>
-                        key !== 'name' &&
-                        key !== 'message' && (
+                      key => key !== 'name'
+                        && key !== 'message' && (
                           <p key={key}>
                             {key.charAt(0).toUpperCase() + key.slice(1)}: {error[key]}
                           </p>
-                        ),
+                      ),
                     )}
                   </div>
                 )}

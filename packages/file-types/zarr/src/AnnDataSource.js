@@ -1,9 +1,9 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
+import { log } from '@vitessce/globals';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
-import { log } from '@vitessce/globals';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { ByteStringArray } from '@zarrita/typedarray' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */

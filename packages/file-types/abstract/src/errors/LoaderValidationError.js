@@ -20,7 +20,7 @@ export default class LoaderValidationError extends AbstractLoaderError {
 
   warnInConsole() {
     const {
-       reason, message,
+      reason, message,
     } = this;
     log.warn(
       message,

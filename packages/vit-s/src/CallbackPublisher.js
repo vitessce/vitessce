@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks.js';
 import { log } from '@vitessce/globals';
+import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks.js';
 
 function validateViewConfig(viewConfig, pluginSpecificConfigSchema) {
   // Need the try-catch here since Zustand will actually

@@ -67,6 +67,8 @@ import { AsyncFunctionsContext } from './contexts.js';
  * @param {array} props.coordinationTypes Plugin coordination types.
  * @param {null|object} props.warning A warning to render within the Vitessce grid,
  * @param {boolean} props.pageMode Whether to render in page mode. By default, false.
+ * @param {boolean} props.debugMode Whether to display the debugWindow. By default, false.
+ * @param {null|string} props.logLevel To set the log level in the console.
  * provided by the parent.
  */
 export function VitS(props) {
@@ -95,7 +97,7 @@ export function VitS(props) {
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
   } = props;
-
+  const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(
@@ -106,25 +108,21 @@ export function VitS(props) {
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
   );
-
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
   useMemo(() => setLogLevel(logLevel), [logLevel]);
   useMemo(() => setDebugMode(debugMode), [debugMode]);
-  useMemo(() => clearErrors(), [debugMode]);
   const configVersion = config?.version;
-
-  const [degugErrors, setDebugErrors] = useState([]);
+  // Clear the localStorage of errors on first load
+  useMemo(() => {
+    clearErrors();
+    setDebugErrors([]);
+  }, []);
 
   useEffect(() => {
     if (getDebugMode()) {
       setDebugErrors(getErrors());
     }
   }, []);
-
-  const handleClearErrors = () => {
-    clearErrors();
-    setDebugErrors([]);
-  };
 
   // If config.uid exists, then use it for hook dependencies to detect changes
   // (controlled component case). If not, then use the config object itself
@@ -252,11 +250,11 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
-  if (debugMode && degugErrors.length > 0) {
+  if (debugMode && debugErrors.length > 0) {
     return (
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider theme={muiTheme[theme]}>
-          <DebugWindow debugErrors={degugErrors} />
+          <DebugWindow debugErrors={debugErrors} />
         </ThemeProvider>
       </StylesProvider>
     );

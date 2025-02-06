@@ -11,7 +11,7 @@ import {
   FileType as FileTypeCurr,
   CoordinationType as CoordinationTypeCurr,
 } from '@vitessce/constants-internal';
-// import { log } from '@vitessce/globals';
+import { log } from '@vitessce/globals';
 import {
   ViewType as ViewTypeOld,
   DataType as DataTypeOld,
@@ -33,7 +33,7 @@ function makeConstantWithDeprecationMessage(currObj, oldObj) {
       const oldKeys = Object.keys(oldObj);
       const propKey = String(prop);
       if (oldKeys.includes(propKey)) {
-        console.warn(`Notice about the constant mapping ${propKey}: '${oldObj[propKey][0]}':\n${oldObj[propKey][1]}`);
+        log.warn(`Notice about the constant mapping ${propKey}: '${oldObj[propKey][0]}':\n${oldObj[propKey][1]}`);
         return oldObj[propKey];
       }
       return obj[prop];
