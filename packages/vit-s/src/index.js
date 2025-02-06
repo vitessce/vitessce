@@ -1,6 +1,5 @@
 export { VitS } from './VitS.js';
 export { TitleInfo } from './TitleInfo.js';
-// export { DebugCard } from './DebugCard.js';
 export { PopperMenu } from './shared-mui/components.js';
 // For plugin view types:
 export {

@@ -4,11 +4,10 @@ const ERROR_STORAGE_KEY = 'vitessceGlobalErrors';
 
 /**
  * Save an error to localStorage.
- * @param {Record<string, any>} error - The error object to save.
+ * @param {Record<string, any>} error
  */
 export function saveError(error: Record<string, any>) {
   try {
-    // Check if localStorage is available and working
     if (typeof localStorage !== 'undefined') {
       const existingErrors = JSON.parse(localStorage.getItem(ERROR_STORAGE_KEY) || '[]');
       existingErrors.push(error);
@@ -22,11 +21,10 @@ export function saveError(error: Record<string, any>) {
 
 /**
  * Retrieve all saved errors.
- * @returns {Array<Record<string, any>>} List of saved errors.
+ * @returns {Array<Record<string, any>>}
  */
 export function getErrors(): Array<Record<string, any>> {
   try {
-    // Ensure localStorage is available before reading from it
     if (typeof localStorage !== 'undefined') {
       const savedErrors = localStorage.getItem(ERROR_STORAGE_KEY);
       return savedErrors ? JSON.parse(savedErrors) : [];
@@ -43,7 +41,6 @@ export function getErrors(): Array<Record<string, any>> {
  */
 export function clearErrors(): void {
   try {
-    // Check if localStorage is available before clearing
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(ERROR_STORAGE_KEY);
     }

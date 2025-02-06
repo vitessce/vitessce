@@ -9,18 +9,18 @@ export const LogLevels = {
   info: 'info',
   warn: 'warn',
   error: 'error',
-  trace: 'trace', // default
+  trace: 'trace', // default value
   debug: 'debug',
-} as const; // This will help TypeScript infer the exact types for these values
+} as const;
 
 export const DEFAULT_DEBUG_MODE = false;
-export const DEFAULT_LOG_LEVEL = 'trace';
+export const DEFAULT_LOG_LEVEL = LogLevels.trace;
 
 let GLOBAL_DEBUG_MODE = DEFAULT_DEBUG_MODE;
 
 /**
  * Get the current debug mode status.
- * @returns {boolean} The current debug mode status.
+ * @returns {boolean}
  */
 export function getDebugMode(): boolean {
   return GLOBAL_DEBUG_MODE;
@@ -28,7 +28,7 @@ export function getDebugMode(): boolean {
 
 /**
  * Set the debug mode.
- * @param {boolean} value - The value to set for debug mode.
+ * @param {boolean} value
  */
 export function setDebugMode(value: boolean): void {
   GLOBAL_DEBUG_MODE = value;
@@ -36,7 +36,7 @@ export function setDebugMode(value: boolean): void {
 
 /**
  * Get the current log level.
- * @returns {number} The current log level.
+ * @returns {number}
  */
 export function getLogLevel(): number {
   return log.getLevel();
@@ -44,11 +44,11 @@ export function getLogLevel(): number {
 
 /**
  * Set the log level.
- * @param {keyof typeof LogLevels} level - The log level to set.
+ * @param {keyof typeof LogLevels} level
  */
 export function setLogLevel(level: keyof typeof LogLevels): void {
   if (Object.values(LogLevels).includes(level)) {
-    log.setLevel(level); // loglevel expects lowercase log levels
+    log.setLevel(level);
   } else {
     log.warn('Log level is not valid');
   }
