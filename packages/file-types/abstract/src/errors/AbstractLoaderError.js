@@ -2,6 +2,9 @@
  * A loader error ancestor class containing a default constructor
  * and a stub for the required warnInConsole() method.
  */
+
+// import { DebugWindow } from '@vitessce/globals';
+
 export default class AbstractLoaderError {
   constructor(message) {
     this.message = message;

@@ -73,7 +73,7 @@ export async function dataQueryFn(ctx) {
     return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
-  if (isRequired) {
+  if (!isRequired) {
     // Status: error
     throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
   } else {

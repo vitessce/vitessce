@@ -4,7 +4,7 @@ import React, {
   useMemo,
 } from 'react';
 import clsx from 'clsx';
-import { VITESSCE_CONTAINER } from '@vitessce/globals';
+import { VITESSCE_CONTAINER } from './classNames.js';
 import { VitessceGridLayout } from './vitessce-grid-layout/index.js';
 import { useRowHeight, createLoaders } from './vitessce-grid-utils.js';
 import {

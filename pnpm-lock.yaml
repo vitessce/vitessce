@@ -447,6 +447,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
@@ -467,6 +470,10 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/abstract:
+    dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*

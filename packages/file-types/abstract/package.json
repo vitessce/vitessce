@@ -30,6 +30,9 @@
     "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
+  "dependencies": {
+    "@vitessce/globals": "workspace:*"
+  },
   "devDependencies": {
     "@vitessce/types": "workspace:*"
   }

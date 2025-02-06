@@ -10,7 +10,7 @@ import {
   Help as HelpIcon,
 } from '@material-ui/icons';
 
-import { TOOLTIP_ANCESTOR } from '@vitessce/globals';
+import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';

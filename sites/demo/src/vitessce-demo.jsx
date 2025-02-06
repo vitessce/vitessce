@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Vitessce } from 'vitessce';
 import { LogLevels } from '@vitessce/constants-internal';
-import {DEFAULT_LOG_LEVEL} from "@vitessce/globals"
+import { DEFAULT_LOG_LEVEL } from '@vitessce/globals';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -99,11 +99,12 @@ function validateTheme(theme) {
  * @returns {string} A valid debugMode value.
  */
 function validatedebugMode(debugMode) {
-  return (debugMode || String(debugMode) === 'true');
+  console.log(debugMode, debugMode || String(debugMode).toLocaleLowerCase() === 'true');
+  return (debugMode && String(debugMode).toLocaleLowerCase() === 'true');
 }
 
 function validateLogLevel(logLevel) {
-  return Object.values(LogLevels).includes(logLevel) ? logLevel : 'trace'; //DEFAULT_LOG_LEVEL;
+  return Object.values(LogLevels).includes(logLevel) ? logLevel : DEFAULT_LOG_LEVEL;
 }
 
 export function VitessceDemo() {

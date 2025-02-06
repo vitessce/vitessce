@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -10,7 +10,8 @@ import {
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import {
-  setLogLevel, setDebugMode, DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE
+  setLogLevel, setDebugMode, DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE,
+  getDebugMode, getErrors, clearErrors,
 } from '@vitessce/globals';
 import { muiTheme } from './shared-mui/styles.js';
 import {
@@ -22,6 +23,7 @@ import {
 
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
+import { DebugWindow } from './DebugWindow.js';
 import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
@@ -106,8 +108,23 @@ export function VitS(props) {
   );
 
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
-
+  useMemo(() => setLogLevel(logLevel), [logLevel]);
+  useMemo(() => setDebugMode(debugMode), [debugMode]);
+  useMemo(() => clearErrors(), [debugMode]);
   const configVersion = config?.version;
+
+  const [degugErrors, setDebugErrors] = useState([]);
+
+  useEffect(() => {
+    if (getDebugMode()) {
+      setDebugErrors(getErrors());
+    }
+  }, []);
+
+  const handleClearErrors = () => {
+    clearErrors();
+    setDebugErrors([]);
+  };
 
   // If config.uid exists, then use it for hook dependencies to detect changes
   // (controlled component case). If not, then use the config object itself
@@ -235,6 +252,15 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  if (debugMode && degugErrors.length > 0) {
+    return (
+      <StylesProvider generateClassName={generateClassName}>
+        <ThemeProvider theme={muiTheme[theme]}>
+          <DebugWindow debugErrors={degugErrors} />
+        </ThemeProvider>
+      </StylesProvider>
+    );
+  }
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>

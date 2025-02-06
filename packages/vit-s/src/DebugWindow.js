@@ -39,21 +39,27 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export function DebugWindow(props) {
-  const {
-    title,
-    preformatted,
-    unformatted,
-  } = props;
+export function DebugWindow({ debugErrors }) {
+  log.log(debugErrors)
   const classes = useStyles();
   return (
     <div className={VITESSCE_CONTAINER}>
       <div className={clsx(classes.warningLayout, classes.containerFluid)}>
         <div className={classes.row}>
           <div className={classes.warningCard}>
-            <h1>{title}</h1>
-            {preformatted ? (<pre>{preformatted}</pre>) : null}
-            <p>{unformatted}</p>
+              { debugErrors.map((error, index) => (
+                <div key={error.message}>
+                    {index === 0 && 
+                    <div>
+                      <h1>Error Type: {error.name}</h1>
+                      <p>File Type: {error.fileType}</p>
+                      <p>Dataset: {error.dataset}</p>
+                      </div>
+                    }
+                  <p>Error: {error.message}</p>
+                  </div>
+             ))}  
+           
           </div>
         </div>
       </div>
