@@ -3,7 +3,7 @@
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
-
+import { log } from '@vitessce/globals';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { ByteStringArray } from '@zarrita/typedarray' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
@@ -340,7 +340,7 @@ export default class AnnDataSource extends ZarrDataSource {
           try {
             val = await this._loadElement(`${path}/${key}`);
           } catch (e) {
-            console.error(`Error in _loadDict: could not load ${key}`);
+            log.error(`Error in _loadDict: could not load ${key}`);
           }
           result[key] = val;
         }));

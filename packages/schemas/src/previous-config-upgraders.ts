@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash-es';
 import { getNextScope, capitalize } from '@vitessce/utils';
+import { log } from '@vitessce/globals';
 import { componentCoordinationScopes, componentCoordinationScopesBy } from './shared.js';
 import {
   configSchema0_1_0,
@@ -673,7 +674,7 @@ export function upgradeFrom1_0_14(
     // Iterate over each old prop key.
     Object.entries(propAnalogies).forEach(([oldProp, newType]) => {
       if (viewDef.props?.[oldProp]) {
-        console.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
+        log.warn(`Warning: the '${oldProp}' prop on the ${viewDef.component} view is deprecated. Please use the '${newType}' coordination type instead.`);
       }
     });
   });
@@ -706,7 +707,7 @@ export function upgradeFrom1_0_15(
       Object.entries(coordinationScopes).forEach(([coordinationType, coordinationScope]) => {
         if (!Array.isArray(coordinationScope) && typeof coordinationScope === 'object') {
           if (coordinationType === 'dataset') {
-            console.error('Expected coordinationScopes.dataset value to be either string or string[], but got object.');
+            log.error('Expected coordinationScopes.dataset value to be either string or string[], but got object.');
           }
           coordinationScopesBy.dataset[coordinationType] = coordinationScope;
         } else if (Array.isArray(coordinationScope) || typeof coordinationScope === 'string') {

@@ -61,6 +61,7 @@
     "@turf/centroid": "catalog:turf",
     "@turf/helpers": "catalog:turf",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
     "deck.gl": "catalog:deck.gl",
     "glslify": "^7.0.0",

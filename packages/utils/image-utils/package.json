@@ -33,6 +33,7 @@
     "@vitessce/types": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "@hms-dbmi/viv": "catalog:"
   },
   "devDependencies": {

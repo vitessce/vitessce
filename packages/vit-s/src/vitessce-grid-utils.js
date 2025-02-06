@@ -5,7 +5,7 @@ import { InternMap } from 'internmap';
 import { isEqual, pick } from 'lodash-es';
 import { DATA_TYPE_COORDINATION_VALUE_USAGE } from '@vitessce/constants-internal';
 import { getSourceAndLoaderFromFileType, getDataTypeFromFileType } from '@vitessce/abstract';
-
+import { log } from '@vitessce/globals'
 /**
  * Return the bottom coordinate of the layout.
  * https://github.com/STRML/react-grid-layout/blob/20dac73f91274526034c00968b5bedb9c2ed36b9/lib/utils.js#L82
@@ -107,7 +107,7 @@ function withDefaults(
   };
   if (!isEqual(coordinationValues, coordinationValuesWithDefaults)) {
     // eslint-disable-next-line max-len
-    console.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
+    log.warn(`Using coordination value defaults for file type ${fileType} in dataset ${datasetUid}\nBefore: ${JSON.stringify(coordinationValues)}\nAfter: ${JSON.stringify(coordinationValuesWithDefaults)}`);
   }
   return coordinationValuesWithDefaults;
 }

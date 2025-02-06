@@ -7,6 +7,7 @@ import {
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs } from '@vitessce/example-configs';
+import { log } from '@vitessce/globals';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
@@ -33,11 +34,11 @@ const betaMrKeys = [
 
 function logConfigUpgrade(prevConfig, nextConfig) {
   // eslint-disable-next-line no-console
-  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  log.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
   // eslint-disable-next-line no-console
-  console.log(prevConfig);
+  log.log(prevConfig);
   // eslint-disable-next-line no-console
-  console.log(nextConfig);
+  log.log(nextConfig);
 }
 
 function AppStyles(props) {
@@ -277,7 +278,7 @@ function IndexWithHashParams() {
         <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded })}>
           <ThemedVitessce
             validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
+            onConfigChange={debug ? log.log : undefined}
             onConfigUpgrade={debug ? logConfigUpgrade : undefined}
             config={validConfig}
             handleEdit={handleEdit}

@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "bowser": "^2.11.0",
-    "lz-string": "^1.4.4"
+    "lz-string": "^1.4.4",
+    "@vitessce/globals": "workspace:*"
   }
 }

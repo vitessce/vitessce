@@ -1,3 +1,5 @@
+import { log } from '@vitessce/globals';
+
 // Originally in src/components/utils.js
 export const DEFAULT_DARK_COLOR = [50, 50, 50];
 export const DEFAULT_LIGHT_COLOR = [200, 200, 200];
@@ -80,27 +82,27 @@ export const COLORMAP_OPTIONS = [
 export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
 export function createDefaultUpdateStatus(componentName: string) {
-  return (message: string) => console.warn(`${componentName} updateStatus: ${message}`);
+  return (message: string) => log.warn(`${componentName} updateStatus: ${message}`);
 }
 
 export function createDefaultUpdateCellsSelection(componentName: string) {
-  return (cellsSelection: any) => console.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
+  return (cellsSelection: any) => log.warn(`${componentName} updateCellsSelection: ${cellsSelection}`);
 }
 
 export function createDefaultUpdateCellsHover(componentName: string) {
-  return (hoverInfo: { cellId: string }) => console.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
+  return (hoverInfo: { cellId: string }) => log.warn(`${componentName} updateCellsHover: ${hoverInfo.cellId}`);
 }
 
 export function createDefaultUpdateGenesHover(componentName: string) {
-  return (hoverInfo: { geneId: string }) => console.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
+  return (hoverInfo: { geneId: string }) => log.warn(`${componentName} updateGenesHover: ${hoverInfo.geneId}`);
 }
 
 export function createDefaultUpdateTracksHover(componentName: string) {
-  return (hoverInfo: any) => console.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
+  return (hoverInfo: any) => log.warn(`${componentName} updateTracksHover: ${hoverInfo}`);
 }
 
 export function createDefaultUpdateViewInfo(componentName: string) {
-  return (viewInfo: any) => console.warn(`${componentName} updateViewInfo: ${viewInfo}`);
+  return (viewInfo: any) => log.warn(`${componentName} updateViewInfo: ${viewInfo}`);
 }
 
 export function createDefaultClearPleaseWait() {

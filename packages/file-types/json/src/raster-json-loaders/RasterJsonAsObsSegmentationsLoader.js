@@ -1,4 +1,5 @@
 import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { log } from '@vitessce/globals';
 import RasterLoader from './RasterJsonLoader.js';
 
 export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
@@ -22,7 +23,7 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
     });
 
     if (!coordinationValues?.spatialImageLayer) {
-      console.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsObsSegmentationsLoader. This may be an indicator that the image could not be loaded.');
+      log.warn('Could not initialize coordinationValues.spatialImageLayer in RasterJsonAsObsSegmentationsLoader. This may be an indicator that the image could not be loaded.');
     }
 
     return new LoaderResult(

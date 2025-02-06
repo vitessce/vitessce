@@ -2,6 +2,7 @@
 import { InternMap } from 'internmap';
 import { getValueTransformFunction } from '@vitessce/utils';
 import { isEqual } from 'lodash-es';
+import { log } from '@vitessce/globals';
 import {
   treeToSelectedSetMap,
   treeToObsIdsBySetNames,
@@ -150,7 +151,7 @@ export function stratifyArrays(
     sampleSetKeys.forEach((sampleSetKey) => {
       const finalInsertionIndex = result.get(cellSetKey).get(sampleSetKey).get('i');
       if (finalInsertionIndex !== result.get(cellSetKey).get(sampleSetKey).get('obsIndex').length) {
-        console.warn('The final insertion index is lower than expected.');
+        log.warn('The final insertion index is lower than expected.');
       }
       result.get(cellSetKey).get(sampleSetKey).delete('i');
     });

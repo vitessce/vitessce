@@ -4,7 +4,7 @@ import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
 import { getMultiSelectionStats } from './layer-controller.js';
-
+import { log } from '@vitessce/globals';
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders
@@ -500,7 +500,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         if (type === 'sequence') {
           return normalizeCoordinateTransformations(transform.transformations, datasets);
         }
-        console.warn(`Coordinate transformation type "${type}" is not supported.`);
+        log.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
       return transform;

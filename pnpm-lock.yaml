@@ -459,6 +459,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
 
   packages/constants-internal:
     devDependencies:
@@ -550,6 +553,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
@@ -622,6 +628,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/image-utils':
         specifier: workspace:*
         version: link:../../utils/image-utils
@@ -674,6 +683,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/image-utils':
         specifier: workspace:*
         version: link:../../utils/image-utils
@@ -807,6 +819,9 @@ importers:
       '@turf/helpers':
         specifier: catalog:turf
         version: 6.5.0
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
@@ -953,6 +968,9 @@ importers:
       '@vitessce/glb':
         specifier: workspace:*
         version: link:../../file-types/glb
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/heatmap':
         specifier: workspace:*
         version: link:../../view-types/heatmap
@@ -1131,6 +1149,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/plugins':
         specifier: workspace:*
         version: link:../plugins
@@ -1206,6 +1227,9 @@ importers:
 
   packages/utils/export-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
@@ -1218,6 +1242,9 @@ importers:
       '@hms-dbmi/viv':
         specifier: 'catalog:'
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
@@ -1237,6 +1264,9 @@ importers:
 
   packages/utils/other-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
@@ -1258,6 +1288,9 @@ importers:
       '@turf/helpers':
         specifier: catalog:turf
         version: 6.5.0
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
@@ -1294,6 +1327,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
@@ -1713,6 +1749,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
@@ -1931,6 +1970,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/legend':
         specifier: workspace:*
         version: link:../../legend
@@ -2422,6 +2464,9 @@ importers:
       '@vitessce/example-configs':
         specifier: workspace:*
         version: link:../../examples/configs
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../packages/globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

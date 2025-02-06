@@ -4,6 +4,7 @@ import {
   capitalize,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/utils';
+import { log } from '@vitessce/globals';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   AbstractLoaderError,
@@ -22,9 +23,10 @@ import {
  */
 export function warn(error, setWarning) {
   setWarning(error.message);
-  console.warn(error.message);
-  console.error(error.stack);
+  log.warn(error.message);
+  log.error(error.stack);
   if (error instanceof AbstractLoaderError) {
+    console.log("Test")
     error.warnInConsole();
   }
 }
@@ -73,7 +75,7 @@ export async function dataQueryFn(ctx) {
     return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
-  if (!isRequired) {
+  if (isRequired) {
     // Status: error
     throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
   } else {
