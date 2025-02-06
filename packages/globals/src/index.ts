@@ -9,6 +9,7 @@ export {
   setLogLevel,
   DEFAULT_DEBUG_MODE,
   DEFAULT_LOG_LEVEL,
+  LogLevels,
 } from './globalSettings.js';
 
 export { getErrors, clearErrors, saveError } from './errorStore.js';
