@@ -32,5 +32,8 @@
     "@vitessce/globals": "workspace:*",
     "@vitessce/constants-internal": "workspace:*"
 
+  },
+  "devDependencies": {
+    "@vitessce/types": "workspace:*"
   }
 }

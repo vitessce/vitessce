@@ -462,6 +462,10 @@ importers:
       '@vitessce/globals':
         specifier: workspace:*
         version: link:../globals
+    devDependencies:
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/constants-internal:
     devDependencies:
@@ -853,15 +857,13 @@ importers:
 
   packages/globals:
     dependencies:
-      '@material-ui/core':
-        specifier: 'catalog:'
-        version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      clsx:
-        specifier: 'catalog:'
-        version: 1.2.1
       loglevel:
         specifier: ^1.9.2
         version: 1.9.2
+    devDependencies:
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/icons:
     devDependencies:

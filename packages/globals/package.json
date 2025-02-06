@@ -29,8 +29,9 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js"
   },
   "dependencies": {
-    "loglevel": "^1.9.2",
-    "@material-ui/core": "catalog:",
-    "clsx": "catalog:"
+    "loglevel": "^1.9.2"
+  },
+  "devDependencies": {
+    "@vitessce/types": "workspace:*"
   }
 }
