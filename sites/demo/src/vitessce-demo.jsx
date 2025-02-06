@@ -95,11 +95,10 @@ function validateTheme(theme) {
  * Use the debugMode provided if it is valid, otherwise fall back to the
  * 'all' representing surfacing all logs.
  * @param {string} debugMode A potentially invalid value.
- * @returns {string} A valid debugMode value.
+ * @returns {boolean}.
  */
 function validatedebugMode(debugMode) {
-  console.log(debugMode, debugMode || String(debugMode).toLocaleLowerCase() === 'true');
-  return (debugMode && String(debugMode).toLocaleLowerCase() === 'true');
+  return (debugMode && String(debugMode).toLowerCase() === 'true');
 }
 
 function validateLogLevel(logLevel) {
