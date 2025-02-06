@@ -21,7 +21,7 @@ import {
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,

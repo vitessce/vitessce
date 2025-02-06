@@ -1,4 +1,4 @@
-import { styled, css } from '@mui/material-pigment-css';
+import { styled, css } from '@emotion/react';
 
 export const valueLabel = css(({ theme }) => ({
   marginTop: '7px',

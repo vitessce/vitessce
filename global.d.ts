@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material/styles';
 
-declare module '@mui/material-pigment-css' {
+declare module '@emotion/react' {
     interface ThemeArgs {
       theme: Theme;
     }

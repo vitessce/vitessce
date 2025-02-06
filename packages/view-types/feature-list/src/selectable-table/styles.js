@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 export const SelectableTableContainer = styled('div')(({ theme }) => ({
   flex: '1 1 auto',

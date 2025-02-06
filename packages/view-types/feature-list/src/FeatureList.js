@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { cleanFeatureId } from '@vitessce/utils';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 const infoStyle = css({
   fontSize: '80%',

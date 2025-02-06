@@ -57,7 +57,7 @@ catalog:
   # note - packages/file-types/glb was on @react-three/drei ~9.89.0
   "@react-three/xr": ^5.7.1
   # Vite
-  "vite": ^4.5.9
+  "vite": ^6.1.0
   "@vitejs/plugin-react": ^4.0.0
   "vitest": ^0.32.2
   # React
@@ -111,8 +111,7 @@ catalogs:
     "@turf/centroid": ^6.5.0
     "@turf/helpers": ^6.5.0
   mui:
-    "@mui/material": 6.4.2
-    "@mui/icons-material": 6.4.2
-    "@mui/material-pigment-css": 6.4.2
-    "@pigment-css/react": 0.0.30
-    "@pigment-css/vite-plugin": 0.0.30
+    "@mui/material": ^6.4.2
+    "@mui/icons-material": ^6.4.2
+    "@emotion/react": ^11.14.0
+    "@emotion/styled": ^11.14.0

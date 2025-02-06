@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 import Tooltip from './Tooltip.js';
 
 

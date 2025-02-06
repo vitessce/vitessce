@@ -1,4 +1,5 @@
-import { css, globalCss } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
+import { GlobalStyles } from '@mui/material';
 
 const nodeHeight = 32;
 
@@ -54,7 +55,7 @@ export const setsManagerTree = css({
   boxSizing: 'content-box', /* So the width will be 100% + 17px */
 });
 
-export const globalRcTreeStyles = globalCss(({ theme }) => ({
+export const globalRcTreeStyles = css(({ theme }) => ({
   '.rc-tree': {
     paddingLeft: '0',
     margin: '0',
@@ -121,7 +122,7 @@ export const globalRcTreeStyles = globalCss(({ theme }) => ({
   },
   '.rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
     position: 'relative',
-    /* To accomodate the checkbox and node menu button. */
+    /* To accommodate the checkbox and node menu button. */
     maxWidth: 'calc(100% - 45px)',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -224,6 +225,8 @@ export const globalRcTreeStyles = globalCss(({ theme }) => ({
     paddingLeft: '18px',
   },
 }));
+
+export const GlobalRCTreeStyles = () => <GlobalStyles styles={globalRcTreeStyles} />;
 
 export const plusButton = css(({ theme }) => ({
   border: '0',
@@ -347,11 +350,13 @@ export const titleSaveButton = css(({ theme }) => ({
   },
 }));
 
-export const antTooltip = globalCss(({
+export const antTooltip = css(({
   // TODO(monorepo): is this style used anywhere?
   fontSize: '12px',
   backgroundColor: 'rgba(0, 0, 0, 0.95)',
-}, { name: 'AntTooltip' }));
+}));
+
+export const AntTooltipStyles = () => <GlobalStyles styles={antTooltip} />;
 
 export const useStyles = () => ({
   setsManager,
@@ -396,7 +401,7 @@ export const helpTooltip = css(({ theme }) => ({
 
 }));
 
-globalCss({
+css({
   '.rc-tooltip-inner': {
     fontSize: '10px',
     minWidth: '30px',

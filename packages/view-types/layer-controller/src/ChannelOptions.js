@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MenuItem, IconButton } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 import ColorPalette from './ColorPalette.js';
 
 

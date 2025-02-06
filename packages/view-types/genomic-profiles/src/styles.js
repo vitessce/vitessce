@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { styled, css } from '@mui/material-pigment-css';
+import { styled, css } from '@emotion/react';
 
 const higlassTitleWrapper = css(({ theme }) => ({
   height: 'calc(100% - 20px)',

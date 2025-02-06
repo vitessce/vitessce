@@ -10,7 +10,7 @@ import {
   InputCell, LabelCell, Checkbox, OptionsContainer, CellColorEncodingOption, StyledOptionSelect,
   SliderValueLabel,
 } from '@vitessce/vit-s';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
 

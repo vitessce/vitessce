@@ -1,12 +1,12 @@
+import styled from '@emotion/styled';
 import { VITESSCE_CONTAINER } from './classNames.js';
-import { styled } from '@mui/material-pigment-css'
 
-const WarningLayout = styled('div')({
+const WarningLayout = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.gridLayoutBackground,
   position: 'absolute',
   width: '100%',
   height: '100vh',
-});
+}));
 
 const FluidWarningLayout = styled(WarningLayout)({
   width: '100%',
@@ -15,7 +15,7 @@ const FluidWarningLayout = styled(WarningLayout)({
   marginLeft: 'auto',
   boxSizing: 'border-box',
   display: 'flex',
-})
+});
 
 const Row = styled('div')({
   flexGrow: '1',
@@ -56,7 +56,7 @@ export function Warning(props) {
             <p>{unformatted}</p>
           </WarningCard>
         </Row>
-        </FluidWarningLayout>
+      </FluidWarningLayout>
     </div>
   );
 }

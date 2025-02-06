@@ -1,4 +1,4 @@
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 import { Select as MuiSelect, TableContainer, Checkbox as MuiCheckbox, Slider as MuiSlider } from '@mui/material';
 

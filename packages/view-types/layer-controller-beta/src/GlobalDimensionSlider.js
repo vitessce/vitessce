@@ -11,7 +11,7 @@ import {
 import {
   DimensionsSVG,
 } from '@vitessce/icons';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import { useControllerSectionStyles } from './styles.js';
 
 const dimensionsIcon = css(({ theme }) => ({

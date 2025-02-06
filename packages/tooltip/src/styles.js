@@ -1,4 +1,4 @@
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 export const tooltipAnchor = css({
   position: 'relative',

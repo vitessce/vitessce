@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton } from '@mui/material';
 import { Lens as LensIcon } from '@mui/icons-material';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 const PaletteContainer = styled('div')({
   width: '70px',

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
 import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
 import { CenterFocusStrong } from '@mui/icons-material';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 const iconClicked = {
   // Styles for the clicked state

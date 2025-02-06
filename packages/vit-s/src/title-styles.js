@@ -1,4 +1,4 @@
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 export const TitleContainer = styled('div')(({ theme }) => ({
   color: theme.palette.primaryForeground,

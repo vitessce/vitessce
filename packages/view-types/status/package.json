@@ -31,9 +31,8 @@
   },
   "dependencies": {
     "@mui/material": "catalog:mui",
-    "@mui/material-pigment-css": "catalog:mui",
-    "@pigment-css/react": "catalog:mui",
-    "@pigment-css/vite-plugin": "catalog:mui",
+    "@emotion/react": "catalog:mui",
+    "@emotion/styled": "catalog:mui",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:"

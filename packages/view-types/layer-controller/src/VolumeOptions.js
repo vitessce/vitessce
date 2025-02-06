@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import { useSelectStyles } from './styles.js';
 
 const disabledClass = css(({ theme }) => ({

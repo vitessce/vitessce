@@ -33,6 +33,8 @@
   },
   "dependencies": {
     "@mui/material": "catalog:mui",
+    "@emotion/react": "catalog:mui",
+    "@emotion/styled": "catalog:mui",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/abstract": "workspace:*",
     "@vitessce/csv": "workspace:*",

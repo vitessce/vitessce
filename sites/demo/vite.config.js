@@ -1,8 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { pigment } from '@pigment-css/vite-plugin';
-import { pigmentConfig } from '@vitessce/vit-s';
 import { serveTestFixtures } from '../../vite.config.js';
 // import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -17,7 +15,6 @@ export default defineConfig({
       jsxRuntime: 'classic',
     }),
     serveTestFixtures,
-    pigment(pigmentConfig),
   ],
   define: {
     // References:

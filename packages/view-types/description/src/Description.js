@@ -1,7 +1,7 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 import { DescriptionType } from '@vitessce/constants-internal';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 const DescriptionContainer = styled('div')(({ theme }) => ({
 

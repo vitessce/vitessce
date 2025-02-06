@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IconButton, MenuItem } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
-import { styled } from '@mui/material-pigment-css';
+import styled from '@emotion/styled';
 
 const StyledAddButton = styled(IconButton)({
   marginTop: '10px',

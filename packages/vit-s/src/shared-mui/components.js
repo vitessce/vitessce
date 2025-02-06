@@ -8,7 +8,7 @@ import {
   Fade,
 } from '@mui/material';
 import clsx from 'clsx';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import { useVitessceContainer } from '../hooks.js';
 
 const paper = css({

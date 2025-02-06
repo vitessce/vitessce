@@ -1,6 +1,6 @@
 import React from 'react';
 import { CircularProgress } from '@mui/material';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 const loadingIndicatorBackdrop = css({
   position: 'absolute',

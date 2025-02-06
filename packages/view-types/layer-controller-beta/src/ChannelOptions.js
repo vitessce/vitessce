@@ -5,7 +5,7 @@ import { useId } from 'react-aria';
 import { MenuItem, Select } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
 const channelMenuButton = css({

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo } from 'react';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import clsx from 'clsx';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';

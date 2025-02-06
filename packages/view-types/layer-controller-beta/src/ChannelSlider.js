@@ -7,7 +7,7 @@ import {
   toRgbUIString,
   DOMAINS,
 } from '@vitessce/spatial-utils';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 
 const channelSlider = css({

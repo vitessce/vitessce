@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@mui/material": "catalog:mui",
-    "@mui/material-pigment-css": "catalog:mui",
-    "@pigment-css/react": "catalog:mui",
+    "@emotion/react": "catalog:mui",
+    "@emotion/styled": "catalog:mui",
     "@mui/icons-material": "catalog:mui",
     "@tanstack/react-query": "^4.29.12",
     "@vitessce/abstract": "workspace:*",
@@ -55,7 +55,6 @@
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@pigment-css/vite-plugin": "catalog:mui",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "react": "catalog:",

@@ -27,7 +27,7 @@ import {
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 import {
   useControllerSectionStyles,
   useSelectStyles,

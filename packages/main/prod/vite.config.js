@@ -6,10 +6,8 @@
 // - https://github.com/hms-dbmi/viv/blob/master/scripts/bundle.mjs
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { pigment } from '@pigment-css/vite-plugin';
-import { pigmentConfig } from '@vitessce/vit-s';
 
 const isProduction = process.env.APP_ENV === 'production';
 
@@ -43,7 +41,6 @@ export default defineConfig({
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
   plugins: [
-    pigment(pigmentConfig),
     react(),
     visualizer(),
   ],

@@ -1,4 +1,4 @@
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 const imageLayerMenuLabel = css({
   margin: '0 5px',

@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 
 const visibilityCheckbox = css({

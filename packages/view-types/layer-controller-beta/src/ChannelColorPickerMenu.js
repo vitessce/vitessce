@@ -7,7 +7,7 @@ import { TwitterPicker } from 'react-color-with-lodash';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
 import { getXlinkHref } from '@vitessce/legend';
-import { css } from '@mui/material-pigment-css';
+import { css } from '@emotion/react';
 
 const colorIcon = css({
   width: '18px !important',
