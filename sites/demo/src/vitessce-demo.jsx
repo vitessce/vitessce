@@ -92,8 +92,7 @@ function validateTheme(theme) {
 }
 
 /**
- * Use the debugMode provided if it is valid, otherwise fall back to the
- * 'all' representing surfacing all logs.
+ * Use the debugMode provided if it is valid, otherwise fall back to false
  * @param {string} debugMode A potentially invalid value.
  * @returns {boolean}.
  */
@@ -101,7 +100,13 @@ function validatedebugMode(debugMode) {
   return (debugMode && String(debugMode).toLowerCase() === 'true');
 }
 
+/**
+ * Use the logLevel provided if it is valid, otherwise fall back to 'trace'
+ * @param {string} logLevel A potentially invalid value.
+ * @returns {string}.
+ */
 function validateLogLevel(logLevel) {
+  console.log(Object.values(LogLevels).includes(logLevel) ? logLevel : DEFAULT_LOG_LEVEL);
   return Object.values(LogLevels).includes(logLevel) ? logLevel : DEFAULT_LOG_LEVEL;
 }
 

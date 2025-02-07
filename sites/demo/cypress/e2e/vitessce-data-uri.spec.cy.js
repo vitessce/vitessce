@@ -38,6 +38,7 @@ describe('Vitessce Data URIs', () => {
   });
 
   it('handles errors from bad URL in config', () => {
+    cy.intercept('https://example.com/bad-url.json').as('badUrl');
     const config = {
       "version": "0.1.0",
       "name": "fake",
@@ -71,7 +72,6 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
-    cy.intercept('https://example.com/bad-url.json').as('badUrl');
     // Wait for initial request by react-query
     cy.wait('@badUrl');
     // We use a retry: 2 and the default exponential backoff function,
