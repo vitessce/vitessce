@@ -1,4 +1,4 @@
-import META_VERSION from './version.json' with {type: 'json'};
+
 
 export {
   ViewType,
@@ -19,5 +19,5 @@ export {
   AUTO_INDEPENDENT_COORDINATION_TYPES,
   COMPONENT_COORDINATION_TYPES,
 } from './coordination.js';
-export { META_VERSION };
+export { default as META_VERSION } from './version.json';
 export * from './spatial-constants.js';

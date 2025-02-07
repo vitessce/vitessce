@@ -512,7 +512,7 @@ export const helpTooltipPopover = css(({ theme }) => ({
   },
 }));
 
-export const helpTooltipPopoverMenuList = css({
+export const helpTooltipPopoverMenuList = css(({ theme }) => ({
   listStyleType: 'none',
   padding: 0,
   marginBottom: 0,
@@ -546,7 +546,7 @@ export const helpTooltipPopoverMenuList = css({
     lineHeight: 'inherit',
     borderRadius: 0,
   },
-});
+}));
 
 export const helpTooltipSmall = css({
   fontSize: '11px',

@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
-import { styled, css } from '@emotion/react';
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
 
 const higlassTitleWrapper = css(({ theme }) => ({
   height: 'calc(100% - 20px)',
