@@ -66,6 +66,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+
+    // For the dual scatterplot:
+    sampleSetSelection: sampleSetSelectionFromProps,
   } = props;
 
   const loaders = useLoaders();
@@ -101,7 +104,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
-    sampleSetSelection,
+    sampleSetSelection: sampleSetSelectionFromCoordination,
     sampleSetColor,
     embeddingPointsVisible,
     embeddingContoursVisible,
@@ -146,6 +149,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
+  const sampleSetSelection = (sampleSetSelectionFromProps || sampleSetSelectionFromCoordination
+  );
 
   const [width, height, deckRef] = useDeckCanvasSize();
 

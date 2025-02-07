@@ -1,4 +1,22 @@
 
+## 3.5.6
+
+### Patch Changes
+
+- Fix bug where tooltips would not appear when mousing over the body of unfilled polygons/segments in spatial beta component. (`@vitessce/spatial-beta`) ([#2031](https://github.com/vitessce/vitessce/pull/2031))
+
+- Add dualScatterplot view. (`@vitessce/scatterplot-embedding`) ([#2014](https://github.com/vitessce/vitessce/pull/2014))
+
+
+## 3.5.5
+
+### Patch Changes
+
+- Allow useExpandedFeatureLabelsMap to return success when disabled. (`@vitessce/vit-s`) ([#2024](https://github.com/vitessce/vitessce/pull/2024))
+
+- Added search to docs (`docs`) ([#2021](https://github.com/vitessce/vitessce/pull/2021))
+
+
 ## 3.5.4
 
 ### Patch Changes

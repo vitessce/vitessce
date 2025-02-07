@@ -164,8 +164,8 @@ function generateLake2023Config() {
       */
     ],
   });
-  const scatterplot = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-case' }).setProps({ title: 'CKD' });
-  const scatterplot2 = vc.addView(dataset, 'scatterplot', { uid: 'scatterplot-control' }).setProps({ title: 'Healthy Reference' });
+
+  const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
@@ -177,46 +177,40 @@ function generateLake2023Config() {
   // - control
   // - case-control
 
-  const [sampleSetScope_case, sampleSetScope_control, sampleSetScope_caseControl] = vc.addCoordination(
-    { cType: 'sampleSetSelection', cScope: 'case', cValue: [['Tissue Type', 'CKD']] },
-    { cType: 'sampleSetSelection', cScope: 'control', cValue: [['Tissue Type', 'Healthy Reference']] },
-    { cType: 'sampleSetSelection', cScope: 'case-control', cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']] },
+  const [sampleSetScope_caseControl] = vc.addCoordination(
+    {
+      cType: 'sampleSetSelection',
+      cScope: 'case-control',
+      cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']],
+    },
   );
 
-  vc.linkViewsByObject([scatterplot], {
+  vc.linkViewsByObject([dualScatterplot], {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
-    sampleType: 'sample',
-    sampleSetSelection: sampleSetScope_case,
-  }, { meta: false });
-  vc.linkViewsByObject([scatterplot2], {
-    embeddingType: 'densMAP',
-    embeddingContoursVisible: true,
-    embeddingPointsVisible: false,
-    sampleType: 'sample',
-    sampleSetSelection: sampleSetScope_control,
   }, { meta: false });
 
-
-  vc.linkViews([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
+  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
   }, { meta: false });
-  vc.linkViewsByObject([scatterplot, scatterplot2, violinPlots, featureList, dotPlot], {
+  vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
     featureSelection: ['ENSG00000169344'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
-  vc.linkViewsByObject([scatterplot, scatterplot2], {
-    embeddingZoom: null,
-    embeddingTargetX: null,
-    embeddingTargetY: null,
-  }, { meta: false });
+
+  /*
+  const [donorSelectionScope, cellTypeSelectionScope] = vc.addCoordination(
+    { cType: 'obsSetSelection', cScope: 'donor', cValue: [['Donor ID', '3593'], ['Donor ID', '3535']] },
+    { cType: 'obsSetSelection', cScope: 'cellType', cValue: [['Cell Type', 'leukocyte'], ['Cell Type', 'kidney collecting duct intercalated cell']] },
+  );
+  */
 
   vc.layout(hconcat(
     vconcat(
-      hconcat(scatterplot2, biomarkerSelect),
+      hconcat(dualScatterplot, biomarkerSelect),
       vconcat(
         hconcat(
           obsSets,
@@ -225,10 +219,7 @@ function generateLake2023Config() {
         featureList,
       ),
     ),
-    vconcat(
-      scatterplot,
-      vconcat(violinPlots, dotPlot),
-    ),
+    vconcat(violinPlots, dotPlot),
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -236,8 +227,7 @@ function generateLake2023Config() {
 
 function PageComponent() {
   const BiomarkerSelect = usePageModeView('biomarker-select');
-  const ScatterplotCase = usePageModeView('scatterplot-case');
-  const ScatterplotControl = usePageModeView('scatterplot-control');
+  const DualScatterplot = usePageModeView('scatterplot');
   const CellSets = usePageModeView('cell-sets');
   const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
@@ -274,13 +264,8 @@ function PageComponent() {
             <div style={{ width: '50%' }}><h2>Healthy Reference</h2></div>
           </div>
           <h3>Cell type-level representations</h3>
-          <div style={{ width: '100%', height: '800px', display: 'flex', flexDirection: 'row' }}>
-            <div style={{ width: '50%' }}>
-              <ScatterplotCase />
-            </div>
-            <div style={{ width: '50%' }}>
-              <ScatterplotControl />
-            </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <DualScatterplot />
           </div>
           <div style={{ width: '100%', height: '500px' }}>
             <ViolinPlot />
