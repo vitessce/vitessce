@@ -1,5 +1,4 @@
-import { css } from '@emotion/react';
-import { GlobalStyles } from '@mui/material';
+import { css, Global } from '@emotion/react';
 
 const nodeHeight = 32;
 
@@ -226,7 +225,7 @@ export const globalRcTreeStyles = css(({ theme }) => ({
   },
 }));
 
-export const GlobalRCTreeStyles = () => <GlobalStyles styles={globalRcTreeStyles} />;
+export const GlobalRCTreeStyles = () => <Global styles={globalRcTreeStyles} />;
 
 export const plusButton = css(({ theme }) => ({
   border: '0',
@@ -356,7 +355,7 @@ export const antTooltip = css(({
   backgroundColor: 'rgba(0, 0, 0, 0.95)',
 }));
 
-export const AntTooltipStyles = () => <GlobalStyles styles={antTooltip} />;
+export const AntTooltipStyles = () => <Global styles={antTooltip} />;
 
 export const useStyles = () => ({
   setsManager,

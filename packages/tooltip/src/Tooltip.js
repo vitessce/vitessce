@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Paper, Popper } from '@mui/material';
 import { useVitessceContainer } from '@vitessce/vit-s';
-import { TooltipAnchor, TooltipContent } from './styles.js';
+import { tooltipAnchor, tooltipContent } from './styles.js';
 
 export default function Tooltip(props) {
   const {
@@ -30,8 +30,9 @@ export default function Tooltip(props) {
   }, [x, y, parentWidth, parentHeight]);
 
   return (
-    <TooltipAnchor
+    <div
       ref={ref}
+      className={tooltipAnchor}
     >
       {ref && ref.current ? (
         <Popper
@@ -41,11 +42,11 @@ export default function Tooltip(props) {
           transition
           placement={`${placementY}-${placementX}`}
         >
-          <TooltipContent elevation={4}>
+          <Paper elevation={4} className={tooltipContent}>
             {children}
-          </TooltipContent>
+          </Paper>
         </Popper>
       ) : null}
-    </TooltipAnchor>
+    </div>
   );
 }

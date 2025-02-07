@@ -93,6 +93,7 @@ export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
+  StyledOptionSelect,
   BorderBox,
   Checkbox,
   Slider,

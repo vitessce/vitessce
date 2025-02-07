@@ -50,9 +50,8 @@ export const useEllipsisMenuStyles = () => ({
 
 export {
   useSelectStyles,
-  useControllerSectionStyles,
-  useAccordionStyles,
   useInputLabelStyles,
   useOverflowEllipsisGridStyles,
   useSelectionSliderStyles,
+  useControllerSectionStyles,
 } from '@vitessce/layer-controller';

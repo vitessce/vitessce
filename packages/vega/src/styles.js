@@ -1,4 +1,4 @@
-import { css, GlobalStyles } from '@emotion/react';
+import { css, Global } from '@emotion/react';
 
 export const globalVegaTooltipStyle = css(({ theme }) => ({
   '#vg-tooltip-element.vg-tooltip.custom-theme': {
@@ -17,5 +17,5 @@ export const globalVegaTooltipStyle = css(({ theme }) => ({
 }));
 
 export const GlobalVegaTooltipStyle = () => (
-  <GlobalStyles styles={globalVegaTooltipStyle} />
+  <Global styles={globalVegaTooltipStyle} />
 );

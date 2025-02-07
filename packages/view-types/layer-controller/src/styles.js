@@ -1,4 +1,5 @@
-import { styled, css } from '@emotion/react';
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
 
 export const valueLabel = css(({ theme }) => ({
   marginTop: '7px',

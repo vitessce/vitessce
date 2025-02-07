@@ -5,4 +5,6 @@ export {
   useInputLabelStyles,
   useOverflowEllipsisGridStyles,
   useSelectionSliderStyles,
+  useSelectStyles,
+  useControllerSectionStyles,
 } from './styles.js';
