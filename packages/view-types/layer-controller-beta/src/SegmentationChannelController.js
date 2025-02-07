@@ -4,7 +4,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
-  makeStyles,
   Grid,
   Checkbox,
   Paper,
@@ -13,15 +12,16 @@ import {
   MenuItem,
   Button,
   Select,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { VectorIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
+import { css } from '@emotion/react';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -29,17 +29,14 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
-
-const useStyles = makeStyles(() => ({
-  layerTypeSegmentationIcon: {
-    height: '100%',
-    marginLeft: '1px',
-    fill: 'currentColor',
-    fontSize: '24px',
-    width: '50%',
-    maxWidth: '24px',
-  },
-}));
+const layerTypeSegmentationIcon = css({
+  height: '100%',
+  marginLeft: '1px',
+  fill: 'currentColor',
+  fontSize: '24px',
+  width: '50%',
+  maxWidth: '24px',
+});
 
 function SegmentationChannelEllipsisMenu(props) {
   const {
@@ -63,7 +60,6 @@ function SegmentationChannelEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -304,7 +300,7 @@ export default function SegmentationChannelController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
+            <VectorIconSVG className={layerTypeSegmentationIcon} />
           </Grid>
         </Grid>
       </Paper>

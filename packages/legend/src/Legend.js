@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
+import { css } from '@emotion/react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
@@ -10,42 +10,45 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const useStyles = makeStyles(() => ({
-  legend: {
-    top: '2px',
-    right: '2px',
-    zIndex: '100',
-    fontSize: '10px !important',
-    flexDirection: 'column',
-    backgroundColor: 'rgba(215, 215, 215, 0.7)',
-    borderRadius: '4px',
-    padding: '2px',
-    lineHeight: '10px !important',
-    '& svg': {
-      top: 0,
-      left: 0,
-      position: 'relative',
-    },
-  },
-  legendAbsolute: {
-    position: 'absolute',
-    display: 'inline-block',
-  },
-  legendRelative: {
+const legend = css({
+  top: '2px',
+  right: '2px',
+  zIndex: '100',
+  fontSize: '10px !important',
+  flexDirection: 'column',
+  backgroundColor: 'rgba(215, 215, 215, 0.7)',
+  borderRadius: '4px',
+  padding: '2px',
+  lineHeight: '10px !important',
+  '& svg': {
+    top: 0,
+    left: 0,
     position: 'relative',
-    marginBottom: '2px',
-    display: 'block',
   },
-  legendHighContrast: {
-    backgroundColor: 'rgba(215, 215, 215, 0.7)',
-  },
-  legendLowContrast: {
-    backgroundColor: 'rgba(215, 215, 215, 0.2)',
-  },
-  legendInvisible: {
-    display: 'none',
-  },
-}));
+});
+
+const legendAbsolute = css({
+  position: 'absolute',
+  display: 'inline-block',
+});
+
+const legendRelative = css({
+  position: 'relative',
+  marginBottom: '2px',
+  display: 'block',
+});
+
+const legendHighContrast = css({
+  backgroundColor: 'rgba(215, 215, 215, 0.7)',
+});
+
+const legendLowContrast = css({
+  backgroundColor: 'rgba(215, 215, 215, 0.2)',
+});
+
+const legendInvisible = css({
+  display: 'none',
+});
 
 const titleHeight = 10;
 const rectHeight = 8;
@@ -93,7 +96,7 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const classes = useStyles();
+
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
@@ -375,22 +378,24 @@ export default function Legend(props) {
   ]);
 
   return (
-    <div
-      className={clsx(classes.legend, {
-        [classes.legendRelative]: positionRelative,
-        [classes.legendAbsolute]: !positionRelative,
-        [classes.legendHighContrast]: highContrast,
-        [classes.legendLowContrast]: !highContrast,
-        [classes.legendInvisible]: !visible,
-      })}
-    >
-      <svg
-        ref={svgRef}
-        style={{
-          width: `${width}px`,
-          height: `${dynamicHeight}px`,
-        }}
-      />
-    </div>
+    (
+      <div
+        className={clsx(legend, {
+          [legendRelative]: positionRelative,
+          [legendAbsolute]: !positionRelative,
+          [legendHighContrast]: highContrast,
+          [legendLowContrast]: !highContrast,
+          [legendInvisible]: !visible,
+        })}
+      >
+        <svg
+          ref={svgRef}
+          style={{
+            width: `${width}px`,
+            height: `${dynamicHeight}px`,
+          }}
+        />
+      </div>
+    )
   );
 }

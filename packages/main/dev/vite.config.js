@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // References:
 // - https://github.com/gosling-lang/gosling.js/blob/master/vite.config.js
 // - https://github.com/gosling-lang/gosling.js/blob/master/scripts/build-embed.js
@@ -5,7 +6,7 @@
 // - https://github.com/hms-dbmi/viv/blob/master/scripts/bundle.mjs
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
 const isProduction = process.env.APP_ENV === 'production';
 

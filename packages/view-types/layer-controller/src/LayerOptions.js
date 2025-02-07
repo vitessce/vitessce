@@ -2,7 +2,7 @@ import React from 'react';
 import { useId } from 'react-aria';
 import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
-import { Grid, Slider, InputLabel, Select, Checkbox } from '@material-ui/core';
+import { Grid, Slider, InputLabel, Select, Checkbox } from '@mui/material';
 import { viv } from '@vitessce/gl';
 import {
   getBoundingCube,

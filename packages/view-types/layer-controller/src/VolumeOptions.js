@@ -4,32 +4,29 @@ import {
   Grid,
   Typography,
   Button,
-  makeStyles,
-  createStyles,
   FormControl,
   Select,
   InputLabel,
   Slider,
-} from '@material-ui/core';
+} from '@mui/material';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
+import { css } from '@emotion/react';
 import { useSelectStyles } from './styles.js';
 
-const useSlicerStyles = makeStyles(theme => createStyles({
-  enabled: {},
-  disabled: {
-    color: theme.palette.text.disabled,
-    // Because of the .5 opacity of the disabled color in the theme, and the fact
-    // that there are multiple overlaid parts to the slider,
-    // this needs to be set manually for the desired effect.
-    '& .MuiSlider-thumb': {
-      color: 'rgb(100, 100, 100, 1.0)',
-    },
-    '&  .MuiSlider-track': {
-      color: 'rgb(100, 100, 100, 1.0)',
-    },
+const disabledClass = css(({ theme }) => ({
+  color: theme.palette.text.disabled,
+  // Because of the .5 opacity of the disabled color in the theme, and the fact
+  // that there are multiple overlaid parts to the slider,
+  // this needs to be set manually for the desired effect.
+  '& .MuiSlider-thumb': {
+    color: 'rgb(100, 100, 100, 1.0)',
+  },
+  '& .MuiSlider-track': {
+    color: 'rgb(100, 100, 100, 1.0)',
   },
 }));
+
 
 const Slicer = ({
   xSlice,
@@ -61,7 +58,6 @@ const Slicer = ({
     ],
   ];
 
-  const classes = useSlicerStyles();
   const Slicers = sliceValuesAndSetSliceFunctions.map(
     ([val, setVal, label, [min, max]]) => (
       <Grid
@@ -73,7 +69,7 @@ const Slicer = ({
       >
         <Grid item xs={1}>
           <Typography
-            className={!use3d ? classes.disabled : classes.enabled}
+            className={!use3d ? disabledClass : ''}
             style={{ marginBottom: 0 }}
           >
             {label}:
@@ -82,7 +78,7 @@ const Slicer = ({
         <Grid item xs={11}>
           <Slider
             disabled={!use3d}
-            className={!use3d ? classes.disabled : classes.enabled}
+            className={!use3d ? disabledClass : ''}
             value={val}
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"

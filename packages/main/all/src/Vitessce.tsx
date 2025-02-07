@@ -15,6 +15,7 @@ import {
   baseAsyncFunctions,
 } from './base-plugins.js';
 
+
 export function Vitessce(props: any) {
   const {
     config,

@@ -1,20 +1,20 @@
 import React from 'react';
-import { Select } from '@material-ui/core';
-import { useStyles } from './styles.js';
+import styled from '@emotion/styled';
+import { StyledSelect } from './styles.js';
 
 export default function OptionSelect(props) {
-  const { classes: classesProp = {} } = props;
-  const classes = useStyles();
   return (
-    <Select
+    <StyledSelect
       native
       disableUnderline
       {...props}
-      classes={{
-        root: classes.optionSelectRoot,
-        ...classesProp,
-      }}
       aria-label="Select an option"
     />
   );
 }
+
+export const StyledOptionSelect = styled(OptionSelect)({
+  '& select': {
+    fontSize: '14px',
+  },
+});

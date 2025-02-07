@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, RadioGroup, FormControl, FormLabel, Radio, FormControlLabel, Typography } from '@material-ui/core';
+import { Grid, RadioGroup, FormControl, FormLabel, Radio, FormControlLabel, Typography } from '@mui/material';
 
 
 export function SelectStratification(props) {

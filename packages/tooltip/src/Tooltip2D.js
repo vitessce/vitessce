@@ -1,15 +1,18 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import styled from '@emotion/styled';
 import Tooltip from './Tooltip.js';
 
-const useStyles = makeStyles(theme => ({
-  cellEmphasisCrosshair: {
-    zIndex: 50,
-    position: 'absolute',
-    pointerEvents: 'none',
-    boxSizing: 'border-box',
-    backgroundColor: theme.palette.secondaryForeground,
+
+const CellEmphasisCrosshair = styled('div')((
+  {
+    theme,
   },
+) => ({
+  zIndex: 50,
+  position: 'absolute',
+  pointerEvents: 'none',
+  boxSizing: 'border-box',
+  backgroundColor: theme.palette.secondaryForeground,
 }));
 
 /**
@@ -36,7 +39,6 @@ export default function Tooltip2D(props) {
     children,
   } = props;
 
-  const classes = useStyles();
 
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
@@ -45,43 +47,46 @@ export default function Tooltip2D(props) {
   // Show tooltip or crosshair?
   const isTooltipVisible = (parentUuid === sourceUuid);
   const crosshairWidth = 1;
+
+  if (isTooltipVisible) {
+    return (
+      <Tooltip
+        x={x}
+        y={y}
+        parentWidth={parentWidth}
+        parentHeight={parentHeight}
+      >
+        {children}
+      </Tooltip>
+    );
+  }
+
+  const xCrosshair = x !== null ? (
+    <CellEmphasisCrosshair
+      style={{
+        left: `${x - crosshairWidth / 2}px`,
+        top: 0,
+        width: `${crosshairWidth}px`,
+        height: `${parentHeight}px`,
+      }}
+    />
+  ) : null;
+
+  const yCrosshair = y !== null ? (
+    <CellEmphasisCrosshair
+      style={{
+        left: 0,
+        top: `${y - crosshairWidth / 2}px`,
+        width: `${parentWidth}px`,
+        height: `${crosshairWidth}px`,
+      }}
+    />
+  ) : null;
+
   return (
     <>
-      {isTooltipVisible ? (
-        <Tooltip
-          x={x}
-          y={y}
-          parentWidth={parentWidth}
-          parentHeight={parentHeight}
-        >
-          {children}
-        </Tooltip>
-      ) : (
-        <>
-          {x !== null ? (
-            <div
-              className={classes.cellEmphasisCrosshair}
-              style={{
-                left: `${x - crosshairWidth / 2}px`,
-                top: 0,
-                width: `${crosshairWidth}px`,
-                height: `${parentHeight}px`,
-              }}
-            />
-          ) : null}
-          {y !== null ? (
-            <div
-              className={classes.cellEmphasisCrosshair}
-              style={{
-                left: 0,
-                top: `${y - crosshairWidth / 2}px`,
-                width: `${parentWidth}px`,
-                height: `${crosshairWidth}px`,
-              }}
-            />
-          ) : null}
-        </>
-      )}
+      {xCrosshair}
+      {yCrosshair}
     </>
   );
 }

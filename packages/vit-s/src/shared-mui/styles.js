@@ -1,4 +1,5 @@
-import { createTheme, colors } from '@material-ui/core';
+import { createTheme, colors } from '@mui/material';
+
 
 const { grey } = colors;
 
@@ -81,9 +82,9 @@ const lightPalette = {
 };
 
 export const muiTheme = {
-  dark: createTheme({
+  dark: createTheme(({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: grey,
       secondary: grey,
       primaryBackground: '#222222',
@@ -107,16 +108,16 @@ export const muiTheme = {
     },
     ...sharedThemeOptions,
     cardBorderSize: '1px',
-  }),
-  light: createTheme({
+  })),
+  light: createTheme(({
     palette: {
       ...lightPalette,
       ...globalColors,
     },
     ...sharedThemeOptions,
     cardBorderSize: '1px',
-  }),
-  light2: createTheme({
+  })),
+  light2: createTheme(({
     palette: {
       ...lightPalette,
       primaryBackground: '#FFFFFF',
@@ -129,5 +130,5 @@ export const muiTheme = {
     },
     ...sharedThemeOptions,
     cardBorderSize: '2px',
-  }),
+  })),
 };

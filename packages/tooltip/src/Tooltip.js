@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Paper, Popper } from '@material-ui/core';
+import { Paper, Popper } from '@mui/material';
 import { useVitessceContainer } from '@vitessce/vit-s';
-import { styles } from './styles.js';
+import { tooltipAnchor, tooltipContent } from './styles.js';
 
 export default function Tooltip(props) {
   const {
@@ -12,7 +12,6 @@ export default function Tooltip(props) {
     children,
   } = props;
   const ref = useRef();
-  const classes = styles();
   const [placementX, setPlacementX] = useState('start');
   const [placementY, setPlacementY] = useState('bottom');
 
@@ -33,7 +32,7 @@ export default function Tooltip(props) {
   return (
     <div
       ref={ref}
-      className={classes.tooltipAnchor}
+      className={tooltipAnchor}
     >
       {ref && ref.current ? (
         <Popper
@@ -43,7 +42,7 @@ export default function Tooltip(props) {
           transition
           placement={`${placementY}-${placementX}`}
         >
-          <Paper elevation={4} className={classes.tooltipContent}>
+          <Paper elevation={4} className={tooltipContent}>
             {children}
           </Paper>
         </Popper>

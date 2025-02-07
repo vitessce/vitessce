@@ -17,7 +17,7 @@
     "isolatedModules": true,
     "incremental": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
   },
   "references": [
     { "path": "packages/types" },
@@ -67,5 +67,5 @@
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" }
   ],
-  "files": []
+  "files": ["global.d.ts"]
 }

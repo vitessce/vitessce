@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Checkbox, Select } from '@material-ui/core';
+import { Checkbox, Select } from '@mui/material';
 import { useSelectStyles } from './styles.js';
 
 /**

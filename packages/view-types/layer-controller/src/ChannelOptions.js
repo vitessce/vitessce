@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@material-ui/core';
-import { MoreVert as MoreVertIcon } from '@material-ui/icons';
+import { MenuItem, IconButton } from '@mui/material';
+import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
-import { useSpanStyles } from './styles.js';
+import styled from '@emotion/styled';
 import ColorPalette from './ColorPalette.js';
 
-const useStyles = makeStyles(() => ({
-  menuButton: {
+
+const MenuButton = styled(IconButton)({
+  backgroundColor: 'transparent',
+});
+
+const ColorsMenuItem = styled(MenuItem)({
+  '&:hover': {
     backgroundColor: 'transparent',
   },
-  colors: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    paddingLeft: '2px',
-    paddingRight: '2px',
-  },
-}));
+  paddingLeft: '2px',
+  paddingRight: '2px',
+});
 
-function MuiSpan(props) {
-  const { children } = props;
-  const classes = useSpanStyles();
-  return <span className={classes.span}>{children}</span>;
-}
+const Span = styled('span')({
+  width: '70px',
+  textAlign: 'center',
+  paddingLeft: '2px',
+  paddingRight: '2px',
+});
+
 
 /**
  * Dropdown for options for a channel on the three dots button.
@@ -32,8 +34,6 @@ function MuiSpan(props) {
  */
 function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, setOpen] = useState(false);
-
-  const classes = useStyles();
 
   const handleColorSelect = (color) => {
     handlePropertyChange('color', color);
@@ -49,11 +49,11 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
       open={open}
       setOpen={setOpen}
       buttonIcon={<MoreVertIcon fontSize="small" />}
-      buttonClassName={classes.menuButton}
+      buttonComponent={MenuButton}
       aria-label="Open channel options menu"
     >
       <MenuItem dense disableGutters onClick={handleRemove} aria-label="Click to remove channel">
-        <MuiSpan>Remove</MuiSpan>
+        <Span>Remove</Span>
       </MenuItem>
       <MenuItem
         dense
@@ -61,16 +61,15 @@ function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUp
         onClick={handleIQRUpdate}
         aria-label="Click to use IQR for channel"
       >
-        <MuiSpan>Use IQR</MuiSpan>
+        <Span>Use IQR</Span>
       </MenuItem>
-      <MenuItem
+      <ColorsMenuItem
         dense
         disableGutters
-        className={classes.colors}
         aria-label="Click to select color for channel"
       >
         <ColorPalette handleChange={handleColorSelect} />
-      </MenuItem>
+      </ColorsMenuItem>
     </PopperMenu>
   );
 }

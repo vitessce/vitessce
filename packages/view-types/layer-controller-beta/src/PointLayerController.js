@@ -4,7 +4,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
-  makeStyles,
   Grid,
   Paper,
   Typography,
@@ -13,15 +12,16 @@ import {
   Button,
   Select,
   Checkbox,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
+import { css } from '@emotion/react';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -29,16 +29,16 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
-const useStyles = makeStyles(() => ({
-  layerTypePointIcon: {
-    height: '100%',
-    marginLeft: '1px',
-    fill: 'currentColor',
-    fontSize: '20px',
-    width: '50%',
-    maxWidth: '20px',
-  },
-}));
+
+const layerTypePointIcon = css({
+  height: '100%',
+  marginLeft: '1px',
+  fill: 'currentColor',
+  fontSize: '20px',
+  width: '50%',
+  maxWidth: '20px',
+});
+
 
 function PointLayerEllipsisMenu(props) {
   const {
@@ -190,7 +190,6 @@ export default function PointLayerController(props) {
   const isStaticColor = obsColorEncoding === 'spatialLayerColor';
   const isColormap = obsColorEncoding === 'geneSelection';
 
-  const classes = useStyles();
   const lcClasses = useControllerSectionStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -260,7 +259,7 @@ export default function PointLayerController(props) {
             />
           </Grid>
           <Grid item xs={1}>
-            <PointsIconSVG className={classes.layerTypePointIcon} />
+            <PointsIconSVG className={layerTypePointIcon} />
           </Grid>
         </Grid>
       </Paper>

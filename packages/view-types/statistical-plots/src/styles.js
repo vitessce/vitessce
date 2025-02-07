@@ -1,9 +1,11 @@
-import { makeStyles } from '@material-ui/core';
+import { css } from '@emotion/react';
 
-export const useStyles = makeStyles(() => ({
-  vegaContainer: {
-    display: 'flex',
-    flex: '1 1 auto',
-    overflow: 'hidden',
-  },
-}));
+const vegaContainer = css({
+  display: 'flex',
+  flex: '1 1 auto',
+  overflow: 'hidden',
+});
+
+export const useStyles = () => ({
+  vegaContainer,
+});
