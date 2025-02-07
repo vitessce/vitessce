@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NeuroglancerViewer from '@vitessce/neuroglancer-plugin';
+import { NeuroglancerViewer } from 'vitessce-react-neuroglancer';
 
 export function Neuroglancer({ viewerState, onViewerStateChanged }) {
   const [updatedState, setUpdatedState] = useState(viewerState);

@@ -1,6 +1,5 @@
 ---
 "@vitessce/neuroglancer": patch
-"@vitessce/neuroglancer-plugin": patch
 "@vitessce/constants-internal": patch
 "@vitessce/all": patch
 "@vitessce/example-configs": patch

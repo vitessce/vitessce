@@ -18,10 +18,6 @@
     "incremental": true,
     "declaration": true,
     "declarationMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "neuroglancer-plugin": ["packages/neuroglancer-plugin/neuro-dist"]
-    }
   },
   "references": [
     { "path": "packages/types" },
@@ -35,7 +31,6 @@
     { "path": "packages/file-types/glb" },
     { "path": "packages/file-types/json" },
     { "path": "packages/file-types/ome-tiff" },
-    { "path": "packages/neuroglancer-plugin" },
     { "path": "packages/gl" },
     { "path": "packages/legend" },
     { "path": "packages/plugins" },
