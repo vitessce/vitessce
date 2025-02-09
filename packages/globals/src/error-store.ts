@@ -1,4 +1,4 @@
-import log from './globalSettings.js';
+import { log } from './global-settings.js';
 
 const ERROR_STORAGE_KEY = 'vitessceGlobalErrors';
 

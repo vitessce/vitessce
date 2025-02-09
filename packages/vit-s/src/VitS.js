@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -10,8 +10,8 @@ import {
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import {
-  setLogLevel, setDebugMode, DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE,
-  getDebugMode, getErrors, clearErrors,
+  setLogLevel, setDebugMode,
+  DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE,
 } from '@vitessce/globals';
 import { muiTheme } from './shared-mui/styles.js';
 import {
@@ -109,20 +109,15 @@ export function VitS(props) {
     [coordinationTypesProp],
   );
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
-  useMemo(() => setLogLevel(logLevel), [logLevel]);
-  useMemo(() => setDebugMode(debugMode), [debugMode]);
+  
+  // Set error handling-related globals.
+  useLayoutEffect(() => {
+    setLogLevel(logLevel);
+  }, [logLevel]);
+  useLayoutEffect(() => {
+    setDebugMode(debugMode);
+  }, [debugMode]);
   const configVersion = config?.version;
-  // Clear the localStorage of errors on first load
-  useMemo(() => {
-    clearErrors();
-    setDebugErrors([]);
-  }, []);
-
-  useEffect(() => {
-    if (getDebugMode()) {
-      setDebugErrors(getErrors());
-    }
-  }, []);
 
   // If config.uid exists, then use it for hook dependencies to detect changes
   // (controlled component case). If not, then use the config object itself

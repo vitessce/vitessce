@@ -33,7 +33,6 @@
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/globals": "workspace:*",
     "clsx": "^1.1.1",
     "copy-text-to-clipboard": "^2.2.0",
     "docusaurus-plugin-sass": "^0.2.1",

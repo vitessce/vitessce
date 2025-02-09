@@ -2466,9 +2466,6 @@ importers:
       '@vitessce/example-configs':
         specifier: workspace:*
         version: link:../../examples/configs
-      '@vitessce/globals':
-        specifier: workspace:*
-        version: link:../../packages/globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

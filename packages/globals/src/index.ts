@@ -1,15 +1,11 @@
-import log from './globalSettings.js';
-
-export { log };
-
 export {
+  log,
   getDebugMode,
   setDebugMode,
   getLogLevel,
   setLogLevel,
+  atLeastLogLevel,
   DEFAULT_DEBUG_MODE,
   DEFAULT_LOG_LEVEL,
-  LogLevels,
-} from './globalSettings.js';
-
-export { getErrors, clearErrors, saveError } from './errorStore.js';
+  LogLevel,
+} from './global-settings.js';

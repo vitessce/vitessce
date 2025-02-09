@@ -3,7 +3,7 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import { Vitessce } from 'vitessce';
-import { DEFAULT_LOG_LEVEL, LogLevels } from '@vitessce/globals';
+import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -92,22 +92,18 @@ function validateTheme(theme) {
 }
 
 /**
- * Use the debugMode provided if it is valid, otherwise fall back to false
- * @param {string} debugMode A potentially invalid value.
- * @returns {boolean}.
- */
-function validatedebugMode(debugMode) {
-  return (debugMode && String(debugMode).toLowerCase() === 'true');
-}
-
-/**
  * Use the logLevel provided if it is valid, otherwise fall back to 'trace'
  * @param {string} logLevel A potentially invalid value.
  * @returns {string}.
  */
 function validateLogLevel(logLevel) {
-  console.log(Object.values(LogLevels).includes(logLevel) ? logLevel : DEFAULT_LOG_LEVEL);
-  return Object.values(LogLevels).includes(logLevel) ? logLevel : DEFAULT_LOG_LEVEL;
+  if(logLevel && typeof logLevel === 'string') {
+    const upperLogLevel = logLevel.toUpperCase();
+    if(Object.keys(LogLevel).includes(upperLogLevel)) {
+      return LogLevel[upperLogLevel];
+    }
+  }
+  return DEFAULT_LOG_LEVEL;
 }
 
 export function VitessceDemo() {
@@ -122,7 +118,7 @@ export function VitessceDemo() {
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
     const pageMode = urlParams.get('pageMode') === 'true';
-    const debugMode = validatedebugMode(urlParams.get('debugMode'));
+    const debugMode = urlParams.get('debugMode') === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;

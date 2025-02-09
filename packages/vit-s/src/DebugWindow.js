@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useStyles } from './sharedWarningStyles.js';
+import { useStyles } from './shared-warning-styles.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
 
 export function DebugWindow({ debugErrors }) {
