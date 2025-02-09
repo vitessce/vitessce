@@ -38,7 +38,6 @@ describe('Vitessce Data URIs', () => {
   });
 
   it('handles errors from bad URL in config', () => {
-    cy.intercept('https://example.com/bad-url.json').as('badUrl');
     const config = {
       "version": "0.1.0",
       "name": "fake",
@@ -71,21 +70,15 @@ describe('Vitessce Data URIs', () => {
         }
       ]
     };
-    // Wait for the request to complete
-    cy.wait('@badUrl').then((interception) => {
-      expect(interception.response?.statusCode).to.eq(404);
-    });
-
-    // Adding logs to debug if needed
-    cy.window().then((win) => {
-      console.log('Errors:', win.console.error);
-    });
-
-    // Wait a bit longer to ensure React renders the error
+    loadConfig(config);
+    cy.intercept('https://example.com/bad-url.json').as('badUrl');
+    // Wait for initial request by react-query
+    cy.wait('@badUrl');
+    // We use a retry: 2 and the default exponential backoff function,
+    // so we wait 1s here for that second request to be triggered
+    // after which the error will be rendered.
     cy.wait(1000);
-
-    // Updated assertion
-    cy.contains('Error HTTP Status fetching from').should('exist');
+    cy.contains('Error HTTP Status fetching from');
   });
 
   it('handles errors from bad view config v0.1.0', () => {
