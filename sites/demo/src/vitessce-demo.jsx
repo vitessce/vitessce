@@ -97,9 +97,9 @@ function validateTheme(theme) {
  * @returns {string}.
  */
 function validateLogLevel(logLevel) {
-  if(logLevel && typeof logLevel === 'string') {
+  if (logLevel && typeof logLevel === 'string') {
     const upperLogLevel = logLevel.toUpperCase();
-    if(Object.keys(LogLevel).includes(upperLogLevel)) {
+    if (Object.keys(LogLevel).includes(upperLogLevel)) {
       return LogLevel[upperLogLevel];
     }
   }

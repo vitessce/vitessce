@@ -97,6 +97,8 @@ export function VitS(props) {
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
   } = props;
+
+  // eslint-disable-next-line no-unused-vars
   const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
@@ -109,7 +111,7 @@ export function VitS(props) {
     [coordinationTypesProp],
   );
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
-  
+
   // Set error handling-related globals.
   useLayoutEffect(() => {
     setLogLevel(logLevel);
@@ -245,6 +247,9 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  // TODO: use in ErrorBoundary fallback.
+  // Will probably need to move a lot to a child of VitS
+  // so that when the child throws errors the parent can catch.
   if (debugMode && debugErrors.length > 0) {
     return (
       <StylesProvider generateClassName={generateClassName}>

@@ -1,4 +1,4 @@
-import { log, getDebugMode } from '@vitessce/globals';
+import { log } from '@vitessce/globals';
 import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class DatasetNotFoundError extends AbstractLoaderError {

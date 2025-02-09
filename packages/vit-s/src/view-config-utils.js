@@ -9,7 +9,7 @@ import {
 } from '@vitessce/constants-internal';
 
 export function logConfig(config, name) {
-  if(atLeastLogLevel(LogLevel.INFO)) {
+  if (atLeastLogLevel(LogLevel.INFO)) {
     console.groupCollapsed(`🚄 VitS (${META_VERSION.version}) ${name}`);
     console.info(`data:,${JSON.stringify(config)}`);
     console.info(JSON.stringify(config, null, 2));
