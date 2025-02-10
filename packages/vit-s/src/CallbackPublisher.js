@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
+import { log } from '@vitessce/globals';
 import { useViewConfigStoreApi, useLoaders, useWarning } from './state/hooks.js';
-
 
 function validateViewConfig(viewConfig, pluginSpecificConfigSchema) {
   // Need the try-catch here since Zustand will actually
@@ -8,7 +8,7 @@ function validateViewConfig(viewConfig, pluginSpecificConfigSchema) {
   try {
     pluginSpecificConfigSchema.parse(viewConfig);
   } catch (e) {
-    console.error(e);
+    log.error(e);
   }
   // Do nothing if successful.
 }

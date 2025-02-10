@@ -78,7 +78,7 @@ describe('Vitessce Data URIs', () => {
     // so we wait 1s here for that second request to be triggered
     // after which the error will be rendered.
     cy.wait(1000);
-    cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
+    cy.contains('JsonSource failed to fetch from https://example.com/bad-url.json');
   });
 
   it('handles errors from bad view config v0.1.0', () => {

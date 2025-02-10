@@ -1,10 +1,10 @@
 import { CoordinationType as ct, FileType } from '@vitessce/constants-internal';
+import { log } from '@vitessce/globals';
 import {
   VitessceConfig,
 } from './VitessceConfig.js';
 
 import { HINTS_CONFIG, HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
-
 /**
  * @param {Object} hintsConfig. The hints config for the given dataset.
  *
@@ -526,7 +526,7 @@ async function generateViewDefinition(url, vc, dataset, hintsConfig) {
     fileConfig = await configInstance.composeFileConfig();
     viewsConfig = await configInstance.composeViewsConfig(hintsConfig);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return Promise.reject(error);
   }
 

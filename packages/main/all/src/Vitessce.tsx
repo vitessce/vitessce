@@ -4,6 +4,7 @@ import {
   VitS,
   logConfig,
 } from '@vitessce/vit-s';
+import { log } from '@vitessce/globals';
 import {
   upgradeAndParse,
 } from '@vitessce/schemas';
@@ -38,7 +39,7 @@ export function Vitessce(props: any) {
       const validConfig = upgradeAndParse(config, onConfigUpgrade);
       return [validConfig, true];
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return [
         {
           title: 'Config validation or upgrade failed.',

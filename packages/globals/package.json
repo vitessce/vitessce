@@ -1,6 +1,6 @@
 {
-  "name": "@vitessce/image-utils",
-  "version": "3.5.6",
+  "name": "@vitessce/globals",
+  "version": "3.5.5",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,18 +26,12 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-    "test": "pnpm exec vitest --run"
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js"
   },
   "dependencies": {
-    "@vitessce/types": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/globals": "workspace:*",
-    "@hms-dbmi/viv": "catalog:"
+    "loglevel": "^1.9.2"
   },
   "devDependencies": {
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "@vitessce/types": "workspace:*"
   }
 }

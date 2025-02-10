@@ -1,4 +1,5 @@
 import { viv } from '@vitessce/gl';
+import { log } from '@vitessce/globals';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
@@ -87,7 +88,7 @@ async function initLoader(imageData) {
       const { omero, multiscales } = loaderMetadata;
 
       if (!Array.isArray(multiscales) || multiscales.length === 0) {
-        console.error('Multiscales array must exist and have at least one element');
+        log.error('Multiscales array must exist and have at least one element');
       }
       const { coordinateTransformations } = multiscales[0];
 

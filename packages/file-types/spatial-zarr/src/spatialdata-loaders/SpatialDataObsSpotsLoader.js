@@ -1,6 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
+import { log } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   normalizeCoordinateTransformations,
@@ -174,7 +175,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       const xScaleFactor = scaleFactors[0];
       const yScaleFactor = scaleFactors[1];
       if (xScaleFactor !== yScaleFactor) {
-        console.warn('Using x-axis scale factor for transformation of obsSpots, but x and y scale factors are not equal');
+        log.warn('Using x-axis scale factor for transformation of obsSpots, but x and y scale factors are not equal');
       }
       // Apply the scale factor to the radius column
       for (let i = 0; i < this.radius.shape[0]; i++) {
