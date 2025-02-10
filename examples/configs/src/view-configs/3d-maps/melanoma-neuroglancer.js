@@ -52,11 +52,14 @@ function generateNeuroglancerMinimalConfiguration() {
         segments: [
           '2',
           '3',
-          '4',
-          '5',
         ],
+        segmentColors: {
+          2: 'yellow',
+          3: 'red',
+        },
         name: 'invasive_meshes',
       },
+
     ],
     showSlices: false,
     selectedLayer: {
@@ -64,7 +67,9 @@ function generateNeuroglancerMinimalConfiguration() {
       layer: 'invasive_meshes',
     },
     layout: '3d',
-
+    "selection": {
+      "visible": true
+    },
   } });
 
   config.layout(hconcat(neuroglancerView));

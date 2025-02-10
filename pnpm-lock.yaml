@@ -18486,7 +18486,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@18.2.0))(react@16.14.0)':
     dependencies:
       '@janelia-flyem/neuroglancer': 2.37.5
       prop-types: 15.8.1
@@ -32398,7 +32398,7 @@ snapshots:
   vitessce-react-neuroglancer@0.1.1(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.22.0))(@babel/plugin-transform-react-jsx@7.19.0(@babel/core@7.22.0))(@types/babel__core@7.20.5)(prop-types@15.8.1)(sass@1.55.0)(type-fest@2.19.0)(typescript@5.5.3):
     dependencies:
       '@babel/core': 7.22.0
-      '@janelia-flyem/react-neuroglancer': 2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@janelia-flyem/react-neuroglancer': 2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@18.2.0))(react@16.14.0)
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.15(react-refresh@0.11.0)(type-fest@2.19.0)(webpack-dev-server@4.11.1(webpack@5.74.0))(webpack@5.74.0)
       '@svgr/webpack': 5.5.0
       babel-jest: 27.5.1(@babel/core@7.22.0)
