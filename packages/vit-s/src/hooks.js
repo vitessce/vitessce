@@ -6,8 +6,8 @@ import { extent } from 'd3-array';
 import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
-import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
 import { useAsyncFunction } from './contexts.js';
 
 

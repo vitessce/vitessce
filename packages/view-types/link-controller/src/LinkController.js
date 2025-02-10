@@ -9,6 +9,7 @@ import {
   Grid,
 } from '@material-ui/core';
 
+import { log } from '@vitessce/globals';
 
 export default function LinkController(props) {
   const {
@@ -53,7 +54,7 @@ export default function LinkController(props) {
         };
         connection.current?.send(JSON.stringify(message));
       } catch (error) {
-        console.error('Unable to send Configuration to Server', error);
+        log.error('Unable to send Configuration to Server', error);
       }
     }
   }, [id, socketOpen, sync]);
@@ -71,7 +72,7 @@ export default function LinkController(props) {
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
       }).catch((err) => {
-        console.error('Fetch Error :-S', err);
+        log.error('Fetch Error :-S', err);
       });
     }
   }, [linkID, linkEndpoint]);
@@ -93,27 +94,27 @@ export default function LinkController(props) {
     if (linkID !== null) {
       const ws = new WebSocket(websocketEndpoint, ['Authorization', authToken, linkID]);
       ws.addEventListener('open', (event) => {
-        console.log('Open', event);
+        log.log('Open', event);
         setSocketOpen(true);
       });
       ws.addEventListener('connecting', (event) => {
-        console.log('Connecting', event);
+        log.log('Connecting', event);
         setSocketOpen(false);
       });
       ws.addEventListener('error', (event) => {
-        console.log('Error', event);
+        log.log('Error', event);
       });
       ws.addEventListener('close', (event) => {
-        console.log('Close', event);
+        log.log('Close', event);
       });
       ws.addEventListener('message', (event) => {
-        console.log('Message', event);
+        log.log('Message', event);
         const eventData = event.data;
         if (eventData.includes(';')) {
           if (eventData.split(';')[0] === id) {
-            console.log('Message from ourselves');
+            log.log('Message from ourselves');
           } else {
-            console.log('Message from server ');
+            log.log('Message from server ');
             if (sync) {
               setConfig({
                 ...JSON.parse(decodeURI(atob(eventData.split(';')[1]))),

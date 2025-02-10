@@ -15,7 +15,7 @@ import {
   AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
-
+import { log } from '@vitessce/globals';
 
 export default class OmeZarrLoader extends AbstractTwoStepLoader {
   constructor(dataSource, params) {
@@ -45,12 +45,12 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const isLabels = !!imageLabel;
 
     if (!isSpatialData && !omero) {
-      console.error('image.ome-zarr must have omero metadata in attributes.');
+      log.error('image.ome-zarr must have omero metadata in attributes.');
       return Promise.reject(payload);
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {
-      console.error('Multiscales array must exist and have at least one element');
+      log.error('Multiscales array must exist and have at least one element');
     }
 
     const {

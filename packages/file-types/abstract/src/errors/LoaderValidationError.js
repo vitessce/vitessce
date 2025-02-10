@@ -1,3 +1,4 @@
+import { log } from '@vitessce/globals';
 import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class LoaderValidationError extends AbstractLoaderError {
@@ -9,14 +10,15 @@ export default class LoaderValidationError extends AbstractLoaderError {
     this.datasetFileType = datasetFileType;
     this.datasetUrl = datasetUrl;
     this.reason = reason;
+    this.message = `${datasetType} from ${datasetUrl}: validation failed`;
   }
 
   warnInConsole() {
     const {
-      datasetType, datasetUrl, reason,
+      reason, message,
     } = this;
-    console.warn(
-      `${datasetType} from ${datasetUrl}: validation failed`,
+    log.warn(
+      message,
       JSON.stringify(reason, null, 2),
     );
   }

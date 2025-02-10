@@ -36,6 +36,7 @@
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/zarr": "workspace:*",
     "@vitessce/config": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
     "zarrita": "catalog:",

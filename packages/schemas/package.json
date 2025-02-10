@@ -37,6 +37,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "lodash-es": "catalog:",
     "semver": "catalog:",
     "uuid": "catalog:",

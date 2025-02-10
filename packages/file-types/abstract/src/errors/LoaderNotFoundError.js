@@ -1,3 +1,4 @@
+import { log } from '@vitessce/globals';
 import AbstractLoaderError from './AbstractLoaderError.js';
 
 export default class LoaderNotFoundError extends AbstractLoaderError {
@@ -9,16 +10,15 @@ export default class LoaderNotFoundError extends AbstractLoaderError {
     this.dataset = dataset;
     this.fileType = fileType;
     this.viewCoordinationValues = viewCoordinationValues;
+    this.message = `Expected to match on { ${
+      Object.entries(viewCoordinationValues || {})
+        .map(([k, v]) => `${k}: ${v ?? 'null'}`)
+        .join(', ')
+    } }`;
   }
 
   warnInConsole() {
-    const {
-      loaders, viewCoordinationValues,
-    } = this;
-    console.warn(
-      // eslint-disable-next-line prefer-template
-      `Expected to match on { ${Object.entries(viewCoordinationValues).map(([k, v]) => k + ': ' + v).join(', ')} }`,
-      loaders,
-    );
+    const { loaders, message } = this;
+    log.warn(message, loaders);
   }
 }

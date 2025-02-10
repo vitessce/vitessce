@@ -19,7 +19,7 @@ import {
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-
+import { log } from '@vitessce/globals';
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
@@ -260,7 +260,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
     const channelNames = this.getChannelNames();
     const channelIndex = channelNames.indexOf(channelSpecifier);
     if (channelIndex === -1) {
-      console.error(`Channel ${channelSpecifier} not found in image.`);
+      log.error(`Channel ${channelSpecifier} not found in image.`);
     }
     return channelIndex;
   }
