@@ -1,5 +1,6 @@
 import Bowser from 'bowser';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import { log } from '@vitessce/globals';
 
 const CURRENT_VERSION = '0.0.1';
 const VITESSCE_CONF_QUERY_STRING = 'vitessce_conf';
@@ -49,7 +50,7 @@ export function encodeConfInUrl({
       .filter(entry => entry[1] > newParams.length)
       .map(entry => entry[0]);
     const message = `Configuration is ${compressedConf.length} characters; max URL for ${browser} is ${maxLength}: it will work on ${willWorkOn.join(', ') || 'no browser'}.`;
-    console.error(message);
+    log.error(message);
     onOverMaximumUrlLength({ message, willWorkOn });
   }
   return newParams;

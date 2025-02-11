@@ -4,6 +4,7 @@ import {
   capitalize,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/utils';
+import { log } from '@vitessce/globals';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   AbstractLoaderError,
@@ -22,8 +23,8 @@ import {
  */
 export function warn(error, setWarning) {
   setWarning(error.message);
-  console.warn(error.message);
-  console.error(error.stack);
+  log.warn(error.message);
+  log.error(error.stack);
   if (error instanceof AbstractLoaderError) {
     error.warnInConsole();
   }

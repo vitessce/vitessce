@@ -30,6 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/globals": "workspace:*",
     "bowser": "^2.11.0",
     "lodash-es": "catalog:",
     "lz-string": "^1.4.4",

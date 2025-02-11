@@ -33,6 +33,7 @@ import {
 } from '@vitessce/sets-utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
+import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
@@ -521,7 +522,7 @@ export function SpatialSubscriber(props) {
       && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
       && obsCentroids && obsCentroidsIndex
     ) {
-      console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
+      log.warn('Rendering cell segmentation diamonds for backwards compatibility.');
     }
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,

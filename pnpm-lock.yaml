@@ -447,6 +447,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
@@ -456,6 +459,13 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
+    devDependencies:
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/constants-internal:
     devDependencies:
@@ -467,6 +477,10 @@ importers:
         version: 0.32.2(@vitest/ui@0.32.2)(jsdom@20.0.1)(playwright@1.40.1)(sass@1.55.0)(terser@5.15.1)
 
   packages/file-types/abstract:
+    dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
@@ -543,6 +557,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
@@ -615,6 +632,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/image-utils':
         specifier: workspace:*
         version: link:../../utils/image-utils
@@ -667,6 +687,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/image-utils':
         specifier: workspace:*
         version: link:../../utils/image-utils
@@ -800,6 +823,9 @@ importers:
       '@turf/helpers':
         specifier: catalog:turf
         version: 6.5.0
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
@@ -828,6 +854,16 @@ importers:
       glsl-colormap:
         specifier: ^1.0.1
         version: 1.0.1
+
+  packages/globals:
+    dependencies:
+      loglevel:
+        specifier: ^1.9.2
+        version: 1.9.2
+    devDependencies:
+      '@vitessce/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/icons:
     devDependencies:
@@ -934,6 +970,9 @@ importers:
       '@vitessce/glb':
         specifier: workspace:*
         version: link:../../file-types/glb
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/heatmap':
         specifier: workspace:*
         version: link:../../view-types/heatmap
@@ -1115,6 +1154,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/plugins':
         specifier: workspace:*
         version: link:../plugins
@@ -1190,6 +1232,9 @@ importers:
 
   packages/utils/export-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
@@ -1202,6 +1247,9 @@ importers:
       '@hms-dbmi/viv':
         specifier: 'catalog:'
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@18.2.0)
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/spatial-utils':
         specifier: workspace:*
         version: link:../spatial-utils
@@ -1221,6 +1269,9 @@ importers:
 
   packages/utils/other-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
@@ -1242,6 +1293,9 @@ importers:
       '@turf/helpers':
         specifier: catalog:turf
         version: 6.5.0
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
@@ -1278,6 +1332,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
@@ -1697,6 +1754,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
@@ -1946,6 +2006,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/legend':
         specifier: workspace:*
         version: link:../../legend
@@ -2251,6 +2314,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../constants-internal
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../globals
       '@vitessce/plugins':
         specifier: workspace:*
         version: link:../plugins
@@ -2346,6 +2412,9 @@ importers:
       '@vitessce/example-plugins':
         specifier: workspace:*
         version: link:../../examples/plugins
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../packages/globals
       react:
         specifier: ^18.0.0
         version: 18.2.0
@@ -10400,6 +10469,10 @@ packages:
   log-update@4.0.0:
     resolution: {integrity: sha512-9fkkDevMefjg0mmzWFBW8YkFP91OrizzkW3diF7CpG+S2EYdy4+TVfGwz1zeF8x7hCx1ovSPTOE9Ngib74qqUg==}
     engines: {node: '>=10'}
+
+  loglevel@1.9.2:
+    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
+    engines: {node: '>= 0.6.0'}
 
   long@3.2.0:
     resolution: {integrity: sha512-ZYvPPOMqUwPoDsbJaR10iQJYnMuZhRTvHYl62ErLIEX7RgFlziSBUUvrt3OVfc47QlHHpzPZYP17g3Fv7oeJkg==}
@@ -18486,7 +18559,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@18.2.0))(react@16.14.0)':
+  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@janelia-flyem/neuroglancer': 2.37.5
       prop-types: 15.8.1
@@ -27408,6 +27481,8 @@ snapshots:
       slice-ansi: 4.0.0
       wrap-ansi: 6.2.0
 
+  loglevel@1.9.2: {}
+
   long@3.2.0: {}
 
   longest-streak@2.0.4: {}
@@ -32398,7 +32473,7 @@ snapshots:
   vitessce-react-neuroglancer@0.1.1(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.22.0))(@babel/plugin-transform-react-jsx@7.19.0(@babel/core@7.22.0))(@types/babel__core@7.20.5)(prop-types@15.8.1)(sass@1.55.0)(type-fest@2.19.0)(typescript@5.5.3):
     dependencies:
       '@babel/core': 7.22.0
-      '@janelia-flyem/react-neuroglancer': 2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@18.2.0))(react@16.14.0)
+      '@janelia-flyem/react-neuroglancer': 2.5.0(prop-types@15.8.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.15(react-refresh@0.11.0)(type-fest@2.19.0)(webpack-dev-server@4.11.1(webpack@5.74.0))(webpack@5.74.0)
       '@svgr/webpack': 5.5.0
       babel-jest: 27.5.1(@babel/core@7.22.0)
