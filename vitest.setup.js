@@ -6,6 +6,7 @@ import { randomFillSync } from 'crypto';
 import intersection from 'set.prototype.intersection';
 
 import { JSDOM } from 'jsdom';
+import 'vitest-canvas-mock';
 
 global.ResizeObserver = class {
   observe() {}

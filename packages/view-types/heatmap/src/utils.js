@@ -64,6 +64,7 @@ function getTextWidth(text, font) {
     const metrics = context.measureText(text);
     return metrics.width;
   }
+  return null;
 }
 
 /**
