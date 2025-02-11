@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { Neuroglancer } from './Neuroglancer';
+import { Neuroglancer } from './Neuroglancer.js';
 
 test('<Neuroglancer /> initializes WebGL context', () => {
   const { container } = render(<Neuroglancer viewerState={{}} onViewerStateChanged={() => {}} />);

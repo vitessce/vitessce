@@ -67,8 +67,8 @@ function generateNeuroglancerMinimalConfiguration() {
       layer: 'invasive_meshes',
     },
     layout: '3d',
-    "selection": {
-      "visible": true
+    selection: {
+      visible: true,
     },
   } });
 
