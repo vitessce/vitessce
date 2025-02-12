@@ -52,8 +52,8 @@ export const kpmpSpatialAtlasOct2024 = {
     component: 'obsSets',
     h: 6,
     w: 2,
-    x: 10,
-    y: 6,
+    x: 3,
+    y: 0,
     coordinationScopes: {
       obsType: 'A',
     },
@@ -61,19 +61,44 @@ export const kpmpSpatialAtlasOct2024 = {
   },
   {
     component: 'obsSetSizes',
-    h: 5,
-    w: 4,
-    x: 8,
-    y: 1,
+    h: 3,
+    w: 6,
+    x: 5,
+    y: 0,
     coordinationScopes: {
       obsType: 'A',
     },
     uid: 'B',
   },
   {
+    component: 'obsSetFeatureValueDistribution',
+    h: 4,
+    w: 6,
+    x: 5,
+    y: 3,
+    coordinationScopes: {
+      obsType: 'A',
+      featureType: 'A',
+    },
+    uid: 'violin',
+  },
+  {
+    component: 'dotPlot',
+    h: 5,
+    w: 6,
+    x: 5,
+    y: 7,
+    coordinationScopes: {
+      obsType: 'A',
+      featureType: 'A',
+      featureSelection: 'B',
+    },
+    uid: 'dotPlot',
+  },
+  {
     component: 'scatterplot',
-    h: 12,
-    w: 8,
+    h: 6,
+    w: 3,
     x: 0,
     y: 0,
     coordinationScopes: {
@@ -88,22 +113,40 @@ export const kpmpSpatialAtlasOct2024 = {
 
   {
     component: 'featureList',
-    h: 6,
-    w: 2,
-    x: 8,
-    y: 6,
+    h: 7,
+    w: 1,
+    x: 11,
+    y: 0,
     coordinationScopes: {
       featureType: 'A',
     },
-    uid: 'E',
+    props: {
+      enableMultiSelect: false,
+    },
+    uid: 'featureListForOtherPlots',
   },
   {
+    component: 'featureList',
+    h: 5,
+    w: 1,
+    x: 11,
+    y: 7,
+    coordinationScopes: {
+      featureType: 'A',
+      featureSelection: 'B'
+    },
+    props: {
+      enableMultiSelect: true,
+    },
+    uid: 'featureListForDotPlot',
+  },
+  /*{
     component: 'description',
     h: 1,
     w: 4,
     x: 8,
     y: 0,
     uid: 'F',
-  },
+  },*/
   ],
 };
