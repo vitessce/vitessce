@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { default as NeuroglancerComponent } from '@janelia-flyem/react-neuroglancer';
+import ReactNeuroglancer from '@janelia-flyem/react-neuroglancer';
 import { useStyles } from './styles.js';
 
 
@@ -10,7 +10,10 @@ function createWorker() {
 }
 
 export function Neuroglancer(props) {
-  const { viewerState, onViewerStateChanged } = props;
+  const {
+    viewerState,
+    onViewerStateChanged,
+  } = props;
   const classes = useStyles();
   const [updatedState, setUpdatedState] = useState(viewerState);
   const bundleRoot = useMemo(() => createWorker(), []);
@@ -22,12 +25,14 @@ export function Neuroglancer(props) {
       }
     }
   }, [onViewerStateChanged, updatedState]);
-  const changeLayout = () => {
+
+  const changeLayout = useCallback(() => {
     setUpdatedState(prevState => ({
       ...prevState,
       layout: '4panel',
     }));
-  };
+  }, []);
+
   return (
     <>
       <style>{`
@@ -39,7 +44,7 @@ export function Neuroglancer(props) {
       {/* Test button to change the layout and get the updated state */}
       <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <div className={classes.neuroglancerWrapper}>
-        <NeuroglancerComponent
+        <ReactNeuroglancer
           brainMapsClientId="NOT_A_VALID_ID"
           viewerState={updatedState}
           onViewerStateChanged={handleStateChanged}
