@@ -1,11 +1,19 @@
-import React, { useState, useCallback } from 'react';
-import { NeuroglancerViewer } from 'vitessce-react-neuroglancer';
+import React, { useState, useCallback, useMemo } from 'react';
+import { ChunkWorker } from '@vitessce/neuroglancer-workers';
+import { default as NeuroglancerComponent } from '@janelia-flyem/react-neuroglancer';
 import { useStyles } from './styles.js';
+
+
+// Reference: https://github.com/developit/jsdom-worker/issues/14#issuecomment-1268070123
+function createWorker() {
+  return new ChunkWorker();
+}
 
 export function Neuroglancer(props) {
   const { viewerState, onViewerStateChanged } = props;
   const classes = useStyles();
   const [updatedState, setUpdatedState] = useState(viewerState);
+  const bundleRoot = useMemo(() => createWorker(), []);
 
   const handleStateChanged = useCallback((newState) => {
     if (JSON.stringify(newState) !== JSON.stringify(updatedState)) {
@@ -31,9 +39,11 @@ export function Neuroglancer(props) {
       {/* Test button to change the layout and get the updated state */}
       <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <div className={classes.neuroglancerWrapper}>
-        <NeuroglancerViewer
+        <NeuroglancerComponent
+          brainMapsClientId="NOT_A_VALID_ID"
           viewerState={updatedState}
           onViewerStateChanged={handleStateChanged}
+          bundleRoot={bundleRoot}
         />
       </div>
     </>
