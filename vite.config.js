@@ -1,9 +1,11 @@
 import react from '@vitejs/plugin-react';
 import serveStatic from 'serve-static';
-import { getExtractedSVG } from "svg-inline-loader"
+import svgInlineLoader from "svg-inline-loader"
 import { defineConfig } from 'vite';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+
+const { getExtractedSVG } = svgInlineLoader;
 
 /**
  * The @janelia-flyem/neuroglancer package in node_modules
