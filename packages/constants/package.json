@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/constants",
-  "version": "3.5.6",
+  "version": "3.5.7",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,7 +31,6 @@
   "dependencies": {
     "@vitessce/globals": "workspace:*",
     "@vitessce/constants-internal": "workspace:*"
-
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*"

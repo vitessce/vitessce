@@ -1,4 +1,13 @@
 
+## 3.5.7
+
+### Patch Changes
+
+- Added support for debugMode and logLevel (`@vitessce/link-controller`, `@vitessce/spatial-zarr`, `@vitessce/abstract`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/export-utils`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/sets-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/constants`, `@vitessce/all`, `@vitessce/globals`, `@vitessce/schemas`, `@vitessce/config`, `@vitessce/vit-s`, `@vitessce/gl`, `demo`, `docs`) ([#2037](https://github.com/vitessce/vitessce/pull/2037))
+
+- Update kpmp-spatial-atlas example config to add more views. (`@vitessce/example-configs`) ([#2040](https://github.com/vitessce/vitessce/pull/2040))
+
+
 ## 3.5.6
 
 ### Patch Changes
