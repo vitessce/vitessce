@@ -17,15 +17,3 @@ index c823b80af766d09f33b6ee505484a93cd2715c5d..7a0f81d833932c7e3a8f268ec69604b9
        });
        this.setCallbacks(callbacks);
  
-diff --git a/package.json b/package.json
-index 049092de37a80d5373ff1cbeac6e876a3bf4064f..c18c6cd164ca04692d63482457d20bf389e2d56b 100644
---- a/package.json
-+++ b/package.json
-@@ -3,6 +3,7 @@
-   "version": "2.5.0",
-   "description": "React component wrapping neuroglancer",
-   "main": "lib/index.js",
-+  "type": "module",
-   "scripts": {
-     "test": "jest",
-     "build": "NODE_ENV=production babel src -d lib",
