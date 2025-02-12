@@ -1,4 +1,5 @@
 import React from 'react';
+import { css, useTheme } from '@emotion/react';
 import { Matrix4 } from 'math.gl';
 import {
   Grid,
@@ -11,21 +12,21 @@ import {
 } from '@mui/material';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
-import { css } from '@emotion/react';
 import { useSelectStyles } from './styles.js';
 
-const disabledClass = css(({ theme }) => ({
-  color: theme.palette.text.disabled,
-  // Because of the .5 opacity of the disabled color in the theme, and the fact
-  // that there are multiple overlaid parts to the slider,
-  // this needs to be set manually for the desired effect.
-  '& .MuiSlider-thumb': {
-    color: 'rgb(100, 100, 100, 1.0)',
-  },
-  '& .MuiSlider-track': {
-    color: 'rgb(100, 100, 100, 1.0)',
-  },
-}));
+
+const useDisabledClass = () => {
+  const theme = useTheme();
+  return css({
+    '& .MuiSlider-thumb': {
+      color: 'rgb(100, 100, 100, 1.0)',
+    },
+    '& .MuiSlider-track': {
+      color: 'rgb(100, 100, 100, 1.0)',
+    },
+    color: theme.palette.text.disabled,
+  });
+};
 
 
 const Slicer = ({
@@ -57,6 +58,8 @@ const Slicer = ({
       zSliceInit,
     ],
   ];
+
+  const disabledClass = useDisabledClass();
 
   const Slicers = sliceValuesAndSetSliceFunctions.map(
     ([val, setVal, label, [min, max]]) => (
@@ -96,7 +99,7 @@ const Slicer = ({
   return (
     <>
       <Typography
-        className={!use3d ? classes.disabled : classes.enabled}
+        className={!use3d ? disabledClass : ''}
         style={{ marginTop: 16, marginBottom: 0 }}
       >
         Clipping Planes:{' '}

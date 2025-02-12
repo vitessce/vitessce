@@ -14,14 +14,6 @@ import {
 import { css } from '@emotion/react';
 import { useControllerSectionStyles } from './styles.js';
 
-const dimensionsIcon = css(({ theme }) => ({
-  height: '40px',
-  width: '40px',
-  '& path': {
-    fill: theme.palette.primaryForeground,
-  },
-}));
-
 const switchFormGroup = css({
   float: 'right',
   marginTop: '3px',
@@ -60,13 +52,21 @@ export default function GlobalDimensionSlider(props) {
       setTargetValue(Math.floor(targetValue));
     }
   }
+  const theme = useTheme();
 
   return (
     <Grid item className={lcClasses.layerControllerGrid}>
       <Paper className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
-            <DimensionsSVG className={dimensionsIcon} />
+            <DimensionsSVG className={css({
+              height: '40px',
+              width: '40px',
+              '& path': {
+                fill: theme.palette.primaryForeground,
+              },
+            })}
+            />
           </Grid>
           <Grid item xs={1}>
             <Typography className={dimensionLabel}>

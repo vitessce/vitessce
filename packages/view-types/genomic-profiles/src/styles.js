@@ -1,17 +1,5 @@
 /* eslint-disable max-len */
-import { css } from '@emotion/react';
-import styled from '@emotion/styled';
-
-const higlassTitleWrapper = css(({ theme }) => ({
-  height: 'calc(100% - 20px)',
-  '& > div:nth-child(2)': {
-    width: 'inherit',
-    height: 'inherit',
-    padding: '5px',
-    backgroundColor: theme.palette.secondaryBackground, // map-get($theme-colors, "secondary-background");
-  },
-}));
-
+import { css, useTheme } from '@emotion/react';
 
 const higlassLazyWrapper = css({
   width: 'inherit',
@@ -53,12 +41,25 @@ const higlassWrapper = css({
   },
 });
 
-export const useStyles = () => ({
-  higlassTitleWrapper,
-  higlassLazyWrapper,
-  higlassWrapperParent,
-  higlassWrapper,
-});
+export const useStyles = () => {
+  const theme = useTheme();
+  return (
+    {
+      higlassTitleWrapper: css({
+        height: 'calc(100% - 20px)',
+        '& > div:nth-child(2)': {
+          width: 'inherit',
+          height: 'inherit',
+          padding: '5px',
+          backgroundColor: theme.palette.secondaryBackground, // map-get($theme-colors, "secondary-background");
+        },
+      }),
+      higlassLazyWrapper,
+      higlassWrapperParent,
+      higlassWrapper,
+    }
+  );
+};
 
 
 // export const useStyles = makeStyles(theme => ({

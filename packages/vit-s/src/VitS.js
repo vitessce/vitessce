@@ -96,7 +96,6 @@ export function VitS(props) {
     [coordinationTypesProp],
   );
 
-  const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
   const configVersion = config?.version;
 

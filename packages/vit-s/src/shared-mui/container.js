@@ -1,4 +1,4 @@
-import { css } from '@emotion/react';
+import { css, Global } from '@emotion/react';
 
 export const vitessceContainer = css(({ theme }) => ({
   position: 'relative',
@@ -213,7 +213,10 @@ const globalVitessceStyles = css(() => ({
   },
 }));
 
+const GlobalVitessceStyles = () => <Global styles={globalVitessceStyles} />;
+
 export const useVitessceContainerStyles = () => ({
   vitessceContainer,
   globalVitessceStyles,
+  GlobalVitessceStyles,
 });

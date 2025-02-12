@@ -7,54 +7,57 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
 
-import { css } from '@emotion/react';
+import { useTheme } from '@emotion/react';
 import { TOOLTIP_ANCESTOR, DRAG_HANDLE } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { NoScrollCard, ScrollCard, SpatialCard, TitleButtons, TitleContainer, TitleLeft } from './title-styles.js';
 
-const iconButton = css(({ theme }) => ({
-  border: 'none',
-  marginLeft: 0,
-  background: 'none',
-  color: theme.palette.primaryForeground,
-  paddingLeft: '0.25em',
-  paddingRight: '0.25em',
-  borderRadius: '2px',
-  '&:hover': {
-    backgroundColor: theme.palette.primaryBackgroundLight,
-  },
-  '&:first-child': {
-    marginLeft: '0.25em',
-  },
-  '&:last-child': {
-    marginRight: '0.25em',
-  },
-  '& svg': {
-    width: '0.7em',
-    height: '0.7em',
-    verticalAlign: 'middle',
-    overflow: 'visible',
-  },
-}));
 
-const downloadLink = css(({ theme }) => ({
-
-  color: theme.palette.primaryForeground,
-}));
-
-const helpTextSpan = css(({ theme }) => ({
-  maxWidth: '400px',
-  padding: '5px 10px',
-  display: 'inline-block',
-  textAlign: 'justify',
-  fontSize: '14px',
-  backgroundColor: theme.palette.gridLayoutBackground,
-  color: theme.palette.tooltipText,
-  borderRadius: '8px',
-  boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
-  border: '10px solid grey',
-}));
+const useStyles = () => {
+  const theme = useTheme();
+  return {
+    iconButton: ({
+      border: 'none',
+      marginLeft: 0,
+      background: 'none',
+      color: theme.palette.primaryForeground,
+      paddingLeft: '0.25em',
+      paddingRight: '0.25em',
+      borderRadius: '2px',
+      '&:hover': {
+        backgroundColor: theme.palette.primaryBackgroundLight,
+      },
+      '&:first-child': {
+        marginLeft: '0.25em',
+      },
+      '&:last-child': {
+        marginRight: '0.25em',
+      },
+      '& svg': {
+        width: '0.7em',
+        height: '0.7em',
+        verticalAlign: 'middle',
+        overflow: 'visible',
+      },
+    }),
+    downloadLink: ({
+      color: theme.palette.primaryForeground,
+    }),
+    helpTextSpan: ({
+      maxWidth: '400px',
+      padding: '5px 10px',
+      display: 'inline-block',
+      textAlign: 'justify',
+      fontSize: '14px',
+      backgroundColor: theme.palette.gridLayoutBackground,
+      color: theme.palette.tooltipText,
+      borderRadius: '8px',
+      boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+      border: '10px solid grey',
+    }),
+  };
+};
 
 function SettingsIconWithArrow({ open }) {
   return (
@@ -68,6 +71,7 @@ function SettingsIconWithArrow({ open }) {
 function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
+  const { iconButton } = useStyles();
 
   const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
@@ -97,6 +101,7 @@ function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
   const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
+  const { iconButton } = useStyles();
   return (urls && urls.length ? (
     <PopperMenu
       open={open}
@@ -120,6 +125,7 @@ function DownloadOptions(props) {
 function HelpButton(props) {
   const { helpText } = props;
   const [open, setOpen] = useState(false);
+  const { iconButton, helpTextSpan } = useStyles();
   return (
     <PopperMenu
       open={open}
@@ -138,6 +144,7 @@ function HelpButton(props) {
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
+  const { iconButton } = useStyles();
   return (
     <IconButton
       onClick={removeGridComponent}
