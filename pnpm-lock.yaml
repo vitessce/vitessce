@@ -382,6 +382,9 @@ importers:
       set.prototype.intersection:
         specifier: ^1.1.5
         version: 1.1.5
+      svg-inline-loader:
+        specifier: ^0.8.2
+        version: 0.8.2
       terser:
         specifier: ^5.15.0
         version: 5.15.1
@@ -22513,7 +22516,7 @@ snapshots:
 
   file-loader@6.2.0(webpack@5.74.0):
     dependencies:
-      loader-utils: 2.0.2
+      loader-utils: 2.0.4
       schema-utils: 3.1.1
       webpack: 5.74.0
 
@@ -26875,7 +26878,7 @@ snapshots:
   sass-loader@10.3.1(sass@1.55.0)(webpack@5.74.0):
     dependencies:
       klona: 2.0.5
-      loader-utils: 2.0.2
+      loader-utils: 2.0.4
       neo-async: 2.6.2
       schema-utils: 3.1.1
       semver: 7.6.3
@@ -27996,7 +27999,7 @@ snapshots:
 
   url-loader@4.1.1(file-loader@6.2.0(webpack@5.74.0))(webpack@5.74.0):
     dependencies:
-      loader-utils: 2.0.2
+      loader-utils: 2.0.4
       mime-types: 2.1.35
       schema-utils: 3.1.1
       webpack: 5.74.0

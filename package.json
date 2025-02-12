@@ -75,7 +75,8 @@
     "unified": "^8.3.2",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "vitest-canvas-mock": "^0.3.0"
+    "vitest-canvas-mock": "^0.3.0",
+    "svg-inline-loader": "^0.8.2"
   },
   "pnpm": {
     "overrides": {

@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
+import { svgLoaderForNeuroglancerIcons } from '../vite.config';
+
 
 const cwd = process.cwd();
 
@@ -42,6 +44,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    svgLoaderForNeuroglancerIcons(),
   ],
   // To enable .js files that contain JSX to be imported.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564
