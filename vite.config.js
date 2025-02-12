@@ -101,7 +101,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
     deps: {
-      inline: ['vitest-canvas-mock'],
+      inline: [
+        'vitest-canvas-mock',
+        // This is because Neuroglancer appears to be a CommonJS module,
+        // but internally contains ES Module syntax.
+        '@janelia-flyem/neuroglancer'
+      ],
     },
     environmentOptions: {
       jsdom: {
