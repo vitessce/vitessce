@@ -133,20 +133,20 @@ export const kpmpSpatialAtlasOct2024 = {
     y: 7,
     coordinationScopes: {
       featureType: 'A',
-      featureSelection: 'B'
+      featureSelection: 'B',
     },
     props: {
       enableMultiSelect: true,
     },
     uid: 'featureListForDotPlot',
   },
-  /*{
+  /* {
     component: 'description',
     h: 1,
     w: 4,
     x: 8,
     y: 0,
     uid: 'F',
-  },*/
+  }, */
   ],
 };
