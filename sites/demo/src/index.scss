@@ -18,12 +18,3 @@
     @include welcome-themable("light", $colors-light);
   }
 }
-
-.neuroglancer-container {
-   flex: 1 1 auto !important;
-
-}
-
-.neuroglancer-segment-list-header-label{
-  display: none !important;
-}
