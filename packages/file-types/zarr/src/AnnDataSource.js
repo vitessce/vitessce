@@ -208,6 +208,21 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
+   * Class method for loading the obs index.
+   * @param {string|undefined} path Used by subclasses.
+   * @returns {Promise<string[]>} An promise for a zarr array
+   * containing the indices.
+   */
+  loadDataFrameIndex(
+    // eslint-disable-next-line no-unused-vars
+    path = undefined,
+  ) {
+    const dfPath = path ? dirname(path) : '';
+    return this.getJson(`${dfPath}/.zattrs`)
+      .then(({ _index }) => this.getFlatArrDecompressed(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
+  }
+
+  /**
    * Class method for loading the var index.
    * @param {string|undefined} path Used by subclasses.
    * @returns {Promise<string[]>} An promise for a zarr array containing the indices.

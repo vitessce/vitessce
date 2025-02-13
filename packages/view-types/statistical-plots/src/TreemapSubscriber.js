@@ -214,6 +214,8 @@ export function TreemapSubscriber(props) {
           height={height}
           obsType={obsType}
           sampleType={sampleType}
+          sampleSetColor={sampleSetColor}
+          sampleSetSelection={sampleSetSelection}
         />
       </div>
     </TitleInfo>

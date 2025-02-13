@@ -124,7 +124,7 @@ export default function CellSetExpressionPlot(props) {
         .range(
           // TODO: check for full path equality here.
           sampleSetNames
-            .map(name => sampleSetColor?.find(d => d.path.at(-1) === name).color)
+            .map(name => sampleSetColor?.find(d => d.path.at(-1) === name)?.color || [125, 125, 125])
             .map(colorArrayToString),
         );
     }

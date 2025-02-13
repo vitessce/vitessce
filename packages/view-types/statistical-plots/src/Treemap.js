@@ -1,13 +1,13 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { ascending } from 'd3-array';
 import { select } from 'd3-selection';
 import { treemap, treemapBinary, hierarchy } from 'd3-hierarchy';
-import { capitalize, pluralize as plur } from '@vitessce/utils';
+import { capitalize, getDefaultColor, pluralize as plur } from '@vitessce/utils';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
 const scaleBand = vega_scale('band');
@@ -42,6 +42,8 @@ export default function Treemap(props) {
     height,
     obsType,
     sampleType,
+    sampleSetColor,
+    sampleSetSelection,
     marginTop = 5,
     marginRight = 5,
     marginLeft = 80,
@@ -103,12 +105,18 @@ export default function Treemap(props) {
     }
     console.log(treemapLayout?.leaves?.())
 
-    // TODO: use sampleSetColor and/or obsSetColor
-    /*
+    console.log(sampleSetSelection, sampleSetColor);
+
+    const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
     const colorScale = scaleOrdinal()
-      .domain(colors.map(d => d.setNamePath))
-      .range(colors.map(d => colorArrayToString(d.color)));
-    */
+      .domain(sampleSetNames)
+      .range(
+        // TODO: check for full path equality here.
+        sampleSetNames
+          .map(name => sampleSetColor?.find(d => d.path.at(-1) === name)?.color || [125, 125, 125])
+          .map(colorArrayToString),
+      );
+    
 
     // Add a cell for each leaf of the hierarchy.
     const leaf = svg.selectAll("g")
@@ -128,8 +136,8 @@ export default function Treemap(props) {
         .attr("id", d => (d.leafUid = getLeafUid()).id)
         //.attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
         //.attr("fill", "lightblue")
-        .attr("fill", d => d.data.name.startsWith("Healthy") ? "rgb(153, 153, 51)" : "lightblue")
-        .attr("fill-opacity", 0.6)
+        .attr("fill", d => colorScale(d.data.name))
+        //.attr("fill-opacity", 0.6)
         .attr("width", d => d.x1 - d.x0)
         .attr("height", d => d.y1 - d.y0);
 
@@ -143,7 +151,7 @@ export default function Treemap(props) {
     leaf.append("text")
         .attr("clip-path", d => `url(${d.clipUid.href})`)
       .selectAll("tspan")
-      .data(d => ([...d.data.name.split(", "), `${d.value} ${obsType}s`]))
+      .data(d => ([...d.data.name.split(", "), `${d.value.toLocaleString()} ${obsType}s`]))
       .join("tspan")
         .attr("x", 3)
         .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)

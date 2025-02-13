@@ -62,6 +62,9 @@ const annDataObsSetsArr = z.array(
 const annDataObsSets = z.object({
   obsSets: annDataObsSetsArr,
 });
+const annDataSampleSets = z.object({
+  sampleSets: annDataObsSetsArr,
+});
 
 const annDataObsFeatureColumnsArr = z.array(
   z.object({
@@ -204,6 +207,7 @@ export const obsPointsAnndataSchema = annDataObsLocations;
 export const obsLocationsAnndataSchema = annDataObsLocations;
 export const obsSegmentationsAnndataSchema = annDataObsSegmentations;
 export const obsSetsAnndataSchema = annDataObsSets;
+export const sampleSetsAnndataSchema = annDataSampleSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;

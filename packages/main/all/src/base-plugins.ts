@@ -31,6 +31,7 @@ import {
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
+  sampleSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
   obsSpotsAnndataSchema,
   obsPointsAnndataSchema,
@@ -140,6 +141,7 @@ import {
   ObsLabelsAnndataLoader,
   FeatureLabelsAnndataLoader,
   SampleEdgesAnndataLoader,
+  SampleSetsAnndataLoader,
   // MuData
   MuDataSource,
   // Legacy
@@ -272,6 +274,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
+  ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
