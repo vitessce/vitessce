@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { useStyles } from './styles.js';
+import { useStyles, globalNeuroglancerCss } from './styles.js';
 
 // Lazy load the Neuroglancer component.
 const LazyReactNeuroglancer = React.lazy(async () => {
@@ -39,12 +39,7 @@ export function Neuroglancer(props) {
 
   return (
     <>
-      <style>{`
-      .neuroglancer-segment-list-header-label {
-        display: none !important;
-      }
-      `}
-      </style>
+      <style>{globalNeuroglancerCss}</style>
       {/* Test button to change the layout and get the updated state */}
       <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <div className={classes.neuroglancerWrapper}>
