@@ -17,7 +17,6 @@ export default defineConfig({
     serveTestFixtures(),
     svgLoaderForNeuroglancerIcons(),
   ],
-  assetsInclude: ['**/*.svg'],
   define: {
     // References:
     // - https://github.com/smnhgn/vite-plugin-package-version/blob/master/src/index.ts#L10
