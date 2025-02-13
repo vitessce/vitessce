@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "rimraf ./dist/ && pnpm run build-lib",
-    "build-lib": "rollup --config rollup.config.js"
+    "build-lib": "rollup --config ../workers/rollup.config.js"
   },
   "dependencies": {
      "@janelia-flyem/neuroglancer": "^2.37.5"
