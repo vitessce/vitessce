@@ -1,8 +1,12 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import ReactNeuroglancer from '@janelia-flyem/react-neuroglancer';
 import { useStyles } from './styles.js';
 
+// Lazy load the Neuroglancer component.
+const LazyReactNeuroglancer = React.lazy(async () => {
+  const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
+  return ReactNeuroglancer;
+});
 
 // Reference: https://github.com/developit/jsdom-worker/issues/14#issuecomment-1268070123
 function createWorker() {
@@ -44,12 +48,14 @@ export function Neuroglancer(props) {
       {/* Test button to change the layout and get the updated state */}
       <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <div className={classes.neuroglancerWrapper}>
-        <ReactNeuroglancer
-          brainMapsClientId="NOT_A_VALID_ID"
-          viewerState={updatedState}
-          onViewerStateChanged={handleStateChanged}
-          bundleRoot={bundleRoot}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyReactNeuroglancer
+            brainMapsClientId="NOT_A_VALID_ID"
+            viewerState={updatedState}
+            onViewerStateChanged={handleStateChanged}
+            bundleRoot={bundleRoot}
+          />
+        </Suspense>
       </div>
     </>
   );
