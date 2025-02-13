@@ -258,7 +258,7 @@ overrides:
 
 patchedDependencies:
   '@janelia-flyem/neuroglancer@2.37.5':
-    hash: vmzgbrqgsciteee3oloazoxwem
+    hash: nbxug2yxyonaromuxb6ez6hrqy
     path: patches/@janelia-flyem__neuroglancer@2.37.5.patch
   '@janelia-flyem/react-neuroglancer@2.5.0':
     hash: hxg6sfd36o4iswp27bowaavnia
@@ -1136,7 +1136,7 @@ importers:
     dependencies:
       '@janelia-flyem/neuroglancer':
         specifier: ^2.37.5
-        version: 2.37.5(patch_hash=vmzgbrqgsciteee3oloazoxwem)
+        version: 2.37.5(patch_hash=nbxug2yxyonaromuxb6ez6hrqy)
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^23.0.0
@@ -16731,7 +16731,7 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@janelia-flyem/neuroglancer@2.37.5(patch_hash=vmzgbrqgsciteee3oloazoxwem)':
+  '@janelia-flyem/neuroglancer@2.37.5(patch_hash=nbxug2yxyonaromuxb6ez6hrqy)':
     dependencies:
       '@types/codemirror': 5.60.0
       '@types/gl-matrix': 2.4.5
@@ -16756,7 +16756,7 @@ snapshots:
 
   '@janelia-flyem/react-neuroglancer@2.5.0(patch_hash=hxg6sfd36o4iswp27bowaavnia)(prop-types@15.8.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@janelia-flyem/neuroglancer': 2.37.5(patch_hash=vmzgbrqgsciteee3oloazoxwem)
+      '@janelia-flyem/neuroglancer': 2.37.5(patch_hash=nbxug2yxyonaromuxb6ez6hrqy)
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
