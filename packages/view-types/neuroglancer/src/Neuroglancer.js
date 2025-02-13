@@ -2,7 +2,9 @@ import React, { useState, useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { useStyles, globalNeuroglancerCss } from './styles.js';
 
-// Lazy load the Neuroglancer component.
+// We lazy load the Neuroglancer component,
+// because the non-dynamic import causes problems for Vitest,
+// as the package appears contain be a mix of CommonJS and ESM syntax.
 const LazyReactNeuroglancer = React.lazy(async () => {
   const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
   return ReactNeuroglancer;

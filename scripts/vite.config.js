@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
-import { svgLoaderForNeuroglancerIcons } from '../vite.config';
+import { svgLoaderForNeuroglancerIcons } from '../vite.config.js';
 
 
 const cwd = process.cwd();

@@ -9,6 +9,14 @@ function prependGlobalPrefix(jssObject) {
   }, {});
 }
 
+// We define a subset of styles as a string,
+// and render with <style></style>
+// since Neuroglancer renders them outside of the
+// .neuroglancer-container DOM element.
+// Instead, these elements are prepended/appended
+// directly to the `document` by neuroglancer,
+// so we cannot scope them as children of the
+// .neuroglancer-container class.
 export const globalNeuroglancerCss = `
 .neuroglancer-segment-list-header-label {
   display: none !important;
