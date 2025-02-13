@@ -30,7 +30,8 @@
       "test": "pnpm exec vitest --run"
     },
     "dependencies": {
-      "vitessce-react-neuroglancer": "^0.1.1",
+      "@janelia-flyem/react-neuroglancer": "^2.5.0",
+      "@vitessce/neuroglancer-workers": "workspace:*",
       "@material-ui/core": "catalog:",
       "@vitessce/constants-internal": "workspace:*",
       "@vitessce/vit-s": "workspace:*"

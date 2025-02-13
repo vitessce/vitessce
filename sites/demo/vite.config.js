@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { serveTestFixtures } from '../../vite.config';
+import { serveTestFixtures, svgLoaderForNeuroglancerIcons } from '../../vite.config.js';
 //import basicSsl from '@vitejs/plugin-basic-ssl';
+
 
 export default defineConfig({
   base: './',
@@ -13,8 +14,10 @@ export default defineConfig({
     react({
       jsxRuntime: 'classic',
     }),
-    serveTestFixtures,
+    serveTestFixtures(),
+    svgLoaderForNeuroglancerIcons(),
   ],
+  assetsInclude: ['**/*.svg'],
   define: {
     // References:
     // - https://github.com/smnhgn/vite-plugin-package-version/blob/master/src/index.ts#L10
