@@ -85,6 +85,7 @@ import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
+import { NeuroglancerSubscriber } from '@vitessce/neuroglancer';
 import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
@@ -242,6 +243,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
+  makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
 ];
 
 export const baseFileTypes = [
