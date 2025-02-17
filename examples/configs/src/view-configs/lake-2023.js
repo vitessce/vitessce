@@ -219,7 +219,7 @@ function generateLake2023Config() {
         ),
         hconcat(
           featureList,
-          treemap
+          treemap,
         ),
       ),
     ),

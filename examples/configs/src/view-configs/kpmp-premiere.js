@@ -20,14 +20,13 @@ function generateKpmpPremiereConfig() {
     },
     options: {
       obsFeatureMatrix: {
-        "path": "layers/counts",
-        "path": "layers/logcounts",
-        //path: 'layers/pearson_residuals',
+        // "path": "layers/counts",
+        // "path": "layers/logcounts",
+        path: 'layers/pearson_residuals',
       },
       obsEmbedding: [
         {
-          // TODO: fix the densmap embedding
-          path: 'obsm/X_umap',
+          path: 'obsm/X_densmap',
           embeddingType: 'densMAP',
         },
       ],
@@ -57,9 +56,9 @@ function generateKpmpPremiereConfig() {
           path: 'obs/EnrollmentCategory',
         },
       ],
-      /*featureLabels: {
+      /* featureLabels: {
         path: 'var/features',
-      },*/
+      }, */
       sampleEdges: {
         path: 'obs/SampleID',
       },
@@ -209,7 +208,7 @@ function generateKpmpPremiereConfig() {
     sampleSetSelection: sampleSetScope_caseControl,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
-    featureSelection: ['UMOD'], // , 'ENSG00000074803', 'ENSG00000164825'],
+    featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
@@ -231,7 +230,7 @@ function generateKpmpPremiereConfig() {
         ),
         hconcat(
           featureList,
-          treemap
+          treemap,
         ),
       ),
     ),

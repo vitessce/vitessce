@@ -1,4 +1,5 @@
-import React, { useMemo, useCallback } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useMemo } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -6,20 +7,18 @@ import {
   useUrls,
   useReady,
   useGridItemSize,
-  useFeatureSelection,
   useObsFeatureMatrixIndices,
-  useFeatureLabelsData,
   useObsSetsData,
   useSampleEdgesData,
   useSampleSetsData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { treeToSelectedSetMap, treeToObsIdsBySetNames, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
+import { treeToSelectedSetMap, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
-import Treemap from './Treemap.js';
-import { useStyles } from './styles.js';
 import { InternMap } from 'internmap';
 import { isEqual } from 'lodash-es';
+import Treemap from './Treemap.js';
+import { useStyles } from './styles.js';
 
 
 export function TreemapSubscriber(props) {
@@ -27,8 +26,6 @@ export function TreemapSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    yMin = 0,
-    yUnits = null,
     helpText = ViewHelpMapping.TREEMAP,
   } = props;
 
@@ -134,12 +131,17 @@ export function TreemapSubscriber(props) {
   const sampleCount = sampleIndex?.length || 0;
 
   const [obsCounts, sampleCounts] = useMemo(() => {
-
     const obsResult = new InternMap([], JSON.stringify);
     const sampleResult = new InternMap([], JSON.stringify);
 
-    const hasSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 0;
-    const hasCellSetSelection = Array.isArray(obsSetSelection) && obsSetSelection.length > 0;
+    const hasSampleSetSelection = (
+      Array.isArray(sampleSetSelection)
+      && sampleSetSelection.length > 0
+    );
+    const hasCellSetSelection = (
+      Array.isArray(obsSetSelection)
+      && obsSetSelection.length > 0
+    );
 
     const sampleSetKeys = hasSampleSetSelection ? sampleSetSelection : [null];
     const cellSetKeys = hasCellSetSelection ? obsSetSelection : [null];
@@ -184,11 +186,10 @@ export function TreemapSubscriber(props) {
           continue;
         }
         const prevObsCount = obsResult.get(cellSet)?.get(sampleSet);
-        obsResult.get(cellSet)?.set(sampleSet, prevObsCount+1);
+        obsResult.get(cellSet)?.set(sampleSet, prevObsCount + 1);
       }
     }
     return [obsResult, sampleResult];
-
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,
     // TODO: consider filtering
@@ -197,7 +198,7 @@ export function TreemapSubscriber(props) {
 
   return (
     <TitleInfo
-      title={`Treemap (cells)`}
+      title="Treemap (cells)"
       info={`${commaNumber(obsCount)} ${plur(obsType, obsCount)} from ${commaNumber(sampleCount)} ${plur(sampleType, sampleCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}

@@ -1,37 +1,18 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleLinear, scaleOrdinal } from 'd3-scale';
-import { scale as vega_scale } from 'vega-scale';
-import { axisBottom, axisLeft } from 'd3-axis';
-import { ascending } from 'd3-array';
+import { scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
 import { treemap, treemapBinary, hierarchy } from 'd3-hierarchy';
-import { capitalize, getDefaultColor, pluralize as plur } from '@vitessce/utils';
 import { colorArrayToString } from '@vitessce/sets-utils';
-
-const scaleBand = vega_scale('band');
-
-const OBS_KEY = 'obsId';
-const FEATURE_KEY = 'value';
-
-function componentToHex(c) {
-  const hex = c.toString(16);
-  return hex.length === 1 ? `0${hex}` : hex;
-}
-
-function rgbToHex(color) {
-  return `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}`;
-}
 
 function uidGenerator(prefix) {
   let i = 0;
   return () => {
     i += 1;
-    return { id: `${prefix}-${i}`, href: `#${prefix}-${i}`};
+    return { id: `${prefix}-${i}`, href: `#${prefix}-${i}` };
   };
 }
-
 
 export default function Treemap(props) {
   const {
@@ -54,26 +35,26 @@ export default function Treemap(props) {
   } = props;
 
   const data = useMemo(() => {
-    console.log(obsCounts);
-
     const result = {
       name: 'root',
       children: [],
     };
-    if(obsCounts) {
+    if (obsCounts) {
       // TODO: support sampleSet->obsSet also
       Array.from(obsCounts.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
-        const cellSetObj = { name: cellSetKey?.join(","), children: [] };
+        const cellSetObj = { name: cellSetKey?.join(','), children: [] };
         Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, value]) => {
           // TODO: also store full key paths in this object.
-          cellSetObj.children.push({ name: sampleSetKey?.at(-1) + ", " + cellSetKey?.at(-1), value });
+          cellSetObj.children.push({
+            name: `${sampleSetKey?.at(-1)}, ${cellSetKey?.at(-1)}`,
+            value,
+          });
         });
         result.children.push(cellSetObj);
       });
     }
     return result;
   }, [obsCounts, sampleCounts]);
-  console.log(data);
 
   const treemapLayout = useMemo(() => {
     const treemapFunc = treemap()
@@ -97,15 +78,12 @@ export default function Treemap(props) {
     svg
       .attr('width', width)
       .attr('height', height)
-      .attr("viewBox", [0, 0, width, height])
-      .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+      .attr('viewBox', [0, 0, width, height])
+      .attr('style', 'max-width: 100%; height: auto; font: 10px sans-serif;');
 
-    if(!treemapLayout?.leaves) {
+    if (!treemapLayout?.leaves) {
       return;
     }
-    console.log(treemapLayout?.leaves?.())
-
-    console.log(sampleSetSelection, sampleSetColor);
 
     const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
     const colorScale = scaleOrdinal()
@@ -113,54 +91,51 @@ export default function Treemap(props) {
       .range(
         // TODO: check for full path equality here.
         sampleSetNames
-          .map(name => sampleSetColor?.find(d => d.path.at(-1) === name)?.color || [125, 125, 125])
+          .map(name => (
+            sampleSetColor?.find(d => d.path.at(-1) === name)?.color
+            || [125, 125, 125]
+          ))
           .map(colorArrayToString),
       );
-    
 
     // Add a cell for each leaf of the hierarchy.
-    const leaf = svg.selectAll("g")
+    const leaf = svg.selectAll('g')
       .data(treemapLayout.leaves())
-      .join("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);
+      .join('g')
+        .attr('transform', d => `translate(${d.x0},${d.y0})`);
 
     // Append a tooltip.
-    leaf.append("title")
+    leaf.append('title')
         .text(d => d.data.name + d.value);
 
-    const getLeafUid = uidGenerator("leaf");
-    const getClipUid = uidGenerator("clip");
+    const getLeafUid = uidGenerator('leaf');
+    const getClipUid = uidGenerator('clip');
 
-    // Append a color rectangle. 
-    leaf.append("rect")
-        .attr("id", d => (d.leafUid = getLeafUid()).id)
-        //.attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
-        //.attr("fill", "lightblue")
-        .attr("fill", d => colorScale(d.data.name))
-        //.attr("fill-opacity", 0.6)
-        .attr("width", d => d.x1 - d.x0)
-        .attr("height", d => d.y1 - d.y0);
+    // Append a color rectangle.
+    leaf.append('rect')
+        .attr('id', d => (d.leafUid = getLeafUid()).id)
+        .attr('fill', d => colorScale(d.data.name))
+        .attr('width', d => d.x1 - d.x0)
+        .attr('height', d => d.y1 - d.y0);
 
     // Append a clipPath to ensure text does not overflow.
-    leaf.append("clipPath")
-        .attr("id", d => (d.clipUid = getClipUid()).id)
-      .append("use")
-        .attr("xlink:href", d => d.leafUid.href);
+    leaf.append('clipPath')
+        .attr('id', d => (d.clipUid = getClipUid()).id)
+      .append('use')
+        .attr('xlink:href', d => d.leafUid.href);
 
     // Append multiline text. The last line shows the value and has a specific formatting.
-    leaf.append("text")
-        .attr("clip-path", d => `url(${d.clipUid.href})`)
-      .selectAll("tspan")
-      .data(d => ([...d.data.name.split(", "), `${d.value.toLocaleString()} ${obsType}s`]))
-      .join("tspan")
-        .attr("x", 3)
-        .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
-        .attr("fill-opacity", (d, i, nodes) => i === nodes.length - 1 ? 0.7 : null)
+    leaf.append('text')
+        .attr('clip-path', d => `url(${d.clipUid.href})`)
+      .selectAll('tspan')
+      .data(d => ([...d.data.name.split(', '), `${d.value.toLocaleString()} ${obsType}s`]))
+      .join('tspan')
+        .attr('x', 3)
+        .attr('y', (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
+        .attr('fill-opacity', (d, i, nodes) => (i === nodes.length - 1 ? 0.7 : null))
         .text(d => d);
-
-   
   }, [width, height, data, marginLeft, marginBottom, theme, marginTop, marginRight,
-    obsType, sampleType, treemapLayout,
+    obsType, sampleType, treemapLayout, sampleSetColor, sampleSetSelection,
   ]);
 
   return (

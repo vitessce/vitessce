@@ -40,7 +40,8 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
 
   loadCellSetScores() {
     const { options } = this;
-    const cellSetScoreZarrLocation = options.sampleSets?.map(option => option.scorePath || undefined);
+    const cellSetScoreZarrLocation = options.sampleSets
+      ?.map(option => option.scorePath || undefined);
     return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
   }
 
@@ -56,7 +57,10 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
         this.loadObsIndices(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),
-      ]).then(data => [data[0], dataToCellSetsTree([data[1], data[2], data[3]], options.sampleSets)]);
+      ]).then(data => ([
+        data[0],
+        dataToCellSetsTree([data[1], data[2], data[3]], options.sampleSets),
+      ]));
     }
     const [obsIndex, obsSets] = await this.cachedResult;
     const obsSetsMembership = treeToMembershipMap(obsSets);
@@ -70,11 +74,14 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
     ]);
     // Create a list of cell set objects with color mappings.
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
-    //coordinationValues.sampleSetSelection = newAutoSetSelections;
+    // coordinationValues.sampleSetSelection = newAutoSetSelections;
     coordinationValues.sampleSetColor = newAutoSetColors;
-    console.log(obsIndex, obsSets, 'SampleSets');
     return Promise.resolve(
-      new LoaderResult({ sampleIndex: obsIndex, sampleSets: obsSets, sampleSetsMembership: obsSetsMembership }, null, coordinationValues),
+      new LoaderResult({
+        sampleIndex: obsIndex,
+        sampleSets: obsSets,
+        sampleSetsMembership: obsSetsMembership,
+      }, null, coordinationValues),
     );
   }
 }
