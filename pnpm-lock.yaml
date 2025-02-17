@@ -115,6 +115,9 @@ catalogs:
     d3-format:
       specifier: ^3.1.0
       version: 3.1.0
+    d3-hierarchy:
+      specifier: ^3.1.2
+      version: 3.1.2
     d3-interpolate:
       specifier: ^2.0.1
       version: 2.0.1
@@ -2194,6 +2197,9 @@ importers:
       d3-format:
         specifier: 'catalog:'
         version: 3.1.0
+      d3-hierarchy:
+        specifier: 'catalog:'
+        version: 3.1.2
       d3-scale:
         specifier: 'catalog:'
         version: 4.0.2

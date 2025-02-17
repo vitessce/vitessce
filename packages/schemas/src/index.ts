@@ -13,6 +13,7 @@ export {
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
+  sampleSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
   obsSpotsAnndataSchema,
   obsPointsAnndataSchema,
