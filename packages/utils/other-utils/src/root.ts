@@ -194,7 +194,9 @@ export function unnestMap(
   const aggFuncToUse = (!aggFunc ? identityFunc : aggFunc);
   return Array.from(map.entries()).flatMap(([k, v]) => {
     if (v instanceof Map) {
-      return unnestMap(v, keys.toSpliced(0, 1), aggFuncToUse).map(childObj => ({
+      const keysWithoutFirst = [...keys];
+      keysWithoutFirst.splice(0, 1);
+      return unnestMap(v, keysWithoutFirst, aggFuncToUse).map(childObj => ({
         [keys[0]]: k,
         ...childObj,
       }));

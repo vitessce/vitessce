@@ -299,7 +299,12 @@ describe('root.ts', () => {
           ['sport', 'value'],
           (d: any) => d.value,
         ),
-      ).toEqual(m);
+      ).toEqual([
+        { sport: 'Boxing', value: 1 },
+        { sport: 'Soccer', value: 2 },
+        { sport: 'MMA', value: 3 },
+        { sport: 'Basketball', value: 50 },
+      ]);
     });
     it('Works with d3.rollup to go from Map -> array of objects -> Map', () => {
       const m = new Map([
@@ -309,12 +314,12 @@ describe('root.ts', () => {
         ['Basketball', 50],
       ]);
       expect(
-        d3_rollup(
+        Array.from(d3_rollup(
           unnestMap(m, ['sport', 'value']),
           (D: any) => D[0].value,
           (d: any) => d.sport,
-        ),
-      ).toEqual(m);
+        ).entries()),
+      ).toEqual(Array.from(m.entries()));
     });
   });
 });
