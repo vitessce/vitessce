@@ -29,7 +29,7 @@ function getColorScale(setSelectionArr, setColorArr, theme) {
       setSelectionArr
         ?.map(setNamePath => (
           setColorArr?.find(d => isEqual(d.path, setNamePath))?.color
-          || getDefaultColor(theme) // TODO: in light mode this is a dark foreground color. we want the inverse (light color in light mode)
+          || getDefaultColor(theme)
         ))
         ?.map(colorArrayToString) || [],
     );
