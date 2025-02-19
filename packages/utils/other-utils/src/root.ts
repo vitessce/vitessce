@@ -170,3 +170,40 @@ export function getInitialCoordinationScopeName(
   const prefix = getInitialCoordinationScopePrefix(datasetUid, dataType);
   return `${prefix}${i === null ? 0 : i}`;
 }
+
+const identityFunc = ((d: any) => d);
+
+/**
+ * Convert a (potentially nested) InternMap or Map
+ * to a flat array which can be passed to d3-group
+ * to enable an alternative nesting strategy.
+ * @param map The InternMap or Map to flatten.
+ * @param keys An array of new keys [levelZeroKey, levelOneKey, valueKey]
+ * with one more than the number of Map levels.
+ * @param aggFunc Optionally, an aggregation function to apply to leaves.
+ * @returns The flattened array.
+ */
+export function unnestMap(
+  map: Map<any, any>,
+  keys: string[],
+  aggFunc?: ((d: any) => any),
+): object[] {
+  if (keys.length < 2) {
+    throw new Error('Insufficient number of keys passed to flattenInternMap');
+  }
+  const aggFuncToUse = (!aggFunc ? identityFunc : aggFunc);
+  return Array.from(map.entries()).flatMap(([k, v]) => {
+    if (v instanceof Map) {
+      const keysWithoutFirst = [...keys];
+      keysWithoutFirst.splice(0, 1);
+      return unnestMap(v, keysWithoutFirst, aggFuncToUse).map(childObj => ({
+        [keys[0]]: k,
+        ...childObj,
+      }));
+    }
+    return {
+      [keys[0]]: k,
+      [keys[1]]: aggFuncToUse(v),
+    };
+  });
+}

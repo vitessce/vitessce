@@ -115,6 +115,9 @@ catalogs:
     d3-format:
       specifier: ^3.1.0
       version: 3.1.0
+    d3-hierarchy:
+      specifier: ^3.1.2
+      version: 3.1.2
     d3-interpolate:
       specifier: ^2.0.1
       version: 2.0.1
@@ -1272,6 +1275,9 @@ importers:
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
+      d3-array:
+        specifier: 'catalog:'
+        version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -2194,6 +2200,9 @@ importers:
       d3-format:
         specifier: 'catalog:'
         version: 3.1.0
+      d3-hierarchy:
+        specifier: 'catalog:'
+        version: 3.1.2
       d3-scale:
         specifier: 'catalog:'
         version: 4.0.2
@@ -19748,7 +19757,7 @@ snapshots:
   camel-case@4.1.2:
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.4.0
+      tslib: 2.7.0
 
   camelcase-css@2.0.1: {}
 
@@ -24243,7 +24252,7 @@ snapshots:
   param-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.7.0
 
   parent-module@1.0.1:
     dependencies:
@@ -25897,7 +25906,7 @@ snapshots:
 
   rxjs@7.5.7:
     dependencies:
-      tslib: 2.4.0
+      tslib: 2.7.0
 
   sade@1.8.1:
     dependencies:

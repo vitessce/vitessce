@@ -7,11 +7,11 @@ import {
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
 
-function generateLake2023Config() {
+function generateKpmpPremiereConfig() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
   const dataset = vc.addDataset('lake_et_al').addFile({
     fileType: 'anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/lake_et_al.2.h5ad.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
     coordinationValues: {
       obsType: 'cell',
       featureType: 'gene',
@@ -20,9 +20,9 @@ function generateLake2023Config() {
     },
     options: {
       obsFeatureMatrix: {
-        // "path": "layers_temp/normalize_pearson_residuals_rechunked",
-        path: 'layers/normalize_pearson_residuals',
-        // "path": "layers/counts"
+        // "path": "layers/counts",
+        // "path": "layers/logcounts",
+        path: 'layers/pearson_residuals',
       },
       obsEmbedding: [
         {
@@ -44,30 +44,41 @@ function generateLake2023Config() {
           path: 'obs/disease',
         },
         {
-          name: 'Condition',
-          path: ['obs/condition.l1', 'obs/condition.l2'],
+          name: 'Disease Type',
+          path: 'obs/diseasetype',
+        },
+        {
+          name: 'Adjudicated Category',
+          path: 'obs/AdjudicatedCategory',
+        },
+        {
+          name: 'Enrollment Category',
+          path: 'obs/EnrollmentCategory',
         },
       ],
-      featureLabels: {
-        path: 'var/feature_name',
-      },
+      /* featureLabels: {
+        path: 'var/features',
+      }, */
       sampleEdges: {
-        path: 'obs/donor_id',
+        path: 'obs/SampleID',
       },
     },
   }).addFile({
-    fileType: 'sampleSets.csv',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/scmd-analysis-october-2023/20231129_OpenAccessClinicalData.csv',
+    fileType: 'sampleSets.anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr/uns/__all__.samples',
     options: {
-      sampleIndex: 'Participant ID',
       sampleSets: [
         {
-          name: 'Tissue Type',
-          column: 'Tissue Type',
+          name: 'Disease Type',
+          path: 'diseasetype',
         },
         {
-          name: 'Hypertension',
-          column: 'Hypertension',
+          name: 'Adjudicated Category',
+          path: 'AdjudicatedCategory',
+        },
+        {
+          name: 'Enrollment Category',
+          path: 'EnrollmentCategory',
         },
       ],
     },
@@ -83,8 +94,8 @@ function generateLake2023Config() {
         name: 'Acute kidney injury (AKI) vs. Healthy reference',
         stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
         sampleSets: [
-          ['Tissue Type', 'AKI'],
-          ['Tissue Type', 'Healthy Reference'],
+          ['Disease Type', 'AKI'],
+          ['Disease Type', 'Reference'],
         ],
       },
       {
@@ -92,8 +103,8 @@ function generateLake2023Config() {
         name: 'Acute kidney injury (AKI) vs. Chronic kidney disease attributed to hypertension (H-CKD)',
         stratificationType: 'sampleSet',
         sampleSets: [
-          ['Tissue Type', 'AKI'],
-          ['Tissue Type', 'CKD'],
+          ['Disease Type', 'AKI'],
+          ['Disease Type', 'CKD'],
         ],
       },
       {
@@ -101,8 +112,8 @@ function generateLake2023Config() {
         name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Healthy reference',
         stratificationType: 'sampleSet',
         sampleSets: [
-          ['Tissue Type', 'CKD'],
-          ['Tissue Type', 'Healthy Reference'],
+          ['Disease Type', 'CKD'],
+          ['Disease Type', 'Reference'],
         ],
       },
       /*
@@ -182,7 +193,7 @@ function generateLake2023Config() {
     {
       cType: 'sampleSetSelection',
       cScope: 'case-control',
-      cValue: [['Tissue Type', 'CKD'], ['Tissue Type', 'Healthy Reference']],
+      cValue: [['Disease Type', 'CKD'], ['Disease Type', 'Reference']],
     },
   );
 
@@ -197,7 +208,7 @@ function generateLake2023Config() {
     sampleSetSelection: sampleSetScope_caseControl,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
-    featureSelection: ['ENSG00000169344'], // , 'ENSG00000074803', 'ENSG00000164825'],
+    featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
@@ -300,5 +311,5 @@ function PageComponent() {
 }
 
 
-export const lake2023 = generateLake2023Config();
-export const lake2023component = PageComponent;
+export const kpmpPremiere = generateKpmpPremiereConfig();
+export const kpmpPremiereComponent = PageComponent;
