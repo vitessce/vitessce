@@ -3,9 +3,16 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
-import { treemap, treemapBinary, hierarchy } from 'd3-hierarchy';
+import { treemap, treemapBinary, hierarchy as d3_hierarchy } from 'd3-hierarchy';
+import { rollup as d3_rollup } from 'd3-array';
+import { isEqual } from 'lodash-es'
 import { colorArrayToString } from '@vitessce/sets-utils';
+import { getDefaultColor, pluralize as plur } from '@vitessce/utils';
 
+// Based on Observable's built-in DOM.uid function.
+// This is intended to be used with SVG clipPaths
+// which require a unique href value to reference
+// other elements contained in the DOM.
 function uidGenerator(prefix) {
   let i = 0;
   return () => {
@@ -14,47 +21,84 @@ function uidGenerator(prefix) {
   };
 }
 
+// Create a d3-scale ordinal scale mapping set paths to color strings.
+function getColorScale(setSelectionArr, setColorArr, theme) {
+  return scaleOrdinal()
+    .domain(setSelectionArr || [])
+    .range(
+      setSelectionArr
+        ?.map(setNamePath => (
+          setColorArr?.find(d => isEqual(d.path, setNamePath))?.color
+          || getDefaultColor(theme) // TODO: in light mode this is a dark foreground color. we want the inverse (light color in light mode)
+        ))
+        ?.map(colorArrayToString) || [],
+    );
+}
+
+/**
+ * Renders a treemap plot using D3.
+ * References:
+ * - https://observablehq.com/@d3/treemap-component
+ * - https://observablehq.com/@d3/treemap-stratify
+ * - https://observablehq.com/@d3/json-treemap
+ * - https://observablehq.com/@d3/nested-treemap
+ * @returns 
+ */
 export default function Treemap(props) {
   const {
     obsCounts,
     sampleCounts,
+    obsColorEncoding,
+    setHierarchyLevels,
     theme,
     width,
     height,
     obsType,
     sampleType,
+    obsSetColor,
     sampleSetColor,
+    obsSetSelection,
     sampleSetSelection,
     marginTop = 5,
     marginRight = 5,
     marginLeft = 80,
     marginBottom,
-    // TODO: waffle vs. treemap?
-    // TODO: sample vs. obs-mode?
-    // TODO: sampleSet->obsSet vs. obsSet->sampleSet hierarchy mode?
   } = props;
 
-  const data = useMemo(() => {
-    const result = {
-      name: 'root',
-      children: [],
-    };
-    if (obsCounts) {
-      // TODO: support sampleSet->obsSet also
-      Array.from(obsCounts.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
-        const cellSetObj = { name: cellSetKey?.join(','), children: [] };
-        Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, value]) => {
-          // TODO: also store full key paths in this object.
-          cellSetObj.children.push({
-            name: `${sampleSetKey?.at(-1)}, ${cellSetKey?.at(-1)}`,
-            value,
-          });
-        });
-        result.children.push(cellSetObj);
-      });
+
+  const hierarchyData = useMemo(() => {
+    // Support both sampleSet->obsSet and
+    // obsSet->sampleSet hierarchy modes
+    if(!obsCounts) {
+      return null;
     }
-    return result;
-  }, [obsCounts, sampleCounts]);
+    let map;
+    if (isEqual(setHierarchyLevels, ["sampleSet", "obsSet"])) {
+      map = d3_rollup(
+        obsCounts,
+        D => D[0].value,
+        d => d.sampleSetPath,
+        d => d.obsSetPath,
+      );
+    } else if (isEqual(setHierarchyLevels, ["obsSet", "sampleSet"])) {
+      map = d3_rollup(
+        obsCounts,
+        D => D[0].value,
+        d => d.obsSetPath,
+        d => d.sampleSetPath,
+      );
+    } else {
+      throw new Error("Unexpected levels value.");
+    }
+    return d3_hierarchy(map);
+  }, [obsCounts, setHierarchyLevels]);
+
+  const [obsSetColorScale, sampleSetColorScale] = useMemo(() => {
+    return [
+      getColorScale(obsSetSelection, obsSetColor, theme),
+      getColorScale(sampleSetSelection, sampleSetColor, theme),
+    ];
+  }, [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
 
   const treemapLayout = useMemo(() => {
     const treemapFunc = treemap()
@@ -63,10 +107,15 @@ export default function Treemap(props) {
       .padding(1)
       .round(true);
 
-    return treemapFunc(hierarchy(data)
-      .sum(d => d.value)
-      .sort((a, b) => b.value - a.value));
-  }, [data, width, height]);
+    // When d3.hierarchy is passed a Map object,
+    // the nodes are represented like [key, value] tuples.
+    // So in `.sum` and `.sort` below,
+    // `d[1]` accesses the value (i.e., cell count).
+    // Reference: https://d3js.org/d3-hierarchy/hierarchy#hierarchy
+    return treemapFunc(hierarchyData
+      .sum(d => d[1])
+      .sort((a, b) => b[1] - a[1]));
+  }, [hierarchyData, width, height]);
 
   const svgRef = useRef();
 
@@ -85,20 +134,7 @@ export default function Treemap(props) {
       return;
     }
 
-    const sampleSetNames = sampleSetSelection?.map(path => path.at(-1));
-    const colorScale = scaleOrdinal()
-      .domain(sampleSetNames)
-      .range(
-        // TODO: check for full path equality here.
-        sampleSetNames
-          .map(name => (
-            sampleSetColor?.find(d => d.path.at(-1) === name)?.color
-            || [125, 125, 125]
-          ))
-          .map(colorArrayToString),
-      );
-
-    // Add a cell for each leaf of the hierarchy.
+    // Add a group for each leaf of the hierarchy.
     const leaf = svg.selectAll('g')
       .data(treemapLayout.leaves())
       .join('g')
@@ -106,36 +142,60 @@ export default function Treemap(props) {
 
     // Append a tooltip.
     leaf.append('title')
-        .text(d => d.data.name + d.value);
+        .text((d) =>{
+          const cellCount = d.data?.[1];
+          const primaryPathString = JSON.stringify(d.data[0]);
+          const secondaryPathString = JSON.stringify(d.parent.data[0]);
+          return `${cellCount.toLocaleString()} ${plur(obsType, cellCount)} in ${primaryPathString} and ${secondaryPathString}`;
+        });
 
     const getLeafUid = uidGenerator('leaf');
     const getClipUid = uidGenerator('clip');
 
-    // Append a color rectangle.
+    const colorScale = obsColorEncoding === 'sampleSetSelection'
+      ? sampleSetColorScale
+      : obsSetColorScale;
+    // eslint-disable-next-line no-nested-ternary
+    const getPathForColoring = d => (
+      obsColorEncoding === 'sampleSetSelection'
+        ? (setHierarchyLevels[0] === 'obsSet' ? d.data?.[0] : d.parent?.data?.[0])
+        : (setHierarchyLevels[0] === 'sampleSet' ? d.data?.[0] : d.parent?.data?.[0])
+    );
+
+    // Append a color rectangle for each leaf.
     leaf.append('rect')
+        // eslint-disable-next-line no-param-reassign
         .attr('id', d => (d.leafUid = getLeafUid()).id)
-        .attr('fill', d => colorScale(d.data.name))
+        .attr('fill', d => colorScale(getPathForColoring(d)))
+        .attr('fill-opacity', 0.8)
         .attr('width', d => d.x1 - d.x0)
         .attr('height', d => d.y1 - d.y0);
 
     // Append a clipPath to ensure text does not overflow.
     leaf.append('clipPath')
+        // eslint-disable-next-line no-param-reassign
         .attr('id', d => (d.clipUid = getClipUid()).id)
       .append('use')
         .attr('xlink:href', d => d.leafUid.href);
 
-    // Append multiline text. The last line shows the value and has a specific formatting.
+    // Append multiline text.
     leaf.append('text')
         .attr('clip-path', d => `url(${d.clipUid.href})`)
       .selectAll('tspan')
-      .data(d => ([...d.data.name.split(', '), `${d.value.toLocaleString()} ${obsType}s`]))
+      .data(d => ([
+        // Each element in this array corresponds to a line of text.
+        d.data?.[0]?.at(-1),
+        d.parent?.data?.[0]?.at(-1),
+        `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`
+      ]))
       .join('tspan')
         .attr('x', 3)
+        // eslint-disable-next-line no-unused-vars
         .attr('y', (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
-        .attr('fill-opacity', (d, i, nodes) => (i === nodes.length - 1 ? 0.7 : null))
         .text(d => d);
-  }, [width, height, data, marginLeft, marginBottom, theme, marginTop, marginRight,
+  }, [width, height, marginLeft, marginBottom, theme, marginTop, marginRight,
     obsType, sampleType, treemapLayout, sampleSetColor, sampleSetSelection,
+    obsSetColorScale, sampleSetColorScale, obsColorEncoding, setHierarchyLevels,
   ]);
 
   return (

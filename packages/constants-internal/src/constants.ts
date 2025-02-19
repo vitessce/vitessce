@@ -321,6 +321,8 @@ export const CoordinationType = {
   EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
+  // Treemap
+  SET_HIERARCHY_LEVELS: 'setHierarchyLevels',
 };
 
 export const STATUS = {

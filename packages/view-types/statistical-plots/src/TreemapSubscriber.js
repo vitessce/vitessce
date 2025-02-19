@@ -14,12 +14,14 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { treeToSelectedSetMap, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, commaNumber, unnestMap, capitalize } from '@vitessce/utils';
 import { InternMap } from 'internmap';
 import { isEqual } from 'lodash-es';
 import Treemap from './Treemap.js';
 import { useStyles } from './styles.js';
+import TreemapOptions from './TreemapOptions.js';
 
+const DEFAULT_SET_HIERARCHY_LEVELS = ['obsSet', 'sampleSet'];
 
 export function TreemapSubscriber(props) {
   const {
@@ -57,6 +59,7 @@ export function TreemapSubscriber(props) {
     sampleFilter,
     sampleFilterMode,
     sampleHighlight,
+    setHierarchyLevels,
   }, {
     setObsFilter,
     setObsSelection,
@@ -76,6 +79,7 @@ export function TreemapSubscriber(props) {
     setSampleSelectionMode,
     setSampleHighlight,
     setSampleSetColor,
+    setSetHierarchyLevels,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.TREEMAP],
     coordinationScopes,
@@ -94,14 +98,20 @@ export function TreemapSubscriber(props) {
   );
 
   const [{ sampleIndex, sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
-    loaders, dataset, false,
+    loaders,
+    dataset,
+    true, // TODO: support `false`, i.e., configurations in which there is are no sampleEdges/sampleSets
     { setSampleSetColor },
     { sampleSetColor },
     { sampleType },
   );
 
   const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
-    loaders, dataset, false, {}, {},
+    loaders,
+    dataset,
+    true, // TODO: support `false`, i.e., configurations in which there is are no sampleEdges/sampleSets
+    {},
+    {},
     { obsType, sampleType },
   );
 
@@ -130,6 +140,8 @@ export function TreemapSubscriber(props) {
   const obsCount = obsIndex?.length || 0;
   const sampleCount = sampleIndex?.length || 0;
 
+  // TODO: use obsFilter / sampleFilter to display _all_ cells/samples in gray / transparent in background,
+  // and use obsSetSelection/sampleSetSelection to display the _selected_ samples in color in the foreground.
   const [obsCounts, sampleCounts] = useMemo(() => {
     const obsResult = new InternMap([], JSON.stringify);
     const sampleResult = new InternMap([], JSON.stringify);
@@ -145,9 +157,6 @@ export function TreemapSubscriber(props) {
 
     const sampleSetKeys = hasSampleSetSelection ? sampleSetSelection : [null];
     const cellSetKeys = hasCellSetSelection ? obsSetSelection : [null];
-
-    // TODO: return a flat array with { cellSet, sampleSet, gene } objects.
-    // Then, use d3.group to create nested InternMaps.
 
     // First level: cell set
     cellSetKeys.forEach((cellSetKey) => {
@@ -189,33 +198,55 @@ export function TreemapSubscriber(props) {
         obsResult.get(cellSet)?.set(sampleSet, prevObsCount + 1);
       }
     }
-    return [obsResult, sampleResult];
+
+    return [
+      unnestMap(obsResult, ["obsSetPath", "sampleSetPath", "value"]),
+      unnestMap(sampleResult, ["sampleSetPath", "value"]),
+    ];
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,
-    // TODO: consider filtering
+    // TODO: consider filtering-related coordination values
   ]);
-
 
   return (
     <TitleInfo
-      title="Treemap (cells)"
+      title={`Treemap of ${capitalize(plur(obsType, 2))}`}
       info={`${commaNumber(obsCount)} ${plur(obsType, obsCount)} from ${commaNumber(sampleCount)} ${plur(sampleType, sampleCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      options={(
+        <TreemapOptions
+          obsType={obsType}
+          sampleType={sampleType}
+          obsColorEncoding={obsColorEncoding}
+          setObsColorEncoding={setObsColorEncoding}
+          setHierarchyLevels={setHierarchyLevels || DEFAULT_SET_HIERARCHY_LEVELS}
+          setSetHierarchyLevels={setSetHierarchyLevels}
+          // TODO:
+          // - Add option to only include cells in treemap which express selected gene
+          //   above some threshold (kind of like a dot plot)
+          // - Add option to _only_ consider sampleSets or obsSets
+          //   (not both sampleSets and obsSets)
+        />
+      )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <Treemap
           obsCounts={obsCounts}
           sampleCounts={sampleCounts}
+          obsColorEncoding={obsColorEncoding}
+          setHierarchyLevels={setHierarchyLevels || DEFAULT_SET_HIERARCHY_LEVELS}
           theme={theme}
           width={width}
           height={height}
           obsType={obsType}
           sampleType={sampleType}
+          obsSetColor={obsSetColor}
           sampleSetColor={sampleSetColor}
+          obsSetSelection={obsSetSelection}
           sampleSetSelection={sampleSetSelection}
         />
       </div>
