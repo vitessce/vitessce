@@ -68,6 +68,7 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
     const { tree } = obsSets;
     const newAutoSetSelectionParentName = tree[0].name;
     // Create a list of set paths to initally select.
+    // eslint-disable-next-line no-unused-vars
     const newAutoSetSelections = tree[0].children.map(node => [
       newAutoSetSelectionParentName,
       node.name,

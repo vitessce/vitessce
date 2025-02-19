@@ -183,22 +183,25 @@ const identityFunc = ((d: any) => d);
  * @param aggFunc Optionally, an aggregation function to apply to leaves.
  * @returns The flattened array.
  */
-export function unnestMap(map: Map<any, any>, keys: string[], aggFunc?: Function): object[] {
-  if(keys.length < 2) {
-    throw new Error("Insufficient number of keys passed to flattenInternMap");
+export function unnestMap(
+  map: Map<any, any>,
+  keys: string[],
+  aggFunc?: ((d: any) => any),
+): object[] {
+  if (keys.length < 2) {
+    throw new Error('Insufficient number of keys passed to flattenInternMap');
   }
-  let aggFuncToUse = (!aggFunc ? identityFunc : aggFunc);
+  const aggFuncToUse = (!aggFunc ? identityFunc : aggFunc);
   return Array.from(map.entries()).flatMap(([k, v]) => {
-    if(v instanceof Map) {
-      return unnestMap(v, keys.toSpliced(0, 1), aggFuncToUse).map((childObj) => ({
+    if (v instanceof Map) {
+      return unnestMap(v, keys.toSpliced(0, 1), aggFuncToUse).map(childObj => ({
         [keys[0]]: k,
         ...childObj,
       }));
-    } else {
-      return {
-        [keys[0]]: k,
-        [keys[1]]: aggFuncToUse(v),
-      };
     }
+    return {
+      [keys[0]]: k,
+      [keys[1]]: aggFuncToUse(v),
+    };
   });
 }

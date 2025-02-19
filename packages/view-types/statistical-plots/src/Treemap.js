@@ -5,7 +5,7 @@ import { scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
 import { treemap, treemapBinary, hierarchy as d3_hierarchy } from 'd3-hierarchy';
 import { rollup as d3_rollup } from 'd3-array';
-import { isEqual } from 'lodash-es'
+import { isEqual } from 'lodash-es';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { getDefaultColor, pluralize as plur } from '@vitessce/utils';
 
@@ -42,12 +42,11 @@ function getColorScale(setSelectionArr, setColorArr, theme) {
  * - https://observablehq.com/@d3/treemap-stratify
  * - https://observablehq.com/@d3/json-treemap
  * - https://observablehq.com/@d3/nested-treemap
- * @returns 
+ * @returns
  */
 export default function Treemap(props) {
   const {
     obsCounts,
-    sampleCounts,
     obsColorEncoding,
     hierarchyLevels,
     theme,
@@ -69,18 +68,18 @@ export default function Treemap(props) {
   const hierarchyData = useMemo(() => {
     // Support both sampleSet->obsSet and
     // obsSet->sampleSet hierarchy modes
-    if(!obsCounts) {
+    if (!obsCounts) {
       return null;
     }
     let map;
-    if (isEqual(hierarchyLevels, ["sampleSet", "obsSet"])) {
+    if (isEqual(hierarchyLevels, ['sampleSet', 'obsSet'])) {
       map = d3_rollup(
         obsCounts,
         D => D[0].value,
         d => d.sampleSetPath,
         d => d.obsSetPath,
       );
-    } else if (isEqual(hierarchyLevels, ["obsSet", "sampleSet"])) {
+    } else if (isEqual(hierarchyLevels, ['obsSet', 'sampleSet'])) {
       map = d3_rollup(
         obsCounts,
         D => D[0].value,
@@ -88,17 +87,15 @@ export default function Treemap(props) {
         d => d.sampleSetPath,
       );
     } else {
-      throw new Error("Unexpected levels value.");
+      throw new Error('Unexpected levels value.');
     }
     return d3_hierarchy(map);
   }, [obsCounts, hierarchyLevels]);
 
-  const [obsSetColorScale, sampleSetColorScale] = useMemo(() => {
-    return [
+  const [obsSetColorScale, sampleSetColorScale] = useMemo(() => [
       getColorScale(obsSetSelection, obsSetColor, theme),
       getColorScale(sampleSetSelection, sampleSetColor, theme),
-    ];
-  }, [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
+    ], [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
 
   const treemapLayout = useMemo(() => {
     const treemapFunc = treemap()
@@ -142,7 +139,7 @@ export default function Treemap(props) {
 
     // Append a tooltip.
     leaf.append('title')
-        .text((d) =>{
+        .text((d) => {
           const cellCount = d.data?.[1];
           const primaryPathString = JSON.stringify(d.data[0]);
           const secondaryPathString = JSON.stringify(d.parent.data[0]);
@@ -155,8 +152,8 @@ export default function Treemap(props) {
     const colorScale = obsColorEncoding === 'sampleSetSelection'
       ? sampleSetColorScale
       : obsSetColorScale;
-    // eslint-disable-next-line no-nested-ternary
     const getPathForColoring = d => (
+      // eslint-disable-next-line no-nested-ternary
       obsColorEncoding === 'sampleSetSelection'
         ? (hierarchyLevels[0] === 'obsSet' ? d.data?.[0] : d.parent?.data?.[0])
         : (hierarchyLevels[0] === 'sampleSet' ? d.data?.[0] : d.parent?.data?.[0])
@@ -164,8 +161,11 @@ export default function Treemap(props) {
 
     // Append a color rectangle for each leaf.
     leaf.append('rect')
-        // eslint-disable-next-line no-param-reassign
-        .attr('id', d => (d.leafUid = getLeafUid()).id)
+        .attr('id', (d) => {
+          // eslint-disable-next-line no-param-reassign
+          d.leafUid = getLeafUid();
+          return d.leafUid.id;
+        })
         .attr('fill', d => colorScale(getPathForColoring(d)))
         .attr('fill-opacity', 0.8)
         .attr('width', d => d.x1 - d.x0)
@@ -173,8 +173,11 @@ export default function Treemap(props) {
 
     // Append a clipPath to ensure text does not overflow.
     leaf.append('clipPath')
-        // eslint-disable-next-line no-param-reassign
-        .attr('id', d => (d.clipUid = getClipUid()).id)
+        .attr('id', (d) => {
+          // eslint-disable-next-line no-param-reassign
+          d.clipUid = getClipUid();
+          return d.clipUid.id;
+        })
       .append('use')
         .attr('xlink:href', d => d.leafUid.href);
 
@@ -186,7 +189,7 @@ export default function Treemap(props) {
         // Each element in this array corresponds to a line of text.
         d.data?.[0]?.at(-1),
         d.parent?.data?.[0]?.at(-1),
-        `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`
+        `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`,
       ]))
       .join('tspan')
         .attr('x', 3)

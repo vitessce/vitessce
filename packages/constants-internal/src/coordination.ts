@@ -534,6 +534,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SAMPLE_FILTER,
     CoordinationType.SAMPLE_FILTER_MODE,
     CoordinationType.SAMPLE_HIGHLIGHT,
-    CoordinationType.HIERARCHY_LEVELS
+    CoordinationType.HIERARCHY_LEVELS,
   ],
 };

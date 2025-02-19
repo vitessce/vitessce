@@ -100,7 +100,9 @@ export function TreemapSubscriber(props) {
   const [{ sampleIndex, sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
     loaders,
     dataset,
-    true, // TODO: support `false`, i.e., configurations in which there is are no sampleEdges/sampleSets
+    // TODO: support `false`, i.e., configurations in which
+    // there are no sampleSets
+    true,
     { setSampleSetColor },
     { sampleSetColor },
     { sampleType },
@@ -109,7 +111,9 @@ export function TreemapSubscriber(props) {
   const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
     loaders,
     dataset,
-    true, // TODO: support `false`, i.e., configurations in which there is are no sampleEdges/sampleSets
+    // TODO: support `false`, i.e., configurations in which
+    // there are no sampleEdges
+    true,
     {},
     {},
     { obsType, sampleType },
@@ -140,8 +144,10 @@ export function TreemapSubscriber(props) {
   const obsCount = obsIndex?.length || 0;
   const sampleCount = sampleIndex?.length || 0;
 
-  // TODO: use obsFilter / sampleFilter to display _all_ cells/samples in gray / transparent in background,
-  // and use obsSetSelection/sampleSetSelection to display the _selected_ samples in color in the foreground.
+  // TODO: use obsFilter / sampleFilter to display
+  // _all_ cells/samples in gray / transparent in background,
+  // and use obsSetSelection/sampleSetSelection to display
+  // the _selected_ samples in color in the foreground.
   const [obsCounts, sampleCounts] = useMemo(() => {
     const obsResult = new InternMap([], JSON.stringify);
     const sampleResult = new InternMap([], JSON.stringify);
@@ -200,8 +206,8 @@ export function TreemapSubscriber(props) {
     }
 
     return [
-      unnestMap(obsResult, ["obsSetPath", "sampleSetPath", "value"]),
-      unnestMap(sampleResult, ["sampleSetPath", "value"]),
+      unnestMap(obsResult, ['obsSetPath', 'sampleSetPath', 'value']),
+      unnestMap(sampleResult, ['sampleSetPath', 'value']),
     ];
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,

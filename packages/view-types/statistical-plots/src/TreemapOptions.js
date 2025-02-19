@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
 import { isEqual } from 'lodash-es';
-import { Checkbox, TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@material-ui/core';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, OptionSelect, OptionsContainer,
@@ -15,10 +15,10 @@ export default function TreemapOptions(props) {
 
     hierarchyLevels,
     setHierarchyLevels,
-    
+
     obsColorEncoding,
     setObsColorEncoding,
-    
+
   } = props;
 
   const treemapOptionsId = useId();
@@ -29,10 +29,10 @@ export default function TreemapOptions(props) {
   }
 
   function handleHierarchyLevelsOrderingChange(event) {
-    if(event.target.value === 'sampleSet') {
-        setHierarchyLevels(['sampleSet', 'obsSet']);
+    if (event.target.value === 'sampleSet') {
+      setHierarchyLevels(['sampleSet', 'obsSet']);
     } else {
-        setHierarchyLevels(['obsSet', 'sampleSet']);
+      setHierarchyLevels(['obsSet', 'sampleSet']);
     }
   }
 
@@ -73,16 +73,16 @@ export default function TreemapOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-              className={classes.select}
-              value={primaryHierarchyLevel}
-              onChange={handleHierarchyLevelsOrderingChange}
-              inputProps={{
-                id: `hierarchy-level-select-${treemapOptionsId}`,
-              }}
-            >
-              <option value="obsSet">{capitalize(obsType)} Sets</option>
-              <option value="sampleSet">{capitalize(sampleType)} Sets</option>
-            </OptionSelect>
+            className={classes.select}
+            value={primaryHierarchyLevel}
+            onChange={handleHierarchyLevelsOrderingChange}
+            inputProps={{
+              id: `hierarchy-level-select-${treemapOptionsId}`,
+            }}
+          >
+            <option value="obsSet">{capitalize(obsType)} Sets</option>
+            <option value="sampleSet">{capitalize(sampleType)} Sets</option>
+          </OptionSelect>
         </TableCell>
       </TableRow>
     </OptionsContainer>
