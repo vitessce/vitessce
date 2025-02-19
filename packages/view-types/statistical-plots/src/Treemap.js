@@ -64,7 +64,6 @@ export default function Treemap(props) {
     marginBottom,
   } = props;
 
-
   const hierarchyData = useMemo(() => {
     // Support both sampleSet->obsSet and
     // obsSet->sampleSet hierarchy modes
@@ -97,7 +96,7 @@ export default function Treemap(props) {
       getColorScale(sampleSetSelection, sampleSetColor, theme),
     ], [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
 
-  const treemapLayout = useMemo(() => {
+  const treemapLeaves = useMemo(() => {
     const treemapFunc = treemap()
       .tile(treemapBinary)
       .size([width, height])
@@ -109,9 +108,10 @@ export default function Treemap(props) {
     // So in `.sum` and `.sort` below,
     // `d[1]` accesses the value (i.e., cell count).
     // Reference: https://d3js.org/d3-hierarchy/hierarchy#hierarchy
-    return treemapFunc(hierarchyData
+    const treemapLayout = treemapFunc(hierarchyData
       .sum(d => d[1])
       .sort((a, b) => b[1] - a[1]));
+    return treemapLayout.leaves();
   }, [hierarchyData, width, height]);
 
   const svgRef = useRef();
@@ -125,15 +125,15 @@ export default function Treemap(props) {
       .attr('width', width)
       .attr('height', height)
       .attr('viewBox', [0, 0, width, height])
-      .attr('style', 'max-width: 100%; height: auto; font: 10px sans-serif;');
+      .attr('style', 'font: 10px sans-serif');
 
-    if (!treemapLayout?.leaves) {
+    if (!treemapLeaves || !obsSetSelection || !sampleSetSelection) {
       return;
     }
 
     // Add a group for each leaf of the hierarchy.
     const leaf = svg.selectAll('g')
-      .data(treemapLayout.leaves())
+      .data(treemapLeaves)
       .join('g')
         .attr('transform', d => `translate(${d.x0},${d.y0})`);
 
@@ -197,8 +197,9 @@ export default function Treemap(props) {
         .attr('y', (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
         .text(d => d);
   }, [width, height, marginLeft, marginBottom, theme, marginTop, marginRight,
-    obsType, sampleType, treemapLayout, sampleSetColor, sampleSetSelection,
-    obsSetColorScale, sampleSetColorScale, obsColorEncoding, hierarchyLevels,
+    obsType, sampleType, treemapLeaves, sampleSetColor, sampleSetSelection,
+    obsSetSelection, obsSetColor, obsSetColorScale, sampleSetColorScale,
+    obsColorEncoding, hierarchyLevels,
   ]);
 
   return (
