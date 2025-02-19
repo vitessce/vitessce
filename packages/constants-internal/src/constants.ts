@@ -322,7 +322,7 @@ export const CoordinationType = {
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
   // Treemap
-  SET_HIERARCHY_LEVELS: 'setHierarchyLevels',
+  HIERARCHY_LEVELS: 'hierarchyLevels',
 };
 
 export const STATUS = {

@@ -21,7 +21,7 @@ import Treemap from './Treemap.js';
 import { useStyles } from './styles.js';
 import TreemapOptions from './TreemapOptions.js';
 
-const DEFAULT_SET_HIERARCHY_LEVELS = ['obsSet', 'sampleSet'];
+const DEFAULT_HIERARCHY_LEVELS = ['obsSet', 'sampleSet'];
 
 export function TreemapSubscriber(props) {
   const {
@@ -59,7 +59,7 @@ export function TreemapSubscriber(props) {
     sampleFilter,
     sampleFilterMode,
     sampleHighlight,
-    setHierarchyLevels,
+    hierarchyLevels,
   }, {
     setObsFilter,
     setObsSelection,
@@ -79,7 +79,7 @@ export function TreemapSubscriber(props) {
     setSampleSelectionMode,
     setSampleHighlight,
     setSampleSetColor,
-    setSetHierarchyLevels,
+    setHierarchyLevels,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.TREEMAP],
     coordinationScopes,
@@ -223,8 +223,8 @@ export function TreemapSubscriber(props) {
           sampleType={sampleType}
           obsColorEncoding={obsColorEncoding}
           setObsColorEncoding={setObsColorEncoding}
-          setHierarchyLevels={setHierarchyLevels || DEFAULT_SET_HIERARCHY_LEVELS}
-          setSetHierarchyLevels={setSetHierarchyLevels}
+          hierarchyLevels={hierarchyLevels || DEFAULT_HIERARCHY_LEVELS}
+          setHierarchyLevels={setHierarchyLevels}
           // TODO:
           // - Add option to only include cells in treemap which express selected gene
           //   above some threshold (kind of like a dot plot)
@@ -238,7 +238,7 @@ export function TreemapSubscriber(props) {
           obsCounts={obsCounts}
           sampleCounts={sampleCounts}
           obsColorEncoding={obsColorEncoding}
-          setHierarchyLevels={setHierarchyLevels || DEFAULT_SET_HIERARCHY_LEVELS}
+          hierarchyLevels={hierarchyLevels || DEFAULT_HIERARCHY_LEVELS}
           theme={theme}
           width={width}
           height={height}

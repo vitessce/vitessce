@@ -13,8 +13,8 @@ export default function TreemapOptions(props) {
     obsType,
     sampleType,
 
+    hierarchyLevels,
     setHierarchyLevels,
-    setSetHierarchyLevels,
     
     obsColorEncoding,
     setObsColorEncoding,
@@ -30,13 +30,13 @@ export default function TreemapOptions(props) {
 
   function handleHierarchyLevelsOrderingChange(event) {
     if(event.target.value === 'sampleSet') {
-        setSetHierarchyLevels(['sampleSet', 'obsSet']);
+        setHierarchyLevels(['sampleSet', 'obsSet']);
     } else {
-        setSetHierarchyLevels(['obsSet', 'sampleSet']);
+        setHierarchyLevels(['obsSet', 'sampleSet']);
     }
   }
 
-  const primaryHierarchyLevel = isEqual(setHierarchyLevels, ['sampleSet', 'obsSet']) ? 'sampleSet' : 'obsSet';
+  const primaryHierarchyLevel = isEqual(hierarchyLevels, ['sampleSet', 'obsSet']) ? 'sampleSet' : 'obsSet';
 
   return (
     <OptionsContainer>

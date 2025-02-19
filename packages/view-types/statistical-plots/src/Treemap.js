@@ -49,7 +49,7 @@ export default function Treemap(props) {
     obsCounts,
     sampleCounts,
     obsColorEncoding,
-    setHierarchyLevels,
+    hierarchyLevels,
     theme,
     width,
     height,
@@ -73,14 +73,14 @@ export default function Treemap(props) {
       return null;
     }
     let map;
-    if (isEqual(setHierarchyLevels, ["sampleSet", "obsSet"])) {
+    if (isEqual(hierarchyLevels, ["sampleSet", "obsSet"])) {
       map = d3_rollup(
         obsCounts,
         D => D[0].value,
         d => d.sampleSetPath,
         d => d.obsSetPath,
       );
-    } else if (isEqual(setHierarchyLevels, ["obsSet", "sampleSet"])) {
+    } else if (isEqual(hierarchyLevels, ["obsSet", "sampleSet"])) {
       map = d3_rollup(
         obsCounts,
         D => D[0].value,
@@ -91,7 +91,7 @@ export default function Treemap(props) {
       throw new Error("Unexpected levels value.");
     }
     return d3_hierarchy(map);
-  }, [obsCounts, setHierarchyLevels]);
+  }, [obsCounts, hierarchyLevels]);
 
   const [obsSetColorScale, sampleSetColorScale] = useMemo(() => {
     return [
@@ -158,8 +158,8 @@ export default function Treemap(props) {
     // eslint-disable-next-line no-nested-ternary
     const getPathForColoring = d => (
       obsColorEncoding === 'sampleSetSelection'
-        ? (setHierarchyLevels[0] === 'obsSet' ? d.data?.[0] : d.parent?.data?.[0])
-        : (setHierarchyLevels[0] === 'sampleSet' ? d.data?.[0] : d.parent?.data?.[0])
+        ? (hierarchyLevels[0] === 'obsSet' ? d.data?.[0] : d.parent?.data?.[0])
+        : (hierarchyLevels[0] === 'sampleSet' ? d.data?.[0] : d.parent?.data?.[0])
     );
 
     // Append a color rectangle for each leaf.
@@ -195,7 +195,7 @@ export default function Treemap(props) {
         .text(d => d);
   }, [width, height, marginLeft, marginBottom, theme, marginTop, marginRight,
     obsType, sampleType, treemapLayout, sampleSetColor, sampleSetSelection,
-    obsSetColorScale, sampleSetColorScale, obsColorEncoding, setHierarchyLevels,
+    obsSetColorScale, sampleSetColorScale, obsColorEncoding, hierarchyLevels,
   ]);
 
   return (
