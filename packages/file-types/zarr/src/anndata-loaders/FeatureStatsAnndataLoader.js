@@ -1,5 +1,5 @@
 // @ts-check
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureStatsData } from '@vitessce/types' */
@@ -75,7 +75,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       dfPath => this.dataSource.loadNumeric(`${dfPath}/${colname}`)
     ));
     // TODO: optimize this. Do not convert TypedArray to Array here.
-    return subArrs.map(arr => Array.from(arr.data)).flat();
+    return subArrs.map(arr => /** @type {number[]} */ (Array.from(arr.data))).flat();
   }
 
   /**
