@@ -15,6 +15,16 @@ const LABEL_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-serif";
 const NUM_FORCE_SIMULATION_TICKS = 100;
 const LABEL_UPDATE_ZOOM_DELTA = 0.25;
 
+// The TextLayer does not support passing a z-index or a getPolygonOffset,
+// so it is implicitly rendered at z-index 0.
+// We want the remaining layers to render below the text layers.
+// eslint-disable-next-line no-unused-vars
+const TEXT_LAYER_Z_INDEX = 0;
+// For some reason, setting this to -10, while it solves the issue for
+// text+contour+points, it also results in the points not appearing at
+// certain zoom levels.
+const POINT_LAYER_Z_INDEX = 0;
+
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
@@ -34,7 +44,7 @@ const makeFlippedGetObsCoords = obsEmbedding => i => ([
 const getPosition = (object, { index, data, target }) => {
   target[0] = data.src.obsEmbedding.data[0][index];
   target[1] = -data.src.obsEmbedding.data[1][index];
-  target[2] = 0;
+  target[2] = POINT_LAYER_Z_INDEX;
   return target;
 };
 
@@ -47,9 +57,6 @@ const contourGetPosition = (object, { index, data, target }) => {
   target[2] = 0;
   return target;
 };
-
-const contourGetPolygonOffset = () => ([0, 20]);
-
 
 /**
  * React component which renders a scatterplot from cell data.
@@ -154,7 +161,6 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
             data: deckData,
             getWeight: contourGetWeight,
             getPosition: contourGetPosition,
-            getPolygonOffset: contourGetPolygonOffset,
             contours: contourThresholds.map((threshold, i) => ({
               threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
               // TODO: should the opacity steps be uniform? Should align with human perception.
@@ -168,6 +174,9 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
                   : ((i + 1) / (contourThresholds.length)) * 255),
               ],
               strokeWidth: 2,
+              // We need to specify a greater z-index so that the contour layers
+              // will render on top of the point layer.
+              zIndex: POINT_LAYER_Z_INDEX + 1 + i,
             })),
             aggregation: 'MEAN',
             gpuAggregation: true,

@@ -1,4 +1,4 @@
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 // eslint-disable-next-line import/no-unresolved
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // eslint-disable-next-line import/no-unresolved

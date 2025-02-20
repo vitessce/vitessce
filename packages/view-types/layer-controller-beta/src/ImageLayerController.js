@@ -470,6 +470,8 @@ export default function ImageLayerController(props) {
                 setSpatialChannelWindow,
               } = setChannelCoordination[cScope];
 
+              const channelIndex = image?.getChannelIndex(spatialTargetC);
+
               return (
                 <ImageChannelController
                   key={cScope}
@@ -479,7 +481,7 @@ export default function ImageLayerController(props) {
                   channelScope={cScope}
                   targetT={targetT}
                   targetZ={targetZ}
-                  targetC={spatialTargetC}
+                  targetC={channelIndex}
                   setTargetC={setSpatialTargetC}
                   visible={spatialChannelVisible}
                   setVisible={setSpatialChannelVisible}

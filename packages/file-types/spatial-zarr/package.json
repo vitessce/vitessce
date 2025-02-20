@@ -1,0 +1,53 @@
+{
+  "name": "@vitessce/spatial-zarr",
+  "version": "3.5.6",
+  "author": "HIDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/gl": "workspace:*",
+    "@vitessce/spatial-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
+    "@vitessce/zarr": "workspace:*",
+    "@vitessce/config": "workspace:*",
+    "@vitessce/globals": "workspace:*",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "zarrita": "catalog:",
+    "apache-arrow": "catalog:",
+    "parquet-wasm": "catalog:",
+    "ol": "^10.2.1"
+  },
+  "devDependencies": {
+    "@vitessce/types": "workspace:*",
+    "@zarrita/core": "catalog:",
+    "@zarrita/storage": "catalog:",
+    "@zarrita/typedarray": "catalog:"
+  }
+}

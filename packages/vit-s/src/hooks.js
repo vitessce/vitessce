@@ -3,10 +3,13 @@ import {
 } from 'react';
 import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
+import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
-import { STATUS } from '@vitessce/constants-internal';
-import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { VITESSCE_CONTAINER } from './classNames.js';
+import { useGridResize, useEmitGridResize } from './state/hooks.js';
+import { useAsyncFunction } from './contexts.js';
+
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -221,28 +224,37 @@ export function useUint8ObsFeatureMatrix({ obsFeatureMatrix }) {
 /**
  * Normalize a feature selection (data for selected
  * columns of an obsFeatureMatrix) to a Uint8Array.
- * @param {array|null} expressionData The expressionData
+ * @param {Float32Array[] | null} expressionData The expressionData
  * returned by the useFeatureSelection hook,
  * where each element corresponds to an
  * array of values for a selected feature.
- * @returns {array} A tuple [normData, extents] where
- * normData is an array of Uint8Arrays (or null), and extents is
- * an array of [min, max] values for each feature (or null).
+ * @returns {{
+ *  normData: Uint8Array[] | null,
+ *  extents: [number, number][] | null,
+ *  missing: number[]
+ * }} An object tuple {normData, extents, missing} where
+ * normData is an array of Uint8Arrays (or null),
+ * extents is an array of [min, max] values for each feature (or null), and
+ * missing is an array of numbers (between 0 and 1) for each feature (or null).
  */
 export function useUint8FeatureSelection(expressionData) {
   return useMemo(() => {
-    if (expressionData && expressionData[0]) {
-      const extents = expressionData.map(arr => extent(arr));
-      const normData = expressionData.map((arr, i) => {
-        const [min, max] = extents[i];
-        const ratio = 255 / (max - min);
-        return new Uint8Array(
-          arr.map(j => Math.floor((j - min) * ratio)),
-        );
-      });
-      return [normData, extents];
+    if (expressionData?.[0] == null) {
+      return { normData: null, extents: null, missing: null };
     }
-    return [null, null];
+    const extents = expressionData.map(arr => extent(arr));
+    const normData = expressionData.map((arr, i) => {
+      const [min, max] = extents[i];
+      const ratio = 255 / (max - min);
+      return new Uint8Array(
+        arr.map(j => Math.floor((j - min) * ratio)),
+      );
+    });
+    const missing = expressionData.map((arr) => {
+      const numMissing = arr.reduce((prev, curr) => (Number.isNaN(curr) ? prev + 1 : prev), 0);
+      return numMissing / arr.length;
+    });
+    return { normData, extents, missing };
   }, [expressionData]);
 }
 
@@ -312,4 +324,49 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
     }
     return null;
   }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
+}
+
+/**
+ * This hook expands a featureLabelsMap
+ * by including mappings from ENSEMBL to HGNC IDs.
+ * User-provided mappings should take precedence,
+ * but they are not always provided in the config or contained
+ * in a column of the AnnData.var dataframe, for example.
+ * @param {string} featureType A feature type. Fetching is only done for 'gene'.
+ * @param {Map|null} featureLabelsMap An optional user-supplied feature labels
+ * mapping from the dataset.
+ * @returns {{ stripCuriePrefixes: boolean }|null} An options object.
+ */
+export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, options) {
+  // TODO: Should this be done via a hook?
+  // We could alternatively expand these types of mappings in the featureLabels data loader class.
+  // TODO: Add an option to opt-out?
+  const { stripCuriePrefixes = true } = options || {};
+  const getTermMapping = useAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING);
+
+  const enabled = (featureType === 'gene');
+  const termMappingQuery = useQuery({
+    enabled,
+    queryKey: ['useExpandedFeatureLabelsMap', 'ensembl', 'hgnc'],
+    queryFn: async () => getTermMapping('ensembl', 'hgnc'),
+  });
+  const { data: fetchedMapping, status, isFetching } = termMappingQuery;
+
+  const updatedFeatureLabelsMap = useMemo(() => {
+    if (!fetchedMapping) return featureLabelsMap;
+    return new Map([
+      ...(stripCuriePrefixes
+        ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
+        : fetchedMapping
+      ),
+      ...(featureLabelsMap || []),
+    ]);
+  }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
+  // If not enabled, return success
+  // eslint-disable-next-line no-nested-ternary
+  const dataStatus = (enabled
+    ? (isFetching ? STATUS.LOADING : status)
+    : STATUS.SUCCESS
+  );
+  return [updatedFeatureLabelsMap, dataStatus];
 }

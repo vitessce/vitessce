@@ -2,6 +2,7 @@
 /* eslint-disable-next-line camelcase */
 import { extent, max as d3_max } from 'd3-array';
 
+import { log } from '@vitessce/globals';
 
 function normalize(arr) {
   const [min, max] = extent(arr);
@@ -57,10 +58,10 @@ export function multiSetsToTextureData(
   const colorTexHeight = Math.max(2, Math.ceil(totalColorsLength / texSize));
 
   if (valueTexHeight > texSize) {
-    console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
+    log.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
   }
   if (colorTexHeight > texSize) {
-    console.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
+    log.error('Error: length of concatenated quantitative feature values larger than maximum texture size');
   }
   // Array for texture containing color indices.
   const totalData = new Uint8Array(texSize * valueTexHeight);

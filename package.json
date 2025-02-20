@@ -1,9 +1,9 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.4.9",
+  "version": "3.5.6",
   "description": "Vitessce app and React component library",
-  "author": "Gehlenborg Lab",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io/",
   "repository": "https://github.com/vitessce/vitessce/",
   "scripts": {
@@ -32,6 +32,7 @@
     "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs"
   },
   "devDependencies": {
+    "@types/d3-array": "^3.2.1",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/react-hooks": "catalog:",

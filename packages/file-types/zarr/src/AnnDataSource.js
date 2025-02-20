@@ -1,9 +1,9 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
+import { log } from '@vitessce/globals';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
-
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { ByteStringArray } from '@zarrita/typedarray' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
@@ -132,7 +132,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
+      i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
     return mappedValues;
   }
@@ -142,7 +142,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
-  loadNumeric(path) {
+  async loadNumeric(path) {
     const { storeRoot } = this;
     return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
       .then(arr => zarrGet(arr));
@@ -157,7 +157,7 @@ export default class AnnDataSource extends ZarrDataSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  loadNumericForDims(path, dims) {
+  async loadNumericForDims(path, dims) {
     const { storeRoot } = this;
     const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
@@ -184,7 +184,7 @@ export default class AnnDataSource extends ZarrDataSource {
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
     if (data.data?.[Symbol.iterator]) {
-      return Array.from(data.data);
+      return /** @type {string[]} */ (Array.from(data.data));
     }
     return /** @type {string[]} */ (data.data);
   }
@@ -205,6 +205,21 @@ export default class AnnDataSource extends ZarrDataSource {
     this.obsIndex = this.getJson('obs/.zattrs')
       .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
     return this.obsIndex;
+  }
+
+  /**
+   * Class method for loading the obs index.
+   * @param {string|undefined} path Used by subclasses.
+   * @returns {Promise<string[]>} An promise for a zarr array
+   * containing the indices.
+   */
+  loadDataFrameIndex(
+    // eslint-disable-next-line no-unused-vars
+    path = undefined,
+  ) {
+    const dfPath = path ? dirname(path) : '';
+    return this.getJson(`${dfPath}/.zattrs`)
+      .then(({ _index }) => this.getFlatArrDecompressed(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
   }
 
   /**
@@ -333,10 +348,15 @@ export default class AnnDataSource extends ZarrDataSource {
       } = zattrs;
 
       if (encodingType === 'dict' && encodingVersion === '0.1.0') {
-        /** @type {{ [k: string]: string|string[]|null }} */
+        /** @type {{ [k: string]: string|string[]|null|undefined }} */
         const result = {};
         await Promise.all(keys.map(async (key) => {
-          const val = await this._loadElement(`${path}/${key}`);
+          let val;
+          try {
+            val = await this._loadElement(`${path}/${key}`);
+          } catch (e) {
+            log.error(`Error in _loadDict: could not load ${key}`);
+          }
           result[key] = val;
         }));
         return result;

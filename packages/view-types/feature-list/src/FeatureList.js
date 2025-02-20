@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
 import { makeStyles } from '@material-ui/core';
+import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
@@ -39,12 +40,14 @@ export default function FeatureList(props) {
   // passing to the SelectableTable component.
   const selectableTableSortKey = (featureListSortKey === 'featureIndex' ? 'key' : 'name');
 
-
   useEffect(() => {
     const results = geneList
       .filter(gene => (
         gene.toLowerCase().includes(searchTerm.toLowerCase())
-        || featureLabelsMap?.get(gene)?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(gene)
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
+        || featureLabelsMap?.get(cleanFeatureId(gene))
+          ?.toLowerCase().includes(searchTerm.toLowerCase())
       ));
     setSearchResults(results);
   }, [searchTerm, geneList, featureLabelsMap]);
@@ -69,7 +72,11 @@ export default function FeatureList(props) {
       .map(
         gene => ({
           key: gene,
-          name: featureLabelsMap?.get(gene) || gene,
+          name: (
+            featureLabelsMap?.get(gene)
+            || featureLabelsMap?.get(cleanFeatureId(gene))
+            || gene
+          ),
           value: (geneSelection ? geneSelection.includes(gene) : false),
         }),
       );

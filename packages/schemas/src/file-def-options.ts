@@ -42,7 +42,7 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
-const annDataObsSets = z.array(
+const annDataObsSetsArr = z.array(
   z.object({
     name: z.string()
       .describe("The display name for the set, like 'Cell Type' or 'Louvain.'"),
@@ -58,11 +58,26 @@ const annDataObsSets = z.array(
   }),
 );
 
-const annDataObsFeatureColumns = z.array(
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsSets = z.object({
+  obsSets: annDataObsSetsArr,
+});
+const annDataSampleSets = z.object({
+  sampleSets: annDataObsSetsArr,
+});
+
+const annDataObsFeatureColumnsArr = z.array(
   z.object({
     path: z.string(),
   }),
 );
+
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsFeatureColumns = z.object({
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
+});
 
 const annDataObsSpots = annDataObsm;
 const annDataObsPoints = annDataObsm;
@@ -113,28 +128,45 @@ export const obsSegmentationsOmeZarrSchema = imageOmeZarrSchema.extend({
 
 // SpatialData
 // TODO: properties to specify target coordinate system name?
-export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
+export const imageSpatialdataSchema = z.object({
   path: z.string(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this also extend the imageOmeZarrSchema?
   // TODO: should this be renamed labelsSpatialdataSchema?
   // TODO: support obsTypesFromChannelNames?
   path: z.string(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsLocationsSpatialdataSchema = z.object({
   path: z.string(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the coordinates. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSpotsSpatialdataSchema = z.object({
   path: z.string(),
   tablePath: z.string()
     .optional()
     .describe('The path to a table which annotates the spots. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the coordinates and radii. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')
     .optional(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSetsSpatialdataSchema = z.object({
   region: z.string()
@@ -143,7 +175,7 @@ export const obsSetsSpatialdataSchema = z.object({
   tablePath: z.string()
     .optional()
     .describe('The path to a table which contains the index for the set values.'),
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
 });
 
 // GLB
@@ -176,6 +208,7 @@ export const obsPointsAnndataSchema = annDataObsLocations;
 export const obsLocationsAnndataSchema = annDataObsLocations;
 export const obsSegmentationsAnndataSchema = annDataObsSegmentations;
 export const obsSetsAnndataSchema = annDataObsSets;
+export const sampleSetsAnndataSchema = annDataSampleSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
@@ -248,7 +281,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,
@@ -260,16 +293,28 @@ export const anndataZarrSchema = z.object({
   sampleEdges: annDataSampleEdges,
 }).partial();
 
+export const anndataH5adSchema = anndataZarrSchema.extend({
+  refSpecUrl: z.string(),
+});
+
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
+  // TODO: allow multiple images
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
+  // TODO: allow multiple labels
   labels: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
+  // TODO: obsEmbedding
+  // TODO: obsLabels
+  // TODO: featureLabels
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),
 }).partial();

@@ -1,0 +1,39 @@
+{
+  "name": "@vitessce/abstract",
+  "version": "3.5.6",
+  "author": "HiDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "description": "Abstract data loader classes extended by other data loader classes.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@vitessce/globals": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitessce/types": "workspace:*"
+  }
+}

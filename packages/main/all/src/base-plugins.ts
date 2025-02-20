@@ -5,6 +5,7 @@ import {
   DataType,
   ViewType,
   CoordinationType,
+  AsyncFunctionType,
   COMPONENT_COORDINATION_TYPES,
   ALT_ZARR_STORE_TYPES,
 } from '@vitessce/constants-internal';
@@ -13,6 +14,7 @@ import {
   PluginJointFileType,
   PluginViewType,
   PluginCoordinationType,
+  PluginAsyncFunction,
 } from '@vitessce/plugins';
 import type {
   DataLoader,
@@ -29,6 +31,7 @@ import {
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
+  sampleSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
   obsSpotsAnndataSchema,
   obsPointsAnndataSchema,
@@ -42,6 +45,7 @@ import {
   sampleEdgesAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
+  anndataH5adSchema,
   spatialdataZarrSchema,
   anndataCellsZarrSchema,
   anndataCellSetsZarrSchema,
@@ -69,7 +73,10 @@ import {
 // Register view type plugins
 import { DescriptionSubscriber } from '@vitessce/description';
 import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager';
-import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding';
+import {
+  EmbeddingScatterplotSubscriber,
+  DualEmbeddingScatterplotSubscriber,
+} from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
 import { VolcanoPlotSubscriber } from '@vitessce/scatterplot-volcano';
 import { SpatialSubscriber } from '@vitessce/spatial';
@@ -78,6 +85,7 @@ import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
+import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import {
@@ -86,6 +94,7 @@ import {
   ExpressionHistogramSubscriber,
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
+  TreemapSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -135,8 +144,16 @@ import {
   FeatureLabelsAnndataLoader,
   FeatureStatsAnndataLoader,
   SampleEdgesAnndataLoader,
+  SampleSetsAnndataLoader,
   // MuData
   MuDataSource,
+  // Legacy
+  ZarrDataSource,
+  MatrixZarrAsObsFeatureMatrixLoader,
+  GenomicProfilesZarrLoader,
+} from '@vitessce/zarr';
+
+import {
   // OME
   OmeZarrLoader,
   OmeZarrAsObsSegmentationsLoader,
@@ -147,11 +164,8 @@ import {
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
   SpatialDataObsSetsLoader,
-  // Legacy
-  ZarrDataSource,
-  MatrixZarrAsObsFeatureMatrixLoader,
-  GenomicProfilesZarrLoader,
-} from '@vitessce/zarr';
+} from '@vitessce/spatial-zarr';
+
 import {
   OmeTiffAsObsSegmentationsLoader,
   OmeTiffLoader,
@@ -163,6 +177,13 @@ import {
 } from '@vitessce/glb';
 
 // Joint file types
+import {
+  BiomarkerSelectSubscriber,
+  autocompleteFeature,
+  transformFeature,
+  getAlternativeTerms,
+  getTermMapping,
+} from '@vitessce/biomarker-select';
 import {
   expandAnndataZarr,
   expandSpatialdataZarr,
@@ -181,6 +202,8 @@ import {
   expandRasterOmeZarr,
 } from './joint-file-types-legacy.js';
 
+// Biomarker select UI and default async functions.
+
 // Helper function to use COMPONENT_COORDINATION_TYPES.
 function makeViewType(name: string, component: any) {
   return new PluginViewType(name, component as ComponentType, COMPONENT_COORDINATION_TYPES[name]);
@@ -190,11 +213,16 @@ function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
 // For when we have multiple file types with the same data type and options schema.
-function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
-  const altFileTypes = Object.values(ALT_ZARR_STORE_TYPES[name]);
+function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
+  const altFileTypes = ALT_ZARR_STORE_TYPES[name];
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
-    ...altFileTypes.map(n => new PluginFileType(n, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema)),
+    ...Object.entries(altFileTypes).map(([key, fileType]) => {
+      const extendedOptionsSchema = key === 'h5ad' ? optionsSchema.extend({
+        refSpecUrl: z.string(),
+      }) : optionsSchema;
+      return new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema);
+    }),
   ];
 }
 
@@ -202,6 +230,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DESCRIPTION, DescriptionSubscriber),
   makeViewType(ViewType.OBS_SETS, ObsSetsManagerSubscriber),
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
+  makeViewType(ViewType.DUAL_SCATTERPLOT, DualEmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
   makeViewType(ViewType.SPATIAL, SpatialSubscriber),
   makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
@@ -218,6 +247,9 @@ export const baseViewTypes = [
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
+  makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
+  makeViewType(ViewType.TREEMAP, TreemapSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -247,6 +279,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
+  ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -258,9 +291,9 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_MUDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, MuDataSource, obsSegmentationsAnndataSchema),
   makeFileType(FileType.FEATURE_LABELS_MUDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, MuDataSource, featureLabelsAnndataSchema),
   // All OME file types
-  makeFileType(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_OME_ZARR, DataType.IMAGE, OmeZarrLoader, ZarrDataSource, imageOmeZarrSchema),
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
+  ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
@@ -295,6 +328,7 @@ export const baseFileTypes = [
 export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR, expandAnndataZarr, anndataZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_ZARR_ZIP, expandAnndataZarr, anndataZarrSchema),
+  new PluginJointFileType(FileType.ANNDATA_H5AD, expandAnndataZarr, anndataH5adSchema),
   new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
@@ -328,6 +362,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_TYPE, 'gene', z.string()),
   new PluginCoordinationType(CoordinationType.FEATURE_VALUE_TYPE, 'expression', z.string()),
   new PluginCoordinationType(CoordinationType.OBS_LABELS_TYPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABELS_TYPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ZOOM, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_ROTATION, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_TARGET_X, null, z.number().nullable()),
@@ -380,11 +415,19 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.HEATMAP_TARGET_Y, 0, z.number()),
   new PluginCoordinationType(CoordinationType.OBS_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.OBS_HIGHLIGHT, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.OBS_SELECTION, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_SELECTION,
     null,
     z.array(obsSetPath).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.OBS_SELECTION_MODE, null, z.enum(['obsSelection', 'obsSetSelection']).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.OBS_SET_FILTER,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.OBS_FILTER_MODE, null, z.enum(['obsFilter', 'obsSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.OBS_SET_EXPANSION,
     null,
@@ -411,6 +454,18 @@ export const baseCoordinationTypes = [
     null,
     z.array(z.string()).nullable(),
   ),
+  new PluginCoordinationType(
+    CoordinationType.FEATURE_SET_SELECTION,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.FEATURE_SELECTION_MODE, null, z.enum(['featureSelection', 'featureSetSelection']).nullable()),
+  new PluginCoordinationType(
+    CoordinationType.FEATURE_SET_FILTER,
+    null,
+    z.array(obsSetPath).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     null,
@@ -500,7 +555,12 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
+  new PluginCoordinationType(CoordinationType.SAMPLE_FILTER, null, z.array(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SELECTION, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.SAMPLE_SET_SELECTION, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SET_FILTER, null, z.array(z.array(z.string())).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_SELECTION_MODE, null, z.enum(['sampleSelection', 'sampleSetSelection']).nullable()),
+  new PluginCoordinationType(CoordinationType.SAMPLE_FILTER_MODE, null, z.enum(['sampleFilter', 'sampleSetFilter']).nullable()),
   new PluginCoordinationType(
     CoordinationType.SAMPLE_SET_COLOR,
     null,
@@ -509,12 +569,14 @@ export const baseCoordinationTypes = [
       color: rgbArray,
     })).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.SAMPLE_HIGHLIGHT, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
+  new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
   // For volcano plot:
   new PluginCoordinationType(CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN, null, z.string().nullable()),
@@ -527,4 +589,11 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY, 1, z.number()),
   new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS_MODE, 'manual', z.enum(['manual', 'auto'])),
   new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY_MODE, 'manual', z.enum(['manual', 'auto'])),
+];
+
+export const baseAsyncFunctions = [
+  new PluginAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE, autocompleteFeature),
+  new PluginAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE, transformFeature),
+  new PluginAsyncFunction(AsyncFunctionType.GET_ALTERNATIVE_TERMS, getAlternativeTerms),
+  new PluginAsyncFunction(AsyncFunctionType.GET_TERM_MAPPING, getTermMapping),
 ];

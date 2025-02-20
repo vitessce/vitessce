@@ -15,10 +15,11 @@ import {
   useFeatureLabelsData,
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
-import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
-import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber.js';
@@ -48,6 +49,7 @@ export function HeatmapSubscriber(props) {
     observationsLabelOverride,
     variablesLabelOverride,
     title = 'Heatmap',
+    helpText = ViewHelpMapping.HEATMAP,
   } = props;
 
   const loaders = useLoaders();
@@ -109,10 +111,15 @@ export function HeatmapSubscriber(props) {
     coordinationScopes, obsType, loaders, dataset,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  // eslint-disable-next-line max-len
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
   const [
     { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
   ] = useObsFeatureMatrixData(
@@ -127,6 +134,7 @@ export function HeatmapSubscriber(props) {
   );
   const isReady = useReady([
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixStatus,
     obsSetsStatus,
   ]);
@@ -161,7 +169,11 @@ export function HeatmapSubscriber(props) {
 
   const getFeatureInfo = useCallback((featureId) => {
     if (featureId) {
-      const featureLabel = featureLabelsMap?.get(featureId) || featureId;
+      const featureLabel = (
+        featureLabelsMap?.get(featureId)
+        || featureLabelsMap?.get(cleanFeatureId(featureId))
+        || featureId
+      );
       return { [`${capitalize(variablesLabel)} ID`]: featureLabel };
     }
     return null;
@@ -199,6 +211,7 @@ export function HeatmapSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      helpText={helpText}
       info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
              with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}
@@ -267,6 +280,8 @@ export function HeatmapSubscriber(props) {
         getFeatureInfo={getFeatureInfo}
         obsHighlight={cellHighlight}
         featureHighlight={geneHighlight}
+        featureType={featureType}
+        featureLabelsMap={featureLabelsMap}
       />
       )}
       <Legend
@@ -277,6 +292,7 @@ export function HeatmapSubscriber(props) {
         obsColorEncoding="geneExpression"
         considerSelections={false}
         featureSelection={geneSelection}
+        obsSetSelection={cellSetSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         extent={obsFeatureMatrixExtent}

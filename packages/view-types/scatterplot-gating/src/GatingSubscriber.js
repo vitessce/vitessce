@@ -32,7 +32,7 @@ import {
   getPointOpacity,
   EmptyMessage,
 } from '@vitessce/scatterplot';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 
 /**
@@ -60,6 +60,7 @@ export function GatingSubscriber(props) {
     title: titleOverride,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+    helpText = ViewHelpMapping.GATING,
   } = props;
 
   const loaders = useLoaders();
@@ -326,7 +327,7 @@ export function GatingSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData] = useUint8FeatureSelection(expressionDataColor);
+  const { normData: uint8ExpressionData } = useUint8FeatureSelection(expressionDataColor);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -363,6 +364,7 @@ export function GatingSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}

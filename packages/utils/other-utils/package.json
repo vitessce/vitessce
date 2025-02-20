@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/utils",
-  "version": "3.4.9",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.6",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -30,9 +30,11 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/globals": "workspace:*",
     "bowser": "^2.11.0",
     "lodash-es": "catalog:",
     "lz-string": "^1.4.4",
-    "pluralize": "catalog:"
+    "pluralize": "catalog:",
+    "d3-array": "catalog:"
   }
 }

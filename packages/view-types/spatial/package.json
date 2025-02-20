@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/spatial",
-  "version": "3.4.9",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.6",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",

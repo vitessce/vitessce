@@ -1,4 +1,5 @@
 import { viv } from '@vitessce/gl';
+import { log } from '@vitessce/globals';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,
@@ -9,7 +10,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
 import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
@@ -25,7 +26,7 @@ async function initLoader(imageData) {
       } = metadata || {};
       const labels = dimensions.map(d => d.field);
       let source;
-      const root = await zarrOpenRoot(url, null, requestInit);
+      const root = await zarrOpenRoot(url, null, { requestInit });
       if (isPyramid) {
         const metadataUrl = `${url}${
           url.slice(-1) === '/' ? '' : '/'
@@ -80,14 +81,14 @@ async function initLoader(imageData) {
       // Reference: https://github.com/vitessce/vitessce/blob/fb0e7f/packages/file-types/zarr/src/ome-loaders/OmeZarrLoader.js#L29
       const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
 
-      const root = await zarrOpenRoot(url, null, requestInit);
+      const root = await zarrOpenRoot(url, null, { requestInit });
       const loader = await loadOmeZarr(root);
       const { metadata: loaderMetadata } = loader;
 
       const { omero, multiscales } = loaderMetadata;
 
       if (!Array.isArray(multiscales) || multiscales.length === 0) {
-        console.error('Multiscales array must exist and have at least one element');
+        log.error('Multiscales array must exist and have at least one element');
       }
       const { coordinateTransformations } = multiscales[0];
 

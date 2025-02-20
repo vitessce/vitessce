@@ -15,6 +15,7 @@ export {
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
+  useExpandedFeatureLabelsMap,
 } from './hooks.js';
 export {
   useCoordinationScopes,
@@ -35,6 +36,8 @@ export {
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
+  useViewConfig,
+  useSetViewConfig,
   useComponentHover,
   useSetComponentHover,
   useComponentViewInfo,
@@ -88,22 +91,11 @@ export {
   useHasLoader,
 } from './data-hook-utils.js';
 export {
-  AbstractLoader,
-  AbstractTwoStepLoader,
-  LoaderResult,
-} from './data/index.js';
-export {
-  AbstractLoaderError,
-  DatasetNotFoundError,
-  LoaderNotFoundError,
-  LoaderValidationError,
-  DataSourceFetchError,
-} from './errors/index.js';
-export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options/index.js';
 export { logConfig } from './view-config-utils.js';
-export { useAsyncFunction } from './contexts.js';
+export { useAsyncFunction, usePageModeView } from './contexts.js';
+export { createLoaders } from './vitessce-grid-utils.js';

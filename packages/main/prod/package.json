@@ -1,7 +1,7 @@
 {
   "name": "vitessce",
-  "version": "3.4.9",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.6",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
   "dependencies": {
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",

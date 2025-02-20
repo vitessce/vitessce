@@ -1,6 +1,6 @@
 import { open as zarrOpen } from 'zarrita';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepLoader {
   async loadAttrs() {

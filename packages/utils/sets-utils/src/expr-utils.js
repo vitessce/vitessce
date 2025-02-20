@@ -2,6 +2,7 @@
 import { InternMap } from 'internmap';
 import { getValueTransformFunction } from '@vitessce/utils';
 import { isEqual } from 'lodash-es';
+import { log } from '@vitessce/globals';
 import {
   treeToSelectedSetMap,
   treeToObsIdsBySetNames,
@@ -150,7 +151,7 @@ export function stratifyArrays(
     sampleSetKeys.forEach((sampleSetKey) => {
       const finalInsertionIndex = result.get(cellSetKey).get(sampleSetKey).get('i');
       if (finalInsertionIndex !== result.get(cellSetKey).get(sampleSetKey).get('obsIndex').length) {
-        console.warn('The final insertion index is lower than expected.');
+        log.warn('The final insertion index is lower than expected.');
       }
       result.get(cellSetKey).get(sampleSetKey).delete('i');
     });
@@ -278,16 +279,14 @@ export function aggregateStratifiedExpressionData(
   stratifiedResult, geneSelection,
 ) {
   const result = new InternMap([], JSON.stringify);
-  if (stratifiedResult) {
-    Array.from(stratifiedResult.keys()).forEach((cellSetKey) => {
-      result.set(cellSetKey, new InternMap([], JSON.stringify));
-      Array.from(stratifiedResult.get(cellSetKey).keys()).forEach((sampleSetKey) => {
-        // For now, we just take the first gene.
-        // TODO: support multiple genes via signature score method.
-        const values = stratifiedResult.get(cellSetKey).get(sampleSetKey).get(geneSelection[0]);
-        result.get(cellSetKey).set(sampleSetKey, values);
-      });
+  Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
+    result.set(cellSetKey, new InternMap([], JSON.stringify));
+    Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
+      // For now, we just take the first gene.
+      // TODO: support multiple genes via signature score method.
+      const values = secondLevelInternMap.get(geneSelection[0]);
+      result.get(cellSetKey).set(sampleSetKey, values);
     });
-  }
+  });
   return result;
 }

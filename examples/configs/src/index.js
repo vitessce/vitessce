@@ -23,15 +23,22 @@ import {
 import { codeluppiViaCsv } from './view-configs/codeluppi-via-csv.js';
 import { codeluppiViaZarr } from './view-configs/codeluppi-via-zarr.js';
 import { combat2022cell } from './view-configs/combat_2022_cell.js';
-import { habib2017natureMethods, habib2017natureMethodsZip, habib2017withQualityMetrics } from './view-configs/habib_2017_nature_methods.js';
+import {
+  habib2017natureMethods,
+  habib2017natureMethodsZip,
+  habib2017natureMethodsH5ad,
+  habib2017withQualityMetrics,
+} from './view-configs/habib_2017_nature_methods.js';
+import { nakshatri2024natureMedH5ad } from './view-configs/nakshatri_2024.js';
 import { humanLymphNode10xVisium } from './view-configs/human_lymph_node_10x_visium.js';
 import { kuppe2022nature } from './view-configs/kuppe_2022_nature.js';
 import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
+import { kpmpSpatialAtlasOct2024 } from './view-configs/kpmp_spatial_atlas_oct_2024.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
-import { blinOop2019, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
+import { blinOop2019, blinOop2019Zip, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
@@ -40,16 +47,14 @@ import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
+import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
-import { lake2023 } from './view-configs/multi-sample.js';
-import { lemur2023 } from './view-configs/lemur.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
-
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
 import { imsAlgorithmComparison } from './view-configs/spatial-beta/ims-algorithm-comparison.js';
-import { neumanOop2023 } from './view-configs/spatial-beta/neumann-oop.js';
+import { neumanOop2023, neumannAutoInit } from './view-configs/spatial-beta/neumann-oop.js';
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
@@ -68,6 +73,8 @@ import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.j
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
+import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
+import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
@@ -77,6 +84,10 @@ import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
 import { multiome } from './view-configs/paper-figures/multiome.js';
 import { osmFish } from './view-configs/paper-figures/osmfish.js';
 import { visium } from './view-configs/paper-figures/visium.js';
+
+// pageMode
+import { lake2023, lake2023component } from './view-configs/lake-2023.js';
+import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -99,11 +110,13 @@ export const configs = {
   'combat-2022': combat2022cell,
   'habib-2017': habib2017natureMethods,
   'habib-2017-zip': habib2017natureMethodsZip,
+  'habib-2017-h5ad': habib2017natureMethodsH5ad,
   'habib-2017-with-quality-metrics': habib2017withQualityMetrics,
   'human-lymph-node-10x-visium': humanLymphNode10xVisium,
   'kuppe-2022': kuppe2022nature,
   'marshall-2022': marshall2022iScience,
   'meta-2022-azimuth': meta2022azimuth,
+  'kpmp-spatial-atlas-oct-2024': kpmpSpatialAtlasOct2024,
   'eng-2019': eng2019,
   'wang-2018': wang2018,
   'spraggins-2020': spraggins2020,
@@ -112,6 +125,7 @@ export const configs = {
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
+  'blin-2019-zip': blinOop2019Zip,
   'ome-ngff-multi': multipleOmeZarrViaRasterJson,
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
@@ -122,13 +136,15 @@ export const configs = {
   'spatialdata-visium': visiumSpatialdata2023,
   'spatialdata-visium_io': visiumIoSpatialdata2023,
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
+  'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
   'lake-2023': lake2023,
-  'lemur-2023': lemur2023,
+  'kpmp-premiere': kpmpPremiere,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
+  'nakshatri-2024': nakshatri2024natureMedH5ad,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
@@ -145,6 +161,7 @@ export const configs = {
   // TODO(spatialBeta): clean up
   'ims-algorithm-comparison': imsAlgorithmComparison,
   'neumann-2020-2': neumanOop2023,
+  'neumann-2020-3': neumannAutoInit,
   'lightsheet-2023': lightsheetOop2023,
   'visium-2023-polygons': visiumPolygonsOop2023,
   'kpmp-auto-init': kpmpAutoInit2023,
@@ -159,6 +176,8 @@ export const configs = {
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
   'hakimian-2021': threeMinimalLight,
+  'link-controller': linkControllerDemo,
+  'link-controller-minimal': linkControllerMinimal,
 
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
@@ -196,4 +215,9 @@ const exemplarSmallStores = {
 export const configStores = {
   'exemplar-small': exemplarSmallStores,
   'exemplar-small-partial-init': exemplarSmallStores,
+};
+
+export const configPages = {
+  'lake-2023': lake2023component,
+  'kpmp-premiere': kpmpPremiereComponent,
 };

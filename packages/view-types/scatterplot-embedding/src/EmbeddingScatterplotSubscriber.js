@@ -23,6 +23,7 @@ import {
   useSetComponentHover,
   useSetComponentViewInfo,
   useInitialCoordination,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -37,7 +38,7 @@ import {
   getPointOpacity,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 
@@ -64,8 +65,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
     observationsLabelOverride,
     title: titleOverride,
+    helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+
+    // For the dual scatterplot:
+    sampleSetSelection: sampleSetSelectionFromProps,
   } = props;
 
   const loaders = useLoaders();
@@ -101,7 +106,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
-    sampleSetSelection,
+    sampleSetSelection: sampleSetSelectionFromCoordination,
     sampleSetColor,
     embeddingPointsVisible,
     embeddingContoursVisible,
@@ -146,6 +151,10 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
+  const sampleSetSelection = (
+    sampleSetSelectionFromProps
+    || sampleSetSelectionFromCoordination
+  );
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -180,9 +189,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  // eslint-disable-next-line max-len
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
+  );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
 
   const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
@@ -200,6 +213,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsSetsStatus,
     featureSelectionStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixIndicesStatus,
     sampleSetsStatus,
     sampleEdgesStatus,
@@ -334,7 +348,11 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const {
+    normData: uint8ExpressionData,
+    extents: expressionExtents,
+    missing: expressionMissing,
+  } = useUint8FeatureSelection(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -453,6 +471,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
@@ -545,6 +564,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         width={width}
         height={height}
         getObsInfo={getObsInfo}
+        featureType={featureType}
+        featureLabelsMap={featureLabelsMap}
       />
       )}
       <Legend
@@ -557,7 +578,9 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        obsSetSelection={cellSetSelection}
         extent={expressionExtents?.[0]}
+        missing={expressionMissing?.[0]}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
         contoursVisible={embeddingContoursVisible}

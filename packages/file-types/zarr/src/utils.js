@@ -1,5 +1,5 @@
 // @ts-check
-
+import { log } from '@vitessce/globals';
 /**
  * Returns the directory part of a path,
  * (before the last '/' character).
@@ -22,7 +22,7 @@ export function basename(path) {
   const arr = path.split('/');
   const result = arr.at(-1);
   if (!result) {
-    console.error('basename of path is empty', path);
+    log.error('basename of path is empty', path);
     return '';
   }
   return result;

@@ -107,7 +107,9 @@ function extractInformationFromProps(
     visible && true,
   ]) : channelScopes.map(cScope => (
     // Layer visible AND channel visible
-    visible && channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C]
+    visible && imageWrapperInstance.getChannelIndex(
+      channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+    )
   ));
   const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
   const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];

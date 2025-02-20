@@ -1,0 +1,55 @@
+{
+  "name": "@vitessce/biomarker-select",
+  "version": "3.5.6",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@material-ui/core": "~4.12.3",
+    "@material-ui/icons": "~4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "@mui/x-data-grid": "^4.0.2",
+    "@tanstack/react-query": "^4.29.12",
+    "react-window": "^1.8.10",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/types": "workspace:*",
+    "fuse.js": "^7.0.0",
+    "d3-dsv": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "react": "^18.0.0",
+    "vite": "^4.3.0",
+    "vitest": "^0.32.2"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}
