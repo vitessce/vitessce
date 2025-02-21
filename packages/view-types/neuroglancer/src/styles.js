@@ -18,6 +18,15 @@ function prependGlobalPrefix(jssObject) {
 // so we cannot scope them as children of the
 // .neuroglancer-container class.
 export const globalNeuroglancerCss = `
+
+.neuroglancer-position-widget, 
+.neuroglancer-viewer-top-row,
+.neuroglancer-layer-panel, 
+.neuroglancer-side-panel-column,
+.neuroglancer-data-panel-layout-controls button{
+    display: none !important;
+}
+    
 .neuroglancer-segment-list-header-label {
   display: none !important;
 }

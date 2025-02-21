@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, Suspense } from 'react';
+import React, {useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { useStyles, globalNeuroglancerCss } from './styles.js';
 
@@ -21,34 +21,24 @@ export function Neuroglancer(props) {
     onViewerStateChanged,
   } = props;
   const classes = useStyles();
-  const [updatedState, setUpdatedState] = useState(viewerState);
   const bundleRoot = useMemo(() => createWorker(), []);
 
   const handleStateChanged = useCallback((newState) => {
-    if (JSON.stringify(newState) !== JSON.stringify(updatedState)) {
+    if (JSON.stringify(newState) !== JSON.stringify(viewerState)) {
       if (onViewerStateChanged) {
         onViewerStateChanged(newState);
       }
     }
-  }, [onViewerStateChanged, updatedState]);
-
-  const changeLayout = useCallback(() => {
-    setUpdatedState(prevState => ({
-      ...prevState,
-      layout: '4panel',
-    }));
-  }, []);
+  }, [onViewerStateChanged, viewerState]);
 
   return (
     <>
       <style>{globalNeuroglancerCss}</style>
-      {/* Test button to change the layout and get the updated state */}
-      <button type="button" onClick={changeLayout} style={{ width: '10%', color: '#333' }}>Change layout</button>
       <div className={classes.neuroglancerWrapper}>
         <Suspense fallback={<div>Loading...</div>}>
           <LazyReactNeuroglancer
             brainMapsClientId="NOT_A_VALID_ID"
-            viewerState={updatedState}
+            viewerState={viewerState}
             onViewerStateChanged={handleStateChanged}
             bundleRoot={bundleRoot}
           />
