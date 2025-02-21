@@ -31,6 +31,7 @@ import {
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
+  sampleSetsAnndataSchema,
   obsEmbeddingAnndataSchema,
   obsSpotsAnndataSchema,
   obsPointsAnndataSchema,
@@ -92,6 +93,7 @@ import {
   ExpressionHistogramSubscriber,
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
+  TreemapSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -140,6 +142,7 @@ import {
   ObsLabelsAnndataLoader,
   FeatureLabelsAnndataLoader,
   SampleEdgesAnndataLoader,
+  SampleSetsAnndataLoader,
   // MuData
   MuDataSource,
   // Legacy
@@ -244,6 +247,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
+  makeViewType(ViewType.TREEMAP, TreemapSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -272,6 +276,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, AnnDataSource, obsSegmentationsAnndataSchema),
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
+  ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -559,12 +564,14 @@ export const baseCoordinationTypes = [
       color: rgbArray,
     })).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.SAMPLE_HIGHLIGHT, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_POINTS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_VISIBLE, false, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOURS_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.EMBEDDING_CONTOUR_PERCENTILES, null, z.array(z.number()).nullable()),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
+  new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
 ];
 
 export const baseAsyncFunctions = [

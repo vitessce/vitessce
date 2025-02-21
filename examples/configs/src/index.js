@@ -86,6 +86,7 @@ import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
 import { multiome } from './view-configs/paper-figures/multiome.js';
 import { osmFish } from './view-configs/paper-figures/osmfish.js';
 import { visium } from './view-configs/paper-figures/visium.js';
+import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -139,6 +140,7 @@ export const configs = {
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
   'lake-2023': lake2023,
+  'kpmp-premiere': kpmpPremiere,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
@@ -216,4 +218,5 @@ export const configStores = {
 
 export const configPages = {
   'lake-2023': lake2023component,
+  'kpmp-premiere': kpmpPremiereComponent,
 };

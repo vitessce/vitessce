@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/utils",
-  "version": "3.5.6",
+  "version": "3.5.7",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,6 +34,7 @@
     "bowser": "^2.11.0",
     "lodash-es": "catalog:",
     "lz-string": "^1.4.4",
-    "pluralize": "catalog:"
+    "pluralize": "catalog:",
+    "d3-array": "catalog:"
   }
 }

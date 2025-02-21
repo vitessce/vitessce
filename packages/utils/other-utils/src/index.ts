@@ -10,6 +10,7 @@ export {
   createPrefixedGetNextScopeNumeric,
   getInitialCoordinationScopePrefix,
   getInitialCoordinationScopeName,
+  unnestMap,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {

@@ -25,6 +25,7 @@ export const ViewType = {
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
   DUAL_SCATTERPLOT: 'dualScatterplot',
+  TREEMAP: 'treemap',
 };
 
 export const DataType = {
@@ -96,6 +97,7 @@ export const FileType = {
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
+  SAMPLE_SETS_ANNDATA_ZARR: 'sampleSets.anndata.zarr',
   // AnnData - zipped
   OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
@@ -108,6 +110,7 @@ export const FileType = {
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
+  SAMPLE_SETS_ANNDATA_ZARR_ZIP: 'sampleSets.anndata.zarr.zip',
   // AnnData - h5ad via reference spec
   OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
   OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
@@ -120,6 +123,7 @@ export const FileType = {
   OBS_LABELS_ANNDATA_H5AD: 'obsLabels.anndata.h5ad',
   FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
   SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
+  SAMPLE_SETS_ANNDATA_H5AD: 'sampleSets.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -311,12 +315,15 @@ export const CoordinationType = {
   SAMPLE_SET_FILTER: 'sampleSetFilter',
   SAMPLE_FILTER_MODE: 'sampleFilterMode',
   SAMPLE_SET_COLOR: 'sampleSetColor',
+  SAMPLE_HIGHLIGHT: 'sampleHighlight',
   EMBEDDING_POINTS_VISIBLE: 'embeddingPointsVisible',
   EMBEDDING_CONTOURS_VISIBLE: 'embeddingContoursVisible',
   EMBEDDING_CONTOURS_FILLED: 'embeddingContoursFilled',
   EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
+  // Treemap
+  HIERARCHY_LEVELS: 'hierarchyLevels',
 };
 
 export const STATUS = {
@@ -351,4 +358,5 @@ export const ViewHelpMapping = {
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
   NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
+  TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
 };
