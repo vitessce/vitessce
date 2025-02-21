@@ -7,6 +7,7 @@ export { default as ObsSegmentationsAnndataLoader } from './ObsSegmentationsAnnd
 export { default as ObsSetsAnndataLoader } from './ObsSetsAnndataLoader.js';
 export { default as ObsLabelsAnndataLoader } from './ObsLabelsAnndataLoader.js';
 export { default as FeatureLabelsAnndataLoader } from './FeatureLabelsAnndataLoader.js';
+export { default as FeatureStatsAnndataLoader } from './FeatureStatsAnndataLoader.js';
 export { default as ObsFeatureColumnsAnndataLoader } from './ObsFeatureColumnsAnndataLoader.js';
 export { default as SampleEdgesAnndataLoader } from './SampleEdgesAnndataLoader.js';
 export { default as SampleSetsAnndataLoader } from './SampleSetsAnndataLoader.js';

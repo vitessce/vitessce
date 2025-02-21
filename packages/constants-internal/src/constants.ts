@@ -21,6 +21,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  VOLCANO_PLOT: 'volcanoPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
   LINK_CONTROLLER: 'linkController',
   DUAL_SCATTERPLOT: 'dualScatterplot',
@@ -33,6 +34,7 @@ export const DataType = {
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
+  FEATURE_STATS: 'featureStats',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
@@ -95,6 +97,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
+  FEATURE_STATS_ANNDATA_ZARR: 'featureStats.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   SAMPLE_SETS_ANNDATA_ZARR: 'sampleSets.anndata.zarr',
   // AnnData - zipped
@@ -108,6 +111,7 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
+  FEATURE_STATS_ANNDATA_ZARR_ZIP: 'featureStats.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   SAMPLE_SETS_ANNDATA_ZARR_ZIP: 'sampleSets.anndata.zarr.zip',
   // AnnData - h5ad via reference spec
@@ -321,6 +325,29 @@ export const CoordinationType = {
   EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
+  // For volcano plot:
+  VOLCANO_SIGNIFICANCE_COLUMN: 'volcanoSignificanceColumn',
+  // For log-fold-change column name:
+  VOLCANO_FOLD_CHANGE_COLUMN: 'volcanoFoldChangeColumn',
+  // Analogs of other scatterplot coordination types:
+  VOLCANO_ZOOM: 'volcanoZoom',
+  VOLCANO_TARGET_X: 'volcanoTargetX',
+  VOLCANO_TARGET_Y: 'volcanoTargetY',
+  VOLCANO_FEATURE_LABELS_VISIBLE: 'volcanoFeatureLabelsVisible',
+  VOLCANO_FEATURE_LABEL_SIZE: 'volcanoFeatureLabelSize',
+  VOLCANO_FEATURE_RADIUS: 'volcanoFeatureRadius',
+  VOLCANO_FEATURE_RADIUS_MODE: 'volcanoFeatureRadiusMode',
+  VOLCANO_FEATURE_OPACITY: 'volcanoFeatureOpacity',
+  VOLCANO_FEATURE_OPACITY_MODE: 'volcanoFeatureOpacityMode',
+  // TODO:
+  // - Insignificant color
+  // - Significant color
+  // - Significance threshold
+  // - Fold-change threshold
+  // 
+  // - Feature labels visible for significant features only?
+  // - Zooming enabled?
+  // - Adjusted p-values vs. not? vs other stats?
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
 };

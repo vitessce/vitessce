@@ -30,6 +30,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_ANNDATA_ZARR]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: DataType.FEATURE_LABELS,
+  [FileType.FEATURE_STATS_ANNDATA_ZARR]: DataType.FEATURE_STATS,
   [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: DataType.SAMPLE_EDGES,
   [FileType.SAMPLE_SETS_ANNDATA_ZARR]: DataType.SAMPLE_SETS,
   [FileType.IMAGE_OME_TIFF]: DataType.IMAGE,
@@ -101,6 +102,11 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.FEATURE_LABELS]: [
     CoordinationType.FEATURE_TYPE,
   ],
+  [DataType.FEATURE_STATS]: [
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+    // TODO: should the obsSetSelection and sampleSetSelection be used here?
+  ],
   [DataType.OBS_SETS]: [
     CoordinationType.OBS_TYPE,
   ],
@@ -167,6 +173,9 @@ export const ALT_ZARR_STORE_TYPES = {
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: {
     zip: FileType.FEATURE_LABELS_ANNDATA_ZARR_ZIP,
     h5ad: FileType.FEATURE_LABELS_ANNDATA_H5AD,
+  },
+  [FileType.FEATURE_STATS_ANNDATA_ZARR]: {
+    zip: FileType.FEATURE_STATS_ANNDATA_ZARR_ZIP,
   },
   [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: {
     zip: FileType.SAMPLE_EDGES_ANNDATA_ZARR_ZIP,

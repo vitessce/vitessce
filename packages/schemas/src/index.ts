@@ -23,6 +23,7 @@ export {
   obsFeatureColumnsAnndataSchema,
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
+  featureStatsAnndataSchema,
   sampleEdgesAnndataSchema,
   anndataZarrSchema,
   anndataH5adSchema,
