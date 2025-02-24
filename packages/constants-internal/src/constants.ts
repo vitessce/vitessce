@@ -21,6 +21,7 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  VOLCANO_PLOT: 'volcanoPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
   LINK_CONTROLLER: 'linkController',
   DUAL_SCATTERPLOT: 'dualScatterplot',
@@ -42,6 +43,10 @@ export const DataType = {
   OBS_LOCATIONS: 'obsLocations',
   SAMPLE_SETS: 'sampleSets',
   SAMPLE_EDGES: 'sampleEdges',
+  COMPARISON_METADATA: 'comparisonMetadata',
+  FEATURE_STATS: 'featureStats',
+  FEATURE_SET_STATS: 'featureSetStats',
+  OBS_SET_STATS: 'obsSetStats',
 };
 
 export const AsyncFunctionType = {
@@ -97,6 +102,12 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   SAMPLE_SETS_ANNDATA_ZARR: 'sampleSets.anndata.zarr',
+
+  COMPARISON_METADATA_ANNDATA_ZARR: 'comparisonMetadata.anndata.zarr',
+  FEATURE_STATS_ANNDATA_ZARR: 'featureStats.anndata.zarr',
+  FEATURE_SET_STATS_ANNDATA_ZARR: 'featureSetStats.anndata.zarr',
+  OBS_SET_STATS_ANNDATA_ZARR: 'obsSetStats.anndata.zarr',
+
   // AnnData - zipped
   OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
@@ -110,6 +121,12 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   SAMPLE_SETS_ANNDATA_ZARR_ZIP: 'sampleSets.anndata.zarr.zip',
+
+  COMPARISON_METADATA_ANNDATA_ZARR_ZIP: 'comparisonMetadata.anndata.zarr.zip',
+  FEATURE_STATS_ANNDATA_ZARR_ZIP: 'featureStats.anndata.zarr.zip',
+  FEATURE_SET_STATS_ANNDATA_ZARR_ZIP: 'featureSetStats.anndata.zarr.zip',
+  OBS_SET_STATS_ANNDATA_ZARR_ZIP: 'obsSetStats.anndata.zarr.zip',
+
   // AnnData - h5ad via reference spec
   OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
   OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
@@ -123,6 +140,11 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
   SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   SAMPLE_SETS_ANNDATA_H5AD: 'sampleSets.anndata.h5ad',
+
+  COMPARISON_METADATA_ANNDATA_H5AD: 'comparisonMetadata.anndata.h5ad',
+  FEATURE_STATS_ANNDATA_H5AD: 'featureStats.anndata.h5ad',
+  FEATURE_SET_STATS_ANNDATA_H5AD: 'featureSetStats.anndata.h5ad',
+  OBS_SET_STATS_ANNDATA_H5AD: 'obsSetStats.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -321,6 +343,29 @@ export const CoordinationType = {
   EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
+  // For volcano plot:
+  VOLCANO_SIGNIFICANCE_COLUMN: 'volcanoSignificanceColumn',
+  // For log-fold-change column name:
+  VOLCANO_FOLD_CHANGE_COLUMN: 'volcanoFoldChangeColumn',
+  // Analogs of other scatterplot coordination types:
+  VOLCANO_ZOOM: 'volcanoZoom',
+  VOLCANO_TARGET_X: 'volcanoTargetX',
+  VOLCANO_TARGET_Y: 'volcanoTargetY',
+  VOLCANO_FEATURE_LABELS_VISIBLE: 'volcanoFeatureLabelsVisible',
+  VOLCANO_FEATURE_LABEL_SIZE: 'volcanoFeatureLabelSize',
+  VOLCANO_FEATURE_RADIUS: 'volcanoFeatureRadius',
+  VOLCANO_FEATURE_RADIUS_MODE: 'volcanoFeatureRadiusMode',
+  VOLCANO_FEATURE_OPACITY: 'volcanoFeatureOpacity',
+  VOLCANO_FEATURE_OPACITY_MODE: 'volcanoFeatureOpacityMode',
+  // TODO:
+  // - Insignificant color
+  // - Significant color
+  // - Significance threshold
+  // - Fold-change threshold
+  // 
+  // - Feature labels visible for significant features only?
+  // - Zooming enabled?
+  // - Adjusted p-values vs. not? vs other stats?
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
 };

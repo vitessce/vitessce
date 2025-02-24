@@ -42,6 +42,10 @@ import {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
+  comparisonMetadataAnndataSchema,
+  featureStatsAnndataSchema,
+  featureSetStatsAnndataSchema,
+  obsSetStatsAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
   anndataH5adSchema,
@@ -77,6 +81,7 @@ import {
   DualEmbeddingScatterplotSubscriber,
 } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
+import { VolcanoPlotSubscriber } from '@vitessce/scatterplot-volcano';
 import { SpatialSubscriber } from '@vitessce/spatial';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
@@ -142,6 +147,10 @@ import {
   FeatureLabelsAnndataLoader,
   SampleEdgesAnndataLoader,
   SampleSetsAnndataLoader,
+  ComparisonMetadataAnndataLoader,
+  FeatureStatsAnndataLoader,
+  FeatureSetStatsAnndataLoader,
+  ObsSetStatsAnndataLoader,
   // MuData
   MuDataSource,
   // Legacy
@@ -243,6 +252,7 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
@@ -275,6 +285,11 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
+
+  ...makeZarrFileTypes(FileType.COMPARISON_METADATA_ANNDATA_ZARR, DataType.COMPARISON_METADATA, ComparisonMetadataAnndataLoader, AnnDataSource, comparisonMetadataAnndataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_SET_STATS_ANNDATA_ZARR, DataType.FEATURE_SET_STATS, FeatureSetStatsAnndataLoader, AnnDataSource, featureSetStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SET_STATS_ANNDATA_ZARR, DataType.OBS_SET_STATS, ObsSetStatsAnndataLoader, AnnDataSource, obsSetStatsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -570,6 +585,18 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
   new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
+  // For volcano plot:
+  new PluginCoordinationType(CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_ZOOM, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_X, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_Y, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABELS_VISIBLE, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABEL_SIZE, 14, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS, 2, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY, 1, z.number()),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS_MODE, 'manual', z.enum(['manual', 'auto'])),
+  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY_MODE, 'manual', z.enum(['manual', 'auto'])),
 ];
 
 export const baseAsyncFunctions = [

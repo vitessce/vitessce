@@ -1,12 +1,14 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   useAsyncFunction,
   useViewConfigStoreApi,
   useSetViewConfig,
   useViewConfig,
   useCoordination,
+  useLoaders,
+  useComparisonMetadata,
 } from '@vitessce/vit-s';
 import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { ScmdUi } from './scmd-ui.js';
@@ -21,10 +23,15 @@ import { ScmdUi } from './scmd-ui.js';
 export function BiomarkerSelectSubscriber(props) {
   const {
     coordinationScopes,
-    stratificationOptions,
+    stratificationOptions: stratificationOptionsProp, // TODO: Remove; Get from comparisonMetadata instead
   } = props;
 
+  const loaders = useLoaders();
+
   const [{
+    dataset,
+    obsType,
+    sampleType,
     sampleSetSelection,
     featureSelection,
   }, {
@@ -34,6 +41,7 @@ export function BiomarkerSelectSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.BIOMARKER_SELECT],
     coordinationScopes,
   );
+
 
   const viewConfigStoreApi = useViewConfigStoreApi();
   const viewConfig = useViewConfig();
@@ -62,6 +70,39 @@ export function BiomarkerSelectSubscriber(props) {
     [transformFeature],
   );
 
+  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
+    loaders, dataset, false, {}, {}, { obsType, sampleType },
+  );
+  const stratificationOptions = useMemo(() => {
+    /* 
+      return array of objects like {
+        stratificationId: 'aki-vs-hr',
+        name: 'Acute kidney injury (AKI) vs. Healthy reference',
+        stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
+        sampleSets: [
+          ['Disease Type', 'AKI'],
+          ['Disease Type', 'Reference'],
+        ],
+      },
+    */
+    if(comparisonMetadata?.sample_group_pairs) {
+      return comparisonMetadata.sample_group_pairs.map(sampleGroupPair => {
+        const [sampleGroupCol, sampleGroupValues] = sampleGroupPair;
+        const [sampleGroupCtrl, sampleGroupCase] = sampleGroupValues;
+        return {
+          stratificationId: `${sampleGroupCol}_${sampleGroupCtrl}-vs-${sampleGroupCase}`,
+          name: `${sampleGroupCol}: ${sampleGroupCtrl} vs. ${sampleGroupCase}`,
+          stratificationType: 'sampleSet',
+          sampleSets: [
+            [sampleGroupCol, sampleGroupCtrl],
+            [sampleGroupCol, sampleGroupCase],
+          ],
+        };
+      });
+    }
+    return null;
+  }, [comparisonMetadata]);
+
   return (
     <>
       {isSelecting ? (
@@ -80,6 +121,17 @@ export function BiomarkerSelectSubscriber(props) {
           getEdges={getEdges}
           stratifications={stratificationOptions}
           onFinish={() => {
+            if (mode === 'exploratory') {
+              // mode is exploratory, configure accordingly.
+
+              // TODO
+              
+            } else {
+              // mode is confirmatory, configure accordingly.
+
+              // TODO
+            }
+            
             setViewConfig({
               ...viewConfig,
               coordinationSpace: {
