@@ -219,6 +219,17 @@ export function useNeighborhoodsData(
   );
 }
 
+export function useComparisonMetadata(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.COMPARISON_METADATA,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 /**
  * Get data from the expression matrix data type loader for a given gene selection.
  * Throw warnings if the data is marked as required.

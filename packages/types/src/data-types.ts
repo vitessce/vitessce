@@ -43,6 +43,10 @@ export type FeatureLabelsData = {
   featureLabelsMap: Map<string, string>;
 };
 
+export type ComparisonMetadata = {
+  comparisonMetadata: object; // TODO: update?
+};
+
 export type FeatureStatsData = {
   featureId: string[];
   featureSignificance: number[];

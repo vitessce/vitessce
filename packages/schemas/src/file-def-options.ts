@@ -28,9 +28,60 @@ const annDataConvenienceObsEmbeddingItem = z.object({
   embeddingType: z.string(),
 });
 
+const annDataComparisonMetadata = z.object({
+  path: z.string().describe('Path to the comparison metadata, such as /uns/comparison_metadata'),
+});
+
+const annDataFeatureStats = z.object({
+  path: z.string().describe('Path to the dataframe containing the results.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature index, if different than the default dataframe index.'),
+  pValueColumn: z.string(),
+  foldChangeColumn: z.string(),
+  pValueTransformation: z.enum(['minuslog10'])
+    .optional(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+  zScoreColumn: z.string()
+    .optional(),
+});
+
+const annDataFeatureSetStats = z.object({
+  path: z.string().describe('Path to the dataframe containing the results.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature set index, if different than the default dataframe index.'),
+  termColumn: z.string()
+    .optional(),
+  pValueColumn: z.string(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  // TODO: Are any other columns relevant?
+});
+
+// Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation
+const annDataObsSetStats = z.object({
+  path: z.string().describe('Path to the dataframe containing the results.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the obs set index, if different than the default dataframe index.'),
+  interceptExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  effectExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  foldChangeColumn: z.string()
+    .describe('The log-fold change is then calculated between this expected sample and the expected sample with no active covariates from the intercept section.'),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+  isCredibleEffectColumn: z.string()
+    .describe('Column which annotates effects as being credible or not (boolean).')
+});
+
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
-const annDataFeatureStats = annDataObs; // TODO: customize
 const annDataSampleEdges = annDataObs;
 const annDataObsFeatureMatrix = z.object({
   path: z.string(),
@@ -212,9 +263,13 @@ export const sampleSetsAnndataSchema = annDataSampleSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
-export const featureStatsAnndataSchema = annDataFeatureStats;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
+
+export const comparisonMetadataAnndataSchema = annDataComparisonMetadata;
+export const featureStatsAnndataSchema = annDataFeatureStats;
+export const featureSetStatsAnndataSchema = annDataFeatureSetStats;
+export const obsSetStatsAnndataSchema = annDataObsSetStats;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({

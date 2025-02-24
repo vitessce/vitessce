@@ -34,7 +34,6 @@ export const DataType = {
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
-  FEATURE_STATS: 'featureStats',
   IMAGE: 'image',
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
@@ -44,6 +43,10 @@ export const DataType = {
   OBS_LOCATIONS: 'obsLocations',
   SAMPLE_SETS: 'sampleSets',
   SAMPLE_EDGES: 'sampleEdges',
+  COMPARISON_METADATA: 'comparisonMetadata',
+  FEATURE_STATS: 'featureStats',
+  FEATURE_SET_STATS: 'featureSetStats',
+  OBS_SET_STATS: 'obsSetStats',
 };
 
 export const AsyncFunctionType = {
@@ -97,9 +100,14 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR: 'obsSegmentations.anndata.zarr',
   OBS_LABELS_ANNDATA_ZARR: 'obsLabels.anndata.zarr',
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
-  FEATURE_STATS_ANNDATA_ZARR: 'featureStats.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   SAMPLE_SETS_ANNDATA_ZARR: 'sampleSets.anndata.zarr',
+
+  COMPARISON_METADATA_ANNDATA_ZARR: 'comparisonMetadata.anndata.zarr',
+  FEATURE_STATS_ANNDATA_ZARR: 'featureStats.anndata.zarr',
+  FEATURE_SET_STATS_ANNDATA_ZARR: 'featureSetStats.anndata.zarr',
+  OBS_SET_STATS_ANNDATA_ZARR: 'obsSetStats.anndata.zarr',
+
   // AnnData - zipped
   OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
@@ -111,9 +119,14 @@ export const FileType = {
   OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP: 'obsSegmentations.anndata.zarr.zip',
   OBS_LABELS_ANNDATA_ZARR_ZIP: 'obsLabels.anndata.zarr.zip',
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
-  FEATURE_STATS_ANNDATA_ZARR_ZIP: 'featureStats.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   SAMPLE_SETS_ANNDATA_ZARR_ZIP: 'sampleSets.anndata.zarr.zip',
+
+  COMPARISON_METADATA_ANNDATA_ZARR_ZIP: 'comparisonMetadata.anndata.zarr.zip',
+  FEATURE_STATS_ANNDATA_ZARR_ZIP: 'featureStats.anndata.zarr.zip',
+  FEATURE_SET_STATS_ANNDATA_ZARR_ZIP: 'featureSetStats.anndata.zarr.zip',
+  OBS_SET_STATS_ANNDATA_ZARR_ZIP: 'obsSetStats.anndata.zarr.zip',
+
   // AnnData - h5ad via reference spec
   OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
   OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
@@ -127,6 +140,11 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
   SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   SAMPLE_SETS_ANNDATA_H5AD: 'sampleSets.anndata.h5ad',
+
+  COMPARISON_METADATA_ANNDATA_H5AD: 'comparisonMetadata.anndata.h5ad',
+  FEATURE_STATS_ANNDATA_H5AD: 'featureStats.anndata.h5ad',
+  FEATURE_SET_STATS_ANNDATA_H5AD: 'featureSetStats.anndata.h5ad',
+  OBS_SET_STATS_ANNDATA_H5AD: 'obsSetStats.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',

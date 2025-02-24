@@ -10,6 +10,71 @@ import { usePageModeView } from '@vitessce/vit-s';
 function generateKpmpPremiereConfig() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
   const dataset = vc.addDataset('lake_et_al').addFile({
+    fileType: 'comparisonMetadata.anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    options: {
+      path: 'uns/comparison_metadata'
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      sampleType: 'sample',
+    },
+    // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
+  }).addFile({
+    fileType: 'anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'gene',
+      featureValueType: 'expression',
+      sampleType: 'sample',
+    },
+    options: {
+      obsFeatureMatrix: {
+        // "path": "layers/counts",
+        // "path": "layers/logcounts",
+        path: 'layers/pearson_residuals',
+      },
+      obsEmbedding: [
+        {
+          path: 'obsm/X_densmap',
+          embeddingType: 'densMAP',
+        },
+      ],
+      obsSets: [
+        {
+          name: 'Cell Type',
+          path: 'obs/cell_type',
+        },
+        {
+          name: 'Donor ID',
+          path: 'obs/donor_id',
+        },
+        {
+          name: 'Disease',
+          path: 'obs/disease',
+        },
+        {
+          name: 'Disease Type',
+          path: 'obs/diseasetype',
+        },
+        {
+          name: 'Adjudicated Category',
+          path: 'obs/AdjudicatedCategory',
+        },
+        {
+          name: 'Enrollment Category',
+          path: 'obs/EnrollmentCategory',
+        },
+      ],
+      /* featureLabels: {
+        path: 'var/features',
+      }, */
+      sampleEdges: {
+        path: 'obs/SampleID',
+      },
+    },
+  }).addFile({
     fileType: 'anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
     coordinationValues: {

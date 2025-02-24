@@ -540,6 +540,9 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.SAMPLE_SET_SELECTION,
     CoordinationType.SAMPLE_SET_FILTER,
