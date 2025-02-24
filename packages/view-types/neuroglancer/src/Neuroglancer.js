@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, Suspense } from 'react';
+import React, { useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { useStyles, globalNeuroglancerCss } from './styles.js';
 
