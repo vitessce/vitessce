@@ -23,6 +23,7 @@ export const ViewType = {
   FEATURE_BAR_PLOT: 'featureBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
   LINK_CONTROLLER: 'linkController',
+  NEUROGLANCER: 'neuroglancer',
   DUAL_SCATTERPLOT: 'dualScatterplot',
   TREEMAP: 'treemap',
 };
@@ -356,5 +357,6 @@ export const ViewHelpMapping = {
   FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
+  NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
 };
