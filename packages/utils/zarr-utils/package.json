@@ -31,8 +31,6 @@
   },
   "dependencies": {
     "zarrita": "catalog:",
-    "@zarrita/core": "catalog:",
-    "@zarrita/indexing": "catalog:",
     "@zarrita/storage": "catalog:"
   }
 }
