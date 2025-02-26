@@ -7,7 +7,7 @@ import WKB from 'ol/format/WKB.js';
 import { AnnDataSource, basename } from '@vitessce/zarr';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
-/** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
+/** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
 async function getReadParquet() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web

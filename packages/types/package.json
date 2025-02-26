@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@hms-dbmi/viv": "catalog:",
-    "@zarrita/storage": "catalog:"
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",
