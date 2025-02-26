@@ -370,6 +370,15 @@ export function create3DRendering(volumes, channelTargetC, channelsVisible, colo
   const colorsSave = [];
   const contrastLimitsList = [];
   let volume = null;
+  if (scale === undefined || !Array.isArray(scale) || scale.length < 3) {
+    scale = [{ size: 1 }, { size: 1 }, { size: 1 }];
+  } else {
+    for (let i = 0; i < scale.length; i++) {
+      if (!scale[i] || scale[i].size === undefined) {
+        scale[i] = { size: 1 };
+      }
+    }
+  }
   channelTargetC.forEach((channel, id) => { // load on demand new channels or load all there are?? - Check VIV for it
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
       volume = volumes.get(channel);
