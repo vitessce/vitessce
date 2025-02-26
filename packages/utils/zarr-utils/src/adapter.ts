@@ -1,6 +1,5 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L308
-import type { Slice } from '@zarrita/indexing';
-import type { Array as ZarrArray, DataType as ZarrDataType } from '@zarrita/core';
+import type { Array as ZarrArray, DataType as ZarrDataType, Slice } from 'zarrita';
 import { slice, get } from 'zarrita';
 
 function getV2DataType(dtype: string) {
