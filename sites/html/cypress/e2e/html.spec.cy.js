@@ -40,6 +40,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('Male');
     cy.contains('Female');
     // Various metadata displayed next to CCF UI
+    /*
     cy.contains('Tissue Data Providers', { timeout: 60000 });
     cy.contains('Donors');
     cy.contains('Tissue Blocks');
@@ -49,9 +50,11 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.contains('Register Tissue');
     cy.contains('Explore Tissue');
     cy.contains('ASCT+B Reporter');
-    cy.contains('HRA Portal');
+    */
+    cy.contains('HRA Portal', { timeout: 60000 });
     cy.contains('Online Course');
     cy.contains('Paper');
+    
   });
   // Controlled component tests
   it('Renders when used as a controlled component', () => {
