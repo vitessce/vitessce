@@ -19,17 +19,15 @@ catalog:
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
   # Zarrita
-  "zarrita": 0.4.0-next.16
-  "@zarrita/core": 0.1.0-next.14
-  "@zarrita/indexing": 0.1.0-next.16
-  "@zarrita/storage": 0.1.0-next.6
-  "@zarrita/typedarray": 0.1.0-next.3
+  "zarrita": 0.4.0-next.24
+  "@zarrita/storage": 0.1.0-next.9
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
   "d3-force": ^2.1.1
   "d3-format": ^3.1.0
   "d3-quadtree": ^1.0.7
+  "d3-hierarchy": ^3.1.2
   # note - packages/legend was on d3-scale ^3.2.3
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0

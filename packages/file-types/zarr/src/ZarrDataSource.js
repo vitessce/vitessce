@@ -2,8 +2,7 @@
 import { zarrOpenRoot } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot } from 'zarrita';
 
-/** @import { Location as ZarrLocation } from '@zarrita/core' */
-/** @import { Readable } from '@zarrita/storage' */
+/** @import { Location as ZarrLocation, Readable } from 'zarrita' */
 /** @import { DataSourceParams } from '@vitessce/types' */
 
 /**
