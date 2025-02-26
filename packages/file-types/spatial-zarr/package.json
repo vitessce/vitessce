@@ -46,8 +46,6 @@
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@zarrita/core": "catalog:",
-    "@zarrita/storage": "catalog:",
-    "@zarrita/typedarray": "catalog:"
+    "@zarrita/storage": "catalog:"
   }
 }

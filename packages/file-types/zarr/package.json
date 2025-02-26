@@ -46,9 +46,6 @@
     "ol": "^10.2.1"
   },
   "devDependencies": {
-    "@vitessce/types": "workspace:*",
-    "@zarrita/core": "catalog:",
-    "@zarrita/storage": "catalog:",
-    "@zarrita/typedarray": "catalog:"
+    "@vitessce/types": "workspace:*"
   }
 }

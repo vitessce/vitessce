@@ -1,4 +1,4 @@
-import type { Readable } from '@zarrita/storage';
+import type { Readable } from 'zarrita';
 
 export type DataSourceParams = {
   url?: string;
