@@ -1,4 +1,19 @@
 
+## 3.5.8
+
+### Patch Changes
+
+- Update react prop docs. (`docs`) ([#2051](https://github.com/vitessce/vitessce/pull/2051))
+
+- Added Neuroglancer component as vitessce view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`, `demo`) ([#2033](https://github.com/vitessce/vitessce/pull/2033))
+
+- Wrap VitS and view components in ErrorBoundaries. (`@vitessce/vit-s`) ([#2052](https://github.com/vitessce/vitessce/pull/2052))
+
+- Upgrade to `zarrita` version with re-exports for `@zarrita/` packages (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`, `@vitessce/zarr`, `@vitessce/types`) ([#2044](https://github.com/vitessce/vitessce/pull/2044))
+
+- Update CCF-UI test to fix failures. (`html`) ([#2048](https://github.com/vitessce/vitessce/pull/2048))
+
+
 ## 3.5.7
 
 ### Patch Changes

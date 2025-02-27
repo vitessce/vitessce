@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/neuroglancer-workers",
-  "version": "3.5.6",
+  "version": "3.5.8",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -25,7 +25,7 @@
     "build-lib": "rollup --config ../workers/rollup.config.js"
   },
   "dependencies": {
-     "@janelia-flyem/neuroglancer": "^2.37.5"
+    "@janelia-flyem/neuroglancer": "^2.37.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.0",
