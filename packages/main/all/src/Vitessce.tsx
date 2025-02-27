@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React, { useMemo } from 'react';
 import {
-  VitS,
+  VitSContainer,
   logConfig,
 } from '@vitessce/vit-s';
 import { log } from '@vitessce/globals';
@@ -72,7 +72,7 @@ export function Vitessce(props: any) {
   ]), [pluginAsyncFunctionsProp]);
 
   return (
-    <VitS
+    <VitSContainer
       {...props}
       config={configOrWarning}
       viewTypes={mergedPluginViewTypes}

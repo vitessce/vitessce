@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout-with-lodash';
 import { isEqual } from 'lodash-es';
+import { ErrorBoundary } from 'react-error-boundary';
 import { getMaxRows, resolveLayout } from './layout-utils.js';
 import { PageModeViewContext } from '../contexts.js';
+import { FallbackForView } from '../FallbackForView.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -131,19 +133,21 @@ export function VitessceGridLayout(props) {
       const Component = getComponent(v.component);
       return [v.uid, () => (
         <div key={v.uid} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Component
-            {... v.props}
-            uuid={v.uid}
-            coordinationScopes={v.coordinationScopes}
-            coordinationScopesBy={v.coordinationScopesBy}
-            theme={theme}
-            removeGridComponent={null}
-            // Props used by LinkControllerSubscriber:
-            viewTypes={viewTypes}
-            fileTypes={fileTypes}
-            coordinationTypes={coordinationTypes}
-            stores={stores}
-          />
+          <ErrorBoundary FallbackComponent={FallbackForView}>
+            <Component
+              {... v.props}
+              uuid={v.uid}
+              coordinationScopes={v.coordinationScopes}
+              coordinationScopesBy={v.coordinationScopesBy}
+              theme={theme}
+              removeGridComponent={null}
+              // Props used by LinkControllerSubscriber:
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
+              stores={stores}
+            />
+          </ErrorBoundary>
         </div>
       )];
     }));
@@ -157,19 +161,21 @@ export function VitessceGridLayout(props) {
       };
       return (
         <div key={v.uid}>
-          <Component
-            {...v.props}
-            uuid={v.uid}
-            coordinationScopes={v.coordinationScopes}
-            coordinationScopesBy={v.coordinationScopesBy}
-            theme={theme}
-            removeGridComponent={removeGridComponent}
-            // Props used by LinkControllerSubscriber:
-            viewTypes={viewTypes}
-            fileTypes={fileTypes}
-            coordinationTypes={coordinationTypes}
-            stores={stores}
-          />
+          <ErrorBoundary FallbackComponent={FallbackForView}>
+            <Component
+              {...v.props}
+              uuid={v.uid}
+              coordinationScopes={v.coordinationScopes}
+              coordinationScopesBy={v.coordinationScopesBy}
+              theme={theme}
+              removeGridComponent={removeGridComponent}
+              // Props used by LinkControllerSubscriber:
+              viewTypes={viewTypes}
+              fileTypes={fileTypes}
+              coordinationTypes={coordinationTypes}
+              stores={stores}
+            />
+          </ErrorBoundary>
         </div>
       );
     }), contextValue];
