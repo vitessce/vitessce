@@ -17,6 +17,7 @@ export {
   useWindowDimensions,
   useGridItemSize,
   useExpandedFeatureLabelsMap,
+  useColumnNameMapping,
 } from './hooks.js';
 export {
   useCoordinationScopes,

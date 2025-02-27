@@ -185,8 +185,15 @@ function generateKpmpPremiereConfig() {
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
       cType: 'sampleSetSelection',
-      cScope: 'case-control',
+      cScope: '__comparison__',
       cValue: [['Disease Type', 'CKD'], ['Disease Type', 'Reference']],
+    },
+  );
+  const [featureSelectionScope] = vc.addCoordination(
+    {
+      cType: 'featureSelection',
+      cScope: '__comparison__',
+      cValue: ['UMOD', 'NPHS2'],
     },
   );
 
@@ -199,9 +206,10 @@ function generateKpmpPremiereConfig() {
   vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], ['sampleType'], ['sample']);
   vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
+    featureSelection: featureSelectionScope,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
-    featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
+    //featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
@@ -289,14 +297,14 @@ function PageComponent() {
           <div style={{ width: '100%', height: '500px' }}>
             <DotPlot />
           </div>
-          <h3>Neighborhood-level representations</h3>
+          {/*<h3>Neighborhood-level representations</h3>
           <h1>TODO</h1>
           <h3>Segmented instance-level representations</h3>
           <h1>TODO</h1>
           <h3>Image-level representations</h3>
           <h1>TODO</h1>
           <h3>Participant-level representations</h3>
-          <h1>TODO</h1>
+          <h1>TODO</h1>*/}
         </div>
         <div style={{ width: '14%', height: '500px', marginTop: '213px' }}>
           <CellSets />

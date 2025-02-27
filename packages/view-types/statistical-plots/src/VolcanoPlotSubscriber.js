@@ -7,6 +7,10 @@ import {
   useGridItemSize,
   useFeatureStatsData,
   useMatchingLoader,
+  useColumnNameMapping,
+  useViewConfigStoreApi,
+  useViewConfig,
+  useSetViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -17,26 +21,6 @@ import {
 import VolcanoPlot from './VolcanoPlot.js';
 import { useStyles } from './styles.js';
 
-/**
- * Using a loader object's options,
- * return a mapping from group name to column name.
- * @param {*} loader obsSets or sampleSets loader class
- * @returns {Record<string, string>} Mapping from group name to column name.
- */
-function useColumnNameMapping(loader) {
-  return useMemo(() => {
-    let result = {};
-    if(loader?.options) {
-      const optionsArray = loader.options.obsSets ? loader.options.obsSets : loader.options.sampleSets;
-      optionsArray.forEach((optionObject) => {
-        const { name, path } = optionObject;
-        const columnName = path.split("/").at(-1);
-        result[name] = columnName;
-      });
-    }
-    return result;
-  }, [loader]);
-}
 
 /**
  * Transform set paths which use group names to those which use column names.
@@ -68,6 +52,10 @@ export function VolcanoPlotSubscriber(props) {
 
   const classes = useStyles();
   const loaders = useLoaders();
+
+  const viewConfigStoreApi = useViewConfigStoreApi();
+  const viewConfig = useViewConfig();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
   // Get "props" from the coordination space.
    // Get "props" from the coordination space.
@@ -157,6 +145,22 @@ export function VolcanoPlotSubscriber(props) {
     featureStatsStatus,
   ]);
 
+  const onFeatureClick = useCallback((featureId) => {
+    // Call setViewConfig on click of a gene
+    // (similar to how BiomarkerSelectSubscriber works).
+    const newViewConfig = {
+      ...viewConfig,
+      coordinationSpace: {
+        ...viewConfig.coordinationSpace,
+        featureSelection: {
+          ...viewConfig.coordinationSpace.featureSelection,
+          '__comparison__': [featureId], // TODO: should this be appended instead?
+        }
+      },
+    };
+    setViewConfig(newViewConfig);
+  }, [viewConfig, setViewConfig]);
+
   // TODO: implement options dropdown
 
   return (
@@ -181,6 +185,7 @@ export function VolcanoPlotSubscriber(props) {
             obsSetColor={obsSetColor}
             sampleSetColor={sampleSetColor}
             data={featureStats}
+            onFeatureClick={onFeatureClick}
           />
         ) : (
           <span>Select at least one {obsType} set.</span>

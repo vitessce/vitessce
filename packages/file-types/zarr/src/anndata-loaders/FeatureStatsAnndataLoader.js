@@ -36,7 +36,6 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     // or if we still need to compute minus log10 here.
     let values = await this.dataSource.loadNumeric(`${dfPath}/${pValueColumn}`);
     if(pValueTransformation === 'minuslog10') {
-      console.log("REVERTING MINUSLOG10")
       // Invert the transformation, to return the plain p-values.
       // The view will do the -Math.log10 transformation if needed.
       values.data = values.data.map(val => Math.pow(10, -val));
@@ -55,7 +54,6 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     let values = await this.dataSource.loadNumeric(`${dfPath}/${foldChangeColumn}`);
     // Invert the transformation
     if(foldChangeTransformation === 'log2') {
-      console.log("REVERTING LOG2")
       values.data = values.data.map(val => Math.pow(2, val));
     }
     return values.data;

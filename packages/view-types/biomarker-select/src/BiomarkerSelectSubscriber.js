@@ -9,10 +9,20 @@ import {
   useCoordination,
   useLoaders,
   useComparisonMetadata,
+  useMatchingLoader,
+  useColumnNameMapping,
 } from '@vitessce/vit-s';
-import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES, DataType } from '@vitessce/constants-internal';
 import { ScmdUi } from './scmd-ui.js';
 
+function useReversedMapping(obj) {
+  return useMemo(() => {
+    return obj ? Object.fromEntries(
+      Object.entries(obj)
+        .map(([k, v]) => ([v, k])),
+    ) : {};
+  }, [obj]);
+}
 
 /**
  *
@@ -42,11 +52,23 @@ export function BiomarkerSelectSubscriber(props) {
     coordinationScopes,
   );
 
-
   const viewConfigStoreApi = useViewConfigStoreApi();
   const viewConfig = useViewConfig();
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
+
+  // Need obsSets and sampleSets options to obtain mapping between
+  // group names and column names.
+  const obsSetsLoader = useMatchingLoader(
+    loaders, dataset, DataType.OBS_SETS, { obsType },
+  );
+  const sampleSetsLoader = useMatchingLoader(
+    loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
+  );
+  const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
+  const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
+  const obsSetsColumnNameMappingReversed = useReversedMapping(obsSetsColumnNameMapping);
+  const sampleSetsColumnNameMappingReversed = useReversedMapping(sampleSetsColumnNameMapping);
 
   // TODO: make isSelecting a coordination type plugin.
   // TODO: use store hooks from @vitessce/vit-s to update the view config based on the selections.
@@ -94,14 +116,17 @@ export function BiomarkerSelectSubscriber(props) {
           name: `${sampleGroupCol}: ${sampleGroupCtrl} vs. ${sampleGroupCase}`,
           stratificationType: 'sampleSet',
           sampleSets: [
-            [sampleGroupCol, sampleGroupCtrl],
-            [sampleGroupCol, sampleGroupCase],
+            // With sampleSets coming from the comparison_metadata,
+            // need to use loader options from obsSets and sampleSets to get mapping
+            // from column name to group name.
+            [sampleSetsColumnNameMappingReversed?.[sampleGroupCol], sampleGroupCtrl],
+            [sampleSetsColumnNameMappingReversed?.[sampleGroupCol], sampleGroupCase],
           ],
         };
       });
     }
     return null;
-  }, [comparisonMetadata]);
+  }, [comparisonMetadata, sampleSetsColumnNameMappingReversed]);
 
   return (
     <>
@@ -131,21 +156,27 @@ export function BiomarkerSelectSubscriber(props) {
 
               // TODO
             }
-            
-            setViewConfig({
+
+            const newViewConfig = {
               ...viewConfig,
               coordinationSpace: {
                 ...viewConfig.coordinationSpace,
                 sampleSetFilter: {
                   ...viewConfig.coordinationSpace.sampleSetFilter,
-                  'case-control': currentStratificationSelection?.sampleSets,
+                  '__comparison__': currentStratificationSelection?.sampleSets,
                 },
                 sampleSetSelection: {
                   ...viewConfig.coordinationSpace.sampleSetSelection,
-                  'case-control': currentStratificationSelection?.sampleSets,
+                  '__comparison__': currentStratificationSelection?.sampleSets,
                 },
+                featureSelection: {
+                  ...viewConfig.coordinationSpace.featureSelection,
+                  '__comparison__': currentModalitySpecificSelection.map(d => d.label),
+                }
               },
-            });
+            };
+            
+            setViewConfig(newViewConfig);
           }}
         />
       ) : null}

@@ -25,6 +25,7 @@ export default function VolcanoPlot(props) {
     marginRight = 5,
     marginLeft = 50,
     marginBottom = 50,
+    onFeatureClick,
   } = props;
 
   const svgRef = useRef();
@@ -88,7 +89,8 @@ export default function VolcanoPlot(props) {
     // where the domain minimum should be 1 rather than 0.
     const yScale = scaleLinear()
       .domain(yExtent)
-      .range([innerHeight, marginTop]);
+      .range([innerHeight, marginTop])
+      .clamp(true);
 
     // Add the axes.
     svg.append("g")
@@ -98,6 +100,34 @@ export default function VolcanoPlot(props) {
     svg.append("g")
       .attr("transform", `translate(${marginLeft},0)`)
       .call(axisLeft(yScale));
+    
+    // Axis titles
+    const titleG = svg.append("g");
+    const fgColor = "black";
+    // Y-axis title
+    titleG
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('x', -innerHeight / 2)
+      .attr('y', 15)
+      .attr('transform', 'rotate(-90)')
+      .text("-log10 p-value")
+      .style('font-size', '12px')
+      .style('fill', fgColor);
+
+    // X-axis title
+    titleG
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('x', marginLeft + innerWidth / 2)
+      .attr('y', height - 10)
+      .text("log2 fold-change")
+      .style('font-size', '12px')
+      .style('fill', fgColor);
+
+    // TODO: add horizontal and vertical rules to indicate currently-selected thresholds
+    
+    // TODO: add upregulated/downregulated and sampleSet directional indicators.
     
     const g = svg.append("g");
 
@@ -122,6 +152,8 @@ export default function VolcanoPlot(props) {
         };
       }).filter(d => (Math.abs(d.logFoldChange) >= 1.0 && d.featureSignificance <= 0.05));
 
+      // TODO: Swap the foldchange direction if backwards with respect to sampleSetSelection 
+
       const coordinationValues = metadata.coordination_values;
       const rawObsSetPath = coordinationValues.obsSetFilter
         ? coordinationValues.obsSetFilter[0]
@@ -131,7 +163,6 @@ export default function VolcanoPlot(props) {
       obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
       
       const color = obsSetColorScale(obsSetPath);
-      console.log(obsSetColorScale, obsSetPath, color);
 
       obsSetG.append("g")
         .selectAll("circle")
@@ -150,15 +181,17 @@ export default function VolcanoPlot(props) {
           .text(d => d.featureId)
           .attr("x", (d) => xScale(d.logFoldChange))
           .attr("y", (d) => yScale(d.minusLog10p))
-          .attr("fill", color);
-    
+          .attr("fill", color)
+          .on('click', (event, d) => {
+            onFeatureClick(d.featureId);
+          });
       
     });
     
   }, [width, height, theme, sampleSetColor, sampleSetSelection,
     obsSetSelection, obsSetColor, featureType, computedData,
     marginLeft, marginBottom, marginTop, marginRight,
-    obsSetColorScale, sampleSetColorScale,
+    obsSetColorScale, sampleSetColorScale, onFeatureClick,
   ]);
 
   return (
