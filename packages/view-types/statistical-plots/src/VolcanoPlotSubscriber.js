@@ -3,18 +3,17 @@ import {
   TitleInfo,
   useCoordination,
   useLoaders,
-  useUrls,
   useReady,
   useGridItemSize,
-  useFeatureSelection,
-  useObsFeatureMatrixIndices,
-  useFeatureLabelsData,
-  useComparisonMetadata,
   useFeatureStatsData,
   useMatchingLoader,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping, DataType } from '@vitessce/constants-internal';
-import { setObsSelection } from '@vitessce/sets-utils';
+import {
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+  ViewHelpMapping,
+  DataType,
+} from '@vitessce/constants-internal';
 import VolcanoPlot from './VolcanoPlot.js';
 import { useStyles } from './styles.js';
 
@@ -85,7 +84,7 @@ export function VolcanoPlotSubscriber(props) {
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
     obsSetSelection,
-    obsSetColor: cellSetColor,
+    obsSetColor,
     obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
     volcanoFeatureLabelsVisible: cellSetLabelsVisible, // TODO: rename
@@ -102,6 +101,7 @@ export function VolcanoPlotSubscriber(props) {
     gatingFeatureSelectionY,
     featureSelection,
     sampleSetSelection,
+    sampleSetColor,
   }, {
     setVolcanoZoom: setZoom,
     setVolcanoTargetX: setTargetX,
@@ -127,23 +127,18 @@ export function VolcanoPlotSubscriber(props) {
     setGatingFeatureSelectionY,
     setFeatureSelection,
     setSampleSetSelection,
+    setSampleSetColor,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
     coordinationScopes,
   );
   const [width, height, containerRef] = useGridItemSize();
 
-  console.log(sampleSetSelection, obsSetSelection);
-
   const obsSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.OBS_SETS, { obsType },
   );
-
   const sampleSetsLoader = useMatchingLoader(
-    loaders,
-    dataset,
-    DataType.SAMPLE_SETS,
-    { sampleType },
+    loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
   const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
   const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
@@ -151,121 +146,44 @@ export function VolcanoPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-
-  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
-    loaders, dataset, false, {}, {}, { obsType, sampleType },
-  );
-  const [featureStats, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
+  const [{ featureStats }, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
   
-
-  console.log(comparisonMetadata, featureStatsStatus, featureStats);
-
-  return (
-    <p>Volcano plot2</p>
-  );
-
-  // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
-    loaders, dataset, false, geneSelection,
-    { obsType, featureType, featureValueType },
-  );
-  // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
-    loaders, dataset, false, {}, {},
-    { featureType },
-  );
-  const [
-    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls,
-  ] = useObsFeatureMatrixIndices(
-    loaders, dataset, false,
-    { obsType, featureType, featureValueType },
-  );
   const isReady = useReady([
-    featureSelectionStatus,
-    matrixIndicesStatus,
-    featureLabelsStatus,
-  ]);
-  const urls = useUrls([
-    featureLabelsUrls,
-    matrixIndicesUrls,
+    featureStatsStatus,
   ]);
 
-  const onBarSelect = useCallback((obsId) => {
-    const obsIdsToSelect = [obsId];
-    setObsSelection(
-      obsIdsToSelect, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-      setCellColorEncoding,
-    );
-  }, [additionalCellSets, cellSetColor, setCellColorEncoding,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
-
-  const onBarHighlight = useCallback((obsId) => {
-    setCellHighlight(obsId);
-  }, []);
-
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (featureLabelsMap?.get(geneSelection[0]) || geneSelection[0])
-    : null;
-
-  const [expressionArr, expressionMax] = useMemo(() => {
-    if (firstGeneSelected && expressionData && obsIndex) {
-      let exprMax = -Infinity;
-      const cellIndices = {};
-      for (let i = 0; i < obsIndex.length; i += 1) {
-        cellIndices[obsIndex[i]] = i;
-      }
-      const exprValues = obsIndex.map((obsId, cellIndex) => {
-        const value = expressionData[0][cellIndex];
-        exprMax = Math.max(value, exprMax);
-        return { obsId, value, feature: firstGeneSelected };
-      });
-      return [exprValues, exprMax];
-    }
-    return [null, null];
-  }, [expressionData, obsIndex, geneSelection, theme,
-    featureValueTransform, featureValueTransformCoefficient,
-    firstGeneSelected,
-  ]);
+  // TODO: implement options dropdown
 
   return (
     <TitleInfo
-      title={`Feature Values${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={`Volcano Plot`}
       removeGridComponent={removeGridComponent}
-      urls={urls}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {expressionArr ? (
+        {featureStats ? (
           <VolcanoPlot
-            yMin={yMin}
-            yMax={expressionMax}
-            yUnits={yUnits}
-            data={expressionArr}
             theme={theme}
             width={width}
             height={height}
-            obsType={obsType}
-            cellHighlight={cellHighlight}
-            cellSetSelection={cellSetSelection}
-            additionalCellSets={additionalCellSets}
-            cellSetColor={cellSetColor}
             featureType={featureType}
-            featureValueType={featureValueType}
-            featureName={firstGeneSelected}
-            onBarSelect={onBarSelect}
-            onBarHighlight={onBarHighlight}
+            obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+            sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+            sampleSetSelection={sampleSetSelection}
+            obsSetSelection={obsSetSelection}
+            obsSetColor={obsSetColor}
+            sampleSetColor={sampleSetColor}
+            data={featureStats}
           />
         ) : (
-          <span>Select a {featureType}.</span>
+          <span>Select at least one {obsType} set.</span>
         )}
       </div>
     </TitleInfo>

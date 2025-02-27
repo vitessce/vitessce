@@ -25,57 +25,64 @@ function isEqualPathPair(pathPairA, pathPairB) {
  * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
-  /**
-   * Class method for loading feature string labels.
-   * @param {string[]} dfPaths
-   * @param {string} colname
-   * @returns {Promise<string[]>} A promise for the array.
-   */
-  async loadAndConcat(dfPaths, colname) {
-    // eslint-disable-next-line no-underscore-dangle
-    const subArrs = await Promise.all(dfPaths.map(
-      dfPath => this.dataSource._loadColumn(`${dfPath}/${colname}`)
-    ));
-    return subArrs.flat();
-  }
-
-  /**
-   * Class method for loading feature string labels.
-   * @param {string[]} dfPaths
-   * @param {string} colname
-   * @returns {Promise<number[]>} A promise for the array.
-   */
-  async loadAndConcatNumeric(dfPaths, colname) {
-    // eslint-disable-next-line no-underscore-dangle
-    const subArrs = await Promise.all(dfPaths.map(
-      dfPath => this.dataSource.loadNumeric(`${dfPath}/${colname}`)
-    ));
-    // TODO: optimize this. Do not convert TypedArray to Array here.
-    return subArrs.map(arr => /** @type {number[]} */ (Array.from(arr.data))).flat();
-  }
-
 
   /**
    * Class method for loading feature string labels.
    * @returns {Promise<any>} A promise for the array.
    */
-  async loadSignificances() {
-    const { path } = this.options;
-    // TODO: check the options to determine whether the significance values are pre-transformed
+  async loadSignificances(dfPath) {
+    const { pValueColumn, pValueTransformation } = this.options;
+    // Check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute minus log10 here.
-    return (await this.dataSource.loadNumeric(path))
-      .map((val) => - Math.log10(val));
+    let values = await this.dataSource.loadNumeric(`${dfPath}/${pValueColumn}`);
+    if(pValueTransformation === 'minuslog10') {
+      console.log("REVERTING MINUSLOG10")
+      // Invert the transformation, to return the plain p-values.
+      // The view will do the -Math.log10 transformation if needed.
+      values.data = values.data.map(val => Math.pow(10, -val));
+    }
+    return values.data;
   }
 
   /**
    * Class method for loading feature string labels.
    * @returns {Promise<any>} A promise for the array.
    */
-  async loadFoldChanges() {
-    const { path } = this.options;
+  async loadFoldChanges(dfPath) {
+    const { foldChangeColumn, foldChangeTransformation } = this.options;
+    // Check the options to determine whether the significance values are pre-transformed
+    // or if we still need to compute log2 here.
+    let values = await this.dataSource.loadNumeric(`${dfPath}/${foldChangeColumn}`);
+    // Invert the transformation
+    if(foldChangeTransformation === 'log2') {
+      console.log("REVERTING LOG2")
+      values.data = values.data.map(val => Math.pow(2, val));
+    }
+    return values.data;
+  }
+
+  async loadFeatureNames(dfPath) {
+    const { indexColumn } = this.options;
     // TODO: check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute log2 here.
-    return this.dataSource.loadNumeric(path);
+    return await this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
+  }
+
+  async loadDataFrame(dfPath) {
+    const [
+      featureId,
+      featureFoldChange,
+      featureSignificance,
+    ] = await Promise.all([
+      this.loadFeatureNames(dfPath),
+      this.loadFoldChanges(dfPath),
+      this.loadSignificances(dfPath),
+    ]);
+    return {
+      featureId,
+      featureFoldChange,
+      featureSignificance,
+    };
   }
 
   /**
@@ -132,8 +139,6 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
     const metadata = await this.loadMetadata();
 
-    console.log(volcanoOptions, metadata, this.options);
-
     // Match metadata against to get paths to dataframe(s) of interest.
 
     // Differential expression results have this analysis_type value.
@@ -174,11 +179,16 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       });
     });
 
-    console.log(matchingComparisons);
-
-    // TODO: using this matchingComparisons list,
+    // Using this matchingComparisons list,
     // load the relevant columns of each matching dataframe and concatenate them together.
-
+    const result = await Promise.all(matchingComparisons.map(async (comparisonObject) => {
+      const df = await this.loadDataFrame(comparisonObject.path);
+      return {
+        df: df,
+        metadata: comparisonObject,
+      };
+    }));
+    return new LoaderResult({ featureStats: result }, null);
   }
 
   /**

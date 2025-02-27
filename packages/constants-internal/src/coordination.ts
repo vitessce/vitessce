@@ -541,6 +541,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.TOOLTIPS_VISIBLE,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.OBS_SET_COLOR,
+    CoordinationType.SAMPLE_SET_COLOR,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [
