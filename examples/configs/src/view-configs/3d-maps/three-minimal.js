@@ -11,20 +11,21 @@ function generateThreeMinimalConfiguration() {
     name: 'Minimal Three',
   });
   const dataset = config.addDataset('My dataset').addFile({
-    fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',
-    options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json',
-    },
+    fileType: 'image.ome-zarr',
+    url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ/0',
+    // url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',
+    // options: {
+    //   offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json',
+    // },
     coordinationValues: {
       fileUid: 'kiemen',
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta')
-    .setProps({ three: true });
+  const spatialAcceleratedView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
-  config.linkViewsByObject([spatialThreeView, lcView], {
+  config.linkViewsByObject([spatialThreeView, spatialAcceleratedView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
@@ -44,7 +45,7 @@ function generateThreeMinimalConfiguration() {
     ]),
   });
 
-  config.layout(hconcat(spatialThreeView, lcView));
+  config.layout(hconcat(spatialThreeView, spatialAcceleratedView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;
