@@ -21,6 +21,25 @@ function generateKpmpPremiereConfig() {
     },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   }).addFile({
+    fileType: 'featureStats.anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    options: {
+      metadataPath: 'uns/comparison_metadata',
+      indexColumn: 'names',
+      pValueColumn: 'pvals_adj',
+      foldChangeColumn: 'logfoldchanges',
+      // pValueTransformation: 'minuslog10',
+      pValueAdjusted: true,
+      foldChangeTransformation: 'log2',
+      zScoreColumn: 'scores',
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      sampleType: 'sample',
+      featureType: 'gene',
+    },
+    // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
+  }).addFile({
     fileType: 'anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
     coordinationValues: {
@@ -152,94 +171,7 @@ function generateKpmpPremiereConfig() {
     },
   });
 
-  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' }).setProps({
-    stratificationOptions: [
-      {
-        stratificationId: 'aki-vs-hr',
-        name: 'Acute kidney injury (AKI) vs. Healthy reference',
-        stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
-        sampleSets: [
-          ['Disease Type', 'AKI'],
-          ['Disease Type', 'Reference'],
-        ],
-      },
-      {
-        stratificationId: 'aki-vs-hckd',
-        name: 'Acute kidney injury (AKI) vs. Chronic kidney disease attributed to hypertension (H-CKD)',
-        stratificationType: 'sampleSet',
-        sampleSets: [
-          ['Disease Type', 'AKI'],
-          ['Disease Type', 'CKD'],
-        ],
-      },
-      {
-        stratificationId: 'dckd-vs-hr',
-        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Healthy reference',
-        stratificationType: 'sampleSet',
-        sampleSets: [
-          ['Disease Type', 'CKD'],
-          ['Disease Type', 'Reference'],
-        ],
-      },
-      /*
-      {
-        stratificationId: 'dckd-vs-hckd',
-        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Chronic kidney disease attributed to hypertension (H-CKD)',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'dckd-vs-dkdr',
-        name: 'Chronic kidney disease attributed to diabetes (D-CKD) vs. Diabetic kidney disease "resisters"',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'sglt2-vs-no-sglt2',
-        name: 'Chronic kidney disease attributed to diabetes (D-CKD) with SGLT2 inhibitor vs. D-CKD without SGLT2 inhibitor',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'ati-vs-hr',
-        name: 'Acute tubular injury vs. Healthy reference',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'ain-vs-hr',
-        name: 'Acute interstitial injury vs. Healthy reference',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'ati-vs-ain',
-        name: 'Acute tubular injury vs. Acute interstitial nephritis',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'raki-vs-waki',
-        name: 'Recovering AKI vs. Worsening AKI',
-        groupType: 'clinical',
-      },
-      {
-        stratificationId: 'ifta-vs-non-ifta-presence',
-        name: 'Interstitial fibrosis and tubular atrophy (IFTA) vs. non-IFTA',
-        groupType: 'structural-presence',
-      },
-      {
-        stratificationId: 'gsg-vs-ngsg-presence',
-        name: 'Globally sclerotic glomeruli (GSG) vs. non-GSG',
-        groupType: 'structural-presence',
-      },
-      {
-        stratificationId: 'ifta-vs-non-ifta-region',
-        name: 'Interstitial fibrosis and tubular atrophy (IFTA) vs. non-IFTA',
-        groupType: 'structural-region',
-      },
-      {
-        stratificationId: 'gsg-vs-ngsg-region',
-        name: 'Globally sclerotic glomeruli (GSG) vs. non-GSG',
-        groupType: 'structural-region',
-      },
-      */
-    ],
-  });
+  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
 
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
@@ -248,11 +180,7 @@ function generateKpmpPremiereConfig() {
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
-
-  // TODO: construct coordination scopes for sampleSetSelection with names:
-  // - case
-  // - control
-  // - case-control
+  const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
@@ -268,8 +196,8 @@ function generateKpmpPremiereConfig() {
     embeddingPointsVisible: false,
   }, { meta: false });
 
-  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap], {
+  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
@@ -312,6 +240,7 @@ function PageComponent() {
   const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
+  const VolcanoPlot = usePageModeView('volcano-plot');
 
   return (
     <>
@@ -347,6 +276,9 @@ function PageComponent() {
           <h3>Cell type-level representations</h3>
           <div style={{ width: '100%', height: '300px' }}>
             <Treemap />
+          </div>
+          <div style={{ width: '100%', height: '300px' }}>
+            <VolcanoPlot />
           </div>
           <div style={{ width: '100%', height: '500px' }}>
             <DualScatterplot />

@@ -33,7 +33,10 @@ const annDataComparisonMetadata = z.object({
 });
 
 const annDataFeatureStats = z.object({
-  path: z.string().describe('Path to the dataframe containing the results.'),
+  // TODO: implement a featureStats.anndata.zarr loader which does not depend on comparisonMetadata
+  // (instead, would point directly to the root of the dataframe containing a set of diff exp results)
+  //path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
   indexColumn: z.string()
     .optional()
     .describe('Provide a column to use for the feature index, if different than the default dataframe index.'),

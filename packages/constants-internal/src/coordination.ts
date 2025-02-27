@@ -506,6 +506,7 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [ViewType.VOLCANO_PLOT]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.SAMPLE_TYPE,
     // For selection of case-control sets of samples:

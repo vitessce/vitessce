@@ -1,45 +1,22 @@
-// @ts-check
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
+import { isEqual } from 'lodash-es';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureStatsData } from '@vitessce/types' */
 
-/**
- * @typedef {object} StatsMeta
- * @property {object} key
- * @property {object} key.minuend
- * @property {object} key.minuend.condition
- * @property {string} key.minuend.condition.type
- * @property {string} key.minuend.condition.path
- * @property {string} key.minuend.condition.value
- * @property {any} key.minuend.filter
- * @property {any} key.minuend.facet
- * @property {object} key.subtrahend
- * @property {object} key.subtrahend.condition
- * @property {string} key.subtrahend.condition.type
- * @property {string} key.subtrahend.condition.path
- * @property {string} key.subtrahend.condition.value
- * @property {any} key.subtrahend.filter
- * @property {any} key.subtrahend.facet
- * @property {string} disordered_var_path
- * @property {string?} diff_layer_path
- * @property {string?} membership_layer_path
- */
 
 /**
- * 
- * @param {StatsMeta[]} metadata 
- * @param {(a: StatsMeta) => boolean} predicate 
- * @returns 
+ * Do two pairs of paths contain the same two elements,
+ * potentially swapped in their order?
+ * @param {[string[], string[]]} pathPairA A pair of paths like [["Disease", "Healthy"], ["Disease", "CKD"]]
+ * @param {[string[], string[]]} pathPairB A pair of paths like [["Disease", "CKD"], ["Disease", "Healthy"]]
+ * @returns {boolean} Whether the two pairs contain the same two paths.
  */
-function findSwap(metadata, predicate) {
-  const match = metadata.find(predicate);
-  if (match) {
-    return match;
-  }
-  return metadata.find((obj) => {
-    return predicate({ ...obj, key: { minuend: obj.key.subtrahend, subtrahend: obj.key.minuend } });
-  });
+function isEqualPathPair(pathPairA, pathPairB) {
+  return (
+    (isEqual(pathPairA[0], pathPairB[0]) && isEqual(pathPairA[1], pathPairB[1]))
+    || (isEqual(pathPairA[0], pathPairB[1]) && isEqual(pathPairA[1], pathPairB[0]))
+  )
 }
 
 /**
@@ -48,7 +25,6 @@ function findSwap(metadata, predicate) {
  * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
-
   /**
    * Class method for loading feature string labels.
    * @param {string[]} dfPaths
@@ -78,14 +54,28 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     return subArrs.map(arr => /** @type {number[]} */ (Array.from(arr.data))).flat();
   }
 
+
   /**
-   * 
-   * @param {string[]} dfPaths
-   * @returns {Promise<number[]>}
+   * Class method for loading feature string labels.
+   * @returns {Promise<any>} A promise for the array.
    */
-  async loadFeatureSignificance(dfPaths) {
-    return (await this.loadAndConcatNumeric(dfPaths, 'adj_pval'))
+  async loadSignificances() {
+    const { path } = this.options;
+    // TODO: check the options to determine whether the significance values are pre-transformed
+    // or if we still need to compute minus log10 here.
+    return (await this.dataSource.loadNumeric(path))
       .map((val) => - Math.log10(val));
+  }
+
+  /**
+   * Class method for loading feature string labels.
+   * @returns {Promise<any>} A promise for the array.
+   */
+  async loadFoldChanges() {
+    const { path } = this.options;
+    // TODO: check the options to determine whether the significance values are pre-transformed
+    // or if we still need to compute log2 here.
+    return this.dataSource.loadNumeric(path);
   }
 
   /**
@@ -93,17 +83,22 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<StatsMeta[]>}
    */
   async loadMetadata() {
-    const { path } = this.options;
+    const { metadataPath } = this.options;
     if (this.metadata) {
       return this.metadata;
     }
     if (!this.metadata) {
       // eslint-disable-next-line no-underscore-dangle
-      this.metadata = JSON.parse(await this.dataSource._loadString(path));
+      const metadata = JSON.parse(await this.dataSource._loadString(metadataPath));
+      if(!(metadata.schema_version === "0.0.1" || metadata.schema_version === "0.0.2")) {
+        throw new Error("Unsupported comparison_metadata schema version.");
+      }
+      this.metadata = metadata;
       return this.metadata;
     }
     return this.metadata;
   }
+
 
   /**
    * Load data from multiple dataframes, merged.
@@ -115,76 +110,103 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<LoaderResult<FeatureStatsData>>}
    */
   async loadMulti(volcanoOptions) {
-    console.log(volcanoOptions);
-    const { sampleSetSelection, sampleFacet, obsSetFacet, topK } = volcanoOptions || {};
+    const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
     // TODO: If faceting, need to load data from multiple dataframes.
 
-    // Construct { minuend, subtrahend } objects to use for matching within uns/diffexp metadata.
-    const matchingPaths = [];
-    const metadata = await this.loadMetadata();
+    // We expect these set paths to have already been transformed
+    // to use the "raw" column names,
+    // according to the mappings defined in obsSets and sampleSets loader options.
+    // The values in the comparison_metadata have the "raw" column names.
+    const rawObsSetSelection = obsSetSelection;
+    const rawSampleSetSelection = sampleSetSelection;
 
     if (sampleSetSelection) {
       if (sampleSetSelection.length !== 2) {
-          return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
-      }
-      // Match metadata against to get paths to dataframe(s).
-      const match = findSwap(metadata, ({ key: { minuend, subtrahend } }) => {
-        return (
-          // TODO: get the path to the column based on the sampleSetSelection path?
-          // Unclear how to do this as it is an option in the sampleSets loader,
-          // but we could alternatively require the user to redundantly provide it as an option to the featureStats loader as well.
-          minuend.condition.type === 'sample_set'
-          // && minuend.condition.value === sampleSetSelection[0].at(-1)
-          && minuend.filter === null
-          && minuend.facet === null
-          && subtrahend.condition.type === 'sample_set'
-          // && subtrahend.condition.value === sampleSetSelection[1].at(-1)
-          && subtrahend.filter === null
-          && subtrahend.facet === null
-        );
-      });
-      if(match?.disordered_var_path) {
-        matchingPaths.push(match.disordered_var_path);
+        return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
       }
     }
-    
-    // TODO: extend to support multiple matching paths for faceting
+
+    if (!obsSetSelection) {
+      return Promise.reject(new Error('Expected obsSetSelection to be present.'));
+    }
+
+    const metadata = await this.loadMetadata();
+
+    console.log(volcanoOptions, metadata, this.options);
+
+    // Match metadata against to get paths to dataframe(s) of interest.
+
+    // Differential expression results have this analysis_type value.
+    const targetAnalysisType = "rank_genes_groups";
+
+    const matchingComparisons = [];
+    Object.entries(metadata.comparisons).forEach(([comparisonGroupKey, comparisonGroupObject]) => {
+      const { results } = comparisonGroupObject;
+      results.forEach((resultObject) => {
+        const {
+          analysis_type,
+          analysis_params,
+          coordination_values,
+          path,
+        } = resultObject;
+        if(analysis_type === targetAnalysisType) {
+          // This is a diff. exp. result.
+          if(sampleSetSelection) {
+            // Comparing two sample groups.
+            rawObsSetSelection.forEach((obsSetPath) => {
+              if(isEqual([obsSetPath], coordination_values.obsSetFilter)) {
+                // The obsSetSelection matches.
+                // Now check whether the sampleSetSelection matches.
+                if(isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
+                  matchingComparisons.push(resultObject);
+                }
+              }
+            });
+          } else if(obsSetSelection) {
+            // Comparing no sample groups but have selected cell type(s) of interest.
+            rawObsSetSelection.forEach((obsSetPath) => {
+              if(isEqual([obsSetPath], coordination_values.obsSetSelection)) {
+                matchingComparisons.push(resultObject);
+              }
+            });
+          }
+        }
+      });
+    });
+
+    console.log(matchingComparisons);
+
+    // TODO: using this matchingComparisons list,
+    // load the relevant columns of each matching dataframe and concatenate them together.
+
+  }
+
+  /**
+   *
+   * @returns {Promise<LoaderResult<FeatureStatsData>>}
+   */
+  async load() {
+    const { path } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
     return Promise.all([
-      // TODO: pass topK (if present) to the load functions to limit their amount of requested Zarr chunks.
-      this.loadAndConcat(matchingPaths, 'name'),
-      this.loadFeatureSignificance(matchingPaths),
-      this.loadAndConcatNumeric(matchingPaths, 'lfc'),
-    ]).then(([
-        featureId,
-        featureSignificance,
-        featureFoldChange,
-        /*sampleId,
-        obsSetId,*/
-    ]) => Promise.resolve(new LoaderResult(
+      // Pass in the obsEmbedding path,
+      // to handle the MuData case where the obsIndex is located at
+      // `mod/rna/index` rather than `index`.
+      this.dataSource.loadVarIndex(path),
+      this.loadSignificances(),
+      this.loadFoldChanges(),
+    ]).then(([featureId, featureSignificance, featureFoldChange]) => Promise.resolve(new LoaderResult(
       {
         featureId,
         featureSignificance,
         featureFoldChange,
-        sampleId: null, // TODO: get from then() parameter
-        obsSetId: null, // TODO: get from then() parameter
+        sampleId: null,
+        obsSetId: null,
       },
       null,
     )));
-  }
-
-  /**
-   * @returns {Promise<LoaderResult<FeatureStatsData>>}
-   */
-  async load() {
-    // TODO: By default, load data faceted by obsSet.
-    return this.loadMulti({
-        sampleFacet: null,
-        obsSetFacet: null,
-        topK: null,
-    });
   }
 }

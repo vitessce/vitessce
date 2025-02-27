@@ -48,7 +48,7 @@ export type ComparisonMetadata = {
 };
 
 export type FeatureStatsData = {
-  featureId: string[];
+  featureId: string[]; // (Not "featureIndex" since feature values may repeat)
   featureSignificance: number[];
   featureFoldChange: number[]; // TODO: Should this be called featureLogFoldChange? Will it always be pre- log-transformed?
   // Used when faceting by sample

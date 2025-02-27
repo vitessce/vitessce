@@ -81,7 +81,6 @@ import {
   DualEmbeddingScatterplotSubscriber,
 } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
-import { VolcanoPlotSubscriber } from '@vitessce/scatterplot-volcano';
 import { SpatialSubscriber } from '@vitessce/spatial';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
@@ -99,6 +98,7 @@ import {
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
   TreemapSubscriber,
+  VolcanoPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
