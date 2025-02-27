@@ -1,46 +1,46 @@
 {
-    "name": "@vitessce/neuroglancer",
-    "version": "3.4.9",
-    "author": "Gehlenborg Lab",
-    "homepage": "http://vitessce.io",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/vitessce/vitessce.git"
-    },
-    "license": "MIT",
-    "type": "module",
-    "main": "dist-tsc/index.js",
-    "publishConfig": {
-      "main": "dist/index.js",
-      "module": "dist/index.js",
-      "exports": {
-        ".": {
-          "types": "./dist-tsc/index.d.ts",
-          "import": "./dist/index.js"
-        }
+  "name": "@vitessce/neuroglancer",
+  "version": "3.5.8",
+  "author": "Gehlenborg Lab",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
       }
-    },
-    "files": [
-      "src",
-      "dist",
-      "dist-tsc"
-    ],
-    "scripts": {
-      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-      "test": "pnpm exec vitest --run"
-    },
-    "dependencies": {
-      "@janelia-flyem/react-neuroglancer": "^2.5.0",
-      "@vitessce/neuroglancer-workers": "workspace:*",
-      "@material-ui/core": "catalog:",
-      "@vitessce/constants-internal": "workspace:*",
-      "@vitessce/vit-s": "workspace:*"
-    },
-    "devDependencies": {
-      "@testing-library/jest-dom": "catalog:",
-      "@testing-library/react": "catalog:",
-      "react": "catalog:",
-      "vite": "catalog:",
-      "vitest": "catalog:"
     }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@janelia-flyem/react-neuroglancer": "^2.5.0",
+    "@vitessce/neuroglancer-workers": "workspace:*",
+    "@material-ui/core": "catalog:",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/vit-s": "workspace:*"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
+}
