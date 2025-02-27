@@ -1,3 +1,4 @@
+export { VitS } from './VitS.js';
 export { VitSContainer } from './VitSContainer.js';
 export { TitleInfo } from './TitleInfo.js';
 export { PopperMenu } from './shared-mui/components.js';
