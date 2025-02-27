@@ -32,6 +32,9 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    * Keys here are the component registry keys.
    */
 export const COMPONENT_COORDINATION_TYPES = {
+  [ViewType.NEUROGLANCER]: [
+    CoordinationType.DATASET,
+  ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,

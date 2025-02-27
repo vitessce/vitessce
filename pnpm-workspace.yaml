@@ -42,6 +42,7 @@ catalog:
   "mathjs": ^9.2.0
   "zod": ^3.21.4
   "react-aria": ^3.28.0
+  "react-error-boundary": ^5.0.0
   "semver": ^7.3.8
   "@types/semver": ^7.3.13
   # Arrow/Parquet/DuckDB
