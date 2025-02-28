@@ -90,7 +90,7 @@ const contourGetPosition = (object, { index, data, target }) => {
  * @param {object} props.originalViewState A viewState object to pass to
  * setViewState upon clicking the recenter button.
  */
-class ObservationScatterplot extends AbstractSpatialOrScatterplot {
+class Scatterplot extends AbstractSpatialOrScatterplot {
   constructor(props) {
     super(props);
 
@@ -549,10 +549,10 @@ class ObservationScatterplot extends AbstractSpatialOrScatterplot {
  * but we are using a class component.
  */
 const ScatterplotWrapper = forwardRef((props, deckRef) => (
-  <ObservationScatterplot
+  <Scatterplot
     {...props}
     deckRef={deckRef}
   />
 ));
-ScatterplotWrapper.displayName = 'ObservationScatterplotWrapper';
+ScatterplotWrapper.displayName = 'ScatterplotWrapper';
 export default ScatterplotWrapper;

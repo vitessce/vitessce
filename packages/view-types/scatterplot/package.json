@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/scatterplot",
-  "version": "3.5.7",
+  "version": "3.5.6",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -40,7 +40,6 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "d3-force": "catalog:",
-    "d3-scale": "catalog:",
     "d3-quadtree": "catalog:",
     "lodash-es": "catalog:",
     "react-aria": "catalog:"
