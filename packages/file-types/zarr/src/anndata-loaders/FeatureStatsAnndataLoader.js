@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
 import { isEqual } from 'lodash-es';
 
@@ -8,8 +10,10 @@ import { isEqual } from 'lodash-es';
 /**
  * Do two pairs of paths contain the same two elements,
  * potentially swapped in their order?
- * @param {[string[], string[]]} pathPairA A pair of paths like [["Disease", "Healthy"], ["Disease", "CKD"]]
- * @param {[string[], string[]]} pathPairB A pair of paths like [["Disease", "CKD"], ["Disease", "Healthy"]]
+ * @param {[string[], string[]]} pathPairA A pair of paths like
+ * [["Disease", "Healthy"], ["Disease", "CKD"]]
+ * @param {[string[], string[]]} pathPairB A pair of paths like
+ * [["Disease", "CKD"], ["Disease", "Healthy"]]
  * @returns {boolean} Whether the two pairs contain the same two paths.
  */
 function isEqualPathPair(pathPairA, pathPairB) {
@@ -37,7 +41,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     if (pValueTransformation === 'minuslog10') {
       // Invert the transformation, to return the plain p-values.
       // The view will do the -Math.log10 transformation if needed.
-      values.data = values.data.map(val => Math.pow(10, -val));
+      values.data = values.data.map(val => (10 ** -val));
     }
     return values.data;
   }
@@ -53,7 +57,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const values = await this.dataSource.loadNumeric(`${dfPath}/${foldChangeColumn}`);
     // Invert the transformation
     if (foldChangeTransformation === 'log2') {
-      values.data = values.data.map(val => Math.pow(2, val));
+      values.data = values.data.map(val => (2 ** val));
     }
     return values.data;
   }
@@ -62,7 +66,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const { indexColumn } = this.options;
     // TODO: check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute log2 here.
-    return await this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
+    return this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
   }
 
   async loadDataFrame(dfPath) {
@@ -139,17 +143,18 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     // Match metadata against to get paths to dataframe(s) of interest.
 
     // Differential expression results have this analysis_type value.
+    // TODO: make this an option in the schema
     const targetAnalysisType = 'rank_genes_groups';
 
     const matchingComparisons = [];
-    Object.entries(metadata.comparisons).forEach(([comparisonGroupKey, comparisonGroupObject]) => {
+    Object.values(metadata.comparisons).forEach((comparisonGroupObject) => {
       const { results } = comparisonGroupObject;
       results.forEach((resultObject) => {
         const {
           analysis_type,
-          analysis_params,
+          // analysis_params,
           coordination_values,
-          path,
+          // path,
         } = resultObject;
         if (analysis_type === targetAnalysisType) {
           // This is a diff. exp. result.
@@ -205,15 +210,17 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       this.dataSource.loadVarIndex(path),
       this.loadSignificances(),
       this.loadFoldChanges(),
-    ]).then(([featureId, featureSignificance, featureFoldChange]) => Promise.resolve(new LoaderResult(
-      {
-        featureId,
-        featureSignificance,
-        featureFoldChange,
-        sampleId: null,
-        obsSetId: null,
-      },
-      null,
-    )));
+    ]).then(([featureId, featureSignificance, featureFoldChange]) => Promise.resolve(
+      new LoaderResult(
+        {
+          featureId,
+          featureSignificance,
+          featureFoldChange,
+          sampleId: null,
+          obsSetId: null,
+        },
+        null,
+      ),
+    ));
   }
 }

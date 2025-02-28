@@ -367,7 +367,7 @@ export function useFeatureStatsData(
           // Has loadMulti function.
           const payload = await loader.loadMulti(volcanoOptions);
           if (!payload) return placeholderObject;
-          const { data: payloadData, url } = payload;
+          const { data: payloadData } = payload;
 
           return {
             data: payloadData,
@@ -377,7 +377,7 @@ export function useFeatureStatsData(
         // No loadAttrs function.
         const payload = await loader.load();
         if (!payload) return placeholderObject;
-        const { data: payloadData, url } = payload;
+        const { data: payloadData } = payload;
         return {
           data: payloadData,
           urls: null,

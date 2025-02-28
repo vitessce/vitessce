@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@material-ui/core';
 import { ConfirmatoryCart } from './cart.js';
-import { SelectAgnostic } from './select-agnostic.js';
-import { SelectSpecific } from './select-specific.js';
 import { SelectStratification } from './select-stratification.js';
 import { useStyles } from './styles.js';
 

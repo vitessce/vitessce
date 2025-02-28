@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
@@ -8,9 +9,6 @@ import {
   useFeatureStatsData,
   useMatchingLoader,
   useColumnNameMapping,
-  useViewConfigStoreApi,
-  useViewConfig,
-  useSetViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -43,19 +41,12 @@ export function VolcanoPlotSubscriber(props) {
     coordinationScopes,
     removeGridComponent,
     theme,
-    yMin = 0,
-    yUnits = null,
     helpText = ViewHelpMapping.VOLCANO_PLOT,
   } = props;
 
   const classes = useStyles();
   const loaders = useLoaders();
 
-  const viewConfigStoreApi = useViewConfigStoreApi();
-  const viewConfig = useViewConfig();
-  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
-
-  // Get "props" from the coordination space.
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -132,7 +123,7 @@ export function VolcanoPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureStats }, featureStatsStatus, featureStatsUrls] = useFeatureStatsData(
+  const [{ featureStats }, featureStatsStatus] = useFeatureStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():

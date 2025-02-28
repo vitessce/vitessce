@@ -6,7 +6,6 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { extent as d3_extent } from 'd3-array';
 import { select } from 'd3-selection';
 import { isEqual } from 'lodash-es';
-import { capitalize } from '@vitessce/utils';
 import { getColorScale } from './utils.js';
 
 export default function VolcanoPlot(props) {
@@ -185,9 +184,13 @@ export default function VolcanoPlot(props) {
       const obsSetPath = [...rawObsSetPath];
       obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
 
-      // Swap the foldchange direction if backwards with respect to the current sampleSetSelection pair.
+      // Swap the foldchange direction if backwards with
+      // respect to the current sampleSetSelection pair.
       let shouldSwapFoldChangeDirection = false;
-      if (coordinationValues.sampleSetFilter && coordinationValues.sampleSetFilter.length === 2) {
+      if (
+        coordinationValues.sampleSetFilter
+        && coordinationValues.sampleSetFilter.length === 2
+      ) {
         const rawSampleSetPathA = coordinationValues.sampleSetFilter[0];
         const sampleSetPathA = [...rawSampleSetPathA];
         sampleSetPathA[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathA[0]];
@@ -196,7 +199,10 @@ export default function VolcanoPlot(props) {
         const sampleSetPathB = [...rawSampleSetPathB];
         sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
 
-        if (isEqual(sampleSetPathA, sampleSetSelection[1]) && isEqual(sampleSetPathB, sampleSetSelection[0])) {
+        if (
+          isEqual(sampleSetPathA, sampleSetSelection[1])
+          && isEqual(sampleSetPathB, sampleSetSelection[0])
+        ) {
           shouldSwapFoldChangeDirection = true;
         }
       }
@@ -206,9 +212,11 @@ export default function VolcanoPlot(props) {
           logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
           featureSignificance: df.featureSignificance[i],
           minusLog10p: df.minusLog10p[i],
-        }),
+        })).filter(d => (
         // TODO: use threshold values from coordination space
-      ).filter(d => (Math.abs(d.logFoldChange) >= 1.0 && d.featureSignificance <= 0.05));
+        Math.abs(d.logFoldChange) >= 1.0
+        && d.featureSignificance <= 0.05
+      ));
 
       const color = obsSetColorScale(obsSetPath);
 

@@ -1,14 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React from 'react';
 import {
-  useAsyncFunction,
-  useViewConfigStoreApi,
-  useSetViewConfig,
-  useViewConfig,
   useCoordination,
-  useLoaders,
-  useComparisonMetadata,
-  useMatchingLoader,
-  useColumnNameMapping,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 
@@ -18,17 +10,8 @@ export function ComparativeHeadingSubscriber(props) {
     coordinationScopes,
   } = props;
 
-  const loaders = useLoaders();
-
   const [{
-    dataset,
-    obsType,
-    sampleType,
     sampleSetSelection,
-    featureSelection,
-  }, {
-    setSampleSetSelection,
-    setFeatureSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.COMPARATIVE_HEADING],
     coordinationScopes,

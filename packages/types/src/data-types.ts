@@ -50,7 +50,7 @@ export type ComparisonMetadata = {
 export type FeatureStatsData = {
   featureId: string[]; // (Not "featureIndex" since feature values may repeat)
   featureSignificance: number[];
-  featureFoldChange: number[]; // TODO: Should this be called featureLogFoldChange? Will it always be pre- log-transformed?
+  featureFoldChange: number[];
   // Used when faceting by sample
   sampleId: string[] | null; // Null if not per-sample stats
   // Used when faceting by obsSet

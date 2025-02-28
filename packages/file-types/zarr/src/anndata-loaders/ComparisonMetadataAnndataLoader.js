@@ -20,6 +20,7 @@ export default class ComparisonMetadataAnndataLoader extends AbstractTwoStepLoad
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
+    // eslint-disable-next-line no-underscore-dangle
     const unsString = await this.dataSource._loadElement(`/${path}`);
     const unsObject = JSON.parse(/** @type {any} */ (unsString));
 
@@ -29,7 +30,8 @@ export default class ComparisonMetadataAnndataLoader extends AbstractTwoStepLoad
 
     return Promise.resolve(new LoaderResult(
       {
-        // Should a more complex class be wrapping this JSON object to help with downstream querying?
+        // Should a more complex class be wrapping this
+        // JSON object to help with downstream querying?
         comparisonMetadata: unsObject,
       },
       null,

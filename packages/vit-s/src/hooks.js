@@ -381,7 +381,9 @@ export function useColumnNameMapping(loader) {
   return useMemo(() => {
     const result = {};
     if (loader?.options) {
-      const optionsArray = loader.options.obsSets ? loader.options.obsSets : loader.options.sampleSets;
+      const optionsArray = loader.options.obsSets
+        ? loader.options.obsSets
+        : loader.options.sampleSets;
       optionsArray.forEach((optionObject) => {
         const { name, path } = optionObject;
         const columnName = path.split('/').at(-1);
