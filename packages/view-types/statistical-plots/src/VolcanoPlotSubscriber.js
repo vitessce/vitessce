@@ -146,20 +146,8 @@ export function VolcanoPlotSubscriber(props) {
   ]);
 
   const onFeatureClick = useCallback((featureId) => {
-    // Call setViewConfig on click of a gene
-    // (similar to how BiomarkerSelectSubscriber works).
-    const newViewConfig = {
-      ...viewConfig,
-      coordinationSpace: {
-        ...viewConfig.coordinationSpace,
-        featureSelection: {
-          ...viewConfig.coordinationSpace.featureSelection,
-          '__comparison__': [featureId], // TODO: should this be appended instead?
-        }
-      },
-    };
-    setViewConfig(newViewConfig);
-  }, [viewConfig, setViewConfig]);
+    setFeatureSelection([featureId])
+  }, [setFeatureSelection]);
 
   // TODO: implement options dropdown
 

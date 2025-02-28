@@ -292,11 +292,12 @@ function PageComponent() {
             <DualScatterplot />
           </div>
           <div style={{ width: '100%', height: '500px' }}>
-            <ViolinPlot />
-          </div>
-          <div style={{ width: '100%', height: '500px' }}>
             <DotPlot />
           </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <ViolinPlot />
+          </div>
+          
           {/*<h3>Neighborhood-level representations</h3>
           <h1>TODO</h1>
           <h3>Segmented instance-level representations</h3>

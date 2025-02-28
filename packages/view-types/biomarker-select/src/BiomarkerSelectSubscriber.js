@@ -171,7 +171,7 @@ export function BiomarkerSelectSubscriber(props) {
                 },
                 featureSelection: {
                   ...viewConfig.coordinationSpace.featureSelection,
-                  '__comparison__': currentModalitySpecificSelection.map(d => d.label),
+                  '__comparison__': currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
                 }
               },
             };
