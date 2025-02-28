@@ -50,7 +50,6 @@
     "@vitessce/plugins": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
-    "@vitessce/scatterplot-volcano": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/spatial": "workspace:*",
     "@vitessce/spatial-beta": "workspace:*",

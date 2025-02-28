@@ -58,7 +58,6 @@
     { "path": "packages/view-types/scatterplot" },
     { "path": "packages/view-types/scatterplot-embedding" },
     { "path": "packages/view-types/scatterplot-gating" },
-    { "path": "packages/view-types/scatterplot-volcano" },
     { "path": "packages/view-types/spatial" },
     { "path": "packages/view-types/spatial-three" },
     { "path": "packages/view-types/spatial-beta" },
