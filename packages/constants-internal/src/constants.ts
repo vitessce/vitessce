@@ -23,6 +23,7 @@ export const ViewType = {
   FEATURE_BAR_PLOT: 'featureBarPlot',
   VOLCANO_PLOT: 'volcanoPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
   DUAL_SCATTERPLOT: 'dualScatterplot',

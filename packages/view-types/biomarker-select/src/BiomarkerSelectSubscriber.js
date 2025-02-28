@@ -176,6 +176,8 @@ export function BiomarkerSelectSubscriber(props) {
               },
             };
             
+            // TODO: can the normal coordination value setters be used instead?
+            // (e.g., setFeatureSelection, setSampleSetSelection)
             setViewConfig(newViewConfig);
           }}
         />

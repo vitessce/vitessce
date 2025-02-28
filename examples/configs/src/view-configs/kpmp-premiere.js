@@ -172,7 +172,7 @@ function generateKpmpPremiereConfig() {
   });
 
   const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
-
+  const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
@@ -203,8 +203,9 @@ function generateKpmpPremiereConfig() {
     embeddingPointsVisible: false,
   }, { meta: false });
 
-  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot], {
+
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
@@ -223,7 +224,7 @@ function generateKpmpPremiereConfig() {
 
   vc.layout(hconcat(
     vconcat(
-      hconcat(dualScatterplot, biomarkerSelect),
+      hconcat(dualScatterplot, biomarkerSelect, comparativeHeading),
       vconcat(
         hconcat(
           obsSets,
@@ -243,6 +244,7 @@ function generateKpmpPremiereConfig() {
 
 function PageComponent() {
   const BiomarkerSelect = usePageModeView('biomarker-select');
+  const ComparativeHeading = usePageModeView('comparative-heading');
   const DualScatterplot = usePageModeView('scatterplot');
   const CellSets = usePageModeView('cell-sets');
   const ViolinPlot = usePageModeView('violin-plot');
@@ -276,12 +278,9 @@ function PageComponent() {
 
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
-            <div style={{ width: '45%' }}><h2>Chronic Kidney Disease</h2></div>
-            <div style={{ width: '5%' }}><h2 style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
-            <div style={{ width: '50%' }}><h2>Healthy Reference</h2></div>
+          <div style={{ width: '100%' }}>
+            <ComparativeHeading />
           </div>
-          <h3>Cell type-level representations</h3>
           <div style={{ width: '100%', height: '300px' }}>
             <Treemap />
           </div>
@@ -307,7 +306,7 @@ function PageComponent() {
           <h3>Participant-level representations</h3>
           <h1>TODO</h1>*/}
         </div>
-        <div style={{ width: '14%', height: '500px', marginTop: '213px' }}>
+        <div style={{ width: '14%', height: '500px', marginTop: '114px' }}>
           <CellSets />
         </div>
       </div>

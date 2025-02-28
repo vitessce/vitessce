@@ -186,6 +186,7 @@ import {
 // Joint file types
 import {
   BiomarkerSelectSubscriber,
+  ComparativeHeadingSubscriber,
   autocompleteFeature,
   transformFeature,
   getAlternativeTerms,
@@ -258,6 +259,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
+  makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
 ];
 
 export const baseFileTypes = [
