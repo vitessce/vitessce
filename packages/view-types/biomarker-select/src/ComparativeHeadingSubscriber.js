@@ -38,11 +38,11 @@ export function ComparativeHeadingSubscriber(props) {
     <>
       {sampleSetSelection && sampleSetSelection.length === 2 ? (
         <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
-            <div style={{ width: '45%' }}><h2>{sampleSetSelection?.[0]?.at(-1)}</h2></div>
-            <div style={{ width: '5%' }}><h2 style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
-            <div style={{ width: '50%' }}><h2>{sampleSetSelection?.[1]?.at(-1)}</h2></div>
+          <div style={{ width: '45%' }}><h2>{sampleSetSelection?.[0]?.at(-1)}</h2></div>
+          <div style={{ width: '5%' }}><h2 style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
+          <div style={{ width: '50%' }}><h2>{sampleSetSelection?.[1]?.at(-1)}</h2></div>
         </div>
-    ) : null}
+      ) : null}
     </>
   );
 }

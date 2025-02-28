@@ -13,7 +13,7 @@ function generateKpmpPremiereConfig() {
     fileType: 'comparisonMetadata.anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
     options: {
-      path: 'uns/comparison_metadata'
+      path: 'uns/comparison_metadata',
     },
     coordinationValues: {
       obsType: 'cell',
@@ -93,83 +93,85 @@ function generateKpmpPremiereConfig() {
         path: 'obs/SampleID',
       },
     },
-  }).addFile({
-    fileType: 'anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
-    coordinationValues: {
-      obsType: 'cell',
-      featureType: 'gene',
-      featureValueType: 'expression',
-      sampleType: 'sample',
-    },
-    options: {
-      obsFeatureMatrix: {
+  })
+    .addFile({
+      fileType: 'anndata.zarr',
+      url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene',
+        featureValueType: 'expression',
+        sampleType: 'sample',
+      },
+      options: {
+        obsFeatureMatrix: {
         // "path": "layers/counts",
         // "path": "layers/logcounts",
-        path: 'layers/pearson_residuals',
-      },
-      obsEmbedding: [
-        {
-          path: 'obsm/X_densmap',
-          embeddingType: 'densMAP',
+          path: 'layers/pearson_residuals',
         },
-      ],
-      obsSets: [
-        {
-          name: 'Cell Type',
-          path: 'obs/cell_type',
-        },
-        {
-          name: 'Donor ID',
-          path: 'obs/donor_id',
-        },
-        {
-          name: 'Disease',
-          path: 'obs/disease',
-        },
-        {
-          name: 'Disease Type',
-          path: 'obs/diseasetype',
-        },
-        {
-          name: 'Adjudicated Category',
-          path: 'obs/AdjudicatedCategory',
-        },
-        {
-          name: 'Enrollment Category',
-          path: 'obs/EnrollmentCategory',
-        },
-      ],
-      /* featureLabels: {
+        obsEmbedding: [
+          {
+            path: 'obsm/X_densmap',
+            embeddingType: 'densMAP',
+          },
+        ],
+        obsSets: [
+          {
+            name: 'Cell Type',
+            path: 'obs/cell_type',
+          },
+          {
+            name: 'Donor ID',
+            path: 'obs/donor_id',
+          },
+          {
+            name: 'Disease',
+            path: 'obs/disease',
+          },
+          {
+            name: 'Disease Type',
+            path: 'obs/diseasetype',
+          },
+          {
+            name: 'Adjudicated Category',
+            path: 'obs/AdjudicatedCategory',
+          },
+          {
+            name: 'Enrollment Category',
+            path: 'obs/EnrollmentCategory',
+          },
+        ],
+        /* featureLabels: {
         path: 'var/features',
       }, */
-      sampleEdges: {
-        path: 'obs/SampleID',
+        sampleEdges: {
+          path: 'obs/SampleID',
+        },
       },
-    },
-  }).addFile({
-    fileType: 'sampleSets.anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr/uns/__all__.samples',
-    options: {
-      sampleSets: [
-        {
-          name: 'Disease Type',
-          path: 'diseasetype',
-        },
-        {
-          name: 'Adjudicated Category',
-          path: 'AdjudicatedCategory',
-        },
-        {
-          name: 'Enrollment Category',
-          path: 'EnrollmentCategory',
-        },
-      ],
-    },
-    coordinationValues: {
-      sampleType: 'sample',
-    },
-  });
+    })
+    .addFile({
+      fileType: 'sampleSets.anndata.zarr',
+      url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr/uns/__all__.samples',
+      options: {
+        sampleSets: [
+          {
+            name: 'Disease Type',
+            path: 'diseasetype',
+          },
+          {
+            name: 'Adjudicated Category',
+            path: 'AdjudicatedCategory',
+          },
+          {
+            name: 'Enrollment Category',
+            path: 'EnrollmentCategory',
+          },
+        ],
+      },
+      coordinationValues: {
+        sampleType: 'sample',
+      },
+    });
 
   const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
@@ -210,7 +212,7 @@ function generateKpmpPremiereConfig() {
     featureSelection: featureSelectionScope,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
-    //featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
+    // featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
@@ -296,15 +298,15 @@ function PageComponent() {
           <div style={{ width: '100%', height: '500px' }}>
             <ViolinPlot />
           </div>
-          
-          {/*<h3>Neighborhood-level representations</h3>
+
+          {/* <h3>Neighborhood-level representations</h3>
           <h1>TODO</h1>
           <h3>Segmented instance-level representations</h3>
           <h1>TODO</h1>
           <h3>Image-level representations</h3>
           <h1>TODO</h1>
           <h3>Participant-level representations</h3>
-          <h1>TODO</h1>*/}
+          <h1>TODO</h1> */}
         </div>
         <div style={{ width: '14%', height: '500px', marginTop: '114px' }}>
           <CellSets />

@@ -16,7 +16,7 @@ function isEqualPathPair(pathPairA, pathPairB) {
   return (
     (isEqual(pathPairA[0], pathPairB[0]) && isEqual(pathPairA[1], pathPairB[1]))
     || (isEqual(pathPairA[0], pathPairB[1]) && isEqual(pathPairA[1], pathPairB[0]))
-  )
+  );
 }
 
 /**
@@ -25,7 +25,6 @@ function isEqualPathPair(pathPairA, pathPairB) {
  * @extends {AbstractTwoStepLoader<DataSourceType>}
  */
 export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
-
   /**
    * Class method for loading feature string labels.
    * @returns {Promise<any>} A promise for the array.
@@ -34,8 +33,8 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const { pValueColumn, pValueTransformation } = this.options;
     // Check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute minus log10 here.
-    let values = await this.dataSource.loadNumeric(`${dfPath}/${pValueColumn}`);
-    if(pValueTransformation === 'minuslog10') {
+    const values = await this.dataSource.loadNumeric(`${dfPath}/${pValueColumn}`);
+    if (pValueTransformation === 'minuslog10') {
       // Invert the transformation, to return the plain p-values.
       // The view will do the -Math.log10 transformation if needed.
       values.data = values.data.map(val => Math.pow(10, -val));
@@ -51,9 +50,9 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const { foldChangeColumn, foldChangeTransformation } = this.options;
     // Check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute log2 here.
-    let values = await this.dataSource.loadNumeric(`${dfPath}/${foldChangeColumn}`);
+    const values = await this.dataSource.loadNumeric(`${dfPath}/${foldChangeColumn}`);
     // Invert the transformation
-    if(foldChangeTransformation === 'log2') {
+    if (foldChangeTransformation === 'log2') {
       values.data = values.data.map(val => Math.pow(2, val));
     }
     return values.data;
@@ -84,7 +83,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   /**
-   * 
+   *
    * @returns {Promise<StatsMeta[]>}
    */
   async loadMetadata() {
@@ -95,8 +94,8 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     if (!this.metadata) {
       // eslint-disable-next-line no-underscore-dangle
       const metadata = JSON.parse(await this.dataSource._loadString(metadataPath));
-      if(!(metadata.schema_version === "0.0.1" || metadata.schema_version === "0.0.2")) {
-        throw new Error("Unsupported comparison_metadata schema version.");
+      if (!(metadata.schema_version === '0.0.1' || metadata.schema_version === '0.0.2')) {
+        throw new Error('Unsupported comparison_metadata schema version.');
       }
       this.metadata = metadata;
       return this.metadata;
@@ -140,7 +139,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     // Match metadata against to get paths to dataframe(s) of interest.
 
     // Differential expression results have this analysis_type value.
-    const targetAnalysisType = "rank_genes_groups";
+    const targetAnalysisType = 'rank_genes_groups';
 
     const matchingComparisons = [];
     Object.entries(metadata.comparisons).forEach(([comparisonGroupKey, comparisonGroupObject]) => {
@@ -152,23 +151,23 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
           coordination_values,
           path,
         } = resultObject;
-        if(analysis_type === targetAnalysisType) {
+        if (analysis_type === targetAnalysisType) {
           // This is a diff. exp. result.
-          if(sampleSetSelection) {
+          if (sampleSetSelection) {
             // Comparing two sample groups.
             rawObsSetSelection.forEach((obsSetPath) => {
-              if(isEqual([obsSetPath], coordination_values.obsSetFilter)) {
+              if (isEqual([obsSetPath], coordination_values.obsSetFilter)) {
                 // The obsSetSelection matches.
                 // Now check whether the sampleSetSelection matches.
-                if(isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
+                if (isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
                   matchingComparisons.push(resultObject);
                 }
               }
             });
-          } else if(obsSetSelection) {
+          } else if (obsSetSelection) {
             // Comparing no sample groups but have selected cell type(s) of interest.
             rawObsSetSelection.forEach((obsSetPath) => {
-              if(isEqual([obsSetPath], coordination_values.obsSetSelection)) {
+              if (isEqual([obsSetPath], coordination_values.obsSetSelection)) {
                 matchingComparisons.push(resultObject);
               }
             });
@@ -182,7 +181,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const result = await Promise.all(matchingComparisons.map(async (comparisonObject) => {
       const df = await this.loadDataFrame(comparisonObject.path);
       return {
-        df: df,
+        df,
         metadata: comparisonObject,
       };
     }));

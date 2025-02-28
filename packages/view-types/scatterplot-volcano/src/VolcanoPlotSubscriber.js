@@ -227,7 +227,7 @@ export function VolcanoPlotSubscriber(props) {
       setDynamicCellOpacity(nextCellOpacityScale);
 
       if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-        const newTargetX = xExtent[0] + xRange / 2
+        const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
 
@@ -275,7 +275,6 @@ export function VolcanoPlotSubscriber(props) {
   }, [obsXY, obsIndex, featureValueTransform,
     gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
   ]);
-
 
 
   return (
@@ -355,7 +354,7 @@ export function VolcanoPlotSubscriber(props) {
         marginBottom={60}
         xExtent={xExtent}
         yExtent={yExtent}
-        
+
 
         featureIds={obsIndex}
         featurePositions={obsXY}

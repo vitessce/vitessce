@@ -31,31 +31,27 @@ export default function VolcanoPlot(props) {
 
   const svgRef = useRef();
 
-  const computedData = useMemo(() => {
-    return data.map(d => {
-      return {
+  const computedData = useMemo(() => data.map(d => ({
         ...d,
         df: {
           ...d.df,
           minusLog10p: d.df.featureSignificance.map(v => -Math.log10(v)),
           logFoldChange: d.df.featureFoldChange.map(v => Math.log2(v)),
-        }
-      }
-    });
-  }, [data]);
+        },
+      })), [data]);
 
   const [xExtent, yExtent] = useMemo(() => {
-    if(!computedData) {
+    if (!computedData) {
       return [null, null];
     }
     let xExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.logFoldChange))
+      computedData.flatMap(d => d3_extent(d.df.logFoldChange)),
     );
     const xAbsMax = Math.max(Math.abs(xExtentResult[0]), Math.abs(xExtentResult[1]));
     xExtentResult = [-xAbsMax, xAbsMax];
 
     const yExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.minusLog10p.filter(v => Number.isFinite(v))))
+      computedData.flatMap(d => d3_extent(d.df.minusLog10p.filter(v => Number.isFinite(v)))),
     );
     return [xExtentResult, yExtentResult];
   }, [computedData]);
@@ -97,17 +93,17 @@ export default function VolcanoPlot(props) {
       .clamp(true);
 
     // Add the axes.
-    svg.append("g")
-      .attr("transform", `translate(0,${height - marginBottom})`)
+    svg.append('g')
+      .attr('transform', `translate(0,${height - marginBottom})`)
       .call(axisBottom(xScale));
 
-    svg.append("g")
-      .attr("transform", `translate(${marginLeft},0)`)
+    svg.append('g')
+      .attr('transform', `translate(${marginLeft},0)`)
       .call(axisLeft(yScale));
-    
+
     // Axis titles
-    const titleG = svg.append("g");
-    const fgColor = "black"; // TODO: use theme to determine this
+    const titleG = svg.append('g');
+    const fgColor = 'black'; // TODO: use theme to determine this
 
     // Y-axis title
     titleG
@@ -116,7 +112,7 @@ export default function VolcanoPlot(props) {
       .attr('x', -innerHeight / 2)
       .attr('y', 15)
       .attr('transform', 'rotate(-90)')
-      .text("-log10 p-value")
+      .text('-log10 p-value')
       .style('font-size', '12px')
       .style('fill', fgColor);
 
@@ -126,11 +122,11 @@ export default function VolcanoPlot(props) {
       .attr('text-anchor', 'middle')
       .attr('x', marginLeft + innerWidth / 2)
       .attr('y', height - 10)
-      .text("log2 fold-change")
+      .text('log2 fold-change')
       .style('font-size', '12px')
       .style('fill', fgColor);
-    
-    // Get a mapping from column name to group name. 
+
+    // Get a mapping from column name to group name.
     const obsSetsColumnNameMappingReversed = Object.fromEntries(
       Object
         .entries(obsSetsColumnNameMapping)
@@ -146,16 +142,15 @@ export default function VolcanoPlot(props) {
     // TODO: add horizontal and vertical rules to indicate currently-selected thresholds
 
 
-    
     // Upregulated/downregulated and sampleSet directional indicators.
     const lhsText = sampleSetSelection && sampleSetSelection.length === 2
       ? sampleSetSelection[0].at(-1)
       : obsSetSelection?.[0]?.at(-1);
-    
+
     const rhsText = sampleSetSelection && sampleSetSelection.length === 2
       ? sampleSetSelection[1].at(-1)
-      : "__rest__";
-    
+      : '__rest__';
+
     titleG
       .append('text')
       .attr('text-anchor', 'start')
@@ -164,7 +159,7 @@ export default function VolcanoPlot(props) {
       .text(`\u2190 ${lhsText}`)
       .style('font-size', '12px')
       .style('fill', fgColor);
-    
+
     titleG
       .append('text')
       .attr('text-anchor', 'end')
@@ -174,12 +169,12 @@ export default function VolcanoPlot(props) {
       .style('font-size', '12px')
       .style('fill', fgColor);
 
-    
-    const g = svg.append("g");
+
+    const g = svg.append('g');
 
     // Append a circle for each data point.
     computedData.forEach((comparisonObject) => {
-      const obsSetG = g.append("g");
+      const obsSetG = g.append('g');
 
       const { df, metadata } = comparisonObject;
       const coordinationValues = metadata.coordination_values;
@@ -201,57 +196,52 @@ export default function VolcanoPlot(props) {
         const sampleSetPathB = [...rawSampleSetPathB];
         sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
 
-        if(isEqual(sampleSetPathA, sampleSetSelection[1]) && isEqual(sampleSetPathB, sampleSetSelection[0])) {
+        if (isEqual(sampleSetPathA, sampleSetSelection[1]) && isEqual(sampleSetPathB, sampleSetSelection[0])) {
           shouldSwapFoldChangeDirection = true;
         }
       }
 
-      const filteredDf = df.featureId.map((featureId, i) => {
-        return {
+      const filteredDf = df.featureId.map((featureId, i) => ({
           featureId,
           logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
           featureSignificance: df.featureSignificance[i],
           minusLog10p: df.minusLog10p[i],
-        };
+        }),
         // TODO: use threshold values from coordination space
-      }).filter(d => (Math.abs(d.logFoldChange) >= 1.0 && d.featureSignificance <= 0.05));
-      
+      ).filter(d => (Math.abs(d.logFoldChange) >= 1.0 && d.featureSignificance <= 0.05));
+
       const color = obsSetColorScale(obsSetPath);
 
-      obsSetG.append("g")
-        .selectAll("circle")
+      obsSetG.append('g')
+        .selectAll('circle')
         .data(filteredDf)
-        .join("circle")
-          .attr("cx", d => xScale(d.logFoldChange))
-          .attr("cy", d => yScale(d.minusLog10p))
-          .attr("r", 3)
-          .attr("opacity", 0.5)
-          .attr("fill", color)
+        .join('circle')
+          .attr('cx', d => xScale(d.logFoldChange))
+          .attr('cy', d => yScale(d.minusLog10p))
+          .attr('r', 3)
+          .attr('opacity', 0.5)
+          .attr('fill', color)
           .on('click', (event, d) => {
             onFeatureClick(d.featureId);
           });
-      
-      const textElements = obsSetG.append("g")
-        .selectAll("text")
+
+      const textElements = obsSetG.append('g')
+        .selectAll('text')
         .data(filteredDf)
-        .join("text")
+        .join('text')
           .text(d => d.featureId)
-          .attr('text-anchor', d => d.logFoldChange < 0 ? 'end' : 'start')
-          .attr("x", d => xScale(d.logFoldChange))
-          .attr("y", d => yScale(d.minusLog10p))
-          .style("display", d => (Math.abs(d.logFoldChange) < 5 || d.minusLog10p < (yExtent[1] / 2)) ? "none" : undefined)
-          .attr("fill", color)
+          .attr('text-anchor', d => (d.logFoldChange < 0 ? 'end' : 'start'))
+          .attr('x', d => xScale(d.logFoldChange))
+          .attr('y', d => yScale(d.minusLog10p))
+          .style('display', d => ((Math.abs(d.logFoldChange) < 5 || d.minusLog10p < (yExtent[1] / 2)) ? 'none' : undefined))
+          .attr('fill', color)
           .on('click', (event, d) => {
             onFeatureClick(d.featureId);
           });
-      
-      textElements.append("title")
-        .text(d => {
-          return `${featureType}: ${d.featureId}\nin ${obsSetPath?.at(-1)}\nlog2 fold-change: ${d.logFoldChange}\np-value: ${d.featureSignificance}`;
-        });
-      
+
+      textElements.append('title')
+        .text(d => `${featureType}: ${d.featureId}\nin ${obsSetPath?.at(-1)}\nlog2 fold-change: ${d.logFoldChange}\np-value: ${d.featureSignificance}`);
     });
-    
   }, [width, height, theme, sampleSetColor, sampleSetSelection,
     obsSetSelection, obsSetColor, featureType, computedData,
     xExtent, yExtent,

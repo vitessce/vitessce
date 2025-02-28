@@ -364,7 +364,7 @@ export const CoordinationType = {
   // - Significant color
   // - Significance threshold
   // - Fold-change threshold
-  // 
+  //
   // - Feature labels visible for significant features only?
   // - Zooming enabled?
   // - Adjusted p-values vs. not? vs other stats?

@@ -67,7 +67,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
       marginRight,
       marginBottom,
     } = this.props;
-    if(!xExtent || !this.props.yExtent) return [];
+    if (!xExtent || !this.props.yExtent) return [];
     const yExtent = [-this.props.yExtent[1], this.props.yExtent[0]];
     const xMid = (xExtent[0] + xExtent[1]) / 2;
     const yMid = (yExtent[0] + yExtent[1]) / 2;
@@ -77,7 +77,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     const xTicks = xScale.ticks();
 
     const yScale = scaleLinear()
-      .domain(yExtent)
+      .domain(yExtent);
     const yTicks = yScale.ticks();
 
     const bgColor = (theme === 'dark' ? [0, 0, 0] : [241, 241, 241]);
@@ -87,14 +87,14 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
     const scaleFactor = 2 ** zoom;
     function toDynamicX(fixedX) {
       const targetX = target[0];
-      return targetX + ((fixedX - (width/2)) / scaleFactor);
+      return targetX + ((fixedX - (width / 2)) / scaleFactor);
     }
-    
+
     function toDynamicY(fixedY) {
       const targetY = target[1];
-      return targetY + ((fixedY - (height/2)) / scaleFactor);
+      return targetY + ((fixedY - (height / 2)) / scaleFactor);
     }
-    
+
     function toDynamicSize(fixedSize) {
       return fixedSize / scaleFactor;
     }
@@ -107,12 +107,12 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
           {
             // x-axis
             source: [toDynamicX(marginLeft), toDynamicY(height - marginBottom)],
-            target: [toDynamicX(width - marginRight), toDynamicY(height - marginBottom)]
+            target: [toDynamicX(width - marginRight), toDynamicY(height - marginBottom)],
           },
           {
             // y-axis
             source: [toDynamicX(marginLeft), toDynamicY(marginTop)],
-            target: [toDynamicX(marginLeft), toDynamicY(height - marginBottom)]
+            target: [toDynamicX(marginLeft), toDynamicY(height - marginBottom)],
           },
         ],
         getColor: fgColor,
@@ -145,7 +145,7 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
         data: [
           { text: 'log2(Fold Change)' },
         ],
-        getPosition: d => [toDynamicX(width/2), toDynamicY(height - marginBottom + 40)],
+        getPosition: d => [toDynamicX(width / 2), toDynamicY(height - marginBottom + 40)],
         getText: d => d.text,
         getSize: d => toDynamicSize(15),
         getColor: fgColor,
@@ -158,14 +158,14 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
           { text: '-log10(Adjusted p-value)' },
         ],
         getAngle: 90,
-        getPosition: d => [toDynamicX(marginLeft - 40), toDynamicY(height/2)],
+        getPosition: d => [toDynamicX(marginLeft - 40), toDynamicY(height / 2)],
         getText: d => d.text,
         getSize: d => toDynamicSize(15),
         getColor: fgColor,
         fontFamily: LABEL_FONT_FAMILY,
         sizeUnits: 'common',
       }),
-    ]
+    ];
   }
 
   createFeaturesLayer() {
@@ -284,12 +284,12 @@ class FeatureScatterplot extends AbstractSpatialOrScatterplot {
   getLayers() {
     const {
       scatterplotLayer,
-      axisLayers
+      axisLayers,
     } = this;
     return [
       scatterplotLayer,
-     // ...axisLayers,
-     ...this.createAxisLayers(),
+      // ...axisLayers,
+      ...this.createAxisLayers(),
       this.createSelectionLayer(),
     ];
   }

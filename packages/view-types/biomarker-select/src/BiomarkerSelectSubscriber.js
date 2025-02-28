@@ -16,12 +16,10 @@ import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES, DataType } f
 import { ScmdUi } from './scmd-ui.js';
 
 function useReversedMapping(obj) {
-  return useMemo(() => {
-    return obj ? Object.fromEntries(
-      Object.entries(obj)
-        .map(([k, v]) => ([v, k])),
-    ) : {};
-  }, [obj]);
+  return useMemo(() => (obj ? Object.fromEntries(
+    Object.entries(obj)
+      .map(([k, v]) => ([v, k])),
+  ) : {}), [obj]);
 }
 
 /**
@@ -96,7 +94,7 @@ export function BiomarkerSelectSubscriber(props) {
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
   const stratificationOptions = useMemo(() => {
-    /* 
+    /*
       return array of objects like {
         stratificationId: 'aki-vs-hr',
         name: 'Acute kidney injury (AKI) vs. Healthy reference',
@@ -107,8 +105,8 @@ export function BiomarkerSelectSubscriber(props) {
         ],
       },
     */
-    if(comparisonMetadata?.sample_group_pairs) {
-      return comparisonMetadata.sample_group_pairs.map(sampleGroupPair => {
+    if (comparisonMetadata?.sample_group_pairs) {
+      return comparisonMetadata.sample_group_pairs.map((sampleGroupPair) => {
         const [sampleGroupCol, sampleGroupValues] = sampleGroupPair;
         const [sampleGroupCtrl, sampleGroupCase] = sampleGroupValues;
         return {
@@ -150,7 +148,7 @@ export function BiomarkerSelectSubscriber(props) {
               // mode is exploratory, configure accordingly.
 
               // TODO
-              
+
             } else {
               // mode is confirmatory, configure accordingly.
 
@@ -163,19 +161,19 @@ export function BiomarkerSelectSubscriber(props) {
                 ...viewConfig.coordinationSpace,
                 sampleSetFilter: {
                   ...viewConfig.coordinationSpace.sampleSetFilter,
-                  '__comparison__': currentStratificationSelection?.sampleSets,
+                  __comparison__: currentStratificationSelection?.sampleSets,
                 },
                 sampleSetSelection: {
                   ...viewConfig.coordinationSpace.sampleSetSelection,
-                  '__comparison__': currentStratificationSelection?.sampleSets,
+                  __comparison__: currentStratificationSelection?.sampleSets,
                 },
                 featureSelection: {
                   ...viewConfig.coordinationSpace.featureSelection,
-                  '__comparison__': currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
-                }
+                  __comparison__: currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
+                },
               },
             };
-            
+
             // TODO: can the normal coordination value setters be used instead?
             // (e.g., setFeatureSelection, setSampleSetSelection)
             setViewConfig(newViewConfig);

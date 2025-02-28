@@ -212,7 +212,7 @@ export const ALT_ZARR_STORE_TYPES = {
     zip: FileType.OBS_SET_STATS_ANNDATA_ZARR_ZIP,
     h5ad: FileType.OBS_SET_STATS_ANNDATA_H5AD,
   },
-  
+
   // For OME-Zarr:
   [FileType.IMAGE_OME_ZARR]: {
     zip: FileType.IMAGE_OME_ZARR_ZIP,

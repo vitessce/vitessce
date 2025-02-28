@@ -29,15 +29,13 @@ import { useStyles } from './styles.js';
  * @returns {string[][]} Transformed set paths.
  */
 function useRawSetPaths(columnNameMapping, setPaths) {
-  return useMemo(() => {
-    return setPaths?.map(setPath => {
-      const newSetPath = [...setPath];
-      if(newSetPath?.[0] && columnNameMapping[newSetPath[0]]) {
-        newSetPath[0] = columnNameMapping[newSetPath[0]];
-      }
-      return newSetPath;
-    });
-  }, [columnNameMapping, setPaths]);
+  return useMemo(() => setPaths?.map((setPath) => {
+    const newSetPath = [...setPath];
+    if (newSetPath?.[0] && columnNameMapping[newSetPath[0]]) {
+      newSetPath[0] = columnNameMapping[newSetPath[0]];
+    }
+    return newSetPath;
+  }), [columnNameMapping, setPaths]);
 }
 
 export function VolcanoPlotSubscriber(props) {
@@ -58,8 +56,8 @@ export function VolcanoPlotSubscriber(props) {
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
   // Get "props" from the coordination space.
-   // Get "props" from the coordination space.
-   const [{
+  // Get "props" from the coordination space.
+  const [{
     dataset,
     obsType,
     sampleType,
@@ -130,7 +128,7 @@ export function VolcanoPlotSubscriber(props) {
   );
   const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
   const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
-  
+
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
@@ -140,20 +138,20 @@ export function VolcanoPlotSubscriber(props) {
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
-  
+
   const isReady = useReady([
     featureStatsStatus,
   ]);
 
   const onFeatureClick = useCallback((featureId) => {
-    setFeatureSelection([featureId])
+    setFeatureSelection([featureId]);
   }, [setFeatureSelection]);
 
   // TODO: implement options dropdown
 
   return (
     <TitleInfo
-      title={`Volcano Plot`}
+      title="Volcano Plot"
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
