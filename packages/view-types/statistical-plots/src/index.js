@@ -4,6 +4,7 @@ export { ExpressionHistogramSubscriber } from './ExpressionHistogramSubscriber.j
 export { DotPlotSubscriber } from './DotPlotSubscriber.js';
 export { FeatureBarPlotSubscriber } from './FeatureBarPlotSubscriber.js';
 export { TreemapSubscriber } from './TreemapSubscriber.js';
+export { VolcanoPlotSubscriber } from './VolcanoPlotSubscriber.js';
 export { default as CellSetSizesPlot } from './CellSetSizesPlot.js';
 export { default as CellSetExpressionPlot } from './CellSetExpressionPlot.js';
 export { default as ExpressionHistogram } from './ExpressionHistogram.js';

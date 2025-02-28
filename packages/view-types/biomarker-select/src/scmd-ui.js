@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { Button, ButtonGroup, Grid, Tooltip } from '@material-ui/core';
-import { ConfirmatoryStepper } from './confirmatory-stepper.js';
+import { ConfirmatoryStepper } from './stepper-confirmatory.js';
+import { ExploratoryStepper } from './stepper-exploratory.js';
 import { useStyles } from './styles.js';
 
 
@@ -67,7 +68,22 @@ export function ScmdUi(props) {
               onFinish={onFinish}
             />
           ) : null}
-          {mode === 'exploratory' ? <span>TODO</span> : null}
+          {mode === 'exploratory' ? (
+            <ExploratoryStepper
+              autocompleteNode={autocompleteNode}
+
+              currentModalityAgnosticSelection={currentModalityAgnosticSelection}
+              setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
+              currentModalitySpecificSelection={currentModalitySpecificSelection}
+              setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+              currentStratificationSelection={currentStratificationSelection}
+              setCurrentStratificationSelection={setCurrentStratificationSelection}
+
+              getEdges={getEdges}
+              stratifications={stratifications}
+              onFinish={onFinish}
+            />
+          ) : null}
         </div>
       ) : null}
     </Grid>
