@@ -64,7 +64,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
   async loadFeatureNames(dfPath) {
     const { indexColumn } = this.options;
-    if(indexColumn) {
+    if (indexColumn) {
       return this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
     }
     // Use the default dataframe index column in this case.

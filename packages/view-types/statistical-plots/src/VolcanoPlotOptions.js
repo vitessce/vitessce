@@ -1,17 +1,13 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { isEqual } from 'lodash-es';
 import { TableCell, TableRow, Slider } from '@material-ui/core';
-import { capitalize } from '@vitessce/utils';
 import {
-  usePlotOptionsStyles, OptionSelect, OptionsContainer,
+  usePlotOptionsStyles, OptionsContainer,
 } from '@vitessce/vit-s';
 
 export default function VolcanoPlotOptions(props) {
   const {
     children,
-    obsType,
-    featureType,
 
     featurePointSignificanceThreshold,
     featurePointFoldChangeThreshold,
@@ -43,7 +39,7 @@ export default function VolcanoPlotOptions(props) {
     setFeatureLabelFoldChangeThreshold(value);
   }
 
- 
+
   return (
     <OptionsContainer>
       {children}

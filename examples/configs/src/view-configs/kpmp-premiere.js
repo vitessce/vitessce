@@ -311,7 +311,7 @@ function PageComponent() {
         <div style={{ width: '14%', height: '500px', marginTop: '114px', marginBottom: '100px' }}>
           <CellSets />
         </div>
-        
+
       </div>
 
     </>

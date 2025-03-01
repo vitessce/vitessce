@@ -6,6 +6,7 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { extent as d3_extent } from 'd3-array';
 import { select } from 'd3-selection';
 import { isEqual } from 'lodash-es';
+import { capitalize } from '@vitessce/utils';
 import { getColorScale } from './utils.js';
 
 export default function VolcanoPlot(props) {
@@ -151,6 +152,7 @@ export default function VolcanoPlot(props) {
       ? sampleSetSelection[0].at(-1)
       : '__rest__';
 
+    // eslint-disable-next-line no-nested-ternary
     const rhsText = sampleSetSelection && sampleSetSelection.length === 2
       ? sampleSetSelection[1].at(-1)
       : (obsSetSelection && obsSetSelection.length === 1

@@ -136,7 +136,7 @@ export function VolcanoPlotSubscriber(props) {
         <VolcanoPlotOptions
           obsType={obsType}
           featureType={featureType}
-          
+
           featurePointSignificanceThreshold={featurePointSignificanceThreshold}
           featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
           featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
