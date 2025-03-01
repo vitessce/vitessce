@@ -30,6 +30,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{
+    embeddingType,
     sampleSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DUAL_SCATTERPLOT], coordinationScopes);
 
@@ -50,6 +51,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
         <EmbeddingScatterplotSubscriber
           {...props}
           uuid={`${uuid}-case`}
+          title={`Scatterplot (${embeddingType}), ${caseSampleSetSelection?.[0]?.at(-1)}`}
           sampleSetSelection={caseSampleSetSelection}
         />
       </div>
@@ -57,6 +59,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
         <EmbeddingScatterplotSubscriber
           {...props}
           uuid={`${uuid}-ctrl`}
+          title={`Scatterplot (${embeddingType}), ${ctrlSampleSetSelection?.[0]?.at(-1)}`}
           sampleSetSelection={ctrlSampleSetSelection}
         />
       </div>

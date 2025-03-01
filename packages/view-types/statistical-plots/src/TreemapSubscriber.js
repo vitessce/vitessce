@@ -211,6 +211,7 @@ export function TreemapSubscriber(props) {
     ];
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,
+    sampleSetSelection,
     // TODO: consider filtering-related coordination values
   ]);
 

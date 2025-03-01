@@ -21214,7 +21214,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-geo: 3.0.1
 
   d3-geo@1.7.1:
@@ -21227,7 +21227,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-hexbin@0.2.2: {}
 
@@ -21270,7 +21270,7 @@ snapshots:
 
   d3-scale@4.0.2:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
       d3-format: 3.1.0
       d3-interpolate: 3.0.1
       d3-time: 3.0.0
@@ -21300,7 +21300,7 @@ snapshots:
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 2.12.1
 
   d3-timer@2.0.0: {}
 
