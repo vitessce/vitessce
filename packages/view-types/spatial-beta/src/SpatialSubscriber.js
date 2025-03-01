@@ -54,10 +54,12 @@ const DEFAULT_VIEW_STATE = {
 const SET_VIEW_STATE_NOOP = () => {};
 
 function getHoverData(hoverInfo, layerType) {
+  console.log(hoverInfo);
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
   if (layerType === 'segmentation-bitmask' || layerType === 'image') {
     if (coordinate && layer) {
       if (layer.id.startsWith('Tiled') && tile) {
+        console.log("layer.id.startsWith('Tiled')")
         // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
         const {
           content,

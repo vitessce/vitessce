@@ -221,6 +221,7 @@ export function renderSubBitmaskLayers(props) {
     maxZoom,
     minZoom,
     zoomOffset,
+    modelMatrix,
   } = props;
   // Only render in positive coorinate system
   if ([left, bottom, right, top].some(v => v < 0) || !data) {
@@ -232,12 +233,18 @@ export function renderSubBitmaskLayers(props) {
   // match that of the actual image (not some padded version).
   // Thus the right/bottom given by deck.gl are incorrect since
   // they assume tiles are of uniform sizes, which is not the case for us.
+
+  const bottomLeft = [left, data.height < base.tileSize ? height : bottom];
+  const topRight =[data.width < base.tileSize ? width : right, top];
+  const transformedBottomLeft = modelMatrix.transformAsPoint(bottomLeft);
+  const transformedTopRight = modelMatrix.transformAsPoint(topRight);
   const bounds = [
-    left,
-    data.height < base.tileSize ? height : bottom,
-    data.width < base.tileSize ? width : right,
-    top,
+    transformedBottomLeft[0],
+    transformedBottomLeft[1],
+    transformedTopRight[0],
+    transformedTopRight[1],
   ];
+  props.modelMatrix = new Matrix4().identity();
   return new BitmaskLayer(props, {
     channelData: data,
     // Uncomment to help debugging - shades the tile being hovered over.
@@ -252,6 +259,12 @@ export function renderSubBitmaskLayers(props) {
     zoom,
     minZoom,
     maxZoom,
-    zoomOffset, // TODO: figure out if this needs to be used or not
+    // If you scale a matrix up or down, that is like zooming in or out.  zoomOffset controls
+    // how the zoom level you fetch tiles at is offset, allowing us to fetch higher resolution tiles
+    // while at a lower "absolute" zoom level.  If you didn't use this prop, an image that is scaled
+    // up would always look "low resolution" no matter the level of the image pyramid you are looking at.
+    zoomOffset: Math.round(
+      Math.log2(modelMatrix ? modelMatrix.getScale()[0] : 1)
+    ),
   });
 }
