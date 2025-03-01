@@ -109,16 +109,17 @@ export function BiomarkerSelectSubscriber(props) {
       return comparisonMetadata.sample_group_pairs.map((sampleGroupPair) => {
         const [sampleGroupCol, sampleGroupValues] = sampleGroupPair;
         const [sampleGroupCtrl, sampleGroupCase] = sampleGroupValues;
+        const groupName = sampleSetsColumnNameMappingReversed?.[sampleGroupCol];
         return {
           stratificationId: `${sampleGroupCol}_${sampleGroupCtrl}-vs-${sampleGroupCase}`,
-          name: `${sampleGroupCol}: ${sampleGroupCtrl} vs. ${sampleGroupCase}`,
+          name: `${groupName}: ${sampleGroupCtrl} vs. ${sampleGroupCase}`,
           stratificationType: 'sampleSet',
           sampleSets: [
             // With sampleSets coming from the comparison_metadata,
             // need to use loader options from obsSets and sampleSets to get mapping
             // from column name to group name.
-            [sampleSetsColumnNameMappingReversed?.[sampleGroupCol], sampleGroupCtrl],
-            [sampleSetsColumnNameMappingReversed?.[sampleGroupCol], sampleGroupCase],
+            [groupName, sampleGroupCtrl],
+            [groupName, sampleGroupCase],
           ],
         };
       });

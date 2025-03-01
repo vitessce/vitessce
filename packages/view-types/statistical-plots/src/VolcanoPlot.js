@@ -13,6 +13,7 @@ export default function VolcanoPlot(props) {
     theme,
     width,
     height,
+    obsType,
     featureType,
     obsSetsColumnNameMapping,
     sampleSetsColumnNameMapping,
@@ -26,6 +27,10 @@ export default function VolcanoPlot(props) {
     marginLeft = 50,
     marginBottom = 50,
     onFeatureClick,
+    featurePointSignificanceThreshold,
+    featurePointFoldChangeThreshold,
+    featureLabelSignificanceThreshold,
+    featureLabelFoldChangeThreshold,
   } = props;
 
   const svgRef = useRef();
@@ -144,11 +149,15 @@ export default function VolcanoPlot(props) {
     // Upregulated/downregulated and sampleSet directional indicators.
     const lhsText = sampleSetSelection && sampleSetSelection.length === 2
       ? sampleSetSelection[0].at(-1)
-      : obsSetSelection?.[0]?.at(-1);
+      : '__rest__';
 
     const rhsText = sampleSetSelection && sampleSetSelection.length === 2
       ? sampleSetSelection[1].at(-1)
-      : '__rest__';
+      : (obsSetSelection && obsSetSelection.length === 1
+        ? obsSetSelection?.[0]?.at(-1)
+        : `${capitalize(obsType)} Set`
+      );
+
 
     titleG
       .append('text')
@@ -213,9 +222,8 @@ export default function VolcanoPlot(props) {
           featureSignificance: df.featureSignificance[i],
           minusLog10p: df.minusLog10p[i],
         })).filter(d => (
-        // TODO: use threshold values from coordination space
-        Math.abs(d.logFoldChange) >= 1.0
-        && d.featureSignificance <= 0.05
+        (Math.abs(d.logFoldChange) >= (featurePointFoldChangeThreshold ?? 1.0))
+        && (d.featureSignificance <= (featurePointSignificanceThreshold ?? 0.05))
       ));
 
       const color = obsSetColorScale(obsSetPath);
@@ -241,7 +249,10 @@ export default function VolcanoPlot(props) {
           .attr('text-anchor', d => (d.logFoldChange < 0 ? 'end' : 'start'))
           .attr('x', d => xScale(d.logFoldChange))
           .attr('y', d => yScale(d.minusLog10p))
-          .style('display', d => ((Math.abs(d.logFoldChange) < 5 || d.minusLog10p < (yExtent[1] / 2)) ? 'none' : undefined))
+          .style('display', d => ((
+            Math.abs(d.logFoldChange) < (featureLabelFoldChangeThreshold ?? 5.0)
+            || (d.featureSignificance >= (featureLabelSignificanceThreshold ?? 0.01))
+          ) ? 'none' : undefined))
           .attr('fill', color)
           .on('click', (event, d) => {
             onFeatureClick(d.featureId);
@@ -252,9 +263,11 @@ export default function VolcanoPlot(props) {
     });
   }, [width, height, theme, sampleSetColor, sampleSetSelection,
     obsSetSelection, obsSetColor, featureType, computedData,
-    xExtent, yExtent,
+    xExtent, yExtent, obsType,
     marginLeft, marginBottom, marginTop, marginRight,
     obsSetColorScale, sampleSetColorScale, onFeatureClick,
+    featurePointSignificanceThreshold, featurePointFoldChangeThreshold,
+    featureLabelSignificanceThreshold, featureLabelFoldChangeThreshold,
   ]);
 
   return (

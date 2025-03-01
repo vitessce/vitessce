@@ -590,17 +590,10 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
   new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
   // For volcano plot:
-  new PluginCoordinationType(CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN, null, z.string().nullable()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_ZOOM, null, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_X, null, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_TARGET_Y, null, z.number().nullable()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABELS_VISIBLE, false, z.boolean()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_LABEL_SIZE, 14, z.number()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS, 2, z.number()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY, 1, z.number()),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_RADIUS_MODE, 'manual', z.enum(['manual', 'auto'])),
-  new PluginCoordinationType(CoordinationType.VOLCANO_FEATURE_OPACITY_MODE, 'manual', z.enum(['manual', 'auto'])),
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_SIGNIFICANCE_THRESHOLD, 0.05, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
 ];
 
 export const baseAsyncFunctions = [

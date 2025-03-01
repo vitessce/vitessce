@@ -18,6 +18,7 @@ import {
 } from '@vitessce/constants-internal';
 import VolcanoPlot from './VolcanoPlot.js';
 import { useStyles } from './styles.js';
+import VolcanoPlotOptions from './VolcanoPlotOptions.js';
 
 
 /**
@@ -54,24 +55,16 @@ export function VolcanoPlotSubscriber(props) {
     sampleType,
     featureType,
     featureValueType,
-    volcanoZoom: zoom,
-    volcanoTargetX: targetX,
-    volcanoTargetY: targetY,
-    volcanoTargetZ: targetZ,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
     obsSetSelection,
     obsSetColor,
     obsColorEncoding: cellColorEncoding,
     additionalObsSets: additionalCellSets,
-    volcanoFeatureLabelsVisible: cellSetLabelsVisible, // TODO: rename
-    volcanoFeatureLabelSize: cellSetLabelSize, // TODO: rename
-    volcanoFeatureRadius: cellRadiusFixed,
-    volcanoFeatureRadiusMode: cellRadiusMode,
-    volcanoFeatureOpacity: cellOpacityFixed,
-    volcanoFeatureOpacityMode: cellOpacityMode,
-    featureValueColormap: geneExpressionColormap,
-    featureValueColormapRange: geneExpressionColormapRange,
+    featurePointSignificanceThreshold,
+    featurePointFoldChangeThreshold,
+    featureLabelSignificanceThreshold,
+    featureLabelFoldChangeThreshold,
     featureValueTransform,
     featureValueTransformCoefficient,
     gatingFeatureSelectionX,
@@ -80,24 +73,16 @@ export function VolcanoPlotSubscriber(props) {
     sampleSetSelection,
     sampleSetColor,
   }, {
-    setVolcanoZoom: setZoom,
-    setVolcanoTargetX: setTargetX,
-    setVolcanoTargetY: setTargetY,
-    setVolcanoTargetZ: setTargetZ,
     setObsFilter: setCellFilter,
     setObsSetSelection,
     setObsHighlight: setCellHighlight,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setAdditionalObsSets: setAdditionalCellSets,
-    setVolcanoFeatureLabelsVisible: setCellSetLabelsVisible,
-    setVolcanoFeatureLabelSize: setCellSetLabelSize,
-    setVolcanoFeatureRadius: setCellRadiusFixed,
-    setVolcanoFeatureRadiusMode: setCellRadiusMode,
-    setVolcanoFeatureOpacity: setCellOpacityFixed,
-    setVolcanoFeatureOpacityMode: setCellOpacityMode,
-    setFeatureValueColormap: setGeneExpressionColormap,
-    setFeatureValueColormapRange: setGeneExpressionColormapRange,
+    setFeaturePointSignificanceThreshold,
+    setFeaturePointFoldChangeThreshold,
+    setFeatureLabelSignificanceThreshold,
+    setFeatureLabelFoldChangeThreshold,
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setGatingFeatureSelectionX,
@@ -147,6 +132,22 @@ export function VolcanoPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      options={(
+        <VolcanoPlotOptions
+          obsType={obsType}
+          featureType={featureType}
+          
+          featurePointSignificanceThreshold={featurePointSignificanceThreshold}
+          featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
+          featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
+          featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
+
+          setFeaturePointSignificanceThreshold={setFeaturePointSignificanceThreshold}
+          setFeaturePointFoldChangeThreshold={setFeaturePointFoldChangeThreshold}
+          setFeatureLabelSignificanceThreshold={setFeatureLabelSignificanceThreshold}
+          setFeatureLabelFoldChangeThreshold={setFeatureLabelFoldChangeThreshold}
+        />
+      )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {featureStats ? (
@@ -154,6 +155,7 @@ export function VolcanoPlotSubscriber(props) {
             theme={theme}
             width={width}
             height={height}
+            obsType={obsType}
             featureType={featureType}
             obsSetsColumnNameMapping={obsSetsColumnNameMapping}
             sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
@@ -163,6 +165,11 @@ export function VolcanoPlotSubscriber(props) {
             sampleSetColor={sampleSetColor}
             data={featureStats}
             onFeatureClick={onFeatureClick}
+
+            featurePointSignificanceThreshold={featurePointSignificanceThreshold}
+            featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
+            featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
+            featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
           />
         ) : (
           <span>Select at least one {obsType} set.</span>

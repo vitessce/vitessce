@@ -513,22 +513,6 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SAMPLE_SET_SELECTION,
     // For selection of one-vs-others sets of observations:
     CoordinationType.OBS_SET_SELECTION,
-    // For p-value column name:
-    CoordinationType.VOLCANO_SIGNIFICANCE_COLUMN,
-    // For log-fold-change column name:
-    CoordinationType.VOLCANO_FOLD_CHANGE_COLUMN,
-    // Analogs of other scatterplot coordination types:
-    CoordinationType.VOLCANO_ZOOM,
-    CoordinationType.VOLCANO_TARGET_X,
-    CoordinationType.VOLCANO_TARGET_Y,
-    CoordinationType.VOLCANO_FEATURE_LABELS_VISIBLE,
-    // TODO: CoordinationType.VOLCANO_FEATURE_SET_LABELS_VISIBLE,
-    CoordinationType.VOLCANO_FEATURE_LABEL_SIZE,
-    // TODO: CoordinationType.VOLCANO_FEATURE_SET_LABEL_SIZE,
-    CoordinationType.VOLCANO_FEATURE_RADIUS,
-    CoordinationType.VOLCANO_FEATURE_RADIUS_MODE,
-    CoordinationType.VOLCANO_FEATURE_OPACITY,
-    CoordinationType.VOLCANO_FEATURE_OPACITY_MODE,
     // TODO: CoordinationType.FEATURE_SET_SELECTION,
     // TODO: CoordinationType.FEATURE_SET_HIGHLIGHT,
     // TODO: CoordinationType.FEATURE_SET_COLOR,
@@ -542,6 +526,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.SAMPLE_SET_COLOR,
+    CoordinationType.FEATURE_POINT_SIGNIFICANCE_THRESHOLD,
+    CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD,
+    CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD,
+    CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [

@@ -346,28 +346,10 @@ export const CoordinationType = {
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
   // For volcano plot:
-  VOLCANO_SIGNIFICANCE_COLUMN: 'volcanoSignificanceColumn',
-  // For log-fold-change column name:
-  VOLCANO_FOLD_CHANGE_COLUMN: 'volcanoFoldChangeColumn',
-  // Analogs of other scatterplot coordination types:
-  VOLCANO_ZOOM: 'volcanoZoom',
-  VOLCANO_TARGET_X: 'volcanoTargetX',
-  VOLCANO_TARGET_Y: 'volcanoTargetY',
-  VOLCANO_FEATURE_LABELS_VISIBLE: 'volcanoFeatureLabelsVisible',
-  VOLCANO_FEATURE_LABEL_SIZE: 'volcanoFeatureLabelSize',
-  VOLCANO_FEATURE_RADIUS: 'volcanoFeatureRadius',
-  VOLCANO_FEATURE_RADIUS_MODE: 'volcanoFeatureRadiusMode',
-  VOLCANO_FEATURE_OPACITY: 'volcanoFeatureOpacity',
-  VOLCANO_FEATURE_OPACITY_MODE: 'volcanoFeatureOpacityMode',
-  // TODO:
-  // - Insignificant color
-  // - Significant color
-  // - Significance threshold
-  // - Fold-change threshold
-  //
-  // - Feature labels visible for significant features only?
-  // - Zooming enabled?
-  // - Adjusted p-values vs. not? vs other stats?
+  FEATURE_POINT_SIGNIFICANCE_THRESHOLD: 'featurePointSignificanceThreshold',
+  FEATURE_LABEL_SIGNIFICANCE_THRESHOLD: 'featureLabelSignificanceThreshold',
+  FEATURE_POINT_FOLD_CHANGE_THRESHOLD: 'featurePointFoldChangeThreshold',
+  FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
 };

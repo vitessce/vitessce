@@ -308,9 +308,10 @@ function PageComponent() {
           <h3>Participant-level representations</h3>
           <h1>TODO</h1> */}
         </div>
-        <div style={{ width: '14%', height: '500px', marginTop: '114px' }}>
+        <div style={{ width: '14%', height: '500px', marginTop: '114px', marginBottom: '100px' }}>
           <CellSets />
         </div>
+        
       </div>
 
     </>

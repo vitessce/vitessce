@@ -64,9 +64,11 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
   async loadFeatureNames(dfPath) {
     const { indexColumn } = this.options;
-    // TODO: check the options to determine whether the significance values are pre-transformed
-    // or if we still need to compute log2 here.
-    return this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
+    if(indexColumn) {
+      return this.dataSource._loadColumn(`${dfPath}/${indexColumn}`);
+    }
+    // Use the default dataframe index column in this case.
+    return this.dataSource.loadDataFrameIndex(dfPath);
   }
 
   async loadDataFrame(dfPath) {
