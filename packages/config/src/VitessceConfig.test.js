@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { CoordinationType } from '@vitessce/constants-internal';
 import {
+  getInitialCoordinationScopePrefix,
+} from '@vitessce/utils';
+import {
   VitessceConfig,
   hconcat,
   vconcat,
@@ -940,6 +943,296 @@ describe('src/api/VitessceConfig.js', () => {
         ],
         name: 'My config',
         version: '1.0.4',
+      });
+    });
+
+    it('constructs same JSON as when using python API equivalent', () => {
+      const config = new VitessceConfig({
+          schemaVersion: '1.0.16',
+          name: 'A',
+          description: ''
+      });
+      const baseUrl = 'https://kpmp-knowledge-environment-public.s3.us-east-1.amazonaws.com/maldi_test';
+      const dataset = config.addDataset('A').addFile({
+          fileType: 'image.ome-tiff',
+          url: baseUrl + "/240216_S-2008-007631_3_PAS_registered.ome.tiff",
+          coordinationValues: {
+              fileUid: "PAS"
+          }
+      }).addFile({
+          fileType: 'image.ome-tiff',
+          url: baseUrl + "/240216_S-2008-007631_3_AF_registered.ome.tiff",
+          coordinationValues: {
+              fileUid: "AF"
+          }
+      }).addFile({
+          fileType: 'image.ome-tiff',
+          url: baseUrl + "/240216_S-2008-007631_3_IMS-lipids-neg.ome.tiff",
+          coordinationValues: {
+              fileUid: "IMS-NegMode"
+          },
+          options: {
+              coordinateTransformations: [
+                  {
+                      type: 'translation',
+                      translation: [953.14/(15.36/10), 1415.67/(15.37/10), 1, 1, 1]
+                  }
+              ]
+          }
+      });
+      const spatialView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 12 });
+      const lcView = config.addView(dataset, 'layerControllerBeta', { x:  9, y: 0, w: 3, h: 12 });
+
+      config.linkViewsByObject([spatialView, lcView], {
+          imageLayer: CL([
+              {
+                  fileUid: 'PAS',
+                  spatialLayerTransparentColor: null,
+                  spatialLayerVisible: true,
+                  spatialLayerOpacity: 1,
+                  photometricInterpretation: "BlackIsZero",
+                  imageChannel: CL([{
+                      spatialTargetC: 0,
+                      spatialChannelWindow: [0, 1500]
+                  }]),
+              },
+              {
+                fileUid: 'AF',
+                spatialLayerTransparentColor: [0, 0, 0],
+                spatialLayerVisible: true,
+                spatialLayerOpacity: 1,
+                photometricInterpretation: "BlackIsZero",
+                imageChannel: CL([{
+                    spatialTargetC: 0,
+                    spatialChannelWindow: [10, 50]
+                }]),
+              },
+              {
+                fileUid: 'IMS-NegMode',
+                spatialLayerTransparentColor: [0, 0, 0],
+                spatialLayerVisible: true,
+                spatialLayerOpacity: 1,
+                photometricInterpretation: "BlackIsZero",
+                imageChannel: CL([{
+                    spatialTargetC: 0,
+                    spatialChannelWindow: [0, 255]
+                }]),
+              }
+          ])
+      }, {meta: true, scopePrefix: getInitialCoordinationScopePrefix('A', 'image') }); // linkViewsByObject;
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        "version": "1.0.16",
+        "name": "A",
+        "description": "",
+        "datasets": [
+          {
+            "uid": "A",
+            "name": "A",
+            "files": [
+              {
+                "fileType": "image.ome-tiff",
+                "url": "https://kpmp-knowledge-environment-public.s3.us-east-1.amazonaws.com/maldi_test/240216_S-2008-007631_3_PAS_registered.ome.tiff",
+                "coordinationValues": {
+                  "fileUid": "PAS"
+                }
+              },
+              {
+                "fileType": "image.ome-tiff",
+                "url": "https://kpmp-knowledge-environment-public.s3.us-east-1.amazonaws.com/maldi_test/240216_S-2008-007631_3_AF_registered.ome.tiff",
+                "coordinationValues": {
+                  "fileUid": "AF"
+                }
+              },
+              {
+                "fileType": "image.ome-tiff",
+                "url": "https://kpmp-knowledge-environment-public.s3.us-east-1.amazonaws.com/maldi_test/240216_S-2008-007631_3_IMS-lipids-neg.ome.tiff",
+                "options": {
+                  "coordinateTransformations": [
+                    {
+                      "type": "translation",
+                      "translation": [
+                        620.5338541666666,
+                        921.060507482108,
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  ]
+                },
+                "coordinationValues": {
+                  "fileUid": "IMS-NegMode"
+                }
+              }
+            ]
+          }
+        ],
+        "coordinationSpace": {
+          "dataset": {
+            "A": "A"
+          },
+          "imageLayer": {
+            "init_A_image_0": "__dummy__",
+            "init_A_image_1": "__dummy__",
+            "init_A_image_2": "__dummy__"
+          },
+          "fileUid": {
+            "init_A_image_0": "PAS",
+            "init_A_image_1": "AF",
+            "init_A_image_2": "IMS-NegMode"
+          },
+          "spatialLayerTransparentColor": {
+            "init_A_image_0": null,
+            "init_A_image_1": [
+              0,
+              0,
+              0
+            ],
+            "init_A_image_2": [
+              0,
+              0,
+              0
+            ]
+          },
+          "spatialLayerVisible": {
+            "init_A_image_0": true,
+            "init_A_image_1": true,
+            "init_A_image_2": true
+          },
+          "spatialLayerOpacity": {
+            "init_A_image_0": 1,
+            "init_A_image_1": 1,
+            "init_A_image_2": 1
+          },
+          "photometricInterpretation": {
+            "init_A_image_0": "BlackIsZero",
+            "init_A_image_1": "BlackIsZero",
+            "init_A_image_2": "BlackIsZero"
+          },
+          "imageChannel": {
+            "init_A_image_0": "__dummy__",
+            "init_A_image_1": "__dummy__",
+            "init_A_image_2": "__dummy__"
+          },
+          "spatialTargetC": {
+            "init_A_image_0": 0,
+            "init_A_image_1": 0,
+            "init_A_image_2": 0
+          },
+          "spatialChannelWindow": {
+            "init_A_image_0": [
+              0,
+              1500
+            ],
+            "init_A_image_1": [
+              10,
+              50
+            ],
+            "init_A_image_2": [
+              0,
+              255
+            ]
+          },
+          "metaCoordinationScopes": {
+            "init_A_image_0": {
+              "imageLayer": [
+                "init_A_image_0",
+                "init_A_image_1",
+                "init_A_image_2"
+              ]
+            }
+          },
+          "metaCoordinationScopesBy": {
+            "init_A_image_0": {
+              "imageLayer": {
+                "fileUid": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "spatialLayerTransparentColor": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "spatialLayerVisible": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "spatialLayerOpacity": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "photometricInterpretation": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "imageChannel": {
+                  "init_A_image_0": [
+                    "init_A_image_0"
+                  ],
+                  "init_A_image_1": [
+                    "init_A_image_1"
+                  ],
+                  "init_A_image_2": [
+                    "init_A_image_2"
+                  ]
+                }
+              },
+              "imageChannel": {
+                "spatialTargetC": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                },
+                "spatialChannelWindow": {
+                  "init_A_image_0": "init_A_image_0",
+                  "init_A_image_1": "init_A_image_1",
+                  "init_A_image_2": "init_A_image_2"
+                }
+              }
+            }
+          }
+        },
+        "layout": [
+          {
+            "component": "spatialBeta",
+            "coordinationScopes": {
+              "dataset": "A",
+              "metaCoordinationScopes": [
+                "init_A_image_0"
+              ],
+              "metaCoordinationScopesBy": [
+                "init_A_image_0"
+              ]
+            },
+            "x": 0,
+            "y": 0,
+            "w": 9,
+            "h": 12
+          },
+          {
+            "component": "layerControllerBeta",
+            "coordinationScopes": {
+              "dataset": "A",
+              "metaCoordinationScopes": [
+                "init_A_image_0"
+              ],
+              "metaCoordinationScopesBy": [
+                "init_A_image_0"
+              ]
+            },
+            "x": 9,
+            "y": 0,
+            "w": 3,
+            "h": 12
+          }
+        ],
+        "initStrategy": "auto"
       });
     });
 
