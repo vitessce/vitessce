@@ -1002,6 +1002,9 @@ importers:
       '@vitessce/spatial':
         specifier: workspace:*
         version: link:../../view-types/spatial
+      '@vitessce/spatial-accelerated':
+        specifier: workspace:*
+        version: link:../../view-types/spatial-accelerated
       '@vitessce/spatial-beta':
         specifier: workspace:*
         version: link:../../view-types/spatial-beta
@@ -2164,6 +2167,9 @@ importers:
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../../utils/sets-utils
+      '@vitessce/spatial-accelerated':
+        specifier: workspace:*
+        version: link:../spatial-accelerated
       '@vitessce/spatial-three':
         specifier: workspace:*
         version: link:../spatial-three
