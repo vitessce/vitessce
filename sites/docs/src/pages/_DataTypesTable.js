@@ -293,7 +293,11 @@ export default function DataTypesTable() {
           </td>
         </tr>
         <tr>
-          <td><code>featureStats</code><br /> Per-feature statistics. For example, differential expression test results.</td>
+          <td>
+            <code>featureStats</code>
+            <br />
+            Per-feature statistics. For example, differential expression test results.
+          </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturestatsanndatazarr')}><code>comparativeFeatureStats.anndata.zarr</code></a></li></ul></td>
           <td>
             <ul>

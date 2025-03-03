@@ -146,30 +146,30 @@ export default function VolcanoPlot(props) {
 
     // Horizontal and vertical rules to indicate currently-selected thresholds
     // Vertical lines
-    const ruleColor = "silver";
-    const ruleDash = "2,2";
-    titleG.append("line")
-      .attr("x1", xScale(featurePointFoldChangeThreshold))
-      .attr("x2", xScale(featurePointFoldChangeThreshold))
-      .attr("y1", yScale.range()[0])
-      .attr("y2", yScale.range()[1])
-      .style("stroke", ruleColor)
-      .style("stroke-dasharray", ruleDash);
-    titleG.append("line")
-      .attr("x1", xScale(-featurePointFoldChangeThreshold))
-      .attr("x2", xScale(-featurePointFoldChangeThreshold))
-      .attr("y1", yScale.range()[0])
-      .attr("y2", yScale.range()[1])
-      .style("stroke",ruleColor)
-      .style("stroke-dasharray", ruleDash);
+    const ruleColor = 'silver';
+    const ruleDash = '2,2';
+    titleG.append('line')
+      .attr('x1', xScale(featurePointFoldChangeThreshold))
+      .attr('x2', xScale(featurePointFoldChangeThreshold))
+      .attr('y1', yScale.range()[0])
+      .attr('y2', yScale.range()[1])
+      .style('stroke', ruleColor)
+      .style('stroke-dasharray', ruleDash);
+    titleG.append('line')
+      .attr('x1', xScale(-featurePointFoldChangeThreshold))
+      .attr('x2', xScale(-featurePointFoldChangeThreshold))
+      .attr('y1', yScale.range()[0])
+      .attr('y2', yScale.range()[1])
+      .style('stroke', ruleColor)
+      .style('stroke-dasharray', ruleDash);
     // Horizontal lines
-    titleG.append("line")
-      .attr("x1", xScale.range()[0])
-      .attr("x2", xScale.range()[1])
-      .attr("y1", yScale(-Math.log10(featurePointSignificanceThreshold)))
-      .attr("y2", yScale(-Math.log10(featurePointSignificanceThreshold)))
-      .style("stroke", ruleColor)
-      .style("stroke-dasharray", ruleDash);
+    titleG.append('line')
+      .attr('x1', xScale.range()[0])
+      .attr('x2', xScale.range()[1])
+      .attr('y1', yScale(-Math.log10(featurePointSignificanceThreshold)))
+      .attr('y2', yScale(-Math.log10(featurePointSignificanceThreshold)))
+      .style('stroke', ruleColor)
+      .style('stroke-dasharray', ruleDash);
 
 
     // Upregulated/downregulated and sampleSet directional indicators.
