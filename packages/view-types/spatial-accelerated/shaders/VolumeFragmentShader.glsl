@@ -95,10 +95,7 @@ float linear_to_srgb(float x) {
 }
 
 void main(void) {
-// For finding the settings for the MESH
-// "  gl_FragColor = vec4(worldSpaceCoords.x,worldSpaceCoords.y,worldSpaceCoords.z,0.5);",
-// "  return;",
-//
+
     //STEP 1: Normalize the view Ray',
     vec3 rayDir = normalize(rayDirUnnorm);
     //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume',
@@ -106,26 +103,34 @@ void main(void) {
     if (t_hit.x >= t_hit.y) {
       discard;
     }
+
+    // For finding the settings for the MESH
+    //gl_FragColor = vec4(worldSpaceCoords.xyz,1.0); // COLORED BOX
+    //gl_FragColor = vec4(cameraCorrected.x,cameraCorrected.y,cameraCorrected.z,1.0); // CLOSEST PLANE
+    //gl_FragColor = vec4(rayDirUnnorm.x,rayDirUnnorm.y,rayDirUnnorm.z,1.0); // RAY DIRECTION (MAKES PLUS SHAPE)
+    //gl_FragColor = vec4(t_hit.x/1000.0, 0.0, t_hit.y/1000.0, 1.0); // intersect hits
+    //float depth_hit = t_hit.y - t_hit.x;
+    //gl_FragColor = vec4(depth_hit/100.0, 0.0, 0.0, 1.0); // intersect hits
+    //gl_FragColor = vec4(u_renderstyle==0?1.0:0.0, u_renderstyle==1?1.0:0.0, u_renderstyle==2?1.0:0.0, 1.0); // intersect hits
+    //gl_FragColor = vec4(alphaScale, dtScale, 0.0, 1.0);
+    //return;
+    // NOTE: image opacity scales dtScale, not alphaScale
+
+
     //No sample behind the eye',
     t_hit.x = max(t_hit.x, 0.0);
     //STEP 3: Compute the step size to march through the volume grid',
     ivec3 volumeTexSize = textureSize(volumeTex, 0);
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    dt = max(1.0, dt);
-    // Ray starting point, in the real space where the box may not be a cube.',
-    // Prevents a lost WebGL context.',
-    // "   if (dt < 0.0000001) {",
-    // "     gl_FragColor = vec4(1.0);",
-    // "     return;",
-    // "   }",
+    dt = max(0.5, dt);
     float offset = wang_hash(int(gl_FragCoord.x + 640.0 * gl_FragCoord.y));
     vec3 p = cameraCorrected + (t_hit.x + offset + dt) * rayDir;
     // Most browsers do not need this initialization, but add it to be safe.',
     gl_FragColor = vec4(0.0);
     p = p / boxSize + vec3(0.5);
     vec3 step = (rayDir * dt) / boxSize;
-    // ',
+
     // Initialization of some variables.',
     float max_val = 0.0;
     float max_val2 = 0.0;
@@ -139,88 +144,68 @@ void main(void) {
     int i = 0;
     float x = gl_FragCoord.x/u_window_size.x;
     float y = gl_FragCoord.y/u_window_size.y;
-    vec3 meshPos = texture2D(u_stop_geom, vec2(x,y)).xyz;
+    //vec3 meshPos = texture2D(u_stop_geom, vec2(x,y)).xyz;
     // "  vec3 meshPos = texture2D(u_stop_geom, vec2(gl_FragCoord.x,gl_FragCoord.y)).xyz;",
     //  "  gl_FragColor = vec4(meshPos,1.0);",
     //  "  return;",
-    float dist = 1000.0;
+    float alphaMultiplicator = 1.0;
     for (float t = t_hit.x; t < t_hit.y; t += dt) {
-        if(meshPos != vec3(0.0)) dist = distance(p,meshPos);
-        float val = texture(volumeTex, p.xyz).r;
+        vec3 rgbCombo = vec3(0.0);
+        float total   = 0.0;
+
+        float val = texture(volumeTex, p).r;
         val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
         rgbCombo += max(0.0, min(1.0, val)) * u_color;
-        total += val;
-        if(volumeCount > 1.0) {
-            float val2 = texture(volumeTex2, p.xyz).r;
+        total    += val;
+
+        if (volumeCount > 1.0) {
+            float val2 = texture(volumeTex2, p).r;
             val2 = max(0.0, (val2 - u_clim2[0]) / (u_clim2[1] - u_clim2[0]));
             rgbCombo += max(0.0, min(1.0, val2)) * u_color2;
-            total += val2;
+            total    += val2;
         }
-        if(volumeCount > 2.0){
-            float val3 = texture(volumeTex3, p.xyz).r;
+        if (volumeCount > 2.0) {
+            float val3 = texture(volumeTex3, p).r;
             val3 = max(0.0, (val3 - u_clim3[0]) / (u_clim3[1] - u_clim3[0]));
             rgbCombo += max(0.0, min(1.0, val3)) * u_color3;
-            total += val3;
+            total    += val3;
         }
-        if(volumeCount > 3.0){
-            float val4 = texture(volumeTex4, p.xyz).r;
+        if (volumeCount > 3.0) {
+            float val4 = texture(volumeTex4, p).r;
             val4 = max(0.0, (val4 - u_clim4[0]) / (u_clim4[1] - u_clim4[0]));
             rgbCombo += max(0.0, min(1.0, val4)) * u_color4;
-            total += val4;
+            total    += val4;
         }
-        if(volumeCount > 4.0){
-            float val5 = texture(volumeTex5, p.xyz).r;
+        if (volumeCount > 4.0) {
+            float val5 = texture(volumeTex5, p).r;
             val5 = max(0.0, (val5 - u_clim5[0]) / (u_clim5[1] - u_clim5[0]));
             rgbCombo += max(0.0, min(1.0, val5)) * u_color5;
-            total += val5;
+            total    += val5;
         }
-        if(volumeCount > 5.0){
-            float val6 = texture(volumeTex6, p.xyz).r;
+        if (volumeCount > 5.0) {
+            float val6 = texture(volumeTex6, p).r;
             val6 = max(0.0, (val6 - u_clim6[0]) / (u_clim6[1] - u_clim6[0]));
             rgbCombo += max(0.0, min(1.0, val6)) * u_color6;
-            total += val6;
+            total    += val6;
         }
-        if(total > 0.0 && dist < 0.1){
+
+        total = clamp(total, 0.0, 1.0);
+        float sliceAlpha = total * dtScale * dt;
+        vec3 sliceColor  = rgbCombo;
+
+        gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+        gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
+
+        alphaMultiplicator *= (1.0 - sliceAlpha);
+
+        if (gl_FragColor.a > 0.99) {
             break;
-        } else if(dist < 0.1){
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-            break;
         }
-        if(u_renderstyle == 0 && (max_val > u_clim[1] && max_val2 >= u_clim2[1] && max_val3 >= u_clim3[1] && max_val4 >= u_clim4[1] && max_val5 >= u_clim5[1] &&  max_val6 >= u_clim6[1])) break;
-        if(u_renderstyle == 2) {
-            total = min(total, 1.0);
-            vec4 val_color = vec4(rgbCombo, total);
-            val_color.a = 1.0 - pow(1.0 - val_color.a, 1.0);
-            gl_FragColor.rgb += (1.0 - gl_FragColor.a) * val_color.a * val_color.rgb;
-            gl_FragColor.a += (1.0 - gl_FragColor.a) * val_color.a * dtScale;
-            if (gl_FragColor.a >= 0.95) {
-                break;
-            }
-        }
+
         p += step;
-   }
+    }
 
     gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
-    // "   gl_FragColor = vec4(gl_FragDepth,gl_FragDepth,gl_FragDepth,1.0);",
-    // "   return;",
-    if (u_renderstyle == 0 && max_val < u_clim[0] && max_val2 < u_clim2[0] && max_val3 < u_clim3[0] && max_val4 < u_clim4[0] && max_val5 < u_clim5[0] && max_val6 < u_clim6[0]) {
-        gl_FragColor = vec4(0, 0, 0, 0);
-    } else if (u_renderstyle == 0) {
-        max_val = (max_val - u_clim[0]) / (u_clim[1] - u_clim[0]);
-        max_val2 = (max_val2 - u_clim2[0]) / (u_clim2[1] - u_clim2[0]);
-        max_val3 = (max_val3 - u_clim3[0]) / (u_clim3[1] - u_clim3[0]);
-        max_val4 = (max_val4 - u_clim4[0]) / (u_clim4[1] - u_clim4[0]);
-        max_val5 = (max_val5 - u_clim5[0]) / (u_clim5[1] - u_clim5[0]);
-        max_val6 = (max_val6 - u_clim6[0]) / (u_clim6[1] - u_clim6[0]);
-        vec3 color = u_color * max_val;
-        if (volumeCount > 1.0) color += u_color2 * max_val2;
-        if (volumeCount > 3.0) color += u_color4 * max_val4;
-        if (volumeCount > 2.0) color += u_color3 * max_val3;
-        if (volumeCount > 4.0) color += u_color5 * max_val5;
-        if (volumeCount > 5.0) color += u_color6 * max_val6;
-        vec3 colorCorrected = vec3(min(color[0], 1.0), min(color[1], 1.0), min(color[2], 1.0));
-        gl_FragColor = vec4(color, 1.0);
-    }
     gl_FragColor.r = linear_to_srgb(gl_FragColor.r);
     gl_FragColor.g = linear_to_srgb(gl_FragColor.g);
     gl_FragColor.b = linear_to_srgb(gl_FragColor.b);
