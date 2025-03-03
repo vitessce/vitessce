@@ -291,9 +291,9 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
 
   ...makeZarrFileTypes(FileType.COMPARISON_METADATA_ANNDATA_ZARR, DataType.COMPARISON_METADATA, ComparisonMetadataAnndataLoader, AnnDataSource, comparisonMetadataAnndataSchema),
-  ...makeZarrFileTypes(FileType.FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
-  ...makeZarrFileTypes(FileType.FEATURE_SET_STATS_ANNDATA_ZARR, DataType.FEATURE_SET_STATS, FeatureSetStatsAnndataLoader, AnnDataSource, featureSetStatsAnndataSchema),
-  ...makeZarrFileTypes(FileType.OBS_SET_STATS_ANNDATA_ZARR, DataType.OBS_SET_STATS, ObsSetStatsAnndataLoader, AnnDataSource, obsSetStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR, DataType.FEATURE_SET_STATS, FeatureSetStatsAnndataLoader, AnnDataSource, featureSetStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR, DataType.OBS_SET_STATS, ObsSetStatsAnndataLoader, AnnDataSource, obsSetStatsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),

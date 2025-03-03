@@ -271,7 +271,30 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td><code>sampleSets</code><br /> Lists or hierarchies of sets of samples.</td>
-          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#samplesetsanndatazarr')}><code>sampleSets.anndata.zarr</code></a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><code>comparisonMetadata</code><br /> Comparison metadata.</td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparisonmetadataanndatazarr')}><code>comparisonMetadata.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><code>featureStats</code><br /> Per-feature statistics. For example, differential expression test results.</td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturestatsanndatazarr')}><code>comparativeFeatureStats.anndata.zarr</code></a></li></ul></td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>

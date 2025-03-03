@@ -24,7 +24,7 @@ export default function VolcanoPlotOptions(props) {
   const classes = usePlotOptionsStyles();
 
   function handlePointSignificanceChange(event, value) {
-    setFeaturePointSignificanceThreshold(value);
+    setFeaturePointSignificanceThreshold(10 ** -value);
   }
 
   function handlePointFoldChangeChange(event, value) {
@@ -32,7 +32,7 @@ export default function VolcanoPlotOptions(props) {
   }
 
   function handleLabelSignificanceChange(event, value) {
-    setFeatureLabelSignificanceThreshold(value);
+    setFeatureLabelSignificanceThreshold(10 ** -value);
   }
 
   function handleLabelFoldChangeChange(event, value) {
@@ -54,14 +54,14 @@ export default function VolcanoPlotOptions(props) {
         <TableCell className={classes.inputCell} variant="body">
           <Slider
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-            value={featureLabelSignificanceThreshold}
+            value={-Math.log10(featureLabelSignificanceThreshold)}
             onChange={handleLabelSignificanceChange}
             aria-label="Volcano plot label significance threshold slider"
             id={`volcano-label-significance-${volcanoOptionsId}`}
             valueLabelDisplay="auto"
-            step={0.00001}
-            min={0.00}
-            max={0.10}
+            step={1}
+            min={0}
+            max={100}
           />
         </TableCell>
       </TableRow>
@@ -98,14 +98,14 @@ export default function VolcanoPlotOptions(props) {
         <TableCell className={classes.inputCell} variant="body">
           <Slider
             classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
-            value={featurePointSignificanceThreshold}
+            value={-Math.log10(featurePointSignificanceThreshold)}
             onChange={handlePointSignificanceChange}
             aria-label="Volcano plot point significance threshold slider"
             id={`volcano-point-significance-${volcanoOptionsId}`}
             valueLabelDisplay="auto"
-            step={0.00001}
-            min={0.00}
-            max={0.10}
+            step={1}
+            min={0}
+            max={100}
           />
         </TableCell>
       </TableRow>

@@ -50,8 +50,6 @@ const annDataFeatureStats = z.object({
     .optional(),
   foldChangeTransformation: z.enum(['log2'])
     .optional(),
-  zScoreColumn: z.string()
-    .optional(),
 });
 
 const annDataFeatureSetStats = z.object({

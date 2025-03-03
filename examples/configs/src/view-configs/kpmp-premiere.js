@@ -21,7 +21,7 @@ function generateKpmpPremiereConfig() {
     },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   }).addFile({
-    fileType: 'featureStats.anndata.zarr',
+    fileType: 'comparativeFeatureStats.anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
     options: {
       metadataPath: 'uns/comparison_metadata',
@@ -31,7 +31,6 @@ function generateKpmpPremiereConfig() {
       // pValueTransformation: 'minuslog10',
       pValueAdjusted: true,
       foldChangeTransformation: 'log2',
-      zScoreColumn: 'scores',
     },
     coordinationValues: {
       obsType: 'cell',
