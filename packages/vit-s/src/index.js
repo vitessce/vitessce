@@ -17,6 +17,7 @@ export {
   useWindowDimensions,
   useGridItemSize,
   useExpandedFeatureLabelsMap,
+  useColumnNameMapping,
 } from './hooks.js';
 export {
   useCoordinationScopes,
@@ -76,7 +77,9 @@ export {
 
   useObsFeatureMatrixData,
   useFeatureLabelsData,
+  useFeatureStatsData,
   useGenomicProfilesData,
+  useComparisonMetadata,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,

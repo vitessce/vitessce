@@ -1,13 +1,12 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
 import { treemap, treemapBinary, hierarchy as d3_hierarchy } from 'd3-hierarchy';
 import { rollup as d3_rollup } from 'd3-array';
 import { isEqual } from 'lodash-es';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { getDefaultColor, pluralize as plur } from '@vitessce/utils';
+import { pluralize as plur } from '@vitessce/utils';
+import { getColorScale } from './utils.js';
 
 // Based on Observable's built-in DOM.uid function.
 // This is intended to be used with SVG clipPaths
@@ -19,20 +18,6 @@ function uidGenerator(prefix) {
     i += 1;
     return { id: `${prefix}-${i}`, href: `#${prefix}-${i}` };
   };
-}
-
-// Create a d3-scale ordinal scale mapping set paths to color strings.
-function getColorScale(setSelectionArr, setColorArr, theme) {
-  return scaleOrdinal()
-    .domain(setSelectionArr || [])
-    .range(
-      setSelectionArr
-        ?.map(setNamePath => (
-          setColorArr?.find(d => isEqual(d.path, setNamePath))?.color
-          || getDefaultColor(theme)
-        ))
-        ?.map(colorArrayToString) || [],
-    );
 }
 
 /**
