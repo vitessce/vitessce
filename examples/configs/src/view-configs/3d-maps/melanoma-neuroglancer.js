@@ -1,8 +1,11 @@
 import {
   VitessceConfig,
+  CoordinationLevel as CL,
   hconcat,
-} from '@vitessce/config';
+  vconcat,
 
+} from '@vitessce/config';
+import { vapi } from './../../utils.js';
 
 function generateNeuroglancerMinimalConfiguration() {
   const config = new VitessceConfig({
@@ -12,10 +15,49 @@ function generateNeuroglancerMinimalConfiguration() {
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
     url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-invasive-margin.ome.tiff',
+    options: {
+      offsetsUrl: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-invasive-margin.offsets.json',
+    },
     coordinationValues: {
       fileUid: 'melanoma',
     },
   });
+
+  dataset.addFile({
+    fileType: 'obsEmbedding.csv',
+    url: 'http://localhost:8000/melanoma_with_embedding.csv',
+    options: {
+      obsIndex: 'id',
+      obsEmbedding: ['tSNE1', 'tSNE2'],
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      embeddingType: 'TSNE',
+    },
+  });
+
+  dataset.addFile({
+    fileType: 'obsSets.csv',
+    url: 'http://localhost:8000/melanoma_with_embedding.csv',
+    coordinationValues: {
+      obsType: 'cell',
+    },
+    options: {
+      obsIndex: 'id',
+      obsSets: [
+        {
+          name: 'Cluster',
+          column: 'cluster',
+        },
+      ],
+    },
+  });
+
+  const spatialThreeView = config.addView(dataset, 'spatialBeta')
+    .setProps({ three: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const obsSets = config.addView(dataset, 'obsSets');
+  const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({ viewerState: {
     dimensions: {
       x: [
@@ -72,7 +114,61 @@ function generateNeuroglancerMinimalConfiguration() {
     },
   } });
 
-  config.layout(hconcat(neuroglancerView));
+  // const [
+  //   obsSetColorScope,
+  //   obsSetSelectionScope,
+  //   additionalObsSetsScope,
+  // ] = config.addCoordination('obsSetColor', 'obsSetSelection', 'additionalObsSets');
+
+  // const scopes = config.addCoordinationByObject({
+  //   spatialTargetZ: 0,
+  //   spatialTargetT: 0,
+  //   obsType: 'cell',
+  //   pointLayer: CL({
+  //     obsType: 'molecule',
+  //     spatialLayerVisible: false,
+  //     spatialLayerOpacity: 0.5,
+  //     spatialLayerColor: [0, 255, 0],
+  //     obsColorEncoding: 'obsLabels',
+  //     obsHighlight: null,
+  //     obsLabelsType: 'gene',
+  //   }),
+
+  // const metaCoordinationScope = config.addMetaCoordination();
+  // metaCoordinationScope.useCoordinationByObject(scopes);
+
+
+
+  // spatialThreeView.useMetaCoordination(metaCoordinationScope);
+  // lcView.useMetaCoordination(metaCoordinationScope);
+
+  // config.linkViews([obsSets], ['obsType'], ['cell']);
+
+  // obsSets.useCoordination(obsSetColorScope, obsSetSelectionScope, additionalObsSetsScope);
+
+
+  config.linkViewsByObject([spatialThreeView, lcView], {
+    spatialTargetZ: 0,
+    spatialTargetT: 0,
+    imageLayer: CL([
+      {
+        fileUid: 'melanoma',
+        spatialLayerOpacity: 1,
+        spatialTargetResolution: null,
+        imageChannel: CL([
+          {
+            spatialTargetC: 1,
+            spatialChannelColor: [255, 0, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+          },
+        ]),
+      },
+    ]),
+  });
+
+
+  config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
 
   const configJSON = config.toJSON();
   return configJSON;
