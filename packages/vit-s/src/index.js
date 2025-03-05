@@ -81,6 +81,7 @@ export {
 
   useComparisonMetadata,
   useFeatureStatsData,
+  useFeatureSetStatsData,
   useObsSetStatsData,
 } from './data-hooks.js';
 export {

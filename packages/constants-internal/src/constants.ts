@@ -23,6 +23,7 @@ export const ViewType = {
   FEATURE_BAR_PLOT: 'featureBarPlot',
   VOLCANO_PLOT: 'volcanoPlot',
   OBS_SET_COMPOSITION_BAR_PLOT: 'obsSetCompositionBarPlot',
+  FEATURE_SET_ENRICHMENT_BAR_PLOT: 'featureSetEnrichmentBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
   COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
@@ -390,4 +391,5 @@ export const ViewHelpMapping = {
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
   OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',
+  FEATURE_SET_ENRICHMENT_BAR_PLOT: 'The feature set enrichment bar plot displays the results of a hypergeometric test applied to the differential expression test results to identify enriched pathway gene sets.',
 };

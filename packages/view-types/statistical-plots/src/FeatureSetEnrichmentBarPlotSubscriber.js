@@ -6,7 +6,7 @@ import {
   useLoaders,
   useReady,
   useGridItemSize,
-  useFeatureStatsData,
+  useFeatureSetStatsData,
   useMatchingLoader,
   useColumnNameMapping,
 } from '@vitessce/vit-s';
@@ -16,17 +16,18 @@ import {
   ViewHelpMapping,
   DataType,
 } from '@vitessce/constants-internal';
-import VolcanoPlot from './VolcanoPlot.js';
+import { capitalize } from '@vitessce/utils';
+import FeatureSetEnrichmentBarPlot from './FeatureSetEnrichmentBarPlot.js';
 import { useStyles } from './styles.js';
-import VolcanoPlotOptions from './VolcanoPlotOptions.js';
 import { useRawSetPaths } from './utils.js';
 
-export function VolcanoPlotSubscriber(props) {
+
+export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
     theme,
-    helpText = ViewHelpMapping.VOLCANO_PLOT,
+    helpText = ViewHelpMapping.FEATURE_SET_ENRICHMENT_BAR_PLOT,
   } = props;
 
   const classes = useStyles();
@@ -75,7 +76,7 @@ export function VolcanoPlotSubscriber(props) {
     setSampleSetSelection,
     setSampleSetColor,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
+    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT],
     coordinationScopes,
   );
   const [width, height, containerRef] = useGridItemSize();
@@ -87,71 +88,63 @@ export function VolcanoPlotSubscriber(props) {
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
   const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
+  const obsSetsColumnNameMappingReversed = useColumnNameMapping(obsSetsLoader, true);
   const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
+  const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureStats }, featureStatsStatus] = useFeatureStatsData(
+  const [{ featureSetStats }, featureSetStatsStatus] = useFeatureSetStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
-    // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
+    // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
 
   const isReady = useReady([
-    featureStatsStatus,
+    featureSetStatsStatus,
   ]);
 
-  const onFeatureClick = useCallback((featureId) => {
-    setFeatureSelection([featureId]);
+  // Support a click handler which selects individual cell set bars.
+  const onBarSelect = useCallback((featureSetName, featureSetTerm, isShiftDown = false) => {
+    // TODO: Implement different behavior when isShiftDown
+    // TODO: get feature IDs using AsyncFunction
+    // (pathway term in, gene names out).
+    
+    //setFeatureSelection(featureIds);
   }, [setFeatureSelection]);
+
+  // TODO: support the following options
+  // - p-value threshold for which bars to show
 
   return (
     <TitleInfo
-      title="Volcano Plot"
+      title={`${capitalize(featureType)} Set Enrichment Plot`}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      options={(
-        <VolcanoPlotOptions
-          obsType={obsType}
-          featureType={featureType}
-
-          featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-          featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-          featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-          featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
-
-          setFeaturePointSignificanceThreshold={setFeaturePointSignificanceThreshold}
-          setFeaturePointFoldChangeThreshold={setFeaturePointFoldChangeThreshold}
-          setFeatureLabelSignificanceThreshold={setFeatureLabelSignificanceThreshold}
-          setFeatureLabelFoldChangeThreshold={setFeatureLabelFoldChangeThreshold}
-        />
-      )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {featureStats ? (
-          <VolcanoPlot
+        {featureSetStats ? (
+          <FeatureSetEnrichmentBarPlot
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
             featureType={featureType}
             obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+            obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
             sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+            sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
             sampleSetSelection={sampleSetSelection}
             obsSetSelection={obsSetSelection}
             obsSetColor={obsSetColor}
             sampleSetColor={sampleSetColor}
-            data={featureStats}
-            onFeatureClick={onFeatureClick}
-
-            featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-            featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-            featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-            featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
+            data={featureSetStats}
+            onBarSelect={onBarSelect}
+            pValueThreshold={0.01}
           />
         ) : (
           <span>Select at least one {obsType} set.</span>

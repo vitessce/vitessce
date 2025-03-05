@@ -59,6 +59,24 @@ function generateKpmpPremiereConfig() {
     },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   })
+  .addFile({
+    fileType: 'comparativeFeatureSetStats.anndata.zarr',
+    url: baseUrl,
+    options: {
+      metadataPath: 'uns/comparison_metadata',
+      indexColumn: 'pathway_name',
+      termColumn: 'pathway_term',
+      pValueColumn: 'pvals_adj',
+      pValueAdjusted: true,
+      analysisType: 'pertpy_hypergeometric',
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'gene',
+      sampleType: 'sample',
+    },
+    // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
+  })
     .addFile({
       fileType: 'anndata.zarr',
       url: baseUrl,
@@ -157,6 +175,7 @@ function generateKpmpPremiereConfig() {
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
   const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
+  const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
@@ -180,8 +199,8 @@ function generateKpmpPremiereConfig() {
   }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
@@ -209,6 +228,7 @@ function generateKpmpPremiereConfig() {
         hconcat(
           featureList,
           treemap,
+          featureSetEnrichmentBarPlot,
         ),
       ),
     ),
@@ -228,6 +248,7 @@ function PageComponent() {
   const Treemap = usePageModeView('treemap');
   const VolcanoPlot = usePageModeView('volcano-plot');
   const SccodaPlot = usePageModeView('sccoda-plot');
+  const PathwaysPlot = usePageModeView('pathways-plot');
 
   return (
     <>
@@ -263,6 +284,9 @@ function PageComponent() {
           </div>
           <div style={{ width: '100%', height: '500px' }}>
             <SccodaPlot />
+          </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <PathwaysPlot />
           </div>
           <div style={{ width: '100%', height: '500px' }}>
             <VolcanoPlot />

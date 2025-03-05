@@ -64,7 +64,7 @@ const annDataFeatureSetStats = z.object({
     .optional(),
   analysisType: z.string()
     .optional()
-    .describe('Optionally, provide an analysis_type name. By default, rank_genes_groups.'),
+    .describe('Optionally, provide an analysis_type name. By default, pertpy_hypergeometric.'),
 });
 
 // Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation

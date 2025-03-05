@@ -418,6 +418,15 @@ export function useFeatureStatsData(
   );
 }
 
+export function useFeatureSetStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.FEATURE_SET_STATS,
+  );
+}
+
 export function useObsSetStatsData(
   loaders, dataset, isRequired, matchOn, volcanoOptions,
 ) {
