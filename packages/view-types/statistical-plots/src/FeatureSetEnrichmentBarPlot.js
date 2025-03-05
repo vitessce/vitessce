@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { clamp, isEqual } from 'lodash-es';
+import { clamp } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { capitalize } from '@vitessce/utils';
@@ -56,13 +56,23 @@ export default function FeatureSetEnrichmentBarPlot(props) {
       data.forEach((comparisonObject) => {
         const { df, metadata } = comparisonObject;
         const coordinationValues = metadata?.coordination_values;
-        // const obsSetPath = coordinationValues.obsSetSelection;
+        
+        const rawObsSetPath = coordinationValues.obsSetFilter
+          ? coordinationValues.obsSetFilter[0]
+          : coordinationValues.obsSetSelection[0];
+        const obsSetPath = [...rawObsSetPath];
+        obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
+
+        const color = obsSetColorScale(obsSetPath);
 
         df.featureSetName.forEach((featureSetName, i) => {
           const key = uuidv4();
           result.push({
             key,
             name: featureSetName,
+            color,
+            obsSetPath,
+            obsSetPaths: [obsSetPath],
             keyName: `${key}${featureSetName}`,
             featureSetSignificance: df.featureSetSignificance[i],
             minusLog10p: -Math.log10(df.featureSetSignificance[i]),
@@ -70,6 +80,9 @@ export default function FeatureSetEnrichmentBarPlot(props) {
           });
         });
       });
+
+      // TODO: instead of filtering, perhaps use virtual scrolling
+      // (would require custom renderer / not using Vega-Lite).
       result = result
         .map(d => ({
           ...d,
@@ -78,7 +91,9 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         .toSorted((a, b) => a.featureSetSignificance - b.featureSetSignificance)
         .reduce((a, h) => {
           // Only add the pathway once if it appears for multiple cell types?
-          if (a.find(d => d.name === h.name)) {
+          const match = a.find(d => d.name === h.name);
+          if (match) {
+            match.obsSetPaths.push(h.obsSetPath);
             return a;
           }
           return [...a, h];
@@ -93,7 +108,6 @@ export default function FeatureSetEnrichmentBarPlot(props) {
     sampleSetsColumnNameMappingReversed, obsSetSelection,
     obsSetColorScale, sampleSetColorScale, pValueThreshold,
   ]);
-  console.log(computedData);
 
   // Get an array of keys for sorting purposes.
   const keys = computedData.map(d => d.keyName);
@@ -141,13 +155,13 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         type: 'quantitative',
         title: '- log10 p-value',
       },
-      /*
       color: {
         field: 'key',
         type: 'nominal',
         scale: colorScale,
         legend: null,
       },
+      /*
       fillOpacity: {
         field: 'isCredibleEffect',
         type: 'nominal',

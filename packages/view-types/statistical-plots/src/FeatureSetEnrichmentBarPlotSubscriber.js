@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -9,12 +9,14 @@ import {
   useFeatureSetStatsData,
   useMatchingLoader,
   useColumnNameMapping,
+  useAsyncFunction,
 } from '@vitessce/vit-s';
 import {
   ViewType,
   COMPONENT_COORDINATION_TYPES,
   ViewHelpMapping,
   DataType,
+  AsyncFunctionType,
 } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import FeatureSetEnrichmentBarPlot from './FeatureSetEnrichmentBarPlot.js';
@@ -32,6 +34,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
 
   const classes = useStyles();
   const loaders = useLoaders();
+  const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
   // Get "props" from the coordination space.
   const [{
@@ -107,11 +110,16 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   ]);
 
   // Support a click handler which selects individual cell set bars.
-  const onBarSelect = useCallback((featureSetName, featureSetTerm, isShiftDown = false) => {
+  const onBarSelect = useCallback(async(featureSetName, featureSetTerm, isShiftDown = false) => {
     // TODO: Implement different behavior when isShiftDown
-    // TODO: get feature IDs using AsyncFunction
+    // TODO: get feature IDs using AsyncFunction transformFeature
     // (pathway term in, gene names out).
-
+    const kgNode = { nodeType: 'pathway', term: featureSetTerm };
+    const targetFeatureType = featureType;
+    // Will not work since transformFeature currently:
+    // - matches based on kgId (rather than term)
+    // - only knows about Reactome pathways (not GO terms).
+    // console.log(await transformFeature(kgNode, targetFeatureType))
     // setFeatureSelection(featureIds);
   }, [setFeatureSelection]);
 

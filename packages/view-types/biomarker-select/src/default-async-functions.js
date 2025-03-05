@@ -180,6 +180,7 @@ export async function transformFeature({ queryClient }, node, targetModality) {
         queryFn: loadPathwayToGeneEdges,
       });
 
+      // TODO: support matching using ontology term (rather than requiring kgId)?
       const matchingEdges = pathwayGeneEdges.filter((/** @type {KgEdge} */ d) => d.source === node.kgId);
       const matchingGeneIds = matchingEdges.map((/** @type {KgEdge} */ d) => d.target);
       const matchingGenes = geneNodes.filter(d => matchingGeneIds.includes(d.kgId));
