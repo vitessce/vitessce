@@ -151,6 +151,9 @@ catalogs:
     react-dom:
       specifier: ^18.0.0
       version: 18.2.0
+    react-error-boundary:
+      specifier: ^5.0.0
+      version: 5.0.0
     semver:
       specifier: ^7.3.8
       version: 7.3.8
@@ -1371,6 +1374,9 @@ importers:
 
   packages/utils/zarr-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@zarrita/storage':
         specifier: 'catalog:'
         version: 0.1.0-next.9
@@ -2365,6 +2371,9 @@ importers:
       react-aria:
         specifier: 'catalog:'
         version: 3.28.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-error-boundary:
+        specifier: 'catalog:'
+        version: 5.0.0(react@18.2.0)
       react-grid-layout-with-lodash:
         specifier: ^1.3.5
         version: 1.3.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -10006,11 +10015,11 @@ packages:
   numcodecs@0.3.1:
     resolution: {integrity: sha512-ywIyGpJ+c6Ojktq9a8jsWSy12ZSUcW/W+I3jlH0q0zv9aR/ZiMsN7IrWaNq9YV2FRdLu6r/M6lp35jMA6fug/A==}
 
-  nwmatcher@1.4.4:
-    resolution: {integrity: sha512-3iuY4N5dhgMpCUrOVnuAdGrgxVqV2cJpM+XNccjR2DKOB1RUP0aA+wGXEiNziG/UKboFyGBIoKOaNlJxx8bciQ==}
-
   numcodecs@0.3.2:
     resolution: {integrity: sha512-6YSPnmZgg0P87jnNhi3s+FVLOcIn3y+1CTIgUulA3IdASzK9fJM87sUFkpyA+be9GibGRaST2wCgkD+6U+fWKw==}
+
+  nwmatcher@1.4.4:
+    resolution: {integrity: sha512-3iuY4N5dhgMpCUrOVnuAdGrgxVqV2cJpM+XNccjR2DKOB1RUP0aA+wGXEiNziG/UKboFyGBIoKOaNlJxx8bciQ==}
 
   nwsapi@2.2.2:
     resolution: {integrity: sha512-90yv+6538zuvUMnN+zCr8LuV6bPFdq50304114vJYJ8RDyK8D5O9Phpbd6SZWgI7PwzmmfN1upeOJlvybDSgCw==}
@@ -10990,6 +10999,11 @@ packages:
   react-error-boundary@3.1.4:
     resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
     engines: {node: '>=10', npm: '>=6'}
+    peerDependencies:
+      react: '>=16.13.1'
+
+  react-error-boundary@5.0.0:
+    resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
     peerDependencies:
       react: '>=16.13.1'
 
@@ -24895,11 +24909,11 @@ snapshots:
     dependencies:
       fflate: 0.8.2
 
-  nwmatcher@1.4.4: {}
-
   numcodecs@0.3.2:
     dependencies:
       fflate: 0.8.2
+
+  nwmatcher@1.4.4: {}
 
   nwsapi@2.2.2: {}
 
@@ -26156,6 +26170,11 @@ snapshots:
       react: 18.2.0
 
   react-error-boundary@3.1.4(react@18.2.0):
+    dependencies:
+      '@babel/runtime': 7.22.0
+      react: 18.2.0
+
+  react-error-boundary@5.0.0(react@18.2.0):
     dependencies:
       '@babel/runtime': 7.22.0
       react: 18.2.0
