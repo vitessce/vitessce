@@ -136,6 +136,7 @@ export default function CellSetCompositionBarPlot(props) {
         title: 'Obs Set'
       },
       x: {
+        // TODO: which field to use here? intercept+effect instead?
         field: 'logFoldChange',
         type: 'quantitative',
         title: `Log fold-change`,
