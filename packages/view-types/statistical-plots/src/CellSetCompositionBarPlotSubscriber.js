@@ -103,7 +103,9 @@ export function CellSetCompositionBarPlotSubscriber(props) {
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
   const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
+  const obsSetsColumnNameMappingReversed = useColumnNameMapping(obsSetsLoader, true);
   const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
+  const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
@@ -111,7 +113,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
   const [{ obsSetStats }, obsSetStatsStatus] = useObsSetStatsData(
     loaders, dataset, false,
     { obsType, sampleType },
-    // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
+    // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
 
@@ -135,7 +137,9 @@ export function CellSetCompositionBarPlotSubscriber(props) {
             height={height}
             obsType={obsType}
             obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+            obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
             sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+            sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
             sampleSetSelection={sampleSetSelection}
             obsSetSelection={obsSetSelection}
             obsSetColor={obsSetColor}

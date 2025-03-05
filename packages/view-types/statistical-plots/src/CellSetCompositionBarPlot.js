@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { clamp } from 'lodash-es';
+import { clamp, isEqual } from 'lodash-es';
+import { v4 as uuidv4 } from 'uuid';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { getColorScale } from './utils.js';
 
 /**
  * Cell set sizes displayed as a bar chart,
@@ -34,7 +36,18 @@ export default function CellSetCompositionBarPlot(props) {
     keyLength = 36,
     obsType,
     onBarSelect,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
+    sampleSetSelection,
+    obsSetSelection,
+    obsSetColor,
+    sampleSetColor,
   } = props;
+
+  const [obsSetColorScale, sampleSetColorScale] = useMemo(() => [
+    getColorScale(obsSetSelection, obsSetColor, theme),
+    getColorScale(sampleSetSelection, sampleSetColor, theme),
+  ], [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
 
   const computedData = useMemo(() => {
     if(Array.isArray(data) && data.length === 1) {
@@ -42,52 +55,90 @@ export default function CellSetCompositionBarPlot(props) {
       const { df, metadata } = data[0];
       // Return in array-of-objects form that Vega-Lite likes.
 
+      const referenceCellType = metadata?.analysis_params?.reference_cell_type;
+      const coordinationValues = metadata?.coordination_values;
+      const columnName = coordinationValues?.obsSetSelection?.[0]?.[0];
+      const groupName = obsSetsColumnNameMappingReversed?.[columnName];
 
-      console.log(metadata);
-      return df.obsSetId.map((obsSetId, i) => ({
-        obsSetId,
-        // TODO: swap direction of foldChange/logFC if necessary
-        obsSetFoldChange: df.obsSetFoldChange[i],
-        logFoldChange: Math.log2(df.obsSetFoldChange[i]),
-        interceptExpectedSample: df.interceptExpectedSample[i],
-        effectExpectedSample: df.effectExpectedSample[i],
-        isCredibleEffect: df.isCredibleEffect[i],
-        // TODO: boolean flag for wasReferenceObsSet (check metadata)
+      let shouldSwapFoldChangeDirection = false;
+      if (
+        coordinationValues.sampleSetFilter
+        && coordinationValues.sampleSetFilter.length === 2
+      ) {
+        const rawSampleSetPathA = coordinationValues.sampleSetFilter[0];
+        const sampleSetPathA = [...rawSampleSetPathA];
+        sampleSetPathA[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathA[0]];
 
-        // TODO: color per bar
+        const rawSampleSetPathB = coordinationValues.sampleSetFilter[1];
+        const sampleSetPathB = [...rawSampleSetPathB];
+        sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
+        if (
+          isEqual(sampleSetPathA, sampleSetSelection[1])
+          && isEqual(sampleSetPathB, sampleSetSelection[0])
+        ) {
+          shouldSwapFoldChangeDirection = true;
+        }
+      }
 
-        // TODO: unique key per bar
-      }));
+      console.log(metadata, shouldSwapFoldChangeDirection);
+
+      return df.obsSetId.map((obsSetId, i) => {
+        const key = uuidv4();
+        const isReferenceSet = (obsSetId === referenceCellType);
+        const name = `${obsSetId}${(isReferenceSet ? ' (reference set)' : '')}`;
+        const obsSetPath = [groupName, obsSetId];
+        const color = obsSetColorScale(obsSetPath);
+        return {
+          name,
+          // Reconstruct set path array.
+          obsSetPath,
+          color,
+          // Unique key per bar
+          key,
+          // Add a property `keyName` which concatenates the key and the name,
+          // which is both unique and can easily be converted
+          // back to the name by taking a substring.
+          keyName: `${key}${name}`,
+          // Swap direction of foldChange/logFC if necessary
+          obsSetFoldChange: df.obsSetFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
+          logFoldChange: Math.log2(df.obsSetFoldChange[i]) * (shouldSwapFoldChangeDirection ? -1 : 1),
+          interceptExpectedSample: df.interceptExpectedSample[i],
+          effectExpectedSample: df.effectExpectedSample[i],
+          isCredibleEffect: df.isCredibleEffect[i],
+          // Boolean flag for wasReferenceObsSet (check metadata)
+          isReferenceSet: (obsSetId === referenceCellType),
+        };
+      }).filter(d => obsSetSelection
+        ?.find(setNamePath => isEqual(setNamePath, d.obsSetPath))
+      );
     }
     return null;
-  }, [data]);
+  }, [data, sampleSetSelection, obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed, obsSetSelection,
+    obsSetColorScale, sampleSetColorScale,
+  ]);
 
   console.log(computedData);
 
-  // Add a property `keyName` which concatenates the key and the name,
-  // which is both unique and can easily be converted
-  // back to the name by taking a substring.
-  // Add a property `colorString` which contains the `[r, g, b]` color
-  // after converting to a color hex string.
-  /*const data = rawData.map(d => ({
-    ...d,
-    keyName: d.key + d.name,
-    colorString: colorArrayToString(d.color),
-  }));
-
   // Get an array of keys for sorting purposes.
-  const keys = data.map(d => d.keyName);
+  const keys = computedData.map(d => d.keyName);
 
   const colorScale = {
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
-    domain: data.map(d => d.key),
-    range: data.map((d) => {
-      const [r, g, b] = !d.isGrayedOut ? d.color : getDefaultColor(theme);
-      return `rgba(${r}, ${g}, ${b}, 1)`;
-    }),
-  };*/
+    domain: computedData.map(d => d.key),
+    range: computedData.map(d => d.color),
+  };
   const captializedObsType = capitalize(obsType);
+
+  const opacityScale = {
+    domain: [true, false],
+    range: [1.0, 0.5]
+  };
+  const strokeWidthScale = {
+    domain: [true, false],
+    range: [2.0, 0.5]
+  };
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
@@ -131,9 +182,11 @@ export default function CellSetCompositionBarPlot(props) {
         sort: keys,
       },*/
       y: {
-        field: 'obsSetId',
+        field: 'keyName',
         type: 'nominal',
-        title: 'Obs Set'
+        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+        title: `${captializedObsType} Set`,
+        sort: keys,
       },
       x: {
         // TODO: which field to use here? intercept+effect instead?
@@ -141,45 +194,26 @@ export default function CellSetCompositionBarPlot(props) {
         type: 'quantitative',
         title: `Log fold-change`,
       },
-      /*color: {
+      color: {
         field: 'key',
         type: 'nominal',
         scale: colorScale,
         legend: null,
       },
-      */
-      color: {
+      fillOpacity: {
         field: 'isCredibleEffect',
         type: 'nominal',
-      },
-      /*tooltip: {
-        field: 'size',
-        type: 'quantitative',
-      },
-
-      fillOpacity: {
-        condition: {
-          param: 'select',
-          value: 1,
-        },
-        value: 0.3,
+        scale: opacityScale,
       },
       strokeWidth: {
-        condition: [
-          {
-            param: 'select',
-            empty: false,
-            value: 1,
-          },
-          {
-            param: 'highlight',
-            empty: false,
-            value: 2,
-          },
-        ],
-        value: 0,
+        field: 'isReferenceSet',
+        type: 'nominal',
+        scale: strokeWidthScale,
       },
-      */
+      tooltip: {
+        field: 'effectExpectedSample',
+        type: 'quantitative',
+      },
     },
     // TODO: for width, also subtract length of longest y-axis set name label.
     width: clamp(width - marginRight, 10, Infinity),
@@ -200,7 +234,9 @@ export default function CellSetCompositionBarPlot(props) {
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
-    [`${captializedObsType} Set Size`]: item.datum.size,
+    [`Log fold-change`]: item.datum.logFoldChange,
+    [`interceptExpectedSample`]: item.datum.interceptExpectedSample,
+    [`effectExpectedSample`]: item.datum.effectExpectedSample,
   }
   ), [captializedObsType]);
 

@@ -15,13 +15,6 @@ import {
 import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES, DataType } from '@vitessce/constants-internal';
 import { ScmdUi } from './scmd-ui.js';
 
-function useReversedMapping(obj) {
-  return useMemo(() => (obj ? Object.fromEntries(
-    Object.entries(obj)
-      .map(([k, v]) => ([v, k])),
-  ) : {}), [obj]);
-}
-
 /**
  *
  * @param {object} props
@@ -63,10 +56,7 @@ export function BiomarkerSelectSubscriber(props) {
   const sampleSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
-  const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
-  const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
-  const obsSetsColumnNameMappingReversed = useReversedMapping(obsSetsColumnNameMapping);
-  const sampleSetsColumnNameMappingReversed = useReversedMapping(sampleSetsColumnNameMapping);
+  const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
   // TODO: make isSelecting a coordination type plugin.
   // TODO: use store hooks from @vitessce/vit-s to update the view config based on the selections.
