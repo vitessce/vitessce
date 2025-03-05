@@ -121,7 +121,11 @@ export function CellSetCompositionBarPlotSubscriber(props) {
     obsSetStatsStatus,
   ]);
 
-  // TODO: support a click handler which selects individual cell set bars.
+  // Support a click handler which selects individual cell set bars.
+  const onBarSelect = useCallback((setNamePath, isShiftDown = false) => {
+    // TODO: Implement different behavior when isShiftDown
+    setObsSetSelection([setNamePath]);
+  }, [setObsSetSelection]);
 
   // TODO: support the following options
   // - Use logFoldChange vs. intercept+effect for the bar y-value.
@@ -151,6 +155,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
             obsSetColor={obsSetColor}
             sampleSetColor={sampleSetColor}
             data={obsSetStats}
+            onBarSelect={onBarSelect}
           />
         ) : (
           <span>Select at least one {obsType} set.</span>

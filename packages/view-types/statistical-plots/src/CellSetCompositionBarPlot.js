@@ -123,7 +123,7 @@ export default function CellSetCompositionBarPlot(props) {
 
   const opacityScale = {
     domain: [true, false],
-    range: [1.0, 0.5]
+    range: [1.0, 0.3],
   };
   const strokeWidthScale = {
     domain: [true, false],
@@ -132,24 +132,13 @@ export default function CellSetCompositionBarPlot(props) {
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
-    /*params: [
-      {
-        name: 'highlight',
-        select: {
-          type: 'point',
-          on: 'mouseover',
-        },
-      },
-      {
-        name: 'select',
-        select: 'point',
-      },
+    params: [
       {
         name: 'bar_select',
         select: {
           type: 'point',
           on: 'click[event.shiftKey === false]',
-          fields: ['setNamePath', 'isGrayedOut'],
+          fields: ['obsSetPath'],
           empty: 'none',
         },
       },
@@ -158,11 +147,11 @@ export default function CellSetCompositionBarPlot(props) {
         select: {
           type: 'point',
           on: 'click[event.shiftKey]',
-          fields: ['setNamePath', 'isGrayedOut'],
+          fields: ['obsSetPath'],
           empty: 'none',
         },
       },
-    ],*/
+    ],
     encoding: {
       y: {
         field: 'keyName',
@@ -206,11 +195,9 @@ export default function CellSetCompositionBarPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect(value.setNamePath, value.isGrayedOut[0]);
+      onBarSelect(value.obsSetPath);
     } else if (name === 'shift_bar_select') {
-      const isGrayedOut = false;
-      const selectOnlyEnabled = true;
-      onBarSelect(value.setNamePath, isGrayedOut, selectOnlyEnabled);
+      onBarSelect(value.obsSetPath, true);
     }
   };
 
