@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
 import { scaleLinear } from 'd3-scale';
+import { scale as vega_scale } from 'vega-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { extent as d3_extent } from 'd3-array';
 import { select } from 'd3-selection';
@@ -9,13 +10,14 @@ import { isEqual } from 'lodash-es';
 import { capitalize } from '@vitessce/utils';
 import { getColorScale } from './utils.js';
 
-export default function VolcanoPlot(props) {
+const scaleBand = vega_scale('band');
+
+export default function CellSetCompositionBarPlot(props) {
   const {
     theme,
     width,
     height,
     obsType,
-    featureType,
     obsSetsColumnNameMapping,
     sampleSetsColumnNameMapping,
     sampleSetSelection,
@@ -27,36 +29,29 @@ export default function VolcanoPlot(props) {
     marginRight = 5,
     marginLeft = 50,
     marginBottom = 50,
-    onFeatureClick,
-    featurePointSignificanceThreshold,
-    featurePointFoldChangeThreshold,
-    featureLabelSignificanceThreshold,
-    featureLabelFoldChangeThreshold,
   } = props;
 
   const svgRef = useRef();
 
   const computedData = useMemo(() => data.map(d => ({
-        ...d,
-        df: {
-          ...d.df,
-          minusLog10p: d.df.featureSignificance.map(v => -Math.log10(v)),
-          logFoldChange: d.df.featureFoldChange.map(v => Math.log2(v)),
-        },
-      })), [data]);
+    ...d,
+    df: {
+      ...d.df,
+      logFoldChange: d.df.obsSetFoldChange.map(v => Math.log2(v)),
+      // TODO: add intercept + effect?
+    },
+  })), [data]);
 
   const [xExtent, yExtent] = useMemo(() => {
     if (!computedData) {
       return [null, null];
     }
-    let xExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.logFoldChange)),
+    const xExtentResult = d3_extent(
+      computedData.flatMap(d => d3_extent(d.df.obsSetFoldChange)),
     );
-    const xAbsMax = Math.max(Math.abs(xExtentResult[0]), Math.abs(xExtentResult[1]));
-    xExtentResult = [-xAbsMax, xAbsMax];
 
     const yExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.minusLog10p.filter(v => Number.isFinite(v)))),
+      computedData.flatMap(d => d3_extent(d.df.effectExpectedSample)),
     );
     return [xExtentResult, yExtentResult];
   }, [computedData]);
@@ -88,14 +83,13 @@ export default function VolcanoPlot(props) {
     const xScale = scaleLinear()
       .range([marginLeft, width - marginRight])
       .domain(xExtent);
-
+    
     // For the y domain, use the yMin prop
     // to support a use case such as 'Aspect Ratio',
     // where the domain minimum should be 1 rather than 0.
     const yScale = scaleLinear()
       .domain(yExtent)
-      .range([innerHeight, marginTop])
-      .clamp(true);
+      .range([innerHeight, marginTop]);
 
     // Add the axes.
     svg.append('g')
@@ -117,7 +111,7 @@ export default function VolcanoPlot(props) {
       .attr('x', -innerHeight / 2)
       .attr('y', 15)
       .attr('transform', 'rotate(-90)')
-      .text('-log10 p-value')
+      .text('Effect')
       .style('font-size', '12px')
       .style('fill', fgColor);
 
@@ -127,7 +121,7 @@ export default function VolcanoPlot(props) {
       .attr('text-anchor', 'middle')
       .attr('x', marginLeft + innerWidth / 2)
       .attr('y', height - 10)
-      .text('log2 fold-change')
+      .text(`${capitalize(obsType)} Set`)
       .style('font-size', '12px')
       .style('fill', fgColor);
 
@@ -143,66 +137,6 @@ export default function VolcanoPlot(props) {
         .entries(sampleSetsColumnNameMapping)
         .map(([key, value]) => ([value, key])),
     );
-
-    // Horizontal and vertical rules to indicate currently-selected thresholds
-    // Vertical lines
-    const ruleColor = 'silver';
-    const ruleDash = '2,2';
-    titleG.append('line')
-      .attr('x1', xScale(featurePointFoldChangeThreshold))
-      .attr('x2', xScale(featurePointFoldChangeThreshold))
-      .attr('y1', yScale.range()[0])
-      .attr('y2', yScale.range()[1])
-      .style('stroke', ruleColor)
-      .style('stroke-dasharray', ruleDash);
-    titleG.append('line')
-      .attr('x1', xScale(-featurePointFoldChangeThreshold))
-      .attr('x2', xScale(-featurePointFoldChangeThreshold))
-      .attr('y1', yScale.range()[0])
-      .attr('y2', yScale.range()[1])
-      .style('stroke', ruleColor)
-      .style('stroke-dasharray', ruleDash);
-    // Horizontal lines
-    titleG.append('line')
-      .attr('x1', xScale.range()[0])
-      .attr('x2', xScale.range()[1])
-      .attr('y1', yScale(-Math.log10(featurePointSignificanceThreshold)))
-      .attr('y2', yScale(-Math.log10(featurePointSignificanceThreshold)))
-      .style('stroke', ruleColor)
-      .style('stroke-dasharray', ruleDash);
-
-
-    // Upregulated/downregulated and sampleSet directional indicators.
-    const lhsText = sampleSetSelection && sampleSetSelection.length === 2
-      ? sampleSetSelection[0].at(-1)
-      : '__rest__';
-
-    // eslint-disable-next-line no-nested-ternary
-    const rhsText = sampleSetSelection && sampleSetSelection.length === 2
-      ? sampleSetSelection[1].at(-1)
-      : (obsSetSelection && obsSetSelection.length === 1
-        ? obsSetSelection?.[0]?.at(-1)
-        : `${capitalize(obsType)} Set`
-      );
-
-
-    titleG
-      .append('text')
-      .attr('text-anchor', 'start')
-      .attr('x', marginLeft)
-      .attr('y', height - 10)
-      .text(`\u2190 ${lhsText}`)
-      .style('font-size', '12px')
-      .style('fill', fgColor);
-
-    titleG
-      .append('text')
-      .attr('text-anchor', 'end')
-      .attr('x', marginLeft + innerWidth)
-      .attr('y', height - 10)
-      .text(`${rhsText} \u2192`)
-      .style('font-size', '12px')
-      .style('fill', fgColor);
 
 
     const g = svg.append('g');
@@ -222,7 +156,7 @@ export default function VolcanoPlot(props) {
 
       // Swap the foldchange direction if backwards with
       // respect to the current sampleSetSelection pair.
-      // TODO: move this swapping into the computedData useMemo?
+      // 
       let shouldSwapFoldChangeDirection = false;
       if (
         coordinationValues.sampleSetFilter
@@ -244,58 +178,23 @@ export default function VolcanoPlot(props) {
         }
       }
 
-      const filteredDf = df.featureId.map((featureId, i) => ({
-          featureId,
-          logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
-          featureSignificance: df.featureSignificance[i],
-          minusLog10p: df.minusLog10p[i],
-        })).filter(d => (
-        (Math.abs(d.logFoldChange) >= (featurePointFoldChangeThreshold ?? 1.0))
-        && (d.featureSignificance <= (featurePointSignificanceThreshold ?? 0.05))
-      ));
+      const filteredDf = df.obsSetId.map((obsSetId, i) => ({
+        obsSetId,
+        logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
+        effectExpectedSample: df.effectExpectedSample[i],
+        interceptExpectedSample: df.interceptExpectedSample[i],
+        isCredibleEffect: df.isCredibleEffect[i],
+      }));
 
       const color = obsSetColorScale(obsSetPath);
 
-      obsSetG.append('g')
-        .selectAll('circle')
-        .data(filteredDf)
-        .join('circle')
-          .attr('cx', d => xScale(d.logFoldChange))
-          .attr('cy', d => yScale(d.minusLog10p))
-          .attr('r', 3)
-          .attr('opacity', 0.5)
-          .attr('fill', color)
-          .on('click', (event, d) => {
-            onFeatureClick(d.featureId);
-          });
-
-      const textElements = obsSetG.append('g')
-        .selectAll('text')
-        .data(filteredDf)
-        .join('text')
-          .text(d => d.featureId)
-          .attr('text-anchor', d => (d.logFoldChange < 0 ? 'end' : 'start'))
-          .attr('x', d => xScale(d.logFoldChange))
-          .attr('y', d => yScale(d.minusLog10p))
-          .style('display', d => ((
-            Math.abs(d.logFoldChange) < (featureLabelFoldChangeThreshold ?? 5.0)
-            || (d.featureSignificance >= (featureLabelSignificanceThreshold ?? 0.01))
-          ) ? 'none' : undefined))
-          .attr('fill', color)
-          .on('click', (event, d) => {
-            onFeatureClick(d.featureId);
-          });
-
-      textElements.append('title')
-        .text(d => `${featureType}: ${d.featureId}\nin ${obsSetPath?.at(-1)}\nlog2 fold-change: ${d.logFoldChange}\np-value: ${d.featureSignificance}`);
+      
     });
   }, [width, height, theme, sampleSetColor, sampleSetSelection,
-    obsSetSelection, obsSetColor, featureType, computedData,
+    obsSetSelection, obsSetColor, computedData,
     xExtent, yExtent, obsType,
     marginLeft, marginBottom, marginTop, marginRight,
-    obsSetColorScale, sampleSetColorScale, onFeatureClick,
-    featurePointSignificanceThreshold, featurePointFoldChangeThreshold,
-    featureLabelSignificanceThreshold, featureLabelFoldChangeThreshold,
+    obsSetColorScale, sampleSetColorScale, 
   ]);
 
   return (

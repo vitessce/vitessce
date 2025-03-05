@@ -77,9 +77,11 @@ export {
 
   useObsFeatureMatrixData,
   useFeatureLabelsData,
-  useFeatureStatsData,
   useGenomicProfilesData,
+  
   useComparisonMetadata,
+  useFeatureStatsData,
+  useObsSetStatsData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,

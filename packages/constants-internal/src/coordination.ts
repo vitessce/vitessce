@@ -531,6 +531,18 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD,
     CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD,
   ],
+  [ViewType.OBS_SET_COMPOSITION_BAR_PLOT]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+    // For selection of case-control sets of samples:
+    CoordinationType.SAMPLE_SET_SELECTION,
+    // For selection of one-vs-others sets of observations:
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.SAMPLE_SET_COLOR,
+  ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [
     CoordinationType.DATASET,

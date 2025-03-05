@@ -6,7 +6,7 @@ import {
   useLoaders,
   useReady,
   useGridItemSize,
-  useFeatureStatsData,
+  useObsSetStatsData,
   useMatchingLoader,
   useColumnNameMapping,
 } from '@vitessce/vit-s';
@@ -16,9 +16,9 @@ import {
   ViewHelpMapping,
   DataType,
 } from '@vitessce/constants-internal';
-import VolcanoPlot from './VolcanoPlot.js';
+import CellSetCompositionBarPlot from './CellSetCompositionBarPlot.js';
 import { useStyles } from './styles.js';
-import VolcanoPlotOptions from './VolcanoPlotOptions.js';
+import { capitalize } from '@vitessce/utils';
 
 
 /**
@@ -37,12 +37,12 @@ function useRawSetPaths(columnNameMapping, setPaths) {
   }), [columnNameMapping, setPaths]);
 }
 
-export function VolcanoPlotSubscriber(props) {
+export function CellSetCompositionBarPlotSubscriber(props) {
   const {
     coordinationScopes,
     removeGridComponent,
     theme,
-    helpText = ViewHelpMapping.VOLCANO_PLOT,
+    helpText = ViewHelpMapping.OBS_SET_COMPOSITION_BAR_PLOT,
   } = props;
 
   const classes = useStyles();
@@ -91,7 +91,7 @@ export function VolcanoPlotSubscriber(props) {
     setSampleSetSelection,
     setSampleSetColor,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
+    COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_COMPOSITION_BAR_PLOT],
     coordinationScopes,
   );
   const [width, height, containerRef] = useGridItemSize();
@@ -108,66 +108,39 @@ export function VolcanoPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureStats }, featureStatsStatus] = useFeatureStatsData(
+  const [{ obsSetStats }, obsSetStatsStatus] = useObsSetStatsData(
     loaders, dataset, false,
-    { obsType, featureType, sampleType },
+    { obsType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
 
   const isReady = useReady([
-    featureStatsStatus,
+    obsSetStatsStatus,
   ]);
-
-  const onFeatureClick = useCallback((featureId) => {
-    setFeatureSelection([featureId]);
-  }, [setFeatureSelection]);
 
   return (
     <TitleInfo
-      title="Volcano Plot"
+      title={`${capitalize(obsType)} Set Composition Analysis Plot`}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      options={(
-        <VolcanoPlotOptions
-          obsType={obsType}
-          featureType={featureType}
-
-          featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-          featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-          featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-          featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
-
-          setFeaturePointSignificanceThreshold={setFeaturePointSignificanceThreshold}
-          setFeaturePointFoldChangeThreshold={setFeaturePointFoldChangeThreshold}
-          setFeatureLabelSignificanceThreshold={setFeatureLabelSignificanceThreshold}
-          setFeatureLabelFoldChangeThreshold={setFeatureLabelFoldChangeThreshold}
-        />
-      )}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
-        {featureStats ? (
-          <VolcanoPlot
+        {obsSetStats ? (
+          <CellSetCompositionBarPlot
             theme={theme}
             width={width}
             height={height}
             obsType={obsType}
-            featureType={featureType}
             obsSetsColumnNameMapping={obsSetsColumnNameMapping}
             sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
             sampleSetSelection={sampleSetSelection}
             obsSetSelection={obsSetSelection}
             obsSetColor={obsSetColor}
             sampleSetColor={sampleSetColor}
-            data={featureStats}
-            onFeatureClick={onFeatureClick}
-
-            featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-            featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-            featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-            featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
+            data={obsSetStats}
           />
         ) : (
           <span>Select at least one {obsType} set.</span>

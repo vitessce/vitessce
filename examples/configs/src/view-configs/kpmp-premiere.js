@@ -7,11 +7,13 @@ import {
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
 
+const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250303.adata.zarr';
+
 function generateKpmpPremiereConfig() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
   const dataset = vc.addDataset('lake_et_al').addFile({
     fileType: 'comparisonMetadata.anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    url: baseUrl,
     options: {
       path: 'uns/comparison_metadata',
     },
@@ -22,7 +24,7 @@ function generateKpmpPremiereConfig() {
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   }).addFile({
     fileType: 'comparativeFeatureStats.anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    url: baseUrl,
     options: {
       metadataPath: 'uns/comparison_metadata',
       indexColumn: 'names',
@@ -39,63 +41,26 @@ function generateKpmpPremiereConfig() {
     },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   }).addFile({
-    fileType: 'anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+    fileType: 'comparativeObsSetStats.anndata.zarr',
+    url: baseUrl,
+    options: {
+      metadataPath: 'uns/comparison_metadata',
+      indexColumn: 'Cell Type',
+      interceptExpectedSampleColumn: 'Expected Sample_intercept',
+      effectExpectedSampleColumn: 'Expected Sample_effect',
+      foldChangeColumn: 'log2-fold change',
+      foldChangeTransformation: 'log2',
+      isCredibleEffectColumn: 'is_credible_effect',
+    },
     coordinationValues: {
       obsType: 'cell',
-      featureType: 'gene',
-      featureValueType: 'expression',
       sampleType: 'sample',
     },
-    options: {
-      obsFeatureMatrix: {
-        // "path": "layers/counts",
-        // "path": "layers/logcounts",
-        path: 'layers/pearson_residuals',
-      },
-      obsEmbedding: [
-        {
-          path: 'obsm/X_densmap',
-          embeddingType: 'densMAP',
-        },
-      ],
-      obsSets: [
-        {
-          name: 'Cell Type',
-          path: 'obs/cell_type',
-        },
-        {
-          name: 'Donor ID',
-          path: 'obs/donor_id',
-        },
-        {
-          name: 'Disease',
-          path: 'obs/disease',
-        },
-        {
-          name: 'Disease Type',
-          path: 'obs/diseasetype',
-        },
-        {
-          name: 'Adjudicated Category',
-          path: 'obs/AdjudicatedCategory',
-        },
-        {
-          name: 'Enrollment Category',
-          path: 'obs/EnrollmentCategory',
-        },
-      ],
-      /* featureLabels: {
-        path: 'var/features',
-      }, */
-      sampleEdges: {
-        path: 'obs/SampleID',
-      },
-    },
+    // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   })
     .addFile({
       fileType: 'anndata.zarr',
-      url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr',
+      url: baseUrl,
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',
@@ -118,6 +83,14 @@ function generateKpmpPremiereConfig() {
           {
             name: 'Cell Type',
             path: 'obs/cell_type',
+          },
+          {
+            name: 'Subclass L1',
+            path: 'obs/subclass_l1',
+          },
+          {
+            name: 'Subclass L2',
+            path: 'obs/subclass_l2',
           },
           {
             name: 'Donor ID',
@@ -150,7 +123,7 @@ function generateKpmpPremiereConfig() {
     })
     .addFile({
       fileType: 'sampleSets.anndata.zarr',
-      url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere.adata.zarr/uns/__all__.samples',
+      url: `${baseUrl}/uns/__all__.samples`,
       options: {
         sampleSets: [
           {
@@ -182,6 +155,7 @@ function generateKpmpPremiereConfig() {
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
+  const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
@@ -205,8 +179,8 @@ function generateKpmpPremiereConfig() {
   }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
@@ -237,7 +211,7 @@ function generateKpmpPremiereConfig() {
         ),
       ),
     ),
-    vconcat(violinPlots, dotPlot),
+    vconcat(violinPlots, dotPlot, obsSetCompositionBarPlot),
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -252,6 +226,7 @@ function PageComponent() {
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
   const VolcanoPlot = usePageModeView('volcano-plot');
+  const SccodaPlot = usePageModeView('sccoda-plot');
 
   return (
     <>
@@ -281,6 +256,9 @@ function PageComponent() {
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <div style={{ width: '100%' }}>
             <ComparativeHeading />
+          </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <SccodaPlot />
           </div>
           <div style={{ width: '100%', height: '300px' }}>
             <Treemap />

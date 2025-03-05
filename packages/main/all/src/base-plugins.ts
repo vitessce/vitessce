@@ -99,6 +99,7 @@ import {
   FeatureBarPlotSubscriber,
   TreemapSubscriber,
   VolcanoPlotSubscriber,
+  CellSetCompositionBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -260,6 +261,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
   makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
+  makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
 ];
 
 export const baseFileTypes = [

@@ -2,26 +2,11 @@
 /* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
 import { isEqual } from 'lodash-es';
+import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureStatsData } from '@vitessce/types' */
 
-
-/**
- * Do two pairs of paths contain the same two elements,
- * potentially swapped in their order?
- * @param {[string[], string[]]} pathPairA A pair of paths like
- * [["Disease", "Healthy"], ["Disease", "CKD"]]
- * @param {[string[], string[]]} pathPairB A pair of paths like
- * [["Disease", "CKD"], ["Disease", "Healthy"]]
- * @returns {boolean} Whether the two pairs contain the same two paths.
- */
-function isEqualPathPair(pathPairA, pathPairB) {
-  return (
-    (isEqual(pathPairA[0], pathPairB[0]) && isEqual(pathPairA[1], pathPairB[1]))
-    || (isEqual(pathPairA[0], pathPairB[1]) && isEqual(pathPairA[1], pathPairB[0]))
-  );
-}
 
 /**
  * Loader for string arrays located in anndata.zarr stores.
@@ -98,12 +83,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       return this.metadata;
     }
     if (!this.metadata) {
-      // eslint-disable-next-line no-underscore-dangle
-      const metadata = JSON.parse(await this.dataSource._loadString(metadataPath));
-      if (!(metadata.schema_version === '0.0.1' || metadata.schema_version === '0.0.2')) {
-        throw new Error('Unsupported comparison_metadata schema version.');
-      }
-      this.metadata = metadata;
+      this.metadata = await loadComparisonMetadata(this.dataSource, metadataPath);
       return this.metadata;
     }
     return this.metadata;
@@ -120,8 +100,8 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<LoaderResult<FeatureStatsData>>}
    */
   async loadMulti(volcanoOptions) {
+    const { analysisType: targetAnalysisType = 'rank_genes_groups' } = this.options;
     const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
-    // TODO: If faceting, need to load data from multiple dataframes.
 
     // We expect these set paths to have already been transformed
     // to use the "raw" column names,
@@ -143,11 +123,6 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const metadata = await this.loadMetadata();
 
     // Match metadata against to get paths to dataframe(s) of interest.
-
-    // Differential expression results have this analysis_type value.
-    // TODO: make this an option in the schema
-    const targetAnalysisType = 'rank_genes_groups';
-
     const matchingComparisons = [];
     Object.values(metadata.comparisons).forEach((comparisonGroupObject) => {
       const { results } = comparisonGroupObject;

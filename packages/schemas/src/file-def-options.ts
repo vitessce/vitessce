@@ -53,7 +53,7 @@ const annDataFeatureStats = z.object({
 });
 
 const annDataFeatureSetStats = z.object({
-  path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
   indexColumn: z.string()
     .optional()
     .describe('Provide a column to use for the feature set index, if different than the default dataframe index.'),
@@ -62,12 +62,14 @@ const annDataFeatureSetStats = z.object({
   pValueColumn: z.string(),
   pValueAdjusted: z.boolean()
     .optional(),
-  // TODO: Are any other columns relevant?
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, rank_genes_groups.'),
 });
 
 // Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation
 const annDataObsSetStats = z.object({
-  path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
   indexColumn: z.string()
     .optional()
     .describe('Provide a column to use for the obs set index, if different than the default dataframe index.'),
@@ -81,6 +83,9 @@ const annDataObsSetStats = z.object({
     .optional(),
   isCredibleEffectColumn: z.string()
     .describe('Column which annotates effects as being credible or not (boolean).'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, sccoda_df.'),
 });
 
 const annDataObsLabels = annDataObs;

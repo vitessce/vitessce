@@ -338,8 +338,8 @@ export function useFeatureSelection(
  * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
  * for however many genes are in the selection.
  */
-export function useFeatureStatsData(
-  loaders, dataset, isRequired, matchOn, volcanoOptions,
+export function useComparativeDataType(
+  loaders, dataset, isRequired, matchOn, volcanoOptions, dataType,
 ) {
   const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
@@ -351,7 +351,7 @@ export function useFeatureStatsData(
     // in a different hook would cause an accidental cache hit.
     // Note: this uses the same key structure/suffix as
     // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
-    queryKey: [dataset, DataType.FEATURE_STATS, matchOn, volcanoOptions, 'useFeatureStatsData'],
+    queryKey: [dataset, dataType, matchOn, volcanoOptions, 'useComparativeData'],
     // Query function should return an object
     // { data, dataKey } where dataKey is the loaded gene selection.
     // TODO: use TypeScript to type the return value?
@@ -386,7 +386,7 @@ export function useFeatureStatsData(
       // No loader was found.
       if (isRequired) {
         // Status: error
-        throw new LoaderNotFoundError(loaders, dataset, DataType.FEATURE_STATS, matchOn);
+        throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
       } else {
         // Status: success
         return { data: placeholderObject, dataKey: null };
@@ -407,6 +407,24 @@ export function useFeatureStatsData(
   }, [error, setWarning]);
 
   return [loadedData, dataStatus, urls];
+}
+
+export function useFeatureStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.FEATURE_STATS,
+  )
+}
+
+export function useObsSetStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.OBS_SET_STATS,
+  )
 }
 
 /**
