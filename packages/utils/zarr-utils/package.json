@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "zarrita": "catalog:",
-    "@zarrita/storage": "catalog:"
+    "@zarrita/storage": "catalog:",
+    "@vitessce/globals": "workspace:*"
   }
 }
