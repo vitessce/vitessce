@@ -87,8 +87,11 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
       interceptExpectedSample,
       effectExpectedSample,
       isCredibleEffect,
-      // TODO: rather than passing this down, do the fold change direction swapping in the loader (as opposed to in the view).
-      // TODO: also, see https://github.com/keller-mark/compasce/issues/30 which would allow not loading this column altogether.
+      // TODO: rather than passing this down,
+      // do the fold change direction swapping in the loader
+      // (as opposed to in the view).
+      // TODO: also, see https://github.com/keller-mark/compasce/issues/30
+      // which would allow not loading this column altogether.
       covariate,
     ] = await Promise.all([
       this.loadObsSetNames(dfPath),
@@ -159,7 +162,7 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
     // to indicate that the analysis was performed using this obsSet grouping.
     // Here, we obtain the unique obsSet groupings from the obsSetSelection paths.
     const rawObsSetGroups = Array.from(
-      new Set(rawObsSetSelection.map(setPath => setPath?.[0]))
+      new Set(rawObsSetSelection.map(setPath => setPath?.[0])),
     );
 
     // Match metadata against to get paths to dataframe(s) of interest.

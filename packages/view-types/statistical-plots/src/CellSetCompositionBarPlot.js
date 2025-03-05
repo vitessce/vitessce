@@ -2,8 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { clamp, isEqual } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
 import { getColorScale } from './utils.js';
 
 /**
@@ -50,7 +49,7 @@ export default function CellSetCompositionBarPlot(props) {
   ], [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
 
   const computedData = useMemo(() => {
-    if(Array.isArray(data) && data.length === 1) {
+    if (Array.isArray(data) && data.length === 1) {
       // We expect only one returned data frame.
       const { df, metadata } = data[0];
       // Return in array-of-objects form that Vega-Lite likes.
@@ -93,7 +92,9 @@ export default function CellSetCompositionBarPlot(props) {
           keyName: `${key}${name}`,
           // Swap direction of foldChange/logFC if necessary
           obsSetFoldChange: df.obsSetFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
-          logFoldChange: Math.log2(df.obsSetFoldChange[i]) * (shouldSwapFoldChangeDirection ? -1 : 1),
+          logFoldChange: (
+            Math.log2(df.obsSetFoldChange[i]) * (shouldSwapFoldChangeDirection ? -1 : 1)
+          ),
           interceptExpectedSample: df.interceptExpectedSample[i],
           effectExpectedSample: df.effectExpectedSample[i],
           isCredibleEffect: df.isCredibleEffect[i],
@@ -101,8 +102,7 @@ export default function CellSetCompositionBarPlot(props) {
           isReferenceSet: (obsSetId === referenceCellType),
         };
       }).filter(d => obsSetSelection
-        ?.find(setNamePath => isEqual(setNamePath, d.obsSetPath))
-      );
+        ?.find(setNamePath => isEqual(setNamePath, d.obsSetPath)));
     }
     return null;
   }, [data, sampleSetSelection, obsSetsColumnNameMappingReversed,
@@ -127,7 +127,7 @@ export default function CellSetCompositionBarPlot(props) {
   };
   const strokeWidthScale = {
     domain: [true, false],
-    range: [2.0, 0.5]
+    range: [2.0, 0.5],
   };
 
   const spec = {
@@ -164,7 +164,7 @@ export default function CellSetCompositionBarPlot(props) {
         // TODO: support using intercept+effect here based on user-selected options?
         field: 'logFoldChange',
         type: 'quantitative',
-        title: `Log fold-change`,
+        title: 'Log fold-change',
       },
       color: {
         field: 'key',
@@ -204,9 +204,9 @@ export default function CellSetCompositionBarPlot(props) {
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
-    [`Log fold-change`]: item.datum.logFoldChange,
-    [`interceptExpectedSample`]: item.datum.interceptExpectedSample,
-    [`effectExpectedSample`]: item.datum.effectExpectedSample,
+    'Log fold-change': item.datum.logFoldChange,
+    interceptExpectedSample: item.datum.interceptExpectedSample,
+    effectExpectedSample: item.datum.effectExpectedSample,
   }
   ), [captializedObsType]);
 

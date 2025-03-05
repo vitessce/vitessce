@@ -16,9 +16,9 @@ import {
   ViewHelpMapping,
   DataType,
 } from '@vitessce/constants-internal';
+import { capitalize } from '@vitessce/utils';
 import CellSetCompositionBarPlot from './CellSetCompositionBarPlot.js';
 import { useStyles } from './styles.js';
-import { capitalize } from '@vitessce/utils';
 
 
 /**

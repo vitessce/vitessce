@@ -78,7 +78,7 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
-  
+
   useComparisonMetadata,
   useFeatureStatsData,
   useObsSetStatsData,

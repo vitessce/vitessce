@@ -415,7 +415,7 @@ export function useFeatureStatsData(
   return useComparativeDataType(
     loaders, dataset, isRequired, matchOn, volcanoOptions,
     DataType.FEATURE_STATS,
-  )
+  );
 }
 
 export function useObsSetStatsData(
@@ -424,7 +424,7 @@ export function useObsSetStatsData(
   return useComparativeDataType(
     loaders, dataset, isRequired, matchOn, volcanoOptions,
     DataType.OBS_SET_STATS,
-  )
+  );
 }
 
 /**
