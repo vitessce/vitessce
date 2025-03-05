@@ -110,7 +110,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   ]);
 
   // Support a click handler which selects individual cell set bars.
-  const onBarSelect = useCallback(async(featureSetName, featureSetTerm, isShiftDown = false) => {
+  const onBarSelect = useCallback(async (featureSetName, featureSetTerm, isShiftDown = false) => {
     // TODO: Implement different behavior when isShiftDown
     // TODO: get feature IDs using AsyncFunction transformFeature
     // (pathway term in, gene names out).
@@ -126,7 +126,8 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   // TODO: support the following options
   // - p-value threshold for which bars to show
   // - max number of bars to show
-  // - Boolean flag: should same pathway which appears multiple times be de-duplicated (one bar per pathway, using most-significant result)?
+  // - Boolean flag: should same pathway which appears multiple times
+  //   be de-duplicated (one bar per pathway, using most-significant result)?
 
   return (
     <TitleInfo

@@ -56,7 +56,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
       data.forEach((comparisonObject) => {
         const { df, metadata } = comparisonObject;
         const coordinationValues = metadata?.coordination_values;
-        
+
         const rawObsSetPath = coordinationValues.obsSetFilter
           ? coordinationValues.obsSetFilter[0]
           : coordinationValues.obsSetSelection[0];
