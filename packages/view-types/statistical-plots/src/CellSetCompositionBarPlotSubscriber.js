@@ -121,6 +121,12 @@ export function CellSetCompositionBarPlotSubscriber(props) {
     obsSetStatsStatus,
   ]);
 
+  // TODO: support a click handler which selects individual cell set bars.
+
+  // TODO: support the following options
+  // - Use logFoldChange vs. intercept+effect for the bar y-value.
+  // - Boolean flag to allow hiding non-significant bars.
+
   return (
     <TitleInfo
       title={`${capitalize(obsType)} Set Composition Analysis Plot`}
