@@ -17,18 +17,18 @@ class RelaxedFetchStore extends FetchStore {
   // custom error handling function or additional options
   // to the zarrita FetchStore so that a subclass is not required.
   async get(
-		key: AbsolutePath,
-		options: RequestInit = {},
-	): Promise<Uint8Array | undefined> {
+    key: AbsolutePath,
+    options: RequestInit = {},
+  ): Promise<Uint8Array | undefined> {
     try {
       return await super.get(key, options);
-    } catch(e: any) {
-      if(getDebugMode()) {
+    } catch (e: any) {
+      if (getDebugMode()) {
         throw e;
       }
       return undefined;
     }
-	}
+  }
 }
 
 export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
