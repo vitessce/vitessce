@@ -34,6 +34,17 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
 export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.NEUROGLANCER]: [
     CoordinationType.DATASET,
+    CoordinationType.SPATIAL_TARGET_X,
+    CoordinationType.SPATIAL_TARGET_Y,
+    CoordinationType.SPATIAL_TARGET_Z,
+    CoordinationType.SPATIAL_ROTATION_X,
+    CoordinationType.SPATIAL_ROTATION_Y,
+    CoordinationType.SPATIAL_ROTATION_Z,
+    CoordinationType.SPATIAL_AXIS_FIXED,
+    CoordinationType.SPATIAL_ORBIT_AXIS,
+    CoordinationType.SPATIAL_ZOOM,
+
+
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
