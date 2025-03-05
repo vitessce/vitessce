@@ -389,5 +389,5 @@ export const ViewHelpMapping = {
   NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
-  OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nat Comms).',
+  OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',
 };
