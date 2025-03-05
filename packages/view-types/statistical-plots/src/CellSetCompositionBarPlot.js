@@ -57,36 +57,28 @@ export default function CellSetCompositionBarPlot(props) {
 
       const referenceCellType = metadata?.analysis_params?.reference_cell_type;
       const coordinationValues = metadata?.coordination_values;
-      const columnName = coordinationValues?.obsSetSelection?.[0]?.[0];
-      const groupName = obsSetsColumnNameMappingReversed?.[columnName];
+      const obsSetColumnName = coordinationValues?.obsSetSelection?.[0]?.[0];
+      const obsSetGroupName = obsSetsColumnNameMappingReversed?.[obsSetColumnName];
+
+      const sampleSetColumnName = coordinationValues?.sampleSetFilter?.[0]?.[0];
+      const sampleSetGroupName = sampleSetsColumnNameMappingReversed?.[sampleSetColumnName];
+
+      // See https://github.com/keller-mark/compasce/issues/30 which should simplify this logic once implemented,
+      // so that we would no longer need to load/check the covariate column in the frontend.
+      const covariatePrefix = `${sampleSetColumnName}T.`;
+      const firstCovariateValue = df.covariate?.[0]?.substring(covariatePrefix.length);
+      const firstCovariateSetPath = [sampleSetGroupName, firstCovariateValue];
 
       let shouldSwapFoldChangeDirection = false;
-      if (
-        coordinationValues.sampleSetFilter
-        && coordinationValues.sampleSetFilter.length === 2
-      ) {
-        const rawSampleSetPathA = coordinationValues.sampleSetFilter[0];
-        const sampleSetPathA = [...rawSampleSetPathA];
-        sampleSetPathA[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathA[0]];
-
-        const rawSampleSetPathB = coordinationValues.sampleSetFilter[1];
-        const sampleSetPathB = [...rawSampleSetPathB];
-        sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
-        if (
-          isEqual(sampleSetPathA, sampleSetSelection[1])
-          && isEqual(sampleSetPathB, sampleSetSelection[0])
-        ) {
-          shouldSwapFoldChangeDirection = true;
-        }
+      if (isEqual(firstCovariateSetPath, sampleSetSelection[0])) {
+        shouldSwapFoldChangeDirection = true;
       }
-
-      console.log(metadata, shouldSwapFoldChangeDirection);
 
       return df.obsSetId.map((obsSetId, i) => {
         const key = uuidv4();
         const isReferenceSet = (obsSetId === referenceCellType);
         const name = `${obsSetId}${(isReferenceSet ? ' (reference set)' : '')}`;
-        const obsSetPath = [groupName, obsSetId];
+        const obsSetPath = [obsSetGroupName, obsSetId];
         const color = obsSetColorScale(obsSetPath);
         return {
           name,
@@ -117,8 +109,6 @@ export default function CellSetCompositionBarPlot(props) {
     sampleSetsColumnNameMappingReversed, obsSetSelection,
     obsSetColorScale, sampleSetColorScale,
   ]);
-
-  console.log(computedData);
 
   // Get an array of keys for sorting purposes.
   const keys = computedData.map(d => d.keyName);
@@ -174,13 +164,6 @@ export default function CellSetCompositionBarPlot(props) {
       },
     ],*/
     encoding: {
-      /*x: {
-        field: 'keyName',
-        type: 'nominal',
-        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
-        title: `${captializedObsType} Set`,
-        sort: keys,
-      },*/
       y: {
         field: 'keyName',
         type: 'nominal',
@@ -189,7 +172,7 @@ export default function CellSetCompositionBarPlot(props) {
         sort: keys,
       },
       x: {
-        // TODO: which field to use here? intercept+effect instead?
+        // TODO: support using intercept+effect here based on user-selected options?
         field: 'logFoldChange',
         type: 'quantitative',
         title: `Log fold-change`,

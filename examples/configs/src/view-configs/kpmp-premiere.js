@@ -51,6 +51,7 @@ function generateKpmpPremiereConfig() {
       foldChangeColumn: 'log2-fold change',
       foldChangeTransformation: 'log2',
       isCredibleEffectColumn: 'is_credible_effect',
+      covariateColumn: 'Covariate',
     },
     coordinationValues: {
       obsType: 'cell',

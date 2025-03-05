@@ -83,6 +83,8 @@ const annDataObsSetStats = z.object({
     .optional(),
   isCredibleEffectColumn: z.string()
     .describe('Column which annotates effects as being credible or not (boolean).'),
+  covariateColumn: z.string()
+    .describe('Column which defines the covariate used in the analysis.'),
   analysisType: z.string()
     .optional()
     .describe('Optionally, provide an analysis_type name. By default, sccoda_df.'),

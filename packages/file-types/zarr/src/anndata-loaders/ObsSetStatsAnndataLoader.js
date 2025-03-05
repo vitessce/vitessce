@@ -66,6 +66,11 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
     return values.data;
   }
 
+  async loadCovariate(dfPath) {
+    const { covariateColumn } = this.options;
+    return this.dataSource._loadColumn(`${dfPath}/${covariateColumn}`);
+  }
+
   async loadObsSetNames(dfPath) {
     const { indexColumn } = this.options;
     if (indexColumn) {
@@ -82,12 +87,16 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
       interceptExpectedSample,
       effectExpectedSample,
       isCredibleEffect,
+      // TODO: rather than passing this down, do the fold change direction swapping in the loader (as opposed to in the view).
+      // TODO: also, see https://github.com/keller-mark/compasce/issues/30 which would allow not loading this column altogether.
+      covariate,
     ] = await Promise.all([
       this.loadObsSetNames(dfPath),
       this.loadFoldChanges(dfPath),
       this.loadInterceptValues(dfPath),
       this.loadEffectValues(dfPath),
       this.loadIsCredible(dfPath),
+      this.loadCovariate(dfPath),
     ]);
     return {
       obsSetId,
@@ -95,6 +104,7 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
       interceptExpectedSample,
       effectExpectedSample,
       isCredibleEffect,
+      covariate,
     };
   }
 
