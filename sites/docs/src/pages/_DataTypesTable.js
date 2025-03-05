@@ -305,6 +305,32 @@ export default function DataTypesTable() {
             </ul>
           </td>
         </tr>
+        <tr>
+          <td>
+            <code>featureSetStats</code>
+            <br />
+            Per-feature-set statistics. For example, gene set enrichment test results.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturesetstatsanndatazarr')}><code>comparativeFeatureSetStats.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSetStats</code>
+            <br />
+            Per-observation-set statistics. For example, cell type composition analysis results.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativeobssetstatsanndatazarr')}><code>comparativeObsSetStats.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
       </tbody>
     </table>
   );

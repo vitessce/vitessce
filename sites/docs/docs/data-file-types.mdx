@@ -788,6 +788,69 @@ coordinationValues={`{
 }`}
 />
 
+### `comparativeFeatureSetStats.anndata.zarr`
+
+Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureStats dataframes,
+for example, the results of multiple differential expression tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeFeatureSetStats.anndata.zarr"
+fileConst="COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR"
+options={`{
+  // Path to the comparison metadata.
+  "metadataPath": "uns/comparison_metadata",
+  // Optionally, specify the name of a column containing the feature set index.
+  "indexColumn": "pathway_name",
+  // Specify the column containing ontology terms (CURIE strings).
+  "termColumn": "pathway_term",
+  // Specify the column containing p-values.
+  "pValueColumn": "pvals_adj",
+  // Does the p-value column contain adjusted p-values?
+  "pValueAdjusted": true
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample",
+  "featureType": "gene"
+}`}
+/>
+
+### `comparativeObsSetStats.anndata.zarr`
+
+Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureStats dataframes,
+for example, the results of multiple differential expression tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeObsSetStats.anndata.zarr"
+fileConst="COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR"
+options={`{
+  // Path to the comparison metadata.
+  "metadataPath": "uns/comparison_metadata",
+  // Optionally, specify the name of a column containing the obs set index.
+  "indexColumn": "names",
+  // Specify the column containing fold-change values.
+  "foldChangeColumn": "logfoldchanges",
+  // Optionally, specify how the fold-change values have been tranformed.
+  "foldChangeTransformation": "log2",
+  "interceptExpectedSampleColumn": "interceptExpectedSample",
+  "effectExpectedSampleColumn": "effectExpectedSample",
+  "isCredibleEffectColumn": "isCredibleEffect",
+  "covariateColumn": "covariate"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample"
+}`}
+/>
+
 ### `anndata.zarr`
 
 Defines an AnnData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
