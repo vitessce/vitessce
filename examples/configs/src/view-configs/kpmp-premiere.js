@@ -59,24 +59,24 @@ function generateKpmpPremiereConfig() {
     },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
   })
-  .addFile({
-    fileType: 'comparativeFeatureSetStats.anndata.zarr',
-    url: baseUrl,
-    options: {
-      metadataPath: 'uns/comparison_metadata',
-      indexColumn: 'pathway_name',
-      termColumn: 'pathway_term',
-      pValueColumn: 'pvals_adj',
-      pValueAdjusted: true,
-      analysisType: 'pertpy_hypergeometric',
-    },
-    coordinationValues: {
-      obsType: 'cell',
-      featureType: 'gene',
-      sampleType: 'sample',
-    },
+    .addFile({
+      fileType: 'comparativeFeatureSetStats.anndata.zarr',
+      url: baseUrl,
+      options: {
+        metadataPath: 'uns/comparison_metadata',
+        indexColumn: 'pathway_name',
+        termColumn: 'pathway_term',
+        pValueColumn: 'pvals_adj',
+        pValueAdjusted: true,
+        analysisType: 'pertpy_hypergeometric',
+      },
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene',
+        sampleType: 'sample',
+      },
     // TODO: remove the below once the biomarkerSelect view is capable of adding them based on the above comparisonMetadata.
-  })
+    })
     .addFile({
       fileType: 'anndata.zarr',
       url: baseUrl,

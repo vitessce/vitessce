@@ -6,4 +6,4 @@
 "@vitessce/schemas": patch
 ---
 
-Add featureStats data type / loaders. Add volcano plot view.
+Add `featureStats`, `featureSetStats`, and `obsSetStats` data types and data loaders. Add volcano plot, gene set enrichment bar plot, and cell type composition bar plot views.

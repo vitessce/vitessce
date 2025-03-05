@@ -65,9 +65,9 @@ export default function FeatureSetEnrichmentBarPlot(props) {
             name: featureSetName,
             keyName: `${key}${featureSetName}`,
             featureSetSignificance: df.featureSetSignificance[i],
-            minusLog10p: - Math.log10(df.featureSetSignificance[i]),
+            minusLog10p: -Math.log10(df.featureSetSignificance[i]),
             // Color based on obsSet
-          })
+          });
         });
       });
       result = result
@@ -78,13 +78,12 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         .toSorted((a, b) => a.featureSetSignificance - b.featureSetSignificance)
         .reduce((a, h) => {
           // Only add the pathway once if it appears for multiple cell types?
-          if(a.find(d => d.name === h.name)) {
+          if (a.find(d => d.name === h.name)) {
             return a;
-          } else {
-            return [...a, h];
           }
+          return [...a, h];
         }, []);
-        
+
       const MAX_ROWS = 25;
       result = result.slice(0, MAX_ROWS);
       return result;
@@ -182,7 +181,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedObsType} Set`]: item.datum.name,
-    [`p-value`]: item.datum.featureSetSignificance,
+    'p-value': item.datum.featureSetSignificance,
     // TODO: add more entries
   }
   ), [captializedObsType]);

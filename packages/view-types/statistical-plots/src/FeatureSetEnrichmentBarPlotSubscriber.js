@@ -111,12 +111,14 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
     // TODO: Implement different behavior when isShiftDown
     // TODO: get feature IDs using AsyncFunction
     // (pathway term in, gene names out).
-    
-    //setFeatureSelection(featureIds);
+
+    // setFeatureSelection(featureIds);
   }, [setFeatureSelection]);
 
   // TODO: support the following options
   // - p-value threshold for which bars to show
+  // - max number of bars to show
+  // - Boolean flag: should same pathway which appears multiple times be de-duplicated (one bar per pathway, using most-significant result)?
 
   return (
     <TitleInfo
