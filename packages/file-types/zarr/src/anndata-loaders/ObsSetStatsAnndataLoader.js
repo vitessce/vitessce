@@ -47,9 +47,7 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
     // Check the options to determine whether the significance values are pre-transformed
     // or if we still need to compute minus log10 here.
     const values = await this.dataSource.loadNumeric(`${dfPath}/${isCredibleEffectColumn}`);
-    values.data = Array.from(values.data);
-    console.log('isCredible', values);
-    return values.data;
+    return Array.from(values.data);
   }
 
   /**

@@ -257,11 +257,11 @@ function PageComponent() {
           <div style={{ width: '100%' }}>
             <ComparativeHeading />
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <SccodaPlot />
-          </div>
           <div style={{ width: '100%', height: '300px' }}>
             <Treemap />
+          </div>
+          <div style={{ width: '100%', height: '500px' }}>
+            <SccodaPlot />
           </div>
           <div style={{ width: '100%', height: '500px' }}>
             <VolcanoPlot />

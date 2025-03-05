@@ -1,212 +1,214 @@
-/* eslint-disable indent */
-/* eslint-disable camelcase */
-import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleLinear } from 'd3-scale';
-import { scale as vega_scale } from 'vega-scale';
-import { axisBottom, axisLeft } from 'd3-axis';
-import { extent as d3_extent } from 'd3-array';
-import { select } from 'd3-selection';
-import { isEqual } from 'lodash-es';
-import { capitalize } from '@vitessce/utils';
-import { getColorScale } from './utils.js';
+import React, { useCallback, useMemo } from 'react';
+import { clamp } from 'lodash-es';
+import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
+import { colorArrayToString } from '@vitessce/sets-utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 
-const scaleBand = vega_scale('band');
-
+/**
+ * Cell set sizes displayed as a bar chart,
+ * implemented with the VegaPlot component.
+ * @param {object} props
+ * @param {object[]} props.data The set size data, an array
+ * of objects with properties `name`, `key`, `color`, and `size`.
+ * @param {string} props.theme The name of the current Vitessce theme.
+ * @param {number} props.width The container width.
+ * @param {number} props.height The container height.
+ * @param {number} props.marginRight The size of the margin
+ * on the right side of the plot, to account for the vega menu button.
+ * By default, 90.
+ * @param {number} props.marginBottom The size of the margin
+ * on the bottom of the plot, to account for long x-axis labels.
+ * By default, 120.
+ * @param {number} props.keyLength The length of the `key` property of
+ * each data point. Assumes all key strings have the same length.
+ * By default, 36.
+ */
 export default function CellSetCompositionBarPlot(props) {
   const {
+    data,
     theme,
     width,
     height,
+    marginRight = 200,
+    marginBottom = 120,
+    keyLength = 36,
     obsType,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
-    sampleSetSelection,
-    obsSetSelection,
-    obsSetColor,
-    sampleSetColor,
-    data,
-    marginTop = 5,
-    marginRight = 5,
-    marginLeft = 50,
-    marginBottom = 50,
+    onBarSelect,
   } = props;
 
-  const svgRef = useRef();
-
-  const computedData = useMemo(() => data.map(d => ({
-    ...d,
-    df: {
-      ...d.df,
-      logFoldChange: d.df.obsSetFoldChange.map(v => Math.log2(v)),
-      // TODO: add intercept + effect?
-    },
-  })), [data]);
-
-  const [xExtent, yExtent] = useMemo(() => {
-    if (!computedData) {
-      return [null, null];
-    }
-    const xExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.obsSetFoldChange)),
-    );
-
-    const yExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.effectExpectedSample)),
-    );
-    return [xExtentResult, yExtentResult];
-  }, [computedData]);
-
-  const [obsSetColorScale, sampleSetColorScale] = useMemo(() => [
-    getColorScale(obsSetSelection, obsSetColor, theme),
-    getColorScale(sampleSetSelection, sampleSetColor, theme),
-  ], [obsSetSelection, sampleSetSelection, sampleSetColor, obsSetColor, theme]);
-
-  useEffect(() => {
-    const domElement = svgRef.current;
-
-    const svg = select(domElement);
-    svg.selectAll('g').remove();
-    svg
-      .attr('width', width)
-      .attr('height', height)
-      .attr('viewBox', [0, 0, width, height])
-      .attr('style', 'font: 10px sans-serif');
-
-    if (!computedData || !xExtent || !yExtent) {
-      return;
-    }
-
-    // Render scatterplot
-    const innerWidth = width - marginLeft;
-    const innerHeight = height - marginBottom;
-
-    const xScale = scaleLinear()
-      .range([marginLeft, width - marginRight])
-      .domain(xExtent);
-    
-    // For the y domain, use the yMin prop
-    // to support a use case such as 'Aspect Ratio',
-    // where the domain minimum should be 1 rather than 0.
-    const yScale = scaleLinear()
-      .domain(yExtent)
-      .range([innerHeight, marginTop]);
-
-    // Add the axes.
-    svg.append('g')
-      .attr('transform', `translate(0,${height - marginBottom})`)
-      .call(axisBottom(xScale));
-
-    svg.append('g')
-      .attr('transform', `translate(${marginLeft},0)`)
-      .call(axisLeft(yScale));
-
-    // Axis titles
-    const titleG = svg.append('g');
-    const fgColor = 'black'; // TODO: use theme to determine this
-
-    // Y-axis title
-    titleG
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('x', -innerHeight / 2)
-      .attr('y', 15)
-      .attr('transform', 'rotate(-90)')
-      .text('Effect')
-      .style('font-size', '12px')
-      .style('fill', fgColor);
-
-    // X-axis title
-    titleG
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('x', marginLeft + innerWidth / 2)
-      .attr('y', height - 10)
-      .text(`${capitalize(obsType)} Set`)
-      .style('font-size', '12px')
-      .style('fill', fgColor);
-
-    // Get a mapping from column name to group name.
-    const obsSetsColumnNameMappingReversed = Object.fromEntries(
-      Object
-        .entries(obsSetsColumnNameMapping)
-        .map(([key, value]) => ([value, key])),
-    );
-
-    const sampleSetsColumnNameMappingReversed = Object.fromEntries(
-      Object
-        .entries(sampleSetsColumnNameMapping)
-        .map(([key, value]) => ([value, key])),
-    );
+  const computedData = useMemo(() => {
+    if(Array.isArray(data) && data.length === 1) {
+      // We expect only one returned data frame.
+      const { df, metadata } = data[0];
+      // Return in array-of-objects form that Vega-Lite likes.
 
 
-    const g = svg.append('g');
-
-    // Append a circle for each data point.
-    computedData.forEach((comparisonObject) => {
-      const obsSetG = g.append('g');
-
-      const { df, metadata } = comparisonObject;
-      const coordinationValues = metadata.coordination_values;
-
-      const rawObsSetPath = coordinationValues.obsSetFilter
-        ? coordinationValues.obsSetFilter[0]
-        : coordinationValues.obsSetSelection[0];
-      const obsSetPath = [...rawObsSetPath];
-      obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
-
-      // Swap the foldchange direction if backwards with
-      // respect to the current sampleSetSelection pair.
-      // 
-      let shouldSwapFoldChangeDirection = false;
-      if (
-        coordinationValues.sampleSetFilter
-        && coordinationValues.sampleSetFilter.length === 2
-      ) {
-        const rawSampleSetPathA = coordinationValues.sampleSetFilter[0];
-        const sampleSetPathA = [...rawSampleSetPathA];
-        sampleSetPathA[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathA[0]];
-
-        const rawSampleSetPathB = coordinationValues.sampleSetFilter[1];
-        const sampleSetPathB = [...rawSampleSetPathB];
-        sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
-
-        if (
-          isEqual(sampleSetPathA, sampleSetSelection[1])
-          && isEqual(sampleSetPathB, sampleSetSelection[0])
-        ) {
-          shouldSwapFoldChangeDirection = true;
-        }
-      }
-
-      const filteredDf = df.obsSetId.map((obsSetId, i) => ({
+      console.log(metadata);
+      return df.obsSetId.map((obsSetId, i) => ({
         obsSetId,
-        logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
-        effectExpectedSample: df.effectExpectedSample[i],
+        // TODO: swap direction of foldChange/logFC if necessary
+        obsSetFoldChange: df.obsSetFoldChange[i],
+        logFoldChange: Math.log2(df.obsSetFoldChange[i]),
         interceptExpectedSample: df.interceptExpectedSample[i],
+        effectExpectedSample: df.effectExpectedSample[i],
         isCredibleEffect: df.isCredibleEffect[i],
+        // TODO: boolean flag for wasReferenceObsSet (check metadata)
+
+        // TODO: color per bar
+
+        // TODO: unique key per bar
       }));
+    }
+    return null;
+  }, [data]);
 
-      const color = obsSetColorScale(obsSetPath);
+  console.log(computedData);
 
-      
-    });
-  }, [width, height, theme, sampleSetColor, sampleSetSelection,
-    obsSetSelection, obsSetColor, computedData,
-    xExtent, yExtent, obsType,
-    marginLeft, marginBottom, marginTop, marginRight,
-    obsSetColorScale, sampleSetColorScale, 
-  ]);
+  // Add a property `keyName` which concatenates the key and the name,
+  // which is both unique and can easily be converted
+  // back to the name by taking a substring.
+  // Add a property `colorString` which contains the `[r, g, b]` color
+  // after converting to a color hex string.
+  /*const data = rawData.map(d => ({
+    ...d,
+    keyName: d.key + d.name,
+    colorString: colorArrayToString(d.color),
+  }));
+
+  // Get an array of keys for sorting purposes.
+  const keys = data.map(d => d.keyName);
+
+  const colorScale = {
+    // Manually set the color scale so that Vega-Lite does
+    // not choose the colors automatically.
+    domain: data.map(d => d.key),
+    range: data.map((d) => {
+      const [r, g, b] = !d.isGrayedOut ? d.color : getDefaultColor(theme);
+      return `rgba(${r}, ${g}, ${b}, 1)`;
+    }),
+  };*/
+  const captializedObsType = capitalize(obsType);
+
+  const spec = {
+    mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
+    /*params: [
+      {
+        name: 'highlight',
+        select: {
+          type: 'point',
+          on: 'mouseover',
+        },
+      },
+      {
+        name: 'select',
+        select: 'point',
+      },
+      {
+        name: 'bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey === false]',
+          fields: ['setNamePath', 'isGrayedOut'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_bar_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
+          fields: ['setNamePath', 'isGrayedOut'],
+          empty: 'none',
+        },
+      },
+    ],*/
+    encoding: {
+      /*x: {
+        field: 'keyName',
+        type: 'nominal',
+        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+        title: `${captializedObsType} Set`,
+        sort: keys,
+      },*/
+      y: {
+        field: 'obsSetId',
+        type: 'nominal',
+        title: 'Obs Set'
+      },
+      x: {
+        field: 'logFoldChange',
+        type: 'quantitative',
+        title: `Log fold-change`,
+      },
+      /*color: {
+        field: 'key',
+        type: 'nominal',
+        scale: colorScale,
+        legend: null,
+      },
+      */
+      color: {
+        field: 'isCredibleEffect',
+        type: 'nominal',
+      },
+      /*tooltip: {
+        field: 'size',
+        type: 'quantitative',
+      },
+
+      fillOpacity: {
+        condition: {
+          param: 'select',
+          value: 1,
+        },
+        value: 0.3,
+      },
+      strokeWidth: {
+        condition: [
+          {
+            param: 'select',
+            empty: false,
+            value: 1,
+          },
+          {
+            param: 'highlight',
+            empty: false,
+            value: 2,
+          },
+        ],
+        value: 0,
+      },
+      */
+    },
+    // TODO: for width, also subtract length of longest y-axis set name label.
+    width: clamp(width - marginRight, 10, Infinity),
+    height: clamp(height - marginBottom, 10, Infinity),
+    config: VEGA_THEMES[theme],
+  };
+
+  const handleSignal = (name, value) => {
+    if (name === 'bar_select') {
+      onBarSelect(value.setNamePath, value.isGrayedOut[0]);
+    } else if (name === 'shift_bar_select') {
+      const isGrayedOut = false;
+      const selectOnlyEnabled = true;
+      onBarSelect(value.setNamePath, isGrayedOut, selectOnlyEnabled);
+    }
+  };
+
+  const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
+  const getTooltipText = useCallback(item => ({
+    [`${captializedObsType} Set`]: item.datum.name,
+    [`${captializedObsType} Set Size`]: item.datum.size,
+  }
+  ), [captializedObsType]);
 
   return (
-    <svg
-      ref={svgRef}
-      style={{
-        top: 0,
-        left: 0,
-        width: `${width}px`,
-        height: `${height}px`,
-        position: 'relative',
-      }}
+    <VegaPlot
+      data={computedData}
+      spec={spec}
+      signalListeners={signalListeners}
+      getTooltipText={getTooltipText}
     />
   );
 }
