@@ -24,7 +24,7 @@ class RelaxedFetchStore extends FetchStore {
       return await super.get(key, options);
     } catch (e: any) {
       // TODO: request/contribute a custom error class
-      // to avoid string comparisons in the future. 
+      // to avoid string comparisons in the future.
       if (
         e?.message?.startsWith('Unexpected response status 403')
         && !getDebugMode()
