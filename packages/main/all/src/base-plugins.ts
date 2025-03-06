@@ -42,6 +42,10 @@ import {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
+  comparisonMetadataAnndataSchema,
+  featureStatsAnndataSchema,
+  featureSetStatsAnndataSchema,
+  obsSetStatsAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
   anndataH5adSchema,
@@ -94,6 +98,9 @@ import {
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
   TreemapSubscriber,
+  VolcanoPlotSubscriber,
+  CellSetCompositionBarPlotSubscriber,
+  FeatureSetEnrichmentBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -143,6 +150,10 @@ import {
   FeatureLabelsAnndataLoader,
   SampleEdgesAnndataLoader,
   SampleSetsAnndataLoader,
+  ComparisonMetadataAnndataLoader,
+  FeatureStatsAnndataLoader,
+  FeatureSetStatsAnndataLoader,
+  ObsSetStatsAnndataLoader,
   // MuData
   MuDataSource,
   // Legacy
@@ -177,6 +188,7 @@ import {
 // Joint file types
 import {
   BiomarkerSelectSubscriber,
+  ComparativeHeadingSubscriber,
   autocompleteFeature,
   transformFeature,
   getAlternativeTerms,
@@ -244,10 +256,14 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
+  makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
+  makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
+  makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -277,6 +293,11 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
+
+  ...makeZarrFileTypes(FileType.COMPARISON_METADATA_ANNDATA_ZARR, DataType.COMPARISON_METADATA, ComparisonMetadataAnndataLoader, AnnDataSource, comparisonMetadataAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR, DataType.FEATURE_SET_STATS, FeatureSetStatsAnndataLoader, AnnDataSource, featureSetStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR, DataType.OBS_SET_STATS, ObsSetStatsAnndataLoader, AnnDataSource, obsSetStatsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -572,6 +593,11 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
   new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
+  // For volcano plot:
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_SIGNIFICANCE_THRESHOLD, 0.05, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
 ];
 
 export const baseAsyncFunctions = [
