@@ -1374,6 +1374,9 @@ importers:
 
   packages/utils/zarr-utils:
     dependencies:
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@zarrita/storage':
         specifier: 'catalog:'
         version: 0.1.0
