@@ -57,6 +57,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
             color,
             obsSetPath,
             obsSetPaths: [obsSetPath],
+            obsSetNameToPval: { [obsSetPath.at(-1)]: df.featureSetSignificance[i] },
             keyName: `${key}${featureSetName}`,
             featureSetSignificance: df.featureSetSignificance[i],
             minusLog10p: -Math.log10(df.featureSetSignificance[i]),
@@ -72,12 +73,14 @@ export default function FeatureSetEnrichmentBarPlot(props) {
           ...d,
           minusLog10p: Math.min(50, d.minusLog10p), // Clamp infinite values at 50
         }))
+        .filter(d => d.featureSetSignificance <= pValueThreshold)
         .toSorted((a, b) => a.featureSetSignificance - b.featureSetSignificance)
         .reduce((a, h) => {
           // Only add the pathway once if it appears for multiple cell types?
           const match = a.find(d => d.name === h.name);
           if (match) {
             match.obsSetPaths.push(h.obsSetPath);
+            match.obsSetNameToPval[h.obsSetPath.at(-1)] = h.featureSetSignificance;
             return a;
           }
           return [...a, h];
@@ -102,7 +105,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
     domain: computedData.map(d => d.key),
     range: computedData.map(d => d.color),
   };
-  const captializedObsType = capitalize(obsType);
+  const captializedFeatureType = capitalize(featureType);
 
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
@@ -131,7 +134,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         field: 'keyName',
         type: 'nominal',
         axis: { labelExpr: `substring(datum.label, ${keyLength})` },
-        title: `${capitalize(featureType)} Set`,
+        title: `${captializedFeatureType} Set`,
         sort: keys,
       },
       x: {
@@ -178,11 +181,15 @@ export default function FeatureSetEnrichmentBarPlot(props) {
 
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
-    [`${captializedObsType} Set`]: item.datum.name,
-    'p-value': item.datum.featureSetSignificance,
-    // TODO: add more entries
+    [`${captializedFeatureType} Set`]: item.datum.name,
+    ...Object.fromEntries(
+      Object.entries(item.datum.obsSetNameToPval).map(([cellSetName, pVal]) => ([
+        `p-value for ${cellSetName}`,
+        pVal,
+      ]))
+    ),
   }
-  ), [captializedObsType]);
+  ), [captializedFeatureType]);
 
   return (
     <VegaPlot
