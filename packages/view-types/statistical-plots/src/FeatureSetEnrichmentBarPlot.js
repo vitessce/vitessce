@@ -53,6 +53,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
           result.push({
             key,
             name: featureSetName,
+            term: df.featureSetTerm[i],
             color,
             obsSetPath,
             obsSetPaths: [obsSetPath],
@@ -181,6 +182,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
   const signalListeners = { bar_select: handleSignal, shift_bar_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${captializedFeatureType} Set`]: item.datum.name,
+    'Ontology Term': item.datum.term,
     ...Object.fromEntries(
       Object.entries(item.datum.obsSetNameToPval).map(([cellSetName, pVal]) => ([
         `p-value for ${cellSetName}`,
