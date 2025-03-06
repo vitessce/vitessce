@@ -1,4 +1,25 @@
 
+## 3.5.8
+
+### Patch Changes
+
+- Update react prop docs. (`docs`) ([#2051](https://github.com/vitessce/vitessce/pull/2051))
+
+- Added Neuroglancer component as vitessce view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`, `demo`) ([#2033](https://github.com/vitessce/vitessce/pull/2033))
+
+- Wrap VitS and view components in ErrorBoundaries. (`@vitessce/vit-s`) ([#2052](https://github.com/vitessce/vitessce/pull/2052))
+
+- Upgrade to `zarrita` version with re-exports for `@zarrita/` packages (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`, `@vitessce/zarr`, `@vitessce/types`) ([#2044](https://github.com/vitessce/vitessce/pull/2044))
+
+- Add `featureStats`, `featureSetStats`, and `obsSetStats` data types and data loaders. Add volcano plot, gene set enrichment bar plot, and cell type composition bar plot views. (`@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/schemas`) ([#2063](https://github.com/vitessce/vitessce/pull/2063))
+
+- Do not error for 403 errors. (`@vitessce/zarr-utils`) ([#2069](https://github.com/vitessce/vitessce/pull/2069))
+
+- Added a default scaling value when the file does not provide information, in spatial-utils file for SpatialThree view. (`@vitessce/spatial-three`) ([#2050](https://github.com/vitessce/vitessce/pull/2050))
+
+- Update CCF-UI test to fix failures. (`html`) ([#2048](https://github.com/vitessce/vitessce/pull/2048))
+
+
 ## 3.5.7
 
 ### Patch Changes
