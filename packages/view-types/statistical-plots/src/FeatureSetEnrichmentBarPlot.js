@@ -17,7 +17,6 @@ export default function FeatureSetEnrichmentBarPlot(props) {
     marginRight = 200,
     marginBottom = 120,
     keyLength = 36,
-    obsType,
     featureType,
     onBarSelect,
     obsSetsColumnNameMappingReversed,
@@ -186,7 +185,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
       Object.entries(item.datum.obsSetNameToPval).map(([cellSetName, pVal]) => ([
         `p-value for ${cellSetName}`,
         pVal,
-      ]))
+      ])),
     ),
   }
   ), [captializedFeatureType]);
