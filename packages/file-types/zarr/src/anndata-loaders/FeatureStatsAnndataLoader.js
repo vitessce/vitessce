@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { isEqual } from 'lodash-es';
 import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
@@ -170,34 +170,8 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     return new LoaderResult({ featureStats: result }, null);
   }
 
-  /**
-   *
-   * @returns {Promise<LoaderResult<FeatureStatsData>>}
-   */
+  // eslint-disable-next-line class-methods-use-this
   async load() {
-    const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
-      // Pass in the obsEmbedding path,
-      // to handle the MuData case where the obsIndex is located at
-      // `mod/rna/index` rather than `index`.
-      this.dataSource.loadVarIndex(path),
-      this.loadSignificances(),
-      this.loadFoldChanges(),
-    ]).then(([featureId, featureSignificance, featureFoldChange]) => Promise.resolve(
-      new LoaderResult(
-        {
-          featureId,
-          featureSignificance,
-          featureFoldChange,
-          sampleId: null,
-          obsSetId: null,
-        },
-        null,
-      ),
-    ));
+    throw new Error('The load() method is not implemented for FeatureStatsAnndataLoader.');
   }
 }

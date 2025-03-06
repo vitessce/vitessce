@@ -1,5 +1,6 @@
 // @ts-check
 import { LoaderResult, AbstractTwoStepLoader, AbstractLoaderError } from '@vitessce/abstract';
+import { loadComparisonMetadata } from './comparative-utils.js';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { ComparisonMetadata } from '@vitessce/types' */
@@ -20,19 +21,12 @@ export default class ComparisonMetadataAnndataLoader extends AbstractTwoStepLoad
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
-    // eslint-disable-next-line no-underscore-dangle
-    const unsString = await this.dataSource._loadElement(`/${path}`);
-    const unsObject = JSON.parse(/** @type {any} */ (unsString));
-
-    if (!(unsObject.schema_version === '0.0.1' || unsObject.schema_version === '0.0.2')) {
-      throw new Error('Unsupported comparison_metadata schema version.');
-    }
-
+    const metadata = await loadComparisonMetadata(this.dataSource, path);
     return Promise.resolve(new LoaderResult(
       {
         // Should a more complex class be wrapping this
         // JSON object to help with downstream querying?
-        comparisonMetadata: unsObject,
+        comparisonMetadata: metadata,
       },
       null,
     ));
