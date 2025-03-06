@@ -772,13 +772,13 @@ options={`{
   "indexColumn": "names",
   // Specify the column containing p-values.
   "pValueColumn": "pvals_adj",
-  // Optionally, specify how the p-values have been transformed.
+  // Optionally, specify how the p-values have already been transformed.
   "pValueTransformation": "minuslog10",
   // Does the p-value column contain adjusted p-values?
   "pValueAdjusted": true,
   // Specify the column containing fold-change values.
   "foldChangeColumn": "logfoldchanges",
-  // Optionally, specify how the fold-change values have been tranformed.
+  // Optionally, specify how the fold-change values have already been tranformed.
   "foldChangeTransformation": "log2"
 }`}
 coordinationValues={`{
@@ -790,11 +790,11 @@ coordinationValues={`{
 
 ### `comparativeFeatureSetStats.anndata.zarr`
 
-Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Per-feature-set statistics that have been pre-computed and stored in the AnnData object.
 Rather than pointing to the location of the results directly,
 with this file type, we point to the comparison metadata location
-(which should internally contain references to multiple featureStats dataframes,
-for example, the results of multiple differential expression tests).
+(which should internally contain references to multiple featureSetStats dataframes,
+for example, the results of multiple gene set enrichment tests).
 
 <FileDefTabs
 fileName="my_comparative_adata.zarr"
@@ -821,11 +821,11 @@ coordinationValues={`{
 
 ### `comparativeObsSetStats.anndata.zarr`
 
-Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Per-observation-set statistics that have been pre-computed and stored in the AnnData object.
 Rather than pointing to the location of the results directly,
 with this file type, we point to the comparison metadata location
-(which should internally contain references to multiple featureStats dataframes,
-for example, the results of multiple differential expression tests).
+(which should internally contain references to multiple obsSetStats dataframes,
+for example, the results of multiple cell type composition analyses).
 
 <FileDefTabs
 fileName="my_comparative_adata.zarr"
@@ -838,11 +838,16 @@ options={`{
   "indexColumn": "names",
   // Specify the column containing fold-change values.
   "foldChangeColumn": "logfoldchanges",
-  // Optionally, specify how the fold-change values have been tranformed.
+  // Optionally, specify how the fold-change values have already been tranformed.
   "foldChangeTransformation": "log2",
+  // For scCODA results, this indicates the expected value for a new sample in absence of the covariate.
   "interceptExpectedSampleColumn": "interceptExpectedSample",
+  // For scCODA results, this indicates the expected value for a new sample in presence of the covariate.
   "effectExpectedSampleColumn": "effectExpectedSample",
+  // For scCODA results, this is a boolean column indicating whether a credible change was detected for the cell type.
   "isCredibleEffectColumn": "isCredibleEffect",
+  // For scCODA results, this column indicates the covariate value.
+  // (This column may not be needed in the future, see https://github.com/keller-mark/compasce/issues/30)
   "covariateColumn": "covariate"
 }`}
 coordinationValues={`{

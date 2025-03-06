@@ -325,18 +325,21 @@ export function useFeatureSelection(
 }
 
 /**
- * Get data from the expression matrix data type loader for a given gene selection.
- * Throw warnings if the data is marked as required.
- * Subscribe to loader updates.
+ * Utility hook function which can be used to define
+ * dataType-specific data hooks which call a loader.loadMulti
+ * method to obtain multiple data frames resulting from
+ * multiple comparative analyses.
  * @param {object} loaders The object mapping
  * datasets and data types to loader instances.
  * @param {string} dataset The key for a dataset,
  * used to identify which loader to use.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @param {boolean} selection A list of gene names to get expression data for.
- * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
- * for however many genes are in the selection.
+ * @param {object} matchOn Coordination values used to obtain a matching loader.
+ * @param {object} volcanoOptions Options to pass to the loadMulti function of the loader.
+ * @param {string} dataType A data type.
+ * @returns {array} [{ df, metadata }] Array of dataframes and their metadata, where
+ * df is an object in which each column is stored as an array like { col1: arr1, col2: arr2 }.
  */
 export function useComparativeDataType(
   loaders, dataset, isRequired, matchOn, volcanoOptions, dataType,
@@ -349,11 +352,7 @@ export function useComparativeDataType(
     placeholderData: placeholderObject,
     // Include the hook name in the queryKey to prevent the case in which an identical queryKey
     // in a different hook would cause an accidental cache hit.
-    // Note: this uses the same key structure/suffix as
-    // getMatrixIndicesQueryKeyScopeTuplesAux for shared caching.
     queryKey: [dataset, dataType, matchOn, volcanoOptions, 'useComparativeData'],
-    // Query function should return an object
-    // { data, dataKey } where dataKey is the loaded gene selection.
     // TODO: use TypeScript to type the return value?
     queryFn: async (ctx) => {
       const loader = getMatchingLoader(
