@@ -395,6 +395,7 @@ export function SpatialAccelerated(props) {
     const fetchRendering = async () => {
       const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
         volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
+      console.warn('spatialAcceleratedClass, useEffect after', channelTargetC, resolution, data, volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
       if (loadingResult[0] !== null) { // New Data has been loaded
         setVolumeData({
           resolution,

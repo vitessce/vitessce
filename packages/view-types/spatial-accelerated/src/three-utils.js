@@ -39,6 +39,7 @@ function extractInformationFromProps(
   channelScopes, channelCoordination,
   image, props,
 ) {
+  console.trace('extractInformationFromProps', layerScope, layerCoordination, channelScopes, channelCoordination, image, props);
   // Getting all the information out of the provided props
   const {
     spatialRenderingMode,
@@ -127,6 +128,7 @@ function extractInformationFromProps(
   ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
   zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
 
+  console.trace('extractInformationFromProps return', channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode, renderingMode, layerTransparency, xSlice, ySlice, zSlice);
   return {
     channelsVisible,
     allChannels,
@@ -160,6 +162,7 @@ function extractInformationFromProps(
 */
 export function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
   // Everything that is props based should be useEffect with props as dependent so we can sideload the props
+  console.trace('useVolumeSettings', props, volumeSettings, setVolumeSettings, dataReady, setDataReady);
   const {
     images = {},
     imageLayerScopes,
@@ -230,6 +233,7 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
       setDataReady(false);
     }
   }
+  console.trace('useVolumeSettings return', images, layerScope, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode, renderingMode, layerTransparency, xSlice, ySlice, zSlice);
   return {
     images,
     layerScope,
@@ -279,6 +283,7 @@ function setUniformsTextures(
   renderstyle, contrastLimits, colors, layerTransparency,
   xSlice, ySlice, zSlice, meshScale, originalScale,
 ) {
+  console.trace('setUniformsTextures', uniforms, textures, volume, volConfig, renderstyle, contrastLimits, colors, layerTransparency, xSlice, ySlice, zSlice, meshScale, originalScale);
   uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
   // can be done better
   // eslint-disable-next-line no-param-reassign
@@ -350,6 +355,7 @@ function setUniformsTextures(
   uniforms.u_color6.value.set(colors.length > 5 ? colors[5][0] : null,
     colors.length > 5 ? colors[5][1] : null,
     colors.length > 5 ? colors[5][2] : null);
+  console.warn('setUniformsTextures return');
 }
 
 /**
@@ -445,41 +451,153 @@ async function getVolumeIntern({
   downsampleDepth = 1,
   signal,
 }) {
+  console.warn('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
   const { shape, labels, dtype } = source;
-  const { height, width } = viv.getImageSize(source);
-  const depth = shape[labels.indexOf('z')];
-  const depthDownsampled = Math.max(1, Math.floor(depth / downsampleDepth));
-  const rasterSize = height * width;
+  console.warn('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
+
+  const zarritaLabels = ['t', 'c', 'x', 'y', 'z'];
+
+  const width = shape[zarritaLabels.indexOf('x')];
+  const height = shape[zarritaLabels.indexOf('y')];
+  const depth = shape[zarritaLabels.indexOf('z')];
+
+  console.warn('Image size:', width, height);
+  console.warn('Depth:', depth);
+
   const TypedArrayClass = dtypeToTypedArray[dtype];
-  const volumeData = new TypedArrayClass(rasterSize * depthDownsampled);
+
+  // Fix: Correct volumeData size calculation
+  const volumeData = new TypedArrayClass(width * height * depth);
+  console.warn('Volume data size:', volumeData.length);
+
+  // TODO: make this parameterizable
+  const chunkSizeX = 32;
+  const chunkSizeY = 32;
+  const chunkSizeZ = 32;
+
+  // Compute the number of chunks in each dimension
+  const numChunksX = Math.ceil(shape[zarritaLabels.indexOf('x')] / chunkSizeX);
+  const numChunksY = Math.ceil(shape[zarritaLabels.indexOf('y')] / chunkSizeY);
+  const numChunksZ = Math.ceil(shape[zarritaLabels.indexOf('z')] / chunkSizeZ);
+
+
   await Promise.all(
-    new Array(depthDownsampled).fill(0).map(async (_, z) => {
-      const depthSelection = {
-        ...selection,
-        z: z * downsampleDepth,
-      };
-      const { data: rasterData } = await source.getRaster({
-        selection: depthSelection,
-        signal,
-      });
-      let r = 0;
-      onUpdate({ z, total: depthDownsampled, progress: 0.5 });
-      // For now this process fills in each raster plane anti-diagonally transposed.
-      // This is to ensure that the image looks right in three dimensional space.
-      while (r < rasterSize) {
-        const volIndex = z * rasterSize + (rasterSize - r - 1);
-        const rasterIndex = ((width - r - 1) % width) + width * Math.floor(r / width);
-        volumeData[volIndex] = rasterData[rasterIndex];
-        r += 1;
+    [...Array(numChunksZ)].map(async (_, chunkZ) => {
+      for (let chunkY = 0; chunkY < numChunksY; chunkY++) {
+        for (let chunkX = 0; chunkX < numChunksX; chunkX++) {
+          // Compute start positions
+          const xStart = chunkX * chunkSizeX;
+          const yStart = chunkY * chunkSizeY;
+          const zStart = chunkZ * chunkSizeZ;
+
+          // Define the selection for the chunk
+          const chunkSelection = {
+            x: [
+              Math.max(0, xStart),
+              Math.min(xStart + chunkSizeX, shape[zarritaLabels.indexOf('x')]),
+            ],
+            y: [
+              Math.max(0, yStart),
+              Math.min(yStart + chunkSizeY, shape[zarritaLabels.indexOf('y')]),
+            ],
+            z: [
+              Math.max(0, zStart),
+              Math.min(zStart + chunkSizeZ, shape[zarritaLabels.indexOf('z')]),
+            ],
+          };
+
+          console.warn(`Chunk at (${xStart}, ${yStart}, ${zStart}')`);
+          console.warn('Dataset shape:', shape);
+          console.warn('Labels order:', labels);
+          console.warn('zarrita labels order:', zarritaLabels);
+          console.warn('Selection:', selection);
+          // code breaks here
+          console.warn('ChunkSizeX', chunkSizeX);
+          console.warn('ChunkSizeY', chunkSizeY);
+          console.warn('ChunkSizeZ', chunkSizeZ);
+          console.warn('Chunk data shape:', [chunkSizeX, chunkSizeY, chunkSizeZ]);
+          console.warn('Volume data shape:', [width, height, depth]);
+          console.warn('chunk data size ', chunkSizeX * chunkSizeY * chunkSizeZ);
+
+          if (chunkSelection.x[0] >= chunkSelection.x[1] ||
+              chunkSelection.y[0] >= chunkSelection.y[1] ||
+              chunkSelection.z[0] >= chunkSelection.z[1]
+          ) {
+            console.warn(`Skipping empty chunk at (${xStart}, ${yStart}, ${zStart})`);
+            continue;
+          }
+
+          // here lies the problem, fix tomorrow
+          console.warn('before ');
+          console.warn('Calling getRaster with:', {
+            selection: chunkSelection,
+            signal,
+          });
+
+          console.warn('Chunk selection being passed:', chunkSelection);
+
+          const { data: chunkData } = await source.getRaster({
+            selection: { x: chunkSelection.x, y: chunkSelection.y, z: chunkSelection.z[1] },
+            signal,
+          });
+
+          console.warn('Chunk data:', chunkData);
+          console.warn(`Requested chunk at (${xStart}, ${yStart}, ${zStart}):`, chunkData.length);
+
+          // Ensure chunkData is valid
+          if (!chunkData || chunkData.length === 0) {
+            console.warn(`Empty chunk at (${xStart}, ${yStart}, ${zStart})`);
+            continue;
+          }
+
+          console.warn(`Chunk at (${xStart}, ${yStart}, ${zStart}) has shape:`, chunkData.length);
+          console.warn('Dataset shape:', shape);
+          console.warn('Labels order:', labels);
+          console.warn('zarrita labels order:', zarritaLabels);
+          console.warn('Selection:', selection);
+          console.warn('chunk data', chunkData);
+          // code breaks here
+          console.warn('ChunkSizeX', chunkSizeX);
+          console.warn('ChunkSizeY', chunkSizeY);
+          console.warn('ChunkSizeZ', chunkSizeZ);
+          console.warn('Chunk data shape:', [chunkSizeX, chunkSizeY, chunkSizeZ]);
+          console.warn('Chunk data:', chunkData);
+          console.warn('Volume data shape:', [width, height, depth]);
+          console.warn('Chunk data length:', chunkData.length);
+          console.warn('chunk data size ', chunkSizeX * chunkSizeY * chunkSizeZ);
+
+          console.warn('Chunk selection:', chunkSelection);
+
+          console.assert(chunkData.length === chunkSizeX * chunkSizeY * chunkSizeZ, 'Chunk data length does not match chunk size');
+
+          // Map chunkData into volumeData
+          for (let z = 0; z < chunkSizeZ; z++) {
+            for (let y = 0; y < chunkSizeY; y++) {
+              for (let x = 0; x < chunkSizeX; x++) {
+                const xSize = shape[labels.indexOf('x')]; // Should be 32
+                const ySize = shape[labels.indexOf('y')]; // Should be 32
+                const zSize = shape[labels.indexOf('z')]; // Should be 25
+
+                const globalIndex =
+                    (xStart + x) * ySize * zSize +  // X index (slowest varying)
+                    (yStart + y) * zSize +          // Y index (middle varying)
+                    (zStart + z);                   // Z index (fastest varying)
+
+                const localIndex = z + y * chunkSizeZ + x * chunkSizeZ * chunkSizeY;
+
+                volumeData[globalIndex] = chunkData[localIndex];
+              }
+            }
+          }
+        }
       }
-      onUpdate({ z, total: depthDownsampled, progress: 1 });
     }),
   );
   return {
     data: volumeData,
     height,
     width,
-    depth: depthDownsampled,
+    depth,
   };
 }
 
@@ -493,16 +611,20 @@ function getVolumeByChannel(channel, resolution, loader) {
 }
 
 function getVolumeFromOrigin(volumeOrigin) {
+  console.warn('getVolumeFromOrigin', volumeOrigin);
   const volume = new Volume();
   volume.xLength = volumeOrigin.width;
   volume.yLength = volumeOrigin.height;
   volume.zLength = volumeOrigin.depth;
   volume.data = volumeOrigin.data;
+  console.warn('getVolumeFromOrigin, before return', volume);
   return volume;
 }
 
 function getData3DTexture(volume) {
+  console.warn('getData3DTexture', volume);
   const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
+  console.warn('getData3DTexture', texture);
   texture.format = RedFormat;
   texture.type = FloatType;
   texture.generateMipmaps = false;
@@ -510,6 +632,7 @@ function getData3DTexture(volume) {
   texture.magFilter = LinearFilter;
   // texture.unpackAlignment = 1;
   texture.needsUpdate = true;
+  console.warn('getData3DTexture, before return', texture);
   return texture;
 }
 
@@ -546,9 +669,11 @@ function minMaxVolume(volume) {
 * @returns {Promise<(*|*[])[]>}
 */
 export async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
+  console.warn('initialDataLoading', channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution);
   let volume = null;
   let scale = null;
   const { shape, labels } = data[0];
+  console.warn('initialDataLoading, shape, labels', shape, labels);
   const channelsToLoad = channelTargetC
     .filter(channel => !volumes.has(channel) || resolution !== oldResolution);
   const volumeOrigins = await Promise.all(
@@ -565,6 +690,7 @@ export async function initialDataLoading(channelTargetC, resolution, data, volum
     textures.set(channel, getData3DTexture(volume));
     volumeMinMax.set(channel, minMax);
     scale = getPhysicalSizeScalingMatrix(data[resolution]);
+    console.warn('initialDataLoading, scale', scale);
   });
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];

@@ -62,6 +62,7 @@ export class Volume {
 
 
     if (arguments.length > 0) {
+
       /**
        * @member {number} xLength Width of the volume in the IJK coordinate system
        */
