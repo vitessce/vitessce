@@ -445,17 +445,17 @@ const dtypeToTypedArray = {
 
 // TODO: Use the imported function from VIV: Ask Trevor how to get there
 async function getVolumeIntern({
-  source,
-  selection,
-  onUpdate = () => {},
-  downsampleDepth = 1,
-  signal,
-}) {
+                                 source,
+                                 selection,
+                                 onUpdate = () => {},
+                                 downsampleDepth = 1,
+                                 signal,
+                               }) {
   console.warn('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
   const { shape, labels, dtype } = source;
   console.warn('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
 
-  const zarritaLabels = ['t', 'c', 'x', 'y', 'z'];
+  const zarritaLabels = ['t', 'c', 'z', 'y', 'x'];
 
   const width = shape[zarritaLabels.indexOf('x')];
   const height = shape[zarritaLabels.indexOf('y')];
@@ -470,16 +470,15 @@ async function getVolumeIntern({
   const volumeData = new TypedArrayClass(width * height * depth);
   console.warn('Volume data size:', volumeData.length);
 
-  // TODO: make this parameterizable
+  // Chunk dimensions
   const chunkSizeX = 32;
   const chunkSizeY = 32;
-  const chunkSizeZ = 32;
+  const chunkSizeZ = 32; // Each Z chunk contains 32 slices
 
-  // Compute the number of chunks in each dimension
+  // Compute number of chunks per dimension
   const numChunksX = Math.ceil(shape[zarritaLabels.indexOf('x')] / chunkSizeX);
   const numChunksY = Math.ceil(shape[zarritaLabels.indexOf('y')] / chunkSizeY);
-  const numChunksZ = Math.ceil(shape[zarritaLabels.indexOf('z')] / chunkSizeZ);
-
+  const numChunksZ = 1; // Only **one** Z chunk, but **32 slices**
 
   await Promise.all(
     [...Array(numChunksZ)].map(async (_, chunkZ) => {
@@ -490,7 +489,7 @@ async function getVolumeIntern({
           const yStart = chunkY * chunkSizeY;
           const zStart = chunkZ * chunkSizeZ;
 
-          // Define the selection for the chunk
+          // Define the selection for the chunk (without Z for now)
           const chunkSelection = {
             x: [
               Math.max(0, xStart),
@@ -500,90 +499,64 @@ async function getVolumeIntern({
               Math.max(0, yStart),
               Math.min(yStart + chunkSizeY, shape[zarritaLabels.indexOf('y')]),
             ],
-            z: [
-              Math.max(0, zStart),
-              Math.min(zStart + chunkSizeZ, shape[zarritaLabels.indexOf('z')]),
-            ],
           };
 
-          console.warn(`Chunk at (${xStart}, ${yStart}, ${zStart}')`);
-          console.warn('Dataset shape:', shape);
-          console.warn('Labels order:', labels);
-          console.warn('zarrita labels order:', zarritaLabels);
-          console.warn('Selection:', selection);
-          // code breaks here
-          console.warn('ChunkSizeX', chunkSizeX);
-          console.warn('ChunkSizeY', chunkSizeY);
-          console.warn('ChunkSizeZ', chunkSizeZ);
-          console.warn('Chunk data shape:', [chunkSizeX, chunkSizeY, chunkSizeZ]);
-          console.warn('Volume data shape:', [width, height, depth]);
-          console.warn('chunk data size ', chunkSizeX * chunkSizeY * chunkSizeZ);
+          console.warn(`Processing chunk at (${xStart}, ${yStart}, ${zStart})`);
+          console.warn('Chunk selection:', chunkSelection);
 
           if (chunkSelection.x[0] >= chunkSelection.x[1] ||
-              chunkSelection.y[0] >= chunkSelection.y[1] ||
-              chunkSelection.z[0] >= chunkSelection.z[1]
-          ) {
+              chunkSelection.y[0] >= chunkSelection.y[1]) {
             console.warn(`Skipping empty chunk at (${xStart}, ${yStart}, ${zStart})`);
             continue;
           }
 
-          // here lies the problem, fix tomorrow
-          console.warn('before ');
-          console.warn('Calling getRaster with:', {
-            selection: chunkSelection,
-            signal,
-          });
+          // Allocate chunk storage
+          const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
 
-          console.warn('Chunk selection being passed:', chunkSelection);
+          // Load **each of the 32 Z slices manually**
+          for (let z = 0; z < chunkSizeZ; z++) {
+            const zSlice = zStart + z;
+            if (zSlice >= depth) break; // Don't request out-of-bounds slices
 
-          const { data: chunkData } = await source.getRaster({
-            selection: { x: chunkSelection.x, y: chunkSelection.y, z: chunkSelection.z[1] },
-            signal,
-          });
+            console.warn(`Fetching Z slice ${zSlice} for chunk at (${xStart}, ${yStart}, ${zStart})`);
 
-          console.warn('Chunk data:', chunkData);
-          console.warn(`Requested chunk at (${xStart}, ${yStart}, ${zStart}):`, chunkData.length);
+            // Fetch single Z slice
+            const { data: sliceData } = await source.getRaster({
+              selection: { x: chunkSelection.x, y: chunkSelection.y, z: zSlice },
+              signal,
+            });
 
-          // Ensure chunkData is valid
-          if (!chunkData || chunkData.length === 0) {
-            console.warn(`Empty chunk at (${xStart}, ${yStart}, ${zStart})`);
-            continue;
+            if (!sliceData || sliceData.length === 0) {
+              console.warn(`Empty slice at Z=${zSlice}, skipping`);
+              continue;
+            }
+
+            console.warn(`Fetched slice at Z=${zSlice}:`, sliceData.length);
+
+            // Copy the slice into the correct position in chunkData
+            for (let x = 0; x < chunkSizeX; x++) {
+              for (let y = 0; y < chunkSizeY; y++) {
+                const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
+                const sliceIndex = x + y * chunkSizeX; // 2D slice index
+                chunkData[localIndex] = sliceData[sliceIndex];
+              }
+            }
           }
-
-          console.warn(`Chunk at (${xStart}, ${yStart}, ${zStart}) has shape:`, chunkData.length);
-          console.warn('Dataset shape:', shape);
-          console.warn('Labels order:', labels);
-          console.warn('zarrita labels order:', zarritaLabels);
-          console.warn('Selection:', selection);
-          console.warn('chunk data', chunkData);
-          // code breaks here
-          console.warn('ChunkSizeX', chunkSizeX);
-          console.warn('ChunkSizeY', chunkSizeY);
-          console.warn('ChunkSizeZ', chunkSizeZ);
-          console.warn('Chunk data shape:', [chunkSizeX, chunkSizeY, chunkSizeZ]);
-          console.warn('Chunk data:', chunkData);
-          console.warn('Volume data shape:', [width, height, depth]);
-          console.warn('Chunk data length:', chunkData.length);
-          console.warn('chunk data size ', chunkSizeX * chunkSizeY * chunkSizeZ);
-
-          console.warn('Chunk selection:', chunkSelection);
-
-          console.assert(chunkData.length === chunkSizeX * chunkSizeY * chunkSizeZ, 'Chunk data length does not match chunk size');
 
           // Map chunkData into volumeData
           for (let z = 0; z < chunkSizeZ; z++) {
             for (let y = 0; y < chunkSizeY; y++) {
               for (let x = 0; x < chunkSizeX; x++) {
-                const xSize = shape[labels.indexOf('x')]; // Should be 32
-                const ySize = shape[labels.indexOf('y')]; // Should be 32
-                const zSize = shape[labels.indexOf('z')]; // Should be 25
+                const globalX = xStart + x;
+                const globalY = yStart + y;
+                const globalZ = zStart + z;
 
-                const globalIndex =
-                    (xStart + x) * ySize * zSize +  // X index (slowest varying)
-                    (yStart + y) * zSize +          // Y index (middle varying)
-                    (zStart + z);                   // Z index (fastest varying)
+                if (globalX >= width || globalY >= height || globalZ >= depth) {
+                  continue;
+                }
 
-                const localIndex = z + y * chunkSizeZ + x * chunkSizeZ * chunkSizeY;
+                const globalIndex = globalX + globalY * width + globalZ * width * height;
+                const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
 
                 volumeData[globalIndex] = chunkData[localIndex];
               }
@@ -593,6 +566,7 @@ async function getVolumeIntern({
       }
     }),
   );
+
   return {
     data: volumeData,
     height,
@@ -600,7 +574,6 @@ async function getVolumeIntern({
     depth,
   };
 }
-
 
 function getVolumeByChannel(channel, resolution, loader) {
   return getVolumeIntern({
