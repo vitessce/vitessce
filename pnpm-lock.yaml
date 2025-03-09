@@ -1806,6 +1806,9 @@ importers:
       '@vitessce/neuroglancer-workers':
         specifier: workspace:*
         version: link:../../neuroglancer-workers
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s

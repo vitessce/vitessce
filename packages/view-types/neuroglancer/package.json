@@ -34,7 +34,8 @@
       "@vitessce/neuroglancer-workers": "workspace:*",
       "@material-ui/core": "catalog:",
       "@vitessce/constants-internal": "workspace:*",
-      "@vitessce/vit-s": "workspace:*"
+      "@vitessce/vit-s": "workspace:*",
+      "@vitessce/sets-utils": "workspace:*"
     },
     "devDependencies": {
       "@testing-library/jest-dom": "catalog:",

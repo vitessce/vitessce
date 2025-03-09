@@ -43,7 +43,17 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_AXIS_FIXED,
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.SPATIAL_ZOOM,
-
+    CoordinationType.OBS_FILTER,
+    CoordinationType.OBS_HIGHLIGHT,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_FILTER,
+    CoordinationType.OBS_SET_HIGHLIGHT,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.OBS_SET_SELECTION,
 
   ],
   [ViewType.SCATTERPLOT]: [
