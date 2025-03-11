@@ -40,7 +40,8 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/types": "workspace:*",
     "fuse.js": "^7.0.0",
-    "d3-dsv": "catalog:"
+    "d3-dsv": "catalog:",
+    "react-sticky-el": "^2.1.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

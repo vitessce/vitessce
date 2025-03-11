@@ -140,7 +140,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
       x: {
         field: 'minusLog10p',
         type: 'quantitative',
-        title: '- log10 p-value',
+        title: '-log10 p-value',
       },
       color: {
         field: 'key',
