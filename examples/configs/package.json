@@ -21,6 +21,7 @@
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/biomarker-select": "workspace:*",
-    "react-sticky-el": "^2.1.1"
+    "react-sticky-el": "^2.1.1",
+    "clsx": "catalog:"
   }
 }

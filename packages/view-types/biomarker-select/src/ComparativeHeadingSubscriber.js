@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
   },
   headingContainer: {
-    backgroundColor: theme.palette.primaryBackground,
+    backgroundColor: 'transparent',
   },
   headingSectionContainer: {
     width: '100%',

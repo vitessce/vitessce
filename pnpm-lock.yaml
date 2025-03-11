@@ -418,6 +418,9 @@ importers:
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../packages/utils/zarr-utils
+      clsx:
+        specifier: 'catalog:'
+        version: 1.2.1
       react-sticky-el:
         specifier: ^2.1.1
         version: 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)

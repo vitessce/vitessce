@@ -7,6 +7,7 @@ import {
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
+import clsx from 'clsx';
 
 const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250303.adata.zarr';
 
@@ -267,7 +268,7 @@ function PageComponent() {
         font-size: 28px;
       }
       .stuck-comparative-heading {
-        opacity: 0.7;
+        background-color: rgba(255, 255, 255, 0.7);
       }
       .stuck-comparative-heading h2 {
         font-size: 16px;
@@ -309,7 +310,7 @@ function PageComponent() {
               <ComparativeHeading />
             </Sticky>
           </div>
-          <div className="view-row view-row-short">
+          <div className={clsx('view-row', 'view-row-short')}>
             <div className="view-row-left">
               <p>This view contains a treemap visualization to communicate cell type composition in each of the selected sample groups.</p>
             </div>
@@ -317,7 +318,7 @@ function PageComponent() {
               <Treemap />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view contains the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021 Nature Communications).</p>
             </div>
@@ -325,7 +326,7 @@ function PageComponent() {
               <SccodaPlot />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view displays differential expression test results.</p>
             </div>
@@ -333,7 +334,7 @@ function PageComponent() {
               <VolcanoPlot />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view displays gene set enrichment test results based on the differential expression results.</p>
             </div>
@@ -341,7 +342,7 @@ function PageComponent() {
               <PathwaysPlot />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction. Contour opacities correspond to the shown percentile thresholds.</p>
             </div>
@@ -349,7 +350,7 @@ function PageComponent() {
               <DualScatterplot />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This dot plot view displays gene expression values per cell type and sample group for the selected biomarkers.</p>
             </div>
@@ -357,7 +358,7 @@ function PageComponent() {
               <DotPlot />
             </div>
           </div>
-          <div className="view-row view-row-tall">
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This violin plot view displays gene expression values per cell type and sample group for the selected biomarker.</p>
             </div>
@@ -365,7 +366,6 @@ function PageComponent() {
               <ViolinPlot />
             </div>
           </div>
-
           {/* <h3>Neighborhood-level representations</h3>
           <h1>TODO</h1>
           <h3>Segmented instance-level representations</h3>
