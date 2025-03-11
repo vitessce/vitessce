@@ -110,7 +110,7 @@ export default function VolcanoPlot(props) {
     // Axis titles
     const titleG = svg.append('g');
     const fgColor = colorArrayToString(
-      getDefaultForegroundColor(theme)
+      getDefaultForegroundColor(theme),
     );
 
     // Y-axis title

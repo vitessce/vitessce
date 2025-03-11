@@ -6,7 +6,7 @@ import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-inte
 import { makeStyles } from '@material-ui/core';
 import Sticky from 'react-sticky-el';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   buttonContainer: {
     position: 'absolute',
     right: 0,
@@ -47,7 +47,8 @@ export function ComparativeHeadingSubscriber(props) {
     featureSelection,
   }, {
     setSampleSetSelection,
-    setFeatureSelection,
+    // TODO: buttons for modification of featureSelection
+    //setFeatureSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.COMPARATIVE_HEADING],
     coordinationScopes,
@@ -56,7 +57,7 @@ export function ComparativeHeadingSubscriber(props) {
   const classes = useStyles();
 
   const swapSampleSets = useCallback(() => {
-    if(sampleSetSelection?.length === 2) {
+    if (sampleSetSelection?.length === 2) {
       setSampleSetSelection([
         sampleSetSelection[1],
         sampleSetSelection[0],
@@ -72,7 +73,7 @@ export function ComparativeHeadingSubscriber(props) {
           <div style={{ width: '5%' }}><h2 className={classes.headingText} style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
           <div style={{ width: '50%' }}><h2 className={classes.headingText}>{sampleSetSelection?.[1]?.at(-1)}</h2></div>
           <div className={classes.buttonContainer}>
-            <button onClick={swapSampleSets}>Swap</button>
+            <button onClick={swapSampleSets} type="button">Swap</button>
           </div>
         </div>
       ) : null}
