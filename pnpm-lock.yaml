@@ -418,6 +418,9 @@ importers:
       '@vitessce/zarr-utils':
         specifier: workspace:*
         version: link:../../packages/utils/zarr-utils
+      react-sticky-el:
+        specifier: ^2.1.1
+        version: 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
 
   examples/plugins:
     dependencies:
@@ -1453,9 +1456,6 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
-      react-sticky-el:
-        specifier: ^2.1.1
-        version: 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-window:
         specifier: ^1.8.10
         version: 1.8.10(react-dom@18.2.0(react@18.2.0))(react@18.2.0)

@@ -4,7 +4,6 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { makeStyles } from '@material-ui/core';
-import Sticky from 'react-sticky-el';
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
@@ -16,6 +15,9 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
   },
   headingContainer: {
+    backgroundColor: theme.palette.primaryBackground,
+  },
+  headingSectionContainer: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
@@ -24,16 +26,6 @@ const useStyles = makeStyles(theme => ({
   headingText: {
     margin: 0,
     color: theme.palette.primaryForeground,
-  },
-  '@global .stuck-comparative-header': {
-    backgroundColor: theme.palette.primaryBackground,
-    opacity: 0.7,
-  },
-  '@global .stuck-comparative-header h2': {
-    fontSize: '16px',
-  },
-  '@global .stuck-comparative-header h3': {
-    fontSize: '14px',
   },
 }));
 
@@ -48,7 +40,7 @@ export function ComparativeHeadingSubscriber(props) {
   }, {
     setSampleSetSelection,
     // TODO: buttons for modification of featureSelection
-    //setFeatureSelection,
+    // setFeatureSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.COMPARATIVE_HEADING],
     coordinationScopes,
@@ -66,9 +58,9 @@ export function ComparativeHeadingSubscriber(props) {
   }, [sampleSetSelection, setSampleSetSelection]);
 
   return (
-    <Sticky stickyStyle={{ zIndex: 999 }} stickyClassName="stuck-comparative-header">
+    <div className={classes.headingContainer}>
       {sampleSetSelection && sampleSetSelection.length === 2 ? (
-        <div className={classes.headingContainer}>
+        <div className={classes.headingSectionContainer}>
           <div style={{ width: '45%' }}><h2 className={classes.headingText}>{sampleSetSelection?.[0]?.at(-1)}</h2></div>
           <div style={{ width: '5%' }}><h2 className={classes.headingText} style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
           <div style={{ width: '50%' }}><h2 className={classes.headingText}>{sampleSetSelection?.[1]?.at(-1)}</h2></div>
@@ -78,7 +70,7 @@ export function ComparativeHeadingSubscriber(props) {
         </div>
       ) : null}
       {featureSelection && featureSelection.length > 0 ? (
-        <div className={classes.headingContainer}>
+        <div className={classes.headingSectionContainer}>
           <div><h3 className={classes.headingText}>Selected Biomarkers:&nbsp;</h3></div>
           {featureSelection?.map((featureName, i) => (
             <div>
@@ -90,6 +82,6 @@ export function ComparativeHeadingSubscriber(props) {
           ))}
         </div>
       ) : null}
-    </Sticky>
+    </div>
   );
 }
