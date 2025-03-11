@@ -13,10 +13,16 @@ As noted by [Hrovatin et al. Nature Methods 2024](https://doi.org/10.1038/s41592
 > Thus, there is a need to define the type of analysis results that should ideally be provided by reference atlases, and to develop the necessary infrastructure to share these outputs.
 
 To address this problem, we have defined one such approach in which we store metadata about the comparative analyses that have been performed within the "unstructured" (`uns`) section of an AnnData object.
+This metadata refers back to result-containing dataframes or arrays stored within the AnnData object.
+
+![Example of pipeline for comparative analysis](/img/comparison_pipeline.jpg)
 
 
-We have defined a [JSON schema](https://observablehq.com/@keller-mark/comparison-metadata-schema) to store this metadata.
-We present a partial example below:
+We have defined a [JSON schema](https://observablehq.com/@keller-mark/comparison-metadata-schema) to store this metadata, which we propose "stringify"-ing before storing within `uns` (e.g., `z["uns/comparison_metadata"] = json.dumps(metadata_dict)`).
+A [Python class](https://github.com/keller-mark/compasce/blob/f6fe58e0624af5c98cc07e710429d1c063871d71/src/compasce/io/comparison_metadata.py#L63) can help with constructing such a metadata dict within data processing pipeline code. 
+We present a (partial) example below:
+
+
 
 ```json
 {
