@@ -18,7 +18,8 @@ This metadata refers back to result-containing dataframes or arrays stored withi
 ![Example of pipeline for comparative analysis](/img/comparison_pipeline.jpg)
 
 
-We have defined a [JSON schema](https://observablehq.com/@keller-mark/comparison-metadata-schema) to store this metadata, which we propose "stringify"-ing before storing within `uns` (e.g., `z["uns/comparison_metadata"] = json.dumps(metadata_dict)`).
+We have defined a [JSON schema](https://observablehq.com/@keller-mark/comparison-metadata-schema) to store this metadata.
+We serialize the metadata to a string prior to storing in a subkey of `uns` (to avoid the otherwise recursive storage process for dictionary [mappings](https://anndata.readthedocs.io/en/latest/fileformat-prose.html#mappings)) (e.g., `z["uns/comparison_metadata"] = json.dumps(metadata_dict)`).
 A [Python class](https://github.com/keller-mark/compasce/blob/f6fe58e0624af5c98cc07e710429d1c063871d71/src/compasce/io/comparison_metadata.py#L63) can help with constructing such a metadata dict within data processing pipeline code. 
 We present a (partial) example below:
 
