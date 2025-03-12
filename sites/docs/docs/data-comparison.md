@@ -6,7 +6,6 @@ slug: /data-comparative
 
 Vitessce can display the results of case-versus-control style comparative analyses of single-cell datasets ([example](../../#?dataset=kpmp-premiere&theme=light2&pageMode=true)).
 
-<!-- TODO: link to example -->
 
 There are not yet standard or widely-adopted approaches to store the results of comparative analyses.
 As noted by [Hrovatin et al. Nature Methods 2024](https://doi.org/10.1038/s41592-024-02532-y):
@@ -49,9 +48,14 @@ Within each of the `results` entries, the dictionary contains the following prop
 - `analysis_params` (`null|object`): Parameters that are relevant to the analysis. This may take a different form depending on the analysis type.
 
 
-We present a (partial) example below:
+We present an annotated (partial) example below:
 
 
+
+
+
+<details>
+  <summary>Example</summary>
 
 ```js
 {
@@ -343,12 +347,14 @@ We present a (partial) example below:
             "obsType": "cell",
             "featureType": "gene",
             "obsSetFilter": [
+              // Which cell type was this analysis filtered to?
               ["subclass_l2", "dFIB"]
             ],
             "sampleSetSelection": [
               ["diseasetype", "CKD"]
             ],
             "sampleSetFilter": [
+              // Which sample groups was this analysis filtered to (and were being compared)?
               ["diseasetype", "Reference"],
               ["diseasetype", "CKD"]
             ]
@@ -549,3 +555,4 @@ We present a (partial) example below:
   }
 }
 ```
+</details>
