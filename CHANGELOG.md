@@ -1,4 +1,11 @@
 
+## 3.5.9
+
+### Patch Changes
+
+- Adds click handler for treemap, sticky header in pageMode example. Adds pageMode support for vitessce.io docs site. Adds a comparative analysis docs page. (`@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/utils`) ([#2080](https://github.com/vitessce/vitessce/pull/2080))
+
+
 ## 3.5.8
 
 ### Patch Changes
