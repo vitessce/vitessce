@@ -4,4 +4,4 @@
 "@vitessce/utils": patch
 ---
 
-Click handler for treemap. Sticky header.
+Adds click handler for treemap, sticky header in pageMode example. Adds pageMode support for vitessce.io docs site. Adds a comparative analysis docs page.
