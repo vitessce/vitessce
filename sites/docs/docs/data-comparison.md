@@ -15,17 +15,36 @@ As noted by [Hrovatin et al. Nature Methods 2024](https://doi.org/10.1038/s41592
 To address this problem, we have defined one such approach in which we store metadata about the comparative analyses that have been performed within the "unstructured" (`uns`) section of an AnnData object.
 This metadata refers back to result-containing dataframes or arrays stored within the AnnData object.
 
+Note: The metadata format proposed here is in the early stages and subject to change.
+
 ![Example of pipeline for comparative analysis](/img/comparison_pipeline.jpg)
 
 
 We have defined a [JSON schema](https://observablehq.com/@keller-mark/comparison-metadata-schema) to store this metadata.
 We serialize the metadata to a string prior to storing in a subkey of `uns` (to avoid the otherwise recursive storage process for dictionary [mappings](https://anndata.readthedocs.io/en/latest/fileformat-prose.html#mappings)) (e.g., `z["uns/comparison_metadata"] = json.dumps(metadata_dict)`).
 A [Python class](https://github.com/keller-mark/compasce/blob/f6fe58e0624af5c98cc07e710429d1c063871d71/src/compasce/io/comparison_metadata.py#L63) can help with constructing such a metadata dict within data processing pipeline code. 
+
+
+At the top-level the dictionary contains the following properties:
+
+- `schema_version` (`string`): The version of the comparison metadata schema.
+- `cell_type_cols` (`string[]`): Array of one or more columns in adata.obs storing cell type annotations.
+- `sample_id_col` (`string`): The column of adata.obs which maps cells to sample IDs.
+- `sample_group_pairs` (`[string, [string, string]][]`): Array of sample group pairs in the form of `[colname, [ctrl_val, case_val]]`.
+- `comparisons` (`{ [string]: { comparison: string, results: Result[] } }`): Dictionary mapping comparison key to object with the properties `comparison` and `results`. See below for the expected format of `Result` dictionaries. Note that `results` stores an array, since the same comparison key can be used to derive more than one comparison result (e.g., for the comparison key `compare_celltype.val_macrophage.__rest__`, we might perform both a differential expression test and a gene set enrichment test, producing two separate comparison result dataframes).
+
+
+Within each of the `results` entries, the dictionary contains the following properties:
+
+- `path` (`string`): 
+- 
+
+
 We present a (partial) example below:
 
 
 
-```json
+```js
 {
   // The current schema version
   "schema_version": "0.0.2",
