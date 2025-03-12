@@ -292,7 +292,7 @@ function IndexWithHashParams() {
                   position: relative;
                 }
               `}
-              </style>
+            </style>
           ) : null}
           <ThemedVitessce
             validateOnConfigChange={debug}
