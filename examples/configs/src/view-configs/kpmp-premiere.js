@@ -6,6 +6,8 @@ import {
   vconcat,
 } from '@vitessce/config';
 import { usePageModeView } from '@vitessce/vit-s';
+import Sticky from 'react-sticky-el';
+import clsx from 'clsx';
 
 const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250303.adata.zarr';
 
@@ -265,6 +267,33 @@ function PageComponent() {
       h3 {
         font-size: 28px;
       }
+      .stuck-comparative-heading {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .stuck-comparative-heading h2 {
+        font-size: 16px;
+      }
+      .stuck-comparative-heading h3 {
+        font-size: 14px;
+      }
+      .view-row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+      .view-row-short {
+        height: 300px;
+      }
+      .view-row-tall {
+        height: 500px;
+      }
+      .view-row-left {
+        width: ${(15 / 85) * 100}%;
+        padding: 10px;
+      }
+      .view-row-center {
+        width: ${(70 / 85) * 100}%;
+      }
       `}
       </style>
       <div style={{ width: '100%' }}>
@@ -275,32 +304,68 @@ function PageComponent() {
       </div>
 
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
-        <div style={{ width: '70%', marginLeft: '15%' }}>
-          <div style={{ width: '100%' }}>
-            <ComparativeHeading />
+        <div style={{ width: '85%' }}>
+          <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+            <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
+              <ComparativeHeading />
+            </Sticky>
           </div>
-          <div style={{ width: '100%', height: '300px' }}>
-            <Treemap />
+          <div className={clsx('view-row', 'view-row-short')}>
+            <div className="view-row-left">
+              <p>This view contains a treemap visualization to communicate cell type composition in each of the selected sample groups.</p>
+            </div>
+            <div className="view-row-center">
+              <Treemap />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <SccodaPlot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This view contains the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021 Nature Communications).</p>
+            </div>
+            <div className="view-row-center">
+              <SccodaPlot />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <PathwaysPlot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This view displays differential expression test results.</p>
+            </div>
+            <div className="view-row-center">
+              <VolcanoPlot />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <VolcanoPlot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This view displays gene set enrichment test results based on the differential expression results.</p>
+            </div>
+            <div className="view-row-center">
+              <PathwaysPlot />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <DualScatterplot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction. Contour opacities correspond to the shown percentile thresholds.</p>
+            </div>
+            <div className="view-row-center">
+              <DualScatterplot />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <DotPlot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This dot plot view displays gene expression values per cell type and sample group for the selected biomarkers.</p>
+            </div>
+            <div className="view-row-center">
+              <DotPlot />
+            </div>
           </div>
-          <div style={{ width: '100%', height: '500px' }}>
-            <ViolinPlot />
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This violin plot view displays gene expression values per cell type and sample group for the selected biomarker.</p>
+            </div>
+            <div className="view-row-center">
+              <ViolinPlot />
+            </div>
           </div>
-
           {/* <h3>Neighborhood-level representations</h3>
           <h1>TODO</h1>
           <h3>Segmented instance-level representations</h3>
@@ -311,7 +376,9 @@ function PageComponent() {
           <h1>TODO</h1> */}
         </div>
         <div style={{ width: '14%', height: '500px', marginTop: '114px', marginBottom: '100px' }}>
-          <CellSets />
+          <Sticky>
+            <CellSets />
+          </Sticky>
         </div>
 
       </div>

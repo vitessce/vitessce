@@ -17,6 +17,7 @@ export {
   DEFAULT_DARK_COLOR,
   DEFAULT_LIGHT_COLOR,
   getDefaultColor,
+  getDefaultForegroundColor,
   PALETTE,
   VIEWER_PALETTE,
   PATHOLOGY_PALETTE,

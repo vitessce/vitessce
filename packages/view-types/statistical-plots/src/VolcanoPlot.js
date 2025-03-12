@@ -6,7 +6,8 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { extent as d3_extent } from 'd3-array';
 import { select } from 'd3-selection';
 import { isEqual } from 'lodash-es';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultForegroundColor } from '@vitessce/utils';
+import { colorArrayToString } from '@vitessce/sets-utils';
 import { getColorScale } from './utils.js';
 
 export default function VolcanoPlot(props) {
@@ -37,13 +38,13 @@ export default function VolcanoPlot(props) {
   const svgRef = useRef();
 
   const computedData = useMemo(() => data.map(d => ({
-        ...d,
-        df: {
-          ...d.df,
-          minusLog10p: d.df.featureSignificance.map(v => -Math.log10(v)),
-          logFoldChange: d.df.featureFoldChange.map(v => Math.log2(v)),
-        },
-      })), [data]);
+    ...d,
+    df: {
+      ...d.df,
+      minusLog10p: d.df.featureSignificance.map(v => -Math.log10(v)),
+      logFoldChange: d.df.featureFoldChange.map(v => Math.log2(v)),
+    },
+  })), [data]);
 
   const [xExtent, yExtent] = useMemo(() => {
     if (!computedData) {
@@ -108,7 +109,9 @@ export default function VolcanoPlot(props) {
 
     // Axis titles
     const titleG = svg.append('g');
-    const fgColor = 'black'; // TODO: use theme to determine this
+    const fgColor = colorArrayToString(
+      getDefaultForegroundColor(theme),
+    );
 
     // Y-axis title
     titleG

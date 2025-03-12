@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -215,6 +215,10 @@ export function TreemapSubscriber(props) {
     // TODO: consider filtering-related coordination values
   ]);
 
+  const onNodeClick = useCallback((obsSetPath) => {
+    setObsSetSelection([obsSetPath]);
+  }, [setObsSetSelection]);
+
   return (
     <TitleInfo
       title={`Treemap of ${capitalize(plur(obsType, 2))}`}
@@ -255,6 +259,7 @@ export function TreemapSubscriber(props) {
           sampleSetColor={sampleSetColor}
           obsSetSelection={obsSetSelection}
           sampleSetSelection={sampleSetSelection}
+          onNodeClick={onNodeClick}
         />
       </div>
     </TitleInfo>

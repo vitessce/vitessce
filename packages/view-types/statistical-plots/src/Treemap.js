@@ -47,6 +47,7 @@ export default function Treemap(props) {
     marginRight = 5,
     marginLeft = 80,
     marginBottom,
+    onNodeClick,
   } = props;
 
   const hierarchyData = useMemo(() => {
@@ -154,7 +155,14 @@ export default function Treemap(props) {
         .attr('fill', d => colorScale(getPathForColoring(d)))
         .attr('fill-opacity', 0.8)
         .attr('width', d => d.x1 - d.x0)
-        .attr('height', d => d.y1 - d.y0);
+        .attr('height', d => d.y1 - d.y0)
+        .on('click', (e, d) => {
+          const obsSetPath = (hierarchyLevels[0] === 'obsSet'
+            ? d.parent?.data?.[0]
+            : d.data?.[0]
+          );
+          onNodeClick(obsSetPath);
+        });
 
     // Append a clipPath to ensure text does not overflow.
     leaf.append('clipPath')
@@ -184,7 +192,7 @@ export default function Treemap(props) {
   }, [width, height, marginLeft, marginBottom, theme, marginTop, marginRight,
     obsType, sampleType, treemapLeaves, sampleSetColor, sampleSetSelection,
     obsSetSelection, obsSetColor, obsSetColorScale, sampleSetColorScale,
-    obsColorEncoding, hierarchyLevels,
+    obsColorEncoding, hierarchyLevels, onNodeClick,
   ]);
 
   return (
