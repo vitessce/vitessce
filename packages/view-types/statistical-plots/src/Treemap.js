@@ -105,6 +105,10 @@ export default function Treemap(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
+    if (!width || !height) {
+      return;
+    }
+
     const svg = select(domElement);
     svg.selectAll('g').remove();
     svg
@@ -113,7 +117,7 @@ export default function Treemap(props) {
       .attr('viewBox', [0, 0, width, height])
       .attr('style', 'font: 10px sans-serif');
 
-    if (!treemapLeaves || !obsSetSelection || !sampleSetSelection) {
+    if (!treemapLeaves || !obsSetSelection) {
       return;
     }
 
@@ -173,6 +177,8 @@ export default function Treemap(props) {
         })
       .append('use')
         .attr('xlink:href', d => d.leafUid.href);
+    
+    const hasSampleSetSelection = Array.isArray(sampleSetSelection);
 
     // Append multiline text.
     leaf.append('text')
@@ -180,8 +186,20 @@ export default function Treemap(props) {
       .selectAll('tspan')
       .data(d => ([
         // Each element in this array corresponds to a line of text.
-        d.data?.[0]?.at(-1),
-        d.parent?.data?.[0]?.at(-1),
+        ...(
+          hasSampleSetSelection
+          ? ([
+            d.data?.[0]?.at(-1),
+            d.parent?.data?.[0]?.at(-1),
+          ]) : ([
+            // Only use the cell set name
+            // for the line of text
+            // (since no sample set selection)
+            hierarchyLevels[0] === 'obsSet'
+              ? d.parent?.data?.[0].at(-1)
+              : d.data?.[0].at(-1)
+          ])
+        ),
         `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`,
       ]))
       .join('tspan')

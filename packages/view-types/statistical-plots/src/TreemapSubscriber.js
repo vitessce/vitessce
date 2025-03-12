@@ -173,12 +173,12 @@ export function TreemapSubscriber(props) {
       });
     });
 
-    const sampleSetSizes = treeToSetSizesBySetNames(
+    const sampleSetSizes = hasSampleSetSelection ? treeToSetSizesBySetNames(
       mergedSampleSets, sampleSetSelection, sampleSetSelection, sampleSetColor, theme,
-    );
+    ) : null;
 
     sampleSetKeys.forEach((sampleSetKey) => {
-      const sampleSetSize = sampleSetSizes.find(d => isEqual(d.setNamePath, sampleSetKey))?.size;
+      const sampleSetSize = sampleSetSizes?.find(d => isEqual(d.setNamePath, sampleSetKey))?.size;
       sampleResult.set(sampleSetKey, sampleSetSize || 0);
     });
 
@@ -193,7 +193,9 @@ export function TreemapSubscriber(props) {
 
         const cellSet = cellIdToSetMap?.get(obsId);
         const sampleId = sampleEdges?.get(obsId);
-        const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
+        const sampleSet = sampleId && hasSampleSetSelection
+          ? sampleIdToSetMap?.get(sampleId)
+          : null;
 
         if (hasSampleSetSelection && !sampleSet) {
           // Skip this sample if it is not in the selected sample set.

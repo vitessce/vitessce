@@ -394,7 +394,7 @@ export default function CellSetExpressionPlot(props) {
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel, sampleSetSelection,
+    maxCharactersForLabel, sampleSetSelection, isStratified,
   ]);
 
   return (
