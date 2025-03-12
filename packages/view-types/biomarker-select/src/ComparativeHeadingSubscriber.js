@@ -18,8 +18,8 @@ const useStyles = makeStyles(theme => ({
       flexDirection: 'row',
     },
     '& div > button': {
-      height: 'auto'
-    }
+      height: 'auto',
+    },
   },
   headingContainer: {
     backgroundColor: 'transparent',

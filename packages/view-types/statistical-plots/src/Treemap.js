@@ -177,7 +177,7 @@ export default function Treemap(props) {
         })
       .append('use')
         .attr('xlink:href', d => d.leafUid.href);
-    
+
     const hasSampleSetSelection = Array.isArray(sampleSetSelection);
 
     // Append multiline text.
@@ -197,7 +197,7 @@ export default function Treemap(props) {
             // (since no sample set selection)
             hierarchyLevels[0] === 'obsSet'
               ? d.parent?.data?.[0].at(-1)
-              : d.data?.[0].at(-1)
+              : d.data?.[0].at(-1),
           ])
         ),
         `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`,
