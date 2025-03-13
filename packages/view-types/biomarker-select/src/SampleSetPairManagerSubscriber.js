@@ -18,7 +18,7 @@ const useStyles = makeStyles(() => ({
     fontWeight: 'bold',
   },
   pairUl: {
-    paddingLeft: '20px',
+    paddingLeft: '15px',
     marginTop: 0,
     fontSize: '12px',
     '& button': {
