@@ -117,7 +117,7 @@ function generateKpmpPremiereConfig() {
             name: 'Donor ID',
             path: 'obs/donor_id',
           },
-          /*{
+          /* {
             name: 'Disease',
             path: 'obs/disease',
           },
@@ -132,7 +132,7 @@ function generateKpmpPremiereConfig() {
           {
             name: 'Enrollment Category',
             path: 'obs/EnrollmentCategory',
-          },*/
+          }, */
         ],
         /* featureLabels: {
         path: 'var/features',

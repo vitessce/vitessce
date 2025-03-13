@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
     fontSize: '12px',
     '& button': {
       fontSize: '12px',
-    }
+    },
   },
 }));
 
@@ -71,7 +71,7 @@ export function SampleSetPairManagerSubscriber(props) {
       return array of objects like {
         stratificationId: 'aki-vs-hr',
         name: 'Acute kidney injury (AKI) vs. Healthy reference',
-        stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
+        stratificationType: 'sampleSet',
         sampleSets: [
           ['Disease Type', 'AKI'],
           ['Disease Type', 'Reference'],
@@ -103,7 +103,7 @@ export function SampleSetPairManagerSubscriber(props) {
   const onSelectPair = useCallback((sampleSetPair) => {
     setSampleSetSelection(sampleSetPair);
   }, [sampleSetSelection, setSampleSetSelection]);
-  
+
 
   return (
     <TitleInfo
@@ -116,16 +116,26 @@ export function SampleSetPairManagerSubscriber(props) {
       helpText={helpText}
     >
       <ul className={classes.pairUl}>
-        {stratificationOptions?.map(pairObj => {
-          const isSelected = Array.isArray(sampleSetSelection) && sampleSetSelection.length === 2 && (
-            isEqual(pairObj.sampleSets, sampleSetSelection)
-            || isEqual(pairObj.sampleSets, [sampleSetSelection?.[1], sampleSetSelection?.[0]])
-          );
+        {stratificationOptions?.map((pairObj) => {
+          const isSelected = Array.isArray(sampleSetSelection)
+            && sampleSetSelection.length === 2
+            && (
+              isEqual(pairObj.sampleSets, sampleSetSelection)
+              || isEqual(pairObj.sampleSets, [sampleSetSelection?.[1], sampleSetSelection?.[0]])
+            );
           return (
-            <li key={pairObj.stratificationId} className={clsx({ [classes.selectedPair]: isSelected })}>
+            <li
+              key={pairObj.stratificationId}
+              className={clsx({ [classes.selectedPair]: isSelected })}
+            >
               {pairObj.name}&nbsp;
               {!isSelected ? (
-                <button type="button" onClick={() => onSelectPair(pairObj.sampleSets)}>Select</button>
+                <button
+                  type="button"
+                  onClick={() => onSelectPair(pairObj.sampleSets)}
+                >
+                  Select
+                </button>
               ) : null}
             </li>
           );
