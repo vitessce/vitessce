@@ -35,7 +35,8 @@
       "@material-ui/core": "catalog:",
       "@vitessce/constants-internal": "workspace:*",
       "@vitessce/vit-s": "workspace:*",
-      "@vitessce/sets-utils": "workspace:*"
+      "@vitessce/sets-utils": "workspace:*",
+       "@vitessce/utils": "workspace:*"
     },
     "devDependencies": {
       "@testing-library/jest-dom": "catalog:",

@@ -28,21 +28,21 @@ export function Neuroglancer(props) {
     return coordinates;
   };
 
-  useEffect(() => {
-    if (!viewerRef.current || !viewerRef.current.viewer) return;
-    const { viewer } = viewerRef.current;
+  // useEffect(() => {
+  //   if (!viewerRef.current || !viewerRef.current.viewer) return;
+  //   const { viewer } = viewerRef.current;
 
-    const hoveredSegmentId = () => {
-      const selectedLayer = viewer.layerManager.getLayerByName('segmentation');
-      if (selectedLayer) {
-        const hoveredSegmentId = selectedLayer.layer_.displayState.segmentationGroupState.curRoot.selectionState.value;
-        console.log('Hovered Segment', hoveredSegmentId?.low);
-        onSegmentSelect(hoveredSegmentId?.low);
-      }
-    };
+  //   const hoveredSegmentId = () => {
+  //     const selectedLayer = viewer.layerManager.getLayerByName('segmentation');
+  //     if (selectedLayer) {
+  //       const hoveredSegmentId = selectedLayer.layer_.displayState.segmentationGroupState.curRoot.selectionState.value;
+  //       console.log('Hovered Segment', hoveredSegmentId?.low);
+  //       onSegmentSelect(hoveredSegmentId?.low);
+  //     }
+  //   };
 
-    viewer.mouseState.changed.add(hoveredSegmentId);
-  }, [viewerRef.current]);
+  //   // viewer.mouseState.changed.add(hoveredSegmentId);
+  // }, [viewerRef.current]);
 
   return (
     <>

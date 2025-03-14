@@ -54,6 +54,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.EMBEDDING_TYPE,
+    CoordinationType.OBS_COLOR_ENCODING,
 
   ],
   [ViewType.SCATTERPLOT]: [
