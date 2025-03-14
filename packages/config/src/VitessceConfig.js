@@ -15,12 +15,13 @@ export class VitessceConfigDatasetFile {
    * which may provide additional parameters to the loader class
    * corresponding to the specified fileType.
    */
-  constructor(url, fileType, coordinationValues, options) {
+  constructor(url, fileType, coordinationValues, options, requestInit) {
     this.file = {
       url,
       fileType,
       ...(coordinationValues ? { coordinationValues } : {}),
       ...(options ? { options } : {}),
+      ...(requestInit ? { requestInit } : {}),
     };
   }
 
@@ -67,6 +68,7 @@ export class VitessceConfigDataset {
     let fileType;
     let coordinationValues;
     let options;
+    let requestInit;
     if (args.length > 0) {
       // Old behavior.
       url = params;
@@ -80,13 +82,13 @@ export class VitessceConfigDataset {
       }
     } else if (typeof params === 'object') {
       ({
-        url, fileType, options, coordinationValues,
+        url, fileType, options, coordinationValues, requestInit,
       } = params);
     } else {
       throw new Error('Expected addFile argument to be an object.');
     }
     this.dataset.files.push(
-      new VitessceConfigDatasetFile(url, fileType, coordinationValues, options),
+      new VitessceConfigDatasetFile(url, fileType, coordinationValues, options, requestInit),
     );
     return this;
   }
