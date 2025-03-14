@@ -60,7 +60,7 @@ export default function CellSetExpressionPlot(props) {
   const svgRef = useRef();
 
   const obsSetColorScale = useMemo(() => getColorScale(
-    obsSetSelection, obsSetColor, theme
+    obsSetSelection, obsSetColor, theme,
   ), [obsSetSelection, obsSetColor, theme]);
 
   // Get the max characters in an axis label for autsizing the bottom margin.
@@ -332,19 +332,19 @@ export default function CellSetExpressionPlot(props) {
         .attr('dy', '6px')
         .attr('transform', 'rotate(-45)')
         .style('text-anchor', 'end');
-    
+
     if (isStratified) {
       // Associate each X tick with a cell type color,
       // since in the stratified case the violins are colored
       // by sample set.
       const tickWidth = xGroup.bandwidth();
-      xTickG.selectAll(".tick")
+      xTickG.selectAll('.tick')
         .append('rect')
-          .attr("x", - tickWidth / 2)
-          //.attr("y", -innerHeight)
-          .attr("width", tickWidth)
-          .attr("height", 4)
-          .style("fill", d => obsSetColorScale(d));
+          .attr('x', -tickWidth / 2)
+          // .attr("y", -innerHeight)
+          .attr('width', tickWidth)
+          .attr('height', 4)
+          .style('fill', d => obsSetColorScale(d));
     }
 
     // Y-axis title

@@ -155,7 +155,7 @@ export default function DotPlot(props) {
         legend: {
           symbolFillColor: 'white',
         },
-        scale: { domain: [0, 100] }
+        scale: { domain: [0, 100] },
       },
       tooltip: {
         field: 'pctPosInGroup',
@@ -184,11 +184,11 @@ export default function DotPlot(props) {
       : {}
     ),
     [`Percentage of ${plur(obsType, 2)} in set`]: item.datum.pctPosInGroup,
-    [meanTransform.join(" ")]: item.datum.meanExpInGroup,
+    [meanTransform.join(' ')]: item.datum.meanExpInGroup,
   }), [featureType, obsType, featureValueType, featureValueTransformName]);
 
   const obsSetColorScale = useMemo(() => getColorScale(
-    obsSetSelection, obsSetColor, theme
+    obsSetSelection, obsSetColor, theme,
   ), [obsSetSelection, obsSetColor, theme]);
 
   const [vegaRenderIncrement, setVegaRenderIncrement] = useState(0);
@@ -208,9 +208,9 @@ export default function DotPlot(props) {
     const tickEls = svg.selectAll('g.root g.column_footer g.role-axis g.role-axis-domain line');
 
     tickEls
-      .attr("stroke-width", 5)
-      .attr("dy", 2.5)
-      .attr("stroke", (d, i) => {
+      .attr('stroke-width', 5)
+      .attr('dy', 2.5)
+      .attr('stroke', (d, i) => {
         const obsSetPath = obsSetSelection?.[i];
         return obsSetColorScale(obsSetPath);
       });
@@ -220,13 +220,13 @@ export default function DotPlot(props) {
   // We want to increment the counter whenever we detect that VegaPlot
   // has re-rendered.
   const onNewView = useCallback(() => {
-    setVegaRenderIncrement(prev => prev+1);
+    setVegaRenderIncrement(prev => prev + 1);
   }, []);
 
   // This is kind of hacky, since it is possible that the useEffect runs prior
   // to the Vega rendering, but in practice it seems to work.
   useEffect(() => {
-    setVegaRenderIncrement(prev => prev+1);
+    setVegaRenderIncrement(prev => prev + 1);
   }, [rawData]);
 
   return (
