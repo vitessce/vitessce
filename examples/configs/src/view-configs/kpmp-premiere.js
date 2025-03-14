@@ -282,6 +282,7 @@ function PageComponent() {
       }
       .view-row-left p {
         font-size: 12px;
+        margin-top: 20px;
       }
       .view-row-center {
         width: ${(70 / 85) * 100}%;
