@@ -54,6 +54,8 @@ export function VegaPlot(props) {
     data,
     getTooltipText,
     signalListeners,
+    renderer = 'svg',
+    onNewView,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -108,14 +110,15 @@ export function VegaPlot(props) {
       }}
       signalListeners={signalListeners}
       tooltip={tooltipHandler}
-      renderer="svg"
+      renderer={renderer}
       scaleFactor={3}
       // We need to force a re-render when the spec
       // is the same except for changed width/height
       // (to support responsive plots).
       key={JSON.stringify({ width: spec.width, height: spec.height })}
+      onNewView={onNewView}
     />
-  ), [spec, data, signalListeners, tooltipHandler]);
+  ), [spec, data, signalListeners, tooltipHandler, renderer, onNewView]);
 
   return (
     spec && data && data.length > 0 ? (

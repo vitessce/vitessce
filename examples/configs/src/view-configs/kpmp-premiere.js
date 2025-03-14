@@ -280,6 +280,9 @@ function PageComponent() {
         width: ${(15 / 85) * 100}%;
         padding: 10px;
       }
+      .view-row-left p {
+        font-size: 12px;
+      }
       .view-row-center {
         width: ${(70 / 85) * 100}%;
       }
@@ -312,7 +315,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view contains the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021 Nature Communications).</p>
+              <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021). Cell types with significantly different composition between the selected sample groups are displayed opaque while not-signficant results are displayed with transparent bars. The single outlined bar denotes the automatically-selected reference cell type.</p>
             </div>
             <div className="view-row-center">
               <SccodaPlot />
@@ -320,7 +323,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays differential expression test results.</p>
+              <p>This view displays differential expression test results. The arrows on the bottom left and bottom right denote the direction of the effect.</p>
             </div>
             <div className="view-row-center">
               <VolcanoPlot />
