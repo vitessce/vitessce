@@ -117,7 +117,7 @@ function generateKpmpPremiereConfig() {
             name: 'Donor ID',
             path: 'obs/donor_id',
           },
-          {
+          /* {
             name: 'Disease',
             path: 'obs/disease',
           },
@@ -132,7 +132,7 @@ function generateKpmpPremiereConfig() {
           {
             name: 'Enrollment Category',
             path: 'obs/EnrollmentCategory',
-          },
+          }, */
         ],
         /* featureLabels: {
         path: 'var/features',
@@ -170,6 +170,7 @@ function generateKpmpPremiereConfig() {
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
+  const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
   const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
@@ -201,8 +202,8 @@ function generateKpmpPremiereConfig() {
   }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
@@ -220,21 +221,8 @@ function generateKpmpPremiereConfig() {
   */
 
   vc.layout(hconcat(
-    vconcat(
-      hconcat(dualScatterplot, biomarkerSelect, comparativeHeading),
-      vconcat(
-        hconcat(
-          obsSets,
-          obsSetSizes,
-        ),
-        hconcat(
-          featureList,
-          treemap,
-          featureSetEnrichmentBarPlot,
-        ),
-      ),
-    ),
-    vconcat(violinPlots, dotPlot, obsSetCompositionBarPlot),
+    vconcat(dualScatterplot, biomarkerSelect, comparativeHeading, obsSets, obsSetSizes, featureList),
+    vconcat(treemap, featureSetEnrichmentBarPlot, violinPlots, dotPlot, obsSetCompositionBarPlot, sampleSets),
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -243,8 +231,9 @@ function generateKpmpPremiereConfig() {
 function PageComponent() {
   const BiomarkerSelect = usePageModeView('biomarker-select');
   const ComparativeHeading = usePageModeView('comparative-heading');
-  const DualScatterplot = usePageModeView('scatterplot');
   const CellSets = usePageModeView('cell-sets');
+  const SampleSets = usePageModeView('sample-sets');
+  const DualScatterplot = usePageModeView('scatterplot');
   const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
@@ -291,8 +280,15 @@ function PageComponent() {
         width: ${(15 / 85) * 100}%;
         padding: 10px;
       }
+      .view-row-left p {
+        font-size: 12px;
+        margin-top: 20px;
+      }
       .view-row-center {
         width: ${(70 / 85) * 100}%;
+      }
+      .view-row-right > div {
+        max-height: 50vh;
       }
       `}
       </style>
@@ -320,7 +316,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view contains the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021 Nature Communications).</p>
+              <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021). Cell types with significantly different composition between the selected sample groups are displayed opaque while not-signficant results are displayed with transparent bars. The single outlined bar denotes the automatically-selected reference cell type.</p>
             </div>
             <div className="view-row-center">
               <SccodaPlot />
@@ -328,7 +324,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays differential expression test results.</p>
+              <p>This view displays differential expression test results. The arrows on the bottom left and bottom right denote the direction of the effect.</p>
             </div>
             <div className="view-row-center">
               <VolcanoPlot />
@@ -375,9 +371,14 @@ function PageComponent() {
           <h3>Participant-level representations</h3>
           <h1>TODO</h1> */}
         </div>
-        <div style={{ width: '14%', height: '500px', marginTop: '114px', marginBottom: '100px' }}>
+        <div style={{ width: '14%', marginTop: '114px', marginBottom: '100px' }}>
           <Sticky>
-            <CellSets />
+            <div className="view-row-right">
+              <CellSets />
+            </div>
+            <div className="view-row-right">
+              <SampleSets />
+            </div>
           </Sticky>
         </div>
 

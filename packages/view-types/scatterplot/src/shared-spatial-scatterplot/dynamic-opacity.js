@@ -34,11 +34,17 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
 // Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
 export function getPointOpacity(zoom, xRange, yRange, width, height, numCells, avgFillDensity) {
   const N = numCells;
-  const [minX, minY, maxX, maxY] = new deck.OrthographicView({ zoom }).makeViewport({
-    height,
-    width,
-    viewState: { zoom, target: [0, 0, 0] },
-  }).getBounds();
+  let minX; let minY; let maxX; let
+    maxY;
+  try {
+    [minX, minY, maxX, maxY] = new deck.OrthographicView({ zoom }).makeViewport({
+      height,
+      width,
+      viewState: { zoom, target: [0, 0, 0] },
+    }).getBounds();
+  } catch {
+    return 1.0;
+  }
   const X = maxY - minY;
   const Y = maxX - minX;
   const X0 = xRange;

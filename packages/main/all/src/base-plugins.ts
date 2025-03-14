@@ -189,6 +189,7 @@ import {
 import {
   BiomarkerSelectSubscriber,
   ComparativeHeadingSubscriber,
+  SampleSetPairManagerSubscriber,
   autocompleteFeature,
   transformFeature,
   getAlternativeTerms,
@@ -262,6 +263,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
   makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
+  makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
   makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
   makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
 ];

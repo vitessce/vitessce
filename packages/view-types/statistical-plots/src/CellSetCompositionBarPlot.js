@@ -95,13 +95,13 @@ export default function CellSetCompositionBarPlot(props) {
   ]);
 
   // Get an array of keys for sorting purposes.
-  const keys = computedData.map(d => d.keyName);
+  const keys = computedData?.map(d => d.keyName);
 
   const colorScale = {
     // Manually set the color scale so that Vega-Lite does
     // not choose the colors automatically.
-    domain: computedData.map(d => d.key),
-    range: computedData.map(d => d.color),
+    domain: computedData?.map(d => d.key),
+    range: computedData?.map(d => d.color),
   };
   const captializedObsType = capitalize(obsType);
 

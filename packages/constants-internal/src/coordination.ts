@@ -579,6 +579,13 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_FILTER,
   ],
+  [ViewType.SAMPLE_SET_PAIR_MANAGER]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+    CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_FILTER,
+  ],
   [ViewType.TREEMAP]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,

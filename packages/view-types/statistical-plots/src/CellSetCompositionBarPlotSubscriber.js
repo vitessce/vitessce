@@ -143,7 +143,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
             onBarSelect={onBarSelect}
           />
         ) : (
-          <span>Select at least one {obsType} set.</span>
+          <span>Select at least one {obsType} set and a pair of {sampleType} sets.</span>
         )}
       </div>
     </TitleInfo>
