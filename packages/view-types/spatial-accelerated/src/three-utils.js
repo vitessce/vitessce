@@ -4,6 +4,7 @@
 /* eslint-disable react/no-unknown-property */
 import { CoordinationType } from '@vitessce/constants-internal';
 import { viv } from '@vitessce/gl';
+// import { zarrita } from '@vitessce/spatial-utils';
 import {
   Vector2,
   UniformsUtils,
@@ -452,6 +453,10 @@ async function getVolumeIntern({
                                  signal,
                                }) {
   console.warn('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
+  console.warn('downsampledepth', downsampleDepth);
+
+  console.warn('Source:', source);
+
   const { shape, labels, dtype } = source;
   console.warn('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
 
@@ -478,94 +483,82 @@ async function getVolumeIntern({
   // Compute number of chunks per dimension
   const numChunksX = Math.ceil(shape[zarritaLabels.indexOf('x')] / chunkSizeX);
   const numChunksY = Math.ceil(shape[zarritaLabels.indexOf('y')] / chunkSizeY);
-  const numChunksZ = 1; // Only **one** Z chunk, but **32 slices**
+  const numChunksZ = Math.ceil(shape[zarritaLabels.indexOf('z')] / chunkSizeZ);
 
-  await Promise.all(
-    [...Array(numChunksZ)].map(async (_, chunkZ) => {
-      for (let chunkY = 0; chunkY < numChunksY; chunkY++) {
-        for (let chunkX = 0; chunkX < numChunksX; chunkX++) {
-          // Compute start positions
-          const xStart = chunkX * chunkSizeX;
-          const yStart = chunkY * chunkSizeY;
-          const zStart = chunkZ * chunkSizeZ;
+  console.warn('Number of chunks:', numChunksX, numChunksY, numChunksZ);
 
-          // Define the selection for the chunk (without Z for now)
-          const chunkSelection = {
-            x: [
-              Math.max(0, xStart),
-              Math.min(xStart + chunkSizeX, shape[zarritaLabels.indexOf('x')]),
-            ],
-            y: [
-              Math.max(0, yStart),
-              Math.min(yStart + chunkSizeY, shape[zarritaLabels.indexOf('y')]),
-            ],
-          };
+  const allChunkJobs = [];
 
-          console.warn(`Processing chunk at (${xStart}, ${yStart}, ${zStart})`);
-          console.warn('Chunk selection:', chunkSelection);
+  for (let chunkZ = 0; chunkZ < numChunksZ; chunkZ++) {
+    for (let chunkY = 0; chunkY < numChunksY; chunkY++) {
+      for (let chunkX = 0; chunkX < numChunksX; chunkX++) {
+        allChunkJobs.push({ chunkX, chunkY, chunkZ });
+      }
+    }
+  }
 
-          if (chunkSelection.x[0] >= chunkSelection.x[1] ||
-              chunkSelection.y[0] >= chunkSelection.y[1]) {
-            console.warn(`Skipping empty chunk at (${xStart}, ${yStart}, ${zStart})`);
-            continue;
-          }
+  console.warn('All chunk jobs:', allChunkJobs);
 
-          // Allocate chunk storage
-          const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
+  await Promise.all(allChunkJobs.map(async ({ chunkX, chunkY, chunkZ }) => {
+    const xStart = chunkX * chunkSizeX;
+    const yStart = chunkY * chunkSizeY;
+    const zStart = chunkZ * chunkSizeZ;
 
-          // Load **each of the 32 Z slices manually**
-          for (let z = 0; z < chunkSizeZ; z++) {
-            const zSlice = zStart + z;
-            if (zSlice >= depth) break; // Don't request out-of-bounds slices
+    const chunkSelection = {
+      x: [xStart, Math.min(xStart + chunkSizeX, width)],
+      y: [yStart, Math.min(yStart + chunkSizeY, height)],
+      z: [zStart, Math.min(zStart + chunkSizeZ, depth)],
+    };
 
-            console.warn(`Fetching Z slice ${zSlice} for chunk at (${xStart}, ${yStart}, ${zStart})`);
+    const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
+    console.warn('Chunk selection:', chunkSelection);
 
-            // Fetch single Z slice
-            const { data: sliceData } = await source.getRaster({
-              selection: { x: chunkSelection.x, y: chunkSelection.y, z: zSlice },
-              signal,
-            });
+    for (let z = 0; z < chunkSelection.z[1] - chunkSelection.z[0]; z++) {
+      const zSlice = zStart + z;
+      if (zSlice >= depth) continue;
 
-            if (!sliceData || sliceData.length === 0) {
-              console.warn(`Empty slice at Z=${zSlice}, skipping`);
-              continue;
-            }
+      //console.warn('Getting slice:', chunkSelection.x, chunkSelection.y, zSlice);
 
-            console.warn(`Fetched slice at Z=${zSlice}:`, sliceData.length);
+      //chunkSelection.x[0] = 32;
+      //chunkSelection.x[1] = 64;
+      //chunkSelection.y[0] = 32;
+      //chunkSelection.y[1] = 64;
+      const { data: sliceData } = await source.getRaster({
+        selection: {
+          x: chunkSelection.x,
+          y: chunkSelection.y,
+          z: zSlice,
+        },
+        signal,
+      });
 
-            // Copy the slice into the correct position in chunkData
-            for (let x = 0; x < chunkSizeX; x++) {
-              for (let y = 0; y < chunkSizeY; y++) {
-                const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
-                const sliceIndex = x + y * chunkSizeX; // 2D slice index
-                chunkData[localIndex] = sliceData[sliceIndex];
-              }
-            }
-          }
-
-          // Map chunkData into volumeData
-          for (let z = 0; z < chunkSizeZ; z++) {
-            for (let y = 0; y < chunkSizeY; y++) {
-              for (let x = 0; x < chunkSizeX; x++) {
-                const globalX = xStart + x;
-                const globalY = yStart + y;
-                const globalZ = zStart + z;
-
-                if (globalX >= width || globalY >= height || globalZ >= depth) {
-                  continue;
-                }
-
-                const globalIndex = globalX + globalY * width + globalZ * width * height;
-                const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
-
-                volumeData[globalIndex] = chunkData[localIndex];
-              }
-            }
-          }
+      if (!sliceData || sliceData.length === 0) continue;
+      for (let y = 0; y < chunkSelection.y[1] - chunkSelection.y[0]; y++) {
+        for (let x = 0; x < chunkSelection.x[1] - chunkSelection.x[0]; x++) {
+          const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
+          const sliceIndex = x + y * chunkSizeX;
+          chunkData[localIndex] = sliceData[sliceIndex];
         }
       }
-    }),
-  );
+    }
+
+    // Copy into volumeData (same logic as before)
+    for (let z = 0; z < chunkSelection.z[1] - chunkSelection.z[0]; z++) {
+      for (let y = 0; y < chunkSelection.y[1] - chunkSelection.y[0]; y++) {
+        for (let x = 0; x < chunkSelection.x[1] - chunkSelection.x[0]; x++) {
+          const globalX = xStart + x;
+          const globalY = yStart + y;
+          const globalZ = zStart + z;
+          const globalIndex = globalX + globalY * width + globalZ * width * height;
+          const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
+          volumeData[globalIndex] = chunkData[localIndex];
+        }
+      }
+      if (z >= 2) {
+        //break;
+      }
+    }
+  }));
 
   return {
     data: volumeData,
@@ -667,4 +660,19 @@ export async function initialDataLoading(channelTargetC, resolution, data, volum
   });
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
+}
+
+export let renderMetadata = {
+  fps: 0,
+  bandwidth: 0,
+  GPU_utilization: 0,
+  GPU_device_limit: 0,
+  loadedBrickCount: 0,
+  loadedResolutionsMax: [1, 8, 64],
+  loadedBricks: [0, 0, 0],
+  brickSize: 32,
+};
+
+export function updateRenderMetadata(newData) {
+  renderMetadata = { ...renderMetadata, ...newData };
 }

@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
 import { useXR, RayGrab } from '@react-three/xr';
-import { FrontSide, Vector3, Box3 } from 'three';
+import { FrontSide, BackSide, Vector3, Box3 } from 'three';
 import { MeasureLine } from './xr/MeasureLine.js';
 
 // Rendering a combination of a volume dataset and segmentations (meshes)
@@ -183,7 +183,7 @@ export function GeometryAndMesh(props) {
                   <boxGeometry args={renderingSettings.geometrySize} />
                   <shaderMaterial
                     customProgramCacheKey={() => '1'}
-                    side={FrontSide}
+                    side={BackSide}
                     uniforms={renderingSettings.uniforms}
                     needsUpdate
                     transparent
@@ -235,7 +235,7 @@ export function GeometryAndMesh(props) {
                   <boxGeometry args={renderingSettings.geometrySize} />
                   <shaderMaterial
                     customProgramCacheKey={() => '1'}
-                    side={FrontSide}
+                    side={BackSide}
                     uniforms={renderingSettings.uniforms}
                     needsUpdate
                     transparent
