@@ -14,6 +14,7 @@ import { mergeObsSets, findLongestCommonPath, getCellColors, setObsSelection } f
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
 import { Neuroglancer } from './Neuroglancer.js';
+import { debounce, isEqual } from 'lodash-es';
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -157,7 +158,7 @@ export function NeuroglancerSubscriber(props) {
   });
 
 
-  const colorCellMapping = useMemo(() => {
+  const cellColorMapping = useMemo(() => {
     const colorCellMapping = {};
     cellSelectionSet.forEach((cell) => {
       if (cellColors.has(cell)) {
@@ -167,12 +168,60 @@ export function NeuroglancerSubscriber(props) {
     return colorCellMapping;
   }, [cellSelectionSet, cellColors, rgbToHex]);
 
+
+
+  const mergedViewerStateRef = useRef(viewerStateInitial);
+  const [mergedViewerState, setMergedViewerState] = useState(viewerStateInitial);
+
+
+  // const cellColorMapping = useMemo(() => {
+  //   const colorMap = {};
+  //   Array.from(cellColors.keys()).forEach(cell => {
+  //     colorMap[cell] = `#${cellColors.get(cell)?.map(c => c.toString(16).padStart(2, '0')).join('')}`;
+  //   });
+  //   return colorMap;
+  // }, [cellColors]);
+
+  // Debounced function to handle viewer state changes
+  const debouncedHandleViewerStateChangeRef = useRef(null);
+
   useEffect(() => {
-    if (viewerStateInitial?.layers.length > 0) {
-      viewerStateInitial.layers[0].segments = Object.keys(colorCellMapping).map(String);
-      viewerStateInitial.layers[0].segmentColors = colorCellMapping;
-    }
-  }, [colorCellMapping]);
+    debouncedHandleViewerStateChangeRef.current = debounce((newState) => {
+      if (!isEqual(newState, mergedViewerStateRef.current)) {
+        console.log("Updating viewer state:", newState);
+        mergedViewerStateRef.current = newState;
+        setMergedViewerState(newState);
+      }
+    }, 200);
+  }, []); // ✅ Only initialize the debounce function once
+
+  // Effect to merge cellColorMapping into the viewerState **without overriding interactions**
+  useEffect(() => {
+    setMergedViewerState(prevState => {
+      if (!prevState || !prevState.layers?.length) return prevState;
+
+      const newLayers = prevState.layers.map((layer, index) =>
+        index === 0
+          ? {
+              ...layer,
+              segments: Object.keys(cellColorMapping),
+              segmentColors: cellColorMapping,
+            }
+          : layer
+      );
+
+      // ✅ Preserve user interactions by merging instead of replacing
+      const newState = { ...prevState, layers: newLayers };
+
+      if (isEqual(newState, prevState)) {
+        return prevState; // Prevent unnecessary updates
+      }
+
+      // ✅ Store the updated state reference so interactions persist
+      mergedViewerStateRef.current = newState;
+      return newState;
+    });
+  }, [cellColorMapping]);
 
 
   return (
@@ -187,9 +236,10 @@ export function NeuroglancerSubscriber(props) {
       isReady
     >
       <Neuroglancer
-        viewerState={viewerStateInitial}
-        // onViewerStateChanged={handleViewerStateChange}
+        viewerState={mergedViewerState}
+        onViewerStateChanged={debouncedHandleViewerStateChangeRef}
         onSegmentSelect={onSegmentSelect}
+        cellColorMapping={cellColorMapping}
       />
     </TitleInfo>
   );

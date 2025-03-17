@@ -11,38 +11,47 @@ function createWorker() {
   return new ChunkWorker();
 }
 
-
 export function Neuroglancer(props) {
-  // console.log("Neuro")
   const {
     viewerState: initialViewerState,
-    // onViewerStateChanged,
-    onSegmentSelect,
+    onViewerStateChanged,
+    cellColorMapping,
   } = props;
+  
   const classes = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
   const viewerRef = useRef(null);
-  // const [updatedState, setUpdatedState] = useState(initialViewerState);
-  const getCoordinates = (viewer) => {
-    const coordinates = viewer?.navigationState?.pose?.position?.coordinates_;
-    return coordinates;
-  };
+  const latestStateRef = useRef(initialViewerState);
+  const [updatedState, setUpdatedState] = useState(initialViewerState);
 
-  // useEffect(() => {
-  //   if (!viewerRef.current || !viewerRef.current.viewer) return;
-  //   const { viewer } = viewerRef.current;
+  const handleStateChanged = useCallback((newState) => {
+    console.log("change")
+    if (JSON.stringify(newState) !== JSON.stringify(latestStateRef.current)) {
+      latestStateRef.current = newState;
+      onViewerStateChanged?.(newState);
+    
+    }
+  }, [onViewerStateChanged]);
 
-  //   const hoveredSegmentId = () => {
-  //     const selectedLayer = viewer.layerManager.getLayerByName('segmentation');
-  //     if (selectedLayer) {
-  //       const hoveredSegmentId = selectedLayer.layer_.displayState.segmentationGroupState.curRoot.selectionState.value;
-  //       console.log('Hovered Segment', hoveredSegmentId?.low);
-  //       onSegmentSelect(hoveredSegmentId?.low);
-  //     }
-  //   };
+  useEffect(() => {
+    setUpdatedState(prevState => {
+      if (!prevState || !prevState.layers?.length) return prevState;
 
-  //   // viewer.mouseState.changed.add(hoveredSegmentId);
-  // }, [viewerRef.current]);
+      const newLayers = prevState.layers.map((layer, index) => 
+        index === 0
+          ? {
+              ...layer,
+              segments: Object.keys(cellColorMapping),
+              segmentColors: cellColorMapping,
+            }
+          : layer
+      );
+
+      return JSON.stringify(newLayers) === JSON.stringify(prevState.layers)
+        ? prevState
+        : { ...prevState, layers: newLayers };
+    });
+  }, [cellColorMapping]);
 
   return (
     <>
@@ -51,8 +60,8 @@ export function Neuroglancer(props) {
         <Suspense fallback={<div>Loading...</div>}>
           <LazyReactNeuroglancer
             brainMapsClientId="NOT_A_VALID_ID"
-            viewerState={initialViewerState}
-            // onViewerStateChanged={handleSegmentChanged}
+            viewerState={updatedState}
+            onViewerStateChanged={handleStateChanged}
             bundleRoot={bundleRoot}
             ref={viewerRef}
           />
