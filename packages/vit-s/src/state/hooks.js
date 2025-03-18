@@ -160,7 +160,10 @@ export function getParameterScopeBy(
  * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
-export const createViewConfigStore = (initialLoaders, initialConfig) => create(set => ({
+export const createViewConfigStore = (initialLoaders, initialConfig) => {
+ 
+  const initialNeuroglancerState = initialConfig?.layout?.find(view => view.component === 'neuroglancer')?.props?.viewerState || {};
+  return create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
@@ -182,6 +185,8 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
     mostRecentConfigSource: 'internal',
   }),
   setLoaders: loaders => set({ loaders }),
+  neuroglancerViewerState: initialNeuroglancerState,
+  setNeuroglancerViewerState: (newState) => set({ neuroglancerViewerState: newState }),
   setCoordinationValue: ({
     parameter, value, coordinationScopes,
     byType, typeScope, coordinationScopesBy,
@@ -348,7 +353,9 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
       mostRecentConfigSource: 'internal',
     };
   }),
-}));
+})
+)
+}
 
 /**
  * Hook for getting components' layout from the view config based on
@@ -1209,4 +1216,13 @@ export function useGridResize() {
  */
 export function useEmitGridResize() {
   return useGridSizeStore(state => state.incrementResizeCount);
+}
+
+
+export function useNeuroglancerViewerState() {
+  return useViewConfigStore(state => state.neuroglancerViewerState);
+}
+
+export function useSetNeuroglancerViewerState() {
+  return useViewConfigStore(state => state.setNeuroglancerViewerState);
 }
