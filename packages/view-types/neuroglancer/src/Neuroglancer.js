@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, Suspense, useRef, useEffect, useState } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { useStyles, globalNeuroglancerCss } from './styles.js';
 
 import { cloneDeep, get, isEqual, forEach, throttle } from 'lodash-es';
 import { useNeuroglancerViewerState, useSetNeuroglancerViewerState } from '@vitessce/vit-s';
+import { useStyles, globalNeuroglancerCss } from './styles.js';
 
 
 const LazyReactNeuroglancer = React.lazy(async () => {
@@ -19,18 +19,18 @@ function createWorker() {
 export function Neuroglancer({ cellColorMapping }) {
   const viewerState = useNeuroglancerViewerState();
   const setViewerState = useSetNeuroglancerViewerState();
-  console.log("N rendered");
+  console.log('N rendered');
   const classes = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
   const viewerRef = useRef(null);
   const latestStateRef = useRef(viewerState);
-  const neuroglancerStateRef = useRef(viewerState); // Use ref as single source
+  const neuroglancerStateRef = useRef(viewerState);
   const changedPropertiesRef = useRef({});
   const isInitialLoad = useRef(true);
   const initialNeuroglancerStateRef = useRef(null);
   const isComponentMounted = useRef(false);
   const cellColorMappingUpdateRef = useRef(false);
-
+  const [updateTrigger, setUpdateTrigger] = useState(0);
   useEffect(() => {
     isComponentMounted.current = true;
     return () => {
@@ -40,7 +40,7 @@ export function Neuroglancer({ cellColorMapping }) {
 
   const throttledHandleStateChanged = useRef(throttle((newState) => {
     const differences = cloneDeep(newState);
-    let changedProps = {};
+    const changedProps = {};
 
     forEach(differences, (value, key) => {
       const previousValue = get(latestStateRef.current, key);
@@ -50,7 +50,7 @@ export function Neuroglancer({ cellColorMapping }) {
     });
 
     changedPropertiesRef.current = changedProps;
-    console.log("changed", changedProps);
+    console.log('changed', changedProps);
 
     if (!isEqual(newState, latestStateRef.current)) {
       latestStateRef.current = newState;
@@ -64,59 +64,68 @@ export function Neuroglancer({ cellColorMapping }) {
   }, 100));
 
   const handleStateChanged = useCallback((newState) => {
+    // Ignoring the many state changes during the initial load
     if (isInitialLoad.current) {
-      console.log("current");
       isInitialLoad.current = false;
       return;
     }
+    // To avoid updating state when this happens
     if (newState && newState.dimensions === undefined) {
-      console.warn("Filtered out state update with dimensions: undefined");
+      console.warn('Filtered out state update with dimensions: undefined');
       return;
     }
 
     if (initialNeuroglancerStateRef.current && isEqual(newState, initialNeuroglancerStateRef.current)) {
-      console.log("State update skipped: no actual change");
       return;
     }
     throttledHandleStateChanged.current(newState);
   }, []);
 
   useEffect(() => {
-   
     if (neuroglancerStateRef.current && neuroglancerStateRef.current.layers) {
-      console.log("updateState")
+      console.log('updateState');
       const updatedNeuroglancerState = {
         ...neuroglancerStateRef.current,
-        layers: neuroglancerStateRef.current.layers.map((layer, index) =>
-          index === 0
-            ? {
-                ...layer,
-                segments: Object.keys(cellColorMapping).map(String),
-                segmentColors: cellColorMapping,
-              }
-            : layer
-        ),
+        layers: neuroglancerStateRef.current.layers.map((layer, index) => (index === 0
+          ? {
+            ...layer,
+            segments: Object.keys(cellColorMapping).map(String),
+            segmentColors: cellColorMapping,
+          }
+          : layer)),
       };
-      neuroglancerStateRef.current = updatedNeuroglancerState;
+      // neuroglancerStateRef.current = updatedNeuroglancerState;
+     
+    
+      const tempNeuroglancerState = updatedNeuroglancerState;
+   
+      neuroglancerStateRef.current = tempNeuroglancerState; 
       cellColorMappingUpdateRef.current = true;
-      console.log("useEffect cellColorMapping",Object.keys(cellColorMapping).length,  neuroglancerStateRef.current.layers);
-      // setViewerState(updatedNeuroglancerState);
+      console.log('useEffect cellColorMapping', Object.keys(cellColorMapping).length, neuroglancerStateRef.current.layers[0].segments.length);
+      // setUpdateTrigger((prev) => prev + 1); // Trigger re-render
+      setViewerState(tempNeuroglancerState)
     }
-
   }, [cellColorMapping]);
 
   useEffect(() => {
     if (cellColorMappingUpdateRef.current) {
+      console.log("checking state", viewerState.layers, neuroglancerStateRef.current.layers[0].segments?.length)
       setViewerState(neuroglancerStateRef.current);
       cellColorMappingUpdateRef.current = false;
     }
-  }, [ cellColorMappingUpdateRef.current ]);
+  }, [cellColorMappingUpdateRef.current]);
 
   useEffect(() => {
+    console.log("inital")
     if (isComponentMounted.current && !initialNeuroglancerStateRef.current && viewerState) {
+      console.log("inital if")
       initialNeuroglancerStateRef.current = cloneDeep(viewerState);
     }
   }, [viewerState]);
+
+  // useEffect(() => {
+  //   console.log("useEffect updateTrigger", updateTrigger, neuroglancerStateRef.current.layers[0].segments?.length); // Log when this effect runs
+  // }, [updateTrigger]); // Depend on updateTrigger
 
   return (
     <>
@@ -125,7 +134,7 @@ export function Neuroglancer({ cellColorMapping }) {
         <Suspense fallback={<div>Loading...</div>}>
           <LazyReactNeuroglancer
             brainMapsClientId="NOT_A_VALID_ID"
-            viewerState={neuroglancerStateRef.current}
+            viewerState={viewerState}
             onViewerStateChanged={handleStateChanged}
             bundleRoot={bundleRoot}
             ref={viewerRef}
