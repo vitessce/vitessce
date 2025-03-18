@@ -154,60 +154,60 @@ export function NeuroglancerSubscriber(props) {
   const [mergedViewerState, setMergedViewerState] = useState(viewerState);
   const previousCellColorMapping = useRef(cellColorMapping);
   const previousMergedState = useRef(viewerState);
-  const throttledHandleNeuroglancerStateChange = useRef(throttle((newState) => {
-    console.log("newState before setViewerState:", newState);
-    // setViewerState(newState);
-  }, 100));
+  // const throttledHandleNeuroglancerStateChange = useRef(throttle((newState) => {
+  //   console.log("newState before setViewerState:", newState);
+  //   // setViewerState(newState);
+  // }, 100));
 
-  const handleNeuroglancerStateChange = useCallback((newState) => {
-    throttledHandleNeuroglancerStateChange.current(newState);
-    console.log("state");
-  }, [setViewerState]);
+  // const handleNeuroglancerStateChange = useCallback((newState) => {
+  //   throttledHandleNeuroglancerStateChange.current(newState);
+  //   console.log("state");
+  // }, [setViewerState]);
 
-  useEffect(() => {
-    console.log("sub mounted");
-    if (!isEqual(cellColorMapping, previousCellColorMapping.current)) {
-      previousCellColorMapping.current = cellColorMapping;
-      setMergedViewerState((prevState) => {
-        if (!prevState || !prevState.layers?.length) return prevState;
+  // useEffect(() => {
+  //   console.log("sub mounted");
+  //   if (!isEqual(cellColorMapping, previousCellColorMapping.current)) {
+  //     previousCellColorMapping.current = cellColorMapping;
+  //     setMergedViewerState((prevState) => {
+  //       if (!prevState || !prevState.layers?.length) return prevState;
 
-        const updatedLayers = prevState.layers.map((layer, index) =>
-          index === 0
-            ? { ...layer, segments: Object.keys(cellColorMapping), segmentColors: cellColorMapping }
-            : layer
-        );
-        const updatedState = { ...prevState, layers: updatedLayers };
-        return updatedState;
-      });
-    }
-  }, [cellColorMapping]);
+  //       const updatedLayers = prevState.layers.map((layer, index) =>
+  //         index === 0
+  //           ? { ...layer, segments: Object.keys(cellColorMapping), segmentColors: cellColorMapping }
+  //           : layer
+  //       );
+  //       const updatedState = { ...prevState, layers: updatedLayers };
+  //       return updatedState;
+  //     });
+  //   }
+  // }, [cellColorMapping]);
 
-   useEffect(() => {
-    console.log("viewerState changed");
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      setMergedViewerState(viewerState);
-      setViewerState(viewerState); // Update global state on initial render
-      console.log("initial viewerState set:", viewerState);
-      return;
-    }
+  //  useEffect(() => {
+  //   console.log("viewerState changed");
+  //   if (isFirstRender.current) {
+  //     isFirstRender.current = false;
+  //     setMergedViewerState(viewerState);
+  //     setViewerState(viewerState); // Update global state on initial render
+  //     console.log("initial viewerState set:", viewerState);
+  //     return;
+  //   }
 
-    deepCompareAndLog(viewerState, previousMergedState.current);
+  //   deepCompareAndLog(viewerState, previousMergedState.current);
 
-    if (!isEqual(viewerState, previousMergedState.current)) {
-      previousMergedState.current = cloneDeep(viewerState);
-      setMergedViewerState(viewerState);
-      setViewerState(viewerState); // Update global state on subsequent renders
-    }
-  }, [viewerState]);
+  //   if (!isEqual(viewerState, previousMergedState.current)) {
+  //     previousMergedState.current = cloneDeep(viewerState);
+  //     setMergedViewerState(viewerState);
+  //     setViewerState(viewerState); // Update global state on subsequent renders
+  //   }
+  // }, [viewerState]);
 
-  useEffect(() => {
-      console.log("initial viewerState", viewerState);
-  }, []);
+  // useEffect(() => {
+  //     console.log("initial viewerState", viewerState);
+  // }, []);
 
   return (
     <TitleInfo title={title} helpText={helpText} isSpatial theme={theme} closeButtonVisible={closeButtonVisible} downloadButtonVisible={downloadButtonVisible} removeGridComponent={removeGridComponent} isReady>
-      <Neuroglancer viewerState={mergedViewerState} cellColorMapping={cellColorMapping} onViewerStateChanged={handleNeuroglancerStateChange} />
+      <Neuroglancer viewerState={mergedViewerState} cellColorMapping={cellColorMapping}  />
     </TitleInfo>
   );
 }
