@@ -235,7 +235,9 @@ export function stratifyExpressionData(
 
       const cellSet = cellIdToSetMap?.get(obsId);
       const sampleId = sampleEdges?.get(obsId);
-      const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
+      const sampleSet = sampleId && hasSampleSetSelection
+        ? sampleIdToSetMap?.get(sampleId)
+        : null;
 
       if (hasSampleSetSelection && !sampleSet) {
         // Skip this sample if it is not in the selected sample set.

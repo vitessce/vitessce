@@ -250,7 +250,8 @@ export function CellSetExpressionPlotSubscriber(props) {
             yMin={yMin}
             yUnits={yUnits}
             jitter={jitter}
-            cellSetSelection={cellSetSelection}
+            obsSetSelection={cellSetSelection}
+            obsSetColor={cellSetColor}
             sampleSetSelection={sampleSetSelection}
             sampleSetColor={sampleSetColor}
             colors={setArr}

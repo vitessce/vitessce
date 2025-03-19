@@ -30,6 +30,7 @@ export const ViewType = {
   NEUROGLANCER: 'neuroglancer',
   DUAL_SCATTERPLOT: 'dualScatterplot',
   TREEMAP: 'treemap',
+  SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
 };
 
 export const DataType = {
@@ -392,4 +393,5 @@ export const ViewHelpMapping = {
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
   OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'The feature set enrichment bar plot displays the results of a hypergeometric test applied to the differential expression test results to identify enriched pathway gene sets.',
+  SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
 };
