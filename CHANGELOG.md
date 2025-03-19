@@ -1,4 +1,11 @@
 
+## 3.5.10
+
+### Patch Changes
+
+- Fix bugs to ensure that statistical plots can be used with no sample set selection. Add basic sample set pair manager view for sidebar. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/scatterplot`, `@vitessce/sets-utils`) ([#2082](https://github.com/vitessce/vitessce/pull/2082))
+
+
 ## 3.5.9
 
 ### Patch Changes
