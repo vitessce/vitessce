@@ -19,7 +19,6 @@ function createWorker() {
 export function Neuroglancer({ cellColorMapping }) {
   const viewerState = useNeuroglancerViewerState();
   const setViewerState = useSetNeuroglancerViewerState();
-  console.log('N rendered');
   const classes = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
   const viewerRef = useRef(null);
@@ -27,16 +26,7 @@ export function Neuroglancer({ cellColorMapping }) {
   const neuroglancerStateRef = useRef(viewerState);
   const changedPropertiesRef = useRef({});
   const isInitialLoad = useRef(true);
-  const initialNeuroglancerStateRef = useRef(null);
-  const isComponentMounted = useRef(false);
-  const cellColorMappingUpdateRef = useRef(false);
-  const [updateTrigger, setUpdateTrigger] = useState(0);
-  useEffect(() => {
-    isComponentMounted.current = true;
-    return () => {
-      isComponentMounted.current = false;
-    };
-  }, []);
+
 
   const throttledHandleStateChanged = useRef(throttle((newState) => {
     const differences = cloneDeep(newState);
@@ -50,18 +40,30 @@ export function Neuroglancer({ cellColorMapping }) {
     });
 
     changedPropertiesRef.current = changedProps;
-    console.log('changed', changedProps);
-
     if (!isEqual(newState, latestStateRef.current)) {
       latestStateRef.current = newState;
     }
 
-    neuroglancerStateRef.current = newState;
-
-    // if (!isEqual(neuroglancerStateRef.current, newState)) {
-    //   neuroglancerStateRef.current = newState;
-    // }
+    if (!isEqual(neuroglancerStateRef.current, newState)) {
+      neuroglancerStateRef.current = newState;
+    }
   }, 100));
+
+  useEffect(() => {
+    if (neuroglancerStateRef.current && neuroglancerStateRef.current.layers) {
+      const updatedNeuroglancerState = {
+        ...neuroglancerStateRef.current,
+        layers: neuroglancerStateRef.current.layers.map((layer, index) => (index === 0
+          ? {
+            ...layer,
+            segments: Object.keys(cellColorMapping).map(String),
+            segmentColors: cellColorMapping,
+          }
+          : layer)),
+      };
+      setViewerState(updatedNeuroglancerState);
+    }
+  }, [cellColorMapping]);
 
   const handleStateChanged = useCallback((newState) => {
     // Ignoring the many state changes during the initial load
@@ -75,57 +77,12 @@ export function Neuroglancer({ cellColorMapping }) {
       return;
     }
 
-    if (initialNeuroglancerStateRef.current && isEqual(newState, initialNeuroglancerStateRef.current)) {
-      return;
-    }
+    // if (initialNeuroglancerStateRef.current
+    //   && isEqual(newState, initialNeuroglancerStateRef.current)) {
+    //   return;
+    // }
     throttledHandleStateChanged.current(newState);
   }, []);
-
-  useEffect(() => {
-    if (neuroglancerStateRef.current && neuroglancerStateRef.current.layers) {
-      console.log('updateState');
-      const updatedNeuroglancerState = {
-        ...neuroglancerStateRef.current,
-        layers: neuroglancerStateRef.current.layers.map((layer, index) => (index === 0
-          ? {
-            ...layer,
-            segments: Object.keys(cellColorMapping).map(String),
-            segmentColors: cellColorMapping,
-          }
-          : layer)),
-      };
-      // neuroglancerStateRef.current = updatedNeuroglancerState;
-     
-    
-      const tempNeuroglancerState = updatedNeuroglancerState;
-   
-      neuroglancerStateRef.current = tempNeuroglancerState; 
-      cellColorMappingUpdateRef.current = true;
-      console.log('useEffect cellColorMapping', Object.keys(cellColorMapping).length, neuroglancerStateRef.current.layers[0].segments.length);
-      // setUpdateTrigger((prev) => prev + 1); // Trigger re-render
-      setViewerState(tempNeuroglancerState)
-    }
-  }, [cellColorMapping]);
-
-  useEffect(() => {
-    if (cellColorMappingUpdateRef.current) {
-      console.log("checking state", viewerState.layers, neuroglancerStateRef.current.layers[0].segments?.length)
-      setViewerState(neuroglancerStateRef.current);
-      cellColorMappingUpdateRef.current = false;
-    }
-  }, [cellColorMappingUpdateRef.current]);
-
-  useEffect(() => {
-    console.log("inital")
-    if (isComponentMounted.current && !initialNeuroglancerStateRef.current && viewerState) {
-      console.log("inital if")
-      initialNeuroglancerStateRef.current = cloneDeep(viewerState);
-    }
-  }, [viewerState]);
-
-  // useEffect(() => {
-  //   console.log("useEffect updateTrigger", updateTrigger, neuroglancerStateRef.current.layers[0].segments?.length); // Log when this effect runs
-  // }, [updateTrigger]); // Depend on updateTrigger
 
   return (
     <>
