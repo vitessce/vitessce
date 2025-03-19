@@ -12,7 +12,10 @@ function generateThreeMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
-    url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ/0',
+    // url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ/0',
+    // url: 'http://127.0.0.1:8080/kingsnake_1024x1024x795_uint8_z_manual.zarr',
+    url: 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
+    // url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.3/idr0079A/9836998.zarr',
     // url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',
     // options: {
     //   offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json',
@@ -22,20 +25,21 @@ function generateThreeMinimalConfiguration() {
     },
   });
 
-  const spatialAcceleratedView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
-  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
-  config.linkViewsByObject([spatialThreeView, spatialAcceleratedView, lcView], {
+  const spatialAcceleratedView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 }).setProps({ three: true, accelerated: true });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true, accelerated: false });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
+  config.linkViewsByObject([spatialAcceleratedView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
+    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'kiemen',
         spatialLayerOpacity: 1,
-        spatialTargetResolution: null,
+        spatialTargetResolution: 5,
         imageChannel: CL([
           {
-            spatialTargetC: 1,
+            spatialTargetC: 0,
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
@@ -45,7 +49,7 @@ function generateThreeMinimalConfiguration() {
     ]),
   });
 
-  config.layout(hconcat(spatialThreeView, spatialAcceleratedView, lcView));
+  //config.layout(hconcat(spatialAcceleratedView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;

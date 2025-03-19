@@ -4,7 +4,7 @@
 /* eslint-disable react/no-unknown-property */
 import { CoordinationType } from '@vitessce/constants-internal';
 import { viv } from '@vitessce/gl';
-// import { zarrita } from '@vitessce/spatial-utils';
+import * as zarrita from 'zarrita';
 import {
   Vector2,
   UniformsUtils,
@@ -356,7 +356,7 @@ function setUniformsTextures(
   uniforms.u_color6.value.set(colors.length > 5 ? colors[5][0] : null,
     colors.length > 5 ? colors[5][1] : null,
     colors.length > 5 ? colors[5][2] : null);
-  console.warn('setUniformsTextures return');
+  console.trace('setUniformsTextures return');
 }
 
 /**
@@ -452,13 +452,13 @@ async function getVolumeIntern({
                                  downsampleDepth = 1,
                                  signal,
                                }) {
-  console.warn('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
-  console.warn('downsampledepth', downsampleDepth);
+  console.trace('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
+  console.trace('downsampledepth', downsampleDepth);
 
-  console.warn('Source:', source);
+  console.trace('Source:', source);
 
   const { shape, labels, dtype } = source;
-  console.warn('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
+  console.trace('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
 
   const zarritaLabels = ['t', 'c', 'z', 'y', 'x'];
 
@@ -466,8 +466,8 @@ async function getVolumeIntern({
   const height = shape[zarritaLabels.indexOf('y')];
   const depth = shape[zarritaLabels.indexOf('z')];
 
-  console.warn('Image size:', width, height);
-  console.warn('Depth:', depth);
+  console.trace('Image size:', width, height);
+  console.trace('Depth:', depth);
 
   const TypedArrayClass = dtypeToTypedArray[dtype];
 
@@ -510,37 +510,22 @@ async function getVolumeIntern({
       z: [zStart, Math.min(zStart + chunkSizeZ, depth)],
     };
 
-    const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
+    // const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
     console.warn('Chunk selection:', chunkSelection);
 
-    for (let z = 0; z < chunkSelection.z[1] - chunkSelection.z[0]; z++) {
-      const zSlice = zStart + z;
-      if (zSlice >= depth) continue;
+    const root = new zarrita.FetchStore('http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr');
+    console.warn('Root:', root);
 
-      //console.warn('Getting slice:', chunkSelection.x, chunkSelection.y, zSlice);
+    const rootGroup = await zarrita.open(root);
+    console.warn('Group:', rootGroup);
 
-      //chunkSelection.x[0] = 32;
-      //chunkSelection.x[1] = 64;
-      //chunkSelection.y[0] = 32;
-      //chunkSelection.y[1] = 64;
-      const { data: sliceData } = await source.getRaster({
-        selection: {
-          x: chunkSelection.x,
-          y: chunkSelection.y,
-          z: zSlice,
-        },
-        signal,
-      });
+    const array5 = await zarrita.open(rootGroup.resolve('0'));
+    console.warn('Array5:', array5);
 
-      if (!sliceData || sliceData.length === 0) continue;
-      for (let y = 0; y < chunkSelection.y[1] - chunkSelection.y[0]; y++) {
-        for (let x = 0; x < chunkSelection.x[1] - chunkSelection.x[0]; x++) {
-          const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
-          const sliceIndex = x + y * chunkSizeX;
-          chunkData[localIndex] = sliceData[sliceIndex];
-        }
-      }
-    }
+    const chunk = await array5.getChunk([0, 0, 13, 13, 13]);
+    console.warn('Chunk:', chunk);
+    const chunkData = chunk.data;
+    console.warn('Chunk data:', chunkData);
 
     // Copy into volumeData (same logic as before)
     for (let z = 0; z < chunkSelection.z[1] - chunkSelection.z[0]; z++) {
@@ -555,7 +540,7 @@ async function getVolumeIntern({
         }
       }
       if (z >= 2) {
-        //break;
+        // break;
       }
     }
   }));
@@ -577,20 +562,18 @@ function getVolumeByChannel(channel, resolution, loader) {
 }
 
 function getVolumeFromOrigin(volumeOrigin) {
-  console.warn('getVolumeFromOrigin', volumeOrigin);
+  console.log('getVolumeFromOrigin', volumeOrigin);
   const volume = new Volume();
   volume.xLength = volumeOrigin.width;
   volume.yLength = volumeOrigin.height;
   volume.zLength = volumeOrigin.depth;
   volume.data = volumeOrigin.data;
-  console.warn('getVolumeFromOrigin, before return', volume);
   return volume;
 }
 
 function getData3DTexture(volume) {
-  console.warn('getData3DTexture', volume);
+  console.log('getData3DTexture', volume);
   const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-  console.warn('getData3DTexture', texture);
   texture.format = RedFormat;
   texture.type = FloatType;
   texture.generateMipmaps = false;
@@ -598,7 +581,6 @@ function getData3DTexture(volume) {
   texture.magFilter = LinearFilter;
   // texture.unpackAlignment = 1;
   texture.needsUpdate = true;
-  console.warn('getData3DTexture, before return', texture);
   return texture;
 }
 
@@ -635,11 +617,11 @@ function minMaxVolume(volume) {
 * @returns {Promise<(*|*[])[]>}
 */
 export async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
-  console.warn('initialDataLoading', channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution);
+  console.trace('initialDataLoading', channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution);
   let volume = null;
   let scale = null;
   const { shape, labels } = data[0];
-  console.warn('initialDataLoading, shape, labels', shape, labels);
+  console.trace('initialDataLoading, shape, labels', shape, labels);
   const channelsToLoad = channelTargetC
     .filter(channel => !volumes.has(channel) || resolution !== oldResolution);
   const volumeOrigins = await Promise.all(
@@ -656,13 +638,13 @@ export async function initialDataLoading(channelTargetC, resolution, data, volum
     textures.set(channel, getData3DTexture(volume));
     volumeMinMax.set(channel, minMax);
     scale = getPhysicalSizeScalingMatrix(data[resolution]);
-    console.warn('initialDataLoading, scale', scale);
+    console.trace('initialDataLoading, scale', scale);
   });
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
 }
 
-export let renderMetadata = {
+export const renderMetadata = {
   fps: 0,
   bandwidth: 0,
   GPU_utilization: 0,
@@ -674,5 +656,5 @@ export let renderMetadata = {
 };
 
 export function updateRenderMetadata(newData) {
-  renderMetadata = { ...renderMetadata, ...newData };
+  Object.assign(renderMetadata, newData);
 }
