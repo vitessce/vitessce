@@ -454,7 +454,8 @@ async function getVolumeIntern({
   console.trace('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
 
   // Hardcode the base Zarr URL for now.
-  const root = new zarrita.FetchStore('http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr');
+  // const root = new zarrita.FetchStore('http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr');
+  const root = new zarrita.FetchStore('https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/');
   const rootGroup = await zarrita.open(root);
 
   console.warn('rootGroup', rootGroup);
