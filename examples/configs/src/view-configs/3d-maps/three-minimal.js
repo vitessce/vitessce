@@ -36,7 +36,7 @@ function generateThreeMinimalConfiguration() {
       {
         fileUid: 'kiemen',
         spatialLayerOpacity: 1,
-        spatialTargetResolution: 5,
+        spatialTargetResolution: 2,
         imageChannel: CL([
           {
             spatialTargetC: 0,

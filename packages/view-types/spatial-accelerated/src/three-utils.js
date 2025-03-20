@@ -1,9 +1,8 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable no-bitwise */
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 import { CoordinationType } from '@vitessce/constants-internal';
-import { viv } from '@vitessce/gl';
 import * as zarrita from 'zarrita';
 import {
   Vector2,
@@ -15,6 +14,7 @@ import {
 } from 'three';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
+import { VolumeDataManager } from './VolumeDataManager.js';
 
 const renderingModeMap = {
   maximumIntensityProjection: 0,
@@ -129,7 +129,7 @@ function extractInformationFromProps(
   ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
   zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
 
-  console.trace('extractInformationFromProps return', channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode, renderingMode, layerTransparency, xSlice, ySlice, zSlice);
+  console.trace('extractInformationFromProps return', channelsVisible, allChannels, channelTargetC, resolution, data, colors, contrastLimits, is3dMode, layerTransparency, xSlice, ySlice, zSlice);
   return {
     channelsVisible,
     allChannels,
@@ -378,23 +378,23 @@ export function create3DRendering(volumes, channelTargetC, channelsVisible, colo
   const contrastLimitsList = [];
   let volume = null;
   if (scale === undefined || !Array.isArray(scale) || scale.length < 3) {
+    // eslint-disable-next-line no-param-reassign
     scale = [{ size: 1 }, { size: 1 }, { size: 1 }];
   } else {
     for (let i = 0; i < scale.length; i++) {
       if (!scale[i] || scale[i].size === undefined) {
+        // eslint-disable-next-line no-param-reassign
         scale[i] = { size: 1 };
       }
     }
   }
-  if (scale === undefined || !Array.isArray(scale) || scale.length < 3) {
-    scale = [{ size: 1 }, { size: 1 }, { size: 1 }];
-  } else {
-    for (let i = 0; i < scale.length; i++) {
-      if (!scale[i] || scale[i].size === undefined) {
-        scale[i] = { size: 1 };
-      }
-    }
-  }
+  // TODO: undo the hardcoding.
+  // eslint-disable-next-line no-param-reassign
+  // INFO: the order here is X, Y, Z.
+  scale = [{ size: 0.03174 }, { size: 0.03174 }, { size: 0.0688 }];
+  scale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
+  // TODO: note this affects cutting planes
+
   channelTargetC.forEach((channel, id) => { // load on demand new channels or load all there are?? - Check VIV for it
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
       volume = volumes.get(channel);
@@ -444,112 +444,129 @@ const dtypeToTypedArray = {
   Float64: Float64Array,
 };
 
-// TODO: Use the imported function from VIV: Ask Trevor how to get there
 async function getVolumeIntern({
-                                 source,
-                                 selection,
-                                 onUpdate = () => {},
-                                 downsampleDepth = 1,
-                                 signal,
-                               }) {
+  source,
+  selection,
+  onUpdate = () => {},
+  downsampleDepth = 1,
+  signal,
+}) {
   console.trace('getVolumeIntern', source, selection, onUpdate, downsampleDepth, signal);
-  console.trace('downsampledepth', downsampleDepth);
 
-  console.trace('Source:', source);
+  // Hardcode the base Zarr URL for now.
+  const root = new zarrita.FetchStore('http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr');
+  const rootGroup = await zarrita.open(root);
 
-  const { shape, labels, dtype } = source;
-  console.trace('Source shape:', shape, 'labels:', labels, 'dtype:', dtype);
+  console.warn('rootGroup', rootGroup);
 
-  const zarritaLabels = ['t', 'c', 'z', 'y', 'x'];
+  // Use downsampleDepth to pick a resolution. Example:
+  // downsampleDepth = 1 => resolution = 5
+  // downsampleDepth = 2 => resolution = 4
+  // etc.  Adjust as needed if your logic differs.
+  console.error('downsampleDepth', downsampleDepth);
+  const resolution = Math.log2(downsampleDepth);
+  console.error('resolution', resolution);
+  const array = await zarrita.open(rootGroup.resolve(String(resolution)));
 
-  const width = shape[zarritaLabels.indexOf('x')];
-  const height = shape[zarritaLabels.indexOf('y')];
-  const depth = shape[zarritaLabels.indexOf('z')];
+  // The array should have `array.meta.shape` = [T, C, Z, Y, X]
+  // and `array.meta.chunks` = [1, 1, zChunk, yChunk, xChunk], for example.
+  console.warn('array', array);
+  const shapeRes = array.shape;
+  const chunks = array.chunks;
+  console.warn('Resolution:', resolution);
+  console.warn('Shape:', shapeRes);
+  console.warn('Chunks:', chunks);
 
-  console.trace('Image size:', width, height);
-  console.trace('Depth:', depth);
-
+  // The user-supplied source had a shape/dtype, so let's still access that info:
+  const { dtype } = source;
   const TypedArrayClass = dtypeToTypedArray[dtype];
 
-  // Fix: Correct volumeData size calculation
-  const volumeData = new TypedArrayClass(width * height * depth);
+  // For this example, we just take T=0, C=0 out of the shape
+  // (assuming single time point + single channel).
+  const zSize = shapeRes[2];
+  const ySize = shapeRes[3];
+  const xSize = shapeRes[4];
+
+  const volumeData = new TypedArrayClass(zSize * ySize * xSize);
+
+  console.warn('Output volume dimensions:', xSize, ySize, zSize);
   console.warn('Volume data size:', volumeData.length);
 
-  // Chunk dimensions
-  const chunkSizeX = 32;
-  const chunkSizeY = 32;
-  const chunkSizeZ = 32; // Each Z chunk contains 32 slices
+  // Extract chunk sizes from array.meta.chunks if provided
+  // Typically chunking is [1, 1, zChunk, yChunk, xChunk]
+  const zChunk = chunks[2];
+  const yChunk = chunks[3];
+  const xChunk = chunks[4];
 
-  // Compute number of chunks per dimension
-  const numChunksX = Math.ceil(shape[zarritaLabels.indexOf('x')] / chunkSizeX);
-  const numChunksY = Math.ceil(shape[zarritaLabels.indexOf('y')] / chunkSizeY);
-  const numChunksZ = Math.ceil(shape[zarritaLabels.indexOf('z')] / chunkSizeZ);
+  // Calculate how many chunks in each dimension
+  const zChunkCount = Math.ceil(zSize / zChunk);
+  const yChunkCount = Math.ceil(ySize / yChunk);
+  const xChunkCount = Math.ceil(xSize / xChunk);
 
-  console.warn('Number of chunks:', numChunksX, numChunksY, numChunksZ);
+  console.warn('zChunkCount:', zChunkCount, 'yChunkCount:', yChunkCount, 'xChunkCount:', xChunkCount);
 
+  // Collect all chunk coordinate jobs
   const allChunkJobs = [];
-
-  for (let chunkZ = 0; chunkZ < numChunksZ; chunkZ++) {
-    for (let chunkY = 0; chunkY < numChunksY; chunkY++) {
-      for (let chunkX = 0; chunkX < numChunksX; chunkX++) {
-        allChunkJobs.push({ chunkX, chunkY, chunkZ });
+  for (let cz = 0; cz < zChunkCount; cz++) {
+    for (let cy = 0; cy < yChunkCount; cy++) {
+      for (let cx = 0; cx < xChunkCount; cx++) {
+        allChunkJobs.push([cz, cy, cx]);
       }
     }
   }
 
   console.warn('All chunk jobs:', allChunkJobs);
 
-  await Promise.all(allChunkJobs.map(async ({ chunkX, chunkY, chunkZ }) => {
-    const xStart = chunkX * chunkSizeX;
-    const yStart = chunkY * chunkSizeY;
-    const zStart = chunkZ * chunkSizeZ;
+  // Load each chunk and copy into the big volumeData buffer
+  await Promise.all(allChunkJobs.map(async ([cz, cy, cx]) => {
+    // t=0, c=0, zChunkCoord=cz, yChunkCoord=cy, xChunkCoord=cx
+    // This is how you call getChunk in (t, c, z, y, x) order
+    const sleep = (ms = 10) => new Promise(resolve => setTimeout(resolve, ms));
+    await sleep(100);
+    const chunkEntry = await array.getChunk([0, 0, cz, cy, cx]);
+    if (!chunkEntry) {
+      // The chunk might not exist if it's fully empty or beyond shape bounds
+      return;
+    }
+    const chunkData = chunkEntry.data;
 
-    const chunkSelection = {
-      x: [xStart, Math.min(xStart + chunkSizeX, width)],
-      y: [yStart, Math.min(yStart + chunkSizeY, height)],
-      z: [zStart, Math.min(zStart + chunkSizeZ, depth)],
-    };
+    // Compute the global offset in each dimension
+    const zStart = cz * zChunk;
+    const yStart = cy * yChunk;
+    const xStart = cx * xChunk;
 
-    // const chunkData = new TypedArrayClass(chunkSizeX * chunkSizeY * chunkSizeZ);
-    console.warn('Chunk selection:', chunkSelection);
+    // Actual size of the chunk we received
+    // Might be smaller at the boundary, so we clamp
+    const actualZ = Math.min(zSize - zStart, zChunk);
+    const actualY = Math.min(ySize - yStart, yChunk);
+    const actualX = Math.min(xSize - xStart, xChunk);
 
-    const root = new zarrita.FetchStore('http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr');
-    console.warn('Root:', root);
-
-    const rootGroup = await zarrita.open(root);
-    console.warn('Group:', rootGroup);
-
-    const array5 = await zarrita.open(rootGroup.resolve('0'));
-    console.warn('Array5:', array5);
-
-    const chunk = await array5.getChunk([0, 0, 13, 13, 13]);
-    console.warn('Chunk:', chunk);
-    const chunkData = chunk.data;
-    console.warn('Chunk data:', chunkData);
-
-    // Copy into volumeData (same logic as before)
-    for (let z = 0; z < chunkSelection.z[1] - chunkSelection.z[0]; z++) {
-      for (let y = 0; y < chunkSelection.y[1] - chunkSelection.y[0]; y++) {
-        for (let x = 0; x < chunkSelection.x[1] - chunkSelection.x[0]; x++) {
-          const globalX = xStart + x;
-          const globalY = yStart + y;
+    // Copy chunk data into the volumeData buffer
+    // chunkData is typically shaped (actualZ, actualY, actualX)
+    // but stored in a 1D buffer if you're using standard zarr encoding
+    let idx = 0;
+    for (let z = 0; z < actualZ; z++) {
+      for (let y = 0; y < actualY; y++) {
+        for (let x = 0; x < actualX; x++) {
+          // Calculate the global 1D index in volumeData
           const globalZ = zStart + z;
-          const globalIndex = globalX + globalY * width + globalZ * width * height;
-          const localIndex = x + y * chunkSizeX + z * chunkSizeX * chunkSizeY;
-          volumeData[globalIndex] = chunkData[localIndex];
+          const globalY = yStart + y;
+          const globalX = xStart + x;
+          const globalIndex = globalX + globalY * xSize + globalZ * xSize * ySize;
+
+          volumeData[globalIndex] = chunkData[idx];
+          idx++;
         }
-      }
-      if (z >= 2) {
-        // break;
       }
     }
   }));
 
+  // Done loading all chunks. Return the full volume data plus shape info.
   return {
     data: volumeData,
-    height,
-    width,
-    depth,
+    width: xSize,
+    height: ySize,
+    depth: zSize,
   };
 }
 
