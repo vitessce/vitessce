@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import { Vector2, Vector3 } from 'three';
 import vertexShader from '../shaders/VolumeVertexShader.glsl?raw';
 import fragmentShader from '../shaders/VolumeFragmentShader.glsl?raw';

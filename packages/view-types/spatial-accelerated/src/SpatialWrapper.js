@@ -1,10 +1,13 @@
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef, useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
 import { VolumeHUD } from './VolumeHUD.js';
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => {
   const [renderingStats, setRenderingStats] = useState({ fps: 0 });
+  const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
+  const [deviceLimits, setDeviceLimits] = useState(null);
+  const volumeViewRef = useRef(null);
 
   // Example of updating stats - in a real app, you might get this from
   // a performance monitor or pass it up from the VolumeRenderer
@@ -18,12 +21,24 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Handle initialization completion from VolumeView
+  const handleInitComplete = (initData) => {
+    if (initData.zarrStoreInfo) {
+      setZarrStoreInfo(initData.zarrStoreInfo);
+    }
+    if (initData.deviceLimits) {
+      setDeviceLimits(initData.deviceLimits);
+    }
+  };
+
   return (
     <>
       <VolumeHUD
         volumeInfo={{ dimensions: [0, 0, 0] }}
         renderingMode="PLACEHOLDER"
         renderingStats={renderingStats}
+        zarrStoreInfo={zarrStoreInfo}
+        deviceLimits={deviceLimits}
       />
       <Canvas
         style={{
@@ -48,7 +63,11 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
         }}
         ref={canvasRef}
       >
-        <VolumeView {...props} />
+        <VolumeView
+          {...props}
+          forwardRef={volumeViewRef}
+          onInitComplete={handleInitComplete}
+        />
       </Canvas>
     </>
   );

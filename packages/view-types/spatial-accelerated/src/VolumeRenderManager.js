@@ -90,7 +90,8 @@ export class VolumeRenderManager {
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
     const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
-    const renderingMode = RENDERING_MODES[renderingModeStr] || RENDERING_MODES.maximumIntensityProjection;
+    const renderingMode = RENDERING_MODES[renderingModeStr]
+      || RENDERING_MODES.maximumIntensityProjection;
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
 

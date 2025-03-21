@@ -32,6 +32,10 @@ export function VolumeView(props) {
     boxSize: [1, 1, 1],
   });
 
+  // State for zarr store info and device limits
+  const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
+  const [deviceLimits, setDeviceLimits] = useState(null);
+
   // State for loading status
   const [isLoading, setIsLoading] = useState(false);
   const [is3DMode, setIs3DMode] = useState(false);
@@ -74,7 +78,25 @@ export function VolumeView(props) {
     );
     const renderManager = new VolumeRenderManager();
 
-    // Initialize the Zarr store
+    // Initialize the data manager and get zarr store details and device limits
+    dataManager.init().then((initResult) => {
+      if (initResult.success) {
+        setZarrStoreInfo(initResult.zarrStore);
+        setDeviceLimits(initResult.deviceLimits);
+        
+        // Call props.onInitComplete if provided
+        if (props.onInitComplete) {
+          props.onInitComplete({
+            zarrStoreInfo: initResult.zarrStore,
+            deviceLimits: initResult.deviceLimits,
+          });
+        }
+      } else {
+        console.error('Failed to initialize VolumeDataManager:', initResult.error);
+      }
+    });
+
+    // Initialize the Zarr store for rendering
     dataManager.initStore().then(() => {
       setManagers({
         dataManager,
@@ -164,9 +186,20 @@ export function VolumeView(props) {
     }
   }, [props, managers, extractSettings, loadVolumeData]);
 
+  // Forward zarr store info and device limits through the ref if available
+  useEffect(() => {
+    if (props.forwardRef && typeof props.forwardRef === 'object') {
+      props.forwardRef.current = {
+        zarrStoreInfo,
+        deviceLimits,
+      };
+    }
+  }, [props.forwardRef, zarrStoreInfo, deviceLimits]);
+
   // Update material when rendering changes
   useEffect(() => {
-    if (!meshRef.current || !managers || isLoading || !rendering.uniforms || !rendering.shader) return;
+    if (!meshRef.current || !managers || isLoading
+      || !rendering.uniforms || !rendering.shader) return;
 
     // Create new shader material
     const material = new THREE.ShaderMaterial({
