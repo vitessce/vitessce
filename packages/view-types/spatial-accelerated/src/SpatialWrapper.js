@@ -1,6 +1,6 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { VolumeRenderer } from './VolumeRenderer.js';
+import { VolumeView } from './VolumeView.js';
 import { VolumeHUD } from './VolumeHUD.js';
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => {
@@ -48,7 +48,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
         }}
         ref={canvasRef}
       >
-        <VolumeRenderer {...props} />
+        <VolumeView {...props} />
       </Canvas>
     </>
   );
