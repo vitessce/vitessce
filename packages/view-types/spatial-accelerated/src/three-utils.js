@@ -13,7 +13,7 @@ import {
   LinearFilter,
 } from 'three';
 import { Volume } from './Volume.js';
-import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
+import { VolumeRenderShaderPerspective } from './VolumeShader.js';
 import { VolumeDataManager } from './VolumeDataManager.js';
 
 const renderingModeMap = {

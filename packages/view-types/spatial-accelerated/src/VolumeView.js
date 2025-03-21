@@ -20,6 +20,7 @@ export function VolumeView(props) {
   // References to objects in the scene
   const materialRef = useRef(null);
   const orbitRef = useRef(null);
+  const meshRef = useRef(null);
 
   // State for data and render managers
   const [managers, setManagers] = useState(null);
@@ -49,11 +50,6 @@ export function VolumeView(props) {
 
   // Initialize managers on first render
   useEffect(() => {
-    // Debug - log what's available on the gl object
-    console.log('GL object:', gl);
-    console.log('GL methods:', Object.getOwnPropertyNames(gl).filter(prop => typeof gl[prop] === 'function'));
-    console.log('GL has domElement:', !!gl.domElement);
-    
     // Try to get the WebGL context safely
     let glContext;
     try {
@@ -67,9 +63,7 @@ export function VolumeView(props) {
         // Last resort - use gl directly
         glContext = gl;
       }
-      console.log('Found GL context:', glContext);
     } catch (error) {
-      console.error('Error getting WebGL context:', error);
       glContext = null;
     }
 
@@ -172,10 +166,28 @@ export function VolumeView(props) {
 
   // Update material when rendering changes
   useEffect(() => {
-    if (!materialRef.current || !managers || isLoading) return;
+    if (!meshRef.current || !managers || isLoading || !rendering.uniforms || !rendering.shader) return;
 
-    // Apply render settings to the material
-    managers.renderManager.applyToMaterial(materialRef.current.material);
+    // Create new shader material
+    const material = new THREE.ShaderMaterial({
+      uniforms: rendering.uniforms,
+      vertexShader: rendering.shader.vertexShader,
+      fragmentShader: rendering.shader.fragmentShader,
+      side: THREE.BackSide,
+      transparent: true,
+    });
+
+    // Replace the existing material
+    if (meshRef.current.material) {
+      meshRef.current.material.dispose();
+    }
+    meshRef.current.material = material;
+    materialRef.current = material;
+
+    // Apply the render manager updates
+    if (managers.renderManager) {
+      managers.renderManager.applyToMaterial(material);
+    }
   }, [rendering, isLoading, managers]);
 
   // Don't render anything if not in 3D mode or managers aren't initialized
@@ -191,7 +203,12 @@ export function VolumeView(props) {
           <boxGeometry args={[1, 1, 1]} />
           <meshBasicMaterial color="#444444" wireframe />
         </mesh>
-        <OrbitControls />
+        <OrbitControls
+          enableDamping={false}
+          dampingFactor={0.0}
+          zoomDampingFactor={0.0}
+          smoothZoom={false}
+        />
       </group>
     );
   }
@@ -199,21 +216,18 @@ export function VolumeView(props) {
   // Render the volume with our setup
   return (
     <group>
-      <OrbitControls ref={orbitRef} />
+      <OrbitControls
+        ref={orbitRef}
+        enableDamping={false}
+        dampingFactor={0.0}
+        zoomDampingFactor={0.0}
+        smoothZoom={false}
+      />
       <mesh
-        ref={materialRef}
+        ref={meshRef}
         scale={rendering.meshScale}
       >
         <boxGeometry args={rendering.geometrySize} />
-        <shaderMaterial
-          customProgramCacheKey={() => 'volumeRenderer'}
-          side={THREE.BackSide}
-          uniforms={rendering.uniforms}
-          needsUpdate
-          transparent
-          vertexShader={rendering.shader.vertexShader}
-          fragmentShader={rendering.shader.fragmentShader}
-        />
       </mesh>
     </group>
   );

@@ -2,7 +2,7 @@ import { Vector2, Vector3 } from 'three';
 import vertexShader from '../shaders/VolumeVertexShader.glsl?raw';
 import fragmentShader from '../shaders/VolumeFragmentShader.glsl?raw';
 
-export const VolumeRenderShaderPerspective = {
+export const VolumeShader = {
   uniforms: {
     u_size: { value: new Vector3(1, 1, 1) },
     u_renderstyle: { value: 0 },
