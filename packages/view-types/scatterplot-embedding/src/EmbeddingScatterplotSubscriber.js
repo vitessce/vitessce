@@ -515,6 +515,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={setViewState}
+        width={width}
+        height={height}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}

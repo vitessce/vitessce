@@ -4,6 +4,7 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ContourLayerWithText,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -107,6 +108,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLayers = [];
 
     this.contourLayers = [];
+    this.lineLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -130,6 +132,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourThresholds,
       contoursFilled,
       contourColor: contourColorProp,
+      originalViewState,
+      width: viewWidth,
+      height: viewHeight,
     } = this.props;
 
     const layers = Array.from(this.stratifiedData.entries())
@@ -155,13 +160,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
               || contourColor
             );
           }
-          return new deck.ContourLayer({
+          return new ContourLayerWithText({
             id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
             coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
             data: deckData,
             getWeight: contourGetWeight,
             getPosition: contourGetPosition,
+            obsSetPath: obsSetKey,
+            sampleSetPath: sampleSetKey,
+            originalViewState,
+            viewWidth,
+            viewHeight,
             contours: contourThresholds.map((threshold, i) => ({
+              i,
               threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
               // TODO: should the opacity steps be uniform? Should align with human perception.
               // TODO: support usage of static colors.
@@ -186,6 +197,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             filled: contoursFilled,
             cellSize: 0.25,
             zOffset: 0.005,
+            onComputeLine: (lineParams) => {
+              console.log(lineParams);
+            },
           });
         }));
     return layers;
