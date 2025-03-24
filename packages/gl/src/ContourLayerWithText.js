@@ -1,13 +1,11 @@
 import { ContourLayer } from '@deck.gl/aggregation-layers';
-import { polygon as turfPolygon, point as turfPoint, featureCollection, polygons, points } from '@turf/helpers';
+import { polygon as turfPolygon, point as turfPoint, polygons } from '@turf/helpers';
+import { getGeom } from "@turf/invariant";
+import { flattenReduce } from '@turf/meta';
 import { circle } from '@turf/circle';
 import { union } from '@turf/union';
-import {area} from '@turf/area';
-import { getGeom } from "@turf/invariant";
-import {flattenEach, flattenReduce} from '@turf/meta';
-import {nearestPoint} from '@turf/nearest-point';
-import {centerOfMass} from '@turf/center-of-mass';
-import {distance} from '@turf/distance';
+import { area } from '@turf/area';
+import { distance } from '@turf/distance';
 
 
 const DEFAULT_THRESHOLD = 1;
