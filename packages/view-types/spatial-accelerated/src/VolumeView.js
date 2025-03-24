@@ -83,7 +83,7 @@ export function VolumeView(props) {
       if (initResult.success) {
         setZarrStoreInfo(initResult.zarrStore);
         setDeviceLimits(initResult.deviceLimits);
-        
+
         // Call props.onInitComplete if provided
         if (props.onInitComplete) {
           props.onInitComplete({

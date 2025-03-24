@@ -47,7 +47,7 @@ export function VolumeHUD({
             <div>Chunk Size: {JSON.stringify(zarrStoreInfo.chunkSize)}</div>
           )}
           {zarrStoreInfo.resolutions && (
-            <div>Resolutions: {zarrStoreInfo.resolutions.join(', ')}</div>
+            <div>Resolutions: {Array.from({ length: zarrStoreInfo.resolutions }, (_, i) => i).join(', ')}</div>
           )}
           {zarrStoreInfo.shapes && zarrStoreInfo.shapes.length > 0 && (
             <div>

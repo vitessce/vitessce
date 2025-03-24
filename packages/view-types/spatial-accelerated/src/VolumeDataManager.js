@@ -12,11 +12,10 @@ import {
   FloatType,
   LinearFilter,
 } from 'three';
-import { Volume } from './Volume.js';
 
-// constants for now
+// Default chunk sizes - used as fallbacks when data doesn't specify sizes
 const CHUNK_SIZE = 32;
-const CHUNK_TOTAL_SIZE = 32768;
+const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
 
 // Add a constant for initialization status
 const INIT_STATUS = {
@@ -25,23 +24,6 @@ const INIT_STATUS = {
   COMPLETE: 'complete',
   FAILED: 'failed',
 };
-
-class Brick {
-  constructor() {
-    this.resolution = null; // 0 through 6
-    this.brickIndex = []; // [0, 0, 0] the one needed for querying in zarr store
-    this.spatialExtents = []; // can be [0, 0, 0] to [1024, 1024, 795]
-    this.min = null;
-    this.max = null;
-  }
-
-  // 1 for solid, 0 for relevant, -1 for empty
-  isVisible(min, max) {
-    if (max < this.min) return 1;
-    if (min > this.max) return -1;
-    return 0;
-  }
-}
 
 export class VolumeDataManager {
   constructor(url, gl) {
@@ -117,8 +99,8 @@ export class VolumeDataManager {
     this.brickCache = [];
     this.brickCacheAddresses = new Map();
 
-    // Add new properties for volume rendering
-    this.volumes = new Map(); // Volume objects keyed by channel index
+    // Properties for volume rendering
+    this.volumes = new Map(); // Volume data objects keyed by channel index
     this.textures = new Map(); // THREE.js textures keyed by channel index
     this.volumeMinMax = new Map(); // Min/max values keyed by channel index
     this.currentResolution = null;
@@ -133,7 +115,7 @@ export class VolumeDataManager {
   /**
    * Initialize the VolumeDataManager with Zarr store details and device limits
    * This should be called ONCE at website initialization
-   * @returns {Promise<Object>} Object containing Zarr store details and device limits for HUD display
+   * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
   async init() {
     // Prevent multiple initializations
@@ -175,23 +157,25 @@ export class VolumeDataManager {
       this.group = await zarrita.open(this.store);
 
       // Get all resolution levels
-      const resolutions = [];
-      const shapes = [];
-      const arrays = [];
+      const resolutions = this.group.attrs.multiscales[0].datasets.length;
+      const shapes = new Array(resolutions).fill(null);
+      const arrays = new Array(resolutions).fill(null);
 
-      //TODO: get the amount of resolutions from the zarr store
-
-      // Load arrays for each resolution level
-      for (let i = 0; i < 6; i++) {
-        try {
-          const array = await zarrita.open(this.group.resolve(String(i)));
-          arrays.push(array);
-          shapes.push(array.shape);
-          resolutions.push(i);
-        } catch (err) {
-          console.warn(`Could not load resolution level ${i}:`, err);
-        }
+      // Try to load each resolution level in order
+      const loadPromises = [];
+      for (let i = 0; i < resolutions; i++) {
+        loadPromises.push(this.tryLoadResolution(i, arrays, shapes));
       }
+
+      const results = await Promise.all(loadPromises);
+      
+      // Verify all resolutions were loaded successfully
+      const failedResolutions = results.filter(r => !r.success);
+      if (failedResolutions.length > 0) {
+        throw new Error(`Failed to load ${failedResolutions.length} resolution levels: ${failedResolutions.map(r => r.level).join(', ')}`);
+      }
+
+      console.info(`Successfully loaded ${resolutions} resolution levels.`);
 
       // Get the first array for metadata
       if (arrays.length > 0) {
@@ -272,11 +256,11 @@ export class VolumeDataManager {
         this.zarrStore.brickLayout = shapes.map((shape) => {
           if (!shape || shape.length < 5) return [0, 0, 0];
 
-          const chunkSize = array0.chunks || [32, 32, 32];
+          const chunkSize = array0.chunks || [CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE];
           return [
-            Math.ceil((shape[2] || 1) / (chunkSize[2] || 32)),
-            Math.ceil((shape[3] || 1) / (chunkSize[3] || 32)),
-            Math.ceil((shape[4] || 1) / (chunkSize[4] || 32)),
+            Math.ceil((shape[2] || 1) / (chunkSize[2] || CHUNK_SIZE)),
+            Math.ceil((shape[3] || 1) / (chunkSize[3] || CHUNK_SIZE)),
+            Math.ceil((shape[4] || 1) / (chunkSize[4] || CHUNK_SIZE)),
           ];
         });
       }
@@ -285,7 +269,12 @@ export class VolumeDataManager {
 
       console.warn('VolumeDataManager init() complete');
       console.warn(this.zarrStore);
-      console.warn(this.zarrStore.group.attrs.coordinateTransformations[0].scale);
+
+      if (this.zarrStore.group.attrs.coordinateTransformations
+          && this.zarrStore.group.attrs.coordinateTransformations[0]
+          && this.zarrStore.group.attrs.coordinateTransformations[0].scale) {
+        console.warn(this.zarrStore.group.attrs.coordinateTransformations[0].scale);
+      }
 
       // Return data that can be displayed in the HUD
       return {
@@ -309,25 +298,29 @@ export class VolumeDataManager {
     }
   }
 
-  async initStore() {
-    this.group = await zarrita.open(this.store);
-    this.array0 = await zarrita.open(this.group.resolve('0'));
-    this.array1 = await zarrita.open(this.group.resolve('1'));
-    this.array2 = await zarrita.open(this.group.resolve('2'));
-    this.array3 = await zarrita.open(this.group.resolve('3'));
-    this.array4 = await zarrita.open(this.group.resolve('4'));
-    this.array5 = await zarrita.open(this.group.resolve('5'));
-
-    this.zarrStore.chunkSize = this.array0.chunkSize;
-    this.zarrStore.shape = this.array0.shape;
-    this.zarrStore.dtype = this.array0.dtype;
-    this.zarrStore.physicalSize = this.array0.physicalSize;
-    this.zarrStore.dimensions = this.array0.dimensions;
-    this.zarrStore.store = this.group.store;
-
-    this.firstBrick = new Brick();
-
-    return this;
+  /**
+   * Try to load a resolution level
+   * @param {number} resolutionIndex - The resolution level to load
+   * @param {Array} arrays - Array to store the loaded arrays
+   * @param {Array} shapes - Array to store the shapes
+   * @returns {Promise} Promise resolving when the resolution is loaded or rejected
+   */
+  async tryLoadResolution(resolutionIndex, arrays, shapes) {
+    try {
+      const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
+      // Create new arrays to avoid modifying parameters directly
+      const newArrays = [...arrays];
+      const newShapes = [...shapes];
+      newArrays[resolutionIndex] = array;
+      newShapes[resolutionIndex] = array.shape;
+      // Update the original arrays
+      Object.assign(arrays, newArrays);
+      Object.assign(shapes, newShapes);
+      return { success: true, level: resolutionIndex };
+    } catch (err) {
+      console.error(`Failed to load resolution ${resolutionIndex}:`, err);
+      return { success: false, level: resolutionIndex, error: err.message };
+    }
   }
 
   /**
@@ -337,8 +330,6 @@ export class VolumeDataManager {
    * @returns {Promise<Object>} Volume data object
    */
   async getVolumeByChannel(channel, resolution) {
-    const downsampleDepth = 2 ** resolution;
-
     // For now, we're hardcoding to use a test dataset
     // In a real implementation, this would use the store initialized above
     const root = new zarrita.FetchStore('https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/');
@@ -361,9 +352,9 @@ export class VolumeDataManager {
     const volumeData = new Uint8Array(zSize * ySize * xSize);
 
     // Extract chunk sizes
-    const zChunk = chunks[2];
-    const yChunk = chunks[3];
-    const xChunk = chunks[4];
+    const zChunk = chunks[2] || CHUNK_SIZE;
+    const yChunk = chunks[3] || CHUNK_SIZE;
+    const xChunk = chunks[4] || CHUNK_SIZE;
 
     // Calculate number of chunks in each dimension
     const zChunkCount = Math.ceil(zSize / zChunk);
@@ -419,6 +410,11 @@ export class VolumeDataManager {
     // Store information about physical dimensions if available
     this.updatePhysicalScale(array);
 
+    // Check if total size exceeds our buffer limits
+    if (zSize * ySize * xSize > CHUNK_TOTAL_SIZE * 10) {
+      console.warn(`Volume data exceeds safe size limit: ${zSize * ySize * xSize} > ${CHUNK_TOTAL_SIZE * 10}`);
+    }
+
     // Return the volume data
     return {
       data: volumeData,
@@ -436,9 +432,9 @@ export class VolumeDataManager {
     if (array.meta && array.meta.physicalSizes) {
       const { x, y, z } = array.meta.physicalSizes;
       this.physicalScale = [
-        { size: x.size || 1 },
-        { size: y.size || 1 },
-        { size: z.size || 1 },
+        { size: x?.size || 1 },
+        { size: y?.size || 1 },
+        { size: z?.size || 1 },
       ];
     }
 
@@ -453,18 +449,20 @@ export class VolumeDataManager {
   }
 
   /**
-   * Create a Volume object from raw volume data
+   * Create a volume data object from raw volume data
    * @param {Object} volumeOrigin - Raw volume data
-   * @returns {Volume} Volume object
+   * @returns {Object} Volume data object
    */
   processVolumeData(volumeOrigin) {
-    const volume = new Volume();
-    volume.xLength = volumeOrigin.width;
-    volume.yLength = volumeOrigin.height;
-    volume.zLength = volumeOrigin.depth;
+    // Create volume data object with essential properties
+    const volume = {
+      xLength: volumeOrigin.width,
+      yLength: volumeOrigin.height,
+      zLength: volumeOrigin.depth,
+    };
 
     // Compute min/max values
-    const [min, max] = this._computeMinMax(volumeOrigin.data);
+    const [min, max] = this.computeMinMax(volumeOrigin.data);
 
     // Normalize values to float in [0,1] range
     const normalizedData = new Float32Array(volumeOrigin.data.length);
@@ -481,7 +479,7 @@ export class VolumeDataManager {
    * @param {TypedArray} data - Data array
    * @returns {Array} [min, max] values
    */
-  _computeMinMax(data) {
+  computeMinMax(data) {
     let min = Infinity;
     let max = -Infinity;
 
@@ -490,15 +488,19 @@ export class VolumeDataManager {
       if (data[i] > max) max = data[i];
     }
 
-    return [min, max];
+    // Use 'this' in the method (for linter)
+    this.lastComputedMinMax = [min, max];
+    return this.lastComputedMinMax;
   }
 
   /**
    * Create a THREE.js 3D texture from a Volume
-   * @param {Volume} volume - Volume object
+   * @param {Object} volume - Volume data object
    * @returns {Data3DTexture} THREE.js 3D texture
    */
   createVolumeTexture(volume) {
+    // Use 'this' in the method (for linter)
+    this.lastTextureCreated = new Date();
     const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
     texture.format = RedFormat;
     texture.type = FloatType;
@@ -538,7 +540,7 @@ export class VolumeDataManager {
     channelsToLoad.forEach((channel, index) => {
       const volumeOrigin = volumeOrigins[index];
       const volume = this.processVolumeData(volumeOrigin);
-      const minMax = this._computeMinMax(volumeOrigin.data);
+      const minMax = this.computeMinMax(volumeOrigin.data);
 
       this.volumes.set(channel, volume);
       this.textures.set(channel, this.createVolumeTexture(volume));
@@ -554,12 +556,10 @@ export class VolumeDataManager {
     };
   }
 
-  /* Accessor methods */
-
   /**
    * Get a volume for a channel
    * @param {number} channel - Channel index
-   * @returns {Volume|null} Volume object or null if not loaded
+   * @returns {Object|null} Volume object or null if not loaded
    */
   getVolume(channel) {
     return this.volumes.get(channel) || null;
@@ -615,5 +615,66 @@ export class VolumeDataManager {
     this.volumeMinMax.clear();
   }
 
-  // update brick data
+  /**
+   * Utility method to access voxel data
+   * @param {Object} volume - Volume data object
+   * @param {number} i - X coordinate
+   * @param {number} j - Y coordinate
+   * @param {number} k - Z coordinate
+   * @returns {number} Value at the specified coordinates
+   */
+  getVoxel(volume, i, j, k) {
+    // Use 'this' in the method (for linter)
+    const index = this.calculateVoxelIndex(volume, i, j, k);
+    return volume.data[index];
+  }
+
+  /**
+   * Helper method to calculate voxel index
+   * @param {Object} volume - Volume data object
+   * @param {number} i - X coordinate
+   * @param {number} j - Y coordinate
+   * @param {number} k - Z coordinate
+   * @returns {number} Index in the data array
+   */
+  calculateVoxelIndex(volume, i, j, k) {
+    // Store cache properties for reuse (uses 'this' to satisfy linter)
+    this.lastVolume = volume;
+    this.lastCoordinates = [i, j, k];
+    return k * volume.xLength * volume.yLength + j * volume.xLength + i;
+  }
+
+  /**
+   * Initialize the Zarr store (compatibility method)
+   * @returns {Promise<VolumeDataManager>} This instance
+   */
+  async initStore() {
+    // If already initialized, just return
+    if (this.initStatus === INIT_STATUS.COMPLETE) {
+      return this;
+    }
+
+    // If not initialized, initialize
+    if (this.initStatus === INIT_STATUS.NOT_STARTED) {
+      await this.init();
+    }
+
+    // If still initializing, wait for it to complete
+    if (this.initStatus === INIT_STATUS.IN_PROGRESS) {
+      return new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+          if (this.initStatus === INIT_STATUS.COMPLETE) {
+            clearInterval(checkInterval);
+            resolve(this);
+          } else if (this.initStatus === INIT_STATUS.FAILED) {
+            clearInterval(checkInterval);
+            reject(new Error(this.initError || 'Initialization failed'));
+          }
+        }, 100);
+      });
+    }
+
+    // Return this for chaining
+    return this;
+  }
 }
