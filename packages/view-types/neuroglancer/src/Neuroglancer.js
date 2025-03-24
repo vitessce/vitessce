@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, Suspense, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, Suspense, useRef, useEffect } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 
 import { cloneDeep, get, isEqual, forEach, throttle } from 'lodash-es';
@@ -15,55 +15,66 @@ function createWorker() {
   return new ChunkWorker();
 }
 
-
-export function Neuroglancer({ cellColorMapping }) {
+// const ForwardedNeuroglancer = forwardRef(function Neuroglancer(
+//   { cellColorMapping, onSegmentClick, onSelectHoveredCoords},
+//   deckRef
+// ) {
+export function Neuroglancer(
+  { cellColorMapping, onSegmentClick, onSelectHoveredCoords },
+) {
   const viewerState = useNeuroglancerViewerState();
   const setViewerState = useSetNeuroglancerViewerState();
   const classes = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
   const viewerRef = useRef(null);
-  const latestStateRef = useRef(viewerState);
   const neuroglancerStateRef = useRef(viewerState);
   const changedPropertiesRef = useRef({});
   const isInitialLoad = useRef(true);
+  const stateVersionRef = useRef(0);
 
+  // const combinedRef = useRef({});
+
+  // useEffect(() => {
+  //   combinedRef.current.deck = deckRef.current;
+  //   combinedRef.current.viewer = viewerRef.current;
+  // }, [deckRef]);
 
   const throttledHandleStateChanged = useRef(throttle((newState) => {
     const differences = cloneDeep(newState);
     const changedProps = {};
 
     forEach(differences, (value, key) => {
-      const previousValue = get(latestStateRef.current, key);
+      const previousValue = get(neuroglancerStateRef.current, key);
       if (!isEqual(value, previousValue)) {
         changedProps[key] = value;
       }
     });
-
     changedPropertiesRef.current = changedProps;
-    if (!isEqual(newState, latestStateRef.current)) {
-      latestStateRef.current = newState;
-    }
 
     if (!isEqual(neuroglancerStateRef.current, newState)) {
+      stateVersionRef.current += 1;
       neuroglancerStateRef.current = newState;
     }
-  }, 100));
+  }, 300));
 
   useEffect(() => {
-    if (neuroglancerStateRef.current && neuroglancerStateRef.current.layers) {
-      const updatedNeuroglancerState = {
-        ...neuroglancerStateRef.current,
-        layers: neuroglancerStateRef.current.layers.map((layer, index) => (index === 0
-          ? {
-            ...layer,
-            segments: Object.keys(cellColorMapping).map(String),
-            segmentColors: cellColorMapping,
-          }
-          : layer)),
-      };
-      setViewerState(updatedNeuroglancerState);
-    }
-  }, [cellColorMapping]);
+    if (!neuroglancerStateRef.current) return;
+
+    const { layers } = neuroglancerStateRef.current;
+    if (!layers) return;
+    const updatedLayers = layers.map((layer, index) => (index === 0
+      ? {
+        ...layer,
+        segments: Object.keys(cellColorMapping).map(String),
+        segmentColors: cellColorMapping,
+      }
+      : layer));
+
+    setViewerState({
+      ...neuroglancerStateRef.current, // Keep everything else the same
+      layers: updatedLayers, // Update only layers
+    });
+  }, [cellColorMapping, stateVersionRef.current]);
 
   const handleStateChanged = useCallback((newState) => {
     // Ignoring the many state changes during the initial load
@@ -71,18 +82,53 @@ export function Neuroglancer({ cellColorMapping }) {
       isInitialLoad.current = false;
       return;
     }
-    // To avoid updating state when this happens
+    // To avoid updating state with corrupted dimensions
     if (newState && newState.dimensions === undefined) {
-      console.warn('Filtered out state update with dimensions: undefined');
+      // console.warn('Filtered out state update with dimensions: undefined');
       return;
     }
-
-    // if (initialNeuroglancerStateRef.current
-    //   && isEqual(newState, initialNeuroglancerStateRef.current)) {
-    //   return;
-    // }
     throttledHandleStateChanged.current(newState);
   }, []);
+
+  // Note: To capture click event use control/cmd + click
+  useEffect(() => {
+    if (!viewerRef.current) return;
+    const { viewer } = viewerRef.current;
+    viewer.element.addEventListener('mousedown', (event) => {
+      if (event.button === 0) {
+        setTimeout(() => {
+          const { pickedValue } = viewer.mouseState;
+          if (pickedValue && pickedValue?.low) {
+            onSegmentClick(pickedValue?.low);
+          }
+        }, 100);
+      }
+    });
+
+
+    function addHover() {
+      const width = viewer.element.offsetWidth;
+      const height = viewer.element.offsetHeight;
+
+      if (viewer.mouseState.pickedValue !== undefined) {
+        const pickedSegment = viewer.mouseState.pickedValue;
+        const pickedCoords = viewer.mouseState.position;
+        const hoverData = {
+          x: pickedCoords[0],
+          y: pickedCoords[1],
+          z: pickedCoords[2],
+          hoveredId: pickedSegment?.low,
+          width,
+          height,
+        };
+        // console.log("hov", hoverData)
+
+        onSelectHoveredCoords(hoverData);
+      }
+    }
+
+    viewer.mouseState.changed.add(addHover);
+  }, [viewerRef.current]);
 
   return (
     <>
@@ -101,3 +147,6 @@ export function Neuroglancer({ cellColorMapping }) {
     </>
   );
 }
+
+
+// export default ForwardedNeuroglancer;
