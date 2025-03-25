@@ -119,7 +119,7 @@ function generateNeuroglancerMinimalConfiguration() {
       },
 
     ],
-    showSlices: false,
+    showSlices: true,
     layout: '3d',
   } });
 

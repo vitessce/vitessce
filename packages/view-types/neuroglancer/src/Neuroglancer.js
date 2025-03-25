@@ -15,10 +15,6 @@ function createWorker() {
   return new ChunkWorker();
 }
 
-// const ForwardedNeuroglancer = forwardRef(function Neuroglancer(
-//   { cellColorMapping, onSegmentClick, onSelectHoveredCoords},
-//   deckRef
-// ) {
 export function Neuroglancer(
   { cellColorMapping, onSegmentClick, onSelectHoveredCoords },
 ) {
@@ -32,13 +28,6 @@ export function Neuroglancer(
   const isInitialLoad = useRef(true);
   const stateVersionRef = useRef(0);
 
-  // const combinedRef = useRef({});
-
-  // useEffect(() => {
-  //   combinedRef.current.deck = deckRef.current;
-  //   combinedRef.current.viewer = viewerRef.current;
-  // }, [deckRef]);
-
   const throttledHandleStateChanged = useRef(throttle((newState) => {
     const differences = cloneDeep(newState);
     const changedProps = {};
@@ -50,7 +39,6 @@ export function Neuroglancer(
       }
     });
     changedPropertiesRef.current = changedProps;
-
     if (!isEqual(neuroglancerStateRef.current, newState)) {
       stateVersionRef.current += 1;
       neuroglancerStateRef.current = newState;
@@ -60,20 +48,17 @@ export function Neuroglancer(
   useEffect(() => {
     if (!neuroglancerStateRef.current) return;
 
-    const { layers } = neuroglancerStateRef.current;
-    if (!layers) return;
-    const updatedLayers = layers.map((layer, index) => (index === 0
-      ? {
-        ...layer,
-        segments: Object.keys(cellColorMapping).map(String),
-        segmentColors: cellColorMapping,
-      }
-      : layer));
-
-    setViewerState({
-      ...neuroglancerStateRef.current, // Keep everything else the same
-      layers: updatedLayers, // Update only layers
-    });
+    const updatedNeuroglancerState = {
+      ...neuroglancerStateRef.current,
+      layers: neuroglancerStateRef.current.layers.map((layer, index) => (index === 0
+        ? {
+          ...layer,
+          segments: Object.keys(cellColorMapping).map(String),
+          segmentColors: cellColorMapping,
+        }
+        : layer)),
+    };
+    setViewerState(updatedNeuroglancerState);
   }, [cellColorMapping, stateVersionRef.current]);
 
   const handleStateChanged = useCallback((newState) => {
@@ -107,23 +92,21 @@ export function Neuroglancer(
 
 
     function addHover() {
-      const width = viewer.element.offsetWidth;
-      const height = viewer.element.offsetHeight;
+      // const width = viewer.element.offsetWidth;
+      // const height = viewer.element.offsetHeight;
 
       if (viewer.mouseState.pickedValue !== undefined) {
         const pickedSegment = viewer.mouseState.pickedValue;
-        const pickedCoords = viewer.mouseState.position;
-        const hoverData = {
-          x: pickedCoords[0],
-          y: pickedCoords[1],
-          z: pickedCoords[2],
-          hoveredId: pickedSegment?.low,
-          width,
-          height,
-        };
-        // console.log("hov", hoverData)
-
-        onSelectHoveredCoords(hoverData);
+        // const pickedCoords = viewer.mouseState.position;
+        // const hoverData = {
+        //   x: pickedCoords[0],
+        //   y: pickedCoords[1],
+        //   z: pickedCoords[2],
+        //   hoveredId: pickedSegment?.low,
+        //   width,
+        //   height,
+        // };
+        onSelectHoveredCoords(pickedSegment?.low);
       }
     }
 
@@ -147,6 +130,3 @@ export function Neuroglancer(
     </>
   );
 }
-
-
-// export default ForwardedNeuroglancer;
