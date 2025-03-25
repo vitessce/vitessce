@@ -21,6 +21,7 @@ export function VolumeView(props) {
   const materialRef = useRef(null);
   const orbitRef = useRef(null);
   const meshRef = useRef(null);
+  const boxDimensionsRef = useRef([1, 1, 1]);
 
   // State for data and render managers
   const [managers, setManagers] = useState(null);
@@ -84,7 +85,13 @@ export function VolumeView(props) {
         setZarrStoreInfo(initResult.zarrStore);
         setDeviceLimits(initResult.deviceLimits);
 
-        // Call props.onInitComplete if provided
+        // Set permanent box dimensions
+        const scale = dataManager.getOriginalScaleXYZ();
+        boxDimensionsRef.current = dataManager.getBoxDimensionsXYZ();
+        boxDimensionsRef.current[0] *= scale[0] * 200.0;
+        boxDimensionsRef.current[1] *= scale[1] * 200.0;
+        boxDimensionsRef.current[2] *= scale[2] * 200.0;
+
         if (props.onInitComplete) {
           props.onInitComplete({
             zarrStoreInfo: initResult.zarrStore,
@@ -233,7 +240,7 @@ export function VolumeView(props) {
     return (
       <group>
         <mesh>
-          <boxGeometry args={[1, 1, 1]} />
+          <boxGeometry args={boxDimensionsRef.current} />
           <meshBasicMaterial color="#444444" wireframe />
         </mesh>
         <OrbitControls

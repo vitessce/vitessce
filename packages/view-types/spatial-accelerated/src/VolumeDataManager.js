@@ -5,6 +5,8 @@
 // handle the chunk loading
 // reference viewport settings
 
+// TODO: use gl.texSubImage3D to load in the bricks
+
 import * as zarrita from 'zarrita';
 import {
   Data3DTexture,
@@ -13,7 +15,7 @@ import {
   LinearFilter,
 } from 'three';
 
-// Default chunk sizes - used as fallbacks when data doesn't specify sizes
+// Default chunk sizes
 const CHUNK_SIZE = 32;
 const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
 
@@ -408,12 +410,8 @@ export class VolumeDataManager {
     }));
 
     // Store information about physical dimensions if available
-    this.updatePhysicalScale(array);
-
-    // Check if total size exceeds our buffer limits
-    if (zSize * ySize * xSize > CHUNK_TOTAL_SIZE * 10) {
-      console.warn(`Volume data exceeds safe size limit: ${zSize * ySize * xSize} > ${CHUNK_TOTAL_SIZE * 10}`);
-    }
+    // this.updatePhysicalScale(array);
+    // console.warn('updatePhysicalScale', this.physicalScale);
 
     // Return the volume data
     return {
@@ -597,6 +595,39 @@ export class VolumeDataManager {
    */
   getOriginalDimensions() {
     return this.originalScale;
+  }
+
+  /**
+   * Get physical dimensions
+   * @returns {Array} Physical dimensions [X, Y, Z]
+   */
+  getPhysicalDimensionsXYZ() {
+    return [this.zarrStore.physicalSizeTotal[2],
+      this.zarrStore.physicalSizeTotal[1],
+      this.zarrStore.physicalSizeTotal[0]];
+  }
+
+  /**
+   * Get the maximum resolution
+   * @returns {number} Maximum resolution
+   */
+  getMaxResolutionXYZ() {
+    return [this.zarrStore.shapes[0][4],
+      this.zarrStore.shapes[0][3],
+      this.zarrStore.shapes[0][2]];
+  }
+
+  getOriginalScaleXYZ() {
+    return [this.zarrStore.physicalSizeVoxel[2],
+      this.zarrStore.physicalSizeVoxel[1],
+      this.zarrStore.physicalSizeVoxel[0]];
+  }
+
+  getBoxDimensionsXYZ() {
+    return [1,
+      this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
+      this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
+    ];
   }
 
   /**

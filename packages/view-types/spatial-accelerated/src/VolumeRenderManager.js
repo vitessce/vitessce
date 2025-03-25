@@ -276,13 +276,18 @@ export class VolumeRenderManager {
     });
 
     // Get physical scale
-    const scale = volumeDataManager.getScale() || [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
-    this.originalScale = volumeDataManager.getOriginalDimensions() || [1, 1, 1];
+    // const scale = volumeDataManager.getScale() || [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
+    this.originalScale = volumeDataManager.getOriginalScaleXYZ();
+    this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
+    this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
+    const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
+    scaledResolution[0] *= 200.0;
+    scaledResolution[1] *= 200.0;
+    scaledResolution[2] *= 200.0;
 
-    // Calculate mesh scaling and geometry size
-    this.meshScale = [1, scale[1].size / scale[0].size, scale[2].size / scale[0].size];
-    this.geometrySize = [volume.xLength, volume.yLength, volume.zLength];
-    this.boxSize = [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength];
+    this.meshScale = this.originalScale;
+    this.geometrySize = scaledResolution;
+    this.boxSize = scaledResolution;
 
     // Update shader uniforms
     this.updateUniforms(
@@ -321,7 +326,8 @@ export class VolumeRenderManager {
     xSlice, ySlice, zSlice,
   ) {
     // Set base uniforms
-    this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
+    // this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
+    this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
 
     // Set texture uniforms (up to 6 channels supported)
     this.uniforms.volumeTex.value = textures.length > 0 ? textures[0] : null;

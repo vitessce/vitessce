@@ -28,10 +28,6 @@ export function VolumeHUD({
       <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
         Volume Renderer
       </div>
-      <div>Mode: {renderingMode}</div>
-      {volumeInfo.dimensions && (
-        <div>Dimensions: {volumeInfo.dimensions.join(' × ')}</div>
-      )}
       {renderingStats.fps && (
         <div>FPS: {renderingStats.fps.toFixed(1)}</div>
       )}
@@ -47,7 +43,7 @@ export function VolumeHUD({
             <div>Chunk Size: {JSON.stringify(zarrStoreInfo.chunkSize)}</div>
           )}
           {zarrStoreInfo.resolutions && (
-            <div>Resolutions: {Array.from({ length: zarrStoreInfo.resolutions }, (_, i) => i).join(', ')}</div>
+            <div>Resolutions: {zarrStoreInfo.resolutions}</div>
           )}
           {zarrStoreInfo.shapes && zarrStoreInfo.shapes.length > 0 && (
             <div>
@@ -76,6 +72,8 @@ export function VolumeHUD({
           <div>Max Texture Size: {deviceLimits.maxTextureSize || 'Unknown'}</div>
           <div>Max 3D Texture Size: {deviceLimits.max3DTextureSize || 'Unknown'}</div>
           <div>Max Renderbuffer Size: {deviceLimits.maxRenderbufferSize || 'Unknown'}</div>
+          <div>Max Uniform Buffer Bindings: {deviceLimits.maxUniformBufferBindings || 'Unknown'}</div>
+          <div>Max Uniform Buffer Size: {deviceLimits.maxUniformBufferSize || 'Unknown'}</div>
         </div>
       )}
     </div>
