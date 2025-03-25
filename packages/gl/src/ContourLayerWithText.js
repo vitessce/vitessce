@@ -1,4 +1,5 @@
 import { ContourLayer } from '@deck.gl/aggregation-layers';
+import { LineLayer } from '@deck.gl/layers';
 import { polygon as turfPolygon, point as turfPoint, polygons } from '@turf/helpers';
 import { getGeom } from "@turf/invariant";
 import { flattenReduce } from '@turf/meta';
@@ -6,6 +7,7 @@ import { circle } from '@turf/circle';
 import { union } from '@turf/union';
 import { area } from '@turf/area';
 import { distance } from '@turf/distance';
+import { range } from 'lodash-es';
 
 
 const DEFAULT_THRESHOLD = 1;
@@ -37,15 +39,21 @@ const defaultProps = {
 
 // Reference: https://github.com/visgl/deck.gl/blob/v8.9.36/modules/aggregation-layers/src/contour-layer/contour-layer.ts
 export default class ContourLayerWithText extends ContourLayer {
-  _generateContours() {
-    super._generateContours();
+
+
+  getLineAndTextLayers() {
+    const lineAndTextLayers = [];
+
+    // TODO: cache the text position point per
+    // cell set, sample set, and feature selection?
+
     const { contourPolygons } = this.state.contourData;
     const { originalViewState, obsSetPath, viewWidth, viewHeight } = this.props;
     const obsSetName = obsSetPath?.at(-1);
-    const l0 = contourPolygons.filter(d => d.contour.i === 0);
-    const l1 = contourPolygons.filter(d => d.contour.i === 1);
-    const l2 = contourPolygons.filter(d => d.contour.i === 2);
-    console.log("generateContours", obsSetName, l1, l2, originalViewState);
+    const l0 = contourPolygons?.filter(d => d.contour.i === 0) ?? [];
+    const l1 = contourPolygons?.filter(d => d.contour.i === 1) ?? [];
+    const l2 = contourPolygons?.filter(d => d.contour.i === 2) ?? [];
+    //console.log("generateContours", obsSetName, l1, l2, originalViewState);
 
     // Get a circle polygon which outlines the whole plot.
     const center = [
@@ -54,9 +62,8 @@ export default class ContourLayerWithText extends ContourLayer {
     ];
     const scaleFactor = (2 ** originalViewState.zoom);
     const radius = Math.min(viewWidth, viewHeight) / 2 / scaleFactor;
-    const options = { steps: 36, units: "degrees" };
+    const options = { steps: 96, units: "degrees" };
     const circlePolygon = circle(center, radius, options);
-
 
     if(l0.length > 0) {
       const l2p = l0.map(d => (
@@ -90,9 +97,15 @@ export default class ContourLayerWithText extends ContourLayer {
         let minCirclePoint;
         let minPolygonPoint;
 
-        circlePolygon.geometry.coordinates[0].forEach((circleCoord, circleCoordI) => {
+        const numVertices = maxAreaPolygon.geometry.coordinates[0].length;
+        
+        const polygonVertices = numVertices > 36
+          ? range(36).map(i => maxAreaPolygon.geometry.coordinates[0][Math.floor(i * numVertices / 36)])
+          : [...maxAreaPolygon.geometry.coordinates[0]];
+
+        circlePolygon.geometry.coordinates[0].forEach((circleCoord) => {
           const circlePoint = turfPoint(circleCoord);
-          maxAreaPolygon.geometry.coordinates[0].forEach((polyCoord, polyCoordI) => {
+          polygonVertices.forEach((polyCoord) => {
             const polyPoint = turfPoint(polyCoord);
             const dist = distance(circlePoint, polyPoint);
             if(dist < minDist) {
@@ -103,81 +116,33 @@ export default class ContourLayerWithText extends ContourLayer {
           });
         });
 
-        const linePolygon = turfPolygon([
-          [
-            [minCirclePoint[0], minCirclePoint[1]],
-            [minPolygonPoint[0], minPolygonPoint[1]],
-            [minPolygonPoint[0] + 0.5, minPolygonPoint[1]],
-            [minCirclePoint[0] + 0.5, minCirclePoint[1]],
-            [minCirclePoint[0], minCirclePoint[1]],
+        lineAndTextLayers.push(new LineLayer({
+          id: `line-${obsSetName}`,
+          data: [
+            {
+              from: minPolygonPoint,
+              to: minCirclePoint,
+              color: [...this.state.contourData.contourPolygons[0].contour.color],
+            },
           ],
-        ]);
-        
-
-        this.setState({
-          contourData: {
-            ...this.state.contourData,
-            contourPolygons: [
-              ...this.state.contourData.contourPolygons,
-              /*{
-                vertices: maxAreaPolygon.geometry.coordinates,
-                contour: {
-                  color: [255, 0, 0, 255],
-                  i: 0,
-                  strokeWidth: 2,
-                  threshold: [6, Infinity],
-                  zIndex: 1
-                },
-              },*/
-              {
-                vertices: linePolygon.geometry.coordinates,
-                contour: {
-                  color: [0, 255, 0, 255],
-                  i: 0,
-                  strokeWidth: 2,
-                  threshold: [6, Infinity],
-                  zIndex: 1
-                },
-              }
-            ]
-          },
-        });
+          getColor: d => d.color,
+          getSourcePosition: d => d.from,
+          getTargetPosition: d => d.to,
+          getWidth: 4,
+        }));
       }
-
-    } else {
-      this.setState({
-        contourData: {
-          ...this.state.contourData,
-          //contourPolygons: []
-        },
-      });
     }
 
-    
-    // TODO: Compute center of mass for each L1/L2 contour using centerOfMass?
+    return lineAndTextLayers;
+  }
 
-
-    // TODO: Determine closest circle vertex for each contour using nearestPoint. 
-
-    // TODO: Construct line between centerOfMass and nearestPoint.
-    
-    /*
-    
-    console.log(circlePolygon.geometry.coordinates)
-    
-    this.setState({
-      contourData: {
-        ...this.state.contourData,
-        contourPolygons: [
-          ...this.state.contourData.contourPolygons,
-          {
-            vertices: circlePolygon.geometry.coordinates,
-            contour: this.state.contourData.contourPolygons?.[0].contour,
-          }
-        ]
-      },
-    });
-    */
+  renderLayers() {
+    const contourLayers = super.renderLayers();
+    const lineAndTextLayers = this.getLineAndTextLayers();
+    return [
+      ...contourLayers,
+      ...lineAndTextLayers,
+    ];
   }
 }
 ContourLayerWithText.layerName = 'ContourLayerWithText';
