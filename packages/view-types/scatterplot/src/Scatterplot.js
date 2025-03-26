@@ -2,6 +2,7 @@
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
+import { InternMap } from 'internmap';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
   ContourLayerWithText,
@@ -108,7 +109,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsLayers = [];
 
     this.contourLayers = [];
-    this.lineLayers = [];
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -132,10 +132,10 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourThresholds,
       contoursFilled,
       contourColor: contourColorProp,
-      originalViewState,
-      width: viewWidth,
-      height: viewHeight,
+      circleInfo,
     } = this.props;
+
+    const circlePointSet = new Set();
 
     const layers = Array.from(this.stratifiedData.entries())
       .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
@@ -160,6 +160,25 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
               || contourColor
             );
           }
+          const contours = contourThresholds.map((threshold, i) => ({
+            i,
+            threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
+            // TODO: should the opacity steps be uniform? Should align with human perception.
+            // TODO: support usage of static colors.
+            color: [
+              // r, g, b
+              ...contourColor,
+              // a
+              (contoursFilled
+                ? ((i + 0.5) / contourThresholds.length * 255)
+                : ((i + 1) / (contourThresholds.length)) * 255),
+            ],
+            strokeWidth: 2,
+            // We need to specify a greater z-index so that the contour layers
+            // will render on top of the point layer.
+            zIndex: POINT_LAYER_Z_INDEX + 1 + i,
+          }));
+
           return new ContourLayerWithText({
             id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
             coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
@@ -168,27 +187,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             getPosition: contourGetPosition,
             obsSetPath: obsSetKey,
             sampleSetPath: sampleSetKey,
-            originalViewState,
-            viewWidth,
-            viewHeight,
-            contours: contourThresholds.map((threshold, i) => ({
-              i,
-              threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
-              // TODO: should the opacity steps be uniform? Should align with human perception.
-              // TODO: support usage of static colors.
-              color: [
-                // r, g, b
-                ...contourColor,
-                // a
-                (contoursFilled
-                  ? ((i + 0.5) / contourThresholds.length * 255)
-                  : ((i + 1) / (contourThresholds.length)) * 255),
-              ],
-              strokeWidth: 2,
-              // We need to specify a greater z-index so that the contour layers
-              // will render on top of the point layer.
-              zIndex: POINT_LAYER_Z_INDEX + 1 + i,
-            })),
+            contours: contours,
             aggregation: 'MEAN',
             gpuAggregation: true,
             visible: true,
@@ -197,9 +196,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             filled: contoursFilled,
             cellSize: 0.25,
             zOffset: 0.005,
-            onComputeLine: (lineParams) => {
-              console.log(lineParams);
-            },
+            // Info for text/line rendering
+            circleInfo,
+            circlePointSet,
           });
         }));
     return layers;

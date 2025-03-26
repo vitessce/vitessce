@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { circle } from '@turf/circle';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -382,6 +383,27 @@ export function EmbeddingScatterplotSubscriber(props) {
     return null;
   }, [contourPercentiles, sortedWeights]);
 
+  const circleInfo = useMemo(() => {
+    if(!originalViewState || !width || !height) {
+      return null;
+    }
+    const center = [
+      originalViewState.target[0],
+      originalViewState.target[1],
+    ];
+    const scaleFactor = (2 ** originalViewState.zoom);
+    const radius = Math.min(width, height) / 2 / scaleFactor;
+    const numPoints = 96;
+    const options = { steps: numPoints, units: "degrees" };
+    const circlePolygon = circle(center, radius, options);
+    return {
+      center,
+      radius,
+      polygon: circlePolygon,
+      steps: numPoints,
+    };
+  }, [originalViewState, width, height]);
+
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding
   // data so that the rows are ordered the same as the matrix rows.
@@ -515,8 +537,6 @@ export function EmbeddingScatterplotSubscriber(props) {
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={setViewState}
-        width={width}
-        height={height}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
@@ -556,6 +576,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         contoursFilled={embeddingContoursFilled}
         embeddingPointsVisible={embeddingPointsVisible}
         embeddingContoursVisible={embeddingContoursVisible}
+
+        circleInfo={circleInfo}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber

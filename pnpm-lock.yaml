@@ -1958,6 +1958,9 @@ importers:
       d3-quadtree:
         specifier: 'catalog:'
         version: 1.0.7
+      internmap:
+        specifier: 'catalog:'
+        version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -1986,6 +1989,9 @@ importers:
       '@material-ui/core':
         specifier: 'catalog:'
         version: 4.12.4(@types/react@17.0.50)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@turf/circle':
+        specifier: catalog:turf
+        version: 7.2.0
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -19011,7 +19017,7 @@ snapshots:
     dependencies:
       '@turf/destination': 7.2.0
       '@turf/helpers': 7.2.0
-      '@types/geojson': 7946.0.10
+      '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
   '@turf/clone@6.5.0':
@@ -19041,7 +19047,7 @@ snapshots:
     dependencies:
       '@turf/helpers': 7.2.0
       '@turf/invariant': 7.2.0
-      '@types/geojson': 7946.0.10
+      '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
   '@turf/difference@6.5.0':
