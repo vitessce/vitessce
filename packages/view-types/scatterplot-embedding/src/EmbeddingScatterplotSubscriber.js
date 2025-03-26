@@ -384,7 +384,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [contourPercentiles, sortedWeights]);
 
   const circleInfo = useMemo(() => {
-    if(!originalViewState || !width || !height) {
+    if (!originalViewState || !width || !height) {
       return null;
     }
     const center = [
@@ -394,7 +394,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     const scaleFactor = (2 ** originalViewState.zoom);
     const radius = Math.min(width, height) / 2 / scaleFactor;
     const numPoints = 96;
-    const options = { steps: numPoints, units: "degrees" };
+    const options = { steps: numPoints, units: 'degrees' };
     const circlePolygon = circle(center, radius, options);
     return {
       center,

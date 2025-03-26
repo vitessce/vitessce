@@ -141,7 +141,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     const [getWeight, aggregation] = Array.isArray(featureSelection) && featureSelection.length > 0
       ? ([contourGetWeight, 'MEAN'])
       : ([1, 'COUNT']);
-    
+
     const layers = Array.from(this.stratifiedData.entries())
       .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
         .map(([sampleSetKey, arrs]) => {
@@ -192,7 +192,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             getPosition: contourGetPosition,
             obsSetPath: obsSetKey,
             sampleSetPath: sampleSetKey,
-            contours: contours,
+            contours,
             aggregation,
             gpuAggregation: true,
             visible: true,
@@ -207,8 +207,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             obsSetLabelsVisible: cellSetLabelsVisible,
             obsSetLabelSize: cellSetLabelSize,
             updateTriggers: {
-              getWeight: [getWeight]
-            }
+              getWeight: [getWeight],
+            },
           });
         }));
     return layers;
@@ -453,36 +453,34 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
     const { viewState, cellSetLabelsVisible, embeddingContoursVisible } = this.props;
-    if(embeddingContoursVisible) {
+    if (embeddingContoursVisible) {
       // If rendering contours, we do not want to render text labels using this method,
       // as the ContourLayerWithText implements its own text labeling internally.
       this.cellSetsLayers = [];
-    } else {
+    } else if (onlyViewStateChange) {
       // Because the label sizes for the force simulation depend on the zoom level,
-    // we _could_ run the simulation every time the zoom level changes.
-    // However, this has a performance impact in firefox.
-    if (onlyViewStateChange) {
+      // we _could_ run the simulation every time the zoom level changes.
+      // However, this has a performance impact in firefox.
       const { zoom } = viewState;
       const { cellSetsLabelPrevZoom } = this;
       // Instead, we can just check if the zoom level has changed
       // by some relatively large delta, to be more conservative
       // about re-running the force simulation.
       if (cellSetLabelsVisible
-        && (
-          cellSetsLabelPrevZoom === null
-          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
-        )
+      && (
+        cellSetsLabelPrevZoom === null
+        || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
+      )
       ) {
         this.cellSetsLayers = this.createCellSetsLayers();
         this.cellSetsLabelPrevZoom = zoom;
       }
     } else {
-      // Otherwise, something more substantial than just
-      // the viewState has changed, such as the label array
-      // itself, so we always want to update the layer
-      // in this case.
+    // Otherwise, something more substantial than just
+    // the viewState has changed, such as the label array
+    // itself, so we always want to update the layer
+    // in this case.
       this.cellSetsLayers = this.createCellSetsLayers();
-    }
     }
   }
 

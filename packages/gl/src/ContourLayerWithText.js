@@ -1,7 +1,7 @@
 import { ContourLayer } from '@deck.gl/aggregation-layers';
 import { LineLayer, TextLayer } from '@deck.gl/layers';
 import { point as turfPoint, polygons } from '@turf/helpers';
-import { getGeom } from "@turf/invariant";
+import { getGeom } from '@turf/invariant';
 import { flattenReduce } from '@turf/meta';
 import { union } from '@turf/union';
 import { area } from '@turf/area';
@@ -20,29 +20,29 @@ const defaultProps = {
   circlePointSet: { type: 'object' },
   obsSetLabelsVisible: { type: 'boolean' },
   obsSetLabelSize: { type: 'number', min: 1, max: 100, value: 12 },
-  
+
   // grid aggregation
-  cellSize: {type: 'number', min: 1, max: 1000, value: 1000},
-  getPosition: {type: 'accessor', value: x => x.position},
-  getWeight: {type: 'accessor', value: 1},
+  cellSize: { type: 'number', min: 1, max: 1000, value: 1000 },
+  getPosition: { type: 'accessor', value: x => x.position },
+  getWeight: { type: 'accessor', value: 1 },
   gpuAggregation: true,
   aggregation: 'SUM',
 
   // contour lines
   contours: {
     type: 'object',
-    value: [{threshold: DEFAULT_THRESHOLD}],
+    value: [{ threshold: DEFAULT_THRESHOLD }],
     optional: true,
-    compare: 3
+    compare: 3,
   },
 
-  zOffset: 0.005
+  zOffset: 0.005,
 };
 
 const MIN_AREA_THRESHOLD = 10;
 
 function getMaxAreaPolygon(levelToUse) {
-  if(levelToUse.length === 0) {
+  if (levelToUse.length === 0) {
     return [0, null];
   }
   const levelPolygons = levelToUse.map(d => (
@@ -52,16 +52,16 @@ function getMaxAreaPolygon(levelToUse) {
         ...d.vertices.map(v => ([v[0], v[1]])),
         // Need four vertices (not 3), so repeat the first vertex.
         [d.vertices[0][0], d.vertices[0][1]],
-      ]
+      ],
     ]
   ));
   const levelPolygonsUnion = union(polygons(levelPolygons));
   const [maxAreaValue, maxAreaPolygon] = flattenReduce(
     levelPolygonsUnion,
     (previousValue, currentFeature) => {
-      if(getGeom(currentFeature).type ===  'Polygon') {
+      if (getGeom(currentFeature).type === 'Polygon') {
         const currArea = area(currentFeature);
-        if(currArea >= previousValue[0]) {
+        if (currArea >= previousValue[0]) {
           return [currArea, currentFeature];
         }
       }
@@ -76,12 +76,12 @@ function getMaxAreaPolygon(levelToUse) {
 function getMaxAreaPolygonAndLevel(contourPolygons) {
   const l2 = contourPolygons?.filter(d => d.contour.i === 2) ?? [];
   const [l2area, l2polygon] = getMaxAreaPolygon(l2);
-  if(Math.log10(l2area) >= MIN_AREA_THRESHOLD) {
-    return [l2area, l2polygon, 2]
+  if (Math.log10(l2area) >= MIN_AREA_THRESHOLD) {
+    return [l2area, l2polygon, 2];
   }
   const l1 = contourPolygons?.filter(d => d.contour.i === 1) ?? [];
   const [l1area, l1polygon] = getMaxAreaPolygon(l1);
-  if(Math.log10(l1area) >= MIN_AREA_THRESHOLD) {
+  if (Math.log10(l1area) >= MIN_AREA_THRESHOLD) {
     return [l1area, l1polygon, 1];
   }
   const l0 = contourPolygons?.filter(d => d.contour.i === 0) ?? [];
@@ -97,18 +97,18 @@ export default class ContourLayerWithText extends ContourLayer {
     const { contourPolygons } = this.state.contourData;
     const { obsSetPath, contours, circleInfo, circlePointSet, obsSetLabelSize } = this.props;
 
-    if(!circleInfo) {
+    if (!circleInfo) {
       return lineAndTextLayers;
     }
 
     const obsSetName = obsSetPath?.at(-1);
     const [maxAreaValue, maxAreaPolygon, levelI] = getMaxAreaPolygonAndLevel(contourPolygons);
-    
+
     // Get a circle polygon which outlines the whole plot.
-    const center = circleInfo.center;
-    const radius = circleInfo.radius;
+    const { center } = circleInfo;
+    const { radius } = circleInfo;
     const circlePolygon = circleInfo.polygon;
-    const steps = circleInfo.steps;
+    const { steps } = circleInfo;
 
     if (maxAreaValue > 0 && maxAreaPolygon) {
       let minDist = Infinity;
@@ -117,11 +117,15 @@ export default class ContourLayerWithText extends ContourLayer {
       let minPolygonPoint;
 
       const numVertices = maxAreaPolygon.geometry.coordinates[0].length;
-      
+
       // Only consider a maximum of 36 vertices from the polygon,
       // since it may be complex with many vertices.
       const polygonVertices = numVertices > 36
-        ? range(36).map(i => maxAreaPolygon.geometry.coordinates[0][Math.floor(i * numVertices / 36)])
+        ? range(36).map(
+          i => maxAreaPolygon
+            .geometry
+            .coordinates[0][Math.floor(i * numVertices / 36)],
+        )
         : [...maxAreaPolygon.geometry.coordinates[0]];
 
       circlePolygon.geometry.coordinates[0].forEach((circleCoord, circlePointI) => {
@@ -129,7 +133,7 @@ export default class ContourLayerWithText extends ContourLayer {
         polygonVertices.forEach((polyCoord) => {
           const polyPoint = turfPoint(polyCoord);
           const dist = distance(circlePoint, polyPoint);
-          if(dist < minDist) {
+          if (dist < minDist) {
             minDist = dist;
             minCirclePoint = circleCoord;
             minCirclePointI = circlePointI;
@@ -138,7 +142,7 @@ export default class ContourLayerWithText extends ContourLayer {
         });
       });
 
-      while(circlePointSet.size < steps && circlePointSet.has(minCirclePointI)) {
+      while (circlePointSet.size < steps && circlePointSet.has(minCirclePointI)) {
         const nextCirclePointI = (minCirclePointI + 1) % steps;
         minCirclePointI = nextCirclePointI;
       }
@@ -149,7 +153,7 @@ export default class ContourLayerWithText extends ContourLayer {
       // Compute angle.
       let angleRadians = Math.atan2(
         minCirclePoint[1] - center[1],
-        minCirclePoint[0] - center[0]
+        minCirclePoint[0] - center[0],
       );
       let angleDegrees = angleRadians * 180 / Math.PI;
 
@@ -159,7 +163,7 @@ export default class ContourLayerWithText extends ContourLayer {
         // within -5 to +5 degrees of the circle point angle.
         const angleJitterDegrees = (Math.random() * 10);
         angleDegrees += angleJitterDegrees;
-        
+
         // Convert jittered angle back to radians.
         angleRadians = angleDegrees * Math.PI / 180;
         // Find the new point on the circle that
@@ -185,12 +189,12 @@ export default class ContourLayerWithText extends ContourLayer {
         getTargetPosition: d => d.to,
         getWidth: levelI + 0.5,
       }));
-      
+
       let textAnchor = 'start';
-      if(angleDegrees < 0) {
+      if (angleDegrees < 0) {
         angleDegrees += 360;
       }
-      if(angleDegrees > 90 && angleDegrees < 270) {
+      if (angleDegrees > 90 && angleDegrees < 270) {
         angleDegrees -= 180;
         textAnchor = 'end';
       }
@@ -201,19 +205,19 @@ export default class ContourLayerWithText extends ContourLayer {
             label: obsSetName,
             to: minCirclePoint,
             color: contours[levelI].color,
-          }
+          },
         ],
         getPosition: d => d.to,
         getText: d => d.label,
         getColor: d => d.color,
         getSize: obsSetLabelSize,
         // Compute angle and textAnchor/alignmentBaseline based on angle formed on circle.
-        getAngle: - angleDegrees, // in degrees
+        getAngle: -angleDegrees, // in degrees
         getTextAnchor: textAnchor,
         getAlignmentBaseline: 'center',
         fontFamily: AXIS_FONT_FAMILY,
         fontWeight: 'normal',
-        //maxWidth: 80 * obsSetLabelSize,
+        // maxWidth: 80 * obsSetLabelSize,
       }));
     }
 
