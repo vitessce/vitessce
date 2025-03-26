@@ -3,16 +3,25 @@ import {
   useCoordination,
   useObsSetsData,
   useLoaders,
-  // useDeckCanvasSize,
   useObsEmbeddingData,
   useNeuroglancerViewerState,
+  useSetNeuroglancerViewerState,
 } from '@vitessce/vit-s';
 
 import { ViewHelpMapping, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import React, { useCallback, useMemo, useState } from 'react';
-// import ForwardedNeuroglancer from './Neuroglancer';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { Neuroglancer } from './Neuroglancer.js';
+
+const NEUROGLANCER_ZOOM_BASIS = 16;
+
+function mapVitessceToNeuroglancer(zoom) {
+  return NEUROGLANCER_ZOOM_BASIS * (2 ** -zoom);
+}
+
+function mapNeuroglancerToVitessce(projectionScale) {
+  return -Math.log2(projectionScale / NEUROGLANCER_ZOOM_BASIS);
+}
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -28,21 +37,16 @@ export function NeuroglancerSubscriber(props) {
   const [{
     dataset,
     obsType,
-    // spatialZoom,
-    // spatialTargetX,
-    // spatialTargetY,
+    spatialZoom,
+    spatialTargetX,
+    spatialTargetY,
     // spatialTargetZ,
     // spatialRotationX,
     // spatialRotationY,
     // spatialRotationZ,
     // spatialAxisFixed,
     // spatialOrbitAxis,
-    // obsSelection,
-    // obsSelectionMode,
-    // obsColorEncoding,
-    // obsFilter,
-    // obsSetFilter,
-    obsHighlight: cellHighlight,
+    // obsHighlight: cellHighlight,
     embeddingType: mapping,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
@@ -53,11 +57,19 @@ export function NeuroglancerSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
+    setSpatialTargetX: setTargetX,
+    setSpatialTargetY: setTargetY,
+    // setSpatialTargetZ: setTargetZ,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationY: setRotationY,
+    setSpatialRotationZ: setRotationZ,
+    // setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
 
   const loaders = useLoaders();
-
+  const setViewerState = useSetNeuroglancerViewerState();
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -73,6 +85,28 @@ export function NeuroglancerSubscriber(props) {
   );
 
   const viewerState = useNeuroglancerViewerState();
+
+  useEffect(() => {
+    if (!spatialZoom || !spatialTargetX || !spatialTargetY) return;
+    const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
+    const position = [spatialTargetX, spatialTargetY, viewerState.position[2]];
+    // console.log("postiion", position)
+    const updatedState = { ...viewerState, projectionScale, position };
+    setViewerState(updatedState);
+  }, [spatialZoom, spatialTargetX, spatialTargetY]);
+
+
+  const handleStateUpdate = useCallback((newState) => {
+    setZoom(mapNeuroglancerToVitessce(newState.projectionScale));
+    // To map xyz rotation
+    setRotationX(newState.projectionOrientation[0]);
+    setRotationY(newState.projectionOrientation[1]);
+    setRotationZ(newState.projectionOrientation[2]);
+    // Note: To pan in Neuroglancer, use shift+leftKey+drag
+    setTargetX(newState.position[0]);
+    setTargetY(newState.position[1]);
+    // console.log(newState.position);
+  }, []);
 
   const handleSegmentClick = useCallback((value) => {
     if (value) {
@@ -115,9 +149,9 @@ export function NeuroglancerSubscriber(props) {
 
   const onSegmentHighlight = useCallback((obsId) => {
     // console.log("obsId", obsId, cellHighlight)
-      // TODO: not working 
+    // TODO: not working
     setCellHighlight(obsId);
-  }, []);
+  }, [viewerState]);
 
   return (
     <TitleInfo
@@ -134,6 +168,7 @@ export function NeuroglancerSubscriber(props) {
         cellColorMapping={cellColorMapping}
         onSegmentClick={handleSegmentClick}
         onSelectHoveredCoords={onSegmentHighlight}
+        onViewerStateUpdate={handleStateUpdate}
       />
     </TitleInfo>
   );

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, Suspense, useRef, useEffect } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 
-import { cloneDeep, get, isEqual, forEach, throttle } from 'lodash-es';
+import { cloneDeep, get, isEqual, forEach, throttle, debounce } from 'lodash-es';
 import { useNeuroglancerViewerState, useSetNeuroglancerViewerState } from '@vitessce/vit-s';
 import { useStyles, globalNeuroglancerCss } from './styles.js';
 
@@ -16,7 +16,7 @@ function createWorker() {
 }
 
 export function Neuroglancer(
-  { cellColorMapping, onSegmentClick, onSelectHoveredCoords },
+  { cellColorMapping, onSegmentClick, onSelectHoveredCoords, onViewerStateUpdate },
 ) {
   const viewerState = useNeuroglancerViewerState();
   const setViewerState = useSetNeuroglancerViewerState();
@@ -27,6 +27,11 @@ export function Neuroglancer(
   const changedPropertiesRef = useRef({});
   const isInitialLoad = useRef(true);
   const stateVersionRef = useRef(0);
+
+  // Debounced function to delay updates and prevent excessive parent re-renders
+  const batchedUpdate = debounce((newState) => {
+    onViewerStateUpdate(newState);
+  }, 500);
 
   const throttledHandleStateChanged = useRef(throttle((newState) => {
     const differences = cloneDeep(newState);
@@ -39,9 +44,13 @@ export function Neuroglancer(
       }
     });
     changedPropertiesRef.current = changedProps;
+    // console.log(changedProps);
     if (!isEqual(neuroglancerStateRef.current, newState)) {
       stateVersionRef.current += 1;
       neuroglancerStateRef.current = newState;
+      requestAnimationFrame(() => {
+        batchedUpdate(newState);
+      });
     }
   }, 300));
 
@@ -92,20 +101,8 @@ export function Neuroglancer(
 
 
     function addHover() {
-      // const width = viewer.element.offsetWidth;
-      // const height = viewer.element.offsetHeight;
-
       if (viewer.mouseState.pickedValue !== undefined) {
         const pickedSegment = viewer.mouseState.pickedValue;
-        // const pickedCoords = viewer.mouseState.position;
-        // const hoverData = {
-        //   x: pickedCoords[0],
-        //   y: pickedCoords[1],
-        //   z: pickedCoords[2],
-        //   hoveredId: pickedSegment?.low,
-        //   width,
-        //   height,
-        // };
         onSelectHoveredCoords(pickedSegment?.low);
       }
     }

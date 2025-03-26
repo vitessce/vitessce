@@ -11,7 +11,6 @@ function generateNeuroglancerMinimalConfiguration() {
     schemaVersion: '1.0.16',
     name: 'Melanoma',
   });
-
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
     url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-invasive-margin.ome.tiff',
@@ -66,11 +65,11 @@ function generateNeuroglancerMinimalConfiguration() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta')
-    .setProps({ three: true });
+  const spatialThreeView = config.addView(dataset, 'spatial').setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
+
   const neuroglancerView = config.addView(dataset, 'neuroglancer', { mapping: 'TSNE' }).setProps({ viewerState: {
     dimensions: {
       x: [
@@ -92,19 +91,12 @@ function generateNeuroglancerMinimalConfiguration() {
       5209.5,
     ],
     crossSectionScale: 1,
-    // x aligns with 2d x
     projectionOrientation: [
-      -0.04345342144370079,
-      -0.18993954360485077,
-      0.9805037975311279,
-      -0.0,
+      -0.636204183101654,
+      -0.5028395652770996,
+      0.5443811416625977,
+      0.2145828753709793,
     ],
-    // projectionOrientation: [
-    //   -0.636204183101654,
-    //   -0.5028395652770996,
-    //   0.5443811416625977,
-    //   0.2145828753709793,
-    // ],
     projectionScale: 1024,
     layers: [
       {
@@ -119,7 +111,7 @@ function generateNeuroglancerMinimalConfiguration() {
       },
 
     ],
-    showSlices: true,
+    showSlices: false,
     layout: '3d',
   } });
 
@@ -127,6 +119,7 @@ function generateNeuroglancerMinimalConfiguration() {
   config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
+    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'melanoma',
