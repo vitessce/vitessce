@@ -94,9 +94,6 @@ export default class ContourLayerWithText extends ContourLayer {
   getLineAndTextLayers() {
     const lineAndTextLayers = [];
 
-    // TODO: cache the text position point per
-    // cell set, sample set, and feature selection?
-
     const { contourPolygons } = this.state.contourData;
     const { obsSetPath, contours, circleInfo, circlePointSet, obsSetLabelSize } = this.props;
 

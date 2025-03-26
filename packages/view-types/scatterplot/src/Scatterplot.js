@@ -206,6 +206,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             circlePointSet,
             obsSetLabelsVisible: cellSetLabelsVisible,
             obsSetLabelSize: cellSetLabelSize,
+            updateTriggers: {
+              getWeight: [getWeight]
+            }
           });
         }));
     return layers;
