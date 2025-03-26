@@ -132,10 +132,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contoursFilled,
       contourColor: contourColorProp,
       circleInfo,
+      cellSetLabelsVisible,
+      cellSetLabelSize,
+      featureSelection,
     } = this.props;
 
     const circlePointSet = new Set();
-
+    const [getWeight, aggregation] = Array.isArray(featureSelection) && featureSelection.length > 0
+      ? ([contourGetWeight, 'MEAN'])
+      : ([1, 'COUNT']);
+    
     const layers = Array.from(this.stratifiedData.entries())
       .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
         .map(([sampleSetKey, arrs]) => {
@@ -182,12 +188,12 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
             coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
             data: deckData,
-            getWeight: contourGetWeight,
+            getWeight,
             getPosition: contourGetPosition,
             obsSetPath: obsSetKey,
             sampleSetPath: sampleSetKey,
             contours: contours,
-            aggregation: 'MEAN',
+            aggregation,
             gpuAggregation: true,
             visible: true,
             pickable: false,
@@ -198,6 +204,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             // Info for text/line rendering
             circleInfo,
             circlePointSet,
+            obsSetLabelsVisible: cellSetLabelsVisible,
+            obsSetLabelSize: cellSetLabelSize,
           });
         }));
     return layers;
@@ -441,11 +449,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
-    // Because the label sizes for the force simulation depend on the zoom level,
+    const { viewState, cellSetLabelsVisible, embeddingContoursVisible } = this.props;
+    if(embeddingContoursVisible) {
+      // If rendering contours, we do not want to render text labels using this method,
+      // as the ContourLayerWithText implements its own text labeling internally.
+      this.cellSetsLayers = [];
+    } else {
+      // Because the label sizes for the force simulation depend on the zoom level,
     // we _could_ run the simulation every time the zoom level changes.
     // However, this has a performance impact in firefox.
     if (onlyViewStateChange) {
-      const { viewState, cellSetLabelsVisible } = this.props;
       const { zoom } = viewState;
       const { cellSetsLabelPrevZoom } = this;
       // Instead, we can just check if the zoom level has changed
@@ -466,6 +479,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       // itself, so we always want to update the layer
       // in this case.
       this.cellSetsLayers = this.createCellSetsLayers();
+    }
     }
   }
 
@@ -519,7 +533,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if (['stratifiedData', 'contourColorEncoding', 'contoursFilled', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
+    if ([
+      'stratifiedData', 'contourColorEncoding', 'contoursFilled',
+      'contourThresholds', 'embeddingContoursVisible',
+      'cellSetLabelsVisible', 'cellSetLabelSize',
+    ].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateContourLayers();
       forceUpdate = true;
@@ -528,6 +546,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'cellSetPolygons', 'cellSetPolygonsVisible',
       'cellSetLabelsVisible', 'cellSetLabelSize',
+      'embeddingContoursVisible',
     ].some(shallowDiff)) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers(false);

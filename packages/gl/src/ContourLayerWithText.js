@@ -18,6 +18,8 @@ const defaultProps = {
   sampleSetPath: { type: 'object' },
   circleInfo: { type: 'object' },
   circlePointSet: { type: 'object' },
+  obsSetLabelsVisible: { type: 'boolean' },
+  obsSetLabelSize: { type: 'number', min: 1, max: 100, value: 12 },
   
   // grid aggregation
   cellSize: {type: 'number', min: 1, max: 1000, value: 1000},
@@ -89,7 +91,6 @@ function getMaxAreaPolygonAndLevel(contourPolygons) {
 
 // Reference: https://github.com/visgl/deck.gl/blob/v8.9.36/modules/aggregation-layers/src/contour-layer/contour-layer.ts
 export default class ContourLayerWithText extends ContourLayer {
-
   getLineAndTextLayers() {
     const lineAndTextLayers = [];
 
@@ -97,16 +98,14 @@ export default class ContourLayerWithText extends ContourLayer {
     // cell set, sample set, and feature selection?
 
     const { contourPolygons } = this.state.contourData;
-    const { obsSetPath, contours, circleInfo, circlePointSet } = this.props;
+    const { obsSetPath, contours, circleInfo, circlePointSet, obsSetLabelSize } = this.props;
 
     if(!circleInfo) {
       return lineAndTextLayers;
     }
 
     const obsSetName = obsSetPath?.at(-1);
-
     const [maxAreaValue, maxAreaPolygon, levelI] = getMaxAreaPolygonAndLevel(contourPolygons);
-    console.log(obsSetName, maxAreaValue, levelI);
     
     // Get a circle polygon which outlines the whole plot.
     const center = circleInfo.center;
@@ -210,13 +209,14 @@ export default class ContourLayerWithText extends ContourLayer {
         getPosition: d => d.to,
         getText: d => d.label,
         getColor: d => d.color,
-        getSize: 12,
+        getSize: obsSetLabelSize,
         // Compute angle and textAnchor/alignmentBaseline based on angle formed on circle.
         getAngle: - angleDegrees, // in degrees
         getTextAnchor: textAnchor,
         getAlignmentBaseline: 'center',
         fontFamily: AXIS_FONT_FAMILY,
         fontWeight: 'normal',
+        //maxWidth: 80 * obsSetLabelSize,
       }));
     }
 
@@ -224,8 +224,11 @@ export default class ContourLayerWithText extends ContourLayer {
   }
 
   renderLayers() {
+    const { obsSetLabelsVisible } = this.props;
     const contourLayers = super.renderLayers();
-    const lineAndTextLayers = this.getLineAndTextLayers();
+    const lineAndTextLayers = obsSetLabelsVisible
+      ? this.getLineAndTextLayers()
+      : [];
     return [
       ...contourLayers,
       ...lineAndTextLayers,

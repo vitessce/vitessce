@@ -380,7 +380,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         .map(t => Math.max(t, 1.0));
       return thresholds;
     }
-    return null;
+    return [1, 10, 100];
   }, [contourPercentiles, sortedWeights]);
 
   const circleInfo = useMemo(() => {
@@ -578,6 +578,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         embeddingContoursVisible={embeddingContoursVisible}
 
         circleInfo={circleInfo}
+        featureSelection={geneSelection}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber
