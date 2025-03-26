@@ -1,21 +1,13 @@
 import { ContourLayer } from '@deck.gl/aggregation-layers';
 import { LineLayer, TextLayer } from '@deck.gl/layers';
-import { polygon as turfPolygon, point as turfPoint, polygons } from '@turf/helpers';
+import { point as turfPoint, polygons } from '@turf/helpers';
 import { getGeom } from "@turf/invariant";
 import { flattenReduce } from '@turf/meta';
-import { circle } from '@turf/circle';
 import { union } from '@turf/union';
 import { area } from '@turf/area';
 import { distance } from '@turf/distance';
 import { range } from 'lodash-es';
-import {
-  AXIS_LABEL_TEXT_SIZE,
-  AXIS_TITLE_TEXT_SIZE,
-  AXIS_MARGIN,
-  THEME_TO_TEXT_COLOR,
-  AXIS_FONT_FAMILY,
-  COLOR_BAR_SIZE,
-} from './heatmap-constants.js';
+import { AXIS_FONT_FAMILY } from './heatmap-constants.js';
 
 
 const DEFAULT_THRESHOLD = 1;

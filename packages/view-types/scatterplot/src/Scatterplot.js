@@ -2,7 +2,6 @@
 import React, { forwardRef } from 'react';
 import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
-import { InternMap } from 'internmap';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
   ContourLayerWithText,

@@ -242,9 +242,6 @@ catalogs:
     '@turf/boolean-within':
       specifier: ^7.2.0
       version: 7.2.0
-    '@turf/center-of-mass':
-      specifier: ^7.2.0
-      version: 7.2.0
     '@turf/centroid':
       specifier: ^7.2.0
       version: 7.2.0
@@ -261,9 +258,6 @@ catalogs:
       specifier: ^7.2.0
       version: 7.2.0
     '@turf/meta':
-      specifier: ^7.2.0
-      version: 7.2.0
-    '@turf/nearest-point':
       specifier: ^7.2.0
       version: 7.2.0
     '@turf/union':
@@ -837,13 +831,7 @@ importers:
       '@turf/boolean-within':
         specifier: catalog:turf
         version: 7.2.0
-      '@turf/center-of-mass':
-        specifier: catalog:turf
-        version: 7.2.0
       '@turf/centroid':
-        specifier: catalog:turf
-        version: 7.2.0
-      '@turf/circle':
         specifier: catalog:turf
         version: 7.2.0
       '@turf/distance':
@@ -856,9 +844,6 @@ importers:
         specifier: catalog:turf
         version: 7.2.0
       '@turf/meta':
-        specifier: catalog:turf
-        version: 7.2.0
-      '@turf/nearest-point':
         specifier: catalog:turf
         version: 7.2.0
       '@turf/union':
@@ -1958,9 +1943,6 @@ importers:
       d3-quadtree:
         specifier: 'catalog:'
         version: 1.0.7
-      internmap:
-        specifier: 'catalog:'
-        version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -5289,9 +5271,6 @@ packages:
   '@turf/buffer@6.5.0':
     resolution: {integrity: sha512-qeX4N6+PPWbKqp1AVkBVWFerGjMYMUyencwfnkCesoznU6qvfugFHNAngNqIBVnJjZ5n8IFyOf+akcxnrt9sNg==}
 
-  '@turf/center-of-mass@7.2.0':
-    resolution: {integrity: sha512-ij3pmG61WQPHGTQvOziPOdIgwTMegkYTwIc71Gl7xn4C0vWH6KLDSshCphds9xdWSXt2GbHpUs3tr4XGntHkEQ==}
-
   '@turf/center@6.5.0':
     resolution: {integrity: sha512-T8KtMTfSATWcAX088rEDKjyvQCBkUsLnK/Txb6/8WUXIeOZyHu42G7MkdkHRoHtwieLdduDdmPLFyTdG5/e7ZQ==}
 
@@ -5306,12 +5285,6 @@ packages:
 
   '@turf/clone@6.5.0':
     resolution: {integrity: sha512-mzVtTFj/QycXOn6ig+annKrM6ZlimreKYz6f/GSERytOpgzodbQyOgkfwru100O1KQhhjSudKK4DsQ0oyi9cTw==}
-
-  '@turf/clone@7.2.0':
-    resolution: {integrity: sha512-JlGUT+/5qoU5jqZmf6NMFIoLDY3O7jKd53Up+zbpJ2vzUp6QdwdNzwrsCeONhynWM13F0MVtPXH4AtdkrgFk4g==}
-
-  '@turf/convex@7.2.0':
-    resolution: {integrity: sha512-HsgHm+zHRE8yPCE/jBUtWFyaaBmpXcSlyHd5/xsMhSZRImFzRzBibaONWQo7xbKZMISC3Nc6BtUjDi/jEVbqyA==}
 
   '@turf/destination@6.5.0':
     resolution: {integrity: sha512-4cnWQlNC8d1tItOz9B4pmJdWpXqS0vEvv65bI/Pj/genJnsL7evI0/Xw42RvEGROS481MPiU80xzvwxEvhQiMQ==}
@@ -5375,9 +5348,6 @@ packages:
 
   '@turf/nearest-point-on-line@7.2.0':
     resolution: {integrity: sha512-UOhAeoDPVewBQV+PWg1YTMQcYpJsIqfW5+EuZ5vJl60XwUa0+kqB/eVfSLNXmHENjKKIlEt9Oy9HIDF4VeWmXA==}
-
-  '@turf/nearest-point@7.2.0':
-    resolution: {integrity: sha512-0wmsqXZ8CGw4QKeZmS+NdjYTqCMC+HXZvM3XAQIU6k6laNLqjad2oS4nDrtcRs/nWDvcj1CR+Io7OiQ6sbpn5Q==}
 
   '@turf/point-to-line-distance@6.5.0':
     resolution: {integrity: sha512-opHVQ4vjUhNBly1bob6RWy+F+hsZDH9SA0UW36pIRzfpu27qipU18xup0XXEePfY6+wvhF6yL/WgCO2IbrLqEA==}
@@ -18986,16 +18956,6 @@ snapshots:
       d3-geo: 1.7.1
       turf-jsts: 1.2.3
 
-  '@turf/center-of-mass@7.2.0':
-    dependencies:
-      '@turf/centroid': 7.2.0
-      '@turf/convex': 7.2.0
-      '@turf/helpers': 7.2.0
-      '@turf/invariant': 7.2.0
-      '@turf/meta': 7.2.0
-      '@types/geojson': 7946.0.10
-      tslib: 2.8.1
-
   '@turf/center@6.5.0':
     dependencies:
       '@turf/bbox': 6.5.0
@@ -19023,20 +18983,6 @@ snapshots:
   '@turf/clone@6.5.0':
     dependencies:
       '@turf/helpers': 6.5.0
-
-  '@turf/clone@7.2.0':
-    dependencies:
-      '@turf/helpers': 7.2.0
-      '@types/geojson': 7946.0.10
-      tslib: 2.8.1
-
-  '@turf/convex@7.2.0':
-    dependencies:
-      '@turf/helpers': 7.2.0
-      '@turf/meta': 7.2.0
-      '@types/geojson': 7946.0.10
-      concaveman: 1.2.1
-      tslib: 2.8.1
 
   '@turf/destination@6.5.0':
     dependencies:
@@ -19174,15 +19120,6 @@ snapshots:
       '@turf/invariant': 7.2.0
       '@turf/meta': 7.2.0
       '@types/geojson': 7946.0.16
-      tslib: 2.8.1
-
-  '@turf/nearest-point@7.2.0':
-    dependencies:
-      '@turf/clone': 7.2.0
-      '@turf/distance': 7.2.0
-      '@turf/helpers': 7.2.0
-      '@turf/meta': 7.2.0
-      '@types/geojson': 7946.0.10
       tslib: 2.8.1
 
   '@turf/point-to-line-distance@6.5.0':
