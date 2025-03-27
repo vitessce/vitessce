@@ -108,7 +108,6 @@ function getMaxAreaPolygonAndLevel(contourPolygons) {
 
 // Reference: https://github.com/visgl/deck.gl/blob/v8.9.36/modules/aggregation-layers/src/contour-layer/contour-layer.ts
 export default class ContourLayerWithText extends ContourLayer {
-  
   /**
    * Construct line and text layers to render.
    * @returns {object[]} Array of DeckGL layers.
@@ -127,10 +126,7 @@ export default class ContourLayerWithText extends ContourLayer {
     const [maxAreaValue, maxAreaPolygon, levelI] = getMaxAreaPolygonAndLevel(contourPolygons);
 
     // Get a circle polygon which outlines the whole plot.
-    const { center } = circleInfo;
-    const { radius } = circleInfo;
-    const circlePolygon = circleInfo.polygon;
-    const { steps } = circleInfo;
+    const { center, steps, polygon: circlePolygon } = circleInfo;
 
     if (maxAreaValue > 0 && maxAreaPolygon) {
       let minDist = Infinity;
@@ -173,7 +169,7 @@ export default class ContourLayerWithText extends ContourLayer {
 
 
       // Compute angle.
-      let angleRadians = Math.atan2(
+      const angleRadians = Math.atan2(
         minCirclePoint[1] - center[1],
         minCirclePoint[0] - center[0],
       );
