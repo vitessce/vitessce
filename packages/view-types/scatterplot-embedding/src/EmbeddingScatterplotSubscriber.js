@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { circle } from '@turf/circle';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -379,8 +380,32 @@ export function EmbeddingScatterplotSubscriber(props) {
         .map(t => Math.max(t, 1.0));
       return thresholds;
     }
-    return null;
+    return [1, 10, 100];
   }, [contourPercentiles, sortedWeights]);
+
+  // Construct a circle polygon using Turf's circle function,
+  // which surrounds all points in the scatterplot,
+  // which we can use to position text labels along.
+  const circleInfo = useMemo(() => {
+    if (!originalViewState || !width || !height) {
+      return null;
+    }
+    const center = [
+      originalViewState.target[0],
+      originalViewState.target[1],
+    ];
+    const scaleFactor = (2 ** originalViewState.zoom);
+    const radius = Math.min(width, height) / 2 / scaleFactor;
+    const numPoints = 96;
+    const options = { steps: numPoints, units: 'degrees' };
+    const circlePolygon = circle(center, radius, options);
+    return {
+      center,
+      radius,
+      polygon: circlePolygon,
+      steps: numPoints,
+    };
+  }, [originalViewState, width, height]);
 
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding
@@ -554,6 +579,9 @@ export function EmbeddingScatterplotSubscriber(props) {
         contoursFilled={embeddingContoursFilled}
         embeddingPointsVisible={embeddingPointsVisible}
         embeddingContoursVisible={embeddingContoursVisible}
+
+        circleInfo={circleInfo}
+        featureSelection={geneSelection}
       />
       {tooltipsVisible && (
       <ScatterplotTooltipSubscriber

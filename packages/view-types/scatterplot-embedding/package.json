@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/scatterplot-embedding",
-  "version": "3.5.7",
+  "version": "3.5.9",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -39,7 +39,8 @@
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
-    "react-aria": "catalog:"
+    "react-aria": "catalog:",
+    "@turf/circle": "catalog:turf"
   },
   "devDependencies": {
     "react": "catalog:",

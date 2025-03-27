@@ -19,8 +19,8 @@ catalog:
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
   # Zarrita
-  "zarrita": 0.4.0-next.24
-  "@zarrita/storage": 0.1.0-next.9
+  "zarrita": 0.4.0
+  "@zarrita/storage": 0.1.0
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
@@ -51,6 +51,8 @@ catalog:
   # Material UI
   "@material-ui/core": ~4.12.3
   "@material-ui/icons": ~4.11.2
+  "@material-ui/lab": ^4.0.0-alpha.61
+  "@mui/x-data-grid": ^4.0.2
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19
@@ -104,10 +106,15 @@ catalogs:
     "@nebula.gl/layers": 0.23.8
     "@nebula.gl/edit-modes": 0.23.8
   turf:
-    "@turf/area": ^6.5.0
-    "@turf/boolean-contains": ^6.5.0
-    "@turf/boolean-overlap": ^6.5.0
-    "@turf/boolean-point-in-polygon": ^6.5.0
-    "@turf/boolean-within": ^6.5.0
-    "@turf/centroid": ^6.5.0
-    "@turf/helpers": ^6.5.0
+    "@turf/area": ^7.2.0
+    "@turf/boolean-contains": ^7.2.0
+    "@turf/boolean-overlap": ^7.2.0
+    "@turf/boolean-point-in-polygon": ^7.2.0
+    "@turf/boolean-within": ^7.2.0
+    "@turf/centroid": ^7.2.0
+    "@turf/helpers": ^7.2.0
+    "@turf/circle": ^7.2.0
+    "@turf/union": ^7.2.0
+    "@turf/meta": ^7.2.0
+    "@turf/invariant": ^7.2.0
+    "@turf/distance": ^7.2.0

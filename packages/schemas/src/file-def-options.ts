@@ -28,6 +28,68 @@ const annDataConvenienceObsEmbeddingItem = z.object({
   embeddingType: z.string(),
 });
 
+const annDataComparisonMetadata = z.object({
+  path: z.string().describe('Path to the comparison metadata, such as /uns/comparison_metadata'),
+});
+
+const annDataFeatureStats = z.object({
+  // TODO: implement a featureStats.anndata.zarr loader
+  // which does not depend on comparisonMetadata
+  // (instead, would point directly to the root of
+  // the dataframe containing a set of diff exp results)
+  // path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature index, if different than the default dataframe index.'),
+  pValueColumn: z.string(),
+  foldChangeColumn: z.string(),
+  pValueTransformation: z.enum(['minuslog10'])
+    .optional(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+});
+
+const annDataFeatureSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature set index, if different than the default dataframe index.'),
+  termColumn: z.string()
+    .optional(),
+  pValueColumn: z.string(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, pertpy_hypergeometric.'),
+});
+
+// Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation
+const annDataObsSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the obs set index, if different than the default dataframe index.'),
+  interceptExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  effectExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  foldChangeColumn: z.string()
+    .describe('The log-fold change is then calculated between this expected sample and the expected sample with no active covariates from the intercept section.'),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+  isCredibleEffectColumn: z.string()
+    .describe('Column which annotates effects as being credible or not (boolean).'),
+  covariateColumn: z.string()
+    .describe('Column which defines the covariate used in the analysis.'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, sccoda_df.'),
+});
+
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
 const annDataSampleEdges = annDataObs;
@@ -213,6 +275,11 @@ export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
+
+export const comparisonMetadataAnndataSchema = annDataComparisonMetadata;
+export const featureStatsAnndataSchema = annDataFeatureStats;
+export const featureSetStatsAnndataSchema = annDataFeatureSetStats;
+export const obsSetStatsAnndataSchema = annDataObsSetStats;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({

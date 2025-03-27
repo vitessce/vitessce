@@ -49,14 +49,18 @@ function loadCellTypeNodes() {
  * @returns {Promise<KgNode[]>}
  */
 function loadPathwayNodes() {
-  return fetch(`${KG_BASE_URL}/Reactome_2022.nodes.csv`)
-    .then(res => res.text())
+  const reactomeNodes = fetch(`${KG_BASE_URL}/Reactome_2022.nodes.csv`);
+  // TODO: load both GO and Reactome nodes, concat together.
+  // const goNodes = fetch(`${KG_BASE_URL}/GO_Biological_Process_2021.nodes.csv`);
+  return reactomeNodes.then(res => res.text())
     .then((res) => {
       const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
-        label: d.pathway,
-        term: `reactome:${d.acc}`,
+        label: d.pathway, // For reactome
+        term: `reactome:${d.acc}`, // For reactome
+        // label: d.ontology_label, // For GO_BP
+        // term: d.acc, // For GO_BP
         nodeType: 'pathway',
       }));
     });
@@ -141,7 +145,10 @@ export async function autocompleteFeature({ queryClient }, partial, targetModali
 }
 
 async function loadPathwayToGeneEdges() {
-  return fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`)
+  const reactomeEdges = fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`);
+  // TODO: load both GO and Reactome edges, concat together.
+  // const goEdges = fetch(`${KG_BASE_URL}/GO_Biological_Process_2021.GO_BP.Gene.edges.csv`);
+  return reactomeEdges
     .then(res => res.text())
     .then((res) => {
       const result = csvParse(res);
@@ -180,6 +187,7 @@ export async function transformFeature({ queryClient }, node, targetModality) {
         queryFn: loadPathwayToGeneEdges,
       });
 
+      // TODO: support matching using ontology term (rather than requiring kgId)?
       const matchingEdges = pathwayGeneEdges.filter((/** @type {KgEdge} */ d) => d.source === node.kgId);
       const matchingGeneIds = matchingEdges.map((/** @type {KgEdge} */ d) => d.target);
       const matchingGenes = geneNodes.filter(d => matchingGeneIds.includes(d.kgId));

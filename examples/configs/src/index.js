@@ -49,7 +49,6 @@ import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
-import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -86,6 +85,9 @@ import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
 import { multiome } from './view-configs/paper-figures/multiome.js';
 import { osmFish } from './view-configs/paper-figures/osmfish.js';
 import { visium } from './view-configs/paper-figures/visium.js';
+
+// pageMode
+import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
 
 export const coordinationTypeConfigs = {

@@ -21,11 +21,17 @@ export const ViewType = {
   FEATURE_VALUE_HISTOGRAM: 'featureValueHistogram',
   DOT_PLOT: 'dotPlot',
   FEATURE_BAR_PLOT: 'featureBarPlot',
+  VOLCANO_PLOT: 'volcanoPlot',
+  OBS_SET_COMPOSITION_BAR_PLOT: 'obsSetCompositionBarPlot',
+  FEATURE_SET_ENRICHMENT_BAR_PLOT: 'featureSetEnrichmentBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
   DUAL_SCATTERPLOT: 'dualScatterplot',
   TREEMAP: 'treemap',
+  SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
+  FEATURE_STATS_TABLE: 'featureStatsTable',
 };
 
 export const DataType = {
@@ -43,6 +49,10 @@ export const DataType = {
   OBS_LOCATIONS: 'obsLocations',
   SAMPLE_SETS: 'sampleSets',
   SAMPLE_EDGES: 'sampleEdges',
+  COMPARISON_METADATA: 'comparisonMetadata',
+  FEATURE_STATS: 'featureStats',
+  FEATURE_SET_STATS: 'featureSetStats',
+  OBS_SET_STATS: 'obsSetStats',
 };
 
 export const AsyncFunctionType = {
@@ -98,6 +108,12 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_ZARR: 'featureLabels.anndata.zarr',
   SAMPLE_EDGES_ANNDATA_ZARR: 'sampleEdges.anndata.zarr',
   SAMPLE_SETS_ANNDATA_ZARR: 'sampleSets.anndata.zarr',
+
+  COMPARISON_METADATA_ANNDATA_ZARR: 'comparisonMetadata.anndata.zarr',
+  COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR: 'comparativeFeatureStats.anndata.zarr',
+  COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR: 'comparativeFeatureSetStats.anndata.zarr',
+  COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR: 'comparativeObsSetStats.anndata.zarr',
+
   // AnnData - zipped
   OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP: 'obsFeatureMatrix.anndata.zarr.zip',
   OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP: 'obsFeatureColumns.anndata.zarr.zip',
@@ -111,6 +127,12 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_ZARR_ZIP: 'featureLabels.anndata.zarr.zip',
   SAMPLE_EDGES_ANNDATA_ZARR_ZIP: 'sampleEdges.anndata.zarr.zip',
   SAMPLE_SETS_ANNDATA_ZARR_ZIP: 'sampleSets.anndata.zarr.zip',
+
+  COMPARISON_METADATA_ANNDATA_ZARR_ZIP: 'comparisonMetadata.anndata.zarr.zip',
+  COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR_ZIP: 'comparativeFeatureStats.anndata.zarr.zip',
+  COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR_ZIP: 'comparativeFeatureSetStats.anndata.zarr.zip',
+  COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR_ZIP: 'comparativeObsSetStats.anndata.zarr.zip',
+
   // AnnData - h5ad via reference spec
   OBS_FEATURE_MATRIX_ANNDATA_H5AD: 'obsFeatureMatrix.anndata.h5ad',
   OBS_FEATURE_COLUMNS_ANNDATA_H5AD: 'obsFeatureColumns.anndata.h5ad',
@@ -124,6 +146,11 @@ export const FileType = {
   FEATURE_LABELS_ANNDATA_H5AD: 'featureLabels.anndata.h5ad',
   SAMPLE_EDGES_ANNDATA_H5AD: 'sampleEdges.anndata.h5ad',
   SAMPLE_SETS_ANNDATA_H5AD: 'sampleSets.anndata.h5ad',
+
+  COMPARISON_METADATA_ANNDATA_H5AD: 'comparisonMetadata.anndata.h5ad',
+  COMPARATIVE_FEATURE_STATS_ANNDATA_H5AD: 'comparativeFeatureStats.anndata.h5ad',
+  COMPARATIVE_FEATURE_SET_STATS_ANNDATA_H5AD: 'comparativeFeatureSetStats.anndata.h5ad',
+  COMPARATIVE_OBS_SET_STATS_ANNDATA_H5AD: 'comparativeObsSetStats.anndata.h5ad',
   // SpatialData
   IMAGE_SPATIALDATA_ZARR: 'image.spatialdata.zarr',
   LABELS_SPATIALDATA_ZARR: 'labels.spatialdata.zarr',
@@ -322,6 +349,11 @@ export const CoordinationType = {
   EMBEDDING_CONTOUR_PERCENTILES: 'embeddingContourPercentiles',
   CONTOUR_COLOR_ENCODING: 'contourColorEncoding',
   CONTOUR_COLOR: 'contourColor',
+  // For volcano plot:
+  FEATURE_POINT_SIGNIFICANCE_THRESHOLD: 'featurePointSignificanceThreshold',
+  FEATURE_LABEL_SIGNIFICANCE_THRESHOLD: 'featureLabelSignificanceThreshold',
+  FEATURE_POINT_FOLD_CHANGE_THRESHOLD: 'featurePointFoldChangeThreshold',
+  FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
 };
@@ -359,4 +391,9 @@ export const ViewHelpMapping = {
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
   NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
+  VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
+  OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',
+  FEATURE_SET_ENRICHMENT_BAR_PLOT: 'The feature set enrichment bar plot displays the results of a hypergeometric test applied to the differential expression test results to identify enriched pathway gene sets.',
+  SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
+  FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
 };

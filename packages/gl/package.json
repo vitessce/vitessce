@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/gl",
-  "version": "3.5.7",
+  "version": "3.5.9",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -60,6 +60,10 @@
     "@turf/boolean-within": "catalog:turf",
     "@turf/centroid": "catalog:turf",
     "@turf/helpers": "catalog:turf",
+    "@turf/union": "catalog:turf",
+    "@turf/meta": "catalog:turf",
+    "@turf/invariant": "catalog:turf",
+    "@turf/distance": "catalog:turf",
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
