@@ -16,8 +16,8 @@ export default function VolcanoPlot(props) {
     height,
     obsType,
     featureType,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     sampleSetSelection,
     obsSetSelection,
     obsSetColor,
@@ -36,14 +36,10 @@ export default function VolcanoPlot(props) {
 
   const svgRef = useRef();
 
-  const [
-    computedData,
-    filteredData,
-    obsSetsColumnNameMappingReversed,
-  ] = useFilteredVolcanoData({
+  const [computedData, filteredData] = useFilteredVolcanoData({
     data,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     featurePointFoldChangeThreshold,
     featurePointSignificanceThreshold,
     sampleSetSelection,

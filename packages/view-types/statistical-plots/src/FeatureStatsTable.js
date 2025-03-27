@@ -13,8 +13,8 @@ export default function FeatureStatsTable(props) {
   const {
     obsType,
     featureType,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     sampleSetSelection,
     data,
     setFeatureSelection,
@@ -26,11 +26,10 @@ export default function FeatureStatsTable(props) {
     // eslint-disable-next-line no-unused-vars
     computedData,
     filteredData,
-    obsSetsColumnNameMappingReversed,
   ] = useFilteredVolcanoData({
     data,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     featurePointFoldChangeThreshold,
     featurePointSignificanceThreshold,
     sampleSetSelection,

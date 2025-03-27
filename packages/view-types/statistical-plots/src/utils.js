@@ -51,24 +51,13 @@ export function useRawSetPaths(columnNameMapping, setPaths) {
 export function useFilteredVolcanoData(props) {
   const {
     data,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     featurePointFoldChangeThreshold,
     featurePointSignificanceThreshold,
     sampleSetSelection,
   } = props;
 
-  const obsSetsColumnNameMappingReversed = useMemo(() => Object.fromEntries(
-    Object
-      .entries(obsSetsColumnNameMapping)
-      .map(([key, value]) => ([value, key])),
-  ), [obsSetsColumnNameMapping]);
-
-  const sampleSetsColumnNameMappingReversed = useMemo(() => Object.fromEntries(
-    Object
-      .entries(sampleSetsColumnNameMapping)
-      .map(([key, value]) => ([value, key])),
-  ), [sampleSetsColumnNameMapping]);
 
   const computedData = useMemo(() => data.map((d) => {
     const { metadata } = d;
@@ -135,10 +124,5 @@ export function useFilteredVolcanoData(props) {
     )),
   })), [computedData, featurePointFoldChangeThreshold, featurePointSignificanceThreshold]);
 
-  return [
-    computedData,
-    filteredData,
-    obsSetsColumnNameMappingReversed,
-    sampleSetsColumnNameMappingReversed,
-  ];
+  return [computedData, filteredData];
 }
