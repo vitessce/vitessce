@@ -1,7 +1,7 @@
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { cloneDeep, get, isEqual, forEach, throttle, debounce, pick } from 'lodash-es';
-import { useStyles, globalNeuroglancerCss } from './styles.js';
+import { isEqualWith, pick } from 'lodash-es';
+import { globalNeuroglancerCss } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(async () => {
   const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
@@ -14,14 +14,29 @@ function createWorker() {
 
 function isValidState(viewerState) {
   const { projectionScale, projectionOrientation, position, dimensions } = viewerState || {};
-  return (dimensions !== undefined && typeof projectionScale === 'number' && Array.isArray(projectionOrientation) && projectionOrientation.length === 4 && Array.isArray(position) && position.length === 3);
+  return (
+    dimensions !== undefined
+    && typeof projectionScale === 'number'
+    && Array.isArray(projectionOrientation)
+    && projectionOrientation.length === 4
+    && Array.isArray(position)
+    && position.length === 3
+  );
 }
 
+function customizer(a, b) {
+  if(typeof a === 'number' && typeof b === 'number') {
+    return Math.abs(a - b) < 1e-4;
+  }
+  return undefined;
+}
+
+// Returns true if the two states are equal, or false if not.
 function compareViewerState(prevState, nextState) {
   if(isValidState(nextState)) {
     const prevSubset = pick(prevState, ['projectionScale', 'projectionOrientation', 'position']);
     const nextSubset = pick(nextState, ['projectionScale', 'projectionOrientation', 'position']);
-    return isEqual(prevSubset, nextSubset);
+    return isEqualWith(prevSubset, nextSubset, customizer);
   }
   return true;
 }
@@ -52,10 +67,29 @@ export class Neuroglancer extends PureComponent {
       forceUpdate = true;
     }
 
+    if (!compareViewerState(this.viewerState, this.props.viewerState)) {
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }
   }
+
+  /*
+  shouldComponentUpdate(nextProps) {
+    const shallowDiff = propName => (nextProps[propName] !== this.props[propName]);
+    let forceUpdate = false;
+    if (['onSegmentClick', 'onSelectHoveredCoords'].some(shallowDiff)) {
+      forceUpdate = true;
+    }
+
+    if (!compareViewerState(this.viewerState, nextProps.viewerState)) {
+      forceUpdate = true;
+    }
+    return forceUpdate;
+  }
+  */
 
 
   render() {
@@ -94,7 +128,6 @@ export class Neuroglancer extends PureComponent {
                   function addHover() {
                     if (viewer.mouseState.pickedValue !== undefined) {
                       const pickedSegment = viewer.mouseState.pickedValue;
-                      console.log(pickedSegment)
                       onSelectHoveredCoords(pickedSegment?.low);
                     }
                   }
