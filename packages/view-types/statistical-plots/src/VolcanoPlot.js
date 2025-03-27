@@ -5,10 +5,9 @@ import { scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { extent as d3_extent } from 'd3-array';
 import { select } from 'd3-selection';
-import { isEqual } from 'lodash-es';
 import { capitalize, getDefaultForegroundColor } from '@vitessce/utils';
 import { colorArrayToString } from '@vitessce/sets-utils';
-import { getColorScale } from './utils.js';
+import { getColorScale, useFilteredVolcanoData } from './utils.js';
 
 export default function VolcanoPlot(props) {
   const {
@@ -17,8 +16,8 @@ export default function VolcanoPlot(props) {
     height,
     obsType,
     featureType,
-    obsSetsColumnNameMapping,
-    sampleSetsColumnNameMapping,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
     sampleSetSelection,
     obsSetSelection,
     obsSetColor,
@@ -37,14 +36,14 @@ export default function VolcanoPlot(props) {
 
   const svgRef = useRef();
 
-  const computedData = useMemo(() => data.map(d => ({
-    ...d,
-    df: {
-      ...d.df,
-      minusLog10p: d.df.featureSignificance.map(v => -Math.log10(v)),
-      logFoldChange: d.df.featureFoldChange.map(v => Math.log2(v)),
-    },
-  })), [data]);
+  const [computedData, filteredData] = useFilteredVolcanoData({
+    data,
+    obsSetsColumnNameMappingReversed,
+    sampleSetsColumnNameMappingReversed,
+    featurePointFoldChangeThreshold,
+    featurePointSignificanceThreshold,
+    sampleSetSelection,
+  });
 
   const [xExtent, yExtent] = useMemo(() => {
     if (!computedData) {
@@ -78,7 +77,7 @@ export default function VolcanoPlot(props) {
       .attr('viewBox', [0, 0, width, height])
       .attr('style', 'font: 10px sans-serif');
 
-    if (!computedData || !xExtent || !yExtent) {
+    if (!filteredData || !xExtent || !yExtent) {
       return;
     }
 
@@ -134,19 +133,6 @@ export default function VolcanoPlot(props) {
       .style('font-size', '12px')
       .style('fill', fgColor);
 
-    // Get a mapping from column name to group name.
-    const obsSetsColumnNameMappingReversed = Object.fromEntries(
-      Object
-        .entries(obsSetsColumnNameMapping)
-        .map(([key, value]) => ([value, key])),
-    );
-
-    const sampleSetsColumnNameMappingReversed = Object.fromEntries(
-      Object
-        .entries(sampleSetsColumnNameMapping)
-        .map(([key, value]) => ([value, key])),
-    );
-
     // Horizontal and vertical rules to indicate currently-selected thresholds
     // Vertical lines
     const ruleColor = 'silver';
@@ -188,7 +174,6 @@ export default function VolcanoPlot(props) {
         : `${capitalize(obsType)} Set`
       );
 
-
     titleG
       .append('text')
       .attr('text-anchor', 'start')
@@ -211,10 +196,10 @@ export default function VolcanoPlot(props) {
     const g = svg.append('g');
 
     // Append a circle for each data point.
-    computedData.forEach((comparisonObject) => {
+    filteredData.forEach((comparisonObject) => {
       const obsSetG = g.append('g');
 
-      const { df, metadata } = comparisonObject;
+      const { df: filteredDf, metadata } = comparisonObject;
       const coordinationValues = metadata.coordination_values;
 
       const rawObsSetPath = coordinationValues.obsSetFilter
@@ -222,40 +207,6 @@ export default function VolcanoPlot(props) {
         : coordinationValues.obsSetSelection[0];
       const obsSetPath = [...rawObsSetPath];
       obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
-
-      // Swap the foldchange direction if backwards with
-      // respect to the current sampleSetSelection pair.
-      // TODO: move this swapping into the computedData useMemo?
-      let shouldSwapFoldChangeDirection = false;
-      if (
-        coordinationValues.sampleSetFilter
-        && coordinationValues.sampleSetFilter.length === 2
-      ) {
-        const rawSampleSetPathA = coordinationValues.sampleSetFilter[0];
-        const sampleSetPathA = [...rawSampleSetPathA];
-        sampleSetPathA[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathA[0]];
-
-        const rawSampleSetPathB = coordinationValues.sampleSetFilter[1];
-        const sampleSetPathB = [...rawSampleSetPathB];
-        sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
-
-        if (
-          isEqual(sampleSetPathA, sampleSetSelection[1])
-          && isEqual(sampleSetPathB, sampleSetSelection[0])
-        ) {
-          shouldSwapFoldChangeDirection = true;
-        }
-      }
-
-      const filteredDf = df.featureId.map((featureId, i) => ({
-          featureId,
-          logFoldChange: df.logFoldChange[i] * (shouldSwapFoldChangeDirection ? -1 : 1),
-          featureSignificance: df.featureSignificance[i],
-          minusLog10p: df.minusLog10p[i],
-        })).filter(d => (
-        (Math.abs(d.logFoldChange) >= (featurePointFoldChangeThreshold ?? 1.0))
-        && (d.featureSignificance <= (featurePointSignificanceThreshold ?? 0.05))
-      ));
 
       const color = obsSetColorScale(obsSetPath);
 
@@ -293,12 +244,13 @@ export default function VolcanoPlot(props) {
         .text(d => `${featureType}: ${d.featureId}\nin ${obsSetPath?.at(-1)}\nlog2 fold-change: ${d.logFoldChange}\np-value: ${d.featureSignificance}`);
     });
   }, [width, height, theme, sampleSetColor, sampleSetSelection,
-    obsSetSelection, obsSetColor, featureType, computedData,
+    obsSetSelection, obsSetColor, featureType, filteredData,
     xExtent, yExtent, obsType,
     marginLeft, marginBottom, marginTop, marginRight,
     obsSetColorScale, sampleSetColorScale, onFeatureClick,
     featurePointSignificanceThreshold, featurePointFoldChangeThreshold,
     featureLabelSignificanceThreshold, featureLabelFoldChangeThreshold,
+    obsSetsColumnNameMappingReversed,
   ]);
 
   return (

@@ -1,11 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import {
   TitleInfo,
   useCoordination,
   useLoaders,
   useReady,
-  useGridItemSize,
   useFeatureStatsData,
   useMatchingLoader,
   useColumnNameMapping,
@@ -16,21 +15,18 @@ import {
   ViewHelpMapping,
   DataType,
 } from '@vitessce/constants-internal';
-import VolcanoPlot from './VolcanoPlot.js';
-import { useStyles } from './styles.js';
-import VolcanoPlotOptions from './VolcanoPlotOptions.js';
+import FeatureStatsTable from './FeatureStatsTable.js';
 import { useRawSetPaths } from './utils.js';
 
-export function VolcanoPlotSubscriber(props) {
+export function FeatureStatsTableSubscriber(props) {
   const {
-    title = 'Volcano Plot',
+    title = 'Differential Expression Results',
     coordinationScopes,
     removeGridComponent,
     theme,
-    helpText = ViewHelpMapping.VOLCANO_PLOT,
+    helpText = ViewHelpMapping.FEATURE_STATS_TABLE,
   } = props;
 
-  const classes = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
@@ -48,8 +44,6 @@ export function VolcanoPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     featurePointSignificanceThreshold,
     featurePointFoldChangeThreshold,
-    featureLabelSignificanceThreshold,
-    featureLabelFoldChangeThreshold,
     featureValueTransform,
     featureValueTransformCoefficient,
     gatingFeatureSelectionX,
@@ -66,8 +60,6 @@ export function VolcanoPlotSubscriber(props) {
     setAdditionalObsSets: setAdditionalCellSets,
     setFeaturePointSignificanceThreshold,
     setFeaturePointFoldChangeThreshold,
-    setFeatureLabelSignificanceThreshold,
-    setFeatureLabelFoldChangeThreshold,
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setGatingFeatureSelectionX,
@@ -76,10 +68,9 @@ export function VolcanoPlotSubscriber(props) {
     setSampleSetSelection,
     setSampleSetColor,
   }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.VOLCANO_PLOT],
+    COMPONENT_COORDINATION_TYPES[ViewType.FEATURE_STATS_TABLE],
     coordinationScopes,
   );
-  const [width, height, containerRef] = useGridItemSize();
 
   const obsSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.OBS_SETS, { obsType },
@@ -106,10 +97,6 @@ export function VolcanoPlotSubscriber(props) {
     featureStatsStatus,
   ]);
 
-  const onFeatureClick = useCallback((featureId) => {
-    setFeatureSelection([featureId]);
-  }, [setFeatureSelection]);
-
   return (
     <TitleInfo
       title={title}
@@ -117,51 +104,30 @@ export function VolcanoPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
-      options={(
-        <VolcanoPlotOptions
+      withPadding={false}
+    >
+      {featureStats ? (
+        <FeatureStatsTable
+          theme={theme}
           obsType={obsType}
           featureType={featureType}
-
+          obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+          obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
+          sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+          sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
+          sampleSetSelection={sampleSetSelection}
+          obsSetSelection={obsSetSelection}
+          obsSetColor={obsSetColor}
+          sampleSetColor={sampleSetColor}
+          data={featureStats}
+          featureSelection={featureSelection}
+          setFeatureSelection={setFeatureSelection}
           featurePointSignificanceThreshold={featurePointSignificanceThreshold}
           featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-          featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-          featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
-
-          setFeaturePointSignificanceThreshold={setFeaturePointSignificanceThreshold}
-          setFeaturePointFoldChangeThreshold={setFeaturePointFoldChangeThreshold}
-          setFeatureLabelSignificanceThreshold={setFeatureLabelSignificanceThreshold}
-          setFeatureLabelFoldChangeThreshold={setFeatureLabelFoldChangeThreshold}
         />
+      ) : (
+        <p style={{ padding: '12px' }}>Select at least one {obsType} set.</p>
       )}
-    >
-      <div ref={containerRef} className={classes.vegaContainer}>
-        {featureStats ? (
-          <VolcanoPlot
-            theme={theme}
-            width={width}
-            height={height}
-            obsType={obsType}
-            featureType={featureType}
-            obsSetsColumnNameMapping={obsSetsColumnNameMapping}
-            obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
-            sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
-            sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
-            sampleSetSelection={sampleSetSelection}
-            obsSetSelection={obsSetSelection}
-            obsSetColor={obsSetColor}
-            sampleSetColor={sampleSetColor}
-            data={featureStats}
-            onFeatureClick={onFeatureClick}
-
-            featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-            featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-            featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-            featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
-          />
-        ) : (
-          <span>Select at least one {obsType} set.</span>
-        )}
-      </div>
     </TitleInfo>
   );
 }

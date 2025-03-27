@@ -177,6 +177,7 @@ function generateKpmpPremiereConfig() {
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
+  const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
   const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
   const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
 
@@ -203,14 +204,15 @@ function generateKpmpPremiereConfig() {
   }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
     // featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
+    featureValueColormap: 'jet',
     featureValueColormapRange: [0, 0.25],
   }, { meta: false });
 
@@ -224,6 +226,7 @@ function generateKpmpPremiereConfig() {
   vc.layout(hconcat(
     vconcat(dualScatterplot, biomarkerSelect, comparativeHeading, obsSets, obsSetSizes, featureList),
     vconcat(treemap, featureSetEnrichmentBarPlot, violinPlots, dotPlot, obsSetCompositionBarPlot, sampleSets),
+    volcanoPlotTable,
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -239,6 +242,7 @@ function PageComponent() {
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
   const VolcanoPlot = usePageModeView('volcano-plot');
+  const VolcanoPlotTable = usePageModeView('volcano-plot-table');
   const SccodaPlot = usePageModeView('sccoda-plot');
   const PathwaysPlot = usePageModeView('pathways-plot');
 
@@ -325,10 +329,18 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays differential expression test results. The arrows on the bottom left and bottom right denote the direction of the effect.</p>
+              <p>This view displays differential expression test results. The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type).</p>
             </div>
             <div className="view-row-center">
               <VolcanoPlot />
+            </div>
+          </div>
+          <div className={clsx('view-row', 'view-row-tall')}>
+            <div className="view-row-left">
+              <p>This view displays differential expression test results in tabular form. Click a row in the table to select the corresponding gene.</p>
+            </div>
+            <div className="view-row-center">
+              <VolcanoPlotTable />
             </div>
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>

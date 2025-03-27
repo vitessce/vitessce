@@ -40,7 +40,6 @@ export const useTitleStyles = makeStyles(theme => ({
     border: `${theme.cardBorderSize} solid ${theme.palette.cardBorder}`,
     flex: '1 1 auto',
     minHeight: '1px',
-    padding: '12px',
     marginTop: '8px',
     marginBottom: '8px',
     position: 'relative',
@@ -50,6 +49,12 @@ export const useTitleStyles = makeStyles(theme => ({
     wordWrap: 'break-word',
     backgroundClip: 'border-box',
     borderRadius: '4px',
+  },
+  paddingCard: {
+    padding: '12px',
+  },
+  noPaddingCard: {
+    padding: 0,
   },
   noScrollCard: {
     backgroundColor: theme.palette.secondaryBackground,
