@@ -36,6 +36,7 @@ const scaleBand = vega_scale('band');
 export default function CellSetExpressionPlot(props) {
   const {
     yMin: yMinProp,
+    xAxisTitle = null,
     yUnits,
     jitter,
     obsSetSelection,
@@ -87,7 +88,7 @@ export default function CellSetExpressionPlot(props) {
     const unitSuffix = yUnits ? ` (${yUnits})` : '';
     const yTitle = `${transformPrefix}${capitalize(featureValueType)}${unitSuffix}`;
 
-    const xTitle = `${capitalize(obsType)} Set`;
+    const xTitle = xAxisTitle ?? `${capitalize(obsType)} Set`;
 
     // Use a square-root term because the angle of the labels is 45 degrees (see below)
     // so the perpendicular distance to the bottom of the labels is proportional to the

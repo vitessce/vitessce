@@ -114,6 +114,8 @@ export function CellSetExpressionPlotSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    title,
+    xAxisTitle,
     jitter = false,
     yMin = null,
     yUnits = null,
@@ -223,10 +225,11 @@ export function CellSetExpressionPlotSubscriber(props) {
     o => o.value === featureValueTransform,
   )?.name;
 
-
   return (
     <TitleInfo
-      title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={title ? `${title}: (${firstGeneSelected})`
+        : `Expression by ${capitalize(obsType)} Set (${firstGeneSelected})`
+      }
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -264,6 +267,7 @@ export function CellSetExpressionPlotSubscriber(props) {
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
+            xAxisTitle={xAxisTitle}
           />
         ) : (
           <span>Select a {featureType}.</span>
