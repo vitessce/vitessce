@@ -41,6 +41,14 @@ const defaultProps = {
 
 const MIN_AREA_THRESHOLD = 10;
 
+/**
+ * Get the polygon with the maximum area,
+ * and also return its area value.
+ * @param {{contour, vertices}[]} levelToUse The
+ * contourPolygons array filtered to a given level.
+ * @returns {[number, object]} A tuple of
+ * [area value, Turf polygon object].
+ */
 function getMaxAreaPolygon(levelToUse) {
   if (levelToUse.length === 0) {
     return [0, null];
@@ -73,6 +81,15 @@ function getMaxAreaPolygon(levelToUse) {
   return [maxAreaValue, maxAreaPolygon];
 }
 
+/**
+ * Get the area, polygon, and level associated with
+ * the "polygon of maximum area". (Not actually maximum
+ * among all levels but the max within a given level)
+ * @param {{contour, vertices}[]} contourPolygons The
+ * contourPolygons value within state.contourData
+ * @returns {[number, object, number]} A tuple of
+ * [area value, Turf polygon object, level index].
+ */
 function getMaxAreaPolygonAndLevel(contourPolygons) {
   const l2 = contourPolygons?.filter(d => d.contour.i === 2) ?? [];
   const [l2area, l2polygon] = getMaxAreaPolygon(l2);
@@ -91,6 +108,11 @@ function getMaxAreaPolygonAndLevel(contourPolygons) {
 
 // Reference: https://github.com/visgl/deck.gl/blob/v8.9.36/modules/aggregation-layers/src/contour-layer/contour-layer.ts
 export default class ContourLayerWithText extends ContourLayer {
+  
+  /**
+   * Construct line and text layers to render.
+   * @returns {object[]} Array of DeckGL layers.
+   */
   getLineAndTextLayers() {
     const lineAndTextLayers = [];
 
@@ -157,23 +179,6 @@ export default class ContourLayerWithText extends ContourLayer {
       );
       let angleDegrees = angleRadians * 180 / Math.PI;
 
-      const shouldJitter = false;
-      if (shouldJitter) {
-        // Jitter the angle by uniform random sampling
-        // within -5 to +5 degrees of the circle point angle.
-        const angleJitterDegrees = (Math.random() * 10);
-        angleDegrees += angleJitterDegrees;
-
-        // Convert jittered angle back to radians.
-        angleRadians = angleDegrees * Math.PI / 180;
-        // Find the new point on the circle that
-        // now corresponds to the jittered angle.
-        minCirclePoint = [
-          center[0] + radius * Math.cos(angleRadians),
-          center[1] + radius * Math.sin(angleRadians),
-        ];
-      }
-
       // Create the line and text layers.
       lineAndTextLayers.push(new LineLayer({
         id: `line-${obsSetName}`,
@@ -224,6 +229,12 @@ export default class ContourLayerWithText extends ContourLayer {
     return lineAndTextLayers;
   }
 
+  /**
+   * Overrides the ContourLayer renderLayers function,
+   * so that the custom text/line layers can be
+   * appended to the contour line/polygon layers.
+   * @returns {object[]} Array of DeckGL layers.
+   */
   renderLayers() {
     const { obsSetLabelsVisible } = this.props;
     const contourLayers = super.renderLayers();

@@ -383,6 +383,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     return [1, 10, 100];
   }, [contourPercentiles, sortedWeights]);
 
+  // Construct a circle polygon using Turf's circle function,
+  // which surrounds all points in the scatterplot,
+  // which we can use to position text labels along.
   const circleInfo = useMemo(() => {
     if (!originalViewState || !width || !height) {
       return null;
