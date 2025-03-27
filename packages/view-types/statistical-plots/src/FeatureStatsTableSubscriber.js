@@ -20,6 +20,7 @@ import { useRawSetPaths } from './utils.js';
 
 export function FeatureStatsTableSubscriber(props) {
   const {
+    title = 'Differential Expression Results',
     coordinationScopes,
     removeGridComponent,
     theme,
@@ -96,11 +97,12 @@ export function FeatureStatsTableSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Volcano Plot Table"
+      title={title}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      withPadding={false}
     >
       {featureStats ? (
         <FeatureStatsTable
@@ -120,7 +122,7 @@ export function FeatureStatsTableSubscriber(props) {
         featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
         />
       ) : (
-        <span>Select at least one {obsType} set.</span>
+        <p style={{ padding: '12px' }}>Select at least one {obsType} set.</p>
       )}
     </TitleInfo>
   );

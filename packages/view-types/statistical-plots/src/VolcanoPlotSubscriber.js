@@ -23,6 +23,7 @@ import { useRawSetPaths } from './utils.js';
 
 export function VolcanoPlotSubscriber(props) {
   const {
+    title = 'Volcano Plot',
     coordinationScopes,
     removeGridComponent,
     theme,
@@ -109,7 +110,7 @@ export function VolcanoPlotSubscriber(props) {
 
   return (
     <TitleInfo
-      title="Volcano Plot"
+      title={title}
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
