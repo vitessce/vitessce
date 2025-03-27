@@ -1,13 +1,13 @@
-/* eslint-disable indent */
-/* eslint-disable camelcase */
 import React, { useMemo, useState, useCallback } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { useFilteredVolcanoData } from './VolcanoPlot.js';
 import { capitalize } from '@vitessce/utils';
-
-// Reference: https://v4.mui.com/api/data-grid/data-grid/
+import { useFilteredVolcanoData } from './utils.js';
 
 const ROW_ID_DELIMITER = '___';
+const INITIAL_SORT_MODEL = [
+  // We initially set the sorting this way
+  { field: 'logFoldChange', sort: 'desc' },
+];
 
 export default function FeatureStatsTable(props) {
   const {
@@ -23,6 +23,7 @@ export default function FeatureStatsTable(props) {
   } = props;
 
   const [
+    // eslint-disable-next-line no-unused-vars
     computedData,
     filteredData,
     obsSetsColumnNameMappingReversed,
@@ -35,6 +36,7 @@ export default function FeatureStatsTable(props) {
     sampleSetSelection,
   });
 
+  // Reference: https://v4.mui.com/api/data-grid/data-grid/
   const columns = useMemo(() => ([
     {
       field: 'featureId',
@@ -64,7 +66,7 @@ export default function FeatureStatsTable(props) {
 
   const rows = useMemo(() => {
     let result = [];
-    if(filteredData) {
+    if (filteredData) {
       filteredData.forEach((comparisonObject) => {
         const { df, metadata } = comparisonObject;
 
@@ -76,7 +78,7 @@ export default function FeatureStatsTable(props) {
         const obsSetPath = [...rawObsSetPath];
         obsSetPath[0] = obsSetsColumnNameMappingReversed[rawObsSetPath[0]];
         const obsSetName = obsSetPath.at(-1);
-        
+
         result = result.concat(df.map(row => ({
           ...row,
           id: `${row.featureId}${ROW_ID_DELIMITER}${obsSetName}`,
@@ -90,16 +92,13 @@ export default function FeatureStatsTable(props) {
   const onSelectionModelChange = useCallback((rowIds) => {
     const featureIds = rowIds.map(rowId => rowId.split(ROW_ID_DELIMITER)[0]);
     setFeatureSelection(featureIds);
-  }, [])
+  }, []);
 
   const rowSelectionModel = useMemo(() => [], []);
 
-  const [sortModel, setSortModel] = useState([
-    // We initially set the sorting this way
-    { field: 'logFoldChange', sort: 'desc' }
-  ]);
+  const [sortModel, setSortModel] = useState(INITIAL_SORT_MODEL);
 
-  const getRowId = useCallback((row) => row.id, []);
+  const getRowId = useCallback(row => row.id, []);
 
   return (
     <DataGrid
@@ -112,10 +111,7 @@ export default function FeatureStatsTable(props) {
       rowSelectionModel={rowSelectionModel}
       getRowId={getRowId}
       sortModel={sortModel}
-      onSortModelChange={(model) => {
-        console.log(model);
-        setSortModel(model);
-      }}
+      onSortModelChange={setSortModel}
     />
   );
 }

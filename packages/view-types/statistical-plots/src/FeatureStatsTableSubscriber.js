@@ -106,20 +106,20 @@ export function FeatureStatsTableSubscriber(props) {
     >
       {featureStats ? (
         <FeatureStatsTable
-        theme={theme}
-        obsType={obsType}
-        featureType={featureType}
-        obsSetsColumnNameMapping={obsSetsColumnNameMapping}
-        sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
-        sampleSetSelection={sampleSetSelection}
-        obsSetSelection={obsSetSelection}
-        obsSetColor={obsSetColor}
-        sampleSetColor={sampleSetColor}
-        data={featureStats}
-        featureSelection={featureSelection}
-        setFeatureSelection={setFeatureSelection}
-        featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-        featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
+          theme={theme}
+          obsType={obsType}
+          featureType={featureType}
+          obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+          sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+          sampleSetSelection={sampleSetSelection}
+          obsSetSelection={obsSetSelection}
+          obsSetColor={obsSetColor}
+          sampleSetColor={sampleSetColor}
+          data={featureStats}
+          featureSelection={featureSelection}
+          setFeatureSelection={setFeatureSelection}
+          featurePointSignificanceThreshold={featurePointSignificanceThreshold}
+          featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
         />
       ) : (
         <p style={{ padding: '12px' }}>Select at least one {obsType} set.</p>
