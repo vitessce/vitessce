@@ -7,6 +7,7 @@ export { TreemapSubscriber } from './TreemapSubscriber.js';
 export { VolcanoPlotSubscriber } from './VolcanoPlotSubscriber.js';
 export { CellSetCompositionBarPlotSubscriber } from './CellSetCompositionBarPlotSubscriber.js';
 export { FeatureSetEnrichmentBarPlotSubscriber } from './FeatureSetEnrichmentBarPlotSubscriber.js';
+export { FeatureStatsTableSubscriber } from './FeatureStatsTableSubscriber.js';
 export { default as CellSetSizesPlot } from './CellSetSizesPlot.js';
 export { default as CellSetExpressionPlot } from './CellSetExpressionPlot.js';
 export { default as ExpressionHistogram } from './ExpressionHistogram.js';

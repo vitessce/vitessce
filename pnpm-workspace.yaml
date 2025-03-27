@@ -51,6 +51,8 @@ catalog:
   # Material UI
   "@material-ui/core": ~4.12.3
   "@material-ui/icons": ~4.11.2
+  "@material-ui/lab": ^4.0.0-alpha.61
+  "@mui/x-data-grid": ^4.0.2
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19

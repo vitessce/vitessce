@@ -99,6 +99,7 @@ import {
   FeatureBarPlotSubscriber,
   TreemapSubscriber,
   VolcanoPlotSubscriber,
+  FeatureStatsTableSubscriber,
   CellSetCompositionBarPlotSubscriber,
   FeatureSetEnrichmentBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
@@ -258,6 +259,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
+  makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
