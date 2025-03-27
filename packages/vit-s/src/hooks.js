@@ -388,7 +388,14 @@ export function useColumnNameMapping(loader, reverse = false) {
         : loader.options.sampleSets;
       optionsArray.forEach((optionObject) => {
         const { name, path } = optionObject;
-        const columnName = path.split('/').at(-1);
+        let columnName;
+        if (optionObject.column) {
+          columnName = optionObject.column;
+        } else if (path) {
+          columnName = path.split('/').at(-1);
+        } else {
+          columnName = name;
+        }
         result[name] = columnName;
       });
     }
