@@ -147,6 +147,8 @@ export default class ContourLayerWithText extends ContourLayer {
         )
         : [...maxAreaPolygon.geometry.coordinates[0]];
 
+      // Find the pair (vertex on circle, vertex on contourPolygon) which
+      // have the shortest distance.
       circlePolygon.geometry.coordinates[0].forEach((circleCoord, circlePointI) => {
         const circlePoint = turfPoint(circleCoord);
         polygonVertices.forEach((polyCoord) => {
@@ -161,6 +163,10 @@ export default class ContourLayerWithText extends ContourLayer {
         });
       });
 
+      // If this circle vertex has already been used, then its index
+      // will be in the circlePointSet, so we instead try the subsequent
+      // vertex until we find one that is unused
+      // (or until the set is full, in which case we must reuse a vertex).
       while (circlePointSet.size < steps && circlePointSet.has(minCirclePointI)) {
         const nextCirclePointI = (minCirclePointI + 1) % steps;
         minCirclePointI = nextCirclePointI;
@@ -168,8 +174,8 @@ export default class ContourLayerWithText extends ContourLayer {
       circlePointSet.add(minCirclePointI);
       minCirclePoint = circlePolygon.geometry.coordinates[0][minCirclePointI];
 
-
-      // Compute angle.
+      // Compute the angle formed by the line
+      // (from the circle's center point).
       const angleRadians = Math.atan2(
         minCirclePoint[1] - center[1],
         minCirclePoint[0] - center[0],
@@ -192,6 +198,7 @@ export default class ContourLayerWithText extends ContourLayer {
         getWidth: levelI + 0.5,
       }));
 
+      // Determine textAnchor based on angle formed on circle.
       let textAnchor = 'start';
       if (angleDegrees < 0) {
         angleDegrees += 360;
@@ -213,8 +220,7 @@ export default class ContourLayerWithText extends ContourLayer {
         getText: d => d.label,
         getColor: d => d.color,
         getSize: obsSetLabelSize,
-        // Compute angle and textAnchor/alignmentBaseline based on angle formed on circle.
-        getAngle: -angleDegrees, // in degrees
+        getAngle: -angleDegrees,
         getTextAnchor: textAnchor,
         getAlignmentBaseline: 'center',
         fontFamily: AXIS_FONT_FAMILY,
