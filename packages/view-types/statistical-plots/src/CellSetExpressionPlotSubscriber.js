@@ -224,11 +224,13 @@ export function CellSetExpressionPlotSubscriber(props) {
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
+    // Use empty string when firstGeneSelected is null
+  const titleSuffix = firstGeneSelected ? ` (${firstGeneSelected})` : '';
 
   return (
     <TitleInfo
-      title={title ? `${title}: (${firstGeneSelected})`
-        : `Expression by ${capitalize(obsType)} Set (${firstGeneSelected})`
+      title={title ? `${title}${titleSuffix}`
+        : `Expression by ${capitalize(obsType)} Set${titleSuffix}`
       }
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
