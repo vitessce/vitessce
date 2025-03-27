@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo, Suspense, useRef, useEffect } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 
-import { cloneDeep, get, isEqual, forEach, throttle, debounce } from 'lodash-es';
-import { useNeuroglancerViewerState, useSetNeuroglancerViewerState } from '@vitessce/vit-s';
+import { cloneDeep, get, isEqual, forEach, throttle, debounce, pick } from 'lodash-es';
 import { useStyles, globalNeuroglancerCss } from './styles.js';
 
 
@@ -15,14 +14,33 @@ function createWorker() {
   return new ChunkWorker();
 }
 
-export function Neuroglancer(
-  { cellColorMapping, onSegmentClick, onSelectHoveredCoords, onViewerStateUpdate },
-) {
-  const viewerState = useNeuroglancerViewerState();
-  const setViewerState = useSetNeuroglancerViewerState();
+function isValidState(viewerState) {
+  const { projectionScale, projectionOrientation, position, dimensions } = viewerState || {};
+  return (dimensions !== undefined && typeof projectionScale === 'number' && Array.isArray(projectionOrientation) && projectionOrientation.length === 3 && Array.isArray(position) && position.length === 2);
+}
+
+function compareViewerState(prevState, nextState) {
+  if(isValidState(prevState) === isValidState(nextState)) {
+    const prevSubset = pick(prevState, ['projectionScale', 'projectionOrientation', 'position', 'dimensions']);
+    const nextSubset = pick(nextState, ['projectionScale', 'projectionOrientation', 'position', 'dimensions']);
+    return isEqual(prevSubset, nextSubset);
+  }
+  return false;
+}
+
+export function Neuroglancer(props) {
+  const {
+    cellColorMapping,
+    onSegmentClick,
+    onSelectHoveredCoords,
+    viewerState,
+    setViewerState
+  } = props;
   const classes = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
   const viewerRef = useRef(null);
+
+  /*
   const neuroglancerStateRef = useRef(viewerState);
   const changedPropertiesRef = useRef({});
   const isInitialLoad = useRef(true);
@@ -30,7 +48,7 @@ export function Neuroglancer(
 
   // Debounced function to delay updates and prevent excessive parent re-renders
   const batchedUpdate = debounce((newState) => {
-    onViewerStateUpdate(newState);
+    setViewerState(newState);
   }, 500);
 
   const throttledHandleStateChanged = useRef(throttle((newState) => {
@@ -83,6 +101,7 @@ export function Neuroglancer(
     }
     throttledHandleStateChanged.current(newState);
   }, []);
+  */
 
   // Note: To capture click event use control/cmd + click
   useEffect(() => {
@@ -110,19 +129,35 @@ export function Neuroglancer(
     viewer.mouseState.changed.add(addHover);
   }, [viewerRef.current]);
 
+  const neuroglancerComponent = useMemo(() => {
+
+    const onViewerStateChanged = (nextViewerState) => {
+      // TODO: compare next to previous
+      if(!compareViewerState(viewerState, nextViewerState)) {
+        setViewerState(nextViewerState);
+      }
+    };
+
+    // TODO: define a setViewerState here
+    console.log(viewerState);
+    return viewerState ? (
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyReactNeuroglancer
+          brainMapsClientId="NOT_A_VALID_ID"
+          viewerState={viewerState}
+          onViewerStateChanged={onViewerStateChanged}
+          bundleRoot={bundleRoot}
+          ref={viewerRef}
+        />
+      </Suspense>
+    ) : null;
+  }, [viewerState, setViewerState, bundleRoot, viewerRef]);
+
   return (
     <>
       <style>{globalNeuroglancerCss}</style>
       <div className={classes.neuroglancerWrapper}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LazyReactNeuroglancer
-            brainMapsClientId="NOT_A_VALID_ID"
-            viewerState={viewerState}
-            onViewerStateChanged={handleStateChanged}
-            bundleRoot={bundleRoot}
-            ref={viewerRef}
-          />
-        </Suspense>
+        {neuroglancerComponent}
       </div>
     </>
   );

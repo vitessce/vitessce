@@ -3,7 +3,7 @@ import {
   CoordinationLevel as CL,
   hconcat,
   vconcat,
-
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 function generateNeuroglancerMinimalConfiguration() {
@@ -35,7 +35,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
-    url: 'http://localhost:8000/melanoma_with_embedding_filtered_ids.csv',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
     options: {
       obsIndex: 'id',
@@ -49,7 +49,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'http://localhost:8000/melanoma_with_embedding_filtered_ids.csv',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
     coordinationValues: {
       obsType: 'cell',
@@ -65,7 +65,7 @@ function generateNeuroglancerMinimalConfiguration() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatial').setProps({ three: true });
+  const spatialThreeView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
@@ -115,9 +115,9 @@ function generateNeuroglancerMinimalConfiguration() {
     layout: '3d',
   } });
 
+  config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
   config.linkViewsByObject([spatialThreeView, lcView], {
-    spatialTargetZ: 0,
     spatialTargetT: 0,
     spatialRenderingMode: '3D',
     imageLayer: CL([
@@ -127,7 +127,7 @@ function generateNeuroglancerMinimalConfiguration() {
         spatialTargetResolution: null,
         imageChannel: CL([
           {
-            spatialTargetC: 1,
+            spatialTargetC: 0,
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
@@ -135,7 +135,7 @@ function generateNeuroglancerMinimalConfiguration() {
         ]),
       },
     ]),
-  });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
 
   config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
