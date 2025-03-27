@@ -40,6 +40,7 @@ const defaultProps = {
 };
 
 const MIN_AREA_THRESHOLD = 10;
+const MAX_NUM_VERTICES = 36;
 
 /**
  * Get the polygon with the maximum area,
@@ -138,11 +139,11 @@ export default class ContourLayerWithText extends ContourLayer {
 
       // Only consider a maximum of 36 vertices from the polygon,
       // since it may be complex with many vertices.
-      const polygonVertices = numVertices > 36
-        ? range(36).map(
+      const polygonVertices = numVertices > MAX_NUM_VERTICES
+        ? range(MAX_NUM_VERTICES).map(
           i => maxAreaPolygon
             .geometry
-            .coordinates[0][Math.floor(i * numVertices / 36)],
+            .coordinates[0][Math.floor(i * numVertices / MAX_NUM_VERTICES)],
         )
         : [...maxAreaPolygon.geometry.coordinates[0]];
 
