@@ -199,6 +199,7 @@ function generateKpmpPremiereConfig() {
     embeddingType: 'densMAP',
     embeddingContoursVisible: true,
     embeddingPointsVisible: false,
+    embeddingObsSetLabelsVisible: true,
   }, { meta: false });
 
 
