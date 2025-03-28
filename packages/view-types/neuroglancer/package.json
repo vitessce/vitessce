@@ -35,8 +35,8 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
-    "@janelia-flyem/react-neuroglancer": "^2.5.0",
     "@vitessce/neuroglancer-workers": "workspace:*",
+    "@janelia-flyem/react-neuroglancer": "^2.5.0",
     "@material-ui/core": "catalog:",
     "lodash-es": "catalog:"
   },
