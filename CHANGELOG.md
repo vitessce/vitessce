@@ -1,4 +1,11 @@
 
+## 3.5.11
+
+### Patch Changes
+
+- Minor bug fixes for comparative data loader error states. Improvements to plot subtitles. Bug fix for embedding scatterplot. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/scatterplot`) ([#2095](https://github.com/vitessce/vitessce/pull/2095))
+
+
 ## 3.5.10
 
 ### Patch Changes
