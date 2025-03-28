@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useEffect, useState, useRef } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useCallback, useMemo } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -6,9 +7,13 @@ import {
   useLoaders,
   useObsEmbeddingData,
 } from '@vitessce/vit-s';
-import { ViewHelpMapping, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { 
+  ViewHelpMapping,
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import { Neuroglancer } from './Neuroglancer2.js';
+import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
 const NEUROGLANCER_ZOOM_BASIS = 16;
@@ -69,6 +74,7 @@ export function NeuroglancerSubscriber(props) {
 
   const classes = useStyles();
   const loaders = useLoaders();
+  
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -76,9 +82,7 @@ export function NeuroglancerSubscriber(props) {
     { obsType },
   );
 
-  const [
-    { obsIndex },
-  ] = useObsEmbeddingData(
+  const [{ obsIndex }] = useObsEmbeddingData(
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
