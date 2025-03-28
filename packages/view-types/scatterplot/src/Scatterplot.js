@@ -50,7 +50,7 @@ const getPosition = (object, { index, data, target }) => {
 };
 
 
-const contourGetWeight = (object, { index, data }) => data.src.featureValues[index];
+const contourGetWeight = (object, { index, data }) => data.src.featureValues?.[index];
 
 const contourGetPosition = (object, { index, data, target }) => {
   target[0] = data.src.embeddingX[index];
@@ -494,6 +494,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       obsEmbedding,
       makeFlippedGetObsCoords,
     );
+  }
+
+  componentWillUnmount() {
+    delete this.cellsQuadTree;
+    delete this.cellsLayer;
+    delete this.cellsData;
+    delete this.stratifiedData;
+    delete this.cellSetsForceSimulation;
+    delete this.cellSetsLabelPrevZoom;
+    delete this.cellSetsLayers;
+    delete this.contourLayers;
   }
 
   /**

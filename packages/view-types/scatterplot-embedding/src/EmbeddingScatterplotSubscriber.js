@@ -299,7 +299,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (xRange && yRange) {
+    if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -395,6 +395,9 @@ export function EmbeddingScatterplotSubscriber(props) {
       originalViewState.target[1],
     ];
     const scaleFactor = (2 ** originalViewState.zoom);
+    if (!(typeof scaleFactor === 'number' && typeof center[0] === 'number' && typeof center[1] === 'number') || Number.isNaN(scaleFactor)) {
+      return null;
+    }
     const radius = Math.min(width, height) / 2 / scaleFactor;
     const numPoints = 96;
     const options = { steps: numPoints, units: 'degrees' };
@@ -457,9 +460,9 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [sampleEdges]);
 
   // Stratify multiple arrays: per-cellSet and per-sampleSet.
-  const stratifiedData = useMemo(() => {
+  const [stratifiedData, stratifiedDataCount] = useMemo(() => {
     if (alignedEmbeddingData?.data) {
-      const result = stratifyArrays(
+      const [result, cellCountResult] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
@@ -469,9 +472,9 @@ export function EmbeddingScatterplotSubscriber(props) {
           ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
         },
       );
-      return result;
+      return [result, cellCountResult];
     }
-    return null;
+    return [null, null];
   }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
     sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
     cellSetSelection, mergedCellSets,
@@ -484,10 +487,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetZ(target[2] || 0);
   };
 
+  // TODO: Update this once the rendered points reflects the selection/filtering.
+  const cellCountToUse = embeddingPointsVisible
+    ? cellsCount
+    : (stratifiedDataCount ?? cellsCount);
+
   return (
     <TitleInfo
       title={title}
-      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)}`}
+      info={`${commaNumber(cellCountToUse)} ${plur(observationsLabel, cellCountToUse)}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -583,17 +591,17 @@ export function EmbeddingScatterplotSubscriber(props) {
         circleInfo={circleInfo}
         featureSelection={geneSelection}
       />
-      {tooltipsVisible && (
-      <ScatterplotTooltipSubscriber
-        parentUuid={uuid}
-        obsHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getObsInfo={getObsInfo}
-        featureType={featureType}
-        featureLabelsMap={featureLabelsMap}
-      />
-      )}
+      {tooltipsVisible && width && height ? (
+        <ScatterplotTooltipSubscriber
+          parentUuid={uuid}
+          obsHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getObsInfo={getObsInfo}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
+      ) : null}
       <Legend
         visible
         theme={theme}
