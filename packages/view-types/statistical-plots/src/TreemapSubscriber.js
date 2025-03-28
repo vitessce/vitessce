@@ -223,7 +223,6 @@ export function TreemapSubscriber(props) {
   const unselectedObsCount = totalObsCount - selectedObsCount;
   const unselectedSampleCount = totalSampleCount - selectedSampleCount;
 
-  
 
   const onNodeClick = useCallback((obsSetPath) => {
     setObsSetSelection([obsSetPath]);

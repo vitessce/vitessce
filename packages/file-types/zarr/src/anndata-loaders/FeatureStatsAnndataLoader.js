@@ -113,20 +113,18 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
     if (sampleSetSelection) {
       if (sampleSetSelection.length !== 2) {
-        if(getDebugMode()) {
+        if (getDebugMode()) {
           return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
-        } else {
-          return null
         }
+        return null;
       }
     }
 
     if (!obsSetSelection) {
-      if(getDebugMode()) {
+      if (getDebugMode()) {
         return Promise.reject(new Error('Expected obsSetSelection to be present.'));
-      } else {
-        return null
       }
+      return null;
     }
 
     const metadata = await this.loadMetadata();

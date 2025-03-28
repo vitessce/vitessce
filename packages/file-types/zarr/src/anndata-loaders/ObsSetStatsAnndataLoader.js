@@ -150,19 +150,17 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
     const rawSampleSetSelection = sampleSetSelection;
 
     if (!sampleSetSelection || sampleSetSelection?.length !== 2) {
-      if(getDebugMode()) {
+      if (getDebugMode()) {
         return Promise.reject(new Error('Expected exactly two sample sets for cell type composition analysis plot.'));
-      } else {
-        return null;
       }
+      return null;
     }
 
     if (!obsSetSelection) {
-      if(getDebugMode()) {
+      if (getDebugMode()) {
         return Promise.reject(new Error('Expected obsSetSelection to be present.'));
-      } else {
-        return null;
       }
+      return null;
     }
 
     const metadata = await this.loadMetadata();
