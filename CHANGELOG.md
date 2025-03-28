@@ -1,4 +1,17 @@
 
+## 3.5.10
+
+### Patch Changes
+
+- Fix bugs to ensure that statistical plots can be used with no sample set selection. Add basic sample set pair manager view for sidebar. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/scatterplot`, `@vitessce/sets-utils`) ([#2082](https://github.com/vitessce/vitessce/pull/2082))
+
+- Improve text positioning when scatterplot is rendering contours. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot`, `@vitessce/gl`) ([#2086](https://github.com/vitessce/vitessce/pull/2086))
+
+- Add table view for differential expression results. (`@vitessce/statistical-plots`) ([#2087](https://github.com/vitessce/vitessce/pull/2087))
+
+- Added props to voilinPlot for title and xAxisTitles (`@vitessce/statistical-plots`, `@vitessce/vit-s`) ([#2088](https://github.com/vitessce/vitessce/pull/2088))
+
+
 ## 3.5.9
 
 ### Patch Changes
