@@ -120,14 +120,15 @@ export default class SelectionLayer extends CompositeLayer {
         // contain, be within, or overlap with the selected polygon.
 
         // Check if this is a leaf node.
-        if (node.data
-          && booleanPointInPolygon(
-            turfPoint([].slice.call(getObsCoords(node.data))), selectedPolygon,
-          )
-        ) {
-          // This node has data, so it is a leaf node representing one data point,
-          // and we have verified that the point is in the selected polygon.
-          pickingInfos.push(node.data);
+        if (node.data) {
+          let current = node;
+          while (current) {
+            const pointCoords = [].slice.call(getObsCoords(current.data));
+            if (booleanPointInPolygon(turfPoint(pointCoords), selectedPolygon)) {
+              pickingInfos.push(current.data);
+            }
+            current = current.next;
+          }
         }
 
         // Return false because we are not done.
