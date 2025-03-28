@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { isEqualWith, pick } from 'lodash-es';
@@ -14,7 +15,7 @@ function createWorker() {
 
 /**
  * Is this a valid viewerState object?
- * @param {object} viewerState 
+ * @param {object} viewerState
  * @returns {boolean}
  */
 function isValidState(viewerState) {
@@ -37,12 +38,12 @@ const VIEWSTATE_KEYS = ['projectionScale', 'projectionOrientation', 'position'];
 // Custom numeric comparison function
 // for isEqualWith, to be able to set a custom epsilon.
 function customizer(a, b) {
-  if(typeof a === 'number' && typeof b === 'number') {
+  if (typeof a === 'number' && typeof b === 'number') {
     // Returns true if the values are equivalent, else false.
     return Math.abs(a - b) > EPSILON;
   }
   // Return undefined to fallback to the default
-  // comparison function. 
+  // comparison function.
   return undefined;
 }
 
@@ -50,10 +51,10 @@ function customizer(a, b) {
  * Returns true if the two states are equal, or false if not.
  * @param {object} prevState Previous viewer state.
  * @param {object} nextState Next viewer state.
- * @returns 
+ * @returns
  */
 function compareViewerState(prevState, nextState) {
-  if(isValidState(nextState)) {
+  if (isValidState(nextState)) {
     // Subset the viewerState objects to only the keys
     // that we want to use for comparison.
     const prevSubset = pick(prevState, VIEWSTATE_KEYS);
@@ -63,12 +64,12 @@ function compareViewerState(prevState, nextState) {
   return true;
 }
 
-export class Neuroglancer extends PureComponent {
+export default class Neuroglancer extends PureComponent {
   constructor(props) {
     super(props);
 
     this.bundleRoot = createWorker();
-    
+
     this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
 
@@ -89,7 +90,7 @@ export class Neuroglancer extends PureComponent {
       onSelectHoveredCoords,
     } = this.props;
 
-    if(viewerRef) {
+    if (viewerRef) {
       // Mount
       const { viewer } = viewerRef;
       this.prevElement = viewer.element;
@@ -105,21 +106,21 @@ export class Neuroglancer extends PureComponent {
         }
       };
       viewer.element.addEventListener('mousedown', this.prevClickHandler);
-      
+
       this.prevHoverHandler = () => {
         if (viewer.mouseState.pickedValue !== undefined) {
           const pickedSegment = viewer.mouseState.pickedValue;
           onSelectHoveredCoords(pickedSegment?.low);
         }
       };
-  
+
       viewer.mouseState.changed.add(this.prevHoverHandler);
     } else {
       // Unmount (viewerRef is null)
-      if(this.prevElement && this.prevClickHandler) {
+      if (this.prevElement && this.prevClickHandler) {
         this.prevElement.removeEventListener('mousedown', this.prevClickHandler);
       }
-      if(this.prevMouseStateChanged && this.prevHoverHandler) {
+      if (this.prevMouseStateChanged && this.prevHoverHandler) {
         this.prevMouseStateChanged.remove(this.prevHoverHandler);
       }
     }
@@ -128,8 +129,8 @@ export class Neuroglancer extends PureComponent {
   onViewerStateChanged(nextState) {
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-    
-    if(!this.justReceivedExternalUpdate && !compareViewerState(prevState, nextState)) {
+
+    if (!this.justReceivedExternalUpdate && !compareViewerState(prevState, nextState)) {
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);

@@ -7,13 +7,13 @@ import {
   useLoaders,
   useObsEmbeddingData,
 } from '@vitessce/vit-s';
-import { 
+import {
   ViewHelpMapping,
   ViewType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import { Neuroglancer } from './Neuroglancer.js';
+import Neuroglancer from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
 const NEUROGLANCER_ZOOM_BASIS = 16;
@@ -74,7 +74,7 @@ export function NeuroglancerSubscriber(props) {
 
   const classes = useStyles();
   const loaders = useLoaders();
-  
+
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -96,9 +96,9 @@ export function NeuroglancerSubscriber(props) {
     setRotationY(projectionOrientation[1]);
     setRotationZ(projectionOrientation[2]);
 
-   // Note: To pan in Neuroglancer, use shift+leftKey+drag
-   setTargetX(position[0]);
-   setTargetY(position[1]);
+    // Note: To pan in Neuroglancer, use shift+leftKey+drag
+    setTargetX(position[0]);
+    setTargetY(position[1]);
   }, [setZoom, setRotationX, setRotationY, setRotationZ, setTargetX, setTargetY]);
 
   const onSegmentClick = useCallback((value) => {
@@ -140,27 +140,25 @@ export function NeuroglancerSubscriber(props) {
     return colorCellMapping;
   }, [cellColors, rgbToHex]);
 
-  const derivedViewerState = useMemo(() => {
-    return {
-        ...initialViewerState,
-        layers: initialViewerState.layers.map((layer, index) => (index === 0
-          ? {
-            ...layer,
-            segments: Object.keys(cellColorMapping).map(String),
-            segmentColors: cellColorMapping,
-          }
-          : layer)),
-      };
-  }, [cellColorMapping, initialViewerState]);
+  const derivedViewerState = useMemo(() => ({
+    ...initialViewerState,
+    layers: initialViewerState.layers.map((layer, index) => (index === 0
+      ? {
+        ...layer,
+        segments: Object.keys(cellColorMapping).map(String),
+        segmentColors: cellColorMapping,
+      }
+      : layer)),
+  }), [cellColorMapping, initialViewerState]);
 
   const derivedViewerState2 = useMemo(() => {
-    if(typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
+    if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
       const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
       const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
       return {
         ...derivedViewerState,
-        projectionScale, 
-        position
+        projectionScale,
+        position,
       };
     }
     return derivedViewerState;
