@@ -13,7 +13,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import Neuroglancer from './Neuroglancer.js';
+import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
 const NEUROGLANCER_ZOOM_BASIS = 16;

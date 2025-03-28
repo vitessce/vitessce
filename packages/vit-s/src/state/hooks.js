@@ -219,7 +219,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
       coordinationSpace: newCoordinationSpace,
       coordinationScopes,
     } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
-      // Merge coordination objects in coordination space
+    // Merge coordination objects in coordination space
     Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
       if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
         // Perform an extra level of merging for meta-coordination scopes.
@@ -289,7 +289,7 @@ export const createViewConfigStore = (initialLoaders, initialConfig) => create(s
         return viewObj;
       }),
     };
-      // console.log('newViewConfig', newViewConfig);
+    // console.log('newViewConfig', newViewConfig);
     return {
       viewConfig: newViewConfig, mostRecentConfigSource: 'internal',
     };

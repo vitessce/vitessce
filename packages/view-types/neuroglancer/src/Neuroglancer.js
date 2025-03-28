@@ -64,7 +64,7 @@ function compareViewerState(prevState, nextState) {
   return true;
 }
 
-export default class Neuroglancer extends PureComponent {
+export class Neuroglancer extends PureComponent {
   constructor(props) {
     super(props);
 
