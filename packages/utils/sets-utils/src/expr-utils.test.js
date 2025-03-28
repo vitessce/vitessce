@@ -118,7 +118,7 @@ describe('Utility functions for processing expression data', () => {
         new Uint8Array([10, 20, 30, 40, 11, 21, 31, 41]),
       ];
 
-      const result = stratifyArrays(
+      const [result, cellCount] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
@@ -136,6 +136,7 @@ describe('Utility functions for processing expression data', () => {
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue')).toEqual(new Uint8Array([10, 30]));
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('obsEmbeddingX').length).toBe(2);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('obsEmbeddingY').length).toBe(2);
+      expect(cellCount).toBe(8);
     });
   });
 });

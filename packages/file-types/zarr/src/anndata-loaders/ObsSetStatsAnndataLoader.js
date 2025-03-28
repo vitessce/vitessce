@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+import { getDebugMode } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
 import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
@@ -149,11 +150,19 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
     const rawSampleSetSelection = sampleSetSelection;
 
     if (!sampleSetSelection || sampleSetSelection?.length !== 2) {
-      return Promise.reject(new Error('Expected exactly two sample sets for cell type composition analysis plot.'));
+      if(getDebugMode()) {
+        return Promise.reject(new Error('Expected exactly two sample sets for cell type composition analysis plot.'));
+      } else {
+        return null;
+      }
     }
 
     if (!obsSetSelection) {
-      return Promise.reject(new Error('Expected obsSetSelection to be present.'));
+      if(getDebugMode()) {
+        return Promise.reject(new Error('Expected obsSetSelection to be present.'));
+      } else {
+        return null;
+      }
     }
 
     const metadata = await this.loadMetadata();
