@@ -1,17 +1,20 @@
+/* eslint-disable no-unused-vars */
+import React, { useCallback, useMemo } from 'react';
 import {
   TitleInfo,
   useCoordination,
   useObsSetsData,
   useLoaders,
   useObsEmbeddingData,
-  useNeuroglancerViewerState,
-  useSetNeuroglancerViewerState,
 } from '@vitessce/vit-s';
-
-import { ViewHelpMapping, ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import {
+  ViewHelpMapping,
+  ViewType,
+  COMPONENT_COORDINATION_TYPES,
+} from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import React, { useCallback, useMemo, useEffect } from 'react';
-import { Neuroglancer } from './Neuroglancer.js';
+import Neuroglancer from './Neuroglancer.js';
+import { useStyles } from './styles.js';
 
 const NEUROGLANCER_ZOOM_BASIS = 16;
 
@@ -32,6 +35,7 @@ export function NeuroglancerSubscriber(props) {
     theme,
     title = 'Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    viewerState: initialViewerState,
   } = props;
 
   const [{
@@ -40,13 +44,13 @@ export function NeuroglancerSubscriber(props) {
     spatialZoom,
     spatialTargetX,
     spatialTargetY,
-    // spatialTargetZ,
-    // spatialRotationX,
-    // spatialRotationY,
-    // spatialRotationZ,
-    // spatialAxisFixed,
-    // spatialOrbitAxis,
-    // obsHighlight: cellHighlight,
+    spatialTargetZ,
+    spatialRotationX,
+    spatialRotationY,
+    spatialRotationZ,
+    spatialRotationOrbit,
+    spatialOrbitAxis,
+    obsHighlight: cellHighlight,
     embeddingType: mapping,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
@@ -59,17 +63,18 @@ export function NeuroglancerSubscriber(props) {
     setObsHighlight: setCellHighlight,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
-    // setSpatialTargetZ: setTargetZ,
+    setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
     setSpatialRotationY: setRotationY,
     setSpatialRotationZ: setRotationZ,
-    // setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialRotationOrbit: setRotationOrbit,
+
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
-
+  const classes = useStyles();
   const loaders = useLoaders();
-  const setViewerState = useSetNeuroglancerViewerState();
+
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -77,46 +82,34 @@ export function NeuroglancerSubscriber(props) {
     { obsType },
   );
 
-  const [
-    { obsIndex },
-  ] = useObsEmbeddingData(
+  const [{ obsIndex }] = useObsEmbeddingData(
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
 
-  const viewerState = useNeuroglancerViewerState();
-
-  useEffect(() => {
-    if (!spatialZoom || !spatialTargetX || !spatialTargetY) return;
-    const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
-    const position = [spatialTargetX, spatialTargetY, viewerState.position[2]];
-    // console.log("postiion", position)
-    const updatedState = { ...viewerState, projectionScale, position };
-    setViewerState(updatedState);
-  }, [spatialZoom, spatialTargetX, spatialTargetY]);
-
-
   const handleStateUpdate = useCallback((newState) => {
-    setZoom(mapNeuroglancerToVitessce(newState.projectionScale));
-    // To map xyz rotation
-    setRotationX(newState.projectionOrientation[0]);
-    setRotationY(newState.projectionOrientation[1]);
-    setRotationZ(newState.projectionOrientation[2]);
-    // Note: To pan in Neuroglancer, use shift+leftKey+drag
-    setTargetX(newState.position[0]);
-    setTargetY(newState.position[1]);
-    // console.log(newState.position);
-  }, []);
+    const { projectionScale, projectionOrientation, position } = newState;
+    setZoom(mapNeuroglancerToVitessce(projectionScale));
 
-  const handleSegmentClick = useCallback((value) => {
+    // To map xyz rotation
+    setRotationX(projectionOrientation[0]);
+    setRotationY(projectionOrientation[1]);
+    setRotationZ(projectionOrientation[2]);
+
+    // Note: To pan in Neuroglancer, use shift+leftKey+drag
+    setTargetX(position[0]);
+    setTargetY(position[1]);
+  }, [setZoom, setRotationX, setRotationY, setRotationZ, setTargetX, setTargetY]);
+
+  const onSegmentClick = useCallback((value) => {
     if (value) {
-      const selectedCellIds = [value];
+      const selectedCellIds = [String(value)];
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
         setCellColorEncoding,
         'Selection ',
-        `: based on selected segments ${value} `,
+        `: based on selected segments ${value}`,
       );
     }
   }, [additionalCellSets, cellSetColor, setAdditionalCellSets,
@@ -147,11 +140,33 @@ export function NeuroglancerSubscriber(props) {
     return colorCellMapping;
   }, [cellColors, rgbToHex]);
 
+  const derivedViewerState = useMemo(() => ({
+    ...initialViewerState,
+    layers: initialViewerState.layers.map((layer, index) => (index === 0
+      ? {
+        ...layer,
+        segments: Object.keys(cellColorMapping).map(String),
+        segmentColors: cellColorMapping,
+      }
+      : layer)),
+  }), [cellColorMapping, initialViewerState]);
+
+  const derivedViewerState2 = useMemo(() => {
+    if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
+      const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
+      const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
+      return {
+        ...derivedViewerState,
+        projectionScale,
+        position,
+      };
+    }
+    return derivedViewerState;
+  }, [derivedViewerState, spatialZoom, spatialTargetX, spatialTargetY]);
+
   const onSegmentHighlight = useCallback((obsId) => {
-    // console.log("obsId", obsId, cellHighlight)
-    // TODO: not working
-    setCellHighlight(obsId);
-  }, [viewerState]);
+    setCellHighlight(String(obsId));
+  }, [obsIndex]);
 
   return (
     <TitleInfo
@@ -163,12 +178,14 @@ export function NeuroglancerSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady
+      withPadding={false}
     >
       <Neuroglancer
-        cellColorMapping={cellColorMapping}
-        onSegmentClick={handleSegmentClick}
+        classes={classes}
+        onSegmentClick={onSegmentClick}
         onSelectHoveredCoords={onSegmentHighlight}
-        onViewerStateUpdate={handleStateUpdate}
+        viewerState={derivedViewerState2}
+        setViewerState={handleStateUpdate}
       />
     </TitleInfo>
   );

@@ -160,200 +160,195 @@ export function getParameterScopeBy(
  * - https://github.com/pmndrs/zustand#using-subscribe-with-selector
  * @returns {function} The useStore hook.
  */
-export const createViewConfigStore = (initialLoaders, initialConfig) => {
-  const initialNeuroglancerState = initialConfig?.layout?.find(view => view.component === 'neuroglancer')?.props?.viewerState || {};
-  return create(set => ({
+export const createViewConfigStore = (initialLoaders, initialConfig) => create(set => ({
   // State:
   // The viewConfig is an object which must conform to the schema
   // found in src/schemas/config.schema.json.
-    viewConfig: initialConfig,
-    // Store the initial config so that its values can be used for resetting.
-    initialViewConfig: cloneDeep(initialConfig),
-    // The loaders object is a mapping from dataset ID to
-    // data type to loader object instance.
-    loaders: initialLoaders,
-    // Reducer functions which update the state
-    // (although technically also part of state):
-    setViewConfig: viewConfig => set({
-      viewConfig,
-      initialViewConfig:
+  viewConfig: initialConfig,
+  // Store the initial config so that its values can be used for resetting.
+  initialViewConfig: cloneDeep(initialConfig),
+  // The loaders object is a mapping from dataset ID to
+  // data type to loader object instance.
+  loaders: initialLoaders,
+  // Reducer functions which update the state
+  // (although technically also part of state):
+  setViewConfig: viewConfig => set({
     viewConfig,
-      // mostRecentConfigSource is used by the LinkController to determine
-      // whether the config was set by this instance or an external linked
-      // instance of Vitessce, and used to prevent infinite loops.
-      mostRecentConfigSource: 'internal',
-    }),
-    setLoaders: loaders => set({ loaders }),
-    neuroglancerViewerState: initialNeuroglancerState,
-    setNeuroglancerViewerState: newState => set({ neuroglancerViewerState: newState }),
-    setCoordinationValue: ({
-      parameter, value, coordinationScopes,
-      byType, typeScope, coordinationScopesBy,
-    }) => set((state) => {
-      const { coordinationSpace } = state.viewConfig;
-      let scope;
-      if (!byType) {
-        scope = getParameterScope(parameter, coordinationScopes);
-      } else {
-        scope = getParameterScopeBy(
-          parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
-        );
-        if (!scope) {
+    initialViewConfig:
+    viewConfig,
+    // mostRecentConfigSource is used by the LinkController to determine
+    // whether the config was set by this instance or an external linked
+    // instance of Vitessce, and used to prevent infinite loops.
+    mostRecentConfigSource: 'internal',
+  }),
+  setLoaders: loaders => set({ loaders }),
+  setCoordinationValue: ({
+    parameter, value, coordinationScopes,
+    byType, typeScope, coordinationScopesBy,
+  }) => set((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    let scope;
+    if (!byType) {
+      scope = getParameterScope(parameter, coordinationScopes);
+    } else {
+      scope = getParameterScopeBy(
+        parameter, byType, typeScope, coordinationScopes, coordinationScopesBy,
+      );
+      if (!scope) {
         // Fall back to using the view-level scope.
-          scope = getParameterScope(parameter, coordinationScopes);
-        }
+        scope = getParameterScope(parameter, coordinationScopes);
       }
-      return {
-        viewConfig: {
-          ...state.viewConfig,
-          coordinationSpace: {
-            ...coordinationSpace,
-            [parameter]: {
-              ...coordinationSpace[parameter],
-              [scope]: value,
-            },
-          },
-        },
-        mostRecentConfigSource: 'internal',
-      };
-    }),
-    mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
-      const { coordinationSpace, layout } = state.viewConfig;
-      const {
-        coordinationSpace: newCoordinationSpace,
-        coordinationScopes,
-      } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
-      // Merge coordination objects in coordination space
-      Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
-        if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
-        // Perform an extra level of merging for meta-coordination scopes.
-          Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
-            coordinationSpace[coordinationType] = {
-              ...coordinationSpace[coordinationType],
-              [coordinationScope]: {
-                ...coordinationValue,
-                ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
-              },
-            };
-          });
-        } else if (coordinationType === CoordinationType.META_COORDINATION_SCOPES_BY) {
-        // Perform two extra levels of merging for meta-coordination scopesBy.
-          Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
-            Object.entries(coordinationValue).forEach(([primaryType, primaryObj]) => {
-              Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
-                coordinationSpace[coordinationType] = {
-                  ...coordinationSpace[coordinationType],
-                  [coordinationScope]: {
-                    ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
-                    [primaryType]: {
-                      ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType] || {}),
-                      [secondaryType]: {
-                        ...secondaryObj,
-                        ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType]?.[secondaryType] || {}),
-                      },
-                    },
-                  },
-                };
-              });
-            });
-          });
-        } else {
-          coordinationSpace[coordinationType] = {
-            ...coordinationObj,
-            // Existing coordination values should be preserved,
-            // so that user-defined values take precedence over auto-initialization values.
-            ...(coordinationSpace[coordinationType] || {}),
-          };
-        }
-      });
-
-      const newViewConfig = {
+    }
+    return {
+      viewConfig: {
         ...state.viewConfig,
         coordinationSpace: {
           ...coordinationSpace,
+          [parameter]: {
+            ...coordinationSpace[parameter],
+            [scope]: value,
+          },
         },
-        layout: layout.map((viewObj) => {
-          if (viewObj.uid === viewUid) {
+      },
+      mostRecentConfigSource: 'internal',
+    };
+  }),
+  mergeCoordination: (newCoordinationValues, scopePrefix, viewUid) => set((state) => {
+    const { coordinationSpace, layout } = state.viewConfig;
+    const {
+      coordinationSpace: newCoordinationSpace,
+      coordinationScopes,
+    } = getCoordinationSpaceAndScopes(newCoordinationValues, scopePrefix);
+      // Merge coordination objects in coordination space
+    Object.entries(newCoordinationSpace).forEach(([coordinationType, coordinationObj]) => {
+      if (coordinationType === CoordinationType.META_COORDINATION_SCOPES) {
+        // Perform an extra level of merging for meta-coordination scopes.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          coordinationSpace[coordinationType] = {
+            ...coordinationSpace[coordinationType],
+            [coordinationScope]: {
+              ...coordinationValue,
+              ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+            },
+          };
+        });
+      } else if (coordinationType === CoordinationType.META_COORDINATION_SCOPES_BY) {
+        // Perform two extra levels of merging for meta-coordination scopesBy.
+        Object.entries(coordinationObj).forEach(([coordinationScope, coordinationValue]) => {
+          Object.entries(coordinationValue).forEach(([primaryType, primaryObj]) => {
+            Object.entries(primaryObj).forEach(([secondaryType, secondaryObj]) => {
+              coordinationSpace[coordinationType] = {
+                ...coordinationSpace[coordinationType],
+                [coordinationScope]: {
+                  ...(coordinationSpace[coordinationType]?.[coordinationScope] || {}),
+                  [primaryType]: {
+                    ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType] || {}),
+                    [secondaryType]: {
+                      ...secondaryObj,
+                      ...(coordinationSpace[coordinationType]?.[coordinationScope]?.[primaryType]?.[secondaryType] || {}),
+                    },
+                  },
+                },
+              };
+            });
+          });
+        });
+      } else {
+        coordinationSpace[coordinationType] = {
+          ...coordinationObj,
+          // Existing coordination values should be preserved,
+          // so that user-defined values take precedence over auto-initialization values.
+          ...(coordinationSpace[coordinationType] || {}),
+        };
+      }
+    });
+
+    const newViewConfig = {
+      ...state.viewConfig,
+      coordinationSpace: {
+        ...coordinationSpace,
+      },
+      layout: layout.map((viewObj) => {
+        if (viewObj.uid === viewUid) {
           // Merge coordination scopes for views
-            return {
-              ...viewObj,
-              coordinationScopes: {
-                ...viewObj.coordinationScopes,
-                [CoordinationType.META_COORDINATION_SCOPES]: [
-                  ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
-                  ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
-                ],
-                [CoordinationType.META_COORDINATION_SCOPES_BY]: [
-                  ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
-                  ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
-                ],
-              },
-            };
-          }
-          return viewObj;
-        }),
-      };
+          return {
+            ...viewObj,
+            coordinationScopes: {
+              ...viewObj.coordinationScopes,
+              [CoordinationType.META_COORDINATION_SCOPES]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES] || []),
+              ],
+              [CoordinationType.META_COORDINATION_SCOPES_BY]: [
+                ...(coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+                ...(viewObj.coordinationScopes[CoordinationType.META_COORDINATION_SCOPES_BY] || []),
+              ],
+            },
+          };
+        }
+        return viewObj;
+      }),
+    };
       // console.log('newViewConfig', newViewConfig);
-      return {
-        viewConfig: newViewConfig, mostRecentConfigSource: 'internal',
-      };
-    }),
-    removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
-      const { coordinationSpace } = state.viewConfig;
-      return {
-        viewConfig: {
-          ...state.viewConfig,
-          coordinationSpace: removeImageChannelInMetaCoordinationScopesHelper(
-            coordinationScopesRaw,
-            layerScope,
-            channelScope,
-            coordinationSpace,
-          ),
-        },
-        mostRecentConfigSource: 'internal',
-      };
-    }),
-    addImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope) => set((state) => {
-      const { coordinationSpace } = state.viewConfig;
-      return {
-        viewConfig: {
-          ...state.viewConfig,
-          coordinationSpace: addImageChannelInMetaCoordinationScopesHelper(
-            coordinationScopesRaw,
-            layerScope,
-            coordinationSpace,
-          ),
-        },
-        mostRecentConfigSource: 'internal',
-      };
-    }),
-    removeComponent: uid => set((state) => {
-      const newLayout = state.viewConfig.layout.filter(c => c.uid !== uid);
-      return {
-        viewConfig: {
-          ...state.viewConfig,
-          layout: newLayout,
-        },
-        mostRecentConfigSource: 'internal',
-      };
-    }),
-    changeLayout: newComponentProps => set((state) => {
-      const newLayout = state.viewConfig.layout
-        .slice()
-        .map(componentProps => ({
-          ...componentProps,
-          ...newComponentProps[componentProps.uid],
-        }));
-      return {
-        viewConfig: {
-          ...state.viewConfig,
-          layout: newLayout,
-        },
-        mostRecentConfigSource: 'internal',
-      };
-    }),
-  }));
-};
+    return {
+      viewConfig: newViewConfig, mostRecentConfigSource: 'internal',
+    };
+  }),
+  removeImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope, channelScope) => set((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        coordinationSpace: removeImageChannelInMetaCoordinationScopesHelper(
+          coordinationScopesRaw,
+          layerScope,
+          channelScope,
+          coordinationSpace,
+        ),
+      },
+      mostRecentConfigSource: 'internal',
+    };
+  }),
+  addImageChannelInMetaCoordinationScopes: (coordinationScopesRaw, layerScope) => set((state) => {
+    const { coordinationSpace } = state.viewConfig;
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        coordinationSpace: addImageChannelInMetaCoordinationScopesHelper(
+          coordinationScopesRaw,
+          layerScope,
+          coordinationSpace,
+        ),
+      },
+      mostRecentConfigSource: 'internal',
+    };
+  }),
+  removeComponent: uid => set((state) => {
+    const newLayout = state.viewConfig.layout.filter(c => c.uid !== uid);
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+      mostRecentConfigSource: 'internal',
+    };
+  }),
+  changeLayout: newComponentProps => set((state) => {
+    const newLayout = state.viewConfig.layout
+      .slice()
+      .map(componentProps => ({
+        ...componentProps,
+        ...newComponentProps[componentProps.uid],
+      }));
+    return {
+      viewConfig: {
+        ...state.viewConfig,
+        layout: newLayout,
+      },
+      mostRecentConfigSource: 'internal',
+    };
+  }),
+}));
 
 /**
  * Hook for getting components' layout from the view config based on
@@ -1214,13 +1209,4 @@ export function useGridResize() {
  */
 export function useEmitGridResize() {
   return useGridSizeStore(state => state.incrementResizeCount);
-}
-
-
-export function useNeuroglancerViewerState() {
-  return useViewConfigStore(state => state.neuroglancerViewerState);
-}
-
-export function useSetNeuroglancerViewerState() {
-  return useViewConfigStore(state => state.setNeuroglancerViewerState);
 }

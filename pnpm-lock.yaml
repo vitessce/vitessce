@@ -1860,6 +1860,9 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'

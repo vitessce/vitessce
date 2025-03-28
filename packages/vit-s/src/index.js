@@ -50,7 +50,6 @@ export {
   useComponentLayout,
   useRemoveImageChannelInMetaCoordinationScopes,
   useAddImageChannelInMetaCoordinationScopes,
-  useNeuroglancerViewerState, useSetNeuroglancerViewerState,
 } from './state/hooks.js';
 export {
   useDescription,
