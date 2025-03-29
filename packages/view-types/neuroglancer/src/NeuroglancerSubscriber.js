@@ -26,6 +26,42 @@ function mapNeuroglancerToVitessce(projectionScale) {
   return -Math.log2(projectionScale / NEUROGLANCER_ZOOM_BASIS);
 }
 
+function quaternionToEuler([x, y, z, w]) {
+  // X-axis rotation (Roll)
+  const thetaX = Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
+
+  // Y-axis rotation (Pitch)
+  const sinp = 2 * (w * y - z * x);
+  const thetaY = Math.abs(sinp) >= 1 ? Math.sign(sinp) * (Math.PI / 2) : Math.asin(sinp);
+
+  // Convert to degrees as Vitessce expects degrees?
+  return [thetaX * (180 / Math.PI), thetaY * (180 / Math.PI)];
+}
+
+
+function eulerToQuaternion(thetaX, thetaY) {
+  // Convert Euler angles (X, Y rotations) to quaternion
+  const halfThetaX = thetaX / 2;
+  const halfThetaY = thetaY / 2;
+
+  const sinX = Math.sin(halfThetaX);
+  const cosX = Math.cos(halfThetaX);
+  const sinY = Math.sin(halfThetaY);
+  const cosY = Math.cos(halfThetaY);
+
+  return [
+    sinX * cosY,
+    cosX * sinY,
+    sinX * sinY,
+    cosX * cosY,
+  ];
+}
+
+function normalizeQuaternion(q) {
+  const length = Math.sqrt((q[0] ** 2) + (q[1] ** 2) + (q[2] ** 2) + (q[3] ** 2));
+  return q.map(value => value / length);
+}
+
 export function NeuroglancerSubscriber(props) {
   const {
     coordinationScopes,
@@ -44,13 +80,11 @@ export function NeuroglancerSubscriber(props) {
     spatialZoom,
     spatialTargetX,
     spatialTargetY,
-    spatialTargetZ,
     spatialRotationX,
     spatialRotationY,
-    spatialRotationZ,
-    spatialRotationOrbit,
-    spatialOrbitAxis,
-    obsHighlight: cellHighlight,
+    // spatialRotationZ,
+    // spatialRotationOrbit,
+    // spatialOrbitAxis,
     embeddingType: mapping,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
@@ -63,11 +97,10 @@ export function NeuroglancerSubscriber(props) {
     setObsHighlight: setCellHighlight,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
-    setSpatialTargetZ: setTargetZ,
     setSpatialRotationX: setRotationX,
     setSpatialRotationY: setRotationY,
-    setSpatialRotationZ: setRotationZ,
-    setSpatialRotationOrbit: setRotationOrbit,
+    // setSpatialRotationZ: setRotationZ,
+    // setSpatialRotationOrbit: setRotationOrbit,
 
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
@@ -90,16 +123,16 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
     setZoom(mapNeuroglancerToVitessce(projectionScale));
+    const vitessceEularMapping = quaternionToEuler(projectionOrientation);
 
-    // To map xyz rotation
-    setRotationX(projectionOrientation[0]);
-    setRotationY(projectionOrientation[1]);
-    setRotationZ(projectionOrientation[2]);
+    // TODO: support z rotation on SpatialView?
+    setRotationX(vitessceEularMapping[0]);
+    setRotationY(vitessceEularMapping[1]);
 
     // Note: To pan in Neuroglancer, use shift+leftKey+drag
     setTargetX(position[0]);
     setTargetY(position[1]);
-  }, [setZoom, setRotationX, setRotationY, setRotationZ, setTargetX, setTargetY]);
+  }, [setZoom, setTargetX, setTargetY, setRotationX, setRotationY]);
 
   const onSegmentClick = useCallback((value) => {
     if (value) {
@@ -155,18 +188,23 @@ export function NeuroglancerSubscriber(props) {
     if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
       const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
       const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
+      const projectionOrientation = normalizeQuaternion(
+        eulerToQuaternion(spatialRotationX, spatialRotationY),
+      );
       return {
         ...derivedViewerState,
         projectionScale,
         position,
+        projectionOrientation,
       };
     }
     return derivedViewerState;
-  }, [derivedViewerState, spatialZoom, spatialTargetX, spatialTargetY]);
+  }, [derivedViewerState, spatialZoom, spatialTargetX,
+    spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
-  }, [obsIndex]);
+  }, [obsIndex, setCellHighlight]);
 
   return (
     <TitleInfo
