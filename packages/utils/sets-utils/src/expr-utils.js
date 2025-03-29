@@ -119,6 +119,7 @@ export function stratifyArrays(
   // Iterate over every observation.
   // Insert the ID and all corresponding values into
   // the appropriate arrays within the InternMap.
+  let cellCount = 0;
   for (let i = 0; i < obsIndex.length; i += 1) {
     const obsId = obsIndex[i];
 
@@ -144,6 +145,7 @@ export function stratifyArrays(
         .get(arrKey)[insertionIndex] = value;
     });
     result.get(cellSet).get(sampleSet).set('i', insertionIndex + 1);
+    cellCount += 1;
   }
 
   cellSetKeys.forEach((cellSetKey) => {
@@ -157,7 +159,7 @@ export function stratifyArrays(
     });
   });
 
-  return result;
+  return [result, cellCount];
 }
 
 /**

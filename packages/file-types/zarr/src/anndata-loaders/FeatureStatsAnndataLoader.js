@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+import { getDebugMode } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
 import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
@@ -112,12 +113,18 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
 
     if (sampleSetSelection) {
       if (sampleSetSelection.length !== 2) {
-        return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
+        if (getDebugMode()) {
+          return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
+        }
+        return null;
       }
     }
 
     if (!obsSetSelection) {
-      return Promise.reject(new Error('Expected obsSetSelection to be present.'));
+      if (getDebugMode()) {
+        return Promise.reject(new Error('Expected obsSetSelection to be present.'));
+      }
+      return null;
     }
 
     const metadata = await this.loadMetadata();
