@@ -810,7 +810,9 @@ options={`{
   // Specify the column containing p-values.
   "pValueColumn": "pvals_adj",
   // Does the p-value column contain adjusted p-values?
-  "pValueAdjusted": true
+  "pValueAdjusted": true,
+  // Optionally, what gene set library was used for testing and is specified in the metadata?
+  "featureSetLibrary": "Reactome_2022"
 }`}
 coordinationValues={`{
   "obsType": "cell",
@@ -845,10 +847,7 @@ options={`{
   // For scCODA results, this indicates the expected value for a new sample in presence of the covariate.
   "effectExpectedSampleColumn": "effectExpectedSample",
   // For scCODA results, this is a boolean column indicating whether a credible change was detected for the cell type.
-  "isCredibleEffectColumn": "isCredibleEffect",
-  // For scCODA results, this column indicates the covariate value.
-  // (This column may not be needed in the future, see https://github.com/keller-mark/compasce/issues/30)
-  "covariateColumn": "covariate"
+  "isCredibleEffectColumn": "isCredibleEffect"
 }`}
 coordinationValues={`{
   "obsType": "cell",

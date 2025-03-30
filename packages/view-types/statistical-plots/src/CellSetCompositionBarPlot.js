@@ -39,21 +39,17 @@ export default function CellSetCompositionBarPlot(props) {
       // Return in array-of-objects form that Vega-Lite likes.
 
       const referenceCellType = metadata?.analysis_params?.reference_cell_type;
+      const covariateValue = metadata?.analysis_params?.covariate_value;
       const coordinationValues = metadata?.coordination_values;
       const obsSetColumnName = coordinationValues?.obsSetSelection?.[0]?.[0];
       const obsSetGroupName = obsSetsColumnNameMappingReversed?.[obsSetColumnName];
 
       const sampleSetColumnName = coordinationValues?.sampleSetFilter?.[0]?.[0];
       const sampleSetGroupName = sampleSetsColumnNameMappingReversed?.[sampleSetColumnName];
-
-      // See https://github.com/keller-mark/compasce/issues/30 which should simplify this logic once implemented,
-      // so that we would no longer need to load/check the covariate column in the frontend.
-      const covariatePrefix = `${sampleSetColumnName}T.`;
-      const firstCovariateValue = df.covariate?.[0]?.substring(covariatePrefix.length);
-      const firstCovariateSetPath = [sampleSetGroupName, firstCovariateValue];
+      const covariateSetPath = [sampleSetGroupName, covariateValue];
 
       let shouldSwapFoldChangeDirection = false;
-      if (isEqual(firstCovariateSetPath, sampleSetSelection[0])) {
+      if (isEqual(covariateSetPath, sampleSetSelection[0])) {
         shouldSwapFoldChangeDirection = true;
       }
 
