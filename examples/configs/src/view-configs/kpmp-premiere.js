@@ -9,7 +9,7 @@ import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
 
-const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250303.adata.zarr';
+const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250330.adata.zarr';
 
 function generateKpmpPremiereConfig() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -53,7 +53,6 @@ function generateKpmpPremiereConfig() {
       foldChangeColumn: 'log2-fold change',
       foldChangeTransformation: 'log2',
       isCredibleEffectColumn: 'is_credible_effect',
-      covariateColumn: 'Covariate',
     },
     coordinationValues: {
       obsType: 'cell',
@@ -71,6 +70,7 @@ function generateKpmpPremiereConfig() {
         pValueColumn: 'pvals_adj',
         pValueAdjusted: true,
         analysisType: 'pertpy_hypergeometric',
+        featureSetLibrary: 'Reactome_2022',
       },
       coordinationValues: {
         obsType: 'cell',

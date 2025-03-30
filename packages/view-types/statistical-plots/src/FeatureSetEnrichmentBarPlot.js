@@ -14,7 +14,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
     theme,
     width,
     height,
-    marginRight = 200,
+    marginRight = 300,
     marginBottom = 120,
     keyLength = 36,
     featureType,
@@ -86,7 +86,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
           return [...a, h];
         }, []);
 
-      const MAX_ROWS = 25;
+      const MAX_ROWS = 50;
       result = result.slice(0, MAX_ROWS);
       return result;
     }
