@@ -6,8 +6,8 @@ import { AnnDataSource } from '@vitessce/zarr';
 
 // If the array path starts with table/something/rest
 // capture table/something.
-const pluralRegex = /^tables\/([^/]*)\/(.*)$/;
-const singularRegex = /^table\/([^/]*)\/(.*)$/;
+const pluralRegex = /^tables\/([^/]*)(\/?)(.*)$/;
+const singularRegex = /^table\/([^/]*)(\/?)(.*)$/;
 
 /**
  *
@@ -18,11 +18,11 @@ function getTablePrefix(arrPath) {
   if (arrPath) {
     // First try the plural "tables/{something}"
     const pluralMatches = arrPath.match(pluralRegex);
-    if (pluralMatches && pluralMatches.length === 3) {
+    if (pluralMatches && pluralMatches.length >= 3) {
       return `tables/${pluralMatches[1]}/`;
     }
     const singularMatches = arrPath.match(singularRegex);
-    if (singularMatches && singularMatches.length === 3) {
+    if (singularMatches && singularMatches.length >= 3) {
       return `table/${singularMatches[1]}/`;
     }
   }
