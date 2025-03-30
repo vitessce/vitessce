@@ -87,7 +87,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
   async loadMulti(volcanoOptions) {
     const {
       analysisType: targetAnalysisType = 'pertpy_hypergeometric',
-      featureSetLibrary: targetFeatureSetLibrary = 'Reactome_2022'
+      featureSetLibrary: targetFeatureSetLibrary = 'Reactome_2022',
     } = this.options;
     const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
 
@@ -132,7 +132,9 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
         } = resultObject;
         if (
           analysis_type === targetAnalysisType
-          && analysis_params?.pertpy_hypergeometric?.enrichr_library_name === targetFeatureSetLibrary
+          && (analysis_params
+            ?.pertpy_hypergeometric
+            ?.enrichr_library_name === targetFeatureSetLibrary)
         ) {
           // This is a diff. exp. result.
           if (sampleSetSelection) {
