@@ -12,7 +12,8 @@ Vitessce is being used in the following projects:
   * [KPMP Kidney Tissue Atlas](https://atlas.kpmp.org/) ([code](https://github.com/KPMP/hydra-web)) ([paper](https://doi.org/10.1016/j.kint.2020.08.039))
   * [4D Nucleome Data Portal](https://data.4dnucleome.org/) ([code](https://github.com/4dn-dcic/fourfront)) ([paper](https://doi.org/10.1038/s41467-022-29697-4))  
   * [WebAtlas](https://developmental.cellatlas.io/webatlas) ([code](https://github.com/haniffalab/webatlas-app)) ([paper](https://doi.org/10.1101/2023.05.19.541329))  
-  * [Azimuth References](https://azimuth.hubmapconsortium.org/references/) ([code](https://github.com/satijalab/azimuth_website)) ([paper](https://doi.org/10.1016/j.cell.2021.04.048))  
+  * [Azimuth References](https://azimuth.hubmapconsortium.org/references/) ([code](https://github.com/satijalab/azimuth_website)) ([paper](https://doi.org/10.1016/j.cell.2021.04.048))
+  * [Human In Situ Single-cell Transcriptome Atlas](https://kbds.re.kr/hissta/) ([paper](https://doi.org/10.1093/bioinformatics/btaf142))
 * Integration into open-source tools/pipelines
   * OHSU Galaxy ([code](https://github.com/ohsu-comp-bio/scimap_phenotyping)) ([preprint](https://www.biorxiv.org/content/10.1101/2022.08.18.504436v2.full))  
   * OMERO \+ Vitessce ([code](https://github.com/NFDI4BIOIMAGE/omero-vitessce))  
