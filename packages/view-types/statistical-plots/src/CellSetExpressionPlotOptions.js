@@ -3,6 +3,10 @@ import { useId } from 'react-aria';
 import { TableCell, TableRow, TextField, Slider } from '@material-ui/core';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
+import { capitalize } from '@vitessce/utils';
+
+
+const FEATURE_AGGREGATION_STRATEGIES = ['first', 'last', 'sum', 'mean'];
 
 export default function CellSetExpressionPlotOptions(props) {
   const {
@@ -15,6 +19,8 @@ export default function CellSetExpressionPlotOptions(props) {
     setFeatureValuePositivityThreshold,
     featureValueColormap,
     setFeatureValueColormap,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
   } = props;
 
   const cellSetExpressionPlotOptionsId = useId();
@@ -25,9 +31,13 @@ export default function CellSetExpressionPlotOptions(props) {
     setFeatureValueColormap(event.target.value);
   }
 
-  const handleTransformChange = (event) => {
+  function handleTransformChange(event) {
     setFeatureValueTransform(event.target.value === '' ? null : event.target.value);
-  };
+  }
+
+  function handleFeatureAggregationStrategyChange(event) {
+    setFeatureAggregationStrategy(event.target.value)
+  }
 
   function handlePositivityThresholdChange(event, value) {
     setFeatureValuePositivityThreshold(value);
@@ -119,6 +129,33 @@ export default function CellSetExpressionPlotOptions(props) {
           />
         </TableCell>
       </TableRow>
+      {setFeatureAggregationStrategy ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label
+              htmlFor={`feature-aggregation-strategy-${cellSetExpressionPlotOptionsId}`}
+            >
+              Feature Aggregation Strategy
+            </label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              value={featureAggregationStrategy ?? 'first'}
+              onChange={handleFeatureAggregationStrategyChange}
+              inputProps={{
+                id: `feature-aggregation-strategy-${cellSetExpressionPlotOptionsId}`,
+              }}
+            >
+              {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
+                <option key={opt} value={opt}>
+                  {capitalize(opt)}
+                </option>
+              ))}
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
       {setFeatureValuePositivityThreshold ? (
         <TableRow key="transform-coefficient-option-row">
           <TableCell className={classes.labelCell}>

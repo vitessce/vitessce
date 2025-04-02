@@ -277,10 +277,11 @@ export function stratifyExpressionData(
  * I.e., aggregate along the gene axis.
  * @param {*} stratifiedResult
  * @param {*} geneSelection
+ * @param {number|string} featureAggregationStrategy
  * @returns
  */
 export function aggregateStratifiedExpressionData(
-  stratifiedResult, geneSelection,
+  stratifiedResult, geneSelection, featureAggregationStrategy,
 ) {
   const result = new InternMap([], JSON.stringify);
   Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
@@ -288,7 +289,40 @@ export function aggregateStratifiedExpressionData(
     Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
       // For now, we just take the first gene.
       // TODO: support multiple genes via signature score method.
-      const values = secondLevelInternMap.get(geneSelection[0]);
+      let values;
+      if(featureAggregationStrategy === 'first') {
+        values = secondLevelInternMap.get(geneSelection[0]);
+      } else if(featureAggregationStrategy === 'last') {
+        values = secondLevelInternMap.get(geneSelection.at(-1));
+
+      } else if (typeof featureAggregationStrategy === 'number') {
+        const i = featureAggregationStrategy;
+        if(i >= 0 && i < geneSelection.length) {
+          values = secondLevelInternMap.get(geneSelection[i]);
+        } else {
+          throw new Error('Feature index used for featureAggregationStrategy is invalid.');
+        }
+      } else if(featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+        // Array of per-gene arrays.
+        const subarrays = geneSelection
+          .map(geneId => secondLevelInternMap.get(geneId));
+        // Use reduce+map to sum the arrays element-wise.
+        values = subarrays
+          .reduce((acc, curr) => acc.map((val, idx) => val + curr[idx]));
+        if(featureAggregationStrategy === 'mean') {
+          const N = geneSelection.length;
+          values = values.map(val => val / N);
+        }
+      } else if(featureAggregationStrategy === 'difference') {
+        if (geneSelection.length === 2) {
+          const subarrays = geneSelection
+            .map(geneId => secondLevelInternMap.get(geneId));
+          values = subarrays
+            .reduce((acc, curr) => acc.map((val, idx) => val - curr[idx]));
+        } else {
+          throw new Error('Expected exactly two selected features when featureAggregationStrategy is difference.')
+        }
+      }
       result.get(cellSetKey).set(sampleSetKey, values);
     });
   });

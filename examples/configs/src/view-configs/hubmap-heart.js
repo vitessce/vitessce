@@ -9,11 +9,11 @@ import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
 
-const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/kpmp-jan-2025/kpmp_premiere_20250330.adata.zarr';
+const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/hubmap-april-2025/ht.adata.zarr';
 
-function generateKpmpPremiereConfig() {
-  const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
-  const dataset = vc.addDataset('lake_et_al').addFile({
+function generateHubmapHeartConfig() {
+  const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'HuBMAP heart data product' });
+  const dataset = vc.addDataset('HuBMAP heart data product').addFile({
     fileType: 'comparisonMetadata.anndata.zarr',
     url: baseUrl,
     options: {
@@ -102,20 +102,20 @@ function generateKpmpPremiereConfig() {
         ],
         obsSets: [
           {
-            name: 'Cell Type',
-            path: 'obs/cell_type',
+            name: 'Predicted Label',
+            path: 'obs/predicted_label',
           },
           {
-            name: 'Subclass L1',
-            path: 'obs/subclass_l1',
+            name: 'Leiden',
+            path: 'obs/leiden',
           },
           {
-            name: 'Subclass L2',
-            path: 'obs/subclass_l2',
+            name: 'azimuth_label',
+            path: 'obs/azimuth_label',
           },
           {
-            name: 'Donor ID',
-            path: 'obs/donor_id',
+            name: 'HuBMAP ID',
+            path: 'obs/hubmap_id',
           },
           /* {
             name: 'Disease',
@@ -138,7 +138,7 @@ function generateKpmpPremiereConfig() {
         path: 'var/features',
       }, */
         sampleEdges: {
-          path: 'obs/SampleID',
+          path: 'obs/hubmap_id',
         },
       },
     })
@@ -148,16 +148,20 @@ function generateKpmpPremiereConfig() {
       options: {
         sampleSets: [
           {
-            name: 'Disease Type',
-            path: 'diseasetype',
+            name: 'Sex',
+            path: 'sex',
           },
           {
-            name: 'Adjudicated Category',
-            path: 'AdjudicatedCategory',
+            name: 'Age Group',
+            path: 'AgeGroup',
           },
           {
-            name: 'Enrollment Category',
-            path: 'EnrollmentCategory',
+            name: 'BMI Group',
+            path: 'BmiGroup',
+          },
+          {
+            name: 'Race',
+            path: 'race',
           },
         ],
       },
@@ -185,14 +189,14 @@ function generateKpmpPremiereConfig() {
     {
       cType: 'sampleSetSelection',
       cScope: '__comparison__',
-      cValue: [['Disease Type', 'CKD'], ['Disease Type', 'Reference']],
+      cValue: null,
     },
   );
   const [featureSelectionScope] = vc.addCoordination(
     {
       cType: 'featureSelection',
       cScope: '__comparison__',
-      cValue: ['UMOD', 'NPHS2'],
+      cValue: null,
     },
   );
 
@@ -343,7 +347,7 @@ function PageComponent() {
               <VolcanoPlotTable />
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')} style={{ height: '700px' }}>
+          <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view displays gene set enrichment test results based on the differential expression results.</p>
             </div>
@@ -402,5 +406,5 @@ function PageComponent() {
 }
 
 
-export const kpmpPremiere = generateKpmpPremiereConfig();
-export const kpmpPremiereComponent = PageComponent;
+export const hubmapHeart = generateHubmapHeartConfig();
+export const hubmapHeartComponent = PageComponent;

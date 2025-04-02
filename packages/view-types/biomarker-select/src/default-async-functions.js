@@ -58,7 +58,7 @@ function loadPathwayNodes() {
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
         label: d.pathway, // For reactome
-        term: `reactome:${d.acc}`, // For reactome
+        term: `REACTOME:${d.acc}`, // For reactome
         // label: d.ontology_label, // For GO_BP
         // term: d.acc, // For GO_BP
         nodeType: 'pathway',
@@ -186,6 +186,20 @@ export async function transformFeature({ queryClient }, node, targetModality) {
         staleTime: Infinity,
         queryFn: loadPathwayToGeneEdges,
       });
+
+      if(!node.kgId) {
+        const pathwayNodes = await queryClient.fetchQuery({
+          queryKey: ['pathwayNodes'],
+          staleTime: Infinity,
+          queryFn: loadPathwayNodes,
+        });
+        const foundId = pathwayNodes.find(n => n.term === node.term)?.kgId;
+        if(foundId) {
+          node.kgId = foundId;
+        } else {
+          console.warn('Could not find matching pathway node based on term.');
+        }
+      }
 
       // TODO: support matching using ontology term (rather than requiring kgId)?
       const matchingEdges = pathwayGeneEdges.filter((/** @type {KgEdge} */ d) => d.source === node.kgId);

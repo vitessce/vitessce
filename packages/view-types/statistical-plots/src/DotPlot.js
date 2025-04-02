@@ -134,7 +134,8 @@ export default function DotPlot(props) {
         type: 'quantitative',
         title: meanTransform,
         scale: {
-          scheme: featureValueColormap,
+          //scheme: featureValueColormap,
+          scheme: 'greys',
         },
         legend: {
           direction: 'horizontal',
