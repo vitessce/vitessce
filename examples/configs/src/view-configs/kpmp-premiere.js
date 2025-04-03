@@ -214,6 +214,7 @@ function generateKpmpPremiereConfig() {
     obsColorEncoding: 'geneSelection',
     featureValueColormap: 'jet',
     featureValueColormapRange: [0, 0.25],
+    featureAggregationStrategy: null,
   }, { meta: false });
 
   /*

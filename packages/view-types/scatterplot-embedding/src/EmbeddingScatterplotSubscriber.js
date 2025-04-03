@@ -40,6 +40,7 @@ import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 /**
  * A subscriber component for the scatterplot.
@@ -113,6 +114,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingContourPercentiles: contourPercentiles,
     contourColorEncoding,
     contourColor,
+    featureAggregationStrategy,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -139,6 +141,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContoursFilled,
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
+    setFeatureAggregationStrategy,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -154,6 +157,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelectionFromProps
     || sampleSetSelectionFromCoordination
   );
+
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -468,16 +474,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
-          // TODO: aggregate and transform expression data if needed prior to passing here
-          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
-        },
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
+        }, featureAggregationStrategyToUse,
       );
       return [result, cellCountResult];
     }
     return [null, null];
   }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
     sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
-    cellSetSelection, mergedCellSets,
+    cellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
@@ -539,6 +544,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
           contourColorEncoding={contourColorEncoding}
           setContourColorEncoding={setContourColorEncoding}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       )}
     >
@@ -613,14 +620,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
-        extent={expressionExtents?.[0]}
-        missing={expressionMissing?.[0]}
+        extent={expressionExtents}
+        missing={expressionMissing}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
         contoursVisible={embeddingContoursVisible}
         contoursFilled={embeddingContoursFilled}
         contourPercentiles={contourPercentiles || DEFAULT_CONTOUR_PERCENTILES}
         contourThresholds={contourThresholds}
+        featureAggregationStrategy={featureAggregationStrategyToUse}
       />
     </TitleInfo>
   );

@@ -156,6 +156,10 @@ function generateHubmapHeartConfig() {
             path: 'BmiGroup',
           },
           {
+            name: 'BMI Group2',
+            path: 'BmiGroup2',
+          },
+          {
             name: 'Race',
             path: 'race',
           },
@@ -214,6 +218,7 @@ function generateHubmapHeartConfig() {
     obsColorEncoding: 'geneSelection',
     featureValueColormap: 'jet',
     featureValueColormapRange: [0, 0.25],
+    featureAggregationStrategy: null,
   }, { meta: false });
 
   /*

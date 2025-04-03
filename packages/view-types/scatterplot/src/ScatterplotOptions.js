@@ -8,6 +8,8 @@ import {
 } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
+const FEATURE_AGGREGATION_STRATEGIES = ['first', 'last', 'sum', 'mean'];
+
 export default function ScatterplotOptions(props) {
   const {
     children,
@@ -48,6 +50,9 @@ export default function ScatterplotOptions(props) {
 
     contourColorEncoding,
     setContourColorEncoding,
+
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
   } = props;
 
   const scatterplotOptionsId = useId();
@@ -123,6 +128,10 @@ export default function ScatterplotOptions(props) {
     debounce(handlePercentilesChange, 5, { trailing: true }),
     [handlePercentilesChange],
   );
+
+  function handleFeatureAggregationStrategyChange(event) {
+    setFeatureAggregationStrategy(event.target.value)
+  }
 
   return (
     <OptionsContainer>
@@ -475,6 +484,33 @@ export default function ScatterplotOptions(props) {
           />
         </TableCell>
       </TableRow>
+      {setFeatureAggregationStrategy ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label
+              htmlFor={`feature-aggregation-strategy-${scatterplotOptionsId}`}
+            >
+              Feature Aggregation Strategy
+            </label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              value={featureAggregationStrategy ?? 'first'}
+              onChange={handleFeatureAggregationStrategyChange}
+              inputProps={{
+                id: `feature-aggregation-strategy-${scatterplotOptionsId}`,
+              }}
+            >
+              {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
+                <option key={opt} value={opt}>
+                  {capitalize(opt)}
+                </option>
+              ))}
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
     </OptionsContainer>
   );
 }

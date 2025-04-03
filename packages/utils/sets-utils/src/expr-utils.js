@@ -37,6 +37,7 @@ export function stratifyArrays(
   sampleSets, sampleSetSelection,
   obsIndex, mergedCellSets, cellSetSelection,
   arraysToStratify, // Assumed to be sorted with respect to the obsIndex.
+  featureAggregationStrategy,
 ) {
   const result = new InternMap([], JSON.stringify);
 
@@ -50,8 +51,16 @@ export function stratifyArrays(
   if (arrKeys.includes('obsIndex') || arrKeys.includes('i')) {
     throw new Error('The keys "obsIndex" and "i" are reserved for internal use.');
   }
-  if (Object.values(arraysToStratify).some(arr => arr.length !== obsIndex.length)) {
-    throw new Error('All arrays must have the same length as the obsIndex.');
+  if (Object.entries(arraysToStratify).some(([arrKey, arr]) => {
+    if(arrKey === 'featureValue') {
+      // The featureValue array is an array of arrays, one per feature,
+      // so we instead expect each sub-array to have a length
+      // equal to the number of observations.
+      return arr.some(a => a.length !== obsIndex.length);
+    }
+    return arr.length !== obsIndex.length
+  })) {
+    //throw new Error('All arrays must have the same length as the obsIndex.');
   }
 
   const sampleSetInfo = sampleSets && sampleSetSelection
@@ -137,7 +146,25 @@ export function stratifyArrays(
 
     // eslint-disable-next-line no-loop-func
     arrKeys.forEach((arrKey) => {
-      const value = arraysToStratify[arrKey][i];
+      let value;
+      if(arrKey === 'featureValue') {
+        if(featureAggregationStrategy === 'first') {
+          value = arraysToStratify[arrKey][0][i];
+        } else if(featureAggregationStrategy === 'last') {
+          value = arraysToStratify[arrKey].at(-1)[i];
+        } else if(typeof featureAggregationStrategy === 'number') {
+          const j = featureAggregationStrategy;
+          // TODO: more checks here for array index validity.
+          value = arraysToStratify[arrKey][j][i];
+        } else if(featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+          value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
+          if(featureAggregationStrategy === 'mean') {
+            value /= arraysToStratify[arrKey].length;
+          }
+        }
+      } else {
+        value = arraysToStratify[arrKey][i];
+      }
 
       result
         .get(cellSet)
