@@ -1,4 +1,25 @@
 
+## 3.5.11
+
+### Patch Changes
+
+- Allow for spatialdata tablePath to be used for obsIndex and also allow for lack of trailing slash. (`@vitessce/spatial-zarr`, `@vitessce/zarr`) ([#2097](https://github.com/vitessce/vitessce/pull/2097))
+
+- Fix unit tests. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`) ([#2104](https://github.com/vitessce/vitessce/pull/2104))
+
+- Limit the bar heights in the cell type composition plot. Update help text in comparative configurations. (`@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#2106](https://github.com/vitessce/vitessce/pull/2106))
+
+- Support featureAggregationStrategy for scatterplot and violin plot. Fix bug with obsIndex/varIndex with categorical pandas column. Temporary workaround for reactome terms. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/legend`) ([#2102](https://github.com/vitessce/vitessce/pull/2102))
+
+- traverse quadtree with overlapping points (`@vitessce/gl`) ([#2100](https://github.com/vitessce/vitessce/pull/2100))
+
+- Minor bug fixes for comparative data loader error states. Improvements to plot subtitles. Bug fix for embedding scatterplot. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/scatterplot`) ([#2095](https://github.com/vitessce/vitessce/pull/2095))
+
+- Fixed error thrown by RasterJson when incorrect filetype is used (`@vitessce/json`, `@vitessce/legend`) ([#2093](https://github.com/vitessce/vitessce/pull/2093))
+
+- Update kpmp-premiere config to reflect reprocessing of data. Update featureSetStats info to reflect usage of Reactome pathways. Update obsSetStats loading to not require covariate column. (`@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2099](https://github.com/vitessce/vitessce/pull/2099))
+
+
 ## 3.5.10
 
 ### Patch Changes
