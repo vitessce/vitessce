@@ -119,7 +119,6 @@ describe('Utility functions for processing expression data', () => {
         new Uint8Array([10, 20, 30, 40, 11, 21, 31, 41]),
       ];
 
-      const featureAggregationStrategy = 'first';
       const [result, cellCount] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
