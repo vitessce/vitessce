@@ -89,6 +89,7 @@ import { visium } from './view-configs/paper-figures/visium.js';
 // pageMode
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
+import { hubmapHeart, hubmapHeartComponent } from './view-configs/hubmap-heart.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -143,6 +144,7 @@ export const configs = {
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'kpmp-premiere': kpmpPremiere,
+  'hubmap-heart': hubmapHeart,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
@@ -221,4 +223,5 @@ export const configStores = {
 export const configPages = {
   'lake-2023': lake2023component,
   'kpmp-premiere': kpmpPremiereComponent,
+  'hubmap-heart': hubmapHeartComponent,
 };

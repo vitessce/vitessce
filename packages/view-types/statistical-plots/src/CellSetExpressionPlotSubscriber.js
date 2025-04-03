@@ -26,6 +26,28 @@ import {
   histogramStratifiedExpressionData,
 } from './expr-hooks.js';
 
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+
+function featureSummary(geneSelection, featureAggregationStrategy) {
+  if (featureAggregationStrategy === 'first') {
+    return geneSelection?.[0];
+  } if (featureAggregationStrategy === 'last') {
+    return geneSelection?.at(-1);
+  } if (typeof featureAggregationStrategy === 'number') {
+    const i = featureAggregationStrategy;
+    return geneSelection?.[i];
+  } if (featureAggregationStrategy === 'sum') {
+    // TODO: make these .join()-ed labels more scalable,
+    // in particular, if more than 10 or so elements.
+    return geneSelection?.join(' + ');
+  } if (featureAggregationStrategy === 'mean') {
+    return `Mean of ${geneSelection?.join(', ')}`;
+  } if (featureAggregationStrategy === 'difference') {
+    return geneSelection?.join(' - ');
+  }
+  return '';
+}
+
 /**
  * Get expression data for the cells
  * in the selected cell sets.
@@ -50,7 +72,7 @@ function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme, yMinProp,
+  theme, yMinProp, featureAggregationStrategy,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -68,7 +90,7 @@ function useExpressionByCellSet(
     );
     if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(
-        stratifiedData, geneSelection,
+        stratifiedData, geneSelection, featureAggregationStrategy,
       );
       const summarizedData = summarizeStratifiedExpressionData(
         aggregateData, true,
@@ -83,6 +105,7 @@ function useExpressionByCellSet(
     mergedCellSets, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     yMinProp, sampleEdges, sampleSets, sampleSetSelection,
+    featureAggregationStrategy,
   ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -140,10 +163,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleType,
     sampleSetSelection,
     sampleSetColor,
+    featureAggregationStrategy,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setSampleSetColor,
+    setFeatureAggregationStrategy,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
@@ -206,26 +231,35 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesUrls,
   ]);
 
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+
   const [histogramData, setArr, exprMax] = useExpressionByCellSet(
     sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme, yMin,
+    theme, yMin, featureAggregationStrategyToUse,
   );
 
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (
-      featureLabelsMap?.get(geneSelection[0])
-      || featureLabelsMap?.get(cleanFeatureId(geneSelection[0]))
-      || geneSelection[0]
-    )
-    : null;
+  const featureSuffix = useMemo(() => {
+    const cleanedGeneSelection = geneSelection?.map(geneName => (
+      featureLabelsMap?.get(geneName)
+      || featureLabelsMap?.get(cleanFeatureId(geneName))
+      || geneName
+    ));
+    if (Array.isArray(cleanedGeneSelection)) {
+      return featureSummary(cleanedGeneSelection, featureAggregationStrategyToUse);
+    }
+    return null;
+  }, [geneSelection, featureAggregationStrategyToUse]);
+
+
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
     // Use empty string when firstGeneSelected is null
-  const titleSuffix = firstGeneSelected ? ` (${firstGeneSelected})` : '';
+  const titleSuffix = featureSuffix ? ` (${featureSuffix})` : '';
 
   return (
     <TitleInfo
@@ -246,6 +280,8 @@ export function CellSetExpressionPlotSubscriber(props) {
           featureValueTransformCoefficient={featureValueTransformCoefficient}
           setFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
           transformOptions={transformOptions}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       )}
     >

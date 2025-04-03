@@ -277,6 +277,7 @@ export const CoordinationType = {
   FEATURE_VALUE_COLORMAP: 'featureValueColormap',
   FEATURE_VALUE_TRANSFORM: 'featureValueTransform',
   FEATURE_VALUE_COLORMAP_RANGE: 'featureValueColormapRange',
+  FEATURE_AGGREGATION_STRATEGY: 'featureAggregationStrategy',
   OBS_COLOR_ENCODING: 'obsColorEncoding',
   SPATIAL_IMAGE_LAYER: 'spatialImageLayer',
   SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',

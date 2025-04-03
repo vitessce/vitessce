@@ -119,8 +119,11 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
     // Will not work since transformFeature currently:
     // - matches based on kgId (rather than term)
     // - only knows about Reactome pathways (not GO terms).
-    // console.log(await transformFeature(kgNode, targetFeatureType))
-    // setFeatureSelection(featureIds);
+    const targetsInPathway = await transformFeature(kgNode, targetFeatureType);
+    const featureIds = targetsInPathway
+      .filter((d, i) => i < 10) // TODO: do not limit the number of genes here
+      .map(d => d.label);
+    setFeatureSelection(featureIds);
   }, [setFeatureSelection]);
 
   // TODO: support the following options

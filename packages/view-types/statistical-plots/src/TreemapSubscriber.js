@@ -179,7 +179,7 @@ export function TreemapSubscriber(props) {
       sampleResult.set(sampleSetKey, sampleSetSize || 0);
     });
 
-    if (mergedObsSets && obsSetSelection) {
+    if (mergedObsSets && obsSetSelection && obsIndex) {
       const sampleIdToSetMap = sampleSets && sampleSetSelection
         ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
         : null;
@@ -210,7 +210,7 @@ export function TreemapSubscriber(props) {
     ];
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,
-    sampleSetSelection,
+    sampleSetSelection, obsIndex,
     // TODO: consider filtering-related coordination values
   ]);
 
