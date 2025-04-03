@@ -102,15 +102,15 @@ function generateHubmapHeartConfig() {
         ],
         obsSets: [
           {
-            name: 'Predicted Label',
+            name: 'Predicted Cell Type',
             path: 'obs/predicted_label',
           },
           {
-            name: 'azimuth_label',
+            name: 'Azimuth Cell Type',
             path: 'obs/azimuth_label',
           },
           {
-            name: 'HuBMAP ID',
+            name: 'HuBMAP Dataset ID',
             path: 'obs/hubmap_id',
           },
           /* {
@@ -334,7 +334,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays differential expression test results. The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type).</p>
+              <p>This view displays differential expression test results, performed using the rank_genes_groups function from Scanpy (Wolf et al. 2018) with method &quot;wilcoxon&quot;. <br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
             </div>
             <div className="view-row-center">
               <VolcanoPlot />
@@ -350,7 +350,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays gene set enrichment test results based on the differential expression results.</p>
+              <p>This view displays gene set enrichment test results based on the differential expression results. Gene set enrichment tests have been performed using Reactome 2022 pathway gene sets from BlitzGSEA (Lachmann et al. 2022) via the hypergeometric function of Pertpy (Heumos et al. 2024).</p>
             </div>
             <div className="view-row-center">
               <PathwaysPlot />
@@ -358,7 +358,7 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction. Contour opacities correspond to the shown percentile thresholds.</p>
+              <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction (Narayan et al. 2021). Contour opacities correspond to the shown percentile thresholds.</p>
             </div>
             <div className="view-row-center">
               <DualScatterplot />
