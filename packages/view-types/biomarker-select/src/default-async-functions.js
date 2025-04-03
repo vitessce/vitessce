@@ -164,11 +164,14 @@ async function loadPathwayToGeneEdges() {
  * @satisfies {TransformFeatureFunc}
  * @param {object} ctx
  * @param {QueryClient} ctx.queryClient
- * @param {KgNode} node
+ * @param {KgNode} nodeOrig
  * @param {TargetModalityType} targetModality
  * @returns {Promise<KgNode[]>}
  */
-export async function transformFeature({ queryClient }, node, targetModality) {
+export async function transformFeature({ queryClient }, nodeOrig, targetModality) {
+  const node = {
+    ...nodeOrig,
+  };
   if (targetModality === node.nodeType) {
     // For example, if the target modality is gene and the node is already a gene node.
     return [node];
@@ -187,14 +190,14 @@ export async function transformFeature({ queryClient }, node, targetModality) {
         queryFn: loadPathwayToGeneEdges,
       });
 
-      if(!node.kgId) {
+      if (!node.kgId) {
         const pathwayNodes = await queryClient.fetchQuery({
           queryKey: ['pathwayNodes'],
           staleTime: Infinity,
           queryFn: loadPathwayNodes,
         });
         const foundId = pathwayNodes.find(n => n.term === node.term)?.kgId;
-        if(foundId) {
+        if (foundId) {
           node.kgId = foundId;
         } else {
           console.warn('Could not find matching pathway node based on term.');

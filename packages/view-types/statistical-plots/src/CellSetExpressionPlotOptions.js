@@ -36,7 +36,7 @@ export default function CellSetExpressionPlotOptions(props) {
   }
 
   function handleFeatureAggregationStrategyChange(event) {
-    setFeatureAggregationStrategy(event.target.value)
+    setFeatureAggregationStrategy(event.target.value);
   }
 
   function handlePositivityThresholdChange(event, value) {

@@ -29,22 +29,23 @@ import {
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 function featureSummary(geneSelection, featureAggregationStrategy) {
-  if(featureAggregationStrategy === 'first') {
+  if (featureAggregationStrategy === 'first') {
     return geneSelection?.[0];
-  } else if(featureAggregationStrategy === 'last') {
+  } if (featureAggregationStrategy === 'last') {
     return geneSelection?.at(-1);
-  } else if(typeof featureAggregationStrategy === 'number') {
+  } if (typeof featureAggregationStrategy === 'number') {
     const i = featureAggregationStrategy;
     return geneSelection?.[i];
-  } else if(featureAggregationStrategy === 'sum') {
+  } if (featureAggregationStrategy === 'sum') {
     // TODO: make these .join()-ed labels more scalable,
     // in particular, if more than 10 or so elements.
     return geneSelection?.join(' + ');
-  } else if(featureAggregationStrategy === 'mean') {
-    return 'Mean of ' + geneSelection?.join(', ');
-  } else if(featureAggregationStrategy === 'difference') {
+  } if (featureAggregationStrategy === 'mean') {
+    return `Mean of ${geneSelection?.join(', ')}`;
+  } if (featureAggregationStrategy === 'difference') {
     return geneSelection?.join(' - ');
   }
+  return '';
 }
 
 /**
@@ -247,7 +248,7 @@ export function CellSetExpressionPlotSubscriber(props) {
       || featureLabelsMap?.get(cleanFeatureId(geneName))
       || geneName
     ));
-    if(Array.isArray(cleanedGeneSelection)) {
+    if (Array.isArray(cleanedGeneSelection)) {
       return featureSummary(cleanedGeneSelection, featureAggregationStrategyToUse);
     }
     return null;

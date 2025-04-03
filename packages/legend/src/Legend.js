@@ -53,17 +53,17 @@ const rectMarginY = 2;
 const rectMarginX = 2;
 
 function combineExtents(extents, featureAggregationStrategy) {
-  if(Array.isArray(extents)) {
-    if(featureAggregationStrategy === 'first') {
+  if (Array.isArray(extents)) {
+    if (featureAggregationStrategy === 'first') {
       return extents[0];
-    } else if(featureAggregationStrategy === 'last') {
-      return extents.at(-1)
-    } else if(typeof featureAggregationStrategy === 'numer') {
+    } if (featureAggregationStrategy === 'last') {
+      return extents.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
       const i = featureAggregationStrategy;
       return extents[i];
-    } else if(featureAggregationStrategy === 'sum') {
+    } if (featureAggregationStrategy === 'sum') {
       return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
-    } else if(featureAggregationStrategy === 'mean') { 
+    } if (featureAggregationStrategy === 'mean') {
       return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
     }
   }
@@ -71,17 +71,17 @@ function combineExtents(extents, featureAggregationStrategy) {
 }
 
 function combineMissings(missings, featureAggregationStrategy) {
-  if(Array.isArray(missings)) {
-    if(featureAggregationStrategy === 'first') {
+  if (Array.isArray(missings)) {
+    if (featureAggregationStrategy === 'first') {
       return missings[0];
-    } else if(featureAggregationStrategy === 'last') {
-      return missings.at(-1)
-    } else if(typeof featureAggregationStrategy === 'numer') {
+    } if (featureAggregationStrategy === 'last') {
+      return missings.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
       const i = featureAggregationStrategy;
       return missings[i];
-    } else if(featureAggregationStrategy === 'sum') {
+    } if (featureAggregationStrategy === 'sum') {
       return missings.reduce((a, h) => a + h, 0);
-    } else if(featureAggregationStrategy === 'mean') { 
+    } if (featureAggregationStrategy === 'mean') {
       return missings.reduce((a, h) => a + (h / missings.length), 0);
     }
   }
@@ -173,7 +173,6 @@ export default function Legend(props) {
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
 
-  
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -366,14 +365,14 @@ export default function Legend(props) {
       : null;
     // if there are missing values, mention them in the label
     let featureSelectionLabelRawStr = '';
-    if(featureAggregationStrategy === 'first') {
+    if (featureAggregationStrategy === 'first') {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
-    } else if(featureAggregationStrategy === 'last') {
+    } else if (featureAggregationStrategy === 'last') {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.at(-1);
-    } else if(featureAggregationStrategy === 'sum') {
-      featureSelectionLabelRawStr = 'Sum of features'
-    } else if(featureAggregationStrategy === 'mean') {
-      featureSelectionLabelRawStr = 'Mean of features'
+    } else if (featureAggregationStrategy === 'sum') {
+      featureSelectionLabelRawStr = 'Sum of features';
+    } else if (featureAggregationStrategy === 'mean') {
+      featureSelectionLabelRawStr = 'Mean of features';
     }
     const combinedMissing = combineMissings(missing, featureAggregationStrategy);
     const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;

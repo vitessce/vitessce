@@ -52,15 +52,15 @@ export function stratifyArrays(
     throw new Error('The keys "obsIndex" and "i" are reserved for internal use.');
   }
   if (Object.entries(arraysToStratify).some(([arrKey, arr]) => {
-    if(arrKey === 'featureValue') {
+    if (arrKey === 'featureValue') {
       // The featureValue array is an array of arrays, one per feature,
       // so we instead expect each sub-array to have a length
       // equal to the number of observations.
       return arr.some(a => a.length !== obsIndex.length);
     }
-    return arr.length !== obsIndex.length
+    return arr.length !== obsIndex.length;
   })) {
-    //throw new Error('All arrays must have the same length as the obsIndex.');
+    // throw new Error('All arrays must have the same length as the obsIndex.');
   }
 
   const sampleSetInfo = sampleSets && sampleSetSelection
@@ -147,18 +147,18 @@ export function stratifyArrays(
     // eslint-disable-next-line no-loop-func
     arrKeys.forEach((arrKey) => {
       let value;
-      if(arrKey === 'featureValue') {
-        if(featureAggregationStrategy === 'first') {
+      if (arrKey === 'featureValue') {
+        if (featureAggregationStrategy === 'first') {
           value = arraysToStratify[arrKey][0][i];
-        } else if(featureAggregationStrategy === 'last') {
+        } else if (featureAggregationStrategy === 'last') {
           value = arraysToStratify[arrKey].at(-1)[i];
-        } else if(typeof featureAggregationStrategy === 'number') {
+        } else if (typeof featureAggregationStrategy === 'number') {
           const j = featureAggregationStrategy;
           // TODO: more checks here for array index validity.
           value = arraysToStratify[arrKey][j][i];
-        } else if(featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+        } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
           value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
-          if(featureAggregationStrategy === 'mean') {
+          if (featureAggregationStrategy === 'mean') {
             value /= arraysToStratify[arrKey].length;
           }
         }
@@ -317,37 +317,36 @@ export function aggregateStratifiedExpressionData(
       // For now, we just take the first gene.
       // TODO: support multiple genes via signature score method.
       let values;
-      if(featureAggregationStrategy === 'first') {
+      if (featureAggregationStrategy === 'first') {
         values = secondLevelInternMap.get(geneSelection[0]);
-      } else if(featureAggregationStrategy === 'last') {
+      } else if (featureAggregationStrategy === 'last') {
         values = secondLevelInternMap.get(geneSelection.at(-1));
-
       } else if (typeof featureAggregationStrategy === 'number') {
         const i = featureAggregationStrategy;
-        if(i >= 0 && i < geneSelection.length) {
+        if (i >= 0 && i < geneSelection.length) {
           values = secondLevelInternMap.get(geneSelection[i]);
         } else {
           throw new Error('Feature index used for featureAggregationStrategy is invalid.');
         }
-      } else if(featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+      } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
         // Array of per-gene arrays.
         const subarrays = geneSelection
           .map(geneId => secondLevelInternMap.get(geneId));
         // Use reduce+map to sum the arrays element-wise.
         values = subarrays
           .reduce((acc, curr) => acc.map((val, idx) => val + curr[idx]));
-        if(featureAggregationStrategy === 'mean') {
+        if (featureAggregationStrategy === 'mean') {
           const N = geneSelection.length;
           values = values.map(val => val / N);
         }
-      } else if(featureAggregationStrategy === 'difference') {
+      } else if (featureAggregationStrategy === 'difference') {
         if (geneSelection.length === 2) {
           const subarrays = geneSelection
             .map(geneId => secondLevelInternMap.get(geneId));
           values = subarrays
             .reduce((acc, curr) => acc.map((val, idx) => val - curr[idx]));
         } else {
-          throw new Error('Expected exactly two selected features when featureAggregationStrategy is difference.')
+          throw new Error('Expected exactly two selected features when featureAggregationStrategy is difference.');
         }
       }
       result.get(cellSetKey).set(sampleSetKey, values);

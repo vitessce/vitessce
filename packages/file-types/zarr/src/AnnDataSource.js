@@ -116,14 +116,14 @@ export default class AnnDataSource extends ZarrDataSource {
       }
       codesPath = `${path}/codes`;
     } else if (encodingType === 'string-array') {
-      return await this.getFlatArrDecompressed(path);
+      return this.getFlatArrDecompressed(path);
     } else {
       const { dtype } = await zarrOpen(
         storeRoot.resolve(`${path}`),
         { kind: 'array' },
       );
       if (dtype === 'v2:object' || dtype === '|O') {
-        return await this.getFlatArrDecompressed(path);
+        return this.getFlatArrDecompressed(path);
       }
     }
     const arr = await zarrOpen(

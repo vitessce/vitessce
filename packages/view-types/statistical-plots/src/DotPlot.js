@@ -39,7 +39,8 @@ export default function DotPlot(props) {
     featureType,
     featureValueType,
     featureValueTransformName,
-    featureValueColormap,
+    // TODO: re-enable featureValueColormap coordination
+    // featureValueColormap,
     obsSetSelection,
     obsSetColor,
   } = props;
@@ -134,7 +135,7 @@ export default function DotPlot(props) {
         type: 'quantitative',
         title: meanTransform,
         scale: {
-          //scheme: featureValueColormap,
+          // scheme: featureValueColormap,
           scheme: 'greys',
         },
         legend: {

@@ -130,7 +130,7 @@ export default function ScatterplotOptions(props) {
   );
 
   function handleFeatureAggregationStrategyChange(event) {
-    setFeatureAggregationStrategy(event.target.value)
+    setFeatureAggregationStrategy(event.target.value);
   }
 
   return (
