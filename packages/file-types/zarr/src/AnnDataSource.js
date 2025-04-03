@@ -8,8 +8,8 @@ import ZarrDataSource from './ZarrDataSource.js';
 
 
 function prependSlash(path) {
-  if(typeof path === 'string' && path.length >= 1) {
-    if(path.charAt(0) === '/') {
+  if (typeof path === 'string' && path.length >= 1) {
+    if (path.charAt(0) === '/') {
       // No prepending needed.
       return path;
     }
