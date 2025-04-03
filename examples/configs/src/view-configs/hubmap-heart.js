@@ -9,7 +9,7 @@ import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
 
-const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/hubmap-april-2025/ht.adata.zarr';
+const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/hubmap-april-2025/ht_20250402.adata.zarr';
 
 function generateHubmapHeartConfig() {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'HuBMAP heart data product' });
@@ -104,10 +104,6 @@ function generateHubmapHeartConfig() {
           {
             name: 'Predicted Label',
             path: 'obs/predicted_label',
-          },
-          {
-            name: 'Leiden',
-            path: 'obs/leiden',
           },
           {
             name: 'azimuth_label',

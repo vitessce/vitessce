@@ -1,4 +1,3 @@
-// @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { log } from '@vitessce/globals';
@@ -99,29 +98,32 @@ export default class AnnDataSource extends ZarrDataSource {
         storeRoot.resolve(`/${prefix}/${categories}`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
           `/${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}/categories`),
+        storeRoot.resolve(`${path}/categories`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${path}/categories`,
+          `${path}/categories`,
         );
       }
-      codesPath = `/${path}/codes`;
+      codesPath = `${path}/codes`;
+    } else if (encodingType === 'string-array') {
+      return await this.getFlatArrDecompressed(path);
     } else {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}`),
+        storeRoot.resolve(`${path}`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
-        return this.getFlatArrDecompressed(path);
+      if (dtype === 'v2:object' || dtype === '|O') {
+        return await this.getFlatArrDecompressed(path);
       }
     }
     const arr = await zarrOpen(
@@ -202,7 +204,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.obsIndex;
     }
     this.obsIndex = this.getJson('obs/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/obs/${_index}`));
     return this.obsIndex;
   }
 
@@ -218,7 +220,7 @@ export default class AnnDataSource extends ZarrDataSource {
   ) {
     const dfPath = path ? dirname(path) : '';
     return this.getJson(`${dfPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
+      .then(({ _index }) => this._loadColumn(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
   }
 
   /**
@@ -234,7 +236,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.varIndex;
     }
     this.varIndex = this.getJson('var/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/var/${_index}`));
     return this.varIndex;
   }
 
