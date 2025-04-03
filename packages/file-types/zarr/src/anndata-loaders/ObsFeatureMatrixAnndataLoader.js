@@ -346,7 +346,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     // In order to return the correct gene list with the heatmap data,
     // we need to filter the columns of attrs so it matches the cellXGene data.
     if (matrixGeneFilterZarr) {
-      const matrixGeneFilter = await this.dataSource._loadColumn(
+      const matrixGeneFilter = await this.dataSource.getFlatArrDecompressed(
         matrixGeneFilterZarr,
       );
       return filteredGeneNames.filter((_, i) => matrixGeneFilter[i]);
