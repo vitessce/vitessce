@@ -31,7 +31,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const { path, featureFilterPath: geneFilterZarr, geneAlias } = this.getOptions();
     const getFilterFn = async () => {
       if (!geneFilterZarr) return data => data;
-      const geneFilter = await this.dataSource._loadColumn(geneFilterZarr);
+      const geneFilter = await this.dataSource.getFlatArrDecompressed(geneFilterZarr);
       return data => data.filter((_, j) => geneFilter[j]);
     };
     const geneNamesPromise = geneAlias
@@ -50,7 +50,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
    * @returns {Array} A list of filtered genes.
    */
   async _getFilteredGenes(filterZarr) {
-    const filter = await this.dataSource._loadColumn(filterZarr);
+    const filter = await this.dataSource.getFlatArrDecompressed(filterZarr);
     const geneNames = await this.loadFilteredGeneNames();
     const genes = geneNames.filter((_, i) => filter[i]);
     return genes;
