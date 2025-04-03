@@ -6,6 +6,18 @@ import ZarrDataSource from './ZarrDataSource.js';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk, ByteStringArray } from 'zarrita' */
 
+
+function prependSlash(path) {
+  if(typeof path === 'string' && path.length >= 1) {
+    if(path.charAt(0) === '/') {
+      // No prepending needed.
+      return path;
+    }
+    return `/${path}`;
+  }
+  return path;
+}
+
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
  * like loading cell names and ids. It inherits from AbstractLoader.
@@ -82,12 +94,14 @@ export default class AnnDataSource extends ZarrDataSource {
 
   /**
    *
-   * @param {string} path
+   * @param {string} pathOrig
    * @returns
    */
-  async _loadColumn(path) {
+  async _loadColumn(pathOrig) {
     const { storeRoot } = this;
-    const prefix = dirname(path);
+    const path = prependSlash(pathOrig);
+    const prefixOrig = dirname(path);
+    const prefix = prependSlash(prefixOrig);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     /** @type {string[]} */
     let categoriesValues;
@@ -95,12 +109,12 @@ export default class AnnDataSource extends ZarrDataSource {
     let codesPath;
     if (categories) {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${prefix}/${categories}`),
+        storeRoot.resolve(`${prefix}/${categories}`),
         { kind: 'array' },
       );
       if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${prefix}/${categories}`,
+          `${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
@@ -119,7 +133,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.getFlatArrDecompressed(path);
     } else {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`${path}`),
+        storeRoot.resolve(path),
         { kind: 'array' },
       );
       if (dtype === 'v2:object' || dtype === '|O') {
