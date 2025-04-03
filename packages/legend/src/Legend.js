@@ -169,10 +169,9 @@ export default function Legend(props) {
 
   // Determine the height of the legend when in isSetColor mode.
   // TODO: for nested sets, account for the height of the intermediate nodes?
-  const dynamicHeight = isSetColor
+  const dynamicHeight = isSetColor && obsSetSelection
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
-
 
   useEffect(() => {
     const domElement = svgRef.current;
