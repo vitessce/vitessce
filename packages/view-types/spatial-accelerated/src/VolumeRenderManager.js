@@ -16,12 +16,17 @@ const RENDERING_MODES = {
   additive: 2,
 };
 
+function log(message) {
+  console.warn(`%cRENDERMANAGER: ${message}`, 'background: orange; color: white; padding: 2px; border-radius: 3px;');
+}
+
 /**
  * Manages the volume rendering state, shader setup, and uniform management
  * Serves as a replacement for many functions from three-utils.js
  */
 export class VolumeRenderManager {
   constructor() {
+    log('Initializing VolumeRenderManager');
     // Rendering settings
     this.uniforms = null;
     this.shader = null;
@@ -49,6 +54,7 @@ export class VolumeRenderManager {
    * Initialize shader and uniform objects
    */
   initializeShader() {
+    log('Initializing shader');
     this.shader = VolumeShader;
     this.uniforms = UniformsUtils.clone(this.shader.uniforms);
   }
@@ -59,6 +65,7 @@ export class VolumeRenderManager {
    * @returns {Object} Extracted rendering settings
    */
   extractRenderingSettingsFromProps(props) {
+    log('Extracting rendering settings from props');
     const {
       images = {},
       imageLayerScopes = [],
@@ -176,6 +183,7 @@ export class VolumeRenderManager {
    * @returns {boolean} True if settings were successfully updated
    */
   updateFromProps(props) {
+    log('Updating from props');
     const settings = this.extractRenderingSettingsFromProps(props);
     if (!settings.valid) {
       return false;
@@ -201,6 +209,7 @@ export class VolumeRenderManager {
    * @returns {Data3DTexture} Three.js 3D texture
    */
   createVolumeTexture(volume) {
+    log('Creating volume texture');
     const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
     texture.format = RedFormat;
     texture.type = FloatType;
@@ -218,6 +227,7 @@ export class VolumeRenderManager {
    * @returns {number} Normalized value
    */
   normalizeValue(value, minMax) {
+    log('Normalizing value');
     const [min, max] = minMax;
     return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
   }
@@ -228,6 +238,7 @@ export class VolumeRenderManager {
    * @returns {Object|null} Updated rendering settings or null if rendering is not possible
    */
   updateRendering(volumeDataManager) {
+    log('Updating rendering');
     // Check if we have at least one visible channel
     const visibleChannelIndex = this.channelTargetC.findIndex(
       (channel, idx) => this.channelsVisible[idx],
@@ -304,6 +315,7 @@ export class VolumeRenderManager {
       this.brickCacheTexture,
       this.pageTableTexture,
     );
+    log('Updated uniforms');
 
     return {
       uniforms: this.uniforms,
@@ -331,6 +343,7 @@ export class VolumeRenderManager {
     xSlice, ySlice, zSlice,
     brickCacheTexture, pageTableTexture,
   ) {
+    log('Updating uniforms');
     // Set base uniforms
     // this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
     this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
@@ -444,6 +457,7 @@ export class VolumeRenderManager {
    * @param {Object} material - Three.js shader material
    */
   applyToMaterial(material) {
+    log('Applying uniforms to material');
     if (!material || !material.uniforms || !this.uniforms) {
       return;
     }

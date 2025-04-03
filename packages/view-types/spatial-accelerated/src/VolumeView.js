@@ -13,7 +13,12 @@ import * as THREE from 'three';
 import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
+function log(message) {
+  console.warn(`%cVIEW: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+}
+
 export function VolumeView(props) {
+  log('CLASS INITIALIZING');
   // Get access to the Three.js renderer
   const { gl } = useThree();
 
@@ -56,6 +61,7 @@ export function VolumeView(props) {
   // Initialize managers on first render
   useEffect(() => {
     // Try to get the WebGL context safely
+    log('USE EFFECT INITIALIZING MANAGERS');
     let glContext;
     try {
       if (gl.getContext) {
@@ -82,6 +88,7 @@ export function VolumeView(props) {
 
     // Initialize the data manager and get zarr store details and device limits
     dataManager.init().then((initResult) => {
+      log('DATAMANAGER INITIALIZER');
       if (initResult.success) {
         setZarrStoreInfo(initResult.zarrStore);
         setDeviceLimits(initResult.deviceLimits);
@@ -286,3 +293,4 @@ export function VolumeView(props) {
     </group>
   );
 }
+

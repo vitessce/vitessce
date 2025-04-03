@@ -59,8 +59,13 @@ const INIT_STATUS = {
   FAILED: 'failed',
 };
 
+function log(message) {
+  console.warn(`%cVOLUMEDATAMANAGER: ${message}`, 'background: pink; color: white; padding: 2px; border-radius: 3px;');
+}
+
 export class VolumeDataManager {
   constructor(url, gl, renderer) {
+    log('CLASS INITIALIZING');
     this.url = url;
     this.store = new zarrita.FetchStore(url);
 
@@ -175,6 +180,7 @@ export class VolumeDataManager {
    * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
   async init() {
+    log('INIT()');
     // Prevent multiple initializations
     if (this.initStatus !== INIT_STATUS.NOT_STARTED) {
       console.warn('VolumeDataManager init() was called more than once!');
@@ -208,7 +214,7 @@ export class VolumeDataManager {
     }
 
     this.initStatus = INIT_STATUS.IN_PROGRESS;
-
+    log('INIT() IN PROGRESS');
     try {
       // Query Zarr store details
       this.group = await zarrita.open(this.store);
@@ -328,8 +334,8 @@ export class VolumeDataManager {
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
+      log('INIT() COMPLETE');
 
-      console.warn('VolumeDataManager init() complete');
       console.warn(this.zarrStore);
 
       if (this.zarrStore.group.attrs.coordinateTransformations
@@ -349,6 +355,7 @@ export class VolumeDataManager {
         error: null,
       };
     } catch (error) {
+      log('INIT() FAILED');
       console.error('Error initializing VolumeDataManager:', error);
       this.initStatus = INIT_STATUS.FAILED;
       this.initError = error.message || 'Unknown error';
@@ -364,6 +371,8 @@ export class VolumeDataManager {
    * Initialize the BrickCache and PageTable
    */
   initMRMCPT() {
+    log('initMRMCPT');
+
     console.warn('initMRMCPT', this.zarrStore.shapes[0]);
     console.warn('initMRMCPT', this.zarrStore.channelCount);
 
@@ -470,6 +479,7 @@ export class VolumeDataManager {
    * Populate the PageTable and BrickCache with initial values for TESTING
    */
   async populateMRMCPT() {
+    log('populateMRMCPT');
     if (!this.gl || !this.pageTableTexture) return;
     const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
     const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
@@ -563,6 +573,7 @@ export class VolumeDataManager {
    * @param {{cc: number, cr: number, cx: number, cy: number, cz: number}} brick source position coordinates
    */
   async pushBrickToCache(brick, brickTarget, brickSource) {
+    log('pushBrickToCache');
     console.warn('pushBrickToCache', brick, brickTarget, brickSource);
 
     this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheTexture.texture);
@@ -595,6 +606,7 @@ export class VolumeDataManager {
    * @returns {Promise} Promise resolving when the resolution is loaded or rejected
    */
   async tryLoadResolution(resolutionIndex, arrays, shapes) {
+    log('tryLoadResolution');
     try {
       const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
       // Create new arrays to avoid modifying parameters directly
@@ -619,6 +631,7 @@ export class VolumeDataManager {
    * @returns {Promise<Object>} Volume data object
    */
   async getVolumeByChannel(channel, resolution) {
+    log('getVolumeByChannel');
     // For now, we're hardcoding to use a test dataset
     // In a real implementation, this would use the store initialized above
     const root = new zarrita.FetchStore('https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/');
@@ -714,6 +727,7 @@ export class VolumeDataManager {
    * @param {Object} array - Zarr array with metadata
    */
   updatePhysicalScale(array) {
+    log('updatePhysicalScale');
     if (array.meta && array.meta.physicalSizes) {
       const { x, y, z } = array.meta.physicalSizes;
       this.physicalScale = [
@@ -739,6 +753,7 @@ export class VolumeDataManager {
    * @returns {Object} Volume data object
    */
   processVolumeData(volumeOrigin) {
+    log('processVolumeData');
     // Create volume data object with essential properties
     const volume = {
       xLength: volumeOrigin.width,
@@ -765,6 +780,7 @@ export class VolumeDataManager {
    * @returns {Array} [min, max] values
    */
   computeMinMax(data) {
+    log('computeMinMax');
     let min = Infinity;
     let max = -Infinity;
 
@@ -784,6 +800,7 @@ export class VolumeDataManager {
    * @returns {Data3DTexture} THREE.js 3D texture
    */
   createVolumeTexture(volume) {
+    log('createVolumeTexture');
     // Use 'this' in the method (for linter)
     this.lastTextureCreated = new Date();
     const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
@@ -803,6 +820,7 @@ export class VolumeDataManager {
    * @returns {Promise<Object>} Object with loaded volume data
    */
   async loadVolumeData(channelTargetC, resolution) {
+    log('loadVolumeData');
     // Only load channels that aren't already loaded at this resolution
     const channelsToLoad = channelTargetC
       .filter(channel => !this.volumes.has(channel) || resolution !== this.currentResolution);
@@ -847,6 +865,7 @@ export class VolumeDataManager {
    * @returns {Object|null} Volume object or null if not loaded
    */
   getVolume(channel) {
+    log('getVolume');
     return this.volumes.get(channel) || null;
   }
 
@@ -856,6 +875,7 @@ export class VolumeDataManager {
    * @returns {Data3DTexture|null} Texture or null if not loaded
    */
   getTexture(channel) {
+    log('getTexture');
     return this.textures.get(channel) || null;
   }
 
@@ -865,6 +885,7 @@ export class VolumeDataManager {
    * @returns {Array|null} [min, max] values or null if not loaded
    */
   getMinMax(channel) {
+    log('getMinMax');
     return this.volumeMinMax.get(channel) || null;
   }
 
@@ -873,6 +894,7 @@ export class VolumeDataManager {
    * @returns {Array} Array of scale objects for X, Y, Z
    */
   getScale() {
+    log('getScale');
     return this.physicalScale;
   }
 
@@ -881,6 +903,7 @@ export class VolumeDataManager {
    * @returns {Array} Original dimensions [X, Y, Z]
    */
   getOriginalDimensions() {
+    log('getOriginalDimensions');
     return this.originalScale;
   }
 
@@ -889,6 +912,7 @@ export class VolumeDataManager {
    * @returns {Array} Physical dimensions [X, Y, Z]
    */
   getPhysicalDimensionsXYZ() {
+    log('getPhysicalDimensionsXYZ');
     return [this.zarrStore.physicalSizeTotal[2],
       this.zarrStore.physicalSizeTotal[1],
       this.zarrStore.physicalSizeTotal[0]];
@@ -899,18 +923,21 @@ export class VolumeDataManager {
    * @returns {number} Maximum resolution
    */
   getMaxResolutionXYZ() {
+    log('getMaxResolutionXYZ');
     return [this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][3],
       this.zarrStore.shapes[0][2]];
   }
 
   getOriginalScaleXYZ() {
+    log('getOriginalScaleXYZ');
     return [this.zarrStore.physicalSizeVoxel[2],
       this.zarrStore.physicalSizeVoxel[1],
       this.zarrStore.physicalSizeVoxel[0]];
   }
 
   getBoxDimensionsXYZ() {
+    log('getBoxDimensionsXYZ');
     return [1,
       this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
@@ -921,6 +948,7 @@ export class VolumeDataManager {
    * Clear all loaded volumes and textures
    */
   clearCache() {
+    log('clearCache');
     // Dispose THREE.js textures first to avoid memory leaks
     this.textures.forEach((texture) => {
       if (texture && texture.dispose) {
@@ -942,6 +970,7 @@ export class VolumeDataManager {
    * @returns {number} Value at the specified coordinates
    */
   getVoxel(volume, i, j, k) {
+    log('getVoxel');
     // Use 'this' in the method (for linter)
     const index = this.calculateVoxelIndex(volume, i, j, k);
     return volume.data[index];
@@ -956,6 +985,7 @@ export class VolumeDataManager {
    * @returns {number} Index in the data array
    */
   calculateVoxelIndex(volume, i, j, k) {
+    log('calculateVoxelIndex');
     // Store cache properties for reuse (uses 'this' to satisfy linter)
     this.lastVolume = volume;
     this.lastCoordinates = [i, j, k];
@@ -967,6 +997,7 @@ export class VolumeDataManager {
    * @returns {Promise<VolumeDataManager>} This instance
    */
   async initStore() {
+    log('initStore');
     // If already initialized, just return
     if (this.initStatus === INIT_STATUS.COMPLETE) {
       return this;
@@ -1007,6 +1038,7 @@ export class VolumeDataManager {
    * @returns {Promise<Uint8Array>} 32x32x32 chunk data
    */
   async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
+    log('loadZarrChunk');
     if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
       throw new Error('Zarr store or resolution not initialized');
     }
