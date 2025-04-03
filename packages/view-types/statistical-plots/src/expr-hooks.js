@@ -92,7 +92,6 @@ export function summarizeStratifiedExpressionData(
   stratifiedResult, keepZeros,
 ) {
   const summarizedResult = new InternMap([], JSON.stringify);
-
   Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
     summarizedResult.set(cellSetKey, new InternMap([], JSON.stringify));
     Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
