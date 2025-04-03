@@ -118,6 +118,7 @@ describe('Utility functions for processing expression data', () => {
         new Uint8Array([10, 20, 30, 40, 11, 21, 31, 41]),
       ];
 
+      const featureAggregationStrategy = 'first';
       const [result, cellCount] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
@@ -125,8 +126,9 @@ describe('Utility functions for processing expression data', () => {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
           // TODO: aggregate and transform expression data if needed prior to passing here
-          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
         },
+        featureAggregationStrategy,
       );
 
       expect(Array.from(result.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
