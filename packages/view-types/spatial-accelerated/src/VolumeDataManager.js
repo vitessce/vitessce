@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // TODO: add constants here
 // store device limits here
 // keep track of the current chunks
@@ -6,18 +7,49 @@
 // reference viewport settings
 
 // TODO: use gl.texSubImage3D to load in the bricks
+// NOTES:
+// 2048 x 2048 x 32 = 4096 bricks, around 134 MB
+// 2048 x 2048 x 64 = 8192 bricks, around 268 MB
+// 2048 x 2048 x 128 = 16384 bricks, around 537 MB
+// 2048 x 2048 x 256 = 32768 bricks, around 1.074 GB
+// 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
+// 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
+
+// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line import/no-extraneous-dependencies
+
 
 import * as zarrita from 'zarrita';
 import {
   Data3DTexture,
   RedFormat,
+  RedIntegerFormat,
   FloatType,
+  UnsignedByteType,
+  UnsignedIntType,
   LinearFilter,
+  NearestFilter,
+  Vector3,
 } from 'three';
 
 // Default chunk sizes
-const CHUNK_SIZE = 32;
-const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
+// const CHUNK_SIZE = 32;
+// const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
+const BRICK_SIZE = 32;
+const BRICK_CACHE_SIZE_X = 64;
+const BRICK_CACHE_SIZE_Y = 64;
+const BRICK_CACHE_SIZE_Z = 4;
+// const BRICK_CACHE_SIZE_TOTAL = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+
+const BRICK_CACHE_SIZE_VOXELS_X = BRICK_CACHE_SIZE_X * BRICK_SIZE;
+const BRICK_CACHE_SIZE_VOXELS_Y = BRICK_CACHE_SIZE_Y * BRICK_SIZE;
+const BRICK_CACHE_SIZE_VOXELS_Z = BRICK_CACHE_SIZE_Z * BRICK_SIZE;
+
+const PAGE_TABLE_ADDRESS_SIZE = 'uint32';
+const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
+
+const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 
 // Add a constant for initialization status
 const INIT_STATUS = {
@@ -28,7 +60,7 @@ const INIT_STATUS = {
 };
 
 export class VolumeDataManager {
-  constructor(url, gl) {
+  constructor(url, gl, renderer) {
     this.url = url;
     this.store = new zarrita.FetchStore(url);
 
@@ -43,6 +75,8 @@ export class VolumeDataManager {
       // Assume it's already a WebGL context
       this.gl = gl;
     }
+
+    this.renderer = renderer;
 
     // Create a mock context if we couldn't get a real one
     if (!this.gl || typeof this.gl.getParameter !== 'function') {
@@ -65,6 +99,17 @@ export class VolumeDataManager {
       };
     }
 
+    this.GLCONSTANTS = {
+      // this.gl.TEXTURE0,
+    };
+
+    console.warn('GL CONSTANTS');
+    console.warn(this.gl);
+    console.warn(this.gl.TEXTURE0);
+    console.warn(this.gl.textures);
+    console.warn('RENDERER');
+    console.warn(this.renderer);
+
     this.deviceLimits = {
       maxTextureSize: this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE),
       max3DTextureSize: this.gl.getParameter(this.gl.MAX_3D_TEXTURE_SIZE),
@@ -82,6 +127,7 @@ export class VolumeDataManager {
       brickLayout: [], // [[25, 32, 32],[13, 16, 16], ..., [2,2,2],[1,1,1]]
       store: '', // ref to this.store
       group: '', // ref to this.group
+      channelCount: 1, // MAX 7 TODO: get from zarr metadata
     };
     this.cacheStatus = {
       chunksCached: 0,
@@ -98,8 +144,17 @@ export class VolumeDataManager {
       loadTimeAverage: 0,
     };
 
-    this.brickCache = [];
-    this.brickCacheAddresses = new Map();
+    this.BrickCache = [];
+    this.PageTable = [];
+
+    this.PT = {
+      channelOffsets: [],
+      offsets: [],
+      xExtent: 0, // includes the offset inclusive
+      yExtent: 0, // includes the offset inclusive
+      zExtent: 0, // includes the offset inclusive
+      zTotal: 0, // original z extent plus the l0 z extent times the channel count
+    };
 
     // Properties for volume rendering
     this.volumes = new Map(); // Volume data objects keyed by channel index
@@ -170,7 +225,7 @@ export class VolumeDataManager {
       }
 
       const results = await Promise.all(loadPromises);
-      
+
       // Verify all resolutions were loaded successfully
       const failedResolutions = results.filter(r => !r.success);
       if (failedResolutions.length > 0) {
@@ -195,6 +250,7 @@ export class VolumeDataManager {
           brickLayout: [], // Calculate from shapes and chunk sizes
           store: this.store,
           group: this.group,
+          channelCount: 1, // For now hardcoded to 1
         };
 
         // Extract physical size information if available
@@ -258,13 +314,17 @@ export class VolumeDataManager {
         this.zarrStore.brickLayout = shapes.map((shape) => {
           if (!shape || shape.length < 5) return [0, 0, 0];
 
-          const chunkSize = array0.chunks || [CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE];
+          const chunkSize = array0.chunks || [BRICK_SIZE, BRICK_SIZE, BRICK_SIZE];
           return [
-            Math.ceil((shape[2] || 1) / (chunkSize[2] || CHUNK_SIZE)),
-            Math.ceil((shape[3] || 1) / (chunkSize[3] || CHUNK_SIZE)),
-            Math.ceil((shape[4] || 1) / (chunkSize[4] || CHUNK_SIZE)),
+            Math.ceil((shape[2] || 1) / (chunkSize[2] || BRICK_SIZE)),
+            Math.ceil((shape[3] || 1) / (chunkSize[3] || BRICK_SIZE)),
+            Math.ceil((shape[4] || 1) / (chunkSize[4] || BRICK_SIZE)),
           ];
         });
+
+        // Initialize MRMCPT textures after we have all the necessary information
+        this.initMRMCPT();
+        this.populateMRMCPT();
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
@@ -298,6 +358,233 @@ export class VolumeDataManager {
         error: this.initError,
       };
     }
+  }
+
+  /**
+   * Initialize the BrickCache and PageTable
+   */
+  initMRMCPT() {
+    console.warn('initMRMCPT', this.zarrStore.shapes[0]);
+    console.warn('initMRMCPT', this.zarrStore.channelCount);
+
+    // Calculate PT extents first
+    this.PT.xExtent = 1;
+    this.PT.yExtent = 1;
+    this.PT.zExtent = 1;
+    const l0z = this.zarrStore.brickLayout[0][0]; // Get z extent from highest resolution
+
+    console.warn('PT', this.PT);
+
+    // Sum up the extents from all resolution levels
+    for (let i = 1; i < this.zarrStore.brickLayout.length; i++) {
+      this.PT.xExtent += this.zarrStore.brickLayout[i][2];
+      this.PT.yExtent += this.zarrStore.brickLayout[i][1];
+      this.PT.zExtent += this.zarrStore.brickLayout[i][0];
+    }
+
+    // Calculate total Z extent including channel offsets
+    this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
+
+    console.warn('Page Table Extents:', {
+      x: this.PT.xExtent,
+      y: this.PT.yExtent,
+      z: this.PT.zExtent,
+      zTotal: this.PT.zTotal,
+    });
+
+    // Initialize the BrickCache as a 3D texture (uint8)
+    const brickCacheData = new Uint8Array(
+      BRICK_CACHE_SIZE_VOXELS_X
+        * BRICK_CACHE_SIZE_VOXELS_Y
+        * BRICK_CACHE_SIZE_VOXELS_Z,
+    );
+    brickCacheData.fill(255); // Fill with max value for debugging
+
+    // Initialize the PageTable data using calculated extents
+    const pageTableData = new Uint32Array(
+      this.PT.xExtent * this.PT.yExtent * this.PT.zTotal,
+    );
+    pageTableData.fill(4294967295); // Fill with max value (0xFFFFFFFF) for debugging
+
+    // Create WebGL textures directly
+    const brickCacheGLTexture = this.gl.createTexture();
+    const pageTableGLTexture = this.gl.createTexture();
+
+    // Initialize brick cache texture (TEXTURE12)
+    this.gl.activeTexture(this.gl.TEXTURE12);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, brickCacheGLTexture);
+    this.gl.texImage3D(
+      this.gl.TEXTURE_3D,
+      0,
+      this.gl.R8,
+      BRICK_CACHE_SIZE_VOXELS_X,
+      BRICK_CACHE_SIZE_VOXELS_Y,
+      BRICK_CACHE_SIZE_VOXELS_Z,
+      0,
+      this.gl.RED,
+      this.gl.UNSIGNED_BYTE,
+      brickCacheData,
+    );
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_R, this.gl.CLAMP_TO_EDGE);
+
+    // Initialize page table texture (TEXTURE13)
+    this.gl.activeTexture(this.gl.TEXTURE13);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, pageTableGLTexture);
+    this.gl.texImage3D(
+      this.gl.TEXTURE_3D,
+      0,
+      this.gl.R32UI,
+      this.PT.xExtent,
+      this.PT.yExtent,
+      this.PT.zTotal,
+      0,
+      this.gl.RED_INTEGER,
+      this.gl.UNSIGNED_INT,
+      pageTableData,
+    );
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_R, this.gl.CLAMP_TO_EDGE);
+
+    // Store the WebGL texture handles
+    this.brickCacheGLTexture = brickCacheGLTexture;
+    this.pageTableGLTexture = pageTableGLTexture;
+
+    console.warn('MRMCPT Initialization complete');
+    console.warn('Brick Cache Size:', BRICK_CACHE_SIZE_VOXELS_X, BRICK_CACHE_SIZE_VOXELS_Y, BRICK_CACHE_SIZE_VOXELS_Z);
+    console.warn('Page Table Size:', this.PT.xExtent, this.PT.yExtent, this.PT.zTotal);
+    console.warn('Brick Cache Texture:', this.brickCacheGLTexture);
+    console.warn('Page Table Texture:', this.pageTableGLTexture);
+    console.warn('Brick Cache:', brickCacheData);
+    console.warn('Page Table:', pageTableData);
+  }
+
+
+  /**
+   * Populate the PageTable and BrickCache with initial values for TESTING
+   */
+  async populateMRMCPT() {
+    if (!this.gl || !this.pageTableTexture) return;
+    const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
+    const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
+    const test3 = await this.loadZarrChunk(0, 0, 2, 2, 2, 3);
+    const test2 = await this.loadZarrChunk(0, 0, 3, 3, 3, 2);
+    const test1 = await this.loadZarrChunk(0, 0, 6, 9, 9, 1);
+    const test0 = await this.loadZarrChunk(0, 0, 12, 20, 20, 0);
+
+    console.warn('chunkLoaded', test5);
+    console.warn('chunkLoaded', test4);
+    console.warn('chunkLoaded', test3);
+    console.warn('chunkLoaded', test2);
+    console.warn('chunkLoaded', test1);
+    console.warn('chunkLoaded', test0);
+
+    // await this.pushBrickToCache(test5, { bx: 0, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+    // await this.pushBrickToCache(test4, { bx: 1, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+    // await this.pushBrickToCache(test3, { bx: 2, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+    // await this.pushBrickToCache(test2, { bx: 3, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+    // await this.pushBrickToCache(test1, { bx: 4, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+    // await this.pushBrickToCache(test0, { bx: 5, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
+
+    // channel 0 offset multiplier
+    // const c0 = Vector3(0, 0, 1);
+
+    // console.warn('populateMRMCPT', this.PT.zExtent);
+
+    // update page table manually
+    const offset0 = new Vector3(12, 20, 48); // 0 0 28 + 12 20 20
+    const offset1 = new Vector3(6, 9, 24); // 0 0 15 + 6 9 9
+    const offset2 = new Vector3(3, 3, 11); // 0 0 8 + 3 3 3
+    const offset3 = new Vector3(2, 2, 6); // 0 0 4 + 2 2 2
+    const offset4 = new Vector3(0, 0, 2); // + 0
+    const offset5 = new Vector3(0, 0, 1); // + 0
+
+    /*
+    [1] 0 — flag resident
+    [1] 1 — flag init
+    [7] 2…8 — min → 128
+    [7] 9…15 — max → 128
+    [6] 16…21 — x offset in brick cache → 64
+    [6] 22…27 — y offset in brick cache → 64
+    [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
+    */
+
+    const pt0binary = '11000000011111110001010000000000';
+    const pt1binary = '11000000011111110001000000000000';
+    const pt2binary = '11000000011111110000110000000000';
+    const pt3binary = '11000000011111110000100000000000';
+    const pt4binary = '11000000011111110000010000000000';
+    const pt5binary = '11000000011111110000000000000000';
+
+    // eslint-disable-next-line no-bitwise
+    const pt0 = parseInt(pt0binary, 2) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    const pt1 = parseInt(pt1binary, 2) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    const pt2 = parseInt(pt2binary, 2) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    const pt3 = parseInt(pt3binary, 2) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    const pt4 = parseInt(pt4binary, 2) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    const pt5 = parseInt(pt5binary, 2) >>> 0;
+
+    // Update page table texture with pt0 at offset0
+    this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableTexture.texture);
+
+    // Ensure no buffer is bound for pixel transfer
+    this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
+
+    /*
+    this.gl.texSubImage3D(
+      this.gl.TEXTURE_3D,
+      0,
+      0, 0, 0, // position at origin
+      1, 1, 1, // single texel
+      this.gl.RED_INTEGER,
+      this.gl.UNSIGNED_INT,
+      new Uint32Array([0xFFFFFFFF]), // max value
+    );
+    */
+
+    console.warn('populateMRMCPT complete');
+  }
+
+  /**
+   * Push a loaded brick into the brick cache and update the page table
+   * @param {Uint8Array} brick - The brick to push
+   * @param {{bx: number, by: number, bz: number}} brick target position coordinates
+   * @param {{cc: number, cr: number, cx: number, cy: number, cz: number}} brick source position coordinates
+   */
+  async pushBrickToCache(brick, brickTarget, brickSource) {
+    console.warn('pushBrickToCache', brick, brickTarget, brickSource);
+
+    this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheTexture.texture);
+
+    // Ensure no buffer is bound for pixel transfer
+    this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
+
+    this.gl.texSubImage3D(
+      this.gl.TEXTURE_3D,
+      0,
+      brickTarget.bx * BRICK_SIZE,
+      brickTarget.by * BRICK_SIZE,
+      brickTarget.bz * BRICK_SIZE,
+      BRICK_SIZE,
+      BRICK_SIZE,
+      BRICK_SIZE,
+      this.gl.RED,
+      this.gl.UNSIGNED_BYTE,
+      brick,
+    );
+    // TODO: Implement page table update HERE
+    return 'success but TODO: Implement page table update HERE';
   }
 
   /**
@@ -354,9 +641,9 @@ export class VolumeDataManager {
     const volumeData = new Uint8Array(zSize * ySize * xSize);
 
     // Extract chunk sizes
-    const zChunk = chunks[2] || CHUNK_SIZE;
-    const yChunk = chunks[3] || CHUNK_SIZE;
-    const xChunk = chunks[4] || CHUNK_SIZE;
+    const zChunk = chunks[2] || BRICK_SIZE;
+    const yChunk = chunks[3] || BRICK_SIZE;
+    const xChunk = chunks[4] || BRICK_SIZE;
 
     // Calculate number of chunks in each dimension
     const zChunkCount = Math.ceil(zSize / zChunk);
@@ -410,8 +697,8 @@ export class VolumeDataManager {
     }));
 
     // Store information about physical dimensions if available
-    // this.updatePhysicalScale(array);
-    // console.warn('updatePhysicalScale', this.physicalScale);
+    this.updatePhysicalScale(array);
+    console.warn('updatePhysicalScale', this.physicalScale);
 
     // Return the volume data
     return {
@@ -707,5 +994,35 @@ export class VolumeDataManager {
 
     // Return this for chaining
     return this;
+  }
+
+  /**
+   * Load a specific Zarr chunk based on [t,c,z,y,x] coordinates
+   * @param {number} t - Time point (default 0)
+   * @param {number} c - Channel (default 0)
+   * @param {number} z - Z coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} x - X coordinate
+   * @param {number} resolution - Resolution level
+   * @returns {Promise<Uint8Array>} 32x32x32 chunk data
+   */
+  async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
+    if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
+      throw new Error('Zarr store or resolution not initialized');
+    }
+
+    const array = this.zarrStore.arrays[resolution];
+    const chunkEntry = await array.getChunk([t, c, z, y, x]);
+
+    if (!chunkEntry) {
+      throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
+    }
+
+    // Ensure the chunk is the expected size
+    if (chunkEntry.data.length !== BRICK_SIZE * BRICK_SIZE * BRICK_SIZE) {
+      throw new Error(`Unexpected chunk size: ${chunkEntry.data.length}`);
+    }
+
+    return chunkEntry.data;
   }
 }

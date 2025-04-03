@@ -289,6 +289,9 @@ export class VolumeRenderManager {
     this.geometrySize = scaledResolution;
     this.boxSize = scaledResolution;
 
+    this.brickCacheTexture = volumeDataManager.brickCacheTexture;
+    this.pageTableTexture = volumeDataManager.pageTableTexture;
+
     // Update shader uniforms
     this.updateUniforms(
       texturesList,
@@ -298,6 +301,8 @@ export class VolumeRenderManager {
       colorsSave,
       this.layerTransparency,
       this.xSlice, this.ySlice, this.zSlice,
+      this.brickCacheTexture,
+      this.pageTableTexture,
     );
 
     return {
@@ -324,18 +329,21 @@ export class VolumeRenderManager {
   updateUniforms(
     textures, volume, renderstyle, contrastLimits, colors, layerTransparency,
     xSlice, ySlice, zSlice,
+    brickCacheTexture, pageTableTexture,
   ) {
     // Set base uniforms
     // this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
     this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
 
     // Set texture uniforms (up to 6 channels supported)
-    this.uniforms.volumeTex.value = textures.length > 0 ? textures[0] : null;
-    this.uniforms.volumeTex2.value = textures.length > 1 ? textures[1] : null;
-    this.uniforms.volumeTex3.value = textures.length > 2 ? textures[2] : null;
-    this.uniforms.volumeTex4.value = textures.length > 3 ? textures[3] : null;
-    this.uniforms.volumeTex5.value = textures.length > 4 ? textures[4] : null;
-    this.uniforms.volumeTex6.value = textures.length > 5 ? textures[5] : null;
+    // this.uniforms.volumeTex.value = textures.length > 0 ? textures[0] : null;
+    // this.uniforms.volumeTex2.value = textures.length > 1 ? textures[1] : null;
+    // this.uniforms.volumeTex3.value = textures.length > 2 ? textures[2] : null;
+    // this.uniforms.volumeTex4.value = textures.length > 3 ? textures[3] : null;
+    // this.uniforms.volumeTex5.value = textures.length > 4 ? textures[4] : null;
+    // this.uniforms.volumeTex6.value = textures.length > 5 ? textures[5] : null;
+    // this.uniforms.brickCacheTex.value = brickCacheTexture;
+    // this.uniforms.pageTableTex.value = pageTableTexture;
 
     // Set general rendering parameters
     this.uniforms.near.value = 0.1;
@@ -347,7 +355,7 @@ export class VolumeRenderManager {
 
     // Set size and scale parameters
     this.uniforms.u_size.value.set(volume.xLength, volume.yLength, volume.zLength);
-    this.uniforms.u_stop_geom.value = null;
+    // this.uniforms.u_stop_geom.value = null;
     this.uniforms.u_window_size.value.set(0, 0);
     this.uniforms.u_vol_scale.value.set(
       1.0 / volume.xLength,

@@ -1,14 +1,19 @@
 #include <packing>
 precision highp float;
 precision mediump sampler3D;
+// precision highp usampler3D;
 in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
-uniform sampler3D volumeTex;
-uniform sampler3D volumeTex2;
-uniform sampler3D volumeTex3;
-uniform sampler3D volumeTex4;
-uniform sampler3D volumeTex5;
-uniform sampler3D volumeTex6;
+// soon to be deprecated
+// uniform sampler3D volumeTex;
+// uniform sampler3D volumeTex2;
+// uniform sampler3D volumeTex3;
+// uniform sampler3D volumeTex4;
+// uniform sampler3D volumeTex5;
+// uniform sampler3D volumeTex6;
+// NEW SAMPLERS
+uniform sampler3D brickCacheTex;
+uniform sampler3D pageTableTex;
 uniform vec2 u_clim;
 uniform vec2 u_clim2;
 uniform vec2 u_clim3;
@@ -19,30 +24,30 @@ uniform vec2 u_window_size;
 uniform vec2 u_xClip;
 uniform vec2 u_yClip;
 uniform vec2 u_zClip;
-uniform sampler2D u_cmdata;
-uniform sampler2D u_stop_geom;
-uniform sampler2D u_geo_color;
+// uniform sampler2D u_cmdata; // UNUSED
+// uniform sampler2D u_stop_geom; // UNUSED
+// uniform sampler2D u_geo_color; // UNUSED
 uniform vec3 u_color;
 uniform vec3 u_color2;
 uniform vec3 u_color3;
 uniform vec3 u_color4;
 uniform vec3 u_color5;
 uniform vec3 u_color6;
-uniform float alphaScale;
+uniform float alphaScale; // UNUSED
 uniform float dtScale;
-uniform float finalGamma;
-uniform float volumeCount;
+uniform float finalGamma; // UNUSED
+uniform float volumeCount; // -> should be channel count
 uniform highp vec3 boxSize;
-uniform vec3 u_size;
-uniform int u_renderstyle;
-uniform float u_opacity;
-uniform vec3 u_vol_scale;
+uniform vec3 u_size; // UNUSED
+uniform int u_renderstyle; // UNUSED
+uniform float u_opacity; // UNUSED
+uniform vec3 u_vol_scale; // UNUSED
 uniform float near;
-uniform float u_physical_Pixel;
-varying vec2 vUv;
+uniform float u_physical_Pixel; // only used for depth computation -> redundant
+varying vec2 vUv; // UNUSED
 varying vec4 glPosition;
 uniform float far;
-varying vec3 worldSpaceCoords;
+varying vec3 worldSpaceCoords; // also not really used?
 
 float linearize_z(float z) {
     return near * far / (far + z * (near - far));
@@ -104,6 +109,14 @@ void main(void) {
       discard;
     }
 
+    float pt = texture(pageTableTex, vec3(0,0,0)).r;
+    float bc = texture(brickCacheTex, vec3(0,0,0)).r;
+
+    gl_FragColor = vec4(1.0, pt,bc,1.0);
+    return;
+}
+
+/*
     // For finding the settings for the MESH
     //gl_FragColor = vec4(worldSpaceCoords.xyz,1.0); // COLORED BOX
     //gl_FragColor = vec4(cameraCorrected.x,cameraCorrected.y,cameraCorrected.z,1.0); // CLOSEST PLANE
@@ -115,7 +128,6 @@ void main(void) {
     //gl_FragColor = vec4(alphaScale, dtScale, 0.0, 1.0);
     //return;
     // NOTE: image opacity scales dtScale, not alphaScale
-
 
     //No sample behind the eye',
     t_hit.x = max(t_hit.x, 0.0);
@@ -153,7 +165,7 @@ void main(void) {
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
-        float val = texture(volumeTex, p).r;
+        float val = texture(pageTableTex, vec3(0,0,0)).r;
         val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
         rgbCombo += max(0.0, min(1.0, val)) * u_color;
         total    += val;
@@ -193,6 +205,10 @@ void main(void) {
         float sliceAlpha = total * dtScale * dt;
         vec3 sliceColor  = rgbCombo;
 
+        // DEBUG -- right now if we have 1 channel we add the color multiplied with the alpha.
+        // however we should add the full color and then just add the alpha. also we would have
+        // to weigh the colors by the alpha if adding multiple.
+
         gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
         gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
 
@@ -201,7 +217,6 @@ void main(void) {
         if (gl_FragColor.a > 0.99) {
             break;
         }
-
         p += step;
     }
 
@@ -210,3 +225,4 @@ void main(void) {
     gl_FragColor.g = linear_to_srgb(gl_FragColor.g);
     gl_FragColor.b = linear_to_srgb(gl_FragColor.b);
 }
+*/

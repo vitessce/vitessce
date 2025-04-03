@@ -76,6 +76,7 @@ export function VolumeView(props) {
     const dataManager = new VolumeDataManager(
       'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
       glContext,
+      gl,
     );
     const renderManager = new VolumeRenderManager();
 
@@ -208,25 +209,38 @@ export function VolumeView(props) {
     if (!meshRef.current || !managers || isLoading
       || !rendering.uniforms || !rendering.shader) return;
 
-    // Create new shader material
-    const material = new THREE.ShaderMaterial({
-      uniforms: rendering.uniforms,
-      vertexShader: rendering.shader.vertexShader,
-      fragmentShader: rendering.shader.fragmentShader,
-      side: THREE.BackSide,
-      transparent: true,
-    });
+    // Only create new material if it doesn't exist
+    if (!materialRef.current) {
+      const material = new THREE.ShaderMaterial({
+        uniforms: rendering.uniforms,
+        vertexShader: rendering.shader.vertexShader,
+        fragmentShader: rendering.shader.fragmentShader,
+        side: THREE.BackSide,
+        transparent: true,
+        onBeforeCompile: (shader) => {
+          // Override THREE's texture handling for our custom uniforms
+          shader.uniforms.brickCacheTex.setValue = function(_, value) {
+            if (value === null) return;
+            gl.uniform1i(this.addr, 12);  // Force texture unit 12
+          };
+          shader.uniforms.pageTableTex.setValue = function(_, value) {
+            if (value === null) return;
+            gl.uniform1i(this.addr, 13);  // Force texture unit 13
+          };
+        },
+      });
 
-    // Replace the existing material
-    if (meshRef.current.material) {
-      meshRef.current.material.dispose();
+      // Replace the existing material if needed
+      if (meshRef.current.material) {
+        meshRef.current.material.dispose();
+      }
+      meshRef.current.material = material;
+      materialRef.current = material;
     }
-    meshRef.current.material = material;
-    materialRef.current = material;
 
-    // Apply the render manager updates
+    // Just update the uniforms on the existing material
     if (managers.renderManager) {
-      managers.renderManager.applyToMaterial(material);
+      managers.renderManager.applyToMaterial(materialRef.current);
     }
   }, [rendering, isLoading, managers]);
 
