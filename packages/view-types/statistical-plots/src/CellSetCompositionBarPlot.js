@@ -30,7 +30,10 @@ export default function CellSetCompositionBarPlot(props) {
     sampleSetColor,
   } = props;
 
-  const height = Array.isArray(obsSetSelection) && ((heightProp - marginBottom) / obsSetSelection.length >= MAX_BAR_SIZE)
+  const height = (
+    Array.isArray(obsSetSelection)
+      && ((heightProp - marginBottom) / obsSetSelection.length >= MAX_BAR_SIZE)
+  )
     ? MAX_BAR_SIZE * obsSetSelection.length + marginBottom
     : heightProp;
 
@@ -118,16 +121,15 @@ export default function CellSetCompositionBarPlot(props) {
   };
 
   const xExtent = useMemo(() => {
-    if(computedData) {
+    if (computedData) {
       const [min, max] = extent(computedData.map(d => d.logFoldChange));
       const buffer = 1.05; // Ensure some extra space
       const minAbs = Math.abs(min) * buffer;
       const maxAbs = Math.abs(max) * buffer;
-      if(minAbs > maxAbs) {
+      if (minAbs > maxAbs) {
         return [-minAbs, minAbs];
-      } else {
-        return [-maxAbs, maxAbs];
       }
+      return [-maxAbs, maxAbs];
     }
     return undefined;
   }, [computedData]);
