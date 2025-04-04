@@ -11,6 +11,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
 
   // Example of updating stats - in a real app, you might get this from
   // a performance monitor or pass it up from the VolumeRenderer
+  /*
   useEffect(() => {
     const interval = setInterval(() => {
       setRenderingStats({
@@ -20,6 +21,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
 
     return () => clearInterval(interval);
   }, []);
+  */
 
   // Handle initialization completion from VolumeView
   const handleInitComplete = (initData) => {

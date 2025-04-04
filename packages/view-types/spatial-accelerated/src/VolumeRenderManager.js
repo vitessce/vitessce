@@ -45,6 +45,8 @@ export class VolumeRenderManager {
     this.ySlice = new Vector2(-1, 100000);
     this.zSlice = new Vector2(-1, 100000);
     this.originalScale = [1, 1, 1];
+    this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
+    this.maxResolution = [1, 1, 1];
 
     // Initialize shader
     this.initializeShader();
@@ -405,18 +407,31 @@ export class VolumeRenderManager {
       contrastLimits.length > 5 ? contrastLimits[5][1] : null,
     );
 
+    // console.warn('xSlice', xSlice);
+    // console.warn('ySlice', ySlice);
+    // console.warn('zSlice', zSlice);
+// 
+    // console.warn('meshScale', this.meshScale);
+    // console.warn('originalScale', this.originalScale);
+    // console.warn('volume', volume);
+    // console.warn('physicalDimensions', this.physicalDimensions);
+    // console.warn('maxResolution', this.maxResolution);
+    // console.warn('boxSize', this.boxSize);
+
+    // xSlice[0] = 0 should be 0
+    // xSlice[1] = 1024 should the actual x length of the volume
     // Set clipping planes
     this.uniforms.u_xClip.value.set(
-      xSlice[0] * (1.0 / this.meshScale[0]) / this.originalScale[0] * volume.xLength,
-      xSlice[1] * (1.0 / this.meshScale[0]) / this.originalScale[0] * volume.xLength,
+      xSlice[0] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
+      xSlice[1] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
     );
     this.uniforms.u_yClip.value.set(
-      ySlice[0] * (1.0 / this.meshScale[1]) / this.originalScale[1] * volume.yLength,
-      ySlice[1] * (1.0 / this.meshScale[1]) / this.originalScale[1] * volume.yLength,
+      ySlice[0] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
+      ySlice[1] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
     );
     this.uniforms.u_zClip.value.set(
-      zSlice[0] * (1.0 / this.meshScale[2]) / this.originalScale[2] * volume.zLength,
-      zSlice[1] * (1.0 / this.meshScale[1]) / this.originalScale[2] * volume.zLength,
+      zSlice[0] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
+      zSlice[1] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
     );
 
     // Set colors (up to 6 channels)
