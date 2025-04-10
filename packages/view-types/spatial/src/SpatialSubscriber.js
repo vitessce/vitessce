@@ -240,7 +240,8 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
+  const { loaders: imageLayerLoaders = [], meta = [], instance } = image || {};
+  console.log(instance?.getPhotometricInterpretation());
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
