@@ -112,7 +112,7 @@ void main(void) {
     float pt = texture(pageTableTex, vec3(0,0,0)).r;
     float bc = texture(brickCacheTex, vec3(0,0,0)).r;
 
-    gl_FragColor = vec4(pt, 0.1, bc, 1.0);
+    gl_FragColor = vec4(pt, 0.5, bc, 1.0);
     return;
 }
 

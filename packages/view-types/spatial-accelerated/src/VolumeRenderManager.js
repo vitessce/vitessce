@@ -17,7 +17,7 @@ const RENDERING_MODES = {
 };
 
 function log(message) {
-  console.warn(`%cRENDERMANAGER: ${message}`, 'background: orange; color: white; padding: 2px; border-radius: 3px;');
+  console.warn(`%cRM: ${message}`, 'background: orange; color: white; padding: 2px; border-radius: 3px;');
 }
 
 /**
@@ -33,6 +33,7 @@ export class VolumeRenderManager {
     this.meshScale = [1, 1, 1];
     this.geometrySize = [1, 1, 1];
     this.boxSize = [1, 1, 1];
+    this.zarrInit = false;
 
     // Channel and texture state
     this.channelsVisible = [];
@@ -262,6 +263,7 @@ export class VolumeRenderManager {
     const colorsSave = [];
     const contrastLimitsList = [];
 
+    /*
     this.channelTargetC.forEach((channel, id) => {
       if (this.channelsVisible[id]) {
         const texture = volumeDataManager.getTexture(channel);
@@ -287,23 +289,30 @@ export class VolumeRenderManager {
         }
       }
     });
+    */
 
-    // Get physical scale
-    // const scale = volumeDataManager.getScale() || [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
-    this.originalScale = volumeDataManager.getOriginalScaleXYZ();
-    this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
-    this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
-    const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
-    scaledResolution[0] *= 200.0;
-    scaledResolution[1] *= 200.0;
-    scaledResolution[2] *= 200.0;
+    if (!this.zarrInit) {
+      // Get physical scale
+      // const scale = volumeDataManager.getScale() || [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
+      this.originalScale = volumeDataManager.getOriginalScaleXYZ();
+      this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
+      this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
+      const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
+      scaledResolution[0] *= 200.0;
+      scaledResolution[1] *= 200.0;
+      scaledResolution[2] *= 200.0;
 
-    this.meshScale = this.originalScale;
-    this.geometrySize = scaledResolution;
-    this.boxSize = scaledResolution;
+      this.meshScale = this.originalScale;
+      this.geometrySize = scaledResolution;
+      this.boxSize = scaledResolution;
 
-    this.brickCacheTexture = volumeDataManager.brickCacheTexture;
-    this.pageTableTexture = volumeDataManager.pageTableTexture;
+      this.brickCacheTexture = volumeDataManager.brickCacheGLTexture;
+      this.pageTableTexture = volumeDataManager.pageTableGLTexture;
+      this.zarrInit = true;
+    }
+
+    console.warn('brickCacheTexture', this.brickCacheTexture);
+    console.warn('pageTableTexture', this.pageTableTexture);
 
     // Update shader uniforms
     this.updateUniforms(
@@ -346,6 +355,7 @@ export class VolumeRenderManager {
     brickCacheTexture, pageTableTexture,
   ) {
     log('Updating uniforms');
+    console.warn('TODO: only update the rendering uniforms, skip the texture uniforms');
     // Set base uniforms
     // this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
     this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
@@ -357,8 +367,8 @@ export class VolumeRenderManager {
     // this.uniforms.volumeTex4.value = textures.length > 3 ? textures[3] : null;
     // this.uniforms.volumeTex5.value = textures.length > 4 ? textures[4] : null;
     // this.uniforms.volumeTex6.value = textures.length > 5 ? textures[5] : null;
-    // this.uniforms.brickCacheTex.value = brickCacheTexture;
-    // this.uniforms.pageTableTex.value = pageTableTexture;
+    this.uniforms.brickCacheTex.value = brickCacheTexture;
+    this.uniforms.pageTableTex.value = pageTableTexture;
 
     // Set general rendering parameters
     this.uniforms.near.value = 0.1;
@@ -379,7 +389,7 @@ export class VolumeRenderManager {
     );
 
     // Set rendering style
-    this.uniforms.u_renderstyle.value = renderstyle;
+    // this.uniforms.u_renderstyle.value = renderstyle;
 
     // Set contrast limits (up to 6 channels)
     this.uniforms.u_clim.value.set(
@@ -410,7 +420,7 @@ export class VolumeRenderManager {
     // console.warn('xSlice', xSlice);
     // console.warn('ySlice', ySlice);
     // console.warn('zSlice', zSlice);
-// 
+
     // console.warn('meshScale', this.meshScale);
     // console.warn('originalScale', this.originalScale);
     // console.warn('volume', volume);

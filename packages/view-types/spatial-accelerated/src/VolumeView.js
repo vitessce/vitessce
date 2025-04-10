@@ -14,7 +14,7 @@ import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 function log(message) {
-  console.warn(`%cVIEW: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+  console.warn(`%cV: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
 }
 
 export function VolumeView(props) {
@@ -136,12 +136,15 @@ export function VolumeView(props) {
     const settingsValid = renderManager.updateFromProps(props);
     if (!settingsValid) return null;
 
+    console.warn('TODO: this leads to extracting twice');
+
     // Get the extracted settings
     return renderManager.extractRenderingSettingsFromProps(props);
   }, [props, managers]);
 
   // Load data when necessary
   const loadVolumeData = useCallback(async (settings) => {
+    log('loadVolumeData');
     if (!managers || !settings) return;
     const { dataManager, renderManager } = managers;
 
@@ -215,6 +218,8 @@ export function VolumeView(props) {
   useEffect(() => {
     if (!meshRef.current || !managers || isLoading
       || !rendering.uniforms || !rendering.shader) return;
+
+    console.warn('usingEffect: rendering', rendering);
 
     // Only create new material if it doesn't exist
     if (!materialRef.current) {
@@ -293,4 +298,3 @@ export function VolumeView(props) {
     </group>
   );
 }
-

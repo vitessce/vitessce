@@ -33,7 +33,7 @@ export function VolumeHUD({
       )}
 
       {/* Zarr Store Information */}
-      {zarrStoreInfo && (
+      {zarrStoreInfo && false && (
         <div style={{ marginTop: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
             Zarr Store Info
@@ -64,7 +64,7 @@ export function VolumeHUD({
       )}
 
       {/* Device Limits */}
-      {deviceLimits && (
+      {deviceLimits && false && (
         <div style={{ marginTop: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
             Device Limits

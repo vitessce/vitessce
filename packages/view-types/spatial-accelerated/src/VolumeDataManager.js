@@ -60,7 +60,7 @@ const INIT_STATUS = {
 };
 
 function log(message) {
-  console.warn(`%cVOLUMEDATAMANAGER: ${message}`, 'background: deeppink; color: white; padding: 2px; border-radius: 3px;');
+  console.warn(`%cDM: ${message}`, 'background: deeppink; color: white; padding: 2px; border-radius: 3px;');
 }
 
 export class VolumeDataManager {
@@ -172,6 +172,7 @@ export class VolumeDataManager {
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
+    log('VolumeDataManager constructor complete');
   }
 
   /**
@@ -231,6 +232,8 @@ export class VolumeDataManager {
       }
 
       const results = await Promise.all(loadPromises);
+
+      console.warn('results', results);
 
       // Verify all resolutions were loaded successfully
       const failedResolutions = results.filter(r => !r.success);
@@ -330,7 +333,7 @@ export class VolumeDataManager {
 
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
-        this.populateMRMCPT();
+        // this.populateMRMCPT();
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
@@ -341,7 +344,7 @@ export class VolumeDataManager {
       if (this.zarrStore.group.attrs.coordinateTransformations
           && this.zarrStore.group.attrs.coordinateTransformations[0]
           && this.zarrStore.group.attrs.coordinateTransformations[0].scale) {
-        console.warn(this.zarrStore.group.attrs.coordinateTransformations[0].scale);
+        console.warn('scale', this.zarrStore.group.attrs.coordinateTransformations[0].scale);
       }
 
       // Return data that can be displayed in the HUD
@@ -472,15 +475,41 @@ export class VolumeDataManager {
     console.warn('Page Table Texture:', this.pageTableGLTexture);
     console.warn('Brick Cache:', brickCacheData);
     console.warn('Page Table:', pageTableData);
+
+    this.brickCacheTextureUnit = 12;
+    this.pageTableTextureUnit = 13;
+
+    console.warn('gl', this.gl);
+    console.warn('renderer', this.renderer);
+
+    log('initMRMCPT() COMPLETE');
   }
 
+  getTexture(unit) {
+    if (unit === 12) return this.brickCacheGLTexture;
+    if (unit === 13) return this.pageTableGLTexture;
+    return null;
+  }
+
+  rebindTextures() {
+    log('rebindTextures');
+    if (this.brickCacheGLTexture && this.pageTableGLTexture) {
+      this.gl.activeTexture(this.gl.TEXTURE12);
+      this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheGLTexture);
+
+      this.gl.activeTexture(this.gl.TEXTURE13);
+      this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableGLTexture);
+      return true;
+    }
+    return false;
+  }
 
   /**
    * Populate the PageTable and BrickCache with initial values for TESTING
    */
   async populateMRMCPT() {
     log('populateMRMCPT');
-    if (!this.gl || !this.pageTableTexture) return;
+    if (!this.gl || !this.pageTableGLTexture) return;
     const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
     const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
     const test3 = await this.loadZarrChunk(0, 0, 2, 2, 2, 3);
@@ -546,7 +575,7 @@ export class VolumeDataManager {
     const pt5 = parseInt(pt5binary, 2) >>> 0;
 
     // Update page table texture with pt0 at offset0
-    this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableTexture.texture);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableGLTexture.texture);
 
     // Ensure no buffer is bound for pixel transfer
     this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
@@ -576,7 +605,7 @@ export class VolumeDataManager {
     log('pushBrickToCache');
     console.warn('pushBrickToCache', brick, brickTarget, brickSource);
 
-    this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheTexture.texture);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheGLTexture.texture);
 
     // Ensure no buffer is bound for pixel transfer
     this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
@@ -594,6 +623,9 @@ export class VolumeDataManager {
       this.gl.UNSIGNED_BYTE,
       brick,
     );
+
+    log('pushBrickToCache() COMPLETE');
+
     // TODO: Implement page table update HERE
     return 'success but TODO: Implement page table update HERE';
   }
@@ -607,6 +639,7 @@ export class VolumeDataManager {
    */
   async tryLoadResolution(resolutionIndex, arrays, shapes) {
     log('tryLoadResolution');
+    console.warn(resolutionIndex, arrays, shapes);
     try {
       const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
       // Create new arrays to avoid modifying parameters directly
@@ -617,6 +650,7 @@ export class VolumeDataManager {
       // Update the original arrays
       Object.assign(arrays, newArrays);
       Object.assign(shapes, newShapes);
+      log('tryLoadResolution() COMPLETE');
       return { success: true, level: resolutionIndex };
     } catch (err) {
       console.error(`Failed to load resolution ${resolutionIndex}:`, err);
@@ -713,6 +747,8 @@ export class VolumeDataManager {
     this.updatePhysicalScale(array);
     console.warn('updatePhysicalScale', this.physicalScale);
 
+    log('getVolumeByChannel() COMPLETE');
+
     // Return the volume data
     return {
       data: volumeData,
@@ -745,6 +781,8 @@ export class VolumeDataManager {
         array.shape[2], // Z dimension
       ];
     }
+
+    log('updatePhysicalScale() COMPLETE');
   }
 
   /**
