@@ -1,6 +1,7 @@
 #include <packing>
 precision highp float;
 precision mediump sampler3D;
+precision highp usampler3D;
 // precision highp usampler3D;
 in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
@@ -13,7 +14,7 @@ in vec3 cameraCorrected;
 // uniform sampler3D volumeTex6;
 // NEW SAMPLERS
 uniform sampler3D brickCacheTex;
-uniform sampler3D pageTableTex;
+uniform usampler3D pageTableTex;
 uniform vec2 u_clim;
 uniform vec2 u_clim2;
 uniform vec2 u_clim3;
@@ -109,7 +110,9 @@ void main(void) {
       discard;
     }
 
-    float pt = texture(pageTableTex, vec3(0,0,0)).r;
+    // float pt = texture(pageTableTex, vec3(0,0,0)).r;
+    uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
+    float pt = float(ptint) / 4294967295.0;
     float bc = texture(brickCacheTex, vec3(0,0,0)).r;
 
     gl_FragColor = vec4(pt, 0.5, bc, 1.0);

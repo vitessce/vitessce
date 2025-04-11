@@ -151,6 +151,8 @@ export class VolumeDataManager {
 
     this.BrickCache = [];
     this.PageTable = [];
+    this.ptTHREE = null;
+    this.bcTHREE = null;
 
     this.PT = {
       channelOffsets: [],
@@ -481,30 +483,37 @@ export class VolumeDataManager {
     this.pageTableTextureUnit = 13;
     */
 
+    this.bcTHREE = new Data3DTexture(
+      brickCacheData,
+      BRICK_CACHE_SIZE_VOXELS_X,
+      BRICK_CACHE_SIZE_VOXELS_Y,
+      BRICK_CACHE_SIZE_VOXELS_Z,
+    );
+    this.bcTHREE.type = UnsignedByteType;
+    this.bcTHREE.format = RedFormat;
+    this.bcTHREE.minFilter = LinearFilter;
+    this.bcTHREE.magFilter = LinearFilter;
+    this.bcTHREE.generateMipmaps = false;
+    this.bcTHREE.needsUpdate = true;
+
+    this.ptTHREE = new Data3DTexture(
+      pageTableData,
+      this.PT.xExtent,
+      this.PT.yExtent,
+      this.PT.zTotal,
+    );
+    this.ptTHREE.format = RedIntegerFormat;
+    this.ptTHREE.type = UnsignedIntType;
+    this.ptTHREE.internalFormat = 'R32UI';
+    this.ptTHREE.minFilter = NearestFilter;
+    this.ptTHREE.magFilter = NearestFilter;
+    this.ptTHREE.generateMipmaps = false;
+    this.ptTHREE.needsUpdate = true;
+
     console.warn('gl', this.gl);
-    this.renderer.useLegacyLights = true;
     console.warn('renderer', this.renderer);
 
     log('initMRMCPT() COMPLETE');
-  }
-
-  getTexture(unit) {
-    if (unit === 12) return this.brickCacheGLTexture;
-    if (unit === 13) return this.pageTableGLTexture;
-    return null;
-  }
-
-  rebindTextures() {
-    log('rebindTextures');
-    if (this.brickCacheGLTexture && this.pageTableGLTexture) {
-      this.gl.activeTexture(this.gl.TEXTURE12);
-      this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheGLTexture);
-
-      this.gl.activeTexture(this.gl.TEXTURE13);
-      this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableGLTexture);
-      return true;
-    }
-    return false;
   }
 
   /**

@@ -129,6 +129,7 @@ export function VolumeView(props) {
 
   // Extract settings from props - memoized to avoid recalculation
   const extractSettings = useCallback(() => {
+    log('callback extractSettings');
     if (!managers) return null;
     const { renderManager } = managers;
 
@@ -144,7 +145,7 @@ export function VolumeView(props) {
 
   // Load data when necessary
   const loadVolumeData = useCallback(async (settings) => {
-    log('loadVolumeData');
+    log('callback loadVolumeData');
     if (!managers || !settings) return;
     const { dataManager, renderManager } = managers;
 
@@ -187,6 +188,7 @@ export function VolumeView(props) {
 
   // Update when 3D mode or managers change
   useEffect(() => {
+    log('callback useEffect when 3D mode or managers change');
     if (!managers) return;
 
     const { spatialRenderingMode } = props;
@@ -206,6 +208,7 @@ export function VolumeView(props) {
 
   // Forward zarr store info and device limits through the ref if available
   useEffect(() => {
+    log('callback useEffect when forwardRef is available');
     if (props.forwardRef && typeof props.forwardRef === 'object') {
       props.forwardRef.current = {
         zarrStoreInfo,
@@ -216,6 +219,7 @@ export function VolumeView(props) {
 
   // Update material when rendering changes
   useEffect(() => {
+    log('callback useEffect when rendering changes');
     if (!meshRef.current || !managers || isLoading
       || !rendering.uniforms || !rendering.shader) return;
 
@@ -229,17 +233,6 @@ export function VolumeView(props) {
         fragmentShader: rendering.shader.fragmentShader,
         side: THREE.BackSide,
         transparent: true,
-        onBeforeCompile: (shader) => {
-          // Override THREE's texture handling for our custom uniforms
-          shader.uniforms.brickCacheTex.setValue = function(_, value) {
-            if (value === null) return;
-            gl.uniform1i(this.addr, 12);  // Force texture unit 12
-          };
-          shader.uniforms.pageTableTex.setValue = function(_, value) {
-            if (value === null) return;
-            gl.uniform1i(this.addr, 13);  // Force texture unit 13
-          };
-        },
       });
 
       // Replace the existing material if needed

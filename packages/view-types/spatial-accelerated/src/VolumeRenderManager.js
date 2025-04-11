@@ -8,6 +8,7 @@ import {
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { VolumeShader } from './VolumeShader.js';
+import { VolumeDataManager } from './VolumeDataManager.js';
 
 // Map rendering mode strings to shader values
 const RENDERING_MODES = {
@@ -306,8 +307,8 @@ export class VolumeRenderManager {
       this.geometrySize = scaledResolution;
       this.boxSize = scaledResolution;
 
-      this.brickCacheTexture = volumeDataManager.brickCacheGLTexture;
-      this.pageTableTexture = volumeDataManager.pageTableGLTexture;
+      this.brickCacheTexture = volumeDataManager.bcTHREE;
+      this.pageTableTexture = volumeDataManager.ptTHREE;
       this.zarrInit = true;
     }
 
@@ -326,6 +327,10 @@ export class VolumeRenderManager {
       this.brickCacheTexture,
       this.pageTableTexture,
     );
+
+    // this.volumeDataManager.ptTHREE.needsUpdate = false;
+    // this.volumeDataManager.bcTHREE.needsUpdate = false;
+
     log('Updated uniforms');
 
     return {
