@@ -6,6 +6,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
+import { getDebugMode } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
@@ -28,7 +29,18 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    console.log("loader", loader, loader?.metadata?.Pixels?.Interleaved, loader?.metadata?.Pixels?.TiffData[0].PlaneCount, getDebugMode()) ;
 
+    function isPyramidalImage() {
+      if (loader?.metadata?.Pixels?.Interleaved === false || loader?.metadata?.Pixels?.TiffData[0].PlaneCount > 1) {
+        return true;
+      }
+      return false;
+    }
+
+    if(getDebugMode() && !isPyramidalImage()){
+        throw new Error ("Image has to be pyramidal")
+    }
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const {
@@ -134,6 +146,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
             instance: imageWrapper, // TODO: make this the root value of LoaderResult.image.
           },
           featureIndex: imageWrapper.getChannelNames(),
+          isPyramid: isPyramidalImage,
         },
         urls,
         coordinationValues,
