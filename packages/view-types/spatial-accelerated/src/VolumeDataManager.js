@@ -418,6 +418,7 @@ export class VolumeDataManager {
     );
     pageTableData.fill(4294967295); // Fill with max value (0xFFFFFFFF) for debugging
 
+    /*
     // Create WebGL textures directly
     const brickCacheGLTexture = this.gl.createTexture();
     const pageTableGLTexture = this.gl.createTexture();
@@ -478,8 +479,10 @@ export class VolumeDataManager {
 
     this.brickCacheTextureUnit = 12;
     this.pageTableTextureUnit = 13;
+    */
 
     console.warn('gl', this.gl);
+    this.renderer.useLegacyLights = true;
     console.warn('renderer', this.renderer);
 
     log('initMRMCPT() COMPLETE');
