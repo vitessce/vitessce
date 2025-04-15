@@ -1,5 +1,6 @@
 #include <packing>
 precision highp float;
+precision highp int;
 precision mediump sampler3D;
 precision highp usampler3D;
 // precision highp usampler3D;
@@ -15,6 +16,8 @@ in vec3 cameraCorrected;
 // NEW SAMPLERS
 uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
+// uniform usampler3D lruBrickCacheTex; // size of bc/32
+// uniform usampler3D requestQueueTex; // holds list of pagetable coords
 uniform vec2 u_clim;
 uniform vec2 u_clim2;
 uniform vec2 u_clim3;
@@ -100,6 +103,109 @@ float linear_to_srgb(float x) {
     return 1.055f * pow(x, 1.f / 2.4f) - 0.055f;
 }
 
+const int targetRes0 = 0; // highest
+const int lowestRes = 5;
+const uvec3 baseExtents = uvec3(32, 32, 28);
+const uvec3 fullResExtents = uvec3(32, 32, 25);
+
+const uvec3 anchorPoint0 = uvec3(0,0,28);
+const uvec3 anchorPoint1 = uvec3(16,16,15);
+const uvec3 anchorPoint2 = uvec3(8,8,8);
+const uvec3 anchorPoint3 = uvec3(4,4,4);
+const uvec3 anchorPoint4 = uvec3(2,2,2);
+const uvec3 anchorPoint5 = uvec3(1,1,1);
+
+uvec3 getAnchorPoint(int index) {
+    if (index == 0) return anchorPoint0;
+    if (index == 1) return anchorPoint1;
+    if (index == 2) return anchorPoint2;
+    if (index == 3) return anchorPoint3;
+    if (index == 4) return anchorPoint4;
+    return anchorPoint5;
+}
+
+/*
+[1] 31    | 0 — flag resident
+[1] 30    | 1 — flag init
+[7] 23…29 | 2…8 — min → 128
+[7] 16…22 | 9…15 — max → 128
+[6] 10…15 | 16…21 — x offset in brick cache → 64
+[6] 4…9   | 22…27 — y offset in brick cache → 64
+[4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
+*/
+
+//input: location as 0..1 coordinate in volume
+//input: targetRes
+//input: channel
+//output: x,y,z as brick address in brick cache, w as resolution
+ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
+
+    int currentRes = targetRes;
+
+    while (currentRes <= lowestRes) {
+        uvec3 anchorPoint = getAnchorPoint(currentRes);
+        // multiplier to scale the [0,1] to the extents in the PT in that res
+        float scale = pow(2.0, float(lowestRes) - float(currentRes)); // lowestRes should be 1 
+        vec3 channelOffset = vec3(0,0,1); // this is for the 0th channel now
+        uvec3 coordinate = uvec3(anchorPoint) + uvec3(location * scale);
+        uint ptEntry = texture(pageTableTex, vec3(coordinate)).r;
+        uint isInit = (ptEntry >> 30u) & 1u;
+        if (isInit == 0u) { 
+            currentRes++; 
+            // TODO: request brick
+            continue;
+        }
+        uint min = (ptEntry >> 23u) & 0x7Fu;
+        uint max = (ptEntry >> 16u) & 0x7Fu;
+        if (float(min) > u_clim[0]) {
+            return ivec4(-1,0,0,currentRes);
+        } else if (float(max) < u_clim[1]) {
+            return ivec4(0, -1, 0, currentRes);
+        } else if (abs(float(min) - float(max)) < 2.0) {
+            return ivec4(0,0,-int(min) * 2,currentRes);
+        }
+        // check if resident
+        uint isResident = (ptEntry >> 31u) & 1u;
+        if (isResident == 0u) {
+            currentRes++;
+            // TODO: request brick
+            continue;
+        } else {
+            uint xBrickCache = (ptEntry >> 10u) & 0x3Fu;
+            uint yBrickCache = (ptEntry >> 4u) & 0x3Fu;
+            uint zBrickCache = ptEntry & 0xFu;
+            uvec3 brickCacheCoord = uvec3(xBrickCache, yBrickCache, zBrickCache);
+
+            return ivec4(brickCacheCoord, currentRes);
+        }
+    }
+    // if target res is 0 return that
+    // if target res is not null OR not available, step down until found
+    // get bitmask of lowest found
+    // genIType bitfieldExtract(	genIType value,  int offset,   int bits);
+    // check if init, if not -> res down AND REQUEST
+    // if minmax check out -> dont even request
+    // check if resident, if not -> size up in res AND REQUEST
+    // if resident, return x,y,z,resolution AND ADD TO LRU
+
+    // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
+    return ivec4(0,0,0,currentRes);
+}
+
+// calculations at beginning: dt per res?
+
+// loop through:
+// get brick location
+    // if brick empty or solid, proceed accordingly
+// depending on resolution, begin stepping -> new loop
+    // when stepping, sum up and multiply by the dt per res
+// depending on target res, try loading new brick
+// if no brick found, skip to next brick
+
+// conditionals -> alpha above certain value -> increase target res
+// if distance above certain value -> increase target res (?)
+
+
 void main(void) {
 
     //STEP 1: Normalize the view Ray',
@@ -109,15 +215,19 @@ void main(void) {
     if (t_hit.x >= t_hit.y) {
       discard;
     }
+    //No sample behind the eye',
+    t_hit.x = max(t_hit.x, 0.0);
 
     // float pt = texture(pageTableTex, vec3(0,0,0)).r;
     uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
     float pt = float(ptint) / 4294967295.0;
     float bc = texture(brickCacheTex, vec3(0,0,0)).r;
 
-    gl_FragColor = vec4(pt, 0.5, bc, 1.0);
+    gl_FragColor = vec4(pt, 0.8, bc, 1.0);
     return;
 }
+
+
 
 /*
     // For finding the settings for the MESH
@@ -132,8 +242,6 @@ void main(void) {
     //return;
     // NOTE: image opacity scales dtScale, not alphaScale
 
-    //No sample behind the eye',
-    t_hit.x = max(t_hit.x, 0.0);
     //STEP 3: Compute the step size to march through the volume grid',
     ivec3 volumeTexSize = textureSize(volumeTex, 0);
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));

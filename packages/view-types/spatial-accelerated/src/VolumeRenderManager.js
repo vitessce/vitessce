@@ -310,10 +310,52 @@ export class VolumeRenderManager {
       this.brickCacheTexture = volumeDataManager.bcTHREE;
       this.pageTableTexture = volumeDataManager.ptTHREE;
       this.zarrInit = true;
-    }
 
-    console.warn('brickCacheTexture', this.brickCacheTexture);
-    console.warn('pageTableTexture', this.pageTableTexture);
+      volumeDataManager.ptTHREE.needsUpdate = false;
+      volumeDataManager.bcTHREE.needsUpdate = false;
+
+      console.warn('update set to false', volumeDataManager.renderer);
+      const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
+      console.warn('texPropsBC', texPropsBC.__webglTexture);
+      const texPropsPT = volumeDataManager.renderer.properties.get(volumeDataManager.ptTHREE);
+      console.warn('texPropsPT', texPropsPT);
+
+      const gl = volumeDataManager.renderer.getContext();
+      // const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
+
+      // First, let's check if we have valid objects
+      console.warn('GL context:', gl);
+
+      volumeDataManager.renderer.initTexture(volumeDataManager.bcTHREE);
+      volumeDataManager.renderer.initTexture(volumeDataManager.ptTHREE);
+
+      console.warn('BC texture properties:', texPropsBC);
+      console.warn('BC texture handle exists:', texPropsBC.__webglTexture !== undefined);
+
+      // If the texture handle exists, try the update
+      if (texPropsBC.__webglTexture) {
+        gl.bindTexture(gl.TEXTURE_3D, texPropsBC.__webglTexture);
+
+        // Check for WebGL errors after binding
+        let error = gl.getError();
+        console.warn('After bind error:', error);
+
+        gl.texSubImage3D(
+          gl.TEXTURE_3D,
+          0,
+          0, 0, 0,
+          1, 1, 1,
+          gl.RED,
+          gl.UNSIGNED_BYTE,
+          new Uint8Array([0]),
+        );
+
+        // Check for WebGL errors after texSubImage3D
+        error = gl.getError();
+        console.warn('After texSubImage3D error:', error);
+      }
+      console.warn('renderer', volumeDataManager.renderer);
+    }
 
     // Update shader uniforms
     this.updateUniforms(

@@ -336,6 +336,7 @@ export class VolumeDataManager {
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
         // this.populateMRMCPT();
+        this.testTexture();
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
@@ -420,69 +421,6 @@ export class VolumeDataManager {
     );
     pageTableData.fill(4294967295); // Fill with max value (0xFFFFFFFF) for debugging
 
-    /*
-    // Create WebGL textures directly
-    const brickCacheGLTexture = this.gl.createTexture();
-    const pageTableGLTexture = this.gl.createTexture();
-
-    // Initialize brick cache texture (TEXTURE12)
-    this.gl.activeTexture(this.gl.TEXTURE12);
-    this.gl.bindTexture(this.gl.TEXTURE_3D, brickCacheGLTexture);
-    this.gl.texImage3D(
-      this.gl.TEXTURE_3D,
-      0,
-      this.gl.R8,
-      BRICK_CACHE_SIZE_VOXELS_X,
-      BRICK_CACHE_SIZE_VOXELS_Y,
-      BRICK_CACHE_SIZE_VOXELS_Z,
-      0,
-      this.gl.RED,
-      this.gl.UNSIGNED_BYTE,
-      brickCacheData,
-    );
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_R, this.gl.CLAMP_TO_EDGE);
-
-    // Initialize page table texture (TEXTURE13)
-    this.gl.activeTexture(this.gl.TEXTURE13);
-    this.gl.bindTexture(this.gl.TEXTURE_3D, pageTableGLTexture);
-    this.gl.texImage3D(
-      this.gl.TEXTURE_3D,
-      0,
-      this.gl.R32UI,
-      this.PT.xExtent,
-      this.PT.yExtent,
-      this.PT.zTotal,
-      0,
-      this.gl.RED_INTEGER,
-      this.gl.UNSIGNED_INT,
-      pageTableData,
-    );
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_3D, this.gl.TEXTURE_WRAP_R, this.gl.CLAMP_TO_EDGE);
-
-    // Store the WebGL texture handles
-    this.brickCacheGLTexture = brickCacheGLTexture;
-    this.pageTableGLTexture = pageTableGLTexture;
-
-    console.warn('MRMCPT Initialization complete');
-    console.warn('Brick Cache Size:', BRICK_CACHE_SIZE_VOXELS_X, BRICK_CACHE_SIZE_VOXELS_Y, BRICK_CACHE_SIZE_VOXELS_Z);
-    console.warn('Page Table Size:', this.PT.xExtent, this.PT.yExtent, this.PT.zTotal);
-    console.warn('Brick Cache Texture:', this.brickCacheGLTexture);
-    console.warn('Page Table Texture:', this.pageTableGLTexture);
-    console.warn('Brick Cache:', brickCacheData);
-    console.warn('Page Table:', pageTableData);
-
-    this.brickCacheTextureUnit = 12;
-    this.pageTableTextureUnit = 13;
-    */
-
     this.bcTHREE = new Data3DTexture(
       brickCacheData,
       BRICK_CACHE_SIZE_VOXELS_X,
@@ -514,6 +452,11 @@ export class VolumeDataManager {
     console.warn('renderer', this.renderer);
 
     log('initMRMCPT() COMPLETE');
+  }
+
+  testTexture() {
+    console.warn('testTexture pt', this.ptTHREE);
+    console.warn('testTexture bc', this.bcTHREE);
   }
 
   /**
