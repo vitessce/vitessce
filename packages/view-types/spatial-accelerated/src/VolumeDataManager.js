@@ -413,13 +413,13 @@ export class VolumeDataManager {
         * BRICK_CACHE_SIZE_VOXELS_Y
         * BRICK_CACHE_SIZE_VOXELS_Z,
     );
-    brickCacheData.fill(255); // Fill with max value for debugging
+    brickCacheData.fill(255);
 
     // Initialize the PageTable data using calculated extents
     const pageTableData = new Uint32Array(
       this.PT.xExtent * this.PT.yExtent * this.PT.zTotal,
     );
-    pageTableData.fill(4294967295); // Fill with max value (0xFFFFFFFF) for debugging
+    pageTableData.fill(0);
 
     this.bcTHREE = new Data3DTexture(
       brickCacheData,
@@ -427,8 +427,9 @@ export class VolumeDataManager {
       BRICK_CACHE_SIZE_VOXELS_Y,
       BRICK_CACHE_SIZE_VOXELS_Z,
     );
-    this.bcTHREE.type = UnsignedByteType;
     this.bcTHREE.format = RedFormat;
+    this.bcTHREE.type = UnsignedByteType;
+    this.bcTHREE.internalFormat = 'R8';
     this.bcTHREE.minFilter = LinearFilter;
     this.bcTHREE.magFilter = LinearFilter;
     this.bcTHREE.generateMipmaps = false;
@@ -548,6 +549,122 @@ export class VolumeDataManager {
     */
 
     console.warn('populateMRMCPT complete');
+  }
+
+  async populateBC() {
+    log('populateBC');
+    console.warn('populateBC', this.bcTHREE);
+
+    const texPropsBC = this.renderer.properties.get(this.bcTHREE);
+
+    const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
+    const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
+    const test3 = await this.loadZarrChunk(0, 0, 2, 2, 2, 3);
+    const test2 = await this.loadZarrChunk(0, 0, 3, 3, 3, 2);
+    const test1 = await this.loadZarrChunk(0, 0, 6, 9, 9, 1);
+    const test0 = await this.loadZarrChunk(0, 0, 12, 20, 20, 0);
+    const testArray = [test5, test4, test3, test2, test1, test0];
+
+    console.warn('testArray', testArray);
+
+    this.gl.activeTexture(this.gl.TEXTURE2);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, texPropsBC.__webglTexture);
+
+    this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
+
+    console.warn('texPropsBC', texPropsBC);
+
+    // Check for WebGL errors after binding
+    let error = this.gl.getError();
+    console.warn('After bind error:', error);
+    for (let i = 0; i < 6; i++) {
+      this.gl.texSubImage3D(
+        this.gl.TEXTURE_3D,
+        0,
+        32 * i, 0, 0,
+        32, 32, 32,
+        this.gl.RED,
+        this.gl.UNSIGNED_BYTE,
+        testArray[i],
+      );
+    }
+    this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 4);
+
+    this.gl.bindTexture(this.gl.TEXTURE_3D, null);
+
+    // Check for WebGL errors after texSubImage3D
+    error = this.gl.getError();
+    console.warn('After texSubImage3D for BC error:', error);
+  }
+
+  async populatePT() {
+    log('populatePT');
+    console.warn('populatePT', this.ptTHREE);
+
+    const texPropsPT = this.renderer.properties.get(this.ptTHREE);
+
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_3D, texPropsPT.__webglTexture);
+
+    let error = this.gl.getError();
+    this.gl.texSubImage3D(
+      this.gl.TEXTURE_3D,
+      0,
+      0, 0, 0,
+      1, 1, 1,
+      this.gl.RED_INTEGER,
+      this.gl.UNSIGNED_INT,
+      new Uint32Array([0xFFFFFFFF]), // max value
+    );
+
+    // update page table manually
+    const offset0 = new Vector3(12, 20, 48); // 0 0 28 + 12 20 20
+    const offset1 = new Vector3(6, 9, 24); // 0 0 15 + 6 9 9
+    const offset2 = new Vector3(3, 3, 11); // 0 0 8 + 3 3 3
+    const offset3 = new Vector3(2, 2, 6); // 0 0 4 + 2 2 2
+    const offset4 = new Vector3(0, 0, 2); // + 0
+    const offset5 = new Vector3(0, 0, 1); // + 0
+
+    /*
+      [1] 0 — flag resident
+      [1] 1 — flag init
+      [7] 2…8 — min → 128
+      [7] 9…15 — max → 128
+      [6] 16…21 — x offset in brick cache → 64
+      [6] 22…27 — y offset in brick cache → 64
+      [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
+    */
+
+    const pt0binary = '11000000011111110001010000000000';
+    const pt1binary = '11000000011111110001000000000000';
+    const pt2binary = '11000000011111110000110000000000';
+    const pt3binary = '11000000011111110000100000000000';
+    const pt4binary = '11000000011111110000010000000000';
+    const pt5binary = '11000000011111110000000000000000';
+
+    const pt0 = parseInt(pt0binary, 2) >>> 0;
+    const pt1 = parseInt(pt1binary, 2) >>> 0;
+    const pt2 = parseInt(pt2binary, 2) >>> 0;
+    const pt3 = parseInt(pt3binary, 2) >>> 0;
+    const pt4 = parseInt(pt4binary, 2) >>> 0;
+    const pt5 = parseInt(pt5binary, 2) >>> 0;
+    const ptArray = [pt0, pt1, pt2, pt3, pt4, pt5];
+
+    for (let i = 0; i < 6; i++) {
+      this.gl.texSubImage3D(
+        this.gl.TEXTURE_3D,
+        0,
+        offset0.x, offset0.y, offset0.z,
+        1, 1, 1,
+        this.gl.RED_INTEGER,
+        this.gl.UNSIGNED_INT,
+        new Uint32Array([ptArray[i]]),
+      );
+    }
+
+    this.gl.bindTexture(this.gl.TEXTURE_3D, null);
+    error = this.gl.getError();
+    console.warn('After texSubImage3D for PT error:', error);
   }
 
   /**

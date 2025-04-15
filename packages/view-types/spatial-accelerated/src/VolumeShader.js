@@ -25,7 +25,7 @@ export const VolumeShader = {
     u_vol_scale: { value: new Vector2(1, 1, 1) },
     u_physical_Pixel: { value: 0.5 },
     brickCacheTex: { type: 'sampler3D', value: null },
-    pageTableTex: { type: 'sampler3D', value: null },
+    pageTableTex: { type: 'usampler3D', value: null },
     u_color: { value: new Vector3(0, 0, 0) },
     u_color2: { value: new Vector3(0, 0, 0) },
     u_color3: { value: new Vector3(0, 0, 0) },

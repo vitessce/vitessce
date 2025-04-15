@@ -334,25 +334,8 @@ export class VolumeRenderManager {
 
       // If the texture handle exists, try the update
       if (texPropsBC.__webglTexture) {
-        gl.bindTexture(gl.TEXTURE_3D, texPropsBC.__webglTexture);
-
-        // Check for WebGL errors after binding
-        let error = gl.getError();
-        console.warn('After bind error:', error);
-
-        gl.texSubImage3D(
-          gl.TEXTURE_3D,
-          0,
-          0, 0, 0,
-          1, 1, 1,
-          gl.RED,
-          gl.UNSIGNED_BYTE,
-          new Uint8Array([0]),
-        );
-
-        // Check for WebGL errors after texSubImage3D
-        error = gl.getError();
-        console.warn('After texSubImage3D error:', error);
+        volumeDataManager.populatePT();
+        volumeDataManager.populateBC();
       }
       console.warn('renderer', volumeDataManager.renderer);
     }

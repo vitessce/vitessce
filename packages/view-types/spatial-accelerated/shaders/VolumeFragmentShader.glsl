@@ -1,7 +1,7 @@
 #include <packing>
 precision highp float;
 precision highp int;
-precision mediump sampler3D;
+precision highp sampler3D;
 precision highp usampler3D;
 // precision highp usampler3D;
 in vec3 rayDirUnnorm;
@@ -221,9 +221,9 @@ void main(void) {
     // float pt = texture(pageTableTex, vec3(0,0,0)).r;
     uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
     float pt = float(ptint) / 4294967295.0;
-    float bc = texture(brickCacheTex, vec3(0,0,0)).r;
+    float bc = texture(brickCacheTex, vec3(16.0/1024.0,16.0/1024.0,16.0/128.0)).r;
 
-    gl_FragColor = vec4(pt, 0.8, bc, 1.0);
+    gl_FragColor = vec4(pt, 0.1, bc, 1.0);
     return;
 }
 
