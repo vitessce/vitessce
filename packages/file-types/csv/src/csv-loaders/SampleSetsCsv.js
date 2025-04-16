@@ -1,5 +1,5 @@
-import { LoaderResult, AbstractLoaderError } from '@vitessce/vit-s';
-import { treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
+import { LoaderResult, AbstractLoaderError } from '@vitessce/abstract';
+import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 
 export default class SampleSetsCsvLoader extends CsvLoader {
@@ -26,7 +26,12 @@ export default class SampleSetsCsvLoader extends CsvLoader {
       cellSetScores,
     ], setsArr);
     const obsSetsMembership = treeToMembershipMap(cellSetsTree);
-    return [obsIndex, cellSetsTree, obsSetsMembership];
+
+    const coordinationValues = {};
+    // Create a list of sample set objects with color mappings.
+    const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
+    coordinationValues.sampleSetColor = newAutoSetColors;
+    return [obsIndex, cellSetsTree, obsSetsMembership, coordinationValues];
   }
 
   async load() {
@@ -39,13 +44,14 @@ export default class SampleSetsCsvLoader extends CsvLoader {
       obsIndex,
       cellSetsTree,
       obsSetsMembership,
+      coordinationValues,
     ] = this.loadFromCache(data);
     return Promise.resolve(
       new LoaderResult({
         sampleIndex: obsIndex,
         sampleSets: cellSetsTree,
         sampleSetsMembership: obsSetsMembership,
-      }, url),
+      }, url, coordinationValues),
     );
   }
 }

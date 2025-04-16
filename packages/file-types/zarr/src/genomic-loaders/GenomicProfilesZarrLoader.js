@@ -1,4 +1,4 @@
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class GenomicProfilesZarrLoader extends AbstractTwoStepLoader {
   loadAttrs() {

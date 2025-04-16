@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/spatial-beta",
-  "version": "3.4.6",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
+    "@material-ui/core": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",
@@ -41,17 +41,17 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "math.gl": "^3.5.6",
-    "mathjs": "^9.2.0",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "math.gl": "catalog:",
+    "mathjs": "catalog:",
     "plur": "^5.1.0",
     "short-number": "^1.0.6"
   },
   "devDependencies": {
-    "react": "^18.0.0",
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

@@ -18,7 +18,7 @@ Visit our [JavaScript API](/docs/js-overview/) documentation or [GitHub Pages De
 
 ## Python Jupyter widget
 
-We have developed the [vitessce Python package](https://vitessce.github.io/vitessce-python/) for using Vitessce in Python environments.
+We have developed the [vitessce Python package](https://python-docs.vitessce.io/) for using Vitessce in Python environments.
 The package contains a Python object-oriented API for creating Vitessce configurations (which can be exported to a JSON format).
 Vitessce can be used as an ipywidget in Jupyter Notebook and JupyterLab, including in the cloud on Binder and Google Colab.
 
@@ -26,7 +26,7 @@ The Python package also contains helpers which facilitate visualizing data store
 
 ## R htmlwidget
 
-We have developed the [vitessce R package](https://vitessce.github.io/vitessceR/) for using Vitessce in R environments, including RStudio and Shiny apps.
+We have developed the [vitessce R package](https://r-docs.vitessce.io/) for using Vitessce in R environments, including RStudio and Shiny apps.
 The package contains an R object-oriented API for creating Vitessce configurations (which can be exported to a JSON format).
 
 The R package also contains helpers which facilitate visualizing data stored in common R single-cell formats with Vitessce.

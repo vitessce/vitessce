@@ -92,6 +92,7 @@ function getVivLayerExtensions(use3d, colormap, renderingMode) {
   return [new viv.ColorPaletteExtension()];
 }
 
+
 /**
  * React component which expresses the spatial relationships between cells and molecules.
  * @param {object} props
@@ -251,13 +252,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: AUTO_HIGHLIGHT,
-      filled: spatialSegmentationFilled,
+      filled: true,
       stroked: !spatialSegmentationFilled,
       backgroundColor: [0, 0, 0],
       // isSelected: getCellIsSelected,
       getPolygon,
-      getFillColor: isStaticColor ? staticColor : getCellColor,
-      getLineColor: isStaticColor ? staticColor : getCellColor,
+      getFillColor: (object, { index }) => {
+        const color = isStaticColor ? staticColor : getCellColor(object, { index });
+        color[3] = spatialSegmentationFilled ? opacity * 255 : 0;
+        return color;
+      },
+      getLineColor: (object, { index }) => {
+        const color = isStaticColor ? staticColor : getCellColor(object, { index });
+        color[3] = spatialSegmentationFilled ? 0 : opacity * 255;
+        return color;
+      },
       onClick: (info) => {
         /* if (onCellClick) {
           onCellClick(info);
@@ -276,8 +285,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
       isExpressionMode: obsColorEncoding === 'geneSelection',
       colormap: featureValueColormap,
       updateTriggers: {
-        getFillColor: [obsColorEncoding, staticColor, layerColors],
-        getLineColor: [obsColorEncoding, staticColor, layerColors],
+        getFillColor: [
+          opacity,
+          spatialSegmentationFilled,
+          obsColorEncoding,
+          staticColor,
+          layerColors,
+        ],
+        getLineColor: [
+          opacity,
+          spatialSegmentationFilled,
+          obsColorEncoding,
+          staticColor,
+          layerColors,
+        ],
         /*
         getLineWidth: [stroked],
         isSelected: cellSelection,
@@ -594,7 +615,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        c: image?.obsSegmentations?.instance?.getChannelIndex(
+          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        ),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
@@ -665,7 +688,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       cellTexHeight: this.color.height,
       cellTexWidth: this.color.width,
       excludeBackground: true,
-      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      onViewportLoad: () => { }, // layerProps.callback, // TODO: figure out callback implementation
       colorScaleLo: 0, // TODO: check if these can be removed?
       colorScaleHi: 1, // TODO: check if these can be removed?
       isExpressionMode: false, // TODO: check if these can be removed?
@@ -694,6 +717,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (!data) {
       return null;
     }
+
     const imageWrapperInstance = image.image.instance;
 
     const is3dMode = spatialRenderingMode === '3D';
@@ -736,7 +760,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        c: image?.image?.instance?.getChannelIndex(
+          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+        ),
       }));
     const prevLoaderSelection = this.imageLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
@@ -794,7 +820,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],
       ySlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Y],
       zSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Z],
-      onViewportLoad: () => {}, // layerProps.callback, // TODO: figure out callback implementation
+      onViewportLoad: () => { }, // layerProps.callback, // TODO: figure out callback implementation
       excludeBackground: useTransparentColor,
       extensions,
       // Picking / onHover on the root DeckGL component

@@ -10,11 +10,11 @@ export const codeluppiViaCsv = {
       files: [
         {
           fileType: 'obsSegmentations.json',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.segmentations.json',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.segmentations.json',
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsLocations: ['X', 'Y'],
@@ -25,7 +25,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsEmbedding: ['PCA_1', 'PCA_2'],
@@ -37,7 +37,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsEmbedding.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsEmbedding: ['TSNE_1', 'TSNE_2'],
@@ -49,7 +49,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsSets.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.csv',
           options: {
             obsIndex: 'cell_id',
             obsSets: [
@@ -65,7 +65,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsLocations.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLocations: ['X', 'Y'],
@@ -76,7 +76,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsLabels.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.molecules.csv',
           options: {
             obsIndex: 'molecule_id',
             obsLabels: 'Gene',
@@ -87,7 +87,7 @@ export const codeluppiViaCsv = {
         },
         {
           fileType: 'obsFeatureMatrix.csv',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
+          url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018/codeluppi_2018_nature_methods.cells.matrix.csv',
           coordinationValues: {
             obsType: 'cell',
             featureType: 'gene',

@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/zarr-utils",
-  "version": "3.4.6",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -30,9 +30,8 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "zarrita": "0.4.0-next.10",
-    "@zarrita/core": "0.1.0-next.8",
-    "@zarrita/indexing": "0.1.0-next.10",
-    "@zarrita/storage": "0.1.0-next.4"
+    "zarrita": "catalog:",
+    "@zarrita/storage": "catalog:",
+    "@vitessce/globals": "workspace:*"
   }
 }

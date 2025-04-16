@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
-import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
+import { format } from 'd3-format';
 import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
@@ -51,6 +52,52 @@ const rectHeight = 8;
 const rectMarginY = 2;
 const rectMarginX = 2;
 
+function combineExtents(extents, featureAggregationStrategy) {
+  if (Array.isArray(extents)) {
+    if (featureAggregationStrategy === 'first') {
+      return extents[0];
+    } if (featureAggregationStrategy === 'last') {
+      return extents.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      return extents[i];
+    } if (featureAggregationStrategy === 'sum') {
+      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+    } if (featureAggregationStrategy === 'mean') {
+      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+    }
+  }
+  return null;
+}
+
+function combineMissings(missings, featureAggregationStrategy) {
+  if (Array.isArray(missings)) {
+    if (featureAggregationStrategy === 'first') {
+      return missings[0];
+    } if (featureAggregationStrategy === 'last') {
+      return missings.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      return missings[i];
+    } if (featureAggregationStrategy === 'sum') {
+      return missings.reduce((a, h) => a + h, 0);
+    } if (featureAggregationStrategy === 'mean') {
+      return missings.reduce((a, h) => a + (h / missings.length), 0);
+    }
+  }
+  return null;
+}
+
+/**
+ * A component for displaying a legend.
+ *
+ * @param {object} props The props for the Legend component.
+ * @param {boolean} props.visible Whether the legend is visible.
+ * @param {[number, number] | null} props.extent The extent of the
+ * data in tuple [min, max].
+ * @param {number | null} props.missing The fraction of missing values.
+ * @returns {ReactElement}
+ */
 export default function Legend(props) {
   const {
     visible: visibleProp,
@@ -68,11 +115,18 @@ export default function Legend(props) {
     spatialLayerColor,
     obsSetSelection,
     obsSetColor,
+    featureAggregationStrategy,
     extent,
+    missing,
     width = 100,
     height = 36,
     theme,
     showObsLabel = false,
+    pointsVisible = true,
+    contoursVisible = false,
+    contoursFilled,
+    contourPercentiles,
+    contourThresholds,
   } = props;
 
   const svgRef = useRef();
@@ -95,7 +149,7 @@ export default function Legend(props) {
         obsColorEncoding === 'geneSelection'
         && featureSelection
         && Array.isArray(featureSelection)
-        && featureSelection.length === 1
+        && featureSelection.length >= 1
       )
     )
     || (
@@ -115,9 +169,9 @@ export default function Legend(props) {
 
   // Determine the height of the legend when in isSetColor mode.
   // TODO: for nested sets, account for the height of the intermediate nodes?
-  const dynamicHeight = isSetColor
+  const dynamicHeight = isSetColor && obsSetSelection
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
-    : height;
+    : (height + (!pointsVisible && contoursVisible ? 25 : 0));
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -140,7 +194,9 @@ export default function Legend(props) {
 
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
-      if (featureValueColormap) {
+      const [xMin, xMax] = combineExtents(extent, featureAggregationStrategy) || [0, 1];
+
+      if (featureValueColormap && pointsVisible) {
         const xlinkHref = getXlinkHref(featureValueColormap);
         g.append('image')
           .attr('x', 0)
@@ -149,31 +205,94 @@ export default function Legend(props) {
           .attr('height', rectHeight)
           .attr('preserveAspectRatio', 'none')
           .attr('href', xlinkHref);
+
+        const [rMin, rMax] = featureValueColormapRange;
+        // Use colormap range sliders to determine the range
+        // to use in the legend ticks.
+        const scaledDataExtent = [
+          xMin + (xMax - xMin) * rMin,
+          xMax - (xMax - xMin) * (1 - rMax),
+        ];
+        const x = scaleLinear()
+          .domain(scaledDataExtent)
+          .range([0.5, width - 0.5]);
+
+        // X-axis ticks
+        const axisTicks = g.append('g')
+          .attr('transform', `translate(0,${titleHeight + rectHeight})`)
+          .style('font-size', '10px')
+          .call(axisBottom(x).tickValues(scaledDataExtent));
+        axisTicks.selectAll('line,path')
+          .style('stroke', foregroundColor);
+        axisTicks.selectAll('text')
+          .style('fill', foregroundColor);
+        axisTicks.selectAll('text')
+          .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+      } else if (contoursVisible) {
+        const tSize = 12;
+        const xPercentile = scaleLinear()
+          .domain([0, 1])
+          .range([(tSize / 2), width - (tSize / 2) - 2]);
+
+        const axisTicks = g.append('g')
+          .attr('transform', `translate(0,${titleHeight + rectHeight + 15})`)
+          .style('font-size', '9px')
+          .call(axisBottom(xPercentile).tickValues(contourPercentiles).tickFormat(format('.0%')).tickSizeOuter(0));
+        axisTicks.selectAll('line,path')
+          .style('stroke', foregroundColor);
+        axisTicks.selectAll('text')
+          .style('fill', foregroundColor);
+
+        // Number of percentage points between ticks that are considered
+        // far enough apart such that all 3 tick texts can be displayed
+        // on the same line. If the difference is less than this threshold,
+        // then we shift the middle tick text down to a second line.
+        const NEIGHBOR_THRESHOLD = 18;
+
+        const contourPercentages = contourPercentiles.map(x => x * 100);
+        if (
+          (contourPercentages?.[1] - contourPercentages?.[0] <= NEIGHBOR_THRESHOLD)
+          || (contourPercentages?.[2] - contourPercentages?.[1] <= NEIGHBOR_THRESHOLD)
+        ) {
+          // If the first and last (third) percentile tick texts are too close
+          // to the middle tick text, then shift down the middle tick text
+          // element vertically so the texts do not overlap/collide.
+          axisTicks.selectAll('text')
+            .attr('transform', (d, i) => `translate(0,${(i === 0 || i === contourPercentiles.length - 1 ? 0 : 10)})`);
+        }
+
+        // Create triangles for each percentile to display opacity.
+        const triangleGroupG = g.append('g')
+          .attr('transform', `translate(0,${titleHeight + rectHeight + 4})`);
+
+        contourPercentiles.forEach((p, i) => {
+          const triangleG = triangleGroupG.append('g')
+            .attr('transform', `translate(${xPercentile(p) - tSize / 2},0)`);
+
+          triangleG.append('polygon')
+            .attr('points', `0 0, ${tSize} 0, ${tSize / 2} ${tSize * 85 / 100}`)
+            .style('opacity', (i + 0.5) / contourPercentiles.length);
+        });
+
+        // Display the gene expression value thresholds corresponding to each percentile.
+        const thresholdGroupG = g.append('g')
+          .attr('transform', `translate(0,${titleHeight + rectHeight})`);
+
+        const thresholdFormatter = format('.0f');
+        contourPercentiles.forEach((p, i) => {
+          const contourThreshold = xMin + (xMax - xMin) * (contourThresholds?.[i] / 255);
+
+          const thresholdG = thresholdGroupG.append('g')
+            .attr('transform', `translate(${xPercentile(p)},0)`)
+            .style('font-size', '7px');
+
+
+          thresholdG.append('text')
+            .text(thresholdFormatter(contourThreshold))
+            .style('fill', foregroundColor)
+            .attr('text-anchor', 'middle');
+        });
       }
-
-      const [xMin, xMax] = extent || [0, 1];
-      const [rMin, rMax] = featureValueColormapRange;
-      // Use colormap range sliders to determine the range
-      // to use in the legend ticks.
-      const scaledDataExtent = [
-        xMin + (xMax - xMin) * rMin,
-        xMax - (xMax - xMin) * (1 - rMax),
-      ];
-      const x = scaleLinear()
-        .domain(scaledDataExtent)
-        .range([0, width - 0.5]);
-
-      // X-axis ticks
-      const axisTicks = g.append('g')
-        .attr('transform', `translate(0,${titleHeight + rectHeight})`)
-        .style('font-size', '10px')
-        .call(axisBottom(x).tickValues(scaledDataExtent));
-      axisTicks.selectAll('line,path')
-        .style('stroke', foregroundColor);
-      axisTicks.selectAll('text')
-        .style('fill', foregroundColor);
-      axisTicks.selectAll('text')
-        .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
     }
     if (isStaticColor) {
       g.append('rect')
@@ -232,13 +351,30 @@ export default function Legend(props) {
       });
     }
 
-    const featureSelectionLabel = (
+    const featureSelectionLabelRaw = (
       featureSelection
       && featureSelection.length >= 1
       && !isStaticColor
     )
-      ? (featureLabelsMap?.get(featureSelection[0]) || featureSelection[0])
+      ? (
+        featureSelection.map(geneName => featureLabelsMap?.get(geneName)
+        || featureLabelsMap?.get(cleanFeatureId(geneName))
+        || geneName)
+      )
       : null;
+    // if there are missing values, mention them in the label
+    let featureSelectionLabelRawStr = '';
+    if (featureAggregationStrategy === 'first') {
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
+    } else if (featureAggregationStrategy === 'last') {
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.at(-1);
+    } else if (featureAggregationStrategy === 'sum') {
+      featureSelectionLabelRawStr = 'Sum of features';
+    } else if (featureAggregationStrategy === 'mean') {
+      featureSelectionLabelRawStr = 'Mean of features';
+    }
+    const combinedMissing = combineMissings(missing, featureAggregationStrategy);
+    const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;
 
     // Include obsType in the label text (perhaps only when multi-obsType).
     const obsLabel = capitalize(obsType);
@@ -281,6 +417,8 @@ export default function Legend(props) {
     considerSelections, obsType, obsColorEncoding, featureSelection,
     isDarkTheme, featureValueType, extent, featureLabelsMap,
     spatialChannelColor, obsSetColor, obsSetSelection, isSetColor, theme,
+    contourPercentiles, contourThresholds, contoursFilled, contoursVisible,
+    pointsVisible, featureAggregationStrategy,
   ]);
 
   return (

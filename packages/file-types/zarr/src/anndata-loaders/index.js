@@ -9,3 +9,8 @@ export { default as ObsLabelsAnndataLoader } from './ObsLabelsAnndataLoader.js';
 export { default as FeatureLabelsAnndataLoader } from './FeatureLabelsAnndataLoader.js';
 export { default as ObsFeatureColumnsAnndataLoader } from './ObsFeatureColumnsAnndataLoader.js';
 export { default as SampleEdgesAnndataLoader } from './SampleEdgesAnndataLoader.js';
+export { default as SampleSetsAnndataLoader } from './SampleSetsAnndataLoader.js';
+export { default as ComparisonMetadataAnndataLoader } from './ComparisonMetadataAnndataLoader.js';
+export { default as FeatureStatsAnndataLoader } from './FeatureStatsAnndataLoader.js';
+export { default as FeatureSetStatsAnndataLoader } from './FeatureSetStatsAnndataLoader.js';
+export { default as ObsSetStatsAnndataLoader } from './ObsSetStatsAnndataLoader.js';

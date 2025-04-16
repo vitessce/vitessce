@@ -7,10 +7,10 @@ DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
 PKG_VERSION=`npm pkg get version | tr -d '"'`
 
-BUCKET="vitessce-data"
+BUCKET="temp-vitessce-data"
 
-DEMO_URL_PATH="$BUCKET/demos/$DATE/$HASH"
-ROOT_DOCS_URL_PATH="$BUCKET/docs-root/$DATE/$HASH"
+DEMO_URL_PATH="demos/$DATE/$HASH"
+ROOT_DOCS_URL_PATH="docs-root/$DATE/$HASH"
 VERSIONED_DOCS_URL_PATH="docs/$DATE/$HASH"
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
@@ -32,8 +32,8 @@ echo 'User-agent: *
 Disallow: /' > $DEMO_DIST_DIR/robots.txt
 
 # and push to S3.
-aws s3 cp --recursive $DEMO_DIST_DIR s3://$DEMO_URL_PATH
-DEMO_TARGET_URL="https://s3.amazonaws.com/$DEMO_URL_PATH/index.html"
+aws s3 cp --recursive $DEMO_DIST_DIR s3://$BUCKET/$DEMO_URL_PATH
+DEMO_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$DEMO_URL_PATH/index.html"
 
 cd ../..
 echo "- $DATE: [$BRANCH]($DEMO_TARGET_URL)" >> DEMOS.md
@@ -62,10 +62,10 @@ VERSIONED_DIST_DIR='dist-versioned/'
 cp ../demo/error.html $ROOT_DIST_DIR
 cp ../demo/error.html $VERSIONED_DIST_DIR
 # and push to S3.
-aws s3 cp --recursive $ROOT_DIST_DIR s3://$ROOT_DOCS_URL_PATH
+aws s3 cp --recursive $ROOT_DIST_DIR s3://$BUCKET/$ROOT_DOCS_URL_PATH
 aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$BUCKET/$VERSIONED_DOCS_URL_PATH
-VERSIONED_TARGET_URL="http://$BUCKET.s3-website-us-east-1.amazonaws.com/$VERSIONED_DOCS_URL_PATH/"
-COPY_TARGET_URL="https://s3.amazonaws.com/$ROOT_DOCS_URL_PATH/index.html"
+VERSIONED_TARGET_URL="http://data-1.vitessce.io/$VERSIONED_DOCS_URL_PATH/"
+COPY_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$ROOT_DOCS_URL_PATH/index.html"
 
 cd ../..
 echo "- $DATE: [$BRANCH]($VERSIONED_TARGET_URL)" >> DOCS.md

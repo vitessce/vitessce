@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -9,6 +9,10 @@ import {
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import {
+  setLogLevel, setDebugMode,
+  DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE,
+} from '@vitessce/globals';
 import { muiTheme } from './shared-mui/styles.js';
 import {
   ViewConfigProvider,
@@ -19,6 +23,7 @@ import {
 
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
+import { DebugWindow } from './DebugWindow.js';
 import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
@@ -26,6 +31,7 @@ import {
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
+import { AsyncFunctionsContext } from './contexts.js';
 
 
 /**
@@ -60,6 +66,9 @@ import { createGenerateClassName } from './mui-utils.js';
  * @param {array} props.jointFileTypes Plugin joint file types.
  * @param {array} props.coordinationTypes Plugin coordination types.
  * @param {null|object} props.warning A warning to render within the Vitessce grid,
+ * @param {boolean} props.pageMode Whether to render in page mode. By default, false.
+ * @param {boolean} props.debugMode Whether to display the debugWindow. By default, false.
+ * @param {null|string} props.logLevel To set the log level in the console.
  * provided by the parent.
  */
 export function VitS(props) {
@@ -81,9 +90,16 @@ export function VitS(props) {
     fileTypes: fileTypesProp,
     jointFileTypes: jointFileTypesProp,
     coordinationTypes: coordinationTypesProp,
+    asyncFunctions: asyncFunctionsProp,
     warning,
+    pageMode = false,
+    children,
+    debugMode = DEFAULT_DEBUG_MODE,
+    logLevel = DEFAULT_LOG_LEVEL,
   } = props;
 
+  // eslint-disable-next-line no-unused-vars
+  const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(
@@ -94,9 +110,15 @@ export function VitS(props) {
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
   );
-
   const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
+  // Set error handling-related globals.
+  useLayoutEffect(() => {
+    setLogLevel(logLevel);
+  }, [logLevel]);
+  useLayoutEffect(() => {
+    setDebugMode(debugMode);
+  }, [debugMode]);
   const configVersion = config?.version;
 
   // If config.uid exists, then use it for hook dependencies to detect changes
@@ -182,7 +204,22 @@ export function VitS(props) {
         retry: 2,
       },
     },
+    // TODO: should the queryClient be shared? Or have an option to be shared
+    // (e.g., based on remountOnUidChange)?
   }), [configKey]);
+
+  const asyncFunctions = useMemo(
+    () => ({
+      queryClient,
+      asyncFunctions: Object.fromEntries(
+        // Convert the array of PluginAsyncFunction instances to a mapping
+        // from function type strings to async functions.
+        asyncFunctionsProp?.map(p => ([p.functionType, p.asyncFunction]))
+        || [],
+      ),
+    }),
+    [asyncFunctionsProp, queryClient],
+  );
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
@@ -210,6 +247,18 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  // TODO: use in ErrorBoundary fallback.
+  // Will probably need to move a lot to a child of VitS
+  // so that when the child throws errors the parent can catch.
+  if (debugMode && debugErrors.length > 0) {
+    return (
+      <StylesProvider generateClassName={generateClassName}>
+        <ThemeProvider theme={muiTheme[theme]}>
+          <DebugWindow debugErrors={debugErrors} />
+        </ThemeProvider>
+      </StylesProvider>
+    );
+  }
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>
@@ -219,26 +268,31 @@ export function VitS(props) {
             {...(remountOnUidChange ? ({ key: configKey }) : {})}
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <VitessceGrid
-                success={success}
-                configKey={configKey}
-                viewTypes={viewTypes}
-                fileTypes={fileTypes}
-                coordinationTypes={coordinationTypes}
-                config={configOrWarning}
-                rowHeight={rowHeight}
-                height={height}
-                theme={theme}
-                isBounded={isBounded}
-                stores={stores}
-              />
-              <CallbackPublisher
-                onWarn={onWarn}
-                onConfigChange={onConfigChange}
-                onLoaderChange={onLoaderChange}
-                validateOnConfigChange={validateOnConfigChange}
-                pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-              />
+              <AsyncFunctionsContext.Provider value={asyncFunctions}>
+                <VitessceGrid
+                  pageMode={pageMode}
+                  success={success}
+                  configKey={configKey}
+                  viewTypes={viewTypes}
+                  fileTypes={fileTypes}
+                  coordinationTypes={coordinationTypes}
+                  config={configOrWarning}
+                  rowHeight={rowHeight}
+                  height={height}
+                  theme={theme}
+                  isBounded={isBounded}
+                  stores={stores}
+                >
+                  {children}
+                </VitessceGrid>
+                <CallbackPublisher
+                  onWarn={onWarn}
+                  onConfigChange={onConfigChange}
+                  onLoaderChange={onLoaderChange}
+                  validateOnConfigChange={validateOnConfigChange}
+                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                />
+              </AsyncFunctionsContext.Provider>
             </AuxiliaryProvider>
           </ViewConfigProvider>
         </QueryClientProvider>

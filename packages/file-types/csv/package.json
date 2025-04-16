@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/csv",
-  "version": "3.4.6",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -32,9 +32,9 @@
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/abstract": "workspace:*",
     "@vitessce/config": "workspace:*",
-    "d3-array": "^2.4.0",
-    "d3-dsv": "^1.1.1"
+    "d3-array": "catalog:",
+    "d3-dsv": "catalog:"
   }
 }

@@ -28,6 +28,69 @@ const annDataConvenienceObsEmbeddingItem = z.object({
   embeddingType: z.string(),
 });
 
+const annDataComparisonMetadata = z.object({
+  path: z.string().describe('Path to the comparison metadata, such as /uns/comparison_metadata'),
+});
+
+const annDataFeatureStats = z.object({
+  // TODO: implement a featureStats.anndata.zarr loader
+  // which does not depend on comparisonMetadata
+  // (instead, would point directly to the root of
+  // the dataframe containing a set of diff exp results)
+  // path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature index, if different than the default dataframe index.'),
+  pValueColumn: z.string(),
+  foldChangeColumn: z.string(),
+  pValueTransformation: z.enum(['minuslog10'])
+    .optional(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+});
+
+const annDataFeatureSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature set index, if different than the default dataframe index.'),
+  termColumn: z.string()
+    .optional(),
+  pValueColumn: z.string(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  featureSetLibrary: z.string()
+    .optional()
+    .describe('Optionally, provide a feature set library name. By default, Reactome_2022.'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, pertpy_hypergeometric.'),
+});
+
+// Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation
+const annDataObsSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the obs set index, if different than the default dataframe index.'),
+  interceptExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  effectExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  foldChangeColumn: z.string()
+    .describe('The log-fold change is then calculated between this expected sample and the expected sample with no active covariates from the intercept section.'),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+  isCredibleEffectColumn: z.string()
+    .describe('Column which annotates effects as being credible or not (boolean).'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, sccoda_df.'),
+});
+
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
 const annDataSampleEdges = annDataObs;
@@ -41,7 +104,7 @@ const annDataObsFeatureMatrix = z.object({
     .describe('If only a subset of the matrix should be loaded initially, put a boolean column along the feature axis here (analogous to the previous matrixGeneFilter option). e.g., var/highly_variable'),
 });
 
-const annDataObsSets = z.array(
+const annDataObsSetsArr = z.array(
   z.object({
     name: z.string()
       .describe("The display name for the set, like 'Cell Type' or 'Louvain.'"),
@@ -57,11 +120,26 @@ const annDataObsSets = z.array(
   }),
 );
 
-const annDataObsFeatureColumns = z.array(
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsSets = z.object({
+  obsSets: annDataObsSetsArr,
+});
+const annDataSampleSets = z.object({
+  sampleSets: annDataObsSetsArr,
+});
+
+const annDataObsFeatureColumnsArr = z.array(
   z.object({
     path: z.string(),
   }),
 );
+
+// Need to nest this within an object
+// to allow for additional properties like `refSpecUrl`.
+const annDataObsFeatureColumns = z.object({
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
+});
 
 const annDataObsSpots = annDataObsm;
 const annDataObsPoints = annDataObsm;
@@ -112,28 +190,45 @@ export const obsSegmentationsOmeZarrSchema = imageOmeZarrSchema.extend({
 
 // SpatialData
 // TODO: properties to specify target coordinate system name?
-export const imageSpatialdataSchema = imageOmeZarrSchema.extend({
+export const imageSpatialdataSchema = z.object({
   path: z.string(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this also extend the imageOmeZarrSchema?
   // TODO: should this be renamed labelsSpatialdataSchema?
   // TODO: support obsTypesFromChannelNames?
   path: z.string(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsLocationsSpatialdataSchema = z.object({
   path: z.string(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the coordinates. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSpotsSpatialdataSchema = z.object({
   path: z.string(),
   tablePath: z.string()
     .optional()
     .describe('The path to a table which annotates the spots. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the coordinates and radii. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')
     .optional(),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSetsSpatialdataSchema = z.object({
   region: z.string()
@@ -142,7 +237,7 @@ export const obsSetsSpatialdataSchema = z.object({
   tablePath: z.string()
     .optional()
     .describe('The path to a table which contains the index for the set values.'),
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
 });
 
 // GLB
@@ -175,11 +270,17 @@ export const obsPointsAnndataSchema = annDataObsLocations;
 export const obsLocationsAnndataSchema = annDataObsLocations;
 export const obsSegmentationsAnndataSchema = annDataObsSegmentations;
 export const obsSetsAnndataSchema = annDataObsSets;
+export const sampleSetsAnndataSchema = annDataSampleSets;
 export const obsFeatureMatrixAnndataSchema = annDataObsFeatureMatrix;
 export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
+
+export const comparisonMetadataAnndataSchema = annDataComparisonMetadata;
+export const featureStatsAnndataSchema = annDataFeatureStats;
+export const featureSetStatsAnndataSchema = annDataFeatureSetStats;
+export const obsSetStatsAnndataSchema = annDataObsSetStats;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
@@ -246,7 +347,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
-  obsSets: annDataObsSets,
+  obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
   obsLocations: annDataObsLocations,
@@ -255,18 +356,31 @@ export const anndataZarrSchema = z.object({
     annDataObsEmbedding,
     z.array(annDataConvenienceObsEmbeddingItem),
   ]),
+  sampleEdges: annDataSampleEdges,
 }).partial();
+
+export const anndataH5adSchema = anndataZarrSchema.extend({
+  refSpecUrl: z.string(),
+});
 
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
+  // TODO: allow multiple images
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
+  // TODO: allow multiple labels
   labels: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
+  // TODO: obsEmbedding
+  // TODO: obsLabels
+  // TODO: featureLabels
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),
 }).partial();

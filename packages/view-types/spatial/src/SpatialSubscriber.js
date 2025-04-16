@@ -23,6 +23,7 @@ import {
   useSetComponentViewInfo,
   useAuxiliaryCoordination,
   useHasLoader,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import {
   setObsSelection,
@@ -32,12 +33,13 @@ import {
 } from '@vitessce/sets-utils';
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS } from '@vitessce/constants-internal';
+import { log } from '@vitessce/globals';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets } from './utils.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
 /**
  * A subscriber component for the spatial plot.
@@ -64,6 +66,7 @@ export function SpatialSubscriber(props) {
     globalDisable3d,
     useFullResolutionImage = {},
     channelNamesVisible = false,
+    helpText = ViewHelpMapping.SPATIAL,
   } = props;
 
   const loaders = useLoaders();
@@ -91,6 +94,7 @@ export function SpatialSubscriber(props) {
     spatialNeighborhoodLayer: neighborhoodsLayer,
     obsFilter: cellFilter,
     obsHighlight: cellHighlight,
+    moleculeHighlight,
     featureSelection: geneSelection,
     obsSetSelection: cellSetSelection,
     obsSetColor: cellSetColor,
@@ -242,10 +246,15 @@ export function SpatialSubscriber(props) {
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  // eslint-disable-next-line max-len
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
 
   const isReady = useReady([
     obsLocationsStatus,
@@ -258,6 +267,7 @@ export function SpatialSubscriber(props) {
     imageStatus,
     neighborhoodsStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
   ]);
   const urls = useUrls([
     obsLocationsUrls,
@@ -363,8 +373,20 @@ export function SpatialSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
+  const getTooltipObsInfo = useCallback((tooltipObsId, tooltipObsType) => {
+    if (tooltipObsType === HOVER_MODE.MOLECULE_LAYER) {
+      // TODO: Augment getObsInfo to work with molecule obsTypes and obsLocationsLabels.
+      return {
+        'Molecule ID': tooltipObsId,
+        'Molecule Name': obsLocationsLabels[tooltipObsId],
+      };
+    }
+    return getObsInfo(tooltipObsId);
+  }, [getObsInfo, obsLocationsLabels]);
+
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
+  const [hoverMode, setHoverMode] = useState(null);
 
   // Should hover position be used for tooltips?
   // If there are centroids for each observation, then we can use those
@@ -372,13 +394,15 @@ export function SpatialSubscriber(props) {
   // the other option is to use the mouse location.
   const useHoverInfoForTooltip = !obsCentroids;
 
-  const setHoverInfo = useCallback(debounce((data, coord) => {
+  const setHoverInfo = useCallback(debounce((data, coord, hoveredMode) => {
     setHoverData(data);
     setHoverCoord(coord);
-  }, 10, { trailing: true }), [setHoverData, setHoverCoord, useHoverInfoForTooltip]);
+    setHoverMode(hoveredMode);
+  }, 10, { trailing: true }),
+  [setHoverData, setHoverCoord, setHoverMode]);
 
   const getObsIdFromHoverData = useCallback((data) => {
-    if (useHoverInfoForTooltip) {
+    if (data) {
       // TODO: When there is support for multiple segmentation channels that may
       // contain different obsTypes, then do not hard-code the zeroth channel.
       const spatialTargetC = 0;
@@ -412,7 +436,10 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const {
+    normData: uint8ExpressionData,
+    extents: expressionExtents,
+  } = useUint8FeatureSelection(expressionData);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -495,7 +522,7 @@ export function SpatialSubscriber(props) {
       && cellsLayer && !obsSegmentations && !obsSegmentationsIndex
       && obsCentroids && obsCentroidsIndex
     ) {
-      console.warn('Rendering cell segmentation diamonds for backwards compatibility.');
+      log.warn('Rendering cell segmentation diamonds for backwards compatibility.');
     }
   }, [hasSegmentationsData, cellsLayer, obsSegmentations, obsSegmentationsIndex,
     obsCentroids, obsCentroidsIndex,
@@ -550,6 +577,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       options={options}
+      helpText={helpText}
     >
       <div style={{
         position: 'absolute',
@@ -630,14 +658,17 @@ export function SpatialSubscriber(props) {
       {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}
-          obsHighlight={cellHighlight}
+          obsHighlight={cellHighlight || moleculeHighlight}
           width={width}
           height={height}
-          getObsInfo={getObsInfo}
+          getObsInfo={getTooltipObsInfo}
           useHoverInfoForTooltip={useHoverInfoForTooltip}
           hoverData={hoverData}
           hoverCoord={hoverCoord}
+          hoverMode={hoverMode}
           getObsIdFromHoverData={getObsIdFromHoverData}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
         />
       )}
       <Legend
@@ -647,6 +678,7 @@ export function SpatialSubscriber(props) {
         featureType={featureType}
         featureValueType={featureValueType}
         obsColorEncoding={cellColorEncoding}
+        obsSetSelection={cellSetSelection}
         featureSelection={geneSelection}
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}

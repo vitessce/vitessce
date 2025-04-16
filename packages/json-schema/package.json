@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/json-schema",
-  "version": "3.4.6",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",

@@ -252,7 +252,7 @@ export class VitessceConfigView {
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
    */
-  constructor(component, coordinationScopes, x, y, w, h) {
+  constructor(component, coordinationScopes, x, y, w, h, uid) {
     this.view = {
       component,
       coordinationScopes,
@@ -261,6 +261,7 @@ export class VitessceConfigView {
       y,
       w,
       h,
+      uid,
     };
   }
 
@@ -599,6 +600,7 @@ export class VitessceConfig {
       y = 0,
       w = 1,
       h = 1,
+      uid = undefined,
       mapping = null,
     } = options || {};
     const datasetMatches = (
@@ -618,7 +620,7 @@ export class VitessceConfig {
     const coordinationScopes = {
       [CoordinationType.DATASET]: datasetScope,
     };
-    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h);
+    const newView = new VitessceConfigView(component, coordinationScopes, x, y, w, h, uid);
     if (mapping) {
       const [etScope] = this.addCoordination(CoordinationType.EMBEDDING_TYPE);
       etScope.setValue(mapping);
@@ -637,13 +639,28 @@ export class VitessceConfig {
   addCoordination(...args) {
     const cTypes = args;
     const result = [];
-    cTypes.forEach((cType) => {
-      const prevScopes = (
-        this.config.coordinationSpace[cType]
-          ? Object.keys(this.config.coordinationSpace[cType])
-          : []
-      );
-      const scope = new VitessceConfigCoordinationScope(cType, this.getNextScope(prevScopes));
+    cTypes.forEach((cTypeOrObj) => {
+      let cType;
+      let cScope;
+      let cValue;
+      if (typeof cTypeOrObj === 'string') {
+        cType = cTypeOrObj;
+        const prevScopes = (
+          this.config.coordinationSpace[cType]
+            ? Object.keys(this.config.coordinationSpace[cType])
+            : []
+        );
+        cScope = this.getNextScope(prevScopes);
+      } else {
+        // If not a string, assume it is an object like { cType: string, cScope: string }.
+        // eslint-disable-next-line prefer-destructuring
+        cType = cTypeOrObj.cType;
+        // eslint-disable-next-line prefer-destructuring
+        cScope = cTypeOrObj.cScope;
+        // eslint-disable-next-line prefer-destructuring
+        cValue = cTypeOrObj.cValue;
+      }
+      const scope = new VitessceConfigCoordinationScope(cType, cScope, cValue);
       if (!this.config.coordinationSpace[scope.cType]) {
         this.config.coordinationSpace[scope.cType] = {};
       }
@@ -1002,7 +1019,9 @@ export class VitessceConfig {
       }
     });
     config.layout.forEach((c) => {
-      const newView = new VitessceConfigView(c.component, c.coordinationScopes, c.x, c.y, c.w, c.h);
+      const newView = new VitessceConfigView(
+        c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid,
+      );
       vc.config.layout.push(newView);
     });
     return vc;

@@ -3,8 +3,8 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import { Vitessce } from 'vitessce';
-
-import { getConfig, listConfigs, getPlugins, getStores } from './api.js';
+import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
+import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
 
@@ -91,6 +91,21 @@ function validateTheme(theme) {
   return (['light', 'dark', 'light2'].includes(theme) ? theme : 'dark');
 }
 
+/**
+ * Use the logLevel provided if it is valid, otherwise fall back to 'trace'
+ * @param {string} logLevel A potentially invalid value.
+ * @returns {string}.
+ */
+function validateLogLevel(logLevel) {
+  if (logLevel && typeof logLevel === 'string') {
+    const upperLogLevel = logLevel.toUpperCase();
+    if (Object.keys(LogLevel).includes(upperLogLevel)) {
+      return LogLevel[upperLogLevel];
+    }
+  }
+  return DEFAULT_LOG_LEVEL;
+}
+
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};
@@ -102,6 +117,9 @@ export function VitessceDemo() {
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
+    const pageMode = urlParams.get('pageMode') === 'true';
+    const debugMode = urlParams.get('debugMode') === 'true';
+    const logLevel = validateLogLevel(urlParams.get('logLevel'));
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -109,8 +127,19 @@ export function VitessceDemo() {
       const config = getConfig(datasetId);
       const pluginProps = getPlugins(datasetId);
       const stores = getStores(datasetId);
+      const PageComponent = getPage(datasetId);
       return (
         <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}
+            </style>
+          ) : null}
           <Vitessce
             config={config}
             rowHeight={rowHeight}
@@ -121,7 +150,12 @@ export function VitessceDemo() {
             isBounded={isBounded}
             stores={stores}
             {...pluginProps}
-          />
+            pageMode={pageMode}
+            debugMode={debugMode}
+            logLevel={logLevel}
+          >
+            {pageMode ? <PageComponent /> : null}
+          </Vitessce>
         </ContainerComponent>
       );
     }
@@ -137,6 +171,16 @@ export function VitessceDemo() {
         )));
       return (
         <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}
+            </style>
+          ) : null}
           <AwaitResponse response={responsePromise} theme={theme} />
         </ContainerComponent>
       );
@@ -163,11 +207,6 @@ export function VitessceDemo() {
         width: 100%;
         overflow: scroll;
         background-color: #333333;
-      }
-      #root .vitessce-container {
-        height: max(100%,100vh);
-        width: 100%;
-        overflow: hidden;
       }
       `}
       </style>

@@ -7,3 +7,114 @@ packages:
   - 'sites/*'
   - 'examples/*'
   - '!consumer'
+
+catalog:
+  "zustand": ^3.5.10
+  "lodash-es": ^4.17.21
+  "@types/lodash-es": ^4.17.7
+  "internmap": ^2.0.3
+  "uuid": ^9.0.0
+  "@types/uuid": ^9.0.1
+  # note packages/types was on @hms-dbmi/viv ~0.13.8
+  "@hms-dbmi/viv": ~0.16.0
+  "clsx": ^1.1.1
+  # Zarrita
+  "zarrita": 0.4.0
+  "@zarrita/storage": 0.1.0
+  # D3
+  "d3-array": ^2.4.0
+  "d3-dsv": ^1.1.1
+  "d3-force": ^2.1.1
+  "d3-format": ^3.1.0
+  "d3-quadtree": ^1.0.7
+  "d3-hierarchy": ^3.1.2
+  # note - packages/legend was on d3-scale ^3.2.3
+  "d3-scale": ^4.0.0
+  "d3-axis": ^3.0.0
+  "d3-color": ^1.4.0
+  "d3-interpolate": ^2.0.1
+  "d3-shape": ^3.2.0
+  "d3-selection": ^3.0.0
+  "vega-scale": ^6.0.0
+  "pluralize": ^8.0.0
+  "math.gl": ^3.5.6
+  "@math.gl/core": ^3.5.6
+  "mathjs": ^9.2.0
+  "zod": ^3.21.4
+  "react-aria": ^3.28.0
+  "react-error-boundary": ^5.0.0
+  "semver": ^7.3.8
+  "@types/semver": ^7.3.13
+  # Arrow/Parquet/DuckDB
+  "apache-arrow": ^17.0.0
+  "parquet-wasm": ^0.6.1
+  # Material UI
+  "@material-ui/core": ~4.12.3
+  "@material-ui/icons": ~4.11.2
+  "@material-ui/lab": ^4.0.0-alpha.61
+  "@mui/x-data-grid": ^4.0.2
+  # ThreeJS
+  "three": ^0.154.0
+  "@react-three/fiber": ^8.15.19
+  "@react-three/drei": ^9.99.7
+  # note - packages/file-types/glb was on @react-three/drei ~9.89.0
+  "@react-three/xr": ^5.7.1
+  # Vite
+  "vite": ^4.3.0
+  "@vitejs/plugin-react": ^4.0.0
+  "vitest": ^0.32.2
+  # React
+  "react": ^18.0.0
+  "react-dom": ^18.0.0
+  "@types/react": ^18.0.28
+  # Testing library
+  "@testing-library/jest-dom": ^5.16.4
+  "@testing-library/react": ^13.3.0
+  "@testing-library/react-hooks": ^8.0.1
+  "@testing-library/user-event": ^14.2.1
+
+# We are using named catalogs for groups of packages
+# that are versioned together
+# (i.e., every package within the catalog has the same version value)
+catalogs:
+  deck.gl:
+    "deck.gl": 8.8.27
+    "@deck.gl/core": 8.8.27
+    "@deck.gl/geo-layers": 8.8.27
+    "@deck.gl/mesh-layers": 8.8.27
+    "@deck.gl/aggregation-layers": 8.8.27
+    "@deck.gl/extensions": 8.8.27
+    "@deck.gl/layers": 8.8.27
+    "@deck.gl/react": 8.8.27
+  luma.gl:
+    "luma.gl": 8.5.21
+    "@luma.gl/constants": 8.5.21
+    "@luma.gl/core": 8.5.21
+    "@luma.gl/engine": 8.5.21
+    "@luma.gl/gltools": 8.5.21
+    "@luma.gl/shadertools": 8.5.21
+    "@luma.gl/experimental": 8.5.21
+    "@luma.gl/webgl": 8.5.21
+  loaders.gl:
+    "loaders.gl": ^3.0.0
+    "@loaders.gl/3d-tiles": ^3.0.0
+    "@loaders.gl/core": ^3.0.0
+    "@loaders.gl/images": ^3.0.0
+    "@loaders.gl/loader-utils": ^3.0.0
+  nebula.gl:
+    "nebula.gl": 0.23.8
+    "@nebula.gl/layers": 0.23.8
+    "@nebula.gl/edit-modes": 0.23.8
+  turf:
+    "@turf/area": ^7.2.0
+    "@turf/boolean-contains": ^7.2.0
+    "@turf/boolean-overlap": ^7.2.0
+    "@turf/boolean-point-in-polygon": ^7.2.0
+    "@turf/boolean-within": ^7.2.0
+    "@turf/centroid": ^7.2.0
+    "@turf/helpers": ^7.2.0
+    "@turf/circle": ^7.2.0
+    "@turf/union": ^7.2.0
+    "@turf/meta": ^7.2.0
+    "@turf/invariant": ^7.2.0
+    "@turf/distance": ^7.2.0

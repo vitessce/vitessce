@@ -7,15 +7,6 @@ import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
 
-// Temporary usage of the package 'higlass-no-github-deps'
-// rather than 'higlass' is discussed at
-// https://github.com/vitessce/vitessce/pull/1404
-// When a new version of 'higlass' that follows v1.11.11
-// is released, we can switch over to that one here.
-const HIGLASS_PKG_NAME = 'higlass-no-github-deps';
-const HIGLASS_BUNDLE_VERSION = '1.11.13';
-const HIGLASS_CSS_URL = `https://unpkg.com/${HIGLASS_PKG_NAME}@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
-
 // Register the zarr-multivec plugin data fetcher.
 // References:
 // https://github.com/higlass/higlass-register
@@ -28,10 +19,7 @@ register(
 // Lazy load the HiGlass React component,
 // using a dynamic import.
 const LazyHiGlassComponent = React.lazy(async () => {
-  // Temporary fix until a new release of HiGlass is made after 1.11.11,
-  // which removes the github.com dependencies in the higlass package.json,
-  // which is causing issues with PNPM install on GitHub Actions.
-  const { HiGlassComponent } = await import('higlass-no-github-deps');
+  const { HiGlassComponent } = await import('higlass');
   return { default: HiGlassComponent };
 });
 
@@ -183,7 +171,6 @@ export default function HiGlassLazy(props) {
 
   return (
     <div className={classes.higlassWrapperParent}>
-      <link rel="stylesheet" type="text/css" href={HIGLASS_CSS_URL} />
       <div className={classes.higlassWrapper} ref={containerRef} style={{ height: `${height}px` }}>
         <Suspense fallback={<div>Loading...</div>}>
           <LazyHiGlassComponent

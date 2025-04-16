@@ -1,11 +1,16 @@
 import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
+import * as vegaImport from 'vega';
 import clsx from 'clsx';
 import { useTooltipStyles } from '@vitessce/tooltip';
+import { getInterpolateFunction } from '@vitessce/legend';
 import ReactVega from './ReactVega.js';
 import { DATASET_NAME } from './utils.js';
 import { useStyles } from './styles.js';
 
+// Register additional colormaps using vega.scheme().
+// Reference: https://vega.github.io/vega/docs/schemes/
+vegaImport.scheme('jet', getInterpolateFunction('jet'));
 
 // TODO: React.lazy is not working with Vitessce in the portal-ui.
 // For now, we can work around this by not using React.lazy,
@@ -49,6 +54,8 @@ export function VegaPlot(props) {
     data,
     getTooltipText,
     signalListeners,
+    renderer = 'svg',
+    onNewView,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -103,10 +110,15 @@ export function VegaPlot(props) {
       }}
       signalListeners={signalListeners}
       tooltip={tooltipHandler}
-      renderer="canvas"
+      renderer={renderer}
       scaleFactor={3}
+      // We need to force a re-render when the spec
+      // is the same except for changed width/height
+      // (to support responsive plots).
+      key={JSON.stringify({ width: spec.width, height: spec.height })}
+      onNewView={onNewView}
     />
-  ), [spec, data, signalListeners, tooltipHandler]);
+  ), [spec, data, signalListeners, tooltipHandler, renderer, onNewView]);
 
   return (
     spec && data && data.length > 0 ? (

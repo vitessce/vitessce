@@ -85,3 +85,19 @@ export class PluginCoordinationType<T1 extends z.ZodTypeAny> {
     this.valueSchema = valueSchema;
   }
 }
+
+type AsyncFunction = (...a: any) => Promise<any>;
+// TODO: the valid function types should come from @vitessce/constants-internal.
+type AsyncFunctionType = string;
+
+
+export class PluginAsyncFunction {
+  functionType: AsyncFunctionType;
+
+  asyncFunction: AsyncFunction;
+
+  constructor(functionType: AsyncFunctionType, asyncFunction: AsyncFunction) {
+    this.functionType = functionType;
+    this.asyncFunction = asyncFunction;
+  }
+}

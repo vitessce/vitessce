@@ -107,7 +107,9 @@ function extractInformationFromProps(
     visible && true,
   ]) : channelScopes.map(cScope => (
     // Layer visible AND channel visible
-    visible && channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C]
+    visible && imageWrapperInstance.getChannelIndex(
+      channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+    )
   ));
   const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
   const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
@@ -359,15 +361,29 @@ function setUniformsTextures(
 * @param textures         ... from Store
 * @param contrastLimits   ... given by UI
 * @param volumeMinMax     ... from Store
-* @param scale            ... from Store
+* @param scaleOrUndefined ... from Store
 */
 export function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures,
-  contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency,
+  contrastLimits, volumeMinMax, scaleOrUndefined, renderstyle, layerTransparency,
   xSlice, ySlice, zSlice, originalScale) {
   const texturesList = [];
   const colorsSave = [];
   const contrastLimitsList = [];
   let volume = null;
+  let scale = scaleOrUndefined;
+  if (scale === undefined || scale === null || !Array.isArray(scale) || scale.length < 3) {
+    scale = [
+      { size: scale?.[0]?.size ?? 1 },
+      { size: scale?.[1]?.size ?? 1 },
+      { size: scale?.[2]?.size ?? 1 },
+    ];
+  } else {
+    for (let i = 0; i < scale.length; i++) {
+      if (!scale[i] || scale[i].size === undefined || scale[i].size === null) {
+        scale[i] = { size: 1 };
+      }
+    }
+  }
   channelTargetC.forEach((channel, id) => { // load on demand new channels or load all there are?? - Check VIV for it
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
       volume = volumes.get(channel);

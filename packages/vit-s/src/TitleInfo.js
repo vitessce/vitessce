@@ -7,6 +7,7 @@ import {
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
+  Help as HelpIcon,
 } from '@material-ui/icons';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -41,6 +42,18 @@ const useStyles = makeStyles(theme => ({
   },
   downloadLink: {
     color: theme.palette.primaryForeground,
+  },
+  helpTextSpan: {
+    maxWidth: '400px',
+    padding: '5px 10px',
+    display: 'inline-block',
+    textAlign: 'justify',
+    fontSize: '14px',
+    backgroundColor: theme.palette.gridLayoutBackground,
+    color: theme.palette.tooltipText,
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+    border: '10px solid grey',
   },
 }));
 
@@ -107,6 +120,26 @@ function DownloadOptions(props) {
   ) : null);
 }
 
+function HelpButton(props) {
+  const { helpText } = props;
+  const [open, setOpen] = useState(false);
+  const classes = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<HelpIcon />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      aria-label="Open help info"
+      withPaper={false}
+    >
+      <span className={classes.helpTextSpan}>{helpText}</span>
+    </PopperMenu>
+  );
+}
+
+
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
   const classes = useStyles();
@@ -127,6 +160,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
+    helpText, withPadding = true,
   } = props;
 
   const classes = useTitleStyles();
@@ -150,7 +184,12 @@ export function TitleInfo(props) {
               urls={urls}
             />
           ) : null}
-          {closeButtonVisible ? (
+          {helpText ? (
+            <HelpButton
+              helpText={helpText}
+            />
+          ) : null}
+          {closeButtonVisible && removeGridComponent ? (
             <ClosePaneButton
               removeGridComponent={removeGridComponent}
             />
@@ -165,12 +204,14 @@ export function TitleInfo(props) {
             [classes.scrollCard]: isScroll,
             [classes.spatialCard]: isSpatial,
             [classes.noScrollCard]: !isScroll && !isSpatial,
+            [classes.noPaddingCard]: !withPadding,
+            [classes.paddingCard]: withPadding,
           },
         )}
         aria-busy={!isReady}
         role="main"
       >
-        { !isReady && <LoadingIndicator /> }
+        { !isReady ? <LoadingIndicator /> : null }
         {children}
       </div>
     </>

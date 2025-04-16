@@ -21,6 +21,12 @@ module.exports = {
       theme: require('./src/pages/_prism-light-theme.cjs.js'),
       darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
     },
+    algolia: {
+      appId: 'VM9PGXT4A9',
+      indexName: 'vitessce',
+      apiKey: process.env.ALGOLIA_API_KEY || 'none',
+      contextualSearch: true,
+    },
     navbar: {
       title: 'Vitessce',
       logo: {
@@ -52,12 +58,12 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessce-python/',
+          href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessceR/',
+          href: 'https://r-docs.vitessce.io/',
           label: 'For R',
           position: 'left',
         },
@@ -83,6 +89,10 @@ module.exports = {
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
+        },
+        {
+          type: 'search',
+          position: 'right',
         },
       ],
     },
@@ -133,7 +143,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://gehlenborglab.org/">Gehlenborg Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is Creative Commons licensed (CC BY 4.0).`,
+      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://hidivelab.org/">HIDIVE Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.`,
     },
   },
   presets: [

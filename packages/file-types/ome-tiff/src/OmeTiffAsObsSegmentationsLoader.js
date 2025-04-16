@@ -1,5 +1,5 @@
 import { viv } from '@vitessce/gl';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import {
   initializeRasterLayersAndChannels,
   coordinateTransformationsToMatrix,

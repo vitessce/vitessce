@@ -1,0 +1,13 @@
+diff --git a/dist/module/neuroglancer/viewer.js b/dist/module/neuroglancer/viewer.js
+index 3de16138d44b19d2ce2960e1160bec562a295ff2..b49b07056cdb822653dff3681dbe83cafe9e6446 100644
+--- a/dist/module/neuroglancer/viewer.js
++++ b/dist/module/neuroglancer/viewer.js
+@@ -71,7 +71,7 @@ export class DataManagementContext extends RefCounted {
+         this.gl = gl;
+         this.frameNumberCounter = frameNumberCounter;
+         const chunk_worker_url = bundleRoot + 'chunk_worker.bundle.js';
+-        this.worker = new Worker(chunk_worker_url);
++        this.worker = (typeof bundleRoot === 'string' ? new Worker(chunk_worker_url) : bundleRoot);
+         this.chunkQueueManager = this.registerDisposer(new ChunkQueueManager(new RPC(this.worker), this.gl, this.frameNumberCounter, {
+             gpuMemory: new CapacitySpecification({ defaultItemLimit: 1e6, defaultSizeLimit: 1e9 }),
+             systemMemory: new CapacitySpecification({ defaultItemLimit: 1e7, defaultSizeLimit: 2e9 }),

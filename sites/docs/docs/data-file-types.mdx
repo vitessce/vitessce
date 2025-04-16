@@ -702,6 +702,159 @@ coordinationValues={`{
 }`}
 />
 
+### `sampleSets.anndata.zarr`
+
+Maps each sample to membership in one or more sets.
+
+If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the file contents might look like:
+
+| donor_id | disease_state |
+| ----- | ----- |
+| donor_1 | Healthy reference |
+| donor_2 | Diabetes |
+| donor_3 | Diabetes |
+| donor_4 | Healthy reference |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_sample_adata.zarr"
+fileType="sampleSets.anndata.zarr"
+fileConst="SAMPLE_SETS_ANNDATA_ZARR"
+options={`{
+  sampleSets: [
+    {
+      "name": "Disease State",
+      "path": "disease_state"
+    }
+  ]
+}`}
+coordinationValues={`{
+  "sampleType": "donor"
+}`}
+/>
+
+### `comparisonMetadata.anndata.zarr`
+
+Provides metadata about comparative analyses that have been pre-computed and stored in the AnnData object.
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparisonMetadata.anndata.zarr"
+fileConst="COMPARISON_METADATA_ANNDATA_ZARR"
+options={`{
+  "path": "uns/comparison_metadata"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample"
+}`}
+/>
+
+### `comparativeFeatureStats.anndata.zarr`
+
+Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureStats dataframes,
+for example, the results of multiple differential expression tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeFeatureStats.anndata.zarr"
+fileConst="COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR"
+options={`{
+  // Path to the comparison metadata.
+  "metadataPath": "uns/comparison_metadata",
+  // Optionally, specify the name of a column containing the feature index.
+  "indexColumn": "names",
+  // Specify the column containing p-values.
+  "pValueColumn": "pvals_adj",
+  // Optionally, specify how the p-values have already been transformed.
+  "pValueTransformation": "minuslog10",
+  // Does the p-value column contain adjusted p-values?
+  "pValueAdjusted": true,
+  // Specify the column containing fold-change values.
+  "foldChangeColumn": "logfoldchanges",
+  // Optionally, specify how the fold-change values have already been tranformed.
+  "foldChangeTransformation": "log2"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample",
+  "featureType": "gene"
+}`}
+/>
+
+### `comparativeFeatureSetStats.anndata.zarr`
+
+Per-feature-set statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureSetStats dataframes,
+for example, the results of multiple gene set enrichment tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeFeatureSetStats.anndata.zarr"
+fileConst="COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR"
+options={`{
+  // Path to the comparison metadata.
+  "metadataPath": "uns/comparison_metadata",
+  // Optionally, specify the name of a column containing the feature set index.
+  "indexColumn": "pathway_name",
+  // Specify the column containing ontology terms (CURIE strings).
+  "termColumn": "pathway_term",
+  // Specify the column containing p-values.
+  "pValueColumn": "pvals_adj",
+  // Does the p-value column contain adjusted p-values?
+  "pValueAdjusted": true,
+  // Optionally, what gene set library was used for testing and is specified in the metadata?
+  "featureSetLibrary": "Reactome_2022"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample",
+  "featureType": "gene"
+}`}
+/>
+
+### `comparativeObsSetStats.anndata.zarr`
+
+Per-observation-set statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple obsSetStats dataframes,
+for example, the results of multiple cell type composition analyses).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeObsSetStats.anndata.zarr"
+fileConst="COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR"
+options={`{
+  // Path to the comparison metadata.
+  "metadataPath": "uns/comparison_metadata",
+  // Optionally, specify the name of a column containing the obs set index.
+  "indexColumn": "names",
+  // Specify the column containing fold-change values.
+  "foldChangeColumn": "logfoldchanges",
+  // Optionally, specify how the fold-change values have already been tranformed.
+  "foldChangeTransformation": "log2",
+  // For scCODA results, this indicates the expected value for a new sample in absence of the covariate.
+  "interceptExpectedSampleColumn": "interceptExpectedSample",
+  // For scCODA results, this indicates the expected value for a new sample in presence of the covariate.
+  "effectExpectedSampleColumn": "effectExpectedSample",
+  // For scCODA results, this is a boolean column indicating whether a credible change was detected for the cell type.
+  "isCredibleEffectColumn": "isCredibleEffect"
+}`}
+coordinationValues={`{
+  "obsType": "cell",
+  "sampleType": "sample"
+}`}
+/>
+
 ### `anndata.zarr`
 
 Defines an AnnData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
@@ -1223,7 +1376,7 @@ coordinationValues={`{
 
 Storage of sets of observations in a tree data structure.
 If this tree has a uniform height within each top-level group then it may be more straightforward to use the [`obsSets.csv`](#obssetscsv) or [`obsSets.anndata.zarr`](#obssetsanndatazarr) file types.
-See the [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/obsSets.schema.json) and an [example](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json) for reference.
+See the [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/obsSets.schema.json) and an [example](https://data-1.vitessce.io/0.0.31/master_release/dries/dries.cell-sets.json) for reference.
 
 <FileDefTabs
 fileName="my_cell_sets.json"
@@ -1555,11 +1708,11 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 ### Seurat
 
-The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessceR/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
+The Vitessce R package can be used to [convert Seurat objects](https://r-docs.vitessce.io/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
 
 ### SnapATAC
 
-The Vitessce Python package can be used to [convert SnapATAC outputs](https://vitessce.github.io/vitessce-python/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
+The Vitessce Python package can be used to [convert SnapATAC outputs](https://python-docs.vitessce.io/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
 
 
 ### TIFF and Proprietary Image Formats

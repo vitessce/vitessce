@@ -36,7 +36,7 @@ export const visiumSpatialViewer = {
         {
           type: 'cells',
           fileType: 'anndata-cells.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
           options: {
             xy: 'obsm/spatial',
             mappings: {
@@ -53,7 +53,7 @@ export const visiumSpatialViewer = {
         {
           type: 'expression-matrix',
           fileType: 'anndata-expression-matrix.zarr',
-          url: 'https://s3.amazonaws.com/vitessce-data/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
+          url: 'https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr',
           options: {
             matrix: 'X',
           },

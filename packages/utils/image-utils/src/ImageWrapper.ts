@@ -19,7 +19,7 @@ import {
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-
+import { log } from '@vitessce/globals';
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
@@ -135,7 +135,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultT,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultT || 0;
@@ -150,7 +150,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultZ,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultZ || 0;
@@ -251,6 +251,20 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return [];
   }
 
+  getChannelIndex(channelSpecifier: string|number): number {
+    if (typeof channelSpecifier === 'number') {
+      return channelSpecifier;
+    }
+    // If not a number,
+    // then assume the user passed a string corresponding to a channel name.
+    const channelNames = this.getChannelNames();
+    const channelIndex = channelNames.indexOf(channelSpecifier);
+    if (channelIndex === -1) {
+      log.error(`Channel ${channelSpecifier} not found in image.`);
+    }
+    return channelIndex;
+  }
+
   // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
     // SpatialData cases (image-label and channels_metadata)
@@ -315,7 +329,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   getDtype(): string | undefined {
     const loader = this.vivLoader;
-    const source = getSourceFromLoader(loader) as any;
+    const source = getSourceFromLoader(loader, undefined) as any;
     if ('dtype' in source) {
       return source.dtype as string;
     }
@@ -443,7 +457,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             model,
-          },
+          } = {},
         },
       } = loader.metadata;
       if (model === 'color') {

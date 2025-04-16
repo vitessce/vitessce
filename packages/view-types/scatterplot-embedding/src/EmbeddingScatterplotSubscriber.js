@@ -1,8 +1,9 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import { extent } from 'd3-array';
+import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { circle } from '@turf/circle';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -16,14 +17,18 @@ import {
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
   useMultiObsLabels,
+  useSampleSetsData,
+  useSampleEdgesData,
   useCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
   useInitialCoordination,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
+  stratifyArrays,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
@@ -32,7 +37,10 @@ import {
   getPointOpacity,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
+
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 /**
  * A subscriber component for the scatterplot.
@@ -57,8 +65,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     theme,
     observationsLabelOverride,
     title: titleOverride,
+    helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
+
+    // For the dual scatterplot:
+    sampleSetSelection: sampleSetSelectionFromProps,
   } = props;
 
   const loaders = useLoaders();
@@ -71,6 +83,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsType,
     featureType,
     featureValueType,
+    sampleType,
     embeddingZoom: zoom,
     embeddingTargetX: targetX,
     embeddingTargetY: targetY,
@@ -93,6 +106,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    sampleSetSelection: sampleSetSelectionFromCoordination,
+    sampleSetColor,
+    embeddingPointsVisible,
+    embeddingContoursVisible,
+    embeddingContoursFilled,
+    embeddingContourPercentiles: contourPercentiles,
+    contourColorEncoding,
+    contourColor,
+    featureAggregationStrategy,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -114,6 +136,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setEmbeddingPointsVisible,
+    setEmbeddingContoursVisible,
+    setEmbeddingContoursFilled,
+    setEmbeddingContourPercentiles: setContourPercentiles,
+    setContourColorEncoding,
+    setFeatureAggregationStrategy,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -125,6 +153,13 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
+  const sampleSetSelection = (
+    sampleSetSelectionFromProps
+    || sampleSetSelectionFromCoordination
+  );
+
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -159,9 +194,23 @@ export function EmbeddingScatterplotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  // eslint-disable-next-line max-len
+  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
+  );
+  const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+    loaders, dataset, false, {}, {},
+    { sampleType },
+  );
+
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+    loaders, dataset, false, {}, {},
+    { obsType, sampleType },
   );
 
   const isReady = useReady([
@@ -169,13 +218,18 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsSetsStatus,
     featureSelectionStatus,
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixIndicesStatus,
+    sampleSetsStatus,
+    sampleEdgesStatus,
   ]);
   const urls = useUrls([
     obsEmbeddingUrls,
     obsSetsUrls,
     matrixIndicesUrls,
     featureLabelsUrls,
+    sampleSetsUrl,
+    sampleEdgesUrl,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -251,7 +305,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (xRange && yRange) {
+    if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -299,7 +353,11 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
-  const [uint8ExpressionData, expressionExtents] = useUint8FeatureSelection(expressionData);
+  const {
+    normData: uint8ExpressionData,
+    extents: expressionExtents,
+    missing: expressionMissing,
+  } = useUint8FeatureSelection(expressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -309,6 +367,124 @@ export function EmbeddingScatterplotSubscriber(props) {
     expressionData: uint8ExpressionData,
   });
 
+  // Sort the expression data array so that we can compute percentiles
+  // using the d3 quantileSorted function for improved performance.
+  const sortedWeights = useMemo(() => {
+    if (uint8ExpressionData?.[0]) {
+      const weights = uint8ExpressionData[0];
+      return weights.toSorted();
+    }
+    return null;
+  }, [uint8ExpressionData]);
+
+  // Compute contour thresholds based on the entire expression data distribution
+  // (not per-cellSet or per-sampleSet).
+  const contourThresholds = useMemo(() => {
+    if (sortedWeights) {
+      const thresholds = (contourPercentiles || DEFAULT_CONTOUR_PERCENTILES)
+        .map(p => quantileSorted(sortedWeights, p))
+        .map(t => Math.max(t, 1.0));
+      return thresholds;
+    }
+    return [1, 10, 100];
+  }, [contourPercentiles, sortedWeights]);
+
+  // Construct a circle polygon using Turf's circle function,
+  // which surrounds all points in the scatterplot,
+  // which we can use to position text labels along.
+  const circleInfo = useMemo(() => {
+    if (!originalViewState || !width || !height) {
+      return null;
+    }
+    const center = [
+      originalViewState.target[0],
+      originalViewState.target[1],
+    ];
+    const scaleFactor = (2 ** originalViewState.zoom);
+    if (!(typeof scaleFactor === 'number' && typeof center[0] === 'number' && typeof center[1] === 'number') || Number.isNaN(scaleFactor)) {
+      return null;
+    }
+    const radius = Math.min(width, height) / 2 / scaleFactor;
+    const numPoints = 96;
+    const options = { steps: numPoints, units: 'degrees' };
+    const circlePolygon = circle(center, radius, options);
+    return {
+      center,
+      radius,
+      polygon: circlePolygon,
+      steps: numPoints,
+    };
+  }, [originalViewState, width, height]);
+
+  // It is possible for the embedding index+data to be out of order
+  // with respect to the matrix index+data. Here, we align the embedding
+  // data so that the rows are ordered the same as the matrix rows.
+  // TODO: refactor this as a hook that can be used elsewhere to align data
+  // from different data types with the expression matrix data.
+  // Need to fallback to the original ordering if no matrix data is present.
+  // TODO: do this everywhere and remove the need for the
+  // useExpressionValueGetter hook and getter function.
+  const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
+    // Sort the embedding data according to the matrix obsIndex.
+    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
+      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
+
+      const newEmbeddingIndex = new Array(obsEmbeddingIndex.length);
+      const newEmbeddingData = [
+        new obsEmbedding.data[0].constructor(obsEmbedding.data[0].length),
+        new obsEmbedding.data[1].constructor(obsEmbedding.data[1].length),
+      ];
+      for (let i = 0; i < obsEmbeddingIndex.length; i++) {
+        const matrixRowIndex = toMatrixIndex[i];
+        newEmbeddingData[0][matrixRowIndex] = obsEmbedding.data[0][i];
+        newEmbeddingData[1][matrixRowIndex] = obsEmbedding.data[1][i];
+        newEmbeddingIndex[matrixRowIndex] = obsEmbeddingIndex[i];
+      }
+      return [newEmbeddingIndex, { ...obsEmbedding, data: newEmbeddingData }];
+    }
+    // Fall back to original ordering if no matrix data is present to align with.
+    return [obsEmbeddingIndex, obsEmbedding];
+  }, [matrixObsIndex, obsEmbeddingIndex, obsEmbedding]);
+
+  const sampleIdToObsIdsMap = useMemo(() => {
+    // sampleEdges maps obsId -> sampleId.
+    // However when we stratify we want to map sampleId -> [obsId1, obsId2, ...].
+    // Here we create this reverse mapping.
+    if (sampleEdges) {
+      const result = new Map();
+      Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
+        if (!result.has(sampleId)) {
+          result.set(sampleId, [obsId]);
+        } else {
+          result.get(sampleId).push(obsId);
+        }
+      });
+      return result;
+    }
+    return null;
+  }, [sampleEdges]);
+
+  // Stratify multiple arrays: per-cellSet and per-sampleSet.
+  const [stratifiedData, stratifiedDataCount] = useMemo(() => {
+    if (alignedEmbeddingData?.data) {
+      const [result, cellCountResult] = stratifyArrays(
+        sampleEdges, sampleIdToObsIdsMap,
+        sampleSets, sampleSetSelection,
+        alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
+          obsEmbeddingX: alignedEmbeddingData.data[0],
+          obsEmbeddingY: alignedEmbeddingData.data[1],
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
+        }, featureAggregationStrategyToUse,
+      );
+      return [result, cellCountResult];
+    }
+    return [null, null];
+  }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
+    sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
+    cellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
+  ]);
+
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -316,16 +492,22 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetZ(target[2] || 0);
   };
 
+  // TODO: Update this once the rendered points reflects the selection/filtering.
+  const cellCountToUse = embeddingPointsVisible
+    ? cellsCount
+    : (stratifiedDataCount ?? cellsCount);
+
   return (
     <TitleInfo
       title={title}
-      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)}`}
+      info={`${commaNumber(cellCountToUse)} ${plur(observationsLabel, cellCountToUse)}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}
@@ -351,6 +533,19 @@ export function EmbeddingScatterplotSubscriber(props) {
           setGeneExpressionColormap={setGeneExpressionColormap}
           geneExpressionColormapRange={geneExpressionColormapRange}
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
+          embeddingPointsVisible={embeddingPointsVisible}
+          setEmbeddingPointsVisible={setEmbeddingPointsVisible}
+          embeddingContoursVisible={embeddingContoursVisible}
+          setEmbeddingContoursVisible={setEmbeddingContoursVisible}
+          embeddingContoursFilled={embeddingContoursFilled}
+          setEmbeddingContoursFilled={setEmbeddingContoursFilled}
+          contourPercentiles={contourPercentiles}
+          setContourPercentiles={setContourPercentiles}
+          defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
+          contourColorEncoding={contourColorEncoding}
+          setContourColorEncoding={setContourColorEncoding}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       )}
     >
@@ -386,16 +581,34 @@ export function EmbeddingScatterplotSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
+        obsSetSelection={cellSetSelection}
+        sampleSetSelection={sampleSetSelection}
+        // InternMap data structures where keys are
+        // obsSet -> sampleSet -> arrayKey -> [].
+        stratifiedData={stratifiedData}
+        obsSetColor={cellSetColor}
+        sampleSetColor={sampleSetColor}
+        contourThresholds={contourThresholds}
+        contourColorEncoding={contourColorEncoding}
+        contourColor={contourColor}
+        contoursFilled={embeddingContoursFilled}
+        embeddingPointsVisible={embeddingPointsVisible}
+        embeddingContoursVisible={embeddingContoursVisible}
+
+        circleInfo={circleInfo}
+        featureSelection={geneSelection}
       />
-      {tooltipsVisible && (
-      <ScatterplotTooltipSubscriber
-        parentUuid={uuid}
-        obsHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getObsInfo={getObsInfo}
-      />
-      )}
+      {tooltipsVisible && width && height ? (
+        <ScatterplotTooltipSubscriber
+          parentUuid={uuid}
+          obsHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getObsInfo={getObsInfo}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
+      ) : null}
       <Legend
         visible
         theme={theme}
@@ -406,7 +619,16 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
-        extent={expressionExtents?.[0]}
+        obsSetSelection={cellSetSelection}
+        extent={expressionExtents}
+        missing={expressionMissing}
+        // Contour percentile legend
+        pointsVisible={embeddingPointsVisible}
+        contoursVisible={embeddingContoursVisible}
+        contoursFilled={embeddingContoursFilled}
+        contourPercentiles={contourPercentiles || DEFAULT_CONTOUR_PERCENTILES}
+        contourThresholds={contourThresholds}
+        featureAggregationStrategy={featureAggregationStrategyToUse}
       />
     </TitleInfo>
   );

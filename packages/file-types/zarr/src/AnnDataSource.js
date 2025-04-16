@@ -1,12 +1,22 @@
-// @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
+import { log } from '@vitessce/globals';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
-
 /** @import { DataSourceParams } from '@vitessce/types' */
-/** @import { ByteStringArray } from '@zarrita/typedarray' */
-/** @import { TypedArray as ZarrTypedArray, Chunk } from '@zarrita/core' */
+/** @import { TypedArray as ZarrTypedArray, Chunk, ByteStringArray } from 'zarrita' */
+
+
+function prependSlash(path) {
+  if (typeof path === 'string' && path.length >= 1) {
+    if (path.charAt(0) === '/') {
+      // No prepending needed.
+      return path;
+    }
+    return `/${path}`;
+  }
+  return path;
+}
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
@@ -84,12 +94,14 @@ export default class AnnDataSource extends ZarrDataSource {
 
   /**
    *
-   * @param {string} path
+   * @param {string} pathOrig
    * @returns
    */
-  async _loadColumn(path) {
+  async _loadColumn(pathOrig) {
     const { storeRoot } = this;
-    const prefix = dirname(path);
+    const path = prependSlash(pathOrig);
+    const prefixOrig = dirname(path);
+    const prefix = prependSlash(prefixOrig);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     /** @type {string[]} */
     let categoriesValues;
@@ -97,31 +109,34 @@ export default class AnnDataSource extends ZarrDataSource {
     let codesPath;
     if (categories) {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${prefix}/${categories}`),
+        storeRoot.resolve(`${prefix}/${categories}`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${prefix}/${categories}`,
+          `${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}/categories`),
+        storeRoot.resolve(`${path}/categories`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${path}/categories`,
+          `${path}/categories`,
         );
       }
-      codesPath = `/${path}/codes`;
+      codesPath = `${path}/codes`;
+    } else if (encodingType === 'string-array') {
+      return this.getFlatArrDecompressed(path);
     } else {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}`),
+        storeRoot.resolve(path),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+      if (dtype === 'v2:object' || dtype === '|O') {
         return this.getFlatArrDecompressed(path);
       }
     }
@@ -132,7 +147,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
-      i => (!categoriesValues ? String(i) : categoriesValues[i]),
+      i => (!categoriesValues ? String(i) : categoriesValues[/** @type {number} */ (i)]),
     );
     return mappedValues;
   }
@@ -142,7 +157,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
-  loadNumeric(path) {
+  async loadNumeric(path) {
     const { storeRoot } = this;
     return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
       .then(arr => zarrGet(arr));
@@ -157,7 +172,7 @@ export default class AnnDataSource extends ZarrDataSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  loadNumericForDims(path, dims) {
+  async loadNumericForDims(path, dims) {
     const { storeRoot } = this;
     const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
     return Promise.all(
@@ -184,7 +199,7 @@ export default class AnnDataSource extends ZarrDataSource {
     // Zarrita supports decoding vlen-utf8-encoded string arrays.
     const data = await zarrGet(arr);
     if (data.data?.[Symbol.iterator]) {
-      return Array.from(data.data);
+      return /** @type {string[]} */ (Array.from(data.data));
     }
     return /** @type {string[]} */ (data.data);
   }
@@ -203,8 +218,23 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.obsIndex;
     }
     this.obsIndex = this.getJson('obs/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/obs/${_index}`));
     return this.obsIndex;
+  }
+
+  /**
+   * Class method for loading the obs index.
+   * @param {string|undefined} path Used by subclasses.
+   * @returns {Promise<string[]>} An promise for a zarr array
+   * containing the indices.
+   */
+  loadDataFrameIndex(
+    // eslint-disable-next-line no-unused-vars
+    path = undefined,
+  ) {
+    const dfPath = path ? dirname(path) : '';
+    return this.getJson(`${dfPath}/.zattrs`)
+      .then(({ _index }) => this._loadColumn(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
   }
 
   /**
@@ -220,7 +250,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.varIndex;
     }
     this.varIndex = this.getJson('var/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/var/${_index}`));
     return this.varIndex;
   }
 
@@ -333,10 +363,15 @@ export default class AnnDataSource extends ZarrDataSource {
       } = zattrs;
 
       if (encodingType === 'dict' && encodingVersion === '0.1.0') {
-        /** @type {{ [k: string]: string|string[]|null }} */
+        /** @type {{ [k: string]: string|string[]|null|undefined }} */
         const result = {};
         await Promise.all(keys.map(async (key) => {
-          const val = await this._loadElement(`${path}/${key}`);
+          let val;
+          try {
+            val = await this._loadElement(`${path}/${key}`);
+          } catch (e) {
+            log.error(`Error in _loadDict: could not load ${key}`);
+          }
           result[key] = val;
         }));
         return result;

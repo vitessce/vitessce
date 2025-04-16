@@ -8,6 +8,8 @@ import {
 } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
+const FEATURE_AGGREGATION_STRATEGIES = ['first', 'last', 'sum', 'mean'];
+
 export default function ScatterplotOptions(props) {
   const {
     children,
@@ -34,6 +36,23 @@ export default function ScatterplotOptions(props) {
     setGeneExpressionColormap,
     geneExpressionColormapRange,
     setGeneExpressionColormapRange,
+
+    embeddingPointsVisible,
+    setEmbeddingPointsVisible,
+    embeddingContoursVisible,
+    setEmbeddingContoursVisible,
+    embeddingContoursFilled,
+    setEmbeddingContoursFilled,
+
+    contourPercentiles,
+    setContourPercentiles,
+    defaultContourPercentiles,
+
+    contourColorEncoding,
+    setContourColorEncoding,
+
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
   } = props;
 
   const scatterplotOptionsId = useId();
@@ -44,6 +63,10 @@ export default function ScatterplotOptions(props) {
 
   function handleCellRadiusModeChange(event) {
     setCellRadiusMode(event.target.value);
+  }
+
+  function handleContourColorEncodingChange(event) {
+    setContourColorEncoding(event.target.value);
   }
 
   function handleCellOpacityModeChange(event) {
@@ -74,6 +97,18 @@ export default function ScatterplotOptions(props) {
     setCellSetPolygonsVisible(event.target.checked);
   }
 
+  function handlePointsVisibilityChange(event) {
+    setEmbeddingPointsVisible(event.target.checked);
+  }
+
+  function handleContoursVisibilityChange(event) {
+    setEmbeddingContoursVisible(event.target.checked);
+  }
+
+  function handleContoursFilledChange(event) {
+    setEmbeddingContoursFilled(event.target.checked);
+  }
+
   function handleGeneExpressionColormapChange(event) {
     setGeneExpressionColormap(event.target.value);
   }
@@ -85,6 +120,18 @@ export default function ScatterplotOptions(props) {
     debounce(handleColormapRangeChange, 5, { trailing: true }),
     [handleColormapRangeChange],
   );
+
+  function handlePercentilesChange(event, values) {
+    setContourPercentiles(values);
+  }
+  const handlePercentilesChangeDebounced = useCallback(
+    debounce(handlePercentilesChange, 5, { trailing: true }),
+    [handlePercentilesChange],
+  );
+
+  function handleFeatureAggregationStrategyChange(event) {
+    setFeatureAggregationStrategy(event.target.value);
+  }
 
   return (
     <OptionsContainer>
@@ -326,6 +373,144 @@ export default function ScatterplotOptions(props) {
           />
         </TableCell>
       </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-points-visible-${scatterplotOptionsId}`}
+          >
+            Points Visible
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingPointsVisible}
+            onChange={handlePointsVisibilityChange}
+            name="scatterplot-option-point-visibility"
+            color="default"
+            inputProps={{
+              'aria-label': 'Show or hide scatterplot points',
+              id: `scatterplot-points-visible-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contours-visible-${scatterplotOptionsId}`}
+          >
+            Contours Visible
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingContoursVisible}
+            onChange={handleContoursVisibilityChange}
+            name="scatterplot-option-contour-visibility"
+            color="default"
+            inputProps={{
+              'aria-label': 'Show or hide contours',
+              id: `scatterplot-contours-visible-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contours-filled-${scatterplotOptionsId}`}
+          >
+            Contours Filled
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Checkbox
+            className={classes.checkbox}
+            checked={embeddingContoursFilled}
+            onChange={handleContoursFilledChange}
+            name="scatterplot-option-contour-filled"
+            color="default"
+            inputProps={{
+              'aria-label': 'Filled or stroked contours',
+              id: `scatterplot-contours-filled-${scatterplotOptionsId}`,
+            }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contour-color-encoding-${scatterplotOptionsId}`}
+          >
+            Contour Color Encoding
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <OptionSelect
+            className={classes.select}
+            value={contourColorEncoding}
+            onChange={handleContourColorEncodingChange}
+            inputProps={{
+              id: `scatterplot-contour-color-encoding-${scatterplotOptionsId}`,
+            }}
+          >
+            <option value="sampleSetSelection">Sample Sets</option>
+            <option value="cellSetSelection">{observationsLabelNice} Sets</option>
+            <option value="staticColor">Static Color</option>
+          </OptionSelect>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-contour-percentiles-${scatterplotOptionsId}`}
+          >
+            Contour Percentiles
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <Slider
+            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            value={contourPercentiles || defaultContourPercentiles}
+            onChange={handlePercentilesChangeDebounced}
+            aria-label="Scatterplot sliders for contour percentile thresholds"
+            id={`scatterplot-contour-percentiles-${scatterplotOptionsId}`}
+            valueLabelDisplay="auto"
+            step={0.005}
+            min={0.009}
+            max={0.999}
+          />
+        </TableCell>
+      </TableRow>
+      {setFeatureAggregationStrategy ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label
+              htmlFor={`feature-aggregation-strategy-${scatterplotOptionsId}`}
+            >
+              Feature Aggregation Strategy
+            </label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              value={featureAggregationStrategy ?? 'first'}
+              onChange={handleFeatureAggregationStrategyChange}
+              inputProps={{
+                id: `feature-aggregation-strategy-${scatterplotOptionsId}`,
+              }}
+            >
+              {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
+                <option key={opt} value={opt}>
+                  {capitalize(opt)}
+                </option>
+              ))}
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
     </OptionsContainer>
   );
 }

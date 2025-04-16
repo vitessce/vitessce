@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/dev",
-  "version": "3.4.6",
-  "author": "Gehlenborg Lab",
+  "version": "3.5.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -38,10 +38,10 @@
     "@vitessce/export-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "catalog:",
     "cross-env": "^7.0.0",
     "rimraf": "^3.0.2",
-    "vite": "^4.3.0"
+    "vite": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
