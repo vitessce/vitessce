@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -54,11 +54,13 @@ export function DotPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     sampleType,
     sampleSetSelection,
+    featureAggregationStrategy,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setFeatureValuePositivityThreshold: setPosThreshold,
     setFeatureValueColormap,
+    setFeatureAggregationStrategy,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
@@ -127,6 +129,14 @@ export function DotPlotSubscriber(props) {
     o => o.value === featureValueTransform,
   )?.name;
 
+  const onDotSelect = useCallback((featureName, isShiftDown = false) => {
+      // TODO: Implement different behavior when isShiftDown
+      const featureI = geneSelection.indexOf(featureName?.[0]);
+      if(featureI >= 0) {
+        setFeatureAggregationStrategy(featureI);
+      }
+    }, [setFeatureAggregationStrategy, geneSelection]);
+
   return (
     <TitleInfo
       title={title}
@@ -167,6 +177,7 @@ export function DotPlotSubscriber(props) {
             featureValueColormap={featureValueColormap}
             obsSetSelection={cellSetSelection}
             obsSetColor={cellSetColor}
+            onDotSelect={onDotSelect}
           />
         ) : (
           <span>Select at least one {featureType}.</span>
