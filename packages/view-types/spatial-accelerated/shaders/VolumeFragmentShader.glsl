@@ -3,16 +3,8 @@ precision highp float;
 precision highp int;
 precision highp sampler3D;
 precision highp usampler3D;
-// precision highp usampler3D;
 in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
-// soon to be deprecated
-// uniform sampler3D volumeTex;
-// uniform sampler3D volumeTex2;
-// uniform sampler3D volumeTex3;
-// uniform sampler3D volumeTex4;
-// uniform sampler3D volumeTex5;
-// uniform sampler3D volumeTex6;
 // NEW SAMPLERS
 uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
@@ -37,18 +29,10 @@ uniform vec3 u_color3;
 uniform vec3 u_color4;
 uniform vec3 u_color5;
 uniform vec3 u_color6;
-uniform float alphaScale; // UNUSED
 uniform float dtScale;
-uniform float finalGamma; // UNUSED
 uniform float volumeCount; // -> should be channel count
 uniform highp vec3 boxSize;
-uniform vec3 u_size; // UNUSED
-uniform int u_renderstyle; // UNUSED
-uniform float u_opacity; // UNUSED
-uniform vec3 u_vol_scale; // UNUSED
 uniform float near;
-uniform float u_physical_Pixel; // only used for depth computation -> redundant
-varying vec2 vUv; // UNUSED
 varying vec4 glPosition;
 uniform float far;
 varying vec3 worldSpaceCoords; // also not really used?
@@ -208,25 +192,86 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
 void main(void) {
 
-    //STEP 1: Normalize the view Ray',
+    //STEP 1: Normalize the view Ray
     vec3 rayDir = normalize(rayDirUnnorm);
-    //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume',
+
+    //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
     vec2 t_hit = intersect_hit(cameraCorrected, rayDir);
     if (t_hit.x >= t_hit.y) {
       discard;
     }
-    //No sample behind the eye',
     t_hit.x = max(t_hit.x, 0.0);
 
-    // float pt = texture(pageTableTex, vec3(0,0,0)).r;
+    // how to query 
     uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
     float pt = float(ptint) / 4294967295.0;
-    float bc = texture(brickCacheTex, vec3(16.0/1024.0,16.0/1024.0,16.0/128.0)).r;
+    float bc = texture(brickCacheTex, vec3(16.0/2048.0,16.0/2048.0,16.0/128.0)).r;
 
-    gl_FragColor = vec4(pt, 0.1, bc, 1.0);
-    return;
+    gl_FragColor = vec4(0.1*pt, 0 , 0.1*bc, 1.0);
+    // gl_FragColor = vec4(u_color, 1.0);
+    // gl_FragColor = vec4(u_clim[0], u_clim[1], 0.0, 1.0);
+    // return;
+
+    //STEP 3: Compute the step size to march through the volume grid',
+    ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
+    volumeTexSize = ivec3(2048,2048,128);
+    vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
+    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+    dt = max(0.5, dt);
+    vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
+    // Most browsers do not need this initialization, but add it to be safe.',
+    gl_FragColor = vec4(0.01);
+    p = p / boxSize + vec3(0.5);
+    vec3 step = (rayDir * dt) / boxSize;
+
+    // Initialization of some variables.',
+    float max_val = 0.0;
+    vec3 rgbCombo = vec3(0.0);
+    float total = 0.0;
+    float x = gl_FragCoord.x/u_window_size.x;
+    float y = gl_FragCoord.y/u_window_size.y;
+
+    float alphaMultiplicator = 1.0;
+    for (float t = t_hit.x; t < t_hit.y; t += dt) {
+        vec3 rgbCombo = vec3(0.0);
+        float total   = 0.0;
+
+        vec3 brickCacheCoord = vec3(
+            p.x * 32.0 / 2048.0,
+            p.y * 32.0 / 2048.0,
+            p.z * 32.0 / 128.0
+        );
+
+        float val = texture(brickCacheTex, brickCacheCoord).r;
+        val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
+        rgbCombo += max(0.0, min(1.0, val)) * u_color;
+        total    += val;
+
+
+        total = clamp(total, 0.0, 1.0);
+        float sliceAlpha = total * dtScale * dt;
+        vec3 sliceColor  = rgbCombo;
+
+        // DEBUG -- right now if we have 1 channel we add the color multiplied with the alpha.
+        // however we should add the full color and then just add the alpha. also we would have
+        // to weigh the colors by the alpha if adding multiple.
+
+        gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+        gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
+
+        alphaMultiplicator *= (1.0 - sliceAlpha);
+
+        if (gl_FragColor.a > 0.99) {
+            break;
+        }
+        p += step;
+    }
+
+    // gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
+    gl_FragColor.r = linear_to_srgb(gl_FragColor.r);
+    gl_FragColor.g = linear_to_srgb(gl_FragColor.g);
+    gl_FragColor.b = linear_to_srgb(gl_FragColor.b);
 }
-
 
 
 /*

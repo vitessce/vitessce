@@ -264,13 +264,14 @@ export class VolumeRenderManager {
     const colorsSave = [];
     const contrastLimitsList = [];
 
-    /*
+    // important for the values to get into the shader, remove the textures tho
+
     this.channelTargetC.forEach((channel, id) => {
       if (this.channelsVisible[id]) {
-        const texture = volumeDataManager.getTexture(channel);
+        // const texture = volumeDataManager.getTexture(channel);
         const minMax = volumeDataManager.getMinMax(channel);
 
-        texturesList.push(texture);
+        // texturesList.push(texture);
         colorsSave.push([
           this.colors[id][0] / 255,
           this.colors[id][1] / 255,
@@ -290,7 +291,6 @@ export class VolumeRenderManager {
         }
       }
     });
-    */
 
     if (!this.zarrInit) {
       // Get physical scale
