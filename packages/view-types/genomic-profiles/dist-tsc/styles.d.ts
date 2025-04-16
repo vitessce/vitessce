@@ -1,2 +1,0 @@
-export const useStyles: (props?: any) => import("@material-ui/core/styles/withStyles").ClassNameMap<"higlassTitleWrapper" | "higlassLazyWrapper" | "higlassWrapperParent" | "higlassWrapper">;
-//# sourceMappingURL=styles.d.ts.map

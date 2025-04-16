@@ -130,6 +130,7 @@ export default class SelectionLayer extends CompositeLayer {
             current = current.next;
           }
         }
+
         // Return false because we are not done.
         // We want to visit the children of this node.
         return false;

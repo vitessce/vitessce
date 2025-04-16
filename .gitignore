@@ -1,6 +1,8 @@
 node_modules/
+dist/
 dist-root/
 dist-versioned/
+dist-tsc/
 .pnpm-debug.log
 .DS_Store
 package-lock.json

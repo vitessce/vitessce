@@ -1,3 +1,0 @@
-export const useStyles: (props?: any) => import("@material-ui/core/styles/withStyles").ClassNameMap<"setsManager" | "setOperationButtons" | "setsManagerTree" | "plusButton" | "nodeMenuIcon" | "nodeSizeLabel" | "levelButtonsContainer" | "levelRadioButton" | "levelRadioButtonChecked" | "titleButton" | "titleButtonWithInput" | "titleInput" | "titleSaveButton" | "@global .vitessce-tooltip .ant-tooltip-content .ant-tooltip-inner">;
-export const useHelpTooltipStyles: (props?: any) => import("@material-ui/core/styles/withStyles").ClassNameMap<never>;
-//# sourceMappingURL=styles.d.ts.map
