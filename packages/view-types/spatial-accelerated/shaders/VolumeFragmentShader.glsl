@@ -222,6 +222,7 @@ void main(void) {
     // Most browsers do not need this initialization, but add it to be safe.',
     gl_FragColor = vec4(0.01);
     p = p / boxSize + vec3(0.5);
+
     vec3 step = (rayDir * dt) / boxSize;
 
     // Initialization of some variables.',
@@ -235,6 +236,8 @@ void main(void) {
     for (float t = t_hit.x; t < t_hit.y; t += dt) {
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
+
+        p = min(p, vec3(1.0 - 0.00000003));
 
         vec3 brickCacheCoord = vec3(
             p.x * 32.0 / 2048.0,

@@ -430,8 +430,8 @@ export class VolumeDataManager {
     this.bcTHREE.format = RedFormat;
     this.bcTHREE.type = UnsignedByteType;
     this.bcTHREE.internalFormat = 'R8';
-    this.bcTHREE.minFilter = LinearFilter;
-    this.bcTHREE.magFilter = LinearFilter;
+    this.bcTHREE.minFilter = NearestFilter;
+    this.bcTHREE.magFilter = NearestFilter;
     this.bcTHREE.generateMipmaps = false;
     this.bcTHREE.needsUpdate = true;
 
