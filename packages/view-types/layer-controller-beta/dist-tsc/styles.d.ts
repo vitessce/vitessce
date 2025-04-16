@@ -1,0 +1,3 @@
+export const useEllipsisMenuStyles: (props?: any) => import("@material-ui/core/styles/withStyles").ClassNameMap<"imageLayerMenuLabel" | "imageLayerMenuButton" | "imageLayerPopperContainer" | "imageLayerVisibleButton" | "imageLayerName" | "imageLayerOpacitySlider" | "menuItemSlider">;
+export { useSpanStyles, useSelectStyles, useControllerSectionStyles, useAccordionStyles, useInputLabelStyles, useOverflowEllipsisGridStyles, useSelectionSliderStyles } from "@vitessce/layer-controller";
+//# sourceMappingURL=styles.d.ts.map

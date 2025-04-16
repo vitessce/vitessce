@@ -1,0 +1,48 @@
+import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
+import React from 'react';
+import { makeStyles } from '@material-ui/core';
+import Tooltip from './Tooltip.js';
+const useStyles = makeStyles(theme => ({
+    cellEmphasisCrosshair: {
+        zIndex: 50,
+        position: 'absolute',
+        pointerEvents: 'none',
+        boxSizing: 'border-box',
+        backgroundColor: theme.palette.secondaryForeground,
+    },
+}));
+/**
+ * A tooltip component that also incorporates a crosshair element.
+ * @param {object} props
+ * @param {string} props.parentUuid A unique identifier corresponding to the plot
+ * with which this scatterplot is associated.
+ * @param {string} props.sourceUuid A unique identifier corresponding to the plot
+ * from which this tooltip originated.
+ * @param {number} props.x The x coordinate for the tooltip.
+ * @param {number} props.y The y coordinate for the tooltip.
+ * @param {number} props.parentWidth The width of the parent plot container element.
+ * @param {number} props.parentHeight The height of the parent plot container element.
+ * @param {React.Component} props.children The tooltip contents as a react component.
+ */
+export default function Tooltip2D(props) {
+    const { parentUuid, sourceUuid, x, y, parentWidth, parentHeight, children, } = props;
+    const classes = useStyles();
+    // Check if out of bounds.
+    if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {
+        return null;
+    }
+    // Show tooltip or crosshair?
+    const isTooltipVisible = (parentUuid === sourceUuid);
+    const crosshairWidth = 1;
+    return (_jsx(_Fragment, { children: isTooltipVisible ? (_jsx(Tooltip, { x: x, y: y, parentWidth: parentWidth, parentHeight: parentHeight, children: children })) : (_jsxs(_Fragment, { children: [x !== null ? (_jsx("div", { className: classes.cellEmphasisCrosshair, style: {
+                        left: `${x - crosshairWidth / 2}px`,
+                        top: 0,
+                        width: `${crosshairWidth}px`,
+                        height: `${parentHeight}px`,
+                    } })) : null, y !== null ? (_jsx("div", { className: classes.cellEmphasisCrosshair, style: {
+                        left: 0,
+                        top: `${y - crosshairWidth / 2}px`,
+                        width: `${parentWidth}px`,
+                        height: `${crosshairWidth}px`,
+                    } })) : null] })) }));
+}

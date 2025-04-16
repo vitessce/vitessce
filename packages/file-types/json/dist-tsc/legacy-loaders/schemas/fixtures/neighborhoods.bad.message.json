@@ -1,0 +1,11 @@
+[
+    {
+        "dataPath": "['4031::4028::4008'].poly",
+        "keyword": "minItems",
+        "message": "should NOT have fewer than 3 items",
+        "params": {
+            "limit": 3
+        },
+        "schemaPath": "#/patternProperties/./properties/poly/minItems"
+    }
+]

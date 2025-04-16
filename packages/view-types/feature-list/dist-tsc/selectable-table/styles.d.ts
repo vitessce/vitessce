@@ -1,0 +1,2 @@
+export const useStyles: (props?: any) => import("@material-ui/core/styles/withStyles").ClassNameMap<"selectableTable" | "tableRow" | "tableItem" | "tableCell" | "inputContainer" | "hiddenInputColumn" | "radioOrCheckbox" | "tableRadio" | "tableCheckbox">;
+//# sourceMappingURL=styles.d.ts.map
