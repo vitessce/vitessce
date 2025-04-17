@@ -413,7 +413,7 @@ export class VolumeDataManager {
         * BRICK_CACHE_SIZE_VOXELS_Y
         * BRICK_CACHE_SIZE_VOXELS_Z,
     );
-    brickCacheData.fill(255);
+    brickCacheData.fill(0);
 
     // Initialize the PageTable data using calculated extents
     const pageTableData = new Uint32Array(
@@ -624,6 +624,7 @@ export class VolumeDataManager {
     const offset3 = new Vector3(2, 2, 6); // 0 0 4 + 2 2 2
     const offset4 = new Vector3(0, 0, 2); // + 0
     const offset5 = new Vector3(0, 0, 1); // + 0
+    const offsets = [offset0, offset1, offset2, offset3, offset4, offset5];
 
     /*
       [1] 0 — flag resident
@@ -654,7 +655,7 @@ export class VolumeDataManager {
       this.gl.texSubImage3D(
         this.gl.TEXTURE_3D,
         0,
-        offset0.x, offset0.y, offset0.z,
+        offsets[i].x, offsets[i].y, offsets[i].z,
         1, 1, 1,
         this.gl.RED_INTEGER,
         this.gl.UNSIGNED_INT,

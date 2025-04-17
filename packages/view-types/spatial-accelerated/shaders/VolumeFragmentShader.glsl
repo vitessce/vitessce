@@ -130,9 +130,10 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uvec3 anchorPoint = getAnchorPoint(currentRes);
         // multiplier to scale the [0,1] to the extents in the PT in that res
         float scale = pow(2.0, float(lowestRes) - float(currentRes)); // lowestRes should be 1 
-        vec3 channelOffset = vec3(0,0,1); // this is for the 0th channel now
-        uvec3 coordinate = uvec3(anchorPoint) + uvec3(location * scale);
-        uint ptEntry = texture(pageTableTex, vec3(coordinate)).r;
+        uvec3 channelOffset = uvec3(0,0,1); // this is for the 0th channel now
+        uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
+        uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
+
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
@@ -173,7 +174,8 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     // if resident, return x,y,z,resolution AND ADD TO LRU
 
     // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
-    return ivec4(0,0,0,currentRes);
+    // gl_FragColor = vec4(float(currentRes),0,0,1);
+    return ivec4(6.0,0.0,0.0,currentRes);
 }
 
 // calculations at beginning: dt per res?
@@ -203,16 +205,16 @@ void main(void) {
     t_hit.x = max(t_hit.x, 0.0);
 
     // how to query 
-    uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
-    float pt = float(ptint) / 4294967295.0;
-    float bc = texture(brickCacheTex, vec3(16.0/2048.0,16.0/2048.0,16.0/128.0)).r;
+    // uint ptint = texture(pageTableTex, vec3(0,0,0)).r;
+    // float pt = float(ptint) / 4294967295.0;
+    // float bc = texture(brickCacheTex, vec3(16.0/2048.0,16.0/2048.0,16.0/128.0)).r;
 
-    gl_FragColor = vec4(0.1*pt, 0 , 0.1*bc, 1.0);
+    // gl_FragColor = vec4(0.1*pt, 0 , 0.1*bc, 1.0);
     // gl_FragColor = vec4(u_color, 1.0);
     // gl_FragColor = vec4(u_clim[0], u_clim[1], 0.0, 1.0);
     // return;
 
-    //STEP 3: Compute the step size to march through the volume grid',
+    //STEP 3: Compute the step size to march through the volume grid
     ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     volumeTexSize = ivec3(2048,2048,128);
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
@@ -220,7 +222,7 @@ void main(void) {
     dt = max(0.5, dt);
     vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
     // Most browsers do not need this initialization, but add it to be safe.',
-    gl_FragColor = vec4(0.01);
+    gl_FragColor = vec4(0);
     p = p / boxSize + vec3(0.5);
 
     vec3 step = (rayDir * dt) / boxSize;
@@ -237,15 +239,31 @@ void main(void) {
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
-        p = min(p, vec3(1.0 - 0.00000003));
+        p = min(p, vec3(1.0 - 0.00000028));
+        p = max(p, vec3(0.00000028));
+
+        ivec4 brickCacheOffset = getBrickLocation(p, 0, 0);
+        
+        // return;
+
+        if (brickCacheOffset.w > lowestRes) {
+            gl_FragColor = vec4(0, 0, 1, 1);
+            return;
+        }
+
+        float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
+        vec3 localPos = fract(p * scale);
 
         vec3 brickCacheCoord = vec3(
-            p.x * 32.0 / 2048.0,
-            p.y * 32.0 / 2048.0,
-            p.z * 32.0 / 128.0
+            (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
+            (float(brickCacheOffset.y) * 32.0 + localPos.y * 32.0) / 2048.0,
+            (float(brickCacheOffset.z) * 32.0 + localPos.z * 32.0) / 128.0
         );
 
         float val = texture(brickCacheTex, brickCacheCoord).r;
+
+        // for debugging to visualize the page table
+        // float val = float(texture(pageTableTex, p).r);
         val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
         rgbCombo += max(0.0, min(1.0, val)) * u_color;
         total    += val;
