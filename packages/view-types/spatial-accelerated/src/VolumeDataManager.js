@@ -171,6 +171,10 @@ export class VolumeDataManager {
     this.originalScale = [1, 1, 1]; // Original dimensions
     this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
 
+    this.testArray = [];
+    this.ptArray = [];
+    this.ptManOffsets = [];
+
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
@@ -460,95 +464,54 @@ export class VolumeDataManager {
     console.warn('testTexture bc', this.bcTHREE);
   }
 
-  /**
-   * Populate the PageTable and BrickCache with initial values for TESTING
-   */
-  async populateMRMCPT() {
-    log('populateMRMCPT');
-    if (!this.gl || !this.pageTableGLTexture) return;
-    const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
+  async initTestData() {
+    log('initTestData');
+
+    // const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
     const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
-    const test3 = await this.loadZarrChunk(0, 0, 2, 2, 2, 3);
+    const test3 = await this.loadZarrChunk(0, 0, 1, 1, 1, 3);
     const test2 = await this.loadZarrChunk(0, 0, 3, 3, 3, 2);
-    const test1 = await this.loadZarrChunk(0, 0, 6, 9, 9, 1);
-    const test0 = await this.loadZarrChunk(0, 0, 12, 20, 20, 0);
+    const test1 = await this.loadZarrChunk(0, 0, 7, 7, 7, 1);
+    const test0 = await this.loadZarrChunk(0, 0, 15, 15, 15, 0);
+    this.testArray = [test4, test3, test2, test1, test0];
 
-    console.warn('chunkLoaded', test5);
-    console.warn('chunkLoaded', test4);
-    console.warn('chunkLoaded', test3);
-    console.warn('chunkLoaded', test2);
-    console.warn('chunkLoaded', test1);
-    console.warn('chunkLoaded', test0);
-
-    // await this.pushBrickToCache(test5, { bx: 0, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-    // await this.pushBrickToCache(test4, { bx: 1, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-    // await this.pushBrickToCache(test3, { bx: 2, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-    // await this.pushBrickToCache(test2, { bx: 3, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-    // await this.pushBrickToCache(test1, { bx: 4, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-    // await this.pushBrickToCache(test0, { bx: 5, by: 0, bz: 0 }, { cc: 0, cr: 0, cx: 0, cy: 0, cz: 0 });
-
-    // channel 0 offset multiplier
-    // const c0 = Vector3(0, 0, 1);
-
-    // console.warn('populateMRMCPT', this.PT.zExtent);
+    console.log('testArray', this.testArray);
 
     // update page table manually
-    const offset0 = new Vector3(12, 20, 48); // 0 0 28 + 12 20 20
-    const offset1 = new Vector3(6, 9, 24); // 0 0 15 + 6 9 9
+    const offset0 = new Vector3(15, 15, 43); // 0 0 28 + 15 15 15
+    const offset1 = new Vector3(7, 7, 22); // 0 0 15 + 7 7 7
     const offset2 = new Vector3(3, 3, 11); // 0 0 8 + 3 3 3
-    const offset3 = new Vector3(2, 2, 6); // 0 0 4 + 2 2 2
-    const offset4 = new Vector3(0, 0, 2); // + 0
-    const offset5 = new Vector3(0, 0, 1); // + 0
+    const offset3 = new Vector3(1, 1, 5); // 0 0 4 + 1 1 1
+    const offset4 = new Vector3(0, 0, 2); // 0 0 2 + 0 0 0
+    this.ptManOffsets = [offset0, offset1, offset2, offset3, offset4];
 
     /*
-    [1] 0 — flag resident
-    [1] 1 — flag init
-    [7] 2…8 — min → 128
-    [7] 9…15 — max → 128
-    [6] 16…21 — x offset in brick cache → 64
-    [6] 22…27 — y offset in brick cache → 64
-    [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
-    */
+          [1] 0 — flag resident
+          [1] 1 — flag init
+          [7] 2…8 — min → 128
+          [7] 9…15 — max → 128
+          [6] 16…21 — x offset in brick cache → 64
+          [6] 22…27 — y offset in brick cache → 64
+          [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
+        */
 
     const pt0binary = '11000000011111110001010000000000';
     const pt1binary = '11000000011111110001000000000000';
     const pt2binary = '11000000011111110000110000000000';
     const pt3binary = '11000000011111110000100000000000';
     const pt4binary = '11000000011111110000010000000000';
-    const pt5binary = '11000000011111110000000000000000';
 
-    // eslint-disable-next-line no-bitwise
     const pt0 = parseInt(pt0binary, 2) >>> 0;
-    // eslint-disable-next-line no-bitwise
     const pt1 = parseInt(pt1binary, 2) >>> 0;
-    // eslint-disable-next-line no-bitwise
     const pt2 = parseInt(pt2binary, 2) >>> 0;
-    // eslint-disable-next-line no-bitwise
     const pt3 = parseInt(pt3binary, 2) >>> 0;
-    // eslint-disable-next-line no-bitwise
     const pt4 = parseInt(pt4binary, 2) >>> 0;
-    // eslint-disable-next-line no-bitwise
-    const pt5 = parseInt(pt5binary, 2) >>> 0;
+    this.ptArray = [pt0, pt1, pt2, pt3, pt4];
 
-    // Update page table texture with pt0 at offset0
-    this.gl.bindTexture(this.gl.TEXTURE_3D, this.pageTableGLTexture.texture);
-
-    // Ensure no buffer is bound for pixel transfer
-    this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
-
-    /*
-    this.gl.texSubImage3D(
-      this.gl.TEXTURE_3D,
-      0,
-      0, 0, 0, // position at origin
-      1, 1, 1, // single texel
-      this.gl.RED_INTEGER,
-      this.gl.UNSIGNED_INT,
-      new Uint32Array([0xFFFFFFFF]), // max value
-    );
-    */
-
-    console.warn('populateMRMCPT complete');
+    log('initTestData() COMPLETE');
+    console.log('ptArray', this.ptArray);
+    console.log('ptManOffsets', this.ptManOffsets);
+    console.log('testArray', this.testArray);
   }
 
   async populateBC() {
@@ -557,15 +520,23 @@ export class VolumeDataManager {
 
     const texPropsBC = this.renderer.properties.get(this.bcTHREE);
 
-    const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
+    // const test5 = await this.loadZarrChunk(0, 0, 0, 0, 0, 5);
     const test4 = await this.loadZarrChunk(0, 0, 0, 0, 0, 4);
-    const test3 = await this.loadZarrChunk(0, 0, 2, 2, 2, 3);
-    const test2 = await this.loadZarrChunk(0, 0, 3, 3, 3, 2);
-    const test1 = await this.loadZarrChunk(0, 0, 6, 9, 9, 1);
-    const test0 = await this.loadZarrChunk(0, 0, 12, 20, 20, 0);
-    const testArray = [test5, test4, test3, test2, test1, test0];
+    const test3 = await this.loadZarrChunk(0, 0, 1, 1, 2, 3);
+    const test2 = await this.loadZarrChunk(0, 0, 4, 3, 4, 2);
+    const test1 = await this.loadZarrChunk(0, 0, 8, 7, 7, 1);
+    const test0 = await this.loadZarrChunk(0, 0, 15, 15, 15, 0);
+    const testArray = [test4, test3, test2, test1, test0];
 
-    console.warn('testArray', testArray);
+    const offset0 = new Vector3(15, 15, 43); // 0 0 28 + 15 15 15
+    const offset1 = new Vector3(7, 7, 23); // 0 0 15 + 7 7 8
+    const offset2 = new Vector3(4, 3, 12); // 0 0 8 + 4 3 4
+    const offset3 = new Vector3(2, 1, 5); // 0 0 4 + 2 1 1
+    const offset4 = new Vector3(0, 0, 2); // 0 0 2 + 0 0 0
+    // const offsets = [offset0, offset1, offset2, offset3, offset4];
+
+
+    // console.warn('testArray', testArray);
 
     this.gl.activeTexture(this.gl.TEXTURE2);
     this.gl.bindTexture(this.gl.TEXTURE_3D, texPropsBC.__webglTexture);
@@ -577,7 +548,7 @@ export class VolumeDataManager {
     // Check for WebGL errors after binding
     let error = this.gl.getError();
     console.warn('After bind error:', error);
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < testArray.length; i++) {
       this.gl.texSubImage3D(
         this.gl.TEXTURE_3D,
         0,
@@ -618,40 +589,38 @@ export class VolumeDataManager {
     );
 
     // update page table manually
-    const offset0 = new Vector3(12, 20, 48); // 0 0 28 + 12 20 20
-    const offset1 = new Vector3(6, 9, 24); // 0 0 15 + 6 9 9
-    const offset2 = new Vector3(3, 3, 11); // 0 0 8 + 3 3 3
-    const offset3 = new Vector3(2, 2, 6); // 0 0 4 + 2 2 2
-    const offset4 = new Vector3(0, 0, 2); // + 0
-    const offset5 = new Vector3(0, 0, 1); // + 0
-    const offsets = [offset0, offset1, offset2, offset3, offset4, offset5];
+    const offset0 = new Vector3(15, 15, 43); // 0 0 28 + 28 28 28
+    const offset1 = new Vector3(7, 7, 23); // 0 0 15 + 14 14 14
+    const offset2 = new Vector3(4, 3, 12); // 0 0 8 + 6 6 6
+    const offset3 = new Vector3(2, 1, 5); // 0 0 4 + 2 2 2
+    const offset4 = new Vector3(0, 0, 2); // 0 0 2 + 0 0 0
+    const offsets = [offset0, offset1, offset2, offset3, offset4];
 
     /*
-      [1] 0 — flag resident
-      [1] 1 — flag init
-      [7] 2…8 — min → 128
-      [7] 9…15 — max → 128
-      [6] 16…21 — x offset in brick cache → 64
-      [6] 22…27 — y offset in brick cache → 64
-      [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
-    */
+          [1] 0 — flag resident
+          [1] 1 — flag init
+          [7] 2…8 — min → 128
+          [7] 9…15 — max → 128
+          [6] 16…21 — x offset in brick cache → 64
+          [6] 22…27 — y offset in brick cache → 64
+          [4] 28…31 — z offset in brick cache → 16 (only needs 4 no?)
+        */
 
-    const pt0binary = '11000000011111110001010000000000';
-    const pt1binary = '11000000011111110001000000000000';
-    const pt2binary = '11000000011111110000110000000000';
-    const pt3binary = '11000000011111110000100000000000';
-    const pt4binary = '11000000011111110000010000000000';
-    const pt5binary = '11000000011111110000000000000000';
+    const pt0binary = '11000000011111110001000000000000';
+    const pt1binary = '11000000011111110000110000000000';
+    const pt2binary = '11000000011111110000100000000000';
+    const pt3binary = '11000000011111110000010000000000';
+    const pt4binary = '11000000011111110000000000000000';
+
 
     const pt0 = parseInt(pt0binary, 2) >>> 0;
     const pt1 = parseInt(pt1binary, 2) >>> 0;
     const pt2 = parseInt(pt2binary, 2) >>> 0;
     const pt3 = parseInt(pt3binary, 2) >>> 0;
     const pt4 = parseInt(pt4binary, 2) >>> 0;
-    const pt5 = parseInt(pt5binary, 2) >>> 0;
-    const ptArray = [pt0, pt1, pt2, pt3, pt4, pt5];
+    const ptArray = [pt0, pt1, pt2, pt3, pt4];
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
       this.gl.texSubImage3D(
         this.gl.TEXTURE_3D,
         0,
@@ -666,41 +635,6 @@ export class VolumeDataManager {
     this.gl.bindTexture(this.gl.TEXTURE_3D, null);
     error = this.gl.getError();
     console.warn('After texSubImage3D for PT error:', error);
-  }
-
-  /**
-   * Push a loaded brick into the brick cache and update the page table
-   * @param {Uint8Array} brick - The brick to push
-   * @param {{bx: number, by: number, bz: number}} brick target position coordinates
-   * @param {{cc: number, cr: number, cx: number, cy: number, cz: number}} brick source position coordinates
-   */
-  async pushBrickToCache(brick, brickTarget, brickSource) {
-    log('pushBrickToCache');
-    console.warn('pushBrickToCache', brick, brickTarget, brickSource);
-
-    this.gl.bindTexture(this.gl.TEXTURE_3D, this.brickCacheGLTexture.texture);
-
-    // Ensure no buffer is bound for pixel transfer
-    this.gl.bindBuffer(this.gl.PIXEL_UNPACK_BUFFER, null);
-
-    this.gl.texSubImage3D(
-      this.gl.TEXTURE_3D,
-      0,
-      brickTarget.bx * BRICK_SIZE,
-      brickTarget.by * BRICK_SIZE,
-      brickTarget.bz * BRICK_SIZE,
-      BRICK_SIZE,
-      BRICK_SIZE,
-      BRICK_SIZE,
-      this.gl.RED,
-      this.gl.UNSIGNED_BYTE,
-      brick,
-    );
-
-    log('pushBrickToCache() COMPLETE');
-
-    // TODO: Implement page table update HERE
-    return 'success but TODO: Implement page table update HERE';
   }
 
   /**

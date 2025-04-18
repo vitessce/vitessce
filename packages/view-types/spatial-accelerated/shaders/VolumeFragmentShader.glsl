@@ -221,18 +221,27 @@ void main(void) {
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
     dt = max(0.5, dt);
     vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
-    // Most browsers do not need this initialization, but add it to be safe.',
+    // Most browsers do not need this initialization, but add it to be safe
     gl_FragColor = vec4(0);
     p = p / boxSize + vec3(0.5);
 
     vec3 step = (rayDir * dt) / boxSize;
 
-    // Initialization of some variables.',
+    // Initialization of some variables
     float max_val = 0.0;
     vec3 rgbCombo = vec3(0.0);
     float total = 0.0;
     float x = gl_FragCoord.x/u_window_size.x;
     float y = gl_FragCoord.y/u_window_size.y;
+
+    ivec4 currentBrickLocation = ivec4(0,0,0,0);
+    float currentDt = dt;
+    int currentRes = 0;
+    float currentScale = 1.0;
+    int currentPositionIndex = 0;
+    float distanceToNextBrick = 0.0;
+    ivec3 currentTargetResPTCoord = ivec3(0,0,0);
+    bool queryNewBrick = false;
 
     float alphaMultiplicator = 1.0;
     for (float t = t_hit.x; t < t_hit.y; t += dt) {
@@ -242,15 +251,23 @@ void main(void) {
         p = min(p, vec3(1.0 - 0.00000028));
         p = max(p, vec3(0.00000028));
 
-        ivec4 brickCacheOffset = getBrickLocation(p, 0, 0);
-        
-        // return;
-
-        if (brickCacheOffset.w > lowestRes) {
-            gl_FragColor = vec4(0, 0, 1, 1);
-            return;
+        // add an if clause to adapt step sizes
+        // calculate p in target res pt coord
+        if (false) {
+            // query new getBrickLocation
+            // if brick location is the same, continue
+            // if different
+            // update currentBrickLocation
+            // update currentDt
         }
 
+        ivec4 brickCacheOffset = getBrickLocation(p, 0, 0);
+        
+        currentBrickLocation = brickCacheOffset;
+        currentDt = dt;
+        currentRes = brickCacheOffset.w;
+        currentScale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
+        
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
         vec3 localPos = fract(p * scale);
 
@@ -285,6 +302,10 @@ void main(void) {
         if (gl_FragColor.a > 0.99) {
             break;
         }
+
+        // check if a new p would exceed the distance to the next brick in target res
+        // if so -- set flag to true and dont increment p
+
         p += step;
     }
 
