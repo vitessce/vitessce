@@ -87,7 +87,7 @@ float linear_to_srgb(float x) {
     return 1.055f * pow(x, 1.f / 2.4f) - 0.055f;
 }
 
-const int targetRes0 = 0; // highest
+const int targetResC0 = 0; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -98,6 +98,8 @@ const uvec3 anchorPoint2 = uvec3(8,8,8);
 const uvec3 anchorPoint3 = uvec3(4,4,4);
 const uvec3 anchorPoint4 = uvec3(2,2,2);
 const uvec3 anchorPoint5 = uvec3(1,1,1);
+
+const uvec3 voxelExtents = uvec3(1024, 1024, 795);
 
 uvec3 getAnchorPoint(int index) {
     if (index == 0) return anchorPoint0;
@@ -175,7 +177,12 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
     // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
     // gl_FragColor = vec4(float(currentRes),0,0,1);
-    return ivec4(6.0,0.0,0.0,currentRes);
+    return ivec4(0,0,0,-1);
+}
+
+ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
+    float scale = pow(2.0, float(lowestRes) - float(targetRes));
+    return ivec3(normalized * scale);
 }
 
 // calculations at beginning: dt per res?
@@ -216,16 +223,35 @@ void main(void) {
 
     //STEP 3: Compute the step size to march through the volume grid
     ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
-    volumeTexSize = ivec3(2048,2048,128);
+    volumeTexSize = ivec3(voxelExtents);
+
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    dt = max(0.5, dt);
+    dt *= 200.0;
+    // dt = max(0.5, dt);
     vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
     // Most browsers do not need this initialization, but add it to be safe
-    gl_FragColor = vec4(0);
+
+    // t_hit is between 0 and 3000
+    // dt is around 0.0015
+    // boxSize is 200 x 200 x around 155
+ 
     p = p / boxSize + vec3(0.5);
 
     vec3 step = (rayDir * dt) / boxSize;
+    // step = rayDir * dt;
+
+    bool debug = false;
+
+    if (!debug) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    } else if (dt >= 0.1) {
+        gl_FragColor = vec4(worldSpaceCoords, 1.0);
+        return;
+    } else {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }
 
     // Initialization of some variables
     float max_val = 0.0;
@@ -244,10 +270,18 @@ void main(void) {
     bool queryNewBrick = false;
 
     float alphaMultiplicator = 1.0;
+    vec3 localPos = vec3(0.0);
+
+    vec3 brickStep = step * pow(2.0, float(lowestRes + targetResC0));
+
+    ivec3 currentBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+
     for (float t = t_hit.x; t < t_hit.y; t += dt) {
+
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
+        // p goes from 0 to 1
         p = min(p, vec3(1.0 - 0.00000028));
         p = max(p, vec3(0.00000028));
 
@@ -261,15 +295,33 @@ void main(void) {
             // update currentDt
         }
 
-        ivec4 brickCacheOffset = getBrickLocation(p, 0, 0);
+        ivec4 brickCacheOffset = getBrickLocation(p, targetResC0, 0);
         
         currentBrickLocation = brickCacheOffset;
-        currentDt = dt;
-        currentRes = brickCacheOffset.w;
-        currentScale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
+        currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
+        ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
+
+        if (brickCacheOffset.w == -1) {
+            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
+                p += step;
+                t += dt;
+                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+            }
+            // request brick?
+            continue;
+        } else if (brickCacheOffset.w == -2) {
+            // render minimum maximum
+        }
+
+        // currentDt = dt;
+        // currentRes = brickCacheOffset.w;
+        // currentScale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
         
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
-        vec3 localPos = fract(p * scale);
+        localPos = fract(p * scale);
+
+        // gl_FragColor = vec4(localPos, 1.0);
+        // return;
 
         vec3 brickCacheCoord = vec3(
             (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
@@ -278,21 +330,24 @@ void main(void) {
         );
 
         float val = texture(brickCacheTex, brickCacheCoord).r;
+        ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
+        ivec3 newVoxelInBrick = currentVoxelInBrick;
 
-        // for debugging to visualize the page table
-        // float val = float(texture(pageTableTex, p).r);
+        while (currentBrickLocationPTCoord == newBrickLocationPTCoord
+            && currentVoxelInBrick == newVoxelInBrick) {
+            break;
+            newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+            newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
+        }
+
+
         val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
         rgbCombo += max(0.0, min(1.0, val)) * u_color;
         total    += val;
 
-
         total = clamp(total, 0.0, 1.0);
         float sliceAlpha = total * dtScale * dt;
         vec3 sliceColor  = rgbCombo;
-
-        // DEBUG -- right now if we have 1 channel we add the color multiplied with the alpha.
-        // however we should add the full color and then just add the alpha. also we would have
-        // to weigh the colors by the alpha if adding multiple.
 
         gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
         gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
