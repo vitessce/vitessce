@@ -298,6 +298,7 @@ void main(void) {
         ivec4 brickCacheOffset = getBrickLocation(p, targetResC0, 0);
         
         currentBrickLocation = brickCacheOffset;
+
         currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
 
@@ -330,38 +331,59 @@ void main(void) {
         );
 
         float val = texture(brickCacheTex, brickCacheCoord).r;
+        val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
+        vec3 rgbComboAdd = max(0.0, min(1.0, val)) * u_color;
+
         ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
         ivec3 newVoxelInBrick = currentVoxelInBrick;
 
-        while (currentBrickLocationPTCoord == newBrickLocationPTCoord
-            && currentVoxelInBrick == newVoxelInBrick) {
-            break;
+        int reps = 0;
+        rgbCombo += rgbComboAdd;
+
+        while (currentTargetResPTCoord == newBrickLocationPTCoord
+            && currentVoxelInBrick == newVoxelInBrick
+            && reps >= 0) {
+        
+            //rgbCombo += rgbComboAdd;
+            total = val;
+
+            total = clamp(total, 0.0, 1.0);
+            float sliceAlpha = total * dtScale * dt;
+            vec3 sliceColor  = rgbCombo;
+
+            gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+            gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
+
+            if (gl_FragColor.a > 0.99) {
+                break;
+            }
+
+            alphaMultiplicator *= (1.0 - sliceAlpha);
+
+            if (reps > 0) {
+                t += dt;
+            }
+
+            p += step;
+            reps += 1;
+
             newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
             newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
         }
 
-
-        val = max(0.0, (val - u_clim[0]) / (u_clim[1] - u_clim[0]));
-        rgbCombo += max(0.0, min(1.0, val)) * u_color;
-        total    += val;
-
-        total = clamp(total, 0.0, 1.0);
-        float sliceAlpha = total * dtScale * dt;
-        vec3 sliceColor  = rgbCombo;
-
-        gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-        gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
-
-        alphaMultiplicator *= (1.0 - sliceAlpha);
-
+        vec3 brickSwitch = vec3(abs(newBrickLocationPTCoord - currentTargetResPTCoord));
+        vec3 voxelSwitch = vec3(abs(newVoxelInBrick - currentVoxelInBrick));
+        float bs = max(max(brickSwitch.x, brickSwitch.y), brickSwitch.z);
+        float vs = max(max(voxelSwitch.x, voxelSwitch.y), voxelSwitch.z);
+        // gl_FragColor = vec4(bs, vs, 0.0, 1.0);
+        // return;
+        
         if (gl_FragColor.a > 0.99) {
             break;
         }
 
         // check if a new p would exceed the distance to the next brick in target res
         // if so -- set flag to true and dont increment p
-
-        p += step;
     }
 
     // gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
