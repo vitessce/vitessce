@@ -24,6 +24,9 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   useExpandedFeatureLabelsMap,
+  useComplexCoordination,
+  useCoordinationScopes,
+  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
 import {
   setObsSelection,
@@ -34,7 +37,7 @@ import {
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping, CoordinationType } from '@vitessce/constants-internal';
 import { Typography } from '@material-ui/core';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -54,7 +57,8 @@ import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './uti
 export function SpatialSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -69,10 +73,30 @@ export function SpatialSubscriber(props) {
     helpText = ViewHelpMapping.SPATIAL,
   } = props;
 
+  // console.log("rend", coordinationScopesRaw)
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+
+  const imageLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+      CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.IMAGE_LAYER,
+  );
+// console.log("cooorrr", imageLayerCoordination[0]['A'][CoordinationType.PHOTOMETRIC_INTERPRETATION])
+
+  const isRgb = imageLayerCoordination[0]['A'][CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
+
+  // console.log("rgb", isRgb, imageLayerCoordination[0][coordinationScopesBy?.imageLayer[CoordinationType.PHOTOMETRIC_INTERPRETATION]])
+
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
-
+  console.log("loaders", loaders)
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -128,6 +152,8 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+
+  console.log("image", imageLayers)
 
   const {
     spatialZoom: initialZoom,
@@ -240,6 +266,8 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  // const test = spatialImageLayer?? imageLayers]=
+  console.log("after loading", imageLayers)
   const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
@@ -552,6 +580,7 @@ export function SpatialSubscriber(props) {
         && firstImageLayerLoader
       ) {
         const allChannels = firstImageLayerLoader.channels;
+        console.log("channels", allChannels, firstImageLayer)
         // Bioformats-Zarr uses selection.channel but OME-TIFF and OME-Zarr use selection.c
         names = firstImageLayer.channels
           .map(c => allChannels[

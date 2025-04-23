@@ -125,7 +125,8 @@ export function getScopesBy(coordinationScopes, coordinationScopesBy, metaSpaceB
  * @returns {string|undefined} The coordination scope that matches.
  */
 export function getParameterScope(parameter, coordinationScopes) {
-  return coordinationScopes[parameter];
+  if(coordinationScopes)
+    return coordinationScopes[parameter];
 }
 
 /**
@@ -768,18 +769,22 @@ export function useComplexCoordination(
 export function useCoordinationScopes(coordinationScopes) {
   const metaSpace = useViewConfigStore((state) => {
     const { coordinationSpace } = state.viewConfig;
-    return coordinationSpace?.[CoordinationType.META_COORDINATION_SCOPES];
+    return coordinationSpace?.[CoordinationType?.META_COORDINATION_SCOPES];
   }, shallow);
-  const vals = useMemo(() => {
-    const scopes = getScopes(
-      coordinationScopes,
-      metaSpace,
-    );
-    // Prevent infinite loop, delete metaCoordinationScopes now that they are computed.
-    delete scopes[CoordinationType.META_COORDINATION_SCOPES];
-    return scopes;
-  }, [coordinationScopes, metaSpace]);
-  return vals;
+  
+    const vals = useMemo(() => {
+      if (coordinationScopes) {
+      const scopes = getScopes(
+        coordinationScopes,
+        metaSpace,
+      );
+      // Prevent infinite loop, delete metaCoordinationScopes now that they are computed.
+      delete scopes[CoordinationType.META_COORDINATION_SCOPES];
+      return scopes;
+    }
+    }, [coordinationScopes, metaSpace]);
+    return vals;
+
 }
 
 /**
@@ -795,12 +800,14 @@ export function useCoordinationScopesBy(coordinationScopes, coordinationScopesBy
     return coordinationSpace?.[CoordinationType.META_COORDINATION_SCOPES_BY];
   }, shallow);
   const vals = useMemo(() => {
+    if(coordinationScopesBy) {
     const scopesBy = getScopesBy(
       coordinationScopes,
       coordinationScopesBy,
       metaSpaceBy,
     );
     return scopesBy;
+  }
   }, [coordinationScopes, coordinationScopesBy, metaSpaceBy]);
   return vals;
 }

@@ -10,7 +10,8 @@ export const rgbOmeTiff = {
       files: [
         {
           fileType: 'image.ome-tiff',
-          url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
+          // url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
+          url: 'https://assets.hubmapconsortium.org/98579094b2278af1ae06dfe29fe4190e/ometiff-pyramids/lab_processed/images/D239-RLL-15B3-117.ome.tif?token=AgrMGWXregW88PoOxpjkXz2j61XEBBX7gxvlV7m45DNmJJDWwmHXCYoGNmw11YyzJbw9ye7jBzOKbOf0ON38GsBpjjP',
         },
       ],
     },

@@ -89,6 +89,7 @@ export default function LayerController(props) {
     name,
     loader,
     theme,
+    // photometricInterpretation,
     handleLayerRemove,
     handleLayerChange,
     shouldShowTransparentColor,
@@ -128,6 +129,8 @@ export default function LayerController(props) {
     channelRef.current = channels;
     return undefined;
   }, [channels]);
+
+  console.log("layer", colormap, layer);
 
   const layerControlsId = useId();
   const firstSelection = channels[0]?.selection || {};

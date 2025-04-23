@@ -442,7 +442,7 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
-
+  console.log("imageData", imageData)
   /*
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,

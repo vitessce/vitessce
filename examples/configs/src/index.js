@@ -36,6 +36,7 @@ import { marshall2022iScience } from './view-configs/marshall_2022_iscience.js';
 import { meta2022azimuth } from './view-configs/meta_2022_azimuth.js';
 import { kpmpSpatialAtlasOct2024 } from './view-configs/kpmp_spatial_atlas_oct_2024.js';
 import { rgbOmeTiff } from './view-configs/rgb-ome-tiff.js';
+import { rgbOmeTiffPhotometric } from './view-configs/rgb-ome-tiff-photometric.js';
 import { segmentationsOmeTiff } from './view-configs/segmentations-ome-tiff.js';
 import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinOop2019Zip, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
@@ -131,6 +132,7 @@ export const configs = {
   'ome-ngff-multi': multipleOmeZarrViaRasterJson,
   'ome-ngff-v0.1': omeNgffLegacy,
   'rgb-ome-tiff': rgbOmeTiff,
+  'rgb-ome-tiff-channels': rgbOmeTiffPhotometric,
   'segmentations-ome-tiff': segmentationsOmeTiff,
   // Keys which enable backwards compatibility with old links.
   'linnarsson-2018': codeluppi2018,

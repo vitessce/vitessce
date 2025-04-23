@@ -194,6 +194,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.META_COORDINATION_SCOPES,
+    CoordinationType.META_COORDINATION_SCOPES_BY,
+    CoordinationType.FILE_UID,
+    CoordinationType.IMAGE_LAYER,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -267,6 +272,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+    CoordinationType.PHOTOMETRIC_INTERPRETATION,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
@@ -382,6 +388,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_Z,
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
+    CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.IMAGE_LAYER,
+    CoordinationType.FILE_UID,
+    CoordinationType.META_COORDINATION_SCOPES,
+    CoordinationType.META_COORDINATION_SCOPES_BY,
   ],
   [ViewType.LAYER_CONTROLLER_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,

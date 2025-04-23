@@ -269,6 +269,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   getChannelObjects(): ChannelObject[] {
     // SpatialData cases (image-label and channels_metadata)
     // need to take precedence over general OME-NGFF omero metadata.
+    console.log('viv', this.vivLoader.metadata, VIEWER_PALETTE)
     if ('image-label' in this.vivLoader.metadata) {
       return [{
         name: 'labels',

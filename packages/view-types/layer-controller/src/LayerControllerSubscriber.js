@@ -14,9 +14,12 @@ import {
   useCoordination,
   useLoaders,
   useAuxiliaryCoordination,
+  useComplexCoordination,
   useComponentLayout,
+  useCoordinationScopes,
+  useCoordinationScopesBy,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping, CoordinationType } from '@vitessce/constants-internal';
 import { capitalize } from '@vitessce/utils';
 import { initializeLayerChannels, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/spatial-utils';
 import RasterChannelController from './RasterChannelController.js';
@@ -54,6 +57,8 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
+      coordinationScopes: coordinationScopesRaw,
+      coordinationScopesBy: coordinationScopesByRaw,
 
       obsSegmentationsType,
       segmentationLayerLoaders,
@@ -64,7 +69,6 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingSegmentationChannels,
       handleSegmentationLayerChange,
       handleSegmentationLayerRemove,
-
       disable3d,
       globalDisable3d,
       disableChannelsIfRgbDetected,
@@ -85,6 +89,23 @@ const LayerControllerMemoized = React.memo(
     const shouldShowImageLayerButton = Boolean(
       enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
     );
+
+    // const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+    // const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+
+    // const imageLayerCoordination = useComplexCoordination(
+    //   [
+    //     CoordinationType.FILE_UID,
+    //     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    //   ],
+    //   coordinationScopes,
+    //   coordinationScopesBy,
+    //   CoordinationType.IMAGE_LAYER,
+    // );
+
+    console.log("LC", imageLayerLoaders)
+
+    // console.log(imageLayerCoordination, coordinationScopes, coordinationScopesBy)
     return (
       <TitleInfo
         title={title}
@@ -151,6 +172,7 @@ const LayerControllerMemoized = React.memo(
                     layer={layer}
                     loader={loader}
                     theme={theme}
+                    // photometricInterpretation={photometricInterpretation}
                     handleLayerChange={v => handleSegmentationLayerChange(v, i)}
                     handleLayerRemove={() => handleSegmentationLayerRemove(i)}
                     ChannelController={BitmaskChannelController}
@@ -199,7 +221,9 @@ const LayerControllerMemoized = React.memo(
           {/* Image layers: */}
           {rasterLayers
             && rasterLayers.map((layer, i) => {
+             
               const { index } = layer;
+              console.log("rasterlayer", layer, imageLayerMeta?.[index])
               const loader = imageLayerLoaders?.[index];
               const layerMeta = imageLayerMeta?.[index];
               // Bitmasks are handled above.
@@ -274,6 +298,7 @@ const LayerControllerMemoized = React.memo(
                     spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
                     spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                    // photometricInterpretation={photometricInterpretation}
                   />
                 </Grid>
               ) : null;

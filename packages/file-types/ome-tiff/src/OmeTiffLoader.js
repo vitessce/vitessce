@@ -30,7 +30,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
 
     const imageWrapper = new ImageWrapper(loader, this.options);
-
+    console.log("meta", loader.metadata)
     const {
       Name: imageName,
       Pixels: {
@@ -45,7 +45,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     const channels = Array.isArray(Channels)
       ? Channels.map((channel, i) => channel.Name || `Channel ${i}`)
       : [Channels.Name || `Channel ${0}`];
-
+    console.log("channels", channels)
     const transformMatrixFromOptions = coordinateTransformationsToMatrix(
       coordinateTransformationsFromOptions, getNgffAxesForTiff(DimensionOrder),
     );
@@ -76,6 +76,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     ];
 
     const channelObjects = imageWrapper.getChannelObjects();
+    console.log("obj", channelObjects)
     const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
       spatialTargetC: i,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),

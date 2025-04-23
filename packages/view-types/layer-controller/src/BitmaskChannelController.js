@@ -33,6 +33,7 @@ function BitmaskChannelController({
   *  e.g { channel: 2 } // channel dimension, third channel
   */
   const createSelection = index => ({ [dimName]: index });
+  console.log("channelOptions", channelOptions)
   return (
     <Grid container direction="row" justifyContent="space-between">
       <Grid item xs={2}>
