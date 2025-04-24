@@ -35,6 +35,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
 
   return (
     <>
+      {/*
       <VolumeHUD
         volumeInfo={{ dimensions: [0, 0, 0] }}
         renderingMode="PLACEHOLDER"
@@ -42,6 +43,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
         zarrStoreInfo={zarrStoreInfo}
         deviceLimits={deviceLimits}
       />
+      */}
       <Canvas
         style={{
           position: 'absolute',

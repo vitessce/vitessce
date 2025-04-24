@@ -14,7 +14,8 @@ import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 function log(message) {
-  console.warn(`%cV: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+  // console.warn(`%cV: ${message}`,
+  //   'background: blue; color: white; padding: 2px; border-radius: 3px;');
 }
 
 export function VolumeView(props) {

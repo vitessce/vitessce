@@ -18,7 +18,8 @@ const RENDERING_MODES = {
 };
 
 function log(message) {
-  console.warn(`%cRM: ${message}`, 'background: orange; color: white; padding: 2px; border-radius: 3px;');
+  // console.warn(`%cRM: ${message}`,
+  //   'background: orange; color: white; padding: 2px; border-radius: 3px;');
 }
 
 /**

@@ -35,7 +35,7 @@ uniform highp vec3 boxSize;
 uniform float near;
 varying vec4 glPosition;
 uniform float far;
-varying vec3 worldSpaceCoords; // also not really used?
+varying vec3 worldSpaceCoords; // only used for depth
 
 float linearize_z(float z) {
     return near * far / (far + z * (near - far));
@@ -169,7 +169,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     // if target res is 0 return that
     // if target res is not null OR not available, step down until found
     // get bitmask of lowest found
-    // genIType bitfieldExtract(	genIType value,  int offset,   int bits);
     // check if init, if not -> res down AND REQUEST
     // if minmax check out -> dont even request
     // check if resident, if not -> size up in res AND REQUEST
@@ -184,18 +183,10 @@ ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
     return ivec3(normalized * scale);
 }
 
-// calculations at beginning: dt per res?
-
-// loop through:
-// get brick location
-    // if brick empty or solid, proceed accordingly
-// depending on resolution, begin stepping -> new loop
-    // when stepping, sum up and multiply by the dt per res
-// depending on target res, try loading new brick
-// if no brick found, skip to next brick
-
+// TODO:
 // conditionals -> alpha above certain value -> increase target res
 // if distance above certain value -> increase target res (?)
+// if zoomed out (voxel smaller than pixel) -> increase target res
 
 
 void main(void) {

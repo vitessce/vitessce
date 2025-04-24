@@ -60,7 +60,8 @@ const INIT_STATUS = {
 };
 
 function log(message) {
-  console.warn(`%cDM: ${message}`, 'background: deeppink; color: white; padding: 2px; border-radius: 3px;');
+  // console.warn(`%cDM: ${message}`,
+  //   'background: deeppink; color: white; padding: 2px; border-radius: 3px;');
 }
 
 export class VolumeDataManager {
