@@ -445,19 +445,11 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
             ? axisOrderedScale[axisIndex]
             : defaultValue
         ));
-        // console.log(xyzScale, xyzIndices)
         const nextMat = (new Matrix4()).scale(xyzScale);
         mat = mat.multiplyLeft(nextMat);
-        console.log('Applying', transform, '->', nextMat.elements, axes, mat);
       }
     });
   }
-  // return [
-  //   5, 0, 0, 0,
-  //   0, 1, 0, 0,
-  //   0, 0, 1, 0,
-  //   0, 0, 0, 1
-  // ]
   return mat;
 }
 
