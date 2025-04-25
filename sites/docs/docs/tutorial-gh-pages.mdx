@@ -16,23 +16,27 @@ This tutorial was written using the following versions of NodeJS and NPM:
 node --version
 ```
 
-v18.6.0
+v23.6.0
 
 
 ```sh
 npm --version
 ```
 
-8.13.2
+10.9.2
 
 ## React app setup
 
 Use [Create React App](https://create-react-app.dev/docs/getting-started) to initialize a new React project:
 
 ```sh
-npm init react-app vitessce-demo-gh-pages --use-npm
+npm create vite@latest vitessce-demo-gh-pages -- --template react
 cd vitessce-demo-gh-pages
+npm install
+npm install react@18.0.0 react-dom@18.0.0 
+npm run dev
 ```
+Note: react@18.0.0 is compatible with Vitessce
 
 Initialize the new React app directory as a Git repository:
 
@@ -43,17 +47,26 @@ git commit -m "Initial commit"
 git branch -M main
 ```
 
-Make a new GitHub repository (https://github.com/new) (here I called the repository `vitessce-demo-gh-pages`) and set it as the remote origin:
+## Repo setup
+Create a new GitHub repository (https://github.com/new) (here I called the repository `vitessce-demo-gh-pages`) and set it as the remote origin:
 
 ```sh
 # Replace my-username with your GitHub username in the following line:
 git remote add origin git@github.com:my-username/vitessce-demo-gh-pages.git
 git push -u origin main
+
+```
+## Troubleshooting
+ if you get error in pushing to main, try the following and commit the changes in the editor:
+```
+  git pull origin main --allow-unrelated-histories --no-rebase
+
 ```
 
 Install Vitessce:
 
 ```sh
+# from within the `vitessce-demo-gh-pages` directory
 npm install vitessce --save
 ```
 
@@ -212,18 +225,18 @@ jobs:
     runs-on: ubuntu-22.04
     name: Build React app and deploy to GitHub Pages
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.20.0
+          node-version: 20
       - name: Install NPM dependencies
         run: npm ci
       - name: Build React app
         run: npm run build
-      - uses: actions/upload-pages-artifact@v1
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build
+          path: dist
   deploy:
     runs-on: ubuntu-22.04
     needs: build
@@ -234,11 +247,20 @@ jobs:
       - name: Deploy to GitHub Pages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
     
 ```
 
 
+## Config Vite
+Add the following to the `vite.config.js` file to allow Vite to serve correctly from a subpath like `https://yourname.github.io/your-repo-name/`
+```
+export default defineConfig({
+  plugins: [react()],
+  base: '/vitessce-demo-gh-pages/',
+  # other config ...
+})
+```
 ### Allow GitHub Pages to be deployed from GitHub Actions
 
 To allow the GitHub Action to modify the `gh-pages` branch of the repository, we need to update the settings at `https://github.com/{my-username}/vitessce-demo-gh-pages/settings/pages` (or navigate to `Settings` -> `Pages` for the repo).
