@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CoordinationType, DataType, STATUS, ViewType } from '@vitessce/constants-internal';
+import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal';
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   LoaderNotFoundError,

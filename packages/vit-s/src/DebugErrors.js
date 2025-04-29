@@ -1,12 +1,11 @@
-import { useDebugError } from './state/hooks';
 import { getDebugMode } from '@vitessce/globals';
+import { useDebugError } from './state/hooks.js';
 
-export function DebugErrors(props) {
-  const debugError = useDebugError()
-  const viewError = debugError?.filter(err => err?.uid === props?.uid)
-  console.log("debugRE", debugError, props, viewError, getDebugMode())
-  if (viewError?.length > 0 && getDebugMode())  {
-    throw viewError[0]
+export function DebugErrors({ uid }) {
+  const debugError = useDebugError();
+  const viewError = debugError?.filter(err => err?.uid === uid);
+  if (viewError?.length > 0 && getDebugMode()) {
+    throw viewError[0];
   }
- return null
+  return null;
 }

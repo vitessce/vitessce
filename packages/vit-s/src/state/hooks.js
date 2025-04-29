@@ -422,7 +422,7 @@ const useDebugStore = create((set, get) => ({
   setDebugError: (newError) => {
     const { debugErrors } = get();
     const isDuplicate = debugErrors.some(
-      (e) => e.message === newError.message && e.uid === newError.uid
+      e => e.message === newError.message && e.uid === newError.uid,
     );
     if (!isDuplicate) {
       set({ debugErrors: [...debugErrors, newError] });

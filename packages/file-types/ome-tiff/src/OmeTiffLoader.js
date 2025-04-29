@@ -19,12 +19,13 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       }
       throw new Error(`OME-TIFF offsets JSON file failed to load: ${res.status} from ${res.url}`);
     }
-    // TODO: if we want a separate error type here, we need to allow throwing two errors in this file
+    // TODO: if we want a separate error type here,
+    //  we need to allow throwing two errors in this file
     // else if(getDebugMode()) {
-      // const errorType = 'optimization-error';
-      // const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
-      // const message = `Offsets file is missing. You can use the ${resourceUrl} to create one.`;
-      // throw new OptimizationError(errorType, message, resourceUrl, null);
+    // const errorType = 'optimization-error';
+    // const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
+    // const message = `Offsets file is missing. You can use the ${resourceUrl} to create one.`;
+    // throw new OptimizationError(errorType, message, resourceUrl, null);
     // }
     return null;
   }
@@ -47,8 +48,8 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       const errorType = 'data-validation';
       let messageOffset = null;
       let messagePyramid = null;
-      if (!isPyramidalImage()){
-        messagePyramid = 'Image has to be pyramidal'
+      if (!isPyramidalImage()) {
+        messagePyramid = 'Image has to be pyramidal';
       }
       if (!offsets) {
         const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';

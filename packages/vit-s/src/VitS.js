@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
+import React, { useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
 import {
   ThemeProvider,
   StylesProvider,
@@ -24,7 +24,7 @@ import {
 
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
-import { DebugWindow } from './DebugWindow.js';
+// import { DebugWindow } from './DebugWindow.js';
 import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
@@ -256,39 +256,39 @@ export function VitS(props) {
   // const globalDebugErrors= useDebugError();
   // console.log("globalErrors", globalDebugErrors)
 
-// function useAddErrorIfNotExists(errorsArray, setErrorsArray) {
-//   const addErrorIfNotExists = useCallback((newError) => {
-//     setErrorsArray(prevErrors => {
-//       const isDuplicate = prevErrors.some(
-//         (err) => err.message === newError.message && err.errorType === newError.errorType
-//       );
-//       if (!isDuplicate) {
-//         return [...prevErrors, newError];
-//       }
-//       return prevErrors;
-//     });
-//   }, [setErrorsArray]);
+  // function useAddErrorIfNotExists(errorsArray, setErrorsArray) {
+  //   const addErrorIfNotExists = useCallback((newError) => {
+  //     setErrorsArray(prevErrors => {
+  //       const isDuplicate = prevErrors.some(
+  //         (err) => err.message === newError.message && err.errorType === newError.errorType
+  //       );
+  //       if (!isDuplicate) {
+  //         return [...prevErrors, newError];
+  //       }
+  //       return prevErrors;
+  //     });
+  //   }, [setErrorsArray]);
 
-//   return addErrorIfNotExists;
-// }
+  //   return addErrorIfNotExists;
+  // }
 
-// const addErrorIfNotExists = useAddErrorIfNotExists(debugErrors, setDebugErrors);
+  // const addErrorIfNotExists = useAddErrorIfNotExists(debugErrors, setDebugErrors);
 
-// useEffect(() => {
-//   if (globalDebugErrors) {
-//     addErrorIfNotExists(globalDebugErrors);
-//   }
-// }, [globalDebugErrors, addErrorIfNotExists]);
-//   console.log("error", globalDebugErrors)
-//   if (debugMode && debugErrors?.length > 0) {
-//     return (
-//       <StylesProvider generateClassName={generateClassName}>
-//         <ThemeProvider theme={muiTheme[theme]}>
-//           <DebugWindow debugErrors={debugErrors} />
-//         </ThemeProvider>
-//       </StylesProvider>
-//     );
-//   }
+  // useEffect(() => {
+  //   if (globalDebugErrors) {
+  //     addErrorIfNotExists(globalDebugErrors);
+  //   }
+  // }, [globalDebugErrors, addErrorIfNotExists]);
+  //   console.log("error", globalDebugErrors)
+  //   if (debugMode && debugErrors?.length > 0) {
+  //     return (
+  //       <StylesProvider generateClassName={generateClassName}>
+  //         <ThemeProvider theme={muiTheme[theme]}>
+  //           <DebugWindow debugErrors={debugErrors} />
+  //         </ThemeProvider>
+  //       </StylesProvider>
+  //     );
+  //   }
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>

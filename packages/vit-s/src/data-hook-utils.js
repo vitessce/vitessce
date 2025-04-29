@@ -147,10 +147,10 @@ export function useDataType(
   useEffect(() => {
     if (error) {
       warn(error, setWarning);
-    if (getDebugMode()) {
-      error.uid = uuid;
-      setDebugError(error);
-    }
+      if (getDebugMode()) {
+        error.uid = uuid;
+        setDebugError(error);
+      }
     }
   }, [error, setWarning, setDebugError, getDebugMode, uuid]);
 
