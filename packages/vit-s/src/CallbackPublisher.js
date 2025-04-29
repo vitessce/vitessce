@@ -68,7 +68,6 @@ export default function CallbackPublisher(props) {
   // Emit updates to the loaders.
   useEffect(() => {
     if (onLoaderChange && loaders) {
-      console.log(loaders, "loaders")
       onLoaderChange(loaders);
     }
   }, [loaders, onLoaderChange]);

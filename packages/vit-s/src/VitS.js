@@ -19,6 +19,7 @@ import {
   createViewConfigStore,
   AuxiliaryProvider,
   createAuxiliaryStore,
+  // useDebugError,
 } from './state/hooks.js';
 
 import VitessceGrid from './VitessceGrid.js';
@@ -99,7 +100,7 @@ export function VitS(props) {
   } = props;
 
   // eslint-disable-next-line no-unused-vars
-  const [debugErrors, setDebugErrors] = useState([]);
+  // const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(
@@ -247,18 +248,47 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+
   // TODO: use in ErrorBoundary fallback.
   // Will probably need to move a lot to a child of VitS
   // so that when the child throws errors the parent can catch.
-  if (debugMode && debugErrors.length > 0) {
-    return (
-      <StylesProvider generateClassName={generateClassName}>
-        <ThemeProvider theme={muiTheme[theme]}>
-          <DebugWindow debugErrors={debugErrors} />
-        </ThemeProvider>
-      </StylesProvider>
-    );
-  }
+  // TODO : uncomment if we want to display the debugErrors on the debugWindow
+  // const globalDebugErrors= useDebugError();
+  // console.log("globalErrors", globalDebugErrors)
+
+// function useAddErrorIfNotExists(errorsArray, setErrorsArray) {
+//   const addErrorIfNotExists = useCallback((newError) => {
+//     setErrorsArray(prevErrors => {
+//       const isDuplicate = prevErrors.some(
+//         (err) => err.message === newError.message && err.errorType === newError.errorType
+//       );
+//       if (!isDuplicate) {
+//         return [...prevErrors, newError];
+//       }
+//       return prevErrors;
+//     });
+//   }, [setErrorsArray]);
+
+//   return addErrorIfNotExists;
+// }
+
+// const addErrorIfNotExists = useAddErrorIfNotExists(debugErrors, setDebugErrors);
+
+// useEffect(() => {
+//   if (globalDebugErrors) {
+//     addErrorIfNotExists(globalDebugErrors);
+//   }
+// }, [globalDebugErrors, addErrorIfNotExists]);
+//   console.log("error", globalDebugErrors)
+//   if (debugMode && debugErrors?.length > 0) {
+//     return (
+//       <StylesProvider generateClassName={generateClassName}>
+//         <ThemeProvider theme={muiTheme[theme]}>
+//           <DebugWindow debugErrors={debugErrors} />
+//         </ThemeProvider>
+//       </StylesProvider>
+//     );
+//   }
   return success ? (
     <StylesProvider generateClassName={generateClassName}>
       <ThemeProvider theme={muiTheme[theme]}>

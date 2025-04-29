@@ -413,6 +413,25 @@ const useWarnStore = create(set => ({
 }));
 
 /**
+ * The debug store can be used to store global state
+ * related to app error messages for debug mode.
+ * @returns {function} The useStore hook.
+ */
+const useDebugStore = create((set, get) => ({
+  debugErrors: [],
+  setDebugError: (newError) => {
+    const { debugErrors } = get();
+    const isDuplicate = debugErrors.some(
+      (e) => e.message === newError.message && e.uid === newError.uid
+    );
+    if (!isDuplicate) {
+      set({ debugErrors: [...debugErrors, newError] });
+    }
+  },
+}));
+
+
+/**
  * The view info store can be used to store component-level
  * viewInfo objects,
  * which are required for tooltip / crossover elements.
@@ -1155,6 +1174,26 @@ export function useSetComponentHover() {
  */
 export function useWarning() {
   return useWarnStore(state => state.warning);
+}
+
+// /**
+//  * Obtain the debug errors from
+//  * the global app state.
+//  * @returns {Array[string]} The debug errprs
+//  * in the `useDebugStore` store.
+//  */
+export function useDebugError() {
+  return useDebugStore(state => state.debugErrors);
+}
+
+/**
+ * Obtain the debug error setter function from
+ * the global app state.
+ * @returns {function} The debug error setter function
+ * in the `useDebugStore` store.
+ */
+export function useSetDebugError() {
+  return useDebugStore(state => state.setDebugError);
 }
 
 /**

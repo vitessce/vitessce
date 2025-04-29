@@ -5,8 +5,7 @@ import {
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
 import { ImageWrapper } from '@vitessce/image-utils';
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
-import { getDebugMode } from '@vitessce/globals';
+import { AbstractTwoStepLoader, LoaderResult, DataTypeValidationError } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
@@ -20,6 +19,13 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       }
       throw new Error(`OME-TIFF offsets JSON file failed to load: ${res.status} from ${res.url}`);
     }
+    // TODO: if we want a separate error type here, we need to allow throwing two errors in this file
+    // else if(getDebugMode()) {
+      // const errorType = 'optimization-error';
+      // const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
+      // const message = `Offsets file is missing. You can use the ${resourceUrl} to create one.`;
+      // throw new OptimizationError(errorType, message, resourceUrl, null);
+    // }
     return null;
   }
 
@@ -29,17 +35,26 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    console.log("loader", loader, loader?.metadata?.Pixels?.Interleaved, loader?.metadata?.Pixels?.TiffData[0].PlaneCount, getDebugMode()) ;
 
     function isPyramidalImage() {
-      if (loader?.metadata?.Pixels?.Interleaved === false || loader?.metadata?.Pixels?.TiffData[0].PlaneCount > 1) {
+      if (loader?.metadata?.Pixels?.Interleaved === false
+        || loader?.metadata?.Pixels?.TiffData[0].PlaneCount > 1) {
         return true;
       }
       return false;
     }
-
-    if(getDebugMode() && !isPyramidalImage()){
-        throw new Error ("Image has to be pyramidal")
+    if (!isPyramidalImage() || !offsets) {
+      const errorType = 'data-validation';
+      let messageOffset = null;
+      let messagePyramid = null;
+      if (!isPyramidalImage()){
+        messagePyramid = 'Image has to be pyramidal'
+      }
+      if (!offsets) {
+        const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
+        messageOffset = `Offsets file is missing. You can use the ${resourceUrl} to create one`;
+      }
+      throw new DataTypeValidationError(errorType, messagePyramid, messageOffset, url, null);
     }
     const imageWrapper = new ImageWrapper(loader, this.options);
 

@@ -4,7 +4,7 @@ import {
   capitalize,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/utils';
-import { log } from '@vitessce/globals';
+import { log, getDebugMode } from '@vitessce/globals';
 import { STATUS } from '@vitessce/constants-internal';
 import {
   AbstractLoaderError,
@@ -14,6 +14,7 @@ import {
   getMatchingLoader,
   useMatchingLoader,
   useSetWarning,
+  useSetDebugError,
 } from './state/hooks.js';
 
 /**
@@ -74,6 +75,7 @@ export async function dataQueryFn(ctx) {
     return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
+  // TODO: fix this, as this suppresses the granular errors such as DataTypeValidationError
   if (isRequired) {
     // Status: error
     throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
@@ -105,10 +107,11 @@ export async function dataQueryFn(ctx) {
  * number of items in the cells object.
  */
 export function useDataType(
-  dataType, loaders, dataset, isRequired,
+  dataType, uuid, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   const setWarning = useSetWarning();
+  const setDebugError = useSetDebugError();
   const placeholderObject = useMemo(() => ({}), []);
   const dataQuery = useQuery({
     // TODO: only enable when loaders has been initialized?
@@ -144,8 +147,12 @@ export function useDataType(
   useEffect(() => {
     if (error) {
       warn(error, setWarning);
+    if (getDebugMode()) {
+      error.uid = uuid;
+      setDebugError(error);
     }
-  }, [error, setWarning]);
+    }
+  }, [error, setWarning, setDebugError, getDebugMode, uuid]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
   return [loadedData, dataStatus, urls, requestInit];

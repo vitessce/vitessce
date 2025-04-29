@@ -12,11 +12,19 @@ export function FallbackForView(props) {
     // resetErrorBoundary,
   } = props;
 
+  const styles = {
+    color: 'red',
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    overflowX: 'auto',
+  };
+
   return (
     <div>
       <p>A view-level error occurred.</p>
       {getDebugMode() ? (
-        <pre style={{ color: 'red' }}>{error.message}</pre>
+        <pre style={styles}>{error.message}</pre>
       ) : null}
     </div>
   );

@@ -5,6 +5,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { getMaxRows, resolveLayout } from './layout-utils.js';
 import { PageModeViewContext } from '../contexts.js';
 import { FallbackForView } from '../FallbackForView.js';
+import { DebugErrors } from '../DebugErrors.js';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -134,6 +135,7 @@ export function VitessceGridLayout(props) {
       return [v.uid, () => (
         <div key={v.uid} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <ErrorBoundary FallbackComponent={FallbackForView}>
+            <DebugErrors uid={v.uid} />
             <Component
               {... v.props}
               uuid={v.uid}
@@ -162,6 +164,7 @@ export function VitessceGridLayout(props) {
       return (
         <div key={v.uid}>
           <ErrorBoundary FallbackComponent={FallbackForView}>
+            <DebugErrors uid={v.uid} />
             <Component
               {...v.props}
               uuid={v.uid}
