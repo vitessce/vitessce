@@ -311,6 +311,7 @@ const LayerControllerMemoized = React.memo(
  */
 export function LayerControllerSubscriber(props) {
   const {
+    uuid,
     coordinationScopes,
     closeButtonVisible,
     downloadButtonVisible,
@@ -394,7 +395,7 @@ export function LayerControllerSubscriber(props) {
     {}, // TODO: use obsType once #1240 is merged.
   );
   const [{ image }, imageStatus] = useImageData(
-    loaders, dataset, false,
+    uuid, loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on

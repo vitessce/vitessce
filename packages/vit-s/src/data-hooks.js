@@ -187,12 +187,12 @@ export function useFeatureLabelsData(
 }
 
 export function useImageData(
-  loaders, dataset, isRequired,
+  uuid, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
   return useDataType(
     DataType.IMAGE,
-    loaders, dataset, isRequired,
+    uuid, loaders, dataset, isRequired,
     coordinationSetters, initialCoordinationValues, matchOn,
   );
 }

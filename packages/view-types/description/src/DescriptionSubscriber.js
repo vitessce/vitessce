@@ -21,6 +21,7 @@ import Description from './Description.js';
  */
 export function DescriptionSubscriber(props) {
   const {
+    uuid,
     coordinationScopes,
     description: descriptionOverride,
     descriptionType,
@@ -42,6 +43,7 @@ export function DescriptionSubscriber(props) {
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
   const [{ image }, imageStatus] = useImageData(
+    uuid,
     loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
