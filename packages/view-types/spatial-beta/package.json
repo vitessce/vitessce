@@ -46,7 +46,8 @@
     "math.gl": "catalog:",
     "mathjs": "catalog:",
     "plur": "^5.1.0",
-    "short-number": "^1.0.6"
+    "short-number": "^1.0.6",
+    "gl-matrix":"3.4.3"
   },
   "devDependencies": {
     "react": "catalog:",

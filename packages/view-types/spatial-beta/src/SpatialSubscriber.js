@@ -159,18 +159,18 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix) {
 //       }
 //     }
 //   }
-  if (layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
-    if (hoverInfo.index) {
-      if (layerType === 'segmentation-polygon') {
-        // To match 'segmentation-bitmask', we return an array of one index per channel.
-        // For 'segmentation-polygon', we assume one channel per layer.
-        return [hoverInfo.index];
-      }
-      return hoverInfo.index;
-    }
-  }
-  return null;
-}
+//   if (layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
+//     if (hoverInfo.index) {
+//       if (layerType === 'segmentation-polygon') {
+//         // To match 'segmentation-bitmask', we return an array of one index per channel.
+//         // For 'segmentation-polygon', we assume one channel per layer.
+//         return [hoverInfo.index];
+//       }
+//       return hoverInfo.index;
+//     }
+//   }
+//   return null;
+// }
 
 /**
  * A subscriber component for the spatial plot.
