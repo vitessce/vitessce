@@ -53,44 +53,55 @@ const DEFAULT_VIEW_STATE = {
 };
 const SET_VIEW_STATE_NOOP = () => {};
 
+import { mat4, vec4 } from 'gl-matrix'; // Make sure you have this or similar matrix lib
+
 function getHoverData(hoverInfo, layerType, layerDefModelMatrix) {
+  console.log("layerType", layerType)
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
-  if (layerType === 'segmentation-bitmask' || layerType === 'image') {
-    if (coordinate && layer && layerDefModelMatrix) {
-      const scaleX = layerDefModelMatrix[0] || 1;
-      const scaleY = layerDefModelMatrix[5] || 1;
-      const transformedCoordinate = [
-        coordinate[0] / scaleX,
-        coordinate[1] / scaleY,
-      ];
-      if (layer.id.startsWith('Tiled') && tile) {
-        // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
-        const {
-          content,
-          bbox,
-          index: { z },
-        } = tile;
-        if (content) {
-          const { data, width, height } = content;
-          const {
-            left, right, top, bottom,
-          } = bbox;
-          const bounds = [
-            left,
-            data.height < layer.tileSize ? height : bottom,
-            data.width < layer.tileSize ? width : right,
-            top,
-          ];
-          // Tiled layer needs a custom layerZoomScale.
-          // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-          const layerZoomScale = Math.max(
-            1,
-            2 ** Math.round(-z),
-          );
-          const dataCoords = [
-            Math.floor((transformedCoordinate[0] - bounds[0]) / layerZoomScale),
-            Math.floor((transformedCoordinate[1] - bounds[3]) / layerZoomScale),
-          ];
+
+  if (
+    (layerType === 'segmentation-bitmask' || layerType === 'image') &&
+    coordinate && layer && layerDefModelMatrix
+  ) {
+    // Convert coordinate to vec4 for homogeneous transformation
+    const worldCoord = vec4.fromValues(coordinate[0], coordinate[1], 0, 1);
+    const invModelMatrix = mat4.invert(mat4.create(), layerDefModelMatrix);
+
+    if (!invModelMatrix) {
+      console.warn("Model matrix inversion failed.");
+      return null;
+    }
+
+    // Transform world coordinates back to local (tile) space
+    vec4.transformMat4(worldCoord, worldCoord, invModelMatrix);
+    const transformedCoordinate = [worldCoord[0], worldCoord[1]];
+
+    if (layer.id.startsWith('Tiled') && tile) {
+      console.log("if tiled", tile)
+      const { content, bbox, index: { z } } = tile;
+
+      if (content) {
+        const { data, width, height } = content;
+        const { left, right, top, bottom } = bbox;
+        const bounds = [
+          left,
+          data.height < layer.tileSize ? height : bottom,
+          data.width < layer.tileSize ? width : right,
+          top,
+        ];
+
+        const layerZoomScale = Math.max(1, 2 ** Math.round(-z));
+
+        const dataCoords = [
+          Math.floor((transformedCoordinate[0] - bounds[0]) / layerZoomScale),
+          Math.floor((transformedCoordinate[1] - bounds[3]) / layerZoomScale),
+        ];
+
+        // Make sure the coordinates are in bounds
+        if (
+          dataCoords[0] >= 0 && dataCoords[0] < width &&
+          dataCoords[1] >= 0 && dataCoords[1] < height
+        ) {
           const coords = dataCoords[1] * width + dataCoords[0];
           const hoverData = data.map(d => d[coords]);
           return hoverData;
@@ -98,6 +109,56 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix) {
       }
     }
   }
+
+  return null;
+}
+
+
+// function getHoverData(hoverInfo, layerType, layerDefModelMatrix) {
+//   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
+//   if (layerType === 'segmentation-bitmask' || layerType === 'image') {
+//     if (coordinate && layer && layerDefModelMatrix) {
+//       const scaleX = layerDefModelMatrix[0] || 1;
+//       const scaleY = layerDefModelMatrix[5] || 1;
+//       const transformedCoordinate = [
+//         coordinate[0] / scaleX,
+//         coordinate[1] / scaleY,
+//       ];
+//       if (layer.id.startsWith('Tiled') && tile) {
+//         // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
+//         const {
+//           content,
+//           bbox,
+//           index: { z },
+//         } = tile;
+//         if (content) {
+//           const { data, width, height } = content;
+//           const {
+//             left, right, top, bottom,
+//           } = bbox;
+//           const bounds = [
+//             left,
+//             data.height < layer.tileSize ? height : bottom,
+//             data.width < layer.tileSize ? width : right,
+//             top,
+//           ];
+//           // Tiled layer needs a custom layerZoomScale.
+//           // The zoomed out layer needs to use the fixed zoom at which it is rendered.
+//           const layerZoomScale = Math.max(
+//             1,
+//             2 ** Math.round(-z),
+//           );
+//           const dataCoords = [
+//             Math.floor((transformedCoordinate[0] - bounds[0]) / layerZoomScale),
+//             Math.floor((transformedCoordinate[1] - bounds[3]) / layerZoomScale),
+//           ];
+//           const coords = dataCoords[1] * width + dataCoords[0];
+//           const hoverData = data.map(d => d[coords]);
+//           return hoverData;
+//         }
+//       }
+//     }
+//   }
   if (layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
     if (hoverInfo.index) {
       if (layerType === 'segmentation-polygon') {
