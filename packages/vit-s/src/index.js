@@ -1,4 +1,5 @@
 export { VitS } from './VitS.js';
+export { VitSContainer } from './VitSContainer.js';
 export { TitleInfo } from './TitleInfo.js';
 export { PopperMenu } from './shared-mui/components.js';
 // For plugin view types:
@@ -16,6 +17,7 @@ export {
   useWindowDimensions,
   useGridItemSize,
   useExpandedFeatureLabelsMap,
+  useColumnNameMapping,
 } from './hooks.js';
 export {
   useCoordinationScopes,
@@ -76,6 +78,11 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
+
+  useComparisonMetadata,
+  useFeatureStatsData,
+  useFeatureSetStatsData,
+  useObsSetStatsData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,

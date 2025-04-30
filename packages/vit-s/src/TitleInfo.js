@@ -160,7 +160,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText,
+    helpText, withPadding = true,
   } = props;
 
   const classes = useTitleStyles();
@@ -204,6 +204,8 @@ export function TitleInfo(props) {
             [classes.scrollCard]: isScroll,
             [classes.spatialCard]: isSpatial,
             [classes.noScrollCard]: !isScroll && !isSpatial,
+            [classes.noPaddingCard]: !withPadding,
+            [classes.paddingCard]: withPadding,
           },
         )}
         aria-busy={!isReady}

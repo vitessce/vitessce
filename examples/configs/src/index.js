@@ -49,7 +49,6 @@ import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
-import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
@@ -70,6 +69,7 @@ import { humanLiver } from './view-configs/3d-maps/human-liver.js';
 import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
+import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
@@ -85,7 +85,11 @@ import { multimodalIms } from './view-configs/paper-figures/multimodal-ims.js';
 import { multiome } from './view-configs/paper-figures/multiome.js';
 import { osmFish } from './view-configs/paper-figures/osmfish.js';
 import { visium } from './view-configs/paper-figures/visium.js';
+
+// pageMode
+import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
+import { hubmapHeart, hubmapHeartComponent } from './view-configs/hubmap-heart.js';
 
 export const coordinationTypeConfigs = {
   [vapi.ct.EMBEDDING_ZOOM]: embeddingZoomConfig,
@@ -140,6 +144,7 @@ export const configs = {
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'kpmp-premiere': kpmpPremiere,
+  'hubmap-heart': hubmapHeart,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
@@ -176,7 +181,7 @@ export const configs = {
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
-
+  'melanoma-neuroglancer': melanomaNeuroglancer,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,
@@ -218,4 +223,5 @@ export const configStores = {
 export const configPages = {
   'lake-2023': lake2023component,
   'kpmp-premiere': kpmpPremiereComponent,
+  'hubmap-heart': hubmapHeartComponent,
 };

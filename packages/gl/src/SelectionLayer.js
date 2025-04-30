@@ -4,10 +4,10 @@
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
-import booleanWithin from '@turf/boolean-within';
-import booleanContains from '@turf/boolean-contains';
-import booleanOverlap from '@turf/boolean-overlap';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanWithin } from '@turf/boolean-within';
+import { booleanContains } from '@turf/boolean-contains';
+import { booleanOverlap } from '@turf/boolean-overlap';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { EditableGeoJsonLayer } from '@nebula.gl/layers';
@@ -120,14 +120,15 @@ export default class SelectionLayer extends CompositeLayer {
         // contain, be within, or overlap with the selected polygon.
 
         // Check if this is a leaf node.
-        if (node.data
-          && booleanPointInPolygon(
-            turfPoint([].slice.call(getObsCoords(node.data))), selectedPolygon,
-          )
-        ) {
-          // This node has data, so it is a leaf node representing one data point,
-          // and we have verified that the point is in the selected polygon.
-          pickingInfos.push(node.data);
+        if (node.data) {
+          let current = node;
+          while (current) {
+            const pointCoords = [].slice.call(getObsCoords(current.data));
+            if (booleanPointInPolygon(turfPoint(pointCoords), selectedPolygon)) {
+              pickingInfos.push(current.data);
+            }
+            current = current.next;
+          }
         }
 
         // Return false because we are not done.

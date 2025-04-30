@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
+import { circle } from '@turf/circle';
 import {
   TitleInfo,
   useReady, useUrls,
@@ -39,6 +40,7 @@ import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 /**
  * A subscriber component for the scatterplot.
@@ -112,6 +114,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingContourPercentiles: contourPercentiles,
     contourColorEncoding,
     contourColor,
+    featureAggregationStrategy,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -138,6 +141,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContoursFilled,
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
+    setFeatureAggregationStrategy,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
 
   const {
@@ -153,6 +157,9 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelectionFromProps
     || sampleSetSelectionFromCoordination
   );
+
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -298,7 +305,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // compute the cell radius scale based on the
   // extents of the cell coordinates on the x/y axes.
   useEffect(() => {
-    if (xRange && yRange) {
+    if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
         window.devicePixelRatio, zoom, xRange, yRange, width, height,
       );
@@ -379,8 +386,35 @@ export function EmbeddingScatterplotSubscriber(props) {
         .map(t => Math.max(t, 1.0));
       return thresholds;
     }
-    return null;
+    return [1, 10, 100];
   }, [contourPercentiles, sortedWeights]);
+
+  // Construct a circle polygon using Turf's circle function,
+  // which surrounds all points in the scatterplot,
+  // which we can use to position text labels along.
+  const circleInfo = useMemo(() => {
+    if (!originalViewState || !width || !height) {
+      return null;
+    }
+    const center = [
+      originalViewState.target[0],
+      originalViewState.target[1],
+    ];
+    const scaleFactor = (2 ** originalViewState.zoom);
+    if (!(typeof scaleFactor === 'number' && typeof center[0] === 'number' && typeof center[1] === 'number') || Number.isNaN(scaleFactor)) {
+      return null;
+    }
+    const radius = Math.min(width, height) / 2 / scaleFactor;
+    const numPoints = 96;
+    const options = { steps: numPoints, units: 'degrees' };
+    const circlePolygon = circle(center, radius, options);
+    return {
+      center,
+      radius,
+      polygon: circlePolygon,
+      steps: numPoints,
+    };
+  }, [originalViewState, width, height]);
 
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding
@@ -432,24 +466,23 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [sampleEdges]);
 
   // Stratify multiple arrays: per-cellSet and per-sampleSet.
-  const stratifiedData = useMemo(() => {
+  const [stratifiedData, stratifiedDataCount] = useMemo(() => {
     if (alignedEmbeddingData?.data) {
-      const result = stratifyArrays(
+      const [result, cellCountResult] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
-          // TODO: aggregate and transform expression data if needed prior to passing here
-          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
-        },
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
+        }, featureAggregationStrategyToUse,
       );
-      return result;
+      return [result, cellCountResult];
     }
-    return null;
+    return [null, null];
   }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
     sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
-    cellSetSelection, mergedCellSets,
+    cellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
@@ -459,10 +492,15 @@ export function EmbeddingScatterplotSubscriber(props) {
     setTargetZ(target[2] || 0);
   };
 
+  // TODO: Update this once the rendered points reflects the selection/filtering.
+  const cellCountToUse = embeddingPointsVisible
+    ? cellsCount
+    : (stratifiedDataCount ?? cellsCount);
+
   return (
     <TitleInfo
       title={title}
-      info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)}`}
+      info={`${commaNumber(cellCountToUse)} ${plur(observationsLabel, cellCountToUse)}`}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -506,6 +544,8 @@ export function EmbeddingScatterplotSubscriber(props) {
           defaultContourPercentiles={DEFAULT_CONTOUR_PERCENTILES}
           contourColorEncoding={contourColorEncoding}
           setContourColorEncoding={setContourColorEncoding}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       )}
     >
@@ -554,18 +594,21 @@ export function EmbeddingScatterplotSubscriber(props) {
         contoursFilled={embeddingContoursFilled}
         embeddingPointsVisible={embeddingPointsVisible}
         embeddingContoursVisible={embeddingContoursVisible}
+
+        circleInfo={circleInfo}
+        featureSelection={geneSelection}
       />
-      {tooltipsVisible && (
-      <ScatterplotTooltipSubscriber
-        parentUuid={uuid}
-        obsHighlight={cellHighlight}
-        width={width}
-        height={height}
-        getObsInfo={getObsInfo}
-        featureType={featureType}
-        featureLabelsMap={featureLabelsMap}
-      />
-      )}
+      {tooltipsVisible && width && height ? (
+        <ScatterplotTooltipSubscriber
+          parentUuid={uuid}
+          obsHighlight={cellHighlight}
+          width={width}
+          height={height}
+          getObsInfo={getObsInfo}
+          featureType={featureType}
+          featureLabelsMap={featureLabelsMap}
+        />
+      ) : null}
       <Legend
         visible
         theme={theme}
@@ -577,14 +620,15 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
-        extent={expressionExtents?.[0]}
-        missing={expressionMissing?.[0]}
+        extent={expressionExtents}
+        missing={expressionMissing}
         // Contour percentile legend
         pointsVisible={embeddingPointsVisible}
         contoursVisible={embeddingContoursVisible}
         contoursFilled={embeddingContoursFilled}
         contourPercentiles={contourPercentiles || DEFAULT_CONTOUR_PERCENTILES}
         contourThresholds={contourThresholds}
+        featureAggregationStrategy={featureAggregationStrategyToUse}
       />
     </TitleInfo>
   );

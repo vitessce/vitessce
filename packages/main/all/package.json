@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.5.7",
+  "version": "3.5.11",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -61,6 +61,7 @@
     "@vitessce/spatial-zarr": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
     "@vitessce/biomarker-select": "workspace:*",
+    "@vitessce/neuroglancer": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

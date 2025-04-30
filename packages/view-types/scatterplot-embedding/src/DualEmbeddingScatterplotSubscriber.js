@@ -30,8 +30,11 @@ export function DualEmbeddingScatterplotSubscriber(props) {
 
   // Get "props" from the coordination space.
   const [{
+    embeddingType,
     sampleSetSelection,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.DUAL_SCATTERPLOT], coordinationScopes);
+
+  const isCaseCtrl = Array.isArray(sampleSetSelection) && sampleSetSelection.length === 2;
 
   const caseSampleSetSelection = useMemo(() => (
     sampleSetSelection?.[0]
@@ -46,20 +49,27 @@ export function DualEmbeddingScatterplotSubscriber(props) {
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
-      <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: isCaseCtrl ? '50%' : '100%', display: 'flex', flexDirection: 'column' }}>
         <EmbeddingScatterplotSubscriber
           {...props}
           uuid={`${uuid}-case`}
+          title={(isCaseCtrl
+            ? `Scatterplot (${embeddingType}), ${caseSampleSetSelection?.[0]?.at(-1)}`
+            : null
+          )}
           sampleSetSelection={caseSampleSetSelection}
         />
       </div>
-      <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-        <EmbeddingScatterplotSubscriber
-          {...props}
-          uuid={`${uuid}-ctrl`}
-          sampleSetSelection={ctrlSampleSetSelection}
-        />
-      </div>
+      {isCaseCtrl ? (
+        <div style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
+          <EmbeddingScatterplotSubscriber
+            {...props}
+            uuid={`${uuid}-ctrl`}
+            title={`Scatterplot (${embeddingType}), ${ctrlSampleSetSelection?.[0]?.at(-1)}`}
+            sampleSetSelection={ctrlSampleSetSelection}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

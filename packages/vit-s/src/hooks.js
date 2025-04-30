@@ -370,3 +370,41 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
   );
   return [updatedFeatureLabelsMap, dataStatus];
 }
+
+/**
+ * Using a loader object's options,
+ * return a mapping from group name to column name.
+ * @param {*} loader obsSets or sampleSets loader class
+ * @param {[boolean]} reverse Optionally, reverse
+ * (so, return column name to group name mapping).
+ * @returns {Record<string, string>} Mapping from group name to column name.
+ */
+export function useColumnNameMapping(loader, reverse = false) {
+  return useMemo(() => {
+    const result = {};
+    if (loader?.options) {
+      const optionsArray = loader.options.obsSets
+        ? loader.options.obsSets
+        : loader.options.sampleSets;
+      optionsArray.forEach((optionObject) => {
+        const { name, path } = optionObject;
+        let columnName;
+        if (optionObject.column) {
+          columnName = optionObject.column;
+        } else if (path) {
+          columnName = path.split('/').at(-1);
+        } else {
+          columnName = name;
+        }
+        result[name] = columnName;
+      });
+    }
+    if (reverse) {
+      return Object.fromEntries(
+        Object.entries(result)
+          .map(([k, v]) => ([v, k])),
+      );
+    }
+    return result;
+  }, [loader]);
+}

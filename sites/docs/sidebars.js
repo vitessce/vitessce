@@ -31,6 +31,7 @@ module.exports = {
         'data-file-types',
         'data-hosting',
         'data-troubleshooting',
+        'data-comparative',
       ],
     },
     {

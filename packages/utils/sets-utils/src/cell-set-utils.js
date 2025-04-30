@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
-import centroid from '@turf/centroid';
+import { centroid } from '@turf/centroid';
 import concaveman from 'concaveman';
 import { getDefaultColor, PALETTE } from '@vitessce/utils';
 import {

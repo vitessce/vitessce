@@ -6,7 +6,7 @@ import {
 } from 'use-query-params';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { configs } from '@vitessce/example-configs';
+import { configs, configPages } from '@vitessce/example-configs';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
@@ -87,6 +87,7 @@ function IndexWithHashParams() {
   const [url] = useHashParam('url', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
   const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
+  const [pageMode] = useHashParam('pageMode', false, 'boolean');
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -227,6 +228,9 @@ function IndexWithHashParams() {
     });
   }
 
+  // PageMode
+  const PageComponent = isDemo ? configPages?.[demo] : null;
+
   return (edit ? (
     <>
       <AppStyles />
@@ -244,7 +248,7 @@ function IndexWithHashParams() {
     </>
   ) : validConfig ? (
     <div>
-      {isDemo ? (
+      {isDemo && !pageMode ? (
         <div className={clsx('demo-header', { 'vitessce-expanded': isExpanded })}>
           <DemoStyles />
           <DemoHeader
@@ -255,26 +259,41 @@ function IndexWithHashParams() {
       ) : (
         <AppStyles dimNavbar />
       )}
-      <div className={clsx('vitessce-and-toolbar', { 'vitessce-expanded': isExpanded })}>
-        <div className={clsx('vitessce-toolbar', { 'vitessce-expanded': isExpanded })}>
-          <div className={clsx('vitessce-toolbar-buttons', { 'vitessce-expanded': isExpanded })}>
-            {isDemo ? (
+      <div className={clsx('vitessce-and-toolbar', { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
+        {!pageMode ? (
+          <div className={clsx('vitessce-toolbar', { 'vitessce-expanded': isExpanded })}>
+            <div className={clsx('vitessce-toolbar-buttons', { 'vitessce-expanded': isExpanded })}>
+              {isDemo ? (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(prev => !prev)}
+                >
+                  { isExpanded ? 'Collapse' : 'Expand' }
+                </button>
+              ) : null}
               <button
                 type="button"
-                onClick={() => setIsExpanded(prev => !prev)}
+                onClick={handleEdit}
               >
-                { isExpanded ? 'Collapse' : 'Expand' }
+                Edit
               </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
+            </div>
           </div>
-        </div>
-        <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded })}>
+        ) : null}
+        <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
+          {pageMode ? (
+            <style>{`
+              #root .vitessce-container {
+                height: max(100%,100vh);
+                width: 100%;
+                overflow: hidden;
+              }
+                .navbar--fixed-top {
+                  position: relative;
+                }
+              `}
+            </style>
+          ) : null}
           <ThemedVitessce
             validateOnConfigChange={debug}
             onConfigChange={debug ? console.log : undefined}
@@ -282,7 +301,10 @@ function IndexWithHashParams() {
             config={validConfig}
             handleEdit={handleEdit}
             height={isExpanded ? undefined : 800}
-          />
+            pageMode={pageMode}
+          >
+            {pageMode && PageComponent ? (<PageComponent />) : null}
+          </ThemedVitessce>
         </main>
       </div>
     </div>

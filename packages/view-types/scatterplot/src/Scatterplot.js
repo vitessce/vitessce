@@ -4,6 +4,7 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
+  ContourLayerWithText,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -49,7 +50,7 @@ const getPosition = (object, { index, data, target }) => {
 };
 
 
-const contourGetWeight = (object, { index, data }) => data.src.featureValues[index];
+const contourGetWeight = (object, { index, data }) => data.src.featureValues?.[index];
 
 const contourGetPosition = (object, { index, data, target }) => {
   target[0] = data.src.embeddingX[index];
@@ -130,7 +131,16 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       contourThresholds,
       contoursFilled,
       contourColor: contourColorProp,
+      circleInfo,
+      cellSetLabelsVisible,
+      cellSetLabelSize,
+      featureSelection,
     } = this.props;
+
+    const circlePointSet = new Set();
+    const [getWeight, aggregation] = Array.isArray(featureSelection) && featureSelection.length > 0
+      ? ([contourGetWeight, 'MEAN'])
+      : ([1, 'COUNT']);
 
     const layers = Array.from(this.stratifiedData.entries())
       .flatMap(([obsSetKey, sampleSetMap]) => Array.from(sampleSetMap.entries())
@@ -155,30 +165,35 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
               || contourColor
             );
           }
-          return new deck.ContourLayer({
+          const contours = contourThresholds.map((threshold, i) => ({
+            i,
+            threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
+            // TODO: should the opacity steps be uniform? Should align with human perception.
+            // TODO: support usage of static colors.
+            color: [
+              // r, g, b
+              ...contourColor,
+              // a
+              (contoursFilled
+                ? ((i + 0.5) / contourThresholds.length * 255)
+                : ((i + 1) / (contourThresholds.length)) * 255),
+            ],
+            strokeWidth: 2,
+            // We need to specify a greater z-index so that the contour layers
+            // will render on top of the point layer.
+            zIndex: POINT_LAYER_Z_INDEX + 1 + i,
+          }));
+
+          return new ContourLayerWithText({
             id: `contour-${JSON.stringify(obsSetKey)}-${JSON.stringify(sampleSetKey)}`,
             coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
             data: deckData,
-            getWeight: contourGetWeight,
+            getWeight,
             getPosition: contourGetPosition,
-            contours: contourThresholds.map((threshold, i) => ({
-              threshold: (contoursFilled ? [threshold, threshold[i + 1] || Infinity] : threshold),
-              // TODO: should the opacity steps be uniform? Should align with human perception.
-              // TODO: support usage of static colors.
-              color: [
-                // r, g, b
-                ...contourColor,
-                // a
-                (contoursFilled
-                  ? ((i + 0.5) / contourThresholds.length * 255)
-                  : ((i + 1) / (contourThresholds.length)) * 255),
-              ],
-              strokeWidth: 2,
-              // We need to specify a greater z-index so that the contour layers
-              // will render on top of the point layer.
-              zIndex: POINT_LAYER_Z_INDEX + 1 + i,
-            })),
-            aggregation: 'MEAN',
+            obsSetPath: obsSetKey,
+            sampleSetPath: sampleSetKey,
+            contours,
+            aggregation,
             gpuAggregation: true,
             visible: true,
             pickable: false,
@@ -186,6 +201,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             filled: contoursFilled,
             cellSize: 0.25,
             zOffset: 0.005,
+            // Info for text/line rendering
+            circleInfo,
+            circlePointSet,
+            obsSetLabelsVisible: cellSetLabelsVisible,
+            obsSetLabelSize: cellSetLabelSize,
+            updateTriggers: {
+              getWeight: [getWeight],
+            },
           });
         }));
     return layers;
@@ -429,30 +452,34 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
   }
 
   onUpdateCellSetsLayers(onlyViewStateChange) {
-    // Because the label sizes for the force simulation depend on the zoom level,
-    // we _could_ run the simulation every time the zoom level changes.
-    // However, this has a performance impact in firefox.
-    if (onlyViewStateChange) {
-      const { viewState, cellSetLabelsVisible } = this.props;
+    const { viewState, cellSetLabelsVisible, embeddingContoursVisible } = this.props;
+    if (embeddingContoursVisible) {
+      // If rendering contours, we do not want to render text labels using this method,
+      // as the ContourLayerWithText implements its own text labeling internally.
+      this.cellSetsLayers = [];
+    } else if (onlyViewStateChange) {
+      // Because the label sizes for the force simulation depend on the zoom level,
+      // we _could_ run the simulation every time the zoom level changes.
+      // However, this has a performance impact in firefox.
       const { zoom } = viewState;
       const { cellSetsLabelPrevZoom } = this;
       // Instead, we can just check if the zoom level has changed
       // by some relatively large delta, to be more conservative
       // about re-running the force simulation.
       if (cellSetLabelsVisible
-        && (
-          cellSetsLabelPrevZoom === null
-          || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
-        )
+      && (
+        cellSetsLabelPrevZoom === null
+        || Math.abs(cellSetsLabelPrevZoom - zoom) > LABEL_UPDATE_ZOOM_DELTA
+      )
       ) {
         this.cellSetsLayers = this.createCellSetsLayers();
         this.cellSetsLabelPrevZoom = zoom;
       }
     } else {
-      // Otherwise, something more substantial than just
-      // the viewState has changed, such as the label array
-      // itself, so we always want to update the layer
-      // in this case.
+    // Otherwise, something more substantial than just
+    // the viewState has changed, such as the label array
+    // itself, so we always want to update the layer
+    // in this case.
       this.cellSetsLayers = this.createCellSetsLayers();
     }
   }
@@ -467,6 +494,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       obsEmbedding,
       makeFlippedGetObsCoords,
     );
+  }
+
+  componentWillUnmount() {
+    delete this.cellsQuadTree;
+    delete this.cellsLayer;
+    delete this.cellsData;
+    delete this.stratifiedData;
+    delete this.cellSetsForceSimulation;
+    delete this.cellSetsLabelPrevZoom;
+    delete this.cellSetsLayers;
+    delete this.contourLayers;
   }
 
   /**
@@ -507,7 +545,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       forceUpdate = true;
     }
 
-    if (['stratifiedData', 'contourColorEncoding', 'contoursFilled', 'contourThresholds', 'embeddingContoursVisible'].some(shallowDiff)) {
+    if ([
+      'stratifiedData', 'contourColorEncoding', 'contoursFilled',
+      'contourThresholds', 'embeddingContoursVisible',
+      'cellSetLabelsVisible', 'cellSetLabelSize',
+    ].some(shallowDiff)) {
       // Cells data changed.
       this.onUpdateContourLayers();
       forceUpdate = true;
@@ -516,6 +558,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'cellSetPolygons', 'cellSetPolygonsVisible',
       'cellSetLabelsVisible', 'cellSetLabelSize',
+      'embeddingContoursVisible',
     ].some(shallowDiff)) {
       // Cell sets layer props changed.
       this.onUpdateCellSetsLayers(false);

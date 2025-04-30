@@ -8,6 +8,7 @@ import { area as d3_area, curveBasis } from 'd3-shape';
 import { select } from 'd3-selection';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
+import { getColorScale } from './utils.js';
 
 const scaleBand = vega_scale('band');
 
@@ -35,9 +36,11 @@ const scaleBand = vega_scale('band');
 export default function CellSetExpressionPlot(props) {
   const {
     yMin: yMinProp,
+    xAxisTitle = null,
     yUnits,
     jitter,
-    cellSetSelection,
+    obsSetSelection,
+    obsSetColor,
     sampleSetSelection,
     sampleSetColor,
     colors,
@@ -57,18 +60,22 @@ export default function CellSetExpressionPlot(props) {
 
   const svgRef = useRef();
 
+  const obsSetColorScale = useMemo(() => getColorScale(
+    obsSetSelection, obsSetColor, theme,
+  ), [obsSetSelection, obsSetColor, theme]);
+
   // Get the max characters in an axis label for autsizing the bottom margin.
   const maxCharactersForLabel = useMemo(() => {
-    if (!cellSetSelection) {
+    if (!obsSetSelection) {
       return 0;
     }
-    const cellSetNames = cellSetSelection.map(d => d.at(-1));
+    const cellSetNames = obsSetSelection.map(d => d.at(-1));
     return cellSetNames.reduce((acc, name) => {
       // eslint-disable-next-line no-param-reassign
       acc = acc === undefined || name.length > acc ? name.length : acc;
       return acc;
     }, 0);
-  }, [cellSetSelection]);
+  }, [obsSetSelection]);
 
   const isStratified = (Array.isArray(sampleSetSelection) && sampleSetSelection.length === 2);
 
@@ -81,7 +88,7 @@ export default function CellSetExpressionPlot(props) {
     const unitSuffix = yUnits ? ` (${yUnits})` : '';
     const yTitle = `${transformPrefix}${capitalize(featureValueType)}${unitSuffix}`;
 
-    const xTitle = `${capitalize(obsType)} Set`;
+    const xTitle = xAxisTitle ?? `${capitalize(obsType)} Set`;
 
     // Use a square-root term because the angle of the labels is 45 degrees (see below)
     // so the perpendicular distance to the bottom of the labels is proportional to the
@@ -146,7 +153,7 @@ export default function CellSetExpressionPlot(props) {
 
     const xGroup = scaleBand()
       .range([marginLeft, width - marginRight])
-      .domain(cellSetSelection)
+      .domain(obsSetSelection)
       .padding(0.1);
 
 
@@ -314,17 +321,32 @@ export default function CellSetExpressionPlot(props) {
         .style('font-size', '11px');
 
     // X-axis ticks
-    g
+    const xTickG = g
       .append('g')
         .attr('transform', `translate(0,${innerHeight})`)
-        .style('font-size', '14px')
-      .call(axisBottom(xGroup).tickFormat(d => d.at(-1)))
+        .style('font-size', '14px');
+
+    xTickG.call(axisBottom(xGroup).tickFormat(d => d.at(-1)))
       .selectAll('text')
         .style('font-size', '11px')
         .attr('dx', '-6px')
         .attr('dy', '6px')
         .attr('transform', 'rotate(-45)')
         .style('text-anchor', 'end');
+
+    if (isStratified) {
+      // Associate each X tick with a cell type color,
+      // since in the stratified case the violins are colored
+      // by sample set.
+      const tickWidth = xGroup.bandwidth();
+      xTickG.selectAll('.tick')
+        .append('rect')
+          .attr('x', -tickWidth / 2)
+          // .attr("y", -innerHeight)
+          .attr('width', tickWidth)
+          .attr('height', 4)
+          .style('fill', d => obsSetColorScale(d));
+    }
 
     // Y-axis title
     g
@@ -394,7 +416,8 @@ export default function CellSetExpressionPlot(props) {
   }, [width, height, data, marginLeft, marginBottom, colors,
     jitter, theme, yMinProp, marginTop, marginRight, featureType,
     featureValueType, featureValueTransformName, yUnits, obsType,
-    maxCharactersForLabel, sampleSetSelection,
+    maxCharactersForLabel, sampleSetSelection, isStratified,
+    obsSetColorScale,
   ]);
 
   return (

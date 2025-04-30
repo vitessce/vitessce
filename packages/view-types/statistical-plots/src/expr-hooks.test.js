@@ -78,6 +78,7 @@ describe('Utility functions for processing expression data for statistical plots
       ];
       const featureValueTransform = null;
       const featureValueTransformCoefficient = 1;
+      const featureAggregationStrategy = 'first';
 
       const [result] = stratifyExpressionData(
         sampleEdges, sampleSets, sampleSetSelection,
@@ -86,7 +87,7 @@ describe('Utility functions for processing expression data for statistical plots
         featureValueTransform, featureValueTransformCoefficient,
       );
       const aggregateData = aggregateStratifiedExpressionData(
-        result, geneSelection,
+        result, geneSelection, featureAggregationStrategy,
       );
       const summaryResult = summarizeStratifiedExpressionData(aggregateData, true);
 

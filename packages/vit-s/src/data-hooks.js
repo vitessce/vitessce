@@ -219,6 +219,17 @@ export function useNeighborhoodsData(
   );
 }
 
+export function useComparisonMetadata(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.COMPARISON_METADATA,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
 /**
  * Get data from the expression matrix data type loader for a given gene selection.
  * Throw warnings if the data is marked as required.
@@ -311,6 +322,117 @@ export function useFeatureSelection(
   }, [anyError, setWarning]);
 
   return [geneData, loadedGeneName, dataStatus];
+}
+
+/**
+ * Utility hook function which can be used to define
+ * dataType-specific data hooks which call a loader.loadMulti
+ * method to obtain multiple data frames resulting from
+ * multiple comparative analyses.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @param {boolean} isRequired Should a warning be thrown if
+ * loading is unsuccessful?
+ * @param {object} matchOn Coordination values used to obtain a matching loader.
+ * @param {object} volcanoOptions Options to pass to the loadMulti function of the loader.
+ * @param {string} dataType A data type.
+ * @returns {array} [{ df, metadata }] Array of dataframes and their metadata, where
+ * df is an object in which each column is stored as an array like { col1: arr1, col2: arr2 }.
+ */
+export function useComparativeDataType(
+  loaders, dataset, isRequired, matchOn, volcanoOptions, dataType,
+) {
+  const setWarning = useSetWarning();
+  const placeholderObject = useMemo(() => ({}), []);
+  const statsQuery = useQuery({
+    // TODO: only enable once `loaders` is available?
+    structuralSharing: false,
+    placeholderData: placeholderObject,
+    // Include the hook name in the queryKey to prevent the case in which an identical queryKey
+    // in a different hook would cause an accidental cache hit.
+    queryKey: [dataset, dataType, matchOn, volcanoOptions, 'useComparativeData'],
+    // TODO: use TypeScript to type the return value?
+    queryFn: async (ctx) => {
+      const loader = getMatchingLoader(
+        ctx.meta.loaders, ctx.queryKey[0], ctx.queryKey[1], ctx.queryKey[2],
+      );
+      if (loader) {
+        // FeatureStats loader has a special loadMulti function
+        // that depends on coordination values such as sampleSetSelection.
+        const implementsLoadAttrs = typeof loader.loadMulti === 'function';
+        if (implementsLoadAttrs) {
+          // Has loadMulti function.
+          const payload = await loader.loadMulti(volcanoOptions);
+          if (!payload) return placeholderObject;
+          const { data: payloadData } = payload;
+
+          return {
+            data: payloadData,
+            urls: null,
+          };
+        }
+        // No loadAttrs function.
+        const payload = await loader.load();
+        if (!payload) return placeholderObject;
+        const { data: payloadData } = payload;
+        return {
+          data: payloadData,
+          urls: null,
+        };
+      }
+      // No loader was found.
+      if (isRequired) {
+        // Status: error
+        throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+      } else {
+        // Status: success
+        return { data: placeholderObject, dataKey: null };
+      }
+    },
+    meta: { loaders },
+  });
+  const { data, status, isFetching, error } = statsQuery;
+  const loadedData = data?.data || placeholderObject;
+
+  const dataStatus = isFetching ? STATUS.LOADING : status;
+  const urls = data?.urls;
+
+  useEffect(() => {
+    if (error) {
+      setWarning(error.message);
+    }
+  }, [error, setWarning]);
+
+  return [loadedData, dataStatus, urls];
+}
+
+export function useFeatureStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.FEATURE_STATS,
+  );
+}
+
+export function useFeatureSetStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.FEATURE_SET_STATS,
+  );
+}
+
+export function useObsSetStatsData(
+  loaders, dataset, isRequired, matchOn, volcanoOptions,
+) {
+  return useComparativeDataType(
+    loaders, dataset, isRequired, matchOn, volcanoOptions,
+    DataType.OBS_SET_STATS,
+  );
 }
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -141,9 +141,6 @@ export function TreemapSubscriber(props) {
     [sampleSets],
   );
 
-  const obsCount = obsIndex?.length || 0;
-  const sampleCount = sampleIndex?.length || 0;
-
   // TODO: use obsFilter / sampleFilter to display
   // _all_ cells/samples in gray / transparent in background,
   // and use obsSetSelection/sampleSetSelection to display
@@ -173,16 +170,16 @@ export function TreemapSubscriber(props) {
       });
     });
 
-    const sampleSetSizes = treeToSetSizesBySetNames(
+    const sampleSetSizes = hasSampleSetSelection ? treeToSetSizesBySetNames(
       mergedSampleSets, sampleSetSelection, sampleSetSelection, sampleSetColor, theme,
-    );
+    ) : null;
 
     sampleSetKeys.forEach((sampleSetKey) => {
-      const sampleSetSize = sampleSetSizes.find(d => isEqual(d.setNamePath, sampleSetKey))?.size;
+      const sampleSetSize = sampleSetSizes?.find(d => isEqual(d.setNamePath, sampleSetKey))?.size;
       sampleResult.set(sampleSetKey, sampleSetSize || 0);
     });
 
-    if (mergedObsSets && obsSetSelection) {
+    if (mergedObsSets && obsSetSelection && obsIndex) {
       const sampleIdToSetMap = sampleSets && sampleSetSelection
         ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
         : null;
@@ -193,7 +190,9 @@ export function TreemapSubscriber(props) {
 
         const cellSet = cellIdToSetMap?.get(obsId);
         const sampleId = sampleEdges?.get(obsId);
-        const sampleSet = sampleId ? sampleIdToSetMap?.get(sampleId) : null;
+        const sampleSet = sampleId && hasSampleSetSelection
+          ? sampleIdToSetMap?.get(sampleId)
+          : null;
 
         if (hasSampleSetSelection && !sampleSet) {
           // Skip this sample if it is not in the selected sample set.
@@ -211,18 +210,34 @@ export function TreemapSubscriber(props) {
     ];
   }, [obsIndex, sampleEdges, sampleSets, obsSetColor,
     sampleSetColor, mergedObsSets, obsSetSelection, mergedSampleSets,
+    sampleSetSelection, obsIndex,
     // TODO: consider filtering-related coordination values
   ]);
+
+  const totalObsCount = obsIndex?.length || 0;
+  const totalSampleCount = sampleIndex?.length || 0;
+
+  const selectedObsCount = obsCounts.reduce((a, h) => a + h.value, 0);
+  const selectedSampleCount = sampleCounts.reduce((a, h) => a + h.value, 0);
+
+  const unselectedObsCount = totalObsCount - selectedObsCount;
+  const unselectedSampleCount = totalSampleCount - selectedSampleCount;
+
+
+  const onNodeClick = useCallback((obsSetPath) => {
+    setObsSetSelection([obsSetPath]);
+  }, [setObsSetSelection]);
 
   return (
     <TitleInfo
       title={`Treemap of ${capitalize(plur(obsType, 2))}`}
-      info={`${commaNumber(obsCount)} ${plur(obsType, obsCount)} from ${commaNumber(sampleCount)} ${plur(sampleType, sampleCount)}`}
+      info={`${commaNumber(selectedObsCount)} ${plur(obsType, selectedObsCount)} from ${commaNumber(selectedSampleCount)} ${plur(sampleType, selectedSampleCount)}`}
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      withPadding={false}
       options={(
         <TreemapOptions
           obsType={obsType}
@@ -247,14 +262,20 @@ export function TreemapSubscriber(props) {
           hierarchyLevels={hierarchyLevels || DEFAULT_HIERARCHY_LEVELS}
           theme={theme}
           width={width}
-          height={height}
+          height={Math.max(height * (selectedObsCount / totalObsCount), 40)}
           obsType={obsType}
           sampleType={sampleType}
           obsSetColor={obsSetColor}
           sampleSetColor={sampleSetColor}
           obsSetSelection={obsSetSelection}
           sampleSetSelection={sampleSetSelection}
+          onNodeClick={onNodeClick}
         />
+      </div>
+      <div style={{ position: 'absolute', right: '2px', bottom: '2px', fontSize: '10px' }}>
+        {unselectedObsCount > 0 ? (
+          <span>{`${commaNumber(unselectedObsCount)} ${plur(obsType, unselectedObsCount)} from ${commaNumber(unselectedSampleCount)} ${plur(sampleType, unselectedSampleCount)} currently omitted`}</span>
+        ) : null}
       </div>
     </TitleInfo>
   );

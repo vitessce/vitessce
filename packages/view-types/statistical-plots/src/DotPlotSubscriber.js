@@ -160,11 +160,13 @@ export function DotPlotSubscriber(props) {
             width={width}
             height={height}
             obsType={obsType}
+            sampleType={sampleType}
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
             featureValueColormap={featureValueColormap}
-            cellSetSelection={cellSetSelection}
+            obsSetSelection={cellSetSelection}
+            obsSetColor={cellSetColor}
           />
         ) : (
           <span>Select at least one {featureType}.</span>

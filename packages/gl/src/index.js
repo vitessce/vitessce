@@ -16,7 +16,7 @@ export { default as ScaledExpressionExtension } from './ScaledExpressionExtensio
 export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
 export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
-
+export { default as ContourLayerWithText } from './ContourLayerWithText.js';
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
