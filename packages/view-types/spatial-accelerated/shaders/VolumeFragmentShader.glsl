@@ -37,6 +37,10 @@ varying vec4 glPosition;
 uniform float far;
 varying vec3 worldSpaceCoords; // only used for depth
 
+layout(location = 0) out vec4 gColor;
+layout(location = 1) out vec4 gData1;
+layout(location = 2) out vec4 gData2;
+
 float linearize_z(float z) {
     return near * far / (far + z * (near - far));
 }
@@ -211,7 +215,7 @@ void main(void) {
     // dt = max(0.5, dt);
     vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
     // Most browsers do not need this initialization, but add it to be safe
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
 
     // t_hit is between 0 and 3000
     // dt is around 0.0015
@@ -292,10 +296,10 @@ void main(void) {
             float sliceAlpha = total * dtScale * dt;
             vec3 sliceColor  = rgbCombo;
 
-            gl_FragColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-            gl_FragColor.a   += sliceAlpha * alphaMultiplicator;
+            outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+            outColor.a   += sliceAlpha * alphaMultiplicator;
 
-            if (gl_FragColor.a > 0.99) {
+            if (outColor.a > 0.99) {
                 break;
             }
 
@@ -312,13 +316,30 @@ void main(void) {
             newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
         }
         
-        if (gl_FragColor.a > 0.99) {
+        if (outColor.a > 0.99) {
             break;
         }
     }
 
     // gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
-    gl_FragColor.r = linear_to_srgb(gl_FragColor.r);
-    gl_FragColor.g = linear_to_srgb(gl_FragColor.g);
-    gl_FragColor.b = linear_to_srgb(gl_FragColor.b);
+    outColor.r = linear_to_srgb(outColor.r);
+    outColor.g = linear_to_srgb(outColor.g);
+    outColor.b = linear_to_srgb(outColor.b);
+
+    // Set all render targets directly without conditionals
+    gColor = vec4(linear_to_srgb(outColor.r), 
+                  linear_to_srgb(outColor.g), 
+                  linear_to_srgb(outColor.b), 
+                  outColor.a);
+    
+    // First data output (raw color values before sRGB conversion)
+    gData1 = vec4(outColor.a, 1.0, 0.0, 1.0);
+    
+    // Second data output (position data)
+    gData2 = vec4(p.x, p.y, 1.0, 1.0);
+    
+    // Also set outColor for compatibility
+    outColor.r = linear_to_srgb(outColor.r);
+    outColor.g = linear_to_srgb(outColor.g);
+    outColor.b = linear_to_srgb(outColor.b);
 }

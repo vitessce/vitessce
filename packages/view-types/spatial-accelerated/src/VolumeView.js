@@ -6,9 +6,10 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame, createPortal } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { WebGLRenderTarget, RGBAFormat, FloatType, Scene } from 'three';
 
 import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
@@ -50,6 +51,11 @@ export function VolumeView(props) {
   // Track the last processed resolution to avoid infinite loops
   const [lastResolution, setLastResolution] = useState(null);
   const [lastChannelTargets, setLastChannelTargets] = useState([]);
+
+  // Create additional render targets
+  const [processingTargets, setProcessingTargets] = useState(null);
+  const secondarySceneRef = useRef(new Scene());
+  const frameCountRef = useRef(0);
 
   // Helper function to compare channel arrays
   function areChannelsEqual(channels1, channels2) {
@@ -234,6 +240,8 @@ export function VolumeView(props) {
         fragmentShader: rendering.shader.fragmentShader,
         side: THREE.BackSide,
         transparent: true,
+        // Always enable multiple render targets
+        glslVersion: THREE.GLSL3 // Required for layout(location=X) syntax
       });
 
       // Replace the existing material if needed
@@ -249,6 +257,87 @@ export function VolumeView(props) {
       managers.renderManager.applyToMaterial(materialRef.current);
     }
   }, [rendering, isLoading, managers]);
+
+  // Initialize render targets
+  useEffect(() => {
+    if (!gl) return;
+    
+    // Create render targets with matching format and capabilities
+    const target1 = new WebGLRenderTarget(512, 512, {
+      format: RGBAFormat,
+      type: FloatType,
+      stencilBuffer: false,
+      // Add these properties to ensure MRT works
+      count: 3 // Number of render targets (including the main one)
+    });
+    
+    const target2 = new WebGLRenderTarget(512, 512, {
+      format: RGBAFormat,
+      type: FloatType,
+      stencilBuffer: false,
+      count: 3
+    });
+    
+    setProcessingTargets({ target1, target2 });
+    
+    return () => {
+      target1.dispose();
+      target2.dispose();
+    };
+  }, [gl]);
+  
+  // Periodically copy data from render targets to CPU
+  useFrame(({ gl, scene, camera }) => {
+    if (!processingTargets || !managers || !managers.dataManager) return;
+    
+    frameCountRef.current += 1;
+    
+    // Only process targets every 30 frames
+    if (frameCountRef.current % 100 === 0) {
+      // First render the scene to the render targets
+      // This ensures we're properly rendering with MRT enabled
+      managers.renderManager.renderToProcessingTargets(gl, secondarySceneRef.current, camera);
+      
+      // Then read back the first target
+      const width = processingTargets.target1.width;
+      const height = processingTargets.target1.height;
+      const buffer1 = new Float32Array(width * height * 4);
+      gl.readRenderTargetPixels(processingTargets.target1, 0, 0, width, height, buffer1);
+      
+      // Schedule processing for next frame
+      setTimeout(() => {
+        if (managers && managers.dataManager) {
+          managers.dataManager.processRenderTargetData(buffer1, 1);
+        }
+        console.log('buffer1', buffer1);
+
+      }, 0);
+
+    }
+    
+    // Read the second target with an offset
+    if (frameCountRef.current % 100 === 50) {
+      const width = processingTargets.target2.width;
+      const height = processingTargets.target2.height;
+      const buffer2 = new Float32Array(width * height * 4);
+      gl.readRenderTargetPixels(processingTargets.target2, 0, 0, width, height, buffer2);
+      
+      setTimeout(() => {
+        if (managers && managers.dataManager) {
+          managers.dataManager.processRenderTargetData(buffer2, 2);
+        }
+      }, 0);
+
+      console.log('buffer2', buffer2);
+    }
+  });
+
+  // Pass render targets to render manager when available
+  useEffect(() => {
+    if (managers && processingTargets) {
+      managers.renderManager.setProcessingTargets(processingTargets.target1, processingTargets.target2);
+    }
+  }, [managers, processingTargets]);
 
   // Don't render anything if not in 3D mode or managers aren't initialized
   if (!is3DMode || !managers) {
@@ -275,20 +364,41 @@ export function VolumeView(props) {
 
   // Render the volume with our setup
   return (
-    <group>
-      <OrbitControls
-        ref={orbitRef}
-        enableDamping={false}
-        dampingFactor={0.0}
-        zoomDampingFactor={0.0}
-        smoothZoom={false}
-      />
-      <mesh
-        ref={meshRef}
-        scale={rendering.meshScale}
-      >
-        <boxGeometry args={rendering.geometrySize} />
-      </mesh>
-    </group>
+    <>
+      {/* Original rendered content */}
+      <group>
+        <OrbitControls
+          ref={orbitRef}
+          enableDamping={false}
+          dampingFactor={0.0}
+          zoomDampingFactor={0.0}
+          smoothZoom={false}
+        />
+        <mesh
+          ref={meshRef}
+          scale={rendering.meshScale}
+        >
+          <boxGeometry args={rendering.geometrySize} />
+        </mesh>
+      </group>
+      
+      {/* Secondary scene for render targets - will be rendered off-screen */}
+      {processingTargets && createPortal(
+        <mesh
+          scale={rendering.meshScale}
+        >
+          <boxGeometry args={rendering.geometrySize} />
+          <shaderMaterial
+            uniforms={rendering.uniforms}
+            vertexShader={rendering.shader.vertexShader}
+            fragmentShader={rendering.shader.fragmentShader}
+            side={THREE.BackSide}
+            transparent={true}
+            glslVersion={THREE.GLSL3} // Required for layout(location=X) syntax
+          />
+        </mesh>,
+        secondarySceneRef.current
+      )}
+    </>
   );
 }

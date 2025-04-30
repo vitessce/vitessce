@@ -5,6 +5,9 @@ import {
   RedFormat,
   FloatType,
   LinearFilter,
+  WebGLRenderTarget,
+  Scene,
+  Camera,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { VolumeShader } from './VolumeShader.js';
@@ -50,6 +53,10 @@ export class VolumeRenderManager {
     this.originalScale = [1, 1, 1];
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
+
+    // Additional state
+    this.processingTarget1 = null;
+    this.processingTarget2 = null;
 
     // Initialize shader
     this.initializeShader();
@@ -527,5 +534,39 @@ export class VolumeRenderManager {
         matUniforms[key].value = this.uniforms[key].value;
       }
     });
+  }
+
+  /**
+   * Sets the processing render targets
+   * @param {WebGLRenderTarget} target1 - First render target
+   * @param {WebGLRenderTarget} target2 - Second render target
+   */
+  setProcessingTargets(target1, target2) {
+    this.processingTarget1 = target1;
+    this.processingTarget2 = target2;
+  }
+  
+  /**
+   * Renders to the processing targets
+   * @param {WebGLRenderer} renderer - Three.js renderer
+   * @param {Scene} scene - Scene containing the volume
+   * @param {Camera} camera - Current camera
+   */
+  renderToProcessingTargets(renderer, scene, camera) {
+    if (!this.processingTarget1 || !this.processingTarget2) return;
+    
+    // Store current render target
+    const currentRenderTarget = renderer.getRenderTarget();
+    
+    // Render to first target
+    renderer.setRenderTarget(this.processingTarget1);
+    renderer.render(scene, camera);
+    
+    // Render to second target
+    renderer.setRenderTarget(this.processingTarget2);
+    renderer.render(scene, camera);
+    
+    // Restore original render target
+    renderer.setRenderTarget(currentRenderTarget);
   }
 }

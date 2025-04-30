@@ -1,12 +1,5 @@
 /* eslint-disable max-len */
-// TODO: add constants here
-// store device limits here
-// keep track of the current chunks
-// later -- create octree structure for accessing
-// handle the chunk loading
-// reference viewport settings
 
-// TODO: use gl.texSubImage3D to load in the bricks
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
 // 2048 x 2048 x 64 = 8192 bricks, around 268 MB
@@ -17,7 +10,6 @@
 
 // eslint-disable-next-line import/no-unresolved
 // eslint-disable-next-line import/no-extraneous-dependencies
-
 
 import * as zarrita from 'zarrita';
 import {
@@ -1102,5 +1094,41 @@ export class VolumeDataManager {
     }
 
     return chunkEntry.data;
+  }
+
+  /**
+   * Process data from render targets
+   * @param {Float32Array} buffer - Pixel data from render target
+   * @param {number} targetId - Which render target (1 or 2)
+   */
+  processRenderTargetData(buffer, targetId) {
+    log(`Processing data from render target ${targetId}`);
+    
+    // Process the render target data here
+    // This is where you implement your specific processing logic
+    // For example:
+    
+    // Example: Count number of pixels above threshold
+    const threshold = 0.5;
+    let pixelsAboveThreshold = 0;
+    
+    for (let i = 0; i < buffer.length; i += 4) {
+      // Check R channel value
+      if (buffer[i] > threshold) {
+        pixelsAboveThreshold++;
+      }
+    }
+    
+    log(`Target ${targetId}: Found ${pixelsAboveThreshold} pixels above threshold`);
+    
+    // You can add more complex processing here
+    // Or store the data for later use
+    
+    // Example: if this is analytics data, you might want to store it
+    if (targetId === 1) {
+      this.lastAnalyticsResult = pixelsAboveThreshold;
+    } else if (targetId === 2) {
+      this.lastSecondaryResult = pixelsAboveThreshold;
+    }
   }
 }
