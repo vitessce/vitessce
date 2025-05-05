@@ -203,6 +203,19 @@ body {
 }
 ```
 
+## Configure Vite project
+Edit the `vite.config.js` file to allow Vite to serve correctly from a subpath like `https://yourname.github.io/your-repo-name/`
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  base: '/vitessce-demo-gh-pages/',
+})
+```
+
 ## Data deployment
 
 When you deploy the React app to the internet via GitHub Pages, the data URLs referenced in your Vitessce configuration (defined in `src/my-view-config.js`) must point to static files that are hosted remotely on the internet.
@@ -264,18 +277,7 @@ jobs:
 ```
 
 
-## Configure Vite project
-Edit the `vite.config.js` file to allow Vite to serve correctly from a subpath like `https://yourname.github.io/your-repo-name/`
-```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  base: '/vitessce-demo-gh-pages/',
-})
-```
 ### Allow GitHub Pages to be deployed from GitHub Actions
 
 To allow the GitHub Action to modify the `gh-pages` branch of the repository, we need to update the settings at `https://github.com/{my-username}/vitessce-demo-gh-pages/settings/pages` (or navigate to `Settings` -> `Pages` for the repo).
