@@ -35,6 +35,7 @@ cd vitessce-demo-gh-pages
 npm install
 npm install react@18.0.0 react-dom@18.0.0 
 npm run dev
+# Press Ctrl-C to stop the development server.
 ```
 Note: react@18.0.0 is compatible with Vitessce
 
@@ -175,7 +176,7 @@ export default function App() {
 }
 ```
 
-For more information about the React component, see the [documentation page](https://vitessce.io/docs/js-react-vitessce/).
+For more information about the React component, see the [documentation page](../js-react-vitessce/).
 
 In `src/index.css` (which is imported by `src/main.jsx`):
 
@@ -203,7 +204,7 @@ body {
 }
 ```
 
-## Configure Vite project
+### Configure Vite project
 Edit the `vite.config.js` file to allow Vite to serve correctly from a subpath like `https://yourname.github.io/your-repo-name/`
 ```js
 import { defineConfig } from 'vite'
@@ -215,6 +216,17 @@ export default defineConfig({
   base: '/vitessce-demo-gh-pages/',
 })
 ```
+
+### Run app locally
+
+To try out the app locally, run the following in the terminal:
+
+```sh
+npm run dev
+```
+
+This starts the Vite development server, which should auto-reload the web application upon code changes.
+
 
 ## Data deployment
 
