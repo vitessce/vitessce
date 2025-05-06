@@ -1,404 +1,221 @@
 /**
- * VolumeView.js
+ * VolumeView.js ‑ single‑pass MRT renderer
  *
- * React Three Fiber component that renders a 3D volume using the
- * VolumeDataManager to load data and VolumeRenderManager to handle rendering.
+ *  ▸ One geometry pass per frame               (gl.draw* called once)
+ *  ▸ Writes three colour‑attachments in that pass
+ *  ▸ Blits attachment 0 to the default FB
+ *  ▸ Optionally reads attachment 1 & 2 on an interval
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useThree, useFrame, createPortal } from '@react-three/fiber';
+import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { WebGLRenderTarget, RGBAFormat, FloatType, Scene } from 'three';
+import { WebGLMultipleRenderTargets } from 'three';
 
 import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
-function log(message) {
-  // console.warn(`%cV: ${message}`,
-  //   'background: blue; color: white; padding: 2px; border-radius: 3px;');
+function log(msg) {
+  /* console.warn(`V ${msg}`); */
 }
 
 export function VolumeView(props) {
-  log('CLASS INITIALIZING');
-  // Get access to the Three.js renderer
-  const { gl } = useThree();
+  /* ---------- r3f handles ------------------------------------------------- */
+  const { gl, scene, camera } = useThree(); // grab once – never changes
 
-  // References to objects in the scene
-  const materialRef = useRef(null);
+  /* ---------- refs / state ------------------------------------------------ */
   const orbitRef = useRef(null);
   const meshRef = useRef(null);
-  const boxDimensionsRef = useRef([1, 1, 1]);
+  const bufU32 = useRef(null);
+  const bufU16 = useRef(null);
+  const frameRef = useRef(0);
+  const [processingRT, setRT] = useState(null);
 
-  // State for data and render managers
-  const [managers, setManagers] = useState(null);
-  const [rendering, setRendering] = useState({
-    uniforms: null,
+  const [managers, setManagers] = useState(null); // {dataManager, renderManager}
+  const [renderState, setRenderState] = useState({ uniforms: null,
     shader: null,
     meshScale: [1, 1, 1],
-    geometrySize: [1, 1, 1],
-    boxSize: [1, 1, 1],
-  });
+    geometrySize: [1, 1, 1] });
+  const [lastRes, setLastRes] = useState(null);
+  const [lastChannels, setLastChannels] = useState([]);
+  const [is3D, setIs3D] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // State for zarr store info and device limits
-  const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
-  const [deviceLimits, setDeviceLimits] = useState(null);
+  /* ---------- helpers ----------------------------------------------------- */
+  const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
-  // State for loading status
-  const [isLoading, setIsLoading] = useState(false);
-  const [is3DMode, setIs3DMode] = useState(false);
-
-  // Track the last processed resolution to avoid infinite loops
-  const [lastResolution, setLastResolution] = useState(null);
-  const [lastChannelTargets, setLastChannelTargets] = useState([]);
-
-  // Create additional render targets
-  const [processingTargets, setProcessingTargets] = useState(null);
-  const secondarySceneRef = useRef(new Scene());
-  const frameCountRef = useRef(0);
-
-  // Helper function to compare channel arrays
-  function areChannelsEqual(channels1, channels2) {
-    if (!channels1 || !channels2) return false;
-    if (channels1.length !== channels2.length) return false;
-
-    return channels1.every((channel, index) => channel === channels2[index]);
-  }
-
-  // Initialize managers on first render
+  /* ---------- initialise managers ---------------------------------------- */
   useEffect(() => {
-    // Try to get the WebGL context safely
-    log('USE EFFECT INITIALIZING MANAGERS');
-    let glContext;
-    try {
-      if (gl.getContext) {
-        glContext = gl.getContext();
-      } else if (gl.domElement) {
-        glContext = gl.domElement.getContext('webgl2') || gl.domElement.getContext('webgl');
-      } else if (gl.context) {
-        glContext = gl.context;
-      } else {
-        // Last resort - use gl directly
-        glContext = gl;
+    (async () => {
+      const dm = new VolumeDataManager(
+        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+        gl.getContext?.() || gl,
+        gl,
+      );
+      const rm = new VolumeRenderManager();
+      await dm.init(); // device limits, zarr meta …
+
+      setManagers({ dataManager: dm, renderManager: rm });
+      if (props.onInitComplete) {
+        props.onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       }
-    } catch (error) {
-      glContext = null;
-    }
+    })();
 
-    // Create the data and render managers
-    const dataManager = new VolumeDataManager(
-      'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-      glContext,
-      gl,
-    );
-    const renderManager = new VolumeRenderManager();
+    return () => managers?.dataManager.clearCache();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once
 
-    // Initialize the data manager and get zarr store details and device limits
-    dataManager.init().then((initResult) => {
-      log('DATAMANAGER INITIALIZER');
-      if (initResult.success) {
-        setZarrStoreInfo(initResult.zarrStore);
-        setDeviceLimits(initResult.deviceLimits);
+  useEffect(() => { gl.autoClear = false; }, [gl]);
 
-        // Set permanent box dimensions
-        const scale = dataManager.getOriginalScaleXYZ();
-        boxDimensionsRef.current = dataManager.getBoxDimensionsXYZ();
-        boxDimensionsRef.current[0] *= scale[0] * 200.0;
-        boxDimensionsRef.current[1] *= scale[1] * 200.0;
-        boxDimensionsRef.current[2] *= scale[2] * 200.0;
-
-        if (props.onInitComplete) {
-          props.onInitComplete({
-            zarrStoreInfo: initResult.zarrStore,
-            deviceLimits: initResult.deviceLimits,
-          });
-        }
-      } else {
-        console.error('Failed to initialize VolumeDataManager:', initResult.error);
-      }
-    });
-
-    // Initialize the Zarr store for rendering
-    dataManager.initStore().then(() => {
-      setManagers({
-        dataManager,
-        renderManager,
-      });
-    });
-
-    // Clean up on unmount
-    return () => {
-      if (dataManager) {
-        dataManager.clearCache();
-      }
-    };
-  }, [gl]);
-
-  // Extract settings from props - memoized to avoid recalculation
+  /* ---------- react to prop changes -------------------------------------- */
   const extractSettings = useCallback(() => {
-    log('callback extractSettings');
     if (!managers) return null;
-    const { renderManager } = managers;
-
-    // Extract rendering settings from props
-    const settingsValid = renderManager.updateFromProps(props);
-    if (!settingsValid) return null;
-
-    console.warn('TODO: this leads to extracting twice');
-
-    // Get the extracted settings
-    return renderManager.extractRenderingSettingsFromProps(props);
+    const ok = managers.renderManager.updateFromProps(props);
+    return ok ? managers.renderManager.extractRenderingSettingsFromProps(props) : null;
   }, [props, managers]);
 
-  // Load data when necessary
-  const loadVolumeData = useCallback(async (settings) => {
-    log('callback loadVolumeData');
-    if (!managers || !settings) return;
-    const { dataManager, renderManager } = managers;
+  const loadIfNeeded = useCallback(async (settings) => {
+    if (!settings || !managers) return;
 
-    // Check if we need to load new data
-    const resolutionChanged = settings.resolution !== lastResolution;
-    const channelsChanged = !areChannelsEqual(settings.channelTargetC, lastChannelTargets);
+    const resolutionChanged = settings.resolution !== lastRes;
+    const channelsChanged = !sameArray(settings.channelTargetC, lastChannels);
 
     if (!resolutionChanged && !channelsChanged) {
-      // If neither resolution nor channels changed, just update rendering
-      const renderingSettings = renderManager.updateRendering(dataManager);
-      if (renderingSettings) {
-        setRendering(renderingSettings);
-      }
+      const s = managers.renderManager.updateRendering(managers.dataManager);
+      if (s) setRenderState(s);
       return;
     }
 
-    setIsLoading(true);
-
+    setLoading(true);
     try {
-      // Load the volume data only when resolution or channels changed
-      await dataManager.loadVolumeData(
-        settings.channelTargetC,
-        settings.resolution,
-      );
+      await managers.dataManager.loadVolumeData(settings.channelTargetC, settings.resolution);
+      const s = managers.renderManager.updateRendering(managers.dataManager);
+      if (s) setRenderState(s);
 
-      // Update rendering based on loaded data
-      const renderingSettings = renderManager.updateRendering(dataManager);
+      setLastRes(settings.resolution);
+      setLastChannels([...settings.channelTargetC]);
+    } finally { setLoading(false); }
+  }, [managers, lastRes, lastChannels]);
 
-      if (renderingSettings) {
-        setRendering(renderingSettings);
-      }
-
-      // Update state to track what we just loaded
-      setLastResolution(settings.resolution);
-      setLastChannelTargets([...settings.channelTargetC]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [managers, lastResolution, lastChannelTargets]);
-
-  // Update when 3D mode or managers change
+  /* update for 3D‑mode or prop changes */
   useEffect(() => {
-    log('callback useEffect when 3D mode or managers change');
-    if (!managers) return;
+    const on3D = props.spatialRenderingMode === '3D';
+    setIs3D(on3D);
+    if (on3D) loadIfNeeded(extractSettings());
+  }, [props, extractSettings, loadIfNeeded]);
 
-    const { spatialRenderingMode } = props;
-
-    // Check if we're in 3D mode
-    const newIs3DMode = spatialRenderingMode === '3D';
-    setIs3DMode(newIs3DMode);
-
-    if (!newIs3DMode) return;
-
-    // Extract settings and load data if needed
-    const settings = extractSettings();
-    if (settings) {
-      loadVolumeData(settings);
-    }
-  }, [props, managers, extractSettings, loadVolumeData]);
-
-  // Forward zarr store info and device limits through the ref if available
+  /* ---------- MRT target matching canvas --------------------------------- */
   useEffect(() => {
-    log('callback useEffect when forwardRef is available');
-    if (props.forwardRef && typeof props.forwardRef === 'object') {
-      props.forwardRef.current = {
-        zarrStoreInfo,
-        deviceLimits,
-      };
-    }
-  }, [props.forwardRef, zarrStoreInfo, deviceLimits]);
-
-  // Update material when rendering changes
-  useEffect(() => {
-    log('callback useEffect when rendering changes');
-    if (!meshRef.current || !managers || isLoading
-      || !rendering.uniforms || !rendering.shader) return;
-
-    console.warn('usingEffect: rendering', rendering);
-
-    // Only create new material if it doesn't exist
-    if (!materialRef.current) {
-      const material = new THREE.ShaderMaterial({
-        uniforms: rendering.uniforms,
-        vertexShader: rendering.shader.vertexShader,
-        fragmentShader: rendering.shader.fragmentShader,
-        side: THREE.BackSide,
-        transparent: true,
-        // Always enable multiple render targets
-        glslVersion: THREE.GLSL3 // Required for layout(location=X) syntax
-      });
-
-      // Replace the existing material if needed
-      if (meshRef.current.material) {
-        meshRef.current.material.dispose();
-      }
-      meshRef.current.material = material;
-      materialRef.current = material;
-    }
-
-    // Just update the uniforms on the existing material
-    if (managers.renderManager) {
-      managers.renderManager.applyToMaterial(materialRef.current);
-    }
-  }, [rendering, isLoading, managers]);
-
-  // Initialize render targets
-  useEffect(() => {
-    if (!gl) return;
-    
-    // Create render targets with matching format and capabilities
-    const target1 = new WebGLRenderTarget(512, 512, {
-      format: RGBAFormat,
-      type: FloatType,
-      stencilBuffer: false,
-      // Add these properties to ensure MRT works
-      count: 3 // Number of render targets (including the main one)
+    const { width, height } = gl.domElement;
+    const mrt = new WebGLMultipleRenderTargets(width, height, 3);
+    mrt.texture.forEach((tex) => {
+      tex.format = THREE.RGBAFormat;
+      tex.type = THREE.UnsignedByteType;
+      tex.minFilter = tex.magFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
     });
-    
-    const target2 = new WebGLRenderTarget(512, 512, {
-      format: RGBAFormat,
-      type: FloatType,
-      stencilBuffer: false,
-      count: 3
-    });
-    
-    setProcessingTargets({ target1, target2 });
-    
-    return () => {
-      target1.dispose();
-      target2.dispose();
-    };
+
+    bufU32.current = new Uint8Array(width * height * 4);
+    bufU16.current = new Uint8Array(width * height * 4);
+    setRT(mrt);
+
+    return () => mrt.dispose();
   }, [gl]);
-  
-  // Periodically copy data from render targets to CPU
-  useFrame(({ gl, scene, camera }) => {
-    if (!processingTargets || !managers || !managers.dataManager) return;
-    
-    frameCountRef.current += 1;
-    
-    // Only process targets every 30 frames
-    if (frameCountRef.current % 100 === 0) {
-      // First render the scene to the render targets
-      // This ensures we're properly rendering with MRT enabled
-      managers.renderManager.renderToProcessingTargets(gl, secondarySceneRef.current, camera);
-      
-      // Then read back the first target
-      const width = processingTargets.target1.width;
-      const height = processingTargets.target1.height;
-      const buffer1 = new Float32Array(width * height * 4);
-      gl.readRenderTargetPixels(processingTargets.target1, 0, 0, width, height, buffer1);
-      
-      // Schedule processing for next frame
-      setTimeout(() => {
-        if (managers && managers.dataManager) {
-          managers.dataManager.processRenderTargetData(buffer1, 1);
-        }
-        console.log('buffer1', buffer1);
 
-      }, 0);
-
-    }
-    
-    // Read the second target with an offset
-    if (frameCountRef.current % 100 === 50) {
-      const width = processingTargets.target2.width;
-      const height = processingTargets.target2.height;
-      const buffer2 = new Float32Array(width * height * 4);
-      gl.readRenderTargetPixels(processingTargets.target2, 0, 0, width, height, buffer2);
-      
-      setTimeout(() => {
-        if (managers && managers.dataManager) {
-          managers.dataManager.processRenderTargetData(buffer2, 2);
-        }
-      }, 0);
-
-      console.log('buffer2', buffer2);
-    }
-  });
-
-  // Pass render targets to render manager when available
+  /* ---------- SINGLE animation loop -------------------------------------- */
   useEffect(() => {
-    if (managers && processingTargets) {
-      managers.renderManager.setProcessingTargets(processingTargets.target1, processingTargets.target2);
-    }
-  }, [managers, processingTargets]);
+    if (!processingRT) return;
+    const ctx = gl.getContext(); // raw WebGL2 ctx
+    // const fb = processingRT.__webglFramebuffer;
 
-  // Don't render anything if not in 3D mode or managers aren't initialized
-  if (!is3DMode || !managers) {
-    return null;
+    const loop = () => {
+      /* 1 ▸ geometry pass ------------------------------------------------ */
+      gl.setRenderTarget(processingRT);
+      gl.render(scene, camera); // ONE draw
+      const fb = framebufferFor(gl, processingRT);
+      gl.setRenderTarget(null);
+
+      // const fb = framebufferFor(gl, processingRT);
+
+      /* 2 ▸ optional read‑backs ----------------------------------------- */
+      const f = frameRef.current++;
+      if (f % 120 === 0) { // attachment 1 every ~2 s @60 fps
+        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
+        ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
+        ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+          ctx.RGBA, ctx.UNSIGNED_BYTE, bufU32.current);
+        managers?.dataManager.processRenderTargetData(bufU32.current, 1);
+      }
+      if (f % 120 === 60) { // attachment 2 offset by 1 s
+        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
+        ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
+        ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+          ctx.RGBA, ctx.UNSIGNED_BYTE, bufU16.current);
+        managers?.dataManager.processRenderTargetData(bufU16.current, 2);
+      }
+
+      /* 3 ▸ blit attachment 0 to default FB ------------------------------ */
+      ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
+      ctx.readBuffer(ctx.COLOR_ATTACHMENT0);
+
+      /* --- reset viewport + disable scissor for the back‑buffer -------- */
+      ctx.bindFramebuffer(ctx.DRAW_FRAMEBUFFER, null); // default FB
+      ctx.viewport(0, 0, ctx.drawingBufferWidth, ctx.drawingBufferHeight);
+      ctx.disable(ctx.SCISSOR_TEST); // keep off
+
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      ctx.blitFramebuffer(
+        0, 0, processingRT.width, processingRT.height, // src
+        0, 0, ctx.drawingBufferWidth, ctx.drawingBufferHeight, // dst
+        ctx.COLOR_BUFFER_BIT, ctx.NEAREST,
+      );
+    };
+
+    gl.setAnimationLoop(loop);
+    return () => gl.setAnimationLoop(null);
+  }, [gl, scene, camera, processingRT, managers]);
+
+  function framebufferFor(renderer, rt) {
+    const p = renderer.properties?.get(rt);
+    return p?.framebuffer || p?.__webglFramebuffer || rt.__webglFramebuffer;
   }
 
-  // Render loading state while waiting for data
-  if (isLoading || !rendering.uniforms || !rendering.shader) {
+  /* ---------- let RenderManager know about the MRT ---------------------- */
+  useEffect(() => {
+    managers?.renderManager.setProcessingTargets(processingRT);
+  }, [managers, processingRT]);
+
+  /* ---------- JSX -------------------------------------------------------- */
+  if (!is3D || !managers) return null;
+
+  if (loading || !renderState.shader) {
     return (
       <group>
         <mesh>
-          <boxGeometry args={boxDimensionsRef.current} />
-          <meshBasicMaterial color="#444444" wireframe />
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color="#444" wireframe />
         </mesh>
-        <OrbitControls
-          enableDamping={false}
-          dampingFactor={0.0}
-          zoomDampingFactor={0.0}
-          smoothZoom={false}
-        />
+        <OrbitControls ref={orbitRef} />
       </group>
     );
   }
 
-  // Render the volume with our setup
   return (
-    <>
-      {/* Original rendered content */}
-      <group>
-        <OrbitControls
-          ref={orbitRef}
-          enableDamping={false}
-          dampingFactor={0.0}
-          zoomDampingFactor={0.0}
-          smoothZoom={false}
+    <group>
+      <OrbitControls ref={orbitRef} />
+      <mesh ref={meshRef} scale={renderState.meshScale}>
+        <boxGeometry args={renderState.geometrySize} />
+        <shaderMaterial
+          uniforms={renderState.uniforms}
+          vertexShader={renderState.shader.vertexShader}
+          fragmentShader={renderState.shader.fragmentShader}
+          side={THREE.BackSide}
+          transparent
+          glslVersion={THREE.GLSL3}
         />
-        <mesh
-          ref={meshRef}
-          scale={rendering.meshScale}
-        >
-          <boxGeometry args={rendering.geometrySize} />
-        </mesh>
-      </group>
-      
-      {/* Secondary scene for render targets - will be rendered off-screen */}
-      {processingTargets && createPortal(
-        <mesh
-          scale={rendering.meshScale}
-        >
-          <boxGeometry args={rendering.geometrySize} />
-          <shaderMaterial
-            uniforms={rendering.uniforms}
-            vertexShader={rendering.shader.vertexShader}
-            fragmentShader={rendering.shader.fragmentShader}
-            side={THREE.BackSide}
-            transparent={true}
-            glslVersion={THREE.GLSL3} // Required for layout(location=X) syntax
-          />
-        </mesh>,
-        secondarySceneRef.current
-      )}
-    </>
+      </mesh>
+    </group>
   );
 }

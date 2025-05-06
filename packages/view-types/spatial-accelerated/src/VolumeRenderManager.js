@@ -8,6 +8,7 @@ import {
   WebGLRenderTarget,
   Scene,
   Camera,
+  WebGLMultipleRenderTargets,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { VolumeShader } from './VolumeShader.js';
@@ -55,8 +56,7 @@ export class VolumeRenderManager {
     this.maxResolution = [1, 1, 1];
 
     // Additional state
-    this.processingTarget1 = null;
-    this.processingTarget2 = null;
+    this.mrt = null; // Single MRT reference
 
     // Initialize shader
     this.initializeShader();
@@ -272,14 +272,10 @@ export class VolumeRenderManager {
     const colorsSave = [];
     const contrastLimitsList = [];
 
-    // important for the values to get into the shader, remove the textures tho
-
     this.channelTargetC.forEach((channel, id) => {
       if (this.channelsVisible[id]) {
-        // const texture = volumeDataManager.getTexture(channel);
         const minMax = volumeDataManager.getMinMax(channel);
 
-        // texturesList.push(texture);
         colorsSave.push([
           this.colors[id][0] / 255,
           this.colors[id][1] / 255,
@@ -301,8 +297,6 @@ export class VolumeRenderManager {
     });
 
     if (!this.zarrInit) {
-      // Get physical scale
-      // const scale = volumeDataManager.getScale() || [{ size: 1 }, { size: 1 }, { size: 2.1676 }];
       this.originalScale = volumeDataManager.getOriginalScaleXYZ();
       this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
       this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
@@ -319,33 +313,22 @@ export class VolumeRenderManager {
       this.pageTableTexture = volumeDataManager.ptTHREE;
       this.zarrInit = true;
 
+      // Initialize textures without warnings
       volumeDataManager.ptTHREE.needsUpdate = false;
       volumeDataManager.bcTHREE.needsUpdate = false;
-
-      console.warn('update set to false', volumeDataManager.renderer);
+      
       const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
-      console.warn('texPropsBC', texPropsBC.__webglTexture);
       const texPropsPT = volumeDataManager.renderer.properties.get(volumeDataManager.ptTHREE);
-      console.warn('texPropsPT', texPropsPT);
-
-      const gl = volumeDataManager.renderer.getContext();
-      // const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
-
-      // First, let's check if we have valid objects
-      console.warn('GL context:', gl);
-
+      
+      // Initialize textures if needed
       volumeDataManager.renderer.initTexture(volumeDataManager.bcTHREE);
       volumeDataManager.renderer.initTexture(volumeDataManager.ptTHREE);
 
-      console.warn('BC texture properties:', texPropsBC);
-      console.warn('BC texture handle exists:', texPropsBC.__webglTexture !== undefined);
-
-      // If the texture handle exists, try the update
-      if (texPropsBC.__webglTexture) {
+      // If the texture handle exists, populate data
+      if (texPropsBC && texPropsBC.__webglTexture) {
         volumeDataManager.populatePT();
         volumeDataManager.populateBC();
       }
-      console.warn('renderer', volumeDataManager.renderer);
     }
 
     // Update shader uniforms
@@ -360,11 +343,6 @@ export class VolumeRenderManager {
       this.brickCacheTexture,
       this.pageTableTexture,
     );
-
-    // this.volumeDataManager.ptTHREE.needsUpdate = false;
-    // this.volumeDataManager.bcTHREE.needsUpdate = false;
-
-    log('Updated uniforms');
 
     return {
       uniforms: this.uniforms,
@@ -393,18 +371,10 @@ export class VolumeRenderManager {
     brickCacheTexture, pageTableTexture,
   ) {
     log('Updating uniforms');
-    console.warn('TODO: only update the rendering uniforms, skip the texture uniforms');
     // Set base uniforms
-    // this.uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
     this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
 
-    // Set texture uniforms (up to 6 channels supported)
-    // this.uniforms.volumeTex.value = textures.length > 0 ? textures[0] : null;
-    // this.uniforms.volumeTex2.value = textures.length > 1 ? textures[1] : null;
-    // this.uniforms.volumeTex3.value = textures.length > 2 ? textures[2] : null;
-    // this.uniforms.volumeTex4.value = textures.length > 3 ? textures[3] : null;
-    // this.uniforms.volumeTex5.value = textures.length > 4 ? textures[4] : null;
-    // this.uniforms.volumeTex6.value = textures.length > 5 ? textures[5] : null;
+    // Set texture uniforms
     this.uniforms.brickCacheTex.value = brickCacheTexture;
     this.uniforms.pageTableTex.value = pageTableTexture;
 
@@ -418,16 +388,12 @@ export class VolumeRenderManager {
 
     // Set size and scale parameters
     this.uniforms.u_size.value.set(volume.xLength, volume.yLength, volume.zLength);
-    // this.uniforms.u_stop_geom.value = null;
     this.uniforms.u_window_size.value.set(0, 0);
     this.uniforms.u_vol_scale.value.set(
       1.0 / volume.xLength,
       1.0 / volume.yLength,
       1.0 / volume.zLength * 2.0,
     );
-
-    // Set rendering style
-    // this.uniforms.u_renderstyle.value = renderstyle;
 
     // Set contrast limits (up to 6 channels)
     this.uniforms.u_clim.value.set(
@@ -455,19 +421,6 @@ export class VolumeRenderManager {
       contrastLimits.length > 5 ? contrastLimits[5][1] : null,
     );
 
-    // console.warn('xSlice', xSlice);
-    // console.warn('ySlice', ySlice);
-    // console.warn('zSlice', zSlice);
-
-    // console.warn('meshScale', this.meshScale);
-    // console.warn('originalScale', this.originalScale);
-    // console.warn('volume', volume);
-    // console.warn('physicalDimensions', this.physicalDimensions);
-    // console.warn('maxResolution', this.maxResolution);
-    // console.warn('boxSize', this.boxSize);
-
-    // xSlice[0] = 0 should be 0
-    // xSlice[1] = 1024 should the actual x length of the volume
     // Set clipping planes
     this.uniforms.u_xClip.value.set(
       xSlice[0] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
@@ -537,36 +490,18 @@ export class VolumeRenderManager {
   }
 
   /**
-   * Sets the processing render targets
-   * @param {WebGLRenderTarget} target1 - First render target
-   * @param {WebGLRenderTarget} target2 - Second render target
+   * Sets the processing render target
+   * @param {WebGLMultipleRenderTargets} mrt - Multiple render targets object with 3 attachments
    */
-  setProcessingTargets(target1, target2) {
-    this.processingTarget1 = target1;
-    this.processingTarget2 = target2;
+  setProcessingTargets(mrt) {
+    this.mrt = mrt;
   }
-  
+
   /**
-   * Renders to the processing targets
-   * @param {WebGLRenderer} renderer - Three.js renderer
-   * @param {Scene} scene - Scene containing the volume
-   * @param {Camera} camera - Current camera
+   * Access to the current MRT
+   * @returns {WebGLMultipleRenderTargets|null} The current multiple render targets
    */
-  renderToProcessingTargets(renderer, scene, camera) {
-    if (!this.processingTarget1 || !this.processingTarget2) return;
-    
-    // Store current render target
-    const currentRenderTarget = renderer.getRenderTarget();
-    
-    // Render to first target
-    renderer.setRenderTarget(this.processingTarget1);
-    renderer.render(scene, camera);
-    
-    // Render to second target
-    renderer.setRenderTarget(this.processingTarget2);
-    renderer.render(scene, camera);
-    
-    // Restore original render target
-    renderer.setRenderTarget(currentRenderTarget);
+  getProcessingTargets() {
+    return this.mrt;
   }
 }

@@ -45,6 +45,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
       />
       */}
       <Canvas
+        frameloop="never"
         style={{
           position: 'absolute',
           top: 0,

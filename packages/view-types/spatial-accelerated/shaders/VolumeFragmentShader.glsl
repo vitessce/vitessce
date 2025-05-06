@@ -332,11 +332,11 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
     
-    // First data output (raw color values before sRGB conversion)
-    gData1 = vec4(outColor.a, 1.0, 0.0, 1.0);
+    // First data output (uint16)
+    gData1 = vec4(0, 0,1,1);  
     
-    // Second data output (position data)
-    gData2 = vec4(p.x, p.y, 1.0, 1.0);
+    // Second data output (uint32)
+    gData2 = vec4(0, 1, 0, 1);
     
     // Also set outColor for compatibility
     outColor.r = linear_to_srgb(outColor.r);
