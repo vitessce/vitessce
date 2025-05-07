@@ -162,21 +162,10 @@ export function VolumeView(props) {
       // 1. Render volume scene to MRT
       gl.setRenderTarget(processingRT);
 
-      /*
-      ctx.bindFramebuffer(ctx.FRAMEBUFFER, framebufferFor(gl, processingRT));
-
-      // ✅ Now it's safe to set drawBuffers
-      ctx.drawBuffers([
-        ctx.COLOR_ATTACHMENT0,
-        ctx.COLOR_ATTACHMENT1,
-        ctx.COLOR_ATTACHMENT2,
-      ]);
-      */
-
       gl.clear(true, true, true);
-      // ctx.drawBuffers(ctx.COLOR_ATTACHMENT0, ctx.COLOR_ATTACHMENT1, ctx.COLOR_ATTACHMENT2);
       gl.render(scene, camera);
 
+      // uncomment to test via spector js
       // ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
       // ctx.readBuffer(ctx.COLOR_ATTACHMENT0);
       // ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
@@ -207,6 +196,7 @@ export function VolumeView(props) {
       gl.setRenderTarget(null);
       gl.clear(true, true, true);
       gl.render(screenSceneRef.current, screenCameraRef.current);
+
     };
 
     gl.setAnimationLoop(loop);
