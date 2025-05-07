@@ -322,9 +322,9 @@ void main(void) {
     }
 
     // gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
-    outColor.r = linear_to_srgb(outColor.r);
-    outColor.g = linear_to_srgb(outColor.g);
-    outColor.b = linear_to_srgb(outColor.b);
+    // outColor.r = linear_to_srgb(outColor.r);
+    // outColor.g = linear_to_srgb(outColor.g);
+    // outColor.b = linear_to_srgb(outColor.b);
 
     // Set all render targets directly without conditionals
     gColor = vec4(linear_to_srgb(outColor.r), 
@@ -332,14 +332,12 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
     
-    // First data output (uint16)
     gData1 = vec4(0, 0,1,1);  
     
-    // Second data output (uint32)
     gData2 = vec4(0, 1, 0, 1);
     
     // Also set outColor for compatibility
-    outColor.r = linear_to_srgb(outColor.r);
-    outColor.g = linear_to_srgb(outColor.g);
-    outColor.b = linear_to_srgb(outColor.b);
+    // outColor.r = linear_to_srgb(outColor.r);
+    // outColor.g = linear_to_srgb(outColor.g);
+    // outColor.b = linear_to_srgb(outColor.b);
 }

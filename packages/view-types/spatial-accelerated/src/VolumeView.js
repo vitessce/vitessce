@@ -17,7 +17,7 @@ import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 function log(msg) {
-  /* console.warn(`V ${msg}`); */
+  /* console.warn(`V ${msg}`); */
 }
 
 export function VolumeView(props) {
@@ -41,6 +41,11 @@ export function VolumeView(props) {
   const [lastChannels, setLastChannels] = useState([]);
   const [is3D, setIs3D] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Add new refs for screen quad setup
+  const screenSceneRef = useRef(null);
+  const screenCameraRef = useRef(null);
+  const screenQuadRef = useRef(null);
 
   /* ---------- helpers ----------------------------------------------------- */
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -116,65 +121,95 @@ export function VolumeView(props) {
       tex.generateMipmaps = false;
     });
 
+    // Create screen quad setup
+    const screenScene = new THREE.Scene();
+    const screenCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    screenCamera.position.z = 1;
+
+    const screenMaterial = new THREE.MeshBasicMaterial({
+      map: mrt.texture[0],
+      transparent: true,
+      // color: 0x00ff00,
+    });
+    const screenQuad = new THREE.Mesh(
+      new THREE.PlaneGeometry(2, 2),
+      screenMaterial,
+    );
+
+    screenScene.add(screenQuad);
+
+    // Store refs
+    screenSceneRef.current = screenScene;
+    screenCameraRef.current = screenCamera;
+    screenQuadRef.current = screenQuad;
+
     bufU32.current = new Uint8Array(width * height * 4);
     bufU16.current = new Uint8Array(width * height * 4);
     setRT(mrt);
 
-    return () => mrt.dispose();
+    return () => {
+      mrt.dispose();
+      screenMaterial.dispose();
+      screenQuad.geometry.dispose();
+    };
   }, [gl]);
 
-  /* ---------- SINGLE animation loop -------------------------------------- */
   useEffect(() => {
     if (!processingRT) return;
-    const ctx = gl.getContext(); // raw WebGL2 ctx
-    // const fb = processingRT.__webglFramebuffer;
+    const ctx = gl.getContext();
 
     const loop = () => {
-      /* 1 ▸ geometry pass ------------------------------------------------ */
+      // 1. Render volume scene to MRT
       gl.setRenderTarget(processingRT);
-      gl.render(scene, camera); // ONE draw
-      const fb = framebufferFor(gl, processingRT);
-      gl.setRenderTarget(null);
 
-      // const fb = framebufferFor(gl, processingRT);
+      /*
+      ctx.bindFramebuffer(ctx.FRAMEBUFFER, framebufferFor(gl, processingRT));
 
-      /* 2 ▸ optional read‑backs ----------------------------------------- */
+      // ✅ Now it's safe to set drawBuffers
+      ctx.drawBuffers([
+        ctx.COLOR_ATTACHMENT0,
+        ctx.COLOR_ATTACHMENT1,
+        ctx.COLOR_ATTACHMENT2,
+      ]);
+      */
+
+      gl.clear(true, true, true);
+      // ctx.drawBuffers(ctx.COLOR_ATTACHMENT0, ctx.COLOR_ATTACHMENT1, ctx.COLOR_ATTACHMENT2);
+      gl.render(scene, camera);
+
+      // ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
+      // ctx.readBuffer(ctx.COLOR_ATTACHMENT0);
+      // ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
+      // ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
+
+      // 2. Read back attachments 1 & 2 on interval
       const f = frameRef.current++;
-      if (f % 120 === 0) { // attachment 1 every ~2 s @60 fps
-        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
+      if (f % 100 === 0) { // attachment 1 every ~2s @60fps
+        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,
           ctx.RGBA, ctx.UNSIGNED_BYTE, bufU32.current);
+
+        // const firstBytes = bufU32.current.slice(0, 16); // first 4 pixels (4 bytes each)
+        // console.log('Attachment 1 sample:', firstBytes);
+
         managers?.dataManager.processRenderTargetData(bufU32.current, 1);
       }
-      if (f % 120 === 60) { // attachment 2 offset by 1 s
-        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
+      if (f % 100 === 50) { // attachment 2 offset by 1s
+        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,
           ctx.RGBA, ctx.UNSIGNED_BYTE, bufU16.current);
         managers?.dataManager.processRenderTargetData(bufU16.current, 2);
       }
 
-      /* 3 ▸ blit attachment 0 to default FB ------------------------------ */
-      ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, fb);
-      ctx.readBuffer(ctx.COLOR_ATTACHMENT0);
-
-      /* --- reset viewport + disable scissor for the back‑buffer -------- */
-      ctx.bindFramebuffer(ctx.DRAW_FRAMEBUFFER, null); // default FB
-      ctx.viewport(0, 0, ctx.drawingBufferWidth, ctx.drawingBufferHeight);
-      ctx.disable(ctx.SCISSOR_TEST); // keep off
-
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      ctx.blitFramebuffer(
-        0, 0, processingRT.width, processingRT.height, // src
-        0, 0, ctx.drawingBufferWidth, ctx.drawingBufferHeight, // dst
-        ctx.COLOR_BUFFER_BIT, ctx.NEAREST,
-      );
+      // 3. Render screen quad with attachment 0
+      gl.setRenderTarget(null);
+      gl.clear(true, true, true);
+      gl.render(screenSceneRef.current, screenCameraRef.current);
     };
 
     gl.setAnimationLoop(loop);
-    return () => gl.setAnimationLoop(null);
   }, [gl, scene, camera, processingRT, managers]);
 
   function framebufferFor(renderer, rt) {

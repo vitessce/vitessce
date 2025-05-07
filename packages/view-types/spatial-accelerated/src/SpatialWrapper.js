@@ -45,7 +45,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
       />
       */}
       <Canvas
-        frameloop="never"
+        frameloop="always"
         style={{
           position: 'absolute',
           top: 0,
@@ -65,6 +65,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
         gl={{
           antialias: true,
           logarithmicDepthBuffer: false,
+          preserveDrawingBuffer: false,
         }}
         ref={canvasRef}
       >
