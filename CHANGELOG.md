@@ -1,4 +1,11 @@
 
+## 3.5.12
+
+### Patch Changes
+
+- Updated tutorial for gh-pages deployment (`docs`) ([#2113](https://github.com/vitessce/vitessce/pull/2113))
+
+
 ## 3.5.11
 
 ### Patch Changes
