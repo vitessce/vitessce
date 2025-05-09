@@ -12,8 +12,8 @@ export const rgbOmeTiff = {
           fileType: 'image.ome-tiff',
           url: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/ometiff-pyramids/lab_processed/images/VAN0052-RK-3-81-PAS.ome.tif?token=',
           options: {
-            offsetsUrl: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/output_offsets/lab_processed/images/VAN0052-RK-3-81-PAS.offsets.json?token='
-          }
+            offsetsUrl: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/output_offsets/lab_processed/images/VAN0052-RK-3-81-PAS.offsets.json?token=',
+          },
         },
       ],
     },

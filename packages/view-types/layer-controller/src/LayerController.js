@@ -4,7 +4,6 @@ import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS,
   getSourceFromLoader,
-  isRgb,
   getMultiSelectionStats,
   DOMAINS,
   canLoadResolution,
@@ -103,7 +102,6 @@ export default function LayerController(props) {
     disabled,
     spatialHeight,
     spatialWidth,
-    disableChannelsIfRgbDetected,
     photometricInterpretation,
     shouldShowRemoveLayerButton,
   } = props;
@@ -415,7 +413,6 @@ export default function LayerController(props) {
     }).filter((_, res) => canLoadResolution(loader.data, res)).length,
   );
   const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1 && hasViewableResolutions;
-  console.log(photometricInterpretation);
   const FullController = (
     <>
       <LayerOptions
@@ -434,9 +431,7 @@ export default function LayerController(props) {
           handleGlobalChannelsSelectionChange
         }
         handleTransparentColorChange={setTransparentColor}
-        disableChannelsIfRgbDetected={
-          photometricInterpretation === 'RGB'
-        }
+        disableChannelsIfRgbDetected={photometricInterpretation === 'RGB'}
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
         shouldShowDomain={shouldShowDomain}

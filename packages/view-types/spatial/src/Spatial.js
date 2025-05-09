@@ -480,7 +480,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
       rgbInterleavedProps.visible = layerDef.visible;
     }
-    
+
     // If the photometricInterpretation props is RGB,
     // either based on the coordination space or
     // the image metadata,

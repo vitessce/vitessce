@@ -413,7 +413,6 @@ export function LayerControllerSubscriber(props) {
     photometricInterpretationFromCoordination
     ?? instance?.getPhotometricInterpretation()
   );
-  console.log(photometricInterpretation)
   const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
   const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
 
