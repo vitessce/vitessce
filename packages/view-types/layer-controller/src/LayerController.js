@@ -104,6 +104,7 @@ export default function LayerController(props) {
     spatialHeight,
     spatialWidth,
     disableChannelsIfRgbDetected,
+    photometricInterpretation,
     shouldShowRemoveLayerButton,
   } = props;
 
@@ -414,6 +415,7 @@ export default function LayerController(props) {
     }).filter((_, res) => canLoadResolution(loader.data, res)).length,
   );
   const useVolumeTabs = !disable3d && shape[labels.indexOf('z')] > 1 && hasViewableResolutions;
+  console.log(photometricInterpretation);
   const FullController = (
     <>
       <LayerOptions
@@ -433,7 +435,7 @@ export default function LayerController(props) {
         }
         handleTransparentColorChange={setTransparentColor}
         disableChannelsIfRgbDetected={
-          isRgb(loader, channels) && disableChannelsIfRgbDetected
+          photometricInterpretation === 'RGB'
         }
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
@@ -451,10 +453,10 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected
+      {photometricInterpretation === 'RGB'
         ? null
         : channelControllers}
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
+      {photometricInterpretation === 'RGB' ? null : (
         <Button
           disabled={channels.length === viv.MAX_CHANNELS}
           onClick={handleChannelAdd}

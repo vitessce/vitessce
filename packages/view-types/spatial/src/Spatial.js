@@ -377,6 +377,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   createRasterLayer(rawLayerDef, loader, i) {
+    const { photometricInterpretation } = this.props;
     const layerDef = {
       ...rawLayerDef,
       channels: rawLayerDef.channels.filter(
@@ -479,6 +480,29 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (isInterleaved((Array.isArray(data) ? data[0] : data).shape)) {
       rgbInterleavedProps.visible = layerDef.visible;
     }
+    
+    // If the photometricInterpretation props is RGB,
+    // either based on the coordination space or
+    // the image metadata,
+    // then we use the following props which will override
+    // the values in the layerProps object (since we pass
+    // them via object destructuring afterwards).
+    const rgbProps = photometricInterpretation === 'RGB' ? {
+      colors: [
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+      ],
+      contrastLimits: [
+        [0, 255],
+        [0, 255],
+        [0, 255],
+      ],
+      channelsVisible: [
+        true, true, true,
+      ],
+    } : {};
+
     return new Layer({
       loader: layerLoader,
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
@@ -501,6 +525,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       excludeBackground: layerProps.excludeBackground,
       extensions,
       ...rgbInterleavedProps,
+      ...rgbProps,
     });
   }
 
@@ -843,6 +868,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'expressionData',
         'imageLayerCallbacks',
         'geneExpressionColormap',
+        'photometricInterpretation',
       ].some(shallowDiff)
     ) {
       // Image layers changed.
