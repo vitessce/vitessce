@@ -54,6 +54,7 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
+      photometricInterpretation,
 
       obsSegmentationsType,
       segmentationLayerLoaders,
@@ -254,6 +255,7 @@ const LayerControllerMemoized = React.memo(
                       && layerIs3DIndex !== i
                     }
                     disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
+                    photometricInterpretation={photometricInterpretation}
                     imageLayerCallbacks={imageLayerCallbacks}
                     setImageLayerCallback={setImageLayerCallback}
                     setViewState={({
@@ -334,6 +336,7 @@ export function LayerControllerSubscriber(props) {
       spatialImageLayer: rasterLayers,
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
+      photometricInterpretation: photometricInterpretationFromCoordination,
     },
     {
       setSpatialImageLayer: setRasterLayers,
@@ -399,13 +402,17 @@ export function LayerControllerSubscriber(props) {
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
-  const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
+  const { loaders: imageLayerLoaders, meta: imageLayerMeta, instance } = image || {};
   const isReady = useReady([
     obsLocationsStatus,
     obsSegmentationsStatus,
     imageStatus,
   ]);
 
+  const photometricInterpretation = (
+    photometricInterpretationFromCoordination
+    ?? instance?.getPhotometricInterpretation()
+  );
   const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
   const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
 
@@ -481,6 +488,7 @@ export function LayerControllerSubscriber(props) {
       setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
+      photometricInterpretation={photometricInterpretation}
 
       obsSegmentationsType={obsSegmentationsType}
       segmentationLayerLoaders={segmentationLayerLoaders}
