@@ -32,6 +32,7 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  SPATIAL_QUERY_MANAGER: 'spatialQueryManager',
 };
 
 export const DataType = {

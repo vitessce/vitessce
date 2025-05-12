@@ -62,6 +62,7 @@
     "@vitessce/spatial-three": "workspace:*",
     "@vitessce/biomarker-select": "workspace:*",
     "@vitessce/neuroglancer": "workspace:*",
+    "@vitessce/spatial-query": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
