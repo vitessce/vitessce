@@ -235,6 +235,7 @@ export function SpatialSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   const [{ image }, imageStatus, imageUrls] = useImageData(
+    uuid,
     loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
