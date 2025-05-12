@@ -168,6 +168,23 @@ export class VolumeDataManager {
     this.ptArray = [];
     this.ptManOffsets = [];
 
+    // top k page table addresses
+    this.requestsStack = [];
+
+    // brick cache structure for internal calculations
+    this.BCTimeStamps = [];
+    this.BCMinMax = [];
+    this.BCFull = false;
+    this.BCUnusedIndex = 0;
+
+    // top k unused brick cache addresses
+    this.LRUStack = [];
+    this.LRUReady = false;
+
+    this.triggerRequest = true;
+
+    this.timeStamp = 0;
+
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
@@ -908,16 +925,6 @@ export class VolumeDataManager {
   }
 
   /**
-   * Get a texture for a channel
-   * @param {number} channel - Channel index
-   * @returns {Data3DTexture|null} Texture or null if not loaded
-   */
-  getTexture(channel) {
-    log('getTexture');
-    return this.textures.get(channel) || null;
-  }
-
-  /**
    * Get min/max values for a channel
    * @param {number} channel - Channel index
    * @returns {Array|null} [min, max] values or null if not loaded
@@ -925,24 +932,6 @@ export class VolumeDataManager {
   getMinMax(channel) {
     log('getMinMax');
     return this.volumeMinMax.get(channel) || null;
-  }
-
-  /**
-   * Get physical scale
-   * @returns {Array} Array of scale objects for X, Y, Z
-   */
-  getScale() {
-    log('getScale');
-    return this.physicalScale;
-  }
-
-  /**
-   * Get original dimensions
-   * @returns {Array} Original dimensions [X, Y, Z]
-   */
-  getOriginalDimensions() {
-    log('getOriginalDimensions');
-    return this.originalScale;
   }
 
   /**
@@ -1000,72 +989,6 @@ export class VolumeDataManager {
   }
 
   /**
-   * Utility method to access voxel data
-   * @param {Object} volume - Volume data object
-   * @param {number} i - X coordinate
-   * @param {number} j - Y coordinate
-   * @param {number} k - Z coordinate
-   * @returns {number} Value at the specified coordinates
-   */
-  getVoxel(volume, i, j, k) {
-    log('getVoxel');
-    // Use 'this' in the method (for linter)
-    const index = this.calculateVoxelIndex(volume, i, j, k);
-    return volume.data[index];
-  }
-
-  /**
-   * Helper method to calculate voxel index
-   * @param {Object} volume - Volume data object
-   * @param {number} i - X coordinate
-   * @param {number} j - Y coordinate
-   * @param {number} k - Z coordinate
-   * @returns {number} Index in the data array
-   */
-  calculateVoxelIndex(volume, i, j, k) {
-    log('calculateVoxelIndex');
-    // Store cache properties for reuse (uses 'this' to satisfy linter)
-    this.lastVolume = volume;
-    this.lastCoordinates = [i, j, k];
-    return k * volume.xLength * volume.yLength + j * volume.xLength + i;
-  }
-
-  /**
-   * Initialize the Zarr store (compatibility method)
-   * @returns {Promise<VolumeDataManager>} This instance
-   */
-  async initStore() {
-    log('initStore');
-    // If already initialized, just return
-    if (this.initStatus === INIT_STATUS.COMPLETE) {
-      return this;
-    }
-
-    // If not initialized, initialize
-    if (this.initStatus === INIT_STATUS.NOT_STARTED) {
-      await this.init();
-    }
-
-    // If still initializing, wait for it to complete
-    if (this.initStatus === INIT_STATUS.IN_PROGRESS) {
-      return new Promise((resolve, reject) => {
-        const checkInterval = setInterval(() => {
-          if (this.initStatus === INIT_STATUS.COMPLETE) {
-            clearInterval(checkInterval);
-            resolve(this);
-          } else if (this.initStatus === INIT_STATUS.FAILED) {
-            clearInterval(checkInterval);
-            reject(new Error(this.initError || 'Initialization failed'));
-          }
-        }, 100);
-      });
-    }
-
-    // Return this for chaining
-    return this;
-  }
-
-  /**
    * Load a specific Zarr chunk based on [t,c,z,y,x] coordinates
    * @param {number} t - Time point (default 0)
    * @param {number} c - Channel (default 0)
@@ -1101,34 +1024,61 @@ export class VolumeDataManager {
    * @param {Float32Array} buffer - Pixel data from render target
    * @param {number} targetId - Which render target (1 or 2)
    */
-  processRenderTargetData(buffer, targetId) {
-    log(`Processing data from render target ${targetId}`);
-    
+  async processRequestData(buffer) {
+    const counts = new Map();
+    console.log('Sample bytes:', buffer.slice(0, 16)); // 4 RGBA pixels
+
+    let timeStart = performance.now();
+    for (let i = 0; i < buffer.length; i += 4) {
+      const r = buffer[i]; const g = buffer[i + 1]; const b = buffer[i + 2]; const
+        a = buffer[i + 3];
+      if (r + g + b + a === 0) continue;
+
+      const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
+      counts.set(packed, (counts.get(packed) || 0) + 1);
+    }
+    console.log('time taken for counts in ms:', performance.now() - timeStart);
+
+    timeStart = performance.now();
+    // Sort by frequency
+    const topK = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1]) // descending count
+      .slice(0, 20) // top 20 requests
+
+      // decode after sorting
+      .map(([packed, count]) => {
+        const x = (packed >> 22) & 0x3FF;
+        const y = (packed >> 12) & 0x3FF;
+        const z = packed & 0xFFF;
+        return { x, y, z, count };
+      });
+    console.log('time taken for topK: in ms', performance.now() - timeStart);
+    console.log('Top requests:', topK);
+  }
+
+  /**
+   * Process data from render targets
+   * @param {Float32Array} buffer - Pixel data from render target
+   * @param {number} targetId - Which render target (1 or 2)
+   */
+  async processUsageData(buffer) {
+    console.log('Processing data from usage buffer');
+
     // Process the render target data here
     // This is where you implement your specific processing logic
     // For example:
-    
+
     // Example: Count number of pixels above threshold
     const threshold = 0.5;
     let pixelsAboveThreshold = 0;
-    
+
     for (let i = 0; i < buffer.length; i += 4) {
       // Check R channel value
       if (buffer[i] > threshold) {
         pixelsAboveThreshold++;
       }
     }
-    
-    log(`Target ${targetId}: Found ${pixelsAboveThreshold} pixels above threshold`);
-    
     // You can add more complex processing here
     // Or store the data for later use
-    
-    // Example: if this is analytics data, you might want to store it
-    if (targetId === 1) {
-      this.lastAnalyticsResult = pixelsAboveThreshold;
-    } else if (targetId === 2) {
-      this.lastSecondaryResult = pixelsAboveThreshold;
-    }
   }
 }

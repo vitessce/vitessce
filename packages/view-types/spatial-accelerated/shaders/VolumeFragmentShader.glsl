@@ -38,8 +38,8 @@ uniform float far;
 varying vec3 worldSpaceCoords; // only used for depth
 
 layout(location = 0) out vec4 gColor;
-layout(location = 1) out vec4 gData1;
-layout(location = 2) out vec4 gData2;
+layout(location = 1) out vec4 gRequest;
+layout(location = 2) out vec4 gUsage;
 
 float linearize_z(float z) {
     return near * far / (far + z * (near - far));
@@ -84,6 +84,13 @@ float wang_hash(int seed) {
     seed = seed ^ (seed >> 15);
     return float(seed % 2147483647) / float(2147483647);
 }
+
+// Author @patriciogv - 2015
+// http://patriciogonzalezvivo.com
+float random() {
+    return fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233)))* 43758.5453123);
+}
+
 float linear_to_srgb(float x) {
     if (x <= 0.0031308f) {
         return 12.92f * x;
@@ -91,7 +98,26 @@ float linear_to_srgb(float x) {
     return 1.055f * pow(x, 1.f / 2.4f) - 0.055f;
 }
 
-const int targetResC0 = 0; // highest
+vec4 packBrickCoordToRGBA8(uvec3 coord) {
+    uint x = coord.x & 0x3FFu; // 10 bits
+    uint y = coord.y & 0x3FFu; // 10 bits
+    uint z = coord.z & 0xFFFu; // 12 bits
+
+    uint packed =
+        (x << 22u) |
+        (y << 12u) |
+        (z);
+
+    // Decompose into RGBA
+    return vec4(
+        float((packed >> 24u) & 0xFFu) / 255.0,
+        float((packed >> 16u) & 0xFFu) / 255.0,
+        float((packed >> 8u) & 0xFFu) / 255.0,
+        float(packed & 0xFFu) / 255.0
+    );
+}
+
+const int targetResC0 = 3; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -128,6 +154,10 @@ uvec3 getAnchorPoint(int index) {
 //input: targetRes
 //input: channel
 //output: x,y,z as brick address in brick cache, w as resolution
+//if not found -- 0,0,0,-1
+//if empty -- 0,0,0,-2
+//if full -- 0,0,0,-3
+//if constant -- min,currentRes,0,-4
 ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
     int currentRes = targetRes;
@@ -144,22 +174,28 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         if (isInit == 0u) { 
             currentRes++; 
             // TODO: request brick
+            if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
+                gRequest = packBrickCoordToRGBA8(coordinate);
+            }
             continue;
         }
         uint min = (ptEntry >> 23u) & 0x7Fu;
         uint max = (ptEntry >> 16u) & 0x7Fu;
         if (float(min) > u_clim[0]) {
-            return ivec4(-1,0,0,currentRes);
+            return ivec4(0,0,0,-3);
         } else if (float(max) < u_clim[1]) {
-            return ivec4(0, -1, 0, currentRes);
+            return ivec4(0,0,0,-2);
         } else if (abs(float(min) - float(max)) < 2.0) {
-            return ivec4(0,0,-int(min) * 2,currentRes);
+            return ivec4(int(min) * 2, currentRes, 0, -4);
         }
         // check if resident
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
             currentRes++;
             // TODO: request brick
+            if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
+                gRequest = packBrickCoordToRGBA8(coordinate);
+            }
             continue;
         } else {
             uint xBrickCache = (ptEntry >> 10u) & 0x3Fu;
@@ -170,13 +206,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
             return ivec4(brickCacheCoord, currentRes);
         }
     }
-    // if target res is 0 return that
-    // if target res is not null OR not available, step down until found
-    // get bitmask of lowest found
-    // check if init, if not -> res down AND REQUEST
-    // if minmax check out -> dont even request
-    // check if resident, if not -> size up in res AND REQUEST
-    // if resident, return x,y,z,resolution AND ADD TO LRU
 
     // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
     return ivec4(0,0,0,-1);
@@ -216,6 +245,8 @@ void main(void) {
     vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
     // Most browsers do not need this initialization, but add it to be safe
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
+    gRequest = vec4(0,0,0,0);
+    gUsage = vec4(0,0,0,0);
 
     // t_hit is between 0 and 3000
     // dt is around 0.0015
@@ -249,7 +280,7 @@ void main(void) {
         p = max(p, vec3(0.00000028));
 
         ivec4 brickCacheOffset = getBrickLocation(p, targetResC0, 0);
-        
+
         currentBrickLocation = brickCacheOffset;
 
         currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
@@ -264,8 +295,12 @@ void main(void) {
             // request brick?
             continue;
         } else if (brickCacheOffset.w == -2) {
-            // render minimum maximum
-        }
+            // render constant
+        } else if (brickCacheOffset.w == -3) {
+            // render constant
+        } else if (brickCacheOffset.w == -4) {
+            // render constant
+        } 
         
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
         localPos = fract(p * scale);
@@ -331,11 +366,7 @@ void main(void) {
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
-    
-    gData1 = vec4(0, 0,1,1);  
-    
-    gData2 = vec4(0, 1, 0, 1);
-    
+
     // Also set outColor for compatibility
     // outColor.r = linear_to_srgb(outColor.r);
     // outColor.g = linear_to_srgb(outColor.g);

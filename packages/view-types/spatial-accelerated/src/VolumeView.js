@@ -27,8 +27,8 @@ export function VolumeView(props) {
   /* ---------- refs / state ------------------------------------------------ */
   const orbitRef = useRef(null);
   const meshRef = useRef(null);
-  const bufU32 = useRef(null);
-  const bufU16 = useRef(null);
+  const bufRequest = useRef(null);
+  const bufUsage = useRef(null);
   const frameRef = useRef(0);
   const [processingRT, setRT] = useState(null);
 
@@ -117,6 +117,7 @@ export function VolumeView(props) {
     mrt.texture.forEach((tex) => {
       tex.format = THREE.RGBAFormat;
       tex.type = THREE.UnsignedByteType;
+      // tex.encoding = THREE.LinearEncoding;
       tex.minFilter = tex.magFilter = THREE.NearestFilter;
       tex.generateMipmaps = false;
     });
@@ -143,8 +144,8 @@ export function VolumeView(props) {
     screenCameraRef.current = screenCamera;
     screenQuadRef.current = screenQuad;
 
-    bufU32.current = new Uint8Array(width * height * 4);
-    bufU16.current = new Uint8Array(width * height * 4);
+    bufRequest.current = new Uint8Array(width * height * 4);
+    bufUsage.current = new Uint8Array(width * height * 4);
     setRT(mrt);
 
     return () => {
@@ -173,30 +174,30 @@ export function VolumeView(props) {
 
       // 2. Read back attachments 1 & 2 on interval
       const f = frameRef.current++;
-      if (f % 100 === 0) { // attachment 1 every ~2s @60fps
+      if (f % 1000 === 500) { // attachment 1 every ~2s @60fps
         ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,
-          ctx.RGBA, ctx.UNSIGNED_BYTE, bufU32.current);
+          ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
 
         // const firstBytes = bufU32.current.slice(0, 16); // first 4 pixels (4 bytes each)
         // console.log('Attachment 1 sample:', firstBytes);
 
-        managers?.dataManager.processRenderTargetData(bufU32.current, 1);
+        managers?.dataManager.processRequestData(bufRequest.current);
       }
-      if (f % 100 === 50) { // attachment 2 offset by 1s
+      if (f % 1000 === 0) { // attachment 2 offset by 1s
         ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,
-          ctx.RGBA, ctx.UNSIGNED_BYTE, bufU16.current);
-        managers?.dataManager.processRenderTargetData(bufU16.current, 2);
+          ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
+
+        // managers?.dataManager.processUsageData(bufU16.current);
       }
 
       // 3. Render screen quad with attachment 0
       gl.setRenderTarget(null);
       gl.clear(true, true, true);
       gl.render(screenSceneRef.current, screenCameraRef.current);
-
     };
 
     gl.setAnimationLoop(loop);
@@ -207,12 +208,10 @@ export function VolumeView(props) {
     return p?.framebuffer || p?.__webglFramebuffer || rt.__webglFramebuffer;
   }
 
-  /* ---------- let RenderManager know about the MRT ---------------------- */
   useEffect(() => {
     managers?.renderManager.setProcessingTargets(processingRT);
   }, [managers, processingRT]);
 
-  /* ---------- JSX -------------------------------------------------------- */
   if (!is3D || !managers) return null;
 
   if (loading || !renderState.shader) {
@@ -237,7 +236,7 @@ export function VolumeView(props) {
           vertexShader={renderState.shader.vertexShader}
           fragmentShader={renderState.shader.fragmentShader}
           side={THREE.BackSide}
-          transparent
+          transparent={false}
           glslVersion={THREE.GLSL3}
         />
       </mesh>
