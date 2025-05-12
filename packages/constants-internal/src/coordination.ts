@@ -465,6 +465,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_IMAGE_LAYER,
   ],
+  [ViewType.NETWORK_VIS]: [
+    CoordinationType.DATASET,
+  ],
   [ViewType.DOT_PLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,

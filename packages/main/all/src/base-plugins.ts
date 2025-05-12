@@ -91,6 +91,7 @@ import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import { NeuroglancerSubscriber } from '@vitessce/neuroglancer';
+import { ViewSubscriber } from '@vitessce/network-vis';
 import {
   CellSetExpressionPlotSubscriber,
   CellSetSizesPlotSubscriber,
@@ -263,6 +264,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
+  makeViewType(ViewType.NETWORK_VIS, ViewSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
   makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
   makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),

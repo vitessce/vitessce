@@ -1,0 +1,15 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+      "composite": true,
+      "outDir": "dist-tsc",
+      "rootDir": "src",
+      "strict": true,
+      "strictNullChecks": false,
+      "resolveJsonModule": true,    // Enables importing of JSON files as modules
+      "esModuleInterop": true,      // Ensures compatibility with ES module imports
+    },
+    "include": ["src", "iindex.d.ts", "src/*.json", "src/*.graphml"]
+    // "include": ["src", "iindex.d.ts", "src/network.json"]
+  }
+  
