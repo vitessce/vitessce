@@ -34,25 +34,39 @@ const graphColumnStyle: CSSProperties = {
 };
 const bodyStyle: CSSProperties = {
   margin: 0,
-  width: '70vw',
-  height: '80vh',
+  padding: 0,
+  width: '100%',
+  height: '100%',
   backgroundColor: 'black',
   fontFamily: "'Lucida Console'",
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 };
 
 const bodyDivStyle: CSSProperties = {
+  margin: 0,
+  padding: 0,
   width: '100%',
   height: '100%',
   overflow: 'hidden',
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const containerStyle: CSSProperties = {
-  width: 'calc(100% - 20px)',
-  height: 'calc(100% - 20px)',
+  margin: 0,
+  padding: 0,
+  width: '100%',
+  height: '100%',
   display: 'flex',
-  margin: 10,
   position: 'relative',
-
+  flex: 1,
 };
 
 const dataSourceInputContainerStyle: CSSProperties = {
@@ -105,6 +119,7 @@ export default function View() {
         let data: NetworkData;
         // if (json) {
         if (true) {
+          // network_kidney_20_1, network_kidney_20_2, network_11k_cells, network_43k_cells, network.graphml
           response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_43k_cells.json');
           if (!response.ok) throw new Error('Failed to fetch network data');
           data = await response.json();
