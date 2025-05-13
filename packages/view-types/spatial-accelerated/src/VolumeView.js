@@ -174,7 +174,12 @@ export function VolumeView(props) {
 
       // 2. Read back attachments 1 & 2 on interval
       const f = frameRef.current++;
-      if (f === 500) { // attachment 1 every ~2s @60fps
+      if (managers?.dataManager.noNewRequests === true && f % 100 === 0) {
+        managers.dataManager.noNewRequests = false;
+      }
+      if (managers?.dataManager.triggerRequest === true
+        && managers?.dataManager.noNewRequests === false) {
+        console.warn('triggerRequest', f);
         ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,

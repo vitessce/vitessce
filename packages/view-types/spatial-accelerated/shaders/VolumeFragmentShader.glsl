@@ -117,7 +117,7 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
     );
 }
 
-const int targetResC0 = 3; // highest
+const int targetResC0 = 2; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);

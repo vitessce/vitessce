@@ -204,6 +204,7 @@ export class VolumeDataManager {
     this.triggerRequest = true;
     this.timeStamp = 0;
     this.k = 20;
+    this.noNewRequests = false;
 
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
@@ -1048,7 +1049,7 @@ export class VolumeDataManager {
    */
   async processRequestDataOld(buffer) {
     const counts = new Map();
-    console.log('Sample bytes:', buffer.slice(0, 16)); // 4 RGBA pixels
+    // console.log('Sample bytes:', buffer.slice(0, 16)); // 4 RGBA pixels
 
     let timeStart = performance.now();
     for (let i = 0; i < buffer.length; i += 4) {
@@ -1059,7 +1060,7 @@ export class VolumeDataManager {
       const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
       counts.set(packed, (counts.get(packed) || 0) + 1);
     }
-    console.log('time taken for counts in ms:', performance.now() - timeStart);
+    // ('time taken for counts in ms:', performance.now() - timeStart);
 
     timeStart = performance.now();
     // Sort by frequency
@@ -1074,12 +1075,13 @@ export class VolumeDataManager {
         const z = packed & 0xFFF;
         return { x, y, z, count };
       });
-    console.log('time taken for topK: in ms', performance.now() - timeStart);
-    console.log('Top requests:', topK);
+    // console.log('time taken for topK: in ms', performance.now() - timeStart);
+    // console.log('Top requests:', topK);
   }
 
   async processRequestData(buffer) {
-    console.log('processRequestData');
+    this.triggerRequest = false;
+    // console.log('processRequestData');
     const counts = new Map();
     for (let i = 0; i < buffer.length; i += 4) {
       const r = buffer[i]; const g = buffer[i + 1]; const b = buffer[i + 2]; const
@@ -1088,8 +1090,8 @@ export class VolumeDataManager {
       const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
       counts.set(packed, (counts.get(packed) || 0) + 1);
     }
-    console.log('counts', counts);
-    console.log('this.k', this.k);
+    // console.log('counts', counts);
+    // console.log('this.k', this.k);
     /* Top‑K (≤ k) PT requests */
     const requests = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
@@ -1099,8 +1101,12 @@ export class VolumeDataManager {
         y: (packed >> 12) & 0x3FF,
         z: packed & 0xFFF,
       }));
-    console.log('requests', requests);
+    if (requests.length === 0) {
+      this.noNewRequests = true;
+    }
+    // console.log('requests', requests);
     await this.handleBrickRequests(requests);
+    this.triggerRequest = true;
   }
 
 
@@ -1110,7 +1116,7 @@ export class VolumeDataManager {
    * @param {number} targetId - Which render target (1 or 2)
    */
   async processUsageData(buffer) {
-    console.log('Processing data from usage buffer');
+    // console.log('Processing data from usage buffer');
 
     // Process the render target data here
     // This is where you implement your specific processing logic
@@ -1139,7 +1145,7 @@ export class VolumeDataManager {
     let x = -1;
     let y = -1;
     let z = -1;
-    console.log('pt', ptx, pty, ptz);
+    // console.log('pt', ptx, pty, ptz);
     if (ptz >= this.PT.z0Extent) {
       resolution = 0;
       x = ptx;
@@ -1166,7 +1172,7 @@ export class VolumeDataManager {
         }
       }
     }
-    console.log(channel, resolution, x, y, z);
+    // console.log(channel, resolution, x, y, z);
     return {
       channel,
       resolution,
@@ -1217,16 +1223,16 @@ export class VolumeDataManager {
  * 4. Upload one brick + PT entry                                *
  * ------------------------------------------------------------- */
   async _uploadBrick(ptCoord, bcSlot) {
-    console.log('uploading brick', ptCoord, bcSlot);
+    // console.log('uploading brick', ptCoord, bcSlot);
     /* 4.1 fetch chunk from Zarr */
     const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
-    console.log('resolution', resolution);
-    console.log('channel', channel);
-    console.log('zarrX', x);
-    console.log('zarrY', y);
-    console.log('zarrZ', z);
+    // console.log('resolution', resolution);
+    // console.log('channel', channel);
+    // console.log('zarrX', x);
+    // console.log('zarrY', y);
+    // console.log('zarrZ', z);
     const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
-    console.log('chunk', chunk);
+    // console.log('chunk', chunk);
     /* 4.2 compute min/max (uint8 so this is fast) */
     let min = 255; let
       max = 0;
@@ -1235,8 +1241,8 @@ export class VolumeDataManager {
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    console.log('min', min);
-    console.log('max', max);
+    // console.log('min', min);
+    // console.log('max', max);
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;
@@ -1254,7 +1260,7 @@ export class VolumeDataManager {
     );
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     gl.bindTexture(gl.TEXTURE_3D, null);
-    console.log('uploaded brick');
+    // console.log('uploaded brick');
 
     /* 4.4 PT entry upload */
     const ptVal = this._packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
@@ -1269,32 +1275,32 @@ export class VolumeDataManager {
       new Uint32Array([ptVal]),
     );
     gl.bindTexture(gl.TEXTURE_3D, null);
-    console.log('uploaded PT entry');
+    // console.log('uploaded PT entry');
     /* 4.5 bookkeeping */
     const now = ++this.timeStamp;
     this.BCTimeStamps[bcSlot.bcIndex] = now;
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
-    console.log('bookkeeping');
+    // console.log('bookkeeping');
   }
 
   /* ------------------------------------------------------------- *
  * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
  * ------------------------------------------------------------- */
   async handleBrickRequests(ptRequests) {
-    console.log('handleBrickRequests');
+    // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
-    console.log('ptRequests', ptRequests);
+    // console.log('ptRequests', ptRequests);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);
-    console.log('slots', slots);
+    // console.log('slots', slots);
 
     /* upload each (sequentially or Promise.all if you prefer IO overlap) */
     for (let i = 0; i < ptRequests.length; ++i) {
     // eslint-disable-next-line no-await-in-loop
       await this._uploadBrick(ptRequests[i], slots[i]);
     }
-    console.log('uploaded bricks');
+    // console.log('uploaded bricks');
 
     /* let Three.js know textures changed */
     // this.bcTHREE.needsUpdate = true;
