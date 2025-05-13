@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+/* eslint-disable no-bitwise */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable max-len */
 
 // NOTES:
@@ -127,6 +130,7 @@ export class VolumeDataManager {
       group: '', // ref to this.group
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
     };
+
     this.cacheStatus = {
       chunksCached: 0,
       cacheFull: false,
@@ -148,11 +152,28 @@ export class VolumeDataManager {
     this.bcTHREE = null;
 
     this.PT = {
-      channelOffsets: [],
+      channelOffsets: [
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1],
+      ],
+      anchors: [
+        [0, 0, 28],
+        [16, 16, 15],
+        [8, 8, 8],
+        [4, 4, 4],
+        [2, 2, 2],
+        [1, 1, 1],
+      ],
       offsets: [],
       xExtent: 0, // includes the offset inclusive
       yExtent: 0, // includes the offset inclusive
       zExtent: 0, // includes the offset inclusive
+      z0Extent: 0, // l0 z extent
       zTotal: 0, // original z extent plus the l0 z extent times the channel count
     };
 
@@ -180,10 +201,9 @@ export class VolumeDataManager {
     // top k unused brick cache addresses
     this.LRUStack = [];
     this.LRUReady = false;
-
     this.triggerRequest = true;
-
     this.timeStamp = 0;
+    this.k = 20;
 
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
@@ -401,10 +421,11 @@ export class VolumeDataManager {
     this.PT.yExtent = 1;
     this.PT.zExtent = 1;
     const l0z = this.zarrStore.brickLayout[0][0]; // Get z extent from highest resolution
+    this.PT.z0Extent = l0z;
 
     console.warn('PT', this.PT);
 
-    // Sum up the extents from all resolution levels
+    // Sum up the extents from all resolution levels excluding the l0
     for (let i = 1; i < this.zarrStore.brickLayout.length; i++) {
       this.PT.xExtent += this.zarrStore.brickLayout[i][2];
       this.PT.yExtent += this.zarrStore.brickLayout[i][1];
@@ -418,6 +439,7 @@ export class VolumeDataManager {
       x: this.PT.xExtent,
       y: this.PT.yExtent,
       z: this.PT.zExtent,
+      z0: this.PT.z0Extent,
       zTotal: this.PT.zTotal,
     });
 
@@ -1024,7 +1046,7 @@ export class VolumeDataManager {
    * @param {Float32Array} buffer - Pixel data from render target
    * @param {number} targetId - Which render target (1 or 2)
    */
-  async processRequestData(buffer) {
+  async processRequestDataOld(buffer) {
     const counts = new Map();
     console.log('Sample bytes:', buffer.slice(0, 16)); // 4 RGBA pixels
 
@@ -1056,6 +1078,32 @@ export class VolumeDataManager {
     console.log('Top requests:', topK);
   }
 
+  async processRequestData(buffer) {
+    console.log('processRequestData');
+    const counts = new Map();
+    for (let i = 0; i < buffer.length; i += 4) {
+      const r = buffer[i]; const g = buffer[i + 1]; const b = buffer[i + 2]; const
+        a = buffer[i + 3];
+      if ((r | g | b | a) === 0) continue;
+      const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
+      counts.set(packed, (counts.get(packed) || 0) + 1);
+    }
+    console.log('counts', counts);
+    console.log('this.k', this.k);
+    /* Top‑K (≤ k) PT requests */
+    const requests = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, this.k)
+      .map(([packed]) => ({
+        x: (packed >> 22) & 0x3FF,
+        y: (packed >> 12) & 0x3FF,
+        z: packed & 0xFFF,
+      }));
+    console.log('requests', requests);
+    await this.handleBrickRequests(requests);
+  }
+
+
   /**
    * Process data from render targets
    * @param {Float32Array} buffer - Pixel data from render target
@@ -1080,5 +1128,176 @@ export class VolumeDataManager {
     }
     // You can add more complex processing here
     // Or store the data for later use
+  }
+
+  /* ------------------------------------------------------------- *
+ * 1. Convert PT (x,y,z) → { level, bx, by, bz } in Zarr space  *
+ * ------------------------------------------------------------- */
+  _ptToZarr(ptx, pty, ptz) {
+    let channel = -1;
+    let resolution = -1;
+    let x = -1;
+    let y = -1;
+    let z = -1;
+    console.log('pt', ptx, pty, ptz);
+    if (ptz >= this.PT.z0Extent) {
+      resolution = 0;
+      x = ptx;
+      y = pty;
+      z = (ptz - this.PT.zExtent) % this.PT.z0Extent;
+      channel = Math.floor((ptz - this.PT.zExtent) / this.PT.z0Extent);
+    } else {
+      for (let i = 1; i < this.PT.anchors.length; i++) {
+        if (ptx < this.PT.anchors[i][0] && pty < this.PT.anchors[i][1] && ptz < this.PT.anchors[i][2]) {
+          // all PT coordinates are less than the anchor -> one res lower
+        } else {
+          resolution = i;
+          const channelMask = [0, 0, 0];
+          if (ptx >= this.PT.anchors[i][0]) { channelMask[0] = 1; }
+          if (pty >= this.PT.anchors[i][1]) { channelMask[1] = 1; }
+          if (ptz >= this.PT.anchors[i][2]) { channelMask[2] = 1; }
+          const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
+          channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
+          const thisOffset = channelMask.map((v, j) => v * this.PT.anchors[i][j]);
+          x = ptx - thisOffset[0];
+          y = pty - thisOffset[1];
+          z = ptz - thisOffset[2];
+          break;
+        }
+      }
+    }
+    console.log(channel, resolution, x, y, z);
+    return {
+      channel,
+      resolution,
+      x,
+      y,
+      z,
+    };
+  }
+
+  /* ------------------------------------------------------------- *
+ * 2. Allocate the next n free bricks in the brick cache         *
+ *    (very dumb allocator – good enough until you wire in LRU)  *
+ * ------------------------------------------------------------- */
+  _allocateBCSlots(n) {
+    const slots = [];
+    const total = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+
+    for (let i = 0; i < n; ++i) {
+      const bcIndex = (this.BCUnusedIndex + i) % total; // wrap for now
+      const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+      const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+      const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+      const x = rem % BRICK_CACHE_SIZE_X;
+
+      slots.push({ bcIndex, x, y, z });
+    }
+    this.BCUnusedIndex = (this.BCUnusedIndex + n) % total;
+    return slots;
+  }
+
+  /* ------------------------------------------------------------- *
+ * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
+ * ------------------------------------------------------------- */
+  _packPT(min, max, bcX, bcY, bcZ) {
+    const clamp7 = v => Math.max(0, Math.min(127, v)); // 7 bits
+    return (
+      (1 << 31) // bit‑31 = resident
+      | (1 << 30) // bit‑30 = init‑done
+      | (clamp7(min) << 23) // 7 bits
+      | (clamp7(max) << 16) // 7 bits
+      | ((bcX & 0x3F) << 10) // 6 bits
+      | ((bcY & 0x3F) << 4) // 6 bits
+      | (bcZ & 0x0F) // 4 bits
+    ) >>> 0; // keep unsigned
+  }
+
+  /* ------------------------------------------------------------- *
+ * 4. Upload one brick + PT entry                                *
+ * ------------------------------------------------------------- */
+  async _uploadBrick(ptCoord, bcSlot) {
+    console.log('uploading brick', ptCoord, bcSlot);
+    /* 4.1 fetch chunk from Zarr */
+    const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
+    console.log('resolution', resolution);
+    console.log('channel', channel);
+    console.log('zarrX', x);
+    console.log('zarrY', y);
+    console.log('zarrZ', z);
+    const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
+    console.log('chunk', chunk);
+    /* 4.2 compute min/max (uint8 so this is fast) */
+    let min = 255; let
+      max = 0;
+    for (let i = 0; i < chunk.length; ++i) {
+      const v = chunk[i];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    console.log('min', min);
+    console.log('max', max);
+
+    /* 4.3 brick‑cache upload */
+    const { gl } = this;
+    const texBC = this.renderer.properties.get(this.bcTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_3D, texBC);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      bcSlot.x * BRICK_SIZE,
+      bcSlot.y * BRICK_SIZE,
+      bcSlot.z * BRICK_SIZE,
+      BRICK_SIZE, BRICK_SIZE, BRICK_SIZE,
+      gl.RED, gl.UNSIGNED_BYTE, chunk,
+    );
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    gl.bindTexture(gl.TEXTURE_3D, null);
+    console.log('uploaded brick');
+
+    /* 4.4 PT entry upload */
+    const ptVal = this._packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      ptCoord.x, ptCoord.y, ptCoord.z,
+      1, 1, 1,
+      gl.RED_INTEGER, gl.UNSIGNED_INT,
+      new Uint32Array([ptVal]),
+    );
+    gl.bindTexture(gl.TEXTURE_3D, null);
+    console.log('uploaded PT entry');
+    /* 4.5 bookkeeping */
+    const now = ++this.timeStamp;
+    this.BCTimeStamps[bcSlot.bcIndex] = now;
+    this.BCMinMax[bcSlot.bcIndex] = [min, max];
+    console.log('bookkeeping');
+  }
+
+  /* ------------------------------------------------------------- *
+ * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
+ * ------------------------------------------------------------- */
+  async handleBrickRequests(ptRequests) {
+    console.log('handleBrickRequests');
+    if (ptRequests.length === 0) return;
+    console.log('ptRequests', ptRequests);
+
+    /* <= k requests, allocate same number of bricks */
+    const slots = this._allocateBCSlots(ptRequests.length);
+    console.log('slots', slots);
+
+    /* upload each (sequentially or Promise.all if you prefer IO overlap) */
+    for (let i = 0; i < ptRequests.length; ++i) {
+    // eslint-disable-next-line no-await-in-loop
+      await this._uploadBrick(ptRequests[i], slots[i]);
+    }
+    console.log('uploaded bricks');
+
+    /* let Three.js know textures changed */
+    // this.bcTHREE.needsUpdate = true;
+    // this.ptTHREE.needsUpdate = true;
   }
 }

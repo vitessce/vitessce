@@ -174,7 +174,7 @@ export function VolumeView(props) {
 
       // 2. Read back attachments 1 & 2 on interval
       const f = frameRef.current++;
-      if (f % 1000 === 500) { // attachment 1 every ~2s @60fps
+      if (f === 500) { // attachment 1 every ~2s @60fps
         ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,

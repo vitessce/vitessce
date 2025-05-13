@@ -140,6 +140,17 @@ uvec3 getAnchorPoint(int index) {
     return anchorPoint5;
 }
 
+uvec3 getChannelOffset(int index) {
+    if (index == 0) return uvec3(0, 0, 1);
+    if (index == 1) return uvec3(0, 1, 0);
+    if (index == 2) return uvec3(0, 1, 1);
+    if (index == 3) return uvec3(1, 0, 0);
+    if (index == 4) return uvec3(1, 0, 1);
+    if (index == 5) return uvec3(1, 1, 0);
+    if (index == 6) return uvec3(1, 1, 1);
+    return uvec3(0, 0, 0);
+}
+
 /*
 [1] 31    | 0 — flag resident
 [1] 30    | 1 — flag init
@@ -166,7 +177,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uvec3 anchorPoint = getAnchorPoint(currentRes);
         // multiplier to scale the [0,1] to the extents in the PT in that res
         float scale = pow(2.0, float(lowestRes) - float(currentRes)); // lowestRes should be 1 
-        uvec3 channelOffset = uvec3(0,0,1); // this is for the 0th channel now
+        uvec3 channelOffset = getChannelOffset(channel); // this is for the 0th channel now
         uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
 
