@@ -37,6 +37,7 @@
     "clsx": "catalog:",
     "lodash-es": "catalog:",
     "flatbush": "^4.4.0",
+    "d3-array": "catalog:",
     "node-fpgrowth": "^1.2.1"
   },
   "devDependencies": {

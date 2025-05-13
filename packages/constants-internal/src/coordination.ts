@@ -710,5 +710,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.ADDITIONAL_OBS_SETS,
   ],
 };

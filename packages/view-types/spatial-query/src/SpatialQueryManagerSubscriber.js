@@ -32,8 +32,10 @@ import {
   useGridItemSize,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping, CoordinationType } from '@vitessce/constants-internal';
+import { useQuery } from '@tanstack/react-query';
 import Flatbush from 'flatbush';
 import { FPGrowth, Itemset } from 'node-fpgrowth';
+import { extent } from 'd3-array';
 
 
 export function SpatialQueryManagerSubscriber(props) {
@@ -237,8 +239,6 @@ export function SpatialQueryManagerSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  console.log(obsSpotsData, obsSpotsSetsData);
-
   const [
     spotMultiExpressionData,
     spotMultiLoadedFeatureSelection,
@@ -298,9 +298,113 @@ export function SpatialQueryManagerSubscriber(props) {
     obsSegmentationsLocationsDataStatus,
   ]);
 
-  const onFindPatterns = useCallback(() => {
+  // Convert these to coordination types?
+  const [queryType, setQueryType] = useState('grid');
+  const [maxDist, setMaxDist] = useState(200);
+  const [minSize, setMinSize] = useState(2); // Minimum number of unique cell types in a transaction.
+  const [minSupport, setMinSupport] = useState(0.5);
 
-  }, []);
+  const firstSpotLayerScope = spotLayerScopes?.[0];
+  const currSelectedSets = spotLayerCoordination[0][firstSpotLayerScope]?.obsSetSelection;
+  const currSelectedSetGroup = currSelectedSets?.[0]?.[0];
+
+  const cellTypeOfInterest = currSelectedSets?.length === 1 && currSelectedSets[0].length === 2
+    ? currSelectedSets[0][1]
+    : null;
+  
+  const spatialQueryResult = useQuery({
+    enabled: !!(obsSpotsData && obsSpotsSetsData && currSelectedSetGroup),
+    // TODO: should this use obsSegmentationsLocations instead of obsSpots?
+    queryKey: [queryType, maxDist, minSize, minSupport, firstSpotLayerScope, currSelectedSetGroup, 'spatial-query'],
+    meta: { obsSpotsData, obsSpotsSetsData, spotLayerCoordination },
+    queryFn: async (ctx) => {
+      const { obsSpotsData, obsSpotsSetsData, spotLayerCoordination } = ctx.meta;
+      const [queryType, maxDist, minSize, minSupport, firstSpotLayerScope, currSelectedSetGroup] = ctx.queryKey;
+
+      const spotLayerData = obsSpotsData[firstSpotLayerScope];
+      const spotLayerSets = obsSpotsSetsData[firstSpotLayerScope];
+      
+      const { obsIndex, obsSpots } = spotLayerData;
+      const { obsIndex: obsIndexForSets, obsSets, obsSetsMembership } = spotLayerSets;
+      const xCoords = obsSpots.data[0];
+      const yCoords = obsSpots.data[1];
+      const xExtent = extent(xCoords);
+      const yExtent = extent(yCoords);
+
+      // initialize Flatbush for N items
+      const flatbushIndex = new Flatbush(obsIndex.length);
+
+      // fill it with 1000 rectangles
+      for (let i = 0; i < obsIndex.length; i++) {
+        flatbushIndex.add(xCoords[i], yCoords[i]);
+      }
+
+      // perform the indexing
+      flatbushIndex.finish();
+
+      // Obtain [x,y] coordinates for the grid points.
+      const gridPoints = [];
+      for(let gridX = xExtent[0] - maxDist; gridX < xExtent[1] + maxDist; gridX += maxDist) {
+        for(let gridY = yExtent[0] - maxDist; gridY < yExtent[1] + maxDist; gridY += maxDist) {
+          gridPoints.push([gridX, gridY]);
+        }
+      }
+
+      // One list of observation IDs per grid point query
+      const indexLists = [];
+      for(const gridPoint of gridPoints) {
+        // TODO: also support k-nearest-neighbor query.
+        // make a k-nearest-neighbors query
+        // const neighborIds = flatbushIndex.neighbors(xCoords[10], yCoords[10], 5);
+
+        // make a bounding box query
+        const [gridX, gridY] = gridPoint;
+        const minX = gridX - maxDist/2;
+        const maxX = gridX + maxDist/2;
+        const minY = gridY - maxDist/2;
+        const maxY = gridY + maxDist/2;
+        // TODO: filter to a circular region? (rather than a rectangular one)
+        const found = flatbushIndex.search(minX, minY, maxX, maxY).map((i) => obsIndex[i]);
+        indexLists.push(found);
+      }
+
+      // Convert lists of observation indices to transactions.
+      const transactions = []
+      for(const indexList of indexLists) {
+        if(indexList.length > 0) {
+          // TODO: spatialQuery keeps track of more info, like valid obsIds to be able to return these at the end.
+          // Reference: https://github.com/ShaokunAn/Spatial-Query/blob/0570c54bd6e046466e05c6b800d6701a7ab15c4a/SpatialQuery/spatial_query.py#L583C17-L583C27
+          const cellTypes = indexList.map(obsId => obsSetsMembership
+            .get(obsId)
+            ?.find(setPath => setPath[0] === currSelectedSetGroup)
+            ?.[1] // TODO: here, we take the second element of the setPath as the cell type name string.
+            // Should we consider the full potential hierarchy of cell types instead?
+          );
+          const transaction = Array.from(new Set(cellTypes)).toSorted();
+          if(transaction.length >= minSize) {
+            transactions.push(transaction)
+          }
+        }
+      }
+      //console.log(transactions);
+
+      const fpgrowth = new FPGrowth(minSupport);
+      const itemsets = await fpgrowth.exec(transactions);
+
+      // Returns an array representing the frequent itemsets.
+      const validItemsets = itemsets.filter(d => d.items.length >= minSize);
+      const sortedItemsets = validItemsets.toSorted((a, b) => b.support - a.support);
+      return sortedItemsets;
+    },
+  });
+  const { data, status, isFetching, error } = spatialQueryResult;
+  console.log(data, status, isFetching, error);
+
+  const onQueryTypeChange = useCallback((e) => {
+    setQueryType(e.target.value);
+}, []);
+
+
 
   return (
     <TitleInfo
@@ -310,9 +414,43 @@ export function SpatialQueryManagerSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
+      isScroll
     >
-      <p>SpatialQuery</p>
-      <button onClick={onFindPatterns}>Find patterns</button>
+      <div>
+        <p>Query Parameters</p>
+        <label>
+            Query type&nbsp;
+            <select onChange={onQueryTypeChange}>
+                <option value="grid">Grid-based</option>
+                <option value="rand">Random-based</option>
+                <option value="ct-center" disabled={cellTypeOfInterest === null}>Cell type of interest</option>
+            </select>
+        </label>
+        <br/>
+        <label>
+            {/* Maximum distance to consider a cell as a neighbor. */}
+            Max. Dist.
+            <input type="range" value={maxDist} onChange={e => setMaxDist(parseFloat(e.target.value))} min={50} max={250} step={1} />
+            {maxDist}
+        </label>
+        <br/>
+        <label>
+            {/* Minimum neighborhood size for each point to consider. */}
+            Min. Size
+            <input type="range" value={minSize} onChange={e => setMinSize(parseFloat(e.target.value))} min={0} max={20} step={1} />
+            {minSize}
+        </label>
+        <br/>
+        <label>
+            {/* Threshold of frequency to consider a pattern as a frequent pattern. */}
+            Min. Support
+            <input type="range" value={minSupport} onChange={e => setMinSupport(parseFloat(e.target.value))} min={0} max={1} step={0.01} />
+            {minSupport}
+        </label>
+        <p>Query Results</p>
+        <p>{data?.length} matches</p>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </div>
     </TitleInfo>
   );
 }
