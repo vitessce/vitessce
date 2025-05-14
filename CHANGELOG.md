@@ -1,4 +1,17 @@
 
+## 3.5.12
+
+### Patch Changes
+
+- Updated tutorial for gh-pages deployment (`docs`) ([#2113](https://github.com/vitessce/vitessce/pull/2113))
+
+- Use PhotometricInterpretation TIFF metadata rather than heuristic in spatial/layerController views to determine RGB vs. not. Use photometricInterpretation coordination type in spatial/layerController views to enable overriding TIFF metadata when necessary. (`@vitessce/layer-controller`, `@vitessce/spatial`) ([#2107](https://github.com/vitessce/vitessce/pull/2107))
+
+- Fixed transformation matrix for assuming xy having equal physical sizes (`@vitessce/spatial-utils`) ([#2112](https://github.com/vitessce/vitessce/pull/2112))
+
+- Update showcase and docs. (`docs`) ([#2117](https://github.com/vitessce/vitessce/pull/2117))
+
+
 ## 3.5.11
 
 ### Patch Changes
