@@ -78,6 +78,44 @@ Then, configure Vitessce using the `offsetsUrl` option of the `image.ome-tiff` o
 
 For more information, see the Viv paper at [Manz et al. Nature Methods 2022](https://doi.org/10.1038/s41592-022-01482-7) which introduces the concept of an Indexed OME-TIFF file and benchmarks the approach.
 
+### OME-TIFF compression
+
+Vitessce can load OME-TIFFs which use the following compression methods:
+
+- No compression
+- Packbits
+- LZW
+- Deflate (with floating point or horizontal predictor support)
+- JPEG
+- LERC (with additional Deflate compression support)
+
+This is based on Vitessce using [Viv](https://github.com/hms-dbmi/viv), as Viv internally uses [Geotiff.js](https://github.com/geotiffjs/geotiff.js) to load data from OME-TIFF files.
+
+### RGB vs. multiplex
+
+To determine whether an OME-TIFF image should be interpreted as red-green-blue (RGB, as a standard camera image would be) versus multiplexed, Vitessce uses the `PhotometricInterpretation` [TIFF tag](https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml).
+A value of `1` means "black is zero" (i.e., multi-channel/grayscale, where zero values should be rendered using the color black), whereas `2` means RGB.
+To override the metadata in the image, the `photometricInterpretation` [coordination type](https://vitessce.io/docs/coordination-types/#photometricInterpretation) can be used (with value `'RGB'` or `'BlackIsZero'`).
+
+### Alignment, coordinate transformations, and physical size
+
+#### Physical size metadata
+
+If the OME-XML metadata contains `PhysicalSizeX`, `PhysicalSizeXUnit`, `PhysicalSizeY`, and `PhysicalSizeYUnit`, then the physical size will be used for scaling.
+These values define the physical size and unit of an individual pixel within the image (e.g., that one pixel has a physical size of 1x1 micron).
+
+#### Coordinate transformations
+
+Optionally, coordinate transformations can be defined using the `coordinateTransformations` option of the `image.ome-tiff` or `obsSegmentations.ome-tiff` [file types](https://vitessce.io/docs/data-file-types/#imageome-tiff), which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+The order of the transformations parameters must correspond to the order of the dimensions in the image (i.e., must match the `DimensionOrder` within the OME-XML metadata).
+
+
+### Channel names
+
+Vitessce will use the channel names present within the OME-XML metadata and will display these within the user interface.
+To edit the channel names, tools such as [tiffcomment](https://bio-formats.readthedocs.io/en/stable/users/comlinetools/edit.html) can be used.
+
+
 
 ## OME-NGFF
 
@@ -100,11 +138,9 @@ Use the `scale_factors` parameter of the `Image2DModel.parse` and `Labels2DModel
 Note that Vitessce does not yet support multi-resolution OME-NGFF images with a scaling factor other than `2`.
 As SpatialData Image and Labels elements are stored in OME-NGFF format, this point applies to both OME-NGFFs contained within SpatialData objects and standalone OME-NGFF Zarr stores.
 
-
 ### Supported versions
 
 Vitessce currently supports up to OME-NGFF spec v0.4.
-
 
 ### Supported features
 
@@ -124,11 +160,20 @@ The following table lists the support for different OME-NGFF features:
 To compare Vitessce to other OME-NGFF clients, see the [table](https://github.com/ome/ngff/issues/71) listing the OME-NGFF features supported by other clients.
 We welcome feature requests or pull requests to add support for the remaining features to Vitessce.
 
-
 ### Metadata requirements
 
 The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present.
 
+### RGB vs. multiplex
+
+For OME-NGFF images, Vitessce uses the field `omero.rdefs.model` to determine whether to interpret the image as RGB vs. multiplexed.
+When `model` is `'color'`, the image is interpreted as RGB; otherwise, it will be considered multiplexed.
+To override the metadata in the image, the `photometricInterpretation` [coordination type](https://vitessce.io/docs/coordination-types/#photometricInterpretation) can be used (with value `'RGB'` or `'BlackIsZero'`).
+
+### Coordinate transformations
+
+Optionally, coordinate transformations can be defined using the `coordinateTransformations` option of the `image.ome-zarr` or `obsSegmentations.ome-zarr` [file types](https://vitessce.io/docs/data-file-types/#imageome-zarr), which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+The order of the transformations parameters must correspond to the order of the dimensions in the image.
 
 ### Z-axis chunking
 
