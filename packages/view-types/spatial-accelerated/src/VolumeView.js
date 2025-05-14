@@ -179,7 +179,7 @@ export function VolumeView(props) {
       }
       if (managers?.dataManager.triggerRequest === true
         && managers?.dataManager.noNewRequests === false) {
-        console.warn('triggerRequest', f);
+        // console.warn('triggerRequest', f);
         ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,

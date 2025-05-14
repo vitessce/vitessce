@@ -98,6 +98,10 @@ float linear_to_srgb(float x) {
     return 1.055f * pow(x, 1.f / 2.4f) - 0.055f;
 }
 
+vec4 linear_to_srgb(vec4 x) {
+    return vec4(linear_to_srgb(x.r), linear_to_srgb(x.g), linear_to_srgb(x.b), x.a);
+}
+
 vec4 packBrickCoordToRGBA8(uvec3 coord) {
     uint x = coord.x & 0x3FFu; // 10 bits
     uint y = coord.y & 0x3FFu; // 10 bits
@@ -190,14 +194,32 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
             }
             continue;
         }
-        uint min = (ptEntry >> 23u) & 0x7Fu;
-        uint max = (ptEntry >> 16u) & 0x7Fu;
-        if (float(min) > u_clim[0]) {
-            return ivec4(0,0,0,-3);
-        } else if (float(max) < u_clim[1]) {
-            return ivec4(0,0,0,-2);
-        } else if (abs(float(min) - float(max)) < 2.0) {
-            return ivec4(int(min) * 2, currentRes, 0, -4);
+        uint umin = ((ptEntry >> 23u) & 0x7Fu);
+        uint umax = ((ptEntry >> 16u) & 0x7Fu);
+        float min = float(int(umin)) / 255.0;
+        float max = float(int(umax)) / 255.0;
+        // return ivec4(int(umin), int(umax), 0, -2);
+        if (float(max) <= u_clim[0]) {
+            return ivec4(
+                0,
+                1,
+                0,
+                -2);
+            // EMPTY
+        } else if (float(min) >= u_clim[1]) {
+            return ivec4(
+                0, 
+                0, 
+                1, 
+                -3);
+            // CONSTANT FULL
+        } else if ((umax - umin) < 2u) {
+            // CONSTANT OTHER VALUE
+            return ivec4(
+                1, 
+                1, 
+                0, 
+                -4);
         }
         // check if resident
         uint isResident = (ptEntry >> 31u) & 1u;
@@ -306,11 +328,35 @@ void main(void) {
             // request brick?
             continue;
         } else if (brickCacheOffset.w == -2) {
-            // render constant
+            // empty
+            vec4 outputVec = vec4(
+                0.0,
+                0.0,
+                1.0,
+                1.0);
+            // gColor = linear_to_srgb(outputVec);
+            // static irrespective of bounds
+            // return;
         } else if (brickCacheOffset.w == -3) {
-            // render constant
+            // full
+            vec4 outputVec = vec4(
+                0,
+                1,
+                0,
+                1);
+            // gColor = linear_to_srgb(outputVec);
+            // often true
+            // return;
         } else if (brickCacheOffset.w == -4) {
             // render constant
+            vec4 outputVec = vec4(
+                1,
+                0,
+                1,
+                1);
+            // gColor = linear_to_srgb(outputVec);
+            // only true if min max is both 0
+            // return;
         } 
         
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
@@ -323,6 +369,7 @@ void main(void) {
         );
 
         float val = texture(brickCacheTex, brickCacheCoord).r;
+
         val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
         vec3 rgbComboAdd = max(0.0, min(1.0, val)) * u_color;
 
@@ -377,6 +424,11 @@ void main(void) {
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
+
+    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r < 0.0
+        && false) {
+        gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
+    }
 
     // Also set outColor for compatibility
     // outColor.r = linear_to_srgb(outColor.r);
