@@ -108,6 +108,8 @@ These values define the physical size and unit of an individual pixel within the
 
 Optionally, coordinate transformations can be defined using the `coordinateTransformations` option of the `image.ome-tiff` or `obsSegmentations.ome-tiff` [file types](https://vitessce.io/docs/data-file-types/#imageome-tiff), which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
 The order of the transformations parameters must correspond to the order of the dimensions in the image (i.e., must match the `DimensionOrder` within the OME-XML metadata).
+For example, to scale by 2x in the X and Y dimensions for an image with a DimensionOrder of `XYZCT`, use `"scale": [2.0, 2.0, 1.0, 1.0, 1.0]`.
+For example, to translate by 3 and 4 units in the X and Y dimensions, respectively, use `"translation": [3.0, 4.0, 0.0, 0.0, 0.0]`.
 
 
 ### Channel names
