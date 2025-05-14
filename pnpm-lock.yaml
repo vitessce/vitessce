@@ -2206,6 +2206,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
+      d3-array:
+        specifier: 'catalog:'
+        version: 2.12.1
       flatbush:
         specifier: ^4.4.0
         version: 4.4.0
@@ -10065,6 +10068,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-emoji@1.11.0:
     resolution: {integrity: sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==}
@@ -21459,7 +21463,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 2.12.1
+      d3-array: 3.2.0
       d3-geo: 3.0.1
 
   d3-geo@1.7.1:
@@ -21472,7 +21476,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 2.12.1
+      d3-array: 3.2.0
 
   d3-hexbin@0.2.2: {}
 
@@ -21545,7 +21549,7 @@ snapshots:
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 2.12.1
+      d3-array: 3.2.0
 
   d3-timer@2.0.0: {}
 
