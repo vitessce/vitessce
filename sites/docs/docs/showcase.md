@@ -27,10 +27,11 @@ Vitessce is being used in the following projects:
 * Industry/commercial products  
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
-* Publication-associated interactive figures  
+* Publication-associated interactive figures
+  * [Qian et al. 2025 Nature](https://walshlab.org/research/cortexdevelopment/) ([paper](https://doi.org/10.1038/s41586-025-09010-1))
+  * Kerchberger et al. 2024 Nature Communications ([code](https://github.com/cancerbits/Kirchberger_Shoeb2024_neut?tab=readme-ov-file#interactive-data-exploration)) ([paper](https://doi.org/10.1038/s41467-024-45802-1))
+  * [Nu Ton et al. 2023 Nature Cell Biology](https://marionilab.github.io/RabbitGastrulation2022/#explore) ([paper](https://doi.org/10.1038/s41556-023-01174-0))
   * [Petukhov et al. 2021 Nature Biotechnology](https://github.com/kharchenkolab/BaysorAnalysis/tree/master?tab=readme-ov-file#visualization-of-the-results) ([code](https://github.com/kharchenkolab/BaysorAnalysis/tree/68f568d1c056708d474aeea3f28bbe083ccb6e4c#visualization-of-the-results)) ([paper](https://doi.org/10.1038/s41587-021-01044-w))  
-  * [Nu Ton et al. 2023 Nature Cell Biology](https://marionilab.github.io/RabbitGastrulation2022/#explore) ([paper](https://doi.org/10.1038/s41556-023-01174-0))  
-  * Kerchberger et al. 2024 Nature Communications ([code](https://github.com/cancerbits/Kirchberger_Shoeb2024_neut?tab=readme-ov-file#interactive-data-exploration)) ([paper](https://doi.org/10.1038/s41467-024-45802-1))  
 * Other usage within the [HIDIVE Lab](https://hidivelab.org/)
   * Polyphony ([code](https://github.com/scPolyphony/polyphony-vis))  
   * Hybrid mixed rendering ([preprint](https://osf.io/preprints/osf/zka2j))  
