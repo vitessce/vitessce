@@ -196,8 +196,8 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         }
         uint umin = ((ptEntry >> 23u) & 0x7Fu);
         uint umax = ((ptEntry >> 16u) & 0x7Fu);
-        float min = float(int(umin)) / 255.0;
-        float max = float(int(umax)) / 255.0;
+        float min = float(int(umin)) / 127.0;
+        float max = float(int(umax)) / 127.0;
         // return ivec4(int(umin), int(umax), 0, -2);
         if (float(max) <= u_clim[0]) {
             return ivec4(
@@ -334,9 +334,9 @@ void main(void) {
                 0.0,
                 1.0,
                 1.0);
-            // gColor = linear_to_srgb(outputVec);
+            gColor = linear_to_srgb(outputVec);
             // static irrespective of bounds
-            // return;
+            return;
         } else if (brickCacheOffset.w == -3) {
             // full
             vec4 outputVec = vec4(
@@ -344,9 +344,9 @@ void main(void) {
                 1,
                 0,
                 1);
-            // gColor = linear_to_srgb(outputVec);
+            gColor = linear_to_srgb(outputVec);
             // often true
-            // return;
+            return;
         } else if (brickCacheOffset.w == -4) {
             // render constant
             vec4 outputVec = vec4(
@@ -354,9 +354,9 @@ void main(void) {
                 0,
                 1,
                 1);
-            // gColor = linear_to_srgb(outputVec);
+            gColor = linear_to_srgb(outputVec);
             // only true if min max is both 0
-            // return;
+            return;
         } 
         
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));

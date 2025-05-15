@@ -239,9 +239,10 @@ export class VolumeRenderManager {
    * @returns {number} Normalized value
    */
   normalizeValue(value, minMax) {
-    log('Normalizing value');
-    const [min, max] = minMax;
-    return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
+    // log('Normalizing value');
+    // const [min, max] = minMax;
+    // return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
+    return value / 255.0;
   }
 
   /**
