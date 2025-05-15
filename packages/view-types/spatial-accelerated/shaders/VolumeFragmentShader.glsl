@@ -134,6 +134,8 @@ const uvec3 anchorPoint4 = uvec3(2,2,2);
 const uvec3 anchorPoint5 = uvec3(1,1,1);
 
 const uvec3 voxelExtents = uvec3(1024, 1024, 795);
+const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
+const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
 uvec3 getAnchorPoint(int index) {
     if (index == 0) return anchorPoint0;
@@ -286,8 +288,9 @@ void main(void) {
     // boxSize is 200 x 200 x around 155
  
     p = p / boxSize + vec3(0.5);
-
+    p = p * voxelStretchInv;
     vec3 step = (rayDir * dt) / boxSize;
+    step = step * voxelStretchInv;
     // step = rayDir * dt;
 
     bool debug = false;
@@ -334,9 +337,9 @@ void main(void) {
                 0.0,
                 1.0,
                 1.0);
-            gColor = linear_to_srgb(outputVec);
+            // gColor = linear_to_srgb(outputVec);
             // static irrespective of bounds
-            return;
+            // return;
         } else if (brickCacheOffset.w == -3) {
             // full
             vec4 outputVec = vec4(
@@ -344,9 +347,9 @@ void main(void) {
                 1,
                 0,
                 1);
-            gColor = linear_to_srgb(outputVec);
+            // gColor = linear_to_srgb(outputVec);
             // often true
-            return;
+            // return;
         } else if (brickCacheOffset.w == -4) {
             // render constant
             vec4 outputVec = vec4(
@@ -354,9 +357,9 @@ void main(void) {
                 0,
                 1,
                 1);
-            gColor = linear_to_srgb(outputVec);
+            // gColor = linear_to_srgb(outputVec);
             // only true if min max is both 0
-            return;
+            // return;
         } 
         
         float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
@@ -425,8 +428,7 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
 
-    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r < 0.0
-        && false) {
+    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0) {
         gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
     }
 
