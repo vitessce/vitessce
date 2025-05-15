@@ -290,7 +290,7 @@ void main(void) {
     p = p / boxSize + vec3(0.5);
     p = p * voxelStretchInv;
     vec3 step = (rayDir * dt) / boxSize;
-    step = step * voxelStretchInv;
+    // step = step * voxelStretchInv;
     // step = rayDir * dt;
 
     bool debug = false;
