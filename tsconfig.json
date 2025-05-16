@@ -65,6 +65,7 @@
     { "path": "packages/view-types/status" },
     { "path": "packages/view-types/biomarker-select" },
     { "path": "packages/view-types/neuroglancer" },
+    { "path": "packages/view-types/network-vis" },
     { "path": "packages/main/all" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" }

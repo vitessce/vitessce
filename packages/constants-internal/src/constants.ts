@@ -32,6 +32,7 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  NETWORK_VIS: 'network-vis',
 };
 
 export const DataType = {
@@ -53,6 +54,7 @@ export const DataType = {
   FEATURE_STATS: 'featureStats',
   FEATURE_SET_STATS: 'featureSetStats',
   OBS_SET_STATS: 'obsSetStats',
+  NETWORK: 'network',
 };
 
 export const AsyncFunctionType = {
@@ -89,6 +91,7 @@ export const FileType = {
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   SAMPLE_SETS_CSV: 'sampleSets.csv',
+  NETWORK_JSON: 'network.json',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',

@@ -5,6 +5,7 @@ import {
   codeluppi2018,
   codeluppiGating,
 } from './view-configs/codeluppi.js';
+import{network_vis} from './view-configs/network_vis_example.js'
 import { eng2019 } from './view-configs/eng.js';
 import { wang2018 } from './view-configs/wang.js';
 import { spraggins2020, neumann2020 } from './view-configs/spraggins.js';
@@ -108,6 +109,7 @@ export const configs = {
   'just-spatial': justSpatial,
   'just-higlass': justHiglass,
   'codeluppi-2018': codeluppiViaCsv,
+  'network_vis': network_vis,
   'codeluppi-2018-via-zarr': codeluppiViaZarr,
   'combat-2022': combat2022cell,
   'habib-2017': habib2017natureMethods,
