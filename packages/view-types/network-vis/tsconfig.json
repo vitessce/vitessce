@@ -10,6 +10,6 @@
       "esModuleInterop": true,      // Ensures compatibility with ES module imports
     },
     // "include": ["src", "iindex.d.ts", "src/*.json", "src/*.graphml", "src/types/*.d.ts"]
-    "include": ["src", "iindex.d.ts"]
+    "include": ["src", "index.d.ts"]
   }
   
