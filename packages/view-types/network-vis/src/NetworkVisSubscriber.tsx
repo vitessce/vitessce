@@ -1,5 +1,5 @@
 import React from 'react';
-import View from './View';
+import NetworkVis from './NetworkVis';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { TitleInfo as TitleInfoRaw } from '@vitessce/vit-s';
 import { FC, ReactNode } from 'react';
@@ -8,7 +8,7 @@ import { FC, ReactNode } from 'react';
 const TitleInfo = TitleInfoRaw as unknown as FC<{ children?: ReactNode } & Record<string, any>>;
 
 
-export function ViewSubscriber() {
+export function NetworkVisSubscriber() {
     
   return (
     <TitleInfo
@@ -19,7 +19,7 @@ export function ViewSubscriber() {
       isReady={true}
       helpText={true}
     >
-      <View />
+      <NetworkVis />
     </TitleInfo>
   );
   

@@ -94,7 +94,7 @@ const filterMotif = (nodes: any[], links: any[]) => {
 };
 
 // Update the View component to use the filtered subgraph
-export default function View() {
+export default function NetworkVis() {
   const [state, setState] = React.useState({
     data: undefined,
     infoText: '',

@@ -1,2 +1,2 @@
-export { ViewSubscriber } from './ViewSubscriber';
-export { default as View } from './View';
+export { NetworkVisSubscriber } from './NetworkVisSubscriber';
+export { default as NetworkVis } from './NetworkVis';
