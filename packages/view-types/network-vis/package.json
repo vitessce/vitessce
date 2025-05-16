@@ -25,26 +25,31 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@cosmograph/react": "^1.4.0",
     "@material-ui/core": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "chroma-js": "^3.1.2",
     "colorgrad-js": "^0.1.0",
+    "cytoscape": "^3.32.0",
+    "cytoscape-canvas": "^3.0.1",
     "d3": "^7.9.0",
     "d3-force-boundary": "^0.0.3",
     "graphology": "^0.25.4",
     "graphology-metrics": "^2.3.1",
+    "react-cytoscapejs": "^2.0.0",
     "react-markdown": "^9.0.1",
     "rxjs": "^7.8.1",
-    "three": "^0.167.1",
-    "@cosmograph/react": "^1.4.0"
+    "three": "^0.167.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/chroma-js": "^3.1.1",
+    "@types/cytoscape": "^3.21.9",
     "@types/d3": "^7.4.3",
     "@types/react": "^19.1.2",
+    "@types/react-cytoscapejs": "^1.2.5",
     "@types/react-dom": "^19.1.2",
     "@types/three": "^0.162.0",
     "graphology-types": "^0.24.7",
