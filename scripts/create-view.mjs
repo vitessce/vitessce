@@ -2,11 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { parse, query, edit } from '@ast-grep/napi';
 
 /**
  * Converts a hyphen-separated string to PascalCase.
@@ -72,8 +68,6 @@ function updateTsConfig(viewName) {
   const tsConfigPath = path.resolve(process.cwd(), 'tsconfig.json');
   const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
   
-  // Add new reference to the references array.
-  // Position the new reference to appear after the final "packages/view-types/{something}" reference.
   const finalViewTypesReferenceIndex = tsConfig.references.findIndex(ref => ref.path.includes('packages/view-types/'));
   if (finalViewTypesReferenceIndex !== -1) {
     tsConfig.references.splice(finalViewTypesReferenceIndex + 1, 0, {
@@ -85,7 +79,6 @@ function updateTsConfig(viewName) {
   console.log('Updated tsconfig.json');
 }
 
-
 /**
  * Updates the ViewType enum in constants.ts to include the new view type.
  * The new view type is added with both a CONSTANT_CASE key and camelCase value.
@@ -95,19 +88,144 @@ function updateTsConfig(viewName) {
  */
 function updateConstants(viewName) {
   const constantsPath = path.resolve(process.cwd(), 'packages/constants-internal/src/constants.ts');
-  const constants = fs.readFileSync(constantsPath, 'utf8');
+  const constantsContent = fs.readFileSync(constantsPath, 'utf8');
   
-  // Add new view type to ViewType enum
+  const sgNode = parse(constantsContent);
+  
+  // Find the ViewType object
+  const viewTypeNode = query(sgNode, `
+    export const ViewType = {
+      $$$
+    }
+  `).matches[0];
 
-  const viewTypeEnum = constants.match(/export const ViewType = \{[\s\S]*?\}/)[0];
-  const newViewTypeEnum = viewTypeEnum.replace(
-    /}/,
-    `  ${toConstantCase(viewName)}: '${toCamelCase(viewName)}',\n}`
-  );
-  
-  const newConstants = constants.replace(viewTypeEnum, newViewTypeEnum);
-  fs.writeFileSync(constantsPath, newConstants);
+  if (!viewTypeNode) {
+    throw new Error('Could not find ViewType object in constants.ts');
+  }
+
+  // Add the new view type
+  const newContent = edit(constantsContent, [{
+    range: viewTypeNode.range,
+    text: `export const ViewType = {
+      ${viewTypeNode.text.slice(1, -1)},
+      ${toConstantCase(viewName)}: '${toCamelCase(viewName)}'
+    }`,
+  }]);
+
+  fs.writeFileSync(constantsPath, newContent);
   console.log('Updated constants.ts');
+}
+
+/**
+ * Updates the COMPONENT_COORDINATION_TYPES in coordination.ts to include the new view type.
+ * If an existing view is provided, copies its coordination types. Otherwise, uses only DATASET.
+ * @param {string} viewName The hyphen-separated name of the new view to add
+ * @param {string} [existingView] Optional name of existing view to copy coordination types from
+ */
+function updateCoordination(viewName, existingView) {
+  const coordinationPath = path.resolve(process.cwd(), 'packages/constants-internal/src/coordination.ts');
+  const coordinationContent = fs.readFileSync(coordinationPath, 'utf8');
+  
+  const sgNode = parse(coordinationContent);
+  
+  // Find the COMPONENT_COORDINATION_TYPES object
+  const coordTypesNode = query(sgNode, `
+    export const COMPONENT_COORDINATION_TYPES = {
+      $$$
+    }
+  `).matches[0];
+
+  if (!coordTypesNode) {
+    throw new Error('Could not find COMPONENT_COORDINATION_TYPES in coordination.ts');
+  }
+
+  let coordinationTypes;
+  if (existingView) {
+    // Find the existing view's coordination types
+    const existingViewNode = query(sgNode, `
+      [ViewType.${toConstantCase(existingView)}]: [$$$]
+    `).matches[0];
+
+    if (!existingViewNode) {
+      throw new Error(`Could not find coordination types for ${existingView}`);
+    }
+    coordinationTypes = existingViewNode.text;
+  } else {
+    coordinationTypes = 'CoordinationType.DATASET';
+  }
+
+  // Add the new view's coordination types
+  const newContent = edit(coordinationContent, [{
+    range: coordTypesNode.range,
+    text: `export const COMPONENT_COORDINATION_TYPES = {
+      ${coordTypesNode.text.slice(1, -1)},
+      [ViewType.${toConstantCase(viewName)}]: [
+        ${coordinationTypes}
+      ]
+    }`,
+  }]);
+
+  fs.writeFileSync(coordinationPath, newContent);
+  console.log('Updated coordination.ts');
+}
+
+/**
+ * Updates the main plugin to include the new view type.
+ * The new view type is added to the base-plugins.ts file.
+ * @param {string} viewName The hyphen-separated name of the new view to add
+ */
+function updateBasePluginsInMainPackage(viewName) {
+  const pluginPath = path.resolve(process.cwd(), 'packages/main/all/src/base-plugins.ts');
+  const pluginContent = fs.readFileSync(pluginPath, 'utf8');
+  
+  const sgNode = parse(pluginContent);
+  
+  // Find the last import statement
+  const importNodes = query(sgNode, 'import { $$$ } from "@vitessce/$$$"').matches;
+  const lastImport = importNodes[importNodes.length - 1];
+
+  // Add the new import
+  const importStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
+  
+  // Find the basePlugins array
+  const basePluginsNode = query(sgNode, `
+    const basePlugins = [
+      $$$
+    ]
+  `).matches[0];
+
+  if (!basePluginsNode) {
+    throw new Error('Could not find basePlugins array');
+  }
+
+  // Add the new view type registration
+  const viewTypeRegistration = `makeViewType(ViewType.${toConstantCase(viewName)}, ${toPascalCase(viewName)}Subscriber)`;
+
+  const newContent = edit(pluginContent, [
+    {
+      // Add import after last import
+      range: { start: lastImport.range.end + 1, end: lastImport.range.end + 1 },
+      text: importStatement + '\n',
+    },
+    {
+      // Add view type registration at end of basePlugins array
+      range: basePluginsNode.range,
+      text: `const basePlugins = [
+        ${basePluginsNode.text.slice(1, -1)},
+        ${viewTypeRegistration}
+      ]`,
+    },
+  ]);
+
+  fs.writeFileSync(pluginPath, newContent);
+  console.log('Updated base-plugins.ts');
+
+  // Update the main package.json
+  const mainPackageJsonPath = path.resolve(process.cwd(), 'packages/main/all/package.json');
+  const mainPackageJson = JSON.parse(fs.readFileSync(mainPackageJsonPath, 'utf8'));
+  mainPackageJson.dependencies[`@vitessce/${viewName}`] = 'workspace:*';
+  fs.writeFileSync(mainPackageJsonPath, JSON.stringify(mainPackageJson, null, 2));
+  console.log('Updated main package.json');
 }
 
 /**
@@ -134,44 +252,43 @@ function createViewPackage(viewName) {
     "author": author,
     "license": license,
     "type": "module",
-    "main": "dist-tsc/index.js",
     "publishConfig": {
-        "main": "dist/index.js",
-        "module": "dist/index.js",
-        "exports": {
+      "main": "dist/index.js",
+      "module": "dist/index.js",
+      "exports": {
         ".": {
-            "types": "./dist-tsc/index.d.ts",
-            "import": "./dist/index.js"
+          "types": "./dist-tsc/index.d.ts",
+          "import": "./dist/index.js"
         }
-        }
+      }
     },
     "files": [
-        "src",
-        "dist",
-        "dist-tsc"
+      "src",
+      "dist",
+      "dist-tsc"
     ],
     "scripts": {
-        "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-        "test": "pnpm exec vitest --run"
+      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+      "test": "pnpm exec vitest --run"
     },
     "dependencies": {
-        "@material-ui/core": "catalog:",
-        "@vitessce/constants-internal": "workspace:*",
-        "@vitessce/utils": "workspace:*",
-        "@vitessce/vit-s": "workspace:*",
-        "clsx": "catalog:",
-        "lodash-es": "catalog:"
+      "@material-ui/core": "catalog:",
+      "@vitessce/constants-internal": "workspace:*",
+      "@vitessce/utils": "workspace:*",
+      "@vitessce/vit-s": "workspace:*",
+      "clsx": "catalog:",
+      "lodash-es": "catalog:"
     },
     "devDependencies": {
-        "@testing-library/jest-dom": "catalog:",
-        "@testing-library/react": "catalog:",
-        "@testing-library/user-event": "catalog:",
-        "react": "catalog:",
-        "vite": "catalog:",
-        "vitest": "catalog:"
+      "@testing-library/jest-dom": "catalog:",
+      "@testing-library/react": "catalog:",
+      "@testing-library/user-event": "catalog:",
+      "react": "catalog:",
+      "vite": "catalog:",
+      "vitest": "catalog:"
     },
     "peerDependencies": {
-        "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+      "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
     }
   };
   
@@ -263,91 +380,11 @@ export function ${toPascalCase(viewName)}Subscriber(props) {
     </TitleInfo>
   );
 }`;
-
   createFile(`${packageDir}/src/${toPascalCase(viewName)}Subscriber.js`, subscriberContent);
 
   // Create index.js
   const indexContent = `export { ${toPascalCase(viewName)}Subscriber } from './${toPascalCase(viewName)}Subscriber.js';`;
   createFile(`${packageDir}/src/index.js`, indexContent);
-}
-
-/**
- * Updates the main plugin to include the new view type.
- * The new view type is added to the base-plugins.ts file.
- * @param {string} viewName The hyphen-separated name of the new view to add
- */
-function updateBasePluginsInMainPackage(viewName) {
-  const pluginPath = path.resolve(process.cwd(), 'packages/main/all/src/base-plugins.ts');
-  const pluginContent = fs.readFileSync(pluginPath, 'utf8');
-  
-  // Find the last import statement in the file and add the new import after it.
-  const imports = pluginContent.split('\n');
-  // Find the last line containing " from "
-  const lastImportIndex = imports.findLastIndex(line => line.includes(" from '@vitessce") && !line.trim().startsWith('//'));
-  const importStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
-  imports.splice(lastImportIndex + 1, 0, importStatement);
-  
-  // Add view type registration
-  const viewTypeRegistration = `  makeViewType(ViewType.${toConstantCase(viewName)}, ${toPascalCase(viewName)}Subscriber),`;
-  const content = imports.join('\n').replace(
-    /const basePlugins = \[/,
-    `const basePlugins = [\n${viewTypeRegistration}`
-  );
-  
-  fs.writeFileSync(pluginPath, content);
-  console.log('Updated base-plugins.ts');
-
-
-  // Update the main package.json
-  const mainPackageJsonPath = path.resolve(process.cwd(), 'packages/main/all/package.json');
-  const mainPackageJson = JSON.parse(fs.readFileSync(mainPackageJsonPath, 'utf8'));
-  mainPackageJson.dependencies[`@vitessce/${viewName}`] = `workspace:*`;
-  fs.writeFileSync(mainPackageJsonPath, JSON.stringify(mainPackageJson, null, 2));
-  console.log('Updated main package.json');
-}
-
-/**
- * Updates the COMPONENT_COORDINATION_TYPES in coordination.ts to include the new view type.
- * If an existing view is provided, copies its coordination types. Otherwise, uses only DATASET.
- * @param {string} viewName The hyphen-separated name of the new view to add
- * @param {string} [existingView] Optional name of existing view to copy coordination types from
- */
-function updateCoordination(viewName, existingView) {
-  const coordinationPath = path.resolve(process.cwd(), 'packages/constants-internal/src/coordination.ts');
-  const coordination = fs.readFileSync(coordinationPath, 'utf8');
-  
-  // Find the COMPONENT_COORDINATION_TYPES object
-  const componentCoordMatch = coordination.match(/export const COMPONENT_COORDINATION_TYPES = {[\s\S]*?};/);
-  if (!componentCoordMatch) {
-    throw new Error('Could not find COMPONENT_COORDINATION_TYPES in coordination.ts');
-  }
-
-  const componentCoordContent = componentCoordMatch[0];
-  let coordinationTypes;
-
-  if (existingView) {
-    // Find the existing view's coordination types
-    const existingViewMatch = componentCoordContent.match(new RegExp(`${toCamelCase(existingView)}: \\[(.*?)\\]`));
-    if (!existingViewMatch) {
-      throw new Error(`Could not find coordination types for ${existingView}`);
-    }
-    coordinationTypes = existingViewMatch[1];
-  } else {
-    // Use only DATASET coordination type
-    coordinationTypes = 'CoordinationType.DATASET';
-  }
-
-  // Add new view's coordination types
-  const newComponentCoord = componentCoordContent.replace(
-    /};/,
-    `  [ViewType.${toConstantCase(viewName)}]: [
-        ${coordinationTypes}
-    ],\n};`
-  );
-  
-  const newCoordination = coordination.replace(componentCoordContent, newComponentCoord);
-  fs.writeFileSync(coordinationPath, newCoordination);
-  console.log('Updated coordination.ts');
 }
 
 /**
