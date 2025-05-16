@@ -180,6 +180,11 @@ function createViewPackage(viewName) {
   // Create tsconfig.json
   const tsconfig = {
     "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+      "composite": true,
+      "outDir": "dist-tsc",
+      "rootDir": "src"
+    },
     "include": ["src"]
   };
   createFile(`${packageDir}/tsconfig.json`, JSON.stringify(tsconfig, null, 2));
@@ -271,13 +276,14 @@ export function ${toPascalCase(viewName)}Subscriber(props) {
  * The new view type is added to the base-plugins.ts file.
  * @param {string} viewName The hyphen-separated name of the new view to add
  */
-function updateMainPlugin(viewName) {
+function updateBasePluginsInMainPackage(viewName) {
   const pluginPath = path.resolve(process.cwd(), 'packages/main/all/src/base-plugins.ts');
   const pluginContent = fs.readFileSync(pluginPath, 'utf8');
   
   // Find the last import statement in the file and add the new import after it.
   const imports = pluginContent.split('\n');
-  const lastImportIndex = imports.findLastIndex(line => line.trim().startsWith('import'));
+  // Find the last line containing " from "
+  const lastImportIndex = imports.findLastIndex(line => line.includes(" from '@vitessce") && !line.trim().startsWith('//'));
   const importStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
   imports.splice(lastImportIndex + 1, 0, importStatement);
   
@@ -290,6 +296,14 @@ function updateMainPlugin(viewName) {
   
   fs.writeFileSync(pluginPath, content);
   console.log('Updated base-plugins.ts');
+
+
+  // Update the main package.json
+  const mainPackageJsonPath = path.resolve(process.cwd(), 'packages/main/all/package.json');
+  const mainPackageJson = JSON.parse(fs.readFileSync(mainPackageJsonPath, 'utf8'));
+  mainPackageJson.dependencies[`@vitessce/${viewName}`] = `workspace:*`;
+  fs.writeFileSync(mainPackageJsonPath, JSON.stringify(mainPackageJson, null, 2));
+  console.log('Updated main package.json');
 }
 
 /**
@@ -326,7 +340,9 @@ function updateCoordination(viewName, existingView) {
   // Add new view's coordination types
   const newComponentCoord = componentCoordContent.replace(
     /};/,
-    `  ${toCamelCase(viewName)}: [${coordinationTypes}],\n};`
+    `  [ViewType.${toConstantCase(viewName)}]: [
+        ${coordinationTypes}
+    ],\n};`
   );
   
   const newCoordination = coordination.replace(componentCoordContent, newComponentCoord);
@@ -364,7 +380,7 @@ function main() {
   createViewPackage(viewName);
   updateTsConfig(viewName);
   updateConstants(viewName);
-  updateMainPlugin(viewName);
+  updateBasePluginsInMainPackage(viewName);
   updateCoordination(viewName, existingView);
   
   console.log('\nNext steps:');
