@@ -2,7 +2,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { parse, query, edit } from '@ast-grep/napi';
+import pkg from '@ast-grep/napi';
+const { parse, query, edit, Lang } = pkg;
 
 /**
  * Converts a hyphen-separated string to PascalCase.
@@ -90,24 +91,26 @@ function updateConstants(viewName) {
   const constantsPath = path.resolve(process.cwd(), 'packages/constants-internal/src/constants.ts');
   const constantsContent = fs.readFileSync(constantsPath, 'utf8');
   
-  const sgNode = parse(constantsContent);
+  const sgNode = parse(Lang.TypeScript, constantsContent).root();
+  console.log(sgNode);
   
   // Find the ViewType object
-  const viewTypeNode = query(sgNode, `
+  const viewTypeNode = sgNode.find(`
     export const ViewType = {
       $$$
     }
-  `).matches[0];
+  `);
 
   if (!viewTypeNode) {
     throw new Error('Could not find ViewType object in constants.ts');
   }
 
+
   // Add the new view type
   const newContent = edit(constantsContent, [{
     range: viewTypeNode.range,
     text: `export const ViewType = {
-      ${viewTypeNode.text.slice(1, -1)},
+      ${viewTypeNode.text().slice(1, -1)},
       ${toConstantCase(viewName)}: '${toCamelCase(viewName)}'
     }`,
   }]);
@@ -126,14 +129,14 @@ function updateCoordination(viewName, existingView) {
   const coordinationPath = path.resolve(process.cwd(), 'packages/constants-internal/src/coordination.ts');
   const coordinationContent = fs.readFileSync(coordinationPath, 'utf8');
   
-  const sgNode = parse(coordinationContent);
+  const sgNode = parse(Lang.TypeScript, coordinationContent).root();
   
   // Find the COMPONENT_COORDINATION_TYPES object
-  const coordTypesNode = query(sgNode, `
+  const coordTypesNode = sgNode.find(`
     export const COMPONENT_COORDINATION_TYPES = {
       $$$
     }
-  `).matches[0];
+  `);
 
   if (!coordTypesNode) {
     throw new Error('Could not find COMPONENT_COORDINATION_TYPES in coordination.ts');
@@ -142,14 +145,14 @@ function updateCoordination(viewName, existingView) {
   let coordinationTypes;
   if (existingView) {
     // Find the existing view's coordination types
-    const existingViewNode = query(sgNode, `
+    const existingViewNode = sgNode.find(`
       [ViewType.${toConstantCase(existingView)}]: [$$$]
-    `).matches[0];
+    `);
 
     if (!existingViewNode) {
       throw new Error(`Could not find coordination types for ${existingView}`);
     }
-    coordinationTypes = existingViewNode.text;
+    coordinationTypes = existingViewNode.text();
   } else {
     coordinationTypes = 'CoordinationType.DATASET';
   }
@@ -158,7 +161,7 @@ function updateCoordination(viewName, existingView) {
   const newContent = edit(coordinationContent, [{
     range: coordTypesNode.range,
     text: `export const COMPONENT_COORDINATION_TYPES = {
-      ${coordTypesNode.text.slice(1, -1)},
+      ${coordTypesNode.text().slice(1, -1)},
       [ViewType.${toConstantCase(viewName)}]: [
         ${coordinationTypes}
       ]
@@ -178,21 +181,21 @@ function updateBasePluginsInMainPackage(viewName) {
   const pluginPath = path.resolve(process.cwd(), 'packages/main/all/src/base-plugins.ts');
   const pluginContent = fs.readFileSync(pluginPath, 'utf8');
   
-  const sgNode = parse(pluginContent);
+  const sgNode = parse(Lang.TypeScript, pluginContent).root();
   
   // Find the last import statement
-  const importNodes = query(sgNode, 'import { $$$ } from "@vitessce/$$$"').matches;
+  const importNodes = sgNode.findAll('import { $$$ } from "@vitessce/$$$"');
   const lastImport = importNodes[importNodes.length - 1];
 
   // Add the new import
   const importStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
   
   // Find the basePlugins array
-  const basePluginsNode = query(sgNode, `
+  const basePluginsNode = sgNode.find(`
     const basePlugins = [
       $$$
     ]
-  `).matches[0];
+  `);
 
   if (!basePluginsNode) {
     throw new Error('Could not find basePlugins array');
@@ -211,7 +214,7 @@ function updateBasePluginsInMainPackage(viewName) {
       // Add view type registration at end of basePlugins array
       range: basePluginsNode.range,
       text: `const basePlugins = [
-        ${basePluginsNode.text.slice(1, -1)},
+        ${basePluginsNode.text().slice(1, -1)},
         ${viewTypeRegistration}
       ]`,
     },
