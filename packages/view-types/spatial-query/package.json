@@ -36,6 +36,7 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
+    "@tanstack/react-query": "^4.29.12",
     "flatbush": "^4.4.0",
     "d3-array": "catalog:",
     "node-fpgrowth": "^1.2.1"

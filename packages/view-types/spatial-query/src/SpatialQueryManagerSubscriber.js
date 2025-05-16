@@ -394,6 +394,19 @@ export function SpatialQueryManagerSubscriber(props) {
       // Returns an array representing the frequent itemsets.
       const validItemsets = itemsets.filter(d => d.items.length >= minSize);
       const sortedItemsets = validItemsets.toSorted((a, b) => b.support - a.support);
+
+      // TODO: compute p-values for each motif
+      // Currently, SpatialQuery only provides p-values for cellTypeOfInterest queries
+      // Reference: https://github.com/ShaokunAn/Spatial-Query/blob/0570c54bd6e046466e05c6b800d6701a7ab15c4a/SpatialQuery/spatial_query.py#L490C13-L492C131
+      // obj = hypergeom(M, n, N), where
+      // M = total number of cells (all cell types)
+      // n = number of cells annotated as cell type of interest / number of times cell type of interest appears in motif
+      // N = number of motif instances (number drawn without replacement) = n_motif
+      // n_motif = number of cells within k-NN or radius
+      // n_center_motif = number of cells within k-NN or radius, centered on cell type of interest
+      // expectation = obj.mean()
+      // p-value = obj.sf(n_center_motif)
+
       return sortedItemsets;
     },
   });
