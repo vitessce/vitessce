@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import pkg from '@ast-grep/napi';
-const { parse, query, edit, Lang } = pkg;
+const { parse, Lang } = pkg;
 
 /**
  * Converts a hyphen-separated string to PascalCase.
@@ -51,6 +51,38 @@ function createDirectory(dir) {
 }
 
 /**
+ * Replaces lines containing only commas ("\n,\n")
+ * by moving the comma onto the previous line (",\n")
+ * @param {string} input
+ * @returns {string}
+ */
+function fixCommaLines(input) {
+  // Replace full lines with just a comma
+  let output = input.replace(/\n,\n/g, ',\n');
+  // Handle trailing "\n," at the end of input
+  output = output.replace(/\n,$/, ',');
+  return output;
+}
+
+function fixIndentation(input, numTabs) {
+  const numSpaces = numTabs * 2
+
+  const lines = input.split('\n');
+  const spaces = ' '.repeat(numSpaces);
+
+  const result = lines.map((line, index) => {
+    if (index === 0) return line; // leave the first line unchanged
+    return /^\s/.test(line) ? line : spaces + line;
+  });
+
+  return result.join('\n');
+}
+
+function formatCode(input, numTabs) {
+  return fixIndentation(fixCommaLines(input), numTabs);
+}
+
+/**
  * Creates a file with the specified content and logs its creation.
  * @param {string} filePath Path where the file should be created
  * @param {string} content Content to write to the file
@@ -91,13 +123,12 @@ function updateConstants(viewName) {
   const constantsPath = path.resolve(process.cwd(), 'packages/constants-internal/src/constants.ts');
   const constantsContent = fs.readFileSync(constantsPath, 'utf8');
   
-  const sgNode = parse(Lang.TypeScript, constantsContent).root();
-  console.log(sgNode);
+  const sgRoot = parse(Lang.TypeScript, constantsContent).root();
   
   // Find the ViewType object
-  const viewTypeNode = sgNode.find(`
+  const viewTypeNode = sgRoot.find(`
     export const ViewType = {
-      $$$
+      $$$KV_PAIRS
     }
   `);
 
@@ -106,14 +137,30 @@ function updateConstants(viewName) {
   }
 
 
+  // Find the ViewHelpMapping object
+  const viewHelpNode = sgRoot.find(`
+    export const ViewHelpMapping = {
+      $$$KV_PAIRS
+    }
+  `);
+
+  if (!viewHelpNode) {
+    throw new Error('Could not find ViewHelpMapping object in constants.ts');
+  }
+
   // Add the new view type
-  const newContent = edit(constantsContent, [{
-    range: viewTypeNode.range,
-    text: `export const ViewType = {
-      ${viewTypeNode.text().slice(1, -1)},
-      ${toConstantCase(viewName)}: '${toCamelCase(viewName)}'
-    }`,
-  }]);
+  const viewTypeEdit = viewTypeNode.replace(`export const ViewType = {
+  ${formatCode(viewTypeNode.getMultipleMatches("KV_PAIRS").map(p => p.text()).join("\n"), 1)}
+  ${toConstantCase(viewName)}: '${toCamelCase(viewName)}',
+};`);
+
+  // Add the help text
+  const viewHelpEdit = viewHelpNode.replace(`export const ViewHelpMapping = {
+  ${formatCode(viewHelpNode.getMultipleMatches("KV_PAIRS").map(p => p.text()).join("\n"), 1)}
+  ${toConstantCase(viewName)}: 'The ${toCamelCase(viewName)} displays data.',
+};`);
+
+  const newContent = sgRoot.commitEdits([viewTypeEdit, viewHelpEdit]);
 
   fs.writeFileSync(constantsPath, newContent);
   console.log('Updated constants.ts');
@@ -129,12 +176,12 @@ function updateCoordination(viewName, existingView) {
   const coordinationPath = path.resolve(process.cwd(), 'packages/constants-internal/src/coordination.ts');
   const coordinationContent = fs.readFileSync(coordinationPath, 'utf8');
   
-  const sgNode = parse(Lang.TypeScript, coordinationContent).root();
+  const sgRoot = parse(Lang.TypeScript, coordinationContent).root();
   
   // Find the COMPONENT_COORDINATION_TYPES object
-  const coordTypesNode = sgNode.find(`
+  const coordTypesNode = sgRoot.find(`
     export const COMPONENT_COORDINATION_TYPES = {
-      $$$
+      $$$COMPONENT_TO_CT_ARRAY_MAP
     }
   `);
 
@@ -145,28 +192,32 @@ function updateCoordination(viewName, existingView) {
   let coordinationTypes;
   if (existingView) {
     // Find the existing view's coordination types
-    const existingViewNode = sgNode.find(`
-      [ViewType.${toConstantCase(existingView)}]: [$$$]
+    const existingViewNode = sgRoot.find(`
+      [ViewType.${toConstantCase(existingView)}]: [
+        $$$COORDINATION_TYPES
+      ]
     `);
 
     if (!existingViewNode) {
       throw new Error(`Could not find coordination types for ${existingView}`);
     }
-    coordinationTypes = existingViewNode.text();
+    coordinationTypes = existingViewNode.getMultipleMatches("COORDINATION_TYPES")
+      .map(ct => ct.text()).join("");
   } else {
-    coordinationTypes = 'CoordinationType.DATASET';
+    coordinationTypes = `CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.FEATURE_TYPE,
+    CoordinationType.FEATURE_SELECTION`;
   }
 
   // Add the new view's coordination types
-  const newContent = edit(coordinationContent, [{
-    range: coordTypesNode.range,
-    text: `export const COMPONENT_COORDINATION_TYPES = {
-      ${coordTypesNode.text().slice(1, -1)},
-      [ViewType.${toConstantCase(viewName)}]: [
-        ${coordinationTypes}
-      ]
-    }`,
-  }]);
+  const edit = coordTypesNode.replace(`export const COMPONENT_COORDINATION_TYPES = {
+  ${formatCode(coordTypesNode.getMultipleMatches("COMPONENT_TO_CT_ARRAY_MAP").map(p => p.text()).join("\n"), 1)}
+  [ViewType.${toConstantCase(viewName)}]: [
+    ${coordinationTypes},
+  ],
+};`);
+  const newContent = sgRoot.commitEdits([edit]);
 
   fs.writeFileSync(coordinationPath, newContent);
   console.log('Updated coordination.ts');
@@ -181,19 +232,21 @@ function updateBasePluginsInMainPackage(viewName) {
   const pluginPath = path.resolve(process.cwd(), 'packages/main/all/src/base-plugins.ts');
   const pluginContent = fs.readFileSync(pluginPath, 'utf8');
   
-  const sgNode = parse(Lang.TypeScript, pluginContent).root();
+  const sgRoot = parse(Lang.TypeScript, pluginContent).root();
   
   // Find the last import statement
-  const importNodes = sgNode.findAll('import { $$$ } from "@vitessce/$$$"');
-  const lastImport = importNodes[importNodes.length - 1];
+  const importNodes = sgRoot.findAll("import { $$$ } from '$PKG'");
+  const lastImport = importNodes.filter(
+    node => node.getMatch("PKG").text().startsWith('@vitessce/')
+  ).at(-1);
 
   // Add the new import
-  const importStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
+  const newImportStatement = `import { ${toPascalCase(viewName)}Subscriber } from '@vitessce/${viewName}';`;
   
   // Find the basePlugins array
-  const basePluginsNode = sgNode.find(`
-    const basePlugins = [
-      $$$
+  const basePluginsNode = sgRoot.find(`
+    export const baseViewTypes = [
+      $$$MAKE_VIEWTYPE_CALLS
     ]
   `);
 
@@ -204,21 +257,13 @@ function updateBasePluginsInMainPackage(viewName) {
   // Add the new view type registration
   const viewTypeRegistration = `makeViewType(ViewType.${toConstantCase(viewName)}, ${toPascalCase(viewName)}Subscriber)`;
 
-  const newContent = edit(pluginContent, [
-    {
-      // Add import after last import
-      range: { start: lastImport.range.end + 1, end: lastImport.range.end + 1 },
-      text: importStatement + '\n',
-    },
-    {
-      // Add view type registration at end of basePlugins array
-      range: basePluginsNode.range,
-      text: `const basePlugins = [
-        ${basePluginsNode.text().slice(1, -1)},
-        ${viewTypeRegistration}
-      ]`,
-    },
-  ]);
+  const importEdit = lastImport.replace(`${lastImport.text()}\n${newImportStatement}`);
+  const basePluginsEdit = basePluginsNode.replace(`export const baseViewTypes = [
+  ${formatCode(basePluginsNode.getMultipleMatches("MAKE_VIEWTYPE_CALLS").map(c => c.text()).join("\n"), 1)}
+  ${viewTypeRegistration},
+];`);
+
+  const newContent = sgRoot.commitEdits([importEdit, basePluginsEdit]);
 
   fs.writeFileSync(pluginPath, newContent);
   console.log('Updated base-plugins.ts');
@@ -334,8 +379,7 @@ import {
   useReady,
   useCoordination,
   useLoaders,
-  useDescription,
-  useImageData,
+  useObsFeatureMatrixIndices,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import ${toPascalCase(viewName)} from './${toPascalCase(viewName)}.js';
@@ -355,23 +399,30 @@ export function ${toPascalCase(viewName)}Subscriber(props) {
   // Get "props" from the coordination space.
   const [{
     dataset,
+    obsType,
+    featureType,
+    featureSelection,
   }, {
-    setDataset,
+    setFeatureSelection,
   }] = useCoordination(
    COMPONENT_COORDINATION_TYPES[ViewType.${toConstantCase(viewName)}],
    coordinationScopes,
   );
 
   // Get data from loaders using the data hooks.
-  const [description] = useDescription(loaders, dataset);
+  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+    loaders, dataset, true,
+    { obsType, featureType },
+  );
 
   const isReady = useReady([
-
+    matrixIndicesStatus,
   ]);
 
   return (
      <TitleInfo
       title={title}
+      info="Some subtitle"
       closeButtonVisible={closeButtonVisible}
       removeGridComponent={removeGridComponent}
       isScroll
