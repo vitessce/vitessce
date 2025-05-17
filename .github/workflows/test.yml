@@ -182,7 +182,7 @@ jobs:
       - name: Run the create-view CLI
         run: |
           pnpm run create-view some-plot
-          pnpm install
+          pnpm install --no-frozen-lockfile
       - run: |
           pnpm run build:ci
           cd ./sites/demo
