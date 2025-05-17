@@ -159,4 +159,35 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Playwright
-        run: pnpm exec playwright test
+        run: pnpm exec playwright test auto-init-coordination/
+
+  test-e2e-playwright-for-create-view-cli:
+    # because we take the golden screenshots on macOS locally
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          run_install: true
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - id: get-options
+        run: . ./scripts/set-node-options.sh --action
+        shell: bash
+      - name: Run the create-view CLI
+        run: |
+          pnpm run create-view some-plot
+          pnpm install
+      - run: |
+          pnpm run build:ci
+          cd ./sites/demo
+          pnpm run build-demo
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - name: Playwright
+        run: pnpm exec playwright test create-view/
