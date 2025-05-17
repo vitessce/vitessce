@@ -441,6 +441,69 @@ export function ${toPascalCase(viewName)}Subscriber(props) {
   createFile(`${packageDir}/src/index.js`, indexContent);
 }
 
+function createExampleConfig(viewName) {
+  const configDefinitionContent = `/* eslint-disable max-len */
+import {
+  VitessceConfig,
+  hconcat,
+  vconcat,
+} from '@vitessce/config';
+
+function generateConfig() {
+  const vc = new VitessceConfig({ schemaVersion: '1.0.17', name: 'Demo of new view' });
+  const dataset = vc.addDataset('Habib et al. 2017').addFile({
+    fileType: 'anndata.zarr',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'gene',
+      featureValueType: 'expression',
+      embeddingType: 'UMAP',
+    },
+    options: {
+      obsFeatureMatrix: {
+        path: 'X',
+        initialFeatureFilterPath: 'var/top_highly_variable',
+      },
+      obsEmbedding: {
+        path: 'obsm/X_umap',
+      },
+      obsSets: [{
+        name: 'Cell Type',
+        path: 'obs/CellType',
+      }],
+    },
+  });
+
+  const scatterplot = vc.addView(dataset, 'scatterplot');
+  const viewName = vc.addView(dataset, 'viewName');
+
+  vc.linkViewsByObject([scatterplot], {
+    'embeddingType': 'UMAP',
+  }, { meta: false });
+
+  vc.layout(hconcat(scatterplot, viewName));
+
+  const configJSON = vc.toJSON();
+  return configJSON;
+}
+
+
+export const configForNewViewType = generateConfig();
+`;
+  const examplesDir = path.resolve(process.cwd(), `examples/configs`);
+  createFile(`${examplesDir}/src/view-configs/${viewName}.js`, configDefinitionContent);
+
+  // TODO: update examples/configs/src/index.js to
+  // 1) import the config JSON and
+  // 2) update the `configs` mapping.
+
+  // TODO: read in index.js contents
+  // TODO: use AST-GREP to modify them
+  // TODO: write back out the modified code
+
+}
+
 /**
  * Main function that orchestrates the creation of a new view.
  * This function validates the view name, creates the view package, updates the necessary files,
@@ -473,6 +536,8 @@ function main() {
   updateConstants(viewName);
   updateBasePluginsInMainPackage(viewName);
   updateCoordination(viewName, existingView);
+
+  createExampleConfig(viewName);
   
   console.log('\nNext steps:');
   console.log('1. Implement the view component in packages/view-types/' + viewName + '/src/' + toPascalCase(viewName) + 'Subscriber.js');
