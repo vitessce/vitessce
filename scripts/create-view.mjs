@@ -1,5 +1,15 @@
 #!/usr/bin/env node
 
+// Purpose: Create a new view within the Vitessce repository.
+// This CLI creates a new sub-package for the new view and an example config which includes the new view.
+// It also modifies files such as tsconfig and package.json as necessary.
+// Finally, it prints next steps.
+
+// Usage:
+// node scripts/create-view.mjs line-plot
+// # or, to copy the list of coordination types from an existing view:
+// node scripts/create-view.mjs line-plot scatterplot
+
 import fs from 'fs';
 import path from 'path';
 import pkg from '@ast-grep/napi';
