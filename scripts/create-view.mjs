@@ -382,7 +382,7 @@ import {
   useObsFeatureMatrixIndices,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import ${toPascalCase(viewName)} from './${toPascalCase(viewName)}.js';
+import { ${toPascalCase(viewName)} } from './${toPascalCase(viewName)}.js';
 
 export function ${toPascalCase(viewName)}Subscriber(props) {
   const {
@@ -450,7 +450,7 @@ import {
 } from '@vitessce/config';
 
 function generateConfig() {
-  const vc = new VitessceConfig({ schemaVersion: '1.0.17', name: 'Demo of new view' });
+  const vc = new VitessceConfig({ schemaVersion: '1.0.17', name: 'Demo of ${viewName}' });
   const dataset = vc.addDataset('Habib et al. 2017').addFile({
     fileType: 'anndata.zarr',
     url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
@@ -476,31 +476,61 @@ function generateConfig() {
   });
 
   const scatterplot = vc.addView(dataset, 'scatterplot');
-  const viewName = vc.addView(dataset, 'viewName');
+  const ${toCamelCase(viewName)} = vc.addView(dataset, '${toCamelCase(viewName)}');
 
   vc.linkViewsByObject([scatterplot], {
     'embeddingType': 'UMAP',
   }, { meta: false });
 
-  vc.layout(hconcat(scatterplot, viewName));
+  vc.layout(hconcat(scatterplot, ${toCamelCase(viewName)}));
 
   const configJSON = vc.toJSON();
   return configJSON;
 }
 
 
-export const configForNewViewType = generateConfig();
+export const ${toCamelCase(viewName)}Example = generateConfig();
 `;
   const examplesDir = path.resolve(process.cwd(), `examples/configs`);
   createFile(`${examplesDir}/src/view-configs/${viewName}.js`, configDefinitionContent);
 
-  // TODO: update examples/configs/src/index.js to
+  // Update examples/configs/src/index.js to
   // 1) import the config JSON and
   // 2) update the `configs` mapping.
+  const indexPath = path.resolve(process.cwd(), `${examplesDir}/src/index.js`);
+  const indexContent = fs.readFileSync(indexPath, 'utf8');
+  
+  const sgRoot = parse(Lang.JavaScript, indexContent).root();
+  
+  // Find the last import statement
+  const importNodes = sgRoot.findAll("import { $$$ } from '$$$'");
+  const lastImport = importNodes.at(-1);
 
-  // TODO: read in index.js contents
-  // TODO: use AST-GREP to modify them
-  // TODO: write back out the modified code
+  // Add the new import
+  const newImportStatement = `import { ${toCamelCase(viewName)}Example } from './view-configs/${viewName}.js';`;
+  
+  // Find the basePlugins array
+  const configsNode = sgRoot.find(`
+    export const configs = {
+      $$$CONFIG_ID_TO_CONFIG_MAP
+    }
+  `);
+
+  if (!configsNode) {
+    throw new Error('Could not find configs object');
+  }
+
+  // Add the new config import and mapping.
+  const importEdit = lastImport.replace(`${lastImport.text()}\n${newImportStatement}`);
+  const configsEdit = configsNode.replace(`export const configs = {
+  ${formatCode(configsNode.getMultipleMatches("CONFIG_ID_TO_CONFIG_MAP").map(p => p.text()).join("\n"), 1)}
+  '${viewName}-example': ${toCamelCase(viewName)}Example,
+};`);
+
+  const newContent = sgRoot.commitEdits([importEdit, configsEdit]);
+
+  fs.writeFileSync(indexPath, newContent);
+  console.log('Updated index.js');
 
 }
 
@@ -540,10 +570,10 @@ function main() {
   createExampleConfig(viewName);
   
   console.log('\nNext steps:');
-  console.log('1. Implement the view component in packages/view-types/' + viewName + '/src/' + toPascalCase(viewName) + 'Subscriber.js');
-  console.log('2. Add any necessary dependencies to packages/view-types/' + viewName + '/package.json');
-  console.log('3. Create a view config example in examples/configs/src/view-configs/');
-  console.log('4. Run `npm install` to update dependencies');
+  console.log('1. Run `pnpm install` to update the internal monorepo dependencies.');
+  console.log('2. Run `pnpm run start-demo` to start the development server.');
+  console.log(`3. Open browser to http://localhost:3000/?dataset=${viewName}-example`);
+  console.log('4. Implement the view component in packages/view-types/' + viewName + '/src/' + toPascalCase(viewName) + 'Subscriber.js');
 }
 
 main(); 
