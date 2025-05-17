@@ -15,92 +15,25 @@ import path from 'path';
 import pkg from '@ast-grep/napi';
 const { parse, Lang } = pkg;
 
-/**
- * Converts a hyphen-separated string to PascalCase.
- * Example: "my-string" becomes "MyString"
- * @param {string} str The hyphen-separated input string
- * @returns {string} The PascalCase string
- */
-function toPascalCase(str) {
-  return str
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('');
-}
+import {
+  createDirectory,
+  createFile,
+  formatCode,
+  toPascalCase,
+  toCamelCase,
+  toConstantCase,
+} from './create-view-utils.mjs';
+import {
+  generatePackageJson,
+  generateTsConfig,
+  generateVitestConfig,
+  generateViewComponent,
+  generateSubscriberComponent,
+  generateIndexFile,
+  generateExampleConfig,
+} from './create-view-template-functions.mjs';
 
-/**
- * Converts a hyphen-separated string to camelCase.
- * Example: "my-string" becomes "myString"
- * @param {string} str The hyphen-separated input string
- * @returns {string} The camelCase string
- */
-function toCamelCase(str) {
-  const pascal = toPascalCase(str);
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
-}
 
-/**
- * Converts a hyphen-separated string to CONSTANT_CASE.
- * Example: "my-string" becomes "MY_STRING"
- * @param {string} str The hyphen-separated input string
- * @returns {string} The CONSTANT_CASE string
- */
-function toConstantCase(str) {
-  return str.toUpperCase().replace(/-/g, '_');
-}
-
-/**
- * Creates a directory if it doesn't already exist.
- * Uses recursive creation to create parent directories as needed.
- * @param {string} dir Path to the directory to create
- */
-function createDirectory(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-/**
- * Replaces lines containing only commas ("\n,\n")
- * by moving the comma onto the previous line (",\n")
- * @param {string} input
- * @returns {string}
- */
-function fixCommaLines(input) {
-  // Replace full lines with just a comma
-  let output = input.replace(/\n,\n/g, ',\n');
-  // Handle trailing "\n," at the end of input
-  output = output.replace(/\n,$/, ',');
-  return output;
-}
-
-function fixIndentation(input, numTabs) {
-  const numSpaces = numTabs * 2
-
-  const lines = input.split('\n');
-  const spaces = ' '.repeat(numSpaces);
-
-  const result = lines.map((line, index) => {
-    if (index === 0) return line; // leave the first line unchanged
-    return /^\s/.test(line) ? line : spaces + line;
-  });
-
-  return result.join('\n');
-}
-
-function formatCode(input, numTabs) {
-  return fixIndentation(fixCommaLines(input), numTabs);
-}
-
-/**
- * Creates a file with the specified content and logs its creation.
- * @param {string} filePath Path where the file should be created
- * @param {string} content Content to write to the file
- */
-function createFile(filePath, content) {
-  fs.writeFileSync(filePath, content);
-  console.log(`Created ${filePath}`);
-}
 
 /**
  * Updates the tsconfig.json file to include a reference to the new view package.
@@ -145,7 +78,6 @@ function updateConstants(viewName) {
   if (!viewTypeNode) {
     throw new Error('Could not find ViewType object in constants.ts');
   }
-
 
   // Find the ViewHelpMapping object
   const viewHelpNode = sgRoot.find(`
@@ -304,210 +236,36 @@ function createViewPackage(viewName) {
   const license = mainPackageJson.license;
 
   // Create package.json
-  const packageJson = {
-    "name": `@vitessce/${viewName}`,
-    "version": version,
-    "author": author,
-    "license": license,
-    "homepage": "http://vitessce.io",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/vitessce/vitessce.git"
-    },
-    "license": "MIT",
-    "type": "module",
-    "main": "dist-tsc/index.js",
-    "publishConfig": {
-      "main": "dist/index.js",
-      "module": "dist/index.js",
-      "exports": {
-        ".": {
-          "types": "./dist-tsc/index.d.ts",
-          "import": "./dist/index.js"
-        }
-      }
-    },
-    "files": [
-      "src",
-      "dist",
-      "dist-tsc"
-    ],
-    "scripts": {
-      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
-      "test": "pnpm exec vitest --run"
-    },
-    "dependencies": {
-      "@material-ui/core": "catalog:",
-      "@vitessce/constants-internal": "workspace:*",
-      "@vitessce/utils": "workspace:*",
-      "@vitessce/vit-s": "workspace:*",
-      "clsx": "catalog:",
-      "lodash-es": "catalog:"
-    },
-    "devDependencies": {
-      "@testing-library/jest-dom": "catalog:",
-      "@testing-library/react": "catalog:",
-      "@testing-library/user-event": "catalog:",
-      "react": "catalog:",
-      "vite": "catalog:",
-      "vitest": "catalog:"
-    },
-    "peerDependencies": {
-      "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
-    }
-  };
-  
+  const packageJson = generatePackageJson({ viewName, version, author, license });
   createFile(`${packageDir}/package.json`, JSON.stringify(packageJson, null, 2));
 
   // Create tsconfig.json
-  const tsconfig = {
-    "extends": "../../../tsconfig.json",
-    "compilerOptions": {
-      "composite": true,
-      "outDir": "dist-tsc",
-      "rootDir": "src"
-    },
-    "include": ["src"]
-  };
+  const tsconfig = generateTsConfig();
   createFile(`${packageDir}/tsconfig.json`, JSON.stringify(tsconfig, null, 2));
 
   // Create vitest.config.ts
-  const vitestConfig = `import configShared from '../../../vite.config.js';
-
-export default configShared;
-`;
+  const vitestConfig = generateVitestConfig();
   createFile(`${packageDir}/vitest.config.ts`, vitestConfig);
 
   // Create child component
-  const childContent = `import React from 'react';
-
-export function ${toPascalCase(viewName)}(props) {
-  return (
-      <p>TODO: Implement ${toPascalCase(viewName)} view</p>
-  );
-}`;
-
+  const childContent = generateViewComponent(viewName);
   createFile(`${packageDir}/src/${toPascalCase(viewName)}.js`, childContent);
 
   // Create parent component
-  const subscriberContent = `import React from 'react';
-import {
-  TitleInfo,
-  useReady,
-  useCoordination,
-  useLoaders,
-  useObsFeatureMatrixIndices,
-} from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { ${toPascalCase(viewName)} } from './${toPascalCase(viewName)}.js';
-
-export function ${toPascalCase(viewName)}Subscriber(props) {
-  const {
-    coordinationScopes,
-    removeGridComponent,
-    theme,
-    title = '${toPascalCase(viewName)}',
-    closeButtonVisible,
-    helpText = ViewHelpMapping.${toConstantCase(viewName)},
-  } = props;
-
-  const loaders = useLoaders();
-
-  // Get "props" from the coordination space.
-  const [{
-    dataset,
-    obsType,
-    featureType,
-    featureSelection,
-  }, {
-    setFeatureSelection,
-  }] = useCoordination(
-   COMPONENT_COORDINATION_TYPES[ViewType.${toConstantCase(viewName)}],
-   coordinationScopes,
-  );
-
-  // Get data from loaders using the data hooks.
-  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
-    loaders, dataset, true,
-    { obsType, featureType },
-  );
-
-  const isReady = useReady([
-    matrixIndicesStatus,
-  ]);
-
-  return (
-     <TitleInfo
-      title={title}
-      info="Some subtitle"
-      closeButtonVisible={closeButtonVisible}
-      removeGridComponent={removeGridComponent}
-      isScroll
-      theme={theme}
-      isReady={isReady}
-      helpText={helpText}
-    >
-      <${toPascalCase(viewName)} />
-    </TitleInfo>
-  );
-}`;
+  const subscriberContent = generateSubscriberComponent(viewName);
   createFile(`${packageDir}/src/${toPascalCase(viewName)}Subscriber.js`, subscriberContent);
 
   // Create index.js
-  const indexContent = `export { ${toPascalCase(viewName)}Subscriber } from './${toPascalCase(viewName)}Subscriber.js';`;
+  const indexContent = generateIndexFile(viewName);
   createFile(`${packageDir}/src/index.js`, indexContent);
 }
 
+/**
+ * Creates an example configuration file for the new view
+ * @param {string} viewName The hyphen-separated name of the new view to create
+ */
 function createExampleConfig(viewName) {
-  const configDefinitionContent = `/* eslint-disable max-len */
-import {
-  VitessceConfig,
-  hconcat,
-  vconcat,
-} from '@vitessce/config';
-
-function generateConfig() {
-  const vc = new VitessceConfig({ schemaVersion: '1.0.17', name: 'Demo of ${viewName}' });
-  const dataset = vc.addDataset('Habib et al. 2017').addFile({
-    fileType: 'anndata.zarr',
-    url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
-    coordinationValues: {
-      obsType: 'cell',
-      featureType: 'gene',
-      featureValueType: 'expression',
-      embeddingType: 'UMAP',
-    },
-    options: {
-      obsFeatureMatrix: {
-        path: 'X',
-        initialFeatureFilterPath: 'var/top_highly_variable',
-      },
-      obsEmbedding: {
-        path: 'obsm/X_umap',
-      },
-      obsSets: [{
-        name: 'Cell Type',
-        path: 'obs/CellType',
-      }],
-    },
-  });
-
-  const scatterplot = vc.addView(dataset, 'scatterplot');
-  const ${toCamelCase(viewName)} = vc.addView(dataset, '${toCamelCase(viewName)}');
-
-  vc.linkViewsByObject([scatterplot], {
-    'embeddingType': 'UMAP',
-  }, { meta: false });
-
-  vc.layout(hconcat(scatterplot, ${toCamelCase(viewName)}));
-
-  const configJSON = vc.toJSON();
-  return configJSON;
-}
-
-
-export const ${toCamelCase(viewName)}Example = generateConfig();
-`;
+  const configDefinitionContent = generateExampleConfig(viewName);
   const examplesDir = path.resolve(process.cwd(), `examples/configs`);
   createFile(`${examplesDir}/src/view-configs/${viewName}.js`, configDefinitionContent);
 
@@ -548,7 +306,6 @@ export const ${toCamelCase(viewName)}Example = generateConfig();
 
   fs.writeFileSync(indexPath, newContent);
   console.log('Updated index.js');
-
 }
 
 /**
