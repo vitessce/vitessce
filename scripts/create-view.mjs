@@ -299,7 +299,14 @@ function createViewPackage(viewName) {
     "version": version,
     "author": author,
     "license": license,
+    "homepage": "http://vitessce.io",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/vitessce/vitessce.git"
+    },
+    "license": "MIT",
     "type": "module",
+    "main": "dist-tsc/index.js",
     "publishConfig": {
       "main": "dist/index.js",
       "module": "dist/index.js",
