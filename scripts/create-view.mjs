@@ -581,6 +581,7 @@ function main() {
   console.log('2. Run `pnpm run start-demo` to start the development server.');
   console.log(`3. Open browser to http://localhost:3000/?dataset=${viewName}-example`);
   console.log('4. Implement the view component in packages/view-types/' + viewName + '/src/' + toPascalCase(viewName) + 'Subscriber.js');
+  console.log('5. Run `pnpm lint-fix` and check for linting messages.');
 }
 
 main(); 
