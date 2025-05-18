@@ -29,10 +29,12 @@
     "clean-all": "pnpm run clean && pnpm run clean-deps",
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
     "changeset-status": "changeset status --since=origin/main",
-    "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs"
+    "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs",
+    "create-view": "node ./scripts/create-view.mjs"
   },
   "devDependencies": {
     "@ast-grep/cli": "^0.6.3",
+    "@ast-grep/napi": "0.38.1",
     "@changesets/cli": "^2.17.0",
     "@changesets/get-github-info": "^0.5.2",
     "@playwright/test": "^1.40.1",

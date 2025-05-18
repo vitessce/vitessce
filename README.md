@@ -67,6 +67,12 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+To get started creating a new view:
+
+```sh
+pnpm run create-view line-plot
+```
+
 Further details for internal developers can be found within [dev-docs](./dev-docs/).
 
 ### Changesets
