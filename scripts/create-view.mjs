@@ -7,8 +7,6 @@
 
 // Usage:
 // node scripts/create-view.mjs line-plot
-// # or, to copy the list of coordination types from an existing view:
-// node scripts/create-view.mjs line-plot scatterplot
 
 import fs from 'fs';
 import path from 'path';
@@ -216,12 +214,16 @@ function createViewPackage(viewName) {
   // Read version from packages/main/all/package.json
   const mainPackageJsonPath = path.resolve(process.cwd(), 'packages/main/all/package.json');
   const mainPackageJson = JSON.parse(fs.readFileSync(mainPackageJsonPath, 'utf8'));
-  const version = mainPackageJson.version;
-  const author = mainPackageJson.author;
-  const license = mainPackageJson.license;
 
   // Create package.json
-  const packageJson = generatePackageJson({ viewName, version, author, license });
+  const packageJson = generatePackageJson({
+    viewName,
+    version: mainPackageJson.version,
+    author: mainPackageJson.author,
+    license: mainPackageJson.license,
+    homepage: mainPackageJson.homepage,
+    repository: mainPackageJson.repository,
+  });
   createFile(`${packageDir}/package.json`, JSON.stringify(packageJson, null, 2));
 
   // Create tsconfig.json

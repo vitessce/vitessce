@@ -1,10 +1,10 @@
+// String/JSON template functions for the create-view script.
 import {
-    toPascalCase,
-    toCamelCase,
-    toConstantCase,
+  toPascalCase,
+  toCamelCase,
+  toConstantCase,
 } from './create-view-utils.mjs';
 
-// String and JSON templating functions for ./create-view.mjs
 
 /**
  * Generates the package.json content for a new view package
@@ -13,19 +13,18 @@ import {
  * @param {string} params.version Version from main package
  * @param {string} params.author Author from main package
  * @param {string} params.license License from main package
+ * @param {string} params.homepage Homepage from main package
+ * @param {object} params.repository Repository from main package
  * @returns {object} The package.json content as an object
  */
-export function generatePackageJson({ viewName, version, author, license }) {
+export function generatePackageJson({ viewName, version, author, license, homepage, repository }) {
   return {
     "name": `@vitessce/${viewName}`,
     "version": version,
     "author": author,
     "license": license,
-    "homepage": "http://vitessce.io",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/vitessce/vitessce.git"
-    },
+    "homepage": homepage,
+    "repository": repository,
     "type": "module",
     "main": "dist-tsc/index.js",
     "publishConfig": {

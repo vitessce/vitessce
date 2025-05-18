@@ -1,3 +1,4 @@
+// Utility functions for the create-view script.
 import fs from 'fs';
 
 /**
