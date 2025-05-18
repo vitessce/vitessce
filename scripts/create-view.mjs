@@ -112,9 +112,8 @@ function updateConstants(viewName) {
  * Updates the COMPONENT_COORDINATION_TYPES in coordination.ts to include the new view type.
  * If an existing view is provided, copies its coordination types. Otherwise, uses only DATASET.
  * @param {string} viewName The hyphen-separated name of the new view to add
- * @param {string} [existingView] Optional name of existing view to copy coordination types from
  */
-function updateCoordination(viewName, existingView) {
+function updateCoordination(viewName) {
   const coordinationPath = path.resolve(process.cwd(), 'packages/constants-internal/src/coordination.ts');
   const coordinationContent = fs.readFileSync(coordinationPath, 'utf8');
   
@@ -131,26 +130,10 @@ function updateCoordination(viewName, existingView) {
     throw new Error('Could not find COMPONENT_COORDINATION_TYPES in coordination.ts');
   }
 
-  let coordinationTypes;
-  if (existingView) {
-    // Find the existing view's coordination types
-    const existingViewNode = sgRoot.find(`
-      [ViewType.${toConstantCase(existingView)}]: [
-        $$$COORDINATION_TYPES
-      ]
-    `);
-
-    if (!existingViewNode) {
-      throw new Error(`Could not find coordination types for ${existingView}`);
-    }
-    coordinationTypes = existingViewNode.getMultipleMatches("COORDINATION_TYPES")
-      .map(ct => ct.text()).join("");
-  } else {
-    coordinationTypes = `CoordinationType.DATASET,
+  const coordinationTypes = `CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
     CoordinationType.FEATURE_TYPE,
     CoordinationType.FEATURE_SELECTION`;
-  }
 
   // Add the new view's coordination types
   const edit = coordTypesNode.replace(`export const COMPONENT_COORDINATION_TYPES = {
@@ -315,7 +298,6 @@ function createExampleConfig(viewName) {
  */
 function main() {
   const viewName = process.argv[2];
-  const existingView = process.argv[3];
   
   if (!viewName) {
     console.error('Please provide a view name (in kebab-case)');
@@ -328,18 +310,14 @@ function main() {
     process.exit(1);
   }
 
-  if (existingView && !/^[a-z][a-z0-9-]*$/.test(existingView)) {
-    console.error('Existing view name must be in kebab-case (e.g., my-existing-view)');
-    process.exit(1);
-  }
-  
-  console.log(`Creating new view: ${viewName}${existingView ? ` (copying coordination from ${existingView})` : ''}`);
+
+  console.log(`Creating new view: ${viewName}`);
   
   createViewPackage(viewName);
   updateTsConfig(viewName);
   updateConstants(viewName);
   updateBasePluginsInMainPackage(viewName);
-  updateCoordination(viewName, existingView);
+  updateCoordination(viewName);
 
   createExampleConfig(viewName);
   
