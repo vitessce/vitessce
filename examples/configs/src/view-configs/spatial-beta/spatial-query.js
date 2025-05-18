@@ -269,7 +269,7 @@
   
     config.linkViews([obsSets, featureList, spatialViewSimple, lcViewSimple, sqManager], ['obsType'], ['spot']);
     
-    config.layout(hconcat(spatialViewSimple, vconcat(lcViewSimple, obsSets, featureList, sqManager)));
+    config.layout(hconcat(spatialViewSimple, vconcat(vconcat(lcViewSimple, hconcat(obsSets, featureList)), sqManager)));
   
     const configJSON = config.toJSON();
     return configJSON;
