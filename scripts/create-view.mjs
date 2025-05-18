@@ -44,8 +44,11 @@ function updateTsConfig(viewName) {
   const tsConfigPath = path.resolve(process.cwd(), 'tsconfig.json');
   const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
   
+  // Identify index of final view subpackage reference in root tsconfig.
   const finalViewTypesReferenceIndex = tsConfig.references
     .findLastIndex(ref => ref.path.includes('packages/view-types/'));
+  // Insert the new subpackage reference after the current final view subpackage
+  // (but not the final overall subpackage reference, as that would break things).
   tsConfig.references.splice(finalViewTypesReferenceIndex + 1, 0, {
     path: `packages/view-types/${viewName}`
   });
