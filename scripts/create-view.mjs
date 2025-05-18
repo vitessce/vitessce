@@ -44,13 +44,12 @@ function updateTsConfig(viewName) {
   const tsConfigPath = path.resolve(process.cwd(), 'tsconfig.json');
   const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
   
-  const finalViewTypesReferenceIndex = tsConfig.references.findIndex(ref => ref.path.includes('packages/view-types/'));
-  if (finalViewTypesReferenceIndex !== -1) {
-    tsConfig.references.splice(finalViewTypesReferenceIndex + 1, 0, {
-      path: `packages/view-types/${viewName}`
-    });
-  }
-
+  const finalViewTypesReferenceIndex = tsConfig.references
+    .findLastIndex(ref => ref.path.includes('packages/view-types/'));
+  tsConfig.references.splice(finalViewTypesReferenceIndex + 1, 0, {
+    path: `packages/view-types/${viewName}`
+  });
+  
   fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
   console.log('Updated tsconfig.json');
 }
