@@ -28,6 +28,7 @@ Vitessce is being used in the following projects:
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
 * Publication-associated interactive figures
+  * [De Jong et al. 2025 bioRxiv](https://www.gbmspace.org/) ([preprint](https://www.biorxiv.org/content/10.1101/2025.05.13.653495v1))
   * [Qian et al. 2025 Nature](https://walshlab.org/research/cortexdevelopment/) ([paper](https://doi.org/10.1038/s41586-025-09010-1))
   * Kerchberger et al. 2024 Nature Communications ([code](https://github.com/cancerbits/Kirchberger_Shoeb2024_neut?tab=readme-ov-file#interactive-data-exploration)) ([paper](https://doi.org/10.1038/s41467-024-45802-1))
   * [Nu Ton et al. 2023 Nature Cell Biology](https://marionilab.github.io/RabbitGastrulation2022/#explore) ([paper](https://doi.org/10.1038/s41556-023-01174-0))
