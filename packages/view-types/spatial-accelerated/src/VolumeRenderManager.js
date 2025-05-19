@@ -305,6 +305,9 @@ export class VolumeRenderManager {
       scaledResolution[0] *= 200.0;
       scaledResolution[1] *= 200.0;
       scaledResolution[2] *= 200.0;
+      scaledResolution[0] /= 200.0;
+      scaledResolution[1] /= 200.0;
+      scaledResolution[2] /= 200.0;
 
       this.meshScale = this.originalScale;
       this.geometrySize = scaledResolution;

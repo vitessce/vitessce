@@ -121,7 +121,11 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
     );
 }
 
-const int targetResC0 = 2; // highest
+const int minResC0 = 5;
+const int maxResC0 = 5;
+const float lodFactor = 1.0;
+
+const int targetResC0 = 5; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -218,8 +222,8 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         } else if ((umax - umin) < 2u) {
             // CONSTANT OTHER VALUE
             return ivec4(
-                1, 
-                1, 
+                min, 
+                0, 
                 0, 
                 -4);
         }
@@ -275,9 +279,17 @@ void main(void) {
 
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    dt *= 200.0;
+    // dt = 1.0;
+    // dt = (dt_vec.x + dt_vec.y + dt_vec.z) / 3.0;
+
+    // dt *= 200.0;
+    dt *= pow(2.0, float(targetResC0)) / 2.0;
+    // dt *= 200.0;
     // dt = max(0.5, dt);
-    vec3 p = cameraCorrected + (t_hit.x + dt) * rayDir;
+
+    float randomOffset = random();
+
+    vec3 p = cameraCorrected + t_hit.x * rayDir;
     // Most browsers do not need this initialization, but add it to be safe
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
     gRequest = vec4(0,0,0,0);
@@ -286,6 +298,12 @@ void main(void) {
     // t_hit is between 0 and 3000
     // dt is around 0.0015
     // boxSize is 200 x 200 x around 155
+    // t_hit is now between 0 and 15
+    // boxSize is now 1 x 1 x 795/1024
+    // 0.02 is the threshold ish for the dt
+    // 1/1024 = 0.0009765625
+    // 1/32 = 0.03125
+    // 1/25 = 0.04
  
     p = p / boxSize + vec3(0.5);
     p = p * voxelStretchInv;
@@ -295,6 +313,7 @@ void main(void) {
 
     bool debug = false;
 
+    // p += step * randomOffset;
 
     // Initialization of some variables
     vec3 rgbCombo = vec3(0.0);
@@ -305,8 +324,9 @@ void main(void) {
 
     float alphaMultiplicator = 1.0;
     vec3 localPos = vec3(0.0);
+    float t = t_hit.x;
 
-    for (float t = t_hit.x; t < t_hit.y; t += dt) {
+    while (t < t_hit.y) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
@@ -322,94 +342,98 @@ void main(void) {
         currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
 
-        if (brickCacheOffset.w == -1) {
+        if (brickCacheOffset.w == -1 || brickCacheOffset.w == -2) {
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
                 p += step;
                 t += dt;
                 newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
             }
-            // request brick?
             continue;
-        } else if (brickCacheOffset.w == -2) {
-            // empty
-            vec4 outputVec = vec4(
-                0.0,
-                0.0,
-                1.0,
-                1.0);
-            // gColor = linear_to_srgb(outputVec);
-            // static irrespective of bounds
-            // return;
         } else if (brickCacheOffset.w == -3) {
             // full
-            vec4 outputVec = vec4(
-                0,
-                1,
-                0,
-                1);
-            // gColor = linear_to_srgb(outputVec);
-            // often true
-            // return;
+            float sliceAlpha = dtScale * dt;
+            vec3 sliceColor = u_color;
+
+            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
+                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+                outColor.a += sliceAlpha * alphaMultiplicator;
+                
+                if (outColor.a > 0.99) { break; }
+                
+                alphaMultiplicator *= (1.0 - sliceAlpha);
+
+                p += step;
+                t += dt;
+                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+            }
+            if (outColor.a > 0.99) { break; }
+            continue;
         } else if (brickCacheOffset.w == -4) {
             // render constant
-            vec4 outputVec = vec4(
-                1,
-                0,
-                1,
-                1);
-            // gColor = linear_to_srgb(outputVec);
-            // only true if min max is both 0
-            // return;
-        } 
-        
-        float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
-        localPos = fract(p * scale);
+            float val = float(brickCacheOffset.x);
+            val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
+            float sliceAlpha = val * dtScale * dt;
+            vec3 sliceColor = val * u_color;
 
-        vec3 brickCacheCoord = vec3(
-            (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
-            (float(brickCacheOffset.y) * 32.0 + localPos.y * 32.0) / 2048.0,
-            (float(brickCacheOffset.z) * 32.0 + localPos.z * 32.0) / 128.0
-        );
-
-        float val = texture(brickCacheTex, brickCacheCoord).r;
-
-        val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
-        vec3 rgbComboAdd = max(0.0, min(1.0, val)) * u_color;
-
-        ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
-        ivec3 newVoxelInBrick = currentVoxelInBrick;
-
-        int reps = 0;
-        rgbCombo += rgbComboAdd;
-
-        while (currentTargetResPTCoord == newBrickLocationPTCoord
-            && currentVoxelInBrick == newVoxelInBrick
-            && reps >= 0) {
-        
-            total = val;
-
-            total = clamp(total, 0.0, 1.0);
-            float sliceAlpha = total * dtScale * dt;
-            vec3 sliceColor  = rgbCombo;
-
-            outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-            outColor.a   += sliceAlpha * alphaMultiplicator;
-
-            if (outColor.a > 0.99) {
-                break;
-            }
-
-            alphaMultiplicator *= (1.0 - sliceAlpha);
-
-            if (reps > 0) {
+            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
+                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+                outColor.a += sliceAlpha * alphaMultiplicator;
+                
+                if (outColor.a > 0.99) { break; }
+                
+                alphaMultiplicator *= (1.0 - sliceAlpha);
+            
+                p += step;
                 t += dt;
+                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
             }
+            continue;
+        } else {
+        
+            float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
+            localPos = fract(p * scale);
 
-            p += step;
-            reps += 1;
+            vec3 brickCacheCoord = vec3(
+                (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
+                (float(brickCacheOffset.y) * 32.0 + localPos.y * 32.0) / 2048.0,
+                (float(brickCacheOffset.z) * 32.0 + localPos.z * 32.0) / 128.0
+            );
 
-            newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
-            newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
+            float val = texture(brickCacheTex, brickCacheCoord).r;
+
+            val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
+            vec3 rgbComboAdd = max(0.0, min(1.0, val)) * u_color;
+
+            ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
+            ivec3 newVoxelInBrick = currentVoxelInBrick;
+
+            int reps = 0;
+            rgbCombo += rgbComboAdd;
+
+            while (currentTargetResPTCoord == newBrickLocationPTCoord
+                && currentVoxelInBrick == newVoxelInBrick) {
+            
+                total = val;
+
+                total = clamp(total, 0.0, 1.0);
+                float sliceAlpha = total * dtScale * dt;
+                vec3 sliceColor  = rgbCombo;
+
+                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+                outColor.a   += sliceAlpha * alphaMultiplicator;
+
+                if (outColor.a > 0.99) {
+                    break;
+                }
+
+                alphaMultiplicator *= (1.0 - sliceAlpha);
+
+                t += dt;
+                p += step;
+
+                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+                newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
+            }
         }
         
         if (outColor.a > 0.99) {

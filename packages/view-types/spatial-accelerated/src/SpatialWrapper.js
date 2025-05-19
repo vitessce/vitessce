@@ -58,9 +58,9 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
         camera={{
           fov: 50,
           up: [0, 1, 0],
-          position: [0, 0, 800],
+          position: [0, 0, 4],
           near: 0.1,
-          far: 3000,
+          far: 15,
         }}
         gl={{
           antialias: true,

@@ -208,7 +208,7 @@ export class VolumeDataManager {
     this.LRUReady = false;
     this.triggerRequest = true;
     this.timeStamp = 0;
-    this.k = 20;
+    this.k = 40;
     this.noNewRequests = false;
 
     // Add initialization status
