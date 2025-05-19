@@ -36,7 +36,7 @@ export const VolumeShader = {
     near: { value: 0.1 },
     far: { value: 10000 },
     alphaScale: { value: 0 },
-    dtScale: { value: 1 },
+    opacity: { value: 1 },
     volumeCount: { value: 0 },
     finalGamma: { value: 0 },
     boxSize: { value: new Vector3(1, 1, 1) },

@@ -29,7 +29,7 @@ uniform vec3 u_color3;
 uniform vec3 u_color4;
 uniform vec3 u_color5;
 uniform vec3 u_color6;
-uniform float dtScale;
+uniform float opacity;
 uniform float volumeCount; // -> should be channel count
 uniform highp vec3 boxSize;
 uniform float near;
@@ -161,6 +161,11 @@ uvec3 getChannelOffset(int index) {
     return uvec3(0, 0, 0);
 }
 
+vec3 volumeSizeAtRes(int res) {
+    float factor = pow(2.0, float(res));
+    return vec3(voxelExtents) / factor;
+}
+
 /*
 [1] 31    | 0 — flag resident
 [1] 30    | 1 — flag init
@@ -259,6 +264,7 @@ ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
 // conditionals -> alpha above certain value -> increase target res
 // if distance above certain value -> increase target res (?)
 // if zoomed out (voxel smaller than pixel) -> increase target res
+// differentiate between ws and os
 
 
 void main(void) {
@@ -279,8 +285,6 @@ void main(void) {
 
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    // dt = 1.0;
-    // dt = (dt_vec.x + dt_vec.y + dt_vec.z) / 3.0;
 
     // dt *= 200.0;
     dt *= pow(2.0, float(targetResC0)) / 2.0;
@@ -311,7 +315,6 @@ void main(void) {
     // step = step * voxelStretchInv;
     // step = rayDir * dt;
 
-    bool debug = false;
 
     // p += step * randomOffset;
 
@@ -334,9 +337,7 @@ void main(void) {
         // p goes from 0 to 1
         p = min(p, vec3(1.0 - 0.00000028));
         p = max(p, vec3(0.00000028));
-
         ivec4 brickCacheOffset = getBrickLocation(p, targetResC0, 0);
-
         currentBrickLocation = brickCacheOffset;
 
         currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
@@ -351,7 +352,7 @@ void main(void) {
             continue;
         } else if (brickCacheOffset.w == -3) {
             // full
-            float sliceAlpha = dtScale * dt;
+            float sliceAlpha = opacity * dt;
             vec3 sliceColor = u_color;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
@@ -372,7 +373,7 @@ void main(void) {
             // render constant
             float val = float(brickCacheOffset.x);
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
-            float sliceAlpha = val * dtScale * dt;
+            float sliceAlpha = val * opacity * dt;
             vec3 sliceColor = val * u_color;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
@@ -416,7 +417,7 @@ void main(void) {
                 total = val;
 
                 total = clamp(total, 0.0, 1.0);
-                float sliceAlpha = total * dtScale * dt;
+                float sliceAlpha = total * opacity * dt;
                 vec3 sliceColor  = rgbCombo;
 
                 outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
