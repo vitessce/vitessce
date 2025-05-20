@@ -1,6 +1,6 @@
 import React from 'react';
 import NetworkVis from './NetworkVis';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+// import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { TitleInfo as TitleInfoRaw } from '@vitessce/vit-s';
 import { FC, ReactNode } from 'react';
 
