@@ -125,7 +125,7 @@ const int minResC0 = 5;
 const int maxResC0 = 5;
 const float lodFactor = 1.0;
 
-const int targetResC0 = 4; // highest
+const int targetResC0 = 2; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -334,7 +334,7 @@ void main(void) {
     vec3 step = (os_rayDir * dt);
 
     p += step * (randomOffset);
-    p = clamp(p, 0.0 + 0.00000028, 1.0 - 0.00000028);
+    p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
     if (p.x <= 0.0 || p.x >= 1.0 || p.y <= 0.0 || p.y >= 1.0 || p.z <= 0.0 || p.z >= 1.0) {
         gColor = vec4(1.0, 0.0, 0.0, 1.0);
@@ -358,7 +358,7 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
-    while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0) {
+    while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
@@ -464,6 +464,7 @@ void main(void) {
                 t += dt;
                 p += step;
                 p_stretched = p * voxelStretchInv;
+
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
                 newVoxelInBrick = ivec3(fract( p_stretched * scale) * 32.0);
             }

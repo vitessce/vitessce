@@ -330,8 +330,8 @@ export class VolumeRenderManager {
 
       // If the texture handle exists, populate data
       if (texPropsBC && texPropsBC.__webglTexture) {
-        volumeDataManager.populatePT();
-        volumeDataManager.populateBC();
+        // volumeDataManager.populatePT();
+        // volumeDataManager.populateBC();
       }
     }
 

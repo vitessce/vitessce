@@ -1035,6 +1035,8 @@ export class VolumeDataManager {
     const array = this.zarrStore.arrays[resolution];
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
 
+    // console.log('chunkEntry', chunkEntry);
+
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
     }
@@ -1150,6 +1152,7 @@ export class VolumeDataManager {
     let x = -1;
     let y = -1;
     let z = -1;
+    console.log('pt', ptx, pty, ptz);
     // console.log('pt', ptx, pty, ptz);
     if (ptz >= this.PT.z0Extent) {
       resolution = 0;
@@ -1244,7 +1247,15 @@ export class VolumeDataManager {
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
     const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
-    // console.log('chunk', chunk);
+    console.log('ptCoord', ptCoord);
+    console.log('bcSlot', bcSlot);
+    console.log('channel', channel);
+    console.log('resolution', resolution);
+    console.log('x', x);
+    console.log('y', y);
+    console.log('z', z);
+    console.log('chunk', chunk);
+
     /* 4.2 compute min/max (uint8 so this is fast) */
     let min = 255; let
       max = 0;
@@ -1275,6 +1286,11 @@ export class VolumeDataManager {
     // console.log('uploaded brick');
 
     /* 4.4 PT entry upload */
+    if (channel !== 0) {
+      min = 255;
+      max = 255;
+    }
+    
     const ptVal = this._packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
     gl.activeTexture(gl.TEXTURE0);
