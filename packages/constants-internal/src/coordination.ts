@@ -21,6 +21,18 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.EMBEDDING_OBS_SET_LABEL_SIZE,
   CoordinationType.EMBEDDING_OBS_RADIUS,
   CoordinationType.EMBEDDING_OBS_OPACITY,
+  CoordinationType.SPATIAL_ZOOM,
+  CoordinationType.SPATIAL_ROTATION,
+  CoordinationType.SPATIAL_ROTATION_X,
+  CoordinationType.SPATIAL_ROTATION_Y,
+  CoordinationType.SPATIAL_ROTATION_Z,
+  CoordinationType.SPATIAL_ROTATION_ORBIT,
+  CoordinationType.SPATIAL_TARGET_X,
+  CoordinationType.SPATIAL_TARGET_Y,
+  CoordinationType.SPATIAL_TARGET_Z,
+  CoordinationType.SPATIAL_AXIS_FIXED,
+  CoordinationType.SPATIAL_ORBIT_AXIS,
+  
 ];
 
 /**

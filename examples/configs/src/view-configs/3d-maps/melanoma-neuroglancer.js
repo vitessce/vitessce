@@ -117,9 +117,21 @@ function generateNeuroglancerMinimalConfiguration() {
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
-  config.linkViewsByObject([spatialThreeView, lcView], {
+  // Sync the zoom/rotation/pan states
+  config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
     spatialTargetT: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
+    spatialTargetZ: 0,
+    spatialRotationX: 0,
+    spatialRotationY: 0,
+    // Should there be a y-target/rotation?
     spatialRenderingMode: '3D',
+    spatialZoom: 0,
+  }, { meta: false });
+
+  // Initialize the image properties
+  config.linkViewsByObject([spatialThreeView, lcView], {
     imageLayer: CL([
       {
         fileUid: 'melanoma',
