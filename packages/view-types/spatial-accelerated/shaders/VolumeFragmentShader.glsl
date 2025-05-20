@@ -121,9 +121,9 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
     );
 }
 
-const int minResC0 = 5;
-const int maxResC0 = 5;
-const float lodFactor = 1.0;
+const int highestResC0 = 2;
+const int lowestResC0 = 2;
+const float lodFactor = 2.0;
 
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
@@ -268,6 +268,11 @@ float vec3_min(vec3 v) {
     return min(v.x, min(v.y, v.z));
 }
 
+int getLOD(float distance, int highestRes, int lowestRes, float lodFactor) {
+    int lod = int(log2(distance * lodFactor));
+    return clamp(lod, highestRes, lowestRes);
+}
+
 // TODO:
 // conditionals -> alpha above certain value -> increase target res
 // if distance above certain value -> increase target res (?)
@@ -333,12 +338,16 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
+    int current_LOD = getLOD(t, highestResC0, lowestResC0, lodFactor);
+    int targetResC0 = current_LOD;
+
     while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
         // p goes from 0 to 1
+        targetResC0 = getLOD(t, highestResC0, lowestResC0, lodFactor);
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
@@ -410,7 +419,25 @@ void main(void) {
             float val = texture(brickCacheTex, brickCacheCoord).r;
 
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
-            vec3 rgbComboAdd = max(0.0, min(1.0, val)) * u_color;
+
+            // color based on t
+            vec3 colorVal = vec3(0.0);
+            if (current_LOD == 0) {
+                colorVal = vec3(0.5, 0.5, 0.0);
+            } else if (current_LOD == 1) {
+                colorVal = vec3(1.0, 0.0, 0.0);
+            } else if (current_LOD == 2) {
+                colorVal = vec3(0.0, 1.0, 0.0);
+            } else if (current_LOD == 3) {
+                colorVal = vec3(0.0, 0.0, 1.0);
+            } else if (current_LOD == 4) {
+                colorVal = vec3(1.0, 1.0, 0.0);
+            } else if (current_LOD == 5) {
+                colorVal = vec3(1.0, 0.0, 1.0);
+            }
+            
+
+            vec3 rgbComboAdd = max(0.0, min(1.0, val)) * colorVal;
 
             ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
             ivec3 newVoxelInBrick = currentVoxelInBrick;
