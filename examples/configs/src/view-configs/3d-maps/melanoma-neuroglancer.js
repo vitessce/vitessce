@@ -119,15 +119,15 @@ function generateNeuroglancerMinimalConfiguration() {
 
   // Sync the zoom/rotation/pan states
   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
+    spatialRenderingMode: '3D',
+    spatialZoom: 0,
     spatialTargetT: 0,
     spatialTargetX: 0,
     spatialTargetY: 0,
     spatialTargetZ: 0,
     spatialRotationX: 0,
     spatialRotationY: 0,
-    // Should there be a y-target/rotation?
-    spatialRenderingMode: '3D',
-    spatialZoom: 0,
+    // Should there be a Z-target/rotation specified here?
   }, { meta: false });
 
   // Initialize the image properties

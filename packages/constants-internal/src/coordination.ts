@@ -32,7 +32,6 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.SPATIAL_TARGET_Z,
   CoordinationType.SPATIAL_AXIS_FIXED,
   CoordinationType.SPATIAL_ORBIT_AXIS,
-  
 ];
 
 /**
