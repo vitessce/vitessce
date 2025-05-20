@@ -125,7 +125,7 @@ const int minResC0 = 5;
 const int maxResC0 = 5;
 const float lodFactor = 1.0;
 
-const int targetResC0 = 5; // highest
+const int targetResC0 = 4; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -260,6 +260,14 @@ ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
     return ivec3(normalized * scale);
 }
 
+float vec3_max(vec3 v) {
+    return max(v.x, max(v.y, v.z));
+}
+
+float vec3_min(vec3 v) {
+    return min(v.x, min(v.y, v.z));
+}
+
 // TODO:
 // conditionals -> alpha above certain value -> increase target res
 // if distance above certain value -> increase target res (?)
@@ -269,11 +277,22 @@ ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
 
 void main(void) {
 
-    //STEP 1: Normalize the view Ray
-    vec3 rayDir = normalize(rayDirUnnorm);
+    gRequest = vec4(0,0,0,0);
+    gUsage = vec4(0,0,0,0);
+    gColor = vec4(0.0, 1.0, 0.0, 1.0);
 
+
+    //STEP 1: Normalize the view Ray
+    vec3 ws_rayDir = normalize(rayDirUnnorm);
+
+    gColor = vec4(ws_rayDir, 1.0); // moves with rotation
+    gColor = vec4(glPosition.xyz, 1.0); // stays constant through rotation
+    gColor = vec4(cameraCorrected, 1.0);
+    gColor = vec4(worldSpaceCoords, 1.0); // texture coordinates backface culling
+    // return;
+    
     //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
-    vec2 t_hit = intersect_hit(cameraCorrected, rayDir);
+    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
     if (t_hit.x >= t_hit.y) {
       discard;
     }
@@ -283,40 +302,48 @@ void main(void) {
     ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     volumeTexSize = ivec3(voxelExtents);
 
-    vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
-    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+    // vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(ws_rayDir));
+    // float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
 
     // dt *= 200.0;
-    dt *= pow(2.0, float(targetResC0)) / 2.0;
+    // dt *= pow(2.0, float(targetResC0)) / 2.0;
     // dt *= 200.0;
     // dt = max(0.5, dt);
 
     float randomOffset = random();
 
-    vec3 p = cameraCorrected + t_hit.x * rayDir;
+    vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
     // Most browsers do not need this initialization, but add it to be safe
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
-    gRequest = vec4(0,0,0,0);
-    gUsage = vec4(0,0,0,0);
-
     // t_hit is between 0 and 3000
     // dt is around 0.0015
     // boxSize is 200 x 200 x around 155
     // t_hit is now between 0 and 15
+
     // boxSize is now 1 x 1 x 795/1024
-    // 0.02 is the threshold ish for the dt
-    // 1/1024 = 0.0009765625
-    // 1/32 = 0.03125
-    // 1/25 = 0.04
- 
-    p = p / boxSize + vec3(0.5);
-    p = p * voxelStretchInv;
-    vec3 step = (rayDir * dt) / boxSize;
-    // step = step * voxelStretchInv;
-    // step = rayDir * dt;
+    // that is the voxel ratio
+    // NOT the physical pixel ratio
 
+    vec3 os_rayDir = normalize(ws_rayDir / boxSize);
+    vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
+    vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(os_rayDir));
+    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+    dt *= pow(2.0, float(targetResC0));
 
-    // p += step * randomOffset;
+    p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
+    vec3 step = (os_rayDir * dt);
+
+    p += step * (randomOffset);
+    p = clamp(p, 0.0 + 0.00000028, 1.0 - 0.00000028);
+
+    if (p.x <= 0.0 || p.x >= 1.0 || p.y <= 0.0 || p.y >= 1.0 || p.z <= 0.0 || p.z >= 1.0) {
+        gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    } else if (boxSize.x >= 1.0 && boxSize.y >= 1.0 && boxSize.z > (795.0/1024.0)) {
+        gColor = vec4(boxSize, 1.0);
+    } else {
+        gColor = vec4(0,0,1, 1.0);
+    }
+    // return;
 
     // Initialization of some variables
     vec3 rgbCombo = vec3(0.0);
@@ -329,30 +356,33 @@ void main(void) {
     vec3 localPos = vec3(0.0);
     float t = t_hit.x;
 
-    while (t < t_hit.y) {
+    vec3 p_stretched = p * voxelStretchInv;
+
+    while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
         // p goes from 0 to 1
-        p = min(p, vec3(1.0 - 0.00000028));
-        p = max(p, vec3(0.00000028));
-        ivec4 brickCacheOffset = getBrickLocation(p, targetResC0, 0);
+
+        ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
 
-        currentTargetResPTCoord = normalizedToPTCoord(p, targetResC0);
+        currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
 
         if (brickCacheOffset.w == -1 || brickCacheOffset.w == -2) {
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
                 p += step;
                 t += dt;
-                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+                p_stretched = p * voxelStretchInv;
+
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
             continue;
         } else if (brickCacheOffset.w == -3) {
             // full
-            float sliceAlpha = opacity * dt;
+            float sliceAlpha = opacity * dt * 32.0;
             vec3 sliceColor = u_color;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
@@ -365,7 +395,8 @@ void main(void) {
 
                 p += step;
                 t += dt;
-                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+                p_stretched = p * voxelStretchInv;
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
             if (outColor.a > 0.99) { break; }
             continue;
@@ -373,7 +404,7 @@ void main(void) {
             // render constant
             float val = float(brickCacheOffset.x);
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
-            float sliceAlpha = val * opacity * dt;
+            float sliceAlpha = val * opacity * dt * 32.0;
             vec3 sliceColor = val * u_color;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
@@ -386,13 +417,14 @@ void main(void) {
             
                 p += step;
                 t += dt;
-                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
+                p_stretched = p * voxelStretchInv;
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
             continue;
         } else {
         
             float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
-            localPos = fract(p * scale);
+            localPos = fract(p_stretched * scale);
 
             vec3 brickCacheCoord = vec3(
                 (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
@@ -417,7 +449,7 @@ void main(void) {
                 total = val;
 
                 total = clamp(total, 0.0, 1.0);
-                float sliceAlpha = total * opacity * dt;
+                float sliceAlpha = total * opacity * dt * 32.0;
                 vec3 sliceColor  = rgbCombo;
 
                 outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
@@ -431,9 +463,9 @@ void main(void) {
 
                 t += dt;
                 p += step;
-
-                newBrickLocationPTCoord = normalizedToPTCoord(p, targetResC0);
-                newVoxelInBrick = ivec3(fract( p * scale) * 32.0);
+                p_stretched = p * voxelStretchInv;
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+                newVoxelInBrick = ivec3(fract( p_stretched * scale) * 32.0);
             }
         }
         
