@@ -125,7 +125,7 @@ const int minResC0 = 5;
 const int maxResC0 = 5;
 const float lodFactor = 1.0;
 
-const int targetResC0 = 2; // highest
+const int targetResC0 = 5; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
 const uvec3 fullResExtents = uvec3(32, 32, 25);
@@ -279,17 +279,10 @@ void main(void) {
 
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
-    gColor = vec4(0.0, 1.0, 0.0, 1.0);
-
+    gColor = vec4(0.0, 0.0, 0.0, 0.0);
 
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
-
-    gColor = vec4(ws_rayDir, 1.0); // moves with rotation
-    gColor = vec4(glPosition.xyz, 1.0); // stays constant through rotation
-    gColor = vec4(cameraCorrected, 1.0);
-    gColor = vec4(worldSpaceCoords, 1.0); // texture coordinates backface culling
-    // return;
     
     //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
     vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
@@ -302,22 +295,10 @@ void main(void) {
     ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     volumeTexSize = ivec3(voxelExtents);
 
-    // vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(ws_rayDir));
-    // float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-
-    // dt *= 200.0;
-    // dt *= pow(2.0, float(targetResC0)) / 2.0;
-    // dt *= 200.0;
-    // dt = max(0.5, dt);
-
     float randomOffset = random();
 
     vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
-    // Most browsers do not need this initialization, but add it to be safe
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
-    // t_hit is between 0 and 3000
-    // dt is around 0.0015
-    // boxSize is 200 x 200 x around 155
     // t_hit is now between 0 and 15
 
     // boxSize is now 1 x 1 x 795/1024
@@ -336,14 +317,6 @@ void main(void) {
     p += step * (randomOffset);
     p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
-    if (p.x <= 0.0 || p.x >= 1.0 || p.y <= 0.0 || p.y >= 1.0 || p.z <= 0.0 || p.z >= 1.0) {
-        gColor = vec4(1.0, 0.0, 0.0, 1.0);
-    } else if (boxSize.x >= 1.0 && boxSize.y >= 1.0 && boxSize.z > (795.0/1024.0)) {
-        gColor = vec4(boxSize, 1.0);
-    } else {
-        gColor = vec4(0,0,1, 1.0);
-    }
-    // return;
 
     // Initialization of some variables
     vec3 rgbCombo = vec3(0.0);
@@ -355,6 +328,8 @@ void main(void) {
     float alphaMultiplicator = 1.0;
     vec3 localPos = vec3(0.0);
     float t = t_hit.x;
+
+    // t is in world space now
 
     vec3 p_stretched = p * voxelStretchInv;
 
@@ -445,6 +420,12 @@ void main(void) {
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord
                 && currentVoxelInBrick == newVoxelInBrick) {
+
+                if (reps > 0) {
+                    gColor = vec4(0.0, 0.0, 1.0, 1.0);
+                    return;
+                }
+                reps++;
             
                 total = val;
 

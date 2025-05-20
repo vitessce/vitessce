@@ -1247,14 +1247,6 @@ export class VolumeDataManager {
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
     const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
-    console.log('ptCoord', ptCoord);
-    console.log('bcSlot', bcSlot);
-    console.log('channel', channel);
-    console.log('resolution', resolution);
-    console.log('x', x);
-    console.log('y', y);
-    console.log('z', z);
-    console.log('chunk', chunk);
 
     /* 4.2 compute min/max (uint8 so this is fast) */
     let min = 255; let
@@ -1290,7 +1282,7 @@ export class VolumeDataManager {
       min = 255;
       max = 255;
     }
-    
+
     const ptVal = this._packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
     gl.activeTexture(gl.TEXTURE0);
