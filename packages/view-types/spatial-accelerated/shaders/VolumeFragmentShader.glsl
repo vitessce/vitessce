@@ -121,9 +121,9 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
     );
 }
 
-const int highestResC0 = 2;
-const int lowestResC0 = 2;
-const float lodFactor = 2.0;
+const int highestResC0 = 1;
+const int lowestResC0 = 5;
+const float lodFactor = 5.0;
 
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
@@ -422,17 +422,17 @@ void main(void) {
 
             // color based on t
             vec3 colorVal = vec3(0.0);
-            if (current_LOD == 0) {
+            if (targetResC0 == 0) {
                 colorVal = vec3(0.5, 0.5, 0.0);
-            } else if (current_LOD == 1) {
+            } else if (targetResC0 == 1) {
                 colorVal = vec3(1.0, 0.0, 0.0);
-            } else if (current_LOD == 2) {
+            } else if (targetResC0 == 2) {
                 colorVal = vec3(0.0, 1.0, 0.0);
-            } else if (current_LOD == 3) {
+            } else if (targetResC0 == 3) {
                 colorVal = vec3(0.0, 0.0, 1.0);
-            } else if (current_LOD == 4) {
+            } else if (targetResC0 == 4) {
                 colorVal = vec3(1.0, 1.0, 0.0);
-            } else if (current_LOD == 5) {
+            } else if (targetResC0 == 5) {
                 colorVal = vec3(1.0, 0.0, 1.0);
             }
             
@@ -449,8 +449,8 @@ void main(void) {
                 && currentVoxelInBrick == newVoxelInBrick) {
 
                 if (reps > 0) {
-                    gColor = vec4(0.0, 0.0, 1.0, 1.0);
-                    return;
+                    // gColor = vec4(0.0, 0.0, 1.0, 1.0);
+                    // return;
                 }
                 reps++;
             
@@ -495,7 +495,7 @@ void main(void) {
                   outColor.a);
 
     if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0) {
-        gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
+        // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
     }
 
     // Also set outColor for compatibility
