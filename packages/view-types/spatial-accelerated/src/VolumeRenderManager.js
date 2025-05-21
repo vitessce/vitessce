@@ -252,6 +252,7 @@ export class VolumeRenderManager {
    */
   updateRendering(volumeDataManager) {
     log('Updating rendering');
+    
     // Check if we have at least one visible channel
     const visibleChannelIndex = this.channelTargetC.findIndex(
       (channel, idx) => this.channelsVisible[idx],
@@ -261,22 +262,33 @@ export class VolumeRenderManager {
       return null;
     }
 
-    // Get reference to one volume to determine dimensions
-    const referenceChannel = this.channelTargetC[visibleChannelIndex];
-    const volume = volumeDataManager.getVolume(referenceChannel);
-    if (!volume) {
+    // Instead of getting dimensions from a volume, get from zarrStore
+    if (!volumeDataManager.zarrStore || !volumeDataManager.zarrStore.shapes 
+        || volumeDataManager.zarrStore.shapes.length === 0) {
       return null;
     }
 
-    // Collect textures and settings for active channels
+    // Get dimensions from zarrStore
+    const shape = volumeDataManager.zarrStore.shapes[0];
+    // Use the highest resolution shape (shape at index 0)
+    // Shape format is typically [t, c, z, y, x]
+    const dimensions = {
+      xLength: shape[4] || 1,
+      yLength: shape[3] || 1, 
+      zLength: shape[2] || 1
+    };
+
+    // Collect settings for active channels
     const texturesList = [];
     const colorsSave = [];
     const contrastLimitsList = [];
 
     this.channelTargetC.forEach((channel, id) => {
       if (this.channelsVisible[id]) {
-        const minMax = volumeDataManager.getMinMax(channel);
-
+        // Since we don't have volume-based minMax, use fixed values 
+        // or get them from your brick cache metadata if available
+        const minMax = [0, 255]; // Default values
+        
         colorsSave.push([
           this.colors[id][0] / 255,
           this.colors[id][1] / 255,
@@ -298,10 +310,12 @@ export class VolumeRenderManager {
     });
 
     if (!this.zarrInit) {
+      // Initialize from zarrStore data
       this.originalScale = volumeDataManager.getOriginalScaleXYZ();
       this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
       this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
       const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
+      
       scaledResolution[0] *= 200.0;
       scaledResolution[1] *= 200.0;
       scaledResolution[2] *= 200.0;
@@ -338,7 +352,7 @@ export class VolumeRenderManager {
     // Update shader uniforms
     this.updateUniforms(
       texturesList,
-      volume,
+      dimensions, // Pass dimensions object instead of volume
       this.renderingMode,
       contrastLimitsList,
       colorsSave,
@@ -360,7 +374,7 @@ export class VolumeRenderManager {
   /**
    * Update shader uniforms with current rendering values
    * @param {Array} textures - List of 3D textures
-   * @param {Volume} volume - Reference volume for dimensions
+   * @param {Object} dimensions - Dimensions object
    * @param {number} renderstyle - Rendering mode value
    * @param {Array} contrastLimits - List of contrast limits for each channel
    * @param {Array} colors - List of colors for each channel
@@ -370,7 +384,7 @@ export class VolumeRenderManager {
    * @param {Vector2} zSlice - Z clipping plane
    */
   updateUniforms(
-    textures, volume, renderstyle, contrastLimits, colors, layerTransparency,
+    textures, dimensions, renderstyle, contrastLimits, colors, layerTransparency,
     xSlice, ySlice, zSlice,
     brickCacheTexture, pageTableTexture,
   ) {
@@ -390,13 +404,13 @@ export class VolumeRenderManager {
     this.uniforms.finalGamma.value = 4.5;
     this.uniforms.volumeCount.value = textures.length;
 
-    // Set size and scale parameters
-    this.uniforms.u_size.value.set(volume.xLength, volume.yLength, volume.zLength);
+    // Set size and scale parameters using dimensions object
+    this.uniforms.u_size.value.set(dimensions.xLength, dimensions.yLength, dimensions.zLength);
     this.uniforms.u_window_size.value.set(0, 0);
     this.uniforms.u_vol_scale.value.set(
-      1.0 / volume.xLength,
-      1.0 / volume.yLength,
-      1.0 / volume.zLength * 2.0,
+      1.0 / dimensions.xLength,
+      1.0 / dimensions.yLength,
+      1.0 / dimensions.zLength * 2.0,
     );
 
     // Set contrast limits (up to 6 channels)

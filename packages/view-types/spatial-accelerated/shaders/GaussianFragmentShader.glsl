@@ -122,22 +122,15 @@ void main() {
     bool top = vUv.y < 0.5;
 
     if (gaussian > 1 && gaussian <= 3) {
-        // color = gaussian3(texel);
-    } else if (gaussian > 3 && left) {
-        // color = gaussian5(texel);
-    } else {
-        // color = noGaussian();
-    }
-
-    if (top && left) {
         color = gaussian3(texel);
-    } else if (!top && !left) {
+    } else if (gaussian > 3 && gaussian <= 5) {
         color = gaussian5(texel);
-    } else if (top && !left) {
+    } else if (gaussian > 5) {
         color = gaussian7(texel);
     } else {
         color = noGaussian();
     }
+
 
     gl_FragColor = color;
 }

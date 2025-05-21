@@ -96,14 +96,14 @@ export function VolumeView(props) {
     }
 
     setLoading(true);
-    try {
-      await managers.dataManager.loadVolumeData(settings.channelTargetC, settings.resolution);
-      const s = managers.renderManager.updateRendering(managers.dataManager);
-      if (s) setRenderState(s);
 
-      setLastRes(settings.resolution);
-      setLastChannels([...settings.channelTargetC]);
-    } finally { setLoading(false); }
+    const s = managers.renderManager.updateRendering(managers.dataManager);
+    if (s) setRenderState(s);
+
+    setLastRes(settings.resolution);
+    setLastChannels([...settings.channelTargetC]);
+
+    setLoading(false);
   }, [managers, lastRes, lastChannels]);
 
   /* update for 3D‑mode or prop changes */
@@ -134,7 +134,7 @@ export function VolumeView(props) {
       uniforms: {
         tDiffuse: { value: mrt.texture[0] },
         resolution: { value: new THREE.Vector2(width, height) },
-        gaussian: { value: 3 },
+        gaussian: { value: 7 },
       },
       vertexShader: gaussianVertexShader,
       fragmentShader: gaussianFragmentShader,

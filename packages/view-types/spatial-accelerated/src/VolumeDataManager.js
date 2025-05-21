@@ -753,20 +753,15 @@ export class VolumeDataManager {
     channelsToLoad.forEach((channel, index) => {
       const volumeOrigin = volumeOrigins[index];
       const volume = this.processVolumeData(volumeOrigin);
-      const minMax = this.computeMinMax(volumeOrigin.data);
+      // const minMax = this.computeMinMax(volumeOrigin.data);
 
       this.volumes.set(channel, volume);
-      this.textures.set(channel, this.createVolumeTexture(volume));
-      this.volumeMinMax.set(channel, minMax);
+      // this.textures.set(channel, this.createVolumeTexture(volume));
+      // this.volumeMinMax.set(channel, minMax);
     });
 
-    this.currentResolution = resolution;
-
-    return {
-      volumes: this.volumes,
-      textures: this.textures,
-      volumeMinMax: this.volumeMinMax,
-    };
+    // this.currentResolution = resolution;
+    return { };
   }
 
   /**
@@ -942,7 +937,7 @@ export class VolumeDataManager {
     let x = -1;
     let y = -1;
     let z = -1;
-    console.log('pt', ptx, pty, ptz);
+    // console.log('pt', ptx, pty, ptz);
     // console.log('pt', ptx, pty, ptz);
     if (ptz >= this.PT.z) {
       resolution = 0;
