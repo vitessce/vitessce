@@ -23,6 +23,48 @@ function log(msg) {
   /* console.warn(`V ${msg}`); */
 }
 
+// New CameraInteraction component (could be added in the same file or a separate file)
+function CameraInteraction({ onChange, ...props }) {
+  const controlsRef = useRef();
+  const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    
+    const handleStart = () => onChange(true);
+    
+    const handleEnd = () => {
+      // Use timeout to prevent flickering if user quickly starts another interaction
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => onChange(false), 300);
+    };
+    
+    // Handle wheel events for zooming
+    const handleWheel = () => {
+      onChange(true);
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => onChange(false), 300);
+    };
+    
+    controls.addEventListener('start', handleStart);
+    controls.addEventListener('end', handleEnd);
+    
+    // Add wheel event to the DOM element
+    const domElement = controls.domElement;
+    domElement.addEventListener('wheel', handleWheel, { passive: true });
+    
+    return () => {
+      controls.removeEventListener('start', handleStart);
+      controls.removeEventListener('end', handleEnd);
+      domElement.removeEventListener('wheel', handleWheel);
+      clearTimeout(timeoutRef.current);
+    };
+  }, [onChange]);
+  
+  return <OrbitControls ref={controlsRef} {...props} />;
+}
+
 export function VolumeView(props) {
   /* ---------- r3f handles ------------------------------------------------- */
   const { gl, scene, camera } = useThree(); // grab once – never changes
@@ -49,6 +91,16 @@ export function VolumeView(props) {
   const screenSceneRef = useRef(null);
   const screenCameraRef = useRef(null);
   const screenQuadRef = useRef(null);
+
+  const [isInteracting, setIsInteracting] = useState(false);
+  
+  // Effect to update renderRes based on interaction state
+  useEffect(() => {
+    if (!meshRef.current?.material?.uniforms) return;
+    
+    // Update renderRes uniform
+    meshRef.current.material.uniforms.renderRes.value = isInteracting ? 5 : 0;
+  }, [isInteracting]);
 
   /* ---------- helpers ----------------------------------------------------- */
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -238,8 +290,8 @@ export function VolumeView(props) {
 
   return (
     <group>
-      <OrbitControls
-        ref={orbitRef}
+      <CameraInteraction 
+        onChange={setIsInteracting}
         enableDamping={false}
       />
       <mesh ref={meshRef} scale={renderState.meshScale}>

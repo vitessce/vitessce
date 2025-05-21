@@ -36,6 +36,7 @@ uniform float near;
 varying vec4 glPosition;
 uniform float far;
 varying vec3 worldSpaceCoords; // only used for depth
+uniform int renderRes;
 
 layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
@@ -317,12 +318,15 @@ void main(void) {
     // that is the voxel ratio
     // NOT the physical pixel ratio
 
+    // TODO lowest and higest res should be over all channels
+    int renderResolutionEffective = clamp(renderRes, highestResC0, lowestResC0);
+
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(os_rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
     float dt_base = dt;
-    dt *= pow(2.0, float(renderResC0));
+    dt *= pow(2.0, float(renderResolutionEffective));
 
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
