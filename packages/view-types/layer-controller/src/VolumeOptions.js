@@ -5,7 +5,6 @@ import {
   Typography,
   Button,
   makeStyles,
-  createStyles,
   FormControl,
   Select,
   InputLabel,
@@ -15,7 +14,7 @@ import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';
 
-const useSlicerStyles = makeStyles(theme => createStyles({
+const useSlicerStyles = makeStyles(theme => ({
   enabled: {},
   disabled: {
     color: theme.palette.text.disabled,

@@ -1,13 +1,17 @@
 // Here, we re-export all MUI things
 // used in the rest of the monorepo packages.
 // This is intended to make upgrading MUI easier.
+export { CacheProvider } from '@emotion/react';
+export { default as createCache } from '@emotion/cache';
+export { makeStyles } from 'tss-react/mui';
+// TODO: to customize the theme argument passed in makeStyles, use createMakeAndWithStyles
+// Reference: https://mui.com/material-ui/integrations/interoperability/#jss-tss
 export {
   // Utils
   createTheme,
   colors,
   ThemeProvider,
-  StylesProvider,
-  makeStyles,
+  //StylesProvider,
   createStyles, // TODO: remove this usage
   // Components
   Slider,
@@ -54,7 +58,8 @@ export {
   ListItem,
   ListItemText,
   FormGroup,
-} from '@material-ui/core';
+  Autocomplete,
+} from '@mui/material';
 export {
   CloudDownload,
   ArrowDropDown,
@@ -73,10 +78,7 @@ export {
   RemoveCircle,
   Lens,
   CenterFocusStrong,
-} from '@material-ui/icons';
-export {
-  Autocomplete,
-} from '@material-ui/lab';
+} from '@mui/icons-material';
 export {
   DataGrid,
 } from '@mui/x-data-grid';

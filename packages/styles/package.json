@@ -30,10 +30,14 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
-    "@material-ui/icons": "catalog:",
-    "@material-ui/lab": "catalog:",
-    "@mui/x-data-grid": "catalog:"
+    "@mui/material": "^7.1.0",
+    "@mui/icons-material": "^7.1.0",
+    "@mui/lab": "^7.0.0-beta.12",
+    "@mui/x-data-grid": "^8.3.1",
+    "tss-react": "^4.9.18",
+    "@emotion/styled": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/cache": "^11.14.0"
   },
   "devDependencies": {
     "react": "catalog:",

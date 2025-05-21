@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
 import {
   ThemeProvider,
-  StylesProvider,
+  CacheProvider,
+  createCache
 } from '@vitessce/styles';
 import {
   QueryClient,
@@ -32,6 +33,11 @@ import {
 import { createLoaders } from './vitessce-grid-utils.js';
 import { createGenerateClassName } from './mui-utils.js';
 import { AsyncFunctionsContext } from './contexts.js';
+
+const muiCache = createCache({
+  key: 'mui',
+  prepend: true,
+});
 
 
 /**
@@ -252,15 +258,15 @@ export function VitS(props) {
   // so that when the child throws errors the parent can catch.
   if (debugMode && debugErrors.length > 0) {
     return (
-      <StylesProvider generateClassName={generateClassName}>
+      <CacheProvider value={muiCache}>
         <ThemeProvider theme={muiTheme[theme]}>
           <DebugWindow debugErrors={debugErrors} />
         </ThemeProvider>
-      </StylesProvider>
+      </CacheProvider>
     );
   }
   return success ? (
-    <StylesProvider generateClassName={generateClassName}>
+    <CacheProvider value={muiCache}>
       <ThemeProvider theme={muiTheme[theme]}>
         <QueryClientProvider client={queryClient}>
           <ViewConfigProvider
@@ -297,12 +303,12 @@ export function VitS(props) {
           </ViewConfigProvider>
         </QueryClientProvider>
       </ThemeProvider>
-    </StylesProvider>
+    </CacheProvider>
   ) : (
-    <StylesProvider generateClassName={generateClassName}>
+    <CacheProvider value={muiCache}>
       <ThemeProvider theme={muiTheme[theme]}>
         <Warning {...configOrWarning} />
       </ThemeProvider>
-    </StylesProvider>
+    </CacheProvider>
   );
 }
