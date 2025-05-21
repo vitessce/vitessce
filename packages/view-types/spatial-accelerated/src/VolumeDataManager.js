@@ -100,10 +100,6 @@ export class VolumeDataManager {
       };
     }
 
-    this.GLCONSTANTS = {
-      // this.gl.TEXTURE0,
-    };
-
     console.warn('GL CONSTANTS');
     console.warn(this.gl);
     console.warn(this.gl.TEXTURE0);
@@ -146,8 +142,6 @@ export class VolumeDataManager {
       loadTimeAverage: 0,
     };
 
-    this.BrickCache = [];
-    this.PageTable = [];
     this.ptTHREE = null;
     this.bcTHREE = null;
 
@@ -183,10 +177,6 @@ export class VolumeDataManager {
     this.maximumMax = 0;
 
     // Properties for volume rendering
-    this.volumes = new Map(); // Volume data objects keyed by channel index
-    this.textures = new Map(); // THREE.js textures keyed by channel index
-    this.volumeMinMax = new Map(); // Min/max values keyed by channel index
-    this.currentResolution = null;
     this.originalScale = [1, 1, 1]; // Original dimensions
     this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
 
@@ -531,260 +521,6 @@ export class VolumeDataManager {
   }
 
   /**
-   * Get volume data for a specific channel and resolution
-   * @param {number} channel - Channel index
-   * @param {number} resolution - Resolution level
-   * @returns {Promise<Object>} Volume data object
-   */
-  async getVolumeByChannel(channel, resolution) {
-    log('getVolumeByChannel');
-    // For now, we're hardcoding to use a test dataset
-    // In a real implementation, this would use the store initialized above
-    const root = new zarrita.FetchStore('https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/');
-    const rootGroup = await zarrita.open(root);
-
-    // Load the array at the requested resolution
-    const array = await zarrita.open(rootGroup.resolve(String(resolution)));
-
-    // Extract dimensions from array
-    const shapeRes = array.shape;
-    const { chunks } = array;
-
-    // Get the sizes for each dimension
-    const zSize = shapeRes[2];
-    const ySize = shapeRes[3];
-    const xSize = shapeRes[4];
-
-    // Create a buffer for the volume data
-    // In a production system, this would use the correct dtype from the Zarr metadata
-    const volumeData = new Uint8Array(zSize * ySize * xSize);
-
-    // Extract chunk sizes
-    const zChunk = chunks[2] || BRICK_SIZE;
-    const yChunk = chunks[3] || BRICK_SIZE;
-    const xChunk = chunks[4] || BRICK_SIZE;
-
-    // Calculate number of chunks in each dimension
-    const zChunkCount = Math.ceil(zSize / zChunk);
-    const yChunkCount = Math.ceil(ySize / yChunk);
-    const xChunkCount = Math.ceil(xSize / xChunk);
-
-    // Collect all chunk coordinate jobs
-    const allChunkJobs = [];
-    for (let cz = 0; cz < zChunkCount; cz++) {
-      for (let cy = 0; cy < yChunkCount; cy++) {
-        for (let cx = 0; cx < xChunkCount; cx++) {
-          allChunkJobs.push([cz, cy, cx]);
-        }
-      }
-    }
-
-    // Load each chunk and copy into the volumeData buffer
-    await Promise.all(allChunkJobs.map(async ([cz, cy, cx]) => {
-      const chunkEntry = await array.getChunk([0, 0, cz, cy, cx]);
-      if (!chunkEntry) {
-        return;
-      }
-
-      const chunkData = chunkEntry.data;
-
-      // Calculate chunk boundaries
-      const zStart = cz * zChunk;
-      const yStart = cy * yChunk;
-      const xStart = cx * xChunk;
-
-      // Actual size may be smaller at boundaries
-      const actualZ = Math.min(zSize - zStart, zChunk);
-      const actualY = Math.min(ySize - yStart, yChunk);
-      const actualX = Math.min(xSize - xStart, xChunk);
-
-      // Copy chunk data into the volumeData buffer
-      let idx = 0;
-      for (let z = 0; z < actualZ; z++) {
-        for (let y = 0; y < actualY; y++) {
-          for (let x = 0; x < actualX; x++) {
-            const globalZ = zStart + z;
-            const globalY = yStart + y;
-            const globalX = xStart + x;
-            const globalIndex = globalX + globalY * xSize + globalZ * xSize * ySize;
-
-            volumeData[globalIndex] = chunkData[idx];
-            idx++;
-          }
-        }
-      }
-    }));
-
-    // Store information about physical dimensions if available
-    this.updatePhysicalScale(array);
-    console.warn('updatePhysicalScale', this.physicalScale);
-
-    log('getVolumeByChannel() COMPLETE');
-
-    // Return the volume data
-    return {
-      data: volumeData,
-      width: xSize,
-      height: ySize,
-      depth: zSize,
-    };
-  }
-
-  /**
-   * Extract and update physical scale information from array metadata
-   * @param {Object} array - Zarr array with metadata
-   */
-  updatePhysicalScale(array) {
-    log('updatePhysicalScale');
-    if (array.meta && array.meta.physicalSizes) {
-      const { x, y, z } = array.meta.physicalSizes;
-      this.physicalScale = [
-        { size: x?.size || 1 },
-        { size: y?.size || 1 },
-        { size: z?.size || 1 },
-      ];
-    }
-
-    // Set original scale from the array shape
-    if (array.shape) {
-      this.originalScale = [
-        array.shape[4], // X dimension
-        array.shape[3], // Y dimension
-        array.shape[2], // Z dimension
-      ];
-    }
-
-    log('updatePhysicalScale() COMPLETE');
-  }
-
-  /**
-   * Create a volume data object from raw volume data
-   * @param {Object} volumeOrigin - Raw volume data
-   * @returns {Object} Volume data object
-   */
-  processVolumeData(volumeOrigin) {
-    log('processVolumeData');
-    // Create volume data object with essential properties
-    const volume = {
-      xLength: volumeOrigin.width,
-      yLength: volumeOrigin.height,
-      zLength: volumeOrigin.depth,
-    };
-
-    // Compute min/max values
-    const [min, max] = this.computeMinMax(volumeOrigin.data);
-
-    // Normalize values to float in [0,1] range
-    const normalizedData = new Float32Array(volumeOrigin.data.length);
-    for (let i = 0; i < volumeOrigin.data.length; i++) {
-      normalizedData[i] = (volumeOrigin.data[i] - min) / Math.sqrt((max ** 2) - (min ** 2));
-    }
-
-    volume.data = normalizedData;
-    return volume;
-  }
-
-  /**
-   * Compute min and max values in a data array
-   * @param {TypedArray} data - Data array
-   * @returns {Array} [min, max] values
-   */
-  computeMinMax(data) {
-    log('computeMinMax');
-    let min = Infinity;
-    let max = -Infinity;
-
-    for (let i = 0; i < data.length; i++) {
-      if (data[i] < min) min = data[i];
-      if (data[i] > max) max = data[i];
-    }
-
-    // Use 'this' in the method (for linter)
-    this.lastComputedMinMax = [min, max];
-    return this.lastComputedMinMax;
-  }
-
-  /**
-   * Create a THREE.js 3D texture from a Volume
-   * @param {Object} volume - Volume data object
-   * @returns {Data3DTexture} THREE.js 3D texture
-   */
-  createVolumeTexture(volume) {
-    log('createVolumeTexture');
-    // Use 'this' in the method (for linter)
-    this.lastTextureCreated = new Date();
-    const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-    texture.format = RedFormat;
-    texture.type = FloatType;
-    texture.generateMipmaps = false;
-    texture.minFilter = LinearFilter;
-    texture.magFilter = LinearFilter;
-    texture.needsUpdate = true;
-    return texture;
-  }
-
-  /**
-   * Load volume data for multiple channels
-   * @param {Array} channelTargetC - Channel indices to load
-   * @param {number} resolution - Target resolution
-   * @returns {Promise<Object>} Object with loaded volume data
-   */
-  async loadVolumeData(channelTargetC, resolution) {
-    log('loadVolumeData');
-    // Only load channels that aren't already loaded at this resolution
-    const channelsToLoad = channelTargetC
-      .filter(channel => !this.volumes.has(channel) || resolution !== this.currentResolution);
-
-    // If nothing to load, return current state
-    if (channelsToLoad.length === 0) {
-      return {
-        volumes: this.volumes,
-        textures: this.textures,
-        volumeMinMax: this.volumeMinMax,
-      };
-    }
-
-    // Load each channel's volume data
-    const volumeOrigins = await Promise.all(
-      channelsToLoad.map(channel => this.getVolumeByChannel(channel, resolution)),
-    );
-
-    // Process and store each loaded volume
-    channelsToLoad.forEach((channel, index) => {
-      const volumeOrigin = volumeOrigins[index];
-      const volume = this.processVolumeData(volumeOrigin);
-      // const minMax = this.computeMinMax(volumeOrigin.data);
-
-      this.volumes.set(channel, volume);
-      // this.textures.set(channel, this.createVolumeTexture(volume));
-      // this.volumeMinMax.set(channel, minMax);
-    });
-
-    // this.currentResolution = resolution;
-    return { };
-  }
-
-  /**
-   * Get a volume for a channel
-   * @param {number} channel - Channel index
-   * @returns {Object|null} Volume object or null if not loaded
-   */
-  getVolume(channel) {
-    log('getVolume');
-    return this.volumes.get(channel) || null;
-  }
-
-  /**
-   * Get min/max values for a channel
-   * @param {number} channel - Channel index
-   * @returns {Array|null} [min, max] values or null if not loaded
-   */
-  getMinMax(channel) {
-    log('getMinMax');
-    return this.volumeMinMax.get(channel) || null;
-  }
-
-  /**
    * Get physical dimensions
    * @returns {Array} Physical dimensions [X, Y, Z]
    */
@@ -819,23 +555,6 @@ export class VolumeDataManager {
       this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
     ];
-  }
-
-  /**
-   * Clear all loaded volumes and textures
-   */
-  clearCache() {
-    log('clearCache');
-    // Dispose THREE.js textures first to avoid memory leaks
-    this.textures.forEach((texture) => {
-      if (texture && texture.dispose) {
-        texture.dispose();
-      }
-    });
-
-    this.volumes.clear();
-    this.textures.clear();
-    this.volumeMinMax.clear();
   }
 
   /**
