@@ -27,6 +27,15 @@ const stylesheet = [
     }
   },
   {
+    selector: 'node:selected',
+    style: {
+      'background-color': '#00ff00',  // Green color for selected nodes
+      'border-width': '2px',
+      'border-color': '#000',
+      'border-opacity': 1
+    }
+  },
+  {
     selector: 'edge',
     style: {
       'width': '1',
@@ -54,12 +63,25 @@ const CytoscapeWrapper: React.FC<{
   nodes: any[];
   links: any[];
 }> = ({ nodes, links }) => {
+  const [selectedNodes, setSelectedNodes] = React.useState<string[]>([]);
+
+  const handleNodeSelect = (event: any) => {
+    // Get all selected nodes from the cy instance
+    const selectedNodeIds = event.cy.nodes(':selected').map((node: any) => node.id());
+    setSelectedNodes(selectedNodeIds);
+    console.log('Selected nodes:', selectedNodeIds);
+  };
+
   return (
     <CytoscapeComponent
       elements={createElements(nodes, links, nodeColor, 10)}
       style={{ width: '100%', height: '100%' }}
       layout={{ name: 'cose', fit: true, padding: 30 }}
       stylesheet={stylesheet}
+      cy={(cy) => {
+        cy.on('select', 'node', handleNodeSelect);
+        cy.on('unselect', 'node', handleNodeSelect);
+      }}
     />
   );
 };
@@ -103,7 +125,7 @@ export default function NetworkVis() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_2.json');
+        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_1.json');
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
 
