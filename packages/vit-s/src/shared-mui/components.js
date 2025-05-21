@@ -11,7 +11,7 @@ import {
 import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   paper: {
     maxHeight: 200,
     overflow: 'auto',
@@ -35,7 +35,7 @@ export function PopperMenu(props) {
     containerClassName,
     'aria-label': ariaLabel,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const anchorRef = useRef();
 

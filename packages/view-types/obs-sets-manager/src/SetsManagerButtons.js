@@ -29,7 +29,7 @@ export function PlusButton(props) {
     importable, editable,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   /**
    * Import a file, then process the imported data via the supplied handler function.

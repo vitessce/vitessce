@@ -29,7 +29,7 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   layerTypeSpotIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -59,7 +59,7 @@ function SpotLayerEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -233,7 +233,7 @@ export default function SpotLayerController(props) {
   const isStaticColor = obsColorEncoding === 'spatialLayerColor';
   const isColormap = obsColorEncoding === 'geneSelection';
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const lcClasses = useControllerSectionStyles();
   const menuClasses = useEllipsisMenuStyles();
 

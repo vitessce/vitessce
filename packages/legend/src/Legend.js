@@ -10,7 +10,7 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   legend: {
     top: '2px',
     right: '2px',
@@ -130,7 +130,7 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';

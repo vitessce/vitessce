@@ -5,7 +5,7 @@ import { PopperMenu } from '@vitessce/vit-s';
 import { useSpanStyles } from './styles.js';
 import ColorPalette from './ColorPalette.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   menuButton: {
     backgroundColor: 'transparent',
   },
@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
 
 function MuiSpan(props) {
   const { children } = props;
-  const classes = useSpanStyles();
+  const { classes } = useSpanStyles();
   return <span className={classes.span}>{children}</span>;
 }
 
@@ -33,7 +33,7 @@ function MuiSpan(props) {
 function ChannelOptions({ handlePropertyChange, handleChannelRemove, handleIQRUpdate }) {
   const [open, setOpen] = useState(false);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const handleColorSelect = (color) => {
     handlePropertyChange('color', color);

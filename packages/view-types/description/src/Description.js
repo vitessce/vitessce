@@ -3,7 +3,7 @@ import { makeStyles } from '@vitessce/styles';
 import Markdown from 'react-markdown';
 import { DescriptionType } from '@vitessce/constants-internal';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   description: {
     '& p, details, table': {
       fontSize: '80%',
@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Description(props) {
   const { description, metadata, descriptionType } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={classes.description}>
       {descriptionType && descriptionType === DescriptionType.MARKDOWN

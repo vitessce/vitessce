@@ -6,7 +6,7 @@ import {
 import { useSelectStyles } from './styles.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
     width: '90%',
     marginLeft: '5%',
@@ -27,7 +27,7 @@ export default function ChannelSelectionDropdown(props) {
     setWindow,
     disabled,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const selectClasses = useSelectStyles();
 
   function handleChange(event) {

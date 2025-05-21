@@ -6,7 +6,10 @@ import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree.js';
 import TreeNode from './TreeNode.js';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons.js';
-import { useStyles } from './styles.js';
+import {
+  useStyles,
+  SetsManagerTreeGlobalStyles,
+} from './styles.js';
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
@@ -211,10 +214,11 @@ export default function SetsManager(props) {
     });
   }
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.setsManager}>
+      <SetsManagerTreeGlobalStyles />
       <div className={classes.setsManagerTree}>
         <Tree
           draggable={false}

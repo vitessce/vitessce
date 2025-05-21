@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { makeStyles } from '@vitessce/styles';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   selectableTable: {
     flex: '1 1 auto',
     outline: 'none',

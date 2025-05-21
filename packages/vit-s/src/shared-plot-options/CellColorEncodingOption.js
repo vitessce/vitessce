@@ -12,7 +12,7 @@ export default function CellColorEncodingOption(props) {
     setCellColorEncoding,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const cellColorEncodingId = useId();
 

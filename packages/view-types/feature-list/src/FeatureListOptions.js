@@ -32,7 +32,7 @@ export default function FeatureListOptions(props) {
     setShowFeatureTable(event.target.checked);
   }
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   return (
     <OptionsContainer>

@@ -648,7 +648,7 @@ span.CodeMirror-selectedtext {
 }
 `;
 
-export const useStyles = makeStyles(() => ({
+export const useStyles = makeStyles()(() => ({
   neuroglancerWrapper: {
     position: 'relative',
     height: '100%',

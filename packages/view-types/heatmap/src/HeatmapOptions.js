@@ -15,7 +15,7 @@ export default function HeatmapOptions(props) {
     setTooltipsVisible,
   } = props;
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
   const heatmapOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {

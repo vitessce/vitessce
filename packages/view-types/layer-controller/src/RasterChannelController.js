@@ -45,7 +45,7 @@ function ChannelSlider({
     [handleChange],
   );
 
-  const classes = useChannelSliderStyles();
+  const { classes } = useChannelSliderStyles();
 
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (

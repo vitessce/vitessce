@@ -22,7 +22,7 @@ export default function TreemapOptions(props) {
   } = props;
 
   const treemapOptionsId = useId();
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleColorEncodingChange(event) {
     setObsColorEncoding(event.target.value);

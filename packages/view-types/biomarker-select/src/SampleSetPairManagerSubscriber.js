@@ -13,7 +13,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, DataType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   selectedPair: {
     fontWeight: 'bold',
   },
@@ -37,7 +37,7 @@ export function SampleSetPairManagerSubscriber(props) {
     helpText = ViewHelpMapping.SAMPLE_SET_PAIR_MANAGER,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

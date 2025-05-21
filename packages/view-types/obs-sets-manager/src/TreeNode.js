@@ -138,7 +138,7 @@ function NamedSetNodeStatic(props) {
   const tooltipProps = (disableTooltip ? { visible: false } : {});
   const popoverMenuConfig = makeNodeViewMenuConfig(props);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <span>
       <HelpTooltip title={tooltipText} {...tooltipProps}>
@@ -188,7 +188,7 @@ function NamedSetNodeEditing(props) {
       onNodeSetName(path, currentTitle, true);
     }
   }
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <span className={classes.titleButtonWithInput}>
       <input
@@ -256,7 +256,7 @@ function LevelsButtons(props) {
       onCheckLevel(nodeKey, newLevel);
     }
   }
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={classes.levelButtonsContainer}>
       {range(1, height + 1).map((i) => {

@@ -1,6 +1,6 @@
 import { makeStyles } from '@vitessce/styles';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   box: {
     boxSizing: 'border-box',
   },

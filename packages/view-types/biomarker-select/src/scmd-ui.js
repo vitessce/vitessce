@@ -25,7 +25,7 @@ export function ScmdUi(props) {
     stratifications,
     onFinish,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const mode = modeProp || 'confirmatory';
   const step = mode === 'confirmatory' ? (stepProp || 'select-biomarkers') : (stepProp || 'define-stratification');

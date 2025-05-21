@@ -25,7 +25,7 @@ export default function CellSetExpressionPlotOptions(props) {
 
   const cellSetExpressionPlotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleFeatureValueColormapChange(event) {
     setFeatureValueColormap(event.target.value);

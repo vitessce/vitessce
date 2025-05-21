@@ -27,7 +27,7 @@ export function ConfirmatoryStepper(props) {
     stratifications,
     onFinish,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 

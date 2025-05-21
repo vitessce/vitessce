@@ -72,7 +72,7 @@ export function SelectAgnostic(props) {
     currentModalityAgnosticSelection,
     setCurrentModalityAgnosticSelection,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const [selectedItem, setSelectedItem] = React.useState(null);
 

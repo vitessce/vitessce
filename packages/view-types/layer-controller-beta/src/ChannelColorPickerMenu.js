@@ -12,7 +12,7 @@ import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
 import { getXlinkHref } from '@vitessce/legend';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   colorIcon: {
     width: '18px !important',
     height: '18px !important',
@@ -81,7 +81,7 @@ export default function ChannelColorPickerMenu(props) {
     }
   }
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const currentColor = color
     ? colorArrayToString(color)

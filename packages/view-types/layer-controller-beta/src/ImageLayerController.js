@@ -37,7 +37,7 @@ import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   imageLayerButton: {
     borderStyle: 'dashed',
     marginTop: '10px',
@@ -374,7 +374,7 @@ export default function ImageLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const menuClasses = useEllipsisMenuStyles();
   const controllerSectionClasses = useControllerSectionStyles();
   const isMultiChannel = photometricInterpretation !== 'RGB';

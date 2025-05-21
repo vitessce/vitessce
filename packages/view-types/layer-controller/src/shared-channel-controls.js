@@ -16,7 +16,7 @@ export function ChannelSelectionDropdown({
   channelOptions,
   selectionIndex,
 }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   return (
     <Select
       classes={{ root: classes.selectRoot }}

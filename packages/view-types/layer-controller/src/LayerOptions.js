@@ -52,7 +52,7 @@ function VolumeDropdown({
   use3d,
   modelMatrix,
 }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   const selections = channels.map(i => i.selection);
   const { data: loader } = loaderWithMeta;
   const handleChange = async (val) => {
@@ -180,7 +180,7 @@ function VolumeDropdown({
  * @prop {function} handleChange Callback for every change in colormap.
  */
 function ColormapSelect({ value, inputId, handleChange }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   return (
     <Select
       native
@@ -225,7 +225,7 @@ function TransparentColorCheckbox({ value, inputId, handleChange }) {
  * @prop {function} handleChange Callback for every change in opacity.
  */
 function OpacitySlider({ value, inputId, handleChange }) {
-  const classes = useChannelSliderStyles();
+  const { classes } = useChannelSliderStyles();
 
   return (
     <Slider
@@ -250,7 +250,7 @@ function OpacitySlider({ value, inputId, handleChange }) {
  * @prop {function} handleChange Callback for every change in domain.
  */
 function SliderDomainSelector({ value, inputId, handleChange }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   return (
     <Select
       native
@@ -284,7 +284,7 @@ function GlobalSelectionSlider({
   handleChange,
   possibleValues,
 }) {
-  const classes = useSelectionSliderStyles();
+  const { classes } = useSelectionSliderStyles();
   return (
     <Slider
       classes={{ root: classes.selectionSliderRoot, markActive: classes.markActive }}

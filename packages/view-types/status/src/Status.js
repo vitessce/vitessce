@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@vitessce/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   info: {
     // details
     fontSize: '80%',
@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 
 export default function Status(props) {
   const { info, warn } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const messages = [];
   if (info) {
     messages.push(<p className={classes.info} key="info">{info}</p>);

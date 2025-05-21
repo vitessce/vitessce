@@ -20,7 +20,7 @@ export function Neuroglancer(props) {
     viewerState,
     onViewerStateChanged,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
 
   const handleStateChanged = useCallback((newState) => {

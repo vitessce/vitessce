@@ -6,7 +6,7 @@ import {
 import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   visibilityCheckbox: {
     padding: '8px 0',
   },
@@ -35,7 +35,7 @@ export default function ChannelVisibilityCheckbox(props) {
   } = props;
   const rgbColor = getCheckboxColor(colormapOn, color, theme);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <Checkbox
       onChange={(e, v) => setVisible(v)}

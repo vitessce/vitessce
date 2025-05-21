@@ -13,7 +13,7 @@ import {
 } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
-const useToggleStyles = makeStyles(() => ({
+const useToggleStyles = makeStyles()(() => ({
   cameraLabel: {
     padding: '0px 0px 0px 16px',
   },
@@ -28,7 +28,7 @@ const ToggleFixedAxisButton = ({
   use3d,
 }) => {
   const toggleAxisId = useId();
-  const classes = useToggleStyles();
+  const { classes } = useToggleStyles();
   return (
     <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
@@ -90,7 +90,7 @@ export default function SpatialOptions(props) {
     setTooltipsVisible(event.target.checked);
   }
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   return (
     <OptionsContainer>

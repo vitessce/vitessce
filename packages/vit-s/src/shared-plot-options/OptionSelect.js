@@ -4,7 +4,7 @@ import { useStyles } from './styles.js';
 
 export default function OptionSelect(props) {
   const { classes: classesProp = {} } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <Select
       native

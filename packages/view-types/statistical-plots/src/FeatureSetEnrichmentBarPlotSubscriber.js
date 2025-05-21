@@ -32,7 +32,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
     helpText = ViewHelpMapping.FEATURE_SET_ENRICHMENT_BAR_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 

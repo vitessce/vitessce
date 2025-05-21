@@ -7,7 +7,7 @@ import { MoreVert as MoreVertIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   channelMenuButton: {
     backgroundColor: 'transparent',
     padding: '3px 0',
@@ -31,7 +31,7 @@ export default function ChannelOptions(props) {
   } = props;
   const [open, setOpen] = useState(false);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 

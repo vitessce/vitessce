@@ -21,7 +21,7 @@ export default function GatingScatterplotOptions(props) {
 
   const gatingScatterplotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   // Handlers for custom option field changes.
   const handleGeneSelectChange = (event) => {

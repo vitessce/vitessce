@@ -28,7 +28,7 @@ export function SelectSpecific(props) {
     setCurrentModalitySpecificSelection,
     getEdges,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const queries = useQueries({
     queries: currentModalityAgnosticSelection?.map(item => ({

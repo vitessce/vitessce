@@ -59,7 +59,7 @@ export default function ScatterplotOptions(props) {
 
   const observationsLabelNice = capitalize(observationsLabel);
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleCellRadiusModeChange(event) {
     setCellRadiusMode(event.target.value);

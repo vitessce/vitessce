@@ -3,7 +3,7 @@ import { IconButton, makeStyles } from '@vitessce/styles';
 import { Lens as LensIcon } from '@vitessce/styles';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   paletteContainer: {
     width: '70px',
     height: '40px',
@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ColorPalette = ({ handleChange }) => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={classes.paletteContainer} aria-label="Color swatch">
       {VIEWER_PALETTE.map(color => (

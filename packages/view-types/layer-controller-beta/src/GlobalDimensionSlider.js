@@ -15,7 +15,7 @@ import {
 import { useControllerSectionStyles } from './styles.js';
 
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   dimensionsIcon: {
     height: '40px',
     width: '40px',
@@ -49,7 +49,7 @@ export default function GlobalDimensionSlider(props) {
   } = props;
 
   const lcClasses = useControllerSectionStyles();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const isForZ = spatialRenderingMode !== null;
 
   function handleRenderingModeChange(event) {

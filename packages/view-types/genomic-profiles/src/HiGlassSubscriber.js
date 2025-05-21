@@ -1,7 +1,7 @@
 import React from 'react';
 import { TitleInfo, useGridItemSize } from '@vitessce/vit-s';
 import HiGlassLazy from './HiGlassLazy.js';
-import { useStyles } from './styles.js';
+import { useStyles, HiglassGlobalStyles } from './styles.js';
 
 const urls = [];
 
@@ -28,7 +28,7 @@ export function HiGlassSubscriber(props) {
 
   // eslint-disable-next-line no-unused-vars
   const [width, height, containerRef] = useGridItemSize();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.higlassTitleWrapper}>
@@ -42,6 +42,7 @@ export function HiGlassSubscriber(props) {
         urls={urls}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
+          <HiglassGlobalStyles />
           <HiGlassLazy
             coordinationScopes={coordinationScopes}
             theme={theme}

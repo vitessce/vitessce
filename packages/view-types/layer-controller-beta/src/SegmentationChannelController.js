@@ -30,7 +30,7 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   layerTypeSegmentationIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -63,7 +63,7 @@ function SegmentationChannelEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const selectClasses = useSelectStyles();
   const menuClasses = useEllipsisMenuStyles();
 
@@ -227,7 +227,7 @@ export default function SegmentationChannelController(props) {
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
   const isColormap = obsColorEncoding === 'geneSelection';
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const lcClasses = useControllerSectionStyles();
   const menuClasses = useEllipsisMenuStyles();
 

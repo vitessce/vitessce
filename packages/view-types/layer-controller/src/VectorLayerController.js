@@ -27,7 +27,7 @@ export default function VectorLayerController(props) {
     handleLayerChange({ ...layer, visible: v });
   }
 
-  const classes = useControllerSectionStyles();
+  const { classes } = useControllerSectionStyles();
   return (
     <Grid item style={{ marginTop: '10px' }}>
       <Paper className={classes.layerControllerRoot}>

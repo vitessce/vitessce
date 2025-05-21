@@ -1,6 +1,6 @@
 import { makeStyles } from '@vitessce/styles';
 
-export const useEllipsisMenuStyles = makeStyles(() => ({
+export const useEllipsisMenuStyles = makeStyles()(() => ({
   imageLayerMenuLabel: {
     margin: '0 5px',
   },

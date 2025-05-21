@@ -7,7 +7,7 @@ export default function OptionsContainer(props) {
     children,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Box className={classes.box}>

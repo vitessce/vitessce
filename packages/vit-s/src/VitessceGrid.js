@@ -19,7 +19,10 @@ import {
 import {
   useClosestVitessceContainerSize,
 } from './hooks.js';
-import { useVitessceContainerStyles } from './shared-mui/container.js';
+import {
+  useVitessceContainerStyles,
+  GridLayoutGlobalStyles,
+} from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
 
@@ -61,7 +64,7 @@ export default function VitessceGrid(props) {
 
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
-  const classes = useVitessceContainerStyles();
+  const { classes } = useVitessceContainerStyles();
   const titleClasses = useTitleStyles();
 
   const altText = useMemo(() => getAltText(config), [configKey]);
@@ -113,6 +116,7 @@ export default function VitessceGrid(props) {
       role="group"
       aria-label={altText}
     >
+      <GridLayoutGlobalStyles />
       {layout ? (
         <VitessceGridLayout
           pageMode={pageMode}

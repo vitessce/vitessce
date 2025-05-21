@@ -3,7 +3,7 @@ import { makeStyles, MenuItem } from '@vitessce/styles';
 import { Add as AddIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   addButton: {
     marginTop: '10px',
     marginBottom: '10px',
@@ -22,7 +22,7 @@ function ImageAddIcon() {
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const handleAdd = (imgData) => {
     setOpen(prev => !prev);

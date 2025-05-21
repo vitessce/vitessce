@@ -14,7 +14,7 @@ import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';
 
-const useSlicerStyles = makeStyles(theme => ({
+const useSlicerStyles = makeStyles()(theme => ({
   enabled: {},
   disabled: {
     color: theme.palette.text.disabled,
@@ -60,7 +60,7 @@ const Slicer = ({
     ],
   ];
 
-  const classes = useSlicerStyles();
+  const { classes } = useSlicerStyles();
   const Slicers = sliceValuesAndSetSliceFunctions.map(
     ([val, setVal, label, [min, max]]) => (
       <Grid
@@ -116,7 +116,7 @@ function RenderingModeSelect({
   renderingMode,
   use3d,
 }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   // Empty option allows for displaying the title of the dropdown fully in the UI.
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (

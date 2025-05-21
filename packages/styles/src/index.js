@@ -3,7 +3,8 @@
 // This is intended to make upgrading MUI easier.
 export { CacheProvider } from '@emotion/react';
 export { default as createCache } from '@emotion/cache';
-export { makeStyles } from 'tss-react/mui';
+export { GlobalStyles } from 'tss-react';
+export { makeStyles, useStyles as useTheme } from 'tss-react/mui';
 // TODO: to customize the theme argument passed in makeStyles, use createMakeAndWithStyles
 // Reference: https://mui.com/material-ui/integrations/interoperability/#jss-tss
 export {
@@ -11,8 +12,6 @@ export {
   createTheme,
   colors,
   ThemeProvider,
-  //StylesProvider,
-  createStyles, // TODO: remove this usage
   // Components
   Slider,
   Typography,

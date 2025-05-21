@@ -11,7 +11,7 @@ export default function EmbeddingScatterplotOptions(props) {
     setSelectedMapping,
   } = props;
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   const scatterplotOptionsId = useId();
 

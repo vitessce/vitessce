@@ -32,7 +32,7 @@ export function ExpressionHistogramSubscriber(props) {
     helpText = ViewHelpMapping.FEATURE_VALUE_HISTOGRAM,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

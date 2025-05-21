@@ -5,7 +5,7 @@ import {
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { makeStyles } from '@vitessce/styles';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   buttonContainer: {
     position: 'absolute',
     right: 0,
@@ -52,7 +52,7 @@ export function ComparativeHeadingSubscriber(props) {
     coordinationScopes,
   );
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const swapSampleSets = useCallback(() => {
     if (sampleSetSelection?.length === 2) {

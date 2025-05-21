@@ -1,6 +1,6 @@
 import { makeStyles } from '@vitessce/styles';
 
-export const useSpanStyles = makeStyles(() => ({
+export const useSpanStyles = makeStyles()(() => ({
   span: {
     width: '70px',
     textAlign: 'center',
@@ -9,7 +9,7 @@ export const useSpanStyles = makeStyles(() => ({
   },
 }));
 
-export const useChannelSliderStyles = makeStyles(theme => ({
+export const useChannelSliderStyles = makeStyles()(theme => ({
   valueLabel: {
     marginTop: '7px',
     '& span': {
@@ -19,7 +19,7 @@ export const useChannelSliderStyles = makeStyles(theme => ({
   },
 }));
 
-export const useSelectStyles = makeStyles(() => ({
+export const useSelectStyles = makeStyles()(() => ({
   selectRoot: {
     padding: 0,
     height: 'auto',
@@ -29,7 +29,7 @@ export const useSelectStyles = makeStyles(() => ({
   },
 }));
 
-export const useControllerSectionStyles = makeStyles(() => ({
+export const useControllerSectionStyles = makeStyles()(() => ({
   layerControllerRoot: {
     width: '100%',
     flexDirection: 'column',
@@ -40,7 +40,7 @@ export const useControllerSectionStyles = makeStyles(() => ({
   },
 }));
 
-export const useAccordionStyles = makeStyles(theme => ({
+export const useAccordionStyles = makeStyles()(theme => ({
   accordionDetailsRoot: {
     width: '100%',
     flexDirection: 'column',
@@ -64,13 +64,13 @@ export const useAccordionStyles = makeStyles(theme => ({
   },
 }));
 
-export const useInputLabelStyles = makeStyles(() => ({
+export const useInputLabelStyles = makeStyles()(() => ({
   inputLabelRoot: {
     fontSize: '14px',
   },
 }));
 
-export const useOverflowEllipsisGridStyles = makeStyles(() => ({
+export const useOverflowEllipsisGridStyles = makeStyles()(() => ({
   item: {
     width: '100%',
     overflow: 'hidden',
@@ -79,7 +79,7 @@ export const useOverflowEllipsisGridStyles = makeStyles(() => ({
   },
 }));
 
-export const useSelectionSliderStyles = makeStyles(() => ({
+export const useSelectionSliderStyles = makeStyles()(() => ({
   selectionSliderRoot: {
     marginTop: '7px',
   },

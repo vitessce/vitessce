@@ -21,7 +21,7 @@ export default function VolcanoPlotOptions(props) {
   } = props;
 
   const volcanoOptionsId = useId();
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handlePointSignificanceChange(event, value) {
     setFeaturePointSignificanceThreshold(10 ** -value);
