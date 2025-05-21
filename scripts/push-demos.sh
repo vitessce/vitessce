@@ -7,11 +7,11 @@ DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
 PKG_VERSION=`npm pkg get version | tr -d '"'`
 
-BUCKET="temp-vitessce-data"
+BUCKET="legacy.vitessce.io"
 
-DEMO_URL_PATH="demos/$DATE/$HASH"
-ROOT_DOCS_URL_PATH="docs-root/$DATE/$HASH"
-VERSIONED_DOCS_URL_PATH="docs/$DATE/$HASH"
+DEMO_URL_PATH="temp_demos/$DATE/$HASH"
+ROOT_DOCS_URL_PATH="temp_docs-root/$DATE/$HASH"
+VERSIONED_DOCS_URL_PATH="temp_docs/$DATE/$HASH"
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 git diff --quiet || die 'Uncommitted changes: Stash or commit before pushing.'
@@ -64,7 +64,7 @@ cp ../demo/error.html $VERSIONED_DIST_DIR
 # and push to S3.
 aws s3 cp --recursive $ROOT_DIST_DIR s3://$BUCKET/$ROOT_DOCS_URL_PATH
 aws s3 cp --recursive $VERSIONED_DIST_DIR s3://$BUCKET/$VERSIONED_DOCS_URL_PATH
-VERSIONED_TARGET_URL="http://data-1.vitessce.io/$VERSIONED_DOCS_URL_PATH/"
+VERSIONED_TARGET_URL="http://legacy.vitessce.io/$VERSIONED_DOCS_URL_PATH/"
 COPY_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$ROOT_DOCS_URL_PATH/index.html"
 
 cd ../..
