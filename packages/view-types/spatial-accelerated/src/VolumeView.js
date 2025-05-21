@@ -238,7 +238,10 @@ export function VolumeView(props) {
 
   return (
     <group>
-      <OrbitControls ref={orbitRef} />
+      <OrbitControls
+        ref={orbitRef}
+        enableDamping={false}
+      />
       <mesh ref={meshRef} scale={renderState.meshScale}>
         <boxGeometry args={renderState.geometrySize} />
         <shaderMaterial
