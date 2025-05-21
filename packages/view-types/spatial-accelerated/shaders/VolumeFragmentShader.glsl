@@ -124,7 +124,7 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
 
 const int highestResC0 = 1;
 const int lowestResC0 = 5;
-const float lodFactor = 5.0;
+const float lodFactor = 10.0;
 
 const int renderResC0 = 5;
 
@@ -319,7 +319,8 @@ void main(void) {
     // NOT the physical pixel ratio
 
     // TODO lowest and higest res should be over all channels
-    int renderResolutionEffective = clamp(renderRes, highestResC0, lowestResC0);
+    int renderResolutionEffective = clamp(renderRes, highestResC0, 5);
+    // renderResolutionEffective = 0;
 
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
@@ -435,7 +436,7 @@ void main(void) {
             // color based on t
             vec3 colorVal = vec3(0.0);
             if (targetResC0 == 0) {
-                colorVal = vec3(0.5, 0.5, 0.0);
+                colorVal = vec3(0.0, 1.0, 1.0);
             } else if (targetResC0 == 1) {
                 colorVal = vec3(1.0, 0.0, 0.0);
             } else if (targetResC0 == 2) {

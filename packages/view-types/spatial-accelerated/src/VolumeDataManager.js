@@ -658,7 +658,8 @@ export class VolumeDataManager {
     let z = -1;
     // console.log('pt', ptx, pty, ptz);
     // console.log('pt', ptx, pty, ptz);
-    if (ptz >= this.PT.z) {
+    // console.log('ptz', this.PT.z, this.PT.l0z);
+    if (ptz >= this.PT.zExtent) {
       resolution = 0;
       x = ptx;
       y = pty;

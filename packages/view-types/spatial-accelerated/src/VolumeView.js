@@ -27,33 +27,33 @@ function log(msg) {
 function CameraInteraction({ onChange, ...props }) {
   const controlsRef = useRef();
   const timeoutRef = useRef(null);
-  
+
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
-    
+
     const handleStart = () => onChange(true);
-    
+
     const handleEnd = () => {
       // Use timeout to prevent flickering if user quickly starts another interaction
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => onChange(false), 300);
     };
-    
+
     // Handle wheel events for zooming
     const handleWheel = () => {
       onChange(true);
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => onChange(false), 300);
     };
-    
+
     controls.addEventListener('start', handleStart);
     controls.addEventListener('end', handleEnd);
-    
+
     // Add wheel event to the DOM element
-    const domElement = controls.domElement;
+    const { domElement } = controls;
     domElement.addEventListener('wheel', handleWheel, { passive: true });
-    
+
     return () => {
       controls.removeEventListener('start', handleStart);
       controls.removeEventListener('end', handleEnd);
@@ -61,7 +61,7 @@ function CameraInteraction({ onChange, ...props }) {
       clearTimeout(timeoutRef.current);
     };
   }, [onChange]);
-  
+
   return <OrbitControls ref={controlsRef} {...props} />;
 }
 
@@ -93,11 +93,11 @@ export function VolumeView(props) {
   const screenQuadRef = useRef(null);
 
   const [isInteracting, setIsInteracting] = useState(false);
-  
+
   // Effect to update renderRes based on interaction state
   useEffect(() => {
     if (!meshRef.current?.material?.uniforms) return;
-    
+
     // Update renderRes uniform
     meshRef.current.material.uniforms.renderRes.value = isInteracting ? 5 : 0;
   }, [isInteracting]);
@@ -290,7 +290,7 @@ export function VolumeView(props) {
 
   return (
     <group>
-      <CameraInteraction 
+      <CameraInteraction
         onChange={setIsInteracting}
         enableDamping={false}
       />
