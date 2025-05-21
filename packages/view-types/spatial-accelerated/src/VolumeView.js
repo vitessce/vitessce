@@ -16,6 +16,9 @@ import { WebGLMultipleRenderTargets } from 'three';
 import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
+import gaussianVertexShader from '../shaders/GaussianVertexShader.glsl?raw';
+import gaussianFragmentShader from '../shaders/GaussianFragmentShader.glsl?raw';
+
 function log(msg) {
   /* console.warn(`V ${msg}`); */
 }
@@ -127,10 +130,15 @@ export function VolumeView(props) {
     const screenCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
     screenCamera.position.z = 1;
 
-    const screenMaterial = new THREE.MeshBasicMaterial({
-      map: mrt.texture[0],
+    const screenMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { value: mrt.texture[0] },
+        resolution: { value: new THREE.Vector2(width, height) },
+        gaussian: { value: 3 },
+      },
+      vertexShader: gaussianVertexShader,
+      fragmentShader: gaussianFragmentShader,
       transparent: true,
-      // color: 0x00ff00,
     });
     const screenQuad = new THREE.Mesh(
       new THREE.PlaneGeometry(2, 2),
@@ -184,9 +192,6 @@ export function VolumeView(props) {
         ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
         ctx.readPixels(0, 0, processingRT.width, processingRT.height,
           ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
-
-        // const firstBytes = bufU32.current.slice(0, 16); // first 4 pixels (4 bytes each)
-        // console.log('Attachment 1 sample:', firstBytes);
 
         managers?.dataManager.processRequestData(bufRequest.current);
       }

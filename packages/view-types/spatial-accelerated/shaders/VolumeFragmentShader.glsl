@@ -125,6 +125,8 @@ const int highestResC0 = 1;
 const int lowestResC0 = 5;
 const float lodFactor = 5.0;
 
+const int renderResC0 = 5;
+
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
 const uvec3 baseExtents = uvec3(32, 32, 28);
@@ -296,6 +298,11 @@ void main(void) {
     }
     t_hit.x = max(t_hit.x, 0.0);
 
+    float t = t_hit.x;
+
+    int current_LOD = getLOD(t, highestResC0, lowestResC0, lodFactor);
+    int targetResC0 = current_LOD;
+
     //STEP 3: Compute the step size to march through the volume grid
     ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     volumeTexSize = ivec3(voxelExtents);
@@ -314,7 +321,8 @@ void main(void) {
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
     vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(os_rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    dt *= pow(2.0, float(targetResC0));
+    float dt_base = dt;
+    dt *= pow(2.0, float(renderResC0));
 
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
@@ -332,14 +340,10 @@ void main(void) {
 
     float alphaMultiplicator = 1.0;
     vec3 localPos = vec3(0.0);
-    float t = t_hit.x;
 
     // t is in world space now
 
     vec3 p_stretched = p * voxelStretchInv;
-
-    int current_LOD = getLOD(t, highestResC0, lowestResC0, lodFactor);
-    int targetResC0 = current_LOD;
 
     while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0) {
 
@@ -348,6 +352,8 @@ void main(void) {
 
         // p goes from 0 to 1
         targetResC0 = getLOD(t, highestResC0, lowestResC0, lodFactor);
+
+        // dt = dt_base * pow(2.0, float(targetResC0));
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
@@ -409,6 +415,8 @@ void main(void) {
         
             float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
             localPos = fract(p_stretched * scale);
+
+            // dt = dt_base * pow(2.0, float(brickCacheOffset.w));
 
             vec3 brickCacheCoord = vec3(
                 (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
