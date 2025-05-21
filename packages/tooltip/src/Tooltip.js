@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Paper, Popper } from '@vitessce/styles';
+import { Paper, PopperV4 } from '@vitessce/styles';
 import { useVitessceContainer } from '@vitessce/vit-s';
 import { useStyles } from './styles.js';
 
@@ -36,20 +36,17 @@ export default function Tooltip(props) {
       className={classes.tooltipAnchor}
     >
       {ref && ref.current ? (
-        <Popper
+        <PopperV4
           open
           anchorEl={ref.current}
-          disablePortal={false}
           container={getTooltipContainer}
           transition
           placement={`${placementY}-${placementX}`}
-          popperOptions={{ strategy: 'absolute', placement: `${placementY}-${placementX}` }}
-          //slotProps={{ root: { style: { position: 'absolute'} }}}
         >
           <Paper elevation={4} className={classes.tooltipContent}>
             {children}
           </Paper>
-        </Popper>
+        </PopperV4>
       ) : null}
     </div>
   );

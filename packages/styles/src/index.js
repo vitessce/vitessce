@@ -82,3 +82,6 @@ export {
 export {
   DataGrid,
 } from '@mui/x-data-grid';
+export {
+  Popper as PopperV4
+} from './Popper.js';

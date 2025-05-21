@@ -1260,6 +1260,9 @@ importers:
       '@mui/x-data-grid':
         specifier: ^8.3.1
         version: 8.3.1(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react@18.2.0))(@mui/material@7.1.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@7.1.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      popper.js:
+        specifier: ^1.16.1
+        version: 1.16.1
       tss-react:
         specifier: ^4.9.18
         version: 4.9.18(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@mui/material@7.1.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react@18.2.0))(@types/react@18.2.7)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.7)(react@18.2.0)
@@ -10771,6 +10774,10 @@ packages:
 
   polygon-clipping@0.15.3:
     resolution: {integrity: sha512-ho0Xx5DLkgxRx/+n4O74XyJ67DcyN3Tu9bGYKsnTukGAW6ssnuak6Mwcyb1wHy9MZc9xsUWqIoiazkZB5weECg==}
+
+  popper.js@1.16.1:
+    resolution: {integrity: sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==}
+    deprecated: You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1
 
   popper.js@1.16.1-lts:
     resolution: {integrity: sha512-Kjw8nKRl1m+VrSFCoVGPph93W/qrSO7ZkqPpTf7F4bk/sqcfWK019dWBUpE/fBOsOQY1dks/Bmcbfn1heM/IsA==}
@@ -26049,6 +26056,8 @@ snapshots:
   polygon-clipping@0.15.3:
     dependencies:
       splaytree: 3.1.1
+
+  popper.js@1.16.1: {}
 
   popper.js@1.16.1-lts: {}
 
