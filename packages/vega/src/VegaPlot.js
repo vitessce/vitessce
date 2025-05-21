@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { getInterpolateFunction } from '@vitessce/legend';
 import ReactVega from './ReactVega.js';
 import { DATASET_NAME } from './utils.js';
-import { globalVegaTooltipStyle } from './styles.js';
+import { GlobalVegaTooltipStyle } from './styles.js';
 
 // Register additional colormaps using vega.scheme().
 // Reference: https://vega.github.io/vega/docs/schemes/
@@ -64,9 +64,9 @@ export function VegaPlot(props) {
         offsetY: 10,
         // Use table element to match packages/tooltip/TooltipContent implementation.
         formatTooltip: tooltipText => `
-          <div class="${clsx(globalVegaTooltipStyle)}">
+          <GlobalVegaTooltipStyle>
             ${renderTooltipContents(tooltipText)}
-          </div>
+          </GlobalVegaTooltipStyle>
         `,
       };
 

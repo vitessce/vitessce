@@ -1,10 +1,10 @@
 import { css, Global } from '@emotion/react';
 
-export const vitessceContainer = css(({ theme }) => ({
+export const vitessceContainer = css({
   position: 'relative',
   margin: '0',
   textAlign: 'left',
-  backgroundColor: theme.palette.gridLayoutBackground,
+  //backgroundColor: theme.palette.gridLayoutBackground,
   '& div': {
     fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"',
     fontSize: '16px',
@@ -19,10 +19,9 @@ export const vitessceContainer = css(({ theme }) => ({
   '& *, ::after, ::before': {
     boxSizing: 'border-box',
   },
+});
 
-}));
-
-const globalVitessceStyles = css(() => ({
+const globalVitessceStyles = css({
   // Manually converted styles from 'react-grid-layout/css/styles.css',
   // using https://cssinjs.org/jss-plugin-global/?v=v10.9.2
   // so that no CSS or SCSS import is required.
@@ -211,7 +210,7 @@ const globalVitessceStyles = css(() => ({
       Not part of mixin because acts outside of .vitessce-container. */
     userSelect: 'none !important',
   },
-}));
+});
 
 const GlobalVitessceStyles = () => <Global styles={globalVitessceStyles} />;
 

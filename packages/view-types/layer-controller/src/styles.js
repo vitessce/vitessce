@@ -76,14 +76,14 @@ export const useOverflowEllipsisGridStyles = () => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-  });
+  }),
 });
   
 export const useSelectionSliderStyles = () => ({
   selectionSliderRoot:  css({
     marginTop: '7px',
-  });
+  }),
   markActive : css({
     backgroundColor: 'rgba(128, 128, 128, 0.7)',
-  });
+  }),
 });

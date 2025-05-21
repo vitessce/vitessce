@@ -9,7 +9,7 @@ export const useTooltipStyles = () => {
       height: '0px',
       pointerEvents: 'none',
       userSelect: 'none',
-    });
+    }),
     tooltipContent: css({
       opacity: 0.9,
       padding: '5px',
@@ -33,6 +33,6 @@ export const useTooltipStyles = () => {
         borderCollapse: 'collapse',
         marginBottom: '0px',
       },
-    });
+    }),
   };
 };

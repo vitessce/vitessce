@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Paper, Popper } from '@mui/material';
 import { useVitessceContainer } from '@vitessce/vit-s';
-import { tooltipAnchor, tooltipContent } from './styles.js';
+import { useTooltipStyles } from './styles.js';
 
 export default function Tooltip(props) {
   const {
@@ -16,6 +16,7 @@ export default function Tooltip(props) {
   const [placementY, setPlacementY] = useState('bottom');
 
   const getTooltipContainer = useVitessceContainer(ref);
+  const { tooltipAnchor, tooltipContent } = useTooltipStyles();
 
   // Do collision detection based on the bounds of the tooltip ancestor element.
   useEffect(() => {
