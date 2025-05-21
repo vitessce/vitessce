@@ -95,8 +95,8 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelSize,
   } = props;
   const [open, setOpen] = useState(false);
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const is3dMode = spatialRenderingMode === '3D';
   const isMultiResolution = image?.isMultiResolution();
@@ -375,8 +375,8 @@ export default function ImageLayerController(props) {
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const { classes } = useStyles();
-  const menuClasses = useEllipsisMenuStyles();
-  const controllerSectionClasses = useControllerSectionStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
+  const { classes: controllerSectionClasses } = useControllerSectionStyles();
   const isMultiChannel = photometricInterpretation !== 'RGB';
   return (
     <Grid item className={controllerSectionClasses.layerControllerGrid}>

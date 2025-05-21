@@ -32,8 +32,8 @@ export default function ChannelOptions(props) {
   const [open, setOpen] = useState(false);
 
   const { classes } = useStyles();
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   function handleRemove() {
     setOpen(false);

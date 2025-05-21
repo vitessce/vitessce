@@ -55,8 +55,8 @@ function PointLayerEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const quantitativeColormapId = useId();
   const colormapRangeId = useId();
@@ -191,8 +191,8 @@ export default function PointLayerController(props) {
   const isColormap = obsColorEncoding === 'geneSelection';
 
   const { classes } = useStyles();
-  const lcClasses = useControllerSectionStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: lcClasses } = useControllerSectionStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const handleVisibleChange = useCallback(() => {
     const nextVisible = typeof visible === 'boolean' ? !visible : false;

@@ -60,8 +60,8 @@ function SpotLayerEllipsisMenu(props) {
   } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const filledId = useId();
   const strokeWidthId = useId();
@@ -234,8 +234,8 @@ export default function SpotLayerController(props) {
   const isColormap = obsColorEncoding === 'geneSelection';
 
   const { classes } = useStyles();
-  const lcClasses = useControllerSectionStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: lcClasses } = useControllerSectionStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const handleVisibleChange = useCallback(() => {
     const nextVisible = typeof visible === 'boolean' ? !visible : false;

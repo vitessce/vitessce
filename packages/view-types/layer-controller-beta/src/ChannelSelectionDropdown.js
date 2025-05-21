@@ -28,7 +28,7 @@ export default function ChannelSelectionDropdown(props) {
     disabled,
   } = props;
   const { classes } = useStyles();
-  const selectClasses = useSelectStyles();
+  const { classes: selectClasses } = useSelectStyles();
 
   function handleChange(event) {
     setTargetC(event.target.value === '' ? null : Number(event.target.value));

@@ -58,7 +58,7 @@ export function VegaPlot(props) {
   } = props;
 
   // eslint-disable-next-line no-unused-vars
-  const tooltipClasses = useTooltipStyles();
+  const { classes: tooltipClasses } = useTooltipStyles();
 
   const tooltipHandler = useMemo(() => {
     if (typeof getTooltipText === 'function') {

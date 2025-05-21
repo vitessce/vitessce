@@ -48,7 +48,7 @@ export default function GlobalDimensionSlider(props) {
     setSpatialRenderingMode = null,
   } = props;
 
-  const lcClasses = useControllerSectionStyles();
+  const { classes: lcClasses } = useControllerSectionStyles();
   const { classes } = useStyles();
   const isForZ = spatialRenderingMode !== null;
 

@@ -65,7 +65,7 @@ export default function VitessceGrid(props) {
   const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const { classes } = useVitessceContainerStyles();
-  const titleClasses = useTitleStyles();
+  const { classes: titleClasses } = useTitleStyles();
 
   const altText = useMemo(() => getAltText(config), [configKey]);
 

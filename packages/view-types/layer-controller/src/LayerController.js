@@ -398,10 +398,10 @@ export default function LayerController(props) {
     );
   }
 
-  const controllerSectionClasses = useControllerSectionStyles();
-  const accordionClasses = useAccordionStyles();
-  const inputLabelClasses = useInputLabelStyles();
-  const overflowEllipsisGridClasses = useOverflowEllipsisGridStyles();
+  const { classes: controllerSectionClasses } = useControllerSectionStyles();
+  const { classes: accordionClasses } = useAccordionStyles();
+  const { classes: inputLabelClasses } = useInputLabelStyles();
+  const { classes: overflowEllipsisGridClasses } = useOverflowEllipsisGridStyles();
 
   const { visible } = layer;
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
