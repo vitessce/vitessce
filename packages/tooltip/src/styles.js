@@ -1,6 +1,6 @@
 import { makeStyles } from '@vitessce/styles';
 
-export const styles = makeStyles()(theme => ({
+export const useStyles = makeStyles()(theme => ({
   tooltipAnchor: {
     position: 'relative',
     width: '0px',
