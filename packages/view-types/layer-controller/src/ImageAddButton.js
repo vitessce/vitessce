@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem } from '@vitessce/styles';
+import { Add as AddIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 
 const useStyles = makeStyles(() => ({

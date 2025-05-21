@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid } from '@vitessce/styles';
 import { capitalize } from '@vitessce/utils';
 import { useFilteredVolcanoData } from './utils.js';
 

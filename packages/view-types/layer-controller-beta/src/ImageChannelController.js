@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Grid,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { useQuery } from '@tanstack/react-query';
 import {
   getMultiSelectionStats,

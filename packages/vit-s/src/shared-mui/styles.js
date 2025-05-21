@@ -1,4 +1,4 @@
-import { createTheme, colors } from '@material-ui/core';
+import { createTheme, colors } from '@vitessce/styles';
 
 const { grey } = colors;
 

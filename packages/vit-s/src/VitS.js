@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } fro
 import {
   ThemeProvider,
   StylesProvider,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import {
   QueryClient,
   QueryClientProvider,

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Checkbox,
   makeStyles,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { isEqual } from 'lodash-es';
 import { toRgbUIString } from '@vitessce/spatial-utils';
 

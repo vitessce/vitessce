@@ -12,7 +12,7 @@ import {
   Select,
   Checkbox,
   MenuItem,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
@@ -21,7 +21,7 @@ import {
   ExpandMore,
   ExpandLess,
   MoreVert as MoreVertIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
 import {
   useAddImageChannelInMetaCoordinationScopes,

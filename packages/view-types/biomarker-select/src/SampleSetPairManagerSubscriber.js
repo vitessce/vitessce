@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { isEqual } from 'lodash-es';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import {
   TitleInfo,
   useReady,

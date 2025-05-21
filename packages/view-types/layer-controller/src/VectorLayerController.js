@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Grid, Checkbox, Paper, Typography, Slider } from '@material-ui/core';
+import { Grid, Checkbox, Paper, Typography, Slider } from '@vitessce/styles';
 import { useControllerSectionStyles } from './styles.js';
 
 export default function VectorLayerController(props) {

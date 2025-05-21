@@ -2,7 +2,7 @@ import React from 'react';
 import {
   makeStyles,
   Select,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
 

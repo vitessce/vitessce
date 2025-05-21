@@ -7,7 +7,7 @@ import {
   MenuList,
   ClickAwayListener,
   Fade,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks.js';
 

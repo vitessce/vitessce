@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography } from '@vitessce/styles';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
 const useStyles = makeStyles(() => ({

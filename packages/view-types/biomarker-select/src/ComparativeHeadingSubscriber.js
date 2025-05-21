@@ -3,7 +3,7 @@ import {
   useCoordination,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {

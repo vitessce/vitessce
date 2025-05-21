@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
+import { makeStyles, MenuItem, IconButton, Link } from '@vitessce/styles';
 import {
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
@@ -8,7 +8,7 @@ import {
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';

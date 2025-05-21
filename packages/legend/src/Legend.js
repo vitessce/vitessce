@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';

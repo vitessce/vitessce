@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/scatterplot",
+  "name": "@vitessce/styles",
   "version": "3.5.12",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
@@ -26,26 +26,16 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/styles": "workspace:*",
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
-    "@vitessce/icons": "workspace:*",
-    "@vitessce/tooltip": "workspace:*",
-    "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
-    "clsx": "catalog:",
-    "d3-force": "catalog:",
-    "d3-quadtree": "catalog:",
-    "lodash-es": "catalog:",
-    "react-aria": "catalog:"
+    "@material-ui/core": "catalog:",
+    "@material-ui/icons": "catalog:",
+    "@material-ui/lab": "catalog:",
+    "@mui/x-data-grid": "catalog:"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/react": "catalog:",
     "react": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select } from '@material-ui/core';
+import { Select } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 export default function OptionSelect(props) {

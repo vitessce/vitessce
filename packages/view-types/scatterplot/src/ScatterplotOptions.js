@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useId } from 'react-aria';
 import { debounce } from 'lodash-es';
-import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, Slider, TableCell, TableRow } from '@vitessce/styles';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, CellColorEncodingOption, OptionsContainer, OptionSelect,

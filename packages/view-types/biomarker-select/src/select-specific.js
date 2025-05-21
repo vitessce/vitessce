@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { Grid, FormHelperText, Typography, Select, FormControl } from '@material-ui/core';
-import { DataGrid } from '@mui/x-data-grid';
+import { Grid, FormHelperText, Typography, Select, FormControl } from '@vitessce/styles';
+import { DataGrid } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 

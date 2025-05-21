@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { Grid, Button, TextField, Typography } from '@material-ui/core';
-import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { Grid, Button, TextField, Typography } from '@vitessce/styles';
+import { Add as AddIcon, Info as InfoIcon } from '@vitessce/styles';
+import { Autocomplete } from '@vitessce/styles';
 import { VariableSizeList } from 'react-window';
 import { useStyles } from './styles.js';
 

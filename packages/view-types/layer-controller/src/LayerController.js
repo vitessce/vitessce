@@ -12,13 +12,13 @@ import {
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
   Accordion, AccordionDetails, AccordionSummary,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import {
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';

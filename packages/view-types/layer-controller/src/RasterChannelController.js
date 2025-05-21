@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import { Grid, Slider } from '@material-ui/core';
+import { Grid, Slider } from '@vitessce/styles';
 import { debounce, isEqual } from 'lodash-es';
 
 import {

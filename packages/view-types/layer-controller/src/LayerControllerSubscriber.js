@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@vitessce/styles';
 import {
   TitleInfo,
   useReady,

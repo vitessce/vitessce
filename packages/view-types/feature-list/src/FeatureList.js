@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';

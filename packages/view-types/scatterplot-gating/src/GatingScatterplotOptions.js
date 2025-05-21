@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField } from '@material-ui/core';
+import { TableCell, TableRow, TextField } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 import { capitalize, pluralize as plur } from '@vitessce/utils';
 

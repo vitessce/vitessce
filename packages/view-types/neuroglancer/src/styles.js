@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
 // Reference: https://github.com/vitessce/vitessce/blob/tkakar/cat-1107-create-neuroglancer-view/sites/demo/neuro-styles.css
 

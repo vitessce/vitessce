@@ -10,7 +10,7 @@ import {
   Select,
   InputLabel,
   Slider,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';

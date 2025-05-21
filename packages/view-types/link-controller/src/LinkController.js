@@ -7,7 +7,7 @@ import {
 import {
   Checkbox,
   Grid,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 
 import { log } from '@vitessce/globals';
 

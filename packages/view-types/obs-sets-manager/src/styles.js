@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
 const nodeHeight = 32;
 

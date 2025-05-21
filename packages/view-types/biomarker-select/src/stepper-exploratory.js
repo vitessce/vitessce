@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@material-ui/core';
+import { Stepper, Step, StepLabel, Button, Grid, Box, Typography } from '@vitessce/styles';
 import { ConfirmatoryCart } from './cart.js';
 import { SelectStratification } from './select-stratification.js';
 import { useStyles } from './styles.js';
