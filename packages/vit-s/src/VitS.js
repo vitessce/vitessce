@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
 import {
   ThemeProvider,
+  StyledEngineProvider,
   CacheProvider,
   createCache
 } from '@vitessce/styles';
@@ -259,56 +260,62 @@ export function VitS(props) {
   if (debugMode && debugErrors.length > 0) {
     return (
       <CacheProvider value={muiCache}>
-        <ThemeProvider theme={muiTheme[theme]}>
-          <DebugWindow debugErrors={debugErrors} />
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={muiTheme[theme]}>
+            <DebugWindow debugErrors={debugErrors} />
+          </ThemeProvider>
+        </StyledEngineProvider>
       </CacheProvider>
     );
   }
   return success ? (
     <CacheProvider value={muiCache}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <QueryClientProvider client={queryClient}>
-          <ViewConfigProvider
-            createStore={createViewConfigStoreClosure}
-            {...(remountOnUidChange ? ({ key: configKey }) : {})}
-          >
-            <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={stores}
-                >
-                  {children}
-                </VitessceGrid>
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
-              </AsyncFunctionsContext.Provider>
-            </AuxiliaryProvider>
-          </ViewConfigProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muiTheme[theme]}>
+          <QueryClientProvider client={queryClient}>
+            <ViewConfigProvider
+              createStore={createViewConfigStoreClosure}
+              {...(remountOnUidChange ? ({ key: configKey }) : {})}
+            >
+              <AuxiliaryProvider createStore={createAuxiliaryStore}>
+                <AsyncFunctionsContext.Provider value={asyncFunctions}>
+                  <VitessceGrid
+                    pageMode={pageMode}
+                    success={success}
+                    configKey={configKey}
+                    viewTypes={viewTypes}
+                    fileTypes={fileTypes}
+                    coordinationTypes={coordinationTypes}
+                    config={configOrWarning}
+                    rowHeight={rowHeight}
+                    height={height}
+                    theme={theme}
+                    isBounded={isBounded}
+                    stores={stores}
+                  >
+                    {children}
+                  </VitessceGrid>
+                  <CallbackPublisher
+                    onWarn={onWarn}
+                    onConfigChange={onConfigChange}
+                    onLoaderChange={onLoaderChange}
+                    validateOnConfigChange={validateOnConfigChange}
+                    pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                  />
+                </AsyncFunctionsContext.Provider>
+              </AuxiliaryProvider>
+            </ViewConfigProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </CacheProvider>
   ) : (
     <CacheProvider value={muiCache}>
-      <ThemeProvider theme={muiTheme[theme]}>
-        <Warning {...configOrWarning} />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muiTheme[theme]}>
+          <Warning {...configOrWarning} />
+        </ThemeProvider>
+      </StyledEngineProvider>
     </CacheProvider>
   );
 }

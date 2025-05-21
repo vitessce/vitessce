@@ -479,9 +479,11 @@ export default function LayerController(props) {
       id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
+        slotProps={{
+          root: { className: accordionClasses.accordionSummaryRoot },
+          content: { className: accordionClasses.content },
+        }}
         classes={{
-          root: accordionClasses.accordionSummaryRoot,
-          content: accordionClasses.content,
           expanded: accordionClasses.expanded,
           expandIcon: accordionClasses.expandIcon,
         }}

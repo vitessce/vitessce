@@ -50,15 +50,17 @@ const sharedThemeOptions = {
       fontSize: '12px',
     },
   },
-  props: {
+  components: {
     MuiButtonBase: {
-      disableRipple: true,
+      defaultProps: {
+        disableRipple: true,
+      },
     },
   },
 };
 
 const lightPalette = {
-  type: 'light',
+  mode: 'light',
   primary: grey,
   secondary: grey,
   primaryBackground: '#F1F1F1',
@@ -83,7 +85,7 @@ const lightPalette = {
 export const muiTheme = {
   dark: createTheme({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: grey,
       secondary: grey,
       primaryBackground: '#222222',

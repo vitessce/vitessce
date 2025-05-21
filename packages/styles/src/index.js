@@ -12,6 +12,7 @@ export {
   createTheme,
   colors,
   ThemeProvider,
+  StyledEngineProvider,
   // Components
   Slider,
   Typography,
