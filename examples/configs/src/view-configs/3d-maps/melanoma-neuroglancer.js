@@ -118,7 +118,7 @@ function generateNeuroglancerMinimalConfiguration() {
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
   // Sync the zoom/rotation/pan states
-  config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
+  config.linkViewsByObject([spatialThreeView, lcView], {
     spatialTargetT: 0,
     spatialTargetX: 0,
     spatialTargetY: 0,

@@ -184,23 +184,23 @@ export function NeuroglancerSubscriber(props) {
       : layer)),
   }), [cellColorMapping, initialViewerState]);
 
-  const derivedViewerState2 = useMemo(() => {
-    if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
-      const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
-      const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
-      const projectionOrientation = normalizeQuaternion(
-        eulerToQuaternion(spatialRotationX, spatialRotationY),
-      );
-      return {
-        ...derivedViewerState,
-        projectionScale,
-        position,
-        projectionOrientation,
-      };
-    }
-    return derivedViewerState;
-  }, [derivedViewerState, spatialZoom, spatialTargetX,
-    spatialTargetY, spatialRotationX, spatialRotationY]);
+  // const derivedViewerState2 = useMemo(() => {
+  //   if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
+  //     const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
+  //     const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
+  //     const projectionOrientation = normalizeQuaternion(
+  //       eulerToQuaternion(spatialRotationX, spatialRotationY),
+  //     );
+  //     return {
+  //       ...derivedViewerState,
+  //       projectionScale,
+  //       position,
+  //       projectionOrientation,
+  //     };
+  //   }
+  //   return derivedViewerState;
+  // }, [derivedViewerState, spatialZoom, spatialTargetX,
+  //   spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
@@ -222,7 +222,7 @@ export function NeuroglancerSubscriber(props) {
         classes={classes}
         onSegmentClick={onSegmentClick}
         onSelectHoveredCoords={onSegmentHighlight}
-        viewerState={derivedViewerState2}
+        viewerState={derivedViewerState}
         setViewerState={handleStateUpdate}
       />
     </TitleInfo>
