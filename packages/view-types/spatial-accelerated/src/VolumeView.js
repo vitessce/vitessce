@@ -20,15 +20,15 @@ import gaussianVertexShader from '../shaders/GaussianVertexShader.glsl?raw';
 import gaussianFragmentShader from '../shaders/GaussianFragmentShader.glsl?raw';
 
 function log(msg) {
-  /* console.warn(`V ${msg}`); */
+  console.warn(`V ${msg}`);
 }
 
-// New CameraInteraction component (could be added in the same file or a separate file)
 function CameraInteraction({ onChange, ...props }) {
   const controlsRef = useRef();
   const timeoutRef = useRef(null);
 
   useEffect(() => {
+    log('CameraInteraction useEffect');
     const controls = controlsRef.current;
     if (!controls) return;
 
@@ -54,7 +54,7 @@ function CameraInteraction({ onChange, ...props }) {
     const { domElement } = controls;
     domElement.addEventListener('wheel', handleWheel, { passive: true });
 
-    return () => {
+    return function cleanup() {
       controls.removeEventListener('start', handleStart);
       controls.removeEventListener('end', handleEnd);
       domElement.removeEventListener('wheel', handleWheel);

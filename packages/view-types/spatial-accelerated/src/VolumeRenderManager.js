@@ -1,14 +1,6 @@
 import {
   Vector2,
   UniformsUtils,
-  Data3DTexture,
-  RedFormat,
-  FloatType,
-  LinearFilter,
-  WebGLRenderTarget,
-  Scene,
-  Camera,
-  WebGLMultipleRenderTargets,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { VolumeShader } from './VolumeShader.js';
@@ -216,32 +208,12 @@ export class VolumeRenderManager {
   }
 
   /**
-   * Create a 3D texture from volume data
-   * @param {Volume} volume - Volume object
-   * @returns {Data3DTexture} Three.js 3D texture
-   */
-  createVolumeTexture(volume) {
-    log('Creating volume texture');
-    const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
-    texture.format = RedFormat;
-    texture.type = FloatType;
-    texture.generateMipmaps = false;
-    texture.minFilter = LinearFilter;
-    texture.magFilter = LinearFilter;
-    texture.needsUpdate = true;
-    return texture;
-  }
-
-  /**
    * Normalize a value based on the volume's min/max range
    * @param {number} value - Value to normalize
    * @param {Array} minMax - [min, max] values of the volume
    * @returns {number} Normalized value
    */
   normalizeValue(value, minMax) {
-    // log('Normalizing value');
-    // const [min, max] = minMax;
-    // return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
     return value / 255.0;
   }
 
@@ -252,7 +224,7 @@ export class VolumeRenderManager {
    */
   updateRendering(volumeDataManager) {
     log('Updating rendering');
-    
+
     // Check if we have at least one visible channel
     const visibleChannelIndex = this.channelTargetC.findIndex(
       (channel, idx) => this.channelsVisible[idx],
@@ -263,7 +235,7 @@ export class VolumeRenderManager {
     }
 
     // Instead of getting dimensions from a volume, get from zarrStore
-    if (!volumeDataManager.zarrStore || !volumeDataManager.zarrStore.shapes 
+    if (!volumeDataManager.zarrStore || !volumeDataManager.zarrStore.shapes
         || volumeDataManager.zarrStore.shapes.length === 0) {
       return null;
     }
@@ -274,8 +246,8 @@ export class VolumeRenderManager {
     // Shape format is typically [t, c, z, y, x]
     const dimensions = {
       xLength: shape[4] || 1,
-      yLength: shape[3] || 1, 
-      zLength: shape[2] || 1
+      yLength: shape[3] || 1,
+      zLength: shape[2] || 1,
     };
 
     // Collect settings for active channels
@@ -285,10 +257,10 @@ export class VolumeRenderManager {
 
     this.channelTargetC.forEach((channel, id) => {
       if (this.channelsVisible[id]) {
-        // Since we don't have volume-based minMax, use fixed values 
+        // Since we don't have volume-based minMax, use fixed values
         // or get them from your brick cache metadata if available
         const minMax = [0, 255]; // Default values
-        
+
         colorsSave.push([
           this.colors[id][0] / 255,
           this.colors[id][1] / 255,
@@ -315,13 +287,6 @@ export class VolumeRenderManager {
       this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
       this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
       const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
-      
-      scaledResolution[0] *= 200.0;
-      scaledResolution[1] *= 200.0;
-      scaledResolution[2] *= 200.0;
-      scaledResolution[0] /= 200.0;
-      scaledResolution[1] /= 200.0;
-      scaledResolution[2] /= 200.0;
 
       this.meshScale = this.originalScale;
       this.geometrySize = scaledResolution;
@@ -334,19 +299,13 @@ export class VolumeRenderManager {
       // Initialize textures without warnings
       volumeDataManager.ptTHREE.needsUpdate = false;
       volumeDataManager.bcTHREE.needsUpdate = false;
-      
+
       const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
       const texPropsPT = volumeDataManager.renderer.properties.get(volumeDataManager.ptTHREE);
-      
+
       // Initialize textures if needed
       volumeDataManager.renderer.initTexture(volumeDataManager.bcTHREE);
       volumeDataManager.renderer.initTexture(volumeDataManager.ptTHREE);
-
-      // If the texture handle exists, populate data
-      if (texPropsBC && texPropsBC.__webglTexture) {
-        // volumeDataManager.populatePT();
-        // volumeDataManager.populateBC();
-      }
     }
 
     // Update shader uniforms
@@ -398,7 +357,7 @@ export class VolumeRenderManager {
 
     // Set general rendering parameters
     this.uniforms.near.value = 0.1;
-    this.uniforms.far.value = 3000;
+    this.uniforms.far.value = 3000; // TODO: check this
     this.uniforms.alphaScale.value = 1.0;
     this.uniforms.opacity.value = layerTransparency;
     this.uniforms.finalGamma.value = 4.5;
@@ -487,39 +446,10 @@ export class VolumeRenderManager {
   }
 
   /**
-   * Update just the material uniforms without recreating the shader
-   * @param {Object} material - Three.js shader material
-   */
-  applyToMaterial(material) {
-    log('Applying uniforms to material');
-    if (!material || !material.uniforms || !this.uniforms) {
-      return;
-    }
-
-    // Copy uniform values to the material
-    const matUniforms = material.uniforms;
-
-    // Transfer all uniform values
-    Object.keys(this.uniforms).forEach((key) => {
-      if (matUniforms[key] && this.uniforms[key]) {
-        matUniforms[key].value = this.uniforms[key].value;
-      }
-    });
-  }
-
-  /**
    * Sets the processing render target
    * @param {WebGLMultipleRenderTargets} mrt - Multiple render targets object with 3 attachments
    */
   setProcessingTargets(mrt) {
     this.mrt = mrt;
-  }
-
-  /**
-   * Access to the current MRT
-   * @returns {WebGLMultipleRenderTargets|null} The current multiple render targets
-   */
-  getProcessingTargets() {
-    return this.mrt;
   }
 }
