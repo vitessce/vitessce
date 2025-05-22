@@ -67,6 +67,12 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+To get started creating a new view:
+
+```sh
+pnpm run create-view line-plot
+```
+
 Further details for internal developers can be found within [dev-docs](./dev-docs/).
 
 ### Changesets
@@ -123,7 +129,7 @@ The following commands can be helpful in case the local environment gets into a 
 Before running any of the deployment scripts, confirm that you have installed the AWS CLI and are in the appropriate AWS account:
 ```
 $ aws iam list-account-aliases --query 'AccountAliases[0]'
-"gehlenborglab"
+"hdv-vitessce"
 ```
 
 ### Staging

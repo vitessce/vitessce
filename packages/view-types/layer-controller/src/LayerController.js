@@ -4,7 +4,6 @@ import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS,
   getSourceFromLoader,
-  isRgb,
   getMultiSelectionStats,
   DOMAINS,
   canLoadResolution,
@@ -103,7 +102,7 @@ export default function LayerController(props) {
     disabled,
     spatialHeight,
     spatialWidth,
-    disableChannelsIfRgbDetected,
+    photometricInterpretation,
     shouldShowRemoveLayerButton,
   } = props;
 
@@ -432,9 +431,7 @@ export default function LayerController(props) {
           handleGlobalChannelsSelectionChange
         }
         handleTransparentColorChange={setTransparentColor}
-        disableChannelsIfRgbDetected={
-          isRgb(loader, channels) && disableChannelsIfRgbDetected
-        }
+        disableChannelsIfRgbDetected={photometricInterpretation === 'RGB'}
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
         shouldShowDomain={shouldShowDomain}
@@ -451,10 +448,10 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected
+      {photometricInterpretation === 'RGB'
         ? null
         : channelControllers}
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
+      {photometricInterpretation === 'RGB' ? null : (
         <Button
           disabled={channels.length === viv.MAX_CHANNELS}
           onClick={handleChannelAdd}
