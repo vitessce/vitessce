@@ -9,20 +9,6 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
   const [deviceLimits, setDeviceLimits] = useState(null);
   const volumeViewRef = useRef(null);
 
-  // Example of updating stats - in a real app, you might get this from
-  // a performance monitor or pass it up from the VolumeRenderer
-  /*
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRenderingStats({
-        fps: Math.round(Math.random() * 30) + 30, // Fake FPS data
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-  */
-
   // Handle initialization completion from VolumeView
   const handleInitComplete = (initData) => {
     if (initData.zarrStoreInfo) {
@@ -35,15 +21,6 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
 
   return (
     <>
-      {/*
-      <VolumeHUD
-        volumeInfo={{ dimensions: [0, 0, 0] }}
-        renderingMode="PLACEHOLDER"
-        renderingStats={renderingStats}
-        zarrStoreInfo={zarrStoreInfo}
-        deviceLimits={deviceLimits}
-      />
-      */}
       <Canvas
         frameloop="always"
         style={{

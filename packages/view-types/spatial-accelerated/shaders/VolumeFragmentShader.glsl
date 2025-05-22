@@ -122,9 +122,9 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
     );
 }
 
-const int highestResC0 = 1;
+const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 10.0;
+const float lodFactor = 5.0;
 
 const int renderResC0 = 5;
 
@@ -319,6 +319,7 @@ void main(void) {
     // NOT the physical pixel ratio
 
     // TODO lowest and higest res should be over all channels
+    int renderResAdaptive = renderRes;
     int renderResolutionEffective = clamp(renderRes, highestResC0, 5);
     // renderResolutionEffective = 0;
 
@@ -347,6 +348,7 @@ void main(void) {
     vec3 localPos = vec3(0.0);
 
     // t is in world space now
+    int currentLOD = targetResC0;
 
     vec3 p_stretched = p * voxelStretchInv;
 
@@ -357,6 +359,14 @@ void main(void) {
 
         // p goes from 0 to 1
         targetResC0 = getLOD(t, highestResC0, lowestResC0, lodFactor);
+
+        if (targetResC0 != currentLOD) {
+            currentLOD = targetResC0;
+            renderResAdaptive++;
+            renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
+            dt = dt_base * pow(2.0, float(renderResolutionEffective));
+            step = os_rayDir * dt;
+        }
 
         // dt = dt_base * pow(2.0, float(targetResC0));
 
@@ -415,6 +425,7 @@ void main(void) {
                 p_stretched = p * voxelStretchInv;
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
+            if (outColor.a > 0.99) { break; }
             continue;
         } else {
         
