@@ -358,9 +358,7 @@ export class VolumeRenderManager {
     // Set general rendering parameters
     this.uniforms.near.value = 0.1;
     this.uniforms.far.value = 3000; // TODO: check this
-    this.uniforms.alphaScale.value = 1.0;
     this.uniforms.opacity.value = layerTransparency;
-    this.uniforms.finalGamma.value = 4.5;
     this.uniforms.volumeCount.value = textures.length;
 
     // Set size and scale parameters using dimensions object
