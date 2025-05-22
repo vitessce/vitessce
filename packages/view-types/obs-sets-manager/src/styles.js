@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { makeStyles, useTheme, GlobalStyles } from '@vitessce/styles';
+import { makeStyles, useTheme, GlobalStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 const nodeHeight = 32;
 
@@ -166,10 +166,12 @@ export const useStyles = makeStyles()(theme => ({
   },
 }));
 
-export function SetsManagerTreeGlobalStyles() {
+export function SetsManagerTreeGlobalStyles(props) {
+  const { classes } = props;
   const { theme } = useTheme();
   return (
-    <GlobalStyles
+    <ScopedGlobalStyles
+      parentClassName={classes.setsManagerTree}
       styles={{
         '.rc-tree': {
           paddingLeft: '0',
@@ -196,8 +198,8 @@ export function SetsManagerTreeGlobalStyles() {
           color: '#333',
           userSelect: 'none',
           /* Required to make elements draggable in old WebKit */
-          '-khtml-user-drag': 'element',
-          '-webkit-user-drag': 'element',
+          KhtmlUserDrag: 'element',
+          WebkitUserDrag: 'element',
           border: '2px transparent solid',
         },
         '.rc-tree-treenode.drag-over > .draggable': {
@@ -494,7 +496,7 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
     boxShadow: 'none !important',
     margin: '0 auto',
     /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
+    '& > div:nth-of-type(3)': {
       padding: '6px !important',
       transform: 'translate(2px, 0)',
     },
@@ -514,9 +516,11 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
   },
 }));
 
-export function HelpTooltipGlobalStyles() {
+export function HelpTooltipGlobalStyles(props) {
+  const { classes } = props;
   return (
-    <GlobalStyles
+    <ScopedGlobalStyles
+      parentClassName={classes.helpTooltip}
       styles={{
         '.rc-tooltip-inner': {
           fontSize: '10px',
@@ -538,10 +542,12 @@ export function HelpTooltipGlobalStyles() {
   );
 }
 
-export function PopoverGlobalStyles() {
+export function PopoverGlobalStyles(props) {
+  const { classes } = props;
   const { theme } = useTheme();
   return (
-    <GlobalStyles
+    <ScopedGlobalStyles
+      parentClassName={classes.popover}
       styles={{
         '.rc-tooltip-inner': {
           boxSizing: 'border-box',

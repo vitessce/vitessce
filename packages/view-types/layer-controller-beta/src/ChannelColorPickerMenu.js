@@ -33,7 +33,7 @@ const useStyles = makeStyles()(() => ({
     boxShadow: 'none !important',
     margin: '0 auto',
     /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
+    '& > div:nth-of-type(3)': {
       padding: '6px !important',
       transform: 'translate(2px, 0)',
     },

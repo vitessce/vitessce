@@ -31,7 +31,7 @@ const useStyles = makeStyles()(theme => ({
         whiteSpace: 'nowrap',
         width: '50%',
       },
-      '& tr:nth-child(even)': {
+      '& tr:nth-of-type(even)': {
         // TODO(monorepo): lighten color by 5%
         backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
       },

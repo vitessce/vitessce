@@ -42,7 +42,7 @@ export function HiGlassSubscriber(props) {
         urls={urls}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
-          <HiglassGlobalStyles />
+          <HiglassGlobalStyles classes={classes} />
           <HiGlassLazy
             coordinationScopes={coordinationScopes}
             theme={theme}

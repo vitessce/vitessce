@@ -27,7 +27,7 @@ const useStyles = makeStyles()(theme => ({
     '&:hover': {
       backgroundColor: theme.palette.primaryBackgroundLight,
     },
-    '&:first-child': {
+    '&:first-of-type': {
       marginLeft: '0.25em',
     },
     '&:last-child': {

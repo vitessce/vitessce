@@ -116,7 +116,7 @@ export default function VitessceGrid(props) {
       role="group"
       aria-label={altText}
     >
-      <GridLayoutGlobalStyles />
+      <GridLayoutGlobalStyles classes={classes} />
       {layout ? (
         <VitessceGridLayout
           pageMode={pageMode}

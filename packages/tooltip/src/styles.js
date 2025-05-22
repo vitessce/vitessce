@@ -24,7 +24,7 @@ export const useStyles = makeStyles()(theme => ({
       color: theme.palette.tooltipText,
       backgroundColor: theme.palette.gridLayoutBackground,
     },
-    '& table > tr:nth-child(2)': {
+    '& table > tr:nth-of-type(2)': {
       backgroundColor: 'inherit !important',
     },
     '& table': {

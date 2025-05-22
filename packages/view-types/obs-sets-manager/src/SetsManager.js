@@ -218,7 +218,7 @@ export default function SetsManager(props) {
 
   return (
     <div className={classes.setsManager}>
-      <SetsManagerTreeGlobalStyles />
+      <SetsManagerTreeGlobalStyles classes={classes} />
       <div className={classes.setsManagerTree}>
         <Tree
           draggable={false}

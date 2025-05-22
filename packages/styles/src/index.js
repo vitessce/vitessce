@@ -85,3 +85,4 @@ export {
 export {
   Popper as PopperV4
 } from './Popper.js';
+export { ScopedGlobalStyles } from './ScopedGlobalStyles.js';

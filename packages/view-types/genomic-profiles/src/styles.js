@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
-import { makeStyles, GlobalStyles } from '@vitessce/styles';
+import React from 'react';
+import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 export const useStyles = makeStyles()(theme => ({
   higlassTitleWrapper: {
     height: 'calc(100% - 20px)',
-    '& > div:nth-child(2)': {
+    '& > div:nth-of-type(2)': {
       width: 'inherit',
       height: 'inherit',
       padding: '5px',
@@ -53,9 +54,13 @@ const higlassGlobalStyles = {
   },
 };
 
-export function HiglassGlobalStyles() {
+export function HiglassGlobalStyles(props) {
+  const { classes } = props;
   return (
-    <GlobalStyles styles={higlassGlobalStyles} />
+    <ScopedGlobalStyles
+      parentClassName={classes.higlassWrapper}
+      styles={higlassGlobalStyles}
+    />
   );
 }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import HelpTooltip from './HelpTooltip.js';
-import { PopoverGlobalStyles } from './styles.js';
 
 /**
  * This is a wrapper around the HelpTooltip component, to style it as a popover,
@@ -9,10 +8,7 @@ import { PopoverGlobalStyles } from './styles.js';
  */
 export default function Popover(props) {
   return (
-    <>
-      <PopoverGlobalStyles />
-      <HelpTooltip {...props} />
-    </>
+    <HelpTooltip {...props} />
   );
 }
 

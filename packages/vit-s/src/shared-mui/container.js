@@ -1,4 +1,4 @@
-import { makeStyles, GlobalStyles } from '@vitessce/styles';
+import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 export const useVitessceContainerStyles = makeStyles()(theme => ({
   vitessceContainer: {
@@ -214,8 +214,13 @@ const gridLayoutStyles = {
   },
 }
 
-export function GridLayoutGlobalStyles() {
+export function GridLayoutGlobalStyles(props) {
+  const { classes } = props;
+
   return (
-    <GlobalStyles styles={gridLayoutStyles} />
+    <ScopedGlobalStyles
+      parentClassName={classes.vitessceContainer}
+      styles={gridLayoutStyles}
+    />
   );
 }
