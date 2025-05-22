@@ -54,7 +54,8 @@ function CameraInteraction({ onChange, ...props }) {
     const { domElement } = controls;
     domElement.addEventListener('wheel', handleWheel, { passive: true });
 
-    return function cleanup() {
+    return () => {
+      log('CameraInteraction cleanup');
       controls.removeEventListener('start', handleStart);
       controls.removeEventListener('end', handleEnd);
       domElement.removeEventListener('wheel', handleWheel);

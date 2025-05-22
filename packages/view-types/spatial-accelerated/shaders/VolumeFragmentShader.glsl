@@ -202,7 +202,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
-            // TODO: request brick
             if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
                 gRequest = packBrickCoordToRGBA8(coordinate);
             }
@@ -256,6 +255,14 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
     // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
     return ivec4(0,0,0,-1);
+}
+
+void setBrickRequest(vec3 location, int targetRes, int channel) {
+    uvec3 anchorPoint = getAnchorPoint(targetRes);
+    float scale = pow(2.0, float(lowestRes) - float(targetRes)); // lowestRes should be 1 
+    uvec3 channelOffset = getChannelOffset(channel); // this is for the 0th channel now
+    uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
+    gRequest = packBrickCoordToRGBA8(coordinate);
 }
 
 ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
@@ -336,6 +343,7 @@ void main(void) {
     p += step * (randomOffset);
     p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
+    bool overWrittenRequest = false;
 
     // Initialization of some variables
     vec3 rgbCombo = vec3(0.0);
@@ -446,20 +454,26 @@ void main(void) {
 
             // color based on t
             vec3 colorVal = vec3(0.0);
-            if (targetResC0 == 0) {
+            if (brickCacheOffset.w == 0) {
                 colorVal = vec3(0.0, 1.0, 1.0);
-            } else if (targetResC0 == 1) {
+            } else if (brickCacheOffset.w == 1) {
                 colorVal = vec3(1.0, 0.0, 0.0);
-            } else if (targetResC0 == 2) {
+            } else if (brickCacheOffset.w == 2) {
                 colorVal = vec3(0.0, 1.0, 0.0);
-            } else if (targetResC0 == 3) {
+            } else if (brickCacheOffset.w == 3) {
                 colorVal = vec3(1.0, 0.0, 1.0);
-            } else if (targetResC0 == 4) {
+            } else if (brickCacheOffset.w == 4) {
                 colorVal = vec3(1.0, 1.0, 0.0);
-            } else if (targetResC0 == 5) {
+            } else if (brickCacheOffset.w == 5) {
                 colorVal = vec3(0.0, 0.0, 1.0);
             }
-            
+
+            if (!overWrittenRequest
+                && brickCacheOffset.w != targetResC0
+                && val > 0.0) {
+                setBrickRequest(p_stretched, targetResC0, 0);
+                overWrittenRequest = true;
+            }
 
             vec3 rgbComboAdd = max(0.0, min(1.0, val)) * colorVal;
 
@@ -518,8 +532,9 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
 
-    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0) {
+    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0 && overWrittenRequest) {
         // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
+        // gColor = vec4(1.0, 0.0, 1.0, 1.0);
     }
 
     // Also set outColor for compatibility
