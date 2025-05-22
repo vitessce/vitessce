@@ -1945,9 +1945,21 @@ importers:
       '@vitessce/neuroglancer-workers':
         specifier: workspace:*
         version: link:../../neuroglancer-workers
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
+      '@vitessce/tooltip':
+        specifier: workspace:*
+        version: link:../../tooltip
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
