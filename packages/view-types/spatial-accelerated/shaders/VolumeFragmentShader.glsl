@@ -453,11 +453,11 @@ void main(void) {
             } else if (targetResC0 == 2) {
                 colorVal = vec3(0.0, 1.0, 0.0);
             } else if (targetResC0 == 3) {
-                colorVal = vec3(0.0, 0.0, 1.0);
+                colorVal = vec3(1.0, 0.0, 1.0);
             } else if (targetResC0 == 4) {
                 colorVal = vec3(1.0, 1.0, 0.0);
             } else if (targetResC0 == 5) {
-                colorVal = vec3(1.0, 0.0, 1.0);
+                colorVal = vec3(0.0, 0.0, 1.0);
             }
             
 
