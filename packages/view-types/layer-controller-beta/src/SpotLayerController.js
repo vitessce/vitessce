@@ -12,7 +12,7 @@ import {
   Slider,
   MenuItem,
   Button,
-  Select,
+  NativeSelect,
 } from '@vitessce/styles';
 import {
   MoreVert as MoreVertIcon,
@@ -113,8 +113,7 @@ function SpotLayerEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
@@ -123,7 +122,7 @@ function SpotLayerEllipsisMenu(props) {
           <option value="spatialLayerColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>

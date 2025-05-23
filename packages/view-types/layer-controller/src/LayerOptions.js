@@ -2,7 +2,7 @@ import React from 'react';
 import { useId } from 'react-aria';
 import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
-import { Grid, Slider, InputLabel, Select, Checkbox } from '@vitessce/styles';
+import { Grid, Slider, InputLabel, NativeSelect, Checkbox } from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
 import {
   getBoundingCube,
@@ -124,8 +124,7 @@ function VolumeDropdown({
   const hasZStack = shape[labels.indexOf('z')] > 1;
   return (
     <>
-      <Select
-        native
+      <NativeSelect
         value={currResolution}
         onChange={e => handleChange(
           e.target.value === '2D' ? e.target.value : Number(e.target.value),
@@ -167,7 +166,7 @@ function VolumeDropdown({
             }
             return null;
           })}
-      </Select>
+      </NativeSelect>
     </>
   );
 }
@@ -182,8 +181,7 @@ function VolumeDropdown({
 function ColormapSelect({ value, inputId, handleChange }) {
   const { classes } = useSelectStyles();
   return (
-    <Select
-      native
+    <NativeSelect
       onChange={e => handleChange(e.target.value === '' ? null : e.target.value)}
       value={value}
       inputProps={{ name: 'colormap', id: inputId, 'aria-label': 'Colormap selector' }}
@@ -196,7 +194,7 @@ function ColormapSelect({ value, inputId, handleChange }) {
           {name}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   );
 }
 
@@ -252,8 +250,7 @@ function OpacitySlider({ value, inputId, handleChange }) {
 function SliderDomainSelector({ value, inputId, handleChange }) {
   const { classes } = useSelectStyles();
   return (
-    <Select
-      native
+    <NativeSelect
       onChange={e => handleChange(e.target.value)}
       value={value}
       id={inputId}
@@ -266,7 +263,7 @@ function SliderDomainSelector({ value, inputId, handleChange }) {
           {name}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   );
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   makeStyles,
-  Select,
+  NativeSelect,
 } from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
@@ -36,8 +36,7 @@ export default function ChannelSelectionDropdown(props) {
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
   return (Array.isArray(featureIndex) ? (
-    <Select
-      native
+    <NativeSelect
       classes={{ root: selectClasses.selectRoot }}
       className={classes.oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
@@ -49,6 +48,6 @@ export default function ChannelSelectionDropdown(props) {
           {channelName}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   ) : null);
 }

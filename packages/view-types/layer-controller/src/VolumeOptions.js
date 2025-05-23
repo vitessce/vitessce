@@ -6,7 +6,7 @@ import {
   Button,
   makeStyles,
   FormControl,
-  Select,
+  NativeSelect,
   InputLabel,
   Slider,
 } from '@vitessce/styles';
@@ -122,8 +122,7 @@ function RenderingModeSelect({
   return (
     <FormControl fullWidth>
       <InputLabel htmlFor="rendering-mode-select">Rendering Mode</InputLabel>
-      <Select
-        native
+      <NativeSelect
         onChange={e => handleRenderingModeChange(e.target.value)}
         value={use3d ? renderingMode : ''}
         inputProps={{
@@ -139,7 +138,7 @@ function RenderingModeSelect({
             {name}
           </option>
         ))}
-      </Select>
+      </NativeSelect>
     </FormControl>
   );
 }

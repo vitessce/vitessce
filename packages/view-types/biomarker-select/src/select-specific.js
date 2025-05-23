@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { Grid, FormHelperText, Typography, Select, FormControl } from '@vitessce/styles';
+import { Grid, FormHelperText, Typography, NativeSelect, FormControl } from '@vitessce/styles';
 import { DataGrid } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
@@ -81,8 +81,7 @@ export function SelectSpecific(props) {
       <Grid item container xs={6}>
         <Grid item>
           <FormControl fullWidth>
-            <Select
-              native
+            <NativeSelect
               defaultValue="gene"
               classes={{ select: classes.selectInput }}
               inputProps={{
@@ -91,7 +90,7 @@ export function SelectSpecific(props) {
               }}
             >
               <option value="gene">Gene (RNA-seq)</option>
-            </Select>
+            </NativeSelect>
             <FormHelperText>Feature type (experimental modality)</FormHelperText>
           </FormControl>
         </Grid>

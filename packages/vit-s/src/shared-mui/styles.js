@@ -1,6 +1,4 @@
-import { createTheme, colors } from '@vitessce/styles';
-
-const { grey } = colors;
+import { createTheme, grey } from '@vitessce/styles';
 
 const globalColors = {
   white: '#FFFFFF',

@@ -12,7 +12,7 @@ import {
   Slider,
   MenuItem,
   Button,
-  Select,
+  NativeSelect,
 } from '@vitessce/styles';
 import {
   MoreVert as MoreVertIcon,
@@ -117,7 +117,7 @@ function SegmentationChannelEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
         </label>
-        <Select
+        <NativeSelect
           native
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
@@ -127,7 +127,7 @@ function SegmentationChannelEllipsisMenu(props) {
           <option value="spatialChannelColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>

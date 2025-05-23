@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Checkbox, Select } from '@vitessce/styles';
+import { Checkbox, NativeSelect } from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
 /**
@@ -18,9 +18,8 @@ export function ChannelSelectionDropdown({
 }) {
   const { classes } = useSelectStyles();
   return (
-    <Select
+    <NativeSelect
       classes={{ root: classes.selectRoot }}
-      native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
       inputProps={{ 'aria-label': 'Select a channel' }}
@@ -30,7 +29,7 @@ export function ChannelSelectionDropdown({
           {opt}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   );
 }
 

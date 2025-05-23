@@ -9,7 +9,7 @@ import {
   Typography,
   Slider,
   Button,
-  Select,
+  NativeSelect,
   Checkbox,
   MenuItem,
 } from '@vitessce/styles';
@@ -148,8 +148,7 @@ function ImageLayerEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>
           Colormap:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleColormapChange}
           value={colormap === null ? '' : colormap}
@@ -162,14 +161,13 @@ function ImageLayerEllipsisMenu(props) {
               {name}
             </option>
           ))}
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={interpretationId}>
           Photometric Interpretation:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleInterpretationChange}
           value={photometricInterpretation}
           inputProps={{ id: interpretationId, 'aria-label': 'Photometric interpretation selector' }}
@@ -179,7 +177,7 @@ function ImageLayerEllipsisMenu(props) {
           {channelScopes.length > 0 ? (
             <option aria-label="BlackIsZero" value="BlackIsZero">BlackIsZero</option>
           ) : null}
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={transparentId}>
@@ -196,8 +194,7 @@ function ImageLayerEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={volumetricId}>
           Volumetric Rendering:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleVolumetricChange}
           value={volumetricRenderingAlgorithm}
           inputProps={{ id: volumetricId, 'aria-label': 'Volumetric rendering algorithm selector' }}
@@ -206,14 +203,13 @@ function ImageLayerEllipsisMenu(props) {
         >
           <option aria-label="Additive" value="additive">Additive</option>
           <option aria-label="Maximum Intensity Projection" value="maximumIntensityProjection">Maximum Intensity Projection</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={resolutionId}>
           Volume Resolution:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={!is3dMode || !isMultiResolution}
           onChange={handleResolutionChange}
           value={spatialTargetResolution === null ? 'auto' : spatialTargetResolution}
@@ -232,7 +228,7 @@ function ImageLayerEllipsisMenu(props) {
                 )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
               </option>
             ) : null)) : null}
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
@@ -261,8 +257,7 @@ function ImageLayerEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelsOrientationId}>
           Channel Labels Orientation:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleChannelLabelsOrientationChange}
           value={channelLabelsOrientation}
@@ -271,7 +266,7 @@ function ImageLayerEllipsisMenu(props) {
         >
           <option aria-label="Vertical" value="vertical">Vertical</option>
           <option aria-label="Horizontal" value="horizontal">Horizontal</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelSizeId}>

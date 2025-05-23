@@ -11,7 +11,7 @@ import {
   Slider,
   MenuItem,
   Button,
-  Select,
+  NativeSelect,
   Checkbox,
 } from '@vitessce/styles';
 import {
@@ -78,8 +78,7 @@ function PointLayerEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
@@ -87,7 +86,7 @@ function PointLayerEllipsisMenu(props) {
         >
           <option value="spatialLayerColor">Static Color</option>
           <option value="obsLabels">Label Value</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>

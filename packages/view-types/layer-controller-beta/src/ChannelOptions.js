@@ -2,7 +2,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, Select } from '@vitessce/styles';
+import { makeStyles, MenuItem, NativeSelect } from '@vitessce/styles';
 import { MoreVert as MoreVertIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
@@ -61,8 +61,7 @@ export default function ChannelOptions(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
           Slider Extent:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleDomainTypeChange}
           value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
           inputProps={{ id: domainTypeId, 'aria-label': 'Slider extent selector' }}
@@ -70,7 +69,7 @@ export default function ChannelOptions(props) {
         >
           <option value="Value Min/Max">Value Min/Max</option>
           <option value="Dtype Min/Max">Dtype Min/Max</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem
         dense
