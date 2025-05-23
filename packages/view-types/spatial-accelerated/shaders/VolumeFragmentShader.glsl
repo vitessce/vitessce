@@ -36,6 +36,24 @@ const uvec3 voxelExtents = uvec3(1024, 1024, 795);
 const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
 const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
+const int highestResC0 = 0;
+const int lowestResC0 = 5;
+const float lodFactor = 5.0;
+
+const int renderResC0 = 5;
+
+const int targetResC0 = 5; // highest
+const int lowestRes = 5;
+const uvec3 baseExtents = uvec3(32, 32, 28);
+const uvec3 fullResExtents = uvec3(32, 32, 25);
+
+const uvec3 anchorPoint0 = uvec3(0,0,28);
+const uvec3 anchorPoint1 = uvec3(16,16,15);
+const uvec3 anchorPoint2 = uvec3(8,8,8);
+const uvec3 anchorPoint3 = uvec3(4,4,4);
+const uvec3 anchorPoint4 = uvec3(2,2,2);
+const uvec3 anchorPoint5 = uvec3(1,1,1);
+
 vec2 intersect_hit(vec3 orig, vec3 dir) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
@@ -99,24 +117,6 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
         float(packed & 0xFFu) / 255.0
     );
 }
-
-const int highestResC0 = 0;
-const int lowestResC0 = 5;
-const float lodFactor = 5.0;
-
-const int renderResC0 = 5;
-
-const int targetResC0 = 5; // highest
-const int lowestRes = 5;
-const uvec3 baseExtents = uvec3(32, 32, 28);
-const uvec3 fullResExtents = uvec3(32, 32, 25);
-
-const uvec3 anchorPoint0 = uvec3(0,0,28);
-const uvec3 anchorPoint1 = uvec3(16,16,15);
-const uvec3 anchorPoint2 = uvec3(8,8,8);
-const uvec3 anchorPoint3 = uvec3(4,4,4);
-const uvec3 anchorPoint4 = uvec3(2,2,2);
-const uvec3 anchorPoint5 = uvec3(1,1,1);
 
 uvec3 getAnchorPoint(int index) {
     if (index == 0) return anchorPoint0;

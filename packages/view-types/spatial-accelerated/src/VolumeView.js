@@ -8,7 +8,7 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { WebGLMultipleRenderTargets } from 'three';
@@ -19,8 +19,13 @@ import { VolumeRenderManager } from './VolumeRenderManager.js';
 import gaussianVertexShader from '../shaders/GaussianVertexShader.glsl?raw';
 import gaussianFragmentShader from '../shaders/GaussianFragmentShader.glsl?raw';
 
+function framebufferFor(renderer, rt) {
+  const p = renderer.properties?.get(rt);
+  return p?.framebuffer || p?.__webglFramebuffer || rt.__webglFramebuffer;
+}
+
 function log(msg) {
-  console.warn(`V ${msg}`);
+  // console.warn(`V ${msg}`);
 }
 
 function CameraInteraction({ onChange, ...props }) {
@@ -68,14 +73,14 @@ function CameraInteraction({ onChange, ...props }) {
 
 export function VolumeView(props) {
   /* ---------- r3f handles ------------------------------------------------- */
-  const { gl, scene, camera } = useThree(); // grab once – never changes
+  const { gl, scene, camera } = useThree();
+  const invalidate = useThree(state => state.invalidate);
 
   /* ---------- refs / state ------------------------------------------------ */
   const orbitRef = useRef(null);
   const meshRef = useRef(null);
   const bufRequest = useRef(null);
   const bufUsage = useRef(null);
-  const frameRef = useRef(0);
   const [processingRT, setRT] = useState(null);
 
   const [managers, setManagers] = useState(null); // {dataManager, renderManager}
@@ -95,19 +100,17 @@ export function VolumeView(props) {
 
   const [isInteracting, setIsInteracting] = useState(false);
 
-  // Effect to update renderRes based on interaction state
-  useEffect(() => {
-    if (!meshRef.current?.material?.uniforms) return;
+  // new refs from step 2
+  const [renderSpeed, setRenderSpeed] = useState(5); // 0 (coarsest) – 5 (finest)
+  const stillRef = useRef(false); // skip geometry pass when true
+  const frameRef = useRef(0); // frame counter
+  const lastSampleRef = useRef(0);
+  const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
-    // Update renderRes uniform
-    meshRef.current.material.uniforms.renderRes.value = isInteracting ? 5 : 0;
-  }, [isInteracting]);
-
-  /* ---------- helpers ----------------------------------------------------- */
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
-  /* ---------- initialise managers ---------------------------------------- */
   useEffect(() => {
+    log('useEffect INIT');
     (async () => {
       const dm = new VolumeDataManager(
         'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
@@ -115,7 +118,7 @@ export function VolumeView(props) {
         gl,
       );
       const rm = new VolumeRenderManager();
-      await dm.init(); // device limits, zarr meta …
+      await dm.init(); // device limits, zarr meta
 
       setManagers({ dataManager: dm, renderManager: rm });
       if (props.onInitComplete) {
@@ -127,20 +130,26 @@ export function VolumeView(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once
 
-  useEffect(() => { gl.autoClear = false; }, [gl]);
+  useEffect(() => {
+    log('useEffect GL');
+    gl.autoClear = false;
+  }, [gl]);
 
-  /* ---------- react to prop changes -------------------------------------- */
   const extractSettings = useCallback(() => {
+    log('callback extractSettings');
     if (!managers) return null;
     const ok = managers.renderManager.updateFromProps(props);
     return ok ? managers.renderManager.extractRenderingSettingsFromProps(props) : null;
   }, [props, managers]);
 
   const loadIfNeeded = useCallback(async (settings) => {
+    log('callback loadIfNeeded');
     if (!settings || !managers) return;
 
     const resolutionChanged = settings.resolution !== lastRes;
     const channelsChanged = !sameArray(settings.channelTargetC, lastChannels);
+
+    stillRef.current = false;
 
     if (!resolutionChanged && !channelsChanged) {
       const s = managers.renderManager.updateRendering(managers.dataManager);
@@ -159,15 +168,16 @@ export function VolumeView(props) {
     setLoading(false);
   }, [managers, lastRes, lastChannels]);
 
-  /* update for 3D‑mode or prop changes */
   useEffect(() => {
+    log('useEffect 3D or prop changes');
     const on3D = props.spatialRenderingMode === '3D';
     setIs3D(on3D);
     if (on3D) loadIfNeeded(extractSettings());
   }, [props, extractSettings, loadIfNeeded]);
 
-  /* ---------- MRT target matching canvas --------------------------------- */
   useEffect(() => {
+    log('useEffect MRT target matching canvas');
+
     const { width, height } = gl.domElement;
     const mrt = new WebGLMultipleRenderTargets(width, height, 3);
     mrt.texture.forEach((tex) => {
@@ -200,7 +210,6 @@ export function VolumeView(props) {
 
     screenScene.add(screenQuad);
 
-    // Store refs
     screenSceneRef.current = screenScene;
     screenCameraRef.current = screenCamera;
     screenQuadRef.current = screenQuad;
@@ -216,64 +225,134 @@ export function VolumeView(props) {
     };
   }, [gl]);
 
-  useEffect(() => {
-    if (!processingRT) return;
-    const ctx = gl.getContext();
-
-    const loop = () => {
-      // 1. Render volume scene to MRT
-      gl.setRenderTarget(processingRT);
-
-      gl.clear(true, true, true);
-      gl.render(scene, camera);
-
-      // uncomment to test via spector js
-      // ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
-      // ctx.readBuffer(ctx.COLOR_ATTACHMENT0);
-      // ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
-      // ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
-
-      // 2. Read back attachments 1 & 2 on interval
-      const f = frameRef.current++;
-      if (managers?.dataManager.noNewRequests === true && f % 100 === 0) {
-        managers.dataManager.noNewRequests = false;
-      }
-      if (managers?.dataManager.triggerRequest === true
-        && managers?.dataManager.noNewRequests === false) {
-        // console.warn('triggerRequest', f);
-        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
-        ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
-        ctx.readPixels(0, 0, processingRT.width, processingRT.height,
-          ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
-
-        managers?.dataManager.processRequestData(bufRequest.current);
-      }
-      if (f % 1000 === 0) { // attachment 2 offset by 1s
-        ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(gl, processingRT));
-        ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
-        ctx.readPixels(0, 0, processingRT.width, processingRT.height,
-          ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
-
-        // managers?.dataManager.processUsageData(bufU16.current);
-      }
-
-      // 3. Render screen quad with attachment 0
-      gl.setRenderTarget(null);
-      gl.clear(true, true, true);
-      gl.render(screenSceneRef.current, screenCameraRef.current);
-    };
-
-    gl.setAnimationLoop(loop);
-  }, [gl, scene, camera, processingRT, managers]);
-
-  function framebufferFor(renderer, rt) {
-    const p = renderer.properties?.get(rt);
-    return p?.framebuffer || p?.__webglFramebuffer || rt.__webglFramebuffer;
+  function performGeometryPass(_gl, _camera, _scene) {
+    // log('performGeometryPass');
+    _gl.setRenderTarget(processingRT);
+    _gl.clear(true, true, true);
+    _gl.render(_scene, _camera);
   }
 
+  function performBlitPass(_gl) {
+    // log('performBlitPass');
+    _gl.setRenderTarget(null);
+    _gl.clear(true, true, true);
+    _gl.render(screenSceneRef.current, screenCameraRef.current);
+  }
+
+  function handleRequests(_gl) {
+    // log('handleRequests');
+    const ctx = _gl.getContext();
+    const f = frameRef.current;
+
+    if (managers?.dataManager.noNewRequests === true && f % 100 === 0) {
+      managers.dataManager.noNewRequests = false;
+    }
+    if (managers?.dataManager.triggerRequest === true
+        && managers?.dataManager.noNewRequests === false) {
+      ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
+      ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
+      ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+        ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
+      managers?.dataManager.processRequestData(bufRequest.current);
+    }
+    if (f % 1000 === 0) {
+      ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
+      ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
+      ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+        ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
+      // managers?.dataManager.processUsageData(bufUsage.current); // As per user snippet
+    }
+  }
+
+  function handleAdaptiveQuality(clock) {
+    if (isInteracting) return;
+    if (props.spatialRenderingModeChanging) return;
+
+    if (managers?.dataManager.noNewRequests) {
+      if (renderSpeed !== 0) {
+        setRenderSpeed(0);
+        console.log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
+        // log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
+        stillRef.current = false;
+        invalidate();
+      } else if (!stillRef.current) {
+        console.log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
+        // log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
+        stillRef.current = true;
+      }
+      return;
+    }
+
+    if (stillRef.current) {
+      stillRef.current = false;
+      invalidate();
+    }
+
+    const t = clock.getElapsedTime();
+    if (t - lastSampleRef.current < 1) {
+      return;
+    }
+
+    const timeElapsedDuringSample = t - lastSampleRef.current;
+    const framesRenderedDuringSample = frameRef.current - lastFrameCountRef.current;
+    let fps = 0;
+    if (timeElapsedDuringSample > 0) {
+      fps = framesRenderedDuringSample / timeElapsedDuringSample;
+    }
+
+    lastSampleRef.current = t;
+    lastFrameCountRef.current = frameRef.current;
+
+    const upscale = fps > 100 && renderSpeed > 0; // Can't go below 0
+    const downscale = fps < 30 && renderSpeed < 5; // Can't go above 5
+
+    if (upscale || downscale) {
+      const newSpeed = renderSpeed + (downscale ? 1 : -1);
+      setRenderSpeed(newSpeed);
+      invalidate(); // Ensure the change takes effect
+    }
+  }
+
+  useFrame((state) => {
+    if (!processingRT || !managers) return;
+
+    const {
+      gl: frameGl,
+      camera: frameCamera,
+      scene: frameScene } = state;
+
+    if (!stillRef.current) {
+      performGeometryPass(frameGl, frameCamera, frameScene);
+    }
+
+    performBlitPass(frameGl);
+
+    handleRequests(frameGl);
+
+    handleAdaptiveQuality(state.clock);
+
+    frameRef.current += 1;
+  }, 1);
+
   useEffect(() => {
+    log('useEffect setProcessingTargets');
     managers?.renderManager.setProcessingTargets(processingRT);
   }, [managers, processingRT]);
+
+  useEffect(() => {
+    const u = meshRef.current?.material?.uniforms;
+    if (!u) return;
+    u.renderRes.value = renderSpeed;
+  }, [renderSpeed]);
+
+  useEffect(() => {
+    if (isInteracting) {
+      setRenderSpeed(5);
+      log('setRenderSpeed to 5');
+      stillRef.current = false;
+      invalidate();
+    }
+  }, [invalidate, isInteracting]);
 
   if (!is3D || !managers) return null;
 

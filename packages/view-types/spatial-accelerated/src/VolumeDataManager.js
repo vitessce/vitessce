@@ -720,13 +720,8 @@ export class VolumeDataManager {
  * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
  * ------------------------------------------------------------- */
   _packPT(min, max, bcX, bcY, bcZ) {
-    if (min < this.minimumMin) { this.minimumMin = min; console.log('minimumMin', this.minimumMin); }
-    if (max > this.maximumMax) { this.maximumMax = max; console.log('maximumMax', this.maximumMax); }
-    if (max < this.minimumMax) { this.minimumMax = max; console.log('minimumMax', this.minimumMax); }
-    if (min > this.maximumMin) { this.maximumMin = min; console.log('maximumMin', this.maximumMin); }
-    // console.log('Raw min/max:', min, max);
     // Scale down to 7-bit range (0-127) by dividing by 2
-    const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2))); 
+    const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
     // console.log('Scaled min/max:', clamp7(min), clamp7(max));
     return (
       (1 << 31) // bit‑31 = resident
