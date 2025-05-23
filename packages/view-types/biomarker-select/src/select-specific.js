@@ -20,6 +20,15 @@ const columns = [
   },
 ];
 
+const initialState = {
+  pagination: {
+    paginationModel: {
+      pageSize: 10,
+    },
+  },
+};
+const pageSizeOptions = [10];
+
 
 export function SelectSpecific(props) {
   const {
@@ -62,12 +71,15 @@ export function SelectSpecific(props) {
   // Derive the set of selected row ids from the
   // currentModalitySpecificSelection.
   const rowSelectionModel = useMemo(
-    () => currentModalitySpecificSelection?.map(d => d.kgId) || [],
+    () => ({
+      ids: new Set(currentModalitySpecificSelection?.map(d => d.kgId) || []),
+      type: 'include',
+    }),
     [rows, currentModalitySpecificSelection],
   );
 
   function handleSelection(newRowSelectionModel) {
-    const newSelection = newRowSelectionModel
+    const newSelection = Array.from(newRowSelectionModel.ids)
       .map(kgId => data.find(d => d.target.kgId === kgId)?.target)
       .filter(Boolean);
     setCurrentModalitySpecificSelection(newSelection);
@@ -99,9 +111,10 @@ export function SelectSpecific(props) {
         <DataGrid
           rows={rows}
           columns={columns}
-          pageSize={10}
+          initialState={initialState}
+          pageSizeOptions={pageSizeOptions}
           checkboxSelection
-          onSelectionModelChange={handleSelection}
+          onRowSelectionModelChange={handleSelection}
           rowSelectionModel={rowSelectionModel}
         />
       </Grid>

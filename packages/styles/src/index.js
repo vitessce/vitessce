@@ -84,7 +84,7 @@ export { default as Visibility } from '@mui/icons-material/Visibility';
 export { default as VisibilityOff } from '@mui/icons-material/VisibilityOff';
 
 // Data Grid
-export { DataGrid } from '@mui/x-data-grid';
+export { DataGrid } from '@mui/x-data-grid/DataGrid';
 
 // Local exports
 export { Popper as PopperV4 } from './Popper.js';
