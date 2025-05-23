@@ -1,10 +1,5 @@
 /**
- * VolumeView.js ‑ single‑pass MRT renderer
- *
- *  ▸ One geometry pass per frame               (gl.draw* called once)
- *  ▸ Writes three colour‑attachments in that pass
- *  ▸ Blits attachment 0 to the default FB
- *  ▸ Optionally reads attachment 1 & 2 on an interval
+ * VolumeView.js
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -28,62 +23,17 @@ function log(msg) {
   // console.warn(`V ${msg}`);
 }
 
-function CameraInteraction({ onChange, ...props }) {
-  const controlsRef = useRef();
-  const timeoutRef = useRef(null);
-
-  useEffect(() => {
-    log('CameraInteraction useEffect');
-    const controls = controlsRef.current;
-    if (!controls) return;
-
-    const handleStart = () => onChange(true);
-
-    const handleEnd = () => {
-      // Use timeout to prevent flickering if user quickly starts another interaction
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => onChange(false), 300);
-    };
-
-    // Handle wheel events for zooming
-    const handleWheel = () => {
-      onChange(true);
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => onChange(false), 300);
-    };
-
-    controls.addEventListener('start', handleStart);
-    controls.addEventListener('end', handleEnd);
-
-    // Add wheel event to the DOM element
-    const { domElement } = controls;
-    domElement.addEventListener('wheel', handleWheel, { passive: true });
-
-    return () => {
-      log('CameraInteraction cleanup');
-      controls.removeEventListener('start', handleStart);
-      controls.removeEventListener('end', handleEnd);
-      domElement.removeEventListener('wheel', handleWheel);
-      clearTimeout(timeoutRef.current);
-    };
-  }, [onChange]);
-
-  return <OrbitControls ref={controlsRef} {...props} />;
-}
-
 export function VolumeView(props) {
-  /* ---------- r3f handles ------------------------------------------------- */
   const { gl, scene, camera } = useThree();
   const invalidate = useThree(state => state.invalidate);
 
-  /* ---------- refs / state ------------------------------------------------ */
   const orbitRef = useRef(null);
   const meshRef = useRef(null);
   const bufRequest = useRef(null);
   const bufUsage = useRef(null);
   const [processingRT, setRT] = useState(null);
 
-  const [managers, setManagers] = useState(null); // {dataManager, renderManager}
+  const [managers, setManagers] = useState(null);
   const [renderState, setRenderState] = useState({ uniforms: null,
     shader: null,
     meshScale: [1, 1, 1],
@@ -107,12 +57,16 @@ export function VolumeView(props) {
   const lastSampleRef = useRef(0);
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
+  const interactionTimeoutRef = useRef(null); // Added for interaction logic
+  const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
+
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
   useEffect(() => {
     log('useEffect INIT');
     (async () => {
       const dm = new VolumeDataManager(
+        // 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
         'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
         gl.getContext?.() || gl,
         gl,
@@ -126,7 +80,9 @@ export function VolumeView(props) {
       }
     })();
 
-    return () => managers?.dataManager.clearCache();
+    return () => {
+      managers?.dataManager.clearCache();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once
 
@@ -260,7 +216,7 @@ export function VolumeView(props) {
       ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
-      // managers?.dataManager.processUsageData(bufUsage.current); // As per user snippet
+      // managers?.dataManager.processUsageData(bufUsage.current);
     }
   }
 
@@ -348,11 +304,51 @@ export function VolumeView(props) {
   useEffect(() => {
     if (isInteracting) {
       setRenderSpeed(5);
-      log('setRenderSpeed to 5');
       stillRef.current = false;
       invalidate();
     }
   }, [invalidate, isInteracting]);
+
+  useEffect(() => {
+    const controlsInstance = mainOrbitControlsRef.current; // Renamed to avoid conflict with controls in event handlers
+    if (!controlsInstance) {
+      return;
+    }
+
+    const handleStart = () => setIsInteracting(true);
+
+    const handleEnd = () => {
+      clearTimeout(interactionTimeoutRef.current);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
+    };
+
+    const handleWheel = () => {
+      setIsInteracting(true);
+      clearTimeout(interactionTimeoutRef.current);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
+    };
+
+    controlsInstance.addEventListener('start', handleStart);
+    controlsInstance.addEventListener('end', handleEnd);
+
+    const { domElement } = controlsInstance;
+    // Ensure domElement is available
+    if (domElement) {
+      domElement.addEventListener('wheel', handleWheel, { passive: true });
+    }
+
+    return () => {
+      if (controlsInstance) {
+        controlsInstance.removeEventListener('start', handleStart);
+        controlsInstance.removeEventListener('end', handleEnd);
+        if (domElement) {
+          domElement.removeEventListener('wheel', handleWheel);
+        }
+      }
+      clearTimeout(interactionTimeoutRef.current);
+    };
+  }, [mainOrbitControlsRef.current, setIsInteracting]);
+
 
   if (!is3D || !managers) return null;
 
@@ -370,8 +366,8 @@ export function VolumeView(props) {
 
   return (
     <group>
-      <CameraInteraction
-        onChange={setIsInteracting}
+      <OrbitControls
+        ref={mainOrbitControlsRef}
         enableDamping={false}
       />
       <mesh ref={meshRef} scale={renderState.meshScale}>
