@@ -75,11 +75,13 @@ export function PopperMenu(props) {
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
-              {withPaper ? (
-                <Paper elevation={4} className={classes.paper}>
-                  <MenuList>{children}</MenuList>
-                </Paper>
-              ) : children}
+              <div>
+                {withPaper ? (
+                  <Paper elevation={4} className={classes.paper}>
+                    <MenuList>{children}</MenuList>
+                  </Paper>
+                ) : children}
+              </div>
             </Fade>
           </ClickAwayListener>
         )}

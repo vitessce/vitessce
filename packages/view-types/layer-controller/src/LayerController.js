@@ -468,30 +468,20 @@ export default function LayerController(props) {
   );
   return (
     <Accordion
-      className={controllerSectionClasses.layerControllerRoot}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',
         )
       }
-      TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
       id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
-        slotProps={{
-          root: { className: accordionClasses.accordionSummaryRoot },
-          content: { className: accordionClasses.content },
-        }}
-        classes={{
-          expanded: accordionClasses.expanded,
-          expandIcon: accordionClasses.expandIcon,
-        }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}
       >
-        <Grid container direction="column" m={1} justifyContent="center">
+        <Grid container direction="column" justifyContent="center">
           <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
               aria-label="Toggle layer visibility"
@@ -518,10 +508,9 @@ export default function LayerController(props) {
             <Grid
               container
               direction="row"
-              alignItems="center"
-              justifyContent="center"
+              sx={{ justifyContent: 'flex-start' }}
             >
-              <Grid item xs={6}>
+              <Grid item xs={5}>
                 <InputLabel
                   htmlFor={`layer-${name}-opacity-closed`}
                   classes={{ root: inputLabelClasses.inputLabelRoot }}
@@ -529,7 +518,7 @@ export default function LayerController(props) {
                   Opacity:
                 </InputLabel>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={5}>
                 <Slider
                   id={`layer-${name}-opacity-closed`}
                   value={opacity}
@@ -547,7 +536,6 @@ export default function LayerController(props) {
         </Grid>
       </AccordionSummary>
       <AccordionDetails
-        classes={{ root: accordionClasses.accordionDetailsRoot }}
         id={`layer-${name}-controls`}
       >
         {useVolumeTabs ? (

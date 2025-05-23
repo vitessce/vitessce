@@ -29,11 +29,12 @@ export const useSelectStyles = makeStyles()(() => ({
   },
 }));
 
-export const useControllerSectionStyles = makeStyles()(() => ({
+export const useControllerSectionStyles = makeStyles()(theme => ({
   layerControllerRoot: {
     width: '100%',
     flexDirection: 'column',
     padding: '0px 8px',
+    backgroundColor: theme.palette.paperBackground,
   },
   layerControllerGrid: {
     marginTop: '10px',

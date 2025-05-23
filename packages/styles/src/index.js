@@ -33,7 +33,7 @@ export { default as FormControlLabel } from '@mui/material/FormControlLabel';
 export { default as FormGroup } from '@mui/material/FormGroup';
 export { default as FormHelperText } from '@mui/material/FormHelperText';
 export { default as FormLabel } from '@mui/material/FormLabel';
-export { default as Grid } from '@mui/material/Grid';
+export { default as Grid } from '@mui/material/GridLegacy';
 export { default as IconButton } from '@mui/material/IconButton';
 export { default as InputLabel } from '@mui/material/InputLabel';
 export { default as Link } from '@mui/material/Link';

@@ -186,7 +186,7 @@ function RasterChannelController({
    */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="column" m={1} justifyContent="center">
+    <Grid container direction="column" justifyContent="center">
       <Grid container direction="row" justifyContent="space-between">
         <Grid item xs={10}>
           <ChannelSelectionDropdown

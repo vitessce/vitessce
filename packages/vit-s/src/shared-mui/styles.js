@@ -76,6 +76,7 @@ const lightPalette = {
   secondaryBackgroundDim: '#C0C0C0',
   secondaryForeground: '#222222',
   gridLayoutBackground: '#FFFFFF',
+  paperBackground: '#FFFFFF',
   cardBorder: 'rgba(241, 241, 241, 0.125)',
   tooltipText: 'rgba(0, 0, 0, 0.87)',
 };
@@ -101,6 +102,7 @@ export const muiTheme = {
       secondaryBackgroundDim: '#444444',
       secondaryForeground: '#D3D3D3',
       gridLayoutBackground: '#333333',
+      paperBackground: '#424242',
       cardBorder: 'rgba(0, 0, 0, 0.125)',
       tooltipText: '#FFFFFF',
       ...globalColors,
