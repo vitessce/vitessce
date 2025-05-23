@@ -5,24 +5,17 @@ precision highp sampler3D;
 precision highp usampler3D;
 in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
-// NEW SAMPLERS
 uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
-// uniform usampler3D lruBrickCacheTex; // size of bc/32
-// uniform usampler3D requestQueueTex; // holds list of pagetable coords
 uniform vec2 u_clim;
 uniform vec2 u_clim2;
 uniform vec2 u_clim3;
 uniform vec2 u_clim4;
 uniform vec2 u_clim5;
 uniform vec2 u_clim6;
-uniform vec2 u_window_size;
 uniform vec2 u_xClip;
 uniform vec2 u_yClip;
 uniform vec2 u_zClip;
-// uniform sampler2D u_cmdata; // UNUSED
-// uniform sampler2D u_stop_geom; // UNUSED
-// uniform sampler2D u_geo_color; // UNUSED
 uniform vec3 u_color;
 uniform vec3 u_color2;
 uniform vec3 u_color3;
@@ -30,11 +23,8 @@ uniform vec3 u_color4;
 uniform vec3 u_color5;
 uniform vec3 u_color6;
 uniform float opacity;
-uniform float volumeCount; // -> should be channel count
 uniform highp vec3 boxSize;
-uniform float near;
-varying vec4 glPosition;
-uniform float far;
+varying vec4 glPosition; // also unused
 varying vec3 worldSpaceCoords; // only used for depth
 uniform int renderRes;
 
@@ -42,27 +32,27 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-float linearize_z(float z) {
-    return near * far / (far + z * (near - far));
-}
+const uvec3 voxelExtents = uvec3(1024, 1024, 795);
+const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
+const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
 vec2 intersect_hit(vec3 orig, vec3 dir) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
     if (u_xClip.x > -1.0) {
-        boxMin.x = u_xClip.x - (boxSize.x / 2.0);
+        boxMin.x = u_xClip.x - (boxSize.x / 2.0) * voxelStretchInv.x;
         if (u_xClip.y < boxSize.x)
-        boxMax.x = u_xClip.y - (boxSize.x / 2.0);
+        boxMax.x = u_xClip.y - (boxSize.x / 2.0) * voxelStretchInv.x;
     }
     if (u_yClip.x > -1.0) {
-        boxMin.y = u_yClip.x - (boxSize.y / 2.0);
+        boxMin.y = u_yClip.x - (boxSize.y / 2.0) * voxelStretchInv.y;
         if (u_yClip.y < boxSize.y)
-        boxMax.y = u_yClip.y - (boxSize.y / 2.0);
+        boxMax.y = u_yClip.y - (boxSize.y / 2.0) * voxelStretchInv.y;
     }
     if (u_zClip.x > -1.0) {
-        boxMin.z = u_zClip.x - (boxSize.z / 2.0);
+        boxMin.z = u_zClip.x - (boxSize.z / 2.0) * voxelStretchInv.z;
         if (u_zClip.y < boxSize.z)
-        boxMax.z = u_zClip.y - (boxSize.z / 2.0);
+        boxMax.z = u_zClip.y - (boxSize.z / 2.0) * voxelStretchInv.z;
     }
     vec3 invDir = 1.0 / dir;
     vec3 tmin0 = (boxMin - orig) * invDir;
@@ -72,18 +62,6 @@ vec2 intersect_hit(vec3 orig, vec3 dir) {
     float t0 = max(tmin.x, max(tmin.y, tmin.z));
     float t1 = min(tmax.x, min(tmax.y, tmax.z));
     return vec2(t0, t1);
-}
-
-// Pseudo-random number gen from',
-// http://www.reedbeta.com/blog/quick-and-easy-gpu-random-numbers-in-d3d11/',
-// with some tweaks for the range of values',
-float wang_hash(int seed) {
-    seed = (seed ^ 61) ^ (seed >> 16);
-    seed *= 9;
-    seed = seed ^ (seed >> 4);
-    seed *= 0x27d4eb2d;
-    seed = seed ^ (seed >> 15);
-    return float(seed % 2147483647) / float(2147483647);
 }
 
 // Author @patriciogv - 2015
@@ -139,10 +117,6 @@ const uvec3 anchorPoint2 = uvec3(8,8,8);
 const uvec3 anchorPoint3 = uvec3(4,4,4);
 const uvec3 anchorPoint4 = uvec3(2,2,2);
 const uvec3 anchorPoint5 = uvec3(1,1,1);
-
-const uvec3 voxelExtents = uvec3(1024, 1024, 795);
-const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
-const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
 uvec3 getAnchorPoint(int index) {
     if (index == 0) return anchorPoint0;
@@ -360,7 +334,8 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
-    while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0) {
+    while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0 
+        && t < t_hit.y && t >= t_hit.x) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
@@ -521,11 +496,6 @@ void main(void) {
         }
     }
 
-    // gl_FragDepth = distance(worldSpaceCoords,p)*u_physical_Pixel;
-    // outColor.r = linear_to_srgb(outColor.r);
-    // outColor.g = linear_to_srgb(outColor.g);
-    // outColor.b = linear_to_srgb(outColor.b);
-
     // Set all render targets directly without conditionals
     gColor = vec4(linear_to_srgb(outColor.r), 
                   linear_to_srgb(outColor.g), 
@@ -534,11 +504,6 @@ void main(void) {
 
     if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0 && overWrittenRequest) {
         // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
-        // gColor = vec4(1.0, 0.0, 1.0, 1.0);
     }
 
-    // Also set outColor for compatibility
-    // outColor.r = linear_to_srgb(outColor.r);
-    // outColor.g = linear_to_srgb(outColor.g);
-    // outColor.b = linear_to_srgb(outColor.b);
 }

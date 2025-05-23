@@ -6,13 +6,6 @@ import { CoordinationType } from '@vitessce/constants-internal';
 import { VolumeShader } from './VolumeShader.js';
 import { VolumeDataManager } from './VolumeDataManager.js';
 
-// Map rendering mode strings to shader values
-const RENDERING_MODES = {
-  maximumIntensityProjection: 0,
-  minimumIntensityProjection: 1,
-  additive: 2,
-};
-
 function log(message) {
   // console.warn(`%cRM: ${message}`,
   //   'background: orange; color: white; padding: 2px; border-radius: 3px;');
@@ -38,7 +31,6 @@ export class VolumeRenderManager {
     this.channelTargetC = [];
     this.colors = [];
     this.contrastLimits = [];
-    this.renderingMode = RENDERING_MODES.maximumIntensityProjection;
     this.layerTransparency = 1.0;
     this.xSlice = new Vector2(-1, 100000);
     this.ySlice = new Vector2(-1, 100000);
@@ -100,9 +92,6 @@ export class VolumeRenderManager {
     const imageWrapperInstance = images[layerScope].image.instance;
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
-    const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
-    const renderingMode = RENDERING_MODES[renderingModeStr]
-      || RENDERING_MODES.maximumIntensityProjection;
     const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
     const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
 
@@ -173,7 +162,6 @@ export class VolumeRenderManager {
       colors,
       contrastLimits,
       is3dMode,
-      renderingMode,
       layerTransparency,
       xSlice,
       ySlice,
