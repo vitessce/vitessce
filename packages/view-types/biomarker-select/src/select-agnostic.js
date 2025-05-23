@@ -19,13 +19,21 @@ const OuterElementType = React.forwardRef((props, ref) => {
 
 function ListRow(props) {
   const { data, index, style } = props;
+  const dataSet = data[index];
+  const inlineStyle = {
+    ...style,
+    top: style.top + 8,
+  };
 
-  return React.cloneElement(data[index], {
-    style: {
-      ...style,
-      top: style.top + 8,
-    },
-  });
+  // This array is created by the renderOption function in the Autocomplete component.
+  const [props0, option] = dataSet;
+  const { key, ...optionProps } = props0;
+
+  return (
+    <Typography key={key} component="li" {...optionProps} noWrap style={inlineStyle}>
+      {option.label} ({option.nodeType})
+    </Typography>
+  );
 }
 
 function useResetCache(itemCount) {
@@ -116,11 +124,15 @@ export function SelectAgnostic(props) {
             renderInput={params => (
               <TextField label="Search" variant="outlined" onChange={handleChange} {...params} />
             )}
-            ListboxComponent={ListboxComponent}
             getOptionLabel={option => option.label}
-            renderOption={option => (
-              <Typography noWrap>{option.label} ({option.nodeType})</Typography>
+            renderOption={(props, option, state) => (
+              [props, option, state.index]
             )}
+            slotProps={{
+              listbox: {
+                component: ListboxComponent,
+              },
+            }}
           />
         </Grid>
         <Grid
