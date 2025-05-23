@@ -91,9 +91,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={filled}
           onChange={(e, v) => setFilled(v)}
-          inputProps={{ id: filledId, 'aria-label': 'Toggle between filled and stroked segmentations' }}
+          slotProps={{ input: { id: filledId, 'aria-label': 'Toggle between filled and stroked segmentations' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -152,9 +153,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
-          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' }}
+          slotProps={{ input: { id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -163,9 +165,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={tooltipCrosshairsVisible}
           onChange={(e, v) => setTooltipCrosshairsVisible(v)}
-          inputProps={{ id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' }}
+          slotProps={{ input: { id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -174,9 +177,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={legendVisible}
           onChange={(e, v) => setLegendVisible(v)}
-          inputProps={{ id: legendVisibleId, 'aria-label': 'Toggle legend visibility' }}
+          slotProps={{ input: { id: legendVisibleId, 'aria-label': 'Toggle legend visibility' } }}
         />
       </MenuItem>
     </PopperMenu>
@@ -240,7 +244,7 @@ export default function SegmentationChannelController(props) {
 
   return (
     <Grid item className={lcClasses.layerControllerGrid}>
-      <Paper className={lcClasses.layerControllerRoot}>
+      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button

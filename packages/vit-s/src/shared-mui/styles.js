@@ -102,7 +102,7 @@ export const muiTheme = {
       secondaryBackgroundDim: '#444444',
       secondaryForeground: '#D3D3D3',
       gridLayoutBackground: '#333333',
-      paperBackground: '#424242',
+      paperBackground: '#2b2b2b',
       cardBorder: 'rgba(0, 0, 0, 0.125)',
       tooltipText: '#FFFFFF',
       ...globalColors,

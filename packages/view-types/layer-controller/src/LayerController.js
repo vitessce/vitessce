@@ -468,6 +468,9 @@ export default function LayerController(props) {
   );
   return (
     <Accordion
+      slotProps={{
+        root: { elevation: 4, className: controllerSectionClasses.accordionRoot },
+      }}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',
@@ -477,6 +480,9 @@ export default function LayerController(props) {
       id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
+        slotProps={{
+          content: { className: accordionClasses.content },
+        }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}

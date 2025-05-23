@@ -77,7 +77,7 @@ export function PopperMenu(props) {
             <Fade {...TransitionProps} timeout={100}>
               <div>
                 {withPaper ? (
-                  <Paper elevation={4} className={classes.paper}>
+                  <Paper elevation={16} className={classes.paper}>
                     <MenuList>{children}</MenuList>
                   </Paper>
                 ) : children}

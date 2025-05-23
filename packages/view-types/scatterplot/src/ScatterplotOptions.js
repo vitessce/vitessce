@@ -200,7 +200,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             disabled={!cellSetLabelsVisible}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
@@ -267,7 +267,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             disabled={cellRadiusMode !== 'manual'}
             value={cellRadius}
             onChange={handleRadiusChange}
@@ -312,7 +312,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             disabled={cellOpacityMode !== 'manual'}
             value={cellOpacity}
             onChange={handleOpacityChange}
@@ -358,7 +358,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={(index) => {
@@ -472,7 +472,7 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             value={contourPercentiles || defaultContourPercentiles}
             onChange={handlePercentilesChangeDebounced}
             aria-label="Scatterplot sliders for contour percentile thresholds"

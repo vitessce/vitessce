@@ -63,7 +63,7 @@ export default function GlobalDimensionSlider(props) {
 
   return (
     <Grid item className={lcClasses.layerControllerGrid}>
-      <Paper className={lcClasses.layerControllerRoot}>
+      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <DimensionsSVG className={classes.dimensionsIcon} />

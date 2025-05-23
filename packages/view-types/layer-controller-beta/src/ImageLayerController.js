@@ -187,7 +187,7 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={spatialLayerTransparentColor !== null}
           onChange={(e, v) => setSpatialLayerTransparentColor(v ? ([0, 0, 0]) : null)}
-          inputProps={{ id: transparentId, 'aria-label': 'Render zero-value pixels as transparent' }}
+          slotProps={{ input: { id: transparentId, 'aria-label': 'Render zero-value pixels as transparent' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -238,7 +238,7 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
-          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Render pixel value tooltips' }}
+          slotProps={{ input: { id: tooltipsVisibleId, 'aria-label': 'Render pixel value tooltips' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -250,7 +250,7 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={channelLabelsVisible}
           onChange={(e, v) => setChannelLabelsVisible(v)}
-          inputProps={{ id: channelLabelsVisibleId, 'aria-label': 'Render channel labels' }}
+          slotProps={{ input: { id: channelLabelsVisibleId, 'aria-label': 'Render channel labels' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -375,7 +375,7 @@ export default function ImageLayerController(props) {
   const isMultiChannel = photometricInterpretation !== 'RGB';
   return (
     <Grid item className={controllerSectionClasses.layerControllerGrid}>
-      <Paper className={controllerSectionClasses.layerControllerRoot}>
+      <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid item xs={1}>
             <Button

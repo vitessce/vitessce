@@ -48,8 +48,11 @@ export function ChannelVisibilityCheckbox({
       onChange={toggle}
       checked={checked}
       disabled={disabled}
+      sx={{ paddingLeft: 0 }}
       style={{ color, '&$checked': { color } }}
-      inputProps={{ 'aria-label': 'Toggle on or off a channel' }}
+      slotProps={{
+        input: { 'aria-label': 'Toggle on or off a channel' }
+      }}
     />
   );
 }

@@ -161,7 +161,7 @@ export default function CellSetExpressionPlotOptions(props) {
           </TableCell>
           <TableCell className={classes.inputCell}>
             <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
               value={featureValuePositivityThreshold}
               onChange={handlePositivityThresholdChange}
               aria-labelledby="pos-threshold-slider"

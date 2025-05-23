@@ -93,7 +93,7 @@ export default function HeatmapOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}

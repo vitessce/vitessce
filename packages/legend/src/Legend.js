@@ -14,7 +14,6 @@ const useStyles = makeStyles()(() => ({
   legend: {
     top: '2px',
     right: '2px',
-    zIndex: '100',
     fontSize: '10px !important',
     flexDirection: 'column',
     backgroundColor: 'rgba(215, 215, 215, 0.7)',

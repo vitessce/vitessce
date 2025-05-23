@@ -227,7 +227,7 @@ function OpacitySlider({ value, inputId, handleChange }) {
 
   return (
     <Slider
-      classes={{ valueLabel: classes.valueLabel }}
+      slotProps={{ valueLabel: { className: classes.sliderValueLabel } }}
       value={value}
       onChange={(e, v) => handleChange(v)}
       valueLabelDisplay="auto"

@@ -8,7 +8,7 @@ import { toRgbUIString } from '@vitessce/spatial-utils';
 
 const useStyles = makeStyles()(() => ({
   visibilityCheckbox: {
-    padding: '8px 0',
+    padding: '10px 0',
   },
 }));
 

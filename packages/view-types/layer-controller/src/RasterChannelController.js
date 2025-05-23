@@ -50,7 +50,7 @@ function ChannelSlider({
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
-      classes={{ valueLabel: classes.valueLabel }}
+      slotProps={{ valueLabel: { className: classes.valueLabel } }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}

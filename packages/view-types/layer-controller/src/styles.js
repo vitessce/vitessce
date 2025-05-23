@@ -9,13 +9,9 @@ export const useSpanStyles = makeStyles()(() => ({
   },
 }));
 
-export const useChannelSliderStyles = makeStyles()(theme => ({
+export const useChannelSliderStyles = makeStyles()(() => ({
   valueLabel: {
     marginTop: '7px',
-    '& span': {
-      color: theme.palette.secondaryForeground, // Change color here
-      backgroundColor: theme.palette.secondaryBackgroundDim, // Change color here
-    },
   },
 }));
 
@@ -23,8 +19,8 @@ export const useSelectStyles = makeStyles()(() => ({
   selectRoot: {
     padding: 0,
     height: 'auto',
-    margin: '4px 0',
-    fontSize: '14px',
+    margin: 0,
+    fontSize: '14px !important',
     width: '100%',
   },
 }));
@@ -34,6 +30,9 @@ export const useControllerSectionStyles = makeStyles()(theme => ({
     width: '100%',
     flexDirection: 'column',
     padding: '0px 8px',
+    backgroundColor: theme.palette.paperBackground,
+  },
+  accordionRoot: {
     backgroundColor: theme.palette.paperBackground,
   },
   layerControllerGrid: {
@@ -51,7 +50,7 @@ export const useAccordionStyles = makeStyles()(theme => ({
     padding: '0px 8px',
   },
   content: {
-    margin: '4px 0px',
+    margin: '4px 0px !important',
     minWidth: '0px',
   },
   expanded: {

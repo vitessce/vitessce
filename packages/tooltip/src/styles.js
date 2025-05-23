@@ -12,7 +12,6 @@ export const useStyles = makeStyles()(theme => ({
     opacity: 0.9,
     padding: '5px',
     pointerEvents: 'none',
-    backgroundColor: theme.palette.gridLayoutBackground,
     '& table > tbody > tr > th, & table > tbody > tr > td': {
       border: 'none',
       fontSize: '12px',
@@ -22,10 +21,6 @@ export const useStyles = makeStyles()(theme => ({
       padding: '0 2px !important',
       textAlign: 'left',
       color: theme.palette.tooltipText,
-      backgroundColor: theme.palette.gridLayoutBackground,
-    },
-    '& table > tr:nth-of-type(2)': {
-      backgroundColor: 'inherit !important',
     },
     '& table': {
       borderCollapse: 'collapse',
