@@ -12,7 +12,7 @@ import {
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
   Accordion, AccordionDetails, AccordionSummary,
-
+  Box,
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,
@@ -487,8 +487,16 @@ export default function LayerController(props) {
         aria-expanded={isExpanded}
       >
         <Grid container direction="column" justifyContent="center" sx={{ flexGrow: 1 }}>
-          <Grid classes={{ item: overflowEllipsisGridClasses.item }}>
-            <Button
+          <Grid
+            container
+            size={12}
+            direction="row"
+            alignItems="flex-start"
+            classes={{ item: overflowEllipsisGridClasses.item }}
+          >
+            <Box
+              component="div"
+              role="button"
               aria-label="Toggle layer visibility"
               onClick={(e) => {
                 if (!disabled) {
@@ -498,16 +506,13 @@ export default function LayerController(props) {
                   setVisible(nextVisible);
                 }
               }}
-              style={{
-                marginRight: 8,
-                marginBottom: 2,
-                padding: 0,
-                minWidth: 0,
-              }}
+              className={accordionClasses.accordionVisibilityIconBox}
             >
               <Visibility />
-            </Button>
-            {name}
+            </Box>
+            <Box component="div" className={accordionClasses.accordionNameBox}>
+              {name}
+            </Box>
           </Grid>
           {!disabled && !isExpanded && !use3d && (
             <Grid
@@ -523,7 +528,7 @@ export default function LayerController(props) {
                   Opacity:
                 </InputLabel>
               </Grid>
-              <Grid size={5}>
+              <Grid size={6}>
                 <Slider
                   id={`layer-${name}-opacity-closed`}
                   value={opacity}

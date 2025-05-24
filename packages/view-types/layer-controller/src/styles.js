@@ -41,6 +41,21 @@ export const useControllerSectionStyles = makeStyles()(theme => ({
 }));
 
 export const useAccordionStyles = makeStyles()(theme => ({
+  accordionVisibilityIconBox: {
+    margin: 0,
+    padding: 0,
+    minWidth: 0,
+    cursor: 'pointer',
+    display: 'inline-flex',
+    '&:hover': {
+      opacity: 0.8,
+    },
+    color: theme.palette.primary[500],
+  },
+  accordionNameBox: {
+    marginLeft: '10px',
+    fontSize: '14px !important',
+  },
   accordionDetailsRoot: {
     width: '100%',
     flexDirection: 'column',
