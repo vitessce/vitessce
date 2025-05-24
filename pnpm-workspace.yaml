@@ -49,10 +49,10 @@ catalog:
   "apache-arrow": ^17.0.0
   "parquet-wasm": ^0.6.1
   # Material UI
-  "@material-ui/core": ~4.12.3
-  "@material-ui/icons": ~4.11.2
-  "@material-ui/lab": ^4.0.0-alpha.61
-  "@mui/x-data-grid": ^4.0.2
+  "@mui/material": ^7.1.0
+  "@mui/icons-material": ^7.1.0
+  "@mui/lab": ^7.0.0-beta.12
+  "@mui/x-data-grid": ^8.3.1
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19

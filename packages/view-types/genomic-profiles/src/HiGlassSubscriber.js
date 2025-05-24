@@ -30,6 +30,8 @@ export function HiGlassSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
   const { classes } = useStyles();
 
+  const higlassTheme = theme === 'dark' ? 'dark' : 'light';
+
   return (
     <div className={classes.higlassTitleWrapper}>
       <TitleInfo
@@ -45,7 +47,7 @@ export function HiGlassSubscriber(props) {
           <HiglassGlobalStyles classes={classes} />
           <HiGlassLazy
             coordinationScopes={coordinationScopes}
-            theme={theme}
+            theme={higlassTheme}
             hgViewConfig={hgViewConfig}
             height={height}
           />

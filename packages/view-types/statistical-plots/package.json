@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@vitessce/styles": "workspace:*",
-    "@mui/x-data-grid": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",

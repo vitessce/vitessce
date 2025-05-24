@@ -47,7 +47,7 @@ export function generatePackageJson({ viewName, version, author, license, homepa
       "test": "pnpm exec vitest --run"
     },
     "dependencies": {
-      "@material-ui/core": "catalog:",
+      "@vitessce/styles": "workspace:*",
       "@vitessce/constants-internal": "workspace:*",
       "@vitessce/utils": "workspace:*",
       "@vitessce/vit-s": "workspace:*",

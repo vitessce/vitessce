@@ -20,7 +20,7 @@ const useStyles = makeStyles()(theme => ({
     width: '17px',
     height: '17px',
     stroke: theme.palette.action.selected,
-    'stroke-width': '1px',
+    strokeWidth: '1px',
   },
 }));
 
