@@ -35,14 +35,14 @@ function BitmaskChannelController({
   const createSelection = index => ({ [dimName]: index });
   return (
     <Grid container direction="row" justifyContent="space-between">
-      <Grid item xs={2}>
+      <Grid size={2}>
         <ChannelVisibilityCheckbox
           color={[220, 220, 220]}
           checked={visibility}
           toggle={() => handlePropertyChange('visible', !visibility)}
         />
       </Grid>
-      <Grid item xs={9}>
+      <Grid size={9}>
         <ChannelSelectionDropdown
           handleChange={v => handlePropertyChange('selection', createSelection(v))}
           selectionIndex={selectionIndex}
@@ -50,7 +50,7 @@ function BitmaskChannelController({
           channelOptions={channelOptions}
         />
       </Grid>
-      <Grid item xs={1}>
+      <Grid size={1}>
         <IconButton
           onClick={handleChannelRemove}
           style={{ padding: '6px 6px 6px 0px' }}

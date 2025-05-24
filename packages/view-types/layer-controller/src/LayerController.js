@@ -487,8 +487,8 @@ export default function LayerController(props) {
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}
       >
-        <Grid container direction="column" justifyContent="center">
-          <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
+        <Grid container direction="column" justifyContent="center" sx={{ flexGrow: 1 }}>
+          <Grid classes={{ item: overflowEllipsisGridClasses.item }}>
             <Button
               aria-label="Toggle layer visibility"
               onClick={(e) => {
@@ -514,9 +514,9 @@ export default function LayerController(props) {
             <Grid
               container
               direction="row"
-              sx={{ justifyContent: 'flex-start' }}
+              sx={{ justifyContent: 'flex-start', flexGrow: 1 }}
             >
-              <Grid item xs={5}>
+              <Grid size={5}>
                 <InputLabel
                   htmlFor={`layer-${name}-opacity-closed`}
                   classes={{ root: inputLabelClasses.inputLabelRoot }}
@@ -524,7 +524,7 @@ export default function LayerController(props) {
                   Opacity:
                 </InputLabel>
               </Grid>
-              <Grid item xs={5}>
+              <Grid size={5}>
                 <Slider
                   id={`layer-${name}-opacity-closed`}
                   value={opacity}

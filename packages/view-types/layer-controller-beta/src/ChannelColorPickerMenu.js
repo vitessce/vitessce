@@ -13,6 +13,12 @@ import { getXlinkHref } from '@vitessce/legend';
 
 
 const useStyles = makeStyles()(() => ({
+  colorPickerPaper: {
+    overflow: 'hidden',
+    '& > ul': {
+      padding: 0,
+    },
+  },
   colorIcon: {
     width: '18px !important',
     height: '18px !important',
@@ -123,7 +129,8 @@ export default function ChannelColorPickerMenu(props) {
         )
       }
       buttonClassName={classes.colorIconButton}
-      withPaper={false}
+      withPaper
+      paperClassName={classes.colorPickerPaper}
       aria-label="Open color picker menu"
     >
       <TwitterPicker

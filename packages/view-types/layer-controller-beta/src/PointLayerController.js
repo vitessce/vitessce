@@ -205,10 +205,10 @@ export default function PointLayerController(props) {
 
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
+    <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -217,7 +217,7 @@ export default function PointLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -229,12 +229,12 @@ export default function PointLayerController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -246,7 +246,7 @@ export default function PointLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <PointLayerEllipsisMenu
               featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
@@ -261,7 +261,7 @@ export default function PointLayerController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <PointsIconSVG className={classes.layerTypePointIcon} />
           </Grid>
         </Grid>

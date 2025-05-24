@@ -26,7 +26,7 @@ export function SelectStratification(props) {
   const hasStructuralRegionOptions = structuralRegionOptions && structuralRegionOptions.length > 0;
 
   return (
-    <Grid item xs={12}>
+    <Grid size={12}>
       <Typography variant="h6">
         Select a stratification option:
       </Typography>

@@ -77,8 +77,8 @@ export function ConfirmatoryStepper(props) {
 
 
   return (
-    <Grid item container xs={12}>
-      <Grid item container xs={12}>
+    <Grid container size={12}>
+      <Grid container size={12}>
         <Box className={classes.fullWidthBox}>
           <Stepper activeStep={activeStep}>
             {steps.map((label, index) => {
@@ -101,9 +101,9 @@ export function ConfirmatoryStepper(props) {
           </Stepper>
         </Box>
       </Grid>
-      <Grid item container xs={12} style={{ marginTop: '20px' }} alignItems="flex-start">
+      <Grid container size={12} sx={{ marginTop: '20px' }} alignItems="flex-start">
         {/* Step contents to left of cart */}
-        <Grid item container xs={8}>
+        <Grid container size={8}>
           {activeStep === steps.length ? (
             <>
               <Typography style={{ marginTop: '20px', marginBottom: '10px' }}>
@@ -161,7 +161,7 @@ export function ConfirmatoryStepper(props) {
           )}
         </Grid>
         {/* Cart */}
-        <Grid item container xs={4}>
+        <Grid container size={4}>
           <ConfirmatoryCart
             currentModalityAgnosticSelection={currentModalityAgnosticSelection}
             setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}

@@ -374,10 +374,10 @@ export default function ImageLayerController(props) {
   const { classes: controllerSectionClasses } = useControllerSectionStyles();
   const isMultiChannel = photometricInterpretation !== 'RGB';
   return (
-    <Grid item className={controllerSectionClasses.layerControllerGrid}>
+    <Grid className={controllerSectionClasses.layerControllerGrid}>
       <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               className={menuClasses.imageLayerVisibleButton}
               onClick={handleVisibleChange}
@@ -386,13 +386,13 @@ export default function ImageLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1} />
-          <Grid item xs={6}>
+          <Grid size={1} />
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -404,7 +404,7 @@ export default function ImageLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ImageLayerEllipsisMenu
               colormap={colormap}
               setColormap={setColormap}
@@ -429,7 +429,7 @@ export default function ImageLayerController(props) {
               setChannelLabelSize={setChannelLabelSize}
             />
           </Grid>
-          <Grid item xs={1} container direction="row">
+          <Grid size={1} container direction="row">
             <ImageIcon className={classes.layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button
@@ -518,7 +518,7 @@ export default function ImageLayerController(props) {
             className={classes.imageChannelControllerGrid}
           >
             <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
-            <Grid item xs={12} className={classes.clippingSliders}>
+            <Grid size={12} className={classes.clippingSliders}>
               <ClippingSliders
                 image={image}
                 spatialSliceX={spatialSliceX}

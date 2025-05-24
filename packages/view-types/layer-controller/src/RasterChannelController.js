@@ -188,7 +188,7 @@ function RasterChannelController({
   return (
     <Grid container direction="column" justifyContent="center">
       <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={10}>
+        <Grid size={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))
             }
@@ -197,7 +197,7 @@ function RasterChannelController({
             disabled={isLoading}
           />
         </Grid>
-        <Grid item xs={1} style={{ marginTop: '4px' }}>
+        <Grid size={1} sx={{ marginTop: '4px' }}>
           <ChannelOptions
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
@@ -207,7 +207,7 @@ function RasterChannelController({
         </Grid>
       </Grid>
       <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={2}>
+        <Grid size={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}
             checked={visibility}
@@ -215,7 +215,7 @@ function RasterChannelController({
             disabled={isLoading}
           />
         </Grid>
-        <Grid item xs={9}>
+        <Grid size={9}>
           <ChannelSlider
             color={rgbColor}
             slider={slider}

@@ -34,11 +34,11 @@ export function ScmdUi(props) {
 
   const isConfirmatoryMode = mode === 'confirmatory';
   return (
-    <Grid container style={{ border: '0px solid red' }}>
+    <Grid container sx={{ border: '0px solid red' }}>
       {/* Header */}
-      <Grid item container xs={12} className={classes.header}>
-        <Grid item xs={8} />
-        <Grid item container xs={4} justifyContent="flex-end">
+      <Grid container size={12} className={classes.header}>
+        <Grid size={8} />
+        <Grid container size={4} justifyContent="flex-end">
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
             <Tooltip arrow title="Start from biomarker(s) of interest">
               <Button variant={isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('confirmatory')}>Confirmatory (Hypothesis-driven)</Button>

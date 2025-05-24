@@ -29,7 +29,7 @@ export default function VectorLayerController(props) {
 
   const { classes } = useControllerSectionStyles();
   return (
-    <Grid item style={{ marginTop: '10px' }}>
+    <Grid sx={{ marginTop: '10px' }}>
       <Paper elevation={4} className={classes.layerControllerRoot}>
         <Typography
           style={{
@@ -40,7 +40,7 @@ export default function VectorLayerController(props) {
           {label}
         </Typography>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Checkbox
               color="primary"
               checked={isOn}
@@ -48,7 +48,7 @@ export default function VectorLayerController(props) {
               slotProps={{ input: { 'aria-label': 'Show or hide vector layer' } }}
             />
           </Grid>
-          <Grid item xs={9} style={{ paddingRight: '16px' }}>
+          <Grid size={9} sx={{ paddingRight: '16px' }}>
             <Slider
               value={slider}
               min={0}

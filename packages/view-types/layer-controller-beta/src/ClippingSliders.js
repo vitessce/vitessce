@@ -25,20 +25,20 @@ function DimensionSlider(props) {
       alignItems="center"
       key={label}
     >
-      <Grid item xs={1}>
+      <Grid size={1}>
         <Typography
           style={{ marginBottom: 0 }}
         >
           {label}:
         </Typography>
       </Grid>
-      <Grid item xs={11}>
+      <Grid size={11}>
         <Slider
           value={val}
           onChange={(e, v) => setSliceValue(v)}
           valueLabelDisplay="auto"
           valueLabelFormat={v => abbreviateNumber(v)}
-          aria-label={`${label}-axis clipping plane slider`}
+          getAriaLabel={(index) => `${label}-axis clipping plane slider ${index === 0 ? 'min' : 'max'}`}
           min={min}
           max={max}
           step={0.005}

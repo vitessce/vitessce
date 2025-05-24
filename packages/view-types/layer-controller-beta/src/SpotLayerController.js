@@ -248,10 +248,10 @@ export default function SpotLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
+    <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -260,7 +260,7 @@ export default function SpotLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -272,12 +272,12 @@ export default function SpotLayerController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -289,7 +289,7 @@ export default function SpotLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <SpotLayerEllipsisMenu
               filled={filled}
               setFilled={setFilled}
@@ -308,7 +308,7 @@ export default function SpotLayerController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <SpotsIconSVG className={classes.layerTypeSpotIcon} />
           </Grid>
         </Grid>

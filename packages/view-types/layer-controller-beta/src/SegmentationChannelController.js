@@ -119,7 +119,6 @@ function SegmentationChannelEllipsisMenu(props) {
           Color Encoding:&nbsp;
         </label>
         <NativeSelect
-          native
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
@@ -243,10 +242,10 @@ export default function SegmentationChannelController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
+    <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -255,7 +254,7 @@ export default function SegmentationChannelController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -267,13 +266,13 @@ export default function SegmentationChannelController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {capitalize(label)}
               {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -285,7 +284,7 @@ export default function SegmentationChannelController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <SegmentationChannelEllipsisMenu
               obsType={obsType}
               featureType={featureType}
@@ -307,7 +306,7 @@ export default function SegmentationChannelController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>

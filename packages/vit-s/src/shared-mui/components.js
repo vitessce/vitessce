@@ -33,6 +33,7 @@ export function PopperMenu(props) {
     placement = 'bottom-end',
     withPaper = true,
     containerClassName,
+    paperClassName,
     'aria-label': ariaLabel,
   } = props;
   const { classes } = useStyles();
@@ -77,7 +78,7 @@ export function PopperMenu(props) {
             <Fade {...TransitionProps} timeout={100}>
               <div>
                 {withPaper ? (
-                  <Paper elevation={16} className={classes.paper}>
+                  <Paper elevation={16} className={clsx(classes.paper, paperClassName)}>
                     <MenuList>{children}</MenuList>
                   </Paper>
                 ) : children}

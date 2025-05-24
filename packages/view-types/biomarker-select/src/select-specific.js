@@ -87,11 +87,11 @@ export function SelectSpecific(props) {
 
   return (
     <>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <Typography variant="h6">Select a feature type:</Typography>
       </Grid>
-      <Grid item container xs={6}>
-        <Grid item>
+      <Grid container size={6}>
+        <Grid>
           <FormControl fullWidth>
             <NativeSelect
               defaultValue="gene"
@@ -107,7 +107,7 @@ export function SelectSpecific(props) {
           </FormControl>
         </Grid>
       </Grid>
-      <Grid item container xs={12} style={{ height: '450px' }}>
+      <Grid container size={12} sx={{ height: '450px' }}>
         <DataGrid
           rows={rows}
           columns={columns}

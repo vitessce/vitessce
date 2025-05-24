@@ -62,18 +62,18 @@ export default function GlobalDimensionSlider(props) {
   }
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
+    <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Typography className={classes.dimensionLabel}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid size={8}>
             <Slider
               value={targetValue}
               min={min}
@@ -87,7 +87,7 @@ export default function GlobalDimensionSlider(props) {
               aria-label={`${label}-slice slider`}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             {isForZ ? (
               <FormGroup row className={classes.switchFormGroup}>
                 <FormControlLabel

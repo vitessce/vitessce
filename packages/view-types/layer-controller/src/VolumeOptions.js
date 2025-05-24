@@ -70,7 +70,7 @@ const Slicer = ({
         alignItems="center"
         key={label}
       >
-        <Grid item xs={1}>
+        <Grid size={1}>
           <Typography
             className={!use3d ? classes.disabled : classes.enabled}
             style={{ marginBottom: 0 }}
@@ -78,7 +78,7 @@ const Slicer = ({
             {label}:
           </Typography>
         </Grid>
-        <Grid item xs={11}>
+        <Grid size={11}>
           <Slider
             disabled={!use3d}
             className={!use3d ? classes.disabled : classes.enabled}
@@ -86,7 +86,7 @@ const Slicer = ({
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
             valueLabelFormat={v => abbreviateNumber(v)}
-            aria-label={`Volume options ${label} slider`}
+            getAriaLabel={(index) => `Clipping plane ${label} slider ${index === 0 ? 'min' : 'max'}`}
             min={min}
             max={max}
             step={0.005}
@@ -121,7 +121,7 @@ function RenderingModeSelect({
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
     <FormControl fullWidth>
-      <InputLabel htmlFor="rendering-mode-select">Rendering Mode</InputLabel>
+      <InputLabel htmlFor="rendering-mode-select" variant="standard">Rendering Mode</InputLabel>
       <NativeSelect
         onChange={e => handleRenderingModeChange(e.target.value)}
         value={use3d ? renderingMode : ''}
@@ -151,7 +151,7 @@ const ReCenterButton = ({
   loader,
   modelMatrix,
 }) => (
-  <Grid item xs="auto" key="recenter">
+  <Grid size="auto" key="recenter">
     <Button
       onClick={() => {
         const defaultViewState = viv.getDefaultInitialViewState(

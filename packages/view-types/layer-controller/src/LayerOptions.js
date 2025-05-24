@@ -320,10 +320,10 @@ function GlobalSelectionSlider({
 function LayerOption({ name, inputId, children }) {
   return (
     <Grid container direction="row" alignItems="center" justifyContent="center">
-      <Grid item xs={6}>
+      <Grid size={6}>
         <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         {children}
       </Grid>
     </Grid>
@@ -388,7 +388,7 @@ function LayerOptions({
   const opacitySliderId = useId();
   const zeroTransparentId = useId();
   return (
-    <Grid container direction="column" style={{ width: '100%' }}>
+    <Grid container direction="column" sx={{ width: '100%' }}>
       {hasZStack
         && !disable3d
         && hasViewableResolutions
@@ -429,7 +429,7 @@ function LayerOptions({
       {!disableChannelsIfRgbDetected ? (
         <>
           {shouldShowColormap && (
-            <Grid item>
+            <Grid>
               <LayerOption name="Colormap" inputId={colormapSelectId}>
                 <ColormapSelect
                   value={colormap || ''}
@@ -440,7 +440,7 @@ function LayerOptions({
             </Grid>
           )}
           {shouldShowDomain && (
-            <Grid item>
+            <Grid>
               <LayerOption name="Domain" inputId={domainSelectorId}>
                 <SliderDomainSelector
                   value={domainType || DEFAULT_RASTER_DOMAIN_TYPE}
@@ -455,7 +455,7 @@ function LayerOptions({
         </>
       ) : null}
       {!use3d && (
-        <Grid item>
+        <Grid>
           <LayerOption name="Opacity" inputId={opacitySliderId}>
             <OpacitySlider
               value={opacity}
@@ -466,7 +466,7 @@ function LayerOptions({
         </Grid>
       )}
       {shouldShowTransparentColor && !use3d && (
-        <Grid item>
+        <Grid>
           <LayerOption
             name="Zero Transparent"
             inputId={zeroTransparentId}

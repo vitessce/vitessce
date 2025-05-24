@@ -107,13 +107,13 @@ export function SelectAgnostic(props) {
   }
   return (
     <>
-      <Grid item container xs={12}>
+      <Grid container size={12}>
         <Typography variant="h6">
           Search by gene, protein, pathway (by term name), or cell type:
         </Typography>
       </Grid>
-      <Grid item container xs={12}>
-        <Grid item xs={4}>
+      <Grid container size={12}>
+        <Grid size={4}>
           <Autocomplete
             options={potentialItems}
             autoComplete
@@ -136,8 +136,7 @@ export function SelectAgnostic(props) {
           />
         </Grid>
         <Grid
-          item
-          xs={8}
+          size={8}
           style={{
             border: selectedItem ? '1px solid gray' : '1px solid transparent',
             borderRadius: '4px',
@@ -145,13 +144,13 @@ export function SelectAgnostic(props) {
         >
           {selectedItem ? (
             <>
-              <Grid container item xs={12}>
-                <Grid item xs={9}>
+              <Grid container size={12}>
+                <Grid size={9}>
                   <Typography variant="h4" title={selectedItem.term}>
                     {selectedItem.label}
                   </Typography>
                 </Grid>
-                <Grid item xs={3} style={{ position: 'relative' }}>
+                <Grid size={3} sx={{ position: 'relative' }}>
                   <Button
                     className={classes.selectButton}
                     variant="contained"
@@ -162,11 +161,11 @@ export function SelectAgnostic(props) {
                   </Button>
                 </Grid>
               </Grid>
-              <Grid container item xs={12}>
+              <Grid container size={12}>
                 <InfoIcon />
                 <Typography variant="h6">About this {selectedItem.nodeType}</Typography>
               </Grid>
-              <Grid container item xs={12} key={selectedItem.term}>
+              <Grid container size={12} key={selectedItem.term}>
                 <iframe
                   title={`Embedded metadata page for ontology term ${selectedItem.term}`}
                   src={`https://identifiers.org/${selectedItem.term}`}
