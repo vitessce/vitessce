@@ -151,7 +151,7 @@ export default function SelectableTable(props) {
     }
   }, [selectedRows, allowMultiple]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   // Generate a unique ID to use in (for, id) label-input pairs.
   const inputUuid = uuidv4();

@@ -32,6 +32,7 @@
     { "path": "packages/file-types/glb" },
     { "path": "packages/file-types/json" },
     { "path": "packages/file-types/ome-tiff" },
+    { "path": "packages/styles" },
     { "path": "packages/gl" },
     { "path": "packages/legend" },
     { "path": "packages/plugins" },

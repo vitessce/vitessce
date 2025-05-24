@@ -3,7 +3,7 @@ import { useStyles } from './shared-warning-styles.js';
 import { VITESSCE_CONTAINER } from './classNames.js';
 
 export function DebugWindow({ debugErrors }) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={VITESSCE_CONTAINER}>
       <div className={clsx(classes.warningLayout, classes.containerFluid)}>

@@ -36,7 +36,7 @@ export function CellSetSizesPlotSubscriber(props) {
     helpText = ViewHelpMapping.OBS_SET_SIZES,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const loaders = useLoaders();
 

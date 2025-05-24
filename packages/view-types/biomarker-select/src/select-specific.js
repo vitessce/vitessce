@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { Grid, FormHelperText, Typography, Select, FormControl } from '@material-ui/core';
-import { DataGrid } from '@mui/x-data-grid';
+import { Grid, FormHelperText, Typography, NativeSelect, FormControl, DataGrid } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 
@@ -20,6 +19,15 @@ const columns = [
   },
 ];
 
+const initialState = {
+  pagination: {
+    paginationModel: {
+      pageSize: 10,
+    },
+  },
+};
+const pageSizeOptions = [10];
+
 
 export function SelectSpecific(props) {
   const {
@@ -28,7 +36,7 @@ export function SelectSpecific(props) {
     setCurrentModalitySpecificSelection,
     getEdges,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const queries = useQueries({
     queries: currentModalityAgnosticSelection?.map(item => ({
@@ -62,12 +70,15 @@ export function SelectSpecific(props) {
   // Derive the set of selected row ids from the
   // currentModalitySpecificSelection.
   const rowSelectionModel = useMemo(
-    () => currentModalitySpecificSelection?.map(d => d.kgId) || [],
+    () => ({
+      ids: new Set(currentModalitySpecificSelection?.map(d => d.kgId) || []),
+      type: 'include',
+    }),
     [rows, currentModalitySpecificSelection],
   );
 
   function handleSelection(newRowSelectionModel) {
-    const newSelection = newRowSelectionModel
+    const newSelection = Array.from(newRowSelectionModel.ids)
       .map(kgId => data.find(d => d.target.kgId === kgId)?.target)
       .filter(Boolean);
     setCurrentModalitySpecificSelection(newSelection);
@@ -75,14 +86,13 @@ export function SelectSpecific(props) {
 
   return (
     <>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <Typography variant="h6">Select a feature type:</Typography>
       </Grid>
-      <Grid item container xs={6}>
-        <Grid item>
+      <Grid container size={6}>
+        <Grid>
           <FormControl fullWidth>
-            <Select
-              native
+            <NativeSelect
               defaultValue="gene"
               classes={{ select: classes.selectInput }}
               inputProps={{
@@ -91,18 +101,19 @@ export function SelectSpecific(props) {
               }}
             >
               <option value="gene">Gene (RNA-seq)</option>
-            </Select>
+            </NativeSelect>
             <FormHelperText>Feature type (experimental modality)</FormHelperText>
           </FormControl>
         </Grid>
       </Grid>
-      <Grid item container xs={12} style={{ height: '450px' }}>
+      <Grid container size={12} sx={{ height: '450px' }}>
         <DataGrid
           rows={rows}
           columns={columns}
-          pageSize={10}
+          initialState={initialState}
+          pageSizeOptions={pageSizeOptions}
           checkboxSelection
-          onSelectionModelChange={handleSelection}
+          onRowSelectionModelChange={handleSelection}
           rowSelectionModel={rowSelectionModel}
         />
       </Grid>

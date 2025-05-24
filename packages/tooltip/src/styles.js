@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
-export const styles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   tooltipAnchor: {
     position: 'relative',
     width: '0px',
@@ -12,7 +12,6 @@ export const styles = makeStyles(theme => ({
     opacity: 0.9,
     padding: '5px',
     pointerEvents: 'none',
-    backgroundColor: theme.palette.gridLayoutBackground,
     '& table > tbody > tr > th, & table > tbody > tr > td': {
       border: 'none',
       fontSize: '12px',
@@ -22,10 +21,6 @@ export const styles = makeStyles(theme => ({
       padding: '0 2px !important',
       textAlign: 'left',
       color: theme.palette.tooltipText,
-      backgroundColor: theme.palette.gridLayoutBackground,
-    },
-    '& table > tr:nth-child(2)': {
-      backgroundColor: 'inherit !important',
     },
     '& table': {
       borderCollapse: 'collapse',

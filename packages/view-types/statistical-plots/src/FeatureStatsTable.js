@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid } from '@vitessce/styles';
 import { capitalize } from '@vitessce/utils';
 import { useFilteredVolcanoData } from './utils.js';
 
@@ -8,6 +8,15 @@ const INITIAL_SORT_MODEL = [
   // We initially set the sorting this way
   { field: 'logFoldChange', sort: 'desc' },
 ];
+
+const initialState = {
+  pagination: {
+    paginationModel: {
+      pageSize: 10,
+    },
+  },
+};
+const pageSizeOptions = [10];
 
 export default function FeatureStatsTable(props) {
   const {
@@ -89,11 +98,11 @@ export default function FeatureStatsTable(props) {
   }, [filteredData, obsSetsColumnNameMappingReversed]);
 
   const onSelectionModelChange = useCallback((rowIds) => {
-    const featureIds = rowIds.map(rowId => rowId.split(ROW_ID_DELIMITER)[0]);
+    const featureIds = Array.from(rowIds.ids).map(rowId => rowId.split(ROW_ID_DELIMITER)[0]);
     setFeatureSelection(featureIds);
   }, []);
 
-  const rowSelectionModel = useMemo(() => [], []);
+  const rowSelectionModel = useMemo(() => ({ ids: new Set([]), type: 'include' }), []);
 
   const [sortModel, setSortModel] = useState(INITIAL_SORT_MODEL);
 
@@ -104,9 +113,10 @@ export default function FeatureStatsTable(props) {
       density="compact"
       rows={rows}
       columns={columns}
-      pageSize={10}
+      initialState={initialState}
+      pageSizeOptions={pageSizeOptions}
       // checkboxSelection // TODO: uncomment to enable multiple-row selection
-      onSelectionModelChange={onSelectionModelChange}
+      onRowSelectionModelChange={onSelectionModelChange}
       rowSelectionModel={rowSelectionModel}
       getRowId={getRowId}
       sortModel={sortModel}

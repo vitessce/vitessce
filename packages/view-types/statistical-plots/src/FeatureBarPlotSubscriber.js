@@ -26,7 +26,7 @@ export function FeatureBarPlotSubscriber(props) {
     helpText = ViewHelpMapping.FEATURE_BAR_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

@@ -19,7 +19,7 @@ rule:
                       - inside:
                           stopBy: 'end'
                           all:
-                            - pattern: 'makeStyles($$$)'
+                            - pattern: 'makeStyles()($$$)'
 
    
             

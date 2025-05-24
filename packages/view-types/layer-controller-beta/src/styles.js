@@ -1,12 +1,12 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
-export const useEllipsisMenuStyles = makeStyles(() => ({
+export const useEllipsisMenuStyles = makeStyles()(() => ({
   imageLayerMenuLabel: {
     margin: '0 5px',
   },
   imageLayerMenuButton: {
     backgroundColor: 'transparent',
-    padding: '3px 0',
+    padding: '4px 0',
   },
   imageLayerPopperContainer: {
     display: 'flex',
@@ -23,13 +23,16 @@ export const useEllipsisMenuStyles = makeStyles(() => ({
     padding: 0,
     marginBottom: '0 !important',
     marginLeft: '4px',
-    marginTop: '10px !important',
+    marginTop: '12px !important',
   },
   imageLayerOpacitySlider: {
     marginTop: '7px',
   },
   menuItemSlider: {
     width: '100px',
+  },
+  menuItemCheckbox: {
+    padding: '4px',
   },
 }));
 

@@ -7,11 +7,11 @@ import {
   MenuList,
   ClickAwayListener,
   Fade,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import clsx from 'clsx';
 import { useVitessceContainer } from '../hooks.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   paper: {
     maxHeight: 200,
     overflow: 'auto',
@@ -33,9 +33,10 @@ export function PopperMenu(props) {
     placement = 'bottom-end',
     withPaper = true,
     containerClassName,
+    paperClassName,
     'aria-label': ariaLabel,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const anchorRef = useRef();
 
@@ -75,11 +76,13 @@ export function PopperMenu(props) {
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Fade {...TransitionProps} timeout={100}>
-              {withPaper ? (
-                <Paper elevation={4} className={classes.paper}>
-                  <MenuList>{children}</MenuList>
-                </Paper>
-              ) : children}
+              <div>
+                {withPaper ? (
+                  <Paper elevation={16} className={clsx(classes.paper, paperClassName)}>
+                    <MenuList>{children}</MenuList>
+                  </Paper>
+                ) : children}
+              </div>
             </Fade>
           </ClickAwayListener>
         )}

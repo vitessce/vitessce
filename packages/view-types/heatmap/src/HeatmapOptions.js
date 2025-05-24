@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useId } from 'react-aria';
 import { debounce } from 'lodash-es';
-import { Checkbox, Slider, TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, Slider, TableCell, TableRow } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
@@ -15,7 +15,7 @@ export default function HeatmapOptions(props) {
     setTooltipsVisible,
   } = props;
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
   const heatmapOptionsId = useId();
 
   function handleGeneExpressionColormapChange(event) {
@@ -76,10 +76,10 @@ export default function HeatmapOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="heatmap-gene-expression-colormap-tooltip-visibility"
             color="default"
-            inputProps={{
+            slotProps={{ input: {
               'aria-label': 'Show or hide tooltips',
               id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
-            }}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -93,7 +93,10 @@ export default function HeatmapOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}

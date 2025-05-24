@@ -1,6 +1,5 @@
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import { Accordion, AccordionDetails, AccordionSummary, Typography, ExpandMore as ExpandMoreIcon } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 
@@ -16,7 +15,7 @@ export function ConfirmatoryCart(props) {
     // eslint-disable-next-line no-unused-vars
     setCurrentStratificationSelection,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [expandedAccordions, setExpandedAccordions] = React.useState([
     'agnostic', 'specific', 'stratification',
   ]);

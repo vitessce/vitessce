@@ -17,7 +17,7 @@ import {
   CoordinationType, ViewType, DataType, FileType,
 } from '@vitessce/constants';
 import { upgradeAndParse } from '@vitessce/schemas';
-import { List, ListItem, ListItemText } from '@material-ui/core';
+import { List, ListItem, ListItemText } from '@mui/material';
 import ThemedControlledEditor from './_ThemedControlledEditor.js';
 import {
   baseJs, baseJson, exampleJs, exampleJson,

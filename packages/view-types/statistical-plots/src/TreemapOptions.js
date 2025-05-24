@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
 import { isEqual } from 'lodash-es';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@vitessce/styles';
 import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, OptionSelect, OptionsContainer,
@@ -22,7 +22,7 @@ export default function TreemapOptions(props) {
   } = props;
 
   const treemapOptionsId = useId();
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleColorEncodingChange(event) {
     setObsColorEncoding(event.target.value);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Checkbox, Select } from '@material-ui/core';
+import { Checkbox, NativeSelect } from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
 /**
@@ -16,11 +16,10 @@ export function ChannelSelectionDropdown({
   channelOptions,
   selectionIndex,
 }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   return (
-    <Select
+    <NativeSelect
       classes={{ root: classes.selectRoot }}
-      native
       value={selectionIndex}
       onChange={e => handleChange(Number(e.target.value))}
       inputProps={{ 'aria-label': 'Select a channel' }}
@@ -30,7 +29,7 @@ export function ChannelSelectionDropdown({
           {opt}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   );
 }
 
@@ -49,8 +48,11 @@ export function ChannelVisibilityCheckbox({
       onChange={toggle}
       checked={checked}
       disabled={disabled}
+      sx={{ paddingLeft: 0 }}
       style={{ color, '&$checked': { color } }}
-      inputProps={{ 'aria-label': 'Toggle on or off a channel' }}
+      slotProps={{
+        input: { 'aria-label': 'Toggle on or off a channel' },
+      }}
     />
   );
 }

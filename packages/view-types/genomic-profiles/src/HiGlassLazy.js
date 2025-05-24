@@ -167,7 +167,7 @@ export default function HiGlassLazy(props) {
   }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
     setGenomicTargetX, setGenomicTargetY]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.higlassWrapperParent}>

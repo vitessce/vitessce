@@ -30,7 +30,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
     helpText = ViewHelpMapping.OBS_SET_COMPOSITION_BAR_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

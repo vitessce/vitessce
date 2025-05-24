@@ -139,9 +139,11 @@
   border: none !important;
 }
 
+/* 
 .vitessce-container table * {
   border: none;
 }
+ */
 
 .vitessce-container table tr:nth-child(2n) {
   background-color: transparent;

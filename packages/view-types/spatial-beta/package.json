@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",

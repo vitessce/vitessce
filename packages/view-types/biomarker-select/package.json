@@ -30,10 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
-    "@material-ui/icons": "catalog:",
-    "@material-ui/lab": "catalog:",
-    "@mui/x-data-grid": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@tanstack/react-query": "^4.29.12",
     "react-window": "^1.8.10",
     "@vitessce/constants-internal": "workspace:*",

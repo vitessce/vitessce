@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, useTheme, GlobalStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 const nodeHeight = 32;
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   setsManager: {
     position: 'relative',
     width: '100%',
@@ -52,175 +52,6 @@ export const useStyles = makeStyles(theme => ({
     display: 'block',
     paddingRight: '17px', /* Increase/decrease this value for cross-browser compatibility */
     boxSizing: 'content-box', /* So the width will be 100% + 17px */
-
-    '@global .rc-tree': {
-      paddingLeft: '0',
-      margin: '0',
-      border: '1px solid transparent',
-    },
-
-    '@global .level-0-treenode > .rc-tree-switcher i svg path': {
-      fill: theme.palette.primaryForegroundL5,
-    },
-    '@global .rc-tree-focused:not(.rc-tree-active-focused)': {
-      borderColor: 'cyan',
-    },
-    '@global .rc-tree-treenode': {
-      margin: '0',
-      padding: '0',
-      lineHeight: `${nodeHeight - 8}px`,
-      whiteSpace: 'nowrap',
-      listStyle: 'none',
-      outline: '0',
-    },
-
-    '@global .rc-tree-treenode .draggable': {
-      color: '#333',
-      userSelect: 'none',
-      /* Required to make elements draggable in old WebKit */
-      '-khtml-user-drag': 'element',
-      '-webkit-user-drag': 'element',
-      border: '2px transparent solid',
-    },
-    '@global .rc-tree-treenode.drag-over > .draggable': {
-      color: 'white',
-      backgroundColor: '#316ac5',
-      border: '2px #316ac5 solid',
-      opacity: '0.8',
-    },
-    '@global .rc-tree-treenode.drag-over-gap-top > .draggable': {
-      borderTop: '2px blue solid',
-    },
-    '@global .rc-tree-treenode.drag-over-gap-bottom > .draggable': {
-      borderBottom: '2px blue solid',
-    },
-    '@global .rc-tree-treenode.filter-node > .rc-tree-node-content-wrapper': {
-      color: '#a60000 !important',
-      fontWeight: 'bold !important',
-    },
-    '@global .rc-tree-treenode ul': {
-      margin: '0',
-      paddingLeft: '35px',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper': {
-      width: 'calc(100% - 20px)',
-      display: 'inline-block',
-      margin: '0',
-      padding: '0',
-      textDecoration: 'none',
-      verticalAlign: 'top',
-      cursor: 'pointer',
-      position: 'relative',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span': {
-      position: 'relative',
-      width: '100%',
-      display: 'inline-block',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
-      position: 'relative',
-      /* To accomodate the checkbox and node menu button. */
-      maxWidth: 'calc(100% - 45px)',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-    '@global .rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
-      position: 'relative',
-      left: '0',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher, .rc-tree-treenode span.rc-tree-checkbox': {
-      display: 'inline-block',
-      marginTop: '4px',
-      marginRight: '6px',
-      verticalAlign: 'middle',
-      backgroundColor: 'transparent',
-
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'scroll',
-      border: '0 none',
-      outline: 'none',
-      cursor: 'pointer',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher svg': {
-      width: '15px',
-      height: '15px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher-noop': {
-      cursor: 'auto',
-    },
-    '@global .rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher_close': {
-      transform: 'rotate(-90deg)',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox': {
-      width: '13px',
-      height: '13px',
-      margin: '0 3px',
-      border: `2px solid ${theme.palette.grayMid}`,
-      borderRadius: '3px',
-      position: 'relative',
-      left: '0',
-      marginRight: '10px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-checked': {
-      backgroundColor: theme.palette.grayMid,
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
-      backgroundPosition: '-14px -28px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox-disabled': {
-      backgroundPosition: '0 -56px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-checked.rc-tree-checkbox-disabled': {
-      backgroundPosition: '-14px -56px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled': {
-      position: 'relative',
-      background: '#ccc',
-      borderRadius: '3px',
-    },
-    '@global .rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled::after': {
-      position: 'absolute',
-      top: '5px',
-      left: '3px',
-      width: '5px',
-      height: '0',
-      border: '2px solid #fff',
-      borderTop: '0',
-      borderLeft: '0',
-      transform: 'scale(1)',
-      content: "' '",
-    },
-    '@global .rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
-      background: 'none',
-    },
-    '@global .rc-tree.rc-tree-show-line .rc-tree-treenode:not(:last-child) > .rc-tree-switcher-noop': {
-      backgroundPosition: '-56px -18px',
-    },
-    '@global .rc-tree.rc-tree-show-line .rc-tree-treenode:last-child > .rc-tree-switcher-noop': {
-      backgroundPosition: '-56px -36px',
-    },
-    '@global .rc-tree-child-tree': {
-      display: 'none',
-    },
-    '@global .rc-tree-child-tree-open': {
-      display: 'block',
-    },
-    '@global .rc-tree-treenode-disabled > span:not(.rc-tree-switcher), .rc-tree-treenode-disabled > a, .rc-tree-treenode-disabled > a span': {
-      color: '#767676',
-      cursor: 'not-allowed',
-    },
-    '@global .rc-tree-treenode-active': {
-      background: 'rgba(0, 0, 0, 0.1)',
-    },
-    '@global .rc-tree-node-selected': {
-      backgroundColor: '#ffe6b0',
-      border: '1px #ffb951 solid',
-      opacity: '0.8',
-    },
-    '@global .rc-tree-indent-unit': {
-      display: 'inline-block',
-      paddingLeft: '18px',
-    },
   },
   plusButton: {
     border: '0',
@@ -333,13 +164,201 @@ export const useStyles = makeStyles(theme => ({
       border: `1px solid ${theme.palette.grayDarkL5}`,
     },
   },
+}));
+
+export function SetsManagerTreeGlobalStyles(props) {
+  const { classes } = props;
+  const { theme } = useTheme();
+  return (
+    <ScopedGlobalStyles
+      parentClassName={classes.setsManagerTree}
+      styles={{
+        '.rc-tree': {
+          paddingLeft: '0',
+          margin: '0',
+          border: '1px solid transparent',
+        },
+
+        '.level-0-treenode > .rc-tree-switcher i svg path': {
+          fill: theme.palette.primaryForegroundL5,
+        },
+        '.rc-tree-focused:not(.rc-tree-active-focused)': {
+          borderColor: 'cyan',
+        },
+        '.rc-tree-treenode': {
+          margin: '0',
+          padding: '0',
+          lineHeight: `${nodeHeight - 8}px`,
+          whiteSpace: 'nowrap',
+          listStyle: 'none',
+          outline: '0',
+        },
+
+        '.rc-tree-treenode .draggable': {
+          color: '#333',
+          userSelect: 'none',
+          /* Required to make elements draggable in old WebKit */
+          KhtmlUserDrag: 'element',
+          WebkitUserDrag: 'element',
+          border: '2px transparent solid',
+        },
+        '.rc-tree-treenode.drag-over > .draggable': {
+          color: 'white',
+          backgroundColor: '#316ac5',
+          border: '2px #316ac5 solid',
+          opacity: '0.8',
+        },
+        '.rc-tree-treenode.drag-over-gap-top > .draggable': {
+          borderTop: '2px blue solid',
+        },
+        '.rc-tree-treenode.drag-over-gap-bottom > .draggable': {
+          borderBottom: '2px blue solid',
+        },
+        '.rc-tree-treenode.filter-node > .rc-tree-node-content-wrapper': {
+          color: '#a60000 !important',
+          fontWeight: 'bold !important',
+        },
+        '.rc-tree-treenode ul': {
+          margin: '0',
+          paddingLeft: '35px',
+        },
+        '.rc-tree-treenode .rc-tree-node-content-wrapper': {
+          width: 'calc(100% - 20px)',
+          display: 'inline-block',
+          margin: '0',
+          padding: '0',
+          textDecoration: 'none',
+          verticalAlign: 'top',
+          cursor: 'pointer',
+          position: 'relative',
+        },
+        '.rc-tree-treenode .rc-tree-node-content-wrapper > span': {
+          position: 'relative',
+          width: '100%',
+          display: 'inline-block',
+        },
+        '.rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
+          position: 'relative',
+          /* To accomodate the checkbox and node menu button. */
+          maxWidth: 'calc(100% - 45px)',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        },
+        '.rc-tree-treenode .rc-tree-node-content-wrapper > span .node-menu-icon': {
+          position: 'relative',
+          left: '0',
+        },
+        '.rc-tree-treenode span.rc-tree-switcher, .rc-tree-treenode span.rc-tree-checkbox': {
+          display: 'inline-block',
+          marginTop: '4px',
+          marginRight: '6px',
+          verticalAlign: 'middle',
+          backgroundColor: 'transparent',
+
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'scroll',
+          border: '0 none',
+          outline: 'none',
+          cursor: 'pointer',
+        },
+        '.rc-tree-treenode span.rc-tree-switcher svg': {
+          width: '15px',
+          height: '15px',
+        },
+        '.rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher-noop': {
+          cursor: 'auto',
+        },
+        '.rc-tree-treenode span.rc-tree-switcher.rc-tree-switcher_close': {
+          transform: 'rotate(-90deg)',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox': {
+          width: '13px',
+          height: '13px',
+          margin: '0 3px',
+          border: `2px solid ${theme.palette.grayMid}`,
+          borderRadius: '3px',
+          position: 'relative',
+          left: '0',
+          marginRight: '10px',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox-checked': {
+          backgroundColor: theme.palette.grayMid,
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox-indeterminate': {
+          backgroundPosition: '-14px -28px',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox-disabled': {
+          backgroundPosition: '0 -56px',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-checked.rc-tree-checkbox-disabled': {
+          backgroundPosition: '-14px -56px',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled': {
+          position: 'relative',
+          background: '#ccc',
+          borderRadius: '3px',
+        },
+        '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled::after': {
+          position: 'absolute',
+          top: '5px',
+          left: '3px',
+          width: '5px',
+          height: '0',
+          border: '2px solid #fff',
+          borderTop: '0',
+          borderLeft: '0',
+          transform: 'scale(1)',
+          content: "' '",
+        },
+        '.rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
+          background: 'none',
+        },
+        '.rc-tree.rc-tree-show-line .rc-tree-treenode:not(:last-child) > .rc-tree-switcher-noop': {
+          backgroundPosition: '-56px -18px',
+        },
+        '.rc-tree.rc-tree-show-line .rc-tree-treenode:last-child > .rc-tree-switcher-noop': {
+          backgroundPosition: '-56px -36px',
+        },
+        '.rc-tree-child-tree': {
+          display: 'none',
+        },
+        '.rc-tree-child-tree-open': {
+          display: 'block',
+        },
+        '.rc-tree-treenode-disabled > span:not(.rc-tree-switcher), .rc-tree-treenode-disabled > a, .rc-tree-treenode-disabled > a span': {
+          color: '#767676',
+          cursor: 'not-allowed',
+        },
+        '.rc-tree-treenode-active': {
+          background: 'rgba(0, 0, 0, 0.1)',
+        },
+        '.rc-tree-node-selected': {
+          backgroundColor: '#ffe6b0',
+          border: '1px #ffb951 solid',
+          opacity: '0.8',
+        },
+        '.rc-tree-indent-unit': {
+          display: 'inline-block',
+          paddingLeft: '18px',
+        },
+      }}
+    />
+  );
+}
+
+const antTooltipGlobalStyles = {
   // TODO(monorepo): is this style used anywhere?
-  '@global .vitessce-tooltip .ant-tooltip-content .ant-tooltip-inner': {
+  '.vitessce-tooltip .ant-tooltip-content .ant-tooltip-inner': {
     fontSize: '12px',
     backgroundColor: 'rgba(0, 0, 0, 0.95)',
   },
-}));
+};
 
+export function AntTooltipGlobalStyles() {
+  return (
+    <GlobalStyles styles={antTooltipGlobalStyles} />
+  );
+}
 
 /*
   Tooltips and popovers for showing help info to the user.
@@ -357,7 +376,7 @@ const helpTooltipCommon = {
   position: 'absolute',
 };
 
-export const useHelpTooltipStyles = makeStyles(theme => ({
+export const useHelpTooltipStyles = makeStyles()(theme => ({
   helpTooltip: {
     zIndex: 1060,
     display: 'block',
@@ -365,21 +384,6 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     visibility: 'visible',
     paddingTop: '8px', // Assumes placement: 'top'
     ...helpTooltipCommon,
-    '@global .rc-tooltip-inner': {
-      fontSize: '10px',
-      minWidth: '30px',
-      padding: '6px 8px',
-      color: '#fff',
-      textAlign: 'left',
-      textDecoration: 'none',
-      wordWrap: 'break-word',
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-      borderRadius: '2px',
-      boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
-    },
-    '@global .rc-tooltip-arrow': {
-      display: 'none',
-    },
   },
   popover: {
     top: 0,
@@ -449,29 +453,6 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
       background: 'rgba(255, 255, 255, 0.01)',
       content: "''",
     },
-    '@global .rc-tooltip-inner': {
-      boxSizing: 'border-box',
-      backgroundColor: theme.palette.white,
-      backgroundClip: 'padding-box',
-      borderRadius: '2px',
-      boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
-    },
-    '@global .rc-tooltip-content': {
-      padding: 0,
-    },
-    '@global .rc-tooltip-inner-content': {
-      padding: '12px 16px',
-      color: 'rgba(0, 0, 0, 0.65)',
-    },
-    '@global .rc-tooltip-arrow': {
-      position: 'absolute',
-      display: 'block',
-      width: '8px',
-      height: '8px',
-      background: 'transparent',
-      borderStyle: 'solid',
-      borderWidth: '4px',
-    },
   },
   popoverMenuList: {
     listStyleType: 'none',
@@ -515,7 +496,7 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     boxShadow: 'none !important',
     margin: '0 auto',
     /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
+    '& > div:nth-of-type(3)': {
       padding: '6px !important',
       transform: 'translate(2px, 0)',
     },
@@ -534,3 +515,64 @@ export const useHelpTooltipStyles = makeStyles(theme => ({
     },
   },
 }));
+
+export function HelpTooltipGlobalStyles(props) {
+  const { classes } = props;
+  return (
+    <ScopedGlobalStyles
+      parentClassName={classes.helpTooltip}
+      styles={{
+        '.rc-tooltip-inner': {
+          fontSize: '10px',
+          minWidth: '30px',
+          padding: '6px 8px',
+          color: '#fff',
+          textAlign: 'left',
+          textDecoration: 'none',
+          wordWrap: 'break-word',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          borderRadius: '2px',
+          boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
+        },
+        '.rc-tooltip-arrow': {
+          display: 'none',
+        },
+      }}
+    />
+  );
+}
+
+export function PopoverGlobalStyles(props) {
+  const { classes } = props;
+  const { theme } = useTheme();
+  return (
+    <ScopedGlobalStyles
+      parentClassName={classes.popover}
+      styles={{
+        '.rc-tooltip-inner': {
+          boxSizing: 'border-box',
+          backgroundColor: `${theme.palette.white} !important`,
+          backgroundClip: 'padding-box',
+          borderRadius: '2px',
+          boxShadow: '0 3px 6px -4px rgba(100, 100, 100, 0.12), 0 6px 16px 0 rgba(100, 100, 100, 0.08), 0 9px 28px 8px rgba(100, 100, 100, 0.05)',
+        },
+        '.rc-tooltip-content': {
+          padding: 0,
+        },
+        '.rc-tooltip-inner-content': {
+          padding: '12px 16px',
+          color: 'rgba(0, 0, 0, 0.65)',
+        },
+        '.rc-tooltip-arrow': {
+          position: 'absolute',
+          display: 'block !important',
+          width: '8px',
+          height: '8px',
+          background: 'transparent',
+          borderStyle: 'solid',
+          borderWidth: '4px',
+        },
+      }}
+    />
+  );
+}

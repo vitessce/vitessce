@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   searchBar: {
     marginBottom: '4px',
     border: '0',
@@ -30,7 +30,7 @@ export default function FeatureList(props) {
     primaryColumnName,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(geneList);

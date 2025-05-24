@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { Slider, makeStyles } from '@material-ui/core';
+import { Slider, makeStyles } from '@vitessce/styles';
 import { debounce } from 'lodash-es';
 import {
   abbreviateNumber,
@@ -8,7 +8,7 @@ import {
   DOMAINS,
 } from '@vitessce/spatial-utils';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   channelSlider: {
     marginTop: '7px',
   },
@@ -42,7 +42,7 @@ export default function ChannelSlider(props) {
 
   const dtype = image?.getDtype();
   const fullDomain = dtype ? DOMAINS[dtype] : [0, 0];
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   useEffect(() => {
     // If the `window` value is null, then assume it should be

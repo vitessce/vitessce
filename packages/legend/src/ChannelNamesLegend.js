@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography } from '@vitessce/styles';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   channelNamesLegendContainer: {
     position: 'absolute',
     bottom: '0px',
@@ -35,7 +35,7 @@ export default function ChannelNamesLegend(props) {
     imageChannelCoordination,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const reversedImageLayerScopes = useMemo(() => (
     [...(imageLayerScopes || [])].reverse()

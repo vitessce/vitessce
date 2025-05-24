@@ -7,13 +7,13 @@ import {
   TableRow,
   Slider,
   makeStyles,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 
-const useToggleStyles = makeStyles(() => ({
+const useToggleStyles = makeStyles()(() => ({
   cameraLabel: {
     padding: '0px 0px 0px 16px',
   },
@@ -28,7 +28,7 @@ const ToggleFixedAxisButton = ({
   use3d,
 }) => {
   const toggleAxisId = useId();
-  const classes = useToggleStyles();
+  const { classes } = useToggleStyles();
   return (
     <TableRow>
       <TableCell className={classes.cameraLabel} variant="head" scope="row">
@@ -43,10 +43,10 @@ const ToggleFixedAxisButton = ({
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
-          inputProps={{
+          slotProps={{ input: {
             'aria-label': 'Fix or not fix spatial camera axis',
             id: `spatial-camera-axis-${toggleAxisId}`,
-          }}
+          } }}
         />
       </TableCell>
     </TableRow>
@@ -90,7 +90,7 @@ export default function SpatialOptions(props) {
     setTooltipsVisible(event.target.checked);
   }
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   return (
     <OptionsContainer>
@@ -128,10 +128,10 @@ export default function SpatialOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
-            inputProps={{
+            slotProps={{ input: {
               'aria-label': 'Enable or disable tooltips',
               id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
-            }}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -171,7 +171,10 @@ export default function SpatialOptions(props) {
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Slider
-                classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+                slotProps={{
+                  root: { className: classes.slider },
+                  valueLabel: { className: classes.sliderValueLabel },
+                }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
                 getAriaLabel={(index) => {
