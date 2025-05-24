@@ -442,6 +442,7 @@ void main(void) {
             } else if (brickCacheOffset.w == 5) {
                 colorVal = vec3(0.0, 0.0, 1.0);
             }
+            // colorVal = vec3(1.0, 0.0, 0.0);
 
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetResC0

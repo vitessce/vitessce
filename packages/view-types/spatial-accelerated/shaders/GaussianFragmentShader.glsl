@@ -131,6 +131,5 @@ void main() {
         color = noGaussian();
     }
 
-
     gl_FragColor = color;
 }

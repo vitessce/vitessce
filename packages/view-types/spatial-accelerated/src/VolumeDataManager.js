@@ -492,6 +492,13 @@ export class VolumeDataManager {
     console.warn('testTexture bc', this.bcTHREE);
   }
 
+  async initTexture() {
+    const requests = [
+      { x: 0, y: 0, z: 1 },
+    ];
+    await this.handleBrickRequests(requests);
+  }
+
   /**
    * Try to load a resolution level
    * @param {number} resolutionIndex - The resolution level to load
@@ -747,6 +754,7 @@ export class VolumeDataManager {
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
     const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
+    // console.log('chunk', chunk);
 
     /* 4.2 compute min/max (uint8 so this is fast) */
     let min = 255; let
@@ -809,7 +817,7 @@ export class VolumeDataManager {
   async handleBrickRequests(ptRequests) {
     // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
-    // console.log('ptRequests', ptRequests);
+    console.log('ptRequests', ptRequests);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);

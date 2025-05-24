@@ -294,6 +294,8 @@ export class VolumeRenderManager {
       // Initialize textures if needed
       volumeDataManager.renderer.initTexture(volumeDataManager.bcTHREE);
       volumeDataManager.renderer.initTexture(volumeDataManager.ptTHREE);
+
+      volumeDataManager.initTexture();
     }
 
     // Update shader uniforms

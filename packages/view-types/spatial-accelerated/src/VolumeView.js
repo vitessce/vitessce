@@ -132,6 +132,17 @@ export function VolumeView(props) {
   }, [props, extractSettings, loadIfNeeded]);
 
   useEffect(() => {
+    if (!screenQuadRef.current) {
+      return;
+    }
+    if (!stillRef.current) {
+      screenQuadRef.current.material.uniforms.gaussian.value = 0;
+    } else {
+      screenQuadRef.current.material.uniforms.gaussian.value = 7;
+    }
+  }, [stillRef]);
+
+  useEffect(() => {
     log('useEffect MRT target matching canvas');
 
     const { width, height } = gl.domElement;
