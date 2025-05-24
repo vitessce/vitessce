@@ -32,13 +32,7 @@ import {
   logConfig,
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
-import { createGenerateClassName } from './mui-utils.js';
 import { AsyncFunctionsContext } from './contexts.js';
-
-const muiCache = createCache({
-  key: 'mui',
-  prepend: true,
-});
 
 
 /**
@@ -117,7 +111,6 @@ export function VitS(props) {
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
   );
-  const generateClassName = useMemo(() => createGenerateClassName(uid), [uid]);
 
   // Set error handling-related globals.
   useLayoutEffect(() => {
@@ -227,6 +220,11 @@ export function VitS(props) {
     }),
     [asyncFunctionsProp, queryClient],
   );
+
+  const muiCache = useMemo(() => createCache({
+    key: uid ? uid : 'vit',
+    prepend: true,
+  }), [uid]);
 
   // Emit the upgraded/initialized view config
   // to onConfigChange if necessary.
