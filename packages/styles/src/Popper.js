@@ -42,7 +42,7 @@ const defaultPopperOptions = {};
 /**
  * Poppers rely on the 3rd party library [Popper.js](https://popper.js.org/docs/v1/) for positioning.
  */
-export const Popper = React.forwardRef(function Popper(props, ref) {
+export const Popper = React.forwardRef((props, ref) => {
   const {
     anchorEl,
     children,
@@ -106,11 +106,11 @@ export const Popper = React.forwardRef(function Popper(props, ref) {
         const box = resolvedAnchorEl.getBoundingClientRect();
 
         if (
-          process.env.NODE_ENV !== 'test' &&
-          box.top === 0 &&
-          box.left === 0 &&
-          box.right === 0 &&
-          box.bottom === 0
+          process.env.NODE_ENV !== 'test'
+          && box.top === 0
+          && box.left === 0
+          && box.right === 0
+          && box.bottom === 0
         ) {
           console.warn(
             [
@@ -130,11 +130,11 @@ export const Popper = React.forwardRef(function Popper(props, ref) {
         ...(disablePortal
           ? {}
           : {
-              // It's using scrollParent by default, we can use the viewport when using a portal.
-              preventOverflow: {
-                boundariesElement: 'window',
-              },
-            }),
+            // It's using scrollParent by default, we can use the viewport when using a portal.
+            preventOverflow: {
+              boundariesElement: 'window',
+            },
+          }),
         ...modifiers,
         ...popperOptions.modifiers,
       },
@@ -173,10 +173,8 @@ export const Popper = React.forwardRef(function Popper(props, ref) {
     handleClose();
   };
 
-  React.useEffect(() => {
-    return () => {
-      handleClose();
-    };
+  React.useEffect(() => () => {
+    handleClose();
   }, []);
 
   React.useEffect(() => {
@@ -221,4 +219,3 @@ export const Popper = React.forwardRef(function Popper(props, ref) {
     </Portal>
   );
 });
-

@@ -13,8 +13,7 @@ import {
   Button,
   NativeSelect,
   Checkbox,
-} from '@vitessce/styles';
-import {
+
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,

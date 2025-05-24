@@ -79,7 +79,7 @@ export default function HeatmapOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide tooltips',
               id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -93,7 +93,10 @@ export default function HeatmapOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}

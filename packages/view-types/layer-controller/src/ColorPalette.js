@@ -1,6 +1,5 @@
 import React from 'react';
-import { IconButton, makeStyles } from '@vitessce/styles';
-import { Lens as LensIcon } from '@vitessce/styles';
+import { IconButton, makeStyles, Lens as LensIcon } from '@vitessce/styles';
 import { VIEWER_PALETTE } from '@vitessce/utils';
 
 const useStyles = makeStyles()(theme => ({

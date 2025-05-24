@@ -12,8 +12,7 @@ import {
   NativeSelect,
   Checkbox,
   MenuItem,
-} from '@vitessce/styles';
-import {
+
   Add as AddIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,

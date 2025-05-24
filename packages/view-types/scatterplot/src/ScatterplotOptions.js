@@ -159,7 +159,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide set labels',
               id: `scatterplot-set-labels-visible-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -186,7 +186,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide tooltips',
               id: `scatterplot-set-tooltips-visible-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -200,7 +200,10 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             disabled={!cellSetLabelsVisible}
             value={cellSetLabelSize}
             onChange={handleLabelSizeChange}
@@ -231,7 +234,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide polygons',
               id: `scatterplot-set-polygons-visible-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -267,7 +270,10 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             disabled={cellRadiusMode !== 'manual'}
             value={cellRadius}
             onChange={handleRadiusChange}
@@ -312,7 +318,10 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             disabled={cellOpacityMode !== 'manual'}
             value={cellOpacity}
             onChange={handleOpacityChange}
@@ -358,7 +367,10 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={geneExpressionColormapRange}
             onChange={handleColormapRangeChangeDebounced}
             getAriaLabel={(index) => {
@@ -391,7 +403,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide scatterplot points',
               id: `scatterplot-points-visible-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -413,7 +425,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Show or hide contours',
               id: `scatterplot-contours-visible-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -435,7 +447,7 @@ export default function ScatterplotOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Filled or stroked contours',
               id: `scatterplot-contours-filled-${scatterplotOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -472,20 +484,23 @@ export default function ScatterplotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={contourPercentiles || defaultContourPercentiles}
             onChange={handlePercentilesChangeDebounced}
             getAriaLabel={(index) => {
-              if(index === 0) {
-                return "Slider for first (of three) contour percentile threshold, corresponding to lightest-opacity contours";
+              if (index === 0) {
+                return 'Slider for first (of three) contour percentile threshold, corresponding to lightest-opacity contours';
               }
-              if(index === 1) {
-                return "Slider for second (of three) contour percentile threshold, corresponding to second-lightest-opacity contours";
+              if (index === 1) {
+                return 'Slider for second (of three) contour percentile threshold, corresponding to second-lightest-opacity contours';
               }
-              if(index === 2) {
-                return "Slider for third (of three) contour percentile threshold, corresponding to most-opaque contours";
+              if (index === 2) {
+                return 'Slider for third (of three) contour percentile threshold, corresponding to most-opaque contours';
               }
-              return "Scatterplot sliders for contour percentile thresholds";
+              return 'Scatterplot sliders for contour percentile thresholds';
             }}
             id={`scatterplot-contour-percentiles-${scatterplotOptionsId}`}
             valueLabelDisplay="auto"

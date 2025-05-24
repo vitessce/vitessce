@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 

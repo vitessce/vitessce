@@ -13,8 +13,7 @@ import {
   MenuItem,
   Button,
   NativeSelect,
-} from '@vitessce/styles';
-import {
+
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,

@@ -53,7 +53,10 @@ export default function VolcanoPlotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={-Math.log10(featureLabelSignificanceThreshold)}
             onChange={handleLabelSignificanceChange}
             aria-label="Volcano plot label significance threshold slider"
@@ -75,7 +78,10 @@ export default function VolcanoPlotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={featureLabelFoldChangeThreshold}
             onChange={handleLabelFoldChangeChange}
             aria-label="Volcano plot label fold-change threshold slider"
@@ -97,7 +103,10 @@ export default function VolcanoPlotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={-Math.log10(featurePointSignificanceThreshold)}
             onChange={handlePointSignificanceChange}
             aria-label="Volcano plot point significance threshold slider"
@@ -119,7 +128,10 @@ export default function VolcanoPlotOptions(props) {
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <Slider
-            slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+            slotProps={{
+              root: { className: classes.slider },
+              valueLabel: { className: classes.sliderValueLabel },
+            }}
             value={featurePointFoldChangeThreshold}
             onChange={handlePointFoldChangeChange}
             aria-label="Volcano plot point fold-change threshold slider"

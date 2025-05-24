@@ -212,7 +212,7 @@ const gridLayoutStyles = {
       Not part of mixin because acts outside of .vitessce-container. */
     userSelect: 'none !important',
   },
-}
+};
 
 export function GridLayoutGlobalStyles(props) {
   const { classes } = props;

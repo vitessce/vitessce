@@ -12,8 +12,7 @@ import {
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
   Accordion, AccordionDetails, AccordionSummary,
-} from '@vitessce/styles';
-import {
+
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,

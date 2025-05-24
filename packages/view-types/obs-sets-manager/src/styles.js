@@ -178,7 +178,7 @@ export function SetsManagerTreeGlobalStyles(props) {
           margin: '0',
           border: '1px solid transparent',
         },
-      
+
         '.level-0-treenode > .rc-tree-switcher i svg path': {
           fill: theme.palette.primaryForegroundL5,
         },
@@ -193,7 +193,7 @@ export function SetsManagerTreeGlobalStyles(props) {
           listStyle: 'none',
           outline: '0',
         },
-      
+
         '.rc-tree-treenode .draggable': {
           color: '#333',
           userSelect: 'none',
@@ -254,7 +254,7 @@ export function SetsManagerTreeGlobalStyles(props) {
           marginRight: '6px',
           verticalAlign: 'middle',
           backgroundColor: 'transparent',
-      
+
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'scroll',
           border: '0 none',

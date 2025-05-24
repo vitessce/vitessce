@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@vitessce/styles';
-import { MoreVert as MoreVertIcon } from '@vitessce/styles';
+import { makeStyles, MenuItem, MoreVert as MoreVertIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSpanStyles } from './styles.js';
 import ColorPalette from './ColorPalette.js';

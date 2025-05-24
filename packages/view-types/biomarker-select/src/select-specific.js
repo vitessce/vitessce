@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { Grid, FormHelperText, Typography, NativeSelect, FormControl } from '@vitessce/styles';
-import { DataGrid } from '@vitessce/styles';
+import { Grid, FormHelperText, Typography, NativeSelect, FormControl, DataGrid } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 

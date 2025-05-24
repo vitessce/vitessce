@@ -29,7 +29,7 @@ export default function Tooltip(props) {
       ref.current.style.top = `${y + (flipY ? -20 : 5)}px`;
     }
   }, [x, y, parentWidth, parentHeight]);
-  
+
   return (
     <div
       ref={ref}

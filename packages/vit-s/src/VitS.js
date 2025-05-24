@@ -3,7 +3,7 @@ import {
   ThemeProvider,
   StyledEngineProvider,
   CacheProvider,
-  createCache
+  createCache,
 } from '@vitessce/styles';
 import {
   QueryClient,
@@ -222,7 +222,7 @@ export function VitS(props) {
   );
 
   const muiCache = useMemo(() => createCache({
-    key: uid ? uid : 'vit',
+    key: uid || 'vit',
     prepend: true,
   }), [uid]);
 

@@ -1,6 +1,5 @@
 import React from 'react';
-import { RemoveCircle as RemoveCircleIcon } from '@vitessce/styles';
-import { IconButton, Grid } from '@vitessce/styles';
+import { RemoveCircle as RemoveCircleIcon, IconButton, Grid } from '@vitessce/styles';
 import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-channel-controls.js';
 
 /**

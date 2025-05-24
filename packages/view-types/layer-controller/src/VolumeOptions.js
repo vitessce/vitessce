@@ -86,7 +86,7 @@ const Slicer = ({
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
             valueLabelFormat={v => abbreviateNumber(v)}
-            getAriaLabel={(index) => `Clipping plane ${label} slider ${index === 0 ? 'min' : 'max'}`}
+            getAriaLabel={index => `Clipping plane ${label} slider ${index === 0 ? 'min' : 'max'}`}
             min={min}
             max={max}
             step={0.005}

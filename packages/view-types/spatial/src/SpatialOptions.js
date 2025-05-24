@@ -46,7 +46,7 @@ const ToggleFixedAxisButton = ({
           slotProps={{ input: {
             'aria-label': 'Fix or not fix spatial camera axis',
             id: `spatial-camera-axis-${toggleAxisId}`,
-          }}}
+          } }}
         />
       </TableCell>
     </TableRow>
@@ -131,7 +131,7 @@ export default function SpatialOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Enable or disable tooltips',
               id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
-            }}}
+            } }}
           />
         </TableCell>
       </TableRow>
@@ -171,7 +171,10 @@ export default function SpatialOptions(props) {
             </TableCell>
             <TableCell className={classes.inputCell} variant="body">
               <Slider
-                slotProps={{ root: { className: classes.slider }, valueLabel: { className: classes.sliderValueLabel } }}
+                slotProps={{
+                  root: { className: classes.slider },
+                  valueLabel: { className: classes.sliderValueLabel },
+                }}
                 value={geneExpressionColormapRange}
                 onChange={handleColormapRangeChangeDebounced}
                 getAriaLabel={(index) => {

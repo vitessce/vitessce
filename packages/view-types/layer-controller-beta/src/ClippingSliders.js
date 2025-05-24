@@ -38,7 +38,7 @@ function DimensionSlider(props) {
           onChange={(e, v) => setSliceValue(v)}
           valueLabelDisplay="auto"
           valueLabelFormat={v => abbreviateNumber(v)}
-          getAriaLabel={(index) => `${label}-axis clipping plane slider ${index === 0 ? 'min' : 'max'}`}
+          getAriaLabel={index => `${label}-axis clipping plane slider ${index === 0 ? 'min' : 'max'}`}
           min={min}
           max={max}
           step={0.005}

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@vitessce/styles';
-import { Add as AddIcon } from '@vitessce/styles';
+import { makeStyles, MenuItem, Add as AddIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 
 const useStyles = makeStyles()(() => ({

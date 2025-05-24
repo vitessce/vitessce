@@ -1,6 +1,5 @@
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@vitessce/styles';
-import { ExpandMore as ExpandMoreIcon } from '@vitessce/styles';
+import { Accordion, AccordionDetails, AccordionSummary, Typography, ExpandMore as ExpandMoreIcon } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 

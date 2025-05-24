@@ -1,7 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Grid, Button, TextField, Typography } from '@vitessce/styles';
-import { Add as AddIcon, Info as InfoIcon } from '@vitessce/styles';
-import { Autocomplete } from '@vitessce/styles';
+import { Grid, Button, TextField, Typography, Add as AddIcon, Info as InfoIcon, Autocomplete } from '@vitessce/styles';
 import { VariableSizeList } from 'react-window';
 import { useStyles } from './styles.js';
 
@@ -125,8 +123,8 @@ export function SelectAgnostic(props) {
               <TextField label="Search" variant="outlined" onChange={handleChange} {...params} />
             )}
             getOptionLabel={option => option.label}
-            renderOption={(props, option, state) => (
-              [props, option, state.index]
+            renderOption={(props0, option, state) => (
+              [props0, option, state.index]
             )}
             slotProps={{
               listbox: {

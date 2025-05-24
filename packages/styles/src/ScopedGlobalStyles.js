@@ -22,4 +22,3 @@ export function ScopedGlobalStyles(props) {
   }, [parentClassName]);
   return component;
 }
-  

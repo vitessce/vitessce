@@ -98,7 +98,7 @@ export default function FeatureListOptions(props) {
                 slotProps={{ input: {
                   'aria-label': 'Show or hide alternative feature ids',
                   id: `feature-list-show-alternative-ids-${featureListId}`,
-                }}}
+                } }}
               />
             </TableCell>
           </TableRow>
