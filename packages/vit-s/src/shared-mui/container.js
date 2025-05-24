@@ -1,4 +1,4 @@
-import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
+import React, { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 export const useVitessceContainerStyles = makeStyles()(theme => ({
   vitessceContainer: {
