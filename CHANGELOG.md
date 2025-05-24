@@ -1,4 +1,15 @@
 
+## 3.5.13
+
+### Patch Changes
+
+- Add CLI for creating a new view. (`vitessce`) ([#2120](https://github.com/vitessce/vitessce/pull/2120))
+
+- Update showcase page of docs. (`docs`) ([#2123](https://github.com/vitessce/vitessce/pull/2123))
+
+- Update tutorials for plugins. Add last_updated dates to tutorials. (`docs`) ([#2125](https://github.com/vitessce/vitessce/pull/2125))
+
+
 ## 3.5.12
 
 ### Patch Changes
