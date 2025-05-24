@@ -2,7 +2,8 @@
 id: tutorial-plugin-coordination-type
 title: 'Tutorial: Develop a plugin coordination type'
 sidebar_label: Plugin Coordination Type
-last_update: 2023-08-24
+last_update:
+  date: 2025-05-24
 ---
 
 See the [plugin coordination type development](https://github.com/vitessce/vitessce/blob/main/dev-docs/plugin-view-types.md) documentation for more details.
@@ -15,13 +16,12 @@ import { Slider } from '@material-ui/core';
 import {
   Vitessce,
   CoordinationType,
-  registerPluginViewType,
-  registerPluginCoordinationType,
+  PluginViewType,
+  PluginCoordinationType,
   TitleInfo,
   useCoordination,
+  z,
 } from 'vitessce';
-import 'vitessce/dist/es/production/static/css/index.css';
-import './index.css';
 
 function MyPluginSlider(props) {
   const {
@@ -83,20 +83,23 @@ function MyPluginSliderSubscriber(props) {
   );
 }
 
-registerPluginCoordinationType(
-  'myCustomCoordinationType',
-  0.75,
-);
-
-// Register the plugin view type.
-registerPluginViewType(
-  'myCustomSlider',
-  MyPluginSliderSubscriber,
-  [
-    CoordinationType.DATASET,
+const pluginCoordinationTypes = [
+  new PluginCoordinationType(
     'myCustomCoordinationType',
-  ],
-);
+    0.75,
+    z.number(),
+  ),
+];
+const pluginViewTypes = [
+  new PluginViewType(
+    'myCustomSlider',
+    MyPluginSliderSubscriber,
+    [
+      CoordinationType.DATASET,
+      'myCustomCoordinationType',
+    ],
+  ),
+];
 
 // Use the plugin view in the configuration.
 const configWithPluginCoordinationType = {
@@ -176,6 +179,8 @@ export default function MyApp() {
       config={configWithPluginCoordinationType}
       height={800}
       theme="light"
+      pluginViewTypes={pluginViewTypes}
+      pluginCoordinationTypes={pluginCoordinationTypes}
     />
   );
 }
