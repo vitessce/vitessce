@@ -43,10 +43,10 @@ const ToggleFixedAxisButton = ({
           onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
           disabled={!use3d}
           checked={Boolean(spatialAxisFixed)}
-          inputProps={{
+          slotProps={{ input: {
             'aria-label': 'Fix or not fix spatial camera axis',
             id: `spatial-camera-axis-${toggleAxisId}`,
-          }}
+          }}}
         />
       </TableCell>
     </TableRow>
@@ -128,10 +128,10 @@ export default function SpatialOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="gene-expression-colormap-option-tooltip-visibility"
             color="default"
-            inputProps={{
+            slotProps={{ input: {
               'aria-label': 'Enable or disable tooltips',
               id: `gene-expression-colormap-option-tooltip-visibility-${spatialOptionsId}`,
-            }}
+            }}}
           />
         </TableCell>
       </TableRow>

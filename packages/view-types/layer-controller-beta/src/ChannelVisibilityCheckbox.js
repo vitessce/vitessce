@@ -43,7 +43,7 @@ export default function ChannelVisibilityCheckbox(props) {
       disabled={disabled}
       className={classes.visibilityCheckbox}
       style={{ color: rgbColor, '&$checked': { color: rgbColor } }}
-      inputProps={{ 'aria-label': 'Toggle channel visibility' }}
+      slotProps={{ input: { 'aria-label': 'Toggle channel visibility' } }}
     />
   );
 }

@@ -122,7 +122,7 @@ export default function CellSetExpressionPlotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={featureValueTransformCoefficient}
-            shrink
+            slotProps={{ input: { shrink: true } }}
             id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
         </TableCell>

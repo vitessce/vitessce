@@ -129,7 +129,7 @@ export default function GatingScatterplotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={gatingFeatureValueTransformCoefficient}
-            shrink
+            slotProps={{ input: { shrink: true } }}
             id={`scatterplot-gating-transform-coefficient-${gatingScatterplotOptionsId}`}
           />
         </TableCell>

@@ -45,7 +45,7 @@ export default function VectorLayerController(props) {
               color="primary"
               checked={isOn}
               onChange={(e, v) => handleCheckBoxChange(v)}
-              inputProps={{ 'aria-label': 'Show or hide vector layer' }}
+              slotProps={{ input: { 'aria-label': 'Show or hide vector layer' } }}
             />
           </Grid>
           <Grid item xs={9} style={{ paddingRight: '16px' }}>

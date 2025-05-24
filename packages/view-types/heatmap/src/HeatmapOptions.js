@@ -76,10 +76,10 @@ export default function HeatmapOptions(props) {
             onChange={handleTooltipsVisibilityChange}
             name="heatmap-gene-expression-colormap-tooltip-visibility"
             color="default"
-            inputProps={{
+            slotProps={{ input: {
               'aria-label': 'Show or hide tooltips',
               id: `heatmap-gene-expression-colormap-tooltip-visibility-${heatmapOptionsId}`,
-            }}
+            }}}
           />
         </TableCell>
       </TableRow>

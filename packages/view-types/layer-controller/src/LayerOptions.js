@@ -212,7 +212,7 @@ function TransparentColorCheckbox({ value, inputId, handleChange }) {
       }}
       checked={Boolean(value)}
       id={inputId}
-      inputProps={{ 'aria-label': 'Enable or disable color transparency' }}
+      slotProps={{ input: { 'aria-label': 'Enable or disable color transparency' } }}
     />
   );
 }
