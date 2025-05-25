@@ -18,6 +18,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SETS_CSV]: DataType.OBS_SETS,
   [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
+  [FileType.NETWORK_JSON]: DataType.NETWORK,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_OME_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
@@ -131,15 +132,15 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   ],
   [DataType.FEATURE_STATS]: [
     CoordinationType.FEATURE_TYPE,
-    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
   ],
   [DataType.FEATURE_SET_STATS]: [
     CoordinationType.FEATURE_TYPE,
-    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
   ],
   [DataType.OBS_SET_STATS]: [
     CoordinationType.OBS_TYPE,
-    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
+  ],
+  [DataType.NETWORK]: [
+    CoordinationType.FILE_UID,
   ],
 };
 
