@@ -24,17 +24,30 @@ uniform vec3 u_color5;
 uniform vec3 u_color6;
 uniform float opacity;
 uniform highp vec3 boxSize;
+uniform int renderRes;
+uniform uvec3 voxelExtents;
+uniform uvec3 anchor0;
+uniform uvec3 anchor1;
+uniform uvec3 anchor2;
+uniform uvec3 anchor3;
+uniform uvec3 anchor4;
+uniform uvec3 anchor5;
+uniform uvec3 anchor6;
+uniform uvec3 anchor7;
+uniform uvec3 anchor8;
+uniform uvec3 anchor9;
+uniform uvec3 anchor10;
+
 varying vec4 glPosition; // also unused
 varying vec3 worldSpaceCoords; // only used for depth
-uniform int renderRes;
 
 layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-const uvec3 voxelExtents = uvec3(1024, 1024, 795);
-const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
-const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
+// const uvec3 voxelExtents = uvec3(1024, 1024, 795);
+// const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
+// const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
@@ -44,17 +57,10 @@ const int renderResC0 = 5;
 
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
-const uvec3 baseExtents = uvec3(32, 32, 28);
-const uvec3 fullResExtents = uvec3(32, 32, 25);
+// const uvec3 baseExtents = uvec3(32, 32, 28);
+// const uvec3 fullResExtents = uvec3(32, 32, 25);
 
-const uvec3 anchorPoint0 = uvec3(0,0,28);
-const uvec3 anchorPoint1 = uvec3(16,16,15);
-const uvec3 anchorPoint2 = uvec3(8,8,8);
-const uvec3 anchorPoint3 = uvec3(4,4,4);
-const uvec3 anchorPoint4 = uvec3(2,2,2);
-const uvec3 anchorPoint5 = uvec3(1,1,1);
-
-vec2 intersect_hit(vec3 orig, vec3 dir) {
+vec2 intersect_hit(vec3 orig, vec3 dir, vec3 voxelStretchInv) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
     if (u_xClip.x > -1.0) {
@@ -119,12 +125,17 @@ vec4 packBrickCoordToRGBA8(uvec3 coord) {
 }
 
 uvec3 getAnchorPoint(int index) {
-    if (index == 0) return anchorPoint0;
-    if (index == 1) return anchorPoint1;
-    if (index == 2) return anchorPoint2;
-    if (index == 3) return anchorPoint3;
-    if (index == 4) return anchorPoint4;
-    return anchorPoint5;
+    if (index == 0) return anchor0;
+    if (index == 1) return anchor1;
+    if (index == 2) return anchor2;
+    if (index == 3) return anchor3;
+    if (index == 4) return anchor4;
+    if (index == 5) return anchor5;
+    if (index == 6) return anchor6;
+    if (index == 7) return anchor7;
+    if (index == 8) return anchor8;
+    if (index == 9) return anchor9;
+    return uvec3(-1, -1, -1);
 }
 
 uvec3 getChannelOffset(int index) {
@@ -270,11 +281,15 @@ void main(void) {
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
 
+    float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
+    vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
+
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
     
     //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
-    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
+    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir, voxelStretchInv);
     if (t_hit.x >= t_hit.y) {
       discard;
     }
@@ -286,8 +301,8 @@ void main(void) {
     int targetResC0 = current_LOD;
 
     //STEP 3: Compute the step size to march through the volume grid
-    ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
-    volumeTexSize = ivec3(voxelExtents);
+    // ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
+    ivec3 volumeTexSize = ivec3(voxelExtents);
 
     float randomOffset = random();
 
@@ -503,7 +518,7 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
 
-    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0 && overWrittenRequest) {
+    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0) {
         // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
     }
 

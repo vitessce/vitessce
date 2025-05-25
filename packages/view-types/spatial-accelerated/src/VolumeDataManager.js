@@ -156,12 +156,12 @@ export class VolumeDataManager {
         [1, 1, 1],
       ],
       anchors: [
-        [0, 0, 28],
-        [16, 16, 15],
-        [8, 8, 8],
-        [4, 4, 4],
-        [2, 2, 2],
-        [1, 1, 1],
+        // [0, 0, 28],
+        // [16, 16, 15],
+        // [8, 8, 8],
+        // [4, 4, 4],
+        // [2, 2, 2],
+        // [1, 1, 1],
       ],
       offsets: [],
       xExtent: 0, // includes the offset inclusive
@@ -335,6 +335,8 @@ export class VolumeDataManager {
               { size: zScale },
             ];
 
+            console.warn('physicalScale', this.physicalScale);
+
             // Update zarrStore's physicalSizeVoxel
             this.zarrStore.physicalSizeVoxel = [zScale, yScale, xScale];
 
@@ -421,12 +423,26 @@ export class VolumeDataManager {
 
     console.warn('PT', this.PT);
 
+    console.warn('PT anchors', this.PT.anchors);
+
+    console.warn('PT anchors with 0', this.PT.anchors);
+
     // Sum up the extents from all resolution levels excluding the l0
-    for (let i = 1; i < this.zarrStore.brickLayout.length; i++) {
+    for (let i = this.zarrStore.brickLayout.length - 1; i > 0; i--) {
+      this.PT.anchors.push([
+        this.PT.xExtent,
+        this.PT.yExtent,
+        this.PT.zExtent,
+      ]);
       this.PT.xExtent += this.zarrStore.brickLayout[i][2];
       this.PT.yExtent += this.zarrStore.brickLayout[i][1];
       this.PT.zExtent += this.zarrStore.brickLayout[i][0];
     }
+
+    this.PT.anchors.push([0, 0, this.PT.zExtent]);
+    this.PT.anchors.reverse();
+
+    console.warn('PT anchors', this.PT.anchors);
 
     // Calculate total Z extent including channel offsets
     this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
@@ -667,27 +683,41 @@ export class VolumeDataManager {
     // console.log('pt', ptx, pty, ptz);
     // console.log('ptz', this.PT.z, this.PT.l0z);
     if (ptz >= this.PT.zExtent) {
+      // console.log('ptz >= this.PT.zExtent');
       resolution = 0;
       x = ptx;
       y = pty;
       z = (ptz - this.PT.zExtent) % this.PT.z0Extent;
       channel = Math.floor((ptz - this.PT.zExtent) / this.PT.z0Extent);
     } else {
+      // console.log('ptz < this.PT.zExtent');
+      // console.log('this.PT.anchors', this.PT.anchors);
       for (let i = 1; i < this.PT.anchors.length; i++) {
         if (ptx < this.PT.anchors[i][0] && pty < this.PT.anchors[i][1] && ptz < this.PT.anchors[i][2]) {
           // all PT coordinates are less than the anchor -> one res lower
+          // console.log('all PT coordinates are less than the anchor -> one res lower');
         } else {
+          // console.log('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
           resolution = i;
           const channelMask = [0, 0, 0];
+          // console.log('ptx', ptx);
+          // console.log('pty', pty);
+          // console.log('ptz', ptz);
+          // console.log('this.PT.anchors[i]', this.PT.anchors[i]);
           if (ptx >= this.PT.anchors[i][0]) { channelMask[0] = 1; }
           if (pty >= this.PT.anchors[i][1]) { channelMask[1] = 1; }
           if (ptz >= this.PT.anchors[i][2]) { channelMask[2] = 1; }
           const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
           channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
+          console.log('channel', channel);
           const thisOffset = channelMask.map((v, j) => v * this.PT.anchors[i][j]);
+          console.log('thisOffset', thisOffset);
           x = ptx - thisOffset[0];
           y = pty - thisOffset[1];
           z = ptz - thisOffset[2];
+          console.log('x', x);
+          console.log('y', y);
+          console.log('z', z);
           break;
         }
       }
@@ -818,6 +848,7 @@ export class VolumeDataManager {
     // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
     console.log('ptRequests', ptRequests);
+    // console.log(new Error().stack);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);

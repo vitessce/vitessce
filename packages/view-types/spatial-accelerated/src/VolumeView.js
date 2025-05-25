@@ -74,6 +74,12 @@ export function VolumeView(props) {
       const rm = new VolumeRenderManager();
       await dm.init(); // device limits, zarr meta
 
+      console.log('dm.physicalScale', dm.physicalScale);
+
+      rm.setZarrUniforms(dm.zarrStore, dm.PT);
+
+      console.log('rm.uniforms', rm.uniforms);
+
       setManagers({ dataManager: dm, renderManager: rm });
       if (props.onInitComplete) {
         props.onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });

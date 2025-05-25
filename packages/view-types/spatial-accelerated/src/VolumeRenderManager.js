@@ -1,5 +1,6 @@
 import {
   Vector2,
+  Vector3,
   UniformsUtils,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -439,5 +440,31 @@ export class VolumeRenderManager {
    */
   setProcessingTargets(mrt) {
     this.mrt = mrt;
+  }
+
+  setZarrUniforms(
+    zarrStore, PT,
+  ) {
+    for (let i = 0; i <= 9; i++) {
+      if (PT.anchors && PT.anchors[i]) {
+        this.uniforms[`anchor${i}`].value.set(
+          PT.anchors[i][0] || 0,
+          PT.anchors[i][1] || 0,
+          PT.anchors[i][2] || 0,
+        );
+      } else {
+        // Set default values if anchor doesn't exist
+        this.uniforms[`anchor${i}`].value.set(0, 0, 0);
+      }
+    }
+    this.uniforms.voxelExtents.value.set(
+      zarrStore.shapes[0][4],
+      zarrStore.shapes[0][3],
+      zarrStore.shapes[0][2],
+    );
+    console.log('zarrStore.shapes[0]', zarrStore.shapes[0]);
+    console.log('PT', PT);
+    console.log('uniforms', this.uniforms);
+    // this.uniforms.physicalScale.value.set(physicalScale);
   }
 }
