@@ -53,10 +53,16 @@ const DEFAULT_VIEW_STATE = {
 };
 const SET_VIEW_STATE_NOOP = () => {};
 
-function getHoverData(hoverInfo, layerType) {
+function getHoverData(hoverInfo, layerType, layerDefModelMatrix) {
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
   if (layerType === 'segmentation-bitmask' || layerType === 'image') {
-    if (coordinate && layer) {
+    if (coordinate && layer && layerDefModelMatrix) {
+      const scaleX = layerDefModelMatrix[0] || 1;
+      const scaleY = layerDefModelMatrix[5] || 1;
+      const transformedCoordinate = [
+        coordinate[0] / scaleX,
+        coordinate[1] / scaleY,
+      ];
       if (layer.id.startsWith('Tiled') && tile) {
         // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
         const {
@@ -82,8 +88,8 @@ function getHoverData(hoverInfo, layerType) {
             2 ** Math.round(-z),
           );
           const dataCoords = [
-            Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
-            Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
+            Math.floor((transformedCoordinate[0] - bounds[0]) / layerZoomScale),
+            Math.floor((transformedCoordinate[1] - bounds[3]) / layerZoomScale),
           ];
           const coords = dataCoords[1] * width + dataCoords[0];
           const hoverData = data.map(d => d[coords]);
@@ -641,11 +647,10 @@ export function SpatialSubscriber(props) {
    * @param {'spot'|'point'|'segmentation-polygon'|'segmentation-bitmask'|'image'} layerType
    * @param {string} layerScope
    */
-  const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
+  const delegateHover = useCallback((hoverInfo, layerType, layerScope, layerDefModelMatrix = null) => {
     const { coordinate } = hoverInfo;
     let showAnyTooltip = false;
-
-    const hoverData = getHoverData(hoverInfo, layerType);
+    const hoverData = getHoverData(hoverInfo, layerType, layerDefModelMatrix);
 
     // We always iterate over everything because we want to clear
     // any highlights that are not the current hover.
