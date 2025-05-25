@@ -2,14 +2,44 @@
 import React, { useState, useMemo } from 'react';
 import { isEqual } from 'lodash-es';
 import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
+import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
+import { CustomTreeItem } from './TreeItem.js';
 import { getDefaultColor } from '@vitessce/utils';
-import Tree from './Tree.js';
-import TreeNode from './TreeNode.js';
 import { PlusButton, SetOperationButtons } from './SetsManagerButtons.js';
 import {
   useStyles,
   SetsManagerTreeGlobalStyles,
 } from './styles.js';
+
+const MUI_X_PRODUCTS = [
+  {
+    id: 'grid',
+    label: 'Data Grid',
+    children: [
+      { id: 'grid-community', label: '@mui/x-data-grid' },
+      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
+      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
+    ],
+  },
+  {
+    id: 'pickers',
+    label: 'Date and Time Pickers',
+    children: [
+      { id: 'pickers-community', label: '@mui/x-date-pickers' },
+      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
+    ],
+  },
+  {
+    id: 'charts',
+    label: 'Charts',
+    children: [{ id: 'charts-community', label: '@mui/x-charts' }],
+  },
+  {
+    id: 'tree-view',
+    label: 'Tree View',
+    children: [{ id: 'tree-view-community', label: '@mui/x-tree-view' }],
+  },
+];
 
 function processNode(node, prevPath, setColor, theme) {
   const nodePath = [...prevPath, node.name];
@@ -169,52 +199,99 @@ export default function SetsManager(props) {
     }
     return nodes.map((node) => {
       const newPath = [...currPath, node.name];
-      return (
-        <TreeNode
-          theme={theme}
-          key={pathToKey(newPath)}
-          {...nodeToRenderProps(node, newPath, setColor)}
+      return {
+          theme: theme,
+          key: pathToKey(newPath),
+          ...nodeToRenderProps(node, newPath, setColor),
 
-          isEditing={isEqual(isEditingNodeName, newPath)}
+          isEditing: isEqual(isEditingNodeName, newPath),
 
-          datatype={datatype}
-          draggable={draggable && !readOnly}
-          editable={editable && !readOnly}
-          checkable={checkable}
-          expandable={expandable}
-          exportable={exportable}
+          datatype: datatype,
+          draggable: draggable && !readOnly,
+          editable: editable && !readOnly,
+          checkable: checkable,
+          expandable: expandable,
+          exportable: exportable,
 
-          hasColorEncoding={hasColorEncoding}
-          isChecking={isChecking}
-          checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
-          checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
+          hasColorEncoding: hasColorEncoding,
+          isChecking: isChecking,
+          checkedLevelPath: checkedLevel ? checkedLevel.levelZeroPath : null,
+          checkedLevelIndex: checkedLevel ? checkedLevel.levelIndex : null,
 
-          onCheckNode={onCheckNode}
-          onCheckLevel={onCheckLevel}
-          onNodeView={onNodeView}
-          onNodeSetColor={onNodeSetColor}
-          onNodeSetName={(targetPath, name) => {
+          onCheckNode: onCheckNode,
+          onCheckLevel: onCheckLevel,
+          onNodeView: onNodeView,
+          onNodeSetColor: onNodeSetColor,
+          onNodeSetName: (targetPath, name) => {
             onNodeSetName(targetPath, name);
             setIsEditingNodeName(null);
-          }}
-          onNodeCheckNewName={onNodeCheckNewName}
-          onNodeSetIsEditing={setIsEditingNodeName}
-          onNodeRemove={onNodeRemove}
-          onExportLevelZeroNodeJSON={onExportLevelZeroNodeJSON}
-          onExportLevelZeroNodeTabular={onExportLevelZeroNodeTabular}
-          onExportSetJSON={onExportSetJSON}
+          },
+          onNodeCheckNewName: onNodeCheckNewName,
+          onNodeSetIsEditing: setIsEditingNodeName,
+          onNodeRemove: onNodeRemove,
+          onExportLevelZeroNodeJSON: onExportLevelZeroNodeJSON,
+          onExportLevelZeroNodeTabular: onExportLevelZeroNodeTabular,
+          onExportSetJSON: onExportSetJSON,
 
-          disableTooltip={isDragging}
-          onDragStart={() => setIsDragging(true)}
-          onDragEnd={() => setIsDragging(false)}
-        >
-          {renderTreeNodes(node.children, readOnly, newPath, theme)}
-        </TreeNode>
-      );
+          disableTooltip: isDragging,
+          onDragStart: () => setIsDragging(true),
+          onDragEnd: () => setIsDragging(false),
+          children: renderTreeNodes(node.children, readOnly, newPath, theme),
+        };
     });
   }
 
   const { classes } = useStyles();
+
+  console.log(renderTreeNodes(processedSets.tree, true, []));
+
+  return (
+    <div className={classes.setsManager}>
+      <SetsManagerTreeGlobalStyles classes={classes} />
+      <div className={classes.setsManagerTree}>
+        <RichTreeView
+          checkboxSelection={true}
+          multiSelect={true}
+          items={renderTreeNodes(processedSets.tree, true, [])}
+          getItemId={item => item.key}
+          getItemLabel={item => item.title}
+          isItemEditable={item => item.editable}
+          slots={{ item: CustomTreeItem }}
+        />
+        <RichTreeView
+          checkboxSelection={true}
+          multiSelect={true}
+          items={renderTreeNodes(processedAdditionalSets.tree, false, [])}
+          getItemId={item => item.key}
+          getItemLabel={item => item.title}
+          isItemEditable={item => item.editable}
+          slots={{ item: CustomTreeItem }}
+        />
+        <PlusButton
+          datatype={datatype}
+          onError={onError}
+          onImportTree={onImportTree}
+          onCreateLevelZeroNode={onCreateLevelZeroNode}
+          importable={importable}
+          editable={editable}
+        />
+      </div>
+      {isChecking ? (
+        <div className={classes.setOperationButtons}>
+          <SetOperationButtons
+            onUnion={onUnion}
+            onIntersection={onIntersection}
+            onComplement={onComplement}
+            operatable={operatable}
+
+            hasCheckedSetsToUnion={hasCheckedSetsToUnion}
+            hasCheckedSetsToIntersect={hasCheckedSetsToIntersect}
+            hasCheckedSetsToComplement={hasCheckedSetsToComplement}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
 
   return (
     <div className={classes.setsManager}>

@@ -38,6 +38,7 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
+    "@mui/x-tree-view": "^8.4.0",
     "rc-tooltip": "^5.2.2",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5"
