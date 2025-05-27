@@ -49,7 +49,7 @@ layout(location = 2) out vec4 gUsage;
 // const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
 // const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
-const int highestResC0 = 5;
+const int highestResC0 = 0;
 const int lowestResC0 = 5;
 const float lodFactor = 5.0;
 
@@ -182,6 +182,8 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
 
+        return ivec4(coordinate, -10);
+
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
@@ -277,12 +279,21 @@ void main(void) {
 
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
-    gColor = vec4(1.0, 0.0, 0.0, 1.0);
-    return;
+    gColor = vec4(0.0, 0.0, 0.0, 0.0);
+    // return;
 
-    float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    // float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    float stretchFactor = float(pow(2.0, float(lowestRes)) * 32.0);
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
     vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
+
+    // vec3 voxelStretchInv = vec3(1.0);
+
+    if (stretchFactor == 640.0) {
+        // gColor = vec4(voxelStretchInv.x, voxelStretchInv.y, voxelStretchInv.z, 1.0);
+        // gColor = vec4(glPosition.x, glPosition.y, glPosition.z, 1.0);
+        // return;
+    }
 
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
@@ -348,6 +359,10 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
+    // gColor = vec4(p_stretched.x, p_stretched.y, p_stretched.z, 1.0);
+    // gColor = vec4(p.x, p.y, p.z, 1.0);
+    // return;
+
     while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0 
         && t < t_hit.y && t >= t_hit.x) {
 
@@ -369,6 +384,13 @@ void main(void) {
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
+
+        if (brickCacheOffset.w == -10) {
+            gColor = vec4(float(brickCacheOffset.x)/8.0, 
+                float(brickCacheOffset.y)/8.0, 
+                float(brickCacheOffset.z)/8.0, 1.0);
+            return;
+        }
 
         currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
