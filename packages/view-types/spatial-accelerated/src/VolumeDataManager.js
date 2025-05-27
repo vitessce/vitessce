@@ -178,8 +178,8 @@ export class VolumeDataManager {
 
     // Properties for volume rendering
     this.originalScale = [1, 1, 1]; // Original dimensions
-    this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
-
+    // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
+    this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 1 }]; // Physical size scaling
     this.testArray = [];
     this.ptArray = [];
     this.ptManOffsets = [];
@@ -305,6 +305,8 @@ export class VolumeDataManager {
 
           this.zarrStore.physicalSizeVoxel = [zSize, ySize, xSize];
 
+          console.log('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+
           // Calculate total physical size
           if (array0.shape && array0.shape.length >= 5) {
             this.zarrStore.physicalSizeTotal = [
@@ -313,6 +315,16 @@ export class VolumeDataManager {
               (array0.shape[4] || 1) * xSize,
             ];
           }
+        } else {
+          console.log('no physicalSizeVoxel');
+          this.zarrStore.physicalSizeVoxel = [1, 1, 1];
+          this.zarrStore.physicalSizeTotal = [
+            array0.shape[2] || 1,
+            array0.shape[3] || 1,
+            array0.shape[4] || 1,
+          ];
+          console.log('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          console.log('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
         }
 
         // Use coordinateTransformations scale if available
@@ -548,10 +560,13 @@ export class VolumeDataManager {
    * @returns {Array} Physical dimensions [X, Y, Z]
    */
   getPhysicalDimensionsXYZ() {
-    log('getPhysicalDimensionsXYZ');
-    return [this.zarrStore.physicalSizeTotal[2],
+    console.log('getPhysicalDimensionsXYZ');
+    console.log('this.zarrStore.physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+    const out = [this.zarrStore.physicalSizeTotal[2],
       this.zarrStore.physicalSizeTotal[1],
       this.zarrStore.physicalSizeTotal[0]];
+    console.log('out', out);
+    return out;
   }
 
   /**
@@ -559,25 +574,34 @@ export class VolumeDataManager {
    * @returns {number} Maximum resolution
    */
   getMaxResolutionXYZ() {
-    log('getMaxResolutionXYZ');
-    return [this.zarrStore.shapes[0][4],
+    console.log('getMaxResolutionXYZ');
+    console.log('this.zarrStore.shapes', this.zarrStore.shapes);
+    const out = [this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][3],
       this.zarrStore.shapes[0][2]];
+    console.log('out', out);
+    return out;
   }
 
   getOriginalScaleXYZ() {
     log('getOriginalScaleXYZ');
-    return [this.zarrStore.physicalSizeVoxel[2],
+    console.log('this.zarrStore.physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+    const out = [this.zarrStore.physicalSizeVoxel[2],
       this.zarrStore.physicalSizeVoxel[1],
       this.zarrStore.physicalSizeVoxel[0]];
+    console.log('out', out);
+    return out;
   }
 
   getBoxDimensionsXYZ() {
-    log('getBoxDimensionsXYZ');
-    return [1,
+    console.log('getBoxDimensionsXYZ');
+    console.log('this.zarrStore.shapes', this.zarrStore.shapes);
+    const out = [1,
       this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
     ];
+    console.log('out', out);
+    return out;
   }
 
   /**
@@ -596,10 +620,12 @@ export class VolumeDataManager {
       throw new Error('Zarr store or resolution not initialized');
     }
 
+    console.warn('loadZarrChunk', t, c, z, y, x, resolution);
+
     const array = this.zarrStore.arrays[resolution];
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
 
-    // console.log('chunkEntry', chunkEntry);
+    console.log('chunkEntry', chunkEntry);
 
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
@@ -776,26 +802,59 @@ export class VolumeDataManager {
  * ------------------------------------------------------------- */
   async _uploadBrick(ptCoord, bcSlot) {
     // console.log('uploading brick', ptCoord, bcSlot);
+
+    if (ptCoord.x >= this.PT.xExtent
+      || ptCoord.y >= this.PT.yExtent
+      || ptCoord.z >= this.PT.zExtent
+      || ptCoord.x < 0
+      || ptCoord.y < 0
+      || ptCoord.z < 0
+    ) {
+      console.error('ptCoord out of bounds', ptCoord);
+      return;
+    }
+
+    console.log('ptCoord', ptCoord);
+    console.log('this.PT', this.PT);
+
+
     /* 4.1 fetch chunk from Zarr */
     const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
-    // console.log('resolution', resolution);
-    // console.log('channel', channel);
-    // console.log('zarrX', x);
-    // console.log('zarrY', y);
-    // console.log('zarrZ', z);
-    const chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
+    console.log('resolution', resolution);
+    console.log('channel', channel);
+    console.log('zarrX', x);
+    console.log('zarrY', y);
+    console.log('zarrZ', z);
+    let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
-    /* 4.2 compute min/max (uint8 so this is fast) */
-    let min = 255; let
-      max = 0;
+    let min = 255;
+    let max = 0;
+
+    if (chunk instanceof Uint16Array) {
+      console.log('chunk is Uint16Array');
+      // Convert UINT16 to UINT8 by scaling down
+      const uint8Chunk = new Uint8Array(chunk.length);
+      for (let i = 0; i < chunk.length; i++) {
+        // Scale from 0-65535 to 0-255
+        uint8Chunk[i] = Math.floor((chunk[i] / 4096) * 255);
+      }
+      chunk = uint8Chunk;
+    }
+
+    console.log('chunk', chunk);
+    chunk = new Uint8Array(chunk);
+    if (chunk instanceof Uint8Array) {
+      console.log('chunk is Uint8Array');
+    }
+
     for (let i = 0; i < chunk.length; ++i) {
       const v = chunk[i];
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    // console.log('min', min);
-    // console.log('max', max);
+    console.log('min', min);
+    console.log('max', max);
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;
@@ -813,10 +872,16 @@ export class VolumeDataManager {
     );
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     gl.bindTexture(gl.TEXTURE_3D, null);
-    // console.log('uploaded brick');
+    console.log('uploaded brick');
+
+    const error = gl.getError();
+    if (error !== gl.NO_ERROR) {
+      console.error('WebGL error during brick upload:', error, chunk);
+    }
 
     /* 4.4 PT entry upload */
     if (channel !== 0) {
+      console.log('channel is not 0');
       min = 255;
       max = 255;
     }
@@ -833,7 +898,23 @@ export class VolumeDataManager {
       new Uint32Array([ptVal]),
     );
     gl.bindTexture(gl.TEXTURE_3D, null);
-    // console.log('uploaded PT entry');
+    console.log('uploaded PT entry');
+    console.log('ptVal', ptVal);
+    console.log('min', min);
+    console.log('max', max);
+    console.log('bcSlot', bcSlot);
+    console.log('channel', channel);
+    console.log('resolution', resolution);
+    console.log('x', x);
+    console.log('y', y);
+    console.log('z', z);
+    console.log('ptCoord', ptCoord);
+
+    const error2 = gl.getError();
+    if (error2 !== gl.NO_ERROR) {
+      console.error('WebGL error during pagetable upload:', error2, chunk);
+    }
+
     /* 4.5 bookkeeping */
     const now = ++this.timeStamp;
     this.BCTimeStamps[bcSlot.bcIndex] = now;

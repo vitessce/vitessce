@@ -281,6 +281,15 @@ export class VolumeRenderManager {
       this.geometrySize = scaledResolution;
       this.boxSize = scaledResolution;
 
+      console.log('this.boxSize', this.boxSize);
+      console.log('this.geometrySize', this.geometrySize);
+      console.log('this.meshScale', this.meshScale);
+      console.log('this.originalScale', this.originalScale);
+      console.log('this.physicalDimensions', this.physicalDimensions);
+      console.log('this.maxResolution', this.maxResolution);
+      console.log('scaledResolution', scaledResolution);
+
+
       this.brickCacheTexture = volumeDataManager.bcTHREE;
       this.pageTableTexture = volumeDataManager.ptTHREE;
       this.zarrInit = true;

@@ -49,7 +49,7 @@ layout(location = 2) out vec4 gUsage;
 // const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
 // const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
 
-const int highestResC0 = 0;
+const int highestResC0 = 5;
 const int lowestResC0 = 5;
 const float lodFactor = 5.0;
 
@@ -57,8 +57,6 @@ const int renderResC0 = 5;
 
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
-// const uvec3 baseExtents = uvec3(32, 32, 28);
-// const uvec3 fullResExtents = uvec3(32, 32, 25);
 
 vec2 intersect_hit(vec3 orig, vec3 dir, vec3 voxelStretchInv) {
     vec3 boxMin = vec3(-0.5) * boxSize;
@@ -279,7 +277,8 @@ void main(void) {
 
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
-    gColor = vec4(0.0, 0.0, 0.0, 0.0);
+    gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    return;
 
     float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
@@ -522,4 +521,13 @@ void main(void) {
         // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
     }
 
+    uint ptEntry = texelFetch(pageTableTex, ivec3(0, 0, 1), 0).r;
+    if (ptEntry != 0u) {
+        // gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+    // gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    
+    // gColor = vec4(float(ptEntry) / 4294967295.0, 0.0, 0.0, 1.0);
+    // float val = texture(brickCacheTex, vec3(31.0, 0.0, 0.0)).r;
+    // gColor = vec4(val, 0.0, 0.0, 1.0);
 }
