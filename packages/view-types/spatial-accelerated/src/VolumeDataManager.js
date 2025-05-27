@@ -615,17 +615,17 @@ export class VolumeDataManager {
    * @returns {Promise<Uint8Array>} 32x32x32 chunk data
    */
   async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
-    log('loadZarrChunk');
+    // log('loadZarrChunk');
     if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
       throw new Error('Zarr store or resolution not initialized');
     }
 
-    console.warn('loadZarrChunk', t, c, z, y, x, resolution);
+    // console.warn('loadZarrChunk', t, c, z, y, x, resolution);
 
     const array = this.zarrStore.arrays[resolution];
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
 
-    console.log('chunkEntry', chunkEntry);
+    // console.log('chunkEntry', chunkEntry);
 
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
@@ -735,15 +735,15 @@ export class VolumeDataManager {
           if (ptz >= this.PT.anchors[i][2]) { channelMask[2] = 1; }
           const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
           channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
-          console.log('channel', channel);
+          // console.log('channel', channel);
           const thisOffset = channelMask.map((v, j) => v * this.PT.anchors[i][j]);
-          console.log('thisOffset', thisOffset);
+          // console.log('thisOffset', thisOffset);
           x = ptx - thisOffset[0];
           y = pty - thisOffset[1];
           z = ptz - thisOffset[2];
-          console.log('x', x);
-          console.log('y', y);
-          console.log('z', z);
+          // console.log('x', x);
+          // console.log('y', y);
+          // console.log('z', z);
           break;
         }
       }
@@ -803,28 +803,29 @@ export class VolumeDataManager {
   async _uploadBrick(ptCoord, bcSlot) {
     // console.log('uploading brick', ptCoord, bcSlot);
 
-    if (ptCoord.x >= this.PT.xExtent
-      || ptCoord.y >= this.PT.yExtent
-      || ptCoord.z >= this.PT.zExtent
+    if (ptCoord.x > this.PT.xExtent
+      || ptCoord.y > this.PT.yExtent
+      || ptCoord.z > this.PT.zTotal
       || ptCoord.x < 0
       || ptCoord.y < 0
       || ptCoord.z < 0
     ) {
+      console.error('this.PT', this.PT);
       console.error('ptCoord out of bounds', ptCoord);
       return;
     }
 
-    console.log('ptCoord', ptCoord);
-    console.log('this.PT', this.PT);
+    // console.log('ptCoord', ptCoord);
+    // console.log('this.PT', this.PT);
 
 
     /* 4.1 fetch chunk from Zarr */
     const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
-    console.log('resolution', resolution);
-    console.log('channel', channel);
-    console.log('zarrX', x);
-    console.log('zarrY', y);
-    console.log('zarrZ', z);
+    // console.log('resolution', resolution);
+    // console.log('channel', channel);
+    // console.log('zarrX', x);
+    // console.log('zarrY', y);
+    // console.log('zarrZ', z);
     let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
@@ -832,7 +833,7 @@ export class VolumeDataManager {
     let max = 0;
 
     if (chunk instanceof Uint16Array) {
-      console.log('chunk is Uint16Array');
+      // console.log('chunk is Uint16Array');
       // Convert UINT16 to UINT8 by scaling down
       const uint8Chunk = new Uint8Array(chunk.length);
       for (let i = 0; i < chunk.length; i++) {
@@ -842,19 +843,19 @@ export class VolumeDataManager {
       chunk = uint8Chunk;
     }
 
-    console.log('chunk', chunk);
+    // console.log('chunk', chunk);
     chunk = new Uint8Array(chunk);
-    if (chunk instanceof Uint8Array) {
-      console.log('chunk is Uint8Array');
-    }
+    // if (chunk instanceof Uint8Array) {
+    //   console.log('chunk is Uint8Array');
+    // }
 
     for (let i = 0; i < chunk.length; ++i) {
       const v = chunk[i];
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    console.log('min', min);
-    console.log('max', max);
+    // console.log('min', min);
+    // console.log('max', max);
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;
@@ -872,7 +873,7 @@ export class VolumeDataManager {
     );
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     gl.bindTexture(gl.TEXTURE_3D, null);
-    console.log('uploaded brick');
+    // console.log('uploaded brick');
 
     const error = gl.getError();
     if (error !== gl.NO_ERROR) {
@@ -898,17 +899,17 @@ export class VolumeDataManager {
       new Uint32Array([ptVal]),
     );
     gl.bindTexture(gl.TEXTURE_3D, null);
-    console.log('uploaded PT entry');
-    console.log('ptVal', ptVal);
-    console.log('min', min);
-    console.log('max', max);
-    console.log('bcSlot', bcSlot);
-    console.log('channel', channel);
-    console.log('resolution', resolution);
-    console.log('x', x);
-    console.log('y', y);
-    console.log('z', z);
-    console.log('ptCoord', ptCoord);
+    // console.log('uploaded PT entry');
+    // console.log('ptVal', ptVal);
+    // console.log('min', min);
+    // console.log('max', max);
+    // console.log('bcSlot', bcSlot);
+    // console.log('channel', channel);
+    // console.log('resolution', resolution);
+    // console.log('x', x);
+    // console.log('y', y);
+    // console.log('z', z);
+    // console.log('ptCoord', ptCoord);
 
     const error2 = gl.getError();
     if (error2 !== gl.NO_ERROR) {
