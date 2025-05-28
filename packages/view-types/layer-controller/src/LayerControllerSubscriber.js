@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@vitessce/styles';
 import {
   TitleInfo,
   useReady,
@@ -144,8 +144,7 @@ const LayerControllerMemoized = React.memo(
                 <Grid
                   // eslint-disable-next-line react/no-array-index-key
                   key={`${dataset}-raster-${index}-${i}`}
-                  item
-                  style={{ marginTop: '10px' }}
+                  sx={{ marginTop: '10px' }}
                 >
                   <LayerController
                     name={layerMeta.name}
@@ -226,8 +225,7 @@ const LayerControllerMemoized = React.memo(
                 <Grid
                   // eslint-disable-next-line react/no-array-index-key
                   key={`${dataset}-raster-${index}-${i}`}
-                  item
-                  style={{ marginTop: '10px' }}
+                  sx={{ marginTop: '10px' }}
                 >
                   <LayerController
                     name={layerMeta.name}
@@ -282,7 +280,7 @@ const LayerControllerMemoized = React.memo(
             })}
           {shouldShowImageLayerButton
             ? (
-              <Grid item>
+              <Grid>
                 <ImageAddButton
                   imageOptions={imageLayerMeta}
                   handleImageAdd={handleImageAdd}

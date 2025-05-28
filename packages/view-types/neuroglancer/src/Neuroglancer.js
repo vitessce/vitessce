@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { useStyles, globalNeuroglancerCss } from './styles.js';
+import { useStyles, NeuroglancerGlobalStyles } from './styles.js';
 
 // We lazy load the Neuroglancer component,
 // because the non-dynamic import causes problems for Vitest,
@@ -20,7 +20,7 @@ export function Neuroglancer(props) {
     viewerState,
     onViewerStateChanged,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const bundleRoot = useMemo(() => createWorker(), []);
 
   const handleStateChanged = useCallback((newState) => {
@@ -33,7 +33,7 @@ export function Neuroglancer(props) {
 
   return (
     <>
-      <style>{globalNeuroglancerCss}</style>
+      <NeuroglancerGlobalStyles classes={classes} />
       <div className={classes.neuroglancerWrapper}>
         <Suspense fallback={<div>Loading...</div>}>
           <LazyReactNeuroglancer

@@ -44,7 +44,7 @@ function PopoverMenuListButton(props) {
   }
 
   const titleWithConfirm = `${isConfirming ? 'Confirm ' : ''}${title}`;
-  const classes = useHelpTooltipStyles();
+  const { classes } = useHelpTooltipStyles();
   return (
     <button
       title={titleWithConfirm}
@@ -93,7 +93,7 @@ function PopoverMenuList(props) {
     ? palette.map(colorArrayToString)
     : PALETTE.concat([[255, 255, 255], [128, 128, 128], [0, 0, 0]]).map(colorArrayToString);
 
-  const classes = useHelpTooltipStyles();
+  const { classes } = useHelpTooltipStyles();
 
   return (
     <div>

@@ -35,7 +35,7 @@ export function DotPlotSubscriber(props) {
     helpText = ViewHelpMapping.DOT_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

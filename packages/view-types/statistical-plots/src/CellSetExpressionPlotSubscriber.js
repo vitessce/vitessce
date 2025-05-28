@@ -145,7 +145,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

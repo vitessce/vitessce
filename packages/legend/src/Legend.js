@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
@@ -10,11 +10,10 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   legend: {
     top: '2px',
     right: '2px',
-    zIndex: '100',
     fontSize: '10px !important',
     flexDirection: 'column',
     backgroundColor: 'rgba(215, 215, 215, 0.7)',
@@ -130,7 +129,7 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';

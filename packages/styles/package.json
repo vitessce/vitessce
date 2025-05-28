@@ -1,0 +1,51 @@
+{
+  "name": "@vitessce/styles",
+  "version": "3.5.12",
+  "author": "HIDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@mui/material": "catalog:",
+    "@mui/icons-material": "catalog:",
+    "@mui/lab": "catalog:",
+    "@mui/x-data-grid": "catalog:",
+    "tss-react": "^4.9.18",
+    "@emotion/styled": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/cache": "^11.14.0",
+    "popper.js": "^1.16.1"
+  },
+  "devDependencies": {
+    "react": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}

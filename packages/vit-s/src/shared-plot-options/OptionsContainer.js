@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Table, TableBody, TableContainer } from '@material-ui/core';
+import { Box, Table, TableBody, TableContainer } from '@vitessce/styles';
 import { useStyles } from './styles.js';
 
 export default function OptionsContainer(props) {
@@ -7,7 +7,7 @@ export default function OptionsContainer(props) {
     children,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Box className={classes.box}>
