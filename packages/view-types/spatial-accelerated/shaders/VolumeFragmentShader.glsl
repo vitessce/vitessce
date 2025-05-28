@@ -51,7 +51,7 @@ layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 5.0;
+const float lodFactor = 4.0;
 
 const int renderResC0 = 5;
 
@@ -287,14 +287,6 @@ void main(void) {
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
     vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
 
-    // vec3 voxelStretchInv = vec3(1.0);
-
-    if (stretchFactor == 640.0) {
-        // gColor = vec4(voxelStretchInv.x, voxelStretchInv.y, voxelStretchInv.z, 1.0);
-        // gColor = vec4(glPosition.x, glPosition.y, glPosition.z, 1.0);
-        // return;
-    }
-
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
     
@@ -313,8 +305,6 @@ void main(void) {
     //STEP 3: Compute the step size to march through the volume grid
     // ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     ivec3 volumeTexSize = ivec3(voxelExtents);
-
-    float randomOffset = random();
 
     vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
@@ -338,6 +328,8 @@ void main(void) {
 
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
+
+    float randomOffset = random();
 
     p += step * (randomOffset);
     p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
@@ -363,8 +355,8 @@ void main(void) {
     // gColor = vec4(p.x, p.y, p.z, 1.0);
     // return;
 
-    while (vec3_max(p) < 1.0 && vec3_min(p) > 0.0 
-        && t < t_hit.y && t >= t_hit.x) {
+    while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0 
+        && t <= t_hit.y && t >= t_hit.x) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
@@ -376,26 +368,16 @@ void main(void) {
             currentLOD = targetResC0;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
+            // p -= step * randomOffset;
             dt = dt_base * pow(2.0, float(renderResolutionEffective));
             step = os_rayDir * dt;
+            // p += step * randomOffset;
         }
 
         // dt = dt_base * pow(2.0, float(targetResC0));
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
-
-        if (u_clim[1] >= 15.0) {
-            // gColor = vec4(u_clim[0], u_clim[1], 0.0, 1.0);
-            // return;
-        }
-
-        if (false) {
-            gColor = vec4(float(brickCacheOffset.x)/64.0, 
-                float(brickCacheOffset.y)/4.0, 
-                float(brickCacheOffset.z)/1.0, 1.0);
-            return;
-        }
 
         currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
@@ -473,17 +455,22 @@ void main(void) {
             if (brickCacheOffset.w == 0) {
                 colorVal = vec3(0.0, 1.0, 1.0);
             } else if (brickCacheOffset.w == 1) {
-                colorVal = vec3(1.0, 0.0, 0.0);
+                colorVal = vec3(0.25, 1.0, 1.0);
+                // colorVal = vec3(1.0, 0.0, 0.0);
             } else if (brickCacheOffset.w == 2) {
-                colorVal = vec3(0.0, 1.0, 0.0);
+                colorVal = vec3(0.5, 0.75, 1.0);
+                // colorVal = vec3(0.0, 1.0, 0.0);
             } else if (brickCacheOffset.w == 3) {
-                colorVal = vec3(1.0, 0.0, 1.0);
+                colorVal = vec3(0.75, 0.5, 1.0);
+                // colorVal = vec3(1.0, 0.0, 1.0);
             } else if (brickCacheOffset.w == 4) {
-                colorVal = vec3(1.0, 1.0, 0.0);
+                colorVal = vec3(1.0, 0.25, 1.0);
+                // colorVal = vec3(1.0, 1.0, 0.0);
             } else if (brickCacheOffset.w == 5) {
-                colorVal = vec3(0.0, 0.0, 1.0);
+                colorVal = vec3(1.0, 0.25, 0.75);
+                // colorVal = vec3(0.0, 0.0, 1.0);
             }
-            // colorVal = vec3(1.0, 0.0, 0.0);
+            colorVal = vec3(1.0, 0.0, 0.0);
 
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetResC0
@@ -519,6 +506,7 @@ void main(void) {
                 outColor.a   += sliceAlpha * alphaMultiplicator;
 
                 if (outColor.a > 0.99) {
+                    // outColor = vec4(0.0, 0.0, 1.0, 1.0);
                     break;
                 }
 
@@ -534,6 +522,7 @@ void main(void) {
         }
         
         if (outColor.a > 0.99) {
+            // outColor = vec4(0.0, 0.0, 1.0, 1.0);
             break;
         }
     }
@@ -552,7 +541,7 @@ void main(void) {
     if (ptEntry != 0u) {
         // gColor = vec4(1.0, 0.0, 0.0, 1.0);
     }
-    // gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    // gColor = vec4(vec3(glPosition), 1.0);
     
     // gColor = vec4(float(ptEntry) / 4294967295.0, 0.0, 0.0, 1.0);
     // float val = texture(brickCacheTex, vec3(31.0, 0.0, 0.0)).r;

@@ -46,6 +46,8 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 
+const manualChannelSelection = 2;
+
 // Add a constant for initialization status
 const INIT_STATUS = {
   NOT_STARTED: 'not_started',
@@ -826,7 +828,7 @@ export class VolumeDataManager {
     // console.log('zarrX', x);
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
-    let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
+    let chunk = await this.loadZarrChunk(0, manualChannelSelection, z, y, x, resolution);
     // console.log('chunk', chunk);
 
     let min = 255;
