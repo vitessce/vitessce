@@ -407,8 +407,8 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
     '&.rc-tooltip-placement-left': {
       paddingRight: '10px',
     },
-    '&.rc-tooltip-placement-top > .rc-tooltip-content > .rc-tooltip-arrow': {
-      bottom: '6px',
+    '&.rc-tooltip-placement-top > .rc-tooltip-arrow': {
+      bottom: '6px !important',
       borderTopColor: 'transparent',
       borderRightColor: '#fff',
       borderBottomColor: '#fff',
@@ -417,8 +417,8 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
       left: '50%;',
       transform: 'translateX(-50%) rotate(45deg)',
     },
-    '&.rc-tooltip-placement-right > .rc-tooltip-content > .rc-tooltip-arrow': {
-      left: '6px',
+    '&.rc-tooltip-placement-right > .rc-tooltip-arrow': {
+      left: '6px !important',
       borderTopColor: 'transparent',
       borderRightColor: 'transparent',
       borderBottomColor: '#fff',
@@ -427,8 +427,8 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
       top: '50%',
       transform: 'translateY(-50%) rotate(45deg)',
     },
-    '&.rc-tooltip-placement-bottom > .rc-tooltip-content > .rc-tooltip-arrow': {
-      top: '6px',
+    '&.rc-tooltip-placement-bottom > .rc-tooltip-arrow': {
+      top: '6px !important',
       borderTopColor: '#fff',
       borderRightColor: 'transparent',
       borderBottomColor: 'transparent',
@@ -437,8 +437,8 @@ export const useHelpTooltipStyles = makeStyles()(theme => ({
       left: '50%',
       transform: 'translateX(-50%) rotate(45deg)',
     },
-    '&.rc-tooltip-placement-left > .rc-tooltip-content > .rc-tooltip-arrow': {
-      right: '6px',
+    '&.rc-tooltip-placement-left > .rc-tooltip-arrow': {
+      right: '6px !important',
       borderTopColor: '#fff',
       borderRightColor: '#fff',
       borderBottomColor: 'transparent',

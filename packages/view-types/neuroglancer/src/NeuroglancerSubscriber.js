@@ -4,7 +4,6 @@ import {
 } from '@vitessce/vit-s';
 
 import { ViewHelpMapping } from '@vitessce/constants-internal';
-import { Neuroglancer } from './Neuroglancer.js';
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -28,7 +27,7 @@ export function NeuroglancerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady
     >
-      {viewerStateInitial && <Neuroglancer viewerState={viewerStateInitial} />}
+      
     </TitleInfo>
 
   );
