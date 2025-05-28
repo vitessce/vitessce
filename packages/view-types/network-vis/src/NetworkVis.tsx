@@ -170,7 +170,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   React.useEffect(() => {
     const fetchData = async () => {
       try {// send json files
-        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_1v2.json');
+        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_10v2.json');
         // const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network.json');
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
