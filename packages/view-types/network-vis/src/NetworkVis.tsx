@@ -1,5 +1,11 @@
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+import cytoscape from 'cytoscape';
+import cytoscapeLasso from 'cytoscape-lasso';
+import lasso from 'cytoscape-lasso';
+
+// cytoscape.use(lasso);
+
 
 const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => string, nodeSize: number) => [
   ...nodes.map(node => ({
@@ -23,16 +29,16 @@ const stylesheet = [
     style: {
       'background-color': 'data(color)',
       'width': '10',
-      'height': '10'
+      'height': '10',
+      'border-width': '0px'
     }
   },
   {
     selector: 'node:selected',
     style: {
-      'background-color': '#00ff00',  // Green color for selected nodes
       'border-width': '2px',
-      'border-color': '#000',
-      'border-opacity': 1
+      'border-color': '#ffffff',
+      'border-style': 'solid'
     }
   },
   {
@@ -62,7 +68,8 @@ const nodeColor = (n: any) => n.ftuName === 'glomeruli' ? 'red' : 'yellow';
 const CytoscapeWrapper: React.FC<{
   nodes: any[];
   links: any[];
-}> = ({ nodes, links }) => {
+  onNodeSelect: (nodeIds: string[]) => void;
+}> = ({ nodes, links, onNodeSelect }) => {
   const [selectedNodes, setSelectedNodes] = React.useState<string[]>([]);
 
   const handleNodeSelect = (event: any) => {
@@ -70,6 +77,7 @@ const CytoscapeWrapper: React.FC<{
     const selectedNodeIds = event.cy.nodes(':selected').map((node: any) => node.id());
     setSelectedNodes(selectedNodeIds);
     console.log('Selected nodes:', selectedNodeIds);
+    onNodeSelect(selectedNodeIds);
   };
 
   return (
@@ -79,15 +87,37 @@ const CytoscapeWrapper: React.FC<{
       layout={{ name: 'cose', fit: true, padding: 30 }}
       stylesheet={stylesheet}
       cy={(cy) => {
-        cy.on('select', 'node', handleNodeSelect);
-        cy.on('unselect', 'node', handleNodeSelect);
+        // Wait for the graph to be ready
+        cy.ready(() => {
+          // Initialize lasso selection
+          // cy.lasso({
+          //   lassoInvert: false,
+          //   lassoSelectionMode: 'additive',
+          //   lassoStartEvent: 'mousedown',
+          //   lassoEndEvent: 'mouseup',
+          //   lassoKey: 'shift', // Hold shift to use lasso
+          // });
+          // cy.on('layoutstop', () => {
+          //   cy.lasso({
+          //     lassoInvert: false,
+          //     lassoSelectionMode: 'additive',
+          //     lassoStartEvent: 'mousedown',
+          //     lassoEndEvent: 'mouseup',
+          //     lassoKey: 'shift',
+          //   });
+          // });
+
+          // Handle both regular and lasso selection
+          cy.on('select', 'node', handleNodeSelect);
+          cy.on('unselect', 'node', handleNodeSelect);
+        });
       }}
     />
   );
 };
 
 // Function to filter nodes and links based on the motif criteria
-const filterMotif = (nodes: any[], links: any[]) => {
+const filterMotif = (nodes: any[], links: any[]) => {//still show the entire network, but only show the nodes and links that match the motif
   const filteredNodes = new Set<string>();
   const filteredLinks: { source: string; target: string }[] = [];
 
@@ -115,8 +145,23 @@ const filterMotif = (nodes: any[], links: any[]) => {
   };
 };
 
-// Update the View component to use the filtered subgraph
-export default function NetworkVis() {
+interface NetworkVisProps {
+  onNodeSelect: (nodeIds: string[]) => void;
+  obsSetSelection: string[][];
+  obsSetColor: Array<{ path: string[]; color: [number, number, number] }>;
+  obsHighlight: string | null;
+  additionalCellSets: any;
+  setAdditionalCellSets: (sets: any) => void;
+}
+
+const NetworkVis: React.FC<NetworkVisProps> = ({
+  onNodeSelect,
+  obsSetSelection,
+  obsSetColor,
+  obsHighlight,
+  additionalCellSets,
+  setAdditionalCellSets,
+}) => {
   const [state, setState] = React.useState({
     data: undefined,
     infoText: '',
@@ -124,8 +169,9 @@ export default function NetworkVis() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_1.json');
+      try {// send json files
+        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_1v2.json');
+        // const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network.json');
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
 
@@ -151,7 +197,9 @@ export default function NetworkVis() {
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <CytoscapeWrapper nodes={state.data.nodes} links={state.data.links} />
+      <CytoscapeWrapper nodes={state.data.nodes} links={state.data.links} onNodeSelect={onNodeSelect} />
     </div>
   );
-}
+};
+
+export default NetworkVis;
