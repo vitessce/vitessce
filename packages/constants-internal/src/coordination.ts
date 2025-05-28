@@ -447,6 +447,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+    CoordinationType.SPATIAL_RESOLUTION_RANGE,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,
