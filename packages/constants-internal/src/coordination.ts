@@ -501,6 +501,12 @@ export const COMPONENT_COORDINATION_TYPES = {
   ],
   [ViewType.NETWORK_VIS]: [
     CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.ADDITIONAL_OBS_SETS,
+    CoordinationType.OBS_HIGHLIGHT,
   ],
   [ViewType.DOT_PLOT]: [
     CoordinationType.DATASET,

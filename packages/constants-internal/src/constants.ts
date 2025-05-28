@@ -400,4 +400,5 @@ export const ViewHelpMapping = {
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'The feature set enrichment bar plot displays the results of a hypergeometric test applied to the differential expression test results to identify enriched pathway gene sets.',
   SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
+  NETWORK_VIS: 'The network view displays a network of observations (e.g., cells) and their connections (e.g., via synapses).',
 };

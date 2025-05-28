@@ -183,6 +183,7 @@ export function NeuroglancerSubscriber(props) {
       }
       : layer)),
   }), [cellColorMapping, initialViewerState]);
+  console.log('cellColorMapping', cellColorMapping);
 
   // const derivedViewerState2 = useMemo(() => {
   //   if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
@@ -203,6 +204,7 @@ export function NeuroglancerSubscriber(props) {
   //   spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
+    console.log('Hovered segment ID:', obsId);
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
 

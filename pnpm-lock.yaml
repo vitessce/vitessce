@@ -1848,6 +1848,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/sets-utils':
+        specifier: workspace:*
+        version: link:../../utils/sets-utils
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
@@ -1863,6 +1866,9 @@ importers:
       cytoscape-canvas:
         specifier: ^3.0.1
         version: 3.0.1
+      cytoscape-lasso:
+        specifier: ^1.1.4
+        version: 1.1.4(cytoscape@3.32.0)
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -7327,6 +7333,11 @@ packages:
 
   cytoscape-canvas@3.0.1:
     resolution: {integrity: sha512-R1nCLnJHGTR5fWEpNQQBPyoigdnfhnk1lOHegzmzz1Kg6yxzVf0hfdRAMa0wPAhtC4kkgyoViiIfZ/zyCqMhEQ==}
+
+  cytoscape-lasso@1.1.4:
+    resolution: {integrity: sha512-c0OAm1586wPhIPVeH8teIUJTNgjojagilO0p7T0SABeTor7wmpjqaxmBhR+1QnQ3uQ1yUchPoEeNzlzqR2WM8Q==}
+    peerDependencies:
+      cytoscape: ^3.15.2
 
   cytoscape@3.32.0:
     resolution: {integrity: sha512-5JHBC9n75kz5851jeklCPmZWcg3hUe6sjqJvyk3+hVqFaKcHwHgxsjeN1yLmggoUc6STbtm9/NQyabQehfjvWQ==}
@@ -22141,6 +22152,11 @@ snapshots:
       yauzl: 2.10.0
 
   cytoscape-canvas@3.0.1: {}
+
+  cytoscape-lasso@1.1.4(cytoscape@3.32.0):
+    dependencies:
+      cytoscape: 3.32.0
+      point-in-polygon: 1.1.0
 
   cytoscape@3.32.0: {}
 
