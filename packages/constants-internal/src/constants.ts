@@ -357,6 +357,7 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  SPATIAL_RESOLUTION_RANGE: 'spatialResolutionRange',
 };
 
 export const STATUS = {

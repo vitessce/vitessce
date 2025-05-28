@@ -40,6 +40,8 @@ export default function ImageChannelController(props) {
     featureIndex, // The channel names.
     image, // To get the channel window extent using image metadata.
     spatialRenderingMode,
+    spatialResolutionRange,
+    setSpatialResolutionRange,
   } = props;
 
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();

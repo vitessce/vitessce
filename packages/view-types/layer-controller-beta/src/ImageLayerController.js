@@ -455,6 +455,7 @@ export default function ImageLayerController(props) {
                 spatialChannelOpacity,
                 spatialChannelColor,
                 spatialChannelWindow,
+                spatialResolutionRange,
               } = channelCoordination[cScope];
               const {
                 setSpatialTargetC,
@@ -462,6 +463,7 @@ export default function ImageLayerController(props) {
                 setSpatialChannelOpacity,
                 setSpatialChannelColor,
                 setSpatialChannelWindow,
+                setSpatialResolutionRange,
               } = setChannelCoordination[cScope];
 
               const channelIndex = image?.getChannelIndex(spatialTargetC);
@@ -489,6 +491,8 @@ export default function ImageLayerController(props) {
                   featureIndex={featureIndex}
                   image={image}
                   spatialRenderingMode={spatialRenderingMode}
+                  spatialResolutionRange={spatialResolutionRange}
+                  setSpatialResolutionRange={setSpatialResolutionRange}
                 />
               );
             })}
