@@ -291,6 +291,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_CHANNEL_WINDOW,
+      CoordinationType.SPATIAL_RESOLUTION_RANGE,
     ],
     coordinationScopes,
     coordinationScopesBy,

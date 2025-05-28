@@ -609,6 +609,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_RESOLUTION_RANGE, null, z.array(z.number()).length(2).nullable()),
 ];
 
 export const baseAsyncFunctions = [

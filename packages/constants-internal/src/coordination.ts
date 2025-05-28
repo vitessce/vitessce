@@ -269,6 +269,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.SPATIAL_RESOLUTION_RANGE,
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,
