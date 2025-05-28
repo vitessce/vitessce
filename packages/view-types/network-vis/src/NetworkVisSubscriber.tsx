@@ -47,7 +47,7 @@ export function NetworkVisSubscriber(props:any) {
         setObsSetColor,
         setObsColorEncoding,
         'Selection ',
-        `: based on selected nodes ${nodeIds.join(', ')}`,
+        // `: based on selected nodes ${nodeIds.join(', ')}`,
       );
       
       // Also update the highlight
