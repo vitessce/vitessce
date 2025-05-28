@@ -182,7 +182,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
 
-        return ivec4(coordinate, -10);
+        // return ivec4(coordinate, -10);
 
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
@@ -385,10 +385,15 @@ void main(void) {
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
 
-        if (brickCacheOffset.w == -10) {
-            gColor = vec4(float(brickCacheOffset.x)/8.0, 
-                float(brickCacheOffset.y)/8.0, 
-                float(brickCacheOffset.z)/8.0, 1.0);
+        if (u_clim[1] >= 15.0) {
+            // gColor = vec4(u_clim[0], u_clim[1], 0.0, 1.0);
+            // return;
+        }
+
+        if (false) {
+            gColor = vec4(float(brickCacheOffset.x)/64.0, 
+                float(brickCacheOffset.y)/4.0, 
+                float(brickCacheOffset.z)/1.0, 1.0);
             return;
         }
 

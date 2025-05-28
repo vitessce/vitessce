@@ -40,6 +40,9 @@ export class VolumeRenderManager {
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
 
+    this.maxRange = 255;
+    this.maxRangeSet = false;
+
     // Additional state
     this.mrt = null; // Single MRT reference
 
@@ -114,6 +117,11 @@ export class VolumeRenderManager {
       channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
          || ([0, 255])
     ));
+
+    if (!this.maxRangeSet) {
+      this.maxRange = Math.max(...contrastLimits.map(limit => limit[1]));
+      this.maxRangeSet = true;
+    }
 
     // Extract channel visibility
     const channelsVisible = isRgb ? ([
@@ -203,7 +211,7 @@ export class VolumeRenderManager {
    * @returns {number} Normalized value
    */
   normalizeValue(value, minMax) {
-    return value / 255.0;
+    return value / minMax[1];
   }
 
   /**
@@ -248,7 +256,8 @@ export class VolumeRenderManager {
       if (this.channelsVisible[id]) {
         // Since we don't have volume-based minMax, use fixed values
         // or get them from your brick cache metadata if available
-        const minMax = [0, 255]; // Default values
+        const max = this.maxRange ? this.maxRange : 255;
+        const minMax = [0, max]; // Default values
 
         colorsSave.push([
           this.colors[id][0] / 255,
