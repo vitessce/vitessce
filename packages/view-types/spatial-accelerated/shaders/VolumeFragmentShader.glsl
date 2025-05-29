@@ -56,10 +56,6 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-// const uvec3 voxelExtents = uvec3(1024, 1024, 795);
-// const vec3 voxelStretch = vec3(1.0, 1.0, 1024.0 / 795.0);
-// const vec3 voxelStretchInv = vec3(1.0, 1.0, 795.0 / 1024.0);
-
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
 const float lodFactor = 5.0;
@@ -81,19 +77,19 @@ vec2 intersect_hit(vec3 orig, vec3 dir, vec3 voxelStretchInv) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
     if (u_xClip.x > -1.0) {
-        boxMin.x = u_xClip.x - (boxSize.x / 2.0); // * voxelStretchInv.x;
+        boxMin.x = u_xClip.x - (boxSize.x / 2.0);
         if (u_xClip.y < boxSize.x)
-        boxMax.x = u_xClip.y - (boxSize.x / 2.0); // * voxelStretchInv.x;
+        boxMax.x = u_xClip.y - (boxSize.x / 2.0);
     }
     if (u_yClip.x > -1.0) {
-        boxMin.y = u_yClip.x - (boxSize.y / 2.0); // * voxelStretchInv.y;
+        boxMin.y = u_yClip.x - (boxSize.y / 2.0);
         if (u_yClip.y < boxSize.y)
-        boxMax.y = u_yClip.y - (boxSize.y / 2.0); // * voxelStretchInv.y;
+        boxMax.y = u_yClip.y - (boxSize.y / 2.0);
     }
     if (u_zClip.x > -1.0) {
-        boxMin.z = u_zClip.x - (boxSize.z / 2.0); // * voxelStretchInv.z;
+        boxMin.z = u_zClip.x - (boxSize.z / 2.0);
         if (u_zClip.y < boxSize.z)
-        boxMax.z = u_zClip.y - (boxSize.z / 2.0); // * voxelStretchInv.z;
+        boxMax.z = u_zClip.y - (boxSize.z / 2.0);
     }
     vec3 invDir = 1.0 / dir;
     vec3 tmin0 = (boxMin - orig) * invDir;
@@ -181,14 +177,6 @@ vec3 volumeSizeAtRes(int res) {
 [4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
 */
 
-//input: location as 0..1 coordinate in volume
-//input: targetRes
-//input: channel
-//output: x,y,z as brick address in brick cache, w as resolution
-//if not found -- 0,0,0,-1
-//if empty -- 0,0,0,-2
-//if full -- 0,0,0,-3
-//if constant -- min,currentRes,0,-4
 ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
     int currentRes = targetRes;
@@ -196,12 +184,10 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     while (currentRes <= lowestRes) {
         uvec3 anchorPoint = getAnchorPoint(currentRes);
         // multiplier to scale the [0,1] to the extents in the PT in that res
-        float scale = pow(2.0, float(lowestRes) - float(currentRes)); // lowestRes should be 1 
-        uvec3 channelOffset = getChannelOffset(channel); // this is for the 0th channel now
+        float scale = pow(2.0, float(lowestRes) - float(currentRes));
+        uvec3 channelOffset = getChannelOffset(channel);
         uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
-
-        // return ivec4(coordinate, -10);
 
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
@@ -215,7 +201,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint umax = ((ptEntry >> 16u) & 0x7Fu);
         float min = float(int(umin)) / 127.0;
         float max = float(int(umax)) / 127.0;
-        // return ivec4(int(umin), int(umax), 0, -2);
         if (float(max) <= u_clim[0]) {
             return ivec4(
                 0,
@@ -242,7 +227,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
             currentRes++;
-            // TODO: request brick
             if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
                 gRequest = packBrickCoordToRGBA8(coordinate);
             }
@@ -257,14 +241,13 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         }
     }
 
-    // return x,y,z,resolution (for size) -> maybe add negative values for nonres etc.
     return ivec4(0,0,0,-1);
 }
 
 void setBrickRequest(vec3 location, int targetRes, int channel) {
     uvec3 anchorPoint = getAnchorPoint(targetRes);
-    float scale = pow(2.0, float(lowestRes) - float(targetRes)); // lowestRes should be 1 
-    uvec3 channelOffset = getChannelOffset(channel); // this is for the 0th channel now
+    float scale = pow(2.0, float(lowestRes) - float(targetRes));
+    uvec3 channelOffset = getChannelOffset(channel);
     uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
     gRequest = packBrickCoordToRGBA8(coordinate);
 }
@@ -287,29 +270,15 @@ int getLOD(float distance, int highestRes, int lowestRes, float lodFactor) {
     return clamp(lod, highestRes, lowestRes);
 }
 
-// TODO:
-// conditionals -> alpha above certain value -> increase target res
-// if distance above certain value -> increase target res (?)
-// if zoomed out (voxel smaller than pixel) -> increase target res
-// differentiate between ws and os
-
-
 void main(void) {
 
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
-    // return;
 
-    // float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
-    // TODO: stretch factor is based on the scale
     float stretchFactor = float(pow(2.0, float(lowestRes)) * 32.0);
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
     vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
-
-    float ws_stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
-    vec3 ws_voxelStretch = ws_stretchFactor / vec3(voxelExtents);
-    vec3 ws_voxelStretchInv = vec3(1.0) / vec3(ws_voxelStretch);
 
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
@@ -332,22 +301,13 @@ void main(void) {
     int current_LOD = getLOD(t_os, highestResC0, lowestResC0, lodFactor);
     int targetResC0 = current_LOD;
 
-    //STEP 3: Compute the step size to march through the volume grid
-    // ivec3 volumeTexSize = textureSize(brickCacheTex, 0);
     ivec3 volumeTexSize = ivec3(voxelExtents);
 
     vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
-    // t_hit is now between 0 and 15
 
-    // boxSize is now 1 x 1 x 795/1024
-    // that is the voxel ratio
-    // NOT the physical pixel ratio
-
-    // TODO lowest and higest res should be over all channels
     int renderResAdaptive = renderRes;
     int renderResolutionEffective = clamp(renderRes, highestResC0, 5);
-    // renderResolutionEffective = 0;
 
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
@@ -376,17 +336,11 @@ void main(void) {
     float alphaMultiplicator = 1.0;
     vec3 localPos = vec3(0.0);
 
-    // t is in world space now
     int currentLOD = targetResC0;
 
     vec3 p_stretched = p * voxelStretchInv;
 
-    // gColor = vec4(p_stretched.x, p_stretched.y, p_stretched.z, 1.0);
-    // gColor = vec4(p.x, p.y, p.z, 1.0);
-    // return;
-
     while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0 
-        // && t <= t_hit.y && t >= t_hit.x // TODO: T CALCULATION IS NOT CORRECT.
         && t_os <= t_hit_max_os && t_os >= t_hit_min_os
         ) {
 
@@ -400,13 +354,11 @@ void main(void) {
             currentLOD = targetResC0;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
-            // p -= step * randomOffset;
+            p -= step * randomOffset;
             dt = dt_base * pow(2.0, float(renderResolutionEffective));
             step = os_rayDir * dt;
-            // p += step * randomOffset;
+            p += step * randomOffset;
         }
-
-        // dt = dt_base * pow(2.0, float(targetResC0));
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
         currentBrickLocation = brickCacheOffset;
@@ -473,8 +425,6 @@ void main(void) {
             float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
             localPos = fract(p_stretched * scale);
 
-            // dt = dt_base * pow(2.0, float(brickCacheOffset.w));
-
             vec3 brickCacheCoord = vec3(
                 (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
                 (float(brickCacheOffset.y) * 32.0 + localPos.y * 32.0) / 2048.0,
@@ -485,27 +435,7 @@ void main(void) {
 
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
 
-            // color based on t
-            vec3 colorVal = vec3(0.0);
-            if (brickCacheOffset.w == 0) {
-                colorVal = vec3(0.0, 1.0, 1.0);
-            } else if (brickCacheOffset.w == 1) {
-                colorVal = vec3(0.25, 1.0, 1.0);
-                // colorVal = vec3(1.0, 0.0, 0.0);
-            } else if (brickCacheOffset.w == 2) {
-                colorVal = vec3(0.5, 0.75, 1.0);
-                // colorVal = vec3(0.0, 1.0, 0.0);
-            } else if (brickCacheOffset.w == 3) {
-                colorVal = vec3(0.75, 0.5, 1.0);
-                // colorVal = vec3(1.0, 0.0, 1.0);
-            } else if (brickCacheOffset.w == 4) {
-                colorVal = vec3(1.0, 0.25, 1.0);
-                // colorVal = vec3(1.0, 1.0, 0.0);
-            } else if (brickCacheOffset.w == 5) {
-                colorVal = vec3(1.0, 0.25, 0.75);
-                // colorVal = vec3(0.0, 0.0, 1.0);
-            }
-            colorVal = vec3(1.0, 0.0, 0.0);
+            vec3 colorVal = u_color;
 
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetResC0
@@ -519,17 +449,10 @@ void main(void) {
             ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
             ivec3 newVoxelInBrick = currentVoxelInBrick;
 
-            int reps = 0;
             rgbCombo += rgbComboAdd;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord
                 && currentVoxelInBrick == newVoxelInBrick) {
-
-                if (reps > 0) {
-                    // gColor = vec4(0.0, 0.0, 1.0, 1.0);
-                    // return;
-                }
-                reps++;
             
                 total = val;
 
@@ -541,7 +464,6 @@ void main(void) {
                 outColor.a   += sliceAlpha * alphaMultiplicator;
 
                 if (outColor.a > 0.99) {
-                    // outColor = vec4(0.0, 0.0, 1.0, 1.0);
                     break;
                 }
 
@@ -558,7 +480,6 @@ void main(void) {
         }
         
         if (outColor.a > 0.99) {
-            // outColor = vec4(0.0, 0.0, 1.0, 1.0);
             break;
         }
     }
@@ -569,19 +490,4 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
 
-    if (gRequest.a + gRequest.b + gRequest.g + gRequest.r > 0.0) {
-        // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
-    }
-
-    uint ptEntry = texelFetch(pageTableTex, ivec3(0, 0, 1), 0).r;
-    if (ptEntry != 0u) {
-        // gColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    // gColor = vec4(vec3(glPosition), 1.0);
-
-    // gColor = vec4(outColor.a, 0.0, 0.0, 1.0);
-    
-    // gColor = vec4(float(ptEntry) / 4294967295.0, 0.0, 0.0, 1.0);
-    // float val = texture(brickCacheTex, vec3(31.0, 0.0, 0.0)).r;
-    // gColor = vec4(val, 0.0, 0.0, 1.0);
 }
