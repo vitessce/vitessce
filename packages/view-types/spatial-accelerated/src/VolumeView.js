@@ -66,8 +66,10 @@ export function VolumeView(props) {
     log('useEffect INIT');
     (async () => {
       const dm = new VolumeDataManager(
+        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
         // 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
-        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+        'http://127.0.0.1:8080/gloria_conversion/v1',
         gl.getContext?.() || gl,
         gl,
       );
@@ -227,13 +229,11 @@ export function VolumeView(props) {
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
       managers?.dataManager.processRequestData(bufRequest.current);
-    }
-    if (f % 1000 === 0) {
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
-      // managers?.dataManager.processUsageData(bufUsage.current);
+      managers?.dataManager.processUsageData(bufUsage.current);
     }
   }
 

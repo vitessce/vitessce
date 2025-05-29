@@ -46,7 +46,7 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 
-const manualChannelSelection = 2;
+const manualChannelSelection = 0;
 
 // Add a constant for initialization status
 const INIT_STATUS = {
@@ -78,6 +78,10 @@ export class VolumeDataManager {
       // Assume it's already a WebGL context
       this.gl = gl;
     }
+
+    // const maxFragmentUniformVectors = this.gl.getParameter(this.gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+    // console.warn('maxFragmentUniformVectors', maxFragmentUniformVectors);
+    // 1024
 
     this.renderer = renderer;
 
@@ -190,8 +194,9 @@ export class VolumeDataManager {
     this.requestsStack = [];
 
     // brick cache structure for internal calculations
-    this.BCTimeStamps = [];
-    this.BCMinMax = [];
+    const totalBricks = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+    this.BCTimeStamps = new Array(totalBricks).fill(0);
+    this.BCMinMax = new Array(totalBricks).fill([0, 0]);
     this.BCFull = false;
     this.BCUnusedIndex = 0;
 
@@ -672,35 +677,114 @@ export class VolumeDataManager {
   }
 
 
-  /**
-   * Process data from render targets
-   * @param {Float32Array} buffer - Pixel data from render target
-   * @param {number} targetId - Which render target (1 or 2)
-   */
   async processUsageData(buffer) {
-    // console.log('Processing data from usage buffer');
+    // Increment timestamp for this usage scan
+    const now = ++this.timeStamp;
+    const usedBricks = new Set();
 
-    // Process the render target data here
-    // This is where you implement your specific processing logic
-    // For example:
-
-    // Example: Count number of pixels above threshold
-    const threshold = 0.5;
-    let pixelsAboveThreshold = 0;
-
+    // Process buffer to identify used bricks
     for (let i = 0; i < buffer.length; i += 4) {
-      // Check R channel value
-      if (buffer[i] > threshold) {
-        pixelsAboveThreshold++;
+      const x = buffer[i];
+      const y = buffer[i + 1];
+      const z = buffer[i + 2];
+
+      // Skip empty entries
+      if ((x | y | z) === 0) continue;
+
+      // Calculate brick index
+      const bcIndex = z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y + y * BRICK_CACHE_SIZE_X + x;
+
+      // Only add valid indices
+      if (bcIndex < this.BCTimeStamps.length) {
+        usedBricks.add(bcIndex);
       }
     }
-    // You can add more complex processing here
-    // Or store the data for later use
+    // Update timestamps for all used bricks at once
+    Array.from(usedBricks).forEach(bcIndex => {
+      this.BCTimeStamps[bcIndex] = now;
+    });
+
+    // Check if brick cache is full based on allocation index
+    this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
+
+    // If cache is full or we want to always maintain the LRU list
+    if (this.BCFull || true) { // Always update LRU list
+      // Find the top k least recently used bricks
+      const brickIndicesWithTimes = this.BCTimeStamps.map((time, index) => ({ index, time }));
+      this.LRUStack = brickIndicesWithTimes
+        .sort((a, b) => a.time - b.time) // Sort by timestamp (oldest first)
+        .slice(0, this.k) // Take top k least used
+        .map(item => item.index);
+
+      this.LRUReady = true;
+    }
+
+    // console.warn('this.BCTimeStamps', this.BCTimeStamps);
+    // console.warn('this.timeStamp', this.timeStamp);
+    // console.warn('this.BCFull', this.BCFull);
+    // console.warn('this.BCUnusedIndex', this.BCUnusedIndex);
+    // console.warn('this.BCMinMax', this.BCMinMax);
   }
 
-  /* ------------------------------------------------------------- *
- * 1. Convert PT (x,y,z) → { level, bx, by, bz } in Zarr space  *
- * ------------------------------------------------------------- */
+  // Helper method to update PT entries for evicted bricks
+  _updatePTForEvictedBricks(brickIndices) {
+    brickIndices.forEach((bcIndex) => {
+      // Get brick coordinates
+      const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+      const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+      const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+      const x = rem % BRICK_CACHE_SIZE_X;
+
+      // Find which PT entries reference this brick
+      // This requires scanning the PT to find entries that point to this brick
+      // For efficiency, we might want to maintain a reverse mapping
+
+      // Get min/max values from cache
+      const [min, max] = this.BCMinMax[bcIndex] || [0, 0];
+
+      // Create PT value that indicates "not resident but init"
+      const ptVal = this._packPTNotResident(min, max, x, y, z);
+
+      // Update PT entry (this is a simplified version - need to identify correct PT coordinates)
+      // This will require scanning through PT to find references to this brick
+      this._updatePTEntry(x, y, z, ptVal);
+    });
+  }
+
+  // Pack PT entry indicating "not resident but init" with min/max preserved
+  _packPTNotResident(min, max, bcX, bcY, bcZ) {
+    // Scale down to 7-bit range (0-127) by dividing by 2
+    const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
+
+    return (
+      (0 << 31) // bit-31 = NOT resident
+      | (1 << 30) // bit-30 = init-done
+      | (clamp7(min) << 23) // 7 bits
+      | (clamp7(max) << 16) // 7 bits
+      | ((bcX & 0x3F) << 10) // 6 bits
+      | ((bcY & 0x3F) << 4) // 6 bits
+      | (bcZ & 0x0F) // 4 bits
+    ) >>> 0; // keep unsigned
+  }
+
+  // Update a PT entry
+  _updatePTEntry(ptX, ptY, ptZ, ptVal) {
+    if (!this.ptTHREE) return;
+
+    const { gl } = this;
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      ptX, ptY, ptZ,
+      1, 1, 1,
+      gl.RED_INTEGER, gl.UNSIGNED_INT,
+      new Uint32Array([ptVal]),
+    );
+    gl.bindTexture(gl.TEXTURE_3D, null);
+  }
+
   _ptToZarr(ptx, pty, ptz) {
     let channel = -1;
     let resolution = -1;
@@ -919,8 +1003,8 @@ export class VolumeDataManager {
     }
 
     /* 4.5 bookkeeping */
-    const now = ++this.timeStamp;
-    this.BCTimeStamps[bcSlot.bcIndex] = now;
+    // const now = ++this.timeStamp;
+    // this.BCTimeStamps[bcSlot.bcIndex] = now;
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
     // console.log('bookkeeping');
   }
@@ -932,7 +1016,6 @@ export class VolumeDataManager {
     // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
     console.log('ptRequests', ptRequests);
-    // console.log(new Error().stack);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);

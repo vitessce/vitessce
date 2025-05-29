@@ -56,7 +56,7 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-const int highestResC0 = 1;
+const int highestResC0 = 0;
 const int lowestResC0 = 5;
 const float lodFactor = 2.0;
 
