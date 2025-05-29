@@ -26,6 +26,7 @@ uniform float opacity;
 uniform highp vec3 boxSize;
 uniform int renderRes;
 uniform uvec3 voxelExtents;
+
 uniform uvec3 anchor0;
 uniform uvec3 anchor1;
 uniform uvec3 anchor2;
@@ -36,7 +37,17 @@ uniform uvec3 anchor6;
 uniform uvec3 anchor7;
 uniform uvec3 anchor8;
 uniform uvec3 anchor9;
-uniform uvec3 anchor10;
+
+uniform vec3 scale0; // should be 1 1 1
+uniform vec3 scale1;
+uniform vec3 scale2;
+uniform vec3 scale3;
+uniform vec3 scale4;
+uniform vec3 scale5;
+uniform vec3 scale6;
+uniform vec3 scale7;
+uniform vec3 scale8;
+uniform vec3 scale9;
 
 varying vec4 glPosition; // also unused
 varying vec3 worldSpaceCoords; // only used for depth
@@ -51,30 +62,38 @@ layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 4.0;
+const float lodFactor = 5.0;
 
 const int renderResC0 = 5;
 
 const int targetResC0 = 5; // highest
 const int lowestRes = 5;
 
+bool smallEq(vec3 x, vec3 y) {
+    return x.x <= y.x && x.y <= y.y && x.z <= y.z;
+}
+
+bool largeEq(vec3 x, vec3 y) {
+    return x.x >= y.x && x.y >= y.y && x.z >= y.z;
+}
+
 vec2 intersect_hit(vec3 orig, vec3 dir, vec3 voxelStretchInv) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
     if (u_xClip.x > -1.0) {
-        boxMin.x = u_xClip.x - (boxSize.x / 2.0) * voxelStretchInv.x;
+        boxMin.x = u_xClip.x - (boxSize.x / 2.0); // * voxelStretchInv.x;
         if (u_xClip.y < boxSize.x)
-        boxMax.x = u_xClip.y - (boxSize.x / 2.0) * voxelStretchInv.x;
+        boxMax.x = u_xClip.y - (boxSize.x / 2.0); // * voxelStretchInv.x;
     }
     if (u_yClip.x > -1.0) {
-        boxMin.y = u_yClip.x - (boxSize.y / 2.0) * voxelStretchInv.y;
+        boxMin.y = u_yClip.x - (boxSize.y / 2.0); // * voxelStretchInv.y;
         if (u_yClip.y < boxSize.y)
-        boxMax.y = u_yClip.y - (boxSize.y / 2.0) * voxelStretchInv.y;
+        boxMax.y = u_yClip.y - (boxSize.y / 2.0); // * voxelStretchInv.y;
     }
     if (u_zClip.x > -1.0) {
-        boxMin.z = u_zClip.x - (boxSize.z / 2.0) * voxelStretchInv.z;
+        boxMin.z = u_zClip.x - (boxSize.z / 2.0); // * voxelStretchInv.z;
         if (u_zClip.y < boxSize.z)
-        boxMax.z = u_zClip.y - (boxSize.z / 2.0) * voxelStretchInv.z;
+        boxMax.z = u_zClip.y - (boxSize.z / 2.0); // * voxelStretchInv.z;
     }
     vec3 invDir = 1.0 / dir;
     vec3 tmin0 = (boxMin - orig) * invDir;
@@ -283,9 +302,14 @@ void main(void) {
     // return;
 
     // float stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    // TODO: stretch factor is based on the scale
     float stretchFactor = float(pow(2.0, float(lowestRes)) * 32.0);
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
     vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
+
+    float ws_stretchFactor = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    vec3 ws_voxelStretch = ws_stretchFactor / vec3(voxelExtents);
+    vec3 ws_voxelStretchInv = vec3(1.0) / vec3(ws_voxelStretch);
 
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
@@ -299,7 +323,13 @@ void main(void) {
 
     float t = t_hit.x;
 
-    int current_LOD = getLOD(t, highestResC0, lowestResC0, lodFactor);
+    float ws2os = length(ws_rayDir / boxSize);  // scalar conversion factor
+
+    float t_hit_min_os = t_hit.x * ws2os;       // entry distance in OS units
+    float t_hit_max_os = t_hit.y * ws2os;       // exit  distance in OS units
+    float t_os         = t_hit_min_os;          // our new marching parameter
+
+    int current_LOD = getLOD(t_os, highestResC0, lowestResC0, lodFactor);
     int targetResC0 = current_LOD;
 
     //STEP 3: Compute the step size to march through the volume grid
@@ -356,7 +386,9 @@ void main(void) {
     // return;
 
     while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0 
-        && t <= t_hit.y && t >= t_hit.x) {
+        // && t <= t_hit.y && t >= t_hit.x // TODO: T CALCULATION IS NOT CORRECT.
+        && t_os <= t_hit_max_os && t_os >= t_hit_min_os
+        ) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
@@ -386,6 +418,7 @@ void main(void) {
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
                 p += step;
                 t += dt;
+                t_os += dt;
                 p_stretched = p * voxelStretchInv;
 
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
@@ -406,6 +439,7 @@ void main(void) {
 
                 p += step;
                 t += dt;
+                t_os += dt;
                 p_stretched = p * voxelStretchInv;
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
@@ -428,6 +462,7 @@ void main(void) {
             
                 p += step;
                 t += dt;
+                t_os += dt;
                 p_stretched = p * voxelStretchInv;
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
             }
@@ -514,6 +549,7 @@ void main(void) {
 
                 t += dt;
                 p += step;
+                t_os += dt;
                 p_stretched = p * voxelStretchInv;
 
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
@@ -542,6 +578,8 @@ void main(void) {
         // gColor = vec4(1.0, 0.0, 0.0, 1.0);
     }
     // gColor = vec4(vec3(glPosition), 1.0);
+
+    // gColor = vec4(outColor.a, 0.0, 0.0, 1.0);
     
     // gColor = vec4(float(ptEntry) / 4294967295.0, 0.0, 0.0, 1.0);
     // float val = texture(brickCacheTex, vec3(31.0, 0.0, 0.0)).r;
