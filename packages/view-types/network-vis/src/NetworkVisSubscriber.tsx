@@ -37,24 +37,23 @@ export function NetworkVisSubscriber(props:any) {
   const onNodeSelect = useCallback((nodeIds: string[]) => {
     console.log('onNodeSelect', nodeIds);
     if (nodeIds && nodeIds.length > 0) {
-      // Create a selection in the obsSets manager
+      // Create a new selection in the obsSets manager for this lasso selection
+      // Only create a new selection if we have nodes selected
+      const timestamp = new Date().getTime();
       setObsSelection(
-        nodeIds, // Already strings from NetworkVis
+        nodeIds,
         additionalObsSets,
         obsSetColor,
         setObsSetSelection,
         setAdditionalObsSets,
         setObsSetColor,
         setObsColorEncoding,
-        'Selection ',
-        // `: based on selected nodes ${nodeIds.join(', ')}`,
+        `Selection ${timestamp}`, // Use timestamp to ensure unique names
       );
       
-      // Also update the highlight
-      if (nodeIds.length === 1) {
+      // Also update the highlight to the first node of this selection
+      if (nodeIds.length > 0) {
         setObsHighlight(nodeIds[0]);
-      } else {
-        setObsHighlight(null);
       }
     }
   }, [

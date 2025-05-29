@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape, { Core } from 'cytoscape';
 import cytoscapeLasso from 'cytoscape-lasso';
@@ -43,6 +43,14 @@ const stylesheet = [
     }
   },
   {
+    selector: 'node.highlighted',
+    style: {
+      'border-width': '2px',
+      'border-color': '#00ff00',
+      'border-style': 'solid'
+    }
+  },
+  {
     selector: 'edge',
     style: {
       'width': '1',
@@ -70,38 +78,77 @@ const CytoscapeWrapper: React.FC<{
   nodes: any[];
   links: any[];
   onNodeSelect: (nodeIds: string[]) => void;
-}> = ({ nodes, links, onNodeSelect }) => {
-  const [selectedNodes, setSelectedNodes] = React.useState<string[]>([]);
+  obsSetSelection: string[][];
+  obsHighlight: string | null;
+}> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight }) => {
   const cyRef = React.useRef<any>(null);
+  const selectionTimeoutRef = React.useRef<number | null>(null);
 
+  // Handle node selection
   const handleNodeSelect = (event: any) => {
-    // Get all selected nodes from the cy instance
-    const selectedNodes = event.cy.nodes(':selected');
-    const selectedNodeIds: string[] = [];
+    // Clear any existing timeout
+    if (selectionTimeoutRef.current) {
+      clearTimeout(selectionTimeoutRef.current);
+    }
 
-    selectedNodes.forEach((node: any) => {
-      const nodeData = node.data();
-      if (nodeData.ftuName === 'nerves') {
-        console.log("IDDDDD", nodeData.id);
-        if (nodeData.id.startsWith('merged_')) {
-          // For merged nodes, use subComponents with 000 suffix
-          nodeData.subComponents.forEach((subId: string) => {
-            selectedNodeIds.push(`${subId}000`);
-          });
+    // Set a new timeout to debounce the selection
+    selectionTimeoutRef.current = window.setTimeout(() => {
+      // Get all selected nodes from the cy instance
+      const selectedNodes = event.cy.nodes(':selected');
+      const selectedNodeIds: string[] = [];
+
+      selectedNodes.forEach((node: any) => {
+        const nodeData = node.data();
+        if (nodeData.ftuName === 'nerves') {
+          if (nodeData.id.startsWith('merged_')) {
+            // For merged nodes, use subComponents with 000 suffix
+            nodeData.subComponents.forEach((subId: string) => {
+              selectedNodeIds.push(`${subId}000`);
+            });
+          } else {
+            // For regular nerve nodes, add 000 suffix
+            selectedNodeIds.push(`${nodeData.id}000`);
+          }
         } else {
-          // For regular nerve nodes, add 000 suffix
-          selectedNodeIds.push(`${nodeData.id}000`);
+          // For non-nerve nodes, use the ID as is
+          selectedNodeIds.push(nodeData.id);
         }
-      } else {
-        // For non-nerve nodes, use the ID as is
-        selectedNodeIds.push(nodeData.id);
-      }
-    });
+      });
 
-    setSelectedNodes(selectedNodeIds);
-    console.log('Selected nodes:', selectedNodeIds);
-    onNodeSelect(selectedNodeIds);
+      console.log('Selected nodes:', selectedNodeIds);
+      onNodeSelect(selectedNodeIds);
+    }, 100); // 100ms debounce
   };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (selectionTimeoutRef.current) {
+        clearTimeout(selectionTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Update highlighting based on obsSetSelection and obsHighlight
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    // Remove all highlighting first
+    cyRef.current.nodes().removeClass('highlighted');
+
+    // If there's a highlighted obs set, highlight those nodes
+    if (obsHighlight !== null) {
+      const highlightedSet = obsSetSelection.find(set => set.includes(obsHighlight));
+      if (highlightedSet) {
+        highlightedSet.forEach(nodeId => {
+          const node = cyRef.current.getElementById(nodeId);
+          if (node.length > 0) {
+            node.addClass('highlighted');
+          }
+        });
+      }
+    }
+  }, [obsSetSelection, obsHighlight]);
 
   return (
     <CytoscapeComponent
@@ -205,7 +252,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <CytoscapeWrapper nodes={state.data.nodes} links={state.data.links} onNodeSelect={onNodeSelect} />
+      <CytoscapeWrapper 
+        nodes={state.data.nodes} 
+        links={state.data.links} 
+        onNodeSelect={onNodeSelect}
+        obsSetSelection={obsSetSelection}
+        obsHighlight={obsHighlight}
+      />
     </div>
   );
 };

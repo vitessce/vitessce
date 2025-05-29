@@ -98,8 +98,6 @@ export function ObsSetsManagerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
-  console.log('cellSetSelection', cellSetSelection);
-  console.log('dataset', cellColorEncoding);
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
