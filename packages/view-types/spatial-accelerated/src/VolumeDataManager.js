@@ -708,7 +708,7 @@ export class VolumeDataManager {
     this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
 
     // If cache is full or we want to always maintain the LRU list
-    if (this.BCFull || true) { // Always update LRU list
+    if (this.BCFull) { // Always update LRU list
       // Find the top k least recently used bricks
       const brickIndicesWithTimes = this.BCTimeStamps.map((time, index) => ({ index, time }));
       this.LRUStack = brickIndicesWithTimes

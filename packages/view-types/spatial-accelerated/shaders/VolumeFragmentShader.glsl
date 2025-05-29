@@ -257,6 +257,7 @@ void setBrickRequest(vec3 location, int targetRes, int channel) {
 void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
     float normalized_t_os = (t_os - t_hit_min_os) / (t_hit_max_os - t_hit_min_os); // should be between 0 and 1
     if (normalized_t_os <= rnd || gUsage == vec4(0.0, 0.0, 0.0, 0.0)) {
+        // gUsage = vec4(gUsage.rgb + vec3(0.1), 1.0);
         gUsage = vec4(vec3(brickCacheOffset) / 255.0, 1.0);
     }
 }

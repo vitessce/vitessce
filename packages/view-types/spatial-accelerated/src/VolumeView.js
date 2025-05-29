@@ -245,12 +245,10 @@ export function VolumeView(props) {
       if (renderSpeed !== 0) {
         setRenderSpeed(0);
         console.log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
-        // log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
         stillRef.current = false;
         invalidate();
       } else if (!stillRef.current) {
         console.log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
-        // log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
         stillRef.current = true;
       }
       return;
