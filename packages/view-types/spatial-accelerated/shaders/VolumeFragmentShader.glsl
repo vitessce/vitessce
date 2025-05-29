@@ -56,7 +56,7 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-const int highestResC0 = 0;
+const int highestResC0 = 1;
 const int lowestResC0 = 5;
 const float lodFactor = 2.0;
 
@@ -254,10 +254,10 @@ void setBrickRequest(vec3 location, int targetRes, int channel) {
     gRequest = packPTCoordToRGBA8(coordinate);
 }
 
-void setUsage(vec3 brickCoord, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
+void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
     float normalized_t_os = (t_os - t_hit_min_os) / (t_hit_max_os - t_hit_min_os); // should be between 0 and 1
-    if (normalized_t_os < rnd) {
-        gUsage = vec4(brickCoord, 1.0);
+    if (normalized_t_os <= rnd || gUsage == vec4(0.0, 0.0, 0.0, 0.0)) {
+        gUsage = vec4(vec3(brickCacheOffset) / 255.0, 1.0);
     }
 }
 
@@ -363,10 +363,10 @@ void main(void) {
             currentLOD = targetResC0;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
-            p -= step * rnd;
+            // p -= step * rnd;
             dt = dt_base * pow(2.0, float(renderResolutionEffective));
             step = os_rayDir * dt;
-            p += step * rnd;
+            // p += step * rnd;
         }
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
@@ -440,7 +440,7 @@ void main(void) {
                 (float(brickCacheOffset.z) * 32.0 + localPos.z * 32.0) / 128.0
             );
 
-            setUsage(brickCacheCoord, t_hit_min_os, t_hit_max_os, t_os, rnd);
+            setUsage(brickCacheOffset.xyz, t_hit_min_os, t_hit_max_os, t_os, rnd);
 
             float val = texture(brickCacheTex, brickCacheCoord).r;
 
@@ -459,7 +459,6 @@ void main(void) {
 
             ivec3 currentVoxelInBrick = ivec3(localPos * 32.0);
             ivec3 newVoxelInBrick = currentVoxelInBrick;
-
             rgbCombo += rgbComboAdd;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord
@@ -500,9 +499,6 @@ void main(void) {
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
-    
-    if (gUsage == vec4(0.0, 0.0, 0.0, 0.0)) {
-        // gColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
 
+    // gColor = linear_to_srgb(gUsage);
 }
