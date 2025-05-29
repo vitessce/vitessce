@@ -58,7 +58,7 @@ layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 5.0;
+const float lodFactor = 2.0;
 
 const int renderResC0 = 5;
 
@@ -118,7 +118,8 @@ vec4 linear_to_srgb(vec4 x) {
     return vec4(linear_to_srgb(x.r), linear_to_srgb(x.g), linear_to_srgb(x.b), x.a);
 }
 
-vec4 packBrickCoordToRGBA8(uvec3 coord) {
+vec4 packPTCoordToRGBA8(uvec3 coord) {
+
     uint x = coord.x & 0x3FFu; // 10 bits
     uint y = coord.y & 0x3FFu; // 10 bits
     uint z = coord.z & 0xFFFu; // 12 bits
@@ -186,14 +187,15 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         // multiplier to scale the [0,1] to the extents in the PT in that res
         float scale = pow(2.0, float(lowestRes) - float(currentRes));
         uvec3 channelOffset = getChannelOffset(channel);
-        uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
+        uvec3 flooredLocation = uvec3(floor(location * scale));
+        uvec3 coordinate = uvec3(anchorPoint * channelOffset) + flooredLocation;
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
 
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
             if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
-                gRequest = packBrickCoordToRGBA8(coordinate);
+                gRequest = packPTCoordToRGBA8(coordinate);
             }
             continue;
         }
@@ -228,7 +230,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         if (isResident == 0u) {
             currentRes++;
             if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
-                gRequest = packBrickCoordToRGBA8(coordinate);
+                gRequest = packPTCoordToRGBA8(coordinate);
             }
             continue;
         } else {
@@ -249,7 +251,14 @@ void setBrickRequest(vec3 location, int targetRes, int channel) {
     float scale = pow(2.0, float(lowestRes) - float(targetRes));
     uvec3 channelOffset = getChannelOffset(channel);
     uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
-    gRequest = packBrickCoordToRGBA8(coordinate);
+    gRequest = packPTCoordToRGBA8(coordinate);
+}
+
+void setUsage(vec3 brickCoord, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
+    float normalized_t_os = (t_os - t_hit_min_os) / (t_hit_max_os - t_hit_min_os); // should be between 0 and 1
+    if (normalized_t_os < rnd) {
+        gUsage = vec4(brickCoord, 1.0);
+    }
 }
 
 ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
@@ -319,9 +328,9 @@ void main(void) {
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
 
-    float randomOffset = random();
+    float rnd = random();
 
-    p += step * (randomOffset);
+    p += step * (rnd);
     p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
     bool overWrittenRequest = false;
@@ -340,8 +349,8 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
-    while (vec3_max(p) <= 1.0 && vec3_min(p) >= 0.0 
-        && t_os <= t_hit_max_os && t_os >= t_hit_min_os
+    while (vec3_max(p) < 1.0 && vec3_min(p) >= 0.0 
+        && t_os < t_hit_max_os && t_os >= t_hit_min_os
         ) {
 
         vec3 rgbCombo = vec3(0.0);
@@ -354,10 +363,10 @@ void main(void) {
             currentLOD = targetResC0;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
-            p -= step * randomOffset;
+            p -= step * rnd;
             dt = dt_base * pow(2.0, float(renderResolutionEffective));
             step = os_rayDir * dt;
-            p += step * randomOffset;
+            p += step * rnd;
         }
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
@@ -431,6 +440,8 @@ void main(void) {
                 (float(brickCacheOffset.z) * 32.0 + localPos.z * 32.0) / 128.0
             );
 
+            setUsage(brickCacheCoord, t_hit_min_os, t_hit_max_os, t_os, rnd);
+
             float val = texture(brickCacheTex, brickCacheCoord).r;
 
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
@@ -489,5 +500,9 @@ void main(void) {
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
+    
+    if (gUsage == vec4(0.0, 0.0, 0.0, 0.0)) {
+        // gColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
 
 }
