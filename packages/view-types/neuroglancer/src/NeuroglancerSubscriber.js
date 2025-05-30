@@ -168,12 +168,7 @@ export function NeuroglancerSubscriber(props) {
   const cellColorMapping = useMemo(() => {
     const colorCellMapping = {};
     cellColors.forEach((color, cell) => {
-      // colorCellMapping[cell] = rgbToHex(color);
-      if (cell < 1000) {
-        colorCellMapping[cell] = '#f50505';
-      } else {
-        colorCellMapping[cell] = '#f5c905';
-      }
+      colorCellMapping[cell] = rgbToHex(color);
     });
     return colorCellMapping;
   }, [cellColors, rgbToHex]);
@@ -188,7 +183,6 @@ export function NeuroglancerSubscriber(props) {
       }
       : layer)),
   }), [cellColorMapping, initialViewerState]);
-  console.log('cellColorMapping', cellColorMapping);
 
   // const derivedViewerState2 = useMemo(() => {
   //   if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
