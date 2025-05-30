@@ -72,13 +72,13 @@
     "sass": "^1.55.0",
     "serve-static": "^1.15.0",
     "set.prototype.intersection": "^1.1.5",
+    "svg-inline-loader": "^0.8.2",
     "terser": "^5.15.0",
     "typescript": "^5.5.3",
     "unified": "^8.3.2",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "vitest-canvas-mock": "^0.3.0",
-    "svg-inline-loader": "^0.8.2"
+    "vitest-canvas-mock": "^0.3.0"
   },
   "pnpm": {
     "overrides": {
@@ -93,7 +93,8 @@
     },
     "patchedDependencies": {
       "@janelia-flyem/neuroglancer@2.37.5": "patches/@janelia-flyem__neuroglancer@2.37.5.patch",
-      "@janelia-flyem/react-neuroglancer@2.5.0": "patches/@janelia-flyem__react-neuroglancer@2.5.0.patch"
+      "@janelia-flyem/react-neuroglancer@2.5.0": "patches/@janelia-flyem__react-neuroglancer@2.5.0.patch",
+      "rc-tree@2.1.0": "patches/rc-tree@2.1.0.patch"
     }
   },
   "license": "MIT",

@@ -281,6 +281,9 @@ patchedDependencies:
   '@janelia-flyem/react-neuroglancer@2.5.0':
     hash: hxg6sfd36o4iswp27bowaavnia
     path: patches/@janelia-flyem__react-neuroglancer@2.5.0.patch
+  rc-tree@2.1.0:
+    hash: hdjvagp5s4yv7caomcvkcnwcsu
+    path: patches/rc-tree@2.1.0.patch
 
 importers:
 
@@ -1927,7 +1930,7 @@ importers:
         version: 6.4.0(react-dom@19.1.0(react@18.2.0))(react@18.2.0)
       rc-tree:
         specifier: 2.1.0
-        version: 2.1.0(react-dom@19.1.0(react@18.2.0))(react@18.2.0)
+        version: 2.1.0(patch_hash=hdjvagp5s4yv7caomcvkcnwcsu)(react-dom@19.1.0(react@18.2.0))(react@18.2.0)
       react-color-with-lodash:
         specifier: ^2.19.5
         version: 2.19.5(react@18.2.0)
@@ -26605,7 +26608,7 @@ snapshots:
       react: 18.2.0
       react-dom: 19.1.0(react@18.2.0)
 
-  rc-tree@2.1.0(react-dom@19.1.0(react@18.2.0))(react@18.2.0):
+  rc-tree@2.1.0(patch_hash=hdjvagp5s4yv7caomcvkcnwcsu)(react-dom@19.1.0(react@18.2.0))(react@18.2.0):
     dependencies:
       babel-runtime: 6.26.0
       classnames: 2.3.2
