@@ -51,6 +51,16 @@ const stylesheet = [
     }
   },
   {
+    selector: 'node.hovered',
+    style: {
+      'border-width': '2px',
+      'border-color': '#ff0000',
+      'border-style': 'solid',
+      'width': '15',
+      'height': '15'
+    }
+  },
+  {
     selector: 'edge',
     style: {
       'width': '1',
@@ -166,6 +176,31 @@ const CytoscapeWrapper: React.FC<{
           // Handle both regular and lasso selection
           cy.on('select', 'node', handleNodeSelect);
           cy.on('unselect', 'node', handleNodeSelect);
+
+          // Add hover event handlers
+          cy.on('mouseover', 'node', (evt: any) => {
+            const node = evt.target;
+            const nodeData = node.data();
+            let nodeId = nodeData.id;
+            
+            // Handle nerve nodes with 000 suffix
+            if (nodeData.ftuName === 'nerves') {
+              if (nodeData.id.startsWith('merged_')) {
+                // For merged nodes, use the first subComponent with 000 suffix
+                nodeId = `${nodeData.subComponents[0]}000`;
+              } else {
+                nodeId = `${nodeData.id}000`;
+              }
+            }
+            
+            // Add hover class to the node
+            node.addClass('hovered');
+          });
+
+          cy.on('mouseout', 'node', (evt: any) => {
+            const node = evt.target;
+            node.removeClass('hovered');
+          });
         });
       }}
     />

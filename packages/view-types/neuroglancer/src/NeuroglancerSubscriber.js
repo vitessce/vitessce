@@ -168,7 +168,12 @@ export function NeuroglancerSubscriber(props) {
   const cellColorMapping = useMemo(() => {
     const colorCellMapping = {};
     cellColors.forEach((color, cell) => {
-      colorCellMapping[cell] = rgbToHex(color);
+      // colorCellMapping[cell] = rgbToHex(color);
+      if (cell < 1000) {
+        colorCellMapping[cell] = '#f50505';
+      } else {
+        colorCellMapping[cell] = '#f5c905';
+      }
     });
     return colorCellMapping;
   }, [cellColors, rgbToHex]);
