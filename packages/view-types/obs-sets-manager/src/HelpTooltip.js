@@ -14,7 +14,16 @@ import { useHelpTooltipStyles, HelpTooltipGlobalStyles, PopoverGlobalStyles } fr
  * @param {object} props Props are passed through to the <RcTooltip/> from the library.
  */
 export default function HelpTooltip(props) {
-  const { title, content, overlayClassName } = props;
+  const {
+    title,
+    content,
+    overlayClassName = 'helpTooltip',
+    placement = 'top',
+    trigger = 'hover',
+    mouseEnterDelay = 0.2,
+    mouseLeaveDelay = 0,
+    destroyTooltipOnHide = true,
+  } = props;
   const spanRef = useRef();
   const getTooltipContainer = useVitessceContainer(spanRef);
 
@@ -22,9 +31,9 @@ export default function HelpTooltip(props) {
 
   const { classes } = useHelpTooltipStyles();
 
+
   return (
     <>
-
       {overlayClassName === 'helpTooltip' ? (
         <HelpTooltipGlobalStyles classes={classes} />
       ) : (
@@ -33,19 +42,15 @@ export default function HelpTooltip(props) {
       <span ref={spanRef} />
       <RcTooltip
         {...props}
+        placement={placement}
+        trigger={trigger}
+        mouseEnterDelay={mouseEnterDelay}
+        mouseLeaveDelay={mouseLeaveDelay}
+        destroyTooltipOnHide={destroyTooltipOnHide}
         getTooltipContainer={getTooltipContainer}
-        overlayClassName={classes[overlayClassName]}
+        classNames={{ root: classes[overlayClassName] }}
         overlay={overlay}
       />
     </>
   );
 }
-
-HelpTooltip.defaultProps = {
-  overlayClassName: 'helpTooltip',
-  placement: 'top',
-  trigger: 'hover',
-  mouseEnterDelay: 0.2,
-  mouseLeaveDelay: 0,
-  destroyTooltipOnHide: true,
-};

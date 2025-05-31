@@ -62,18 +62,20 @@ catalog:
   # note - packages/file-types/glb was on @react-three/drei ~9.89.0
   "@react-three/xr": ^5.7.1
   # Vite
-  "vite": ^4.3.0
-  "@vitejs/plugin-react": ^4.0.0
-  "vitest": ^0.32.2
+  "vite": ^6.3.5
+  "@vitejs/plugin-react": ^4.5.0
+  "vitest": ^3.1.4
+  "@vitest/coverage-v8": ^3.1.4
+  "@vitest/ui": ^3.1.4
   # React
   "react": ^18.0.0
   "react-dom": ^18.0.0
   "@types/react": ^18.0.28
   # Testing library
-  "@testing-library/jest-dom": ^5.16.4
-  "@testing-library/react": ^13.3.0
-  "@testing-library/react-hooks": ^8.0.1
-  "@testing-library/user-event": ^14.2.1
+  "@testing-library/jest-dom": ^6.6.3
+  "@testing-library/dom": ^10.4.0
+  "@testing-library/react": ^16.3.0
+  "@testing-library/user-event": ^14.6.1
 
 # We are using named catalogs for groups of packages
 # that are versioned together

@@ -273,7 +273,7 @@ export function VitS(props) {
           <QueryClientProvider client={queryClient}>
             <ViewConfigProvider
               createStore={createViewConfigStoreClosure}
-              {...(remountOnUidChange ? ({ key: configKey }) : {})}
+              key={(remountOnUidChange ? configKey : undefined)}
             >
               <AuxiliaryProvider createStore={createAuxiliaryStore}>
                 <AsyncFunctionsContext.Provider value={asyncFunctions}>

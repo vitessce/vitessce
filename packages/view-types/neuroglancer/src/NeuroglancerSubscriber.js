@@ -1,8 +1,7 @@
-
+import React from 'react';
 import {
   TitleInfo,
 } from '@vitessce/vit-s';
-
 import { ViewHelpMapping } from '@vitessce/constants-internal';
 import { Neuroglancer } from './Neuroglancer.js';
 

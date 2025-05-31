@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useColorMode } from '@docusaurus/theme-common';
-import Highlight, { defaultProps } from 'prism-react-renderer';
+import { Highlight } from 'prism-react-renderer';
 import copy from 'copy-text-to-clipboard';
 import { getHighlightTheme } from './_highlight-theme.js';
 import { JSON_TRANSLATION_KEY } from './_editor-utils.js';
@@ -32,7 +32,7 @@ export default function JsonHighlight(props) {
 
   // Adapted from https://github.com/FormidableLabs/prism-react-renderer/blob/master/README.md#usage
   return (
-    <Highlight {...defaultProps} code={jsonCode} language="json" theme={highlightTheme}>
+    <Highlight code={jsonCode} language="json" theme={highlightTheme}>
       {({
         className, style, tokens, getLineProps, getTokenProps,
       }) => (

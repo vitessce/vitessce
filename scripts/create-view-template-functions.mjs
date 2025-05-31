@@ -63,7 +63,7 @@ export function generatePackageJson({ viewName, version, author, license, homepa
       "vitest": "catalog:"
     },
     "peerDependencies": {
-      "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+      "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
     }
   };
 }
