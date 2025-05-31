@@ -21,7 +21,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
     "cypress": "^13.14.1",
-    "sass": "^1.89.1",
+    "sass": "1.55.0",
     "vite": "catalog:",
     "@vitejs/plugin-basic-ssl": "^1.0.2"
   },

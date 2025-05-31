@@ -69,7 +69,7 @@
     "react-dom": "catalog:",
     "remark-parse": "^7.0.1",
     "remark-stringify": "^7.0.3",
-    "sass": "^1.89.1",
+    "sass": "1.55.0",
     "serve-static": "^1.15.0",
     "set.prototype.intersection": "^1.1.5",
     "svg-inline-loader": "^0.8.2",
