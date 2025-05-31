@@ -97,26 +97,26 @@ jobs:
           wait-on-timeout: 240
           browser: chrome
           headed: false
-      - name: Install React for test with v16.8.0
+      - name: Install React for test with v17
         run: |
           cd ./sites/demo
-          pnpm install react@16.8.0 react-dom@16.8.0
-      - name: Replace index.jsx file for test with v16.8.0
+          pnpm install react@17 react-dom@17
+      - name: Replace index.jsx file for test with v17
         run: |
           cd ./sites/demo/src
           rm index.jsx
           mv index17.jsx index.jsx
-      - name: Build demo for test with v16.8.0
+      - name: Build demo for test with v17
         run: |
           pnpm run build:ci
           cd ./sites/demo
           pnpm run build-demo
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
-      - name: Cypress PNPM Patch for test with v16.8.0
+      - name: Cypress PNPM Patch for test with v17
         run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
       
-      - name: Cypress for test with v16.8.0
+      - name: Cypress for test with v17
         uses: cypress-io/github-action@v4
         env:
           DEBUG: '@cypress/github-action'
