@@ -203,6 +203,7 @@ export class VolumeDataManager {
     // top k unused brick cache addresses
     this.LRUStack = [];
     this.LRUReady = false;
+    this.triggerUsage = true;
     this.triggerRequest = true;
     this.timeStamp = 0;
     this.k = 40;
@@ -647,6 +648,7 @@ export class VolumeDataManager {
   }
 
   async processRequestData(buffer) {
+    console.warn('processRequestData');
     this.triggerRequest = false;
     // console.log('processRequestData');
     const counts = new Map();
@@ -673,12 +675,14 @@ export class VolumeDataManager {
     }
     // console.log('requests', requests);
     await this.handleBrickRequests(requests);
-    this.triggerRequest = true;
+    this.triggerUsage = true;
   }
 
 
   async processUsageData(buffer) {
-    // Increment timestamp for this usage scan
+    console.warn('processUsageData');
+    this.triggerUsage = false;
+
     const now = ++this.timeStamp;
     const usedBricks = new Set();
 
@@ -724,6 +728,7 @@ export class VolumeDataManager {
     // console.warn('this.BCFull', this.BCFull);
     // console.warn('this.BCUnusedIndex', this.BCUnusedIndex);
     // console.warn('this.BCMinMax', this.BCMinMax);
+    this.triggerRequest = true;
   }
 
   // Helper method to update PT entries for evicted bricks

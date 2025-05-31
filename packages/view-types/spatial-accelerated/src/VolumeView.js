@@ -220,7 +220,7 @@ export function VolumeView(props) {
     const f = frameRef.current;
 
     if (managers?.dataManager.noNewRequests === true && f % 100 === 0) {
-      managers.dataManager.noNewRequests = false;
+      // managers.dataManager.noNewRequests = false;
     }
     if (managers?.dataManager.triggerRequest === true
         && managers?.dataManager.noNewRequests === false) {
@@ -229,6 +229,8 @@ export function VolumeView(props) {
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
       managers?.dataManager.processRequestData(bufRequest.current);
+    } else if (managers?.dataManager.triggerUsage === true
+      && managers?.dataManager.noNewRequests === false) {
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
@@ -238,7 +240,10 @@ export function VolumeView(props) {
   }
 
   function handleAdaptiveQuality(clock) {
-    if (isInteracting) return;
+    if (isInteracting) {
+      managers.dataManager.noNewRequests = false;
+      return;
+    }
     if (props.spatialRenderingModeChanging) return;
 
     if (managers?.dataManager.noNewRequests) {

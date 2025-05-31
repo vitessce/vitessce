@@ -62,7 +62,6 @@ const float lodFactor = 2.0;
 
 const int renderResC0 = 5;
 
-const int targetResC0 = 5; // highest
 const int lowestRes = 5;
 
 bool smallEq(vec3 x, vec3 y) {
@@ -204,26 +203,14 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         float min = float(int(umin)) / 127.0;
         float max = float(int(umax)) / 127.0;
         if (float(max) <= u_clim[0]) {
-            return ivec4(
-                0,
-                1,
-                0,
-                -2);
+            return ivec4(0,1,0,-2);
             // EMPTY
         } else if (float(min) >= u_clim[1]) {
-            return ivec4(
-                0, 
-                0, 
-                1, 
-                -3);
+            return ivec4(0,0,0,-3);
             // CONSTANT FULL
         } else if ((umax - umin) < 2u) {
             // CONSTANT OTHER VALUE
-            return ivec4(
-                min, 
-                0, 
-                0, 
-                -4);
+            return ivec4(min,0,0,-4);
         }
         // check if resident
         uint isResident = (ptEntry >> 31u) & 1u;
@@ -285,6 +272,7 @@ void main(void) {
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
 
     float stretchFactor = float(pow(2.0, float(lowestRes)) * 32.0);
     vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
@@ -308,20 +296,16 @@ void main(void) {
     float t_hit_max_os = t_hit.y * ws2os;       // exit  distance in OS units
     float t_os         = t_hit_min_os;          // our new marching parameter
 
-    int current_LOD = getLOD(t_os, highestResC0, lowestResC0, lodFactor);
-    int targetResC0 = current_LOD;
-
-    ivec3 volumeTexSize = ivec3(voxelExtents);
+    int targetRes = getLOD(t_os, highestResC0, lowestResC0, lodFactor);
 
     vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
-    vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
 
     int renderResAdaptive = renderRes;
     int renderResolutionEffective = clamp(renderRes, highestResC0, 5);
 
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
-    vec3 dt_vec = 1.0 / (vec3(volumeTexSize) * abs(os_rayDir));
+    vec3 dt_vec = 1.0 / (vec3(voxelExtents) * abs(os_rayDir));
     float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
     float dt_base = dt;
     dt *= pow(2.0, float(renderResolutionEffective));
@@ -340,28 +324,28 @@ void main(void) {
     vec3 rgbCombo = vec3(0.0);
     float total = 0.0;
 
-    ivec4 currentBrickLocation = ivec4(0,0,0,0);
+    // ivec4 currentBrickLocation = ivec4(0,0,0,0);
     ivec3 currentTargetResPTCoord = ivec3(0,0,0);
 
     float alphaMultiplicator = 1.0;
     vec3 localPos = vec3(0.0);
 
-    int currentLOD = targetResC0;
+    int currentLOD = targetRes;
 
     vec3 p_stretched = p * voxelStretchInv;
 
-    while (vec3_max(p) < 1.0 && vec3_min(p) >= 0.0 
-        && t_os < t_hit_max_os && t_os >= t_hit_min_os
-        ) {
+    while (t_os < t_hit_max_os && t_os >= t_hit_min_os
+        && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
+    ) {
 
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetResC0 = getLOD(t, highestResC0, lowestResC0, lodFactor);
+        targetRes = getLOD(t, highestResC0, lowestResC0, lodFactor);
 
-        if (targetResC0 != currentLOD) {
-            currentLOD = targetResC0;
+        if (targetRes != currentLOD) {
+            currentLOD = targetRes;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
             // p -= step * rnd;
@@ -370,10 +354,9 @@ void main(void) {
             // p += step * rnd;
         }
 
-        ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetResC0, 0);
-        currentBrickLocation = brickCacheOffset;
+        ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetRes, 0);
 
-        currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+        currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetRes);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
 
         if (brickCacheOffset.w == -1 || brickCacheOffset.w == -2) {
@@ -383,7 +366,7 @@ void main(void) {
                 t_os += dt;
                 p_stretched = p * voxelStretchInv;
 
-                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetRes);
             }
             continue;
         } else if (brickCacheOffset.w == -3) {
@@ -403,7 +386,7 @@ void main(void) {
                 t += dt;
                 t_os += dt;
                 p_stretched = p * voxelStretchInv;
-                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetRes);
             }
             if (outColor.a > 0.99) { break; }
             continue;
@@ -426,7 +409,7 @@ void main(void) {
                 t += dt;
                 t_os += dt;
                 p_stretched = p * voxelStretchInv;
-                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetRes);
             }
             if (outColor.a > 0.99) { break; }
             continue;
@@ -450,9 +433,9 @@ void main(void) {
             vec3 colorVal = u_color;
 
             if (!overWrittenRequest
-                && brickCacheOffset.w != targetResC0
+                && brickCacheOffset.w != targetRes
                 && val > 0.0) {
-                setBrickRequest(p_stretched, targetResC0, 0);
+                setBrickRequest(p_stretched, targetRes, 0);
                 overWrittenRequest = true;
             }
 
@@ -485,7 +468,7 @@ void main(void) {
                 t_os += dt;
                 p_stretched = p * voxelStretchInv;
 
-                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetResC0);
+                newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetRes);
                 newVoxelInBrick = ivec3(fract( p_stretched * scale) * 32.0);
             }
         }
