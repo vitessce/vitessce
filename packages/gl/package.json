@@ -75,6 +75,8 @@
     "nebula.gl": "catalog:nebula.gl"
   },
   "devDependencies": {
-    "glsl-colormap": "^1.0.1"
+    "glsl-colormap": "^1.0.1",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }
