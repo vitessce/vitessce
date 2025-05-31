@@ -97,6 +97,37 @@ jobs:
           wait-on-timeout: 240
           browser: chrome
           headed: false
+      - name: Install React for test with v16.8.0
+        run: |
+          cd ./sites/demo
+          pnpm install react@16.8.0 react-dom@16.8.0
+      - name: Replace index.jsx file for test with v16.8.0
+        run: |
+          cd ./sites/demo/src
+          rm index.jsx
+          mv index16.jsx index.jsx
+      - name: Build demo for test with v16.8.0
+        run: |
+          pnpm run build:ci
+          cd ./sites/demo
+          pnpm run build-demo
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - name: Cypress PNPM Patch for test with v16.8.0
+        run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
+      
+      - name: Cypress for test with v16.8.0
+        uses: cypress-io/github-action@v4
+        env:
+          DEBUG: '@cypress/github-action'
+        with:
+          working-directory: ./sites/demo
+          install-command: echo
+          start: pnpm run preview
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 240
+          browser: chrome
+          headed: false
   
   test-e2e-html:
     runs-on: ubuntu-latest
