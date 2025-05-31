@@ -1,5 +1,8 @@
+diff --git a/HISTORY.md b/HISTORY.md
+deleted file mode 100644
+index 407250b172cfd5c29104037632553b6be6567a0d..0000000000000000000000000000000000000000
 diff --git a/es/Tree.js b/es/Tree.js
-index 3fb1e4270910b9e924a67399046cf27fc4988da2..aeee87887daf7adc3c4be9e693ae296f0e85769a 100644
+index 3fb1e4270910b9e924a67399046cf27fc4988da2..311e2b3e76db69d09ccd1fac555ff744fcc6c769 100644
 --- a/es/Tree.js
 +++ b/es/Tree.js
 @@ -11,9 +11,10 @@ import warning from 'warning';
@@ -94,7 +97,7 @@ index 3fb1e4270910b9e924a67399046cf27fc4988da2..aeee87887daf7adc3c4be9e693ae296f
        }
  
 -      return React.createElement(
-+      return React.createElement(TreeContext, { value: this.rcTreeContextValue }, React.createElement(
++      return React.createElement(TreeContext.Provider, { value: this.rcTreeContextValue }, React.createElement(
          'ul',
          _extends({}, domProps, {
            className: classNames(prefixCls, className, _defineProperty({}, prefixCls + '-show-line', showLine)),
