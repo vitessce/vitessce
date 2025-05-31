@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+import React from 'react';
 import { makeStyles, useTheme, GlobalStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 const nodeHeight = 32;

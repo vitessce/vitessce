@@ -105,7 +105,7 @@ jobs:
         run: |
           cd ./sites/demo/src
           rm index.jsx
-          mv index16.jsx index.jsx
+          mv index17.jsx index.jsx
       - name: Build demo for test with v16.8.0
         run: |
           pnpm run build:ci
