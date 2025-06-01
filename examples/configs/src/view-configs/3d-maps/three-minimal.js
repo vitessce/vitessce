@@ -17,9 +17,9 @@ function generateThreeMinimalConfiguration() {
     // url: 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
 
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
     // url: 'http://127.0.0.1:8080/gloria/',
-    url: 'http://127.0.0.1:8080/gloria_conversion/v1',
+    // url: 'http://127.0.0.1:8080/gloria_conversion/v1',
 
 
     // url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.3/idr0079A/9836998.zarr',

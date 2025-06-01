@@ -463,6 +463,8 @@ export class VolumeRenderManager {
   setZarrUniforms(
     zarrStore, PT,
   ) {
+    console.warn('zarrStore', zarrStore);
+    console.warn('PT', PT);
     for (let i = 0; i <= 9; i++) {
       if (PT.anchors && PT.anchors[i]) {
         this.uniforms[`anchor${i}`].value.set(
@@ -472,7 +474,17 @@ export class VolumeRenderManager {
         );
       } else {
         // Set default values if anchor doesn't exist
+        console.warn('anchor', i, 'does not exist');
         this.uniforms[`anchor${i}`].value.set(0, 0, 0);
+      }
+      if (zarrStore.scales && zarrStore.scales[i]) {
+        this.uniforms[`scale${i}`].value.set(
+          zarrStore.scales[i][0] || 1,
+          zarrStore.scales[i][1] || 1,
+          zarrStore.scales[i][2] || 1,
+        );
+      } else {
+        console.error('scale', i, 'does not exist');
       }
     }
     this.uniforms.voxelExtents.value.set(

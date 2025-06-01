@@ -131,6 +131,7 @@ export class VolumeDataManager {
       store: '', // ref to this.store
       group: '', // ref to this.group
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
+      scales: [], // downsample ratios, [x,y,z] per resolution level
     };
 
     this.cacheStatus = {
@@ -264,6 +265,7 @@ export class VolumeDataManager {
       const resolutions = this.group.attrs.multiscales[0].datasets.length;
       const shapes = new Array(resolutions).fill(null);
       const arrays = new Array(resolutions).fill(null);
+      const scales = new Array(resolutions).fill(null);
 
       // Try to load each resolution level in order
       const loadPromises = [];
@@ -300,6 +302,7 @@ export class VolumeDataManager {
           store: this.store,
           group: this.group,
           channelCount: 1, // For now hardcoded to 1
+          scales,
         };
 
         // Extract physical size information if available
@@ -334,6 +337,31 @@ export class VolumeDataManager {
           console.log('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
           console.log('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
         }
+
+        console.warn('group.attrs', this.group.attrs);
+        if (this.group.attrs && this.group.attrs.multiscales
+            && this.group.attrs.multiscales[0].datasets
+            && this.group.attrs.multiscales[0].datasets[0].coordinateTransformations) {
+          for (let i = 0; i < resolutions; i++) {
+            if (this.group.attrs.multiscales[0].datasets[i]
+                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations
+                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0]
+                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0].scale) {
+              const { scale } = this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0];
+              scales[i] = [scale[4], scale[3], scale[2]];
+              console.warn('scale', i, scales[i]);
+            }
+          }
+        } else {
+          console.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
+          for (let i = 0; i < resolutions; i++) {
+            const scale = Math.pow(2, i);
+            scales[i] = [scale, scale, scale];
+          }
+        }
+
+        console.warn('scales', scales);
+        this.zarrStore.scales = scales;
 
         // Use coordinateTransformations scale if available
         if (this.group.attrs && this.group.attrs.coordinateTransformations
@@ -648,7 +676,7 @@ export class VolumeDataManager {
   }
 
   async processRequestData(buffer) {
-    console.warn('processRequestData');
+    // console.warn('processRequestData');
     this.triggerRequest = false;
     // console.log('processRequestData');
     const counts = new Map();
@@ -680,7 +708,7 @@ export class VolumeDataManager {
 
 
   async processUsageData(buffer) {
-    console.warn('processUsageData');
+    // console.warn('processUsageData');
     this.triggerUsage = false;
 
     const now = ++this.timeStamp;
@@ -704,7 +732,7 @@ export class VolumeDataManager {
       }
     }
     // Update timestamps for all used bricks at once
-    Array.from(usedBricks).forEach(bcIndex => {
+    Array.from(usedBricks).forEach((bcIndex) => {
       this.BCTimeStamps[bcIndex] = now;
     });
 

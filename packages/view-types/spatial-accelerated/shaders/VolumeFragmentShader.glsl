@@ -57,7 +57,7 @@ layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
-const int lowestResC0 = 5;
+const int lowestResC0 = 1;
 const float lodFactor = 2.0;
 
 const int renderResC0 = 5;
@@ -151,6 +151,20 @@ uvec3 getAnchorPoint(int index) {
     return uvec3(-1, -1, -1);
 }
 
+vec3 getScale(int index) {
+    if (index == 0) return scale0;
+    if (index == 1) return scale1;
+    if (index == 2) return scale2;
+    if (index == 3) return scale3;
+    if (index == 4) return scale4;
+    if (index == 5) return scale5;
+    if (index == 6) return scale6;
+    if (index == 7) return scale7;
+    if (index == 8) return scale8;
+    if (index == 9) return scale9;
+    return vec3(-1.0, -1.0, -1.0);
+}
+
 uvec3 getChannelOffset(int index) {
     if (index == 0) return uvec3(0, 0, 1);
     if (index == 1) return uvec3(0, 1, 0);
@@ -184,9 +198,10 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     while (currentRes <= lowestRes) {
         uvec3 anchorPoint = getAnchorPoint(currentRes);
         // multiplier to scale the [0,1] to the extents in the PT in that res
-        float scale = pow(2.0, float(lowestRes) - float(currentRes));
+        vec3 scaleVec = getScale(lowestRes) / getScale(currentRes);  // component-wise
+                
         uvec3 channelOffset = getChannelOffset(channel);
-        uvec3 flooredLocation = uvec3(floor(location * scale));
+        uvec3 flooredLocation = uvec3(floor(location * scaleVec));
         uvec3 coordinate = uvec3(anchorPoint * channelOffset) + flooredLocation;
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
 
@@ -235,9 +250,9 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
 void setBrickRequest(vec3 location, int targetRes, int channel) {
     uvec3 anchorPoint = getAnchorPoint(targetRes);
-    float scale = pow(2.0, float(lowestRes) - float(targetRes));
+    vec3 scaleVec = getScale(lowestRes) / getScale(targetRes);
     uvec3 channelOffset = getChannelOffset(channel);
-    uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scale);
+    uvec3 coordinate = uvec3(anchorPoint * channelOffset) + uvec3(location * scaleVec);
     gRequest = packPTCoordToRGBA8(coordinate);
 }
 
@@ -250,8 +265,8 @@ void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, fl
 }
 
 ivec3 normalizedToPTCoord(vec3 normalized, int targetRes) {
-    float scale = pow(2.0, float(lowestRes) - float(targetRes));
-    return ivec3(normalized * scale);
+    vec3 scaleVec = getScale(lowestRes) / getScale(targetRes);
+    return ivec3(normalized * scaleVec);
 }
 
 float vec3_max(vec3 v) {
@@ -305,10 +320,10 @@ void main(void) {
 
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
-    vec3 dt_vec = 1.0 / (vec3(voxelExtents) * abs(os_rayDir));
-    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    float dt_base = dt;
-    dt *= pow(2.0, float(renderResolutionEffective));
+    vec3 resScale = getScale(renderResolutionEffective);          //  e.g. 4 4 2
+    vec3 dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
+    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));       // one voxel along the shortest axis
+    float dt_base = dt;                                       // keep a copy; no extra pow(2)
 
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
@@ -349,7 +364,9 @@ void main(void) {
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
             // p -= step * rnd;
-            dt = dt_base * pow(2.0, float(renderResolutionEffective));
+            resScale = getScale(renderResolutionEffective);
+            dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
+            dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
             step = os_rayDir * dt;
             // p += step * rnd;
         }
@@ -415,8 +432,8 @@ void main(void) {
             continue;
         } else {
         
-            float scale = pow(2.0, float(lowestRes) - float(brickCacheOffset.w));
-            localPos = fract(p_stretched * scale);
+            vec3 scaleVec = getScale(lowestRes) / getScale(brickCacheOffset.w);
+            localPos = fract(p_stretched * scaleVec);
 
             vec3 brickCacheCoord = vec3(
                 (float(brickCacheOffset.x) * 32.0 + localPos.x * 32.0) / 2048.0,
@@ -431,6 +448,10 @@ void main(void) {
             val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
 
             vec3 colorVal = u_color;
+
+            if (currentLOD == 1) {
+                colorVal = vec3(0.0, 1.0, 1.0);
+            }
 
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetRes
@@ -469,7 +490,7 @@ void main(void) {
                 p_stretched = p * voxelStretchInv;
 
                 newBrickLocationPTCoord = normalizedToPTCoord(p_stretched, targetRes);
-                newVoxelInBrick = ivec3(fract( p_stretched * scale) * 32.0);
+                newVoxelInBrick = ivec3(fract( p_stretched * scaleVec) * 32.0);
             }
         }
         
