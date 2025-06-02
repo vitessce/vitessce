@@ -738,9 +738,13 @@ export class VolumeDataManager {
 
     // Check if brick cache is full based on allocation index
     this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
+    console.warn('this.BCUnusedIndex', this.BCUnusedIndex);
+    console.warn('this.BCTimeStamps', this.BCTimeStamps);
 
     // If cache is full or we want to always maintain the LRU list
     if (this.BCFull) { // Always update LRU list
+      console.warn('this.BCFull', this.BCFull);
+      console.warn('this.BCTimeStamps', this.BCTimeStamps);
       // Find the top k least recently used bricks
       const brickIndicesWithTimes = this.BCTimeStamps.map((time, index) => ({ index, time }));
       this.LRUStack = brickIndicesWithTimes
@@ -749,6 +753,7 @@ export class VolumeDataManager {
         .map(item => item.index);
 
       this.LRUReady = true;
+      console.warn('this.LRUStack', this.LRUStack);
     }
 
     // console.warn('this.BCTimeStamps', this.BCTimeStamps);

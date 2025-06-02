@@ -216,11 +216,12 @@ export function VolumeView(props) {
 
   function handleRequests(_gl) {
     // log('handleRequests');
+    // console.log('handleRequests', frameRef.current);
     const ctx = _gl.getContext();
     const f = frameRef.current;
 
-    if (managers?.dataManager.noNewRequests === true && f % 100 === 0) {
-      // managers.dataManager.noNewRequests = false;
+    if (managers?.dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
+      managers.dataManager.noNewRequests = false;
     }
     if (managers?.dataManager.triggerRequest === true
         && managers?.dataManager.noNewRequests === false) {
