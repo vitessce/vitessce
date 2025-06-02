@@ -12,7 +12,6 @@ export { makeStyles, useStyles as useTheme } from 'tss-react/mui';
 export {
   createTheme,
   ThemeProvider,
-  StyledEngineProvider,
 } from '@mui/material/styles';
 export { grey } from '@mui/material/colors';
 

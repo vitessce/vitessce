@@ -72,6 +72,7 @@ export const useStyles = makeStyles()(theme => ({
     position: 'relative',
     verticalAlign: 'top',
     width: `${nodeHeight}px`,
+    display: 'inline-block',
     top: '5.5px',
     '&:hover': {
       fill: theme.palette.grayMidL10,
