@@ -43,7 +43,9 @@ export default defineConfig({
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'classic'
+    }),
     svgLoaderForNeuroglancerIcons(),
   ],
   // To enable .js files that contain JSX to be imported.

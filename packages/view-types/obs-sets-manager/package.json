@@ -38,7 +38,7 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
-    "rc-tooltip": "^5.2.2",
+    "@rc-component/tooltip": "^1.2.0",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5"
   },
@@ -48,6 +48,6 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

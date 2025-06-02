@@ -2,7 +2,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react';
 import clsx from 'clsx';
-import { TreeNode as RcTreeNode } from 'rc-tree';
+import RcTreeNode from 'rc-tree/es/TreeNode.js';
 import { getDataAndAria } from 'rc-tree/es/util.js';
 import { range, isEqual } from 'lodash-es';
 import { callbackOnKeyPress, colorArrayToString, getLevelTooltipText } from '@vitessce/sets-utils';
@@ -157,7 +157,9 @@ function NamedSetNodeStatic(props) {
           color={level > 0 && editable ? (color || getDefaultColor(theme)) : null}
           setColor={c => onNodeSetColor(path, c)}
         >
-          <MenuSVG className={classes.nodeMenuIcon} aria-label="Open Node View Menu" />
+          <span>
+            <MenuSVG className={classes.nodeMenuIcon} aria-label="Open Node View Menu" />
+          </span>
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}
@@ -346,10 +348,8 @@ export default class TreeNode extends RcTreeNode {
       onDragStart: onDragStartProp,
     } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        draggable,
-      },
+      prefixCls: prefixClass,
+      draggable,
     } = this.context;
 
     const onDragStart = (e) => {
@@ -405,10 +405,8 @@ export default class TreeNode extends RcTreeNode {
   renderSwitcher = () => {
     const { expanded, isLeaf, color } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        onNodeExpand,
-      },
+      prefixCls: prefixClass,
+      onNodeExpand,
     } = this.context;
 
     const onNodeExpandWrapper = (e) => {
@@ -455,11 +453,9 @@ export default class TreeNode extends RcTreeNode {
       ...otherProps
     } = this.props;
     const {
-      rcTree: {
-        prefixCls: prefixClass,
-        filterTreeNode,
-        draggable,
-      },
+      prefixCls: prefixClass,
+      filterTreeNode,
+      draggable,
     } = this.context;
     const disabled = this.isDisabled();
     const dataAndAriaAttributeProps = getDataAndAria(otherProps);

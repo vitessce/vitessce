@@ -51,6 +51,7 @@ const useStyles = makeStyles()(() => ({
 
     '& > svg': {
       verticalAlign: 'middle',
+      display: 'inline-block',
       color: 'black',
     },
     '&:active': {
