@@ -1,4 +1,21 @@
 
+## 3.6.0
+
+### Minor Changes
+
+- Support React v19. Upgrade docs site to Docusaurus v3. (`vitessce`, `demo`, `docs`) ([#2127](https://github.com/vitessce/vitessce/pull/2127))
+
+- Upgrade from Material UI (MUI) v4 to v7. (`@vitessce/styles`) ([#2124](https://github.com/vitessce/vitessce/pull/2124))
+
+### Patch Changes
+
+- Add CLI for creating a new view. (`vitessce`) ([#2120](https://github.com/vitessce/vitessce/pull/2120))
+
+- Update showcase page of docs. (`docs`) ([#2123](https://github.com/vitessce/vitessce/pull/2123))
+
+- Update tutorials for plugins. Add last_updated dates to tutorials. (`docs`) ([#2125](https://github.com/vitessce/vitessce/pull/2125))
+
+
 ## 3.5.12
 
 ### Patch Changes
