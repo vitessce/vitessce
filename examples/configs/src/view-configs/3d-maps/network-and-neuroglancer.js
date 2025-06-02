@@ -45,6 +45,9 @@ function generateNetworkAndNeuroglancerConfiguration() {
     });
     const networkView = config.addView(dataset, 'network-vis')
     config.layout(hconcat(neuroglancerView, vconcat(obsSets, networkView)));
+    config.linkViews([obsSets, neuroglancerView, networkView], ['obsSetColor'],
+        [[{path: ["Type", "glom"], color: [255, 0, 0]},
+            {path: ["Type", "nerve"], color: [255, 255, 0]}]])
     const configJSON = config.toJSON();
     return configJSON;
 }

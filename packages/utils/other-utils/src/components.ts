@@ -20,10 +20,8 @@ export function getDefaultForegroundColor(theme: 'dark' | 'light' | 'light2') {
 
 // From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [
-  // [68, 119, 170],
-  [245, 5, 5],
-  // [136, 204, 238],
-  [245, 201, 5],
+  [68, 119, 170],
+  [136, 204, 238],
   [68, 170, 153],
   [17, 119, 51],
   [153, 153, 51],
