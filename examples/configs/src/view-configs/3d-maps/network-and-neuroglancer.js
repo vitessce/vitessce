@@ -10,7 +10,7 @@ function generateNetworkAndNeuroglancerConfiguration() {
     const dataset = config.addDataset('My dataset');
     dataset.addFile({
         fileType: 'obsSets.csv',
-        url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new/kidney_20_10_filtered.csv',
+        url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new/kidney_20_10_types.csv',
         coordinationValues: {
             obsType: 'cell',
         },
@@ -47,7 +47,7 @@ function generateNetworkAndNeuroglancerConfiguration() {
     config.layout(hconcat(neuroglancerView, vconcat(obsSets, networkView)));
     config.linkViews([obsSets, neuroglancerView, networkView], ['obsSetColor'],
         [[{path: ["Type", "glom"], color: [255, 0, 0]},
-            {path: ["Type", "nerve"], color: [255, 255, 0]}]])
+            {path: ["Type", "nerve"], color: [255, 255, 0]},{path: ["Type", "nerve_with_no_connection"], color: [125, 125, 125]}]])
     const configJSON = config.toJSON();
     return configJSON;
 }
