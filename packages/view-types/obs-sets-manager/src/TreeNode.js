@@ -157,7 +157,9 @@ function NamedSetNodeStatic(props) {
           color={level > 0 && editable ? (color || getDefaultColor(theme)) : null}
           setColor={c => onNodeSetColor(path, c)}
         >
-          <MenuSVG className={classes.nodeMenuIcon} aria-label="Open Node View Menu" />
+          <span>
+            <MenuSVG className={classes.nodeMenuIcon} aria-label="Open Node View Menu" />
+          </span>
         </PopoverMenu>
       ) : null}
       {level > 0 && isChecking ? checkbox : null}

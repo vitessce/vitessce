@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import RcTooltip from 'rc-tooltip';
+import RcTooltip from '@rc-component/tooltip';
 import { useVitessceContainer } from '@vitessce/vit-s';
 import { useHelpTooltipStyles, HelpTooltipGlobalStyles, PopoverGlobalStyles } from './styles.js';
 
@@ -46,7 +46,7 @@ export default function HelpTooltip(props) {
         trigger={trigger}
         mouseEnterDelay={mouseEnterDelay}
         mouseLeaveDelay={mouseLeaveDelay}
-        destroyTooltipOnHide={destroyTooltipOnHide}
+        destroyOnHidden={destroyTooltipOnHide}
         getTooltipContainer={getTooltipContainer}
         classNames={{ root: classes[overlayClassName] }}
         overlay={overlay}

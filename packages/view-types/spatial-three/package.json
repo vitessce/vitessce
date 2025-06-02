@@ -53,6 +53,7 @@
   "devDependencies": {
     "@types/three": "^0.162.0",
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

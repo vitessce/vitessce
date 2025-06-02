@@ -14,8 +14,8 @@
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
     "@vitessce/globals": "workspace:*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
     "vitessce": "workspace:*"
   },
   "devDependencies": {
