@@ -10,14 +10,14 @@ function generateNetworkAndNeuroglancerConfiguration() {
     const dataset = config.addDataset('My dataset');
     dataset.addFile({
         fileType: 'obsSets.csv',
-        url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10/mesh_types.csv',
+        url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new/kidney_20_10_filtered.csv',
         coordinationValues: {
             obsType: 'cell',
         },
         options: {
             obsIndex: 'id', obsSets: [{
                 name: 'Type', column: 'type',
-            },],
+            },]
         },
     });
     const obsSets = config.addView(dataset, 'obsSets');
@@ -32,7 +32,7 @@ function generateNetworkAndNeuroglancerConfiguration() {
             projectionScale: 1558.488632953483,
             layers: [{
                 type: 'segmentation',
-                source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10/',
+                source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new/',
                 segments: ['5'],
                 segmentColors: {
                     5: 'red',
@@ -45,7 +45,6 @@ function generateNetworkAndNeuroglancerConfiguration() {
     });
     const networkView = config.addView(dataset, 'network-vis')
     config.layout(hconcat(neuroglancerView, vconcat(obsSets, networkView)));
-
     const configJSON = config.toJSON();
     return configJSON;
 }
