@@ -34,7 +34,11 @@
     "@vitessce/neuroglancer-workers": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/vit-s": "workspace:*"
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "@vitessce/tooltip": "workspace:*",
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
