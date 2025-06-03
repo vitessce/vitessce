@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import React, { useMemo, useEffect, useRef, useCallback, useState } from 'react';
+import { shallow } from 'zustand/shallow';
 import {
   useViewConfigStoreApi,
   createLoaders,
@@ -78,15 +79,16 @@ export default function LinkController(props) {
   }, [linkID, linkEndpoint]);
 
   useEffect(() => viewConfigStoreApi.subscribe(
+    state => ({
+      viewConfig: state.viewConfig,
+      mostRecentConfigSource: state.mostRecentConfigSource,
+    }),
     ({ viewConfig, mostRecentConfigSource }) => {
       if (onConfigChange && viewConfig && mostRecentConfigSource === 'internal') {
         onConfigChange(viewConfig);
       }
     },
-    state => ({
-      viewConfig: state.viewConfig,
-      mostRecentConfigSource: state.mostRecentConfigSource,
-    }),
+    { equalityFn: shallow },
   ), [viewConfigStoreApi, onConfigChange]);
 
 

@@ -44,14 +44,14 @@ export function ViewConfigProvider(props) {
 export function useViewConfigStoreApi() {
   const store = useContext(ViewConfigStoreContext);
   if (!store) {
-    throw new Error('Missing StoreProvider')
+    throw new Error('Missing StoreProvider');
   }
   return store;
 }
 export function useViewConfigStore(selector) {
   const store = useViewConfigStoreApi();
   if (!store) {
-    throw new Error('Missing StoreProvider')
+    throw new Error('Missing StoreProvider');
   }
   const slice = useStore(store, selector);
   return slice;
@@ -84,14 +84,14 @@ export function AuxiliaryProvider(props) {
 export function useAuxiliaryStoreApi() {
   const store = useContext(AuxiliaryStoreContext);
   if (!store) {
-    throw new Error('Missing StoreProvider')
+    throw new Error('Missing StoreProvider');
   }
   return store;
 }
 export function useAuxiliaryStore(selector) {
   const store = useAuxiliaryStoreApi();
   if (!store) {
-    throw new Error('Missing StoreProvider')
+    throw new Error('Missing StoreProvider');
   }
   const slice = useStore(store, selector);
   return slice;
@@ -101,7 +101,6 @@ export function useAuxiliaryStoreShallow(selector) {
   return useAuxiliaryStore(useShallow(selector));
 }
 /* end auxiliary store things */
-
 
 
 /**
