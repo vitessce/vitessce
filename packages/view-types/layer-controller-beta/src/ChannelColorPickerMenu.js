@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   makeStyles,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import clsx from 'clsx';
 import { isEqual } from 'lodash-es';
 import { PopperMenu } from '@vitessce/vit-s';
@@ -12,7 +12,13 @@ import { PATHOLOGY_PALETTE, getDefaultColor } from '@vitessce/utils';
 import { getXlinkHref } from '@vitessce/legend';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
+  colorPickerPaper: {
+    overflow: 'hidden',
+    '& > ul': {
+      padding: 0,
+    },
+  },
   colorIcon: {
     width: '18px !important',
     height: '18px !important',
@@ -33,7 +39,7 @@ const useStyles = makeStyles(() => ({
     boxShadow: 'none !important',
     margin: '0 auto',
     /* Sets margins around color picker and centers */
-    '& > div:nth-child(3)': {
+    '& > div:nth-of-type(3)': {
       padding: '6px !important',
       transform: 'translate(2px, 0)',
     },
@@ -81,7 +87,7 @@ export default function ChannelColorPickerMenu(props) {
     }
   }
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const currentColor = color
     ? colorArrayToString(color)
@@ -123,7 +129,8 @@ export default function ChannelColorPickerMenu(props) {
         )
       }
       buttonClassName={classes.colorIconButton}
-      withPaper={false}
+      withPaper
+      paperClassName={classes.colorPickerPaper}
       aria-label="Open color picker menu"
     >
       <TwitterPicker

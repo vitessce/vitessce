@@ -14,7 +14,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
     theme,
     width,
     height,
-    marginRight = 200,
+    marginRight = 300,
     marginBottom = 120,
     keyLength = 36,
     featureType,
@@ -86,7 +86,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
           return [...a, h];
         }, []);
 
-      const MAX_ROWS = 25;
+      const MAX_ROWS = 50;
       result = result.slice(0, MAX_ROWS);
       return result;
     }
@@ -115,7 +115,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         select: {
           type: 'point',
           on: 'click[event.shiftKey === false]',
-          fields: ['name'],
+          fields: ['name', 'term'],
           empty: 'none',
         },
       },
@@ -124,7 +124,7 @@ export default function FeatureSetEnrichmentBarPlot(props) {
         select: {
           type: 'point',
           on: 'click[event.shiftKey]',
-          fields: ['name'],
+          fields: ['name', 'term'],
           empty: 'none',
         },
       },
@@ -173,9 +173,10 @@ export default function FeatureSetEnrichmentBarPlot(props) {
 
   const handleSignal = (name, value) => {
     if (name === 'bar_select') {
-      onBarSelect(value.obsSetPath);
+      onBarSelect(value.name?.[0], value.term?.[0]);
     } else if (name === 'shift_bar_select') {
-      onBarSelect(value.obsSetPath, true);
+      // Name and term may be arrays
+      onBarSelect(value.name, value.term, true);
     }
   };
 

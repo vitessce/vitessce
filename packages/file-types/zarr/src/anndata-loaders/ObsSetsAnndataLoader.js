@@ -12,6 +12,13 @@ import {
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    // These are used by the subclass SpatialDataObsSetsLoader.
+    this.region = null;
+    this.tablePath = null;
+  }
+
   loadObsIndices() {
     const { options } = this;
     const obsIndexPromises = options
@@ -52,7 +59,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     if (!this.cachedResult) {
       const { options } = this;
       this.cachedResult = Promise.all([
-        this.dataSource.loadObsIndex(),
+        this.dataSource.loadObsIndex(this.tablePath),
         this.loadObsIndices(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),

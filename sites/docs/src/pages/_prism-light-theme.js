@@ -3,9 +3,8 @@
 // Reference: require('prism-react-renderer/themes/github')
 // Imported by Node using require() in docusaurus.config.js
 // and also used by src/pages/_highlight-theme.js.
-'use strict';
 
-var theme = {
+export default {
   plain: {
     color: "#393A34",
     backgroundColor: "#f6f8fa"
@@ -58,5 +57,3 @@ var theme = {
     }
   }]
 };
-
-module.exports = theme;

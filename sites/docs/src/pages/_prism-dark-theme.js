@@ -3,9 +3,7 @@
 // Imported by Node using require() in docusaurus.config.js
 // and also used by src/pages/_highlight-theme.js.
 
-'use strict';
-
-var theme = {
+export default {
   plain: {
     color: "#9CDCFE",
     backgroundColor: "#1E1E1E"
@@ -93,4 +91,3 @@ var theme = {
   }]
 };
 
-module.exports = theme;

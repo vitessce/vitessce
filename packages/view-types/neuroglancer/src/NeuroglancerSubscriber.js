@@ -105,7 +105,7 @@ export function NeuroglancerSubscriber(props) {
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   const [{ obsSets: cellSets }] = useObsSetsData(

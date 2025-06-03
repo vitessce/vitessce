@@ -51,9 +51,23 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       this.loadFeatureSetTerms(dfPath),
       this.loadSignificances(dfPath),
     ]);
+
+    // TODO: this is temporary until KPMP data has been re-processed.
+    const cleanName = (s) => {
+      if (s.includes('R-HSA-')) {
+        return s.substring(0, s.indexOf('R-HSA-') - 1);
+      }
+      return s;
+    };
+    const cleanTerm = (s) => {
+      if (s.includes('R-HSA-')) {
+        return `REACTOME:${s.substring(s.indexOf('R-HSA-'))}`;
+      }
+      return s;
+    };
     return {
-      featureSetName,
-      featureSetTerm,
+      featureSetName: featureSetName.map(s => cleanName(s)),
+      featureSetTerm: featureSetTerm.map(s => cleanTerm(s)),
       featureSetSignificance,
     };
   }
@@ -85,7 +99,10 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<LoaderResult<FeatureStatsData>>}
    */
   async loadMulti(volcanoOptions) {
-    const { analysisType: targetAnalysisType = 'pertpy_hypergeometric' } = this.options;
+    const {
+      analysisType: targetAnalysisType = 'pertpy_hypergeometric',
+      featureSetLibrary: targetFeatureSetLibrary = 'Reactome_2022',
+    } = this.options;
     const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
 
     // TODO: should this also depend on a "featureSetType" such as "pathway"
@@ -123,11 +140,16 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
       results.forEach((resultObject) => {
         const {
           analysis_type,
-          // analysis_params,
+          analysis_params,
           coordination_values,
           // path,
         } = resultObject;
-        if (analysis_type === targetAnalysisType) {
+        if (
+          analysis_type === targetAnalysisType
+          && (analysis_params
+            ?.pertpy_hypergeometric
+            ?.enrichr_library_name === targetFeatureSetLibrary)
+        ) {
           // This is a diff. exp. result.
           if (sampleSetSelection) {
             // Comparing two sample groups.

@@ -257,7 +257,7 @@ export function GenomicProfilesSubscriber(props) {
     profileTrackNameKey, cellSetSelection, cellSetColor,
     higlassServer, assembly]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
 
   return (

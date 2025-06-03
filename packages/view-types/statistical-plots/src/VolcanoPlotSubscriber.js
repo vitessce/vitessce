@@ -30,7 +30,7 @@ export function VolcanoPlotSubscriber(props) {
     helpText = ViewHelpMapping.VOLCANO_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.

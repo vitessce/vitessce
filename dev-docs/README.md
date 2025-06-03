@@ -2,6 +2,8 @@
 
 The developer documentation here is meant for usage by the internal development team, external contributors, and plugin developers.
 
+Also see LLM-generated documentation at [DeepWiki](https://deepwiki.com/vitessce/vitessce).
+
 ## Documentation for plugin developers
 
 - [View type implementation](./plugin-view-types.md)

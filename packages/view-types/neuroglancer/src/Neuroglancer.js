@@ -2,7 +2,7 @@
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { isEqualWith, pick } from 'lodash-es';
-import { globalNeuroglancerCss } from './styles.js';
+import { NeuroglancerGlobalStyles } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(async () => {
   const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
@@ -154,7 +154,7 @@ export class Neuroglancer extends PureComponent {
 
     return (
       <>
-        <style>{globalNeuroglancerCss}</style>
+        <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
             <LazyReactNeuroglancer

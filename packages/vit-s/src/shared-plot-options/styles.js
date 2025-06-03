@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   box: {
     boxSizing: 'border-box',
   },
@@ -17,7 +17,8 @@ export const useStyles = makeStyles(theme => ({
   slider: {
     color: theme.palette.primaryForeground,
     minWidth: '60px',
-    padding: '10px 0 10px 0',
+    padding: 0,
+    margin: '14px 0 8px 0',
   },
   sliderValueLabel: {
     '& span': {

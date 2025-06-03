@@ -1,13 +1,8 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import '@testing-library/jest-dom';
-import { cleanup, render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { IconTool, IconButton } from './ToolMenu.js';
-
-afterEach(() => {
-  cleanup();
-});
 
 describe('ToolMenu.js', () => {
   describe('<IconTool />', () => {

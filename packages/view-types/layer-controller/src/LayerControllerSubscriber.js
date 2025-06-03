@@ -3,7 +3,7 @@
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@vitessce/styles';
 import {
   TitleInfo,
   useReady,
@@ -54,6 +54,7 @@ const LayerControllerMemoized = React.memo(
       setAreLoadingImageChannels,
       handleRasterLayerChange,
       handleRasterLayerRemove,
+      photometricInterpretation,
 
       obsSegmentationsType,
       segmentationLayerLoaders,
@@ -143,8 +144,7 @@ const LayerControllerMemoized = React.memo(
                 <Grid
                   // eslint-disable-next-line react/no-array-index-key
                   key={`${dataset}-raster-${index}-${i}`}
-                  item
-                  style={{ marginTop: '10px' }}
+                  sx={{ marginTop: '10px' }}
                 >
                   <LayerController
                     name={layerMeta.name}
@@ -225,8 +225,7 @@ const LayerControllerMemoized = React.memo(
                 <Grid
                   // eslint-disable-next-line react/no-array-index-key
                   key={`${dataset}-raster-${index}-${i}`}
-                  item
-                  style={{ marginTop: '10px' }}
+                  sx={{ marginTop: '10px' }}
                 >
                   <LayerController
                     name={layerMeta.name}
@@ -254,6 +253,7 @@ const LayerControllerMemoized = React.memo(
                       && layerIs3DIndex !== i
                     }
                     disableChannelsIfRgbDetected={disableChannelsIfRgbDetected}
+                    photometricInterpretation={photometricInterpretation}
                     imageLayerCallbacks={imageLayerCallbacks}
                     setImageLayerCallback={setImageLayerCallback}
                     setViewState={({
@@ -280,7 +280,7 @@ const LayerControllerMemoized = React.memo(
             })}
           {shouldShowImageLayerButton
             ? (
-              <Grid item>
+              <Grid>
                 <ImageAddButton
                   imageOptions={imageLayerMeta}
                   handleImageAdd={handleImageAdd}
@@ -334,6 +334,7 @@ export function LayerControllerSubscriber(props) {
       spatialImageLayer: rasterLayers,
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
+      photometricInterpretation: photometricInterpretationFromCoordination,
     },
     {
       setSpatialImageLayer: setRasterLayers,
@@ -399,13 +400,17 @@ export function LayerControllerSubscriber(props) {
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
-  const { loaders: imageLayerLoaders, meta: imageLayerMeta } = image || {};
+  const { loaders: imageLayerLoaders, meta: imageLayerMeta, instance } = image || {};
   const isReady = useReady([
     obsLocationsStatus,
     obsSegmentationsStatus,
     imageStatus,
   ]);
 
+  const photometricInterpretation = (
+    photometricInterpretationFromCoordination
+    ?? instance?.getPhotometricInterpretation()
+  );
   const segmentationLayerLoaders = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.loaders : null;
   const segmentationLayerMeta = obsSegmentations && obsSegmentationsType === 'bitmask' ? obsSegmentations.meta : null;
 
@@ -481,6 +486,7 @@ export function LayerControllerSubscriber(props) {
       setAreLoadingImageChannels={setAreLoadingImageChannels}
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
+      photometricInterpretation={photometricInterpretation}
 
       obsSegmentationsType={obsSegmentationsType}
       segmentationLayerLoaders={segmentationLayerLoaders}

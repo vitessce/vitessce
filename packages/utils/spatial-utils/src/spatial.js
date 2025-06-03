@@ -95,10 +95,11 @@ export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
 
   // TODO: is this still needed
   // sizes are special objects with own equals method - see `unit` in declaration
-  if (!sizes[0].equals(sizes[1])) {
-    // Handle scaling in the Y direction for non-square pixels
-    scale[1] = divide(sizes[1], sizes[0]);
-  }
+  // This messess the dimensions when the x & y are little different (e.g., for the geomx data)
+  // if (!sizes[0].equals(sizes[1])) {
+  //   // Handle scaling in the Y direction for non-square pixels
+  //   scale[1] = divide(sizes[1], sizes[0]);
+  // }
   // END TODO: is this still needed
 
   // Add in z dimension needed for Matrix4 scale API.
