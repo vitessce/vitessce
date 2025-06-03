@@ -93,8 +93,8 @@ const CytoscapeWrapper: React.FC<{
   onNodeSelect: (nodeIds: string[]) => void;
   obsSetSelection: string[][];
   obsHighlight: string | null;
-}> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight }) => {
-  const cyRef = React.useRef<any>(null);
+  cyRef: React.MutableRefObject<any>;
+}> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight, cyRef }) => {
   const selectionTimeoutRef = React.useRef<number | null>(null);
 
   // Handle node selection
@@ -261,6 +261,37 @@ const filterMotif = (nodes: any[], links: any[]) => {//still show the entire net
   };
 };
 
+interface Node {
+  id: string;
+  ftuName: string;
+  subComponents?: string[];
+}
+
+interface Link {
+  source: string;
+  target: string;
+}
+
+interface GraphData {
+  nodes: Node[];
+  links: Link[];
+}
+
+interface MotifNode {
+  id: string;
+  type: 'glomeruli' | 'nerves' | 'none';
+}
+
+interface MotifEdge {
+  source: string;
+  target: string;
+}
+
+interface MotifPattern {
+  nodes: MotifNode[];
+  edges: MotifEdge[];
+}
+
 interface NetworkVisProps {
   onNodeSelect: (nodeIds: string[]) => void;
   obsSetSelection: string[][];
@@ -283,6 +314,136 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     infoText: '',
   });
 
+  const [isMotifSearchOpen, setIsMotifSearchOpen] = React.useState(true);
+
+  const [motifPattern, setMotifPattern] = React.useState<MotifPattern>({
+    nodes: [
+      { id: 'node1', type: 'glomeruli' },
+      { id: 'node2', type: 'nerves' },
+      { id: 'node3', type: 'none' }
+    ],
+    edges: [
+      { source: 'node1', target: 'node2' },
+      { source: 'node2', target: 'node3' }
+    ]
+  });
+
+  const cyRef = React.useRef<any>(null);
+
+  // Function to search for motifs in the graph
+  const searchMotif = () => {
+    console.log('Searching for motif...');
+    if (!state.data || !cyRef.current) {
+      console.log('No data or cy instance available');
+      return;
+    }
+
+    const { nodes, links } = state.data as GraphData;
+    const matches: Set<string> = new Set();
+
+    // Filter out 'none' nodes from the pattern
+    const activeNodes = motifPattern.nodes.filter(node => node.type !== 'none');
+    if (activeNodes.length === 0) {
+      console.log('No active nodes in pattern');
+      return;
+    }
+
+    // For each node in the graph
+    nodes.forEach((startNode: Node) => {
+      // Check if this node matches the first active node in our pattern
+      const patternStartNode = activeNodes[0];
+      if (startNode.ftuName === patternStartNode.type) {
+        // Find all paths that match our pattern
+        const findPaths = (currentNode: Node, patternNodeIndex: number, visited: Set<string>): boolean => {
+          // Skip 'none' nodes in the pattern
+          while (patternNodeIndex < motifPattern.nodes.length && 
+                 motifPattern.nodes[patternNodeIndex].type === 'none') {
+            patternNodeIndex++;
+          }
+
+          if (patternNodeIndex >= motifPattern.nodes.length) {
+            return true; // We've matched the entire pattern
+          }
+
+          const currentPatternNode = motifPattern.nodes[patternNodeIndex];
+          if (currentNode.ftuName !== currentPatternNode.type) {
+            return false;
+          }
+
+          visited.add(currentNode.id);
+
+          // Get all connections from the current pattern node
+          const patternEdges = motifPattern.edges.filter(edge => 
+            edge.source === currentPatternNode.id || edge.target === currentPatternNode.id
+          );
+
+          // For each connection in the pattern
+          for (const patternEdge of patternEdges) {
+            const nextPatternNodeId = patternEdge.source === currentPatternNode.id ? 
+              patternEdge.target : patternEdge.source;
+            const nextPatternNode = motifPattern.nodes.find(n => n.id === nextPatternNodeId);
+            
+            if (!nextPatternNode) continue;
+
+            // Find all connected nodes in the graph
+            const connectedNodes = links
+              .filter(link => 
+                (link.source === currentNode.id || link.target === currentNode.id) &&
+                !visited.has(link.source === currentNode.id ? link.target : link.source)
+              )
+              .map(link => link.source === currentNode.id ? link.target : link.source)
+              .map(id => nodes.find(n => n.id === id))
+              .filter((node): node is Node => node !== undefined);
+
+            // Try each connected node
+            for (const nextNode of connectedNodes) {
+              if (nextNode.ftuName === nextPatternNode.type) {
+                if (findPaths(nextNode, patternNodeIndex + 1, visited)) {
+                  return true;
+                }
+              }
+            }
+          }
+
+          visited.delete(currentNode.id);
+          return false;
+        };
+
+        // Start the search from this node
+        const visited = new Set<string>();
+        if (findPaths(startNode, 0, visited)) {
+          // If we found a match, add all visited nodes to our matches
+          visited.forEach(id => matches.add(id));
+        }
+      }
+    });
+
+    console.log('Found matches:', Array.from(matches));
+
+    // Select the matching nodes in the graph
+    const cy = cyRef.current;
+    cy.nodes().forEach((node: any) => {
+      if (matches.has(node.id())) {
+        node.select();
+      } else {
+        node.unselect();
+      }
+    });
+
+    // Trigger the selection callback
+    onNodeSelect(Array.from(matches));
+  };
+
+  // Function to update node type in the pattern
+  const updateNodeType = (nodeId: string, newType: 'glomeruli' | 'nerves' | 'none') => {
+    setMotifPattern(prev => ({
+      ...prev,
+      nodes: prev.nodes.map(node => 
+        node.id === nodeId ? { ...node, type: newType } : node
+      )
+    }));
+  };
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -290,10 +451,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
 
-        const filteredData = filterMotif(data.nodes, data.links);
-
         setState({
-          // data: filteredData,
           data,
           infoText: '',
         });
@@ -312,12 +470,92 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div style={{ 
+        position: 'absolute', 
+        top: 10, 
+        left: 10, 
+        zIndex: 1000, 
+        background: 'white', 
+        padding: '8px', 
+        borderRadius: '5px', 
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        width: '220px',
+        transition: 'all 0.3s ease'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '5px'
+        }}>
+          <h4 style={{ margin: 0, fontSize: '13px' }}>Complex Motif Search</h4>
+          <button
+            onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '2px 5px',
+              fontSize: '16px',
+              color: '#666'
+            }}
+          >
+            {isMotifSearchOpen ? '−' : '+'}
+          </button>
+        </div>
+        {isMotifSearchOpen && (
+          <div style={{ marginBottom: '5px' }}>
+            <div style={{ marginBottom: '5px' }}>
+              {motifPattern.nodes.map((node, index) => (
+                <div key={node.id} style={{ marginBottom: '3px' }}>
+                  <label style={{ fontSize: '11px', marginRight: '5px' }}>Node {index + 1}:</label>
+                  <select 
+                    value={node.type}
+                    onChange={(e) => updateNodeType(node.id, e.target.value as 'glomeruli' | 'nerves' | 'none')}
+                    style={{ fontSize: '11px', padding: '2px' }}
+                  >
+                    <option value="none">None</option>
+                    <option value="glomeruli">Glomeruli</option>
+                    <option value="nerves">Nerves</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: '11px', marginBottom: '5px' }}>
+              Pattern: {motifPattern.nodes
+                .filter(node => node.type !== 'none')
+                .map((node, i, filteredNodes) => (
+                  <span key={node.id}>
+                    {i > 0 && ' → '}
+                    {node.type}
+                  </span>
+                ))}
+            </div>
+            <button 
+              onClick={searchMotif}
+              style={{
+                padding: '3px 8px',
+                backgroundColor: '#4477AA',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontSize: '11px',
+                width: '100%'
+              }}
+            >
+              Search Motif
+            </button>
+          </div>
+        )}
+      </div>
       <CytoscapeWrapper 
         nodes={state.data.nodes} 
         links={state.data.links} 
         onNodeSelect={onNodeSelect}
         obsSetSelection={obsSetSelection}
         obsHighlight={obsHighlight}
+        cyRef={cyRef}
       />
     </div>
   );
