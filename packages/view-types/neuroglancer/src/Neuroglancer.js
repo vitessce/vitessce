@@ -4,10 +4,7 @@ import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { isEqualWith, pick } from 'lodash-es';
 import { NeuroglancerGlobalStyles } from './styles.js';
 
-const LazyReactNeuroglancer = React.lazy(async () => {
-  const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
-  return ReactNeuroglancer;
-});
+const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
 function createWorker() {
   return new ChunkWorker();
