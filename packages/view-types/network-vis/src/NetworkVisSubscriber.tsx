@@ -40,6 +40,30 @@ export function NetworkVisSubscriber(props:any) {
       // Create a new selection in the obsSets manager for this lasso selection
       // Only create a new selection if we have nodes selected
       const timestamp = new Date().getTime();
+      
+      // Log the current color assignments
+      console.log('Current obsSetColor:', obsSetColor);
+      console.log('Current obsColorEncoding:', obsColorEncoding);
+      
+      // Log the color that will be assigned to this selection
+      const newSelectionIndex = obsSetSelection?.length || 0;
+      console.log('New selection index:', newSelectionIndex);
+      
+      // Get the color from the PALETTE array
+      const PALETTE = [
+        [68, 119, 170],  // #4477AA
+        [136, 204, 238],
+        [68, 170, 153],
+        [17, 119, 51],
+        [153, 153, 51],
+        [221, 204, 119],
+        [204, 102, 119],
+        [136, 34, 85],
+        [170, 68, 153],
+      ];
+      const colorIndex = newSelectionIndex % PALETTE.length;
+      console.log('Color that will be assigned:', PALETTE[colorIndex]);
+      
       setObsSelection(
         nodeIds,
         additionalObsSets,
@@ -59,6 +83,7 @@ export function NetworkVisSubscriber(props:any) {
   }, [
     additionalObsSets,
     obsSetColor,
+    obsSetSelection,
     setAdditionalObsSets,
     setObsColorEncoding,
     setObsSetColor,

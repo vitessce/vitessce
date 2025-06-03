@@ -29,17 +29,20 @@ const stylesheet = [
     selector: 'node',
     style: {
       'background-color': 'data(color)',
-      'width': '10',
-      'height': '10',
+      'width': '15',
+      'height': '15',
       'border-width': '0px'
     }
   },
   {
     selector: 'node:selected',
     style: {
-      'border-width': '2px',
-      'border-color': '#ffffff',
-      'border-style': 'solid'
+      // 'border-width': '2px',
+      // 'border-color': '#ffffff',
+      // 'border-style': 'solid',
+      'width': '20',
+      'height': '20',
+
     }
   },
   {
@@ -54,7 +57,7 @@ const stylesheet = [
     selector: 'node.hovered',
     style: {
       'border-width': '2px',
-      'border-color': '#ff0000',
+      'border-color': '#ffffff',
       'border-style': 'solid',
       'width': '15',
       'height': '15'
@@ -107,6 +110,22 @@ const CytoscapeWrapper: React.FC<{
       const selectedNodes = event.cy.nodes(':selected');
       const selectedNodeIds: string[] = [];
 
+      // If there are selected nodes, dim the unselected ones
+      if (selectedNodes.length > 0) {
+        event.cy.nodes().forEach((node: any) => {
+          if (!node.selected()) {
+            node.style('opacity', '0.3');
+          } else {
+            node.style('opacity', '1');
+          }
+        });
+      } else {
+        // If no nodes are selected, reset all nodes to full opacity
+        event.cy.nodes().forEach((node: any) => {
+          node.style('opacity', '1');
+        });
+      }
+
       selectedNodes.forEach((node: any) => {
         const nodeData = node.data();
         if (nodeData.ftuName === 'nerves') {
@@ -130,13 +149,19 @@ const CytoscapeWrapper: React.FC<{
     }, 100); // 100ms debounce
   };
 
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (selectionTimeoutRef.current) {
-        clearTimeout(selectionTimeoutRef.current);
+  // Reset opacity when clicking on the background
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    const cy = cyRef.current;
+    cy.on('tap', (evt: any) => {
+      if (evt.target === cy) {
+        // Clicked on background, reset all nodes to full opacity
+        cy.nodes().forEach((node: any) => {
+          node.style('opacity', '1');
+        });
       }
-    };
+    });
   }, []);
 
   // Update highlighting based on obsSetSelection and obsHighlight
