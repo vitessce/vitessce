@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@vitessce/styles": "workspace:*",
-    "@tanstack/react-query": "^4.29.12",
+    "@tanstack/react-query": "catalog:",
     "react-window": "^1.8.10",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",

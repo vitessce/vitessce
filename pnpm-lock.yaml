@@ -58,6 +58,9 @@ catalogs:
     '@react-three/xr':
       specifier: ^5.7.1
       version: 5.7.1
+    '@tanstack/react-query':
+      specifier: ^5.80.2
+      version: 5.80.2
     '@testing-library/dom':
       specifier: ^10.4.0
       version: 10.4.0
@@ -1524,8 +1527,8 @@ importers:
   packages/view-types/biomarker-select:
     dependencies:
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 'catalog:'
+        version: 5.80.2(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1803,8 +1806,8 @@ importers:
   packages/view-types/layer-controller-beta:
     dependencies:
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 'catalog:'
+        version: 5.80.2(react@18.2.0)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -2457,8 +2460,8 @@ importers:
   packages/vit-s:
     dependencies:
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 'catalog:'
+        version: 5.80.2(react@18.2.0)
       '@vitessce/abstract':
         specifier: workspace:*
         version: link:../file-types/abstract
@@ -6496,20 +6499,13 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@tanstack/query-core@4.29.11':
-    resolution: {integrity: sha512-8C+hF6SFAb/TlFZyS9FItgNwrw4PMa7YeX+KQYe2ZAiEz6uzg6yIr+QBzPkUwZ/L0bXvGd1sufTm3wotoz+GwQ==}
+  '@tanstack/query-core@5.80.2':
+    resolution: {integrity: sha512-g2Es97uwFk7omkWiH9JmtLWSA8lTUFVseIyzqbjqJEEx7qN+Hg6jbBdDvelqtakamppaJtGORQ64hEJ5S6ojSg==}
 
-  '@tanstack/react-query@4.29.12':
-    resolution: {integrity: sha512-zhcN6+zF6cxprxhTHQajHGlvxgK8npnp9uLe9yaWhGc6sYcPWXzyO4raL4HomUzQOPzu3jLvkriJQ7BOrDM8vA==}
+  '@tanstack/react-query@5.80.2':
+    resolution: {integrity: sha512-LfA0SVheJBOqC8RfJw/JbOW3yh2zuONQeWU5Prjm7yjUGUONeOedky1Bj39Cfj8MRdXrZV+DxNT7/DN/M907lQ==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -21351,15 +21347,12 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tanstack/query-core@4.29.11': {}
+  '@tanstack/query-core@5.80.2': {}
 
-  '@tanstack/react-query@4.29.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@tanstack/react-query@5.80.2(react@18.2.0)':
     dependencies:
-      '@tanstack/query-core': 4.29.11
+      '@tanstack/query-core': 5.80.2
       react: 18.2.0
-      use-sync-external-store: 1.2.0(react@18.2.0)
-    optionalDependencies:
-      react-dom: 18.2.0(react@18.2.0)
 
   '@testing-library/dom@10.4.0':
     dependencies:
