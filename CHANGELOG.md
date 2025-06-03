@@ -1,4 +1,13 @@
 
+## 3.6.1
+
+### Patch Changes
+
+- Added coordination between Neuroglancer and other views (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/vit-s`) ([#2084](https://github.com/vitessce/vitessce/pull/2084))
+
+- Upgrade Zustand from v3 to v5. Upgrade react-query from v4 to v5. (`@vitessce/vit-s`) ([#2128](https://github.com/vitessce/vitessce/pull/2128))
+
+
 ## 3.6.0
 
 ### Minor Changes
