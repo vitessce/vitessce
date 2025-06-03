@@ -9,7 +9,7 @@ packages:
   - '!consumer'
 
 catalog:
-  "zustand": ^3.5.10
+  "zustand": ^5.0.4
   "lodash-es": ^4.17.21
   "@types/lodash-es": ^4.17.7
   "internmap": ^2.0.3

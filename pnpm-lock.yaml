@@ -191,8 +191,8 @@ catalogs:
       specifier: ^3.21.4
       version: 3.22.4
     zustand:
-      specifier: ^3.5.10
-      version: 3.7.2
+      specifier: ^5.0.4
+      version: 5.0.5
   loaders.gl:
     '@loaders.gl/3d-tiles':
       specifier: ^3.0.0
@@ -2491,7 +2491,7 @@ importers:
         version: 9.0.1
       zustand:
         specifier: 'catalog:'
-        version: 3.7.2(react@18.2.0)
+        version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@18.2.0)(use-sync-external-store@1.5.0(react@18.2.0))
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -15864,6 +15864,24 @@ packages:
       react:
         optional: true
 
+  zustand@5.0.5:
+    resolution: {integrity: sha512-mILtRfKW9xM47hqxGIxCv12gXusoY/xTSHBYApXozR0HmQv299whhBeeAcRy+KrPPybzosvJBCOmVjq6x12fCg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -23173,7 +23191,7 @@ snapshots:
 
   assert@1.5.1:
     dependencies:
-      object.assign: 4.1.5
+      object.assign: 4.1.7
       util: 0.10.4
 
   assertion-error@2.0.1: {}
@@ -23561,8 +23579,8 @@ snapshots:
   call-bind@1.0.8:
     dependencies:
       call-bind-apply-helpers: 1.0.2
-      es-define-property: 1.0.0
-      get-intrinsic: 1.2.4
+      es-define-property: 1.0.1
+      get-intrinsic: 1.3.0
       set-function-length: 1.2.2
 
   call-bound@1.0.4:
@@ -25213,8 +25231,8 @@ snapshots:
   es-to-primitive@1.3.0:
     dependencies:
       is-callable: 1.2.7
-      is-date-object: 1.0.5
-      is-symbol: 1.0.4
+      is-date-object: 1.1.0
+      is-symbol: 1.1.1
 
   es5-imcompatible-versions@0.1.90: {}
 
@@ -26275,7 +26293,7 @@ snapshots:
   get-proto@1.0.1:
     dependencies:
       dunder-proto: 1.0.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
 
   get-stream@5.2.0:
     dependencies:
@@ -27176,27 +27194,27 @@ snapshots:
   is-equal@1.7.0:
     dependencies:
       es-get-iterator: 1.1.3
-      es-to-primitive: 1.2.1
+      es-to-primitive: 1.3.0
       functions-have-names: 1.2.3
       has-bigints: 1.0.2
-      has-symbols: 1.0.3
+      has-symbols: 1.1.0
       hasown: 2.0.2
       is-arrow-function: 2.0.3
-      is-bigint: 1.0.4
-      is-boolean-object: 1.1.2
+      is-bigint: 1.1.0
+      is-boolean-object: 1.2.2
       is-callable: 1.2.7
-      is-date-object: 1.0.5
+      is-date-object: 1.1.0
       is-generator-function: 1.1.0
-      is-number-object: 1.0.7
-      is-regex: 1.1.4
-      is-string: 1.0.7
-      is-symbol: 1.0.4
+      is-number-object: 1.1.1
+      is-regex: 1.2.1
+      is-string: 1.1.1
+      is-symbol: 1.1.1
       isarray: 2.0.5
-      object-inspect: 1.13.2
+      object-inspect: 1.13.4
       object.entries: 1.1.8
       object.getprototypeof: 1.0.7
-      which-boxed-primitive: 1.0.2
-      which-collection: 1.0.1
+      which-boxed-primitive: 1.1.1
+      which-collection: 1.0.2
 
   is-extendable@0.1.1: {}
 
@@ -28793,7 +28811,7 @@ snapshots:
       process: 0.11.10
       punycode: 1.3.2
       querystring-es3: 0.2.1
-      readable-stream: 2.3.7
+      readable-stream: 2.3.8
       stream-browserify: 2.0.2
       stream-http: 2.8.3
       string_decoder: 1.3.0
@@ -28941,7 +28959,7 @@ snapshots:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       get-proto: 1.0.1
       reflect.getprototypeof: 1.0.10
 
@@ -30785,7 +30803,7 @@ snapshots:
       define-properties: 1.2.1
       es-abstract: 1.24.0
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       get-intrinsic: 1.3.0
       get-proto: 1.0.1
       which-builtin-type: 1.2.1
@@ -31760,13 +31778,13 @@ snapshots:
   stream-browserify@2.0.2:
     dependencies:
       inherits: 2.0.4
-      readable-stream: 2.3.7
+      readable-stream: 2.3.8
 
   stream-http@2.8.3:
     dependencies:
       builtin-status-codes: 3.0.0
       inherits: 2.0.4
-      readable-stream: 2.3.7
+      readable-stream: 2.3.8
       to-arraybuffer: 1.0.1
       xtend: 4.0.2
 
@@ -32342,7 +32360,7 @@ snapshots:
   typed-array-byte-length@1.0.3:
     dependencies:
       call-bind: 1.0.8
-      for-each: 0.3.3
+      for-each: 0.3.5
       gopd: 1.2.0
       has-proto: 1.2.0
       is-typed-array: 1.1.15
@@ -32360,7 +32378,7 @@ snapshots:
     dependencies:
       available-typed-arrays: 1.0.7
       call-bind: 1.0.8
-      for-each: 0.3.3
+      for-each: 0.3.5
       gopd: 1.2.0
       has-proto: 1.2.0
       is-typed-array: 1.1.15
@@ -32378,7 +32396,7 @@ snapshots:
   typed-array-length@1.0.7:
     dependencies:
       call-bind: 1.0.8
-      for-each: 0.3.3
+      for-each: 0.3.5
       gopd: 1.2.0
       is-typed-array: 1.1.15
       possible-typed-array-names: 1.0.0
@@ -33416,14 +33434,14 @@ snapshots:
   which-builtin-type@1.2.1:
     dependencies:
       call-bound: 1.0.4
-      function.prototype.name: 1.1.6
+      function.prototype.name: 1.1.8
       has-tostringtag: 1.0.2
       is-async-function: 2.1.1
       is-date-object: 1.1.0
       is-finalizationregistry: 1.1.1
       is-generator-function: 1.1.0
       is-regex: 1.2.1
-      is-weakref: 1.0.2
+      is-weakref: 1.1.1
       isarray: 2.0.5
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
@@ -33677,5 +33695,12 @@ snapshots:
       '@types/react': 19.1.6
       immer: 9.0.15
       react: 19.1.0
+
+  zustand@5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@18.2.0)(use-sync-external-store@1.5.0(react@18.2.0)):
+    optionalDependencies:
+      '@types/react': 19.1.6
+      immer: 9.0.15
+      react: 18.2.0
+      use-sync-external-store: 1.5.0(react@18.2.0)
 
   zwitch@2.0.4: {}
