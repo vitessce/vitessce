@@ -33,7 +33,8 @@
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/globals": "workspace:*"
+    "@vitessce/globals": "workspace:*",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

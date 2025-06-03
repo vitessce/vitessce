@@ -9,12 +9,13 @@ packages:
   - '!consumer'
 
 catalog:
-  "zustand": ^3.5.10
+  "zustand": ^5.0.4
   "lodash-es": ^4.17.21
   "@types/lodash-es": ^4.17.7
   "internmap": ^2.0.3
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
+  "@tanstack/react-query": ^5.80.2
   # note packages/types was on @hms-dbmi/viv ~0.13.8
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1

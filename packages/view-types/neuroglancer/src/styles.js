@@ -1116,7 +1116,7 @@ const globalNeuroglancerStyles = {
     overflowY: 'scroll',
     wordWrap: 'break-word',
   },
-  '.neuroglancer-multiline-autocomplete-completion:nth-child(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
+  '.neuroglancer-multiline-autocomplete-completion:nth-of-type(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
     backgroundColor: '#2b2b2b',
   },
   '.neuroglancer-multiline-autocomplete-completion:hover': {
@@ -1418,7 +1418,7 @@ const globalNeuroglancerStyles = {
     backgroundClip: 'border-box',
     backgroundColor: '#8080ff80',
   },
-  '.neuroglancer-stack-layout-drop-placeholder:first-child, .neuroglancer-stack-layout-drop-placeholder:last-child': {
+  '.neuroglancer-stack-layout-drop-placeholder:first-of-type, .neuroglancer-stack-layout-drop-placeholder:last-of-type': {
     display: 'none',
   },
   '.neuroglancer-panel': { flex: 1 },
@@ -1564,7 +1564,7 @@ const globalNeuroglancerStyles = {
     alignItems: 'center',
   },
   '.neuroglancer-position-widget input:disabled': { pointerEvents: 'none' },
-  '.neuroglancer-position-widget .neuroglancer-copy-button:first-child': {
+  '.neuroglancer-position-widget .neuroglancer-copy-button:first-of-type': {
     display: 'none',
   },
   '.neuroglancer-position-dimension-coordinate, .neuroglancer-position-dimension-name, .neuroglancer-position-dimension-scale': {
