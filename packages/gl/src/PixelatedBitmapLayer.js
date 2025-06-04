@@ -18,6 +18,7 @@ const defaultProps = {
 export default class PixelatedBitmapLayer extends CompositeLayer {
   renderLayers() {
     const { image } = this.props;
+    console.log(this.props);
     return new BitmapLayer(this.props, {
       id: `${this.props.id}-wrapped`,
       image,

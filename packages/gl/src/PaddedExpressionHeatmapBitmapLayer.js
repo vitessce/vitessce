@@ -80,7 +80,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    */
   draw(opts) {
     const { uniforms } = opts;
-    const { bitmapTexture, model } = this.state;
+    const { bitmapTexture, model, coordinateConversion, bounds } = this.state;
     const {
       aggSizeX,
       aggSizeY,
@@ -91,6 +91,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
       tileJ,
       numXTiles,
       numYTiles,
+      desaturate, transparentColor, tintColor,
     } = this.props;
     // Render the image
     if (bitmapTexture && model) {
@@ -108,6 +109,15 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
           numData: [1, 1],
         }),
       );
+      const bitmapProps = {
+        bitmapTexture,
+        bounds,
+        coordinateConversion,
+        desaturate,
+        tintColor: tintColor.slice(0, 3).map(x => x / 255),
+        transparentColor: transparentColor.map(x => x / 255),
+      };
+      model.shaderInputs.setProps({bitmap: bitmapProps});
       model.draw(this.context.renderPass);
     }
   }
@@ -126,11 +136,13 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
       this.state.bitmapTexture.delete();
     }
 
-    if (image && image instanceof Texture) {
+    if (image && image.device) {
+      // The image is already a texture.
       this.setState({
         bitmapTexture: image,
       });
     } else if (image) {
+      console.log(image);
       this.setState({
         bitmapTexture: device.createTexture({
           data: image,

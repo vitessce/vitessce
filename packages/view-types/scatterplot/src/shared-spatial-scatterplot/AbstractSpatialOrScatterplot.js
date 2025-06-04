@@ -281,7 +281,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
               : []
           }
           glOptions={DEFAULT_GL_OPTIONS}
-          onWebGLInitialized={this.onWebGLInitialized}
+          onDeviceInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}

@@ -1,6 +1,7 @@
 import { colormaps } from './glsl/index.js';
 
-export const vs = `
+export const vs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-vertex-shader
 
 in vec2 texCoords;
@@ -22,7 +23,8 @@ void main(void) {
 }
 `;
 
-export const fs = `
+export const fs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-fragment-shader
 precision highp float;
 
@@ -53,6 +55,8 @@ uniform sampler2D expressionTex;
 uniform float opacity;
 
 in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
   float sampledData = texture(dataTex, coord).r;

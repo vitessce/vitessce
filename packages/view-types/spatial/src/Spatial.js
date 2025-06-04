@@ -503,6 +503,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ],
     } : {};
 
+    console.log(Layer, layerLoader, extensions);
     return new Layer({
       loader: layerLoader,
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,

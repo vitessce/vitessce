@@ -664,7 +664,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           }
         });
 
-        return new ImageData(tileData, colorBarTileWidthPx, colorBarTileHeightPx);
+        return { data: tileData, width: colorBarTileWidthPx, height: colorBarTileHeightPx };
       });
 
       return trackResult;

@@ -95,7 +95,7 @@ export default class BitmaskLayer extends XRLayer {
       // we don't want or need mimaps
       mipmaps: false,
       sampler: PIXELATED_TEXTURE_PARAMETERS,
-      format: 'r8uint',
+      format: 'rgba8unorm',
     });
     this.setState({ colorTex });
   }

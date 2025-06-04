@@ -4,7 +4,8 @@ import { colormaps } from './glsl/index.js';
  * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
-export const vertexShader = `
+export const vertexShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
 in vec2 texCoords;
@@ -36,7 +37,8 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hms-dbmi/viv/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
-export const fragmentShader = `
+export const fragmentShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
@@ -59,6 +61,8 @@ uniform vec2 uColorScaleRange;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 void main(void) {
   // Compute 1 pixel in texture coordinates
