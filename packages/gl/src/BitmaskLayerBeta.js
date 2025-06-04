@@ -199,86 +199,85 @@ export default class BitmaskLayer extends XRLayer {
     if (textures && model) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
       const colors = Object.fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            ...colors,
-            // Bitmask image channel data textures
-            ...textures,
-            multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
-            // Expression textures with offsets
-            valueTex,
-            valueTexOffsets: padWithDefault(
-              valueTexOffsets,
-              0,
-              MAX_CHANNELS - valueTexOffsets.length,
-            ),
-            valueTexHeight,
-            // Set indices and colors textures with offsets
-            colorTex,
-            colorTexOffsets: padWithDefault(
-              colorTexOffsets,
-              0,
-              MAX_CHANNELS - colorTexOffsets.length,
-            ),
-            colorTexHeight,
-            // Visualization properties
-            channelsFilled: padWithDefault(
-              channelsFilled,
-              true,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelsFilled.length,
-            ),
-            channelOpacities: padWithDefault(
-              channelOpacities,
-              0.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelOpacities.length,
-            ),
-            channelStrokeWidths: padWithDefault(
-              channelStrokeWidths,
-              1.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelStrokeWidths.length,
-            ),
-            channelColormapRangeStarts: padWithDefault(
-              channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),
-              0.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
-            ),
-            channelColormapRangeEnds: padWithDefault(
-              channelFeatureValueColormapRanges.map(r => r?.[1] || 1.0),
-              1.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
-            ),
-            channelIsStaticColorMode: padWithDefault(
-              channelIsStaticColorMode,
-              true,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelIsStaticColorMode.length,
-            ),
-            channelIsSetColorMode: padWithDefault(
-              channelIsSetColorMode,
-              false,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelIsSetColorMode.length,
-            ),
-            hovered: hoveredCell || 0,
-            channelsVisible: padWithDefault(
-              channelsVisible,
-              false,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelsVisible.length,
-            ),
-            // uColorScaleRange: [colorScaleLo, colorScaleHi],
-            // uIsExpressionMode: isExpressionMode,
-            // uIsOutlined: false,
-            scaleFactor,
-          }),
-        );
-        model.draw(this.context.renderPass);
+      model.setUniforms({
+        ...colors,
+        multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
+        // Expression textures with offsets
+        valueTexOffsets: padWithDefault(
+          valueTexOffsets,
+          0,
+          MAX_CHANNELS - valueTexOffsets.length,
+        ),
+        valueTexHeight,
+        // Set indices and colors textures with offsets
+        colorTexOffsets: padWithDefault(
+          colorTexOffsets,
+          0,
+          MAX_CHANNELS - colorTexOffsets.length,
+        ),
+        colorTexHeight,
+        // Visualization properties
+        channelsFilled: padWithDefault(
+          channelsFilled,
+          true,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelsFilled.length,
+        ),
+        channelOpacities: padWithDefault(
+          channelOpacities,
+          0.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelOpacities.length,
+        ),
+        channelStrokeWidths: padWithDefault(
+          channelStrokeWidths,
+          1.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelStrokeWidths.length,
+        ),
+        channelColormapRangeStarts: padWithDefault(
+          channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),
+          0.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+        ),
+        channelColormapRangeEnds: padWithDefault(
+          channelFeatureValueColormapRanges.map(r => r?.[1] || 1.0),
+          1.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+        ),
+        channelIsStaticColorMode: padWithDefault(
+          channelIsStaticColorMode,
+          true,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelIsStaticColorMode.length,
+        ),
+        channelIsSetColorMode: padWithDefault(
+          channelIsSetColorMode,
+          false,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelIsSetColorMode.length,
+        ),
+        hovered: hoveredCell || 0,
+        channelsVisible: padWithDefault(
+          channelsVisible,
+          false,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelsVisible.length,
+        ),
+        // uColorScaleRange: [colorScaleLo, colorScaleHi],
+        // uIsExpressionMode: isExpressionMode,
+        // uIsOutlined: false,
+        scaleFactor,
+      });
+      model.setBindings({
+        // Bitmask image channel data textures
+        ...textures,
+        valueTex,
+        colorTex,
+      });
+      model.draw(opts);
     }
   }
 

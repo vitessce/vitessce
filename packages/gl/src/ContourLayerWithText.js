@@ -25,7 +25,9 @@ const defaultProps = {
   cellSize: { type: 'number', min: 1, max: 1000, value: 1000 },
   getPosition: { type: 'accessor', value: x => x.position },
   getWeight: { type: 'accessor', value: 1 },
-  gpuAggregation: true,
+  // As of DeckGL v9.1, gpuAggregation for ContourLayer not working
+  // Reference: https://github.com/visgl/deck.gl/issues/9056
+  gpuAggregation: false,
   aggregation: 'SUM',
 
   // contour lines

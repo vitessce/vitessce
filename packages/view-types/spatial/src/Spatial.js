@@ -119,7 +119,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Better for the bitmask layer when there is no color data to use this.
     // 2048 is best for performance and for stability (4096 texture size is not always supported).
     this.randomColorData = {
-      data: new Uint8Array(2048 * 2048 * 3)
+      data: new Uint8Array(2048 * 2048 * 4)
         .map((_, j) => (j < 4 ? 0 : Math.round(255 * Math.random()))),
       // This buffer should be able to hold colors for 2048 x 2048 ~ 4 million cells.
       height: 2048,
@@ -503,7 +503,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ],
     } : {};
 
-    console.log(Layer, layerLoader, extensions);
     return new Layer({
       loader: layerLoader,
       id: `${layerDef.use3d ? 'volume' : 'image'}-layer-${layerDef.index}-${i}`,
@@ -650,19 +649,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { size } = this.props.cellColors;
     if (typeof size === 'number') {
       const cellIds = this.props.cellColors.keys();
-      color.data = new Uint8Array(color.height * color.width * 3).fill(
+      color.data = new Uint8Array(color.height * color.width * 4).fill(
         getDefaultColor(this.props.theme)[0],
       );
       // 0th cell id is the empty space of the image i.e black color.
       color.data[0] = 0;
       color.data[1] = 0;
       color.data[2] = 0;
+      color.data[3] = 0;
       // eslint-disable-next-line no-restricted-syntax
       for (const id of cellIds) {
         if (id > 0) {
           const cellColor = this.props.cellColors.get(id);
           if (cellColor) {
-            color.data.set(cellColor.slice(0, 3), Number(id) * 3);
+            color.data.set(cellColor.slice(0, 3), Number(id) * 4);
           }
         }
       }

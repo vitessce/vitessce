@@ -126,7 +126,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           uColorScaleRange: [colorScaleLo, colorScaleHi],
         };
         model.shaderInputs.setProps({ uBlock: bitmapProps });
-        model.draw(this.context.renderPass);
+        model.draw(opts);
 
     }
   }

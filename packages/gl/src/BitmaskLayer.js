@@ -50,6 +50,46 @@ export default class BitmaskLayer extends XRLayer {
     };
   }
 
+  /**
+   * Override the parent loadChannelTextures to enable
+   * up to eight channels (rather than six).
+   * Reference: https://github.com/hms-dbmi/viv/blob/v0.13.3/packages/layers/src/xr-layer/xr-layer.js#L316
+  */
+  loadChannelTextures(channelData) {
+    const textures = {
+      channel0: null,
+      channel1: null,
+      channel2: null,
+      channel3: null,
+      channel4: null,
+      channel5: null,
+    };
+    if (this.state.textures) {
+      Object.values(this.state.textures).forEach(tex => tex && tex.delete());
+    }
+    if (channelData
+      && Object.keys(channelData).length > 0
+      && channelData.data
+    ) {
+      channelData.data.forEach((d, i) => {
+        textures[`channel${i}`] = this.dataToTexture(
+          d,
+          channelData.width,
+          channelData.height,
+        );
+      }, this);
+      for (const key in textures) {
+        if (!textures[key])
+          textures[key] = this.dataToTexture(
+            [],
+            0,
+            0,
+          );
+      }
+      this.setState({ textures });
+    }
+  }
+
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
     // Check the cellColorData to determine whether
@@ -114,26 +154,25 @@ export default class BitmaskLayer extends XRLayer {
     } = this.state;
     // Render the image
     if (textures && model && colorTex) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            hovered: hoveredCell || 0,
-            colorTex,
-            expressionTex,
-            colorTexHeight: colorTex.height,
-            colorTexWidth: colorTex.width,
-            channelsVisible: padWithDefault(
-              channelsVisible,
-              false,
-              // There are six texture entries on the shaders
-              6 - channelsVisible.length,
-            ),
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-            uIsExpressionMode: isExpressionMode,
-            ...textures,
-          }),
-        );
-        model.draw(this.context.renderPass);
+      model.setUniforms({
+        hovered: hoveredCell || 0,
+        colorTexHeight: colorTex.height,
+        colorTexWidth: colorTex.width,
+        channelsVisible: padWithDefault(
+          channelsVisible,
+          false,
+          // There are six texture entries on the shaders
+          6 - channelsVisible.length,
+        ),
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
+        uIsExpressionMode: isExpressionMode,
+      });
+      model.setBindings({
+        colorTex,
+        expressionTex,
+        ...textures,
+      });
+      model.draw(opts);
         
     }
   }
@@ -150,7 +189,14 @@ export default class BitmaskLayer extends XRLayer {
       data: new Float32Array(data),
       // we don't want or need mimaps
       mipmaps: false,
-      sampler: PIXELATED_TEXTURE_PARAMETERS,
+      sampler: {
+        // NEAREST for integer data
+        minFilter: 'nearest',
+        magFilter: 'nearest',
+        // CLAMP_TO_EDGE to remove tile artifacts
+        addressModeU: 'clamp-to-edge',
+        addressModeV: 'clamp-to-edge',
+      },
       format: 'r32float',
     });
   }

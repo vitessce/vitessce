@@ -148,7 +148,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
         //numData: [1, 1],
       };
       model.shaderInputs.setProps({ uBlock: bitmapProps });
-      model.draw(this.context.renderPass);
+      model.draw(opts);
     }
   }
 

@@ -194,7 +194,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
             sampleSetPath: sampleSetKey,
             contours,
             aggregation,
-            gpuAggregation: true,
+            gpuAggregation: false,
             visible: true,
             pickable: false,
             autoHighlight: false,
