@@ -39,6 +39,7 @@ const BRICK_CACHE_SIZE_Z = 4;
 const BRICK_CACHE_SIZE_VOXELS_X = BRICK_CACHE_SIZE_X * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Y = BRICK_CACHE_SIZE_Y * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Z = BRICK_CACHE_SIZE_Z * BRICK_SIZE;
+const totalBricks = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
 const PAGE_TABLE_ADDRESS_SIZE = 'uint32';
 const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
@@ -162,14 +163,7 @@ export class VolumeDataManager {
         [1, 1, 0],
         [1, 1, 1],
       ],
-      anchors: [
-        // [0, 0, 28],
-        // [16, 16, 15],
-        // [8, 8, 8],
-        // [4, 4, 4],
-        // [2, 2, 2],
-        // [1, 1, 1],
-      ],
+      anchors: [],
       offsets: [],
       xExtent: 0, // includes the offset inclusive
       yExtent: 0, // includes the offset inclusive
@@ -183,6 +177,9 @@ export class VolumeDataManager {
     this.minimumMax = 255;
     this.maximumMax = 0;
 
+    this.bricksAllocated = 0;
+    this.bricksEverLoaded = new Set();
+
     // Properties for volume rendering
     this.originalScale = [1, 1, 1]; // Original dimensions
     // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
@@ -193,6 +190,7 @@ export class VolumeDataManager {
 
     // top k page table addresses
     this.requestsStack = [];
+    this.isBusy = false;
 
     // brick cache structure for internal calculations
     const totalBricks = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
@@ -201,11 +199,14 @@ export class VolumeDataManager {
     this.BCFull = false;
     this.BCUnusedIndex = 0;
 
+    // brick cache to page table mapping
+    this.bc2pt = new Array(totalBricks).fill(null);
+
     // top k unused brick cache addresses
     this.LRUStack = [];
     this.LRUReady = false;
     this.triggerUsage = true;
-    this.triggerRequest = true;
+    this.triggerRequest = false;
     this.timeStamp = 0;
     this.k = 40;
     this.noNewRequests = false;
@@ -676,9 +677,10 @@ export class VolumeDataManager {
   }
 
   async processRequestData(buffer) {
-    // console.warn('processRequestData');
+    if (this.isBusy) return;
+    this.isBusy = true;
     this.triggerRequest = false;
-    // console.log('processRequestData');
+
     const counts = new Map();
     for (let i = 0; i < buffer.length; i += 4) {
       const r = buffer[i]; const g = buffer[i + 1]; const b = buffer[i + 2]; const
@@ -704,11 +706,13 @@ export class VolumeDataManager {
     // console.log('requests', requests);
     await this.handleBrickRequests(requests);
     this.triggerUsage = true;
+    this.isBusy = false;
   }
 
 
   async processUsageData(buffer) {
-    // console.warn('processUsageData');
+    if (this.isBusy) return;
+    this.isBusy = true;
     this.triggerUsage = false;
 
     const now = ++this.timeStamp;
@@ -737,56 +741,34 @@ export class VolumeDataManager {
     });
 
     // Check if brick cache is full based on allocation index
-    this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
-    console.warn('this.BCUnusedIndex', this.BCUnusedIndex);
-    console.warn('this.BCTimeStamps', this.BCTimeStamps);
-
+    // this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
     // If cache is full or we want to always maintain the LRU list
-    if (this.BCFull) { // Always update LRU list
-      console.warn('this.BCFull', this.BCFull);
-      console.warn('this.BCTimeStamps', this.BCTimeStamps);
-      // Find the top k least recently used bricks
-      const brickIndicesWithTimes = this.BCTimeStamps.map((time, index) => ({ index, time }));
-      this.LRUStack = brickIndicesWithTimes
-        .sort((a, b) => a.time - b.time) // Sort by timestamp (oldest first)
-        .slice(0, this.k) // Take top k least used
-        .map(item => item.index);
+    // if (this.BCFull || this.BCUnusedIndex >= this.BCTimeStamps.length - this.k) { // Always update LRU list
 
-      this.LRUReady = true;
-      console.warn('this.LRUStack', this.LRUStack);
-    }
+    // do NOT overwrite BCFull; it is latched in _allocateBCSlots()
+    if (this.BCFull) this._buildLRU();
 
     // console.warn('this.BCTimeStamps', this.BCTimeStamps);
     // console.warn('this.timeStamp', this.timeStamp);
-    // console.warn('this.BCFull', this.BCFull);
-    // console.warn('this.BCUnusedIndex', this.BCUnusedIndex);
-    // console.warn('this.BCMinMax', this.BCMinMax);
     this.triggerRequest = true;
+    this.isBusy = false;
   }
 
   // Helper method to update PT entries for evicted bricks
-  _updatePTForEvictedBricks(brickIndices) {
-    brickIndices.forEach((bcIndex) => {
-      // Get brick coordinates
-      const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
-      const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
-      const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
-      const x = rem % BRICK_CACHE_SIZE_X;
+  _evictBrick(bcIndex) {
+    const pt = this.bc2pt[bcIndex];
+    if (!pt) return; // brick was never resident
 
-      // Find which PT entries reference this brick
-      // This requires scanning the PT to find entries that point to this brick
-      // For efficiency, we might want to maintain a reverse mapping
+    const [min, max] = this.BCMinMax[bcIndex] || [0, 0];
+    const ptVal = (
+      (0 << 31) // not-resident
+        | (1 << 30) // init-done
+        | (Math.min(127, min >> 1) << 23)
+        | (Math.min(127, max >> 1) << 16)
+    ) >>> 0;
 
-      // Get min/max values from cache
-      const [min, max] = this.BCMinMax[bcIndex] || [0, 0];
-
-      // Create PT value that indicates "not resident but init"
-      const ptVal = this._packPTNotResident(min, max, x, y, z);
-
-      // Update PT entry (this is a simplified version - need to identify correct PT coordinates)
-      // This will require scanning through PT to find references to this brick
-      this._updatePTEntry(x, y, z, ptVal);
-    });
+    this._updatePTEntry(pt.x, pt.y, pt.z, ptVal); // ← PT coord!
+    this.bc2pt[bcIndex] = null; // slot now free
   }
 
   // Pack PT entry indicating "not resident but init" with min/max preserved
@@ -873,6 +855,9 @@ export class VolumeDataManager {
       }
     }
     // console.log(channel, resolution, x, y, z);
+    if (channel !== 0) {
+      console.warn('CHANNEL IS NOT 0', channel, resolution, x, y, z);
+    }
     return {
       channel,
       resolution,
@@ -884,22 +869,37 @@ export class VolumeDataManager {
 
   /* ------------------------------------------------------------- *
  * 2. Allocate the next n free bricks in the brick cache         *
- *    (very dumb allocator – good enough until you wire in LRU)  *
  * ------------------------------------------------------------- */
   _allocateBCSlots(n) {
-    const slots = [];
+    let slots = [];
     const total = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
-    for (let i = 0; i < n; ++i) {
-      const bcIndex = (this.BCUnusedIndex + i) % total; // wrap for now
-      const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
-      const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
-      const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
-      const x = rem % BRICK_CACHE_SIZE_X;
-
-      slots.push({ bcIndex, x, y, z });
+    if (!this.BCFull && this.BCUnusedIndex + n > total) {
+      this.BCFull = true;
+      console.warn('BRICK CACHE FULL');
     }
-    this.BCUnusedIndex = (this.BCUnusedIndex + n) % total;
+    if (!this.BCFull) {
+      for (let i = 0; i < n; ++i) {
+        const bcIndex = (this.BCUnusedIndex + i) % total; // wrap for now
+        const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+        const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+        const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+        const x = rem % BRICK_CACHE_SIZE_X;
+
+        slots.push({ bcIndex, x, y, z });
+      }
+      this.BCUnusedIndex += n;
+    } else { // ---- BC already full ----
+      if (this.LRUStack.length < n) this._buildLRU(); // top-up list
+      slots = this.LRUStack.splice(0, n).map((bcIndex) => {
+        this._evictBrick(bcIndex);
+        const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+        const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+        const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+        const x = rem % BRICK_CACHE_SIZE_X;
+        return { bcIndex, x, y, z };
+      });
+    }
     return slots;
   }
 
@@ -927,9 +927,9 @@ export class VolumeDataManager {
   async _uploadBrick(ptCoord, bcSlot) {
     // console.log('uploading brick', ptCoord, bcSlot);
 
-    if (ptCoord.x > this.PT.xExtent
-      || ptCoord.y > this.PT.yExtent
-      || ptCoord.z > this.PT.zTotal
+    if (ptCoord.x >= this.PT.xExtent
+      || ptCoord.y >= this.PT.yExtent
+      || ptCoord.z >= this.PT.zTotal
       || ptCoord.x < 0
       || ptCoord.y < 0
       || ptCoord.z < 0
@@ -1042,8 +1042,9 @@ export class VolumeDataManager {
 
     /* 4.5 bookkeeping */
     // const now = ++this.timeStamp;
-    // this.BCTimeStamps[bcSlot.bcIndex] = now;
+    this.BCTimeStamps[bcSlot.bcIndex] = this.timeStamp;
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
+    this.bc2pt[bcSlot.bcIndex] = ptCoord;
     // console.log('bookkeeping');
   }
 
@@ -1054,6 +1055,10 @@ export class VolumeDataManager {
     // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
     console.log('ptRequests', ptRequests);
+    console.log('this.BCFull', this.BCFull);
+    console.log('this.BCUnusedIndex', this.BCUnusedIndex);
+    console.log('this.BCTimeStamps', this.BCTimeStamps);
+    console.log('this.LRUStack', this.LRUStack);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);
@@ -1063,11 +1068,31 @@ export class VolumeDataManager {
     for (let i = 0; i < ptRequests.length; ++i) {
     // eslint-disable-next-line no-await-in-loop
       await this._uploadBrick(ptRequests[i], slots[i]);
+      this.bricksAllocated++;
+      const rlength = this.bricksEverLoaded.size;
+      this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
+      if (rlength === this.bricksEverLoaded.size) {
+        console.warn('DUPLICATE BRICK LOADED', ptRequests[i]);
+      }
     }
+    console.log('this.bricksAllocated', this.bricksAllocated);
+    console.log('this.bricksEverLoaded', this.bricksEverLoaded);
     // console.log('uploaded bricks');
 
     /* let Three.js know textures changed */
     // this.bcTHREE.needsUpdate = true;
     // this.ptTHREE.needsUpdate = true;
+  }
+
+  /* --------------------------------------------------------- *
+   * Rebuild the LRUStack with the k least-recently-used bricks *
+   * --------------------------------------------------------- */
+  _buildLRU() {
+    const brickIndicesWithTimes = this.BCTimeStamps
+      .map((time, index) => ({ index, time }));
+    this.LRUStack = brickIndicesWithTimes
+      .sort((a, b) => a.time - b.time)
+      .slice(0, this.k)
+      .map(item => item.index);
   }
 }

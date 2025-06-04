@@ -232,8 +232,9 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         if (isResident == 0u) {
             currentRes++;
             if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
-                gRequest = packPTCoordToRGBA8(coordinate);
+                // gRequest = packPTCoordToRGBA8(coordinate);
             }
+            return ivec4(0,0,0,-10);
             continue;
         } else {
             uint xBrickCache = (ptEntry >> 10u) & 0x3Fu;
@@ -372,6 +373,11 @@ void main(void) {
         }
 
         ivec4 brickCacheOffset = getBrickLocation(p_stretched, targetRes, 0);
+
+        if (brickCacheOffset.w == -10) {
+            gColor = vec4(0.0, 0.0, 1.0, 1.0);
+            return;
+        }
 
         currentTargetResPTCoord = normalizedToPTCoord(p_stretched, targetRes);
         ivec3 newBrickLocationPTCoord = currentTargetResPTCoord;
