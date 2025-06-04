@@ -66,17 +66,19 @@ const stylesheet = [
       'border-width': '3px',
       'border-color': '#00ff00',
       'border-style': 'solid',
+      'width': '25',
+      'height': '25',
       'opacity': '1'
     }
   },
   {
     selector: 'node.hovered',
     style: {
-      'border-width': '3px',
+      'border-width': '8px',
       'border-color': '#ffffff',
       'border-style': 'solid',
-      'width': '15',
-      'height': '15',
+      'width': '25',
+      'height': '25',
       'opacity': '1'
     }
   },
@@ -138,6 +140,31 @@ const CytoscapeWrapper: React.FC<{
       }
     });
   }, [cellColors]);
+
+ // Handle highlighting from Neuroglancer hover
+useEffect(() => {
+  const cy = cyRef.current;
+  if (!cy) return;
+
+  // Always clear previous highlights
+  cy.nodes().removeClass('hovered');
+
+  // If nothing is highlighted, exit early
+  if (!obsHighlight) return;
+
+  // Apply hover class based on obsHighlight
+  cy.nodes().forEach((node: any) => {
+    const { id, ftuName, subComponents } = node.data();
+
+    if (ftuName === 'nerves' && id.startsWith('merged_')) {
+      if (subComponents?.includes(obsHighlight)) {
+        node.addClass('hovered');
+      }
+    } else if (id === obsHighlight) {
+      node.addClass('hovered');
+    }
+  });
+}, [obsHighlight]);
 
   // Handle node selection
   const handleNodeSelect = (event: any) => {

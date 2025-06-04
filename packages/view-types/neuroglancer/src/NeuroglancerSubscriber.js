@@ -213,7 +213,7 @@ export function NeuroglancerSubscriber(props) {
   //   spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
-    // console.log('Hovered segment ID:', obsId);
+    console.log('Hovered segment ID:', obsId);
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
 
