@@ -6,16 +6,31 @@ import cytoscapeLasso from 'cytoscape-lasso';
 // Register the lasso plugin
 (cytoscape as any).use(cytoscapeLasso);
 
-const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => string, nodeSize: number) => [
-  ...nodes.map(node => ({
-    data: {
-      id: node.id,
-      color: nodeColor(node),
-      size: nodeSize,
-      ftuName: node.ftuName,
-      subComponents: node.subComponents
+const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => string, nodeSize: number, cellColors: Map<string, [number, number, number]>) => [
+  ...nodes.map(node => {
+    let borderColor = '#999';
+    if (node.ftuName === 'nerves' && node.id.startsWith('merged_') && node.subComponents) {
+      // For merged nodes, find the first subcomponent that has a color
+      const coloredSubComponent = node.subComponents.find((subId: string) => cellColors.has(subId));
+      if (coloredSubComponent) {
+        borderColor = `rgb(${cellColors.get(coloredSubComponent)?.join(',')})`;
+      }
+    } else if (cellColors.has(node.id)) {
+      borderColor = `rgb(${cellColors.get(node.id)?.join(',')})`;
     }
-  })),
+
+    return {
+      data: {
+        id: node.id,
+        color: nodeColor(node),
+        borderColor,
+        size: nodeSize,
+        ftuName: node.ftuName,
+        subComponents: node.subComponents,
+        opacity: cellColors.has(node.id) ? 1 : 0.3
+      }
+    };
+  }),
   ...links.map(link => ({
     data: {
       source: link.source,
@@ -29,38 +44,40 @@ const stylesheet = [
     selector: 'node',
     style: {
       'background-color': 'data(color)',
+      'border-color': 'data(borderColor)',
+      'border-width': '4px',
       'width': '15',
       'height': '15',
-      'border-width': '0px'
+      'opacity': 'data(opacity)'
     }
   },
   {
     selector: 'node:selected',
     style: {
-      // 'border-width': '2px',
-      // 'border-color': '#ffffff',
-      // 'border-style': 'solid',
-      'width': '20',
-      'height': '20',
-
+      'width': '25',
+      'height': '25',
+      'border-width': '8px',
+      'opacity': '1'
     }
   },
   {
     selector: 'node.highlighted',
     style: {
-      'border-width': '2px',
+      'border-width': '3px',
       'border-color': '#00ff00',
-      'border-style': 'solid'
+      'border-style': 'solid',
+      'opacity': '1'
     }
   },
   {
     selector: 'node.hovered',
     style: {
-      'border-width': '2px',
+      'border-width': '3px',
       'border-color': '#ffffff',
       'border-style': 'solid',
       'width': '15',
-      'height': '15'
+      'height': '15',
+      'opacity': '1'
     }
   },
   {
@@ -68,7 +85,8 @@ const stylesheet = [
     style: {
       'width': '1',
       'line-color': '#999',
-      'curve-style': 'straight'
+      'curve-style': 'straight',
+      // 'opacity': '1'
     }
   },
   // {
@@ -94,8 +112,32 @@ const CytoscapeWrapper: React.FC<{
   obsSetSelection: string[][];
   obsHighlight: string | null;
   cyRef: React.MutableRefObject<any>;
-}> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight, cyRef }) => {
+  cellColors: Map<string, [number, number, number]>;
+}> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight, cyRef, cellColors }) => {
   const selectionTimeoutRef = React.useRef<number | null>(null);
+
+  // Update node opacity when cellColors changes
+  useEffect(() => {
+    if (!cyRef.current) return;
+    
+    cyRef.current.nodes().forEach((node: any) => {
+      const nodeId = node.id();
+      const nodeData = node.data();
+      
+      // Check if this is a merged nerve node
+      if (nodeData.ftuName === 'nerves' && nodeId.startsWith('merged_')) {
+        // Check if any of its subcomponents are in cellColors
+        const hasHighlightedSubComponent = nodeData.subComponents?.some(
+          (subId: string) => cellColors.has(subId)
+        );
+        node.style('opacity', hasHighlightedSubComponent ? 1 : 0.3);
+      } else {
+        // For non-merged nodes, check if the node ID is in cellColors
+        const opacity = cellColors.has(nodeId) ? 1 : 0.3;
+        node.style('opacity', opacity);
+      }
+    });
+  }, [cellColors]);
 
   // Handle node selection
   const handleNodeSelect = (event: any) => {
@@ -132,11 +174,13 @@ const CytoscapeWrapper: React.FC<{
           if (nodeData.id.startsWith('merged_')) {
             // For merged nodes, use subComponents with 000 suffix
             nodeData.subComponents.forEach((subId: string) => {
-              selectedNodeIds.push(`${subId}000`);
+              // selectedNodeIds.push(`${subId}000`);
+              selectedNodeIds.push(subId);
             });
           } else {
             // For regular nerve nodes, add 000 suffix
-            selectedNodeIds.push(`${nodeData.id}000`);
+            // selectedNodeIds.push(`${nodeData.id}000`);
+            selectedNodeIds.push(nodeData.id);
           }
         } else {
           // For non-nerve nodes, use the ID as is
@@ -187,7 +231,7 @@ const CytoscapeWrapper: React.FC<{
 
   return (
     <CytoscapeComponent
-      elements={createElements(nodes, links, nodeColor, 10)}
+      elements={createElements(nodes, links, nodeColor, 10, cellColors)}
       style={{ width: '100%', height: '100%' }}
       layout={{ name: 'cose', fit: true, padding: 30 }}
       stylesheet={stylesheet}
@@ -299,6 +343,7 @@ interface NetworkVisProps {
   obsHighlight: string | null;
   additionalCellSets: any;
   setAdditionalCellSets: (sets: any) => void;
+  cellColors: Map<string, [number, number, number]>;
 }
 
 const NetworkVis: React.FC<NetworkVisProps> = ({
@@ -308,13 +353,14 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   obsHighlight,
   additionalCellSets,
   setAdditionalCellSets,
+  cellColors,
 }) => {
   const [state, setState] = React.useState({
     data: undefined,
     infoText: '',
   });
 
-  const [isMotifSearchOpen, setIsMotifSearchOpen] = React.useState(true);
+  const [isMotifSearchOpen, setIsMotifSearchOpen] = React.useState(false);
 
   const [motifPattern, setMotifPattern] = React.useState<MotifPattern>({
     nodes: [
@@ -447,7 +493,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/network_kidney_20_10v2.json');
+        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/modified_network_kidney_20_10.json');
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
 
@@ -479,7 +525,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         padding: '8px', 
         borderRadius: '5px', 
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        width: '220px',
+        width: '150px',
         transition: 'all 0.3s ease'
       }}>
         <div style={{ 
@@ -488,7 +534,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           alignItems: 'center',
           marginBottom: '5px'
         }}>
-          <h4 style={{ margin: 0, fontSize: '13px' }}>Complex Motif Search</h4>
+          <h4 style={{ margin: 0, fontSize: '13px' }}>Motif Search</h4>
           <button
             onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
             style={{
@@ -556,6 +602,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         obsSetSelection={obsSetSelection}
         obsHighlight={obsHighlight}
         cyRef={cyRef}
+        cellColors={cellColors}
       />
     </div>
   );

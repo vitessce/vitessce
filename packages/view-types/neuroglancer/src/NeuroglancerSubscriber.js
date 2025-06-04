@@ -162,6 +162,16 @@ export function NeuroglancerSubscriber(props) {
   }), [mergedCellSets, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
+  //   console.log("cellSets", cellSets);
+  //   console.log("additionalCellSets", additionalCellSets);
+  //   console.log("mergedCellSets", mergedCellSets);
+  //   console.log("cellSetSelection", cellSetSelection);
+  //   console.log("cellSetColor", cellSetColor);
+  //   console.log("obsIndex", obsIndex);
+  //   console.log("theme", theme);
+
+  // console.log("NEUROGLANCER CELL COLORS", cellColors);
+
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
@@ -203,7 +213,7 @@ export function NeuroglancerSubscriber(props) {
   //   spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
-    console.log('Hovered segment ID:', obsId);
+    // console.log('Hovered segment ID:', obsId);
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
 

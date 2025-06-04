@@ -1,12 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import NetworkVis from './NetworkVis';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { TitleInfo as TitleInfoRaw, useCoordination } from '@vitessce/vit-s';
+import { TitleInfo as TitleInfoRaw, useCoordination, useLoaders, useObsSetsData, useObsEmbeddingData } from '@vitessce/vit-s';
 import { FC, ReactNode } from 'react';
-import { setObsSelection } from '@vitessce/sets-utils';
+import { getCellColors, mergeObsSets, setObsSelection } from '@vitessce/sets-utils';
 
 // Create a local typed version
 const TitleInfo = TitleInfoRaw as unknown as FC<{ children?: ReactNode } & Record<string, any>>;
+
+interface GetCellColorsParams {
+  cellSetSelection: string[][] | null;
+  cellSetColor: { path: string[]; color: [number, number, number] }[] | null;
+  cellSets: any; // TODO: more strict typing here
+  obsIndex: string[] | null;
+  theme: 'light' | 'dark' | null;
+}
 
 export function NetworkVisSubscriber(props:any) {
   const {
@@ -20,18 +28,52 @@ export function NetworkVisSubscriber(props:any) {
   } = props;
 
   const [{
-    obsSetSelection,
-    obsSetColor,
+    dataset,
+    obsType,
+    obsSetSelection: cellSetSelection,
+    obsSetColor: cellSetColor,
     obsColorEncoding,
     obsHighlight,
-    additionalObsSets,
+    additionalObsSets: additionalCellSets,
   }, {
-    setObsSetSelection,
-    setObsSetColor,
+    setObsSetSelection: setCellSetSelection,
+    setObsSetColor: setCellSetColor,
     setObsColorEncoding,
     setObsHighlight,
-    setAdditionalObsSets,
+    setAdditionalObsSets: setAdditionalCellSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NETWORK_VIS], coordinationScopes);
+
+  const loaders = useLoaders();
+
+  // Get cell sets data
+  const [{ obsSets: cellSets }] = useObsSetsData(
+    loaders, dataset, false,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
+  );
+
+  // Get observation index data
+  const [{ obsIndex }] = useObsEmbeddingData(
+    loaders, dataset, true, {}, {},
+    { obsType },
+  );
+
+  // Merge cell sets
+  const mergedCellSets = useMemo(() => mergeObsSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
+
+  // Calculate cell colors
+  const cellColors = useMemo(() => getCellColors({
+    cellSetSelection,
+    cellSetColor,
+    obsIndex,
+    theme,
+    cellSets: mergedCellSets,
+  } as GetCellColorsParams), [mergedCellSets, theme, cellSetColor, cellSetSelection, obsIndex]);
+
+  console.log("NEUROGLANCER cellColors", cellColors);
 
   // Handle node selection
   const onNodeSelect = useCallback((nodeIds: string[]) => {
@@ -41,36 +83,13 @@ export function NetworkVisSubscriber(props:any) {
       // Only create a new selection if we have nodes selected
       const timestamp = new Date().getTime();
       
-      // Log the current color assignments
-      console.log('Current obsSetColor:', obsSetColor);
-      console.log('Current obsColorEncoding:', obsColorEncoding);
-      
-      // Log the color that will be assigned to this selection
-      const newSelectionIndex = obsSetSelection?.length || 0;
-      console.log('New selection index:', newSelectionIndex);
-      
-      // Get the color from the PALETTE array
-      const PALETTE = [
-        [68, 119, 170],  // #4477AA
-        [136, 204, 238],
-        [68, 170, 153],
-        [17, 119, 51],
-        [153, 153, 51],
-        [221, 204, 119],
-        [204, 102, 119],
-        [136, 34, 85],
-        [170, 68, 153],
-      ];
-      const colorIndex = newSelectionIndex % PALETTE.length;
-      console.log('Color that will be assigned:', PALETTE[colorIndex]);
-      
       setObsSelection(
         nodeIds,
-        additionalObsSets,
-        obsSetColor,
-        setObsSetSelection,
-        setAdditionalObsSets,
-        setObsSetColor,
+        additionalCellSets,
+        cellSetColor,
+        setCellSetSelection,
+        setAdditionalCellSets,
+        setCellSetColor,
         setObsColorEncoding,
         `Selection ${timestamp}`, // Use timestamp to ensure unique names
       );
@@ -81,13 +100,13 @@ export function NetworkVisSubscriber(props:any) {
       }
     }
   }, [
-    additionalObsSets,
-    obsSetColor,
-    obsSetSelection,
-    setAdditionalObsSets,
+    additionalCellSets,
+    cellSetColor,
+    cellSetSelection,
+    setAdditionalCellSets,
     setObsColorEncoding,
-    setObsSetColor,
-    setObsSetSelection,
+    setCellSetColor,
+    setCellSetSelection,
     setObsHighlight
   ]);
 
@@ -103,11 +122,12 @@ export function NetworkVisSubscriber(props:any) {
     >
       <NetworkVis 
         onNodeSelect={onNodeSelect}
-        obsSetSelection={obsSetSelection}
-        obsSetColor={obsSetColor}
+        obsSetSelection={cellSetSelection}
+        obsSetColor={cellSetColor}
         obsHighlight={obsHighlight}
-        additionalCellSets={additionalObsSets}
-        setAdditionalCellSets={setAdditionalObsSets}
+        additionalCellSets={additionalCellSets}
+        setAdditionalCellSets={setAdditionalCellSets}
+        cellColors={cellColors}
       />
     </TitleInfo>
   );
