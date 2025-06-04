@@ -128,6 +128,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     obsIndex,
     featureIndex,
     featureLabelsMap,
+    onBeforeRender,
   } = props;
 
   const viewState = {
@@ -414,7 +415,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       // Each color contains a single luminance value.
       // When sampled, rgb are all set to this luminance, alpha is 1.0.
       // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-      format: 'r8uint',
+      format: 'r8unorm',
       width: DATA_TEXTURE_SIZE,
       height: DATA_TEXTURE_SIZE,
     }) : paddedExpressionContainer;
@@ -476,6 +477,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       return layers;
     }
     function getLayer(i, j, tile) {
+      console.log("New layer");
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
@@ -880,6 +882,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       onClick={onHeatmapClick}
       width="100%"
       height="100%"
+      onLoad={onBeforeRender}
     />
   );
 });

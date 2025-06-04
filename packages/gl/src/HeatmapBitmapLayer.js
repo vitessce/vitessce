@@ -10,6 +10,32 @@ import {
 } from './constants.js';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders.js';
 
+
+const uniformBlock = `\
+uniform uBlockUniforms {
+  // What are the dimensions of the texture (width, height)?
+  vec2 uTextureSize;
+
+  // How many consecutive pixels should be aggregated together along each axis?
+  vec2 uAggSize;
+
+  // What are the values of the color scale sliders?
+  vec2 uColorScaleRange;
+} uBlock;
+`;
+
+export const bitmapUniforms = {
+  name: 'uBlock',
+  vs: uniformBlock,
+  fs: uniformBlock,
+  uniformTypes: {
+    uTextureSize: 'vec2<f32>',
+    uAggSize: 'vec2<f32>',
+    uColorScaleRange: 'vec2<f32>',
+  }
+};
+
+
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
@@ -32,13 +58,13 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    */
   // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
-    this.props.extensions.forEach((extension) => {
-      // eslint-disable-next-line no-param-reassign
-      shaders = _mergeShaders(
-        shaders,
-        extension.getShaders.call(this, extension),
-      );
+    shaders = _mergeShaders(shaders, {
+      disableWarnings: true,
+      modules: this.context.defaultShaderModules
     });
+    for (const extension of this.props.extensions) {
+      shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
+    }
     return shaders;
   }
 
@@ -57,7 +83,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     return this._getShaders({
       vs: vertexShader,
       fs: fragmentShaderWithColormap,
-      modules: [project32, picking],
+      modules: [project32, picking, bitmapUniforms],
     });
   }
 
@@ -73,6 +99,9 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       this.state.model = this._getModel(device);
       this.getAttributeManager().invalidateAll();
     }
+    /*if(props.bounds !== oldProps.bounds) {
+      this.setState({ bounds: props.bounds })
+    }*/
   }
 
   /**
@@ -90,16 +119,15 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
 
     // Render the image
     if (bitmapTexture && model) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            uBitmapTexture: bitmapTexture,
-            uTextureSize: [TILE_SIZE, TILE_SIZE],
-            uAggSize: [aggSizeX, aggSizeY],
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-          }),
-        );
+        const bitmapProps = {
+          uBitmapTexture: bitmapTexture,
+          uTextureSize: [TILE_SIZE, TILE_SIZE],
+          uAggSize: [aggSizeX, aggSizeY],
+          uColorScaleRange: [colorScaleLo, colorScaleHi],
+        };
+        model.shaderInputs.setProps({ uBlock: bitmapProps });
         model.draw(this.context.renderPass);
+
     }
   }
 
@@ -117,7 +145,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
       this.state.bitmapTexture.delete();
     }
 
-    if (image instanceof Texture) {
+    if (image && image.device) {
       this.setState({
         bitmapTexture: image,
       });
@@ -131,7 +159,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-          format: 'r8uint',
+          format: 'r8unorm',
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),

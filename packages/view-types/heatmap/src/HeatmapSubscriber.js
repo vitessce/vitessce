@@ -104,7 +104,7 @@ export function HeatmapSubscriber(props) {
   // setObsColorEncoding with 'geneSelection' or 'cellSetSelection' upon a click.
   const [hoveredColorEncoding, setHoveredColorEncoding] = useState('geneSelection');
 
-  const [width, height, deckRef] = useDeckCanvasSize();
+  const [width, height, deckRef, onBeforeRender] = useDeckCanvasSize();
 
   // Get data from loaders using the data hooks.
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
@@ -269,6 +269,7 @@ export function HeatmapSubscriber(props) {
         useDevicePixels
         onHeatmapClick={onHeatmapClick}
         setColorEncoding={setHoveredColorEncoding}
+        onBeforeRender={onBeforeRender}
       />
       {tooltipsVisible && (
       <HeatmapTooltipSubscriber

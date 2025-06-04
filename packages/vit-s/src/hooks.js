@@ -100,8 +100,8 @@ export function useGridItemSize() {
 export function useDeckCanvasSize() {
   const deckRef = useRef();
 
-  const [height, setHeight] = useState(200);
-  const [width, setWidth] = useState(200);
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
 
   const resizeCount = useGridResize();
   const incrementResizeCount = useEmitGridResize();
@@ -122,16 +122,16 @@ export function useDeckCanvasSize() {
   // On new grid resize counts, re-compute the DeckGL canvas
   // width/height.
   useEffect(() => {
-    console.log(deckRef?.current, deckRef?.current?.deck?.width)
+    console.log('test');
     if (!deckRef?.current?.deck?.canvas) return;
     
     const { canvas } = deckRef.current.deck;
     const canvasRect = canvas.getBoundingClientRect();
     setHeight(canvasRect.height);
     setWidth(canvasRect.width);
-  }, [resizeCount, deckRef]);
+  }, [resizeCount]);
 
-  return [width, height, deckRef];
+  return [width, height, deckRef, incrementResizeCount];
 }
 
 /**

@@ -7,6 +7,45 @@ import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE, DATA_TEXTURE_SIZE } from './he
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants.js';
 import { vertexShader, fragmentShader } from './padded-expression-heatmap-bitmap-layer-shaders.js';
 
+
+
+
+
+const uniformBlock = `\
+uniform uBlockUniforms {
+  // height x width of the data matrix (i.e x and y are flipped compared to the graphics convention)
+  vec2 uOrigDataSize;
+  vec2 uReshapedDataSize;
+
+  vec2 tileIJ;
+
+  // What are the dimensions of the texture (width, height)?
+  vec2 uTextureSize;
+
+  // How many consecutive pixels should be aggregated together along each axis?
+  vec2 uAggSize;
+
+  // What are the values of the color scale sliders?
+  vec2 uColorScaleRange;
+} uBlock;
+`;
+
+export const bitmapUniforms = {
+  name: 'uBlock',
+  vs: uniformBlock,
+  fs: uniformBlock,
+  uniformTypes: {
+    uOrigDataSize: 'vec2<f32>',
+    uReshapedDataSize: 'vec2<f32>',
+    tileIJ: 'vec2<f32>',
+    uTextureSize: 'vec2<f32>',
+    uAggSize: 'vec2<f32>',
+    uColorScaleRange: 'vec2<f32>',
+  }
+};
+
+
+
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
   colormap: { type: 'string', value: GLSL_COLORMAP_DEFAULT, compare: true },
@@ -29,14 +68,14 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * @returns {object} Merged shaders.
    */
   _getShaders(shaders) {
-    this.props.extensions.forEach((extension) => {
-      // eslint-disable-next-line no-param-reassign
-      shaders = _mergeShaders(
-        shaders,
-        extension.getShaders.call(this, extension),
-      );
-    });
-    return shaders;
+      shaders = _mergeShaders(shaders, {
+        disableWarnings: true,
+        modules: this.context.defaultShaderModules
+      });
+      for (const extension of this.props.extensions) {
+        shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
+      }
+      return shaders;
   }
 
   /**
@@ -53,7 +92,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
     return this._getShaders({
       vs: vertexShader,
       fs: fragmentShaderWithColormap,
-      modules: [project32, picking],
+      modules: [project32, picking, bitmapUniforms],
     });
   }
 
@@ -95,29 +134,20 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
     } = this.props;
     // Render the image
     if (bitmapTexture && model) {
-      model.setUniforms(
-        Object.assign({}, uniforms, {
-          uBitmapTexture: bitmapTexture,
-          uOrigDataSize: origDataSize,
-          uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
-          uTextureSize: [TILE_SIZE, TILE_SIZE],
-          uAggSize: [aggSizeX, aggSizeY],
-          uColorScaleRange: [colorScaleLo, colorScaleHi],
-          tileIJ: [tileI, tileJ],
-          dataIJ: [0, 0],
-          numTiles: [numXTiles, numYTiles],
-          numData: [1, 1],
-        }),
-      );
       const bitmapProps = {
-        bitmapTexture,
-        bounds,
-        coordinateConversion,
-        desaturate,
-        tintColor: tintColor.slice(0, 3).map(x => x / 255),
-        transparentColor: transparentColor.map(x => x / 255),
+        // My props
+        uBitmapTexture: bitmapTexture,
+        uOrigDataSize: origDataSize,
+        uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
+        uTextureSize: [TILE_SIZE, TILE_SIZE],
+        uAggSize: [aggSizeX, aggSizeY],
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
+        //tileIJ: [tileI, tileJ],
+        //dataIJ: [0, 0],
+        //numTiles: [numXTiles, numYTiles],
+        //numData: [1, 1],
       };
-      model.shaderInputs.setProps({bitmap: bitmapProps});
+      model.shaderInputs.setProps({ uBlock: bitmapProps });
       model.draw(this.context.renderPass);
     }
   }
@@ -142,7 +172,6 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
         bitmapTexture: image,
       });
     } else if (image) {
-      console.log(image);
       this.setState({
         bitmapTexture: device.createTexture({
           data: image,
@@ -152,7 +181,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-          format: 'r8uint',
+          format: 'r8unorm',
           width: DATA_TEXTURE_SIZE,
           height: DATA_TEXTURE_SIZE,
         }),

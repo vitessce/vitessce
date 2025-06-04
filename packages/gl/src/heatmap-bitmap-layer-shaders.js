@@ -42,7 +42,7 @@ export const fragmentShader = `\
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 ${colormaps}
@@ -50,14 +50,6 @@ ${colormaps}
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
-// What are the dimensions of the texture (width, height)?
-uniform vec2 uTextureSize;
-
-// How many consecutive pixels should be aggregated together along each axis?
-uniform vec2 uAggSize;
-
-// What are the values of the color scale sliders?
-uniform vec2 uColorScaleRange;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
 in vec2 vTexCoord;
@@ -66,13 +58,13 @@ out vec4 fragColor;
 
 void main(void) {
   // Compute 1 pixel in texture coordinates
-  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+  vec2 onePixel = vec2(1.0, 1.0) / uBlock.uTextureSize;
   
-  vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
+  vec2 viewCoord = vec2(floor(vTexCoord.x * uBlock.uTextureSize.x), floor(vTexCoord.y * uBlock.uTextureSize.y));
 
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
-  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
+  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uBlock.uAggSize.x), -1.0 * mod(viewCoord.y, uBlock.uAggSize.y));
 
   // Take the sum of values along each axis.
   float intensitySum = 0.0;
@@ -81,7 +73,7 @@ void main(void) {
   for(int i = 0; i < 16; i++) {
     // Check to break outer loop early.
     // Uniforms cannot be used as conditions in GLSL for loops.
-    if(float(i) >= uAggSize.y) {
+    if(float(i) >= uBlock.uAggSize.y) {
       // Done in the y direction.
       break;
     }
@@ -91,7 +83,7 @@ void main(void) {
     for(int j = 0; j < 16; j++) {
       // Check to break inner loop early.
       // Uniforms cannot be used as conditions in GLSL for loops.
-      if(float(j) >= uAggSize.x) {
+      if(float(j) >= uBlock.uAggSize.x) {
         // Done in the x direction.
         break;
       }
@@ -102,10 +94,10 @@ void main(void) {
   }
   
   // Compute the mean value.
-  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
+  float intensityMean = intensitySum / (uBlock.uAggSize.x * uBlock.uAggSize.y);
   
   // Re-scale using the color scale slider values.
-  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+  float scaledIntensityMean = (intensityMean - uBlock.uColorScaleRange[0]) / max(0.005, (uBlock.uColorScaleRange[1] - uBlock.uColorScaleRange[0]));
 
   fragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
