@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D } from '@luma.gl/core';
+import { Texture } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE, DATA_TEXTURE_SIZE } from './heatmap-constants.js';
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants.js';
 import { vertexShader, fragmentShader } from './padded-expression-heatmap-bitmap-layer-shaders.js';
@@ -61,10 +61,10 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
     super.updateState(args);
     const { props, oldProps } = args;
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       // eslint-disable-next-line no-unused-expressions
-      this.state.model?.delete();
-      this.state.model = this._getModel(gl);
+      this.state.model?.destroy();
+      this.state.model = this._getModel(device);
       this.getAttributeManager().invalidateAll();
     }
     if (props.image !== oldProps.image) {
@@ -94,22 +94,21 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
     } = this.props;
     // Render the image
     if (bitmapTexture && model) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            uBitmapTexture: bitmapTexture,
-            uOrigDataSize: origDataSize,
-            uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
-            uTextureSize: [TILE_SIZE, TILE_SIZE],
-            uAggSize: [aggSizeX, aggSizeY],
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-            tileIJ: [tileI, tileJ],
-            dataIJ: [0, 0],
-            numTiles: [numXTiles, numYTiles],
-            numData: [1, 1],
-          }),
-        )
-        .draw();
+      model.setUniforms(
+        Object.assign({}, uniforms, {
+          uBitmapTexture: bitmapTexture,
+          uOrigDataSize: origDataSize,
+          uReshapedDataSize: [DATA_TEXTURE_SIZE, DATA_TEXTURE_SIZE],
+          uTextureSize: [TILE_SIZE, TILE_SIZE],
+          uAggSize: [aggSizeX, aggSizeY],
+          uColorScaleRange: [colorScaleLo, colorScaleHi],
+          tileIJ: [tileI, tileJ],
+          dataIJ: [0, 0],
+          numTiles: [numXTiles, numYTiles],
+          numData: [1, 1],
+        }),
+      );
+      model.draw(this.context.renderPass);
     }
   }
 
@@ -121,28 +120,27 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * @param {Array<Uint8Array>} images
    */
   loadTexture(image) {
-    const { gl } = this.context;
+    const { device } = this.context;
 
     if (this.state.bitmapTexture) {
       this.state.bitmapTexture.delete();
     }
 
-    if (image && image instanceof Texture2D) {
+    if (image && image instanceof Texture) {
       this.setState({
         bitmapTexture: image,
       });
     } else if (image) {
       this.setState({
-        bitmapTexture: new Texture2D(gl, {
+        bitmapTexture: device.createTexture({
           data: image,
+          dimension: '2d',
           mipmaps: false,
-          parameters: PIXELATED_TEXTURE_PARAMETERS,
+          sampler: PIXELATED_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-          format: GL.LUMINANCE,
-          dataFormat: GL.LUMINANCE,
-          type: GL.UNSIGNED_BYTE,
+          format: 'r8uint',
           width: DATA_TEXTURE_SIZE,
           height: DATA_TEXTURE_SIZE,
         }),

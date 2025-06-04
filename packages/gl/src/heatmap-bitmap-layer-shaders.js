@@ -7,11 +7,11 @@ import { colormaps } from './glsl/index.js';
 export const vertexShader = `
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
-attribute vec2 texCoords;
-attribute vec3 positions;
-attribute vec3 positions64Low;
+in vec2 texCoords;
+in vec3 positions;
+in vec3 positions64Low;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 const vec3 pickingColor = vec3(1.0, 0.0, 0.0);
 
@@ -58,7 +58,7 @@ uniform vec2 uAggSize;
 uniform vec2 uColorScaleRange;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
 
 void main(void) {
   // Compute 1 pixel in texture coordinates
@@ -93,7 +93,7 @@ void main(void) {
       }
 
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+      intensitySum += texture(uBitmapTexture, vTexCoord + offsetPixels).r;
     }
   }
   
@@ -103,9 +103,9 @@ void main(void) {
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+  fragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;

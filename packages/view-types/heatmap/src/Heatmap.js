@@ -406,16 +406,15 @@ const Heatmap = forwardRef((props, deckRef) => {
         }
       }
     }
-    return gl ? new luma.Texture2D(gl, {
+    return gl ? gl.createTexture({
       data: paddedExpressionContainer,
+      dimension: '2d',
       mipmaps: false,
-      parameters: PIXELATED_TEXTURE_PARAMETERS,
+      sampler: PIXELATED_TEXTURE_PARAMETERS,
       // Each color contains a single luminance value.
       // When sampled, rgb are all set to this luminance, alpha is 1.0.
       // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-      format: luma.GL.LUMINANCE,
-      dataFormat: luma.GL.LUMINANCE,
-      type: luma.GL.UNSIGNED_BYTE,
+      format: 'r8uint',
       width: DATA_TEXTURE_SIZE,
       height: DATA_TEXTURE_SIZE,
     }) : paddedExpressionContainer;
@@ -832,7 +831,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     <deck.DeckGL
       id={`deckgl-overlay-${uuid}`}
       ref={deckRef}
-      onWebGLInitialized={setGlContext}
+      onDeviceInitialized={setGlContext}
       views={[
         // Note that there are multiple views here,
         // but only one viewState.

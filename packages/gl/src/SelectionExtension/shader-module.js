@@ -1,5 +1,5 @@
 const vs = `
-attribute float isSelected;
+in float isSelected;
 `;
 
 const inject = {

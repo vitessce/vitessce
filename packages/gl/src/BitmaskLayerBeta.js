@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { range } from 'lodash-es';
 import { fs, vs } from './bitmask-layer-beta-shaders.js';
@@ -151,12 +150,12 @@ export default class BitmaskLayer extends XRLayer {
       });
     }
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       if (this.state.model) {
-        this.state.model.delete();
+        this.state.model.destroy();
       }
       // eslint-disable-next-line no-underscore-dangle
-      this.setState({ model: this._getModel(gl) });
+      this.setState({ model: this._getModel(device) });
 
       this.getAttributeManager().invalidateAll();
     }
@@ -278,8 +277,8 @@ export default class BitmaskLayer extends XRLayer {
             // uIsOutlined: false,
             scaleFactor,
           }),
-        )
-        .draw();
+        );
+        model.draw(this.context.renderPass);
     }
   }
 
@@ -287,25 +286,23 @@ export default class BitmaskLayer extends XRLayer {
    * This function creates textures from the data
    */
   dataToTexture(data, width, height) {
-    const isWebGL2On = isWebGL2(this.context.gl);
-    return new Texture2D(this.context.gl, {
+    return this.context.device.createTexture({
       width,
       height,
+      dimension: '2d',
       // Only use Float32 so we don't have to write two shaders
       data: new Float32Array(data),
       // we don't want or need mimaps
       mipmaps: false,
-      parameters: {
+      sampler: {
         // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+        minFilter: 'nearest',
+        magFilter: 'nearest',
         // CLAMP_TO_EDGE to remove tile artifacts
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+        addressModeU: 'clamp-to-edge',
+        addressModeV: 'clamp-to-edge',
       },
-      format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-      dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-      type: GL.FLOAT,
+      format: 'r32float',
     });
   }
 
@@ -315,7 +312,6 @@ export default class BitmaskLayer extends XRLayer {
     setColorValues,
     channelIsSetColorMode,
   ) {
-    const isWebGL2On = isWebGL2(this.context.gl);
 
     const [
       totalData,
@@ -334,44 +330,42 @@ export default class BitmaskLayer extends XRLayer {
 
     return [
       // Color indices texture
-      new Texture2D(this.context.gl, {
+      this.context.device.createTexture({
         width: MULTI_FEATURE_TEX_SIZE,
         height: valueTexHeight,
+        dimension: '2d',
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalData),
         // we don't want or need mimaps
         mipmaps: false,
-        parameters: {
+        sampler: {
           // NEAREST for integer data
-          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          minFilter: 'nearest',
+          magFilter: 'nearest',
           // CLAMP_TO_EDGE to remove tile artifacts
-          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+          addressModeU: 'clamp-to-edge',
+          addressModeV: 'clamp-to-edge',
         },
-        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-        type: GL.FLOAT,
+        format: 'r32float',
       }),
       // Colors texture
-      new Texture2D(this.context.gl, {
+      this.context.device.createTexture({
         width: MULTI_FEATURE_TEX_SIZE,
         height: colorTexHeight,
+        dimension: '2d',
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalColors),
         // we don't want or need mimaps
         mipmaps: false,
-        parameters: {
+        sampler: {
           // NEAREST for integer data
-          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          minFilter: 'nearest',
+          magFilter: 'nearest',
           // CLAMP_TO_EDGE to remove tile artifacts
-          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+          addressModeU: 'clamp-to-edge',
+          addressModeV: 'clamp-to-edge',
         },
-        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-        type: GL.FLOAT,
+        format: 'r32float',
       }),
       // Offsets
       indicesOffsets,

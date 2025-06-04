@@ -122,7 +122,7 @@ export function useDeckCanvasSize() {
   // On new grid resize counts, re-compute the DeckGL canvas
   // width/height.
   useEffect(() => {
-    if (!deckRef.current) return;
+    if (!deckRef?.current?.deck?.canvas) return;
     const { canvas } = deckRef.current.deck;
     const canvasRect = canvas.getBoundingClientRect();
     setHeight(canvasRect.height);

@@ -1,7 +1,7 @@
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D } from '@luma.gl/core';
+import { Texture } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants.js';
 import {
   GLSL_COLORMAPS,
@@ -66,11 +66,11 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     this.loadTexture(this.props.image);
     const { props, oldProps } = args;
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       // eslint-disable-next-line no-unused-expressions
-      this.state.model?.delete();
+      this.state.model?.destroy();
       // eslint-disable-next-line no-underscore-dangle
-      this.state.model = this._getModel(gl);
+      this.state.model = this._getModel(device);
       this.getAttributeManager().invalidateAll();
     }
   }
@@ -98,8 +98,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
             uAggSize: [aggSizeX, aggSizeY],
             uColorScaleRange: [colorScaleLo, colorScaleHi],
           }),
-        )
-        .draw();
+        );
+        model.draw(this.context.renderPass);
     }
   }
 
@@ -111,28 +111,27 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {Uint8Array} image
    */
   loadTexture(image) {
-    const { gl } = this.context;
+    const { device } = this.context;
 
     if (this.state.bitmapTexture) {
       this.state.bitmapTexture.delete();
     }
 
-    if (image instanceof Texture2D) {
+    if (image instanceof Texture) {
       this.setState({
         bitmapTexture: image,
       });
     } else if (image) {
       this.setState({
-        bitmapTexture: new Texture2D(gl, {
+        bitmapTexture: device.createTexture({
           data: image,
+          dimension: '2d',
           mipmaps: false,
-          parameters: PIXELATED_TEXTURE_PARAMETERS,
+          sampler: PIXELATED_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-          format: GL.LUMINANCE,
-          dataFormat: GL.LUMINANCE,
-          type: GL.UNSIGNED_BYTE,
+          format: 'r8uint',
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),

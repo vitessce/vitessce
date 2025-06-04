@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@hms-dbmi/viv": "catalog:",
+    "@hms-dbmi/viv": "catalog:deck.gl",
     "zarrita": "catalog:"
   },
   "devDependencies": {

@@ -238,7 +238,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const {
       deckRef, viewState, uuid, hideTools, orbitAxis,
     } = this.props;
-    const { gl, tool } = this.state;
+    const { gl, tool, device } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
 

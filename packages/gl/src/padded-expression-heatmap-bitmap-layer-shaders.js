@@ -4,14 +4,15 @@ import { colormaps } from './glsl/index.js';
  * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
-export const vertexShader = `
+export const vertexShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
-attribute vec2 texCoords;
-attribute vec3 positions;
-attribute vec3 positions64Low;
+in vec2 texCoords;
+in vec3 positions;
+in vec3 positions64Low;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 const vec3 pickingColor = vec3(1.0, 0.0, 0.0);
 
@@ -36,7 +37,8 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hms-dbmi/viv/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
-export const fragmentShader = `
+export const fragmentShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
@@ -66,7 +68,9 @@ uniform vec2 uAggSize;
 uniform vec2 uColorScaleRange;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 vec2 offsetvTexcoord(vec2 coord) {
   float xTileToDataRatio = uTextureSize.x / uOrigDataSize.y;
@@ -128,7 +132,7 @@ void main(void) {
       float indexFull = getIndexFromViewCoord(viewCoordTransformed + offsetPixels);
       float index = indexFull - (floor(indexFull / (uReshapedDataSize.x * uReshapedDataSize.y)) * (uReshapedDataSize.x * uReshapedDataSize.y));
       vec2 vTexCoordTransformed = transformDataCoordinate(index);
-      intensitySum += texture2D(uBitmapTexture, vTexCoordTransformed).r;
+      intensitySum += texture(uBitmapTexture, vTexCoordTransformed).r;
     }
   }
   
@@ -137,9 +141,9 @@ void main(void) {
   // Re-scale using the color scale slider values.
   float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+  fragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
