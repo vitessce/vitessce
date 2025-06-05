@@ -68,17 +68,6 @@ const stylesheet = [
     }
   },
   {
-    selector: 'node.highlighted',
-    style: {
-      'border-width': '3px',
-      'border-color': '#00ff00',
-      'border-style': 'solid',
-      'width': '25',
-      'height': '25',
-      'opacity': '1'
-    }
-  },
-  {
     selector: 'node.hovered',
     style: {
       'border-width': '8px',
@@ -92,7 +81,7 @@ const stylesheet = [
   {
     selector: 'node[?cellColors]',
     style: {
-      'border-width': '8px',
+      'border-width': '10px',
       'opacity': '1'
     }
   },
