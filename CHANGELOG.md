@@ -1,4 +1,11 @@
 
+## 3.6.2
+
+### Patch Changes
+
+- Fix React.lazy and patch neuroglancer to prevent crashing in docs site and Jupyter widget contexts. (`@vitessce/neuroglancer`) ([#2130](https://github.com/vitessce/vitessce/pull/2130))
+
+
 ## 3.6.1
 
 ### Patch Changes
