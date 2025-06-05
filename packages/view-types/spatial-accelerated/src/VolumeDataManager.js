@@ -414,6 +414,8 @@ export class VolumeDataManager {
           ];
         });
 
+        console.warn('zarrStore', this.zarrStore);
+
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
         // this.populateMRMCPT();

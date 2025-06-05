@@ -58,7 +58,7 @@ layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 2.0;
+const float lodFactor = 5.0;
 
 const int renderResC0 = 5;
 
@@ -165,6 +165,23 @@ vec3 getScale(int index) {
     return vec3(-1.0, -1.0, -1.0);
 }
 
+vec3 getVoxelFromNormalized(vec3 normalized, int res) {
+    vec3 extents = vec3(voxelExtents) / getScale(res); // should be voxelExtents per res
+    vec3 voxel = normalized * extents;
+    return voxel;
+}
+
+vec3 getBrickFromNormalized(vec3 normalized, int res) {
+    vec3 voxel = getVoxelFromNormalized(normalized, res);
+    vec3 brick = floor(voxel / 32.0);
+    return brick;
+}
+
+vec3 getBrickFromVoxel(vec3 voxel, int res) {
+    vec3 brick = floor(voxel / 32.0);
+    return brick;
+}
+
 uvec3 getChannelOffset(int index) {
     if (index == 0) return uvec3(0, 0, 1);
     if (index == 1) return uvec3(0, 1, 0);
@@ -174,11 +191,6 @@ uvec3 getChannelOffset(int index) {
     if (index == 5) return uvec3(1, 1, 0);
     if (index == 6) return uvec3(1, 1, 1);
     return uvec3(0, 0, 0);
-}
-
-vec3 volumeSizeAtRes(int res) {
-    float factor = pow(2.0, float(res));
-    return vec3(voxelExtents) / factor;
 }
 
 /*
@@ -350,6 +362,9 @@ void main(void) {
 
     vec3 p_stretched = p * voxelStretchInv;
 
+    gColor = vec4(vec3(getBrickFromNormalized(p, 0)/4.0), 1.0);
+    return;
+
     while (t_os < t_hit_max_os && t_os >= t_hit_min_os
         && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
     ) {
@@ -455,10 +470,21 @@ void main(void) {
 
             vec3 colorVal = u_color;
 
-            if (currentLOD == 1) {
+            if (brickCacheOffset.w == 0) {
                 colorVal = vec3(0.0, 1.0, 1.0);
+            } else if (brickCacheOffset.w == 1) {
+                colorVal = vec3(1.0, 0.0, 0.0);
+            } else if (brickCacheOffset.w == 2) {
+                colorVal = vec3(0.0, 1.0, 0.0);
+            } else if (brickCacheOffset.w == 3) {
+                colorVal = vec3(1.0, 0.0, 1.0);
+            } else if (brickCacheOffset.w == 4) {
+                colorVal = vec3(1.0, 1.0, 0.0);
+            } else if (brickCacheOffset.w == 5) {
+                colorVal = vec3(0.0, 0.0, 1.0);
+            } else {
+                colorVal = vec3(1.0, 1.0, 1.0);
             }
-
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetRes
                 && val > 0.0) {
