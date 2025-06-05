@@ -2,21 +2,27 @@ import React, { useEffect } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape, { Core } from 'cytoscape';
 import cytoscapeLasso from 'cytoscape-lasso';
+import cytoscapeContextMenus from 'cytoscape-context-menus';
+import 'cytoscape-context-menus/cytoscape-context-menus.css';
 
-// Register the lasso plugin
+// Register the plugins
 (cytoscape as any).use(cytoscapeLasso);
+(cytoscape as any).use(cytoscapeContextMenus);
 
 const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => string, nodeSize: number, cellColors: Map<string, [number, number, number]>) => [
   ...nodes.map(node => {
     let borderColor = '#999';
+    let hasCellColor = false;
     if (node.ftuName === 'nerves' && node.id.startsWith('merged_') && node.subComponents) {
       // For merged nodes, find the first subcomponent that has a color
       const coloredSubComponent = node.subComponents.find((subId: string) => cellColors.has(subId));
       if (coloredSubComponent) {
         borderColor = `rgb(${cellColors.get(coloredSubComponent)?.join(',')})`;
+        hasCellColor = true;
       }
     } else if (cellColors.has(node.id)) {
       borderColor = `rgb(${cellColors.get(node.id)?.join(',')})`;
+      hasCellColor = true;
     }
 
     return {
@@ -27,7 +33,8 @@ const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => strin
         size: nodeSize,
         ftuName: node.ftuName,
         subComponents: node.subComponents,
-        opacity: cellColors.has(node.id) ? 1 : 0.3
+        opacity: cellColors.has(node.id) ? 1 : 0.3,
+        cellColors: hasCellColor
       }
     };
   }),
@@ -83,6 +90,13 @@ const stylesheet = [
     }
   },
   {
+    selector: 'node[?cellColors]',
+    style: {
+      'border-width': '8px',
+      'opacity': '1'
+    }
+  },
+  {
     selector: 'edge',
     style: {
       'width': '1',
@@ -110,13 +124,128 @@ const nodeColor = (n: any) => n.ftuName === 'glomeruli' ? 'red' : 'yellow';
 const CytoscapeWrapper: React.FC<{
   nodes: any[];
   links: any[];
-  onNodeSelect: (nodeIds: string[]) => void;
+  onNodeSelect: (nodeIds: string[], hopDistance?: number) => void;
   obsSetSelection: string[][];
   obsHighlight: string | null;
   cyRef: React.MutableRefObject<any>;
   cellColors: Map<string, [number, number, number]>;
 }> = ({ nodes, links, onNodeSelect, obsSetSelection, obsHighlight, cyRef, cellColors }) => {
   const selectionTimeoutRef = React.useRef<number | null>(null);
+
+  // Function to find neighbors at a specific hop distance
+  const findNeighborsAtHopDistance = (startNode: any, maxHops: number = 10, sameTypeOnly: boolean = false) => {
+    const visited = new Set<string>();
+    const result = new Map<number, Set<string>>(); // Map hop distance to set of node IDs
+    const queue: { node: any; distance: number }[] = [{ node: startNode, distance: 0 }];
+    const startNodeType = startNode.data('ftuName');
+    
+    // Initialize the result map with empty sets for each hop distance
+    for (let i = 1; i <= maxHops; i++) {
+      result.set(i, new Set());
+    }
+    
+    while (queue.length > 0) {
+      const { node, distance } = queue.shift()!;
+      const nodeId = node.id();
+      
+      if (visited.has(nodeId)) continue;
+      visited.add(nodeId);
+      
+      // Get all connected nodes
+      const connectedNodes = node.neighborhood('node');
+      
+      // Process each neighbor
+      connectedNodes.forEach((neighbor: any) => {
+        const neighborId = neighbor.id();
+        if (!visited.has(neighborId)) {
+          // Check if neighbor matches type filter
+          if (!sameTypeOnly || neighbor.data('ftuName') === startNodeType) {
+            // Add to result if it's not the start node and within max hops
+            if (distance + 1 <= maxHops) {
+              result.get(distance + 1)!.add(neighborId);
+            }
+          }
+          // Add to queue for further traversal
+          queue.push({ node: neighbor, distance: distance + 1 });
+        }
+      });
+    }
+    
+    // Remove empty hop distances
+    for (const [distance, nodes] of result.entries()) {
+      if (nodes.size === 0) {
+        result.delete(distance);
+      }
+    }
+    
+    return result;
+  };
+
+  // Function to create a selection from node IDs
+  const createSelectionFromNodes = (nodeIds: string[], hopDistance: number) => {
+    const timestamp = new Date().getTime();
+    onNodeSelect(nodeIds, hopDistance);
+  };
+
+  // Initialize context menu
+  useEffect(() => {
+    if (!cyRef.current) return;
+    
+    const cy = cyRef.current;
+    
+    // Create context menu items
+    const contextMenuItems = [
+      {
+        id: 'show-same-type-neighbors',
+        content: 'Show neighbors of same type',
+        selector: 'node',
+        onClickFunction: (event: any) => {
+          const node = event.target;
+          const neighbors = findNeighborsAtHopDistance(node, 10, true); // Max 10 hops, same type only
+          
+          // Create separate selections for each hop distance
+          const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
+          hopDistances.forEach(hopDistance => {
+            const nodeIds = neighbors.get(hopDistance);
+            if (nodeIds && nodeIds.size > 0) {
+              createSelectionFromNodes(Array.from(nodeIds), hopDistance);
+            }
+          });
+        },
+        hasTrailingDivider: true
+      },
+      {
+        id: 'show-all-neighbors',
+        content: 'Show all neighbors',
+        selector: 'node',
+        onClickFunction: (event: any) => {
+          const node = event.target;
+          const neighbors = findNeighborsAtHopDistance(node, 10, false); // Max 10 hops, any type
+          
+          // Create separate selections for each hop distance
+          const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
+          hopDistances.forEach(hopDistance => {
+            const nodeIds = neighbors.get(hopDistance);
+            if (nodeIds && nodeIds.size > 0) {
+              createSelectionFromNodes(Array.from(nodeIds), hopDistance);
+            }
+          });
+        }
+      }
+    ];
+
+    // Initialize context menu
+    cy.contextMenus({
+      menuItems: contextMenuItems,
+      menuItemClasses: ['context-menu-item'],
+      contextMenuClasses: ['context-menu']
+    });
+
+    return () => {
+      // Cleanup context menu when component unmounts
+      cy.contextMenus('destroy');
+    };
+  }, [cyRef.current]);
 
   // Update node opacity when cellColors changes
   useEffect(() => {

@@ -1866,6 +1866,9 @@ importers:
       cytoscape-canvas:
         specifier: ^3.0.1
         version: 3.0.1
+      cytoscape-context-menus:
+        specifier: ^4.2.1
+        version: 4.2.1(cytoscape@3.32.0)
       cytoscape-lasso:
         specifier: ^1.1.4
         version: 1.1.4(cytoscape@3.32.0)
@@ -1906,6 +1909,9 @@ importers:
       '@types/cytoscape':
         specifier: ^3.21.9
         version: 3.21.9
+      '@types/cytoscape-context-menus':
+        specifier: ^4.1.4
+        version: 4.1.4
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
@@ -5598,6 +5604,9 @@ packages:
   '@types/connect@3.4.35':
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
 
+  '@types/cytoscape-context-menus@4.1.4':
+    resolution: {integrity: sha512-oiaZ202fjR/yEPyuWXjPjZQ9P+58NpZG+lv2gLeMP/pE0v683kUrgTE2hO1WAWhpq1rlAh/B0LTjGEDEH+lAXA==}
+
   '@types/cytoscape@3.21.9':
     resolution: {integrity: sha512-JyrG4tllI6jvuISPjHK9j2Xv/LTbnLekLke5otGStjFluIyA9JjgnvgZrSBsp8cEDpiTjwgZUZwpPv8TSBcoLw==}
 
@@ -7333,6 +7342,11 @@ packages:
 
   cytoscape-canvas@3.0.1:
     resolution: {integrity: sha512-R1nCLnJHGTR5fWEpNQQBPyoigdnfhnk1lOHegzmzz1Kg6yxzVf0hfdRAMa0wPAhtC4kkgyoViiIfZ/zyCqMhEQ==}
+
+  cytoscape-context-menus@4.2.1:
+    resolution: {integrity: sha512-h0dXq/DGIQUegC+mncawzFT+zV52I5dxME3fDLqO6cd5pYfx9U+u2YZjn29z8YfRjvayBtsxpD6JUvgiH1ZdaQ==}
+    peerDependencies:
+      cytoscape: ^2.7.0 || ^3.0.0
 
   cytoscape-lasso@1.1.4:
     resolution: {integrity: sha512-c0OAm1586wPhIPVeH8teIUJTNgjojagilO0p7T0SABeTor7wmpjqaxmBhR+1QnQ3uQ1yUchPoEeNzlzqR2WM8Q==}
@@ -19931,6 +19945,10 @@ snapshots:
     dependencies:
       '@types/node': 20.16.10
 
+  '@types/cytoscape-context-menus@4.1.4':
+    dependencies:
+      '@types/cytoscape': 3.21.9
+
   '@types/cytoscape@3.21.9': {}
 
   '@types/d3-array@3.2.1': {}
@@ -22152,6 +22170,10 @@ snapshots:
       yauzl: 2.10.0
 
   cytoscape-canvas@3.0.1: {}
+
+  cytoscape-context-menus@4.2.1(cytoscape@3.32.0):
+    dependencies:
+      cytoscape: 3.32.0
 
   cytoscape-lasso@1.1.4(cytoscape@3.32.0):
     dependencies:
