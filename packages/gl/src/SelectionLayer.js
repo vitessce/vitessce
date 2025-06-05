@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 // File adopted from nebula.gl's SelectionLayer
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
-import { CompositeLayer } from 'deck.gl';
+import { CompositeLayer } from '@deck.gl/core';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import { booleanWithin } from '@turf/boolean-within';
 import { booleanContains } from '@turf/boolean-contains';

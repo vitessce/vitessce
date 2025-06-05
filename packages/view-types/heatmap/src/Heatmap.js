@@ -128,6 +128,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     obsIndex,
     featureIndex,
     featureLabelsMap,
+    onBeforeRender,
   } = props;
 
   const viewState = {
@@ -323,7 +324,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (!uint8ObsFeatureMatrix || uint8ObsFeatureMatrix.length < DATA_TEXTURE_SIZE ** 2) {
+    if (!gl || !uint8ObsFeatureMatrix || uint8ObsFeatureMatrix.length < DATA_TEXTURE_SIZE ** 2) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -335,7 +336,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     ) {
       setBacklog(prev => [...prev, uuidv4()]);
     }
-  }, [dataRef, uint8ObsFeatureMatrix, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
+  }, [dataRef, uint8ObsFeatureMatrix, axisTopLabels, axisLeftLabels, xTiles, yTiles, gl]);
 
   // When the backlog has updated, a new worker job can be submitted if:
   // - the backlog has length >= 1 (at least one job is waiting), and
@@ -373,7 +374,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex, gl]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -405,20 +406,20 @@ const Heatmap = forwardRef((props, deckRef) => {
           newIndex = transpose ? newIndex + cellOrdering.length : newIndex + 1;
         }
       }
+      return gl.createTexture({
+        data: paddedExpressionContainer,
+        dimension: '2d',
+        mipmaps: false,
+        sampler: PIXELATED_TEXTURE_PARAMETERS,
+        // Each color contains a single luminance value.
+        // When sampled, rgb are all set to this luminance, alpha is 1.0.
+        // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
+        format: 'r8unorm',
+        width: DATA_TEXTURE_SIZE,
+        height: DATA_TEXTURE_SIZE,
+      });
     }
-    return gl ? new luma.Texture2D(gl, {
-      data: paddedExpressionContainer,
-      mipmaps: false,
-      parameters: PIXELATED_TEXTURE_PARAMETERS,
-      // Each color contains a single luminance value.
-      // When sampled, rgb are all set to this luminance, alpha is 1.0.
-      // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-      format: luma.GL.LUMINANCE,
-      dataFormat: luma.GL.LUMINANCE,
-      type: luma.GL.UNSIGNED_BYTE,
-      width: DATA_TEXTURE_SIZE,
-      height: DATA_TEXTURE_SIZE,
-    }) : paddedExpressionContainer;
+    return null;
   }, [
     transpose,
     axisTopLabels,
@@ -437,7 +438,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const heatmapLayers = useMemo(() => {
     const usePaddedExpressions = uint8ObsFeatureMatrix
       && shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length);
-    if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
+    if (!gl || ((!tilesRef.current || backlog.length) && !usePaddedExpressions)) {
       return [];
     }
     if (usePaddedExpressions) {
@@ -467,7 +468,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           colorScaleHi: colormapRange[1],
           updateTriggers: {
             image: [axisLeftLabels, axisTopLabels],
-            bounds: [tileHeight, tileWidth],
+            bounds: [matrixLeft, matrixTop, tileHeight, tileWidth],
           },
         });
       }
@@ -493,7 +494,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         colorScaleHi: colormapRange[1],
         updateTriggers: {
           image: [axisLeftLabels, axisTopLabels],
-          bounds: [tileHeight, tileWidth],
+          bounds: [matrixLeft, matrixTop, tileHeight, tileWidth],
         },
       });
     }
@@ -501,9 +502,9 @@ const Heatmap = forwardRef((props, deckRef) => {
       (tile, index) => getLayer(Math.floor(index / xTiles), index % xTiles, tile),
     );
     return layers;
-  }, [uint8ObsFeatureMatrix, backlog.length, transpose, axisTopLabels, axisLeftLabels,
+  }, [uint8ObsFeatureMatrix, tilesRef, backlog.length, transpose, axisTopLabels, axisLeftLabels,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex, gl]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -665,7 +666,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           }
         });
 
-        return new ImageData(tileData, colorBarTileWidthPx, colorBarTileHeightPx);
+        return { data: tileData, width: colorBarTileWidthPx, height: colorBarTileHeightPx };
       });
 
       return trackResult;
@@ -832,7 +833,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     <deck.DeckGL
       id={`deckgl-overlay-${uuid}`}
       ref={deckRef}
-      onWebGLInitialized={setGlContext}
+      onDeviceInitialized={setGlContext}
       views={[
         // Note that there are multiple views here,
         // but only one viewState.
@@ -873,7 +874,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       layers={layers}
       layerFilter={layerFilter}
       getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
-      glOptions={DEFAULT_GL_OPTIONS}
+      deviceProps={{ type: 'webgl', webgl: DEFAULT_GL_OPTIONS }}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
       onHover={onHover}
@@ -881,6 +882,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       onClick={onHeatmapClick}
       width="100%"
       height="100%"
+      onLoad={onBeforeRender}
     />
   );
 });

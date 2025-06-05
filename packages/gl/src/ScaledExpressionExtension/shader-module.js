@@ -10,7 +10,7 @@ const vs = `
 ${colormaps}
 
 // Custom attributes for Vitessce:
-attribute float expressionValue;
+in float expressionValue;
 
 // Custom uniforms for Vitessce:
 uniform vec2 uColorScaleRange;
