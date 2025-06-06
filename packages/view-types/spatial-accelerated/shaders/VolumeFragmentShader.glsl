@@ -58,9 +58,7 @@ layout(location = 2) out vec4 gUsage;
 
 const int highestResC0 = 0;
 const int lowestResC0 = 5;
-const float lodFactor = 5.0;
-
-const int renderResC0 = 5;
+const float lodFactor = 2.0;
 
 const int lowestRes = 5;
 
@@ -289,6 +287,12 @@ int getLOD(float distance, int highestRes, int lowestRes, float lodFactor) {
     return clamp(lod, highestRes, lowestRes);
 }
 
+float voxelStepOS(int res, vec3 osDir) {
+    vec3 voxelSize = getScale(res) / vec3(voxelExtents);
+    vec3 dt_vec = voxelSize / abs(osDir);
+    return min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+}
+
 void main(void) {
 
     gRequest = vec4(0,0,0,0);
@@ -323,10 +327,11 @@ void main(void) {
 
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
-    vec3 resScale = getScale(renderResolutionEffective);          //  e.g. 4 4 2
+    vec3 resScale = getScale(renderResolutionEffective); 
     vec3 dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
-    float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));       // one voxel along the shortest axis
-    float dt_base = dt;                                       // keep a copy; no extra pow(2)
+    // float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+    float dt = voxelStepOS(renderResolutionEffective, os_rayDir);
+    float dt_base = dt;
 
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
     vec3 step = (os_rayDir * dt);
@@ -363,12 +368,13 @@ void main(void) {
             currentLOD = targetRes;
             renderResAdaptive++;
             renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
-            // p -= step * rnd;
+            p -= step * rnd;
             resScale = getScale(renderResolutionEffective);
             dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
-            dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+            // dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
+            dt = voxelStepOS(renderResolutionEffective, os_rayDir);
             step = os_rayDir * dt;
-            // p += step * rnd;
+            p += step * rnd;
         }
 
         ivec4 brickCacheOffset = getBrickLocation(p, targetRes, 0);
@@ -452,19 +458,19 @@ void main(void) {
             vec3 colorVal = u_color;
 
             if (brickCacheOffset.w == 0) {
-                colorVal = vec3(0.0, 1.0, 1.0);
+                // colorVal = vec3(0.0, 1.0, 1.0);
             } else if (brickCacheOffset.w == 1) {
-                colorVal = vec3(1.0, 0.0, 0.0);
+                // colorVal = vec3(1.0, 0.0, 0.0);
             } else if (brickCacheOffset.w == 2) {
-                colorVal = vec3(0.0, 1.0, 0.0);
+                // colorVal = vec3(0.0, 1.0, 0.0);
             } else if (brickCacheOffset.w == 3) {
-                colorVal = vec3(1.0, 0.0, 1.0);
+                // colorVal = vec3(1.0, 0.0, 1.0);
             } else if (brickCacheOffset.w == 4) {
-                colorVal = vec3(1.0, 1.0, 0.0);
+                // colorVal = vec3(1.0, 1.0, 0.0);
             } else if (brickCacheOffset.w == 5) {
-                colorVal = vec3(0.0, 0.0, 1.0);
+                // colorVal = vec3(0.0, 0.0, 1.0);
             } else {
-                colorVal = vec3(1.0, 1.0, 1.0);
+                // colorVal = vec3(1.0, 1.0, 1.0);
             }
             if (!overWrittenRequest
                 && brickCacheOffset.w != targetRes

@@ -50,7 +50,7 @@ function generateThreeMinimalConfiguration() {
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0, 255],
+            spatialChannelWindow: [0, 4095],
           },
         ]),
       },

@@ -47,7 +47,7 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 
-const manualChannelSelection = 0;
+const manualChannelSelection = 1;
 
 // Add a constant for initialization status
 const INIT_STATUS = {
