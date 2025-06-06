@@ -72,7 +72,7 @@ bool largeEq(vec3 x, vec3 y) {
     return x.x >= y.x && x.y >= y.y && x.z >= y.z;
 }
 
-vec2 intersect_hit(vec3 orig, vec3 dir, vec3 voxelStretchInv) {
+vec2 intersect_hit(vec3 orig, vec3 dir) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
     if (u_xClip.x > -1.0) {
@@ -296,15 +296,11 @@ void main(void) {
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
 
-    float stretchFactor = float(pow(2.0, float(lowestRes)) * 32.0);
-    vec3 voxelStretch = stretchFactor / vec3(voxelExtents);
-    vec3 voxelStretchInv = vec3(1.0) / vec3(voxelStretch);
-
     //STEP 1: Normalize the view Ray
     vec3 ws_rayDir = normalize(rayDirUnnorm);
     
     //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
-    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir, voxelStretchInv);
+    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
     if (t_hit.x >= t_hit.y) {
       discard;
     }
@@ -353,8 +349,6 @@ void main(void) {
 
     int currentLOD = targetRes;
 
-    vec3 p_stretched = p * voxelStretchInv;
-
     while (t_os < t_hit_max_os && t_os >= t_hit_min_os
         && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
     ) {
@@ -392,7 +386,6 @@ void main(void) {
                 p += step;
                 t += dt;
                 t_os += dt;
-                p_stretched = p * voxelStretchInv;
 
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
             }
@@ -413,7 +406,6 @@ void main(void) {
                 p += step;
                 t += dt;
                 t_os += dt;
-                p_stretched = p * voxelStretchInv;
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
             }
             if (outColor.a > 0.99) { break; }
@@ -436,7 +428,6 @@ void main(void) {
                 p += step;
                 t += dt;
                 t_os += dt;
-                p_stretched = p * voxelStretchInv;
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
             }
             if (outColor.a > 0.99) { break; }
@@ -518,7 +509,6 @@ void main(void) {
                 t += dt;
                 p += step;
                 t_os += dt;
-                p_stretched = p * voxelStretchInv;
 
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
                 newVoxelInBrick = getVoxelFromNormalized(p, targetRes);
