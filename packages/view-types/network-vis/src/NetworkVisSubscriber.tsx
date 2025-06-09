@@ -91,9 +91,11 @@ export function NetworkVisSubscriber(props:any) {
         additionalCellSets,
         cellSetColor,
         (selections: string[][] | null) => {
-          // Create a new array with the new selection
-          const newSelections = [...(selections || []), nodeIds];
-          // Update the cell set selection to include the new selection
+          // Create a new array that preserves existing selections
+          const newSelections = selections ? [...selections] : [];
+          // Add the new selection to the array
+          newSelections.push(nodeIds);
+          // Update the cell set selection to include all selections
           setCellSetSelection(newSelections);
           return newSelections;
         },

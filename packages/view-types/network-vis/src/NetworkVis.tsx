@@ -192,14 +192,47 @@ const CytoscapeWrapper: React.FC<{
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, true); // Max 10 hops, same type only
           
-          // Create separate selections for each hop distance
+          // Create all hop distance selections at once
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
+          const allNodeIds = new Set<string>();
+          
+          // Add the selected node to the selection
+          const nodeData = node.data();
+          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+            // For merged nodes, add each subcomponent
+            nodeData.subComponents.forEach((subId: string) => {
+              allNodeIds.add(subId);
+            });
+          } else {
+            allNodeIds.add(node.id());
+          }
+          
+          // Collect all node IDs from all hop distances
           hopDistances.forEach(hopDistance => {
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
-              createSelectionFromNodes(Array.from(nodeIds), hopDistance);
+              nodeIds.forEach(id => {
+                // Handle merged nerve nodes
+                const node = cyRef.current.getElementById(id);
+                if (node.length > 0) {
+                  const nodeData = node.data();
+                  if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+                    // For merged nodes, add each subcomponent
+                    nodeData.subComponents.forEach((subId: string) => {
+                      allNodeIds.add(subId);
+                    });
+                  } else {
+                    allNodeIds.add(id);
+                  }
+                }
+              });
             }
           });
+          
+          // Create a single selection with all nodes
+          if (allNodeIds.size > 0) {
+            createSelectionFromNodes(Array.from(allNodeIds), 1);
+          }
         },
         hasTrailingDivider: true
       },
@@ -211,14 +244,47 @@ const CytoscapeWrapper: React.FC<{
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, false); // Max 10 hops, any type
           
-          // Create separate selections for each hop distance
+          // Create all hop distance selections at once
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
+          const allNodeIds = new Set<string>();
+          
+          // Add the selected node to the selection
+          const nodeData = node.data();
+          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+            // For merged nodes, add each subcomponent
+            nodeData.subComponents.forEach((subId: string) => {
+              allNodeIds.add(subId);
+            });
+          } else {
+            allNodeIds.add(node.id());
+          }
+          
+          // Collect all node IDs from all hop distances
           hopDistances.forEach(hopDistance => {
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
-              createSelectionFromNodes(Array.from(nodeIds), hopDistance);
+              nodeIds.forEach(id => {
+                // Handle merged nerve nodes
+                const node = cyRef.current.getElementById(id);
+                if (node.length > 0) {
+                  const nodeData = node.data();
+                  if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+                    // For merged nodes, add each subcomponent
+                    nodeData.subComponents.forEach((subId: string) => {
+                      allNodeIds.add(subId);
+                    });
+                  } else {
+                    allNodeIds.add(id);
+                  }
+                }
+              });
             }
           });
+          
+          // Create a single selection with all nodes
+          if (allNodeIds.size > 0) {
+            createSelectionFromNodes(Array.from(allNodeIds), 1);
+          }
         }
       }
     ];
