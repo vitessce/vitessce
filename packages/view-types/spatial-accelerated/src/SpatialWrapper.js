@@ -31,6 +31,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
           height: '100%',
           padding: 0,
           margin: 0,
+          // backgroundColor: 'white',
         }}
         camera={{
           fov: 50,

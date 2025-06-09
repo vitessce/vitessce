@@ -1,4 +1,4 @@
-#include <packing>
+// #include <packing>
 precision highp float;
 precision highp int;
 precision highp sampler3D;
@@ -7,25 +7,40 @@ in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
 uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
-uniform vec2 u_clim;
-uniform vec2 u_clim2;
-uniform vec2 u_clim3;
-uniform vec2 u_clim4;
-uniform vec2 u_clim5;
-uniform vec2 u_clim6;
-uniform vec2 u_xClip;
-uniform vec2 u_yClip;
-uniform vec2 u_zClip;
-uniform vec3 u_color;
-uniform vec3 u_color2;
-uniform vec3 u_color3;
-uniform vec3 u_color4;
-uniform vec3 u_color5;
-uniform vec3 u_color6;
+uniform vec2 clim0;
+uniform vec2 clim1;
+uniform vec2 clim2;
+uniform vec2 clim3;
+uniform vec2 clim4;
+uniform vec2 clim5;
+uniform vec2 clim6;
+uniform vec2 xClip;
+uniform vec2 yClip;
+uniform vec2 zClip;
+uniform vec3 color0;
+uniform vec3 color1;
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+uniform vec3 color5;
+uniform vec3 color6;
 uniform float opacity;
 uniform highp vec3 boxSize;
 uniform int renderRes;
 uniform uvec3 voxelExtents;
+
+uniform ivec2 resGlobal;
+
+uniform ivec2 res0;
+uniform ivec2 res1;
+uniform ivec2 res2;
+uniform ivec2 res3;
+uniform ivec2 res4;
+uniform ivec2 res5;
+uniform ivec2 res6;
+uniform ivec2 res7;
+
+uniform float lodFactor;
 
 uniform uvec3 anchor0;
 uniform uvec3 anchor1;
@@ -56,37 +71,23 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
-const int highestResC0 = 0;
-const int lowestResC0 = 5;
-const float lodFactor = 2.0;
-
-const int lowestRes = 5;
-
-bool smallEq(vec3 x, vec3 y) {
-    return x.x <= y.x && x.y <= y.y && x.z <= y.z;
-}
-
-bool largeEq(vec3 x, vec3 y) {
-    return x.x >= y.x && x.y >= y.y && x.z >= y.z;
-}
-
 vec2 intersect_hit(vec3 orig, vec3 dir) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
-    if (u_xClip.x > -1.0) {
-        boxMin.x = u_xClip.x - (boxSize.x / 2.0);
-        if (u_xClip.y < boxSize.x)
-        boxMax.x = u_xClip.y - (boxSize.x / 2.0);
+    if (xClip.x > -1.0) {
+        boxMin.x = xClip.x - (boxSize.x / 2.0);
+        if (xClip.y < boxSize.x)
+        boxMax.x = xClip.y - (boxSize.x / 2.0);
     }
-    if (u_yClip.x > -1.0) {
-        boxMin.y = u_yClip.x - (boxSize.y / 2.0);
-        if (u_yClip.y < boxSize.y)
-        boxMax.y = u_yClip.y - (boxSize.y / 2.0);
+    if (yClip.x > -1.0) {
+        boxMin.y = yClip.x - (boxSize.y / 2.0);
+        if (yClip.y < boxSize.y)
+        boxMax.y = yClip.y - (boxSize.y / 2.0);
     }
-    if (u_zClip.x > -1.0) {
-        boxMin.z = u_zClip.x - (boxSize.z / 2.0);
-        if (u_zClip.y < boxSize.z)
-        boxMax.z = u_zClip.y - (boxSize.z / 2.0);
+    if (zClip.x > -1.0) {
+        boxMin.z = zClip.x - (boxSize.z / 2.0);
+        if (zClip.y < boxSize.z)
+        boxMax.z = zClip.y - (boxSize.z / 2.0);
     }
     vec3 invDir = 1.0 / dir;
     vec3 tmin0 = (boxMin - orig) * invDir;
@@ -163,6 +164,28 @@ vec3 getScale(int index) {
     return vec3(-1.0, -1.0, -1.0);
 }
 
+ivec2 getRes(int index) {
+    if (index == 0) return res0;
+    if (index == 1) return res1;
+    if (index == 2) return res2;
+    if (index == 3) return res3;
+    if (index == 4) return res4;
+    if (index == 5) return res5;
+    if (index == 6) return res6;
+    return ivec2(-1, -1);
+}
+
+vec2 getClim(int index) {
+    if (index == 0) return clim0;
+    if (index == 1) return clim1;
+    if (index == 2) return clim2;
+    if (index == 3) return clim3;
+    if (index == 4) return clim4;
+    if (index == 5) return clim5;
+    if (index == 6) return clim6;
+    return vec2(-1.0, -1.0);
+}
+
 vec3 getVoxelFromNormalized(vec3 normalized, int res) {
     vec3 extents = vec3(voxelExtents) / getScale(res); // should be voxelExtents per res
     vec3 voxel = normalized * extents;
@@ -191,6 +214,17 @@ uvec3 getChannelOffset(int index) {
     return uvec3(0, 0, 0);
 }
 
+vec3 getChannelColor(int index) {
+    if (index == 0) return color0;
+    if (index == 1) return color1;
+    if (index == 2) return color2;
+    if (index == 3) return color3;
+    if (index == 4) return color4;
+    if (index == 5) return color5;
+    if (index == 6) return color6;
+    return vec3(0.0, 0.0, 0.0);
+}
+
 /*
 [1] 31    | 0 — flag resident
 [1] 30    | 1 — flag init
@@ -200,10 +234,15 @@ uvec3 getChannelOffset(int index) {
 [6] 4…9   | 22…27 — y offset in brick cache → 64
 [4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
 */
-
+// add maxres here
 ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
 
-    int currentRes = targetRes;
+    vec2 clim = getClim(channel);
+    int channelMin = getRes(channel).x;
+    int channelMax = getRes(channel).y;
+
+    int currentRes = clamp(targetRes, channelMin, channelMax);
+    int lowestRes = clamp(resGlobal.y, channelMin, channelMax);
 
     while (currentRes <= lowestRes) {
 
@@ -213,6 +252,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         vec3 coordinate = vec3(anchorPoint * channelOffset) + brickLocation;
 
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
+        vec2 clim = getClim(channel);
 
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
@@ -226,10 +266,10 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint umax = ((ptEntry >> 16u) & 0x7Fu);
         float min = float(int(umin)) / 127.0;
         float max = float(int(umax)) / 127.0;
-        if (float(max) <= u_clim[0]) {
+        if (float(max) <= clim.x) {
             return ivec4(0,1,0,-2);
             // EMPTY
-        } else if (float(min) >= u_clim[1]) {
+        } else if (float(min) >= clim.y) {
             return ivec4(0,0,0,-3);
             // CONSTANT FULL
         } else if ((umax - umin) < 2u) {
@@ -295,64 +335,78 @@ float voxelStepOS(int res, vec3 osDir) {
 
 void main(void) {
 
+    // initialize all render targets
     gRequest = vec4(0,0,0,0);
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
 
-    //STEP 1: Normalize the view Ray
-    vec3 ws_rayDir = normalize(rayDirUnnorm);
-    
-    //STEP 2: Intersect the ray with the volume bounds to find the interval along the ray overlapped by the volume
-    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
-    if (t_hit.x >= t_hit.y) {
-      discard;
-    }
-    t_hit.x = max(t_hit.x, 0.0);
+    // random number for jittering
+    float rnd = random();
 
+    // normalize the view Ray & intersect with the volume bounds
+    vec3 ws_rayDir = normalize(rayDirUnnorm);
+    vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
+    if (t_hit.x >= t_hit.y) { discard; }
+    t_hit.x = max(t_hit.x, 0.0); // cap at 0
     float t = t_hit.x;
 
+    // convert from world space to object space
     float ws2os = length(ws_rayDir / boxSize);  // scalar conversion factor
-
     float t_hit_min_os = t_hit.x * ws2os;       // entry distance in OS units
     float t_hit_max_os = t_hit.y * ws2os;       // exit  distance in OS units
     float t_os         = t_hit_min_os;          // our new marching parameter
 
-    int targetRes = getLOD(t_os, highestResC0, lowestResC0, lodFactor);
+    // initialize resolutions
+    // target res based on the distance
+    int targetRes = getLOD(t_os, resGlobal.x, resGlobal.y, lodFactor);
+    // render defines only stepping distance
+    int stepResAdaptive = renderRes;
+    int stepResEffective = clamp(stepResAdaptive, resGlobal.x, resGlobal.y);
 
-    vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
-
-    int renderResAdaptive = renderRes;
-    int renderResolutionEffective = clamp(renderRes, highestResC0, 5);
-
+    // convert to object space
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
     vec3 os_rayOrigin = cameraCorrected / boxSize + vec3(0.5);
-    vec3 resScale = getScale(renderResolutionEffective); 
-    vec3 dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
-    // float dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-    float dt = voxelStepOS(renderResolutionEffective, os_rayDir);
-    float dt_base = dt;
+    float dt = voxelStepOS(stepResEffective, os_rayDir);
 
+    // convert to normalized space
+    vec3 p = cameraCorrected + t_hit.x * ws_rayDir;
     p = p / boxSize + vec3(0.5); // this gives us exactly 0..1
-    vec3 step = (os_rayDir * dt);
-
-    float rnd = random();
-
-    p += step * (rnd);
+    vec3 dp = (os_rayDir * dt);
+    p += dp * (rnd);
     p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
-    bool overWrittenRequest = false;
-
-    // Initialization of some variables
+    // color accumulation variables
     vec3 rgbCombo = vec3(0.0);
     float total = 0.0;
-
-    vec3 currentTargetResPTCoord = vec3(0,0,0);
-
     float alphaMultiplicator = 1.0;
-    vec3 localPos = vec3(0.0);
 
+    // request tracking
+    bool overWrittenRequest = false;
+
+    // current state tracking
+    vec3 currentTargetResPTCoord = vec3(0,0,0);
     int currentLOD = targetRes;
+    bool resolutionChanged = false;
+
+    // constants per channel
+    vec3 [] c_color = vec3[7](getChannelColor(0), getChannelColor(1), getChannelColor(2), getChannelColor(3), getChannelColor(4), getChannelColor(5), getChannelColor(6));
+    int [] c_res_min = int[7](getRes(0).x, getRes(1).x, getRes(2).x, getRes(3).x, getRes(4).x, getRes(5).x, getRes(6).x);
+    int [] c_res_max = int[7](getRes(0).y, getRes(1).y, getRes(2).y, getRes(3).y, getRes(4).y, getRes(5).y, getRes(6).y);
+    
+    // current vars
+    int [] c_res_current = int[7](0,0,0,0,0,0,0);
+    float [] c_val_current = float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    vec3 [] c_brickCacheCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 [] c_voxel_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 [] c_ptCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    int [] c_renderMode_current = int[7](0,0,0,0,0,0,0);
+
+    // pt coord and voxel per resolution
+    vec3 [] r_ptCoord = vec3[10](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 [] r_voxel = vec3[10](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 [] r_prevPTCoord = vec3[10](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 [] r_prevVoxel = vec3[10](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
 
     while (t_os < t_hit_max_os && t_os >= t_hit_min_os
         && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
@@ -362,34 +416,135 @@ void main(void) {
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetRes = getLOD(t, highestResC0, lowestResC0, lodFactor);
+        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor);
+        bool targetResChanged = false;
 
+        // TODO: figure out how to best clamp the renderres
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
-            renderResAdaptive++;
-            renderResolutionEffective = clamp(renderResAdaptive, highestResC0, 5);
-            p -= step * rnd;
-            resScale = getScale(renderResolutionEffective);
-            dt_vec = resScale / (vec3(voxelExtents) * abs(os_rayDir));
-            // dt = min(dt_vec.x, min(dt_vec.y, dt_vec.z));
-            dt = voxelStepOS(renderResolutionEffective, os_rayDir);
-            step = os_rayDir * dt;
-            p += step * rnd;
+            stepResAdaptive++;
+            stepResEffective = clamp(stepResAdaptive, resGlobal.x, resGlobal.y);
+            p -= dp * rnd;
+            dt = voxelStepOS(stepResEffective, os_rayDir);
+            dp = os_rayDir * dt;
+            p += dp * rnd;
+            resolutionChanged = true;
+            targetResChanged = true;
+        } else {
+            resolutionChanged = false;
         }
 
+        // update the ptCoord and voxel for every resolution
+        for (int r = 0; r < 10; r++) {
+            r_prevPTCoord[r] = r_ptCoord[r];
+            r_prevVoxel[r] = r_voxel[r];
+            r_ptCoord[r] = getBrickFromNormalized(p, r);
+            r_voxel[r] = getVoxelFromNormalized(p, r);
+        }
+
+        // render modes:
+        // 0: empty
+        // 1: constant
+        // 2: voxel
+
+        vec3 sliceColor = vec3(0.0);
+        float sliceAlpha = 0.0;
+
+        // TODO make channel dependent
+        for (int c = 0; c < 7; c++) {
+            if (c_color[c] == vec3(0.0, 0.0, 0.0)) {
+                continue;
+            }
+
+            bool newBrick = false;
+            bool newVoxel = false;
+            int bestRes = clamp(targetRes, c_res_min[c], c_res_max[c]);
+
+            if (r_ptCoord[bestRes] != r_prevPTCoord[bestRes]) {
+                newBrick = true;
+            } else if (c_renderMode_current[c] == 2
+                && c_voxel_current[c] != r_voxel[c_res_current[c]]) {
+                newVoxel = true;
+            }
+
+            if (newBrick) {
+                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c);
+                if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2) {
+                    // empty
+                    c_val_current[c] = 0.0;
+                    c_renderMode_current[c] = 0;
+                    continue;
+                } else if (brickCacheInfo.w == -3) {
+                    // solid
+                    c_val_current[c] = 1.0;
+                    c_renderMode_current[c] = 1;
+                    // continue;
+                } else if (brickCacheInfo.w == -4) {
+                    float val = float(brickCacheInfo.x);
+                    c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
+                    c_renderMode_current[c] = 1;
+                    // continue;
+                } else if (brickCacheInfo.w >= 0) {
+                    c_res_current[c] = brickCacheInfo.w;
+                    c_ptCoord_current[c] = r_ptCoord[c_res_current[c]];
+                    c_brickCacheCoord_current[c] = vec3(brickCacheInfo.xyz);
+                    c_renderMode_current[c] = 2;
+                    newVoxel = true;
+                    if (mod(rnd * 7.0, 7.0) == float(c)) {
+                        setUsage(brickCacheInfo.xyz, t_hit_min_os, t_hit_max_os, t_os, rnd);
+                    }
+                }
+            }
+            
+            if (newVoxel) {
+                c_voxel_current[c] = r_voxel[bestRes];
+                vec3 voxelInBrick = mod(c_voxel_current[c], 32.0);
+                vec3 brickCacheCoord = vec3(
+                    (float(c_brickCacheCoord_current[c].x) * 32.0 + float(voxelInBrick.x)) / 2048.0,
+                    (float(c_brickCacheCoord_current[c].y) * 32.0 + float(voxelInBrick.y)) / 2048.0,
+                    (float(c_brickCacheCoord_current[c].z) * 32.0 + float(voxelInBrick.z)) / 128.0
+                );
+                float val = texture(brickCacheTex, brickCacheCoord).r;
+                c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
+            }
+
+            if (!overWrittenRequest 
+                && c_res_current[c] != targetRes
+                && c_val_current[c] > 0.0
+                && c_renderMode_current[c] == 2) {
+                setBrickRequest(p, targetRes, c);
+                overWrittenRequest = true;
+            }
+
+            total += c_val_current[c];
+            rgbCombo += c_val_current[c] * c_color[c];
+        }
+
+        total = clamp(total, 0.0, 1.0);
+        sliceAlpha = total * opacity * dt * 32.0;
+        sliceColor = rgbCombo;
+
+        outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
+        outColor.a += sliceAlpha * alphaMultiplicator;
+        alphaMultiplicator *= (1.0 - sliceAlpha);
+
+        if (outColor.a > 0.99) { break; }
+
+        t += dt;
+        p += dp;
+        t_os += dt;
+    }
+
+    // advance the ray
+    /*
         ivec4 brickCacheOffset = getBrickLocation(p, targetRes, 0);
-
-        if (brickCacheOffset.w == -10) {
-            gColor = vec4(0.0, 0.0, 1.0, 1.0);
-            return;
-        }
 
         currentTargetResPTCoord = getBrickFromNormalized(p, targetRes);
         vec3 newBrickLocationPTCoord = currentTargetResPTCoord;
 
         if (brickCacheOffset.w == -1 || brickCacheOffset.w == -2) {
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
-                p += step;
+                p += dp;
                 t += dt;
                 t_os += dt;
 
@@ -398,8 +553,9 @@ void main(void) {
             continue;
         } else if (brickCacheOffset.w == -3) {
             // full
+            vec3 channelColor = getChannelColor(0);
             float sliceAlpha = opacity * dt * 32.0;
-            vec3 sliceColor = u_color;
+            vec3 sliceColor = channelColor;
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
                 outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
@@ -409,7 +565,7 @@ void main(void) {
                 
                 alphaMultiplicator *= (1.0 - sliceAlpha);
 
-                p += step;
+                p += dp;
                 t += dt;
                 t_os += dt;
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
@@ -419,9 +575,10 @@ void main(void) {
         } else if (brickCacheOffset.w == -4) {
             // render constant
             float val = float(brickCacheOffset.x);
-            val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
+            vec2 clim = getClim(0);
+            val = max(0.0, (val - clim.x ) / (clim.y - clim.x));
             float sliceAlpha = val * opacity * dt * 32.0;
-            vec3 sliceColor = val * u_color;
+            vec3 sliceColor = val * getChannelColor(0);
 
             while (currentTargetResPTCoord == newBrickLocationPTCoord) {
                 outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
@@ -431,7 +588,7 @@ void main(void) {
                 
                 alphaMultiplicator *= (1.0 - sliceAlpha);
             
-                p += step;
+                p += dp;
                 t += dt;
                 t_os += dt;
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
@@ -453,9 +610,10 @@ void main(void) {
 
             float val = texture(brickCacheTex, brickCacheCoord).r;
 
-            val = max(0.0, (val - u_clim[0] ) / (u_clim[1] - u_clim[0]));
+            vec2 clim = getClim(0);
+            val = max(0.0, (val - clim.x ) / (clim.y - clim.x));
 
-            vec3 colorVal = u_color;
+            vec3 colorVal = getChannelColor(0);
 
             if (brickCacheOffset.w == 0) {
                 // colorVal = vec3(0.0, 1.0, 1.0);
@@ -491,7 +649,7 @@ void main(void) {
                 && currentVoxelInBrick == newVoxelInBrick) {
 
                 if (reps > 0) {
-                    gColor = vec4(1.0, 0.0, 0.0, 1.0);
+                    gColor = vec4(0.0, 1.0, 1.0, 1.0);
                     return;
                 }
 
@@ -513,7 +671,7 @@ void main(void) {
                 alphaMultiplicator *= (1.0 - sliceAlpha);
 
                 t += dt;
-                p += step;
+                p += dp;
                 t_os += dt;
 
                 newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
@@ -525,6 +683,7 @@ void main(void) {
             break;
         }
     }
+    */
 
     // Set all render targets directly without conditionals
     gColor = vec4(linear_to_srgb(outColor.r), 

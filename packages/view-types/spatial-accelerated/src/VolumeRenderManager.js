@@ -380,75 +380,84 @@ export class VolumeRenderManager {
     );
 
     // Set contrast limits (up to 6 channels)
-    this.uniforms.u_clim.value.set(
+    this.uniforms.clim0.value.set(
       contrastLimits.length > 0 ? contrastLimits[0][0] : null,
       contrastLimits.length > 0 ? contrastLimits[0][1] : null,
     );
-    this.uniforms.u_clim2.value.set(
+    this.uniforms.clim1.value.set(
       contrastLimits.length > 1 ? contrastLimits[1][0] : null,
       contrastLimits.length > 1 ? contrastLimits[1][1] : null,
     );
-    this.uniforms.u_clim3.value.set(
+    this.uniforms.clim2.value.set(
       contrastLimits.length > 2 ? contrastLimits[2][0] : null,
       contrastLimits.length > 2 ? contrastLimits[2][1] : null,
     );
-    this.uniforms.u_clim4.value.set(
+    this.uniforms.clim3.value.set(
       contrastLimits.length > 3 ? contrastLimits[3][0] : null,
       contrastLimits.length > 3 ? contrastLimits[3][1] : null,
     );
-    this.uniforms.u_clim5.value.set(
+    this.uniforms.clim4.value.set(
       contrastLimits.length > 4 ? contrastLimits[4][0] : null,
       contrastLimits.length > 4 ? contrastLimits[4][1] : null,
     );
-    this.uniforms.u_clim6.value.set(
+    this.uniforms.clim5.value.set(
       contrastLimits.length > 5 ? contrastLimits[5][0] : null,
       contrastLimits.length > 5 ? contrastLimits[5][1] : null,
     );
+    this.uniforms.clim6.value.set(
+      contrastLimits.length > 6 ? contrastLimits[6][0] : null,
+      contrastLimits.length > 6 ? contrastLimits[6][1] : null,
+    );
 
     // Set clipping planes
-    this.uniforms.u_xClip.value.set(
+    this.uniforms.xClip.value.set(
       xSlice[0] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
       xSlice[1] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
     );
-    this.uniforms.u_yClip.value.set(
+    this.uniforms.yClip.value.set(
       ySlice[0] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
       ySlice[1] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
     );
-    this.uniforms.u_zClip.value.set(
+    this.uniforms.zClip.value.set(
       zSlice[0] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
       zSlice[1] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
     );
 
     // Set colors (up to 6 channels)
-    this.uniforms.u_color.value.set(
+    this.uniforms.color0.value.set(
       colors.length > 0 ? colors[0][0] : null,
       colors.length > 0 ? colors[0][1] : null,
       colors.length > 0 ? colors[0][2] : null,
     );
-    this.uniforms.u_color2.value.set(
+    this.uniforms.color1.value.set(
       colors.length > 1 ? colors[1][0] : null,
       colors.length > 1 ? colors[1][1] : null,
       colors.length > 1 ? colors[1][2] : null,
     );
-    this.uniforms.u_color3.value.set(
+    this.uniforms.color2.value.set(
       colors.length > 2 ? colors[2][0] : null,
       colors.length > 2 ? colors[2][1] : null,
       colors.length > 2 ? colors[2][2] : null,
     );
-    this.uniforms.u_color4.value.set(
+    this.uniforms.color3.value.set(
       colors.length > 3 ? colors[3][0] : null,
       colors.length > 3 ? colors[3][1] : null,
       colors.length > 3 ? colors[3][2] : null,
     );
-    this.uniforms.u_color5.value.set(
+    this.uniforms.color4.value.set(
       colors.length > 4 ? colors[4][0] : null,
       colors.length > 4 ? colors[4][1] : null,
       colors.length > 4 ? colors[4][2] : null,
     );
-    this.uniforms.u_color6.value.set(
+    this.uniforms.color5.value.set(
       colors.length > 5 ? colors[5][0] : null,
       colors.length > 5 ? colors[5][1] : null,
       colors.length > 5 ? colors[5][2] : null,
+    );
+    this.uniforms.color6.value.set(
+      colors.length > 6 ? colors[6][0] : null,
+      colors.length > 6 ? colors[6][1] : null,
+      colors.length > 6 ? colors[6][2] : null,
     );
   }
 

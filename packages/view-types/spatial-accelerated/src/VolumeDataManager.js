@@ -47,7 +47,7 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 
-const manualChannelSelection = 1;
+// const manualChannelSelection = 0;
 
 // Add a constant for initialization status
 const INIT_STATUS = {
@@ -135,23 +135,12 @@ export class VolumeDataManager {
       scales: [], // downsample ratios, [x,y,z] per resolution level
     };
 
-    this.cacheStatus = {
-      chunksCached: 0,
-      cacheFull: false,
-      cacheSize: 0,
-      cacheLimit: 0,
-      cacheUsed: 0,
-      cacheUsedPercent: 0,
-    };
-    this.logValues = {
-      totalChunksRequestedFromServer: 0,
-      loadTimeLastChunk: 0,
-      loadTimeTotal: 0,
-      loadTimeAverage: 0,
-    };
-
     this.ptTHREE = null;
     this.bcTHREE = null;
+
+    this.channels = {
+      channelMappings: [],
+    };
 
     this.PT = {
       channelOffsets: [
@@ -286,6 +275,8 @@ export class VolumeDataManager {
 
       console.info(`Successfully loaded ${resolutions} resolution levels.`);
 
+      console.info('shapes', shapes);
+
       // Get the first array for metadata
       if (arrays.length > 0) {
         const array0 = arrays[0];
@@ -302,9 +293,11 @@ export class VolumeDataManager {
           brickLayout: [], // Calculate from shapes and chunk sizes
           store: this.store,
           group: this.group,
-          channelCount: 1, // For now hardcoded to 1
+          channelCount: shapes[0][1],
           scales,
         };
+
+        this.channels.channelMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
 
         // Extract physical size information if available
         if (array0.meta && array0.meta.physicalSizes) {
@@ -464,6 +457,7 @@ export class VolumeDataManager {
 
     console.warn('initMRMCPT', this.zarrStore.shapes[0]);
     console.warn('initMRMCPT', this.zarrStore.channelCount);
+    console.warn('initMRMCPT', this.channels.channelMappings);
 
     // Calculate PT extents first
     this.PT.xExtent = 1;
@@ -496,7 +490,8 @@ export class VolumeDataManager {
     console.warn('PT anchors', this.PT.anchors);
 
     // Calculate total Z extent including channel offsets
-    this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
+    // this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
+    this.PT.zTotal = this.PT.zExtent + this.channels.channelMappings.length * l0z;
 
     console.warn('Page Table Extents:', {
       x: this.PT.xExtent,
@@ -952,7 +947,7 @@ export class VolumeDataManager {
     // console.log('zarrX', x);
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
-    let chunk = await this.loadZarrChunk(0, manualChannelSelection, z, y, x, resolution);
+    let chunk = await this.loadZarrChunk(0, 0, z, y, x, resolution);
     // console.log('chunk', chunk);
 
     let min = 255;
@@ -1007,8 +1002,8 @@ export class VolumeDataManager {
     }
 
     /* 4.4 PT entry upload */
-    if (channel !== 0) {
-      console.log('channel is not 0');
+    if (channel >= this.channels.channelMappings.length) {
+      console.log('channel is out of bounds', channel);
       min = 255;
       max = 255;
     }
