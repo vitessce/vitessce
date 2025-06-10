@@ -947,7 +947,7 @@ export class VolumeDataManager {
     // console.log('zarrX', x);
     // console.log('zarrY', y);
     // console.log('zarrZ', z);
-    let chunk = await this.loadZarrChunk(0, 0, z, y, x, resolution);
+    let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
     let min = 255;
