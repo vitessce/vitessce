@@ -30,6 +30,7 @@ uniform int renderRes;
 uniform uvec3 voxelExtents;
 
 uniform ivec2 resGlobal;
+uniform int maxChannels;
 
 uniform ivec2 res0;
 uniform ivec2 res1;
@@ -235,7 +236,7 @@ vec3 getChannelColor(int index) {
 [4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
 */
 // add maxres here
-ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
+ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd) {
 
     vec2 clim = getClim(channel);
     int channelMin = getRes(channel).x;
@@ -244,6 +245,11 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     int currentRes = clamp(targetRes, channelMin, channelMax);
     currentRes = clamp(currentRes, resGlobal.x, resGlobal.y);
     int lowestRes = clamp(resGlobal.y, channelMin, channelMax);
+
+    bool requestChannel = false;
+    if (int(floor(rnd * float(maxChannels))) == channel) {
+        requestChannel = true;
+    }
 
     while (currentRes <= lowestRes) {
 
@@ -262,7 +268,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
-            if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0)) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
             continue;
@@ -285,7 +291,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
             currentRes++;
-            if (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) {
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0)) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
             //return ivec4(0,0,0,-10);
@@ -303,7 +309,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel) {
     return ivec4(0,0,0,-1);
 }
 
-void setBrickRequest(vec3 location, int targetRes, int channel) {
+void setBrickRequest(vec3 location, int targetRes, int channel, float rnd) {
     uvec3 anchorPoint = getAnchorPoint(targetRes);
     vec3 brickLocation = getBrickFromNormalized(location, targetRes);
     uvec3 channelOffset = getChannelOffset(channel);
@@ -312,7 +318,9 @@ void setBrickRequest(vec3 location, int targetRes, int channel) {
         int zExtent = int(ceil(float(voxelExtents.z) / 32.0));
         coordinate = vec3(anchorPoint) + vec3(0.0, 0.0, zExtent * channel) + brickLocation;
     }
-    gRequest = packPTCoordToRGBA8(uvec3(coordinate));
+    if (int(floor(rnd * float(maxChannels))) == channel) {
+        gRequest = packPTCoordToRGBA8(uvec3(coordinate));
+    }
 }
 
 void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
@@ -480,10 +488,12 @@ void main(void) {
                 newVoxel = true;
             } else if (c_renderMode_current[c] == 2) {
                 newVoxel = true;
+            } else if (c_renderMode_current[c] == 0) {
+                continue;
             }
 
             if (newBrick) {
-                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c);
+                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c, rnd);
                 if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2 || brickCacheInfo.w == -10) {
                     // empty
                     c_val_current[c] = 0.0;
@@ -507,7 +517,7 @@ void main(void) {
                     c_brickCacheCoord_current[c] = vec3(brickCacheInfo.xyz);
                     c_renderMode_current[c] = 2;
                     newVoxel = true;
-                    if (int(floor(rnd * 7.0)) == c) {
+                    if (int(floor(rnd * float(maxChannels))) == c) {
                         setUsage(brickCacheInfo.xyz, t_hit_min_os, t_hit_max_os, t_os, rnd);
                     }
                 }
@@ -533,8 +543,9 @@ void main(void) {
             if (!overWrittenRequest 
                 && c_res_current[c] != bestRes
                 && c_val_current[c] > 0.0
-                && c_renderMode_current[c] == 2) {
-                setBrickRequest(p, bestRes, c);
+                && c_renderMode_current[c] == 2
+                && int(floor(rnd * float(maxChannels))) == c) {
+                setBrickRequest(p, bestRes, c, rnd);
                 overWrittenRequest = true;
                 // gColor = vec4(1.0, 1.0, 0.0, 1.0);
                 // return;
@@ -560,163 +571,14 @@ void main(void) {
         t_os += dt;
     }
 
-    // advance the ray
-    /*
-        ivec4 brickCacheOffset = getBrickLocation(p, targetRes, 0);
-
-        currentTargetResPTCoord = getBrickFromNormalized(p, targetRes);
-        vec3 newBrickLocationPTCoord = currentTargetResPTCoord;
-
-        if (brickCacheOffset.w == -1 || brickCacheOffset.w == -2) {
-            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
-                p += dp;
-                t += dt;
-                t_os += dt;
-
-                newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
-            }
-            continue;
-        } else if (brickCacheOffset.w == -3) {
-            // full
-            vec3 channelColor = getChannelColor(0);
-            float sliceAlpha = opacity * dt * 32.0;
-            vec3 sliceColor = channelColor;
-
-            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
-                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-                outColor.a += sliceAlpha * alphaMultiplicator;
-                
-                if (outColor.a > 0.99) { break; }
-                
-                alphaMultiplicator *= (1.0 - sliceAlpha);
-
-                p += dp;
-                t += dt;
-                t_os += dt;
-                newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
-            }
-            if (outColor.a > 0.99) { break; }
-            continue;
-        } else if (brickCacheOffset.w == -4) {
-            // render constant
-            float val = float(brickCacheOffset.x);
-            vec2 clim = getClim(0);
-            val = max(0.0, (val - clim.x ) / (clim.y - clim.x));
-            float sliceAlpha = val * opacity * dt * 32.0;
-            vec3 sliceColor = val * getChannelColor(0);
-
-            while (currentTargetResPTCoord == newBrickLocationPTCoord) {
-                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-                outColor.a += sliceAlpha * alphaMultiplicator;
-                
-                if (outColor.a > 0.99) { break; }
-                
-                alphaMultiplicator *= (1.0 - sliceAlpha);
-            
-                p += dp;
-                t += dt;
-                t_os += dt;
-                newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
-            }
-            if (outColor.a > 0.99) { break; }
-            continue;
-        } else {
-
-            vec3 voxel = getVoxelFromNormalized(p, brickCacheOffset.w);
-            vec3 voxelInBrick = mod(voxel, 32.0);
-
-            vec3 brickCacheCoord = vec3(
-                (float(brickCacheOffset.x) * 32.0 + float(voxelInBrick.x)) / 2048.0,
-                (float(brickCacheOffset.y) * 32.0 + float(voxelInBrick.y)) / 2048.0,
-                (float(brickCacheOffset.z) * 32.0 + float(voxelInBrick.z)) / 128.0
-            );
-
-            setUsage(brickCacheOffset.xyz, t_hit_min_os, t_hit_max_os, t_os, rnd);
-
-            float val = texture(brickCacheTex, brickCacheCoord).r;
-
-            vec2 clim = getClim(0);
-            val = max(0.0, (val - clim.x ) / (clim.y - clim.x));
-
-            vec3 colorVal = getChannelColor(0);
-
-            if (brickCacheOffset.w == 0) {
-                // colorVal = vec3(0.0, 1.0, 1.0);
-            } else if (brickCacheOffset.w == 1) {
-                // colorVal = vec3(1.0, 0.0, 0.0);
-            } else if (brickCacheOffset.w == 2) {
-                // colorVal = vec3(0.0, 1.0, 0.0);
-            } else if (brickCacheOffset.w == 3) {
-                // colorVal = vec3(1.0, 0.0, 1.0);
-            } else if (brickCacheOffset.w == 4) {
-                // colorVal = vec3(1.0, 1.0, 0.0);
-            } else if (brickCacheOffset.w == 5) {
-                // colorVal = vec3(0.0, 0.0, 1.0);
-            } else {
-                // colorVal = vec3(1.0, 1.0, 1.0);
-            }
-            if (!overWrittenRequest
-                && brickCacheOffset.w != targetRes
-                && val > 0.0) {
-                setBrickRequest(p, targetRes, 0);
-                overWrittenRequest = true;
-            }
-
-            vec3 rgbComboAdd = max(0.0, min(1.0, val)) * colorVal;
-
-            vec3 currentVoxelInBrick = voxel;
-            vec3 newVoxelInBrick = currentVoxelInBrick;
-            rgbCombo += rgbComboAdd;
-
-            int reps = 0;
-
-            while (currentTargetResPTCoord == newBrickLocationPTCoord
-                && currentVoxelInBrick == newVoxelInBrick) {
-
-                if (reps > 0) {
-                    gColor = vec4(0.0, 1.0, 1.0, 1.0);
-                    return;
-                }
-
-                reps++;
-            
-                total = val;
-
-                total = clamp(total, 0.0, 1.0);
-                float sliceAlpha = total * opacity * dt * 32.0;
-                vec3 sliceColor  = rgbCombo;
-
-                outColor.rgb += sliceAlpha * alphaMultiplicator * sliceColor;
-                outColor.a   += sliceAlpha * alphaMultiplicator;
-
-                if (outColor.a > 0.99) {
-                    break;
-                }
-
-                alphaMultiplicator *= (1.0 - sliceAlpha);
-
-                t += dt;
-                p += dp;
-                t_os += dt;
-
-                newBrickLocationPTCoord = getBrickFromNormalized(p, targetRes);
-                newVoxelInBrick = getVoxelFromNormalized(p, targetRes);
-            }
-        }
-        
-        if (outColor.a > 0.99) {
-            break;
-        }
-    }
-    */
-
     // Set all render targets directly without conditionals
     gColor = vec4(linear_to_srgb(outColor.r), 
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
 
-    // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
+    // gColor = vec4(gRequest.a * 10.0, gRequest.g * 3.0, gRequest.b * 3.0, 1.0);
+    // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
     // gColor = linear_to_srgb(gRequest);
     // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
 

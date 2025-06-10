@@ -501,6 +501,8 @@ export class VolumeRenderManager {
       zarrStore.shapes[0][3],
       zarrStore.shapes[0][2],
     );
+    this.uniforms.maxChannels.value = zarrStore.channelCount;
+    console.log('this.channelsVisible', this.channelsVisible);
     console.log('zarrStore.shapes[0]', zarrStore.shapes[0]);
     console.log('PT', PT);
     console.log('uniforms', this.uniforms);
