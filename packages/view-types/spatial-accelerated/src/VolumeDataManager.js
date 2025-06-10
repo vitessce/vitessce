@@ -853,7 +853,7 @@ export class VolumeDataManager {
     }
     // console.log(channel, resolution, x, y, z);
     if (channel !== 0) {
-      console.warn('CHANNEL IS NOT 0', channel, resolution, x, y, z);
+      // console.warn('CHANNEL IS NOT 0', channel, resolution, x, y, z);
     }
     return {
       channel,
@@ -1051,11 +1051,11 @@ export class VolumeDataManager {
   async handleBrickRequests(ptRequests) {
     // console.log('handleBrickRequests');
     if (ptRequests.length === 0) return;
-    console.log('ptRequests', ptRequests);
-    console.log('this.BCFull', this.BCFull);
-    console.log('this.BCUnusedIndex', this.BCUnusedIndex);
-    console.log('this.BCTimeStamps', this.BCTimeStamps);
-    console.log('this.LRUStack', this.LRUStack);
+    // console.log('ptRequests', ptRequests);
+    // console.log('this.BCFull', this.BCFull);
+    // console.log('this.BCUnusedIndex', this.BCUnusedIndex);
+    // console.log('this.BCTimeStamps', this.BCTimeStamps);
+    // console.log('this.LRUStack', this.LRUStack);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);
@@ -1072,7 +1072,7 @@ export class VolumeDataManager {
         console.warn('DUPLICATE BRICK LOADED', ptRequests[i]);
       }
     }
-    console.log('this.bricksAllocated', this.bricksAllocated);
+    // console.log('this.bricksAllocated', this.bricksAllocated);
     console.log('this.bricksEverLoaded', this.bricksEverLoaded);
     // console.log('uploaded bricks');
 

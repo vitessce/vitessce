@@ -466,9 +466,6 @@ void main(void) {
         for (int c = 0; c < 7; c++) {
             if (c_color[c] == vec3(0.0, 0.0, 0.0)) {
                 continue;
-            } else if (c >= 1) {
-                gColor = vec4(0.0, 1.0, 0.0, 1.0);
-                return;
             }
 
             bool newBrick = false;
