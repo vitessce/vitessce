@@ -438,6 +438,10 @@ void main(void) {
             dp = os_rayDir * dt;
             p += dp * rnd;
             resolutionChanged = true;
+
+            if (p.x < 0.0 || p.x >= 1.0 || p.y < 0.0 || p.y >= 1.0 || p.z < 0.0 || p.z >= 1.0) {
+                break;
+            }
         } else {
             resolutionChanged = false;
         }
@@ -533,8 +537,8 @@ void main(void) {
                 && c_res_current[c] != bestRes
                 && c_val_current[c] > 0.0
                 && c_renderMode_current[c] == 2) {
-                // setBrickRequest(p, bestRes, c);
-                // overWrittenRequest = true;
+                setBrickRequest(p, bestRes, c);
+                overWrittenRequest = true;
                 // gColor = vec4(1.0, 1.0, 0.0, 1.0);
                 // return;
             }
@@ -718,11 +722,6 @@ void main(void) {
     // gColor = vec4(gRequest.r, gRequest.g, gRequest.b, 1.0);
     // gColor = linear_to_srgb(gRequest);
     // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
-
-    if (gRequest.a <= 8.0 / 255.0 && gRequest.a > 0.0) {
-        gColor = vec4(1.0, 1.0, 0.0, 1.0);
-        gRequest = vec4(0.0, 0.0, 0.0, 0.0);
-    }
 
     // gColor = vec4(gRequest.a, gRequest.g, gRequest.b, 1.0);
     // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
