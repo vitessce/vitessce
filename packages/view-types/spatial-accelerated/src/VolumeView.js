@@ -66,10 +66,10 @@ export function VolumeView(props) {
     log('useEffect INIT');
     (async () => {
       const dm = new VolumeDataManager(
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
         // 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
         // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-        'http://127.0.0.1:8080/gloria_conversion/v2',
+        // 'http://127.0.0.1:8080/gloria_conversion/v2',
         // 'http://127.0.0.1:8080/kingsnake/kingsnake_b2r2.zarr/0',
         gl.getContext?.() || gl,
         gl,
