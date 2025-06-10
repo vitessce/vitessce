@@ -188,7 +188,7 @@ vec2 getClim(int index) {
 }
 
 vec3 getVoxelFromNormalized(vec3 normalized, int res) {
-    vec3 extents = floor(vec3(voxelExtents) / getScale(res)); // should be voxelExtents per res
+    vec3 extents = (vec3(voxelExtents) / getScale(res)); // should be voxelExtents per res
     vec3 voxel = normalized * extents;
     return voxel;
 }
@@ -376,7 +376,7 @@ void main(void) {
 
     // initialize resolutions
     // target res based on the distance
-    int targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor);
+    int targetRes = getLOD(t_os, resGlobal.x, resGlobal.y, lodFactor);
     // render defines only stepping distance
     int stepResAdaptive = renderRes;
     int stepResEffective = clamp(stepResAdaptive, 0, 5);
@@ -417,6 +417,7 @@ void main(void) {
     vec3 [] c_voxel_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 [] c_ptCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     int [] c_renderMode_current = int[7](-1, -1, -1, -1, -1, -1, -1);
+    int [] c_res_prev = int[7](-1,-1,-1,-1,-1,-1,-1);
 
     // pt coord and voxel per resolution
     vec3 [] r_ptCoord = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
@@ -425,6 +426,7 @@ void main(void) {
     vec3 [] r_prevVoxel = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
 
     bool resolutionChanged = false;
+    int reps = 0;
 
     while (t_os < t_hit_max_os && t_os >= t_hit_min_os
         && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
@@ -448,6 +450,7 @@ void main(void) {
             resolutionChanged = true;
 
             if (p.x < 0.0 || p.x >= 1.0 || p.y < 0.0 || p.y >= 1.0 || p.z < 0.0 || p.z >= 1.0) {
+                // gColor = vec4(0.0, 1.0, 1.0, 1.0);
                 break;
             }
         } else {
@@ -512,6 +515,7 @@ void main(void) {
                     newVoxel = false;
                     // continue;
                 } else if (brickCacheInfo.w >= 0) {
+                    // reps++;
                     c_res_current[c] = brickCacheInfo.w;
                     c_ptCoord_current[c] = r_ptCoord[c_res_current[c]];
                     c_brickCacheCoord_current[c] = vec3(brickCacheInfo.xyz);
@@ -525,10 +529,13 @@ void main(void) {
             
             if (newVoxel) {
                 c_voxel_current[c] = r_voxel[c_res_current[c]];
-                if (c_voxel_current[c] == r_prevVoxel[c_res_current[c]]) {
-                    continue;
+                if (c_voxel_current[c] == r_prevVoxel[c_res_current[c]]
+                    && c_res_current[c] == c_res_prev[c]) {
+                    continue; // TODO: fix here
                 }
+                reps++;
                 vec3 voxelInBrick = mod(c_voxel_current[c], 32.0);
+                voxelInBrick = clamp(voxelInBrick, 0.5, 31.49999);
                 vec3 brickCacheCoord = vec3(
                     (float(c_brickCacheCoord_current[c].x) * 32.0 + float(voxelInBrick.x)) / 2048.0,
                     (float(c_brickCacheCoord_current[c].y) * 32.0 + float(voxelInBrick.y)) / 2048.0,
@@ -536,6 +543,7 @@ void main(void) {
                 );
                 float val = texture(brickCacheTex, brickCacheCoord).r;
                 c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
+                c_res_prev[c] = c_res_current[c];
                 // gColor = vec4(voxelInBrick / 32.0, 1.0);
                 // return;
             }
@@ -569,6 +577,7 @@ void main(void) {
         t += dt;
         p += dp;
         t_os += dt;
+        // reps++;
     }
 
     // Set all render targets directly without conditionals
@@ -576,6 +585,8 @@ void main(void) {
                   linear_to_srgb(outColor.g), 
                   linear_to_srgb(outColor.b), 
                   outColor.a);
+    
+    // gColor = vec4(float(reps) / 500.0, 0.0, 0.0, 1.0);
 
     // gColor = vec4(gRequest.a * 10.0, gRequest.g * 3.0, gRequest.b * 3.0, 1.0);
     // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
