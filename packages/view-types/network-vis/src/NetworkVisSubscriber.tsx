@@ -73,7 +73,7 @@ export function NetworkVisSubscriber(props:any) {
     cellSets: mergedCellSets,
   } as GetCellColorsParams), [mergedCellSets, theme, cellSetColor, cellSetSelection, obsIndex]);
 
-  console.log("NEUROGLANCER cellColors", cellColors);
+  // console.log("NEUROGLANCER cellColors", cellColors);
 
   // Handle node selection
   const onNodeSelect = useCallback((nodeIds: string[], hopDistance?: number) => {
@@ -83,7 +83,7 @@ export function NetworkVisSubscriber(props:any) {
       const selectionName = hopDistance !== undefined 
         ? `Hop ${hopDistance} Neighbors (${timestamp})`
         : `Selection ${timestamp}`;
-      
+      console.log("cellSetSelection!!!:", cellSetSelection);
       // For each hop distance, create a new selection
       // This mimics the behavior of separate lasso selections
       setObsSelection(

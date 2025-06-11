@@ -188,29 +188,40 @@ const CytoscapeWrapper: React.FC<{
         id: 'show-same-type-neighbors',
         content: 'Show neighbors of same type',
         selector: 'node',
-        onClickFunction: (event: any) => {
+        onClickFunction: async (event: any) => {
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, true); // Max 10 hops, same type only
           
-          // Create all hop distance selections at once
+          // Create separate selections for each hop distance
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
-          const allNodeIds = new Set<string>();
+          console.log('NetworkVis - Hop distances found:', hopDistances);
           
-          // Add the selected node to the selection
+          // First create selection for the selected node
           const nodeData = node.data();
+          const selectedNodeIds: string[] = [];
           if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
             // For merged nodes, add each subcomponent
             nodeData.subComponents.forEach((subId: string) => {
-              allNodeIds.add(subId);
+              selectedNodeIds.push(subId);
             });
           } else {
-            allNodeIds.add(node.id());
+            selectedNodeIds.push(node.id());
+          }
+
+          // Create an array of all selections to make
+          const selections: { nodeIds: string[], hopDistance?: number }[] = [];
+          
+          // Add initial node selection
+          if (selectedNodeIds.length > 0) {
+            selections.push({ nodeIds: selectedNodeIds, hopDistance: 0 });
           }
           
-          // Collect all node IDs from all hop distances
-          hopDistances.forEach(hopDistance => {
+          // Add hop distance selections
+          for (const hopDistance of hopDistances) {
+            console.log(`NetworkVis - Processing hop distance ${hopDistance}`);
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
+              const hopNodeIds: string[] = [];
               nodeIds.forEach(id => {
                 // Handle merged nerve nodes
                 const node = cyRef.current.getElementById(id);
@@ -219,19 +230,25 @@ const CytoscapeWrapper: React.FC<{
                   if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
                     // For merged nodes, add each subcomponent
                     nodeData.subComponents.forEach((subId: string) => {
-                      allNodeIds.add(subId);
+                      hopNodeIds.push(subId);
                     });
                   } else {
-                    allNodeIds.add(id);
+                    hopNodeIds.push(id);
                   }
                 }
               });
+              if (hopNodeIds.length > 0) {
+                selections.push({ nodeIds: hopNodeIds, hopDistance });
+              }
             }
-          });
+          }
           
-          // Create a single selection with all nodes
-          if (allNodeIds.size > 0) {
-            createSelectionFromNodes(Array.from(allNodeIds), 1);
+          // Process all selections sequentially
+          for (const selection of selections) {
+            await new Promise<void>((resolve) => {
+              onNodeSelect(selection.nodeIds, selection.hopDistance);
+              setTimeout(resolve, 100); // Wait for selection to be processed
+            });
           }
         },
         hasTrailingDivider: true
@@ -240,29 +257,40 @@ const CytoscapeWrapper: React.FC<{
         id: 'show-all-neighbors',
         content: 'Show all neighbors',
         selector: 'node',
-        onClickFunction: (event: any) => {
+        onClickFunction: async (event: any) => {
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, false); // Max 10 hops, any type
           
-          // Create all hop distance selections at once
+          // Create separate selections for each hop distance
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
-          const allNodeIds = new Set<string>();
+          console.log('NetworkVis - Hop distances found:', hopDistances);
           
-          // Add the selected node to the selection
+          // First create selection for the selected node
           const nodeData = node.data();
+          const selectedNodeIds: string[] = [];
           if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
             // For merged nodes, add each subcomponent
             nodeData.subComponents.forEach((subId: string) => {
-              allNodeIds.add(subId);
+              selectedNodeIds.push(subId);
             });
           } else {
-            allNodeIds.add(node.id());
+            selectedNodeIds.push(node.id());
+          }
+
+          // Create an array of all selections to make
+          const selections: { nodeIds: string[], hopDistance?: number }[] = [];
+          
+          // Add initial node selection
+          if (selectedNodeIds.length > 0) {
+            selections.push({ nodeIds: selectedNodeIds, hopDistance: 0 });
           }
           
-          // Collect all node IDs from all hop distances
-          hopDistances.forEach(hopDistance => {
+          // Add hop distance selections
+          for (const hopDistance of hopDistances) {
+            console.log(`NetworkVis - Processing hop distance ${hopDistance}`);
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
+              const hopNodeIds: string[] = [];
               nodeIds.forEach(id => {
                 // Handle merged nerve nodes
                 const node = cyRef.current.getElementById(id);
@@ -271,19 +299,25 @@ const CytoscapeWrapper: React.FC<{
                   if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
                     // For merged nodes, add each subcomponent
                     nodeData.subComponents.forEach((subId: string) => {
-                      allNodeIds.add(subId);
+                      hopNodeIds.push(subId);
                     });
                   } else {
-                    allNodeIds.add(id);
+                    hopNodeIds.push(id);
                   }
                 }
               });
+              if (hopNodeIds.length > 0) {
+                selections.push({ nodeIds: hopNodeIds, hopDistance });
+              }
             }
-          });
+          }
           
-          // Create a single selection with all nodes
-          if (allNodeIds.size > 0) {
-            createSelectionFromNodes(Array.from(allNodeIds), 1);
+          // Process all selections sequentially
+          for (const selection of selections) {
+            await new Promise<void>((resolve) => {
+              onNodeSelect(selection.nodeIds, selection.hopDistance);
+              setTimeout(resolve, 1000); // Wait for selection to be processed
+            });
           }
         }
       }
