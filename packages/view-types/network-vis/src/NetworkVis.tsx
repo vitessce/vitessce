@@ -1,9 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape, { Core } from 'cytoscape';
 import cytoscapeLasso from 'cytoscape-lasso';
 import cytoscapeContextMenus from 'cytoscape-context-menus';
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
+import Graph from 'graphology';
+import ReactFlow, {
+  Node as FlowNode,
+  Edge as FlowEdge,
+  Controls,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  NodeTypes,
+  EdgeTypes,
+} from 'reactflow';
+import { Background } from 'reactflow';
+import 'reactflow/dist/style.css';
+import paper from 'paper';
 
 // Register the plugins
 (cytoscape as any).use(cytoscapeLasso);
@@ -569,15 +584,20 @@ interface GraphData {
 interface MotifNode {
   id: string;
   type: 'glomeruli' | 'nerves' | 'none';
+  connectionCount: number;
 }
 
 interface MotifEdge {
   source: string;
   target: string;
+  type: 'glomeruli_to_nerve' | 'nerve_to_glomeruli';
 }
 
 interface MotifPattern {
-  nodes: MotifNode[];
+  nodes: {
+    id: string;
+    type: 'glomeruli' | 'nerves';
+  }[];
   edges: MotifEdge[];
 }
 
@@ -590,6 +610,306 @@ interface NetworkVisProps {
   setAdditionalCellSets: (sets: any) => void;
   cellColors: Map<string, [number, number, number]>;
 }
+
+interface SketchNode {
+  id: string;
+  type: 'glomeruli' | 'nerves';
+  position: paper.Point;
+  circle: paper.Path.Circle;
+}
+
+interface SketchEdge {
+  id: string;
+  source: string;
+  target: string;
+  path: paper.Path;
+}
+
+interface FlowNodeData {
+  type: 'glomeruli' | 'nerves';
+}
+
+interface MotifConnection {
+  glomeruli: string;
+  nerves: string[];
+}
+
+const MotifSketch: React.FC<{
+  onPatternChange: (pattern: MotifPattern) => void;
+}> = ({ onPatternChange }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [currentNodeType, setCurrentNodeType] = useState<'glomeruli' | 'nerves'>('glomeruli');
+  const [nodes, setNodes] = useState<SketchNode[]>([]);
+  const [edges, setEdges] = useState<SketchEdge[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startNode, setStartNode] = useState<SketchNode | null>(null);
+  const [tempPath, setTempPath] = useState<paper.Path | null>(null);
+  const [isConnectMode, setIsConnectMode] = useState(false);
+  const [connectStartNode, setConnectStartNode] = useState<SketchNode | null>(null);
+
+  // Initialize Paper.js
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    paper.setup(canvasRef.current);
+    paper.view.onResize = () => {
+      paper.view.viewSize = new paper.Size(canvasRef.current!.clientWidth, canvasRef.current!.clientHeight);
+    };
+
+    return () => {
+      paper.project.clear();
+    };
+  }, []);
+
+  // Update pattern when nodes or edges change
+  useEffect(() => {
+    // Create pattern nodes
+    const patternNodes = nodes.map(node => ({
+      id: node.id,
+      type: node.type
+    }));
+
+    // Create pattern edges with explicit types
+    const patternEdges = edges.map(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source)!;
+      const targetNode = nodes.find(n => n.id === edge.target)!;
+      
+      return {
+        source: edge.source,
+        target: edge.target,
+        type: sourceNode.type === 'glomeruli' ? 'glomeruli_to_nerve' as const : 'nerve_to_glomeruli' as const
+      };
+    });
+
+    onPatternChange({
+      nodes: patternNodes,
+      edges: patternEdges
+    });
+  }, [nodes, edges, onPatternChange]);
+
+  // Handle canvas click
+  const handleCanvasClick = useCallback((event: paper.ToolEvent) => {
+    const point = event.point;
+    
+    // Check if clicked on an existing node
+    const clickedNode = nodes.find(node => 
+      node.circle.contains(point)
+    );
+
+    if (clickedNode) {
+      if (isConnectMode) {
+        if (!connectStartNode) {
+          // Start connection
+          setConnectStartNode(clickedNode);
+          // Highlight the node
+          clickedNode.circle.strokeColor = new paper.Color('#4477AA');
+          clickedNode.circle.strokeWidth = 3;
+        } else if (connectStartNode.id !== clickedNode.id) {
+          // Check if edge already exists
+          const edgeExists = edges.some(edge => 
+            (edge.source === connectStartNode.id && edge.target === clickedNode.id) ||
+            (edge.source === clickedNode.id && edge.target === connectStartNode.id)
+          );
+
+          if (!edgeExists) {
+            // Create edge
+            const path = new paper.Path.Line(connectStartNode.position, clickedNode.position);
+            path.strokeColor = new paper.Color('#999');
+            path.strokeWidth = 2;
+
+            const newEdge: SketchEdge = {
+              id: `edge-${edges.length + 1}`,
+              source: connectStartNode.id,
+              target: clickedNode.id,
+              path
+            };
+
+            setEdges(prev => [...prev, newEdge]);
+          }
+
+          // Reset connection mode
+          connectStartNode.circle.strokeColor = new paper.Color('black');
+          connectStartNode.circle.strokeWidth = 2;
+          setConnectStartNode(null);
+        }
+      } else if (isDrawing && startNode && startNode.id !== clickedNode.id) {
+        // Check if edge already exists
+        const edgeExists = edges.some(edge => 
+          (edge.source === startNode.id && edge.target === clickedNode.id) ||
+          (edge.source === clickedNode.id && edge.target === startNode.id)
+        );
+
+        if (!edgeExists) {
+          // Create edge
+          const path = new paper.Path.Line(startNode.position, clickedNode.position);
+          path.strokeColor = new paper.Color('#999');
+          path.strokeWidth = 2;
+
+          const newEdge: SketchEdge = {
+            id: `edge-${edges.length + 1}`,
+            source: startNode.id,
+            target: clickedNode.id,
+            path
+          };
+
+          setEdges(prev => [...prev, newEdge]);
+        }
+      }
+      // Always stop drawing when clicking a node
+      setIsDrawing(false);
+      setStartNode(null);
+      if (tempPath) {
+        tempPath.remove();
+        setTempPath(null);
+      }
+    } else {
+      // Create new node
+      const circle = new paper.Path.Circle(point, 15);
+      circle.fillColor = currentNodeType === 'glomeruli' ? new paper.Color('red') : new paper.Color('yellow');
+      circle.strokeColor = new paper.Color('black');
+      circle.strokeWidth = 2;
+
+      const newNode: SketchNode = {
+        id: `node-${nodes.length + 1}`,
+        type: currentNodeType,
+        position: point,
+        circle
+      };
+
+      setNodes(prev => [...prev, newNode]);
+    }
+  }, [nodes, edges, currentNodeType, isDrawing, startNode, tempPath, isConnectMode, connectStartNode]);
+
+  // Handle mouse move for edge drawing
+  const handleMouseMove = useCallback((event: paper.ToolEvent) => {
+    if (isDrawing && startNode && tempPath) {
+      const point = event.point;
+      
+      // Check if hovering over a node
+      const hoverNode = nodes.find(node => 
+        node.id !== startNode.id && 
+        node.circle.contains(point)
+      );
+
+      if (hoverNode) {
+        // Snap to the node
+        tempPath.segments[1].point = hoverNode.position;
+      } else {
+        // Follow mouse
+        tempPath.segments[1].point = point;
+      }
+    }
+  }, [isDrawing, startNode, tempPath, nodes]);
+
+  // Handle node drag start
+  const handleNodeDragStart = useCallback((event: paper.ToolEvent) => {
+    const point = event.point;
+    const draggedNode = nodes.find(node => node.circle.contains(point));
+    
+    if (draggedNode) {
+      // Check if we're already drawing from this node
+      if (isDrawing && startNode && startNode.id === draggedNode.id) {
+        // Cancel drawing
+        setIsDrawing(false);
+        setStartNode(null);
+        if (tempPath) {
+          tempPath.remove();
+          setTempPath(null);
+        }
+      } else {
+        // Start drawing
+        setIsDrawing(true);
+        setStartNode(draggedNode);
+        
+        // Create temporary path
+        const path = new paper.Path.Line(draggedNode.position, point);
+        path.strokeColor = new paper.Color('#999');
+        path.strokeWidth = 2;
+        setTempPath(path);
+      }
+    }
+  }, [nodes, isDrawing, startNode, tempPath]);
+
+  // Handle mouse up anywhere on canvas
+  const handleMouseUp = useCallback((event: paper.ToolEvent) => {
+    if (isDrawing && startNode && tempPath) {
+      // Cancel drawing if not over a node
+      setIsDrawing(false);
+      setStartNode(null);
+      tempPath.remove();
+      setTempPath(null);
+    }
+  }, [isDrawing, startNode, tempPath]);
+
+  // Initialize Paper.js tools
+  useEffect(() => {
+    if (!paper.project) return;
+
+    const tool = new paper.Tool();
+    tool.onMouseDown = handleNodeDragStart;
+    tool.onMouseMove = handleMouseMove;
+    tool.onMouseUp = handleMouseUp;
+    tool.onMouseDown = handleCanvasClick;
+
+    return () => {
+      tool.remove();
+    };
+  }, [handleNodeDragStart, handleMouseMove, handleMouseUp, handleCanvasClick]);
+
+  return (
+    <div>
+      <div style={{ marginBottom: '10px' }}>
+        <button
+          onClick={() => setCurrentNodeType('glomeruli')}
+          style={{
+            backgroundColor: currentNodeType === 'glomeruli' ? '#ff0000' : '#ffcccc',
+            marginRight: '10px'
+          }}
+        >
+          Glomeruli
+        </button>
+        <button
+          onClick={() => setCurrentNodeType('nerves')}
+          style={{
+            backgroundColor: currentNodeType === 'nerves' ? '#ffff00' : '#ffffcc',
+            marginRight: '10px'
+          }}
+        >
+          Nerves
+        </button>
+        <button
+          onClick={() => {
+            setIsConnectMode(!isConnectMode);
+            // Reset any ongoing connection
+            if (connectStartNode) {
+              connectStartNode.circle.strokeColor = new paper.Color('black');
+              connectStartNode.circle.strokeWidth = 2;
+              setConnectStartNode(null);
+            }
+          }}
+          style={{
+            backgroundColor: isConnectMode ? '#4477AA' : '#cccccc',
+            color: isConnectMode ? 'white' : 'black',
+            marginRight: '10px'
+          }}
+        >
+          Connect Nodes
+        </button>
+      </div>
+      <div style={{ height: 250, border: '1px solid #ccc', borderRadius: '3px' }}>
+        <canvas
+          ref={canvasRef}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
+      <div style={{ fontSize: '11px', marginTop: '5px' }}>
+        {isConnectMode 
+          ? 'Click first node, then click second node to create an edge'
+          : 'Click to add nodes. Drag from node to node to create edges.'}
+      </div>
+    </div>
+  );
+};
 
 const NetworkVis: React.FC<NetworkVisProps> = ({
   onNodeSelect,
@@ -607,23 +927,16 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
 
   const [isMotifSearchOpen, setIsMotifSearchOpen] = React.useState(false);
 
-  const [motifPattern, setMotifPattern] = React.useState<MotifPattern>({
-    nodes: [
-      { id: 'node1', type: 'glomeruli' },
-      { id: 'node2', type: 'nerves' },
-      { id: 'node3', type: 'none' }
-    ],
-    edges: [
-      { source: 'node1', target: 'node2' },
-      { source: 'node2', target: 'node3' }
-    ]
+  const [motifPattern, setMotifPattern] = useState<MotifPattern>({
+    nodes: [],
+    edges: []
   });
 
   const cyRef = React.useRef<any>(null);
 
   // Function to search for motifs in the graph
   const searchMotif = () => {
-    console.log('Searching for motif...');
+    console.log('Starting motif search...');
     if (!state.data || !cyRef.current) {
       console.log('No data or cy instance available');
       return;
@@ -632,107 +945,149 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     const { nodes, links } = state.data as GraphData;
     const matches: Set<string> = new Set();
 
-    // Filter out 'none' nodes from the pattern
-    const activeNodes = motifPattern.nodes.filter(node => node.type !== 'none');
-    if (activeNodes.length === 0) {
-      console.log('No active nodes in pattern');
-      return;
-    }
+    // Log the pattern structure
+    console.log('Searching for motif pattern:');
+    console.log('Nodes:', motifPattern.nodes);
+    console.log('Edges:', motifPattern.edges);
 
-    // For each node in the graph
-    nodes.forEach((startNode: Node) => {
-      // Check if this node matches the first active node in our pattern
-      const patternStartNode = activeNodes[0];
-      if (startNode.ftuName === patternStartNode.type) {
-        // Find all paths that match our pattern
-        const findPaths = (currentNode: Node, patternNodeIndex: number, visited: Set<string>): boolean => {
-          // Skip 'none' nodes in the pattern
-          while (patternNodeIndex < motifPattern.nodes.length && 
-                 motifPattern.nodes[patternNodeIndex].type === 'none') {
-            patternNodeIndex++;
-          }
+    // Create a graphology graph from the network data
+    const graph = new Graph({ type: 'directed' });
+    nodes.forEach(node => {
+      graph.addNode(node.id, { type: node.ftuName });
+    });
+    links.forEach(link => {
+      // Add edges in both directions since the network is undirected
+      graph.addEdge(link.source, link.target, { type: 'glomeruli_to_nerve' });
+      graph.addEdge(link.target, link.source, { type: 'nerve_to_glomeruli' });
+    });
 
+    // Function to check if a subgraph matches the pattern
+    const isSubgraphMatch = (nodeMapping: Map<string, string>): boolean => {
+      // Check if all nodes in the pattern are mapped
+      if (nodeMapping.size !== motifPattern.nodes.length) {
+        return false;
+      }
+
+      // Check if all edges in the pattern exist in the subgraph
+      for (const patternEdge of motifPattern.edges) {
+        const sourceNode = nodeMapping.get(patternEdge.source);
+        const targetNode = nodeMapping.get(patternEdge.target);
+        
+        if (!sourceNode || !targetNode) {
+          return false;
+        }
+
+        // Check if the edge exists with the correct type
+        const edge = graph.edge(sourceNode, targetNode);
+        if (!edge || graph.getEdgeAttributes(edge).type !== patternEdge.type) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    // Function to find all subgraph isomorphisms
+    const findSubgraphIsomorphisms = () => {
+      const results: Set<string>[] = [];
+
+      // Start from each glomeruli node
+      const glomeruliNodes = nodes.filter(n => n.ftuName === 'glomeruli');
+      
+      for (const startNode of glomeruliNodes) {
+        const visited = new Set<string>();
+        const nodeMapping = new Map<string, string>();
+        
+        // Try to map the first node
+        const firstPatternNode = motifPattern.nodes.find(n => n.type === 'glomeruli');
+        if (!firstPatternNode) continue;
+
+        nodeMapping.set(firstPatternNode.id, startNode.id);
+        visited.add(startNode.id);
+
+        // Recursive function to try mapping the remaining nodes
+        const tryMapRemainingNodes = (patternNodeIndex: number): void => {
           if (patternNodeIndex >= motifPattern.nodes.length) {
-            return true; // We've matched the entire pattern
+            // Found a complete mapping
+            if (isSubgraphMatch(nodeMapping)) {
+              results.push(new Set(nodeMapping.values()));
+            }
+            return;
           }
 
           const currentPatternNode = motifPattern.nodes[patternNodeIndex];
-          if (currentNode.ftuName !== currentPatternNode.type) {
-            return false;
+          if (nodeMapping.has(currentPatternNode.id)) {
+            tryMapRemainingNodes(patternNodeIndex + 1);
+            return;
           }
 
-          visited.add(currentNode.id);
-
-          // Get all connections from the current pattern node
-          const patternEdges = motifPattern.edges.filter(edge => 
-            edge.source === currentPatternNode.id || edge.target === currentPatternNode.id
+          // Get all possible nodes that could match the current pattern node
+          const possibleNodes = nodes.filter(n => 
+            n.ftuName === currentPatternNode.type && 
+            !visited.has(n.id)
           );
 
-          // For each connection in the pattern
-          for (const patternEdge of patternEdges) {
-            const nextPatternNodeId = patternEdge.source === currentPatternNode.id ? 
-              patternEdge.target : patternEdge.source;
-            const nextPatternNode = motifPattern.nodes.find(n => n.id === nextPatternNodeId);
-            
-            if (!nextPatternNode) continue;
+          for (const node of possibleNodes) {
+            // Check if this node can be mapped
+            let canMap = true;
+            for (const [patternId, graphId] of nodeMapping.entries()) {
+              const patternEdge = motifPattern.edges.find(e => 
+                (e.source === patternId && e.target === currentPatternNode.id) ||
+                (e.source === currentPatternNode.id && e.target === patternId)
+              );
 
-            // Find all connected nodes in the graph
-            const connectedNodes = links
-              .filter(link => 
-                (link.source === currentNode.id || link.target === currentNode.id) &&
-                !visited.has(link.source === currentNode.id ? link.target : link.source)
-              )
-              .map(link => link.source === currentNode.id ? link.target : link.source)
-              .map(id => nodes.find(n => n.id === id))
-              .filter((node): node is Node => node !== undefined);
-
-            // Try each connected node
-            for (const nextNode of connectedNodes) {
-              if (nextNode.ftuName === nextPatternNode.type) {
-                if (findPaths(nextNode, patternNodeIndex + 1, visited)) {
-                  return true;
+              if (patternEdge) {
+                const sourceId = patternEdge.source === patternId ? graphId : node.id;
+                const targetId = patternEdge.target === patternId ? graphId : node.id;
+                const edge = graph.edge(sourceId, targetId);
+                
+                if (!edge || graph.getEdgeAttributes(edge).type !== patternEdge.type) {
+                  canMap = false;
+                  break;
                 }
               }
             }
-          }
 
-          visited.delete(currentNode.id);
-          return false;
+            if (canMap) {
+              nodeMapping.set(currentPatternNode.id, node.id);
+              visited.add(node.id);
+              tryMapRemainingNodes(patternNodeIndex + 1);
+              nodeMapping.delete(currentPatternNode.id);
+              visited.delete(node.id);
+            }
+          }
         };
 
-        // Start the search from this node
-        const visited = new Set<string>();
-        if (findPaths(startNode, 0, visited)) {
-          // If we found a match, add all visited nodes to our matches
-          visited.forEach(id => matches.add(id));
-        }
+        tryMapRemainingNodes(0);
       }
-    });
 
-    console.log('Found matches:', Array.from(matches));
+      return results;
+    };
+
+    // Find all matches
+    const foundMatches = findSubgraphIsomorphisms();
+    console.log('Found matches:', foundMatches);
 
     // Select the matching nodes in the graph
     const cy = cyRef.current;
     cy.nodes().forEach((node: any) => {
-      if (matches.has(node.id())) {
+      if (foundMatches.some(match => match.has(node.id()))) {
         node.select();
       } else {
         node.unselect();
       }
     });
 
-    // Trigger the selection callback
-    onNodeSelect(Array.from(matches));
+    // Trigger the selection callback with all matched nodes
+    const allMatchedNodes = new Set<string>();
+    foundMatches.forEach(match => {
+      match.forEach(nodeId => allMatchedNodes.add(nodeId));
+    });
+    onNodeSelect(Array.from(allMatchedNodes));
   };
 
-  // Function to update node type in the pattern
-  const updateNodeType = (nodeId: string, newType: 'glomeruli' | 'nerves' | 'none') => {
-    setMotifPattern(prev => ({
-      ...prev,
-      nodes: prev.nodes.map(node => 
-        node.id === nodeId ? { ...node, type: newType } : node
-      )
-    }));
+  const handlePatternChange = (pattern: MotifPattern) => {
+    setMotifPattern(pattern);
   };
 
   React.useEffect(() => {
@@ -770,7 +1125,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         padding: '8px', 
         borderRadius: '5px', 
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        width: '150px',
+        width: '320px',
         transition: 'all 0.3s ease'
       }}>
         <div style={{ 
@@ -796,31 +1151,14 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         </div>
         {isMotifSearchOpen && (
           <div style={{ marginBottom: '5px' }}>
-            <div style={{ marginBottom: '5px' }}>
-              {motifPattern.nodes.map((node, index) => (
-                <div key={node.id} style={{ marginBottom: '3px' }}>
-                  <label style={{ fontSize: '11px', marginRight: '5px' }}>Node {index + 1}:</label>
-                  <select 
-                    value={node.type}
-                    onChange={(e) => updateNodeType(node.id, e.target.value as 'glomeruli' | 'nerves' | 'none')}
-                    style={{ fontSize: '11px', padding: '2px' }}
-                  >
-                    <option value="none">None</option>
-                    <option value="glomeruli">Glomeruli</option>
-                    <option value="nerves">Nerves</option>
-                  </select>
-                </div>
-              ))}
-            </div>
+            <MotifSketch onPatternChange={handlePatternChange} />
             <div style={{ fontSize: '11px', marginBottom: '5px' }}>
-              Pattern: {motifPattern.nodes
-                .filter(node => node.type !== 'none')
-                .map((node, i, filteredNodes) => (
-                  <span key={node.id}>
-                    {i > 0 && ' → '}
-                    {node.type}
-                  </span>
-                ))}
+              Pattern: {motifPattern.nodes.map((node, i) => (
+                <span key={node.id}>
+                  {i > 0 && ' → '}
+                  {node.type}
+                </span>
+              ))}
             </div>
             <button 
               onClick={searchMotif}

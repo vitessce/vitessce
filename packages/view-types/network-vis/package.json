@@ -40,8 +40,10 @@
     "d3-force-boundary": "^0.0.3",
     "graphology": "^0.25.4",
     "graphology-metrics": "^2.3.1",
+    "paper": "^0.12.18",
     "react-cytoscapejs": "^2.0.0",
     "react-markdown": "^9.0.1",
+    "reactflow": "^11.11.4",
     "rxjs": "^7.8.1",
     "three": "^0.167.1"
   },
