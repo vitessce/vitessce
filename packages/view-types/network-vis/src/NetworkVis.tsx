@@ -41,16 +41,16 @@ const createElements = (nodes: any[], links: any[], nodeColor: (n: any) => strin
     }
 
     return {
-      data: {
-        id: node.id,
-        color: nodeColor(node),
+    data: {
+      id: node.id,
+      color: nodeColor(node),
         borderColor,
-        size: nodeSize,
-        ftuName: node.ftuName,
+      size: nodeSize,
+      ftuName: node.ftuName,
         subComponents: node.subComponents,
         opacity: cellColors.has(node.id) ? 1 : 0.3,
         cellColors: hasCellColor
-      }
+    }
     };
   }),
   ...links.map(link => ({
@@ -1051,6 +1051,73 @@ const MotifSketch: React.FC<{
   );
 };
 
+const findSameTypeNeighborsWithPaths = (startNode: any, maxHops: number) => {
+  const visited = new Set<string>();
+  const result = new Set<string>(); // Will store all nodes (including intermediate ones)
+  const sameTypeNodes = new Set<string>(); // Will store only nodes of the same type
+  const startNodeType = startNode.data('ftuName');
+  
+  // First, find all nodes of the same type and their paths
+  const sameTypePaths = new Map<string, string[]>(); // Maps node ID to its path
+  sameTypePaths.set(startNode.id(), [startNode.id()]);
+  
+  // BFS queue: {node, sameTypeHops, path}
+  const queue: { node: any; sameTypeHops: number; path: string[] }[] = [{ 
+    node: startNode, 
+    sameTypeHops: 0,
+    path: [startNode.id()]
+  }];
+  
+  while (queue.length > 0) {
+    const { node, sameTypeHops, path } = queue.shift()!;
+    const nodeId = node.id();
+    
+    if (visited.has(nodeId)) continue;
+    visited.add(nodeId);
+    
+    // Add this node to the result set
+    result.add(nodeId);
+    
+    // If this is a node of the same type as the start node
+    if (node.data('ftuName') === startNodeType) {
+      sameTypeNodes.add(nodeId);
+      sameTypePaths.set(nodeId, path);
+    }
+    
+    // If we haven't reached max hops between same-type nodes, explore neighbors
+    if (sameTypeHops < maxHops) {
+      const connectedNodes = node.neighborhood('node');
+      
+      connectedNodes.forEach((neighbor: any) => {
+        const neighborId = neighbor.id();
+        if (!visited.has(neighborId)) {
+          // Only increment sameTypeHops if the neighbor is of the same type
+          const newSameTypeHops = neighbor.data('ftuName') === startNodeType ? 
+            sameTypeHops + 1 : 
+            sameTypeHops;
+            
+          queue.push({ 
+            node: neighbor, 
+            sameTypeHops: newSameTypeHops,
+            path: [...path, neighborId]
+          });
+        }
+      });
+    }
+  }
+  
+  // Now, collect all nodes that are part of paths between same-type nodes
+  const allPathNodes = new Set<string>();
+  sameTypePaths.forEach(path => {
+    path.forEach(nodeId => allPathNodes.add(nodeId));
+  });
+  
+  return {
+    allNodes: Array.from(allPathNodes),
+    sameTypeNodes: Array.from(sameTypeNodes)
+  };
+};
+
 const NetworkVis: React.FC<NetworkVisProps> = ({
   onNodeSelect,
   obsSetSelection,
@@ -1072,8 +1139,56 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   });
   const [motifNodes, setMotifNodes] = useState<SketchNode[]>([]);
   const [motifEdges, setMotifEdges] = useState<SketchEdge[]>([]);
+  const [selectedHopDistance, setSelectedHopDistance] = useState<number>(1);
+  const [isHopSelectionMode, setIsHopSelectionMode] = useState<boolean>(false);
 
   const cyRef = React.useRef<any>(null);
+
+  // Add this new handler for hop distance selection
+  const handleHopDistanceSelection = useCallback((event: any) => {
+    if (!isHopSelectionMode || !cyRef.current) return;
+
+    const node = event.target;
+    if (node === cyRef.current) return; // Clicked on background
+
+    const { allNodes, sameTypeNodes } = findSameTypeNeighborsWithPaths(node, selectedHopDistance);
+    
+    // Select all nodes in the result
+    cyRef.current.nodes().forEach((n: any) => {
+      if (allNodes.includes(n.id())) {
+        n.style('opacity', '1');
+      } else {
+        n.style('opacity', '0.3');
+      }
+    });
+
+    // Convert node IDs to the format expected by onNodeSelect
+    const selectedNodeIds = allNodes.map(id => {
+      const node = cyRef.current.getElementById(id);
+      const nodeData = node.data();
+      if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+        return nodeData.subComponents;
+      }
+      return [id];
+    }).flat();
+
+    onNodeSelect(selectedNodeIds);
+    setIsHopSelectionMode(false); // Exit selection mode after selection
+  }, [isHopSelectionMode, selectedHopDistance, onNodeSelect]);
+
+  // Add effect to handle hop distance selection mode
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    const cy = cyRef.current;
+    if (isHopSelectionMode) {
+      cy.on('tap', handleHopDistanceSelection);
+    }
+
+    return () => {
+      cy.removeListener('tap', handleHopDistanceSelection);
+    };
+  }, [isHopSelectionMode, handleHopDistanceSelection]);
 
   // Function to search for motifs in the graph
   const searchMotif = () => {
@@ -1121,8 +1236,8 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         // Check if the edge exists with the correct type
         const edge = graph.edge(sourceNode, targetNode);
         if (!edge || graph.getEdgeAttributes(edge).type !== patternEdge.type) {
-          return false;
-        }
+            return false;
+          }
       }
 
       return true;
@@ -1263,12 +1378,82 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         left: 10, 
         zIndex: 1000, 
         background: 'white', 
-        padding: '8px',
+        padding: '8px', 
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         width: '280px',
         transition: 'all 0.3s ease'
       }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '8px',
+          paddingBottom: '6px',
+          borderBottom: '1px solid #eee'
+        }}>
+          <h4 style={{ 
+            margin: 0, 
+            fontSize: '12px',
+            color: '#333',
+            fontWeight: 500
+          }}>Network Tools</h4>
+        </div>
+        
+        {/* Add new hop distance selection controls */}
+        <div style={{ marginBottom: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            marginBottom: '4px'
+          }}>
+            <button
+              onClick={() => setIsHopSelectionMode(!isHopSelectionMode)}
+              style={{
+                backgroundColor: isHopSelectionMode ? '#4477AA' : '#e8e8e8',
+                color: isHopSelectionMode ? 'white' : '#666',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                fontSize: '10px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isHopSelectionMode ? 'Cancel' : 'Select by Hop Distance'}
+            </button>
+            {isHopSelectionMode && (
+              <select
+                value={selectedHopDistance}
+                onChange={(e) => setSelectedHopDistance(Number(e.target.value))}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd',
+                  fontSize: '10px'
+                }}
+              >
+                {[1, 2, 3, 4, 5].map(num => (
+                  <option key={num} value={num}>
+                    {num} {num === 1 ? 'hop' : 'hops'}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          {isHopSelectionMode && (
+            <div style={{ 
+              fontSize: '10px', 
+              color: '#666',
+              marginTop: '4px'
+            }}>
+              Click a node to select all nodes of the same type within {selectedHopDistance} {selectedHopDistance === 1 ? 'hop' : 'hops'}
+            </div>
+          )}
+        </div>
+
+        {/* Existing motif search controls */}
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
