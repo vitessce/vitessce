@@ -701,9 +701,11 @@ const MotifSketch: React.FC<{
         if (!connectStartNode) {
           // Start connection
           setConnectStartNode(clickedNode);
-          // Highlight the node
+          // Highlight the node with a modern glow effect
           clickedNode.circle.strokeColor = new paper.Color('#4477AA');
-          clickedNode.circle.strokeWidth = 3;
+          clickedNode.circle.strokeWidth = 2;
+          clickedNode.circle.shadowColor = new paper.Color('#4477AA');
+          clickedNode.circle.shadowBlur = 5;
         } else if (connectStartNode.id !== clickedNode.id) {
           // Check if edge already exists
           const edgeExists = edges.some(edge => 
@@ -712,10 +714,12 @@ const MotifSketch: React.FC<{
           );
 
           if (!edgeExists) {
-            // Create edge
+            // Create edge with modern styling
             const path = new paper.Path.Line(connectStartNode.position, clickedNode.position);
-            path.strokeColor = new paper.Color('#999');
-            path.strokeWidth = 2;
+            path.strokeColor = new paper.Color('#666');
+            path.strokeWidth = 1.5;
+            path.strokeCap = 'round';
+            path.strokeJoin = 'round';
 
             const newEdge: SketchEdge = {
               id: `edge-${edges.length + 1}`,
@@ -727,9 +731,11 @@ const MotifSketch: React.FC<{
             setEdges(prev => [...prev, newEdge]);
           }
 
-          // Reset connection mode
+          // Reset connection mode with smooth transition
           connectStartNode.circle.strokeColor = new paper.Color('black');
-          connectStartNode.circle.strokeWidth = 2;
+          connectStartNode.circle.strokeWidth = 1;
+          connectStartNode.circle.shadowColor = new paper.Color('transparent');
+          connectStartNode.circle.shadowBlur = 0;
           setConnectStartNode(null);
         }
       } else if (isDrawing && startNode && startNode.id !== clickedNode.id) {
@@ -763,11 +769,16 @@ const MotifSketch: React.FC<{
         setTempPath(null);
       }
     } else {
-      // Create new node with smaller size
-      const circle = new paper.Path.Circle(point, 8); // Reduced from 15 to 8
-      circle.fillColor = currentNodeType === 'glomeruli' ? new paper.Color('red') : new paper.Color('yellow');
-      circle.strokeColor = new paper.Color('black');
-      circle.strokeWidth = 1; // Reduced from 2 to 1
+      // Create new node with modern styling
+      const circle = new paper.Path.Circle(point, 8);
+      circle.fillColor = currentNodeType === 'glomeruli' ? 
+        new paper.Color('#ff4444') : // Brighter red
+        new paper.Color('#ffd700'); // Gold yellow
+      circle.strokeColor = new paper.Color('#333');
+      circle.strokeWidth = 1;
+      circle.shadowColor = new paper.Color('#000');
+      circle.shadowBlur = 2;
+      circle.shadowOffset = new paper.Point(1, 1);
 
       const newNode: SketchNode = {
         id: `node-${nodes.length + 1}`,
@@ -858,27 +869,62 @@ const MotifSketch: React.FC<{
 
   return (
     <div>
-      <div style={{ marginBottom: '5px' }}>
+      <div style={{ 
+        marginBottom: '8px',
+        display: 'flex',
+        gap: '6px',
+        justifyContent: 'center'
+      }}>
         <button
           onClick={() => setCurrentNodeType('glomeruli')}
           style={{
-            backgroundColor: currentNodeType === 'glomeruli' ? '#ff0000' : '#ffcccc',
-            marginRight: '5px',
-            padding: '2px 4px',
-            fontSize: '10px'
+            backgroundColor: currentNodeType === 'glomeruli' ? '#ff4444' : '#ffcccc',
+            color: currentNodeType === 'glomeruli' ? 'white' : '#666',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: currentNodeType === 'glomeruli' ? '0 2px 4px rgba(255,68,68,0.3)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}
         >
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#ff4444',
+            display: 'inline-block'
+          }} />
           Glomeruli
         </button>
         <button
           onClick={() => setCurrentNodeType('nerves')}
           style={{
-            backgroundColor: currentNodeType === 'nerves' ? '#ffff00' : '#ffffcc',
-            marginRight: '5px',
-            padding: '2px 4px',
-            fontSize: '10px'
+            backgroundColor: currentNodeType === 'nerves' ? '#ffd700' : '#fff8cc',
+            color: currentNodeType === 'nerves' ? '#333' : '#666',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: currentNodeType === 'nerves' ? '0 2px 4px rgba(255,215,0,0.3)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}
         >
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#ffd700',
+            display: 'inline-block'
+          }} />
           Nerves
         </button>
         <button
@@ -887,26 +933,55 @@ const MotifSketch: React.FC<{
             if (connectStartNode) {
               connectStartNode.circle.strokeColor = new paper.Color('black');
               connectStartNode.circle.strokeWidth = 1;
+              connectStartNode.circle.shadowColor = new paper.Color('transparent');
+              connectStartNode.circle.shadowBlur = 0;
               setConnectStartNode(null);
             }
           }}
           style={{
-            backgroundColor: isConnectMode ? '#4477AA' : '#cccccc',
-            color: isConnectMode ? 'white' : 'black',
-            padding: '2px 4px',
-            fontSize: '10px'
+            backgroundColor: isConnectMode ? '#4477AA' : '#e8e8e8',
+            color: isConnectMode ? 'white' : '#666',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: isConnectMode ? '0 2px 4px rgba(68,119,170,0.3)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}
         >
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: isConnectMode ? 'white' : '#4477AA',
+            display: 'inline-block'
+          }} />
           Connect
         </button>
       </div>
-      <div style={{ height: 180, border: '1px solid #ccc', borderRadius: '3px' }}>
+      <div style={{ 
+        height: 180, 
+        border: '1px solid #e0e0e0', 
+        borderRadius: '6px',
+        backgroundColor: '#fafafa',
+        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+      }}>
         <canvas
           ref={canvasRef}
           style={{ width: '100%', height: '100%' }}
         />
       </div>
-      <div style={{ fontSize: '9px', marginTop: '3px' }}>
+      <div style={{ 
+        fontSize: '9px', 
+        marginTop: '6px',
+        color: '#666',
+        textAlign: 'center',
+        fontStyle: 'italic'
+      }}>
         {isConnectMode 
           ? 'Click first node, then click second node to create an edge'
           : 'Click to add nodes. Drag from node to node to create edges.'}
@@ -1126,9 +1201,9 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         left: 10, 
         zIndex: 1000, 
         background: 'white', 
-        padding: '6px',
-        borderRadius: '4px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        padding: '8px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         width: '280px',
         transition: 'all 0.3s ease'
       }}>
@@ -1136,45 +1211,62 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '3px'
+          marginBottom: '8px',
+          paddingBottom: '6px',
+          borderBottom: '1px solid #eee'
         }}>
-          <h4 style={{ margin: 0, fontSize: '11px' }}>Motif Search</h4>
+          <h4 style={{ 
+            margin: 0, 
+            fontSize: '12px',
+            color: '#333',
+            fontWeight: 500
+          }}>Motif Search</h4>
           <button
             onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '1px 4px',
+              padding: '2px 4px',
               fontSize: '14px',
-              color: '#666'
+              color: '#666',
+              transition: 'color 0.2s ease'
             }}
           >
             {isMotifSearchOpen ? '−' : '+'}
           </button>
         </div>
         {isMotifSearchOpen && (
-          <div style={{ marginBottom: '3px' }}>
+          <div style={{ marginBottom: '6px' }}>
             <MotifSketch onPatternChange={handlePatternChange} />
-            <div style={{ fontSize: '9px', marginBottom: '3px' }}>
-              Pattern: {motifPattern.nodes.map((node, i) => (
+            <div style={{ 
+              fontSize: '10px', 
+              marginBottom: '6px',
+              color: '#666',
+              padding: '4px 8px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '4px'
+            }}>
+              {/* Pattern: {motifPattern.nodes.map((node, i) => (
                 <span key={node.id}>
                   {i > 0 && ' → '}
                   {node.type}
                 </span>
-              ))}
+              ))} */}
             </div>
             <button 
               onClick={searchMotif}
               style={{
-                padding: '2px 6px',
+                padding: '6px 12px',
                 backgroundColor: '#4477AA',
                 color: 'white',
                 border: 'none',
-                borderRadius: '2px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '9px',
-                width: '100%'
+                fontSize: '10px',
+                width: '100%',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(68,119,170,0.2)'
               }}
             >
               Search Motif
