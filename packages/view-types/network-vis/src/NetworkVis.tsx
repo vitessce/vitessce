@@ -763,11 +763,11 @@ const MotifSketch: React.FC<{
         setTempPath(null);
       }
     } else {
-      // Create new node
-      const circle = new paper.Path.Circle(point, 15);
+      // Create new node with smaller size
+      const circle = new paper.Path.Circle(point, 8); // Reduced from 15 to 8
       circle.fillColor = currentNodeType === 'glomeruli' ? new paper.Color('red') : new paper.Color('yellow');
       circle.strokeColor = new paper.Color('black');
-      circle.strokeWidth = 2;
+      circle.strokeWidth = 1; // Reduced from 2 to 1
 
       const newNode: SketchNode = {
         id: `node-${nodes.length + 1}`,
@@ -858,12 +858,14 @@ const MotifSketch: React.FC<{
 
   return (
     <div>
-      <div style={{ marginBottom: '10px' }}>
+      <div style={{ marginBottom: '5px' }}>
         <button
           onClick={() => setCurrentNodeType('glomeruli')}
           style={{
             backgroundColor: currentNodeType === 'glomeruli' ? '#ff0000' : '#ffcccc',
-            marginRight: '10px'
+            marginRight: '5px',
+            padding: '2px 4px',
+            fontSize: '10px'
           }}
         >
           Glomeruli
@@ -872,7 +874,9 @@ const MotifSketch: React.FC<{
           onClick={() => setCurrentNodeType('nerves')}
           style={{
             backgroundColor: currentNodeType === 'nerves' ? '#ffff00' : '#ffffcc',
-            marginRight: '10px'
+            marginRight: '5px',
+            padding: '2px 4px',
+            fontSize: '10px'
           }}
         >
           Nerves
@@ -880,29 +884,29 @@ const MotifSketch: React.FC<{
         <button
           onClick={() => {
             setIsConnectMode(!isConnectMode);
-            // Reset any ongoing connection
             if (connectStartNode) {
               connectStartNode.circle.strokeColor = new paper.Color('black');
-              connectStartNode.circle.strokeWidth = 2;
+              connectStartNode.circle.strokeWidth = 1;
               setConnectStartNode(null);
             }
           }}
           style={{
             backgroundColor: isConnectMode ? '#4477AA' : '#cccccc',
             color: isConnectMode ? 'white' : 'black',
-            marginRight: '10px'
+            padding: '2px 4px',
+            fontSize: '10px'
           }}
         >
-          Connect Nodes
+          Connect
         </button>
       </div>
-      <div style={{ height: 250, border: '1px solid #ccc', borderRadius: '3px' }}>
+      <div style={{ height: 180, border: '1px solid #ccc', borderRadius: '3px' }}>
         <canvas
           ref={canvasRef}
           style={{ width: '100%', height: '100%' }}
         />
       </div>
-      <div style={{ fontSize: '11px', marginTop: '5px' }}>
+      <div style={{ fontSize: '9px', marginTop: '3px' }}>
         {isConnectMode 
           ? 'Click first node, then click second node to create an edge'
           : 'Click to add nodes. Drag from node to node to create edges.'}
@@ -1122,27 +1126,27 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         left: 10, 
         zIndex: 1000, 
         background: 'white', 
-        padding: '8px', 
-        borderRadius: '5px', 
+        padding: '6px',
+        borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        width: '320px',
+        width: '280px',
         transition: 'all 0.3s ease'
       }}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '5px'
+          marginBottom: '3px'
         }}>
-          <h4 style={{ margin: 0, fontSize: '13px' }}>Motif Search</h4>
+          <h4 style={{ margin: 0, fontSize: '11px' }}>Motif Search</h4>
           <button
             onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '2px 5px',
-              fontSize: '16px',
+              padding: '1px 4px',
+              fontSize: '14px',
               color: '#666'
             }}
           >
@@ -1150,9 +1154,9 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           </button>
         </div>
         {isMotifSearchOpen && (
-          <div style={{ marginBottom: '5px' }}>
+          <div style={{ marginBottom: '3px' }}>
             <MotifSketch onPatternChange={handlePatternChange} />
-            <div style={{ fontSize: '11px', marginBottom: '5px' }}>
+            <div style={{ fontSize: '9px', marginBottom: '3px' }}>
               Pattern: {motifPattern.nodes.map((node, i) => (
                 <span key={node.id}>
                   {i > 0 && ' → '}
@@ -1163,13 +1167,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
             <button 
               onClick={searchMotif}
               style={{
-                padding: '3px 8px',
+                padding: '2px 6px',
                 backgroundColor: '#4477AA',
                 color: 'white',
                 border: 'none',
-                borderRadius: '3px',
+                borderRadius: '2px',
                 cursor: 'pointer',
-                fontSize: '11px',
+                fontSize: '9px',
                 width: '100%'
               }}
             >
