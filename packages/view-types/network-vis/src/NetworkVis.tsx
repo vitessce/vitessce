@@ -1141,6 +1141,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   const [motifEdges, setMotifEdges] = useState<SketchEdge[]>([]);
   const [selectedHopDistance, setSelectedHopDistance] = useState<number>(1);
   const [isHopSelectionMode, setIsHopSelectionMode] = useState<boolean>(false);
+  const [isToolsVisible, setIsToolsVisible] = useState<boolean>(false);
 
   const cyRef = React.useRef<any>(null);
 
@@ -1381,95 +1382,28 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         padding: '8px', 
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        width: '280px',
-        transition: 'all 0.3s ease'
+        width: isToolsVisible ? '280px' : '40px',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden'
       }}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '8px',
-          paddingBottom: '6px',
-          borderBottom: '1px solid #eee'
+          marginBottom: isToolsVisible ? '8px' : '0',
+          paddingBottom: isToolsVisible ? '6px' : '0',
+          borderBottom: isToolsVisible ? '1px solid #eee' : 'none'
         }}>
-          <h4 style={{ 
-            margin: 0, 
-            fontSize: '12px',
-            color: '#333',
-            fontWeight: 500
-          }}>Network Tools</h4>
-        </div>
-        
-        {/* Add new hop distance selection controls */}
-        <div style={{ marginBottom: '8px' }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            marginBottom: '4px'
-          }}>
-            <button
-              onClick={() => setIsHopSelectionMode(!isHopSelectionMode)}
-              style={{
-                backgroundColor: isHopSelectionMode ? '#4477AA' : '#e8e8e8',
-                color: isHopSelectionMode ? 'white' : '#666',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '4px 8px',
-                fontSize: '10px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {isHopSelectionMode ? 'Cancel' : 'Select by Hop Distance'}
-            </button>
-            {isHopSelectionMode && (
-              <select
-                value={selectedHopDistance}
-                onChange={(e) => setSelectedHopDistance(Number(e.target.value))}
-                style={{
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '10px'
-                }}
-              >
-                {[1, 2, 3, 4, 5].map(num => (
-                  <option key={num} value={num}>
-                    {num} {num === 1 ? 'hop' : 'hops'}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-          {isHopSelectionMode && (
-            <div style={{ 
-              fontSize: '10px', 
-              color: '#666',
-              marginTop: '4px'
-            }}>
-              Click a node to select all nodes of the same type within {selectedHopDistance} {selectedHopDistance === 1 ? 'hop' : 'hops'}
-            </div>
+          {isToolsVisible && (
+            <h4 style={{ 
+              margin: 0, 
+              fontSize: '12px',
+              color: '#333',
+              fontWeight: 500
+            }}>Network Tools</h4>
           )}
-        </div>
-
-        {/* Existing motif search controls */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '8px',
-          paddingBottom: '6px',
-          borderBottom: '1px solid #eee'
-        }}>
-          <h4 style={{ 
-            margin: 0, 
-            fontSize: '12px',
-            color: '#333',
-            fontWeight: 500
-          }}>Motif Search</h4>
           <button
-            onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
+            onClick={() => setIsToolsVisible(!isToolsVisible)}
             style={{
               background: 'none',
               border: 'none',
@@ -1477,48 +1411,143 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
               padding: '2px 4px',
               fontSize: '14px',
               color: '#666',
-              transition: 'color 0.2s ease'
+              transition: 'color 0.2s ease',
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              marginLeft: isToolsVisible ? '0' : 'auto'
             }}
           >
-            {isMotifSearchOpen ? '−' : '+'}
+            {isToolsVisible ? '−' : '+'}
           </button>
         </div>
-        {isMotifSearchOpen && (
-          <div style={{ marginBottom: '6px' }}>
-            <MotifSketch 
-              onPatternChange={handlePatternChange} 
-              initialNodes={motifNodes}
-              initialEdges={motifEdges}
-              onNodesChange={setMotifNodes}
-              onEdgesChange={setMotifEdges}
-            />
-            <div style={{ 
-              fontSize: '10px', 
-              marginBottom: '6px',
-              color: '#666',
-              padding: '4px 8px',
-              backgroundColor: '#f5f5f5',
-              borderRadius: '4px'
-            }}>
+        
+        {isToolsVisible && (
+          <>
+            {/* Hop distance selection controls */}
+            <div style={{ marginBottom: '8px' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                marginBottom: '4px'
+              }}>
+                <button
+                  onClick={() => setIsHopSelectionMode(!isHopSelectionMode)}
+                  style={{
+                    backgroundColor: isHopSelectionMode ? '#4477AA' : '#e8e8e8',
+                    color: isHopSelectionMode ? 'white' : '#666',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '4px 8px',
+                    fontSize: '10px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {isHopSelectionMode ? 'Cancel' : 'Select by Hop Distance'}
+                </button>
+                {isHopSelectionMode && (
+                  <select
+                    value={selectedHopDistance}
+                    onChange={(e) => setSelectedHopDistance(Number(e.target.value))}
+                    style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      fontSize: '10px'
+                    }}
+                  >
+                    {[1, 2, 3, 4, 5].map(num => (
+                      <option key={num} value={num}>
+                        {num} {num === 1 ? 'hop' : 'hops'}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              {isHopSelectionMode && (
+                <div style={{ 
+                  fontSize: '10px', 
+                  color: '#666',
+                  marginTop: '4px'
+                }}>
+                  Click a node to select all nodes of the same type within {selectedHopDistance} {selectedHopDistance === 1 ? 'hop' : 'hops'}
+                </div>
+              )}
             </div>
-            <button 
-              onClick={searchMotif}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#4477AA',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '10px',
-                width: '100%',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(68,119,170,0.2)'
-              }}
-            >
-              Search Motif
-            </button>
-          </div>
+
+            {/* Motif search controls */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '8px',
+              paddingBottom: '6px',
+              borderBottom: '1px solid #eee'
+            }}>
+              <h4 style={{ 
+                margin: 0, 
+                fontSize: '12px',
+                color: '#333',
+                fontWeight: 500
+              }}>Motif Search</h4>
+              <button
+                onClick={() => setIsMotifSearchOpen(!isMotifSearchOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                  fontSize: '14px',
+                  color: '#666',
+                  transition: 'color 0.2s ease'
+                }}
+              >
+                {isMotifSearchOpen ? '−' : '+'}
+              </button>
+            </div>
+            {isMotifSearchOpen && (
+              <div style={{ marginBottom: '6px' }}>
+                <MotifSketch 
+                  onPatternChange={handlePatternChange} 
+                  initialNodes={motifNodes}
+                  initialEdges={motifEdges}
+                  onNodesChange={setMotifNodes}
+                  onEdgesChange={setMotifEdges}
+                />
+                <div style={{ 
+                  fontSize: '10px', 
+                  marginBottom: '6px',
+                  color: '#666',
+                  padding: '4px 8px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px'
+                }}>
+                </div>
+                <button 
+                  onClick={searchMotif}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: '#4477AA',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '10px',
+                    width: '100%',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(68,119,170,0.2)'
+                  }}
+                >
+                  Search Motif
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
       <CytoscapeWrapper 
