@@ -20,8 +20,8 @@ function generateNetworkAndNeuroglancerConfiguration() {
             },]
         },
     });
-    const obsSets = config.addView(dataset, 'obsSets');
-    const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
+    const obsSets = config.addView(dataset, 'obsSets',  { x: 6, y: 0, w: 6, h: 2 });
+    const neuroglancerView = config.addView(dataset, 'neuroglancer', { x: 0, y: 0, w: 6, h: 6 }).setProps({
         viewerState: {
             dimensions: {
                 x: [1e-9, 'm'], y: [1e-9, 'm'], z: [1e-9, 'm']
@@ -43,8 +43,8 @@ function generateNetworkAndNeuroglancerConfiguration() {
             layout: '3d',
         }
     });
-    const networkView = config.addView(dataset, 'network-vis')
-    config.layout(hconcat(neuroglancerView, vconcat(obsSets, networkView)));
+    const networkView = config.addView(dataset, 'network-vis', { x: 6, y: 2, w: 6, h: 4 })
+    // config.layout(hconcat(neuroglancerView, vconcat(obsSets, networkView)));
     config.linkViews([obsSets, neuroglancerView, networkView], ['obsSetColor'],
         [[{path: ["Type", "glom"], color: [255, 0, 0]},
             {path: ["Type", "nerve"], color: [255, 255, 0]},{path: ["Type", "nerve_with_no_connection"], color: [125, 125, 125]}]])
