@@ -78,7 +78,7 @@ const stylesheet = [
     style: {
       'width': '25',
       'height': '25',
-      'border-width': '8px',
+      'border-width': '6px',
       'opacity': '1'
     }
   },
@@ -96,7 +96,7 @@ const stylesheet = [
   {
     selector: 'node[?cellColors]',
     style: {
-      'border-width': '10px',
+      'border-width': '6px',
       'opacity': '1'
     }
   },
@@ -1150,7 +1150,11 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     if (!isHopSelectionMode || !cyRef.current) return;
 
     const node = event.target;
-    if (node === cyRef.current) return; // Clicked on background
+    if (node === cyRef.current) {
+      // Clicked on background, exit selection mode
+      setIsHopSelectionMode(false);
+      return;
+    }
 
     const { allNodes, sameTypeNodes } = findSameTypeNeighborsWithPaths(node, selectedHopDistance);
     
@@ -1174,7 +1178,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     }).flat();
 
     onNodeSelect(selectedNodeIds);
-    setIsHopSelectionMode(false); // Exit selection mode after selection
+    // Don't exit selection mode after selection
   }, [isHopSelectionMode, selectedHopDistance, onNodeSelect]);
 
   // Add effect to handle hop distance selection mode
@@ -1184,12 +1188,39 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     const cy = cyRef.current;
     if (isHopSelectionMode) {
       cy.on('tap', handleHopDistanceSelection);
+      // Add cursor style to indicate selection mode
+      cy.container().style.cursor = 'crosshair';
     }
 
     return () => {
       cy.removeListener('tap', handleHopDistanceSelection);
+      if (cy.container()) {
+        cy.container().style.cursor = 'default';
+      }
     };
   }, [isHopSelectionMode, handleHopDistanceSelection]);
+
+  // Add effect to handle background click
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    const cy = cyRef.current;
+    const handleBackgroundClick = (evt: any) => {
+      if (evt.target === cy && isHopSelectionMode) {
+        // Reset opacity for all nodes
+        cy.nodes().forEach((node: any) => {
+          node.style('opacity', '1');
+        });
+        setIsHopSelectionMode(false);
+      }
+    };
+
+    cy.on('tap', handleBackgroundClick);
+
+    return () => {
+      cy.removeListener('tap', handleBackgroundClick);
+    };
+  }, [isHopSelectionMode]);
 
   // Function to search for motifs in the graph
   const searchMotif = () => {
