@@ -636,18 +636,28 @@ interface MotifConnection {
 
 const MotifSketch: React.FC<{
   onPatternChange: (pattern: MotifPattern) => void;
-}> = ({ onPatternChange }) => {
+  initialNodes: SketchNode[];
+  initialEdges: SketchEdge[];
+  onNodesChange: (nodes: SketchNode[]) => void;
+  onEdgesChange: (edges: SketchEdge[]) => void;
+}> = ({ onPatternChange, initialNodes, initialEdges, onNodesChange, onEdgesChange }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [currentNodeType, setCurrentNodeType] = useState<'glomeruli' | 'nerves'>('glomeruli');
-  const [nodes, setNodes] = useState<SketchNode[]>([]);
-  const [edges, setEdges] = useState<SketchEdge[]>([]);
+  const [nodes, setNodes] = useState<SketchNode[]>(initialNodes);
+  const [edges, setEdges] = useState<SketchEdge[]>(initialEdges);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startNode, setStartNode] = useState<SketchNode | null>(null);
   const [tempPath, setTempPath] = useState<paper.Path | null>(null);
   const [isConnectMode, setIsConnectMode] = useState(false);
   const [connectStartNode, setConnectStartNode] = useState<SketchNode | null>(null);
 
-  // Initialize Paper.js
+  // Update parent component when nodes or edges change
+  useEffect(() => {
+    onNodesChange(nodes);
+    onEdgesChange(edges);
+  }, [nodes, edges, onNodesChange, onEdgesChange]);
+
+  // Initialize Paper.js and restore state
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -656,10 +666,46 @@ const MotifSketch: React.FC<{
       paper.view.viewSize = new paper.Size(canvasRef.current!.clientWidth, canvasRef.current!.clientHeight);
     };
 
+    // Restore nodes and edges if they exist
+    if (nodes.length > 0) {
+      nodes.forEach(node => {
+        const circle = new paper.Path.Circle(node.position, 8);
+        circle.fillColor = node.type === 'glomeruli' ? 
+          new paper.Color('#ff4444') : 
+          new paper.Color('#ffd700');
+        circle.strokeColor = new paper.Color('#333');
+        circle.strokeWidth = 1;
+        circle.shadowColor = new paper.Color('#000');
+        circle.shadowBlur = 2;
+        circle.shadowOffset = new paper.Point(1, 1);
+        node.circle = circle;
+      });
+    }
+
+    if (edges.length > 0) {
+      edges.forEach(edge => {
+        const sourceNode = nodes.find(n => n.id === edge.source);
+        const targetNode = nodes.find(n => n.id === edge.target);
+        if (sourceNode && targetNode) {
+          const path = new paper.Path.Line(sourceNode.position, targetNode.position);
+          path.strokeColor = new paper.Color('#999');
+          path.strokeWidth = 2;
+          edge.path = path;
+        }
+      });
+    }
+
     return () => {
       paper.project.clear();
     };
   }, []);
+
+  const clearDrawing = () => {
+    paper.project.clear();
+    setNodes([]);
+    setEdges([]);
+    onPatternChange({ nodes: [], edges: [] });
+  };
 
   // Update pattern when nodes or edges change
   useEffect(() => {
@@ -962,9 +1008,27 @@ const MotifSketch: React.FC<{
           }} />
           Connect
         </button>
+        <button
+          onClick={clearDrawing}
+          style={{
+            backgroundColor: '#e8e8e8',
+            color: '#666',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          Clear
+        </button>
       </div>
       <div style={{ 
-        height: 180, 
+        height: 150, 
         border: '1px solid #e0e0e0', 
         borderRadius: '6px',
         backgroundColor: '#fafafa',
@@ -977,14 +1041,11 @@ const MotifSketch: React.FC<{
       </div>
       <div style={{ 
         fontSize: '9px', 
-        marginTop: '6px',
+        marginTop: '4px',
         color: '#666',
-        textAlign: 'center',
-        fontStyle: 'italic'
+        textAlign: 'center'
       }}>
-        {isConnectMode 
-          ? 'Click first node, then click second node to create an edge'
-          : 'Click to add nodes. Drag from node to node to create edges.'}
+        Click to add nodes. Drag from node to node to create edges.
       </div>
     </div>
   );
@@ -1005,11 +1066,12 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   });
 
   const [isMotifSearchOpen, setIsMotifSearchOpen] = React.useState(false);
-
   const [motifPattern, setMotifPattern] = useState<MotifPattern>({
     nodes: [],
     edges: []
   });
+  const [motifNodes, setMotifNodes] = useState<SketchNode[]>([]);
+  const [motifEdges, setMotifEdges] = useState<SketchEdge[]>([]);
 
   const cyRef = React.useRef<any>(null);
 
@@ -1238,7 +1300,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         </div>
         {isMotifSearchOpen && (
           <div style={{ marginBottom: '6px' }}>
-            <MotifSketch onPatternChange={handlePatternChange} />
+            <MotifSketch 
+              onPatternChange={handlePatternChange} 
+              initialNodes={motifNodes}
+              initialEdges={motifEdges}
+              onNodesChange={setMotifNodes}
+              onEdgesChange={setMotifEdges}
+            />
             <div style={{ 
               fontSize: '10px', 
               marginBottom: '6px',
@@ -1247,12 +1315,6 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
               backgroundColor: '#f5f5f5',
               borderRadius: '4px'
             }}>
-              {/* Pattern: {motifPattern.nodes.map((node, i) => (
-                <span key={node.id}>
-                  {i > 0 && ' → '}
-                  {node.type}
-                </span>
-              ))} */}
             </div>
             <button 
               onClick={searchMotif}
