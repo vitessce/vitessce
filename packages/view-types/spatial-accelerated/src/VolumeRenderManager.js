@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   Vector2,
   Vector3,
@@ -253,9 +254,13 @@ export class VolumeRenderManager {
     const contrastLimitsList = [];
 
     this.channelTargetC.forEach((channel, id) => {
+      console.log('channel', channel);
+      console.log('id', id);
+      console.log('this.channelsVisible', this.channelsVisible);
       if (this.channelsVisible[id]) {
         // Since we don't have volume-based minMax, use fixed values
         // or get them from your brick cache metadata if available
+        // big TODO
         const max = this.maxRange ? this.maxRange : 255;
         const minMax = [0, max]; // Default values
 

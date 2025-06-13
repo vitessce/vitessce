@@ -72,6 +72,14 @@ layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec4 gRequest;
 layout(location = 2) out vec4 gUsage;
 
+const float BRICK_SIZE = 32.0;
+const float BRICK_CACHE_SIZE_X = 2048.0;
+const float BRICK_CACHE_SIZE_Y = 2048.0;
+const float BRICK_CACHE_SIZE_Z = 128.0;
+const float BRICK_CACHE_BRICKS_X = BRICK_CACHE_SIZE_X / BRICK_SIZE;
+const float BRICK_CACHE_BRICKS_Y = BRICK_CACHE_SIZE_Y / BRICK_SIZE;
+const float BRICK_CACHE_BRICKS_Z = BRICK_CACHE_SIZE_Z / BRICK_SIZE;
+
 vec2 intersect_hit(vec3 orig, vec3 dir) {
     vec3 boxMin = vec3(-0.5) * boxSize;
     vec3 boxMax = vec3(0.5) * boxSize;
@@ -236,7 +244,7 @@ vec3 getChannelColor(int index) {
 [4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
 */
 // add maxres here
-ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd) {
+ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, bool query) {
 
     vec2 clim = getClim(channel);
     int channelMin = getRes(channel).x;
@@ -268,7 +276,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd) {
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
-            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0)) {
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
             continue;
@@ -291,7 +299,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd) {
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
             currentRes++;
-            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0)) {
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
             //return ivec4(0,0,0,-10);
@@ -349,6 +357,44 @@ float voxelStepOS(int res, vec3 osDir) {
     vec3 dt_vec = voxelSize / abs(osDir);
     return min(dt_vec.x, min(dt_vec.y, dt_vec.z));
 }
+
+float lerp(float v0, float v1, float fx) {
+    return mix(v0, v1, fx); // (1-fx)·v0 + fx·v1
+}
+
+float bilerp(float v00, float v10, float v01, float v11, vec2 f) {
+    float c0 = mix(v00, v10, f.x); // interpolate in X on bottom row
+    float c1 = mix(v01, v11, f.x); // interpolate in X on top row
+    return mix(c0, c1, f.y); // now interpolate those in Y
+}
+
+float trilerp(
+    float v000, float v100, float v010, float v110,
+    float v001, float v101, float v011, float v111,
+    vec3 f) { // f = fract(coord)
+    // interpolate along X for each of the four bottom-face voxels
+    float c00 = mix(v000, v100, f.x);
+    float c10 = mix(v010, v110, f.x);
+    float c01 = mix(v001, v101, f.x);
+    float c11 = mix(v011, v111, f.x);
+
+    // interpolate those along Y
+    float c0 = mix(c00, c10, f.y);
+    float c1 = mix(c01, c11, f.y);
+
+    // final interpolation along Z
+    return mix(c0, c1, f.z);
+}
+
+float sampleBrick(vec3 brickCacheCoord, vec3 voxelInBrick) {
+    vec3 brickCacheCoordNormalized = vec3(
+        (float(brickCacheCoord.x) * BRICK_SIZE + float(voxelInBrick.x)) / BRICK_CACHE_SIZE_X,
+        (float(brickCacheCoord.y) * BRICK_SIZE + float(voxelInBrick.y)) / BRICK_CACHE_SIZE_Y,
+        (float(brickCacheCoord.z) * BRICK_SIZE + float(voxelInBrick.z)) / BRICK_CACHE_SIZE_Z
+    );
+    return texture(brickCacheTex, brickCacheCoordNormalized).r;
+}
+
 
 void main(void) {
 
@@ -411,13 +457,21 @@ void main(void) {
     int [] c_res_max = int[7](getRes(0).y, getRes(1).y, getRes(2).y, getRes(3).y, getRes(4).y, getRes(5).y, getRes(6).y);
     
     // current vars
-    int [] c_res_current = int[7](0,0,0,0,0,0,0);
-    float [] c_val_current = float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    vec3 [] c_brickCacheCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
-    vec3 [] c_voxel_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
-    vec3 [] c_ptCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
-    int [] c_renderMode_current = int[7](-1, -1, -1, -1, -1, -1, -1);
-    int [] c_res_prev = int[7](-1,-1,-1,-1,-1,-1,-1);
+    int []   c_res_current =             int[7](0,0,0,0,0,0,0);
+    float [] c_val_current =             float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    vec3 []  c_brickCacheCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 []  c_voxel_current =           vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    vec3 []  c_ptCoord_current =         vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    int []   c_renderMode_current =      int[7](-1, -1, -1, -1, -1, -1, -1);
+    int []   c_res_prev =                int[7](-1,-1,-1,-1,-1,-1,-1);
+    vec3 []  c_PT_X_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_PT_Y_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_PT_Z_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_PT_XYZ_adjacent =         vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_brick_X_adjacent =        vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_brick_Y_adjacent =        vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_brick_Z_adjacent =        vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    vec3 []  c_brick_XYZ_adjacent =      vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
 
     // pt coord and voxel per resolution
     vec3 [] r_ptCoord = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
@@ -496,7 +550,7 @@ void main(void) {
             }
 
             if (newBrick) {
-                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c, rnd);
+                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c, rnd, true);
                 if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2 || brickCacheInfo.w == -10) {
                     // empty
                     c_val_current[c] = 0.0;
@@ -529,23 +583,67 @@ void main(void) {
             
             if (newVoxel) {
                 c_voxel_current[c] = r_voxel[c_res_current[c]];
-                if (c_voxel_current[c] == r_prevVoxel[c_res_current[c]]
-                    && c_res_current[c] == c_res_prev[c]) {
-                    continue; // TODO: fix here
-                }
+
                 reps++;
                 vec3 voxelInBrick = mod(c_voxel_current[c], 32.0);
-                voxelInBrick = clamp(voxelInBrick, 0.5, 31.49999);
-                vec3 brickCacheCoord = vec3(
-                    (float(c_brickCacheCoord_current[c].x) * 32.0 + float(voxelInBrick.x)) / 2048.0,
-                    (float(c_brickCacheCoord_current[c].y) * 32.0 + float(voxelInBrick.y)) / 2048.0,
-                    (float(c_brickCacheCoord_current[c].z) * 32.0 + float(voxelInBrick.z)) / 128.0
-                );
-                float val = texture(brickCacheTex, brickCacheCoord).r;
+                vec3 clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 31.49999);
+                float val = sampleBrick(c_brickCacheCoord_current[c], clampedVoxelInBrick);
+                
+                if (renderRes == -1) {
+                    // figure out if lin/bi/tri interpolation
+                    bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
+                    bvec3 clampedMax = greaterThan(voxelInBrick, clampedVoxelInBrick);
+                    // bvec3 clamped = bvec3(clampedMin.x || clampedMax.x, clampedMin.y || clampedMax.y, clampedMin.z || clampedMax.z);
+
+                    if (any(clampedMin) || any(clampedMax)) {                       
+                        int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
+                        // gColor = vec4(vec3(clampedMin), 1.0);
+                        // return;
+
+                        if (boundaryAxes >= 4) { // should never happen
+                            // gColor = vec4(1.0, 0.0, 1.0, 1.0);
+                            // return;
+                        }
+                        
+                        // we need up to 8 values to interpolate
+                        // every value needs to have a weight
+                        
+                        if (boundaryAxes == 1) {
+                            // 6 faces 6 options
+                            vec3 otherVoxelPos = vec3(0,0,0);
+
+
+                            // float otherVoxelVal ==                           
+                            
+                        } else if (boundaryAxes == 2) {
+                            // bilinear interpolation
+                            // 12 faces 12 options
+                        } else if (boundaryAxes == 3) {
+                            // trilinear interpolation
+                            // 8 corners 8 options
+                        }
+
+                        // figure out the exact points / dimensions to interpolate between
+                        // check if cached
+                            // look for adjacent bricks if not in c_brick_XYZ_adjacent
+                            // set query flag to false though
+                        // query voxels 
+                        // interpolate lin/bi/tri
+                        // update cached brick if no longer needed
+
+                        val = 0.0; // we have more than 1 value to interpolate
+                        for (int i = 0; i < 8; i++) {
+                            // val += weightedValues[i];
+                        }
+                    } else {
+                        // no adjacent bricks
+                        c_PT_X_adjacent[c] = c_PT_Y_adjacent[c] = c_PT_Z_adjacent[c] = vec3(-1.0);
+                        c_brick_X_adjacent[c] = c_brick_Y_adjacent[c] = c_brick_Z_adjacent[c] = vec3(-1.0);
+                    }
+                }
+
                 c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
                 c_res_prev[c] = c_res_current[c];
-                // gColor = vec4(voxelInBrick / 32.0, 1.0);
-                // return;
             }
 
             if (!overWrittenRequest 
