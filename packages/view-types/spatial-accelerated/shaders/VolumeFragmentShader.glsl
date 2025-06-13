@@ -595,8 +595,7 @@ void main(void) {
                 vec3 clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 31.5);
                 float val = sampleBrick(c_brickCacheCoord_current[c], clampedVoxelInBrick);
 
-
-                if (true) { // TODO: change to renderRes == 0
+                if (renderRes == 0) { // TODO: change to renderRes == 0
                     // figure out if lin/bi/tri interpolation
                     
                     bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
@@ -665,8 +664,7 @@ void main(void) {
                                 c_brick_XYZ_adjacent[c] = vec3(otherBrickCacheInfo.xyz);
                             }
                             float originalVal = val;
-                            val = lerp(originalVal, otherVoxelVal, f);
-                            
+                            val = lerp(originalVal, otherVoxelVal, f);                            
                         } else if (boundaryAxes == 2) {
                             // bilinear interpolation
                             vec3 offA = vec3(0.0);
@@ -706,27 +704,50 @@ void main(void) {
                             SAMPLE_AT_OFFSET(offB, v01);
                             SAMPLE_AT_OFFSET(offA + offB, v11);
 
-                            val = bilerp(v00, v10, v01, v11, f); \
+                            val = bilerp(v00, v10, v01, v11, f);
 
                             #undef SAMPLE_AT_OFFSET
 
-                            // gColor = vec4(val, val, val, 1.0);
-                            // return;
-
                         } else if (boundaryAxes == 3) {
                             // trilinear interpolation
-                            // 8 corners 8 options
-                            gColor = vec4(0.0, 0.0, 1.0, 1.0);
-                            return;
-                        }
+                            vec3 offA = vec3(0.0);
+                            vec3 offB = vec3(0.0);
+                            vec3 offC = vec3(0.0);
+                            vec3 f = vec3(0.0);
 
-                        // figure out the exact points / dimensions to interpolate between
-                        // check if cached
-                            // look for adjacent bricks if not in c_brick_XYZ_adjacent
-                            // set query flag to false though
-                        // query voxels 
-                        // interpolate lin/bi/tri
-                        // update cached brick if no longer needed
+                            offA.x = clampedMin.x ? -1.0 : 1.0;
+                            offB.y = clampedMin.y ? -1.0 : 1.0;
+                            offC.z = clampedMin.z ? -1.0 : 1.0;
+
+                            f = vec3(abs(diff.x), abs(diff.y), abs(diff.z));
+
+                            #define SAMPLE_AT_OFFSET(OFF, DEST) \
+                                { \
+                                    vec3 otherGlobalVoxelPos = c_voxel_current[c] + (OFF); \
+                                    vec3 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]); \
+                                    if (any(lessThan(otherP, vec3(0.0))) || any(greaterThanEqual(otherP, vec3(1.0)))) { \
+                                        DEST = val; \
+                                    } else { \
+                                        ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
+                                        vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
+                                        DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
+                                    } \
+                                }
+                            
+                            float v000 = val;
+                            float v100; float v010; float v001; float v110; float v101; float v011; float v111;
+                            SAMPLE_AT_OFFSET(offA, v100);
+                            SAMPLE_AT_OFFSET(offB, v010);
+                            SAMPLE_AT_OFFSET(offC, v001);
+                            SAMPLE_AT_OFFSET(offA + offB, v110);
+                            SAMPLE_AT_OFFSET(offA + offC, v101);
+                            SAMPLE_AT_OFFSET(offB + offC, v011);
+                            SAMPLE_AT_OFFSET(offA + offB + offC, v111);
+
+                            val = trilerp(v000, v100, v010, v001, v110, v101, v011, v111, f);
+
+                            #undef SAMPLE_AT_OFFSET
+                        }
 
                     } else {
                         // no adjacent bricks
