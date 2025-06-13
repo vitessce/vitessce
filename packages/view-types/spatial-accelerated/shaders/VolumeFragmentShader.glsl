@@ -595,22 +595,16 @@ void main(void) {
                 vec3 clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 31.5);
                 float val = sampleBrick(c_brickCacheCoord_current[c], clampedVoxelInBrick);
 
-                if (renderRes == 0) { // TODO: change to renderRes == 0
-                    // figure out if lin/bi/tri interpolation
+                if (renderRes == 0) {
                     
                     bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
                     bvec3 clampedMax = greaterThan(voxelInBrick, clampedVoxelInBrick);
                     bvec3 clamped = bvec3(clampedMin.x || clampedMax.x, clampedMin.y || clampedMax.y, clampedMin.z || clampedMax.z);
                     vec3 diff = voxelInBrick - clampedVoxelInBrick;
-                    // voxel = 0.4 -> diff = 0.5-0.4 = 0.1
-                    // other voxel should be at - 0.5
-                    // ov = clampedVoxel - 1
                     
                     if (any(clampedMin) || any(clampedMax)) {                       
                         // int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
                         int boundaryAxes = int(clamped.x) + int(clamped.y) + int(clamped.z);
-                        // gColor = vec4(vec3(clampedMin), 1.0);
-                        // return;
                         float f = 0.0;
                                                 
                         if (boundaryAxes == 1) {
@@ -646,7 +640,6 @@ void main(void) {
                                 f = abs(diff.z);
                             }
 
-                            // vec3 otherPTcoord = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                             vec3 otherPTcoord = getBrickFromNormalized(otherP, c_res_current[c]);
                             vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0);
                             otherVoxelInBrick -= diff;
@@ -658,9 +651,9 @@ void main(void) {
                             } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {
                                 otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick);
                             } else {
-                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); // Fixed: use consistent resolution
+                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); 
                                 otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
-                                c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); // Fixed: use consistent resolution
+                                c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); 
                                 c_brick_XYZ_adjacent[c] = vec3(otherBrickCacheInfo.xyz);
                             }
                             float originalVal = val;
@@ -685,18 +678,56 @@ void main(void) {
                                 f = vec2(abs(diff.y), abs(diff.z));
                             }
 
-                            #define SAMPLE_AT_OFFSET(OFF, DEST) \
-                                { \
-                                    vec3 otherGlobalVoxelPos = c_voxel_current[c] + (OFF); \
-                                    vec3 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]); \
-                                    if (any(lessThan(otherP, vec3(0.0))) || any(greaterThanEqual(otherP, vec3(1.0)))) { \
-                                        DEST = val; \
-                                    } else { \
-                                        ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
-                                        vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
-                                        DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
-                                    } \
-                                }
+                            #define SAMPLE_AT_OFFSET(OFF, DEST)                                         \
+                            {                                                                           \
+                                vec3 otherGlobalVoxelPos = c_voxel_current[c] + (OFF);                  \
+                                vec3 otherP              = getNormalizedFromVoxel(                      \
+                                                             otherGlobalVoxelPos, c_res_current[c]);    \
+                                                                                                        \
+                                if ( any(lessThan(otherP, vec3(0.0)))                                   \
+                                  || any(greaterThanEqual(otherP, vec3(1.0))) ) {                       \
+                                    DEST = val;                                                         \
+                                } else {                                                                \
+                                    vec3 otherPTcoord      = getBrickFromNormalized(                    \
+                                                                otherP, c_res_current[c]);             \
+                                    vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff;     \
+                                                                                                        \
+                                    bool matched = false;                                               \
+                                    if (otherPTcoord == c_PT_X_adjacent[c])   {                         \
+                                        DEST = sampleBrick(c_brick_X_adjacent[c], otherVoxelInBrick);   \
+                                        matched = true;                                                 \
+                                    } else if (otherPTcoord == c_PT_Y_adjacent[c]) {                    \
+                                        DEST = sampleBrick(c_brick_Y_adjacent[c], otherVoxelInBrick);   \
+                                        matched = true;                                                 \
+                                    } else if (otherPTcoord == c_PT_Z_adjacent[c]) {                    \
+                                        DEST = sampleBrick(c_brick_Z_adjacent[c], otherVoxelInBrick);   \
+                                        matched = true;                                                 \
+                                    } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {                  \
+                                        DEST = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick); \
+                                        matched = true;                                                 \
+                                    }                                                                   \
+                                                                                                        \
+                                    if (!matched) {                                                     \
+                                        ivec4 info = getBrickLocation(otherP,                           \
+                                                                      c_res_current[c], c,              \
+                                                                      rnd, false);                      \
+                                        DEST = sampleBrick(vec3(info.xyz), otherVoxelInBrick);          \
+                                        if (abs((OFF).x) > 0.5 && abs((OFF).y) < 0.5 && abs((OFF).z) < 0.5) {             \
+                                            c_PT_X_adjacent[c]  = otherPTcoord;                                     \
+                                            c_brick_X_adjacent[c] = vec3(info.xyz);                                 \
+                                        } else if (abs((OFF).y) > 0.5 && abs((OFF).x) < 0.5 && abs((OFF).z) < 0.5) {      \
+                                            c_PT_Y_adjacent[c]  = otherPTcoord;                                     \
+                                            c_brick_Y_adjacent[c] = vec3(info.xyz);                                 \
+                                        } else if (abs((OFF).z) > 0.5 && abs((OFF).x) < 0.5 && abs((OFF).y) < 0.5) {      \
+                                            c_PT_Z_adjacent[c]  = otherPTcoord;                                     \
+                                            c_brick_Z_adjacent[c] = vec3(info.xyz);                                 \
+                                        } else {                                                                  \
+                                            c_PT_XYZ_adjacent[c]     = otherPTcoord;                        \
+                                            c_brick_XYZ_adjacent[c]  = vec3(info.xyz);                      \
+                                        }                                                                       \
+                                    }                                                                   \
+                                }                                                                       \
+                            }
                             
                             float v00 = val;
                             float v10; float v01; float v11;
@@ -710,6 +741,7 @@ void main(void) {
 
                         } else if (boundaryAxes == 3) {
                             // trilinear interpolation
+                            
                             vec3 offA = vec3(0.0);
                             vec3 offB = vec3(0.0);
                             vec3 offC = vec3(0.0);
@@ -728,9 +760,21 @@ void main(void) {
                                     if (any(lessThan(otherP, vec3(0.0))) || any(greaterThanEqual(otherP, vec3(1.0)))) { \
                                         DEST = val; \
                                     } else { \
-                                        ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
-                                        vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
-                                        DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
+                                        vec3 otherPTcoord      = getBrickFromNormalized(otherP, c_res_current[c]);             \
+                                        vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff;     \
+                                        if (otherPTcoord == c_PT_X_adjacent[c])   {                         \
+                                            DEST = sampleBrick(c_brick_X_adjacent[c], otherVoxelInBrick);   \
+                                        } else if (otherPTcoord == c_PT_Y_adjacent[c]) {                    \
+                                            DEST = sampleBrick(c_brick_Y_adjacent[c], otherVoxelInBrick);   \
+                                        } else if (otherPTcoord == c_PT_Z_adjacent[c]) {                    \
+                                            DEST = sampleBrick(c_brick_Z_adjacent[c], otherVoxelInBrick);   \
+                                        } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {                  \
+                                            DEST = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick); \
+                                        } else {                                                               \
+                                            ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
+                                            vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
+                                            DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
+                                        } \
                                     } \
                                 }
                             
@@ -747,6 +791,7 @@ void main(void) {
                             val = trilerp(v000, v100, v010, v001, v110, v101, v011, v111, f);
 
                             #undef SAMPLE_AT_OFFSET
+                            
                         }
 
                     } else {
@@ -767,8 +812,6 @@ void main(void) {
                 && int(floor(rnd * float(maxChannels))) == c) {
                 setBrickRequest(p, bestRes, c, rnd);
                 overWrittenRequest = true;
-                // gColor = vec4(1.0, 1.0, 0.0, 1.0);
-                // return;
             }
 
             total += c_val_current[c];
