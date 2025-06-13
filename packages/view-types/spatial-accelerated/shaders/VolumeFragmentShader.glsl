@@ -601,20 +601,21 @@ void main(void) {
                     
                     bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
                     bvec3 clampedMax = greaterThan(voxelInBrick, clampedVoxelInBrick);
-                    // bvec3 clamped = bvec3(clampedMin.x || clampedMax.x, clampedMin.y || clampedMax.y, clampedMin.z || clampedMax.z);
+                    bvec3 clamped = bvec3(clampedMin.x || clampedMax.x, clampedMin.y || clampedMax.y, clampedMin.z || clampedMax.z);
                     vec3 diff = voxelInBrick - clampedVoxelInBrick;
                     // voxel = 0.4 -> diff = 0.5-0.4 = 0.1
                     // other voxel should be at - 0.5
                     // ov = clampedVoxel - 1
                     
                     if (any(clampedMin) || any(clampedMax)) {                       
-                        int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
+                        // int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
+                        int boundaryAxes = int(clamped.x) + int(clamped.y) + int(clamped.z);
                         // gColor = vec4(vec3(clampedMin), 1.0);
                         // return;
                         float f = 0.0;
                                                 
                         if (boundaryAxes == 1) {
-                            // 6 faces 6 options
+                            // linear interpolation
                             vec3 otherGlobalVoxelPos = vec3(0,0,0); // Changed: now global voxel coordinates
                             vec3 otherP = vec3(0,0,0);
                             float otherVoxelVal = 0.0;
@@ -668,15 +669,55 @@ void main(void) {
                             
                         } else if (boundaryAxes == 2) {
                             // bilinear interpolation
-                            // 12 faces 12 options
-                            // gColor = vec4(0.0, 1.0, 0.0, 1.0);
-                            // gColor = outColor;
+                            vec3 offA = vec3(0.0);
+                            vec3 offB = vec3(0.0);
+                            vec2 f = vec2(0.0);
+
+                            if (clamped.x && clamped.y) {
+                                offA.x = clampedMin.x ? -1.0 : 1.0;
+                                offB.y = clampedMin.y ? -1.0 : 1.0;
+                                f = vec2(abs(diff.x), abs(diff.y));
+                            } else if (clamped.x && clamped.z) {
+                                offA.x = clampedMin.x ? -1.0 : 1.0;
+                                offB.z = clampedMin.z ? -1.0 : 1.0;
+                                f = vec2(abs(diff.x), abs(diff.z));
+                            } else if (clamped.y && clamped.z) {
+                                offA.y = clampedMin.y ? -1.0 : 1.0;
+                                offB.z = clampedMin.z ? -1.0 : 1.0;
+                                f = vec2(abs(diff.y), abs(diff.z));
+                            }
+
+                            #define SAMPLE_AT_OFFSET(OFF, DEST) \
+                                { \
+                                    vec3 otherGlobalVoxelPos = c_voxel_current[c] + (OFF); \
+                                    vec3 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]); \
+                                    if (any(lessThan(otherP, vec3(0.0))) || any(greaterThanEqual(otherP, vec3(1.0)))) { \
+                                        DEST = val; \
+                                    } else { \
+                                        ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
+                                        vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
+                                        DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
+                                    } \
+                                }
+                            
+                            float v00 = val;
+                            float v10; float v01; float v11;
+                            SAMPLE_AT_OFFSET(offA, v10);
+                            SAMPLE_AT_OFFSET(offB, v01);
+                            SAMPLE_AT_OFFSET(offA + offB, v11);
+
+                            val = bilerp(v00, v10, v01, v11, f); \
+
+                            #undef SAMPLE_AT_OFFSET
+
+                            // gColor = vec4(val, val, val, 1.0);
                             // return;
+
                         } else if (boundaryAxes == 3) {
                             // trilinear interpolation
                             // 8 corners 8 options
-                            // gColor = vec4(0.0, 0.0, 1.0, 1.0);
-                            // return;
+                            gColor = vec4(0.0, 0.0, 1.0, 1.0);
+                            return;
                         }
 
                         // figure out the exact points / dimensions to interpolate between
