@@ -496,7 +496,7 @@ void main(void) {
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor);
+        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor + (rnd * 0.1 - 0.05));
 
         // TODO: figure out how to best clamp the renderres
         if (targetRes != currentLOD) {
@@ -637,19 +637,20 @@ void main(void) {
                                 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                                 f = abs(diff.y);
                             } else if (clampedMin.z) {
-                                otherGlobalVoxelPos = c_voxel_current[c] - vec3(0.0, 0.0, 1.0); // Fixed: use global coordinates
+                                otherGlobalVoxelPos = c_voxel_current[c] - vec3(0.0, 0.0, 1.0);
                                 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                                 f = abs(diff.z);
                             } else if (clampedMax.z) {
-                                otherGlobalVoxelPos = c_voxel_current[c] + vec3(0.0, 0.0, 1.0); // Fixed: use global coordinates
+                                otherGlobalVoxelPos = c_voxel_current[c] + vec3(0.0, 0.0, 1.0); 
                                 otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                                 f = abs(diff.z);
                             }
 
                             // vec3 otherPTcoord = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                             vec3 otherPTcoord = getBrickFromNormalized(otherP, c_res_current[c]);
-                            vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0); // Fixed: now using global coordinates
-                            
+                            vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0);
+                            otherVoxelInBrick -= diff;
+
                             // PT only used for comparison if neighboring brick is the same (XYZ+-)
                             // brick stores neighboring brick regardless of resolution
                             if (otherP.x < 0.0 || otherP.x >= 1.0 || otherP.y < 0.0 || otherP.y >= 1.0 || otherP.z < 0.0 || otherP.z >= 1.0) {
