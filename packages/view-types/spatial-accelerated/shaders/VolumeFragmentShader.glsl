@@ -201,6 +201,12 @@ vec3 getVoxelFromNormalized(vec3 normalized, int res) {
     return voxel;
 }
 
+vec3 getNormalizedFromVoxel(vec3 voxel, int res) {
+    vec3 extents = (vec3(voxelExtents) / getScale(res)); // should be voxelExtents per res
+    vec3 normalized = voxel / extents;
+    return normalized;
+}
+
 vec3 getBrickFromNormalized(vec3 normalized, int res) {
     vec3 voxel = getVoxelFromNormalized(normalized, res);
     vec3 brick = floor(voxel / 32.0);
@@ -586,41 +592,90 @@ void main(void) {
 
                 reps++;
                 vec3 voxelInBrick = mod(c_voxel_current[c], 32.0);
-                vec3 clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 31.49999);
+                vec3 clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 31.5);
                 float val = sampleBrick(c_brickCacheCoord_current[c], clampedVoxelInBrick);
-                
-                if (renderRes == -1) {
+
+
+                if (true) { // TODO: change to renderRes == 0
                     // figure out if lin/bi/tri interpolation
+                    
                     bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
                     bvec3 clampedMax = greaterThan(voxelInBrick, clampedVoxelInBrick);
                     // bvec3 clamped = bvec3(clampedMin.x || clampedMax.x, clampedMin.y || clampedMax.y, clampedMin.z || clampedMax.z);
-
+                    vec3 diff = voxelInBrick - clampedVoxelInBrick;
+                    // voxel = 0.4 -> diff = 0.5-0.4 = 0.1
+                    // other voxel should be at - 0.5
+                    // ov = clampedVoxel - 1
+                    
                     if (any(clampedMin) || any(clampedMax)) {                       
                         int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
                         // gColor = vec4(vec3(clampedMin), 1.0);
                         // return;
-
-                        if (boundaryAxes >= 4) { // should never happen
-                            // gColor = vec4(1.0, 0.0, 1.0, 1.0);
-                            // return;
-                        }
-                        
-                        // we need up to 8 values to interpolate
-                        // every value needs to have a weight
-                        
+                        float f = 0.0;
+                                                
                         if (boundaryAxes == 1) {
                             // 6 faces 6 options
-                            vec3 otherVoxelPos = vec3(0,0,0);
+                            vec3 otherGlobalVoxelPos = vec3(0,0,0); // Changed: now global voxel coordinates
+                            vec3 otherP = vec3(0,0,0);
+                            float otherVoxelVal = 0.0;
 
+                            // we need global voxel pos - start from current global voxel position
+                            if (clampedMin.x) {
+                                otherGlobalVoxelPos = c_voxel_current[c] - vec3(1.0, 0.0, 0.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.x);
+                            } else if (clampedMax.x) {
+                                otherGlobalVoxelPos = c_voxel_current[c] + vec3(1.0, 0.0, 0.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.x);
+                            } else if (clampedMin.y) {
+                                otherGlobalVoxelPos = c_voxel_current[c] - vec3(0.0, 1.0, 0.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.y);
+                            } else if (clampedMax.y) {
+                                otherGlobalVoxelPos = c_voxel_current[c] + vec3(0.0, 1.0, 0.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.y);
+                            } else if (clampedMin.z) {
+                                otherGlobalVoxelPos = c_voxel_current[c] - vec3(0.0, 0.0, 1.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.z);
+                            } else if (clampedMax.z) {
+                                otherGlobalVoxelPos = c_voxel_current[c] + vec3(0.0, 0.0, 1.0); // Fixed: use global coordinates
+                                otherP = getNormalizedFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                                f = abs(diff.z);
+                            }
 
-                            // float otherVoxelVal ==                           
+                            // vec3 otherPTcoord = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
+                            vec3 otherPTcoord = getBrickFromNormalized(otherP, c_res_current[c]);
+                            vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0); // Fixed: now using global coordinates
+                            
+                            // PT only used for comparison if neighboring brick is the same (XYZ+-)
+                            // brick stores neighboring brick regardless of resolution
+                            if (otherP.x < 0.0 || otherP.x >= 1.0 || otherP.y < 0.0 || otherP.y >= 1.0 || otherP.z < 0.0 || otherP.z >= 1.0) {
+                                otherVoxelVal = val;
+                            } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {
+                                otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick);
+                            } else {
+                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); // Fixed: use consistent resolution
+                                otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
+                                c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); // Fixed: use consistent resolution
+                                c_brick_XYZ_adjacent[c] = vec3(otherBrickCacheInfo.xyz);
+                            }
+                            float originalVal = val;
+                            val = lerp(originalVal, otherVoxelVal, f);
                             
                         } else if (boundaryAxes == 2) {
                             // bilinear interpolation
                             // 12 faces 12 options
+                            // gColor = vec4(0.0, 1.0, 0.0, 1.0);
+                            // gColor = outColor;
+                            // return;
                         } else if (boundaryAxes == 3) {
                             // trilinear interpolation
                             // 8 corners 8 options
+                            // gColor = vec4(0.0, 0.0, 1.0, 1.0);
+                            // return;
                         }
 
                         // figure out the exact points / dimensions to interpolate between
@@ -631,10 +686,6 @@ void main(void) {
                         // interpolate lin/bi/tri
                         // update cached brick if no longer needed
 
-                        val = 0.0; // we have more than 1 value to interpolate
-                        for (int i = 0; i < 8; i++) {
-                            // val += weightedValues[i];
-                        }
                     } else {
                         // no adjacent bricks
                         c_PT_X_adjacent[c] = c_PT_Y_adjacent[c] = c_PT_Z_adjacent[c] = vec3(-1.0);
