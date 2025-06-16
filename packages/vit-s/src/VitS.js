@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
+import React, { useEffect, useMemo, useCallback, useLayoutEffect, useState, useRef } from 'react';
 import {
   ThemeProvider,
   CacheProvider,
@@ -20,12 +20,12 @@ import {
   createViewConfigStore,
   AuxiliaryProvider,
   createAuxiliaryStore,
-  // useDebugError,
+  useDebugError,
 } from './state/hooks.js';
 
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
-// import { DebugWindow } from './DebugWindow.js';
+import { DebugWindow } from './DebugWindow.js';
 import CallbackPublisher from './CallbackPublisher.js';
 import {
   initialize,
@@ -103,7 +103,6 @@ export function VitS(props) {
   } = props;
 
   // eslint-disable-next-line no-unused-vars
-  // const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(
@@ -260,6 +259,39 @@ export function VitS(props) {
   // TODO: use in ErrorBoundary fallback.
   // Will probably need to move a lot to a child of VitS
   // so that when the child throws errors the parent can catch.
+
+  //  TODO : uncomment if we want to display the debugErrors on the debugWindow
+  const globalDebugErrors = useDebugError();
+  const [debugErrors, setDebugErrors] = useState([]);
+  const [debugErrorsReady, setDebugErrorsReady] = useState(false);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isEqual(globalDebugErrors, debugErrors)) {
+      setDebugErrors(globalDebugErrors);
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      timerRef.current = setTimeout(() => {
+        setDebugErrorsReady(true);
+      }, 300);
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [globalDebugErrors]);
+
+  // This has to wait for all the errors to load first, LoaderNotFound gets fired first
+  if (debugMode && debugErrorsReady && globalDebugErrors.length > 0) {
+    return (
+      <CacheProvider value={muiCache}>
+        <ThemeProvider theme={muiTheme[theme]}>
+          <DebugWindow debugErrors={globalDebugErrors} />
+        </ThemeProvider>
+      </CacheProvider>
+    );
+  }
   return success ? (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={muiTheme[theme]}>
@@ -302,11 +334,7 @@ export function VitS(props) {
   ) : (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={muiTheme[theme]}>
-       { debugMode && debugErrors.length > 0 ?
-       <DebugWindow debugErrors={debugErrors} />
-       :
         <Warning {...configOrWarning} />
-       }
       </ThemeProvider>
     </CacheProvider>
   );
