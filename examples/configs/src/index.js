@@ -14,6 +14,7 @@ import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
 import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
+import { testConfig } from './view-configs/testConfig.js';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -124,6 +125,7 @@ export const configs = {
   'spraggins-2020': spraggins2020,
   'neumann-2020': neumann2020,
   'satija-2020': satija2020,
+  'test-config': testConfig,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
