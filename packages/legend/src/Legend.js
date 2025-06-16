@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
@@ -10,11 +10,10 @@ import { isEqual } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   legend: {
     top: '2px',
     right: '2px',
-    zIndex: '100',
     fontSize: '10px !important',
     flexDirection: 'column',
     backgroundColor: 'rgba(215, 215, 215, 0.7)',
@@ -52,6 +51,42 @@ const rectHeight = 8;
 const rectMarginY = 2;
 const rectMarginX = 2;
 
+function combineExtents(extents, featureAggregationStrategy) {
+  if (Array.isArray(extents)) {
+    if (featureAggregationStrategy === 'first') {
+      return extents[0];
+    } if (featureAggregationStrategy === 'last') {
+      return extents.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      return extents[i];
+    } if (featureAggregationStrategy === 'sum') {
+      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+    } if (featureAggregationStrategy === 'mean') {
+      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+    }
+  }
+  return null;
+}
+
+function combineMissings(missings, featureAggregationStrategy) {
+  if (Array.isArray(missings)) {
+    if (featureAggregationStrategy === 'first') {
+      return missings[0];
+    } if (featureAggregationStrategy === 'last') {
+      return missings.at(-1);
+    } if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      return missings[i];
+    } if (featureAggregationStrategy === 'sum') {
+      return missings.reduce((a, h) => a + h, 0);
+    } if (featureAggregationStrategy === 'mean') {
+      return missings.reduce((a, h) => a + (h / missings.length), 0);
+    }
+  }
+  return null;
+}
+
 /**
  * A component for displaying a legend.
  *
@@ -79,6 +114,7 @@ export default function Legend(props) {
     spatialLayerColor,
     obsSetSelection,
     obsSetColor,
+    featureAggregationStrategy,
     extent,
     missing,
     width = 100,
@@ -93,7 +129,7 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
@@ -112,7 +148,7 @@ export default function Legend(props) {
         obsColorEncoding === 'geneSelection'
         && featureSelection
         && Array.isArray(featureSelection)
-        && featureSelection.length === 1
+        && featureSelection.length >= 1
       )
     )
     || (
@@ -132,10 +168,9 @@ export default function Legend(props) {
 
   // Determine the height of the legend when in isSetColor mode.
   // TODO: for nested sets, account for the height of the intermediate nodes?
-  const dynamicHeight = isSetColor
+  const dynamicHeight = isSetColor && obsSetSelection
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
-
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -158,7 +193,7 @@ export default function Legend(props) {
 
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
-      const [xMin, xMax] = extent || [0, 1];
+      const [xMin, xMax] = combineExtents(extent, featureAggregationStrategy) || [0, 1];
 
       if (featureValueColormap && pointsVisible) {
         const xlinkHref = getXlinkHref(featureValueColormap);
@@ -321,13 +356,24 @@ export default function Legend(props) {
       && !isStaticColor
     )
       ? (
-        featureLabelsMap?.get(featureSelection[0])
-        || featureLabelsMap?.get(cleanFeatureId(featureSelection[0]))
-        || featureSelection[0]
+        featureSelection.map(geneName => featureLabelsMap?.get(geneName)
+        || featureLabelsMap?.get(cleanFeatureId(geneName))
+        || geneName)
       )
       : null;
     // if there are missing values, mention them in the label
-    const featureSelectionLabel = missing ? `${featureSelectionLabelRaw} (${Math.round(missing * 100)}% NaN)` : featureSelectionLabelRaw;
+    let featureSelectionLabelRawStr = '';
+    if (featureAggregationStrategy === 'first') {
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
+    } else if (featureAggregationStrategy === 'last') {
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.at(-1);
+    } else if (featureAggregationStrategy === 'sum') {
+      featureSelectionLabelRawStr = 'Sum of features';
+    } else if (featureAggregationStrategy === 'mean') {
+      featureSelectionLabelRawStr = 'Mean of features';
+    }
+    const combinedMissing = combineMissings(missing, featureAggregationStrategy);
+    const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;
 
     // Include obsType in the label text (perhaps only when multi-obsType).
     const obsLabel = capitalize(obsType);
@@ -371,7 +417,7 @@ export default function Legend(props) {
     isDarkTheme, featureValueType, extent, featureLabelsMap,
     spatialChannelColor, obsSetColor, obsSetSelection, isSetColor, theme,
     contourPercentiles, contourThresholds, contoursFilled, contoursVisible,
-    pointsVisible,
+    pointsVisible, featureAggregationStrategy,
   ]);
 
   return (

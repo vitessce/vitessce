@@ -288,6 +288,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           controller={tool ? { dragPan: false } : true}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
+          width="100%"
+          height="100%"
         >
           {this.onInitializeViewInfo}
         </deck.DeckGL>

@@ -21,7 +21,7 @@ export function VitessceGridLayout(props) {
   const {
     layout,
     viewTypes, coordinationTypes, fileTypes, stores,
-    padding, margin: marginProp, draggableHandle: draggableHandleClass,
+    padding = 10, margin: marginProp = 10, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
@@ -219,8 +219,3 @@ export function VitessceGridLayout(props) {
       </>
     )));
 }
-
-VitessceGridLayout.defaultProps = {
-  padding: 10,
-  margin: 10,
-};

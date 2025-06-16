@@ -1,5 +1,6 @@
-const path = require('path');
-module.exports = {
+import prismLightTheme from './src/pages/_prism-light-theme.js';
+import prismDarkTheme from './src/pages/_prism-dark-theme.js';
+export default {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
@@ -18,8 +19,9 @@ module.exports = {
       disableSwitch: false,
     },
     prism: {
-      theme: require('./src/pages/_prism-light-theme.cjs.js'),
-      darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
+      additionalLanguages: ['bash', 'diff', 'json'],
+      theme: prismLightTheme,
+      darkTheme: prismDarkTheme,
     },
     algolia: {
       appId: 'VM9PGXT4A9',
@@ -151,15 +153,16 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
+          showLastUpdateTime: false,
         },
         blog: {
           showReadingTime: true,
         },
         theme: {
           customCss: [
-            require.resolve('./src/css/custom.css'),
+            './src/css/custom.css',
             // TODO(monorepo)
             //require.resolve('../dist/esm/index.css'),
           ],
@@ -179,6 +182,6 @@ module.exports = {
     }
   ],
   clientModules: [
-    require.resolve('./analytics.js'),
+    './analytics.js',
   ],
 };

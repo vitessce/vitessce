@@ -24,16 +24,19 @@ export const rgbOmeTiff = {
   initStrategy: 'auto',
   layout: [
     {
-      component: 'spatialBeta',
+      component: 'spatial',
+      coordinationScopes: {
+        photometricInterpretation: 'init_HBM836.VTFP.364_image_0',
+      },
       x: 0,
       y: 0,
       w: 8,
       h: 12,
     },
     {
-      component: 'layerControllerBeta',
-      props: {
-        disableChannelsIfRgbDetected: true,
+      component: 'layerController',
+      coordinationScopes: {
+        photometricInterpretation: 'init_HBM836.VTFP.364_image_0',
       },
       x: 8,
       y: 0,

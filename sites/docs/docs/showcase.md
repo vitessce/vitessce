@@ -12,7 +12,9 @@ Vitessce is being used in the following projects:
   * [KPMP Kidney Tissue Atlas](https://atlas.kpmp.org/) ([code](https://github.com/KPMP/hydra-web)) ([paper](https://doi.org/10.1016/j.kint.2020.08.039))
   * [4D Nucleome Data Portal](https://data.4dnucleome.org/) ([code](https://github.com/4dn-dcic/fourfront)) ([paper](https://doi.org/10.1038/s41467-022-29697-4))  
   * [WebAtlas](https://developmental.cellatlas.io/webatlas) ([code](https://github.com/haniffalab/webatlas-app)) ([paper](https://doi.org/10.1101/2023.05.19.541329))  
-  * [Azimuth References](https://azimuth.hubmapconsortium.org/references/) ([code](https://github.com/satijalab/azimuth_website)) ([paper](https://doi.org/10.1016/j.cell.2021.04.048))  
+  * [Azimuth References](https://azimuth.hubmapconsortium.org/references/) ([code](https://github.com/satijalab/azimuth_website)) ([paper](https://doi.org/10.1016/j.cell.2021.04.048))
+  * [Human In Situ Single-cell Transcriptome Atlas](https://kbds.re.kr/hissta/) ([paper](https://doi.org/10.1093/bioinformatics/btaf142))
+  * [BRain tUmor heterogeneity deCiphEred by high dimensional multiomic analysis](https://www.bruce.parkerici.org/pages/visualization.html) ([preprint](https://doi.org/10.1101/2025.03.12.642624))
 * Integration into open-source tools/pipelines
   * OHSU Galaxy ([code](https://github.com/ohsu-comp-bio/scimap_phenotyping)) ([preprint](https://www.biorxiv.org/content/10.1101/2022.08.18.504436v2.full))  
   * OMERO \+ Vitessce ([code](https://github.com/NFDI4BIOIMAGE/omero-vitessce))  
@@ -25,10 +27,12 @@ Vitessce is being used in the following projects:
 * Industry/commercial products  
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
-* Publication-associated interactive figures  
+* Publication-associated interactive figures
+  * [De Jong et al. 2025 bioRxiv](https://www.gbmspace.org/) ([preprint](https://www.biorxiv.org/content/10.1101/2025.05.13.653495v1))
+  * [Qian et al. 2025 Nature](https://walshlab.org/research/cortexdevelopment/) ([paper](https://doi.org/10.1038/s41586-025-09010-1))
+  * Kerchberger et al. 2024 Nature Communications ([code](https://github.com/cancerbits/Kirchberger_Shoeb2024_neut?tab=readme-ov-file#interactive-data-exploration)) ([paper](https://doi.org/10.1038/s41467-024-45802-1))
+  * [Nu Ton et al. 2023 Nature Cell Biology](https://marionilab.github.io/RabbitGastrulation2022/#explore) ([paper](https://doi.org/10.1038/s41556-023-01174-0))
   * [Petukhov et al. 2021 Nature Biotechnology](https://github.com/kharchenkolab/BaysorAnalysis/tree/master?tab=readme-ov-file#visualization-of-the-results) ([code](https://github.com/kharchenkolab/BaysorAnalysis/tree/68f568d1c056708d474aeea3f28bbe083ccb6e4c#visualization-of-the-results)) ([paper](https://doi.org/10.1038/s41587-021-01044-w))  
-  * [Nu Ton et al. 2023 Nature Cell Biology](https://marionilab.github.io/RabbitGastrulation2022/#explore) ([paper](https://doi.org/10.1038/s41556-023-01174-0))  
-  * Kerchberger et al. 2024 Nature Communications ([code](https://github.com/cancerbits/Kirchberger_Shoeb2024_neut?tab=readme-ov-file#interactive-data-exploration)) ([paper](https://doi.org/10.1038/s41467-024-45802-1))  
 * Other usage within the [HIDIVE Lab](https://hidivelab.org/)
   * Polyphony ([code](https://github.com/scPolyphony/polyphony-vis))  
   * Hybrid mixed rendering ([preprint](https://osf.io/preprints/osf/zka2j))  

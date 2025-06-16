@@ -193,7 +193,7 @@ instance, to support nesting.
 - Type: `object`
 
 A (potentially nested) object with coordination types as keys and values
-being either { scope }, { scope, children }, or an array of these. Not intended to be
+being either \{ scope \}, \{ scope, children \}, or an array of these. Not intended to be
 manipulated before being passed to a `useCoordinationByObject` function.
 
 ```js {10-28}

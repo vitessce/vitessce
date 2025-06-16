@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import Legend from './Legend.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   multiLegend: {
     position: 'absolute',
     top: '0px',
@@ -30,7 +30,7 @@ export default function MultiLegend(props) {
     pointLayerCoordination,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const reversedSegmentationLayerScopes = useMemo(() => (
     [...(segmentationLayerScopes || [])].reverse()

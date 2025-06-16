@@ -9,12 +9,13 @@ packages:
   - '!consumer'
 
 catalog:
-  "zustand": ^3.5.10
+  "zustand": ^5.0.4
   "lodash-es": ^4.17.21
   "@types/lodash-es": ^4.17.7
   "internmap": ^2.0.3
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
+  "@tanstack/react-query": ^5.80.2
   # note packages/types was on @hms-dbmi/viv ~0.13.8
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
@@ -49,10 +50,12 @@ catalog:
   "apache-arrow": ^17.0.0
   "parquet-wasm": ^0.6.1
   # Material UI
-  "@material-ui/core": ~4.12.3
-  "@material-ui/icons": ~4.11.2
-  "@material-ui/lab": ^4.0.0-alpha.61
-  "@mui/x-data-grid": ^4.0.2
+  "@mui/material": ^7.1.0
+  "@mui/icons-material": ^7.1.0
+  "@mui/lab": ^7.0.0-beta.12
+  # The data grid added a .css import in a PR after 8.0.0-beta.3
+  # Reference: https://github.com/mui/mui-x/pull/17214
+  "@mui/x-data-grid": 8.0.0-beta.3
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19
@@ -60,18 +63,20 @@ catalog:
   # note - packages/file-types/glb was on @react-three/drei ~9.89.0
   "@react-three/xr": ^5.7.1
   # Vite
-  "vite": ^4.3.0
-  "@vitejs/plugin-react": ^4.0.0
-  "vitest": ^0.32.2
+  "vite": ^6.3.5
+  "@vitejs/plugin-react": ^4.5.0
+  "vitest": ^3.1.4
+  "@vitest/coverage-v8": ^3.1.4
+  "@vitest/ui": ^3.1.4
   # React
   "react": ^18.0.0
   "react-dom": ^18.0.0
   "@types/react": ^18.0.28
   # Testing library
-  "@testing-library/jest-dom": ^5.16.4
-  "@testing-library/react": ^13.3.0
-  "@testing-library/react-hooks": ^8.0.1
-  "@testing-library/user-event": ^14.2.1
+  "@testing-library/jest-dom": ^6.6.3
+  "@testing-library/dom": ^10.4.0
+  "@testing-library/react": ^16.3.0
+  "@testing-library/user-event": ^14.6.1
 
 # We are using named catalogs for groups of packages
 # that are versioned together

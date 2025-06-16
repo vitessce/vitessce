@@ -12,13 +12,12 @@ import {
   Slider,
   MenuItem,
   Button,
-  Select,
-} from '@material-ui/core';
-import {
+  NativeSelect,
+
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { VectorIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
@@ -30,7 +29,7 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   layerTypeSegmentationIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -63,9 +62,9 @@ function SegmentationChannelEllipsisMenu(props) {
     setLegendVisible,
   } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes } = useStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const filledId = useId();
   const strokeWidthId = useId();
@@ -91,9 +90,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={filled}
           onChange={(e, v) => setFilled(v)}
-          inputProps={{ id: filledId, 'aria-label': 'Toggle between filled and stroked segmentations' }}
+          slotProps={{ input: { id: filledId, 'aria-label': 'Toggle between filled and stroked segmentations' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -117,8 +117,7 @@ function SegmentationChannelEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
           inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
@@ -127,7 +126,7 @@ function SegmentationChannelEllipsisMenu(props) {
           <option value="spatialChannelColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -152,9 +151,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
-          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' }}
+          slotProps={{ input: { id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -163,9 +163,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={tooltipCrosshairsVisible}
           onChange={(e, v) => setTooltipCrosshairsVisible(v)}
-          inputProps={{ id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' }}
+          slotProps={{ input: { id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' } }}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -174,9 +175,10 @@ function SegmentationChannelEllipsisMenu(props) {
         </label>
         <Checkbox
           color="primary"
+          className={menuClasses.menuItemCheckbox}
           checked={legendVisible}
           onChange={(e, v) => setLegendVisible(v)}
-          inputProps={{ id: legendVisibleId, 'aria-label': 'Toggle legend visibility' }}
+          slotProps={{ input: { id: legendVisibleId, 'aria-label': 'Toggle legend visibility' } }}
         />
       </MenuItem>
     </PopperMenu>
@@ -227,9 +229,9 @@ export default function SegmentationChannelController(props) {
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
   const isColormap = obsColorEncoding === 'geneSelection';
 
-  const classes = useStyles();
-  const lcClasses = useControllerSectionStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes } = useStyles();
+  const { classes: lcClasses } = useControllerSectionStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   const handleVisibleChange = useCallback(() => {
     const nextVisible = typeof visible === 'boolean' ? !visible : false;
@@ -239,10 +241,10 @@ export default function SegmentationChannelController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
-      <Paper className={lcClasses.layerControllerRoot}>
+    <Grid className={lcClasses.layerControllerGrid}>
+      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -251,7 +253,7 @@ export default function SegmentationChannelController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -263,13 +265,13 @@ export default function SegmentationChannelController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {capitalize(label)}
               {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -281,7 +283,7 @@ export default function SegmentationChannelController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <SegmentationChannelEllipsisMenu
               obsType={obsType}
               featureType={featureType}
@@ -303,7 +305,7 @@ export default function SegmentationChannelController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>

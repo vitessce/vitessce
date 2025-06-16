@@ -1,13 +1,8 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import Status from './Status.js';
-
-afterEach(() => {
-  cleanup();
-});
 
 describe('Status.js', () => {
   describe('<Status />', () => {

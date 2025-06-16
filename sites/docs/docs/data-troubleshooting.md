@@ -30,8 +30,8 @@ adata.write_zarr(out_path, chunks=(adata.shape[0], VAR_CHUNK_SIZE))
 
 ## Zarr dtypes
 
-Vitessce uses [Zarr.js](https://github.com/gzuidhof/zarr.js) to load Zarr data.
-Zarr.js currently supports a __[subset](https://github.com/gzuidhof/zarr.js/blob/61d9cdb56ce6f8eaf97d213bcaa5b4ea8d01f5d1/src/nestedArray/types.ts#L32)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
+Vitessce uses [Zarrita.js](https://github.com/manzt/zarrita.js) to load Zarr data.
+Zarrita.js currently supports a __[subset](https://github.com/manzt/zarrita.js/blob/0e809ef7cd4d1703e2112227e119b8b6a2cc9804/packages/zarrita/src/metadata.ts#L47)__ of NumPy data types, so ensure that the types used in the arrays and data frames of your AnnData store are supported (otherwise cast using [np.astype](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html) or [pd.astype](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.astype.html)).
 In addition to the Zarr.js data types, Vitessce supports loading AnnData [string columns](https://github.com/vitessce/vitessce/blob/3615b55/src/loaders/data-sources/AnnDataSource.js#L102) with `vlen-utf8` or `|O` types.
 
 To automatically do this casting for AnnData objects, the `vitessce` Python package provides the `optimize_adata` function:
@@ -43,12 +43,106 @@ adata = optimize_adata(adata)
 # ...
 ```
 
+## Images and Segmentation Bitmasks (Label Images)
+
+### Multi-resolution (Pyramidal) Representation
+
+In order for Vitessce to load large images (from any supported image format), the image must be stored in a multi-resolution (i.e., [pyramidal](https://en.wikipedia.org/wiki/Pyramid_(image_processing))) and tiled form.
+Pyramidal images enable Vitessce to load only the subset of data necessary (image tiles at a particular level of resolution), based on the user's current viewport (i.e., pan and zoom state).
+Otherwise, without a pyramidal and tiled image, Vitessce must load all image pixels to visualize the image at all, which can quickly result in errors or crashes due to surpassing the memory limits of the web browser.
+See the format-specific notes below for more information.
+
+
+## OME-TIFF
+
+### Multi-resolution OME-TIFF
+
+A quick way to check if an OME-TIFF image is already pyramidal is to open it in FIJI.
+If the `Bio-Formats Series Options` dialog appears (with checkboxes for selection of a subset of resolutions to open), then the image is already pyramidal.
+Alternatively, use the [tiffcomment](https://bio-formats.readthedocs.io/en/stable/users/comlinetools/index.html#term-tiffcomment) command-line tool to check the OME-XML metadata for an indication that the image contains multiple resolutions, or use the [tifffile](https://pypi.org/project/tifffile/) Python package.
+
+
+To create a multi-resolution OME-TIFF image, we recommend using the tool [bioformats2raw](https://github.com/glencoesoftware/bioformats2raw) followed by [raw2ometiff](https://github.com/glencoesoftware/raw2ometiff), developed by the Open Microscopy Environment.
+Use the parameter `--resolutions` of `bioformats2raw`. For example, to create a pyramid with six level, specify `--resolutions 6`.
+
+<!--While we recommend `bioformats2raw`+`raw2ometiff`, an alternative method is to use [bfconvert](https://bio-formats.readthedocs.io/en/stable/users/comlinetools/conversion.html#cmdoption-bfconvert-pyramid-resolutions) with the `-pyramid-resolutions` parameter.-->
+
+### OME-TIFF offsets
+
+When using OME-TIFF files with Vitessce, performance can be improved by creating an `offsets.json` file to accompany each OME-TIFF file.
+This "offsets" file contains an index of byte offsets to different elements within the OME-TIFF file.
+These byte offsets enable Vitessce to directly navigate to subsets of data within the OME-TIFF file, avoiding the need to seek through the entire file.
+The [generate-tiff-offsets](https://github.com/hms-dbmi/generate-tiff-offsets) [Python package](https://pypi.org/project/generate-tiff-offsets/) or [web-based tool](https://hms-dbmi.github.io/generate-tiff-offsets/) can be used to generate an `offsets.json` file for an OME-TIFF image.
+
+Then, configure Vitessce using the `offsetsUrl` option of the `image.ome-tiff` or `obsSegmentations.ome-tiff` [file types](https://vitessce.io/docs/data-file-types/#imageome-tiff).
+
+For more information, see the Viv paper at [Manz et al. Nature Methods 2022](https://doi.org/10.1038/s41592-022-01482-7) which introduces the concept of an Indexed OME-TIFF file and benchmarks the approach.
+
+### OME-TIFF compression
+
+Vitessce can load OME-TIFFs which use the following compression methods:
+
+- No compression
+- Packbits
+- LZW
+- Deflate (with floating point or horizontal predictor support)
+- JPEG
+- LERC (with additional Deflate compression support)
+
+This is based on Vitessce using [Viv](https://github.com/hms-dbmi/viv), as Viv internally uses [Geotiff.js](https://github.com/geotiffjs/geotiff.js) to load data from OME-TIFF files.
+
+### RGB vs. multiplex
+
+To determine whether an OME-TIFF image should be interpreted as red-green-blue (RGB, as a standard camera image would be) versus multiplexed, Vitessce uses the `PhotometricInterpretation` [TIFF tag](https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml).
+A value of `1` means "black is zero" (i.e., multi-channel/grayscale, where zero values should be rendered using the color black), whereas `2` means RGB.
+To override the metadata in the image, the `photometricInterpretation` [coordination type](https://vitessce.io/docs/coordination-types/#photometricInterpretation) can be used (with value `'RGB'` or `'BlackIsZero'`).
+
+### Alignment, coordinate transformations, and physical size
+
+#### Physical size metadata
+
+If the OME-XML metadata contains `PhysicalSizeX`, `PhysicalSizeXUnit`, `PhysicalSizeY`, and `PhysicalSizeYUnit`, then the physical size will be used for scaling.
+These values define the physical size and unit of an individual pixel within the image (e.g., that one pixel has a physical size of 1x1 micron).
+
+#### Coordinate transformations
+
+Optionally, coordinate transformations can be defined using the `coordinateTransformations` option of the `image.ome-tiff` or `obsSegmentations.ome-tiff` [file types](https://vitessce.io/docs/data-file-types/#imageome-tiff), which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+The order of the transformations parameters must correspond to the order of the dimensions in the image (i.e., must match the `DimensionOrder` within the OME-XML metadata).
+For example, to scale by 2x in the X and Y dimensions for an image with a DimensionOrder of `XYZCT`, use `"scale": [2.0, 2.0, 1.0, 1.0, 1.0]`.
+For example, to translate by 3 and 4 units in the X and Y dimensions, respectively, use `"translation": [3.0, 4.0, 0.0, 0.0, 0.0]`.
+
+
+### Channel names
+
+Vitessce will use the channel names present within the OME-XML metadata and will display these within the user interface.
+To edit the channel names, tools such as [tiffcomment](https://bio-formats.readthedocs.io/en/stable/users/comlinetools/edit.html) can be used.
+
+
+
 ## OME-NGFF
+
+Also known as OME-Zarr.
+
+### SpatialData Images and Labels
+
+SpatialData uses [OME-NGFF](https://spatialdata.scverse.org/en/stable/design_doc.html#images) to store images and label images (i.e., segmentation bitmask images).
+Thus, the following points apply not only to standalone OME-NGFF images but also to the Images and Labels elements within SpatialData objects.
+
+
+#### Multi-resolution OME-NGFF
+
+As noted above, Vitessce requires large-scale images to use multi-resolution representations on-disk.
+When using the `spatialdata` Python package, images may not be saved as multi-resolution/multi-scale by default.
+Use the `scale_factors` parameter of the `Image2DModel.parse` and `Labels2DModel.parse` [functions](https://spatialdata.scverse.org/en/stable/api/models.html#spatialdata.models.Image2DModel) as needed to ensure that the OME-NGFF images are stored as multi-resolution.
+
+#### Non-power of 2 pyramid steps
+
+Note that Vitessce does not yet support multi-resolution OME-NGFF images with a scaling factor other than `2`.
+As SpatialData Image and Labels elements are stored in OME-NGFF format, this point applies to both OME-NGFFs contained within SpatialData objects and standalone OME-NGFF Zarr stores.
 
 ### Supported versions
 
 Vitessce currently supports up to OME-NGFF spec v0.4.
-
 
 ### Supported features
 
@@ -68,11 +162,20 @@ The following table lists the support for different OME-NGFF features:
 To compare Vitessce to other OME-NGFF clients, see the [table](https://github.com/ome/ngff/issues/71) listing the OME-NGFF features supported by other clients.
 We welcome feature requests or pull requests to add support for the remaining features to Vitessce.
 
-
 ### Metadata requirements
 
 The [`omero`](https://ngff.openmicroscopy.org/latest/#omero-md) metadata field must be present. `omero.channels` and `omero.rdefs` fields provide metadata that Vitessce uses for the initial rendering settings and must be present.
 
+### RGB vs. multiplex
+
+For OME-NGFF images, Vitessce uses the field `omero.rdefs.model` to determine whether to interpret the image as RGB vs. multiplexed.
+When `model` is `'color'`, the image is interpreted as RGB; otherwise, it will be considered multiplexed.
+To override the metadata in the image, the `photometricInterpretation` [coordination type](https://vitessce.io/docs/coordination-types/#photometricInterpretation) can be used (with value `'RGB'` or `'BlackIsZero'`).
+
+### Coordinate transformations
+
+Optionally, coordinate transformations can be defined using the `coordinateTransformations` option of the `image.ome-zarr` or `obsSegmentations.ome-zarr` [file types](https://vitessce.io/docs/data-file-types/#imageome-zarr), which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+The order of the transformations parameters must correspond to the order of the dimensions in the image.
 
 ### Z-axis chunking
 
@@ -117,3 +220,4 @@ writer.write_image(
     chunks = (1, 1, 256, 256),
 )
 ```
+

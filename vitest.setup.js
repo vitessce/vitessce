@@ -7,6 +7,7 @@ import intersection from 'set.prototype.intersection';
 
 import 'vitest-canvas-mock';
 import 'jsdom-worker';
+import '@testing-library/jest-dom/vitest';
 
 
 beforeAll(() => {

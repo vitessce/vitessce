@@ -1,4 +1,71 @@
 
+## 3.6.2
+
+### Patch Changes
+
+- Fix React.lazy and patch neuroglancer to prevent crashing in docs site and Jupyter widget contexts. (`@vitessce/neuroglancer`) ([#2130](https://github.com/vitessce/vitessce/pull/2130))
+
+
+## 3.6.1
+
+### Patch Changes
+
+- Added coordination between Neuroglancer and other views (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/vit-s`) ([#2084](https://github.com/vitessce/vitessce/pull/2084))
+
+- Upgrade Zustand from v3 to v5. Upgrade react-query from v4 to v5. (`@vitessce/vit-s`) ([#2128](https://github.com/vitessce/vitessce/pull/2128))
+
+
+## 3.6.0
+
+### Minor Changes
+
+- Support React v19. Upgrade docs site to Docusaurus v3. (`vitessce`, `demo`, `docs`) ([#2127](https://github.com/vitessce/vitessce/pull/2127))
+
+- Upgrade from Material UI (MUI) v4 to v7. (`@vitessce/styles`) ([#2124](https://github.com/vitessce/vitessce/pull/2124))
+
+### Patch Changes
+
+- Add CLI for creating a new view. (`vitessce`) ([#2120](https://github.com/vitessce/vitessce/pull/2120))
+
+- Update showcase page of docs. (`docs`) ([#2123](https://github.com/vitessce/vitessce/pull/2123))
+
+- Update tutorials for plugins. Add last_updated dates to tutorials. (`docs`) ([#2125](https://github.com/vitessce/vitessce/pull/2125))
+
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated tutorial for gh-pages deployment (`docs`) ([#2113](https://github.com/vitessce/vitessce/pull/2113))
+
+- Use PhotometricInterpretation TIFF metadata rather than heuristic in spatial/layerController views to determine RGB vs. not. Use photometricInterpretation coordination type in spatial/layerController views to enable overriding TIFF metadata when necessary. (`@vitessce/layer-controller`, `@vitessce/spatial`) ([#2107](https://github.com/vitessce/vitessce/pull/2107))
+
+- Fixed transformation matrix for assuming xy having equal physical sizes (`@vitessce/spatial-utils`) ([#2112](https://github.com/vitessce/vitessce/pull/2112))
+
+- Update showcase and docs. (`docs`) ([#2117](https://github.com/vitessce/vitessce/pull/2117))
+
+
+## 3.5.11
+
+### Patch Changes
+
+- Allow for spatialdata tablePath to be used for obsIndex and also allow for lack of trailing slash. (`@vitessce/spatial-zarr`, `@vitessce/zarr`) ([#2097](https://github.com/vitessce/vitessce/pull/2097))
+
+- Fix unit tests. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`) ([#2104](https://github.com/vitessce/vitessce/pull/2104))
+
+- Limit the bar heights in the cell type composition plot. Update help text in comparative configurations. (`@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#2106](https://github.com/vitessce/vitessce/pull/2106))
+
+- Support featureAggregationStrategy for scatterplot and violin plot. Fix bug with obsIndex/varIndex with categorical pandas column. Temporary workaround for reactome terms. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/legend`) ([#2102](https://github.com/vitessce/vitessce/pull/2102))
+
+- traverse quadtree with overlapping points (`@vitessce/gl`) ([#2100](https://github.com/vitessce/vitessce/pull/2100))
+
+- Minor bug fixes for comparative data loader error states. Improvements to plot subtitles. Bug fix for embedding scatterplot. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/scatterplot`) ([#2095](https://github.com/vitessce/vitessce/pull/2095))
+
+- Fixed error thrown by RasterJson when incorrect filetype is used (`@vitessce/json`, `@vitessce/legend`) ([#2093](https://github.com/vitessce/vitessce/pull/2093))
+
+- Update kpmp-premiere config to reflect reprocessing of data. Update featureSetStats info to reflect usage of Reactome pathways. Update obsSetStats loading to not require covariate column. (`@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2099](https://github.com/vitessce/vitessce/pull/2099))
+
+
 ## 3.5.10
 
 ### Patch Changes

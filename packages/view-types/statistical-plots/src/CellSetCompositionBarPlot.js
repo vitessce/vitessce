@@ -1,9 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import { clamp, isEqual } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
+import { extent } from 'd3-array';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { capitalize } from '@vitessce/utils';
 import { getColorScale } from './utils.js';
+
+const MAX_BAR_SIZE = 40;
 
 /**
  * Cell set composition results displayed using a bar chart.
@@ -13,9 +16,9 @@ export default function CellSetCompositionBarPlot(props) {
     data,
     theme,
     width,
-    height,
+    height: heightProp,
     marginRight = 200,
-    marginBottom = 120,
+    marginBottom = 60,
     keyLength = 36,
     obsType,
     onBarSelect,
@@ -26,6 +29,13 @@ export default function CellSetCompositionBarPlot(props) {
     obsSetColor,
     sampleSetColor,
   } = props;
+
+  const height = (
+    Array.isArray(obsSetSelection)
+      && ((heightProp - marginBottom) / obsSetSelection.length >= MAX_BAR_SIZE)
+  )
+    ? MAX_BAR_SIZE * obsSetSelection.length + marginBottom
+    : heightProp;
 
   const [obsSetColorScale, sampleSetColorScale] = useMemo(() => [
     getColorScale(obsSetSelection, obsSetColor, theme),
@@ -110,6 +120,24 @@ export default function CellSetCompositionBarPlot(props) {
     range: [2.0, 0.5],
   };
 
+  const xExtent = useMemo(() => {
+    if (computedData) {
+      const [min, max] = extent(computedData.map(d => d.logFoldChange));
+      const buffer = 1.05; // Ensure some extra space
+      const minAbs = Math.abs(min) * buffer;
+      const maxAbs = Math.abs(max) * buffer;
+      if (minAbs > maxAbs) {
+        return [-minAbs, minAbs];
+      }
+      return [-maxAbs, maxAbs];
+    }
+    return undefined;
+  }, [computedData]);
+
+  const xScale = {
+    domain: xExtent,
+  };
+
   const spec = {
     mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
     params: [
@@ -145,6 +173,7 @@ export default function CellSetCompositionBarPlot(props) {
         field: 'logFoldChange',
         type: 'quantitative',
         title: 'Log fold-change',
+        scale: xScale,
       },
       color: {
         field: 'key',
@@ -161,6 +190,7 @@ export default function CellSetCompositionBarPlot(props) {
         field: 'isReferenceSet',
         type: 'nominal',
         scale: strokeWidthScale,
+        legend: null,
       },
       tooltip: {
         field: 'effectExpectedSample',

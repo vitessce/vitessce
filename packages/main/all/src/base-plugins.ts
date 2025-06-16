@@ -476,6 +476,13 @@ export const baseCoordinationTypes = [
     null,
     z.array(z.string()).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.FEATURE_AGGREGATION_STRATEGY, null, z.union([
+    z.enum([
+      'first', 'last', 'mean', 'sum', 'difference',
+    ]),
+    // An index of a featureSelection array element.
+    z.number(),
+  ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,
     null,

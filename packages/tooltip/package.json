@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/tooltip",
-  "version": "3.5.10",
+  "version": "3.6.2",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/utils": "workspace:*"
   },
@@ -40,6 +40,6 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

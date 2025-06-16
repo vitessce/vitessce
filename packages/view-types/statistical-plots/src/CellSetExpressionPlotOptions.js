@@ -1,8 +1,12 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField, Slider } from '@material-ui/core';
+import { TableCell, TableRow, TextField, Slider } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
+import { capitalize } from '@vitessce/utils';
+
+
+const FEATURE_AGGREGATION_STRATEGIES = ['first', 'last', 'sum', 'mean'];
 
 export default function CellSetExpressionPlotOptions(props) {
   const {
@@ -15,19 +19,25 @@ export default function CellSetExpressionPlotOptions(props) {
     setFeatureValuePositivityThreshold,
     featureValueColormap,
     setFeatureValueColormap,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
   } = props;
 
   const cellSetExpressionPlotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleFeatureValueColormapChange(event) {
     setFeatureValueColormap(event.target.value);
   }
 
-  const handleTransformChange = (event) => {
+  function handleTransformChange(event) {
     setFeatureValueTransform(event.target.value === '' ? null : event.target.value);
-  };
+  }
+
+  function handleFeatureAggregationStrategyChange(event) {
+    setFeatureAggregationStrategy(event.target.value);
+  }
 
   function handlePositivityThresholdChange(event, value) {
     setFeatureValuePositivityThreshold(value);
@@ -112,13 +122,38 @@ export default function CellSetExpressionPlotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={featureValueTransformCoefficient}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            slotProps={{ input: { shrink: true } }}
             id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
         </TableCell>
       </TableRow>
+      {setFeatureAggregationStrategy ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label
+              htmlFor={`feature-aggregation-strategy-${cellSetExpressionPlotOptionsId}`}
+            >
+              Feature Aggregation Strategy
+            </label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              value={featureAggregationStrategy ?? 'first'}
+              onChange={handleFeatureAggregationStrategyChange}
+              inputProps={{
+                id: `feature-aggregation-strategy-${cellSetExpressionPlotOptionsId}`,
+              }}
+            >
+              {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
+                <option key={opt} value={opt}>
+                  {capitalize(opt)}
+                </option>
+              ))}
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
       {setFeatureValuePositivityThreshold ? (
         <TableRow key="transform-coefficient-option-row">
           <TableCell className={classes.labelCell}>
@@ -126,7 +161,10 @@ export default function CellSetExpressionPlotOptions(props) {
           </TableCell>
           <TableCell className={classes.inputCell}>
             <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              slotProps={{
+                root: { className: classes.slider },
+                valueLabel: { className: classes.sliderValueLabel },
+              }}
               value={featureValuePositivityThreshold}
               onChange={handlePositivityThresholdChange}
               aria-labelledby="pos-threshold-slider"

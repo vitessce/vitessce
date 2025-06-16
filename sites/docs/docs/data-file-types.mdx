@@ -1458,10 +1458,31 @@ options={`{
 Points to a label image ("bitmask") in OME-TIFF format.
 Pixel values are integers that correspond to segmented observations, with `0` representing background.
 
+See the [OME-TIFF Troubleshooting](../data-troubleshooting/#ome-tiff) documentation for more information.
+
 <FileDefTabs
 fileName="my_cell_segmentations.ome.tif"
 fileType="obsSegmentations.ome-tiff"
 fileConst="OBS_SEGMENTATIONS_OME_TIFF"
+options={`{
+  // Optionlly, specify a path to an offsets.json file.
+  // This is recommended to improve performance for large OME-TIFF files.
+  "offsetsUrl": "https://example.com/my_cell_segmentations.offsets.json",
+  // Optionally, specify coordinate transformations.
+  "coordinateTransformations": [
+    {
+      "type": "scale",
+      // Specify one value per dimension.
+      // e.g., to scale 2x in X and Y
+      // for an image with DimensionOrder "XYZCT":
+      "scale": [2.0, 2.0, 1.0, 1.0, 1.0]
+    },
+  ],
+  // Optionally, specify whether obsType values
+  // for each segmentation channel should be auto-initialized to
+  // the image channel names present within the OME-XML metadata.
+  "obsTypesFromChannelNames": false
+}`}
 />
 
 
@@ -1474,10 +1495,19 @@ If the OME-XML metadata contains `PhysicalSizeX`, `PhysicalSizeXUnit`, `Physical
 Optionally, `options.coordinateTransformations` can be defined, which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
 The dimensions of these transformations must correspond to the `DimensionOrder` from OME-XML.
 
+
+See the [OME-TIFF Troubleshooting](../data-troubleshooting/#ome-tiff) documentation for more information.
+
+
 <FileDefTabs
 fileName="my_image.ome.tif"
 fileType="image.ome-tiff"
 fileConst="IMAGE_OME_TIFF"
+options={`{
+  // Optionlly, specify a path to an offsets.json file.
+  // This is recommended to improve performance for large OME-TIFF files.
+  "offsetsUrl": "https://example.com/my_image.offsets.json"
+}`}
 />
 
 ## `obsSegmentations.ome-zarr`
@@ -1489,6 +1519,22 @@ Pixel values are integers that correspond to segmented observations, with `0` re
 fileName="my_cell_segmentations.ome.zarr"
 fileType="obsSegmentations.ome-zarr"
 fileConst="OBS_SEGMENTATIONS_OME_ZARR"
+options={`{
+  // Optionally, specify coordinate transformations.
+  "coordinateTransformations": [
+    {
+      "type": "scale",
+      // Specify one value per dimension.
+      // e.g., to scale 2x in X and Y
+      // for an image with DimensionOrder "XYZCT":
+      "scale": [2.0, 2.0, 1.0, 1.0, 1.0]
+    },
+  ],
+  // Optionally, specify whether obsType values
+  // for each segmentation channel should be auto-initialized to
+  // the image channel names present within the OME-XML metadata.
+  "obsTypesFromChannelNames": false
+}`}
 />
 
 ## `image.ome-zarr`
@@ -1496,7 +1542,7 @@ fileConst="OBS_SEGMENTATIONS_OME_ZARR"
 Points to an image in OME-NGFF format that has been saved to a Zarr store.
 See [OME-NGFF data troubleshooting](/docs/data-troubleshooting/#ome-ngff) for more details.
 
-Optionally, `options.coordinateTransformations` can be defined according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+Optionally, `options.coordinateTransformations` can be defined according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec ([Zod schema](https://github.com/vitessce/vitessce/blob/25f61fa52ab5b10daf84afe9b8e4a8514189f404/packages/schemas/src/file-def-options.ts#L153)).
 These will be applied after any `coordinateTransformations` contained within the Zarr store's OME-NGFF metadata.
 
 <FileDefTabs
