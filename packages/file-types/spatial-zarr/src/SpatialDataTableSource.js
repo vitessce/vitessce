@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import { AnnDataSource } from '@vitessce/zarr';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
