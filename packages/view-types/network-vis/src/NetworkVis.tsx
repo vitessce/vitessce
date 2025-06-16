@@ -1409,13 +1409,14 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         top: 10, 
         left: 10, 
         zIndex: 1000, 
-        background: 'white', 
+        background: '#1e1e1e', 
         padding: '8px', 
         borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         width: isToolsVisible ? '280px' : '40px',
         transition: 'all 0.3s ease',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        border: '1px solid #333'
       }}>
         <div style={{ 
           display: 'flex', 
@@ -1423,13 +1424,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           alignItems: 'center',
           marginBottom: isToolsVisible ? '8px' : '0',
           paddingBottom: isToolsVisible ? '6px' : '0',
-          borderBottom: isToolsVisible ? '1px solid #eee' : 'none'
+          borderBottom: isToolsVisible ? '1px solid #333' : 'none'
         }}>
           {isToolsVisible && (
             <h4 style={{ 
               margin: 0, 
               fontSize: '12px',
-              color: '#333',
+              color: '#e0e0e0',
               fontWeight: 500
             }}>Network Tools</h4>
           )}
@@ -1441,7 +1442,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
               cursor: 'pointer',
               padding: '2px 4px',
               fontSize: '14px',
-              color: '#666',
+              color: '#e0e0e0',
               transition: 'color 0.2s ease',
               width: '24px',
               height: '24px',
@@ -1469,9 +1470,9 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                 <button
                   onClick={() => setIsHopSelectionMode(!isHopSelectionMode)}
                   style={{
-                    backgroundColor: isHopSelectionMode ? '#4477AA' : '#e8e8e8',
-                    color: isHopSelectionMode ? 'white' : '#666',
-                    border: 'none',
+                    backgroundColor: isHopSelectionMode ? '#4477AA' : '#2d2d2d',
+                    color: isHopSelectionMode ? 'white' : '#e0e0e0',
+                    border: '1px solid #333',
                     borderRadius: '4px',
                     padding: '4px 8px',
                     fontSize: '10px',
@@ -1488,8 +1489,10 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                     style={{
                       padding: '4px 8px',
                       borderRadius: '4px',
-                      border: '1px solid #ddd',
-                      fontSize: '10px'
+                      border: '1px solid #333',
+                      fontSize: '10px',
+                      backgroundColor: '#2d2d2d',
+                      color: '#e0e0e0'
                     }}
                   >
                     {[1, 2, 3, 4, 5].map(num => (
@@ -1503,7 +1506,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
               {isHopSelectionMode && (
                 <div style={{ 
                   fontSize: '10px', 
-                  color: '#666',
+                  color: '#999',
                   marginTop: '4px'
                 }}>
                   Click a node to select all nodes of the same type within {selectedHopDistance} {selectedHopDistance === 1 ? 'hop' : 'hops'}
@@ -1518,12 +1521,12 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
               alignItems: 'center',
               marginBottom: '8px',
               paddingBottom: '6px',
-              borderBottom: '1px solid #eee'
+              borderBottom: '1px solid #333'
             }}>
               <h4 style={{ 
                 margin: 0, 
                 fontSize: '12px',
-                color: '#333',
+                color: '#e0e0e0',
                 fontWeight: 500
               }}>Motif Search</h4>
               <button
@@ -1534,7 +1537,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                   cursor: 'pointer',
                   padding: '2px 4px',
                   fontSize: '14px',
-                  color: '#666',
+                  color: '#e0e0e0',
                   transition: 'color 0.2s ease'
                 }}
               >
@@ -1553,9 +1556,9 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                 <div style={{ 
                   fontSize: '10px', 
                   marginBottom: '6px',
-                  color: '#666',
+                  color: '#999',
                   padding: '4px 8px',
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: '#2d2d2d',
                   borderRadius: '4px'
                 }}>
                 </div>
@@ -1581,15 +1584,22 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           </>
         )}
       </div>
-      <CytoscapeWrapper 
-        nodes={state.data.nodes} 
-        links={state.data.links} 
-        onNodeSelect={onNodeSelect}
-        obsSetSelection={obsSetSelection}
-        obsHighlight={obsHighlight}
-        cyRef={cyRef}
-        cellColors={cellColors}
-      />
+      <div style={{ 
+        width: '100%',
+        height: '100%',
+        paddingLeft: isToolsVisible ? '300px' : '50px',
+        transition: 'padding-left 0.3s ease'
+      }}>
+        <CytoscapeWrapper 
+          nodes={state.data.nodes} 
+          links={state.data.links} 
+          onNodeSelect={onNodeSelect}
+          obsSetSelection={obsSetSelection}
+          obsHighlight={obsHighlight}
+          cyRef={cyRef}
+          cellColors={cellColors}
+        />
+      </div>
     </div>
   );
 };
