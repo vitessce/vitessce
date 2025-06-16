@@ -596,7 +596,7 @@ interface MotifEdge {
 interface MotifPattern {
   nodes: {
     id: string;
-    type: 'glomeruli' | 'nerves';
+    type: string;
   }[];
   edges: MotifEdge[];
 }
@@ -613,7 +613,7 @@ interface NetworkVisProps {
 
 interface SketchNode {
   id: string;
-  type: 'glomeruli' | 'nerves';
+  type: string;
   position: paper.Point;
   circle: paper.Path.Circle;
 }
@@ -640,16 +640,16 @@ const MotifSketch: React.FC<{
   initialEdges: SketchEdge[];
   onNodesChange: (nodes: SketchNode[]) => void;
   onEdgesChange: (edges: SketchEdge[]) => void;
-}> = ({ onPatternChange, initialNodes, initialEdges, onNodesChange, onEdgesChange }) => {
+  nodeTypes: string[];
+}> = ({ onPatternChange, initialNodes, initialEdges, onNodesChange, onEdgesChange, nodeTypes }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [currentNodeType, setCurrentNodeType] = useState<'glomeruli' | 'nerves'>('glomeruli');
+  const [currentNodeType, setCurrentNodeType] = useState<string>(nodeTypes[0] || '');
   const [nodes, setNodes] = useState<SketchNode[]>(initialNodes);
   const [edges, setEdges] = useState<SketchEdge[]>(initialEdges);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startNode, setStartNode] = useState<SketchNode | null>(null);
   const [tempPath, setTempPath] = useState<paper.Path | null>(null);
-  const [isConnectMode, setIsConnectMode] = useState(false);
-  const [connectStartNode, setConnectStartNode] = useState<SketchNode | null>(null);
+  const [connectionStartNode, setConnectionStartNode] = useState<SketchNode | null>(null);
 
   // Update parent component when nodes or edges change
   useEffect(() => {
@@ -743,25 +743,18 @@ const MotifSketch: React.FC<{
     );
 
     if (clickedNode) {
-      if (isConnectMode) {
-        if (!connectStartNode) {
-          // Start connection
-          setConnectStartNode(clickedNode);
-          // Highlight the node with a modern glow effect
-          clickedNode.circle.strokeColor = new paper.Color('#4477AA');
-          clickedNode.circle.strokeWidth = 2;
-          clickedNode.circle.shadowColor = new paper.Color('#4477AA');
-          clickedNode.circle.shadowBlur = 5;
-        } else if (connectStartNode.id !== clickedNode.id) {
+      if (connectionStartNode) {
+        // If we have a start node and clicked a different node, create connection
+        if (connectionStartNode.id !== clickedNode.id) {
           // Check if edge already exists
           const edgeExists = edges.some(edge => 
-            (edge.source === connectStartNode.id && edge.target === clickedNode.id) ||
-            (edge.source === clickedNode.id && edge.target === connectStartNode.id)
+            (edge.source === connectionStartNode.id && edge.target === clickedNode.id) ||
+            (edge.source === clickedNode.id && edge.target === connectionStartNode.id)
           );
 
           if (!edgeExists) {
             // Create edge with modern styling
-            const path = new paper.Path.Line(connectStartNode.position, clickedNode.position);
+            const path = new paper.Path.Line(connectionStartNode.position, clickedNode.position);
             path.strokeColor = new paper.Color('#666');
             path.strokeWidth = 1.5;
             path.strokeCap = 'round';
@@ -769,7 +762,7 @@ const MotifSketch: React.FC<{
 
             const newEdge: SketchEdge = {
               id: `edge-${edges.length + 1}`,
-              source: connectStartNode.id,
+              source: connectionStartNode.id,
               target: clickedNode.id,
               path
             };
@@ -777,49 +770,35 @@ const MotifSketch: React.FC<{
             setEdges(prev => [...prev, newEdge]);
           }
 
-          // Reset connection mode with smooth transition
-          connectStartNode.circle.strokeColor = new paper.Color('black');
-          connectStartNode.circle.strokeWidth = 1;
-          connectStartNode.circle.shadowColor = new paper.Color('transparent');
-          connectStartNode.circle.shadowBlur = 0;
-          setConnectStartNode(null);
+          // Reset connection state
+          connectionStartNode.circle.strokeColor = new paper.Color('#333');
+          connectionStartNode.circle.strokeWidth = 1;
+          connectionStartNode.circle.shadowColor = new paper.Color('transparent');
+          connectionStartNode.circle.shadowBlur = 0;
+          setConnectionStartNode(null);
+        } else {
+          // Clicked the same node, cancel connection
+          clickedNode.circle.strokeColor = new paper.Color('#333');
+          clickedNode.circle.strokeWidth = 1;
+          clickedNode.circle.shadowColor = new paper.Color('transparent');
+          clickedNode.circle.shadowBlur = 0;
+          setConnectionStartNode(null);
         }
-      } else if (isDrawing && startNode && startNode.id !== clickedNode.id) {
-        // Check if edge already exists
-        const edgeExists = edges.some(edge => 
-          (edge.source === startNode.id && edge.target === clickedNode.id) ||
-          (edge.source === clickedNode.id && edge.target === startNode.id)
-        );
-
-        if (!edgeExists) {
-          // Create edge
-          const path = new paper.Path.Line(startNode.position, clickedNode.position);
-          path.strokeColor = new paper.Color('#999');
-          path.strokeWidth = 2;
-
-          const newEdge: SketchEdge = {
-            id: `edge-${edges.length + 1}`,
-            source: startNode.id,
-            target: clickedNode.id,
-            path
-          };
-
-          setEdges(prev => [...prev, newEdge]);
-        }
-      }
-      // Always stop drawing when clicking a node
-      setIsDrawing(false);
-      setStartNode(null);
-      if (tempPath) {
-        tempPath.remove();
-        setTempPath(null);
+      } else {
+        // Start new connection
+        setConnectionStartNode(clickedNode);
+        // Highlight the node
+        clickedNode.circle.strokeColor = new paper.Color('#4477AA');
+        clickedNode.circle.strokeWidth = 2;
+        clickedNode.circle.shadowColor = new paper.Color('#4477AA');
+        clickedNode.circle.shadowBlur = 5;
       }
     } else {
-      // Create new node with modern styling
+      // Create new node
       const circle = new paper.Path.Circle(point, 8);
       circle.fillColor = currentNodeType === 'glomeruli' ? 
-        new paper.Color('#ff4444') : // Brighter red
-        new paper.Color('#ffd700'); // Gold yellow
+        new paper.Color('#ff4444') : 
+        new paper.Color('#ffd700');
       circle.strokeColor = new paper.Color('#333');
       circle.strokeWidth = 1;
       circle.shadowColor = new paper.Color('#000');
@@ -835,83 +814,40 @@ const MotifSketch: React.FC<{
 
       setNodes(prev => [...prev, newNode]);
     }
-  }, [nodes, edges, currentNodeType, isDrawing, startNode, tempPath, isConnectMode, connectStartNode]);
+  }, [nodes, edges, currentNodeType, connectionStartNode]);
 
-  // Handle mouse move for edge drawing
+  // Handle mouse move for visual feedback
   const handleMouseMove = useCallback((event: paper.ToolEvent) => {
-    if (isDrawing && startNode && tempPath) {
+    if (connectionStartNode) {
       const point = event.point;
       
       // Check if hovering over a node
       const hoverNode = nodes.find(node => 
-        node.id !== startNode.id && 
+        node.id !== connectionStartNode.id && 
         node.circle.contains(point)
       );
 
+      // Update cursor style
       if (hoverNode) {
-        // Snap to the node
-        tempPath.segments[1].point = hoverNode.position;
+        paper.view.element.style.cursor = 'pointer';
       } else {
-        // Follow mouse
-        tempPath.segments[1].point = point;
+        paper.view.element.style.cursor = 'default';
       }
     }
-  }, [isDrawing, startNode, tempPath, nodes]);
-
-  // Handle node drag start
-  const handleNodeDragStart = useCallback((event: paper.ToolEvent) => {
-    const point = event.point;
-    const draggedNode = nodes.find(node => node.circle.contains(point));
-    
-    if (draggedNode) {
-      // Check if we're already drawing from this node
-      if (isDrawing && startNode && startNode.id === draggedNode.id) {
-        // Cancel drawing
-        setIsDrawing(false);
-        setStartNode(null);
-        if (tempPath) {
-          tempPath.remove();
-          setTempPath(null);
-        }
-      } else {
-        // Start drawing
-        setIsDrawing(true);
-        setStartNode(draggedNode);
-        
-        // Create temporary path
-        const path = new paper.Path.Line(draggedNode.position, point);
-        path.strokeColor = new paper.Color('#999');
-        path.strokeWidth = 2;
-        setTempPath(path);
-      }
-    }
-  }, [nodes, isDrawing, startNode, tempPath]);
-
-  // Handle mouse up anywhere on canvas
-  const handleMouseUp = useCallback((event: paper.ToolEvent) => {
-    if (isDrawing && startNode && tempPath) {
-      // Cancel drawing if not over a node
-      setIsDrawing(false);
-      setStartNode(null);
-      tempPath.remove();
-      setTempPath(null);
-    }
-  }, [isDrawing, startNode, tempPath]);
+  }, [nodes, connectionStartNode]);
 
   // Initialize Paper.js tools
   useEffect(() => {
     if (!paper.project) return;
 
     const tool = new paper.Tool();
-    tool.onMouseDown = handleNodeDragStart;
-    tool.onMouseMove = handleMouseMove;
-    tool.onMouseUp = handleMouseUp;
     tool.onMouseDown = handleCanvasClick;
+    tool.onMouseMove = handleMouseMove;
 
     return () => {
       tool.remove();
     };
-  }, [handleNodeDragStart, handleMouseMove, handleMouseUp, handleCanvasClick]);
+  }, [handleCanvasClick, handleMouseMove]);
 
   return (
     <div>
@@ -919,101 +855,51 @@ const MotifSketch: React.FC<{
         marginBottom: '8px',
         display: 'flex',
         gap: '6px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'center'
       }}>
-        <button
-          onClick={() => setCurrentNodeType('glomeruli')}
-          style={{
-            backgroundColor: currentNodeType === 'glomeruli' ? '#ff4444' : '#ffcccc',
-            color: currentNodeType === 'glomeruli' ? 'white' : '#666',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '10px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: currentNodeType === 'glomeruli' ? '0 2px 4px rgba(255,68,68,0.3)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          backgroundColor: '#2d2d2d',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          border: '1px solid #333'
+        }}>
           <span style={{
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            backgroundColor: '#ff4444',
+            backgroundColor: currentNodeType === 'glomeruli' ? '#ff4444' : '#ffd700',
             display: 'inline-block'
           }} />
-          Glomeruli
-        </button>
-        <button
-          onClick={() => setCurrentNodeType('nerves')}
-          style={{
-            backgroundColor: currentNodeType === 'nerves' ? '#ffd700' : '#fff8cc',
-            color: currentNodeType === 'nerves' ? '#333' : '#666',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '10px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: currentNodeType === 'nerves' ? '0 2px 4px rgba(255,215,0,0.3)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: '#ffd700',
-            display: 'inline-block'
-          }} />
-          Nerves
-        </button>
-        <button
-          onClick={() => {
-            setIsConnectMode(!isConnectMode);
-            if (connectStartNode) {
-              connectStartNode.circle.strokeColor = new paper.Color('black');
-              connectStartNode.circle.strokeWidth = 1;
-              connectStartNode.circle.shadowColor = new paper.Color('transparent');
-              connectStartNode.circle.shadowBlur = 0;
-              setConnectStartNode(null);
-            }
-          }}
-          style={{
-            backgroundColor: isConnectMode ? '#4477AA' : '#e8e8e8',
-            color: isConnectMode ? 'white' : '#666',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '10px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: isConnectMode ? '0 2px 4px rgba(68,119,170,0.3)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: isConnectMode ? 'white' : '#4477AA',
-            display: 'inline-block'
-          }} />
-          Connect
-        </button>
+          <select
+            value={currentNodeType}
+            onChange={(e) => setCurrentNodeType(e.target.value)}
+            style={{
+              backgroundColor: '#2d2d2d',
+              color: '#e0e0e0',
+              border: 'none',
+              fontSize: '10px',
+              cursor: 'pointer',
+              outline: 'none',
+              padding: '2px 4px'
+            }}
+          >
+            {nodeTypes.map((type) => (
+              <option key={type} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           onClick={clearDrawing}
           style={{
-            backgroundColor: '#e8e8e8',
-            color: '#666',
-            border: 'none',
+            backgroundColor: '#2d2d2d',
+            color: '#e0e0e0',
+            border: '1px solid #333',
             borderRadius: '4px',
             padding: '4px 8px',
             fontSize: '10px',
@@ -1029,10 +915,10 @@ const MotifSketch: React.FC<{
       </div>
       <div style={{ 
         height: 150, 
-        border: '1px solid #e0e0e0', 
+        border: '1px solid #333', 
         borderRadius: '6px',
-        backgroundColor: '#fafafa',
-        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+        backgroundColor: '#1e1e1e',
+        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
       }}>
         <canvas
           ref={canvasRef}
@@ -1042,10 +928,10 @@ const MotifSketch: React.FC<{
       <div style={{ 
         fontSize: '9px', 
         marginTop: '4px',
-        color: '#666',
+        color: '#999',
         textAlign: 'center'
       }}>
-        Click to add nodes. Drag from node to node to create edges.
+        Click to add nodes. Click on two nodes to connect them.
       </div>
     </div>
   );
@@ -1552,6 +1438,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                   initialEdges={motifEdges}
                   onNodesChange={setMotifNodes}
                   onEdgesChange={setMotifEdges}
+                  nodeTypes={Array.from(new Set(state.data.nodes.map((node: Node) => node.ftuName)))}
                 />
                 <div style={{ 
                   fontSize: '10px', 
