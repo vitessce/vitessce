@@ -121,12 +121,12 @@ function generateNeuroglancerMinimalConfiguration() {
   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
+    // spatialTargetT: 0,
+    // spatialTargetX: 0,
+    // spatialTargetY: 0,
+    // spatialTargetZ: 0,
+    // spatialRotationX: 0,
+    // spatialRotationY: 0,
     // Should there be a Z-target/rotation specified here?
   }, { meta: false });
 
