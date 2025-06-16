@@ -74,6 +74,9 @@ jobs:
         run: ./scripts/build-sites.sh --action
         env:
           ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+      - name: Download CDN assets
+        if: steps.changesets.outputs.should-release == 'true'
+        run: pnpm run sync-cdn
       - name: Configure AWS credentials
         if: steps.changesets.outputs.should-release == 'true'
         uses: aws-actions/configure-aws-credentials@v4
@@ -92,10 +95,12 @@ jobs:
           aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
           aws s3 rm --recursive s3://vitessce-dev/
           aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
+          aws s3 sync ./cdn s3://cdn.vitessce.io/
       - name: Invalidate CloudFront caches
         if: steps.changesets.outputs.should-release == 'true'
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DOCS_CF_DISTRIBUTION_ID }} --paths "/*"
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DEMO_CF_DISTRIBUTION_ID }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_CF_DISTRIBUTION_ID }} --paths "/*"
             
             
