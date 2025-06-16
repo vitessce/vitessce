@@ -70,7 +70,18 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @returns
    */
   async loadSpatialDataAttrs(tablePath) {
-    return this._loadDict(`${tablePath}uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+    const v0_4_0_attrs = await this.getJson(`${tablePath}.zattrs`);
+    const attrsKeys = Object.keys(v0_4_0_attrs);
+    if (['instance_key', 'region', 'region_key'].every(k => attrsKeys.includes(k))) {
+      // TODO: assert things about "spatialdata-encoding-type" and "version" values?
+      // TODO: first check the "spatialdata_software_version" metadata in
+      // the root of the spatialdata object? (i.e., sdata.zarr/.zattrs)
+      return v0_4_0_attrs;
+    }
+    // Prior to v0.4.0 of the spatialdata package, the spatialdata_attrs
+    // lived within their own dictionary within "uns".
+    const pre_v0_4_0_attrs = await this._loadDict(`${tablePath}uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+    return pre_v0_4_0_attrs;
   }
 
   /**
@@ -90,7 +101,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // region,
     } = await this.loadSpatialDataAttrs(getTablePrefix(path));
 
-    indexPath = `${obsPath}/${instanceKey}`;
+    if (instanceKey !== undefined && instanceKey !== null) {
+      // Use a specific instanceKey column for the index if
+      // defined according to spatialdata_attrs metadata.
+      indexPath = `${obsPath}/${instanceKey}`;
+    }
 
     if (indexPath in this.obsIndices) {
       return this.obsIndices[indexPath];
