@@ -10,38 +10,62 @@
 // Example: https://unpkg.com/vitessce@latest/?meta
 
 import fs from 'fs/promises';
-import { join, basename, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
 
 const packageVersions = {
     "dynamic-importmap": ["0.1.0"],
-    "@duckdb/duckdb-wasm": ["1.28.1-dev106.0", "latest"],
+    "@duckdb/duckdb-wasm": ["1.28.1-dev106.0", "1.29.1-dev132.0"], // TODO: sync with version used in this repo (once using).
     "vitessce": ["latest"],
     "@vitessce/dev": ["latest"],
 };
 
 const esmShUrls = {
     "react": [
+        // React 18.2
         "https://esm.sh/react@18.2.0",
         "https://esm.sh/react@18.2.0/es2022/react.mjs",
         "https://esm.sh/react@18.2.0?dev",
         "https://esm.sh/react@18.2.0/es2022/react.development.mjs",
+        // React 18.3
+        "https://esm.sh/react@18.3.0",
+        "https://esm.sh/react@18.3.0/es2022/react.mjs",
+        "https://esm.sh/react@18.3.0?dev",
+        "https://esm.sh/react@18.3.0/es2022/react.development.mjs",
     ],
     "react-dom": [
+        // React 18.2
         "https://esm.sh/react-dom@18.2.0",
         "https://esm.sh/react-dom@18.2.0/es2022/react-dom.mjs",
         "https://esm.sh/react-dom@18.2.0?dev",
         "https://esm.sh/react-dom@18.2.0/es2022/react-dom.development.mjs",
+        // React 18.3
+        "https://esm.sh/react-dom@18.3.0",
+        "https://esm.sh/react-dom@18.3.0/es2022/react-dom.mjs",
+        "https://esm.sh/react-dom@18.3.0?dev",
+        "https://esm.sh/react-dom@18.3.0/es2022/react-dom.development.mjs",
     ],
     "react-dom/client": [
+        // React 18.2
         "https://esm.sh/react-dom@18.2.0/client",
         "https://esm.sh/react-dom@18.2.0/es2022/client.mjs",
         "https://esm.sh/react-dom@18.2.0/client?dev",
         "https://esm.sh/react-dom@18.2.0/es2022/client.development.mjs",
+        // React 18.3
+        "https://esm.sh/react-dom@18.3.0/client",
+        "https://esm.sh/react-dom@18.3.0/es2022/client.mjs",
+        "https://esm.sh/react-dom@18.3.0/client?dev",
+        "https://esm.sh/react-dom@18.3.0/es2022/client.development.mjs",
     ],
     "scheduler": [
+        // For react 18.2.0
         "https://esm.sh/scheduler@^0.23.0?target=es2022",
+        "https://esm.sh/scheduler@^0.23.0?target=es2022&dev",
+        // For react 18.3.0
+        "https://esm.sh/scheduler@^0.23.1?target=es2022",
+        "https://esm.sh/scheduler@^0.23.1?target=es2022&dev",
+        // For scheduler ^0.23.x
         "https://esm.sh/scheduler@0.23.2/es2022/scheduler.mjs",
+        "https://esm.sh/scheduler@0.23.2/es2022/scheduler.development.mjs",
     ],
 };
 
@@ -146,7 +170,8 @@ async function processEsmShUrl(url) {
   
   // Create a filename-safe version of the query string
   const queryString = urlObj.search.replace(/[?&=]/g, '_');
-  const filename = pathParts.length > 1 ? urlObj.pathname.substring(1) + queryString : join(packageNameAndVersion, 'index.js');
+  const hasDevFlag = url.endsWith('?dev') || url.endsWith('&dev');
+  const filename = pathParts.length > 1 ? urlObj.pathname.substring(1) + queryString : join(packageNameAndVersion, hasDevFlag ? 'index_dev.js' : 'index.js');
   
   const outputPath = join(outDir, filename);
   await ensureDirectoryExists(dirname(outputPath));
