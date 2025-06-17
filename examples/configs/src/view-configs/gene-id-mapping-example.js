@@ -1,4 +1,4 @@
-export const testConfig = {
+export const geneIdMappingExample = {
   coordinationSpace: {
     dataset: {
       A: 'A',
