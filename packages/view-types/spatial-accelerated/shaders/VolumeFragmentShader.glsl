@@ -808,6 +808,7 @@ void main(void) {
 
                     } else {
                         // no adjacent bricks
+                        // clampedVoxelInBrick = clamp(voxelInBrick, 0.5, 30.5);
                         c_PT_X_adjacent[c] = c_PT_Y_adjacent[c] = c_PT_Z_adjacent[c] = vec3(-1.0);
                         c_brick_X_adjacent[c] = c_brick_Y_adjacent[c] = c_brick_Z_adjacent[c] = vec3(-1.0);
                     }
