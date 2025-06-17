@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
  * VolumeView.js
  */
@@ -51,7 +52,7 @@ export function VolumeView(props) {
   const [isInteracting, setIsInteracting] = useState(false);
 
   // new refs from step 2
-  const [renderSpeed, setRenderSpeed] = useState(5); // 0 (coarsest) – 5 (finest)
+  const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
   const stillRef = useRef(false); // skip geometry pass when true
   const frameRef = useRef(0); // frame counter
   const lastSampleRef = useRef(0);
@@ -66,11 +67,12 @@ export function VolumeView(props) {
     log('useEffect INIT');
     (async () => {
       const dm = new VolumeDataManager(
-        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
         // 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
         // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
         // 'http://127.0.0.1:8080/gloria_conversion/v2',
         // 'http://127.0.0.1:8080/kingsnake/kingsnake_b2r2.zarr/0',
+        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
         gl.getContext?.() || gl,
         gl,
       );
@@ -283,7 +285,7 @@ export function VolumeView(props) {
     lastFrameCountRef.current = frameRef.current;
 
     const upscale = fps > 100 && renderSpeed > 0; // Can't go below 0
-    const downscale = fps < 30 && renderSpeed < 5; // Can't go above 5
+    const downscale = fps < 30 && renderSpeed < managers?.dataManager.PT.lowestDataRes; // Can't go above
 
     if (upscale || downscale) {
       const newSpeed = renderSpeed + (downscale ? 1 : -1);
@@ -326,7 +328,7 @@ export function VolumeView(props) {
 
   useEffect(() => {
     if (isInteracting) {
-      setRenderSpeed(5);
+      setRenderSpeed(managers?.dataManager.PT.lowestDataRes);
       stillRef.current = false;
       invalidate();
     }
@@ -393,7 +395,7 @@ export function VolumeView(props) {
         ref={mainOrbitControlsRef}
         enableDamping={false}
       />
-      <mesh ref={meshRef} scale={renderState.meshScale}>
+      <mesh ref={meshRef} scale={new THREE.Vector3(1, 1, 1)}>
         <boxGeometry args={renderState.geometrySize} />
         <shaderMaterial
           uniforms={renderState.uniforms}

@@ -159,6 +159,15 @@ uvec3 getAnchorPoint(int index) {
     return uvec3(-1, -1, -1);
 }
 
+int getLowestRes() {
+    for (int i = 0; i < 10; i++) {
+        if (getAnchorPoint(i) == uvec3(0,0,0)) {
+            return i - 1;
+        }
+    }
+    return 9;
+}
+
 vec3 getScale(int index) {
     if (index == 0) return scale0;
     if (index == 1) return scale1;
@@ -413,6 +422,9 @@ void main(void) {
     // random number for jittering
     float rnd = random();
 
+    // get lowest resolution
+    int lowestDataRes = getLowestRes();
+
     // normalize the view Ray & intersect with the volume bounds
     vec3 ws_rayDir = normalize(rayDirUnnorm);
     vec2 t_hit = intersect_hit(cameraCorrected, ws_rayDir);
@@ -431,7 +443,7 @@ void main(void) {
     int targetRes = getLOD(t_os, resGlobal.x, resGlobal.y, lodFactor);
     // render defines only stepping distance
     int stepResAdaptive = renderRes;
-    int stepResEffective = clamp(stepResAdaptive, 0, 5);
+    int stepResEffective = clamp(stepResAdaptive, 0, lowestDataRes);
 
     // convert to object space
     vec3 os_rayDir = normalize(ws_rayDir / boxSize);
@@ -502,7 +514,7 @@ void main(void) {
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
             stepResAdaptive++;
-            stepResEffective = clamp(stepResAdaptive, 0, 5);
+            stepResEffective = clamp(stepResAdaptive, 0, lowestDataRes);
             p -= dp * rnd;
             dt = voxelStepOS(stepResEffective, os_rayDir);
             dp = os_rayDir * dt;

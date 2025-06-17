@@ -133,6 +133,7 @@ export class VolumeDataManager {
       group: '', // ref to this.group
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
       scales: [], // downsample ratios, [x,y,z] per resolution level
+      lowestDataRes: 0, // lowest resolution level with data
     };
 
     this.ptTHREE = null;
@@ -471,6 +472,9 @@ export class VolumeDataManager {
     console.warn('PT anchors', this.PT.anchors);
 
     console.warn('PT anchors with 0', this.PT.anchors);
+
+    this.PT.lowestDataRes = this.zarrStore.brickLayout.length - 1;
+    console.warn('lowestDataRes', this.PT.lowestDataRes);
 
     // Sum up the extents from all resolution levels excluding the l0
     for (let i = this.zarrStore.brickLayout.length - 1; i > 0; i--) {
