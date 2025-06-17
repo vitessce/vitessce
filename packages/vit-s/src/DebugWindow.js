@@ -9,21 +9,18 @@ export function DebugWindow({ debugErrors }) {
       <div className={clsx(classes.warningLayout, classes.containerFluid)}>
         <div className={classes.row}>
           <div className={classes.warningCard}>
-            {debugErrors.map((error, index) => (
-              <div key={error.message || index}>
-                {index === 0 && (
-                  <div>
-                    <h1>Error Type: {error.name}</h1>
-                    {Object.keys(error).map(
-                      key => key !== 'name'
-                        && key !== 'message' && (
-                          <p key={key}>
-                            {key.charAt(0).toUpperCase() + key.slice(1)}: {error[key]}
-                          </p>
-                      ),
-                    )}
-                  </div>
-                )}
+            {debugErrors.map(error => (
+              <div key={`${error.name}-${error.message}`}>
+                <h1>Error Type: {error.name}</h1>
+
+                {Object.getOwnPropertyNames(error).map(key => (
+                  key !== 'name' && key !== 'message' && (
+                  <p key={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}: {String(error[key])}
+                  </p>
+                  )
+                ))}
+
                 <p>Error: {error.message}</p>
               </div>
             ))}
