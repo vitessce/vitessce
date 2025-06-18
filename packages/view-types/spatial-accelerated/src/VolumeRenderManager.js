@@ -501,6 +501,15 @@ export class VolumeRenderManager {
         console.error('scale', i, 'does not exist');
       }
     }
+    console.warn('zarrStore.brickLayout', zarrStore.brickLayout);
+    for (let i = 0; i < 7; i++) {
+      this.uniforms[`res${i}`].value.set(
+        0, zarrStore.brickLayout.length - 1,
+      );
+    }
+    this.uniforms.resGlobal.value.set(
+      0, zarrStore.brickLayout.length - 1,
+    );
     this.uniforms.voxelExtents.value.set(
       zarrStore.shapes[0][4],
       zarrStore.shapes[0][3],

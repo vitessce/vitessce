@@ -7,6 +7,7 @@ in vec3 rayDirUnnorm;
 in vec3 cameraCorrected;
 uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
+uniform int u_renderstyle;
 uniform vec2 clim0;
 uniform vec2 clim1;
 uniform vec2 clim2;
@@ -491,6 +492,9 @@ void main(void) {
     vec3 []  c_brick_Z_adjacent =        vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 []  c_brick_XYZ_adjacent =      vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
 
+    float [] c_minVal = float[7](-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0);
+    float [] c_maxVal = float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
     // pt coord and voxel per resolution
     vec3 [] r_ptCoord = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 [] r_voxel = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
@@ -510,7 +514,6 @@ void main(void) {
         // p goes from 0 to 1
         targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor + (rnd * 0.1 - 0.05));
 
-        // TODO: figure out how to best clamp the renderres
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
             stepResAdaptive++;
@@ -555,9 +558,20 @@ void main(void) {
             bool newVoxel = false;
             int bestRes = clamp(targetRes, c_res_min[c], c_res_max[c]);
 
+            // check if any new better resolution could be available
+            bool betterResChanged = false;
+
+            for (int r = bestRes; r <= c_res_current[c]; r++ ) {
+                if (r_ptCoord[r] != r_prevPTCoord[r]) {
+                    betterResChanged = true;
+                    break;
+                }
+            }
+
             if (r_ptCoord[bestRes] != r_prevPTCoord[bestRes]
                 || c_renderMode_current[c] == -1
                 || resolutionChanged == true
+                || betterResChanged
                 ) {
                 newBrick = true;
                 newVoxel = true;
@@ -573,11 +587,13 @@ void main(void) {
                     // empty
                     c_val_current[c] = 0.0;
                     c_renderMode_current[c] = 0;
+                    c_minVal[c] = 0.0;
                     continue;
                 } else if (brickCacheInfo.w == -3) {
                     // solid
                     c_val_current[c] = 1.0;
                     c_renderMode_current[c] = 1;
+                    c_maxVal[c] = 1.0;
                     newVoxel = false;
                     // continue;
                 } else if (brickCacheInfo.w == -4) {
@@ -816,6 +832,14 @@ void main(void) {
 
                 c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
                 c_res_prev[c] = c_res_current[c];
+
+                if (c_minVal[c] == -1.0) {
+                    c_minVal[c] = c_val_current[c];
+                } else {
+                    c_minVal[c] = min(c_minVal[c], c_val_current[c]);
+                }
+                c_maxVal[c] = max(c_maxVal[c], c_val_current[c]);
+
             }
 
             if (!overWrittenRequest 
@@ -840,12 +864,32 @@ void main(void) {
         outColor.a += sliceAlpha * alphaMultiplicator;
         alphaMultiplicator *= (1.0 - sliceAlpha);
 
-        if (outColor.a > 0.99) { break; }
+        if (outColor.a > 0.99 && u_renderstyle == 0) { break; }
 
-        t += dt;
+        t += (dt / ws2os);
         p += dp;
         t_os += dt;
         // reps++;
+    }
+
+    // val = 0 -> channel color
+    // val = 1 -> white
+    if (u_renderstyle == 1) { // minimum intensity projection
+        outColor = vec4(0.0);
+        for (int c = 0; c < 7; c++) {
+            if (c_color[c] != vec3(0.0, 0.0, 0.0)) {
+                outColor.rgb += c_minVal[c] * c_color[c];
+                outColor.a += c_minVal[c];
+            }
+        }
+    } else if (u_renderstyle == 0) { // maximum intensity projection
+        outColor = vec4(0.0);
+        for (int c = 0; c < 7; c++) {
+            if (c_color[c] != vec3(0.0, 0.0, 0.0)) {
+                outColor.rgb += c_maxVal[c] * c_color[c];
+            }
+        }
+        outColor.a = 1.0;
     }
 
     // Set all render targets directly without conditionals
