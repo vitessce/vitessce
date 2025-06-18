@@ -16,22 +16,22 @@ import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-uti
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
-// 2048 = 2^4.62 * BASE_SCALE  (TODO: these are assumptions, need to find the right match between the two)
-// → BASE_SCALE ≈ 2048 / 2^4.62 ≈ 2048 / 24.63 ≈ 83.18
-const baseScale = 83.18;
+let CACHED_BASE_SCALE = null;
 
 /**
  * Deck.gl zoom → Neuroglancer projectionScale
  */
 function deckZoomToProjectionScale(zoom) {
-  return baseScale * (2 ** -zoom);
+  if (zoom) return CACHED_BASE_SCALE * (2 ** -zoom);
+  return 1;
 }
 
 /**
  * Neuroglancer projectionScale → Deck.gl zoom
  */
 function projectionScaleToDeckZoom(projectionScale) {
-  return Math.log2(baseScale / projectionScale);
+  if (projectionScale) return Math.log2(CACHED_BASE_SCALE / projectionScale);
+  return 1;
 }
 
 
@@ -117,6 +117,15 @@ export function NeuroglancerSubscriber(props) {
   const { classes } = useStyles();
   const loaders = useLoaders();
 
+  if (
+    CACHED_BASE_SCALE === null
+       && initialViewerState?.projectionScale
+      && typeof spatialZoom === 'number'
+      && spatialZoom !== 0
+  ) {
+    CACHED_BASE_SCALE = initialViewerState.projectionScale / (2 ** -spatialZoom);
+  }
+
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -131,10 +140,8 @@ export function NeuroglancerSubscriber(props) {
 
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
-    // console.log("neuro", projectionScale, projectionOrientation, position, mapNeuroglancerToVitessce(projectionScale));
     setZoom(projectionScaleToDeckZoom(projectionScale));
     // const vitessceEularMapping = quaternionToEuler(projectionOrientation);
-    // console.log("state", vitessceEularMapping, projectionOrientation, spatialRotationX, spatialRotationY);
     // // TODO: support z rotation on SpatialView?
     // setRotationX(vitessceEularMapping[0]);
     // setRotationY(vitessceEularMapping[1]);
@@ -195,27 +202,25 @@ export function NeuroglancerSubscriber(props) {
   }), [cellColorMapping, initialViewerState]);
 
   const derivedViewerState2 = useMemo(() => {
-
-    let projectionScale = derivedViewerState.projectionScale, position = derivedViewerState.position;
+    let { projectionScale } = derivedViewerState;
+    const { position } = derivedViewerState;
     // let projectionOrientation = derivedViewerState.projectionOrientation
     if (typeof spatialZoom === 'number') {
       projectionScale = deckZoomToProjectionScale(spatialZoom);
-     
     }
     // if (typeof spatialTargetX === 'number') {
     //    position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
     // }
-      // const projectionOrientation = normalizeQuaternion(
-      //   eulerToQuaternion(spatialRotationX, spatialRotationY),
-      // );
-      // console.log("DVState2", Math.floor(spatialZoom), projectionScale, derivedViewerState.projectionScale)
-   
-      return {
-        ...derivedViewerState,
-        projectionScale,
-        // position,
-        // projectionOrientation,
-      };
+    // const projectionOrientation = normalizeQuaternion(
+    //   eulerToQuaternion(spatialRotationX, spatialRotationY),
+    // );
+
+    return {
+      ...derivedViewerState,
+      projectionScale,
+      // position,
+      // projectionOrientation,
+    };
     // return derivedViewerState;
   }, [derivedViewerState, spatialZoom, spatialTargetX,
     spatialTargetY, spatialRotationX, spatialRotationY]);

@@ -57,7 +57,6 @@ function compareViewerState(prevState, nextState) {
     // that we want to use for comparison.
     const prevSubset = pick(prevState, VIEWSTATE_KEYS);
     const nextSubset = pick(nextState, VIEWSTATE_KEYS);
-    // console.log("equal", prevState.projectionScale, nextState.projectionScale, isEqualWith(prevSubset, nextSubset, customizer))
     return isEqualWith(prevSubset, nextSubset, customizer);
   }
   return true;
