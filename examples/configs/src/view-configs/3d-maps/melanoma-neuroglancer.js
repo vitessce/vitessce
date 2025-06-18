@@ -97,7 +97,7 @@ function generateNeuroglancerMinimalConfiguration() {
       0.5443811416625977,
       0.2145828753709793,
     ],
-    projectionScale: 1024,
+    projectionScale: 2048,
     layers: [
       {
         type: 'segmentation',

@@ -37,7 +37,8 @@ const VIEWSTATE_KEYS = ['projectionScale', 'projectionOrientation', 'position'];
 function customizer(a, b) {
   if (typeof a === 'number' && typeof b === 'number') {
     // Returns true if the values are equivalent, else false.
-    return Math.abs(a - b) > EPSILON;
+    // return Math.abs(a - b) > EPSILON;
+    return Math.abs(a - b) < EPSILON;
   }
   // Return undefined to fallback to the default
   // comparison function.
@@ -56,6 +57,7 @@ function compareViewerState(prevState, nextState) {
     // that we want to use for comparison.
     const prevSubset = pick(prevState, VIEWSTATE_KEYS);
     const nextSubset = pick(nextState, VIEWSTATE_KEYS);
+    // console.log("equal", prevState.projectionScale, nextState.projectionScale, isEqualWith(prevSubset, nextSubset, customizer))
     return isEqualWith(prevSubset, nextSubset, customizer);
   }
   return true;
