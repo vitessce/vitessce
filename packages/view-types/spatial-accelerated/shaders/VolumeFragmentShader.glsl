@@ -318,7 +318,6 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
             if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
-            //return ivec4(0,0,0,-10);
             continue;
         } else {
             uint xBrickCache = (ptEntry >> 10u) & 0x3Fu;
@@ -350,7 +349,6 @@ void setBrickRequest(vec3 location, int targetRes, int channel, float rnd) {
 void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, float t_os, float rnd) {
     float normalized_t_os = (t_os - t_hit_min_os) / (t_hit_max_os - t_hit_min_os); // should be between 0 and 1
     if (normalized_t_os <= rnd || gUsage == vec4(0.0, 0.0, 0.0, 0.0)) {
-        // gUsage = vec4(gUsage.rgb + vec3(0.1), 1.0);
         gUsage = vec4(vec3(brickCacheOffset) / 255.0, 1.0);
     }
 }
@@ -525,7 +523,6 @@ void main(void) {
             resolutionChanged = true;
 
             if (p.x < 0.0 || p.x >= 1.0 || p.y < 0.0 || p.y >= 1.0 || p.z < 0.0 || p.z >= 1.0) {
-                // gColor = vec4(0.0, 1.0, 1.0, 1.0);
                 break;
             }
         } else {
@@ -595,15 +592,12 @@ void main(void) {
                     c_renderMode_current[c] = 1;
                     c_maxVal[c] = 1.0;
                     newVoxel = false;
-                    // continue;
                 } else if (brickCacheInfo.w == -4) {
                     float val = float(brickCacheInfo.x);
                     c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
                     c_renderMode_current[c] = 1;
                     newVoxel = false;
-                    // continue;
                 } else if (brickCacheInfo.w >= 0) {
-                    // reps++;
                     c_res_current[c] = brickCacheInfo.w;
                     c_ptCoord_current[c] = r_ptCoord[c_res_current[c]];
                     c_brickCacheCoord_current[c] = vec3(brickCacheInfo.xyz);
@@ -631,7 +625,6 @@ void main(void) {
                     vec3 diff = voxelInBrick - clampedVoxelInBrick;
                     
                     if (any(clampedMin) || any(clampedMax)) {                       
-                        // int boundaryAxes = int(clampedMin.x) + int(clampedMin.y) + int(clampedMin.z) + int(clampedMax.x) + int(clampedMax.y) + int(clampedMax.z);
                         int boundaryAxes = int(clamped.x) + int(clamped.y) + int(clamped.z);
                         float f = 0.0;
                                                 
@@ -866,14 +859,11 @@ void main(void) {
 
         if (outColor.a > 0.99 && u_renderstyle == 0) { break; }
 
-        t += (dt / ws2os);
+        t += dt;
         p += dp;
         t_os += dt;
-        // reps++;
     }
 
-    // val = 0 -> channel color
-    // val = 1 -> white
     if (u_renderstyle == 1) { // minimum intensity projection
         outColor = vec4(0.0);
         for (int c = 0; c < 7; c++) {
@@ -898,14 +888,4 @@ void main(void) {
                   linear_to_srgb(outColor.b), 
                   outColor.a);
     
-    // gColor = vec4(float(reps) / 500.0, 0.0, 0.0, 1.0);
-
-    // gColor = vec4(gRequest.a * 10.0, gRequest.g * 3.0, gRequest.b * 3.0, 1.0);
-    // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
-    // gColor = linear_to_srgb(gRequest);
-    // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
-
-    // gColor = vec4(gRequest.a, gRequest.g, gRequest.b, 1.0);
-    // gRequest = vec4(0.0, 0.0, 0.0, 0.0);
-    // gColor = linear_to_srgb(gUsage);
 }
