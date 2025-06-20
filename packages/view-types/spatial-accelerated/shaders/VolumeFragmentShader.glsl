@@ -430,6 +430,7 @@ void main(void) {
     if (t_hit.x >= t_hit.y) { discard; }
     t_hit.x = max(t_hit.x, 0.0); // cap at 0
     float t = t_hit.x;
+    float distance = abs((cameraCorrected / boxSize).z + (ws_rayDir / boxSize).z * t );
 
     // convert from world space to object space
     float ws2os = length(ws_rayDir / boxSize);  // scalar conversion factor
@@ -437,9 +438,12 @@ void main(void) {
     float t_hit_max_os = t_hit.y * ws2os;       // exit  distance in OS units
     float t_os         = t_hit_min_os;          // our new marching parameter
 
+    float voxelEdge = 1.0 / float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    float lodFactorEffective = lodFactor / voxelEdge;
+
     // initialize resolutions
     // target res based on the distance
-    int targetRes = getLOD(t_os, resGlobal.x, resGlobal.y, lodFactor);
+    int targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactorEffective);
     // render defines only stepping distance
     int stepResAdaptive = renderRes;
     int stepResEffective = clamp(stepResAdaptive, 0, lowestDataRes);
@@ -510,7 +514,7 @@ void main(void) {
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactor + (rnd * 0.1 - 0.05));
+        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactorEffective);
 
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
@@ -842,6 +846,30 @@ void main(void) {
                 && int(floor(rnd * float(maxChannels))) == c) {
                 setBrickRequest(p, bestRes, c, rnd);
                 overWrittenRequest = true;
+            }
+
+            if (targetRes == 0) {
+                c_color[c] = vec3(1.0, 1.0, 1.0);
+            } else if (targetRes == 1) {
+                c_color[c] = vec3(0.0, 1.0, 1.0);
+            } else if (targetRes == 2) {
+                c_color[c] = vec3(1.0, 0.0, 0.0);
+            } else if (targetRes == 3) {
+                c_color[c] = vec3(0.0, 0.0, 1.0);
+            } else if (targetRes == 4) {
+                c_color[c] = vec3(1.0, 1.0, 0.0);
+            } else if (targetRes == 5) {
+                c_color[c] = vec3(0.0, 1.0, 0.0);
+            } else if (targetRes == 6) {
+                c_color[c] = vec3(1.0, 0.0, 1.0);
+            } else if (targetRes == 7) {
+                c_color[c] = vec3(0.5, 0.5, 0.0);
+            } else if (targetRes == 8) {
+                c_color[c] = vec3(0.0, 0.5, 0.5);
+            } else if (targetRes == 9) {
+                c_color[c] = vec3(0.5, 0.0, 0.5);
+            } else {
+                c_color[c] = vec3(0.5, 0.5, 0.5);
             }
 
             total += c_val_current[c];

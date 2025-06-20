@@ -633,6 +633,17 @@ export class VolumeDataManager {
     return out;
   }
 
+  getNormalizedScaleXYZ() {
+    console.log('getNormalizedScaleXYZ');
+    const out = [
+      1.0,
+      this.zarrStore.physicalSizeVoxel[1] / this.zarrStore.physicalSizeVoxel[2],
+      this.zarrStore.physicalSizeVoxel[0] / this.zarrStore.physicalSizeVoxel[0],
+    ];
+    console.log('out', out);
+    return out;
+  }
+
   getBoxDimensionsXYZ() {
     console.log('getBoxDimensionsXYZ');
     console.log('this.zarrStore.shapes', this.zarrStore.shapes);

@@ -290,8 +290,13 @@ export class VolumeRenderManager {
       this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
       this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
       const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
+      this.normalizedScale = volumeDataManager.getNormalizedScaleXYZ();
 
-      this.meshScale = this.originalScale;
+      this.meshScale = [
+        this.originalScale[0] / this.originalScale[0],
+        this.originalScale[1] / this.originalScale[0],
+        this.originalScale[2] / this.originalScale[0],
+      ];
       this.geometrySize = scaledResolution;
       this.boxSize = scaledResolution;
 
