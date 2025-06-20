@@ -16,7 +16,7 @@ function generateThreeMinimalConfiguration() {
     // url: 'http://127.0.0.1:8080/kingsnake_1024x1024x795_uint8_z_manual.zarr',
     // url: 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
 
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
     // url: 'http://127.0.0.1:8080/gloria/',
     // url: 'http://127.0.0.1:8080/gloria_conversion/v1',
@@ -24,9 +24,9 @@ function generateThreeMinimalConfiguration() {
     // Example 1 clarence -- 0-7
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
     // Example 2 clarence -- 0-8
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/' 
+    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
     // Example 350 GB
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/'
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
 
     // url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.3/idr0079A/9836998.zarr',
     // url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',

@@ -438,12 +438,12 @@ void main(void) {
     float t_hit_max_os = t_hit.y * ws2os;       // exit  distance in OS units
     float t_os         = t_hit_min_os;          // our new marching parameter
 
-    float voxelEdge = 1.0 / float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
-    float lodFactorEffective = lodFactor / voxelEdge;
+    float voxelEdge = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+    float lodFactorEffective = lodFactor * voxelEdge / 256.0;
 
     // initialize resolutions
     // target res based on the distance
-    int targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactorEffective);
+    int targetRes = getLOD(t, 0, 9, lodFactorEffective);
     // render defines only stepping distance
     int stepResAdaptive = renderRes;
     int stepResEffective = clamp(stepResAdaptive, 0, lowestDataRes);
@@ -514,7 +514,7 @@ void main(void) {
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetRes = getLOD(t, resGlobal.x, resGlobal.y, lodFactorEffective);
+        targetRes = getLOD(t, 0, 9, lodFactorEffective);
 
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
@@ -863,11 +863,11 @@ void main(void) {
             } else if (targetRes == 6) {
                 c_color[c] = vec3(1.0, 0.0, 1.0);
             } else if (targetRes == 7) {
-                c_color[c] = vec3(0.5, 0.5, 0.0);
+                c_color[c] = vec3(1.0, 0.5, 0.5);
             } else if (targetRes == 8) {
-                c_color[c] = vec3(0.0, 0.5, 0.5);
+                c_color[c] = vec3(0.5, 1.0, 0.5);
             } else if (targetRes == 9) {
-                c_color[c] = vec3(0.5, 0.0, 0.5);
+                c_color[c] = vec3(0.5, 0.5, 1.0);
             } else {
                 c_color[c] = vec3(0.5, 0.5, 0.5);
             }

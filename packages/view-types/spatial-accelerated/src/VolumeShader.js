@@ -38,7 +38,7 @@ export const VolumeShader = {
     res5: { value: new Vector2(0, 9) },
     res6: { value: new Vector2(0, 9) },
     maxChannels: { value: 0 },
-    lodFactor: { value: 0.002 },
+    lodFactor: { value: 1.0 },
     near: { value: 0.1 },
     far: { value: 10000 },
     opacity: { value: 1 },
