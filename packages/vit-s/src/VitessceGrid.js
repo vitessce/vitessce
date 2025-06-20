@@ -141,38 +141,62 @@ export default function VitessceGrid(props) {
   useEffect(() => {
     const zone = containerRef.current;
 
-    // The dragenter event happens at the moment you drag something in to the target element, and then it stops.
-    // The dragover event happens during the time you are dragging something until you drop it.
-    zone.addEventListener("dragenter", (e) => {
+    const onDragEnter = (e) => {
+      if(!enableDropzone) return;
+      console.log('onDragEnter');
       e.preventDefault();
       setIsDragging(true);
-    });
-
-    zone.addEventListener("dragleave", (e) => {
+    };
+    const onDragLeave = (e) => {
+      if(!enableDropzone) return;
       setIsDragging(false);
-    });
-
-    zone.addEventListener("dragover", (e) => {
+    };
+    const onDragOver = (e) => {
+      if(!enableDropzone) return;
       e.preventDefault();
-    });
-
-    zone.addEventListener("drop", (e) => {
+    };
+    const onDrop = async (e) => {
+      if(!enableDropzone) return;
       e.preventDefault();
       setIsDragging(false);
       setIsDragProcessing(true);
-      //console.log(e.dataTransfer);
-      getFilesFromDataTransferItems(e.dataTransfer.items).then(files => {
-        //console.log(files);
-        setIsDragProcessing(false);
 
-        const store = new FileSystemStore(files);
-        const storeRoot = zarrRoot(store);
-        //console.log(storeRoot);
-        (zarrOpen(storeRoot.resolve('/sdata.zarr')))
-          .then((group) => console.log(group.attrs));
-      });
-    });
-  }, [containerRef]);
+      const topLevelEntries = Object.values(e.dataTransfer.items)
+        .map(item => item.webkitGetAsEntry());
+      
+      const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
+      setIsDragProcessing(false);
+
+      // Create a store for each top-level item of e.dataTransfer.items.
+      const store = new FileSystemStore(files);
+      const storeRoot = zarrRoot(store);
+
+      const stores = await Promise.all(topLevelEntries.map(
+        entry => zarrOpen(storeRoot.resolve(entry.fullPath))
+      ));
+      const nameToStore = Object.fromEntries(
+        topLevelEntries.map((entry, i) => {
+          return [entry.fullPath, stores[i]];
+        })
+      );
+      console.log(nameToStore);
+    };
+
+
+    // The dragenter event happens at the moment you drag something in to the target element, and then it stops.
+    // The dragover event happens during the time you are dragging something until you drop it.
+    zone.addEventListener("dragenter", onDragEnter);
+    zone.addEventListener("dragleave", onDragLeave);
+    zone.addEventListener("dragover", onDragOver);
+    zone.addEventListener("drop", onDrop);
+
+    return () => {
+      zone.removeEventListener("dragenter", onDragEnter);
+      zone.removeEventListener("dragleave", onDragLeave);
+      zone.removeEventListener("dragover", onDragOver);
+      zone.removeEventListener("drop", onDrop);
+    };
+  }, [containerRef, enableDropzone]);
 
   return (
     <div
@@ -181,8 +205,6 @@ export default function VitessceGrid(props) {
       role="group"
       aria-label={altText}
     >
-      {isDragging ? (<p>Is dragging</p>) : null}
-      {isDragProcessing ? (<p>Is drag processing</p>) : null}
       <GridLayoutGlobalStyles classes={classes} />
       {!pageMode && enableSidebar ? (
         <Sidebar
@@ -192,7 +214,7 @@ export default function VitessceGrid(props) {
           themeEditable={themeEditable}
         />
       ) : null}
-      <div style={{ width: `calc(100% - ${enableSidebar ? SIDEBAR_WIDTH : 0}px)`, position: 'relative'}}>
+      <div style={{ width: `calc(100% - ${enableSidebar ? SIDEBAR_WIDTH : 0}px)`, position: 'relative' }}>
         {layout ? (
           <VitessceGridLayout
             pageMode={pageMode}

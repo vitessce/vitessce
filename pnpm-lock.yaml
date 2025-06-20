@@ -2507,12 +2507,6 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
-      '@zarrita/storage':
-        specifier: 'catalog:'
-        version: 0.1.0
-      browser-fs-access:
-        specifier: ^0.38.0
-        version: 0.38.0
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
@@ -7800,9 +7794,6 @@ packages:
 
   brorand@1.1.0:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
-
-  browser-fs-access@0.38.0:
-    resolution: {integrity: sha512-JveqW2w6pEZqFEEfMgCszXzYpE89dG+nPsmOdcs741mFFAROeL+iqjGEpR07RI+s0YY0EFr+4KnOoACprJTpOw==}
 
   browser-process-hrtime@1.0.0:
     resolution: {integrity: sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==}
@@ -23155,8 +23146,6 @@ snapshots:
       through2: 2.0.5
 
   brorand@1.1.0: {}
-
-  browser-fs-access@0.38.0: {}
 
   browser-process-hrtime@1.0.0: {}
 

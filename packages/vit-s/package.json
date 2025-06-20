@@ -52,9 +52,7 @@
     "react-aria": "catalog:",
     "react-error-boundary": "catalog:",
     "@placemarkio/flat-drop-files": "^1.0.2",
-    "browser-fs-access": "^0.38.0",
-    "zarrita": "catalog:",
-    "@zarrita/storage": "catalog:"
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
