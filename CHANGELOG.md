@@ -1,4 +1,17 @@
 
+## 3.6.3
+
+### Patch Changes
+
+- Support the latest spatialdata table metadata format. (`@vitessce/spatial-zarr`) ([#2138](https://github.com/vitessce/vitessce/pull/2138))
+
+- Override photometricInterpretation from image metadata in blin-2019 example. (`@vitessce/example-configs`) ([#2143](https://github.com/vitessce/vitessce/pull/2143))
+
+- Updated genes_filtered file bucket to data-v1 (`@vitessce/biomarker-select`) ([#2141](https://github.com/vitessce/vitessce/pull/2141))
+
+- Fix bug preventing correct feature value extents in spatialBeta view legend (`@vitessce/legend`) ([#2149](https://github.com/vitessce/vitessce/pull/2149))
+
+
 ## 3.6.2
 
 ### Patch Changes
