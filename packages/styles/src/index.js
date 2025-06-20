@@ -67,6 +67,8 @@ export { default as Typography } from '@mui/material/Typography';
 export { default as Add } from '@mui/icons-material/Add';
 export { default as ArrowDropDown } from '@mui/icons-material/ArrowDropDown';
 export { default as ArrowDropUp } from '@mui/icons-material/ArrowDropUp';
+export { default as ArrowRight } from '@mui/icons-material/ArrowRight';
+export { default as ArrowLeft } from '@mui/icons-material/ArrowLeft';
 export { default as CenterFocusStrong } from '@mui/icons-material/CenterFocusStrong';
 export { default as Close } from '@mui/icons-material/Close';
 export { default as CloudDownload } from '@mui/icons-material/CloudDownload';
@@ -81,6 +83,18 @@ export { default as RemoveCircle } from '@mui/icons-material/RemoveCircle';
 export { default as Settings } from '@mui/icons-material/Settings';
 export { default as Visibility } from '@mui/icons-material/Visibility';
 export { default as VisibilityOff } from '@mui/icons-material/VisibilityOff';
+export { default as Edit } from '@mui/icons-material/Edit';
+export { default as Undo } from '@mui/icons-material/Undo';
+export { default as Redo } from '@mui/icons-material/Redo';
+export { default as AddToPhotos } from '@mui/icons-material/AddToPhotos';
+export { default as LinkIcon } from '@mui/icons-material/Link';
+export { default as InvertColors } from '@mui/icons-material/InvertColors';
+export { default as Code } from '@mui/icons-material/Code';
+export { default as FiberNew } from '@mui/icons-material/FiberNew';
+export { default as Storage } from '@mui/icons-material/Storage';
+export { default as ViewCompact } from '@mui/icons-material/ViewCompact';
+export { default as LeakAdd } from '@mui/icons-material/LeakAdd';
+
 
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';

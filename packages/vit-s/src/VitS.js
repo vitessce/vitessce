@@ -79,7 +79,7 @@ export function VitS(props) {
     stores,
     rowHeight,
     height,
-    theme,
+    theme: themeProp,
     onWarn,
     onConfigChange,
     onLoaderChange,
@@ -99,7 +99,15 @@ export function VitS(props) {
     children,
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
+    enableSidebar = false,
+    enableDropzone = false,
+    configEditable = true,
+    themeEditable = true,
   } = props;
+
+  const prefersDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const defaultTheme = prefersDark ? 'dark' : 'light';
+  const [theme, setTheme] = useState(themeProp ?? defaultTheme);
 
   // eslint-disable-next-line no-unused-vars
   const [debugErrors, setDebugErrors] = useState([]);
@@ -290,6 +298,11 @@ export function VitS(props) {
                   theme={theme}
                   isBounded={isBounded}
                   stores={stores}
+                  enableSidebar={enableSidebar}
+                  enableDropzone={enableDropzone}
+                  configEditable={configEditable}
+                  themeEditable={themeEditable}
+                  setTheme={setTheme}
                 >
                   {children}
                 </VitessceGrid>

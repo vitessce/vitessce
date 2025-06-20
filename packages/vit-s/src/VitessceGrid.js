@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useState,
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -25,9 +26,29 @@ import {
 } from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
+import { getFilesFromDataTransferItems } from "@placemarkio/flat-drop-files";
+import { root as zarrRoot, open as zarrOpen } from 'zarrita';
+import { Sidebar } from './Sidebar.js';
+
+
+const SIDEBAR_WIDTH = 30;
 
 const padding = 10;
 const margin = 5;
+
+class FileSystemStore {
+  constructor(files) {
+    this.files = files;
+  }
+
+  async get(key) {
+    console.log('key', key);
+    // The list of files does not prefix its paths with slashes.
+    const file = this.files.find(f => `/${f.relpath}` === key);
+    if (!file) return undefined;
+    return file.arrayBuffer();
+  }
+}
 
 /**
  * The wrapper for the VitessceGrid and LoadingIndicator components.
@@ -57,12 +78,17 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
+    enableSidebar,
+    enableDropzone,
+    configEditable,
+    themeEditable,
+    setTheme,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
-  const [componentWidth] = useClosestVitessceContainerSize(containerRef);
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef, enableSidebar ? SIDEBAR_WIDTH : 0);
 
   const { classes } = useVitessceContainerStyles();
   const { classes: titleClasses } = useTitleStyles();
@@ -109,6 +135,102 @@ export default function VitessceGrid(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [isDragProcessing, setIsDragProcessing] = useState(false);
+
+  useEffect(() => {
+    const zone = containerRef.current;
+
+    const onDragEnter = (e) => {
+      if(!enableDropzone) return;
+      console.log('onDragEnter');
+      e.preventDefault();
+      setIsDragging(true);
+    };
+    const onDragLeave = (e) => {
+      if(!enableDropzone) return;
+      setIsDragging(false);
+    };
+    const onDragOver = (e) => {
+      if(!enableDropzone) return;
+      e.preventDefault();
+    };
+    const onDrop = async (e) => {
+      if(!enableDropzone) return;
+      e.preventDefault();
+      setIsDragging(false);
+      setIsDragProcessing(true);
+
+      const topLevelEntries = Object.values(e.dataTransfer.items)
+        .map(item => item.webkitGetAsEntry());
+      
+      const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
+
+      const stores = topLevelEntries.map(entry => {
+        if (entry.isDirectory) {
+          // TODO: optimize by using a single loop for filter+map,
+          // and by using .substring (rather than split+slice+join).
+          const dirFiles = files
+            .filter(f => f.path.split('/')?.[0] === entry.name)
+            .map(f => {
+              f.relpath = f.path.split('/')?.slice(1).join('/');
+              return f;
+          });
+          console.log(dirFiles);
+          // Create a store for each top-level item of e.dataTransfer.items.
+          const store = new FileSystemStore(dirFiles);
+          
+          // TODO: remove the zarrRoot+zarrOpen lines
+          const storeRoot = zarrRoot(store);
+          zarrOpen(storeRoot).then(group => console.log(group.attrs))
+          
+          return [entry.name, store];
+        } else {
+          // This is a single file. Check extension to determine how to create a store.
+          if (entry.name.endsWith('.zip')) {
+            // Create a zip store.
+            
+            // TODO
+          } else if(entry.name.endsWith('.tif') || entry.name.endsWith('.tiff')) {
+            // Create an OME-TIFF-as-NGFF store?
+
+            // TODO
+          } else if(entry.name.endsWith('.csv')) {
+            // Create a CSV store?
+
+            // TODO
+          } else {
+            // Throw?
+
+            // TODO
+          }
+          return [entry.name, null];
+        }
+      })
+
+      setIsDragProcessing(false);
+
+      
+
+      console.log(stores);
+    };
+
+
+    // The dragenter event happens at the moment you drag something in to the target element, and then it stops.
+    // The dragover event happens during the time you are dragging something until you drop it.
+    zone.addEventListener("dragenter", onDragEnter);
+    zone.addEventListener("dragleave", onDragLeave);
+    zone.addEventListener("dragover", onDragOver);
+    zone.addEventListener("drop", onDrop);
+
+    return () => {
+      zone.removeEventListener("dragenter", onDragEnter);
+      zone.removeEventListener("dragleave", onDragLeave);
+      zone.removeEventListener("dragover", onDragOver);
+      zone.removeEventListener("drop", onDrop);
+    };
+  }, [containerRef, enableDropzone]);
+
   return (
     <div
       ref={containerRef}
@@ -117,30 +239,40 @@ export default function VitessceGrid(props) {
       aria-label={altText}
     >
       <GridLayoutGlobalStyles classes={classes} />
-      {layout ? (
-        <VitessceGridLayout
-          pageMode={pageMode}
-          role="group"
-          layout={layout}
-          height={height}
-          rowHeight={rowHeight}
+      {!pageMode && enableSidebar ? (
+        <Sidebar
           theme={theme}
-          viewTypes={viewTypes}
-          fileTypes={fileTypes}
-          coordinationTypes={coordinationTypes}
-          stores={stores}
-          draggableHandle={titleClasses.title}
-          margin={margin}
-          padding={padding}
-          onRemoveComponent={removeComponent}
-          onLayoutChange={changeLayoutPostMount}
-          isBounded={isBounded}
-          onResize={onResize}
-          onResizeStop={onResize}
-        >
-          {children}
-        </VitessceGridLayout>
+          setTheme={setTheme}
+          configEditable={configEditable}
+          themeEditable={themeEditable}
+        />
       ) : null}
+      <div style={{ width: `calc(100% - ${enableSidebar ? SIDEBAR_WIDTH : 0}px)`, position: 'relative' }}>
+        {layout ? (
+          <VitessceGridLayout
+            pageMode={pageMode}
+            role="group"
+            layout={layout}
+            height={height}
+            rowHeight={rowHeight}
+            theme={theme}
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            coordinationTypes={coordinationTypes}
+            stores={stores}
+            draggableHandle={titleClasses.title}
+            margin={margin}
+            padding={padding}
+            onRemoveComponent={removeComponent}
+            onLayoutChange={changeLayoutPostMount}
+            isBounded={isBounded}
+            onResize={onResize}
+            onResizeStop={onResize}
+          >
+            {children}
+          </VitessceGridLayout>
+        ) : null}
+      </div>
     </div>
   );
 }
