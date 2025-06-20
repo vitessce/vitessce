@@ -86,16 +86,16 @@ function generateNeuroglancerMinimalConfiguration() {
       ],
     },
     position: [
-      49.5,
-      1000.5,
-      5209.5,
+      -95.24851989746094,
+      1991.4393310546875,
+      2972.25390625,
     ],
     crossSectionScale: 1,
     projectionOrientation: [
-      -0.636204183101654,
-      -0.5028395652770996,
-      0.5443811416625977,
-      0.2145828753709793,
+      0.005266126245260239,
+      -0.7111102938652039,
+      -0.006156886462122202,
+      0.7030337452888489,
     ],
     projectionScale: 2048,
     layers: [
@@ -120,7 +120,7 @@ function generateNeuroglancerMinimalConfiguration() {
   // Sync the zoom/rotation/pan states
   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
     spatialRenderingMode: '3D',
-    spatialZoom: 0,
+    spatialZoom: -1.93,
     // spatialTargetT: 0,
     // spatialTargetX: 0,
     // spatialTargetY: 0,
