@@ -44,7 +44,7 @@ class FileSystemStore {
   async get(key) {
     console.log('key', key);
     // The list of files does not prefix its paths with slashes.
-    const file = this.files.find(f => `/${f.path}` === key);
+    const file = this.files.find(f => `/${f.relpath}` === key);
     if (!file) return undefined;
     return file.arrayBuffer();
   }
@@ -165,21 +165,54 @@ export default function VitessceGrid(props) {
         .map(item => item.webkitGetAsEntry());
       
       const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
+
+      const stores = topLevelEntries.map(entry => {
+        if (entry.isDirectory) {
+          // TODO: optimize by using a single loop for filter+map,
+          // and by using .substring (rather than split+slice+join).
+          const dirFiles = files
+            .filter(f => f.path.split('/')?.[0] === entry.name)
+            .map(f => {
+              f.relpath = f.path.split('/')?.slice(1).join('/');
+              return f;
+          });
+          console.log(dirFiles);
+          // Create a store for each top-level item of e.dataTransfer.items.
+          const store = new FileSystemStore(dirFiles);
+          
+          // TODO: remove the zarrRoot+zarrOpen lines
+          const storeRoot = zarrRoot(store);
+          zarrOpen(storeRoot).then(group => console.log(group.attrs))
+          
+          return [entry.name, store];
+        } else {
+          // This is a single file. Check extension to determine how to create a store.
+          if (entry.name.endsWith('.zip')) {
+            // Create a zip store.
+            
+            // TODO
+          } else if(entry.name.endsWith('.tif') || entry.name.endsWith('.tiff')) {
+            // Create an OME-TIFF-as-NGFF store?
+
+            // TODO
+          } else if(entry.name.endsWith('.csv')) {
+            // Create a CSV store?
+
+            // TODO
+          } else {
+            // Throw?
+
+            // TODO
+          }
+          return [entry.name, null];
+        }
+      })
+
       setIsDragProcessing(false);
 
-      // Create a store for each top-level item of e.dataTransfer.items.
-      const store = new FileSystemStore(files);
-      const storeRoot = zarrRoot(store);
+      
 
-      const stores = await Promise.all(topLevelEntries.map(
-        entry => zarrOpen(storeRoot.resolve(entry.fullPath))
-      ));
-      const nameToStore = Object.fromEntries(
-        topLevelEntries.map((entry, i) => {
-          return [entry.fullPath, stores[i]];
-        })
-      );
-      console.log(nameToStore);
+      console.log(stores);
     };
 
 
