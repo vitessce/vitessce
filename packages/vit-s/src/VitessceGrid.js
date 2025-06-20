@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useState,
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -25,9 +26,29 @@ import {
 } from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
+import { getFilesFromDataTransferItems } from "@placemarkio/flat-drop-files";
+import { root as zarrRoot, open as zarrOpen } from 'zarrita';
+import { Sidebar } from './Sidebar.js';
+
+
+const SIDEBAR_WIDTH = 30;
 
 const padding = 10;
 const margin = 5;
+
+class FileSystemStore {
+  constructor(files) {
+    this.files = files;
+  }
+
+  async get(key) {
+    console.log('key', key);
+    // The list of files does not prefix its paths with slashes.
+    const file = this.files.find(f => `/${f.path}` === key);
+    if (!file) return undefined;
+    return file.arrayBuffer();
+  }
+}
 
 /**
  * The wrapper for the VitessceGrid and LoadingIndicator components.
@@ -57,12 +78,17 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
+    enableSidebar,
+    enableDropzone,
+    configEditable,
+    themeEditable,
+    setTheme,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
-  const [componentWidth] = useClosestVitessceContainerSize(containerRef);
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef, enableSidebar ? SIDEBAR_WIDTH : 0);
 
   const { classes } = useVitessceContainerStyles();
   const { classes: titleClasses } = useTitleStyles();
@@ -109,6 +135,45 @@ export default function VitessceGrid(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [isDragProcessing, setIsDragProcessing] = useState(false);
+
+  useEffect(() => {
+    const zone = containerRef.current;
+
+    // The dragenter event happens at the moment you drag something in to the target element, and then it stops.
+    // The dragover event happens during the time you are dragging something until you drop it.
+    zone.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    });
+
+    zone.addEventListener("dragleave", (e) => {
+      setIsDragging(false);
+    });
+
+    zone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    zone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      setIsDragProcessing(true);
+      //console.log(e.dataTransfer);
+      getFilesFromDataTransferItems(e.dataTransfer.items).then(files => {
+        //console.log(files);
+        setIsDragProcessing(false);
+
+        const store = new FileSystemStore(files);
+        const storeRoot = zarrRoot(store);
+        //console.log(storeRoot);
+        (zarrOpen(storeRoot.resolve('/sdata.zarr')))
+          .then((group) => console.log(group.attrs));
+      });
+    });
+  }, [containerRef]);
+
   return (
     <div
       ref={containerRef}
@@ -116,31 +181,43 @@ export default function VitessceGrid(props) {
       role="group"
       aria-label={altText}
     >
+      {isDragging ? (<p>Is dragging</p>) : null}
+      {isDragProcessing ? (<p>Is drag processing</p>) : null}
       <GridLayoutGlobalStyles classes={classes} />
-      {layout ? (
-        <VitessceGridLayout
-          pageMode={pageMode}
-          role="group"
-          layout={layout}
-          height={height}
-          rowHeight={rowHeight}
+      {!pageMode && enableSidebar ? (
+        <Sidebar
           theme={theme}
-          viewTypes={viewTypes}
-          fileTypes={fileTypes}
-          coordinationTypes={coordinationTypes}
-          stores={stores}
-          draggableHandle={titleClasses.title}
-          margin={margin}
-          padding={padding}
-          onRemoveComponent={removeComponent}
-          onLayoutChange={changeLayoutPostMount}
-          isBounded={isBounded}
-          onResize={onResize}
-          onResizeStop={onResize}
-        >
-          {children}
-        </VitessceGridLayout>
+          setTheme={setTheme}
+          configEditable={configEditable}
+          themeEditable={themeEditable}
+        />
       ) : null}
+      <div style={{ width: `calc(100% - ${enableSidebar ? SIDEBAR_WIDTH : 0}px)`, position: 'relative'}}>
+        {layout ? (
+          <VitessceGridLayout
+            pageMode={pageMode}
+            role="group"
+            layout={layout}
+            height={height}
+            rowHeight={rowHeight}
+            theme={theme}
+            viewTypes={viewTypes}
+            fileTypes={fileTypes}
+            coordinationTypes={coordinationTypes}
+            stores={stores}
+            draggableHandle={titleClasses.title}
+            margin={margin}
+            padding={padding}
+            onRemoveComponent={removeComponent}
+            onLayoutChange={changeLayoutPostMount}
+            isBounded={isBounded}
+            onResize={onResize}
+            onResizeStop={onResize}
+          >
+            {children}
+          </VitessceGridLayout>
+        ) : null}
+      </div>
     </div>
   );
 }

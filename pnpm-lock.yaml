@@ -2474,6 +2474,9 @@ importers:
 
   packages/vit-s:
     dependencies:
+      '@placemarkio/flat-drop-files':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.80.2(react@18.3.1)
@@ -2504,6 +2507,12 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
+      '@zarrita/storage':
+        specifier: 'catalog:'
+        version: 0.1.0
+      browser-fs-access:
+        specifier: ^0.38.0
+        version: 0.38.0
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
@@ -2534,6 +2543,9 @@ importers:
       uuid:
         specifier: 'catalog:'
         version: 9.0.1
+      zarrita:
+        specifier: 'catalog:'
+        version: 0.4.0
       zustand:
         specifier: 'catalog:'
         version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
@@ -5495,6 +5507,9 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
+  '@placemarkio/flat-drop-files@1.0.2':
+    resolution: {integrity: sha512-nx9S/59s756N+BSIfuyidaQYYHva2QoWihqgfm6oYcQ8g+26Gg2qbcToROOxxDK4mKgKbOjnw04VsXMKFqqX6w==}
+
   '@playwright/test@1.52.0':
     resolution: {integrity: sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==}
     engines: {node: '>=18'}
@@ -7785,6 +7800,9 @@ packages:
 
   brorand@1.1.0:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
+
+  browser-fs-access@0.38.0:
+    resolution: {integrity: sha512-JveqW2w6pEZqFEEfMgCszXzYpE89dG+nPsmOdcs741mFFAROeL+iqjGEpR07RI+s0YY0EFr+4KnOoACprJTpOw==}
 
   browser-process-hrtime@1.0.0:
     resolution: {integrity: sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==}
@@ -19785,6 +19803,8 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
+  '@placemarkio/flat-drop-files@1.0.2': {}
+
   '@playwright/test@1.52.0':
     dependencies:
       playwright: 1.52.0
@@ -23135,6 +23155,8 @@ snapshots:
       through2: 2.0.5
 
   brorand@1.1.0: {}
+
+  browser-fs-access@0.38.0: {}
 
   browser-process-hrtime@1.0.0: {}
 
