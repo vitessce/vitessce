@@ -62,9 +62,18 @@ export function VolumeView(props) {
   const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
 
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
-
+  
   useEffect(() => {
-    log('useEffect INIT');
+    console.log('useEffect INIT');
+    console.log('props', props);
+    
+    // Fix the path to access the store URL
+    const imageUrl = props.images?.['A']?.image?.instance?.vivLoader?.data?.[0]?._data?.store?.url;
+    if (!imageUrl && props.images) {
+      console.log('no image url yet');
+      return;
+    }
+
     (async () => {
       const dm = new VolumeDataManager(
         // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
@@ -78,7 +87,8 @@ export function VolumeView(props) {
         // example 2:
         // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
         // example 350 GB
-        'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
+        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
+        imageUrl,
         gl.getContext?.() || gl,
         gl,
       );
@@ -101,7 +111,7 @@ export function VolumeView(props) {
       managers?.dataManager.clearCache();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once
+  }, [props.images]); // run when props.images changes
 
   useEffect(() => {
     log('useEffect GL');
@@ -380,7 +390,7 @@ export function VolumeView(props) {
     };
   }, [mainOrbitControlsRef.current, setIsInteracting]);
 
-
+  
   if (!is3D || !managers) return null;
 
   if (loading || !renderState.shader) {
