@@ -848,30 +848,6 @@ void main(void) {
                 overWrittenRequest = true;
             }
 
-            if (targetRes == 0) {
-                c_color[c] = vec3(1.0, 1.0, 1.0);
-            } else if (targetRes == 1) {
-                c_color[c] = vec3(0.0, 1.0, 1.0);
-            } else if (targetRes == 2) {
-                c_color[c] = vec3(1.0, 0.0, 0.0);
-            } else if (targetRes == 3) {
-                c_color[c] = vec3(0.0, 0.0, 1.0);
-            } else if (targetRes == 4) {
-                c_color[c] = vec3(1.0, 1.0, 0.0);
-            } else if (targetRes == 5) {
-                c_color[c] = vec3(0.0, 1.0, 0.0);
-            } else if (targetRes == 6) {
-                c_color[c] = vec3(1.0, 0.0, 1.0);
-            } else if (targetRes == 7) {
-                c_color[c] = vec3(1.0, 0.5, 0.5);
-            } else if (targetRes == 8) {
-                c_color[c] = vec3(0.5, 1.0, 0.5);
-            } else if (targetRes == 9) {
-                c_color[c] = vec3(0.5, 0.5, 1.0);
-            } else {
-                c_color[c] = vec3(0.5, 0.5, 0.5);
-            }
-
             total += c_val_current[c];
             rgbCombo += c_val_current[c] * c_color[c];
 
