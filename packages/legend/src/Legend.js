@@ -53,17 +53,23 @@ const rectMarginX = 2;
 
 function combineExtents(extents, featureAggregationStrategy) {
   if (Array.isArray(extents)) {
-    if (featureAggregationStrategy === 'first') {
-      return extents[0];
-    } if (featureAggregationStrategy === 'last') {
-      return extents.at(-1);
-    } if (typeof featureAggregationStrategy === 'number') {
-      const i = featureAggregationStrategy;
-      return extents[i];
-    } if (featureAggregationStrategy === 'sum') {
-      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
-    } if (featureAggregationStrategy === 'mean') {
-      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+    if (Array.isArray(extents?.[0])) {
+      // Extents is an array of [min, max] tuples.
+      if (featureAggregationStrategy === 'first') {
+        return extents[0];
+      } if (featureAggregationStrategy === 'last') {
+        return extents.at(-1);
+      } if (typeof featureAggregationStrategy === 'number') {
+        const i = featureAggregationStrategy;
+        return extents[i];
+      } if (featureAggregationStrategy === 'sum') {
+        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+      } if (featureAggregationStrategy === 'mean') {
+        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+      }
+    } else {
+      // Extents is a single [min, max] tuple.
+      return extents;
     }
   }
   return null;
