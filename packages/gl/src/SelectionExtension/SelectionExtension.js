@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
-import GL from '@luma.gl/constants';
+import { GL } from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
 import module from './shader-module.js';
 
@@ -17,14 +17,14 @@ export default class SelectionExtension extends LayerExtension {
     if (attributeManager) {
       attributeManager.add({
         isSelected: {
-          type: GL.FLOAT,
+          type: 'float32',
           size: 1,
           transition: true,
           accessor: 'getCellIsSelected',
           defaultValue: 1,
           // PolygonLayer needs not-intsanced attribute but
           // ScatterplotLayer needs instanced.
-          divisor: Number(extension.opts.instanced),
+          stepMode: 'instance',
         },
       });
     }

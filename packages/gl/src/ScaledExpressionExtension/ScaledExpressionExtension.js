@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
-import GL from '@luma.gl/constants';
+import { GL } from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from '../constants.js';
 import module from './shader-module.js';
@@ -29,28 +29,28 @@ export default class ScaledExpressionExtension extends LayerExtension {
 
   updateState({ props, oldProps }) {
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       // Normal single model layers, like ScatterplotLayer
       if (this.state.model) {
         // eslint-disable-next-line no-unused-expressions
-        this.state.model?.delete();
-        this.state.model = this._getModel(gl);
+        this.state.model?.destroy();
+        this.state.model = this._getModel(device);
       } else {
         // Special handling for PolygonLayer sublayer models.
         if (this.state.models) {
           // eslint-disable-next-line no-unused-expressions
-          this.state.models?.forEach(model => model?.delete());
+          this.state.models?.forEach(model => model?.destroy());
         }
         if (this.state.topModel) {
           // eslint-disable-next-line no-unused-expressions
-          this.state.topModel?.delete();
+          this.state.topModel?.destroy();
         }
         if (this.state.sideModel) {
           // eslint-disable-next-line no-unused-expressions
-          this.state.sideModel?.delete();
+          this.state.sideModel?.destroy();
         }
         if (this._getModels) {
-          this.setState(this._getModels(this.context.gl));
+          this.setState(this._getModels(device));
         }
       }
       const attributeManager = this.getAttributeManager();
@@ -72,7 +72,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
       // coloring cells against the colormap.
       attributeManager.add({
         expressionValue: {
-          type: GL.FLOAT,
+          type: 'float32',
           size: 1,
           transition: true,
           accessor: 'getExpressionValue',
@@ -80,7 +80,7 @@ export default class ScaledExpressionExtension extends LayerExtension {
           // PolygonLayer fill needs not-intsanced attribute but
           // ScatterplotLayer and the PolygonLayer stroke needs instanced.
           // So use another attribute's divisor property as a proxy for this divisor.
-          divisor: Object.values(attributeManager.attributes)[0].settings.divisor,
+          stepMode: Object.values(attributeManager.attributes)[0].settings.stepMode,
         },
       });
     }
