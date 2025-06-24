@@ -69,6 +69,8 @@ export class VolumeRenderManager {
    */
   extractRenderingSettingsFromProps(props) {
     log('Extracting rendering settings from props');
+    // console.log('props', props);
+    // console.log('props.imageChannelCoordination', props.imageChannelCoordination[0]['A']);
     const {
       images = {},
       imageLayerScopes = [],
@@ -257,7 +259,7 @@ export class VolumeRenderManager {
     const colorsSave = [];
     const contrastLimitsList = [];
 
-    console.log('before channel update', this);
+    // ', this);
 
     this.channelTargetC.forEach((channel, id) => {
       console.log('channel', channel);

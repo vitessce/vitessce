@@ -526,7 +526,7 @@ void main(void) {
         float total   = 0.0;
 
         // p goes from 0 to 1
-        targetRes = getLOD(t, 0, 9, lodFactorEffective);
+        targetRes = getLOD(t, 0, 9, lodFactorEffective * (0.999 + 0.002 * rnd));
 
         if (targetRes != currentLOD) {
             currentLOD = targetRes;

@@ -53,6 +53,10 @@ export function VolumeView(props) {
   const screenQuadRef = useRef(null);
 
   const [isInteracting, setIsInteracting] = useState(false);
+  const interactionTimeoutRef = useRef(null);
+  
+  // Track interaction-triggering props
+  const prevInteractionChannels = useRef();
 
   // new refs from step 2
   const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
@@ -61,7 +65,6 @@ export function VolumeView(props) {
   const lastSampleRef = useRef(0);
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
-  const interactionTimeoutRef = useRef(null); // Added for interaction logic
   const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
 
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -151,15 +154,20 @@ export function VolumeView(props) {
   }, [props, managers]);
 
   useEffect(() => {
+    console.log('useEffect stillRef');
+    console.log('stillRef', stillRef.current);
     if (!screenQuadRef.current) {
+      console.log('no screen quad yet');
       return;
     }
     if (!stillRef.current) {
-      screenQuadRef.current.material.uniforms.gaussian.value = 0;
-    } else {
+      console.log('stillRef is false');
       screenQuadRef.current.material.uniforms.gaussian.value = 7;
+    } else {
+      console.log('stillRef is true');
+      screenQuadRef.current.material.uniforms.gaussian.value = 0;
     }
-  }, [stillRef]);
+  }, [stillRef.current]);
 
   useEffect(() => {
     log('useEffect MRT target matching canvas');
@@ -264,10 +272,12 @@ export function VolumeView(props) {
         setRenderSpeed(0);
         console.log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
         stillRef.current = false;
+        screenQuadRef.current.material.uniforms.gaussian.value = 7;
         invalidate();
       } else if (!stillRef.current) {
         console.log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
         stillRef.current = true;
+        screenQuadRef.current.material.uniforms.gaussian.value = 0;
       }
       return;
     }
@@ -382,6 +392,26 @@ export function VolumeView(props) {
     };
   }, [mainOrbitControlsRef.current, setIsInteracting]);
 
+  useEffect(() => {
+    setIsInteracting(true);
+
+    if (props.imageChannelCoordination.length !== prevInteractionChannels.current) {
+      // call DM
+      console.log('channel length changed, TODO: call DM');
+    }
+
+    clearTimeout(interactionTimeoutRef.current);
+    interactionTimeoutRef.current = setTimeout(() => {
+      setIsInteracting(false);
+    }, 300);
+
+    prevInteractionChannels.current = props.imageChannelCoordination.length;
+  }, [props.imageChannelCoordination]);
+
+  useEffect(() => {
+    console.log('useEffect imageChannelCoordination.length');
+    console.log('imageChannelCoordination.length', props.imageChannelCoordination.length);
+  }, [props.imageChannelCoordination.length]);
 
   if (!is3D || !managers) return null;
 
