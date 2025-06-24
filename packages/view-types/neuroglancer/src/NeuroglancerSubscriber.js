@@ -16,22 +16,26 @@ import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-uti
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
-let CACHED_BASE_SCALE = null;
+const SCALE_FACTOR = 73.4;
+
+/**
+ * projectionScale = 2048, Vitessce zoom after loading = -4.8
+ * 2048 = 2^4.8 * BASE_SCALE  (TODO: these are assumptions, based on visual comparison)
+*  SCALE_FACTOR ≈ 2048 / 2^4.8 ≈ 2048 / 27.9 ≈ 73.4
+* */
 
 /**
  * Deck.gl zoom → Neuroglancer projectionScale
  */
 function deckZoomToProjectionScale(zoom) {
-  if (zoom) return CACHED_BASE_SCALE * (2 ** -zoom);
-  return 1;
+  return SCALE_FACTOR * (2 ** -zoom);
 }
 
 /**
  * Neuroglancer projectionScale → Deck.gl zoom
  */
 function projectionScaleToDeckZoom(projectionScale) {
-  if (projectionScale) return Math.log2(CACHED_BASE_SCALE / projectionScale);
-  return 1;
+  return Math.log2(SCALE_FACTOR / projectionScale);
 }
 
 
@@ -117,15 +121,6 @@ export function NeuroglancerSubscriber(props) {
   const { classes } = useStyles();
   const loaders = useLoaders();
 
-  if (
-    CACHED_BASE_SCALE === null
-       && initialViewerState?.projectionScale
-      && typeof spatialZoom === 'number'
-      && spatialZoom !== 0
-  ) {
-    CACHED_BASE_SCALE = initialViewerState.projectionScale / (2 ** -spatialZoom);
-  }
-
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -140,6 +135,7 @@ export function NeuroglancerSubscriber(props) {
 
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
+    // console.log("toDeck", projectionScale, projectionScaleToDeckZoom(projectionScale))
     setZoom(projectionScaleToDeckZoom(projectionScale));
     // const vitessceEularMapping = quaternionToEuler(projectionOrientation);
     // // TODO: support z rotation on SpatialView?
@@ -207,7 +203,10 @@ export function NeuroglancerSubscriber(props) {
     // let projectionOrientation = derivedViewerState.projectionOrientation
     if (typeof spatialZoom === 'number') {
       projectionScale = deckZoomToProjectionScale(spatialZoom);
+    } else {
+      projectionScale = deckZoomToProjectionScale(0);
     }
+    // console.log(derivedViewerState.projectionScale, projectionScale, spatialZoom)
     // if (typeof spatialTargetX === 'number') {
     //    position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
     // }
