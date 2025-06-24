@@ -21,7 +21,10 @@ function framebufferFor(renderer, rt) {
 }
 
 function log(msg) {
-  // console.warn(`V ${msg}`);
+  console.warn(
+    `%cV: ${msg}`,
+    'background: deeppink; color: white; padding: 2px; border-radius: 3px;',
+  );
 }
 
 export function VolumeView(props) {
@@ -62,13 +65,17 @@ export function VolumeView(props) {
   const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
 
   const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
-  
+
   useEffect(() => {
-    console.log('useEffect INIT');
-    console.log('props', props);
-    
+    log('useEffect INIT');
+
+    if (managers) {
+      console.log('managers already initialized');
+      return;
+    }
+
     // Fix the path to access the store URL
-    const imageUrl = props.images?.['A']?.image?.instance?.vivLoader?.data?.[0]?._data?.store?.url;
+    const imageUrl = props.images?.A?.image?.instance?.vivLoader?.data?.[0]?._data?.store?.url;
     if (!imageUrl && props.images) {
       console.log('no image url yet');
       return;
@@ -76,18 +83,6 @@ export function VolumeView(props) {
 
     (async () => {
       const dm = new VolumeDataManager(
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
-        // 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-        // 'http://127.0.0.1:8080/gloria_conversion/v2',
-        // 'http://127.0.0.1:8080/kingsnake/kingsnake_b2r2.zarr/0',
-
-        // example 1:
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
-        // example 2:
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
-        // example 350 GB
-        // 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
         imageUrl,
         gl.getContext?.() || gl,
         gl,
@@ -126,37 +121,34 @@ export function VolumeView(props) {
   }, [props, managers]);
 
   const loadIfNeeded = useCallback(async (settings) => {
-    log('callback loadIfNeeded');
     if (!settings || !managers) return;
 
     const resolutionChanged = settings.resolution !== lastRes;
     const channelsChanged = !sameArray(settings.channelTargetC, lastChannels);
 
+    // Always update rendering state
+    const renderManagerState = managers.renderManager.updateRendering(managers.dataManager);
+    if (renderManagerState) setRenderState(renderManagerState);
+
+    // Update tracking state
+    if (resolutionChanged) setLastRes(settings.resolution);
+    if (channelsChanged) setLastChannels([...settings.channelTargetC]);
+
     stillRef.current = false;
-
-    if (!resolutionChanged && !channelsChanged) {
-      const s = managers.renderManager.updateRendering(managers.dataManager);
-      if (s) setRenderState(s);
-      return;
-    }
-
-    setLoading(true);
-
-    const s = managers.renderManager.updateRendering(managers.dataManager);
-    if (s) setRenderState(s);
-
-    setLastRes(settings.resolution);
-    setLastChannels([...settings.channelTargetC]);
-
-    setLoading(false);
   }, [managers, lastRes, lastChannels]);
 
   useEffect(() => {
-    log('useEffect 3D or prop changes');
     const on3D = props.spatialRenderingMode === '3D';
     setIs3D(on3D);
-    if (on3D) loadIfNeeded(extractSettings());
-  }, [props, extractSettings, loadIfNeeded]);
+
+    if (on3D && managers) {
+      // Direct call, no callbacks needed
+      if (managers.renderManager.updateFromProps(props)) {
+        const renderState = managers.renderManager.updateRendering(managers.dataManager);
+        if (renderState) setRenderState(renderState);
+      }
+    }
+  }, [props, managers]);
 
   useEffect(() => {
     if (!screenQuadRef.current) {
@@ -390,7 +382,7 @@ export function VolumeView(props) {
     };
   }, [mainOrbitControlsRef.current, setIsInteracting]);
 
-  
+
   if (!is3D || !managers) return null;
 
   if (loading || !renderState.shader) {

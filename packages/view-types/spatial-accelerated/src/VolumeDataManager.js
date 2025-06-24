@@ -58,8 +58,7 @@ const INIT_STATUS = {
 };
 
 function log(message) {
-  // console.warn(`%cDM: ${message}`,
-  //   'background: deeppink; color: white; padding: 2px; border-radius: 3px;');
+  console.warn(`%cDM: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
 }
 
 export class VolumeDataManager {
@@ -140,7 +139,10 @@ export class VolumeDataManager {
     this.bcTHREE = null;
 
     this.channels = {
-      channelMappings: [],
+      maxChannels: 7, // lower when dataset has fewer, dictates page table size
+      channelMappings: [], // stores the zarr channel index for every one of the up to 7 channels
+      downsampleMin: [], // stores the downsample min for every one of the up to 7 channels
+      downsampleMax: [], // stores the downsample max for every one of the up to 7 channels
     };
 
     this.PT = {
@@ -254,6 +256,8 @@ export class VolumeDataManager {
 
       // Get all resolution levels
       const resolutions = this.group.attrs.multiscales[0].datasets.length;
+      this.zarrStore.resolutions = resolutions;
+      console.log('resolutions in init', resolutions);
       const shapes = new Array(resolutions).fill(null);
       const arrays = new Array(resolutions).fill(null);
       const scales = new Array(resolutions).fill(null);
@@ -298,7 +302,14 @@ export class VolumeDataManager {
           scales,
         };
 
-        this.channels.channelMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
+        // initializing channel mappings and slots as empty
+        this.channels.channelMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+        this.channels.downsampleMin = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+        this.channels.downsampleMax = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+
+        console.log('channelMappings in init', this.channels.channelMappings);
+        console.log('downsampleMin in init', this.channels.downsampleMin);
+        console.log('downsampleMax in init', this.channels.downsampleMax);
 
         // Extract physical size information if available
         if (array0.meta && array0.meta.physicalSizes) {
@@ -785,6 +796,50 @@ export class VolumeDataManager {
     this.bc2pt[bcIndex] = null; // slot now free
   }
 
+  _purgeChannel(ptChannelIndex) {
+    console.log('purging channel', ptChannelIndex);
+    console.log('corresponding zarr channel', this.channels.channelMappings[ptChannelIndex]);
+
+    if (!this.ptTHREE) {
+      console.error('pagetable texture not initialized');
+      return;
+    }
+
+    const channelMask = [0, 0, 0];
+    if (ptChannelIndex % 2 >= 1) { channelMask[2] = 1; }
+    if (ptChannelIndex % 2 >= 2) { channelMask[1] = 1; }
+    if (ptChannelIndex % 2 >= 3) { channelMask[0] = 1; }
+
+    console.log('channelMask', channelMask);
+    console.warn('not implemented yet');
+
+    const { gl } = this;
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+
+    for (let r = 0; r < this.zarrStore.resolutions; r++) {
+      const anchor = [
+        this.PT.anchors[r][2] * channelMask[2],
+        this.PT.anchors[r][1] * channelMask[1],
+        this.PT.anchors[r][0] * channelMask[0],
+      ];
+      console.log('anchor', anchor);
+      const extents = this.zarrStore.brickLayout[r];
+      console.log('extents', extents);
+      // texsub 3D
+      // replace with a block of zeros
+      gl.texSubImage3D(
+        gl.TEXTURE_3D, 0,
+        anchor[0], anchor[1], anchor[2],
+        extents[0], extents[1], extents[2],
+        gl.RED_INTEGER, gl.UNSIGNED_INT,
+        new Uint32Array([0]),
+      );
+    }
+    gl.bindTexture(gl.TEXTURE_3D, null);
+  }
+
   // Pack PT entry indicating "not resident but init" with min/max preserved
   _packPTNotResident(min, max, bcX, bcY, bcZ) {
     // Scale down to 7-bit range (0-127) by dividing by 2
@@ -967,16 +1022,18 @@ export class VolumeDataManager {
     let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
-    let min = 255;
-    let max = 0;
-
     if (chunk instanceof Uint16Array) {
-      // console.log('chunk is Uint16Array');
-      // Convert UINT16 to UINT8 by scaling down
+      if (this.channels.downsampleMin[channel] === undefined) {
+        // get the channel ID from this.channels.channelMappings
+        const channelId = this.channels.channelMappings[channel];
+        // get the downsample min and max for the channel from omero
+        this.channels.downsampleMin[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.min || 0;
+        this.channels.downsampleMax[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.max || 65535;
+      }
       const uint8Chunk = new Uint8Array(chunk.length);
       for (let i = 0; i < chunk.length; i++) {
         // Scale from 0-65535 to 0-255
-        uint8Chunk[i] = Math.floor((chunk[i] / 4096) * 255);
+        uint8Chunk[i] = Math.floor((chunk[i] - this.channels.downsampleMin[channel]) / (this.channels.downsampleMax[channel] - this.channels.downsampleMin[channel]) * 255);
       }
       chunk = uint8Chunk;
     }
@@ -987,13 +1044,14 @@ export class VolumeDataManager {
     //   console.log('chunk is Uint8Array');
     // }
 
+    let min = 255;
+    let max = 0;
+
     for (let i = 0; i < chunk.length; ++i) {
       const v = chunk[i];
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    // console.log('min', min);
-    // console.log('max', max);
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;

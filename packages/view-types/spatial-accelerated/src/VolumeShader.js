@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { Vector2, Vector3 } from 'three';
+import { Vector2, Vector3, Vector4 } from 'three';
 import vertexShader from '../shaders/VolumeVertexShader.glsl?raw';
 import fragmentShader from '../shaders/VolumeFragmentShader.glsl?raw';
 
@@ -22,13 +22,13 @@ export const VolumeShader = {
     u_renderstyle: { value: 2 },
     brickCacheTex: { type: 'sampler3D', value: null },
     pageTableTex: { type: 'usampler3D', value: null },
-    color0: { value: new Vector3(0, 0, 0) },
-    color1: { value: new Vector3(0, 0, 0) },
-    color2: { value: new Vector3(0, 0, 0) },
-    color3: { value: new Vector3(0, 0, 0) },
-    color4: { value: new Vector3(0, 0, 0) },
-    color5: { value: new Vector3(0, 0, 0) },
-    color6: { value: new Vector3(0, 0, 0) },
+    color0: { value: new Vector4(0, 0, 0) },
+    color1: { value: new Vector4(0, 0, 0) },
+    color2: { value: new Vector4(0, 0, 0) },
+    color3: { value: new Vector4(0, 0, 0) },
+    color4: { value: new Vector4(0, 0, 0) },
+    color5: { value: new Vector4(0, 0, 0) },
+    color6: { value: new Vector4(0, 0, 0) },
     resGlobal: { value: new Vector2(0, 9) },
     res0: { value: new Vector2(0, 9) },
     res1: { value: new Vector2(0, 9) },

@@ -18,13 +18,13 @@ uniform vec2 clim6;
 uniform vec2 xClip;
 uniform vec2 yClip;
 uniform vec2 zClip;
-uniform vec3 color0;
-uniform vec3 color1;
-uniform vec3 color2;
-uniform vec3 color3;
-uniform vec3 color4;
-uniform vec3 color5;
-uniform vec3 color6;
+uniform vec4 color0;
+uniform vec4 color1;
+uniform vec4 color2;
+uniform vec4 color3;
+uniform vec4 color4;
+uniform vec4 color5;
+uniform vec4 color6;
 uniform float opacity;
 uniform highp vec3 boxSize;
 uniform int renderRes;
@@ -240,14 +240,25 @@ uvec3 getChannelOffset(int index) {
 }
 
 vec3 getChannelColor(int index) {
-    if (index == 0) return color0;
-    if (index == 1) return color1;
-    if (index == 2) return color2;
-    if (index == 3) return color3;
-    if (index == 4) return color4;
-    if (index == 5) return color5;
-    if (index == 6) return color6;
+    if (index == 0) return color0.xyz;
+    if (index == 1) return color1.xyz;
+    if (index == 2) return color2.xyz;
+    if (index == 3) return color3.xyz;
+    if (index == 4) return color4.xyz;
+    if (index == 5) return color5.xyz;
+    if (index == 6) return color6.xyz;
     return vec3(0.0, 0.0, 0.0);
+}
+
+float getChannelOpacity(int index) {
+    if (index == 0) return color0.w;
+    if (index == 1) return color1.w;
+    if (index == 2) return color2.w;
+    if (index == 3) return color3.w;
+    if (index == 4) return color4.w;
+    if (index == 5) return color5.w;
+    if (index == 6) return color6.w;
+    return 0.0;
 }
 
 /*
@@ -474,6 +485,7 @@ void main(void) {
 
     // constants per channel
     vec3 [] c_color = vec3[7](getChannelColor(0), getChannelColor(1), getChannelColor(2), getChannelColor(3), getChannelColor(4), getChannelColor(5), getChannelColor(6));
+    float [] c_opacity = float[7](getChannelOpacity(0), getChannelOpacity(1), getChannelOpacity(2), getChannelOpacity(3), getChannelOpacity(4), getChannelOpacity(5), getChannelOpacity(6));
     int [] c_res_min = int[7](getRes(0).x, getRes(1).x, getRes(2).x, getRes(3).x, getRes(4).x, getRes(5).x, getRes(6).x);
     int [] c_res_max = int[7](getRes(0).y, getRes(1).y, getRes(2).y, getRes(3).y, getRes(4).y, getRes(5).y, getRes(6).y);
     
@@ -551,7 +563,7 @@ void main(void) {
 
         // TODO make channel dependent
         for (int c = 0; c < 7; c++) {
-            if (c_color[c] == vec3(0.0, 0.0, 0.0)) {
+            if (c_opacity[c] <= 0.000001) {
                 continue;
             }
 
