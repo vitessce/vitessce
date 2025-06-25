@@ -154,17 +154,17 @@ export function VolumeView(props) {
   }, [props, managers]);
 
   useEffect(() => {
-    console.log('useEffect stillRef');
-    console.log('stillRef', stillRef.current);
+    // console.log('useEffect stillRef');
+    // console.log('stillRef', stillRef.current);
     if (!screenQuadRef.current) {
       console.log('no screen quad yet');
       return;
     }
     if (!stillRef.current) {
-      console.log('stillRef is false');
+      // console.log('stillRef is false');
       screenQuadRef.current.material.uniforms.gaussian.value = 7;
     } else {
-      console.log('stillRef is true');
+      //console.log('stillRef is true');
       screenQuadRef.current.material.uniforms.gaussian.value = 0;
     }
   }, [stillRef.current]);
@@ -394,20 +394,14 @@ export function VolumeView(props) {
 
   useEffect(() => {
     setIsInteracting(true);
+    console.log('something about channels changed');
 
-    const newChannelCount = Object.keys(props.imageChannelCoordination[0].A).length;
-
-    if (newChannelCount !== prevInteractionChannels.current) {
-      // call DM
-      console.log('channel length changed, TODO: call DM');
-    }
+    managers?.dataManager.updateChannels(props.imageChannelCoordination[0].A);
 
     clearTimeout(interactionTimeoutRef.current);
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-
-    prevInteractionChannels.current = newChannelCount;
   }, [props.imageChannelCoordination]);
 
   useEffect(() => {

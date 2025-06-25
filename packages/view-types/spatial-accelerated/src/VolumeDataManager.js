@@ -578,6 +578,100 @@ export class VolumeDataManager {
     await this.handleBrickRequests(requests);
   }
 
+  updateChannels(channelProps) {
+    log('updateChannels');
+    console.log('channelProps', channelProps);
+
+    console.error('TODO: init channel mappings first ');
+    console.log('this.channels.channelMappings', this.channels.channelMappings);
+
+    if (this.channels.channelMappings.length === 0) {
+      // init channel mappings
+      // this.channels.channelMappings = [0];
+      console.error('channels not initialized yet');
+      return;
+    }
+
+    // Early exit check: compare requested mappings with current mappings
+    const requestedZarrChannels = Object.values(channelProps)
+      .map(channelData => channelData.spatialTargetC)
+      .filter(targetC => targetC !== undefined);
+
+    const currentZarrChannels = this.channels.channelMappings
+      .filter(mapping => mapping !== undefined);
+
+    // Create sorted arrays for comparison
+    const requestedSorted = [...new Set(requestedZarrChannels)].sort((a, b) => a - b);
+    const currentSorted = [...new Set(currentZarrChannels)].sort((a, b) => a - b);
+
+    // Early exit if mappings haven't changed
+    if (requestedSorted.length === currentSorted.length
+        && requestedSorted.every((val, index) => val === currentSorted[index])) {
+      console.log('Channel mappings unchanged, skipping update');
+      return;
+    }
+
+    console.log('Channel mappings changed:', {
+      current: currentSorted,
+      requested: requestedSorted,
+    });
+
+    // Instead of for...of loop, use Object.entries() with forEach
+    Object.entries(channelProps).forEach(([uiChannelKey, channelData]) => {
+      const targetZarrChannel = channelData.spatialTargetC;
+
+      console.log(`UI channel "${uiChannelKey}" wants zarr channel ${targetZarrChannel}`);
+
+      // Check if this zarr channel is already mapped
+      const existingSlotIndex = this.channels.channelMappings.indexOf(targetZarrChannel);
+
+      if (existingSlotIndex === -1) {
+        // Need to allocate a new slot for this zarr channel
+        const nextFreeSlot = this.channels.channelMappings.findIndex(slot => slot === undefined);
+        if (nextFreeSlot !== -1) {
+          this.channels.channelMappings[nextFreeSlot] = targetZarrChannel;
+          console.log(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
+        } else {
+          console.log('No free slots found, looking for unused mapped channels');
+
+          // Find zarr channels that are currently mapped but no longer requested
+          const currentlyMapped = this.channels.channelMappings.filter(mapping => mapping !== undefined);
+          const stillRequested = requestedZarrChannels; // We calculated this earlier
+          const unusedMappedChannels = currentlyMapped.filter(mappedChannel => !stillRequested.includes(mappedChannel));
+
+          console.log('Currently mapped:', currentlyMapped);
+          console.log('Still requested:', stillRequested);
+          console.log('Unused mapped channels:', unusedMappedChannels);
+
+          if (unusedMappedChannels.length > 0) {
+            // Find the first slot that maps to an unused zarr channel
+            const slotToReuse = this.channels.channelMappings.findIndex(mapping => unusedMappedChannels.includes(mapping));
+
+            if (slotToReuse !== -1) {
+              const oldZarrChannel = this.channels.channelMappings[slotToReuse];
+              this.channels.channelMappings[slotToReuse] = targetZarrChannel;
+              console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
+
+              // You might want to call a cleanup function here for the old mapping
+              this._purgeChannel(slotToReuse);
+            } else {
+              console.error('Could not find slot to reuse - this should not happen');
+            }
+          } else {
+            console.error('All slots are full and all mapped channels are still in use');
+            // Handle this case - maybe expand the mapping array or show an error
+          }
+        }
+      } else {
+        console.log(`Zarr channel ${targetZarrChannel} already mapped to slot ${existingSlotIndex}`);
+      }
+    });
+
+    console.log('updatedChannels', this.channels);
+
+    console.error('TODO: not implemented yet');
+  }
+
   /**
    * Try to load a resolution level
    * @param {number} resolutionIndex - The resolution level to load
@@ -826,7 +920,9 @@ export class VolumeDataManager {
       ];
       console.log('anchor', anchor);
       const extents = this.zarrStore.brickLayout[r];
+      const size = extents[0] * extents[1] * extents[2];
       console.log('extents', extents);
+      console.log('size', size);
       // texsub 3D
       // replace with a block of zeros
       gl.texSubImage3D(
@@ -834,7 +930,7 @@ export class VolumeDataManager {
         anchor[0], anchor[1], anchor[2],
         extents[0], extents[1], extents[2],
         gl.RED_INTEGER, gl.UNSIGNED_INT,
-        new Uint32Array([0]),
+        new Uint32Array(size),
       );
     }
     gl.bindTexture(gl.TEXTURE_3D, null);
