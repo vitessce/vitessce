@@ -127,15 +127,20 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
   }
   setAdditionalCellSets(nextAdditionalCellSets);
   const nextPath = ['My Selections', nextName];
-  setCellSetColor([
+  const nextCellSetColor = [
     ...(cellSetColor || []),
     {
       path: nextPath,
       color: PALETTE[colorIndex % PALETTE.length],
     },
-  ]);
+  ];
+  setCellSetColor(nextCellSetColor);
+  console.log("nextPath:", nextPath);
   setCellSetSelection([nextPath]);
   setCellColorEncoding('cellSetSelection');
+  
+  // Return the updated states for use in subsequent calls
+  return { nextAdditionalCellSets, nextCellSetColor };
 }
 
 export function mergeObsSets(cellSets, additionalCellSets) {

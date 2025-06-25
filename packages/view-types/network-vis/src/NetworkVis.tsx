@@ -48,7 +48,7 @@ interface SketchEdge {
 }
 
 interface NetworkVisProps {
-  onNodeSelect: (nodeIds: string[]) => void;
+  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => any;
   obsSetSelection: string[][];
   obsSetColor: Array<{ path: string[]; color: [number, number, number] }>;
   obsHighlight: string | null;

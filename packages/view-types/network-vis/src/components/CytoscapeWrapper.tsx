@@ -24,7 +24,7 @@ interface Link {
 interface CytoscapeWrapperProps {
   nodes: Node[];
   links: Link[];
-  onNodeSelect: (nodeIds: string[], hopDistance?: number) => void;
+  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => any;
   obsSetSelection: string[][];
   obsHighlight: string | null;
   cyRef: React.MutableRefObject<any>;
@@ -233,9 +233,16 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
             }
           }
 
+          let latestAdditionalCellSets: any = null;
+          let latestCellSetColor: any = null;
+
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
-              onNodeSelect(selection.nodeIds, selection.hopDistance);
+              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor);
+              if (result) {
+                latestAdditionalCellSets = result.nextAdditionalCellSets;
+                latestCellSetColor = result.nextCellSetColor;
+              }
               setTimeout(resolve, 1000);
             });
           }
@@ -291,9 +298,16 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
             }
           }
 
+          let latestAdditionalCellSets: any = null;
+          let latestCellSetColor: any = null;
+
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
-              onNodeSelect(selection.nodeIds, selection.hopDistance);
+              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor);
+              if (result) {
+                latestAdditionalCellSets = result.nextAdditionalCellSets;
+                latestCellSetColor = result.nextCellSetColor;
+              }
               setTimeout(resolve, 1000);
             });
           }

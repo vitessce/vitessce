@@ -76,31 +76,37 @@ export function NetworkVisSubscriber(props:any) {
   // console.log("NEUROGLANCER cellColors", cellColors);
 
   // Handle node selection
-  const onNodeSelect = useCallback((nodeIds: string[], hopDistance?: number) => {
-    console.log('onNodeSelect', nodeIds, hopDistance);
+  const onNodeSelect = useCallback((nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => {
+    // console.log('onNodeSelect', nodeIds, hopDistance);
     if (nodeIds && nodeIds.length > 0) {
       const timestamp = new Date().getTime();
       const selectionName = hopDistance !== undefined
         ? `Hop ${hopDistance} Neighbors (${timestamp})`
         : `Selection ${timestamp}`;
-      console.log("cellSetSelection!!!:", cellSetSelection);
+      console.log("cellSetSelection:", cellSetSelection);
+      console.log("additionalCellSets:", additionalCellSets);
+      
+      // Use the passed states or fall back to the current ones
+      const additionalCellSetsToUse = currentAdditionalCellSets || additionalCellSets;
+      const cellSetColorToUse = currentCellSetColor || cellSetColor;
+      
       // For each hop distance, create a new selection
       // This mimics the behavior of separate lasso selections
-      setObsSelection(
+      const result = setObsSelection(
         nodeIds,
-        additionalCellSets,
-        cellSetColor,
+        additionalCellSetsToUse,
+        cellSetColorToUse,
         setCellSetSelection,
         setAdditionalCellSets,
         setCellSetColor,
         setObsColorEncoding,
         selectionName,
       );
-      // Only update highlight for the first hop distance
-      //if (hopDistance === 1 && nodeIds.length > 0) {
-      //  setObsHighlight(nodeIds[0]);
-     // }
+      
+      // Return the updated states for use in subsequent calls
+      return result;
     }
+    return null;
   }, [
     additionalCellSets,
     cellSetColor,
