@@ -811,7 +811,7 @@ export class VolumeDataManager {
     if (ptChannelIndex % 2 >= 3) { channelMask[0] = 1; }
 
     console.log('channelMask', channelMask);
-    console.warn('not implemented yet');
+    console.error('TODO: not tested yet');
 
     const { gl } = this;
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;

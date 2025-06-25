@@ -199,8 +199,6 @@ export class VolumeRenderManager {
     this.channelsVisible = settings.channelsVisible;
     this.channelTargetC = settings.channelTargetC;
     this.colors = settings.colors;
-    console.log('colors', this.colors);
-    console.log('settings', settings.colors);
     this.contrastLimits = settings.contrastLimits;
     this.renderingMode = settings.renderingMode;
     this.layerTransparency = settings.layerTransparency;
@@ -234,9 +232,9 @@ export class VolumeRenderManager {
       (channel, idx) => this.channelsVisible[idx],
     );
 
-    if (visibleChannelIndex === -1) {
-      return null;
-    }
+    // if (visibleChannelIndex === -1) {
+    //   return null;
+    // }
 
     // Instead of getting dimensions from a volume, get from zarrStore
     if (!volumeDataManager.zarrStore || !volumeDataManager.zarrStore.shapes
@@ -261,16 +259,24 @@ export class VolumeRenderManager {
 
     // ', this);
 
+    // console.log('this.channelsVisible', this.channelsVisible);
+    // console.log('this.channelTargetC', this.channelTargetC);
+    // console.log('this.colors', this.colors);
+    // console.log('this.contrastLimits', this.contrastLimits);
+
     this.channelTargetC.forEach((channel, id) => {
-      console.log('channel', channel);
-      console.log('id', id);
-      console.log('this.channelsVisible', this.channelsVisible);
-      if (this.channelsVisible[id]) {
+      // console.log('channel', channel);
+      // console.log('id', id);
+      // console.log('this.channelsVisible', this.channelsVisible);
+      if (this.channelsVisible[id] || true) { // TODO: remove true
         // Since we don't have volume-based minMax, use fixed values
         // or get them from your brick cache metadata if available
         // big TODO
         const max = this.maxRange ? this.maxRange : 255;
         const minMax = [0, max]; // Default values
+
+        // console.log('this.colors[id]', this.colors[id]);
+        // console.log('this.channelsVisible[id]', this.channelsVisible[id]);
 
         colorsSave.push([
           this.colors[id][0] / 255,
@@ -278,6 +284,8 @@ export class VolumeRenderManager {
           this.colors[id][2] / 255,
           this.channelsVisible[id] ? 1.0 : 0.0,
         ]);
+
+        console.log('colorsSave', colorsSave);
 
         if (this.contrastLimits[id][0] === 0 && this.contrastLimits[id][1] === 255) {
           contrastLimitsList.push([
@@ -447,43 +455,43 @@ export class VolumeRenderManager {
       colors.length > 0 ? colors[0][0] : null,
       colors.length > 0 ? colors[0][1] : null,
       colors.length > 0 ? colors[0][2] : null,
-      colors.length > 0 ? 1.0 : null,
+      colors.length > 0 ? colors[0][3] : null,
     );
     this.uniforms.color1.value.set(
       colors.length > 1 ? colors[1][0] : null,
       colors.length > 1 ? colors[1][1] : null,
       colors.length > 1 ? colors[1][2] : null,
-      colors.length > 1 ? 1.0 : null,
+      colors.length > 1 ? colors[1][3] : null,
     );
     this.uniforms.color2.value.set(
       colors.length > 2 ? colors[2][0] : null,
       colors.length > 2 ? colors[2][1] : null,
       colors.length > 2 ? colors[2][2] : null,
-      colors.length > 2 ? 1.0 : null,
+      colors.length > 2 ? colors[2][3] : null,
     );
     this.uniforms.color3.value.set(
       colors.length > 3 ? colors[3][0] : null,
       colors.length > 3 ? colors[3][1] : null,
       colors.length > 3 ? colors[3][2] : null,
-      colors.length > 3 ? 1.0 : null,
+      colors.length > 3 ? colors[3][3] : null,
     );
     this.uniforms.color4.value.set(
       colors.length > 4 ? colors[4][0] : null,
       colors.length > 4 ? colors[4][1] : null,
       colors.length > 4 ? colors[4][2] : null,
-      colors.length > 4 ? 1.0 : null,
+      colors.length > 4 ? colors[4][3] : null,
     );
     this.uniforms.color5.value.set(
       colors.length > 5 ? colors[5][0] : null,
       colors.length > 5 ? colors[5][1] : null,
       colors.length > 5 ? colors[5][2] : null,
-      colors.length > 5 ? 1.0 : null,
+      colors.length > 5 ? colors[5][3] : null,
     );
     this.uniforms.color6.value.set(
       colors.length > 6 ? colors[6][0] : null,
       colors.length > 6 ? colors[6][1] : null,
       colors.length > 6 ? colors[6][2] : null,
-      colors.length > 6 ? 1.0 : null,
+      colors.length > 6 ? colors[6][3] : null,
     );
   }
 
