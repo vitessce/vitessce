@@ -395,7 +395,9 @@ export function VolumeView(props) {
   useEffect(() => {
     setIsInteracting(true);
 
-    if (props.imageChannelCoordination.length !== prevInteractionChannels.current) {
+    const newChannelCount = Object.keys(props.imageChannelCoordination[0].A).length;
+
+    if (newChannelCount !== prevInteractionChannels.current) {
       // call DM
       console.log('channel length changed, TODO: call DM');
     }
@@ -405,7 +407,7 @@ export function VolumeView(props) {
       setIsInteracting(false);
     }, 300);
 
-    prevInteractionChannels.current = props.imageChannelCoordination.length;
+    prevInteractionChannels.current = newChannelCount;
   }, [props.imageChannelCoordination]);
 
   useEffect(() => {
