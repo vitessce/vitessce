@@ -80,7 +80,7 @@ export function NetworkVisSubscriber(props:any) {
     console.log('onNodeSelect', nodeIds, hopDistance);
     if (nodeIds && nodeIds.length > 0) {
       const timestamp = new Date().getTime();
-      const selectionName = hopDistance !== undefined 
+      const selectionName = hopDistance !== undefined
         ? `Hop ${hopDistance} Neighbors (${timestamp})`
         : `Selection ${timestamp}`;
       console.log("cellSetSelection!!!:", cellSetSelection);
@@ -90,25 +90,16 @@ export function NetworkVisSubscriber(props:any) {
         nodeIds,
         additionalCellSets,
         cellSetColor,
-        (selections: string[][] | null) => {
-          // Create a new array that preserves existing selections
-          const newSelections = selections ? [...selections] : [];
-          // Add the new selection to the array
-          newSelections.push(nodeIds);
-          // Update the cell set selection to include all selections
-          setCellSetSelection(newSelections);
-          return newSelections;
-        },
+        setCellSetSelection,
         setAdditionalCellSets,
         setCellSetColor,
         setObsColorEncoding,
         selectionName,
       );
-      
       // Only update highlight for the first hop distance
-      if (hopDistance === 1 && nodeIds.length > 0) {
-        setObsHighlight(nodeIds[0]);
-      }
+      //if (hopDistance === 1 && nodeIds.length > 0) {
+      //  setObsHighlight(nodeIds[0]);
+     // }
     }
   }, [
     additionalCellSets,
@@ -130,7 +121,7 @@ export function NetworkVisSubscriber(props:any) {
       removeGridComponent={removeGridComponent}
       isReady={true}
     >
-      <NetworkVis 
+      <NetworkVis
         onNodeSelect={onNodeSelect}
         obsSetSelection={cellSetSelection}
         obsSetColor={cellSetColor}

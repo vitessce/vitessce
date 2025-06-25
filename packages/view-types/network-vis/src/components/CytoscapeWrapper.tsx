@@ -141,20 +141,20 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
     const result = new Map<number, Set<string>>();
     const queue: { node: any; distance: number }[] = [{ node: startNode, distance: 0 }];
     const startNodeType = startNode.data('ftuName');
-    
+
     for (let i = 1; i <= maxHops; i++) {
       result.set(i, new Set());
     }
-    
+
     while (queue.length > 0) {
       const { node, distance } = queue.shift()!;
       const nodeId = node.id();
-      
+
       if (visited.has(nodeId)) continue;
       visited.add(nodeId);
-      
+
       const connectedNodes = node.neighborhood('node');
-      
+
       connectedNodes.forEach((neighbor: any) => {
         const neighborId = neighbor.id();
         if (!visited.has(neighborId)) {
@@ -167,22 +167,22 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
         }
       });
     }
-    
+
     for (const [distance, nodes] of result.entries()) {
       if (nodes.size === 0) {
         result.delete(distance);
       }
     }
-    
+
     return result;
   };
 
   // Initialize context menu
   useEffect(() => {
     if (!cyRef.current) return;
-    
+
     const cy = cyRef.current;
-    
+
     const contextMenuItems = [
       {
         id: 'show-same-type-neighbors',
@@ -191,9 +191,9 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
         onClickFunction: async (event: any) => {
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, true);
-          
+
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
-          
+
           const nodeData = node.data();
           const selectedNodeIds: string[] = [];
           if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
@@ -205,11 +205,11 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
           }
 
           const selections: { nodeIds: string[], hopDistance?: number }[] = [];
-          
+
           if (selectedNodeIds.length > 0) {
             selections.push({ nodeIds: selectedNodeIds, hopDistance: 0 });
           }
-          
+
           for (const hopDistance of hopDistances) {
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
@@ -232,11 +232,11 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
               }
             }
           }
-          
+
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
               onNodeSelect(selection.nodeIds, selection.hopDistance);
-              setTimeout(resolve, 100);
+              setTimeout(resolve, 1000);
             });
           }
         },
@@ -249,9 +249,9 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
         onClickFunction: async (event: any) => {
           const node = event.target;
           const neighbors = findNeighborsAtHopDistance(node, 10, false);
-          
+
           const hopDistances = Array.from(neighbors.keys()).sort((a, b) => a - b);
-          
+
           const nodeData = node.data();
           const selectedNodeIds: string[] = [];
           if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
@@ -263,11 +263,11 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
           }
 
           const selections: { nodeIds: string[], hopDistance?: number }[] = [];
-          
+
           if (selectedNodeIds.length > 0) {
             selections.push({ nodeIds: selectedNodeIds, hopDistance: 0 });
           }
-          
+
           for (const hopDistance of hopDistances) {
             const nodeIds = neighbors.get(hopDistance);
             if (nodeIds && nodeIds.size > 0) {
@@ -290,7 +290,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
               }
             }
           }
-          
+
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
               onNodeSelect(selection.nodeIds, selection.hopDistance);
@@ -310,16 +310,16 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
     return () => {
       cy.contextMenus('destroy');
     };
-  }, [cyRef.current]);
+  }, [obsSetSelection]);
 
   // Update node opacity when cellColors changes
   useEffect(() => {
     if (!cyRef.current) return;
-    
+
     cyRef.current.nodes().forEach((node: any) => {
       const nodeId = node.id();
       const nodeData = node.data();
-      
+
       if (nodeData.ftuName === 'nerves' && nodeId.startsWith('merged_')) {
         const hasHighlightedSubComponent = nodeData.subComponents?.some(
           (subId: string) => cellColors.has(subId)
@@ -440,7 +440,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
         cyRef.current = cy;
         cy.ready(() => {
           cy.lassoSelectionEnabled(true);
-          
+
           cy.on('select', 'node', handleNodeSelect);
           cy.on('unselect', 'node', handleNodeSelect);
 
@@ -448,7 +448,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
             const node = evt.target;
             const nodeData = node.data();
             let nodeId = nodeData.id;
-            
+
             if (nodeData.ftuName === 'nerves') {
               if (nodeData.id.startsWith('merged_')) {
                 nodeId = `${nodeData.subComponents[0]}000`;
@@ -456,7 +456,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
                 nodeId = `${nodeData.id}000`;
               }
             }
-            
+
             node.addClass('hovered');
           });
 
@@ -470,4 +470,4 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
   );
 };
 
-export default CytoscapeWrapper; 
+export default CytoscapeWrapper;
