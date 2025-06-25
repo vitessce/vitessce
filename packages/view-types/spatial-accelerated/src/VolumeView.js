@@ -91,7 +91,7 @@ export function VolumeView(props) {
         gl,
       );
       const rm = new VolumeRenderManager();
-      await dm.init(); // device limits, zarr meta
+      await dm.init(props.imageChannelCoordination[0].A); // device limits, zarr meta
 
       console.log('dm.physicalScale', dm.physicalScale);
 

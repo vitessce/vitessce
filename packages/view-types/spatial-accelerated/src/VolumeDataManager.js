@@ -214,7 +214,7 @@ export class VolumeDataManager {
    * This should be called ONCE at website initialization
    * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
-  async init() {
+  async init(config) {
     log('INIT()');
     // Prevent multiple initializations
     if (this.initStatus !== INIT_STATUS.NOT_STARTED) {
@@ -421,6 +421,18 @@ export class VolumeDataManager {
 
         console.warn('zarrStore', this.zarrStore);
 
+        // init channel mappings
+        console.log('initializing channel mappings');
+        console.log('config', config);
+        // for each key in config, add to channel mappings
+        Object.keys(config).forEach((key, i) => {
+          const configChannel = config[key].spatialTargetC;
+          this.channels.channelMappings[i] = configChannel;
+          this.channels.downsampleMin[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.min || 0;
+          this.channels.downsampleMax[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.max || 65535;
+        });
+        console.log('channelMappings after init', this.channels.channelMappings);
+
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
         // this.populateMRMCPT();
@@ -507,6 +519,7 @@ export class VolumeDataManager {
     // Calculate total Z extent including channel offsets
     // this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
     this.PT.zTotal = this.PT.zExtent + this.channels.channelMappings.length * l0z;
+    console.log('number of PT channels', this.channels.channelMappings.length);
 
     console.warn('Page Table Extents:', {
       x: this.PT.xExtent,
@@ -584,10 +597,10 @@ export class VolumeDataManager {
 
     console.error('TODO: init channel mappings first ');
     console.log('this.channels.channelMappings', this.channels.channelMappings);
+    console.log('this.channels.downsampleMin', this.channels.downsampleMin);
+    console.log('this.channels.downsampleMax', this.channels.downsampleMax);
 
     if (this.channels.channelMappings.length === 0) {
-      // init channel mappings
-      // this.channels.channelMappings = [0];
       console.error('channels not initialized yet');
       return;
     }
@@ -630,7 +643,13 @@ export class VolumeDataManager {
         const nextFreeSlot = this.channels.channelMappings.findIndex(slot => slot === undefined);
         if (nextFreeSlot !== -1) {
           this.channels.channelMappings[nextFreeSlot] = targetZarrChannel;
+          console.log('channelData', channelData);
+          console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
+          console.log('targetZarrChannel', targetZarrChannel);
+          this.channels.downsampleMin[nextFreeSlot] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+          this.channels.downsampleMax[nextFreeSlot] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
           console.log(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
+          console.log('channels', this.channels);
         } else {
           console.log('No free slots found, looking for unused mapped channels');
 
@@ -650,9 +669,10 @@ export class VolumeDataManager {
             if (slotToReuse !== -1) {
               const oldZarrChannel = this.channels.channelMappings[slotToReuse];
               this.channels.channelMappings[slotToReuse] = targetZarrChannel;
+              this.channels.downsampleMin[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+              this.channels.downsampleMax[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
               console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
 
-              // You might want to call a cleanup function here for the old mapping
               this._purgeChannel(slotToReuse);
             } else {
               console.error('Could not find slot to reuse - this should not happen');
@@ -899,6 +919,10 @@ export class VolumeDataManager {
       return;
     }
 
+    this.channels.downsampleMin[ptChannelIndex] = undefined;
+    this.channels.downsampleMax[ptChannelIndex] = undefined;
+    this.channels.channelMappings[ptChannelIndex] = undefined;
+
     const channelMask = [0, 0, 0];
     if (ptChannelIndex % 2 >= 1) { channelMask[2] = 1; }
     if (ptChannelIndex % 2 >= 2) { channelMask[1] = 1; }
@@ -1122,9 +1146,16 @@ export class VolumeDataManager {
       if (this.channels.downsampleMin[channel] === undefined) {
         // get the channel ID from this.channels.channelMappings
         const channelId = this.channels.channelMappings[channel];
+        console.log('channelId was not found in this.channels.downsampleMin[channel]', channelId);
         // get the downsample min and max for the channel from omero
         this.channels.downsampleMin[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.min || 0;
         this.channels.downsampleMax[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.max || 65535;
+
+        console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
+        console.log('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
+
+        console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
+        console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
       }
       const uint8Chunk = new Uint8Array(chunk.length);
       for (let i = 0; i < chunk.length; i++) {
