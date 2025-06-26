@@ -667,7 +667,6 @@ export class VolumeDataManager {
           const unusedMappedChannels = currentlyMapped.filter(mappedChannel => !stillRequested.includes(mappedChannel));
 
           console.log('Currently mapped:', currentlyMapped);
-          console.log('currentColorMappings', currentColorMappings);
           console.log('Still requested:', stillRequested);
           console.log('Unused mapped channels:', unusedMappedChannels);
 
@@ -1157,7 +1156,7 @@ export class VolumeDataManager {
       return;
     }
 
-    let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
+    let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
     if (chunk instanceof Uint16Array) {

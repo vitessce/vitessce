@@ -272,7 +272,7 @@ float getChannelOpacity(int index) {
 [4] 0…3   | 28…31 — z offset in brick cache → 16 (only needs 4 no?)
 */
 // add maxres here
-ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, bool query) {
+ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, bool query, int colorIndex) {
 
     vec2 clim = getClim(channel);
     int channelMin = getRes(channel).x;
@@ -299,7 +299,7 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
         }
 
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
-        vec2 clim = getClim(channel);
+        vec2 clim = getClim(colorIndex);
 
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
@@ -600,7 +600,7 @@ void main(void) {
             }
 
             if (newBrick) {
-                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, slot, rnd, true);
+                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, slot, rnd, true, c);
                 if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2 || brickCacheInfo.w == -10) {
                     // empty
                     c_val_current[c] = 0.0;
@@ -693,7 +693,7 @@ void main(void) {
                             } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {
                                 otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick);
                             } else {
-                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false); 
+                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); 
                                 otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
                                 c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); 
                                 c_brick_XYZ_adjacent[c] = vec3(otherBrickCacheInfo.xyz);
@@ -752,7 +752,7 @@ void main(void) {
                                     if (!matched) {                                                     \
                                         ivec4 info = getBrickLocation(otherP,                           \
                                                                       c_res_current[c], slot,              \
-                                                                      rnd, false);                      \
+                                                                      rnd, false, c);                      \
                                         DEST = sampleBrick(vec3(info.xyz), otherVoxelInBrick);          \
                                         if (abs((OFF).x) > 0.5 && abs((OFF).y) < 0.5 && abs((OFF).z) < 0.5) {             \
                                             c_PT_X_adjacent[c]  = otherPTcoord;                                     \
@@ -813,7 +813,7 @@ void main(void) {
                                         } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {                  \
                                             DEST = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick); \
                                         } else {                                                               \
-                                            ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false); \
+                                            ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); \
                                             vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
                                             DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
                                         } \
