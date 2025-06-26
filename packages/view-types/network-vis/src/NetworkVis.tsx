@@ -184,7 +184,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     };
   }, [isHopSelectionMode]);
 
-  const searchMotif = () => {
+  const searchMotif = async () => {
     if (!state.data || !cyRef.current) return;
     const { nodes, links } = state.data;
     const graph = new Graph({ type: 'directed' });
@@ -265,19 +265,86 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
       return results;
     };
     const foundMatches = findSubgraphIsomorphisms();
-    const cy = cyRef.current;
-    cy.nodes().forEach((node: any) => {
-      if (foundMatches.some(match => match.has(node.id()))) {
-        node.select();
-      } else {
-        node.unselect();
+    
+    // Filter out duplicate motifs that contain the same node IDs in different orders
+    const uniqueMatches: Set<string>[] = [];
+    const seenNodeSets = new Set<string>();
+    
+    foundMatches.forEach(match => {
+      // Convert the Set to a sorted array and then to a string for comparison
+      const sortedNodeIds = Array.from(match).sort();
+      const nodeSetKey = sortedNodeIds.join(',');
+      
+      if (!seenNodeSets.has(nodeSetKey)) {
+        seenNodeSets.add(nodeSetKey);
+        uniqueMatches.push(match);
       }
     });
+    
+    const cy = cyRef.current;
+    
+    // Clear all node selections first
+    cy.nodes().unselect();
+    
+    // Select all nodes that are part of any motif match for visual feedback
     const allMatchedNodes = new Set<string>();
-    foundMatches.forEach(match => {
+    uniqueMatches.forEach(match => {
       match.forEach(nodeId => allMatchedNodes.add(nodeId));
     });
-    onNodeSelect(Array.from(allMatchedNodes), undefined, additionalCellSets, obsSetColor.find(c => c.path.includes(Array.from(allMatchedNodes)[0]))?.color, undefined, false);
+    
+    cy.nodes().forEach((node: any) => {
+      if (allMatchedNodes.has(node.id())) {
+        node.select();
+      }
+    });
+
+    // Create separate selections for each motif instance
+    let latestAdditionalCellSets: any = null;
+    let latestCellSetColor: any = null;
+    let latestCellSetSelection: any = null;
+
+    // Step 1: Clear all existing selections before starting
+    await new Promise<void>((resolve) => {
+      const result = onNodeSelect([], 0, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, false);
+      if (result) {
+        latestAdditionalCellSets = result.nextAdditionalCellSets;
+        latestCellSetColor = result.nextCellSetColor;
+        latestCellSetSelection = result.nextCellSetSelection;
+      }
+      setTimeout(resolve, 500);
+    });
+
+    // Step 2: Create a separate selection for each motif instance
+    for (let i = 0; i < uniqueMatches.length; i++) {
+      const match = uniqueMatches[i];
+      const matchNodeIds: string[] = [];
+      
+      match.forEach(nodeId => {
+        const node = cyRef.current.getElementById(nodeId);
+        if (node.length > 0) {
+          const nodeData = node.data();
+          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+            nodeData.subComponents.forEach((subId: string) => {
+              matchNodeIds.push(subId);
+            });
+          } else {
+            matchNodeIds.push(nodeId);
+          }
+        }
+      });
+
+      if (matchNodeIds.length > 0) {
+        await new Promise<void>((resolve) => {
+          const result = onNodeSelect(matchNodeIds, undefined, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, true);
+          if (result) {
+            latestAdditionalCellSets = result.nextAdditionalCellSets;
+            latestCellSetColor = result.nextCellSetColor;
+            latestCellSetSelection = result.nextCellSetSelection;
+          }
+          setTimeout(resolve, 1000);
+        });
+      }
+    }
   };
 
   const handlePatternChange = (pattern: MotifPattern) => {
@@ -460,7 +527,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                 }}>
                 </div>
                 <button
-                  onClick={searchMotif}
+                  onClick={async () => {
+                    try {
+                      await searchMotif();
+                    } catch (error) {
+                      console.error('Error searching for motif:', error);
+                    }
+                  }}
                   style={{
                     padding: '6px 12px',
                     backgroundColor: '#4477AA',
