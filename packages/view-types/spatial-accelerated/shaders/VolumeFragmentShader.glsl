@@ -429,10 +429,6 @@ void main(void) {
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
-    if (channelMapping[0] == 0) {
-        gColor = vec4(1.0, 0.0, 0.0, 1.0);
-        return;
-    }
 
     // random number for jittering
     float rnd = random();
@@ -570,7 +566,11 @@ void main(void) {
         for (int c = 0; c < 7; c++) {
             if (c_opacity[c] <= 0.000001) {
                 continue;
+            } else if (channelMapping[c] == -1) {
+                continue;
             }
+
+            int slot = channelMapping[c];
 
             bool newBrick = false;
             bool newVoxel = false;
@@ -600,7 +600,7 @@ void main(void) {
             }
 
             if (newBrick) {
-                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, c, rnd, true);
+                ivec4 brickCacheInfo = getBrickLocation(p, bestRes, slot, rnd, true);
                 if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2 || brickCacheInfo.w == -10) {
                     // empty
                     c_val_current[c] = 0.0;
@@ -693,7 +693,7 @@ void main(void) {
                             } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {
                                 otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick);
                             } else {
-                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); 
+                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false); 
                                 otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
                                 c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); 
                                 c_brick_XYZ_adjacent[c] = vec3(otherBrickCacheInfo.xyz);
@@ -751,7 +751,7 @@ void main(void) {
                                                                                                         \
                                     if (!matched) {                                                     \
                                         ivec4 info = getBrickLocation(otherP,                           \
-                                                                      c_res_current[c], c,              \
+                                                                      c_res_current[c], slot,              \
                                                                       rnd, false);                      \
                                         DEST = sampleBrick(vec3(info.xyz), otherVoxelInBrick);          \
                                         if (abs((OFF).x) > 0.5 && abs((OFF).y) < 0.5 && abs((OFF).z) < 0.5) {             \
@@ -813,7 +813,7 @@ void main(void) {
                                         } else if (otherPTcoord == c_PT_XYZ_adjacent[c]) {                  \
                                             DEST = sampleBrick(c_brick_XYZ_adjacent[c], otherVoxelInBrick); \
                                         } else {                                                               \
-                                            ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], c, rnd, false); \
+                                            ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false); \
                                             vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
                                             DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
                                         } \
@@ -861,7 +861,7 @@ void main(void) {
                 && c_val_current[c] > 0.0
                 && c_renderMode_current[c] == 2
                 && int(floor(rnd * float(maxChannels))) == c) {
-                setBrickRequest(p, bestRes, c, rnd);
+                setBrickRequest(p, bestRes, slot, rnd);
                 overWrittenRequest = true;
             }
 

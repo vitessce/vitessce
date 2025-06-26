@@ -621,9 +621,6 @@ export class VolumeDataManager {
     const currentZarrChannels = this.channels.zarrMappings
       .filter(mapping => mapping !== undefined);
 
-    const currentColorMappings = this.channels.colorMappings
-      .filter(mapping => mapping !== undefined);
-
     // Create sorted arrays for comparison
     const requestedSorted = [...new Set(requestedZarrChannels)].sort((a, b) => a - b);
     const currentSorted = [...new Set(currentZarrChannels)].sort((a, b) => a - b);
@@ -632,7 +629,7 @@ export class VolumeDataManager {
     if (requestedSorted.length === currentSorted.length
         && requestedSorted.every((val, index) => val === currentSorted[index])) {
       console.log('Channel mappings unchanged, skipping update');
-      return;
+      // return;
     }
 
     console.log('Channel mappings changed:', {
@@ -654,7 +651,6 @@ export class VolumeDataManager {
         const nextFreeSlot = this.channels.zarrMappings.findIndex(slot => slot === undefined);
         if (nextFreeSlot !== -1) {
           this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
-          this.channels.colorMappings[nextFreeSlot] = currentColorMappings.length;
           console.log('channelData', channelData);
           console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
           console.log('targetZarrChannel', targetZarrChannel);
@@ -682,7 +678,6 @@ export class VolumeDataManager {
             if (slotToReuse !== -1) {
               const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
               this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
-              this.channels.colorMappings[slotToReuse] = currentColorMappings.length;
               this.channels.downsampleMin[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
               this.channels.downsampleMax[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
               console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
@@ -948,10 +943,7 @@ export class VolumeDataManager {
     this.channels.downsampleMax[ptChannelIndex] = undefined;
     this.channels.zarrMappings[ptChannelIndex] = undefined;
 
-    const channelMask = [0, 0, 0];
-    if (ptChannelIndex % 2 >= 1) { channelMask[2] = 1; }
-    if (ptChannelIndex % 2 >= 2) { channelMask[1] = 1; }
-    if (ptChannelIndex % 2 >= 3) { channelMask[0] = 1; }
+    const channelMask = this.PT.channelOffsets[ptChannelIndex];
 
     console.log('channelMask', channelMask);
     console.error('TODO: not tested yet');
@@ -1069,9 +1061,7 @@ export class VolumeDataManager {
       }
     }
     // console.log(channel, resolution, x, y, z);
-    if (channel !== 0) {
-      // console.warn('CHANNEL IS NOT 0', channel, resolution, x, y, z);
-    }
+
     return {
       channel,
       resolution,
@@ -1159,11 +1149,14 @@ export class VolumeDataManager {
 
     /* 4.1 fetch chunk from Zarr */
     const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
-    // console.log('resolution', resolution);
-    // console.log('channel', channel);
-    // console.log('zarrX', x);
-    // console.log('zarrY', y);
-    // console.log('zarrZ', z);
+
+    const zarrChannel = this.channels.zarrMappings[channel];
+
+    if (zarrChannel === undefined || zarrChannel === -1) {
+      console.error('zarrChannel is undefined or -1', zarrChannel);
+      return;
+    }
+
     let chunk = await this.loadZarrChunk(0, channel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
