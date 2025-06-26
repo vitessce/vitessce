@@ -6,6 +6,7 @@ import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdat
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
 import imageOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.ome.json';
 import obsSegmentationsOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.labels.ome.json';
+import { withConsolidated } from 'zarrita';
 
 
 describe('generateConfig', () => {
@@ -51,6 +52,13 @@ describe('generateConfig', () => {
     expect(zmetadata.map(d => d.path)).toEqual(['', 'X', 'layers', 'obs', 'var', 'obsm', 'obsm/spatial']);
   });
 
+  it('store for SpatialData object supports withConsolidated', async () => {
+    const initialStore = createStoreFromMapContents(spatialdataMouseLiverFixture);
+    const store = await withConsolidated(initialStore);
+
+    expect(store.contents()).toEqual([]);
+  });
+
   it('parsed url to zmetadata for a SpatialData object', async () => {
     const parsedUrl = {
         url: './mouse_liver.spatialdata.json',
@@ -61,5 +69,17 @@ describe('generateConfig', () => {
     
     expect(zmetadata.length).toEqual(6);
     expect(zmetadata.map(d => d.path)).toEqual(['', 'images', 'labels', 'points', 'shapes', 'tables']);
+  });
+
+  it('parsed url to zmetadata for an OME-NGFF image', async () => {
+    const parsedUrl = {
+        url: './mouse_liver.ome.json',
+        fileType: 'image.ome-zarr',
+        store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
+    };
+    const zmetadata = await parsedUrlToZmetadata(parsedUrl);
+    
+    expect(zmetadata.length).toEqual(1);
+    expect(zmetadata.map(d => d.path)).toEqual(['']);
   });
 });
