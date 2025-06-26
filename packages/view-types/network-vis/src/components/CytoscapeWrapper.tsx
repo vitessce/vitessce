@@ -24,7 +24,7 @@ interface Link {
 interface CytoscapeWrapperProps {
   nodes: Node[];
   links: Link[];
-  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => any;
+  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any, currentCellSetSelection?: any, appendToSelection?: boolean) => any;
   obsSetSelection: string[][];
   obsHighlight: string | null;
   cyRef: React.MutableRefObject<any>;
@@ -235,13 +235,27 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
 
           let latestAdditionalCellSets: any = null;
           let latestCellSetColor: any = null;
+          let latestCellSetSelection: any = null;
 
+          // Step 1: Clear all existing selections before starting
+          await new Promise<void>((resolve) => {
+            const result = onNodeSelect([], 0, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, false);
+            if (result) {
+              latestAdditionalCellSets = result.nextAdditionalCellSets;
+              latestCellSetColor = result.nextCellSetColor;
+              latestCellSetSelection = result.nextCellSetSelection;
+            }
+            setTimeout(resolve, 500);
+          });
+
+          // Step 2: Accumulate hop distance selections
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
-              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor);
+              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, true);
               if (result) {
                 latestAdditionalCellSets = result.nextAdditionalCellSets;
                 latestCellSetColor = result.nextCellSetColor;
+                latestCellSetSelection = result.nextCellSetSelection;
               }
               setTimeout(resolve, 1000);
             });
@@ -300,13 +314,27 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
 
           let latestAdditionalCellSets: any = null;
           let latestCellSetColor: any = null;
+          let latestCellSetSelection: any = null;
 
+          // Step 1: Clear all existing selections before starting
+          await new Promise<void>((resolve) => {
+            const result = onNodeSelect([], 0, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, false);
+            if (result) {
+              latestAdditionalCellSets = result.nextAdditionalCellSets;
+              latestCellSetColor = result.nextCellSetColor;
+              latestCellSetSelection = result.nextCellSetSelection;
+            }
+            setTimeout(resolve, 500);
+          });
+
+          // Step 2: Accumulate hop distance selections
           for (const selection of selections) {
             await new Promise<void>((resolve) => {
-              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor);
+              const result = onNodeSelect(selection.nodeIds, selection.hopDistance, latestAdditionalCellSets, latestCellSetColor, latestCellSetSelection, true);
               if (result) {
                 latestAdditionalCellSets = result.nextAdditionalCellSets;
                 latestCellSetColor = result.nextCellSetColor;
+                latestCellSetSelection = result.nextCellSetSelection;
               }
               setTimeout(resolve, 1000);
             });

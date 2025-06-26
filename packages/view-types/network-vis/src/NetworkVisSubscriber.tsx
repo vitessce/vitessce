@@ -76,7 +76,7 @@ export function NetworkVisSubscriber(props:any) {
   // console.log("NEUROGLANCER cellColors", cellColors);
 
   // Handle node selection
-  const onNodeSelect = useCallback((nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => {
+  const onNodeSelect = useCallback((nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any, currentCellSetSelection?: any, appendToSelection: boolean = false) => {
     // console.log('onNodeSelect', nodeIds, hopDistance);
     if (nodeIds && nodeIds.length > 0) {
       const timestamp = new Date().getTime();
@@ -89,6 +89,7 @@ export function NetworkVisSubscriber(props:any) {
       // Use the passed states or fall back to the current ones
       const additionalCellSetsToUse = currentAdditionalCellSets || additionalCellSets;
       const cellSetColorToUse = currentCellSetColor || cellSetColor;
+      const cellSetSelectionToUse = currentCellSetSelection || cellSetSelection;
       
       // For each hop distance, create a new selection
       // This mimics the behavior of separate lasso selections
@@ -101,15 +102,40 @@ export function NetworkVisSubscriber(props:any) {
         setCellSetColor,
         setObsColorEncoding,
         selectionName,
+        '',
+        cellSetSelectionToUse,
+        appendToSelection
       );
       
       // Return the updated states for use in subsequent calls
+      return result;
+    } else if (nodeIds && nodeIds.length === 0) {
+      // Handle clearing selections
+      const additionalCellSetsToUse = currentAdditionalCellSets || additionalCellSets;
+      const cellSetColorToUse = currentCellSetColor || cellSetColor;
+      const cellSetSelectionToUse = currentCellSetSelection || cellSetSelection;
+      
+      const result = setObsSelection(
+        [],
+        additionalCellSetsToUse,
+        cellSetColorToUse,
+        setCellSetSelection,
+        setAdditionalCellSets,
+        setCellSetColor,
+        setObsColorEncoding,
+        '',
+        '',
+        cellSetSelectionToUse,
+        appendToSelection
+      );
+      
       return result;
     }
     return null;
   }, [
     additionalCellSets,
     cellSetColor,
+    cellSetSelection,
     setAdditionalCellSets,
     setObsColorEncoding,
     setCellSetColor,

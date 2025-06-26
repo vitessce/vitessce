@@ -48,7 +48,7 @@ interface SketchEdge {
 }
 
 interface NetworkVisProps {
-  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any) => any;
+  onNodeSelect: (nodeIds: string[], hopDistance?: number, currentAdditionalCellSets?: any, currentCellSetColor?: any, currentCellSetSelection?: any, appendToSelection?: boolean) => any;
   obsSetSelection: string[][];
   obsSetColor: Array<{ path: string[]; color: [number, number, number] }>;
   obsHighlight: string | null;
@@ -151,8 +151,8 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
       }
       return [id];
     }).flat();
-    onNodeSelect(selectedNodeIds);
-  }, [isHopSelectionMode, selectedHopDistance, onNodeSelect]);
+    onNodeSelect(selectedNodeIds, undefined, additionalCellSets, obsSetColor.find(c => c.path.includes(selectedNodeIds[0]))?.color, undefined, false);
+  }, [isHopSelectionMode, selectedHopDistance, onNodeSelect, additionalCellSets, obsSetColor]);
 
   useEffect(() => {
     if (!cyRef.current) return;
@@ -277,7 +277,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     foundMatches.forEach(match => {
       match.forEach(nodeId => allMatchedNodes.add(nodeId));
     });
-    onNodeSelect(Array.from(allMatchedNodes));
+    onNodeSelect(Array.from(allMatchedNodes), undefined, additionalCellSets, obsSetColor.find(c => c.path.includes(Array.from(allMatchedNodes)[0]))?.color, undefined, false);
   };
 
   const handlePatternChange = (pattern: MotifPattern) => {

@@ -93,8 +93,14 @@ export function getNextNumberedNodeName(nodes, prefix, suffix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', suffix = '') {
+export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', suffix = '', currentCellSetSelection = null, appendToSelection = false) {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
+
+  // If cellSelection is empty, clear all selections
+  if (!cellSelection || cellSelection.length === 0) {
+    setCellSetSelection([]);
+    return { nextAdditionalCellSets: additionalCellSets, nextCellSetColor: cellSetColor, nextCellSetSelection: [] };
+  }
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
     n => n.name === CELL_SELECTIONS_LEVEL_ZERO_NAME,
@@ -135,12 +141,18 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
     },
   ];
   setCellSetColor(nextCellSetColor);
+  
+  // Control whether to append or replace selections
+  const nextCellSetSelection = appendToSelection 
+    ? [...(currentCellSetSelection || []), nextPath]
+    : [nextPath];
+  setCellSetSelection(nextCellSetSelection);
+  
   console.log("nextPath:", nextPath);
-  setCellSetSelection([nextPath]);
   setCellColorEncoding('cellSetSelection');
   
   // Return the updated states for use in subsequent calls
-  return { nextAdditionalCellSets, nextCellSetColor };
+  return { nextAdditionalCellSets, nextCellSetColor, nextCellSetSelection };
 }
 
 export function mergeObsSets(cellSets, additionalCellSets) {
