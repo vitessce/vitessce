@@ -244,6 +244,7 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
 }
 
 export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchema>) {
+  const getFileType = createGetFileType(fileDef.fileType);
   const baseFileDef: BaseFileDef = {
     url: fileDef.url,
     requestInit: fileDef.requestInit,
@@ -267,7 +268,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: handle multiple obsFeatureMatrix?
     ...(options.obsFeatureMatrix ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR,
+      fileType: getFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR),
       options: options.obsFeatureMatrix,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -280,7 +281,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: handle multiple obsSets?
     ...(options.obsSets ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_SETS_SPATIALDATA_ZARR,
+      fileType: getFileType(FileType.OBS_SETS_SPATIALDATA_ZARR),
       options: options.obsSets,
       coordinationValues: {
         ...extraCoordinationValues,
@@ -291,7 +292,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: handle multiple obsSpots?
     ...(options.obsSpots ? [{
       ...baseFileDef,
-      fileType: FileType.OBS_SPOTS_SPATIALDATA_ZARR,
+      fileType: getFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR),
       options: {
         coordinateSystem: defaultCoordinateSystem,
         ...options.obsSpots,
@@ -310,7 +311,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: handle multiple images
     ...(options.image ? [{
       ...baseFileDef,
-      fileType: FileType.IMAGE_SPATIALDATA_ZARR,
+      fileType: getFileType(FileType.IMAGE_SPATIALDATA_ZARR),
       options: {
         coordinateSystem: defaultCoordinateSystem,
         ...options.image,
@@ -325,7 +326,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: handle multiple labels?
     ...(options.labels ? [{
       ...baseFileDef,
-      fileType: FileType.LABELS_SPATIALDATA_ZARR,
+      fileType: getFileType(FileType.LABELS_SPATIALDATA_ZARR),
       options: {
         coordinateSystem: defaultCoordinateSystem,
         ...options.labels,

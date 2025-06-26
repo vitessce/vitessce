@@ -1,6 +1,6 @@
 
 import { FileType } from '@vitessce/constants-internal';
-import { withConsolidated, FetchStore, ZipFileStore } from 'zarrita';
+import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
 
 const fileTypeToExtensions = {
     [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -16,6 +16,38 @@ function urlToFileType(url) {
     return match[0];
   }
   throw new Error('The file extension contained in the URL did not map to a supported fileType.');
+}
+
+/**
+ * 
+ * @param {{ fileType, url }} parsedUrl
+ * @returns {Readable}
+ */
+function getStore(parsedUrl) {
+  const { fileType, url } = parsedUrl;
+  return fileType.endsWith('.zip')
+    ? ZipFileStore.fromUrl(url)
+    : new FetchStore(url);
+}
+
+/**
+ * Ensure that each object { url, fileType, [store] }
+ * contains a `store`.
+ * @param {object[]} parsedUrls 
+ * @returns {object[]}
+ */
+function ensureStores(parsedUrls) {
+  return parsedUrls.map(parsedUrl => {
+    if(parsedUrl.store) {
+      return parsedUrl
+    } else {
+      const store = getStore(parsedUrl);
+      return {
+        ...parsedUrl,
+        store,
+      };
+    }
+  });
 }
 
 /**
@@ -47,31 +79,38 @@ export function parseUrls(s) {
   });
 }
 
+/**
+ * 
+ * @param {{ url, fileType, store }[]} parsedUrls
+ * @return {string[]} The layoutOptions.
+ */
 export function parsedUrlsToLayoutOptions(parsedUrls) {
-
+  const parsedStores = ensureStores(parsedUrls);
+  
 }
 
 export async function parsedUrlToZmetadata(parsedUrl) {
-    const { url, fileType } = parsedUrl;
+    const { fileType, store: initialStore } = parsedUrl;
 
-    if (fileType === FileType.ANNDATA_ZARR || fileType === FileType.ANNDATA_ZARR_ZIP) {
-        const initialStore = fileType.endsWith('.zip') ? ZipFileStore.fromUrl(url) : new FetchStore(url);
-        
+    let promises = [];
+
+    if (fileType === FileType.ANNDATA_ZARR || fileType === FileType.ANNDATA_ZARR_ZIP || fileType === FileType.SPATIALDATA_ZARR || fileType === FileType.SPATIALDATA_ZARR_ZIP) {        
         try {
             const store = await withConsolidated(initialStore);
             // Is consolidated.
             const contents = store.contents();
-            const promises = contents.map(async (value) => {
+            promises = contents.map(async (value) => {
                 const item = await zarrOpen(store.resolve(value.path));
                 return {
                     ...value,
                     attrs: item.attrs,
                 };
             });
-            return Promise.all(promises);
         } catch(e) {
             // Is not consolidated.
             const keysToTry = [
+                // AnnData keys
+                '',
                 'X',
                 'layers',
                 'obs',
@@ -85,21 +124,43 @@ export async function parsedUrlToZmetadata(parsedUrl) {
                 'obsm/X_tsne',
                 'obsm/umap',
                 'obsm/X_umap',
+                // TODO: split up keys for anndata vs. spatialdata vs. ...
+                // TODO: for spatialdata, the keys will sometimes depend on the names of the elements, for example 'tables/{table_name}/obs
+                'images',
+                'labels',
+                'points',
+                'shapes',
+                'tables',
             ];
-            const promises = keysToTry.map(async (k) => {
-                const item = await zarrOpen(initialStore.resolve(k));
+            // TODO: also get the metadata for the root.
+            promises = keysToTry.map(async (k) => {
+              try {
+                const item = await zarrOpen(zarrRoot(initialStore).resolve(k));
                 return {
-                    path: k,
-                    kind: item.kind,
-                    attrs: item.attrs,
+                  path: k,
+                  kind: item.kind,
+                  attrs: item.attrs,
                 };
+              } catch(e) {
+                return null;
+              }
             });
-            return Promise.all(promises);
         }
     }
 
+    const zmetadata = await Promise.all(promises);
+    return zmetadata.filter(entry => entry !== null);
+
 }
 
+
+
+/**
+ * 
+ * @param {{ url, fileType, store }[]} parsedUrls 
+ * @param {string|null} layoutOption 
+ */
 export async function generateConfig(parsedUrls, layoutOption = null) {
+  const parsedStores = ensureStores(parsedUrls);
 
 }

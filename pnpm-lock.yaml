@@ -503,6 +503,12 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../utils/zarr-utils
+      zarrita:
+        specifier: 'catalog:'
+        version: 0.4.0
 
   packages/constants:
     dependencies:

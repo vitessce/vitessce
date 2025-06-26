@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { parseUrls } from './generate-config.js';
+import { createStoreFromMapContents } from '@vitessce/zarr-utils';
+import { parseUrls, parsedUrlToZmetadata } from './generate-config.js';
+import spatialdataBlobsFixture from './json-fixtures/blobs.spatialdata.json';
+import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
+import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
+import imageOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.ome.json';
+import obsSegmentationsOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.labels.ome.json';
+
 
 describe('generateConfig', () => {
   it('parses URLs', () => {
@@ -30,5 +37,29 @@ describe('generateConfig', () => {
         fileType: 'anndata.zarr',
       },
     ]);
+  });
+
+  it('parsed url to zmetadata for an AnnData object', async () => {
+    const parsedUrl = {
+        url: './mouse_liver.anndata.json',
+        fileType: 'anndata.zarr',
+        store: createStoreFromMapContents(anndataMouseLiverFixture)
+    };
+    const zmetadata = await parsedUrlToZmetadata(parsedUrl);
+    
+    expect(zmetadata.length).toEqual(7);
+    expect(zmetadata.map(d => d.path)).toEqual(['', 'X', 'layers', 'obs', 'var', 'obsm', 'obsm/spatial']);
+  });
+
+  it('parsed url to zmetadata for a SpatialData object', async () => {
+    const parsedUrl = {
+        url: './mouse_liver.spatialdata.json',
+        fileType: 'spatialdata.zarr',
+        store: createStoreFromMapContents(spatialdataMouseLiverFixture)
+    };
+    const zmetadata = await parsedUrlToZmetadata(parsedUrl);
+    
+    expect(zmetadata.length).toEqual(6);
+    expect(zmetadata.map(d => d.path)).toEqual(['', 'images', 'labels', 'points', 'shapes', 'tables']);
   });
 });
