@@ -95,8 +95,8 @@ catalogs:
       specifier: ^3.1.4
       version: 3.1.4
     '@zarrita/storage':
-      specifier: 0.1.0
-      version: 0.1.0
+      specifier: 0.1.1
+      version: 0.1.1
     apache-arrow:
       specifier: ^17.0.0
       version: 17.0.0
@@ -188,8 +188,8 @@ catalogs:
       specifier: ^3.1.4
       version: 3.1.4
     zarrita:
-      specifier: 0.4.0
-      version: 0.4.0
+      specifier: 0.5.2
+      version: 0.5.2
     zod:
       specifier: ^3.21.4
       version: 3.22.4
@@ -508,7 +508,7 @@ importers:
         version: link:../utils/zarr-utils
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
 
   packages/constants:
     dependencies:
@@ -639,7 +639,7 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
       zod:
         specifier: 'catalog:'
         version: 3.22.4
@@ -717,14 +717,14 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0
+        version: 0.1.1
 
   packages/file-types/zarr:
     dependencies:
@@ -769,7 +769,7 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
@@ -1342,7 +1342,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@18.2.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@19.1.0)
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1479,7 +1479,7 @@ importers:
         version: 9.5.2
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
 
   packages/utils/zarr-utils:
     dependencies:
@@ -1488,10 +1488,10 @@ importers:
         version: link:../../globals
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.0
+        version: 0.1.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.2
 
   packages/vega:
     dependencies:
@@ -7280,6 +7280,9 @@ packages:
 
   '@zarrita/storage@0.1.0':
     resolution: {integrity: sha512-lSGDQik2fLt/UyvWzWd23sJFHckEmk50F9Baz2XlbgFQhvd2EVBcHGweOTBhu3c5SB05TzOnlY1M1i2FMDi6YA==}
+
+  '@zarrita/storage@0.1.1':
+    resolution: {integrity: sha512-6/NUCvpzsIxfxeMv59jRTl/bOZg3GZfMP6iR8EIqrTaaE0S2jLL/ceX1OxcFBKnuA8/Z2YmgX4SFBHwFGrCcsw==}
 
   '@zarrita/typedarray@0.1.0-next.3':
     resolution: {integrity: sha512-DpSaU3Cr6HmYDC/v8oM+e219cHU/kzKma309Z9E+QbpRnZycKNbSTKcxFR7FqB6HgB9640gzNUVFG5P+wzX5Xg==}
@@ -15812,11 +15815,11 @@ packages:
     resolution: {integrity: sha512-eL7S5gza/ednVr9wJMd5UF7jcc72qgMlMxuHbFYkWWX9dvb7n0SJL6PS3dCJ5TqyRSamCpAm+ssuodcL4uBTUQ==}
     engines: {node: '>=12'}
 
-  zarrita@0.4.0:
-    resolution: {integrity: sha512-MK2uustzUF0PooWl6HVUfTares/nmaq5NwRZux/L3npvkSX6Qdpd7w/NOW2cF9EI35yqggoHNi3Nlxyq1YT5eQ==}
-
   zarrita@0.4.0-next.10:
     resolution: {integrity: sha512-S9SODuy40xuv4jSYP0AtfdItWOetKTyEGGRCO0uv7NQ+JY66Q/k4kvGxuM040sxVIIboKkjuA7V+pT3uyPtgLA==}
+
+  zarrita@0.5.2:
+    resolution: {integrity: sha512-BN/miFnvBuVqLLObrI08crkbyi+Oc/HWZpgCmWusrWUNIauIV9vR5zlvpSAnhOjZwjomEKFb728K7ax7FiDgJQ==}
 
   zod-to-json-schema@3.21.1:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
@@ -22565,6 +22568,11 @@ snapshots:
       '@zarrita/typedarray': 0.1.0-next.3
 
   '@zarrita/storage@0.1.0':
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 1.4.3
+
+  '@zarrita/storage@0.1.1':
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
@@ -33258,16 +33266,16 @@ snapshots:
       numcodecs: 0.2.2
       p-queue: 6.2.0
 
-  zarrita@0.4.0:
-    dependencies:
-      '@zarrita/storage': 0.1.0
-      numcodecs: 0.3.2
-
   zarrita@0.4.0-next.10:
     dependencies:
       '@zarrita/core': 0.1.0-next.14
       '@zarrita/indexing': 0.1.0-next.15
       '@zarrita/storage': 0.1.0
+
+  zarrita@0.5.2:
+    dependencies:
+      '@zarrita/storage': 0.1.1
+      numcodecs: 0.3.2
 
   zod-to-json-schema@3.21.1(zod@3.22.4):
     dependencies:

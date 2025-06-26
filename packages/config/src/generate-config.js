@@ -117,7 +117,13 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     let promises = [];
 
     try {
-      store = await withConsolidated(initialStore);
+      try {
+        store = await withConsolidated(initialStore);
+      } catch {
+        // Try again with `zmetadata` rather than `.zmetadata`.
+        // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
+        store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
+      }
       // Is consolidated.
       const contents = store.contents();
       promises = contents.map(async (value) => {
@@ -131,32 +137,25 @@ export async function parsedUrlToZmetadata(parsedUrl) {
       store = initialStore;
       // Is not consolidated.
       const keysToTry = [
-        '',
+        // Note: OME-NGFF metadata is stored in the root attrs.
+        '/',
         // AnnData keys
-        'X',
-        'layers',
-        'obs',
-        'var',
-        'obsm',
-        'obsm/spatial',
-        'obsm/X_spatial',
-        'obsm/pca',
-        'obsm/X_pca',
-        'obsm/tsne',
-        'obsm/X_tsne',
-        'obsm/umap',
-        'obsm/X_umap',
+        '/X',
+        '/layers',
+        '/obs',
+        '/var',
+        '/obsm',
+        '/obsm/spatial',
+        '/obsm/X_spatial',
+        '/obsm/pca',
+        '/obsm/X_pca',
+        '/obsm/tsne',
+        '/obsm/X_tsne',
+        '/obsm/umap',
+        '/obsm/X_umap',
         // SpatialData keys
-        // TODO: for spatialData, can we assume the store is always consolidated already?
-        // TODO: split up keys for anndata vs. spatialdata vs. ...
-        // TODO: for spatialdata, the keys will sometimes depend on the names of the elements, for example 'tables/{table_name}/obs
-        'images',
-        'labels',
-        'points',
-        'shapes',
-        'tables',
+        // Note: For spatialData, we assume the store is always consolidated.
       ];
-      // TODO: also get the metadata for the root.
       promises = keysToTry.map(async (k) => {
         try {
           const item = await zarrOpen(zarrRoot(store).resolve(k));

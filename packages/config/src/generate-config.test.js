@@ -49,14 +49,15 @@ describe('generateConfig', () => {
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
     
     expect(zmetadata.length).toEqual(7);
-    expect(zmetadata.map(d => d.path)).toEqual(['', 'X', 'layers', 'obs', 'var', 'obsm', 'obsm/spatial']);
+    expect(zmetadata.map(d => d.path)).toEqual(['/', '/X', '/layers', '/obs', '/var', '/obsm', '/obsm/spatial']);
+    expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 
   it('store for SpatialData object supports withConsolidated', async () => {
     const initialStore = createStoreFromMapContents(spatialdataMouseLiverFixture);
-    const store = await withConsolidated(initialStore);
+    const store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
 
-    expect(store.contents()).toEqual([]);
+    expect(store.contents().length).toEqual(41);
   });
 
   it('parsed url to zmetadata for a SpatialData object', async () => {
@@ -67,8 +68,51 @@ describe('generateConfig', () => {
     };
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
     
-    expect(zmetadata.length).toEqual(6);
-    expect(zmetadata.map(d => d.path)).toEqual(['', 'images', 'labels', 'points', 'shapes', 'tables']);
+    expect(zmetadata.length).toEqual(41);
+    expect(zmetadata.map(d => d.path)).toEqual([
+        '/',
+        '/images',
+        '/images/raw_image',
+        '/images/raw_image/0',
+        '/images/raw_image/1',
+        '/labels',
+        '/labels/segmentation_mask',
+        '/labels/segmentation_mask/0',
+        '/points',
+        '/points/transcripts',
+        '/shapes',
+        '/shapes/nucleus_boundaries',
+        '/tables',
+        '/tables/table',
+        '/tables/table/X',
+        '/tables/table/X/data',
+        '/tables/table/X/indices',
+        '/tables/table/X/indptr',
+        '/tables/table/layers',
+        '/tables/table/obs',
+        '/tables/table/obs/_index',
+        '/tables/table/obs/annotation',
+        '/tables/table/obs/annotation/categories',
+        '/tables/table/obs/annotation/codes',
+        '/tables/table/obs/cell_ID',
+        '/tables/table/obs/fov_labels',
+        '/tables/table/obs/fov_labels/categories',
+        '/tables/table/obs/fov_labels/codes',
+        '/tables/table/obsm',
+        '/tables/table/obsm/spatial',
+        '/tables/table/obsp',
+        '/tables/table/uns',
+        '/tables/table/uns/annotation_colors',
+        '/tables/table/uns/spatialdata_attrs',
+        '/tables/table/uns/spatialdata_attrs/instance_key',
+        '/tables/table/uns/spatialdata_attrs/region',
+        '/tables/table/uns/spatialdata_attrs/region_key',
+        '/tables/table/var',
+        '/tables/table/var/_index',
+        '/tables/table/varm',
+        '/tables/table/varp'
+    ]);
+    expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 
   it('parsed url to zmetadata for an OME-NGFF image', async () => {
@@ -80,6 +124,7 @@ describe('generateConfig', () => {
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
     
     expect(zmetadata.length).toEqual(1);
-    expect(zmetadata.map(d => d.path)).toEqual(['']);
+    expect(zmetadata.map(d => d.path)).toEqual(['/']);
+    expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 });
