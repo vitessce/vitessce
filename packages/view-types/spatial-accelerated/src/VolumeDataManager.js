@@ -140,7 +140,8 @@ export class VolumeDataManager {
 
     this.channels = {
       maxChannels: 7, // lower when dataset has fewer, dictates page table size
-      channelMappings: [], // stores the zarr channel index for every one of the up to 7 channels
+      zarrMappings: [], // stores the zarr channel index for every one of the up to 7 channels
+      colorMappings: [], // stores the PT slot for every color
       downsampleMin: [], // stores the downsample min for every one of the up to 7 channels
       downsampleMax: [], // stores the downsample max for every one of the up to 7 channels
     };
@@ -303,11 +304,12 @@ export class VolumeDataManager {
         };
 
         // initializing channel mappings and slots as empty
-        this.channels.channelMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+        this.channels.colorMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
+        this.channels.zarrMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
         this.channels.downsampleMin = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
         this.channels.downsampleMax = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
 
-        console.log('channelMappings in init', this.channels.channelMappings);
+        console.log('zarrMappings in init', this.channels.zarrMappings);
         console.log('downsampleMin in init', this.channels.downsampleMin);
         console.log('downsampleMax in init', this.channels.downsampleMax);
 
@@ -427,11 +429,15 @@ export class VolumeDataManager {
         // for each key in config, add to channel mappings
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
-          this.channels.channelMappings[i] = configChannel;
+          this.channels.zarrMappings[i] = configChannel;
+          this.channels.colorMappings[i] = i;
           this.channels.downsampleMin[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.min || 0;
           this.channels.downsampleMax[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.max || 65535;
         });
-        console.log('channelMappings after init', this.channels.channelMappings);
+        console.log('zarrMappings after init', this.channels.zarrMappings);
+        console.log('colorMappings after init', this.channels.colorMappings);
+        console.log('downsampleMin after init', this.channels.downsampleMin);
+        console.log('downsampleMax after init', this.channels.downsampleMax);
 
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
@@ -481,7 +487,8 @@ export class VolumeDataManager {
 
     console.warn('initMRMCPT', this.zarrStore.shapes[0]);
     console.warn('initMRMCPT', this.zarrStore.channelCount);
-    console.warn('initMRMCPT', this.channels.channelMappings);
+    console.warn('initMRMCPT', this.channels.zarrMappings);
+    console.warn('initMRMCPT', this.channels.colorMappings);
 
     // Calculate PT extents first
     this.PT.xExtent = 1;
@@ -518,8 +525,8 @@ export class VolumeDataManager {
 
     // Calculate total Z extent including channel offsets
     // this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
-    this.PT.zTotal = this.PT.zExtent + this.channels.channelMappings.length * l0z;
-    console.log('number of PT channels', this.channels.channelMappings.length);
+    this.PT.zTotal = this.PT.zExtent + this.channels.zarrMappings.length * l0z;
+    console.log('number of PT channels', this.channels.zarrMappings.length);
 
     console.warn('Page Table Extents:', {
       x: this.PT.xExtent,
@@ -596,11 +603,12 @@ export class VolumeDataManager {
     console.log('channelProps', channelProps);
 
     console.error('TODO: init channel mappings first ');
-    console.log('this.channels.channelMappings', this.channels.channelMappings);
+    console.log('this.channels.zarrMappings', this.channels.zarrMappings);
+    console.log('this.channels.colorMappings', this.channels.colorMappings);
     console.log('this.channels.downsampleMin', this.channels.downsampleMin);
     console.log('this.channels.downsampleMax', this.channels.downsampleMax);
 
-    if (this.channels.channelMappings.length === 0) {
+    if (this.channels.zarrMappings.length === 0) {
       console.error('channels not initialized yet');
       return;
     }
@@ -610,7 +618,10 @@ export class VolumeDataManager {
       .map(channelData => channelData.spatialTargetC)
       .filter(targetC => targetC !== undefined);
 
-    const currentZarrChannels = this.channels.channelMappings
+    const currentZarrChannels = this.channels.zarrMappings
+      .filter(mapping => mapping !== undefined);
+
+    const currentColorMappings = this.channels.colorMappings
       .filter(mapping => mapping !== undefined);
 
     // Create sorted arrays for comparison
@@ -636,13 +647,14 @@ export class VolumeDataManager {
       console.log(`UI channel "${uiChannelKey}" wants zarr channel ${targetZarrChannel}`);
 
       // Check if this zarr channel is already mapped
-      const existingSlotIndex = this.channels.channelMappings.indexOf(targetZarrChannel);
+      const existingSlotIndex = this.channels.zarrMappings.indexOf(targetZarrChannel);
 
       if (existingSlotIndex === -1) {
         // Need to allocate a new slot for this zarr channel
-        const nextFreeSlot = this.channels.channelMappings.findIndex(slot => slot === undefined);
+        const nextFreeSlot = this.channels.zarrMappings.findIndex(slot => slot === undefined);
         if (nextFreeSlot !== -1) {
-          this.channels.channelMappings[nextFreeSlot] = targetZarrChannel;
+          this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
+          this.channels.colorMappings[nextFreeSlot] = currentColorMappings.length;
           console.log('channelData', channelData);
           console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
           console.log('targetZarrChannel', targetZarrChannel);
@@ -654,21 +666,23 @@ export class VolumeDataManager {
           console.log('No free slots found, looking for unused mapped channels');
 
           // Find zarr channels that are currently mapped but no longer requested
-          const currentlyMapped = this.channels.channelMappings.filter(mapping => mapping !== undefined);
+          const currentlyMapped = this.channels.zarrMappings.filter(mapping => mapping !== undefined);
           const stillRequested = requestedZarrChannels; // We calculated this earlier
           const unusedMappedChannels = currentlyMapped.filter(mappedChannel => !stillRequested.includes(mappedChannel));
 
           console.log('Currently mapped:', currentlyMapped);
+          console.log('currentColorMappings', currentColorMappings);
           console.log('Still requested:', stillRequested);
           console.log('Unused mapped channels:', unusedMappedChannels);
 
           if (unusedMappedChannels.length > 0) {
             // Find the first slot that maps to an unused zarr channel
-            const slotToReuse = this.channels.channelMappings.findIndex(mapping => unusedMappedChannels.includes(mapping));
+            const slotToReuse = this.channels.zarrMappings.findIndex(mapping => unusedMappedChannels.includes(mapping));
 
             if (slotToReuse !== -1) {
-              const oldZarrChannel = this.channels.channelMappings[slotToReuse];
-              this.channels.channelMappings[slotToReuse] = targetZarrChannel;
+              const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
+              this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
+              this.channels.colorMappings[slotToReuse] = currentColorMappings.length;
               this.channels.downsampleMin[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
               this.channels.downsampleMax[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
               console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
@@ -679,13 +693,24 @@ export class VolumeDataManager {
             }
           } else {
             console.error('All slots are full and all mapped channels are still in use');
-            // Handle this case - maybe expand the mapping array or show an error
           }
         }
       } else {
         console.log(`Zarr channel ${targetZarrChannel} already mapped to slot ${existingSlotIndex}`);
       }
     });
+
+    const newColorMappings = Object.values(channelProps).map((ch) => {
+      const slot = this.channels.zarrMappings.indexOf(ch.spatialTargetC);
+      return slot !== -1 ? slot : -1;
+    });
+
+    while (newColorMappings.length < 7) {
+      newColorMappings.push(-1);
+    }
+
+    console.log('newColorMappings', newColorMappings);
+    this.channels.colorMappings = newColorMappings;
 
     console.log('updatedChannels', this.channels);
 
@@ -912,7 +937,7 @@ export class VolumeDataManager {
 
   _purgeChannel(ptChannelIndex) {
     console.log('purging channel', ptChannelIndex);
-    console.log('corresponding zarr channel', this.channels.channelMappings[ptChannelIndex]);
+    console.log('corresponding zarr channel', this.channels.zarrMappings[ptChannelIndex]);
 
     if (!this.ptTHREE) {
       console.error('pagetable texture not initialized');
@@ -921,7 +946,7 @@ export class VolumeDataManager {
 
     this.channels.downsampleMin[ptChannelIndex] = undefined;
     this.channels.downsampleMax[ptChannelIndex] = undefined;
-    this.channels.channelMappings[ptChannelIndex] = undefined;
+    this.channels.zarrMappings[ptChannelIndex] = undefined;
 
     const channelMask = [0, 0, 0];
     if (ptChannelIndex % 2 >= 1) { channelMask[2] = 1; }
@@ -1144,8 +1169,8 @@ export class VolumeDataManager {
 
     if (chunk instanceof Uint16Array) {
       if (this.channels.downsampleMin[channel] === undefined) {
-        // get the channel ID from this.channels.channelMappings
-        const channelId = this.channels.channelMappings[channel];
+        // get the channel ID from this.channels.zarrMappings
+        const channelId = this.channels.zarrMappings[channel];
         console.log('channelId was not found in this.channels.downsampleMin[channel]', channelId);
         // get the downsample min and max for the channel from omero
         this.channels.downsampleMin[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.min || 0;
@@ -1204,7 +1229,7 @@ export class VolumeDataManager {
     }
 
     /* 4.4 PT entry upload */
-    if (channel >= this.channels.channelMappings.length) {
+    if (channel >= this.channels.zarrMappings.length) {
       console.log('channel is out of bounds', channel);
       min = 255;
       max = 255;

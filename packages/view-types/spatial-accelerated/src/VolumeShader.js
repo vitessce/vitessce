@@ -29,6 +29,9 @@ export const VolumeShader = {
     color4: { value: new Vector4(0, 0, 0) },
     color5: { value: new Vector4(0, 0, 0) },
     color6: { value: new Vector4(0, 0, 0) },
+    channelMapping: {
+      value: [-1, -1, -1, -1, -1, -1, -1],
+    },
     resGlobal: { value: new Vector2(0, 9) },
     res0: { value: new Vector2(0, 9) },
     res1: { value: new Vector2(0, 9) },

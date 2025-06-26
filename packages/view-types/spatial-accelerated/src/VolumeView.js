@@ -96,6 +96,7 @@ export function VolumeView(props) {
       console.log('dm.physicalScale', dm.physicalScale);
 
       rm.setZarrUniforms(dm.zarrStore, dm.PT);
+      rm.setChannelMapping(dm.channels.colorMappings);
 
       console.log('rm.uniforms', rm.uniforms);
 
@@ -397,6 +398,7 @@ export function VolumeView(props) {
     console.log('something about channels changed');
 
     managers?.dataManager.updateChannels(props.imageChannelCoordination[0].A);
+    managers?.renderManager.setChannelMapping(managers?.dataManager.channels.colorMappings);
 
     clearTimeout(interactionTimeoutRef.current);
     interactionTimeoutRef.current = setTimeout(() => {

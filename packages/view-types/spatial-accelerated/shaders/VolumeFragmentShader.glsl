@@ -25,6 +25,7 @@ uniform vec4 color3;
 uniform vec4 color4;
 uniform vec4 color5;
 uniform vec4 color6;
+uniform int channelMapping[7];
 uniform float opacity;
 uniform highp vec3 boxSize;
 uniform int renderRes;
@@ -428,6 +429,10 @@ void main(void) {
     gUsage = vec4(0,0,0,0);
     gColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);
+    if (channelMapping[0] == 0) {
+        gColor = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }
 
     // random number for jittering
     float rnd = random();
