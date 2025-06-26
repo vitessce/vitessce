@@ -41,6 +41,9 @@ function urlToFileType(url) {
  */
 function getStore(parsedUrl) {
   const { fileType, url } = parsedUrl;
+  if(ZARR_FILETYPES.includes(fileType)) {
+    return null;
+  }
   return fileType.endsWith('.zip')
     ? ZipFileStore.fromUrl(url)
     : new FetchStore(url);
@@ -55,7 +58,7 @@ function getStore(parsedUrl) {
 function ensureStores(parsedUrls) {
   return parsedUrls.map(parsedUrl => {
     if(parsedUrl.store) {
-      return parsedUrl
+      return parsedUrl;
     } else {
       const store = getStore(parsedUrl);
       return {
@@ -95,6 +98,75 @@ export function parseUrls(s) {
   });
 }
 
+
+export async function parsedUrlToZmetadata(parsedUrl) {
+  const { fileType, store: initialStore } = parsedUrl;
+
+  if (!initialStore) {
+    throw new Error('No store provided.');
+  }
+
+  let store;
+  let promises = [];
+
+  try {
+    try {
+      store = await withConsolidated(initialStore);
+    } catch {
+      // Try again with `zmetadata` rather than `.zmetadata`.
+      // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
+      store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
+    }
+    // Is consolidated.
+    const contents = store.contents();
+    promises = contents.map(async (value) => {
+      const item = await zarrOpen(zarrRoot(store).resolve(value.path));
+      return {
+        ...value,
+        attrs: item.attrs,
+      };
+    });
+  } catch(e) {
+    store = initialStore;
+    // Is not consolidated.
+    const keysToTry = [
+      // Note: OME-NGFF metadata is stored in the root attrs.
+      '/',
+      // AnnData keys
+      '/X',
+      '/layers',
+      '/obs',
+      '/var',
+      '/obsm',
+      '/obsm/spatial',
+      '/obsm/X_spatial',
+      '/obsm/pca',
+      '/obsm/X_pca',
+      '/obsm/tsne',
+      '/obsm/X_tsne',
+      '/obsm/umap',
+      '/obsm/X_umap',
+      // SpatialData keys
+      // Note: For spatialData, we assume the store is always consolidated.
+    ];
+    promises = keysToTry.map(async (k) => {
+      try {
+        const item = await zarrOpen(zarrRoot(store).resolve(k));
+        return {
+          path: k,
+          kind: item.kind,
+          attrs: item.attrs,
+        };
+      } catch(e) {
+        return null;
+      }
+    });
+  }
+
+  return (await Promise.all(promises))
+    .filter(entry => entry !== null);
+}
+
 /**
  * 
  * @param {{ url, fileType, store }[]} parsedUrls
@@ -102,76 +174,6 @@ export function parseUrls(s) {
  */
 export function parsedUrlsToLayoutOptions(parsedUrls) {
   const parsedStores = ensureStores(parsedUrls);
-  
-}
-
-
-export async function parsedUrlToZmetadata(parsedUrl) {
-    const { fileType, store: initialStore } = parsedUrl;
-
-    if (!ZARR_FILETYPES.includes(fileType)) {     
-      return [];
-    }
-
-    let store;
-    let promises = [];
-
-    try {
-      try {
-        store = await withConsolidated(initialStore);
-      } catch {
-        // Try again with `zmetadata` rather than `.zmetadata`.
-        // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
-        store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
-      }
-      // Is consolidated.
-      const contents = store.contents();
-      promises = contents.map(async (value) => {
-        const item = await zarrOpen(zarrRoot(store).resolve(value.path));
-        return {
-          ...value,
-          attrs: item.attrs,
-        };
-      });
-    } catch(e) {
-      store = initialStore;
-      // Is not consolidated.
-      const keysToTry = [
-        // Note: OME-NGFF metadata is stored in the root attrs.
-        '/',
-        // AnnData keys
-        '/X',
-        '/layers',
-        '/obs',
-        '/var',
-        '/obsm',
-        '/obsm/spatial',
-        '/obsm/X_spatial',
-        '/obsm/pca',
-        '/obsm/X_pca',
-        '/obsm/tsne',
-        '/obsm/X_tsne',
-        '/obsm/umap',
-        '/obsm/X_umap',
-        // SpatialData keys
-        // Note: For spatialData, we assume the store is always consolidated.
-      ];
-      promises = keysToTry.map(async (k) => {
-        try {
-          const item = await zarrOpen(zarrRoot(store).resolve(k));
-          return {
-            path: k,
-            kind: item.kind,
-            attrs: item.attrs,
-          };
-        } catch(e) {
-          return null;
-        }
-      });
-    }
-
-    return (await Promise.all(promises))
-      .filter(entry => entry !== null);
 }
 
 /**
@@ -181,5 +183,12 @@ export async function parsedUrlToZmetadata(parsedUrl) {
  */
 export async function generateConfig(parsedUrls, layoutOption = null) {
   const parsedStores = ensureStores(parsedUrls);
+  const zmetadata = await Promise.all(
+    parsedStores.map(async (parsedStore) => ({
+      ...parsedStore,
+      zmetadata: await parsedUrlToZmetadata(parsedStore),
+    }))
+  );
 
+  return zmetadata;
 }

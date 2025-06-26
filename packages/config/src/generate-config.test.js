@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
-import { parseUrls, parsedUrlToZmetadata } from './generate-config.js';
+import { parseUrls, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
 import spatialdataBlobsFixture from './json-fixtures/blobs.spatialdata.json';
 import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
@@ -126,5 +126,19 @@ describe('generateConfig', () => {
     expect(zmetadata.length).toEqual(1);
     expect(zmetadata.map(d => d.path)).toEqual(['/']);
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
+  });
+
+  it('generateConfig', async () => {
+    const parsedUrls = [
+        {
+            url: './mouse_liver.ome.json',
+            fileType: 'image.ome-zarr',
+            store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
+        }
+    ];
+    const config = await generateConfig(parsedUrls);
+
+    // TODO: update test
+    expect(config).toEqual({});
   });
 });
