@@ -67,6 +67,23 @@ export function expandAnndataZarr(fileDef: z.infer<typeof latestFileDefSchema>) 
         featureValueType: baseFileDef.coordinationValues.featureValueType,
       },
     }] : []),
+    // obsFeatureColumns
+    ...(options.obsFeatureColumns ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR),
+      options: {
+        ...sharedOptions,
+        obsFeatureColumns: options.obsFeatureColumns,
+      },
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        // TODO: allow providing a featureType that is scoped to each `obsFeatureColumns` item
+        // (rather than always using the featureType from the file definition).
+        featureType: baseFileDef.coordinationValues.featureType,
+        featureValueType: baseFileDef.coordinationValues.featureValueType,
+      },
+    }] : []),
     // obsSets
     ...(options.obsSets ? [{
       ...baseFileDef,
