@@ -172,7 +172,8 @@ export const habib2017withQualityMetrics = {
           }],
         },
       },
-      // Here, we use a second anndata.zarr file definition to be able to provide different coordinationValues.
+      // Here, we use a second anndata.zarr file definition to be able to
+      // provide different coordinationValues.
       {
         fileType: 'anndata.zarr',
         url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
