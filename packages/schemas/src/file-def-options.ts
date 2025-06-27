@@ -347,6 +347,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
   obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
