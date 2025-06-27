@@ -1,94 +1,9 @@
-
+// TODO: ts-check
 import { FileType } from '@vitessce/constants-internal';
 import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
 import { VitessceConfig } from './VitessceConfig.js';
-
-class AbstractAutoConfig {
-  constructor(parsedStore) {
-    const { url, fileType, zmetadata } = parsedStore;
-    this.url = url;
-    this.fileType = fileType;
-    this.zmetadata = zmetadata;
-  }
-  addFiles(vc, dataset) { /* eslint-disable-line class-methods-use-this */
-    throw new Error('The addFiles() method has not been implemented.');
-  }
-
-  addViews(vc, layoutOption) {
-    throw new Error('The addViews() method has not been implemented.');
-  }
-}
-
-class AnnDataAutoConfig extends AbstractAutoConfig {
-  getOptions() {
-    const { zmetadata } = this;
-    const options = {
-      obsEmbedding: [],
-      obsSets: [],
-    };
-
-    zmetadata.forEach(({ path, attrs }) => {
-      const lowerPath = path.toLowerCase();
-      const relPath = path.substring(1);
-      // Gene expression matrix.
-      if(['/x'].includes(lowerPath)) {
-        options.obsFeatureMatrix = {
-          path: relPath,
-
-          // TODO: Also check the shape of X.
-          // If X is very large, try to initialize initial-filtering properties
-          // (will require that /var contains a boolean column however.)
-        };
-      }
-
-      // Spatial coordinates.
-      if(['/obsm/x_spatial', '/obsm/spatial'].includes(lowerPath)) {
-        // TODO: use obsSpots instead of obsLocations here?
-        options.obsLocations = {
-          path: relPath
-        };
-      }
-
-      // Embedding arrays.
-      if (['/obsm/x_umap', '/obsm/umap'].includes(lowerPath)) {
-        options.obsEmbedding.push({ path: relPath, embeddingType: 'UMAP' });
-      }
-      if (['/obsm/x_tsne', '/obsm/tsne'].includes(lowerPath)) {
-        options.obsEmbedding.push({ path: relPath, embeddingType: 't-SNE' });
-      }
-      if (['/obsm/x_pca', '/obsm/pca'].includes(lowerPath)) {
-        options.obsEmbedding.push({ path: relPath, embeddingType: 'PCA' });
-      }
-
-      // Cell set columns.
-      // TODO: use all categorical/string columns of obs instead of this fixed set?
-      const supportedObsSetsPaths = [
-        'cluster', 'clusters', 'subcluster', 'cell_type', 'celltype',
-        'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity',
-        'tissue', 'sex',
-      ].map(colname => `/obs/${colname}`);
-      if(supportedObsSetsPaths.includes(lowerPath)) {
-        const name = relPath.split('/').at(-1);
-        options.obsSets.push({ path: relPath, name });
-      }
-    });
-
-    return options;
-  }
-  addFiles(vc, dataset) {
-    const { url, fileType } = this;
-    dataset.addFile({
-      url,
-      fileType,
-      options: this.getOptions(),
-      // TODO: coordination values?
-    });
-  }
-
-  addViews(vc, layoutOption) {
-    // TODO
-  }
-}
+import { AbstractAutoConfig } from './generate-config-helpers.js';
+import { AnnDataAutoConfig } from './generate-config-anndata.js';
 
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -275,6 +190,8 @@ export async function parsedUrlToZmetadata(parsedUrl) {
  */
 export function parsedUrlsToLayoutOptions(parsedUrls) {
   const parsedStores = ensureStores(parsedUrls);
+
+  // TODO: implement
 }
 
 /**
