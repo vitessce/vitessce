@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -16,15 +16,24 @@ import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-uti
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 
-const NEUROGLANCER_ZOOM_BASIS = 16;
+let CACHED_BASE_SCALE = null;
 
-function mapVitessceToNeuroglancer(zoom) {
-  return NEUROGLANCER_ZOOM_BASIS * (2 ** -zoom);
+/**
+ * Deck.gl zoom → Neuroglancer projectionScale
+ */
+function deckZoomToProjectionScale(zoom) {
+  if (zoom) return CACHED_BASE_SCALE * (2 ** -zoom);
+  return 1;
 }
 
-function mapNeuroglancerToVitessce(projectionScale) {
-  return -Math.log2(projectionScale / NEUROGLANCER_ZOOM_BASIS);
+/**
+ * Neuroglancer projectionScale → Deck.gl zoom
+ */
+function projectionScaleToDeckZoom(projectionScale) {
+  if (projectionScale) return Math.log2(CACHED_BASE_SCALE / projectionScale);
+  return 1;
 }
+
 
 function quaternionToEuler([x, y, z, w]) {
   // X-axis rotation (Roll)
@@ -108,6 +117,15 @@ export function NeuroglancerSubscriber(props) {
   const { classes } = useStyles();
   const loaders = useLoaders();
 
+  if (
+    CACHED_BASE_SCALE === null
+       && initialViewerState?.projectionScale
+      && typeof spatialZoom === 'number'
+      && spatialZoom !== 0
+  ) {
+    CACHED_BASE_SCALE = initialViewerState.projectionScale / (2 ** -spatialZoom);
+  }
+
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -122,16 +140,15 @@ export function NeuroglancerSubscriber(props) {
 
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
-    setZoom(mapNeuroglancerToVitessce(projectionScale));
-    const vitessceEularMapping = quaternionToEuler(projectionOrientation);
+    setZoom(projectionScaleToDeckZoom(projectionScale));
+    // const vitessceEularMapping = quaternionToEuler(projectionOrientation);
+    // // TODO: support z rotation on SpatialView?
+    // setRotationX(vitessceEularMapping[0]);
+    // setRotationY(vitessceEularMapping[1]);
 
-    // TODO: support z rotation on SpatialView?
-    setRotationX(vitessceEularMapping[0]);
-    setRotationY(vitessceEularMapping[1]);
-
-    // Note: To pan in Neuroglancer, use shift+leftKey+drag
-    setTargetX(position[0]);
-    setTargetY(position[1]);
+    // // Note: To pan in Neuroglancer, use shift+leftKey+drag
+    // setTargetX(position[0]);
+    // setTargetY(position[1]);
   }, [setZoom, setTargetX, setTargetY, setRotationX, setRotationY]);
 
   const onSegmentClick = useCallback((value) => {
@@ -185,26 +202,35 @@ export function NeuroglancerSubscriber(props) {
   }), [cellColorMapping, initialViewerState]);
 
   const derivedViewerState2 = useMemo(() => {
-    if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
-      const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
-      const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
-      const projectionOrientation = normalizeQuaternion(
-        eulerToQuaternion(spatialRotationX, spatialRotationY),
-      );
-      return {
-        ...derivedViewerState,
-        projectionScale,
-        position,
-        projectionOrientation,
-      };
+    let { projectionScale } = derivedViewerState;
+    const { position } = derivedViewerState;
+    // let projectionOrientation = derivedViewerState.projectionOrientation
+    if (typeof spatialZoom === 'number') {
+      projectionScale = deckZoomToProjectionScale(spatialZoom);
     }
-    return derivedViewerState;
+    // if (typeof spatialTargetX === 'number') {
+    //    position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
+    // }
+    // const projectionOrientation = normalizeQuaternion(
+    //   eulerToQuaternion(spatialRotationX, spatialRotationY),
+    // );
+
+    return {
+      ...derivedViewerState,
+      projectionScale,
+      // position,
+      // projectionOrientation,
+    };
+    // return derivedViewerState;
   }, [derivedViewerState, spatialZoom, spatialTargetX,
     spatialTargetY, spatialRotationX, spatialRotationY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
+
+  // const [updateState, setUpdateState] = useState(false);
+  // console.log("state", updateState, spatialTargetX, spatialTargetY, spatialZoom)
 
   return (
     <TitleInfo
