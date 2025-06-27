@@ -128,17 +128,31 @@ describe('generateConfig', () => {
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 
-  it('generateConfig', async () => {
+  it('generateConfig for AnnData object', async () => {
     const parsedUrls = [
-        {
-            url: './mouse_liver.ome.json',
-            fileType: 'image.ome-zarr',
-            store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
-        }
+      {
+        url: './mouse_liver.anndata.json',
+        fileType: 'anndata.zarr',
+        store: createStoreFromMapContents(anndataMouseLiverFixture)
+      }
     ];
-    const config = await generateConfig(parsedUrls);
-
-    // TODO: update test
-    expect(config).toEqual({});
+    const { config, stores } = await generateConfig(parsedUrls);
+    expect(config.toJSON().datasets[0].files).toEqual([
+      {
+        "url": "./mouse_liver.anndata.json",
+        "fileType": "anndata.zarr",
+        "options": {
+          "obsEmbedding": [],
+          "obsSets": [],
+          "obsFeatureMatrix": {
+            "path": "X"
+          },
+          "obsLocations": {
+            "path": "obsm/spatial"
+          }
+        }
+      }
+    ]);
+    expect(Object.keys(stores)).toEqual(["./mouse_liver.anndata.json"]);
   });
 });
