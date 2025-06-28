@@ -1,7 +1,7 @@
 import React, { forwardRef, useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
-import { VolumeHUD } from './VolumeHUD.js';
+//import { VolumeHUD } from './VolumeHUD.js';
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => {
   const [renderingStats, setRenderingStats] = useState({ fps: 0 });
