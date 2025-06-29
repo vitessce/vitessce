@@ -1,8 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { isEqualWith, pick } from 'lodash-es';
+
 import { NeuroglancerGlobalStyles } from './styles.js';
+
+import {compareViewerState} from './utils.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
@@ -10,63 +12,11 @@ function createWorker() {
   return new ChunkWorker();
 }
 
-/**
- * Is this a valid viewerState object?
- * @param {object} viewerState
- * @returns {boolean}
- */
-function isValidState(viewerState) {
-  const { projectionScale, projectionOrientation, position, dimensions } = viewerState || {};
-  return (
-    dimensions !== undefined
-    && typeof projectionScale === 'number'
-    && Array.isArray(projectionOrientation)
-    && projectionOrientation.length === 4
-    && Array.isArray(position)
-    && position.length === 3
-  );
-}
-
-// TODO: Do we want to use the same epsilon value
-// for every viewstate property being compared?
-const EPSILON = 1e-7;
-const VIEWSTATE_KEYS = ['projectionScale', 'projectionOrientation', 'position'];
-
-// Custom numeric comparison function
-// for isEqualWith, to be able to set a custom epsilon.
-function customizer(a, b) {
-  if (typeof a === 'number' && typeof b === 'number') {
-    // Returns true if the values are equivalent, else false.
-    return Math.abs(a - b) < EPSILON;
-  }
-  // Return undefined to fallback to the default
-  // comparison function.
-  return undefined;
-}
-
-/**
- * Returns true if the two states are equal, or false if not.
- * @param {object} prevState Previous viewer state.
- * @param {object} nextState Next viewer state.
- * @returns
- */
-function compareViewerState(prevState, nextState) {
-  if (isValidState(nextState)) {
-    // Subset the viewerState objects to only the keys
-    // that we want to use for comparison.
-    const prevSubset = pick(prevState, VIEWSTATE_KEYS);
-    const nextSubset = pick(nextState, VIEWSTATE_KEYS);
-    return isEqualWith(prevSubset, nextSubset, customizer);
-  }
-  return true;
-}
-
 export class Neuroglancer extends PureComponent {
   constructor(props) {
     super(props);
 
     this.bundleRoot = createWorker();
-
     this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
 
@@ -77,6 +27,7 @@ export class Neuroglancer extends PureComponent {
 
     this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
     this.onRef = this.onRef.bind(this);
+    // console.log("Neuroglancer loaded", this.viewerState, this.cellSetUpdated)
   }
 
   onRef(viewerRef) {
@@ -124,6 +75,7 @@ export class Neuroglancer extends PureComponent {
   }
 
   onViewerStateChanged(nextState) {
+    // console.log("onViewerStateChanged")
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
 
@@ -135,7 +87,10 @@ export class Neuroglancer extends PureComponent {
   }
 
   UNSAFE_componentWillUpdate(prevProps) {
-    if (!compareViewerState(this.viewerState, prevProps.viewerState)) {
+    // console.log("UNSAFE_componentWillUpdate")
+    // const { cellSetUpdated } =  this.props;
+    const cellSetUpdated = true;
+    if (!compareViewerState(this.viewerState, prevProps.viewerState) || cellSetUpdated) {
       this.viewerState = prevProps.viewerState;
       this.justReceivedExternalUpdate = true;
       setTimeout(() => {
