@@ -1939,6 +1939,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
+      three:
+        specifier: 'catalog:'
+        version: 0.154.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
