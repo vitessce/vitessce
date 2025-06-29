@@ -87,10 +87,7 @@ export class Neuroglancer extends PureComponent {
   }
 
   UNSAFE_componentWillUpdate(prevProps) {
-    // console.log("UNSAFE_componentWillUpdate")
-    // const { cellSetUpdated } =  this.props;
-    const cellSetUpdated = true;
-    if (!compareViewerState(this.viewerState, prevProps.viewerState) || cellSetUpdated) {
+    if (!compareViewerState(this.viewerState, prevProps.viewerState)) {
       this.viewerState = prevProps.viewerState;
       this.justReceivedExternalUpdate = true;
       setTimeout(() => {
