@@ -4,7 +4,7 @@ import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 
 import { NeuroglancerGlobalStyles } from './styles.js';
 
-import {compareViewerState} from './utils.js';
+import { compareViewerState } from './utils.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
@@ -75,11 +75,12 @@ export class Neuroglancer extends PureComponent {
   }
 
   onViewerStateChanged(nextState) {
-    // console.log("onViewerStateChanged")
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-
+    // console.log("onViewerStateChanged", ...nextState.projectionOrientation, ...prevState.projectionOrientation);
+    // console.log("finall", !compareViewerState(prevState, nextState))
     if (!this.justReceivedExternalUpdate && !compareViewerState(prevState, nextState)) {
+      // console.log("onViewerStateChanged updated")
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);
