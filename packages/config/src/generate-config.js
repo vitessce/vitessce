@@ -3,7 +3,9 @@ import { FileType } from '@vitessce/constants-internal';
 import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
 import { VitessceConfig } from './VitessceConfig.js';
 import { AbstractAutoConfig } from './generate-config-helpers.js';
+// Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
+import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
 
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -23,8 +25,8 @@ const fileTypeToClass = {
   [FileType.IMAGE_OME_ZARR_ZIP]: AbstractAutoConfig, // TODO
   [FileType.ANNDATA_ZARR]: AnnDataAutoConfig,
   [FileType.ANNDATA_ZARR_ZIP]: AnnDataAutoConfig,
-  [FileType.SPATIALDATA_ZARR]: AbstractAutoConfig, // TODO
-  [FileType.SPATIALDATA_ZARR_ZIP]: AbstractAutoConfig, // TODO
+  [FileType.SPATIALDATA_ZARR]: SpatialDataAutoConfig,
+  [FileType.SPATIALDATA_ZARR_ZIP]: SpatialDataAutoConfig,
 };
 
 // This list contains file types that can be mapped to a regular Zarr store

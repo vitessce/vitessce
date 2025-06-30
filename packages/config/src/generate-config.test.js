@@ -128,7 +128,7 @@ describe('generateConfig', () => {
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 
-  it('generateConfig for AnnData object', async () => {
+  it('generateConfig for AnnData object fills in datasets part of config', async () => {
     const parsedUrls = [
       {
         url: './mouse_liver.anndata.json',
@@ -154,5 +154,58 @@ describe('generateConfig', () => {
       }
     ]);
     expect(Object.keys(stores)).toEqual(["./mouse_liver.anndata.json"]);
+  });
+
+  it('generateConfig for SpatialData object fills in datasets part of config', async () => {
+    const parsedUrls = [
+      {
+        url: './mouse_liver.spatialdata.json',
+        fileType: 'spatialdata.zarr',
+        store: createStoreFromMapContents(spatialdataMouseLiverFixture)
+      }
+    ];
+    const { config, stores } = await generateConfig(parsedUrls);
+    expect(config.toJSON().datasets[0].files).toEqual([
+      {
+        "url": "./mouse_liver.spatialdata.json",
+        "fileType": "spatialdata.zarr",
+        "options": {
+          "image": {
+            "path": "images/raw_image",
+            "coordinateSystem": "global"
+          },
+          "labels": {
+            "path": "labels/segmentation_mask",
+            "coordinateSystem": "global"
+          },
+          "obsSpots": {
+            // TODO: the test should be updated once fixed in the implementaiton,
+            // since these are not circle shapes.
+            "path": "shapes/nucleus_boundaries"
+          },
+          "obsFeatureMatrix": {
+            "path": "tables/table/X"
+          },
+          "obsSets": {
+            "tablePath": "tables/table",
+            "obsSets": [
+              {
+                "path": "tables/table/obs/cell_ID",
+                "name": "cell_ID"
+              },
+              {
+                "path": "tables/table/obs/fov_labels",
+                "name": "fov_labels"
+              },
+              {
+                "path": "tables/table/obs/annotation",
+                "name": "annotation"
+              }
+            ]
+          }
+        }
+      }
+    ]);
+    expect(Object.keys(stores)).toEqual(["./mouse_liver.spatialdata.json"]);
   });
 });
