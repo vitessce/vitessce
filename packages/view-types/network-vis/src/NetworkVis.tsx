@@ -127,6 +127,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   const [isHopSelectionMode, setIsHopSelectionMode] = useState<boolean>(false);
   const [isToolsVisible, setIsToolsVisible] = useState<boolean>(false);
   const cyRef = useRef<any>(null);
+  const [exportFormat, setExportFormat] = useState<'json' | 'csv' | 'sif' | 'graphml'>('json');
 
   const handleHopDistanceSelection = useCallback((event: any) => {
     if (!isHopSelectionMode || !cyRef.current) return;
@@ -365,6 +366,155 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     fetchData();
   }, []);
 
+  const handleExportGraph = () => {
+    if (!cyRef.current || !state.data) return;
+    
+    if (exportFormat === 'json') {
+      // Export in Cytoscape.js format (for web applications)
+      const json = cyRef.current.json();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "network-export.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    } else if (exportFormat === 'csv') {
+      // Export nodes as CSV
+      const nodesCsv = [
+        ['id', 'ftuName', 'subComponents'].join(','),
+        ...state.data.nodes.map(node => [
+          node.id,
+          node.ftuName,
+          node.subComponents ? node.subComponents.join(';') : ''
+        ].join(','))
+      ].join('\n');
+      
+      const nodesDataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(nodesCsv);
+      const nodesDownloadNode = document.createElement('a');
+      nodesDownloadNode.setAttribute("href", nodesDataStr);
+      nodesDownloadNode.setAttribute("download", "network-nodes.csv");
+      document.body.appendChild(nodesDownloadNode);
+      nodesDownloadNode.click();
+      nodesDownloadNode.remove();
+      
+      // Export edges as CSV
+      const edgesCsv = [
+        ['source', 'target'].join(','),
+        ...state.data.links.map(link => [
+          link.source,
+          link.target
+        ].join(','))
+      ].join('\n');
+      
+      const edgesDataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(edgesCsv);
+      const edgesDownloadNode = document.createElement('a');
+      edgesDownloadNode.setAttribute("href", edgesDataStr);
+      edgesDownloadNode.setAttribute("download", "network-edges.csv");
+      document.body.appendChild(edgesDownloadNode);
+      edgesDownloadNode.click();
+      edgesDownloadNode.remove();
+    } else if (exportFormat === 'sif') {
+      // SIF (Simple Interaction Format) - directly compatible with Cytoscape desktop
+      const sifContent = state.data.links.map(link => 
+        `${link.source} pp ${link.target}`
+      ).join('\n');
+      
+      const sifDataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(sifContent);
+      const sifDownloadNode = document.createElement('a');
+      sifDownloadNode.setAttribute("href", sifDataStr);
+      sifDownloadNode.setAttribute("download", "network.sif");
+      document.body.appendChild(sifDownloadNode);
+      sifDownloadNode.click();
+      sifDownloadNode.remove();
+      
+      // Export node attributes with color and style information
+      const nodeAttributes = [
+        ['Node', 'ftuName', 'color', 'borderColor', 'size', 'opacity', 'subComponents'].join('\t'),
+        ...state.data.nodes.map(node => {
+          const nodeColor = node.ftuName === 'glomeruli' ? 'red' : 'yellow';
+          let borderColor = '#999';
+          let opacity = '0.3';
+          
+          if (node.ftuName === 'nerves' && node.id.startsWith('merged_') && node.subComponents) {
+            const coloredSubComponent = node.subComponents.find(subId => cellColors.has(subId));
+            if (coloredSubComponent) {
+              borderColor = `rgb(${cellColors.get(coloredSubComponent)?.join(',')})`;
+              opacity = '1';
+            }
+          } else if (cellColors.has(node.id)) {
+            borderColor = `rgb(${cellColors.get(node.id)?.join(',')})`;
+            opacity = '1';
+          }
+          
+          return [
+            node.id,
+            node.ftuName,
+            nodeColor,
+            borderColor,
+            '15',
+            opacity,
+            node.subComponents ? node.subComponents.join(';') : ''
+          ].join('\t');
+        })
+      ].join('\n');
+      
+      const nodeAttrDataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(nodeAttributes);
+      const nodeAttrDownloadNode = document.createElement('a');
+      nodeAttrDownloadNode.setAttribute("href", nodeAttrDataStr);
+      nodeAttrDownloadNode.setAttribute("download", "network-node-attributes.txt");
+      document.body.appendChild(nodeAttrDownloadNode);
+      nodeAttrDownloadNode.click();
+      nodeAttrDownloadNode.remove();
+      
+      // Export edge attributes
+      const edgeAttributes = [
+        ['Edge', 'source', 'target', 'width', 'color', 'style'].join('\t'),
+        ...state.data.links.map(link => [
+          `${link.source} (pp) ${link.target}`,
+          link.source,
+          link.target,
+          '1',
+          '#999',
+          'solid'
+        ].join('\t'))
+      ].join('\n');
+      
+      const edgeAttrDataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(edgeAttributes);
+      const edgeAttrDownloadNode = document.createElement('a');
+      edgeAttrDownloadNode.setAttribute("href", edgeAttrDataStr);
+      edgeAttrDownloadNode.setAttribute("download", "network-edge-attributes.txt");
+      document.body.appendChild(edgeAttrDownloadNode);
+      edgeAttrDownloadNode.click();
+      edgeAttrDownloadNode.remove();
+    } else if (exportFormat === 'graphml') {
+      // GraphML format - directly compatible with Cytoscape desktop
+      const graphmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="ftuName" for="node" attr.name="ftuName" attr.type="string"/>
+  <key id="subComponents" for="node" attr.name="subComponents" attr.type="string"/>
+  <graph id="G" edgedefault="undirected">
+${state.data.nodes.map(node => `    <node id="${node.id}">
+      <data key="ftuName">${node.ftuName}</data>
+      <data key="subComponents">${node.subComponents ? node.subComponents.join(';') : ''}</data>
+    </node>`).join('\n')}
+${state.data.links.map((link, index) => `    <edge id="e${index}" source="${link.source}" target="${link.target}"/>`).join('\n')}
+  </graph>
+</graphml>`;
+      
+      const graphmlDataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(graphmlContent);
+      const graphmlDownloadNode = document.createElement('a');
+      graphmlDownloadNode.setAttribute("href", graphmlDataStr);
+      graphmlDownloadNode.setAttribute("download", "network.graphml");
+      document.body.appendChild(graphmlDownloadNode);
+      graphmlDownloadNode.click();
+      graphmlDownloadNode.remove();
+    }
+  };
+
   if (!state.data) {
     return <p>{state.infoText || 'Loading network...'}</p>;
   }
@@ -425,6 +575,43 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         </div>
         {isToolsVisible && (
           <>
+            <div style={{ marginBottom: '10px' }}>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value as 'json' | 'csv' | 'sif' | 'graphml')}
+                style={{
+                  width: '100%',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid #333',
+                  fontSize: '10px',
+                  backgroundColor: '#2d2d2d',
+                  color: '#e0e0e0',
+                  marginBottom: '6px'
+                }}
+              >
+                <option value="sif">SIF (Cytoscape Desktop)</option>
+                <option value="graphml">GraphML (Cytoscape Desktop)</option>
+                <option value="csv">CSV (Nodes & Edges)</option>
+                <option value="json">JSON (Web Apps)</option>
+              </select>
+              <button
+                onClick={handleExportGraph}
+                style={{
+                  backgroundColor: '#4477AA',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '6px 12px',
+                  fontSize: '10px',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxShadow: '0 2px 4px rgba(68,119,170,0.2)'
+                }}
+              >
+                Export Graph
+              </button>
+            </div>
             <div style={{ marginBottom: '8px' }}>
               <div style={{
                 display: 'flex',
@@ -432,7 +619,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                 gap: '8px',
                 marginBottom: '4px'
               }}>
-                <button
+                {/* <button
                   onClick={() => setIsHopSelectionMode(!isHopSelectionMode)}
                   style={{
                     backgroundColor: isHopSelectionMode ? '#4477AA' : '#2d2d2d',
@@ -446,8 +633,8 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                   }}
                 >
                   {isHopSelectionMode ? 'Cancel' : 'Select by Hop Distance'}
-                </button>
-                {isHopSelectionMode && (
+                </button> */}
+                {/* {isHopSelectionMode && (
                   <select
                     value={selectedHopDistance}
                     onChange={(e) => setSelectedHopDistance(Number(e.target.value))}
@@ -466,7 +653,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
                       </option>
                     ))}
                   </select>
-                )}
+                )} */}
               </div>
               {isHopSelectionMode && (
                 <div style={{
