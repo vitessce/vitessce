@@ -245,7 +245,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
               latestCellSetColor = result.nextCellSetColor;
               latestCellSetSelection = result.nextCellSetSelection;
             }
-            setTimeout(resolve, 500);
+            setTimeout(resolve, 100);
           });
 
           // Step 2: Accumulate hop distance selections
@@ -257,7 +257,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
                 latestCellSetColor = result.nextCellSetColor;
                 latestCellSetSelection = result.nextCellSetSelection;
               }
-              setTimeout(resolve, 1000);
+              setTimeout(resolve, 100);
             });
           }
         },
@@ -324,7 +324,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
               latestCellSetColor = result.nextCellSetColor;
               latestCellSetSelection = result.nextCellSetSelection;
             }
-            setTimeout(resolve, 500);
+            setTimeout(resolve, 100);
           });
 
           // Step 2: Accumulate hop distance selections
@@ -336,7 +336,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
                 latestCellSetColor = result.nextCellSetColor;
                 latestCellSetSelection = result.nextCellSetSelection;
               }
-              setTimeout(resolve, 1000);
+              setTimeout(resolve, 100);
             });
           }
         }
