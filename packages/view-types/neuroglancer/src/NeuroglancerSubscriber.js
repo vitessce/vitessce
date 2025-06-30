@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -8,72 +8,27 @@ import {
   useObsEmbeddingData,
 } from '@vitessce/vit-s';
 import {
-  Quaternion,
-  Euler,
-  MathUtils,
-} from 'three';
-import {
   ViewHelpMapping,
   ViewType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
+import { isEqual } from 'lodash-es';
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
+import {
+  deckZoomToProjectionScale,
+  projectionScaleToDeckZoom,
+  quaternionToEuler,
+  eulerToQuaternion,
+  compareWithEpsilon,
+  quaternionsAreClose,
 
-// import {compareViewerState} from './utils.js';
-// let SCALE_FACTOR = null;
-const SCALE_FACTOR = 74;
-// const SCALE_FACTOR = 1174; //73.4; 32768/2^4.8
-// const SCALE_FACTOR1 = 12.5;
+} from './utils.js';
+import { useBaseScale } from './hooks.js';
 
-/**
- * projectionScale = 2048, Vitessce zoom after loading = -4.8
- * 2048 = 2^4.8 * BASE_SCALE  (TODO: these are assumptions, based on visual comparison)
-*  SCALE_FACTOR ≈ 2048 / 2^4.8 ≈ 2048 / 27.9 ≈ 73.4
-* */
-
-/**
- * Deck.gl zoom → Neuroglancer projectionScale
- */
-function deckZoomToProjectionScale(zoom) {
-  // console.log(SCALE_FACTOR * (2 ** -zoom), 2 ** (SCALE_FACTOR1 - zoom));
-  // return 2 ** (SCALE_FACTOR1 - zoom);
-  return SCALE_FACTOR * (2 ** -zoom);
-}
-
-/**
- * Neuroglancer projectionScale → Deck.gl zoom
- */
-function projectionScaleToDeckZoom(projectionScale) {
-  console.log("SCALE_FACTOR", SCALE_FACTOR)
-  return Math.log2(SCALE_FACTOR / projectionScale);
-}
-
-
-function quaternionToEuler([x, y, z, w]) {
-  const quaternion = new Quaternion(x, y, z, w);
-  const euler = new Euler().setFromQuaternion(quaternion, 'YXZ'); // deck.gl uses Y (yaw), X (pitch), Z (roll)
-
-  const pitch = MathUtils.radToDeg(euler.x); // X-axis rotation
-  const yaw = MathUtils.radToDeg(euler.y); // Y-axis rotation
-
-  return [pitch, yaw];
-}
-
-
-function eulerToQuaternion(pitch, yaw, roll) {
-  const euler = new Euler(
-    MathUtils.degToRad(pitch),
-    MathUtils.degToRad(yaw),
-    MathUtils.degToRad(roll),
-    // 0, // roll is 0
-    'ZXY', // Yaw-Pitch-Roll order
-  );
-
-  const quaternion = new Quaternion().setFromEuler(euler);
-  return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
-}
+// TODO: the initial value after 0 changes, should be a way to capture it as is
+const deckZoom = -4.4;
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -95,7 +50,7 @@ export function NeuroglancerSubscriber(props) {
     spatialTargetY,
     spatialRotationX,
     spatialRotationY,
-    // spatialRotationZ,
+    spatialRotationZ,
     // spatialRotationOrbit,
     // spatialOrbitAxis,
     embeddingType: mapping,
@@ -136,70 +91,64 @@ export function NeuroglancerSubscriber(props) {
   );
 
 
-//   function getViewportHeightPx() {
-//     const container = document.querySelector('#neuroglancer-container') 
-//       ?? document.querySelector('.neuroglancer-display') 
-//       ?? window;
-  
-//     return container?.clientHeight ?? window.innerHeight;
-//   }
 
-//  const projectionScale = initialViewerState.projectionScale; // e.g. 4084
-// const unit = 'nm'; // based on your dimensions
-// const vh = document.querySelector('#neuroglancer-container')?.clientHeight ?? window.innerHeight;
+  const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
+  // const isFromVitessceRef = useRef(false);
+  const lastUpdateSource = useRef(null);
+  const suppressVitessceEffectRef = useRef(false);
+  // const lastPushedQuaternion = useRef(null);
+  const lastPushedFromVitessceRef = useRef(null);
+  const lastReceivedFromNGRef = useRef(null);
+  // useRef({
+  //   quat: null,
+  //   timestamp: 0,
+  // });
 
-// const µm_vh = getMicronsPerViewportHeight(projectionScale, unit, vh);
-// console.log("Microns per viewport height:", µm_vh.toFixed(2), 'µm/vh');
+  useEffect(() => {
+    if (!suppressVitessceEffectRef.current) {
+    lastUpdateSource.current = 'vitessce';
+  }
+  }, [spatialRotationX, spatialRotationY]);
 
-//   console.log("height", getViewportHeightPx(), initialViewerState.projectionScale)
-
-//   console.log("subscriber loaded")
-
-//   function getMicronsPerViewportHeight(projectionScale, unit = 'nm', viewportHeight = window.innerHeight) {
-//     const conversion = {
-//       nm: 1e-3,
-//       µm: 1,
-//       mm: 1e3,
-//       m: 1e6
-//     };
-//     const scaleInMicrons = projectionScale * (conversion[unit] ?? 1);
-//     return scaleInMicrons * viewportHeight;
-//   }
+  console.log("spatialRotationX", spatialRotationX);
 
   const handleStateUpdate = useCallback((newState) => {
-    console.log("newStete", newState)
-    // if(!compareViewerState(latestViewerState, newState)){
-      latestViewerStateRef.current = {
-      ...initialViewerState,
-      projectionScale: newState.projectionScale,
-      projectionOrientation: newState.projectionOrientation,
-      position: newState.position
-    };
-    // }
     const { projectionScale, projectionOrientation, position } = newState;
-    console.log("handleStateUpdate", spatialZoom, spatialRotationX, spatialRotationY, projectionScale, compareViewerState(latestViewerStateRef.current, newState))
-    // console.log("toDeck", projectionScale, projectionScaleToDeckZoom(projectionScale))
-
-    // setZoom(projectionScaleToDeckZoom(projectionScale));
-    // const vitessceEularMapping = quaternionToEuler(projectionOrientation);
-    // // TODO: support z rotation on SpatialView?
-    // setRotationX(vitessceEularMapping[0]);
-    // setRotationY(vitessceEularMapping[1]);
-    // console.log(projectionOrientation, vitessceEularMapping, spatialRotationX, spatialRotationY)
-    // // Note: To pan in Neuroglancer, use shift+leftKey+drag
-    // setTargetX(position[0]);
-    // setTargetY(position[1]);
-    // console.log(vitessceEularMapping)
-  }, [setZoom, setTargetX, setTargetY, setRotationX, setRotationY]);
-
-  // if (
-  //   SCALE_FACTOR === null
-  //      && initialViewerState?.projectionScale
-  //     && typeof spatialZoom === 'number'
-  //     && spatialZoom !== 0
-  // ) {
-  //   SCALE_FACTOR = (initialViewerState.projectionScale * 1e-3) / (2 ** -spatialZoom);
-  // }
+    const [pitch, yaw] = quaternionToEuler(projectionOrientation);
+  
+    // If Vitessce just pushed this, skip
+    if (
+      lastPushedFromVitessceRef.current &&
+      compareWithEpsilon(projectionOrientation, lastPushedFromVitessceRef.current, 1e-4)
+    ) {
+      return;
+    }
+  
+    // Store last received so we don’t re-push it
+    lastReceivedFromNGRef.current = projectionOrientation;
+  
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionScale,
+      projectionOrientation,
+      position,
+    };
+  
+    if (BASE_SCALE) {
+      setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
+    }
+  
+    lastUpdateSource.current = 'neuroglancer';
+  
+    if (Math.abs(pitch - spatialRotationX) > 0.01) {
+      setRotationX(pitch);
+    }
+    if (Math.abs(yaw - spatialRotationY) > 0.01) {
+      setRotationY(yaw);
+    }
+  
+  }, [setZoom, setRotationX, setRotationY, BASE_SCALE, spatialRotationX, spatialRotationY]);
+  
 
   const onSegmentClick = useCallback((value) => {
     if (value) {
@@ -237,51 +186,70 @@ export function NeuroglancerSubscriber(props) {
     cellColors.forEach((color, cell) => {
       colorCellMapping[cell] = rgbToHex(color);
     });
-    console.log("color mapping")
-    updateCellSetUpdated(true)
+    // console.log("color mapping")
     return colorCellMapping;
-  }, [cellColors, rgbToHex, updateCellSetUpdated]);
+  }, [JSON.stringify([...cellColors.entries()].sort()), rgbToHex]);
 
-  const derivedViewerState = useMemo(() => ({
-    ...latestViewerStateRef.current,
-    layers: latestViewerStateRef.current.layers.map((layer, index) => (index === 0
-      ? {
-        ...layer,
-        segments: Object.keys(cellColorMapping).map(String),
-        segmentColors: cellColorMapping,
-      }
-      : layer)),
-  }), [cellColorMapping, latestViewerStateRef.current]);
+  const derivedViewerState = useMemo(() => {
+    const { current } = latestViewerStateRef;
+
+    const nextSegments = Object.keys(cellColorMapping).map(String);
+    const prevSegments = current.layers[0].segments;
+    const prevColors = current.layers[0].segmentColors;
+
+    const segmentsChanged = nextSegments.length !== prevSegments.length
+      || !nextSegments.every((v, i) => v === prevSegments[i]);
+
+    const colorsChanged = !isEqual(cellColorMapping, prevColors);
+
+    if (!segmentsChanged && !colorsChanged) {
+      return current; // Reuse previous object to avoid triggering downstream re-renders
+    }
+
+    const newLayer0 = {
+      ...current.layers[0],
+      ...(segmentsChanged && { segments: nextSegments }),
+      ...(colorsChanged && { segmentColors: cellColorMapping }),
+    };
+
+    return {
+      ...current,
+      layers: [newLayer0, ...current.layers.slice(1)],
+    };
+  }, [cellColorMapping]);
+
 
   const derivedViewerState2 = useMemo(() => {
-    console.log("derviedViewerstate tested", derivedViewerState)
-    // let { projectionScale, projectionOrientation } = derivedViewerState;
-    // const { position } = derivedViewerState;
-    // if (typeof spatialZoom === 'number') {
-    //   projectionScale = deckZoomToProjectionScale(spatialZoom);
-    // } else {
-    //   projectionScale = deckZoomToProjectionScale(0);
-    // }
-
- 
-    // console.log(derivedViewerState.projectionScale, projectionScale, spatialZoom)
-    // // if (typeof spatialTargetX === 'number') {
-    // //    position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
-    // // }
-    // projectionOrientation = eulerToQuaternion(spatialRotationX, spatialRotationY);
-    // projectionOrientation = eulerToQuaternion(spatialRotationX, 90, spatialRotationZ);
-
-    // console.log("new and old", projectionOrientation, derivedViewerState.projectionOrientation, spatialRotationX, spatialRotationY, spatialRotationZ);
+    let { projectionScale, projectionOrientation } = derivedViewerState;
+  
+    if (typeof spatialZoom === 'number' && BASE_SCALE) {
+      projectionScale = deckZoomToProjectionScale(spatialZoom, BASE_SCALE);
+    }
+  
+    if (lastUpdateSource.current === 'vitessce') {
+      const newQuat = eulerToQuaternion(spatialRotationX, spatialRotationY, spatialRotationZ);
+  
+      // Don't re-push NG’s own state
+      if (
+        !lastReceivedFromNGRef.current ||
+        !compareWithEpsilon(newQuat, lastReceivedFromNGRef.current, 1e-4)
+      ) {
+        projectionOrientation = newQuat;
+        lastPushedFromVitessceRef.current = newQuat;
+        console.log('✅ Push new orientation to NG');
+      }
+  
+      lastUpdateSource.current = null;
+    }
+  
     return {
       ...derivedViewerState,
-      // projectionScale,
-      // position,
-      // projectionOrientation,
+      projectionScale,
+      projectionOrientation,
     };
-    // return derivedViewerState;
-  }, [derivedViewerState, spatialZoom, spatialTargetX,
-    spatialTargetY, spatialRotationX, spatialRotationY]);
-
+  }, [derivedViewerState, spatialZoom, spatialRotationX, spatialRotationY, spatialRotationZ, BASE_SCALE]);
+  
+  
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);

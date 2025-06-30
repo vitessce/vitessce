@@ -75,12 +75,11 @@ export class Neuroglancer extends PureComponent {
   }
 
   onViewerStateChanged(nextState) {
+    // console.log("onViewerStateChanged")
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-    // console.log("onViewerStateChanged", ...nextState.projectionOrientation, ...prevState.projectionOrientation);
-    // console.log("finall", !compareViewerState(prevState, nextState))
     if (!this.justReceivedExternalUpdate && !compareViewerState(prevState, nextState)) {
-      // console.log("onViewerStateChanged updated")
+      // console.log("updated")
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);
