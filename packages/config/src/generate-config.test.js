@@ -208,4 +208,41 @@ describe('generateConfig', () => {
     ]);
     expect(Object.keys(stores)).toEqual(["./mouse_liver.spatialdata.json"]);
   });
+
+  it('generateConfig for OME-Zarr image fills in datasets part of config', async () => {
+    const parsedUrls = [
+      {
+        url: './mouse_liver.ome.json',
+        fileType: 'image.ome-zarr',
+        store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
+      }
+    ];
+    const { config, stores } = await generateConfig(parsedUrls);
+    expect(config.toJSON().datasets[0].files).toEqual([
+      {
+        "url": "./mouse_liver.ome.json",
+        "fileType": "image.ome-zarr",
+      }
+    ]);
+    expect(Object.keys(stores)).toEqual(["./mouse_liver.ome.json"]);
+  });
+
+   it('generateConfig for OME-TIFF image fills in datasets part of config, without a store present', async () => {
+    const parsedUrls = [
+      {
+        url: 'https://example.com/mouse_liver.ome.tif',
+        fileType: 'image.ome-tiff',
+      }
+    ];
+    const { config, stores } = await generateConfig(parsedUrls);
+    expect(config.toJSON().datasets[0].files).toEqual([
+      {
+        "url": 'https://example.com/mouse_liver.ome.tif',
+        "fileType": "image.ome-tiff",
+      }
+    ]);
+    expect(Object.keys(stores)).toEqual([]);
+  });
+
+
 });

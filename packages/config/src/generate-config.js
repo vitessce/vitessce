@@ -2,10 +2,10 @@
 import { FileType } from '@vitessce/constants-internal';
 import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
 import { VitessceConfig } from './VitessceConfig.js';
-import { AbstractAutoConfig } from './generate-config-helpers.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
+import { OmeZarrAutoConfig, OmeTiffAutoConfig } from './generate-config-ome.js';
 
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -20,9 +20,9 @@ const fileTypeToExtensions = {
 };
 
 const fileTypeToClass = {
-  [FileType.IMAGE_OME_TIFF]: AbstractAutoConfig, // TODO
-  [FileType.IMAGE_OME_ZARR]: AbstractAutoConfig, // TODO
-  [FileType.IMAGE_OME_ZARR_ZIP]: AbstractAutoConfig, // TODO
+  [FileType.IMAGE_OME_TIFF]: OmeTiffAutoConfig,
+  [FileType.IMAGE_OME_ZARR]: OmeZarrAutoConfig,
+  [FileType.IMAGE_OME_ZARR_ZIP]: OmeZarrAutoConfig,
   [FileType.ANNDATA_ZARR]: AnnDataAutoConfig,
   [FileType.ANNDATA_ZARR_ZIP]: AnnDataAutoConfig,
   [FileType.SPATIALDATA_ZARR]: SpatialDataAutoConfig,
@@ -118,7 +118,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
   const { fileType, store: initialStore } = parsedUrl;
 
   if (!initialStore) {
-    throw new Error('No store provided.');
+    return null;
   }
 
   let store;
@@ -206,7 +206,7 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
   const parsedStores = ensureStores(parsedUrls);
   
   // Obtain Zarr consolidated_metadata for each store.
-  const zmetadata = await Promise.all(
+  const zmetadataStores = await Promise.all(
     parsedStores.map(async (parsedStore) => ({
       ...parsedStore,
       zmetadata: await parsedUrlToZmetadata(parsedStore),
@@ -226,7 +226,7 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
   // TODO: cases in which more than one dataset should be created?
   const dataset = vc.addDataset('Main dataset');
 
-  zmetadata.forEach((parsedStore) => {
+  zmetadataStores.forEach((parsedStore) => {
     const { fileType } = parsedStore;
     const AutoConfigClass = fileTypeToClass[fileType];
     const autoConfig = new AutoConfigClass(parsedStore);
@@ -241,7 +241,9 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
     // so that we do not provide more stores than intended
     // (i.e., we do not provide stores which were solely created
     // to obtain zmetadata). 
-    parsedUrls.map(d => ([d.url, d.store]))
+    parsedUrls
+      .filter(d => d.store)
+      .map(d => ([d.url, d.store]))
   );
 
   // Return both the config and the `stores` url-to-store dict.
