@@ -504,6 +504,12 @@ export class VolumeRenderManager {
     this.mrt = mrt;
   }
 
+  setChannelMapping(channelMapping) {
+    log('setting channel mapping');
+    console.log('channelMapping', channelMapping);
+    this.uniforms.channelMapping.value = channelMapping;
+  }
+
   setZarrUniforms(
     zarrStore, PT,
   ) {
