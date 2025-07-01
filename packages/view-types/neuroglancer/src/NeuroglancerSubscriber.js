@@ -116,6 +116,12 @@ export function NeuroglancerSubscriber(props) {
     const { projectionScale, projectionOrientation, position } = newState;
     const [pitch, yaw] = quaternionToEuler(projectionOrientation);
   
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionScale,
+      projectionOrientation,
+      position,
+    };
     // If Vitessce just pushed this, skip
     if (
       lastPushedFromVitessceRef.current &&
@@ -127,12 +133,7 @@ export function NeuroglancerSubscriber(props) {
     // Store last received so we don’t re-push it
     lastReceivedFromNGRef.current = projectionOrientation;
   
-    latestViewerStateRef.current = {
-      ...latestViewerStateRef.current,
-      projectionScale,
-      projectionOrientation,
-      position,
-    };
+
   
     if (BASE_SCALE) {
       setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
