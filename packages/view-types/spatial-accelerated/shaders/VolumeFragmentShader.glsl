@@ -111,9 +111,9 @@
  *      v
  *    ┌─────────────────────────────────────┐
  *    │                                     │
- *    │  ┌───┐  ┌───┐  ┌───┐  ┌───┐        │
- *    │  │B0 │  │B1 │  │B2 │  │B3 │  ...   │  <- Bricks (32x32x32 voxels)
- *    │  └───┘  └───┘  └───┘  └───┘        │
+ *    │  ┌───┐  ┌───┐  ┌───┐  ┌───┐         │
+ *    │  │B0 │  │B1 │  │B2 │  │B3 │  ...    │  <- Bricks (32x32x32 voxels)
+ *    │  └───┘  └───┘  └───┘  └───┘         │
  *    │                                     │
  *    │  Ray marches through volume         │
  *    │  sampling at regular intervals      │
@@ -132,27 +132,27 @@
  * 
  * 3. Brick Cache Layout:
  *    ┌─────────────────────────────────────┐
- *    │ 2048 x 2048 x 128 texture          │
+ *    │ 2048 x 2048 x 128 texture           │
  *    │                                     │
- *    │  ┌───┐  ┌───┐  ┌───┐  ┌───┐        │
- *    │  │B0 │  │B1 │  │B2 │  │B3 │  ...   │  <- Brick cache entries
- *    │  └───┘  └───┘  └───┘  └───┘        │
+ *    │  ┌───┐  ┌───┐  ┌───┐  ┌───┐         │
+ *    │  │B0 │  │B1 │  │B2 │  │B3 │  ...    │  <- Brick cache entries
+ *    │  └───┘  └───┘  └───┘  └───┘         │
  *    │                                     │
- *    │  Each brick = 32x32x32 voxels      │
- *    │  Total: 64x64x16 = 65,536 bricks   │
+ *    │  Each brick = 32x32x32 voxels       │
+ *    │  Total: 64x64x16 = 65,536 bricks    │
  *    └─────────────────────────────────────┘
  * 
  * 4. Page Table Structure:
  *    ┌─────────────────────────────────────┐
- *    │ 32-bit entry per brick:            │
+ *    │ 32-bit entry per brick:             │
  *    │                                     │
- *    │ [31] Resident flag (1=loaded)      │
- *    │ [30] Initialized flag (1=ready)    │
- *    │ [29:23] Min value (7 bits)         │
- *    │ [22:16] Max value (7 bits)         │
- *    │ [15:10] X offset in cache (6 bits) │
- *    │ [9:4]  Y offset in cache (6 bits)  │
- *    │ [3:0]  Z offset in cache (4 bits)  │
+ *    │ [31] Resident flag (1=loaded)       │
+ *    │ [30] Initialized flag (1=ready)     │
+ *    │ [29:23] Min value (7 bits)          │
+ *    │ [22:16] Max value (7 bits)          │
+ *    │ [15:10] X offset in cache (6 bits)  │
+ *    │ [9:4]  Y offset in cache (6 bits)   │
+ *    │ [3:0]  Z offset in cache (4 bits)   │
  *    └─────────────────────────────────────┘
  * 
  * 5. Multi-Channel Rendering:
@@ -173,7 +173,7 @@
  * 6. Adaptive Sampling:
  *    Distance-based LOD selection:
  *    
- *    Near:  ████████████████████████████  (High res, small steps)
+ *    Near:   ████████████████████████████  (High res, small steps)
  *    Medium: ████████░░░░░░░░████████░░░░  (Medium res, medium steps)
  *    Far:    ██░░░░░░░░░░░░░░██░░░░░░░░░░  (Low res, large steps)
  * 
@@ -205,6 +205,7 @@ in vec3 cameraCorrected;
 // TEXTURE SAMPLERS
 // ========================================
 // 3D texture containing cached brick data (2048x2048x128)
+// (2048*2048*128)/(32*32*32) = 16,384 bricks can be stored?
 uniform sampler3D brickCacheTex;
 // 3D texture containing page table entries (brick metadata)
 uniform usampler3D pageTableTex;
