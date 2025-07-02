@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { parseUrls, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
-import spatialdataBlobsFixture from './json-fixtures/blobs.spatialdata.json';
 import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
 import imageOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.ome.json';
