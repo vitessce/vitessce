@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { AbstractAutoConfig } from './generate-config-helpers.js';
 
-// TODO: split into an OME-TIFF and OME-Zarr class if needed.
+// TODO: split into separate classes for OME-TIFF and OME-Zarr?
+// TODO: split into separate classes for image and obsSegmentations?
 export class OmeAutoConfig extends AbstractAutoConfig {
   addFiles(vc, dataset) {
     const { url, fileType } = this;

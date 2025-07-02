@@ -20,11 +20,18 @@ const fileTypeToExtensions = {
 };
 
 const fileTypeToClass = {
+  // OME-TIFF
   [FileType.IMAGE_OME_TIFF]: OmeAutoConfig,
+  [FileType.OBS_SEGMENTATIONS_OME_TIFF]: OmeAutoConfig,
+  // OME-Zarr
   [FileType.IMAGE_OME_ZARR]: OmeAutoConfig,
   [FileType.IMAGE_OME_ZARR_ZIP]: OmeAutoConfig,
+  [FileType.OBS_SEGMENTATIONS_OME_ZARR]: OmeAutoConfig,
+  [FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP]: OmeAutoConfig,
+  // AnnData
   [FileType.ANNDATA_ZARR]: AnnDataAutoConfig,
   [FileType.ANNDATA_ZARR_ZIP]: AnnDataAutoConfig,
+  // SpatialData
   [FileType.SPATIALDATA_ZARR]: SpatialDataAutoConfig,
   [FileType.SPATIALDATA_ZARR_ZIP]: SpatialDataAutoConfig,
 };
@@ -37,7 +44,9 @@ const ZARR_FILETYPES = [
   FileType.SPATIALDATA_ZARR,
   FileType.SPATIALDATA_ZARR_ZIP,
   FileType.IMAGE_OME_ZARR,
+  FileType.IMAGE_OME_ZARR_ZIP,
   FileType.OBS_SEGMENTATIONS_OME_ZARR,
+  FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP,
 ];
 
 function urlToFileType(url) {
