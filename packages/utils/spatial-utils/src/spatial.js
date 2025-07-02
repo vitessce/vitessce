@@ -23,12 +23,17 @@ export const getStatsForResolution = (loader, resolution) => {
   const height = shape[labels.indexOf('y')];
   const width = shape[labels.indexOf('x')];
   const depth = shape[labels.indexOf('z')];
+
+  const dims = Object.fromEntries(
+    labels.map((label, i) => ([label, shape[i]]))
+  );
+
   // eslint-disable-next-line no-bitwise
   const depthDownsampled = Math.max(1, depth >> resolution);
   // Check memory allocation limits for Float32Array (used in XR3DLayer for rendering)
   const totalBytes = 4 * height * width * depthDownsampled;
   return {
-    height, width, depthDownsampled, totalBytes,
+    height, width, depth, depthDownsampled, totalBytes, dims,
   };
 };
 

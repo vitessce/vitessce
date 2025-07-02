@@ -28,6 +28,13 @@ function log(msg) {
 }
 
 export function VolumeView(props) {
+  const {
+    images,
+    imageLayerScopes,
+    imageLayerCoordination,
+    imageChannelScopesByLayer,
+    imageChannelCoordination,
+  } = props;
   const { gl, scene, camera } = useThree();
   const invalidate = useThree(state => state.invalidate);
 
@@ -89,6 +96,8 @@ export function VolumeView(props) {
         imageUrl,
         gl.getContext?.() || gl,
         gl,
+        images,
+        imageLayerScopes,
       );
       const rm = new VolumeRenderManager();
       await dm.init(props.imageChannelCoordination[0].A); // device limits, zarr meta
@@ -110,7 +119,7 @@ export function VolumeView(props) {
       managers?.dataManager.clearCache();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.images]); // run when props.images changes
+  }, [images, imageLayerScopes]); // run when props.images changes
 
   useEffect(() => {
     log('useEffect GL');

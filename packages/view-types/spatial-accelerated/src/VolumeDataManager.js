@@ -61,11 +61,179 @@ function log(message) {
   console.warn(`%cDM: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
 }
 
+
+/* Begin extracted functions */
+export function _resolutionStatsToShapes(multiResolutionStats) {
+  return multiResolutionStats.map((stats) => {
+    const { dims } = stats;
+    const shape = [
+      // Other spatial-accelerated code assumes TCZYX dimension order
+      dims['t'], // TODO: standardize lowercase/uppercase dim names at store-level
+      dims['c'], // TODO: handle case when dimension(s) are missing
+      dims['z'],
+      dims['y'],
+      dims['x'],
+    ];
+    return shape;
+  });
+}
+export function _resolutionStatsToBrickLayout(multiResolutionStats) {
+  return multiResolutionStats.map((stats) => {
+    const shape = [
+      stats.depth,  // z
+      stats.height, // y
+      stats.width,  // x
+    ];
+    // TODO: abstract chunkSize to always be 32x32x32 at store-level
+    // const chunkSize = array0.chunks || [BRICK_SIZE, BRICK_SIZE, BRICK_SIZE];
+    return [
+      Math.ceil((shape[0] || 1) / BRICK_SIZE),
+      Math.ceil((shape[1] || 1) / BRICK_SIZE),
+      Math.ceil((shape[2] || 1) / BRICK_SIZE),
+    ];
+  });
+}
+
+/**
+ * 
+ * @param {[number, number, number][]} zarrStoreBrickLayout 
+ * @param {number} channelsZarrMappingsLength 
+ */
+export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
+  console.log('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
+  // Page table
+  const PT = {
+    channelOffsets: [
+      [0, 0, 1],
+      [0, 1, 0],
+      [0, 1, 1],
+      [1, 0, 0],
+      [1, 0, 1],
+      [1, 1, 0],
+      [1, 1, 1],
+    ],
+    anchors: [],
+    offsets: [],
+    xExtent: 0, // includes the offset inclusive
+    yExtent: 0, // includes the offset inclusive
+    zExtent: 0, // includes the offset inclusive
+    z0Extent: 0, // l0 z extent
+    zTotal: 0, // original z extent plus the l0 z extent times the channel count
+  };
+
+  // Calculate PT extents first
+  PT.xExtent = 1;
+  PT.yExtent = 1;
+  PT.zExtent = 1;
+  const l0z = zarrStoreBrickLayout[0][0]; // Get z extent from highest resolution
+  PT.z0Extent = l0z;
+
+  // console.warn('PT', PT);
+
+  // console.warn('PT anchors', PT.anchors);
+
+  // console.warn('PT anchors with 0', PT.anchors);
+
+  PT.lowestDataRes = zarrStoreBrickLayout.length - 1;
+  // console.warn('lowestDataRes', PT.lowestDataRes);
+
+  // Sum up the extents from all resolution levels excluding the l0
+  for (let i = zarrStoreBrickLayout.length - 1; i > 0; i--) {
+    PT.anchors.push([
+      PT.xExtent,
+      PT.yExtent,
+      PT.zExtent,
+    ]);
+    PT.xExtent += zarrStoreBrickLayout[i][2];
+    PT.yExtent += zarrStoreBrickLayout[i][1];
+    PT.zExtent += zarrStoreBrickLayout[i][0];
+  }
+
+  PT.anchors.push([0, 0, PT.zExtent]);
+  PT.anchors.reverse();
+
+  // console.warn('PT anchors', PT.anchors);
+
+  // Calculate total Z extent including channel offsets
+  // PT.zTotal = PT.zExtent + (this.zarrStore.channelCount * l0z);
+  PT.zTotal = PT.zExtent + channelsZarrMappingsLength * l0z;
+  // console.log('number of PT channels', channelsZarrMappingsLength);
+
+  // console.warn('Page Table Extents:', {
+  //   x: PT.xExtent,
+  //   y: PT.yExtent,
+  //   z: PT.zExtent,
+  //   z0: PT.z0Extent,
+  //   zTotal: PT.zTotal,
+  // });
+
+  // Initialize the BrickCache as a 3D texture (uint8)
+  const brickCacheData = new Uint8Array(
+    BRICK_CACHE_SIZE_VOXELS_X
+      * BRICK_CACHE_SIZE_VOXELS_Y
+      * BRICK_CACHE_SIZE_VOXELS_Z,
+  );
+  brickCacheData.fill(0);
+
+  // Initialize the PageTable data using calculated extents
+  const pageTableData = new Uint32Array(
+    PT.xExtent * PT.yExtent * PT.zTotal,
+  );
+  pageTableData.fill(0);
+
+  const bcTHREE = new Data3DTexture(
+    brickCacheData,
+    BRICK_CACHE_SIZE_VOXELS_X,
+    BRICK_CACHE_SIZE_VOXELS_Y,
+    BRICK_CACHE_SIZE_VOXELS_Z,
+  );
+  bcTHREE.format = RedFormat;
+  bcTHREE.type = UnsignedByteType;
+  bcTHREE.internalFormat = 'R8';
+  // bcTHREE.minFilter = NearestFilter;
+  // bcTHREE.magFilter = NearestFilter;
+  bcTHREE.minFilter = LinearFilter;
+  bcTHREE.magFilter = LinearFilter;
+  bcTHREE.generateMipmaps = false;
+  bcTHREE.needsUpdate = true;
+
+  const ptTHREE = new Data3DTexture(
+    pageTableData,
+    PT.xExtent,
+    PT.yExtent,
+    PT.zTotal,
+  );
+  ptTHREE.format = RedIntegerFormat;
+  ptTHREE.type = UnsignedIntType;
+  ptTHREE.internalFormat = 'R32UI';
+  ptTHREE.minFilter = NearestFilter;
+  ptTHREE.magFilter = NearestFilter;
+  ptTHREE.generateMipmaps = false;
+  ptTHREE.needsUpdate = true;
+
+  console.log('_initMRMCPT', PT, ptTHREE, bcTHREE);
+
+  return {
+    PT,
+    ptTHREE,
+    bcTHREE,
+  };
+}
+
+
+
+
+
+/* End extracted functions */
+
 export class VolumeDataManager {
-  constructor(url, gl, renderer) {
+  constructor(url, gl, renderer, images, imageLayerScopes) {
     log('CLASS INITIALIZING');
-    this.url = url;
-    this.store = new zarrita.FetchStore(url);
+    this.url = url; // TODO: use this.images instead
+    this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
+
+    this.images = images;
+    this.imageLayerScopes = imageLayerScopes;
 
     // Handle both WebGLRenderer and WebGL context
     if (gl.domElement && gl.getContext) {
@@ -120,7 +288,7 @@ export class VolumeDataManager {
       maxUniformBufferBindings: this.gl.getParameter(this.gl.MAX_UNIFORM_BUFFER_BINDINGS),
     };
     this.zarrStore = {
-      resolutions: null, // 6
+      resolutions: null, // 6 (the number of resolutions aka. pyramid levels in the file)
       chunkSize: [], // [32, 32, 32]
       shapes: [], // [[795, 1024, 1024], ..., [64, 64, 64], [32, 32, 32]]
       arrays: [], // [array0, array1, array2, array3, array4, array5]
@@ -256,17 +424,25 @@ export class VolumeDataManager {
       this.group = await zarrita.open(this.store);
 
       // Get all resolution levels
-      const resolutions = this.group.attrs.multiscales[0].datasets.length;
+      const imageWrapper = this.images?.[this.imageLayerScopes?.[0]]?.image?.instance;
+      const multiResolutionStats = imageWrapper.getMultiResolutionStats();
+      const shapes = _resolutionStatsToShapes(multiResolutionStats);
+      const resolutions = multiResolutionStats.length;
+
       this.zarrStore.resolutions = resolutions;
-      console.log('resolutions in init', resolutions);
-      const shapes = new Array(resolutions).fill(null);
-      const arrays = new Array(resolutions).fill(null);
+
+      // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
+      const vivData = imageWrapper.getData();
+
+      // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
+      const arrays = vivData.map(resolutionData => resolutionData._data);
       const scales = new Array(resolutions).fill(null);
 
       // Try to load each resolution level in order
+      /*
       const loadPromises = [];
       for (let i = 0; i < resolutions; i++) {
-        loadPromises.push(this.tryLoadResolution(i, arrays, shapes));
+        loadPromises.push(this.tryLoadResolution(i, arrays));
       }
 
       const results = await Promise.all(loadPromises);
@@ -280,8 +456,10 @@ export class VolumeDataManager {
       }
 
       console.info(`Successfully loaded ${resolutions} resolution levels.`);
+      */
 
-      console.info('shapes', shapes);
+      // console.info('shapes', shapes);
+      // console.info('arrays', arrays);
 
       // Get the first array for metadata
       if (arrays.length > 0) {
@@ -309,9 +487,9 @@ export class VolumeDataManager {
         this.channels.downsampleMin = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
         this.channels.downsampleMax = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
 
-        console.log('zarrMappings in init', this.channels.zarrMappings);
-        console.log('downsampleMin in init', this.channels.downsampleMin);
-        console.log('downsampleMax in init', this.channels.downsampleMax);
+        // console.log('zarrMappings in init', this.channels.zarrMappings);
+        // console.log('downsampleMin in init', this.channels.downsampleMin);
+        // console.log('downsampleMax in init', this.channels.downsampleMax);
 
         // Extract physical size information if available
         if (array0.meta && array0.meta.physicalSizes) {
@@ -324,7 +502,7 @@ export class VolumeDataManager {
 
           this.zarrStore.physicalSizeVoxel = [zSize, ySize, xSize];
 
-          console.log('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          // console.log('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
 
           // Calculate total physical size
           if (array0.shape && array0.shape.length >= 5) {
@@ -335,18 +513,18 @@ export class VolumeDataManager {
             ];
           }
         } else {
-          console.log('no physicalSizeVoxel');
+          // console.log('no physicalSizeVoxel');
           this.zarrStore.physicalSizeVoxel = [1, 1, 1];
           this.zarrStore.physicalSizeTotal = [
             array0.shape[2] || 1,
             array0.shape[3] || 1,
             array0.shape[4] || 1,
           ];
-          console.log('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
-          console.log('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+          // console.log('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          // console.log('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
         }
 
-        console.warn('group.attrs', this.group.attrs);
+        // console.warn('group.attrs', this.group.attrs);
         if (this.group.attrs && this.group.attrs.multiscales
             && this.group.attrs.multiscales[0].datasets
             && this.group.attrs.multiscales[0].datasets[0].coordinateTransformations) {
@@ -357,7 +535,7 @@ export class VolumeDataManager {
                 && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0].scale) {
               const { scale } = this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0];
               scales[i] = [scale[4], scale[3], scale[2]];
-              console.warn('scale', i, scales[i]);
+              // console.warn('scale', i, scales[i]);
             }
           }
         } else {
@@ -368,7 +546,7 @@ export class VolumeDataManager {
           }
         }
 
-        console.warn('scales', scales);
+        // console.warn('scales', scales);
         this.zarrStore.scales = scales;
 
         // Use coordinateTransformations scale if available
@@ -391,7 +569,7 @@ export class VolumeDataManager {
               { size: zScale },
             ];
 
-            console.warn('physicalScale', this.physicalScale);
+            // console.warn('physicalScale', this.physicalScale);
 
             // Update zarrStore's physicalSizeVoxel
             this.zarrStore.physicalSizeVoxel = [zScale, yScale, xScale];
@@ -405,26 +583,20 @@ export class VolumeDataManager {
               ];
             }
 
-            console.warn('Using scale from coordinateTransformations:', this.physicalScale);
+            // console.warn('Using scale from coordinateTransformations:', this.physicalScale);
           }
         }
 
+        
         // Calculate brick layout for each resolution
-        this.zarrStore.brickLayout = shapes.map((shape) => {
-          if (!shape || shape.length < 5) return [0, 0, 0];
+        this.zarrStore.brickLayout = _resolutionStatsToBrickLayout(
+          imageWrapper.getMultiResolutionStats(),
+        );
 
-          const chunkSize = array0.chunks || [BRICK_SIZE, BRICK_SIZE, BRICK_SIZE];
-          return [
-            Math.ceil((shape[2] || 1) / (chunkSize[2] || BRICK_SIZE)),
-            Math.ceil((shape[3] || 1) / (chunkSize[3] || BRICK_SIZE)),
-            Math.ceil((shape[4] || 1) / (chunkSize[4] || BRICK_SIZE)),
-          ];
-        });
-
-        console.warn('zarrStore', this.zarrStore);
+        // console.warn('zarrStore', this.zarrStore);
 
         // init channel mappings
-        console.log('initializing channel mappings');
+        // console.log('initializing channel mappings');
         console.log('config', config);
         // for each key in config, add to channel mappings
         Object.keys(config).forEach((key, i) => {
@@ -442,18 +614,18 @@ export class VolumeDataManager {
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
         // this.populateMRMCPT();
-        this.testTexture();
+        // this.testTexture();
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
       log('INIT() COMPLETE');
 
-      console.warn(this.zarrStore);
+      // console.warn(this.zarrStore);
 
       if (this.zarrStore.group.attrs.coordinateTransformations
           && this.zarrStore.group.attrs.coordinateTransformations[0]
           && this.zarrStore.group.attrs.coordinateTransformations[0].scale) {
-        console.warn('scale', this.zarrStore.group.attrs.coordinateTransformations[0].scale);
+        // console.warn('scale', this.zarrStore.group.attrs.coordinateTransformations[0].scale);
       }
 
       // Return data that can be displayed in the HUD
@@ -481,115 +653,42 @@ export class VolumeDataManager {
 
   /**
    * Initialize the BrickCache and PageTable
+   * MRMCPT: multi-resolution? MC? page table
+   * 
+   * Depends on:
+   *   - zarrStore.brickLayout
+   *   - zarrMappings.length (zarrMappings: the zarr channel index for every one of the up to 7 channels)
+   *   - 
    */
   initMRMCPT() {
     log('initMRMCPT');
 
-    console.warn('initMRMCPT', this.zarrStore.shapes[0]);
-    console.warn('initMRMCPT', this.zarrStore.channelCount);
-    console.warn('initMRMCPT', this.channels.zarrMappings);
-    console.warn('initMRMCPT', this.channels.colorMappings);
-
-    // Calculate PT extents first
-    this.PT.xExtent = 1;
-    this.PT.yExtent = 1;
-    this.PT.zExtent = 1;
-    const l0z = this.zarrStore.brickLayout[0][0]; // Get z extent from highest resolution
-    this.PT.z0Extent = l0z;
-
-    console.warn('PT', this.PT);
-
-    console.warn('PT anchors', this.PT.anchors);
-
-    console.warn('PT anchors with 0', this.PT.anchors);
-
-    this.PT.lowestDataRes = this.zarrStore.brickLayout.length - 1;
-    console.warn('lowestDataRes', this.PT.lowestDataRes);
-
-    // Sum up the extents from all resolution levels excluding the l0
-    for (let i = this.zarrStore.brickLayout.length - 1; i > 0; i--) {
-      this.PT.anchors.push([
-        this.PT.xExtent,
-        this.PT.yExtent,
-        this.PT.zExtent,
-      ]);
-      this.PT.xExtent += this.zarrStore.brickLayout[i][2];
-      this.PT.yExtent += this.zarrStore.brickLayout[i][1];
-      this.PT.zExtent += this.zarrStore.brickLayout[i][0];
-    }
-
-    this.PT.anchors.push([0, 0, this.PT.zExtent]);
-    this.PT.anchors.reverse();
-
-    console.warn('PT anchors', this.PT.anchors);
-
-    // Calculate total Z extent including channel offsets
-    // this.PT.zTotal = this.PT.zExtent + (this.zarrStore.channelCount * l0z);
-    this.PT.zTotal = this.PT.zExtent + this.channels.zarrMappings.length * l0z;
-    console.log('number of PT channels', this.channels.zarrMappings.length);
-
-    console.warn('Page Table Extents:', {
-      x: this.PT.xExtent,
-      y: this.PT.yExtent,
-      z: this.PT.zExtent,
-      z0: this.PT.z0Extent,
-      zTotal: this.PT.zTotal,
-    });
-
-    // Initialize the BrickCache as a 3D texture (uint8)
-    const brickCacheData = new Uint8Array(
-      BRICK_CACHE_SIZE_VOXELS_X
-        * BRICK_CACHE_SIZE_VOXELS_Y
-        * BRICK_CACHE_SIZE_VOXELS_Z,
+    // console.warn('initMRMCPT', this.zarrStore.shapes[0]);
+    // console.warn('initMRMCPT', this.zarrStore.channelCount);
+    // console.warn('initMRMCPT', this.channels.zarrMappings);
+    // console.warn('initMRMCPT', this.channels.colorMappings);
+    
+    const { PT, ptTHREE, bcTHREE } = _initMRMCPT(
+      this.zarrStore.brickLayout,
+      this.channels.zarrMappings.length,
     );
-    brickCacheData.fill(0);
 
-    // Initialize the PageTable data using calculated extents
-    const pageTableData = new Uint32Array(
-      this.PT.xExtent * this.PT.yExtent * this.PT.zTotal,
-    );
-    pageTableData.fill(0);
+    this.PT = PT;
+    this.ptTHREE = ptTHREE;
+    this.bcTHREE = bcTHREE;
 
-    this.bcTHREE = new Data3DTexture(
-      brickCacheData,
-      BRICK_CACHE_SIZE_VOXELS_X,
-      BRICK_CACHE_SIZE_VOXELS_Y,
-      BRICK_CACHE_SIZE_VOXELS_Z,
-    );
-    this.bcTHREE.format = RedFormat;
-    this.bcTHREE.type = UnsignedByteType;
-    this.bcTHREE.internalFormat = 'R8';
-    // this.bcTHREE.minFilter = NearestFilter;
-    // this.bcTHREE.magFilter = NearestFilter;
-    this.bcTHREE.minFilter = LinearFilter;
-    this.bcTHREE.magFilter = LinearFilter;
-    this.bcTHREE.generateMipmaps = false;
-    this.bcTHREE.needsUpdate = true;
-
-    this.ptTHREE = new Data3DTexture(
-      pageTableData,
-      this.PT.xExtent,
-      this.PT.yExtent,
-      this.PT.zTotal,
-    );
-    this.ptTHREE.format = RedIntegerFormat;
-    this.ptTHREE.type = UnsignedIntType;
-    this.ptTHREE.internalFormat = 'R32UI';
-    this.ptTHREE.minFilter = NearestFilter;
-    this.ptTHREE.magFilter = NearestFilter;
-    this.ptTHREE.generateMipmaps = false;
-    this.ptTHREE.needsUpdate = true;
-
-    console.warn('gl', this.gl);
-    console.warn('renderer', this.renderer);
+    // console.warn('gl', this.gl);
+    // console.warn('renderer', this.renderer);
 
     log('initMRMCPT() COMPLETE');
   }
 
+  /*
   testTexture() {
     console.warn('testTexture pt', this.ptTHREE);
     console.warn('testTexture bc', this.bcTHREE);
   }
+  */
 
   async initTexture() {
     const requests = [
@@ -715,22 +814,18 @@ export class VolumeDataManager {
    * Try to load a resolution level
    * @param {number} resolutionIndex - The resolution level to load
    * @param {Array} arrays - Array to store the loaded arrays
-   * @param {Array} shapes - Array to store the shapes
    * @returns {Promise} Promise resolving when the resolution is loaded or rejected
    */
-  async tryLoadResolution(resolutionIndex, arrays, shapes) {
+  async tryLoadResolution(resolutionIndex, arrays) {
     log('tryLoadResolution');
-    console.warn(resolutionIndex, arrays, shapes);
+    console.warn(resolutionIndex, arrays);
     try {
       const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
       // Create new arrays to avoid modifying parameters directly
       const newArrays = [...arrays];
-      const newShapes = [...shapes];
       newArrays[resolutionIndex] = array;
-      newShapes[resolutionIndex] = array.shape;
       // Update the original arrays
       Object.assign(arrays, newArrays);
-      Object.assign(shapes, newShapes);
       log('tryLoadResolution() COMPLETE');
       return { success: true, level: resolutionIndex };
     } catch (err) {

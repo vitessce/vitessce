@@ -381,15 +381,24 @@ export default class ImageWrapper implements AbstractImageWrapper {
         const {
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
         } = getStatsForResolution(loader.data, resolution);
         return {
           canLoad: canLoadResolution(loader.data, resolution),
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
+          // chunkHeight
+          // chunkWidth
+          // chunkDepth
+          // physicalSizeVoxel
+          // physicalSizeTotal (physicalSizeVoxel * highest-resolution numPixels, for each dimension)
         };
       });
   }
@@ -414,6 +423,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
     } while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1);
     return nextTargetResolution;
   }
+
+
 
   getBoundingCube(): BoundingCube {
     const loader = this.vivLoader;

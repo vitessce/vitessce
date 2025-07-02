@@ -25,9 +25,11 @@ export type ChannelObject = {
 export type ResolutionObject = {
   height: number;
   width: number;
+  depth: number;
   depthDownsampled: number;
   totalBytes: number;
   canLoad: boolean;
+  dims: Record<string, number>;
 };
 
 export type BoundingCube = [
