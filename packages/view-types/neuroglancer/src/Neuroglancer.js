@@ -86,9 +86,9 @@ export class Neuroglancer extends PureComponent {
     }
   }
 
-  UNSAFE_componentWillUpdate(prevProps) {
-    if (!compareViewerState(this.viewerState, prevProps.viewerState)) {
-      this.viewerState = prevProps.viewerState;
+  UNSAFE_componentWillUpdate(nextProps) {
+    if (!compareViewerState(this.viewerState, nextProps.viewerState)) {
+      this.viewerState = nextProps.viewerState;
       this.justReceivedExternalUpdate = true;
       setTimeout(() => {
         this.justReceivedExternalUpdate = false;
