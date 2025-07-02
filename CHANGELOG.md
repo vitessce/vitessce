@@ -1,4 +1,13 @@
 
+## 3.6.4
+
+### Patch Changes
+
+- Add a new generateConfig implementation. (`@vitessce/config`) ([#2155](https://github.com/vitessce/vitessce/pull/2155))
+
+- Add obsFeatureColumns option for anndata.zarr fileType. (`@vitessce/schemas`) ([#2156](https://github.com/vitessce/vitessce/pull/2156))
+
+
 ## 3.6.3
 
 ### Patch Changes
