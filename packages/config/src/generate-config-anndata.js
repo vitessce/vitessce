@@ -1,4 +1,5 @@
-import { AbstractAutoConfig } from "./generate-config-helpers.js";
+/* eslint-disable no-unused-vars */
+import { AbstractAutoConfig } from './generate-config-helpers.js';
 
 export class AnnDataAutoConfig extends AbstractAutoConfig {
   getOptions() {
@@ -12,7 +13,7 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
       const lowerPath = path.toLowerCase();
       const relPath = path.substring(1);
       // Gene expression matrix.
-      if(['/x'].includes(lowerPath)) {
+      if (['/x'].includes(lowerPath)) {
         options.obsFeatureMatrix = {
           path: relPath,
 
@@ -23,10 +24,10 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Spatial coordinates.
-      if(['/obsm/x_spatial', '/obsm/spatial'].includes(lowerPath)) {
+      if (['/obsm/x_spatial', '/obsm/spatial'].includes(lowerPath)) {
         // TODO: use obsSpots instead of obsLocations here?
         options.obsLocations = {
-          path: relPath
+          path: relPath,
         };
       }
 
@@ -48,7 +49,7 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
         'leiden', 'louvain', 'disease', 'organism', 'self_reported_ethnicity',
         'tissue', 'sex',
       ].map(colname => `/obs/${colname}`);
-      if(supportedObsSetsPaths.includes(lowerPath)) {
+      if (supportedObsSetsPaths.includes(lowerPath)) {
         const name = relPath.split('/').at(-1);
         options.obsSets.push({ path: relPath, name });
       }
@@ -56,7 +57,7 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
 
     return options;
   }
-  
+
   addFiles(vc, dataset) {
     const { url, fileType } = this;
     dataset.addFile({
@@ -67,8 +68,8 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   addViews(vc, layoutOption) {
     // TODO
   }
 }
-

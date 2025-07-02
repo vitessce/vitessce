@@ -5,7 +5,7 @@ import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
-import { OmeZarrAutoConfig, OmeTiffAutoConfig } from './generate-config-ome.js';
+import { OmeAutoConfig } from './generate-config-ome.js';
 
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -20,9 +20,9 @@ const fileTypeToExtensions = {
 };
 
 const fileTypeToClass = {
-  [FileType.IMAGE_OME_TIFF]: OmeTiffAutoConfig,
-  [FileType.IMAGE_OME_ZARR]: OmeZarrAutoConfig,
-  [FileType.IMAGE_OME_ZARR_ZIP]: OmeZarrAutoConfig,
+  [FileType.IMAGE_OME_TIFF]: OmeAutoConfig,
+  [FileType.IMAGE_OME_ZARR]: OmeAutoConfig,
+  [FileType.IMAGE_OME_ZARR_ZIP]: OmeAutoConfig,
   [FileType.ANNDATA_ZARR]: AnnDataAutoConfig,
   [FileType.ANNDATA_ZARR_ZIP]: AnnDataAutoConfig,
   [FileType.SPATIALDATA_ZARR]: SpatialDataAutoConfig,
@@ -41,22 +41,24 @@ const ZARR_FILETYPES = [
 ];
 
 function urlToFileType(url) {
-  const match = Object.entries(fileTypeToExtensions)
-    .find(([fileType, extensions]) => extensions.some(ext => url.endsWith(ext)));
-  if(match) {
+  const match = Object.entries(fileTypeToExtensions).find(
+    // eslint-disable-next-line no-unused-vars
+    ([fileType, extensions]) => extensions.some(ext => url.endsWith(ext)),
+  );
+  if (match) {
     return match[0];
   }
   throw new Error('The file extension contained in the URL did not map to a supported fileType.');
 }
 
 /**
- * 
+ *
  * @param {{ fileType, url }} parsedUrl
  * @returns {Readable}
  */
 function getStore(parsedUrl) {
   const { fileType, url } = parsedUrl;
-  if(!ZARR_FILETYPES.includes(fileType)) {
+  if (!ZARR_FILETYPES.includes(fileType)) {
     return null;
   }
   return fileType.endsWith('.zip')
@@ -67,25 +69,24 @@ function getStore(parsedUrl) {
 /**
  * Ensure that each object { url, fileType, [store] }
  * contains a `store`.
- * @param {object[]} parsedUrls 
+ * @param {object[]} parsedUrls
  * @returns {object[]}
  */
 function ensureStores(parsedUrls) {
-  return parsedUrls.map(parsedUrl => {
-    if(parsedUrl.store) {
+  return parsedUrls.map((parsedUrl) => {
+    if (parsedUrl.store) {
       return parsedUrl;
-    } else {
-      const store = getStore(parsedUrl);
-      return {
-        ...parsedUrl,
-        store,
-      };
     }
+    const store = getStore(parsedUrl);
+    return {
+      ...parsedUrl,
+      store,
+    };
   });
 }
 
 /**
- * 
+ *
  * @param {string} s A single string, like this
  * `http://example.com/my_zarr.zarr#anndata.zarr;
  * http://example.com/my_tiff.ome.tif`
@@ -93,29 +94,28 @@ function ensureStores(parsedUrls) {
  */
 export function parseUrls(s) {
   const urlsWithHashes = s.split(';');
-  return urlsWithHashes.map(urlWithHash => {
+  return urlsWithHashes.map((urlWithHash) => {
     const parts = urlWithHash.split('#');
-    if(parts.length === 1) {
+    if (parts.length === 1) {
       const [url] = parts;
       return {
         url,
         fileType: urlToFileType(url),
       };
-    } else if(parts.length === 2) {
+    } if (parts.length === 2) {
       const [url, fileType] = parts;
       return {
         url,
         fileType,
       };
-    } else {
-      throw new Error('Only expected zero or one # character per URL, but received more.');
     }
+    throw new Error('Only expected zero or one # character per URL, but received more.');
   });
 }
 
 
 export async function parsedUrlToZmetadata(parsedUrl) {
-  const { fileType, store: initialStore } = parsedUrl;
+  const { store: initialStore } = parsedUrl;
 
   if (!initialStore) {
     return null;
@@ -141,7 +141,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
         attrs: item.attrs,
       };
     });
-  } catch(e) {
+  } catch {
     store = initialStore;
     // Is not consolidated.
     const keysToTry = [
@@ -161,7 +161,8 @@ export async function parsedUrlToZmetadata(parsedUrl) {
       '/obsm/X_tsne',
       '/obsm/umap',
       '/obsm/X_umap',
-      // TODO: second round of getting metadata for columns listed in /obs and /var .attrs['column-order'] ?
+      // TODO: second round of getting metadata for
+      // columns listed in /obs and /var .attrs['column-order'] ?
 
       // SpatialData keys
       // Note: For spatialData, we assume the store is always consolidated.
@@ -175,7 +176,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
           kind: item.kind,
           attrs: item.attrs,
         };
-      } catch(e) {
+      } catch {
         return null;
       }
     });
@@ -186,31 +187,32 @@ export async function parsedUrlToZmetadata(parsedUrl) {
 }
 
 /**
- * 
+ *
  * @param {{ url, fileType, store }[]} parsedUrls
  * @return {string[]} The layoutOptions.
  */
 export function parsedUrlsToLayoutOptions(parsedUrls) {
+  // eslint-disable-next-line no-unused-vars
   const parsedStores = ensureStores(parsedUrls);
 
   // TODO: implement
 }
 
 /**
- * 
- * @param {{ url, fileType, store }[]} parsedUrls 
- * @param {string|null} layoutOption 
+ *
+ * @param {{ url, fileType, store }[]} parsedUrls
+ * @param {string|null} layoutOption
  */
 export async function generateConfig(parsedUrls, layoutOption = null) {
   // Map each URL to a Zarr store.
   const parsedStores = ensureStores(parsedUrls);
-  
+
   // Obtain Zarr consolidated_metadata for each store.
   const zmetadataStores = await Promise.all(
-    parsedStores.map(async (parsedStore) => ({
+    parsedStores.map(async parsedStore => ({
       ...parsedStore,
       zmetadata: await parsedUrlToZmetadata(parsedStore),
-    }))
+    })),
   );
 
   // Create configuration instance.
@@ -240,10 +242,10 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
     // Here, we use `parsedUrls` rather than `parsedStores`
     // so that we do not provide more stores than intended
     // (i.e., we do not provide stores which were solely created
-    // to obtain zmetadata). 
+    // to obtain zmetadata).
     parsedUrls
       .filter(d => d.store)
-      .map(d => ([d.url, d.store]))
+      .map(d => ([d.url, d.store])),
   );
 
   // Return both the config and the `stores` url-to-store dict.

@@ -1,4 +1,5 @@
-import { AbstractAutoConfig } from "./generate-config-helpers.js";
+/* eslint-disable no-unused-vars */
+import { AbstractAutoConfig } from './generate-config-helpers.js';
 
 export class SpatialDataAutoConfig extends AbstractAutoConfig {
   getOptions() {
@@ -12,14 +13,14 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
     availableElements.forEach(({ path, attrs }) => {
       const relPath = path.substring(1);
-      
+
       const firstCoordinateSystem = attrs
         ?.multiscales?.[0]
         ?.coordinateTransformations?.[0]
         ?.output?.name;
 
       // Handle image elements.
-      if(relPath.match(/^(images)\/([^/]*)$/)) {
+      if (relPath.match(/^(images)\/([^/]*)$/)) {
         options.image = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
@@ -27,7 +28,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
         };
       }
       // Handle labels elements.
-      if(relPath.match(/^(labels)\/([^/]*)$/)) {
+      if (relPath.match(/^(labels)\/([^/]*)$/)) {
         options.labels = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
@@ -38,8 +39,9 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Handle shapes elements.
-      if(relPath.match(/^(shapes)\/([^/]*)$/)) {
-        // TODO: check if shapes are circles or polygons to determine which Vitessce data type to use.
+      if (relPath.match(/^(shapes)\/([^/]*)$/)) {
+        // TODO: check if shapes are circles or polygons
+        // to determine which Vitessce data type to use.
         options.obsSpots = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
@@ -49,7 +51,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Handle table elements.
-      if(relPath.match(/^(tables|table)\/([^/]*)$/)) {
+      if (relPath.match(/^(tables|table)\/([^/]*)$/)) {
         // Identify all sub-paths within this table element.
         const tableEls = zmetadata.filter(({ path: subpath }) => subpath.startsWith(path));
 
@@ -65,7 +67,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
         // Check if the table contains an obs dataframe.
         const hasObs = tableEls.find(el => el.path === `${path}/obs`);
         if (hasObs) {
-          const columnOrder = hasObs.attrs?.["column-order"];
+          const columnOrder = hasObs.attrs?.['column-order'];
           // Use the columns of this dataframe to configure the obsSets.
           options.obsSets = {
             // region: null,
@@ -81,7 +83,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
     return options;
   }
-  
+
   addFiles(vc, dataset) {
     const { url, fileType } = this;
     dataset.addFile({
@@ -92,8 +94,8 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   addViews(vc, layoutOption) {
     // TODO
   }
 }
-

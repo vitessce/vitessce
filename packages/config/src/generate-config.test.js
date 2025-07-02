@@ -1,12 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
+import { withConsolidated } from 'zarrita';
 import { parseUrls, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
 import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
 import imageOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.ome.json';
-import obsSegmentationsOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.labels.ome.json';
-import { withConsolidated } from 'zarrita';
-
 
 describe('generateConfig', () => {
   it('parses URLs', () => {
@@ -41,12 +39,12 @@ describe('generateConfig', () => {
 
   it('parsed url to zmetadata for an AnnData object', async () => {
     const parsedUrl = {
-        url: './mouse_liver.anndata.json',
-        fileType: 'anndata.zarr',
-        store: createStoreFromMapContents(anndataMouseLiverFixture)
+      url: './mouse_liver.anndata.json',
+      fileType: 'anndata.zarr',
+      store: createStoreFromMapContents(anndataMouseLiverFixture),
     };
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
-    
+
     expect(zmetadata.length).toEqual(7);
     expect(zmetadata.map(d => d.path)).toEqual(['/', '/X', '/layers', '/obs', '/var', '/obsm', '/obsm/spatial']);
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
@@ -61,67 +59,67 @@ describe('generateConfig', () => {
 
   it('parsed url to zmetadata for a SpatialData object', async () => {
     const parsedUrl = {
-        url: './mouse_liver.spatialdata.json',
-        fileType: 'spatialdata.zarr',
-        store: createStoreFromMapContents(spatialdataMouseLiverFixture)
+      url: './mouse_liver.spatialdata.json',
+      fileType: 'spatialdata.zarr',
+      store: createStoreFromMapContents(spatialdataMouseLiverFixture),
     };
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
-    
+
     expect(zmetadata.length).toEqual(41);
     expect(zmetadata.map(d => d.path)).toEqual([
-        '/',
-        '/images',
-        '/images/raw_image',
-        '/images/raw_image/0',
-        '/images/raw_image/1',
-        '/labels',
-        '/labels/segmentation_mask',
-        '/labels/segmentation_mask/0',
-        '/points',
-        '/points/transcripts',
-        '/shapes',
-        '/shapes/nucleus_boundaries',
-        '/tables',
-        '/tables/table',
-        '/tables/table/X',
-        '/tables/table/X/data',
-        '/tables/table/X/indices',
-        '/tables/table/X/indptr',
-        '/tables/table/layers',
-        '/tables/table/obs',
-        '/tables/table/obs/_index',
-        '/tables/table/obs/annotation',
-        '/tables/table/obs/annotation/categories',
-        '/tables/table/obs/annotation/codes',
-        '/tables/table/obs/cell_ID',
-        '/tables/table/obs/fov_labels',
-        '/tables/table/obs/fov_labels/categories',
-        '/tables/table/obs/fov_labels/codes',
-        '/tables/table/obsm',
-        '/tables/table/obsm/spatial',
-        '/tables/table/obsp',
-        '/tables/table/uns',
-        '/tables/table/uns/annotation_colors',
-        '/tables/table/uns/spatialdata_attrs',
-        '/tables/table/uns/spatialdata_attrs/instance_key',
-        '/tables/table/uns/spatialdata_attrs/region',
-        '/tables/table/uns/spatialdata_attrs/region_key',
-        '/tables/table/var',
-        '/tables/table/var/_index',
-        '/tables/table/varm',
-        '/tables/table/varp'
+      '/',
+      '/images',
+      '/images/raw_image',
+      '/images/raw_image/0',
+      '/images/raw_image/1',
+      '/labels',
+      '/labels/segmentation_mask',
+      '/labels/segmentation_mask/0',
+      '/points',
+      '/points/transcripts',
+      '/shapes',
+      '/shapes/nucleus_boundaries',
+      '/tables',
+      '/tables/table',
+      '/tables/table/X',
+      '/tables/table/X/data',
+      '/tables/table/X/indices',
+      '/tables/table/X/indptr',
+      '/tables/table/layers',
+      '/tables/table/obs',
+      '/tables/table/obs/_index',
+      '/tables/table/obs/annotation',
+      '/tables/table/obs/annotation/categories',
+      '/tables/table/obs/annotation/codes',
+      '/tables/table/obs/cell_ID',
+      '/tables/table/obs/fov_labels',
+      '/tables/table/obs/fov_labels/categories',
+      '/tables/table/obs/fov_labels/codes',
+      '/tables/table/obsm',
+      '/tables/table/obsm/spatial',
+      '/tables/table/obsp',
+      '/tables/table/uns',
+      '/tables/table/uns/annotation_colors',
+      '/tables/table/uns/spatialdata_attrs',
+      '/tables/table/uns/spatialdata_attrs/instance_key',
+      '/tables/table/uns/spatialdata_attrs/region',
+      '/tables/table/uns/spatialdata_attrs/region_key',
+      '/tables/table/var',
+      '/tables/table/var/_index',
+      '/tables/table/varm',
+      '/tables/table/varp',
     ]);
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
   });
 
   it('parsed url to zmetadata for an OME-NGFF image', async () => {
     const parsedUrl = {
-        url: './mouse_liver.ome.json',
-        fileType: 'image.ome-zarr',
-        store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
+      url: './mouse_liver.ome.json',
+      fileType: 'image.ome-zarr',
+      store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture),
     };
     const zmetadata = await parsedUrlToZmetadata(parsedUrl);
-    
+
     expect(zmetadata.length).toEqual(1);
     expect(zmetadata.map(d => d.path)).toEqual(['/']);
     expect(zmetadata.every(d => Boolean(d.attrs))).toBeTruthy();
@@ -132,27 +130,27 @@ describe('generateConfig', () => {
       {
         url: './mouse_liver.anndata.json',
         fileType: 'anndata.zarr',
-        store: createStoreFromMapContents(anndataMouseLiverFixture)
-      }
+        store: createStoreFromMapContents(anndataMouseLiverFixture),
+      },
     ];
     const { config, stores } = await generateConfig(parsedUrls);
     expect(config.toJSON().datasets[0].files).toEqual([
       {
-        "url": "./mouse_liver.anndata.json",
-        "fileType": "anndata.zarr",
-        "options": {
-          "obsEmbedding": [],
-          "obsSets": [],
-          "obsFeatureMatrix": {
-            "path": "X"
+        url: './mouse_liver.anndata.json',
+        fileType: 'anndata.zarr',
+        options: {
+          obsEmbedding: [],
+          obsSets: [],
+          obsFeatureMatrix: {
+            path: 'X',
           },
-          "obsLocations": {
-            "path": "obsm/spatial"
-          }
-        }
-      }
+          obsLocations: {
+            path: 'obsm/spatial',
+          },
+        },
+      },
     ]);
-    expect(Object.keys(stores)).toEqual(["./mouse_liver.anndata.json"]);
+    expect(Object.keys(stores)).toEqual(['./mouse_liver.anndata.json']);
   });
 
   it('generateConfig for SpatialData object fills in datasets part of config', async () => {
@@ -160,52 +158,52 @@ describe('generateConfig', () => {
       {
         url: './mouse_liver.spatialdata.json',
         fileType: 'spatialdata.zarr',
-        store: createStoreFromMapContents(spatialdataMouseLiverFixture)
-      }
+        store: createStoreFromMapContents(spatialdataMouseLiverFixture),
+      },
     ];
     const { config, stores } = await generateConfig(parsedUrls);
     expect(config.toJSON().datasets[0].files).toEqual([
       {
-        "url": "./mouse_liver.spatialdata.json",
-        "fileType": "spatialdata.zarr",
-        "options": {
-          "image": {
-            "path": "images/raw_image",
-            "coordinateSystem": "global"
+        url: './mouse_liver.spatialdata.json',
+        fileType: 'spatialdata.zarr',
+        options: {
+          image: {
+            path: 'images/raw_image',
+            coordinateSystem: 'global',
           },
-          "labels": {
-            "path": "labels/segmentation_mask",
-            "coordinateSystem": "global"
+          labels: {
+            path: 'labels/segmentation_mask',
+            coordinateSystem: 'global',
           },
-          "obsSpots": {
+          obsSpots: {
             // TODO: the test should be updated once fixed in the implementaiton,
             // since these are not circle shapes.
-            "path": "shapes/nucleus_boundaries"
+            path: 'shapes/nucleus_boundaries',
           },
-          "obsFeatureMatrix": {
-            "path": "tables/table/X"
+          obsFeatureMatrix: {
+            path: 'tables/table/X',
           },
-          "obsSets": {
-            "tablePath": "tables/table",
-            "obsSets": [
+          obsSets: {
+            tablePath: 'tables/table',
+            obsSets: [
               {
-                "path": "tables/table/obs/cell_ID",
-                "name": "cell_ID"
+                path: 'tables/table/obs/cell_ID',
+                name: 'cell_ID',
               },
               {
-                "path": "tables/table/obs/fov_labels",
-                "name": "fov_labels"
+                path: 'tables/table/obs/fov_labels',
+                name: 'fov_labels',
               },
               {
-                "path": "tables/table/obs/annotation",
-                "name": "annotation"
-              }
-            ]
-          }
-        }
-      }
+                path: 'tables/table/obs/annotation',
+                name: 'annotation',
+              },
+            ],
+          },
+        },
+      },
     ]);
-    expect(Object.keys(stores)).toEqual(["./mouse_liver.spatialdata.json"]);
+    expect(Object.keys(stores)).toEqual(['./mouse_liver.spatialdata.json']);
   });
 
   it('generateConfig for OME-Zarr image fills in datasets part of config', async () => {
@@ -213,35 +211,33 @@ describe('generateConfig', () => {
       {
         url: './mouse_liver.ome.json',
         fileType: 'image.ome-zarr',
-        store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture)
-      }
+        store: createStoreFromMapContents(imageOmeZarrMouseLiverFixture),
+      },
     ];
     const { config, stores } = await generateConfig(parsedUrls);
     expect(config.toJSON().datasets[0].files).toEqual([
       {
-        "url": "./mouse_liver.ome.json",
-        "fileType": "image.ome-zarr",
-      }
+        url: './mouse_liver.ome.json',
+        fileType: 'image.ome-zarr',
+      },
     ]);
-    expect(Object.keys(stores)).toEqual(["./mouse_liver.ome.json"]);
+    expect(Object.keys(stores)).toEqual(['./mouse_liver.ome.json']);
   });
 
-   it('generateConfig for OME-TIFF image fills in datasets part of config, without a store present', async () => {
+  it('generateConfig for OME-TIFF image fills in datasets part of config, without a store present', async () => {
     const parsedUrls = [
       {
         url: 'https://example.com/mouse_liver.ome.tif',
         fileType: 'image.ome-tiff',
-      }
+      },
     ];
     const { config, stores } = await generateConfig(parsedUrls);
     expect(config.toJSON().datasets[0].files).toEqual([
       {
-        "url": 'https://example.com/mouse_liver.ome.tif',
-        "fileType": "image.ome-tiff",
-      }
+        url: 'https://example.com/mouse_liver.ome.tif',
+        fileType: 'image.ome-tiff',
+      },
     ]);
     expect(Object.keys(stores)).toEqual([]);
   });
-
-
 });
