@@ -45,6 +45,7 @@ import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js'
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
+import { spatialDataKpmp2023 } from './view-configs/spatial-beta/spatialdata-kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
@@ -160,6 +161,7 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'sdata-kpmp-2023': spatialDataKpmp2023,
   'exemplar-small': exemplarSmall2024,
   'exemplar-small-partial-init': exemplarSmallPartialInit,
 
