@@ -29,6 +29,7 @@ import { useBaseScale } from './hooks.js';
 
 // TODO: the initial value after 0 changes, should be a way to capture it as is
 const deckZoom = -4.4;
+const VITESSCE_INTERACTION_DELAY = 50;
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -46,8 +47,8 @@ export function NeuroglancerSubscriber(props) {
     dataset,
     obsType,
     spatialZoom,
-    spatialTargetX,
-    spatialTargetY,
+    // spatialTargetX,
+    // spatialTargetY,
     spatialRotationX,
     spatialRotationY,
     spatialRotationZ,
@@ -90,90 +91,68 @@ export function NeuroglancerSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
 
-
-
   const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
-  // const isFromVitessceRef = useRef(false);
-  const lastUpdateSource = useRef(null);
   const hasMountedRef = useRef(false);
   const lastInteractionSource = useRef(null);
-  const lastPushedFromVitessceRef = useRef(null);
-  const lastReceivedFromNGRef = useRef(null);
-  const spatialRotationPrevRef = useRef(null);
-  const ngFirstRender = useRef(false)
-  const updateSequenceRef = useRef(null)
-  // useRef({
-  //   quat: null,
-  //   timestamp: 0,
-  // });
+  const applyNgUpdateTimeoutRef = useRef(null);
+  const lastPitchRef = useRef(null);
 
   useEffect(() => {
+    // Avoiding circular updates on first render
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
-      ngFirstRender.current = true;
-      lastInteractionSource.current = 'render';
       return;
     }
-    else if (updateSequenceRef.current === 'n') {
-      updateSequenceRef.current = null
-      return;
-    }
-    else lastInteractionSource.current = 'vitessce';
+    if (lastInteractionSource.current === 'neuroglancer') return;
+    lastInteractionSource.current = 'vitessce';
     console.log('🔁 Vitessce interaction', lastInteractionSource.current);
   }, [spatialRotationX, spatialRotationY]);
 
-  console.log("render spatialRotationX, provX, Source", spatialRotationX, spatialRotationPrevRef.current, lastInteractionSource.current, updateSequenceRef.current);
+  // console.log("render spatialRotationX, provX, Source", spatialRotationX, lastInteractionSource.current);
 
 
+  const lastNgPushOrientationRef = useRef(null);
 
-  /**
-   * 
-   * 
-   */
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
-    const [pitch, yaw] = quaternionToEuler(projectionOrientation);
-  
+    const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
 
-    console.log("handleStateUpdate")//, projectionOrientation, latestViewerStateRef.current.projectionOrientation, valueGreaterThanEpsilon(projectionOrientation, latestViewerStateRef.current.projectionOrientation, 1e-5))
-    // lastInteractionSource.current = 'neuroglancer';
-    // 🚫 Ignore if this update originated from Vitessce
+    // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
+
+    BASE_SCALE ? setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE)) : null;
+
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionOrientation,
+      projectionScale,
+      position,
+    };
+
+    // Ignore loopback from Vitessce
     if (
-      lastReceivedFromNGRef.current &&
-      !valueGreaterThanEpsilon(projectionOrientation, latestViewerStateRef.current.projectionOrientation, 1e-5)
+      !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
     ) {
-      latestViewerStateRef.current = {
-        ...latestViewerStateRef.current,
-        projectionScale,
-        projectionOrientation,
-        position,
-      };
       console.log('⛔️ Skip NG → Vitessce update (loopback)');
       return;
     }
-  
-    // ✅ Push NG update to Vitessce
-    lastReceivedFromNGRef.current = projectionOrientation;
-    // isNgInteraction.current = true;
-  
-    if (BASE_SCALE) {
-      setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
-    }
-    console.log("before Pitch update", Math.abs(pitch - spatialRotationX) > 0.0001, pitch)
-    // console.log("before Pitch update", pitch, projectionOrientation)
-    if (Math.abs(pitch - spatialRotationX) > 0.0001 &&  lastInteractionSource.current !== 'render' && updateSequenceRef.current !== 'n'
-  && spatialRotationX !== spatialRotationPrevRef.current  && Math.abs(pitch) > 0.3) {
-      spatialRotationPrevRef.current = spatialRotationX
-      updateSequenceRef.current = 'n',
-      console.log('🌀 NG → Vitessce: pitch diff', pitch, spatialRotationX, updateSequenceRef.current);
-      lastInteractionSource.current === 'neuroglancer'
-      setRotationX(pitch);
-    }
 
-    // console.log("exit")
-  
+    if (applyNgUpdateTimeoutRef.current) {
+      clearTimeout(applyNgUpdateTimeoutRef.current);
+    }
+    lastNgPushOrientationRef.current = projectionOrientation;
+    applyNgUpdateTimeoutRef.current = setTimeout(() => {
+      const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+
+      const pitchDiff = Math.abs(pitch - spatialRotationX);
+      if (pitchDiff > 0.001) {
+        console.log('🌀 NG → Vitessce (debounced apply):', pitch);
+        setRotationX(pitch);
+        setRotationY(yaw);
+        lastInteractionSource.current = 'neuroglancer';
+      }
+    }, VITESSCE_INTERACTION_DELAY);
   }, [setZoom, setRotationX, BASE_SCALE, spatialRotationX]);
-  
+
 
   const onSegmentClick = useCallback((value) => {
     if (value) {
@@ -245,47 +224,47 @@ export function NeuroglancerSubscriber(props) {
 
 
   const derivedViewerState2 = useMemo(() => {
-    console.log("derivedViewerState2")
+    // console.log('derivedViewerState2', spatialRotationX, lastPitchRef.current, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
     let { projectionScale, projectionOrientation } = derivedViewerState;
-  
     if (typeof spatialZoom === 'number' && BASE_SCALE) {
       projectionScale = deckZoomToProjectionScale(spatialZoom, BASE_SCALE);
     }
-  
-    if (lastInteractionSource.current === 'vitessce' && updateSequenceRef.current !== 'n') {
-      const newQuat = eulerToQuaternion(spatialRotationX, spatialRotationY, spatialRotationZ);
-  
-      const shouldPush = (
-        !lastReceivedFromNGRef.current ||
-        valueGreaterThanEpsilon(newQuat, lastReceivedFromNGRef.current, 1e-4)
-      );
-  
-      if (shouldPush) {
-        projectionOrientation = newQuat;
-        lastPushedFromVitessceRef.current = newQuat;
-        
-        console.log('✅ Push new orientation to NG');
+
+    const vitessceRotation = eulerToQuaternion(
+      spatialRotationX,
+      spatialRotationY,
+      spatialRotationZ,
+    );
+
+    // Only update state if coming from Vitessce - avoid circular self changes
+    if (lastInteractionSource.current === 'vitessce') {
+      if (valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, 1e-3)) {
+        projectionOrientation = vitessceRotation;
+        console.log('✅ Vitessce → NG: pushing new orientation');
       } else {
-        console.log('⛔️ Skip push to NG — no change');
+        console.log('⛔️ Skip push to NG — no quaternion change');
       }
-  
-      // 🔄 Reset the flag after pushing
+    } else if (lastInteractionSource.current === 'neuroglancer') {
+      // prevent override by committing what NG sent
+      projectionOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
+      console.log('✅ NG → NG: committing NG-derived orientation');
       lastInteractionSource.current = null;
+    } else {
+      console.log('⛔️ Vitessce → NG: Skipping due to unknown source');
     }
-  
+
+
     return {
       ...derivedViewerState,
       projectionScale,
       projectionOrientation,
     };
-  }, [derivedViewerState, spatialZoom, spatialRotationX, spatialRotationY, spatialRotationZ, BASE_SCALE]);
-  
+  }, [derivedViewerState, spatialZoom, spatialRotationX, spatialRotationY,
+    spatialRotationZ, BASE_SCALE]);
+
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
-
-  // const [updateState, setUpdateState] = useState(false);
-  // console.log("state", updateState, spatialTargetX, spatialTargetY, spatialZoom)
 
   return (
     <TitleInfo
@@ -299,6 +278,7 @@ export function NeuroglancerSubscriber(props) {
       isReady
       withPadding={false}
     >
+      {/* <button onClick={updateVitessceRotation}>Update</button> */}
       <Neuroglancer
         classes={classes}
         onSegmentClick={onSegmentClick}
