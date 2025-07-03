@@ -260,6 +260,37 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     throw new Error('Unexpected column name for loading 2D array from parquet, currently only geometry is supported');
   }
 
+  /**
+   * 
+   * @param {string} path 
+   * @returns 
+   */
+  async loadGeometriesFlat(path) {
+    const arrowTable = await this.loadParquetTable(path);
+    const columnName = basename(path);
+    const geometryColumn = arrowTable.getChild(columnName);
+
+    if (!geometryColumn) {
+      throw new Error(`Column ${columnName} not found in parquet table`);
+    }
+    if (geometryColumn.type.toString() !== 'Binary') {
+      throw new Error(`Expected geometry column to have Binary type (WKB) but got ${geometryColumn.type.toString()}`);
+    }
+    // From GeoPandas.to_parquet docs:
+    // "By default, all geometry columns present are serialized to WKB format in the file"
+    // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
+    // TODO: support geoarrow serialization schemes in addition to WKB.
+    const wkb = new WKB();
+    const coordsFlattened = geometryColumn.toArray()
+    // @ts-ignore
+      .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getCoordinates())
+      // Get the first array of coordinates per multi-polygon.
+      // TODO: is this correct? will there always be a single polygon?
+      // @ts-ignore
+      .map(p => p[0]);
+    return coordsFlattened;
+  }
+
 
   /**
    * Class method for loading the var index.

@@ -228,6 +228,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const { obsIndex } = layerObsSegmentations;
     const layerData = this.obsSegmentationsData?.[layerScope];
+    console.log(obsIndex, layerData);
+
     const layerQuadTree = this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope];
     const layerColors = this.segmentationColors?.[layerScope]?.[channelScope];
     const getExpressionValue = this.segmentationExpressionGetters?.[layerScope]?.[channelScope];

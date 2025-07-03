@@ -325,7 +325,7 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: featureLabels
     // TODO: obsEmbedding
     // image
-    // TODO: handle multiple images
+    // TODO: handle multiple image elements?
     ...(options.image ? [{
       ...baseFileDef,
       fileType: getFileType(FileType.IMAGE_SPATIALDATA_ZARR),
@@ -347,6 +347,21 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
       options: {
         coordinateSystem: defaultCoordinateSystem,
         ...options.labels,
+      },
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+        // TODO: fileUid?
+      },
+    }] : []),
+    // shapes
+    // TODO: handle multiple shape elements?
+    ...(options.shapes ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.SHAPES_SPATIALDATA_ZARR),
+      options: {
+        coordinateSystem: defaultCoordinateSystem,
+        ...options.shapes,
       },
       coordinationValues: {
         ...extraCoordinationValues,

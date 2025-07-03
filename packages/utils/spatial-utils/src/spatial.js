@@ -462,6 +462,20 @@ export function hexToRgb(hex) {
   ];
 }
 
+
+// TODO: is this needed?
+// In the spatialdata he axis name/type/unit info is also listed in the coordinateTransformations[].input|output.axes[] entries.
+export function normalizeAxes(axes) {
+  // Normalize axes to OME-NGFF v0.4 format.
+  return axes.map((axisInfo) => {
+    if(typeof axisInfo === 'string') {
+      // If the axis is a string, assume it is a name and set type to 'space'.
+      return { name: axisInfo, type: 'space' };
+    }
+    return axisInfo;
+  })
+}
+
 /**
  * Normalize coordinate transformations to the OME-NGFF v0.4 format,
  * despite potentially being in the new format proposed in

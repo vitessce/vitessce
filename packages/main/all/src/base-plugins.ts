@@ -173,6 +173,7 @@ import {
   SpatialDataImageLoader,
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
+  SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
 } from '@vitessce/spatial-zarr';
 
@@ -319,11 +320,8 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
   makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
-  // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'
   makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
-  // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
-  // TODO: create a new source for GeoPandas tables?
-  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
+  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataObsSegmentationsLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
   makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
