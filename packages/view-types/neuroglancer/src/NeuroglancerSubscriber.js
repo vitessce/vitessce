@@ -22,7 +22,6 @@ import {
   quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
-  quaternionsAreClose,
 
 } from './utils.js';
 import { useBaseScale } from './hooks.js';
@@ -95,7 +94,6 @@ export function NeuroglancerSubscriber(props) {
   const hasMountedRef = useRef(false);
   const lastInteractionSource = useRef(null);
   const applyNgUpdateTimeoutRef = useRef(null);
-  const lastPitchRef = useRef(null);
 
   useEffect(() => {
     // Avoiding circular updates on first render
@@ -105,10 +103,15 @@ export function NeuroglancerSubscriber(props) {
     }
     if (lastInteractionSource.current === 'neuroglancer') return;
     lastInteractionSource.current = 'vitessce';
-    console.log('🔁 Vitessce interaction', lastInteractionSource.current);
+    // console.log('🔁 Vitessce interaction', lastInteractionSource.current);
   }, [spatialRotationX, spatialRotationY]);
 
-  // console.log("render spatialRotationX, provX, Source", spatialRotationX, lastInteractionSource.current);
+  // Vitessce does not set rotation
+  // useEffect(() => {
+  //   setTimeout(() => setRotationX(22.5), 2000); // Force pitch after load
+  // }, []);
+
+  // console.log("render spatialRotationX, Intereaction Source", spatialRotationX, lastInteractionSource.current);
 
 
   const lastNgPushOrientationRef = useRef(null);
@@ -119,7 +122,7 @@ export function NeuroglancerSubscriber(props) {
 
     // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
 
-    BASE_SCALE ? setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE)) : null;
+    setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
 
     latestViewerStateRef.current = {
       ...latestViewerStateRef.current,
@@ -132,14 +135,14 @@ export function NeuroglancerSubscriber(props) {
     if (
       !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
     ) {
-      console.log('⛔️ Skip NG → Vitessce update (loopback)');
+      // console.log('⛔️ Skip NG → Vitessce update (loopback)');
       return;
     }
 
     if (applyNgUpdateTimeoutRef.current) {
       clearTimeout(applyNgUpdateTimeoutRef.current);
     }
-    lastNgPushOrientationRef.current = projectionOrientation;
+    lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
     applyNgUpdateTimeoutRef.current = setTimeout(() => {
       const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
 
@@ -224,7 +227,7 @@ export function NeuroglancerSubscriber(props) {
 
 
   const derivedViewerState2 = useMemo(() => {
-    // console.log('derivedViewerState2', spatialRotationX, lastPitchRef.current, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
+    // console.log('derivedViewerState2', spatialRotationX, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
     let { projectionScale, projectionOrientation } = derivedViewerState;
     if (typeof spatialZoom === 'number' && BASE_SCALE) {
       projectionScale = deckZoomToProjectionScale(spatialZoom, BASE_SCALE);
@@ -240,18 +243,20 @@ export function NeuroglancerSubscriber(props) {
     if (lastInteractionSource.current === 'vitessce') {
       if (valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, 1e-3)) {
         projectionOrientation = vitessceRotation;
-        console.log('✅ Vitessce → NG: pushing new orientation');
-      } else {
-        console.log('⛔️ Skip push to NG — no quaternion change');
+        // console.log('Vitessce → NG: pushing new orientation');
       }
+      //  else {
+      //   console.log('Skip push to NG — no quaternion change');
+      // }
     } else if (lastInteractionSource.current === 'neuroglancer') {
       // prevent override by committing what NG sent
       projectionOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
-      console.log('✅ NG → NG: committing NG-derived orientation');
+      // console.log('NG → NG: committing NG-derived orientation');
       lastInteractionSource.current = null;
-    } else {
-      console.log('⛔️ Vitessce → NG: Skipping due to unknown source');
     }
+    // else {
+    //   console.log('Vitessce → NG: Skipping due to unknown source');
+    // }
 
 
     return {
