@@ -22,7 +22,6 @@ import {
   quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
-
 } from './utils.js';
 import { useBaseScale } from './hooks.js';
 
@@ -96,6 +95,7 @@ export function NeuroglancerSubscriber(props) {
   const applyNgUpdateTimeoutRef = useRef(null);
 
   useEffect(() => {
+    console.log("useEffect")
     // Avoiding circular updates on first render
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
@@ -188,45 +188,79 @@ export function NeuroglancerSubscriber(props) {
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
+  const cellColorMappingRef = useRef({});
+  const batchedUpdateTimeoutRef = useRef(null);
+  const [batchedCellColors, setBatchedCellColors] = React.useState(cellColors);
+
+  useEffect(() => {
+    if (batchedUpdateTimeoutRef.current) {
+      clearTimeout(batchedUpdateTimeoutRef.current);
+    }
+    batchedUpdateTimeoutRef.current = setTimeout(() => {
+      setBatchedCellColors(cellColors);
+    }, 50); // adjust delay as needed
+  }, [cellColors]);
+
   const cellColorMapping = useMemo(() => {
-    const colorCellMapping = {};
-    cellColors.forEach((color, cell) => {
-      colorCellMapping[cell] = rgbToHex(color);
+    const colorMapping = {};
+    let changed = false;
+    batchedCellColors.forEach((color, cell) => {
+      const hex = rgbToHex(color);
+      if (cellColorMappingRef.current[cell] !== hex) {
+        changed = true;
+      }
+      colorMapping[cell] = hex;
     });
-    // console.log("color mapping")
-    return colorCellMapping;
-  }, [JSON.stringify([...cellColors.entries()].sort()), rgbToHex]);
+    if (!changed
+      && Object.keys(colorMapping).length === Object.keys(cellColorMappingRef.current).length) {
+      return cellColorMappingRef.current;
+    }
+    cellColorMappingRef.current = colorMapping;
+    return colorMapping;
+  }, [batchedCellColors]);
 
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
-
+  
     const nextSegments = Object.keys(cellColorMapping).map(String);
-    const prevSegments = current.layers[0].segments;
-    const prevColors = current.layers[0].segmentColors;
-
-    const segmentsChanged = nextSegments.length !== prevSegments.length
+    const prevSegments = current?.layers?.[0]?.segments ?? [];
+    const prevColors = current?.layers?.[0]?.segmentColors ?? null;
+  
+    const initNeeded = prevSegments.length === 0 && nextSegments.length > 0;
+    const segmentsChanged = initNeeded
+      || nextSegments.length !== prevSegments.length
       || !nextSegments.every((v, i) => v === prevSegments[i]);
-
-    const colorsChanged = !isEqual(cellColorMapping, prevColors);
-
-    if (!segmentsChanged && !colorsChanged) {
-      return current; // Reuse previous object to avoid triggering downstream re-renders
+  
+    if (!prevColors) {
+      current.layers[0].segmentColors = cellColorMapping
     }
-
+    const colorsChanged = !prevColors || Object.keys(cellColorMapping).some(
+        key => cellColorMapping[key] !== prevColors[key]
+      );
+  
     const newLayer0 = {
       ...current.layers[0],
       ...(segmentsChanged && { segments: nextSegments }),
-      ...(colorsChanged && { segmentColors: cellColorMapping }),
+      // Always set `segmentColors` if it doesn't exist yet
+      ...((colorsChanged || !current.layers[0]?.segmentColors) && { segmentColors: cellColorMapping }),
     };
+  
+    if (!segmentsChanged && !colorsChanged && current.layers[0]?.segmentColors) {
+      return current;
+    }
 
+    console.log("derivedState Exit")
+  
     return {
       ...current,
       layers: [newLayer0, ...current.layers.slice(1)],
     };
   }, [cellColorMapping]);
+  
 
 
   const derivedViewerState2 = useMemo(() => {
+    console.log("derivedViewerState2",Object.keys(derivedViewerState.layers[0]?.segmentColors).length)
     // console.log('derivedViewerState2', spatialRotationX, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
     let { projectionScale, projectionOrientation } = derivedViewerState;
     if (typeof spatialZoom === 'number' && BASE_SCALE) {
@@ -283,7 +317,6 @@ export function NeuroglancerSubscriber(props) {
       isReady
       withPadding={false}
     >
-      {/* <button onClick={updateVitessceRotation}>Update</button> */}
       <Neuroglancer
         classes={classes}
         onSegmentClick={onSegmentClick}
