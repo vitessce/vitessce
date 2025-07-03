@@ -23,6 +23,7 @@ const globalNeuroglancerCss = `
 .neuroglancer-viewer-top-row,
 .neuroglancer-layer-panel, 
 .neuroglancer-side-panel-column,
+.neuroglancer-display-dimensions-widget,
 .neuroglancer-data-panel-layout-controls button{
     display: none !important;
 }
