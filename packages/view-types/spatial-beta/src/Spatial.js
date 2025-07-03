@@ -228,7 +228,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     const { obsIndex } = layerObsSegmentations;
     const layerData = this.obsSegmentationsData?.[layerScope];
-    console.log(obsIndex, layerData);
 
     const layerQuadTree = this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope];
     const layerColors = this.segmentationColors?.[layerScope]?.[channelScope];
@@ -238,7 +237,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const opacity = layerOpacity * spatialChannelOpacity;
 
     const isStaticColor = obsColorEncoding === 'spatialChannelColor';
-    const staticColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
+    const staticColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length >= 3
       ? spatialChannelColor
       : getDefaultColor(theme);
 
