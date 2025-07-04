@@ -6,7 +6,7 @@
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
 // 2048 x 2048 x 64 = 8192 bricks, around 268 MB
-// 2048 x 2048 x 128 = 16384 bricks, around 537 MB
+// 2048 x 2048 x 128 = 16384 bricks, around 537 MB **
 // 2048 x 2048 x 256 = 32768 bricks, around 1.074 GB
 // 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
 // 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
@@ -708,7 +708,6 @@ export class VolumeDataManager {
 
     console.log('updatedChannels', this.channels);
 
-    console.error('TODO: not implemented yet');
   }
 
   /**
