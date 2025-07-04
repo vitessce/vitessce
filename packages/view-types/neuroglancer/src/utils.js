@@ -1,10 +1,9 @@
 import {
   Quaternion,
   Euler,
-  MathUtils,
 } from 'three';
 
-const EPSILON_KEYS_MAPPING = {
+export const EPSILON_KEYS_MAPPING = {
   projectionScale: 1e-1,
   projectionOrientation: 1e-3,
   position: 1e-3,
@@ -34,16 +33,26 @@ function isValidState(viewerState) {
  * @returns
  */
 
-export function compareWithEpsilon(a, b, epsilon) {
+export function valueGreaterThanEpsilon(a, b, epsilon) {
   // console.log(a, b, epsilon, (Array.isArray(a) && Array.isArray(b) && a.length === b.length))
   if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
-    return a.every((val, i) => Math.abs(val - b[i]) > epsilon);
+    return a.some((val, i) => Math.abs(val - b[i]) > epsilon);
   }
   if (typeof a === 'number' && typeof b === 'number') {
     return Math.abs(a - b) > epsilon;
   }
   return undefined;
 }
+
+
+// export function compareProjectionOrientation(a, b, epsilon) {
+//     // console.log(a, b, epsilon, (Array.isArray(a) && Array.isArray(b)
+//&& a.length === b.length))
+//     if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+//       return a.every((val, i) => Math.abs(val - b[i]) < epsilon);
+//     }
+//     return undefined;
+//   }
 
 /**
  * Returns true if the two states are equal, or false if not.
@@ -58,27 +67,27 @@ export function compareViewerState(prevState, nextState) {
   if (isValidState(nextState)) {
     // Subset the viewerState objects to only the keys
     // that we want to use for comparison.
-    for (const key in EPSILON_KEYS_MAPPING) {
+    Object.keys(EPSILON_KEYS_MAPPING).forEach((key) => {
       const epsilon = EPSILON_KEYS_MAPPING[key];
       const prevVal = prevState[key];
       const nextVal = nextState[key];
-      const isKeyEqual = compareWithEpsilon(prevVal, nextVal, epsilon);
+      const isKeyEqual = valueGreaterThanEpsilon(prevVal, nextVal, epsilon);
       if (!isKeyEqual) {
         allKeysEqualCheck = false;
       }
-    }
+    });
   }
   return allKeysEqualCheck;
 }
 
 export function quaternionsAreClose(q1, q2, epsilon = 1e-3) {
-    if (!Array.isArray(q1) || !Array.isArray(q2) || q1.length !== 4 || q2.length !== 4) return false;
-    const mag1 = Math.sqrt(q1.reduce((s, v) => s + v * v, 0));
-    const mag2 = Math.sqrt(q2.reduce((s, v) => s + v * v, 0));
-    const q1n = q1.map(v => v / mag1);
-    const q2n = q2.map(v => v / mag2);
-    const dot = q1n.reduce((s, v, i) => s + v * q2n[i], 0);
-    return Math.abs(dot) > 1 - epsilon;
+  if (!Array.isArray(q1) || !Array.isArray(q2) || q1.length !== 4 || q2.length !== 4) return false;
+  const mag1 = Math.sqrt(q1.reduce((s, v) => s + v * v, 0));
+  const mag2 = Math.sqrt(q2.reduce((s, v) => s + v * v, 0));
+  const q1n = q1.map(v => v / mag1);
+  const q2n = q2.map(v => v / mag2);
+  const dot = q1n.reduce((s, v, i) => s + v * q2n[i], 0);
+  return Math.abs(dot) > 1 - epsilon;
 }
 
 /* Deck.gl zoom → Neuroglancer projectionScale
@@ -100,7 +109,6 @@ export function projectionScaleToDeckZoom(projectionScale, baseScaleUm) {
 //     }
 //     return true;
 //   }
-  
 //   if (!quaternionsAreClose(projectionOrientationNew, projectionOrientationOld)) {
 //     setRotationX(vitessceEulerMapping[0]);
 //   }
@@ -112,17 +120,17 @@ export function quaternionToEuler([x, y, z, w]) {
 
   const pitch = euler.x; // X-axis rotation
   const yaw = euler.y; // Y-axis rotation
-//   const pitch = MathUtils.radToDeg(euler.x); // X-axis rotation
-//   const yaw = MathUtils.radToDeg(euler.y); // Y-axis rotation
+  //   const pitch = MathUtils.radToDeg(euler.x); // X-axis rotation
+  //   const yaw = MathUtils.radToDeg(euler.y); // Y-axis rotation
 
   return [pitch, yaw];
 }
 
 
 export function eulerToQuaternion(pitch, yaw, roll = 0) {
-    const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
-    const quaternion = new Quaternion().setFromEuler(euler);
-    return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+  const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
+  const quaternion = new Quaternion().setFromEuler(euler);
+  return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
 }
 
 //   /**

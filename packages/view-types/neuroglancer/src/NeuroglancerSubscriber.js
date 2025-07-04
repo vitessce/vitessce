@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -13,7 +13,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import { isEqual } from 'lodash-es';
+// import { isEqual } from 'lodash-es';
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 import {
@@ -93,9 +93,10 @@ export function NeuroglancerSubscriber(props) {
   const hasMountedRef = useRef(false);
   const lastInteractionSource = useRef(null);
   const applyNgUpdateTimeoutRef = useRef(null);
+  const prevSegmentsRef = useRef([]);
 
   useEffect(() => {
-    console.log("useEffect")
+    console.log('useEffect');
     // Avoiding circular updates on first render
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
@@ -190,7 +191,15 @@ export function NeuroglancerSubscriber(props) {
 
   const cellColorMappingRef = useRef({});
   const batchedUpdateTimeoutRef = useRef(null);
-  const [batchedCellColors, setBatchedCellColors] = React.useState(cellColors);
+  const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
+
+  // const [batchedViewerStateColors, setBatchedViewerStateColors] = useState(cellColorMapping);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setBatchedCellColors(cellColors);
+  //   }, 100); // slightly longer delay to reduce read-write race
+  //   return () => clearTimeout(timeout);
+  // }, [cellColors]);
 
   useEffect(() => {
     if (batchedUpdateTimeoutRef.current) {
@@ -221,46 +230,47 @@ export function NeuroglancerSubscriber(props) {
 
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
-  
+
     const nextSegments = Object.keys(cellColorMapping).map(String);
-    const prevSegments = current?.layers?.[0]?.segments ?? [];
+    // const prevSegments = current?.layers?.[0]?.segments ?? [];
     const prevColors = current?.layers?.[0]?.segmentColors ?? null;
-  
-    const initNeeded = prevSegments.length === 0 && nextSegments.length > 0;
+
+    const initNeeded = prevSegmentsRef.current.length === 0 && nextSegments.length > 0;
     const segmentsChanged = initNeeded
-      || nextSegments.length !== prevSegments.length
-      || !nextSegments.every((v, i) => v === prevSegments[i]);
-  
+      || nextSegments.length !== prevSegmentsRef.current.length
+      || !nextSegments.every((v, i) => v === prevSegmentsRef.current[i]);
+    if (segmentsChanged) {
+      prevSegmentsRef.current = nextSegments;
+    }
     if (!prevColors) {
-      current.layers[0].segmentColors = cellColorMapping
+      current.layers[0].segmentColors = cellColorMapping;
     }
     const colorsChanged = !prevColors || Object.keys(cellColorMapping).some(
-        key => cellColorMapping[key] !== prevColors[key]
-      );
-  
+      key => cellColorMapping[key] !== prevColors[key],
+    );
+
     const newLayer0 = {
       ...current.layers[0],
       ...(segmentsChanged && { segments: nextSegments }),
       // Always set `segmentColors` if it doesn't exist yet
       ...((colorsChanged || !current.layers[0]?.segmentColors) && { segmentColors: cellColorMapping }),
     };
-  
+
     if (!segmentsChanged && !colorsChanged && current.layers[0]?.segmentColors) {
       return current;
     }
 
-    console.log("derivedState Exit")
-  
+    console.log('derivedState Exit');
+
     return {
       ...current,
       layers: [newLayer0, ...current.layers.slice(1)],
     };
   }, [cellColorMapping]);
-  
 
 
   const derivedViewerState2 = useMemo(() => {
-    console.log("derivedViewerState2",Object.keys(derivedViewerState.layers[0]?.segmentColors).length)
+    console.log('derivedViewerState2', Object.keys(derivedViewerState.layers[0]?.segmentColors).length);
     // console.log('derivedViewerState2', spatialRotationX, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
     let { projectionScale, projectionOrientation } = derivedViewerState;
     if (typeof spatialZoom === 'number' && BASE_SCALE) {
