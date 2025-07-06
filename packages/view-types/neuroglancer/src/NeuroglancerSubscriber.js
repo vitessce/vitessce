@@ -13,7 +13,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-// import { isEqual } from 'lodash-es';
+import { isEqual } from 'lodash-es';
 import { Neuroglancer } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 import {
@@ -161,6 +161,9 @@ export function NeuroglancerSubscriber(props) {
   const onSegmentClick = useCallback((value) => {
     if (value) {
       const selectedCellIds = [String(value)];
+      if (isEqual(cellSetSelection, selectedCellIds)) return;
+      console.log("onSegmentClick")
+      // requestIdleCallback(() => {
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -168,6 +171,7 @@ export function NeuroglancerSubscriber(props) {
         'Selection ',
         `: based on selected segments ${value}`,
       );
+    // });
     }
   }, [additionalCellSets, cellSetColor, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
@@ -186,6 +190,16 @@ export function NeuroglancerSubscriber(props) {
   }), [mergedCellSets, theme,
     cellSetColor, cellSetSelection, obsIndex]);
 
+  // const cellColors = useMemo(() => {
+  //   if (!obsIndex) return new Map();
+  //   const dummyColor = [255, 0, 0]; // bright red
+  //   const map = new Map();
+  //   obsIndex.forEach(cell => {
+  //     map.set(cell, dummyColor);
+  //   });
+  //   return map;
+  // }, [obsIndex]);
+
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
@@ -193,21 +207,14 @@ export function NeuroglancerSubscriber(props) {
   const batchedUpdateTimeoutRef = useRef(null);
   const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
 
-  // const [batchedViewerStateColors, setBatchedViewerStateColors] = useState(cellColorMapping);
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setBatchedCellColors(cellColors);
-  //   }, 100); // slightly longer delay to reduce read-write race
-  //   return () => clearTimeout(timeout);
-  // }, [cellColors]);
-
   useEffect(() => {
     if (batchedUpdateTimeoutRef.current) {
       clearTimeout(batchedUpdateTimeoutRef.current);
     }
     batchedUpdateTimeoutRef.current = setTimeout(() => {
       setBatchedCellColors(cellColors);
-    }, 50); // adjust delay as needed
+      console.log("batched Updates")
+    }, 100);
   }, [cellColors]);
 
   const cellColorMapping = useMemo(() => {
@@ -232,10 +239,10 @@ export function NeuroglancerSubscriber(props) {
     const { current } = latestViewerStateRef;
 
     const nextSegments = Object.keys(cellColorMapping).map(String);
-    // const prevSegments = current?.layers?.[0]?.segments ?? [];
+    const prevSegments = current?.layers?.[0]?.segments ?? [];
     const prevColors = current?.layers?.[0]?.segmentColors ?? null;
-
-    const initNeeded = prevSegmentsRef.current.length === 0 && nextSegments.length > 0;
+    console.log(prevSegments.length === 0 ,nextSegments.length > 0)
+    const initNeeded = prevSegments.length === 0 && nextSegments.length > 0;
     const segmentsChanged = initNeeded
       || nextSegments.length !== prevSegmentsRef.current.length
       || !nextSegments.every((v, i) => v === prevSegmentsRef.current[i]);
@@ -243,7 +250,16 @@ export function NeuroglancerSubscriber(props) {
       prevSegmentsRef.current = nextSegments;
     }
     if (!prevColors) {
-      current.layers[0].segmentColors = cellColorMapping;
+      const updated = {
+        ...current,
+        layers: [{
+          ...current.layers[0],
+          segmentColors: cellColorMapping,
+          segments: nextSegments,
+        }, ...current.layers.slice(1)],
+      };
+      latestViewerStateRef.current = updated;
+      return updated;
     }
     const colorsChanged = !prevColors || Object.keys(cellColorMapping).some(
       key => cellColorMapping[key] !== prevColors[key],
@@ -253,14 +269,15 @@ export function NeuroglancerSubscriber(props) {
       ...current.layers[0],
       ...(segmentsChanged && { segments: nextSegments }),
       // Always set `segmentColors` if it doesn't exist yet
-      ...((colorsChanged || !current.layers[0]?.segmentColors) && { segmentColors: cellColorMapping }),
+      ...((colorsChanged || !current.layers[0]?.segmentColors)
+      && { segmentColors: cellColorMapping }),
     };
 
     if (!segmentsChanged && !colorsChanged && current.layers[0]?.segmentColors) {
       return current;
     }
 
-    console.log('derivedState Exit');
+    console.log('derivedState Exit',current.layers[0]?.segmentColors);
 
     return {
       ...current,
