@@ -27,8 +27,8 @@ export const spatialDataKpmp2023 = {
             "obsFeatureMatrix": {
               "path": "tables/table_tubules/X"
             },
-            "labels": {
-              "path": "labels/labels_tubules",
+            "shapes": {
+              "path": "shapes/shapes_tubules",
               "tablePath": "tables/table_tubules",
               "coordinateSystem": "global"
             }

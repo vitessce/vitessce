@@ -214,42 +214,120 @@ export default class SpatialDataShapesSource extends AnnDataSource {
   }
 
   /**
-   * Class method for loading specific columns of numeric arrays.
-   * @param {string} path A string like obsm.X_pca.
-   * @param {[number, number]} dims The column indices to load.
+   * Helper to get geometry column from Arrow table and check type.
+   * @param {import('apache-arrow').Table} arrowTable
+   * @param {string} columnName
+   * @returns {import('apache-arrow').Vector}
+   */
+  _getGeometryColumn(arrowTable, columnName) {
+    const geometryColumn = arrowTable.getChild(columnName);
+    if (!geometryColumn) {
+      throw new Error(`Column ${columnName} not found in parquet table`);
+    }
+    if (geometryColumn.type.toString() !== 'Binary') {
+      throw new Error(`Expected geometry column to have Binary type but got ${geometryColumn.type.toString()}`);
+    }
+    return geometryColumn;
+  }
+
+  /**
+   * Helper to check if geometry column is WKB encoded.
+   * @param {import('apache-arrow').Table} arrowTable
+   * @param {string} columnName
+   * @returns {boolean}
+   */
+  _isWkbColumn(arrowTable, columnName) {
+    // From GeoPandas.to_parquet docs:
+    // "By default, all geometry columns present are serialized to WKB format in the file"
+    // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
+    // TODO: support geoarrow serialization schemes in addition to WKB.
+    
+    // Check if the column has metadata indicating it is WKB encoded.
+    // Reference: https://github.com/geopandas/geopandas/blob/6ab5a7145fa788d049a805f114bc46c6d0ed4507/geopandas/io/arrow.py#L172
+    return arrowTable.schema.fields
+      .find(field => field.name === columnName)
+      ?.metadata?.get("ARROW:extension:name") === "geoarrow.wkb";
+  }
+
+  /**
+   * Helper to decode WKB geometry column as flat coordinates (for points).
+   * @param {import('apache-arrow').Vector} geometryColumn
+   * @returns {[number, number][]} Array of [x, y] coordinates.
+   */
+  _decodeWkbColumnFlat(geometryColumn) {
+    const wkb = new WKB();
+    const arr = geometryColumn.toArray();
+    return arr.map(
+      (/** @type {ArrayBuffer} */ geom) => /** @type {[number, number]} */ (
+        (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates()
+    )
+    );
+  }
+
+  /**
+   * Helper to decode WKB geometry column as nested coordinates (for polygons).
+   * @param {import('apache-arrow').Vector} geometryColumn
+   * @returns {[number, number][][]} Array of polygons, each as array of [x, y] pairs.
+   */
+  _decodeWkbColumnNested(geometryColumn) {
+    const wkb = new WKB();
+    const arr = geometryColumn.toArray();
+    // For polygons: getCoordinates returns nested arrays
+
+    // TODO: alternatively, use positionFormat: 'XY' and return flat coordinates again.
+    // However this may complicate applying transformations, at least in the current way.
+    // Reference: https://deck.gl/docs/api-reference/layers/polygon-layer#data-accessors
+    return arr.map(
+      (/** @type {ArrayBuffer} */ geom) => {
+        const coords = /** @type {Array<Array<Array<number>>>} */ (
+          (/** @type {any} */ (wkb.readGeometry(geom))).getCoordinates()
+        );
+        // Take first polygon (if multipolygon)
+        return coords[0];
+      }
+    );
+  }
+
+  /**
+   * 
+   * @param {string} path 
    * @returns {Promise<{
-  *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
-  *  shape: [number, number],
-  * }>} A promise for a zarr array containing the data.
-  */
-  async loadNumericForDims(path, dims) {
-    const formatVersion = await this.getFormatVersion(path);
-    if (formatVersion === '0.1') {
-      return super.loadNumericForDims(path, dims);
-    }
-    let columnName = basename(path);
-    if (columnName === 'coords') {
-      // The "geometry" column was previously called "coords" in version 0.1.
-      columnName = 'geometry';
-    }
-    // TODO: consolidate this function and loadGeometriesFlat
+   *  data: [number, number][][],
+   *  shape: [number, null],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPolygonShapes(path) {
+    const columnName = basename(path);
     const arrowTable = await this.loadParquetTable(path);
-    if (columnName === 'geometry' && dims[0] === 0 && dims[1] === 1) {
-      const geometryColumn = arrowTable.getChild(columnName);
-      if (!geometryColumn) {
-        throw new Error(`Column ${columnName} not found in parquet table`);
-      }
-      if (geometryColumn.type.toString() !== 'Binary') {
-        throw new Error(`Expected geometry column to have Binary type (WKB) but got ${geometryColumn.type.toString()}`);
-      }
-      // From GeoPandas.to_parquet docs:
-      // "By default, all geometry columns present are serialized to WKB format in the file"
-      // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
-      // TODO: support geoarrow serialization schemes in addition to WKB.
-      const wkb = new WKB();
-      const points = geometryColumn.toArray()
-      // @ts-ignore
-        .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getFlatCoordinates());
+    const geometryColumn = this._getGeometryColumn(arrowTable, columnName);
+    if (this._isWkbColumn(arrowTable, columnName)) {
+      // If the geometry column is WKB encoded, decode it.
+      const polygons = this._decodeWkbColumnNested(geometryColumn);
+      // Return polygons as a ragged array.
+      return {
+        shape: [polygons.length, null], // Ragged array
+        data: polygons,
+      };
+    }
+    throw new Error('Unexpected encoding type for polygons, currently only WKB is supported');
+  }
+
+  /**
+   * 
+   * @param {string} path 
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadCircleShapes(path) {
+    const columnName = basename(path);
+    const arrowTable = await this.loadParquetTable(path);
+    const geometryColumn = this._getGeometryColumn(arrowTable, columnName);
+    if (this._isWkbColumn(arrowTable, columnName)) {
+      // If the geometry column is WKB encoded, decode it.
+      const points = this._decodeWkbColumnFlat(geometryColumn);
+      // Return flat coordinates as a 2D array.
       return {
         shape: [2, points.length],
         data: [
@@ -258,54 +336,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
         ],
       };
     }
-    throw new Error('Unexpected column name for loading 2D array from parquet, currently only geometry is supported');
+    throw new Error('Unexpected encoding type for points, currently only WKB is supported');
   }
-
-  /**
-   * 
-   * @param {string} path 
-   * @returns 
-   */
-  // TODO: rename this function since non-flat anymore.
-  // TODO: alternatively, use positionFormat: 'XY' and return flat coordinates again.
-  // However this may complicate applying transformations, at least in the current way.
-  // Reference: https://deck.gl/docs/api-reference/layers/polygon-layer#data-accessors
-  async loadGeometriesFlat(path) {
-    const arrowTable = await this.loadParquetTable(path);
-    const columnName = basename(path);
-    const geometryColumn = arrowTable.getChild(columnName);
-    if (!geometryColumn) {
-      throw new Error(`Column ${columnName} not found in parquet table`);
-    }
-    if (geometryColumn.type.toString() !== 'Binary') {
-      throw new Error(`Expected geometry column to have Binary type but got ${geometryColumn.type.toString()}`);
-    }
-
-    // Reference: https://github.com/geopandas/geopandas/blob/6ab5a7145fa788d049a805f114bc46c6d0ed4507/geopandas/io/arrow.py#L172
-    const isWkb = arrowTable.schema.fields
-      .find(field => field.name === columnName)
-      ?.metadata?.get("ARROW:extension:name") === "geoarrow.wkb";
-
-    // From GeoPandas.to_parquet docs:
-    // "By default, all geometry columns present are serialized to WKB format in the file"
-    // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
-    // TODO: support geoarrow serialization schemes in addition to WKB.
-    if (isWkb) {
-      const wkb = new WKB();
-      const coordsFlattened = geometryColumn.toArray()
-      // @ts-ignore
-        .map((/** @type {Uint8Array} */ geom) => wkb.readGeometry(geom).getCoordinates())
-        // Get the first array of coordinates per multi-polygon.
-        // TODO: is this correct? will there always be a single polygon?
-        // @ts-ignore
-        .map(p => p[0]);
-      return coordsFlattened;
-    } else {
-      throw new Error('Not yet implemented: non-WKB geometry encoding');
-    }
-    
-  }
-
 
   /**
    * Class method for loading the var index.

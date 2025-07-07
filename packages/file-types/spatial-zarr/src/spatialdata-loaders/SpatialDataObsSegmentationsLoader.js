@@ -10,7 +10,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
-function getCoordsPath(path) {
+function getGeometryPath(path) {
   return `${path}/geometry`;
 }
 
@@ -82,7 +82,6 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
     }
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.getJson(getAttrsPath(path));
-    console.log(zattrs);
     const {
       'encoding-type': encodingType,
       spatialdata_attrs: {
@@ -144,10 +143,10 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      const coordsFlattened = await this.dataSource.loadGeometriesFlat(getCoordsPath(path));
+      const { data: polygons } = await this.dataSource.loadPolygonShapes(getGeometryPath(path));
 
       // Apply transformation matrix to the coordinates
-      const transformedCoords = coordsFlattened.map((polygon) => {
+      const transformedCoords = polygons.map((polygon) => {
         return polygon.map((coord) => {
           const transformed = new math.Vector2(coord[0], coord[1])
             .transformAsPoint(modelMatrix);
@@ -157,7 +156,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
 
       this.locations = {
         // This is a ragged array, so the second dimension is not fixed
-        shape: [coordsFlattened.length, null],
+        shape: [polygons.length, null],
         data: transformedCoords,
       };
       
