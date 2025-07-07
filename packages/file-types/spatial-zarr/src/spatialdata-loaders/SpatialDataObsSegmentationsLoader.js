@@ -1,7 +1,6 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
-import { log } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   normalizeAxes,
@@ -146,20 +145,18 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       const { data: polygons } = await this.dataSource.loadPolygonShapes(getGeometryPath(path));
 
       // Apply transformation matrix to the coordinates
-      const transformedCoords = polygons.map((polygon) => {
-        return polygon.map((coord) => {
-          const transformed = new math.Vector2(coord[0], coord[1])
-            .transformAsPoint(modelMatrix);
-          return [transformed[0], transformed[1]];
-        });
-      });
+      const transformedCoords = polygons.map(polygon => polygon.map((coord) => {
+        const transformed = new math.Vector2(coord[0], coord[1])
+          .transformAsPoint(modelMatrix);
+        return [transformed[0], transformed[1]];
+      }));
 
       this.locations = {
         // This is a ragged array, so the second dimension is not fixed
         shape: [polygons.length, null],
         data: transformedCoords,
       };
-      
+
       return this.locations;
     }
     this.locations = Promise.resolve(null);
@@ -184,11 +181,10 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       this.loadObsIndex(),
       this.loadPolygons(),
     ]).then(([obsIndex, obsSegmentations]) => {
-
       const coordinationValues = {
         segmentationLayer: CL({
           // TODO: more coordination values here?
-          
+
           // obsColorEncoding: 'spatialLayerColor',
           // spatialLayerColor: [255, 255, 255],
           spatialLayerVisible: true,

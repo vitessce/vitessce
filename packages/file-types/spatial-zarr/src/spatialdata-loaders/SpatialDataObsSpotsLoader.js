@@ -158,7 +158,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       this.locations = locations;
 
 
-
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader
       // (or DeckGL layer)

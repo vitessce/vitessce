@@ -219,6 +219,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @param {string} columnName
    * @returns {import('apache-arrow').Vector}
    */
+  // eslint-disable-next-line class-methods-use-this
   _getGeometryColumn(arrowTable, columnName) {
     const geometryColumn = arrowTable.getChild(columnName);
     if (!geometryColumn) {
@@ -236,17 +237,18 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @param {string} columnName
    * @returns {boolean}
    */
+  // eslint-disable-next-line class-methods-use-this
   _isWkbColumn(arrowTable, columnName) {
     // From GeoPandas.to_parquet docs:
     // "By default, all geometry columns present are serialized to WKB format in the file"
     // Reference: https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_parquet.html
     // TODO: support geoarrow serialization schemes in addition to WKB.
-    
+
     // Check if the column has metadata indicating it is WKB encoded.
     // Reference: https://github.com/geopandas/geopandas/blob/6ab5a7145fa788d049a805f114bc46c6d0ed4507/geopandas/io/arrow.py#L172
     return arrowTable.schema.fields
       .find(field => field.name === columnName)
-      ?.metadata?.get("ARROW:extension:name") === "geoarrow.wkb";
+      ?.metadata?.get('ARROW:extension:name') === 'geoarrow.wkb';
   }
 
   /**
@@ -254,13 +256,14 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @param {import('apache-arrow').Vector} geometryColumn
    * @returns {[number, number][]} Array of [x, y] coordinates.
    */
+  // eslint-disable-next-line class-methods-use-this
   _decodeWkbColumnFlat(geometryColumn) {
     const wkb = new WKB();
     const arr = geometryColumn.toArray();
     return arr.map(
       (/** @type {ArrayBuffer} */ geom) => /** @type {[number, number]} */ (
         (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates()
-    )
+      ),
     );
   }
 
@@ -269,6 +272,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @param {import('apache-arrow').Vector} geometryColumn
    * @returns {[number, number][][]} Array of polygons, each as array of [x, y] pairs.
    */
+  // eslint-disable-next-line class-methods-use-this
   _decodeWkbColumnNested(geometryColumn) {
     const wkb = new WKB();
     const arr = geometryColumn.toArray();
@@ -284,13 +288,13 @@ export default class SpatialDataShapesSource extends AnnDataSource {
         );
         // Take first polygon (if multipolygon)
         return coords[0];
-      }
+      },
     );
   }
 
   /**
-   * 
-   * @param {string} path 
+   *
+   * @param {string} path
    * @returns {Promise<{
    *  data: [number, number][][],
    *  shape: [number, null],
@@ -313,8 +317,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
   }
 
   /**
-   * 
-   * @param {string} path 
+   *
+   * @param {string} path
    * @returns {Promise<{
    *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
    *  shape: [number, number],
