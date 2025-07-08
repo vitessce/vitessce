@@ -1,24 +1,20 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
-import { log } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
+  normalizeAxes,
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
-function getCoordsPath(path) {
-  return `${path}/coords`;
-}
-
-function getRadiusPath(path) {
-  return `${path}/radius`;
-}
-
 function getGeometryPath(path) {
   return `${path}/geometry`;
+}
+
+function getIndexPath(path) {
+  return `${path}/label`;
 }
 
 function getAttrsPath(path) {
@@ -77,7 +73,7 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
-export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
+export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLoader {
   async loadModelMatrix() {
     const { path, coordinateSystem = 'global' } = this.options;
     if (this.modelMatrix) {
@@ -85,7 +81,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.getJson(getAttrsPath(path));
-
     const {
       'encoding-type': encodingType,
       spatialdata_attrs: {
@@ -116,11 +111,12 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     // the node corresponding to the output coordinate system of interest
     // back to the root node, applying each transformation along the way.
     const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
+      zattrs?.coordinateTransformations ?? DEFAULT_COORDINATE_TRANSFORMATIONS
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
       inputName === 'xy' && outputName === coordinateSystem
     ));
-    const axes = zattrs?.axes || DEFAULT_AXES;
+    const axes = zattrs?.axes ?? DEFAULT_AXES;
+    const normAxes = normalizeAxes(axes);
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
     // TODO: do the reverse, convert old spec to new spec
@@ -128,7 +124,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       coordinateTransformationsFromFile, null,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, axes,
+      normCoordinateTransformationsFromFile, normAxes,
     );
     this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
@@ -138,7 +134,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
-  async loadSpots() {
+  async loadPolygons() {
     const { path } = this.options;
 
     if (this.locations) {
@@ -146,85 +142,53 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
-
-      let locations;
-      const formatVersion = await this.dataSource.getFormatVersion(path);
-      if (formatVersion === '0.1') {
-        locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
-      } else if (formatVersion === '0.2') {
-        locations = await this.dataSource.loadCircleShapes(getGeometryPath(path));
-      }
-      this.locations = locations;
-
+      const { data: polygons } = await this.dataSource.loadPolygonShapes(getGeometryPath(path));
 
       // Apply transformation matrix to the coordinates
-      // TODO: instead of applying here, pass matrix all the way down to WebGL shader
-      // (or DeckGL layer)
-      for (let i = 0; i < this.locations.shape[1]; i++) {
-        const xCoord = this.locations.data[0][i];
-        const yCoord = this.locations.data[1][i];
-        const transformed = new math.Vector2(xCoord, yCoord)
+      const transformedCoords = polygons.map(polygon => polygon.map((coord) => {
+        const transformed = new math.Vector2(coord[0], coord[1])
           .transformAsPoint(modelMatrix);
-        // eslint-disable-next-line prefer-destructuring
-        this.locations.data[0][i] = transformed[0];
-        // eslint-disable-next-line prefer-destructuring
-        this.locations.data[1][i] = transformed[1];
-      }
+        return [transformed[0], transformed[1]];
+      }));
+
+      this.locations = {
+        // This is a ragged array, so the second dimension is not fixed
+        shape: [polygons.length, null],
+        data: transformedCoords,
+      };
+
       return this.locations;
     }
     this.locations = Promise.resolve(null);
     return this.locations;
   }
 
-  async loadRadius() {
+  async loadObsIndex() {
     const { path } = this.options;
-    if (this.radius) {
-      return this.radius;
-    }
-    if (!this.radius) {
-      const modelMatrix = await this.loadModelMatrix();
-      this.radius = await this.dataSource.loadNumeric(getRadiusPath(path));
-      const scaleFactors = modelMatrix.getScale();
-      const xScaleFactor = scaleFactors[0];
-      const yScaleFactor = scaleFactors[1];
-      if (xScaleFactor !== yScaleFactor) {
-        log.warn('Using x-axis scale factor for transformation of obsSpots, but x and y scale factors are not equal');
-      }
-      // Apply the scale factor to the radius column
-      for (let i = 0; i < this.radius.shape[0]; i++) {
-        this.radius.data[i] *= xScaleFactor;
-      }
-      return this.radius;
-    }
-    this.radius = Promise.resolve(null);
-    return this.radius;
+    // TODO: will the label column of the parquet table always be numeric?
+    const arr = await this.dataSource.loadNumeric(getIndexPath(path));
+    const obsIds = arr.data.map(i => String(i));
+    return obsIds;
   }
 
   async load() {
-    const { path, tablePath } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);
     }
 
     return Promise.all([
-      this.dataSource.loadObsIndex(getCoordsPath(path), tablePath),
-      this.loadSpots(),
-      this.loadRadius(),
-    ]).then(([obsIndex, obsSpots, obsRadius]) => {
-      const spatialSpotRadius = obsRadius?.data?.[0];
-
+      this.loadObsIndex(),
+      this.loadPolygons(),
+    ]).then(([obsIndex, obsSegmentations]) => {
       const coordinationValues = {
-        spotLayer: CL({
-          obsType: 'spot',
+        segmentationLayer: CL({
+          // TODO: more coordination values here?
+
           // obsColorEncoding: 'spatialLayerColor',
           // spatialLayerColor: [255, 255, 255],
           spatialLayerVisible: true,
           spatialLayerOpacity: 1.0,
-          spatialSpotRadius,
-          // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
-          // after resolving https://github.com/vitessce/vitessce/issues/1760
           // featureValueColormapRange: [0, 1],
           // obsHighlight: null,
           // obsSetColor: null,
@@ -234,7 +198,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       };
 
       return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSpots },
+        { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
         null,
         coordinationValues,
       ));

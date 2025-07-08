@@ -21,6 +21,7 @@ export {
   getStatsForResolution,
   canLoadResolution,
   normalizeCoordinateTransformations,
+  normalizeAxes,
 } from './spatial.js';
 export {
   loadOmeZarr,
