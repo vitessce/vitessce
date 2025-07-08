@@ -1,4 +1,11 @@
 
+## 3.6.5
+
+### Patch Changes
+
+- Support polygons stored in SpatialData shapes elements. (`@vitessce/spatial-zarr`) ([#2168](https://github.com/vitessce/vitessce/pull/2168))
+
+
 ## 3.6.4
 
 ### Patch Changes
