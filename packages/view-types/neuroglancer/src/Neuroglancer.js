@@ -16,6 +16,8 @@ export class Neuroglancer extends PureComponent {
   constructor(props) {
     super(props);
 
+    console.log('Neuroglancer.constructor');
+
     this.bundleRoot = createWorker();
     this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
@@ -100,6 +102,8 @@ export class Neuroglancer extends PureComponent {
     const {
       classes,
     } = this.props;
+
+    console.log('Neuroglancer.render');
 
     return (
       <>
