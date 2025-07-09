@@ -36,6 +36,7 @@ import { useQuery } from '@tanstack/react-query';
 import Flatbush from 'flatbush';
 import { FPGrowth, Itemset } from 'node-fpgrowth';
 import { extent } from 'd3-array';
+import { InternMap } from 'internmap';
 
 
 export function SpatialQueryManagerSubscriber(props) {
@@ -368,12 +369,17 @@ export function SpatialQueryManagerSubscriber(props) {
         indexLists.push(found);
       }
 
+      // Keep track of the obsIds that match the transactions.
+      // This is a map from transaction to a list of observation indices.
+      // We use InternMap to allow using arrays as keys.
+      const transactionToObsIdsMap = new InternMap([], JSON.stringify);
+
       // Convert lists of observation indices to transactions.
-      const transactions = []
+      const transactions = [];
       for(const indexList of indexLists) {
         if(indexList.length > 0) {
-          // TODO: spatialQuery keeps track of more info, like valid obsIds to be able to return these at the end.
-          // Reference: https://github.com/ShaokunAn/Spatial-Query/blob/0570c54bd6e046466e05c6b800d6701a7ab15c4a/SpatialQuery/spatial_query.py#L583C17-L583C27
+          // For each indexList, we create a transaction of cell types.
+          // We use the obsSetsMembership to get the cell types for each observation ID.
           const cellTypes = indexList.map(obsId => obsSetsMembership
             .get(obsId)
             ?.find(setPath => setPath[0] === currSelectedSetGroup)
@@ -382,18 +388,52 @@ export function SpatialQueryManagerSubscriber(props) {
           );
           const transaction = Array.from(new Set(cellTypes)).toSorted();
           if(transaction.length >= minSize) {
-            transactions.push(transaction)
+            transactions.push(transaction);
+            // Store the transaction to observation IDs mapping.
+            // Reference: https://github.com/ShaokunAn/Spatial-Query/blob/0570c54bd6e046466e05c6b800d6701a7ab15c4a/SpatialQuery/spatial_query.py#L789
+            if (!transactionToObsIdsMap.has(transaction)) {
+              transactionToObsIdsMap.set(transaction, indexList);
+            } else {
+              const prevTransaction = transactionToObsIdsMap.get(transaction);
+              transactionToObsIdsMap.set(transaction, prevTransaction.concat(indexList));
+            }
           }
         }
       }
-      //console.log(transactions);
-
+      
       const fpgrowth = new FPGrowth(minSupport);
       const itemsets = await fpgrowth.exec(transactions);
 
       // Returns an array representing the frequent itemsets.
       const validItemsets = itemsets.filter(d => d.items.length >= minSize);
       const sortedItemsets = validItemsets.toSorted((a, b) => b.support - a.support);
+
+      const sortedItemsetsWithObsIds = sortedItemsets.map((itemset) => {
+        // For each itemset, get the observation IDs that match the transaction.
+        const motif = itemset.items;
+        let matchingObsIds = [];
+        transactionToObsIdsMap.keys().forEach((transaction) => {
+          // Check if all motif items are present in the transaction.
+          if (motif.every(item => transaction.includes(item))) {
+            // If so, we can use this transaction to get the observation IDs.
+            const obsIds = transactionToObsIdsMap.get(transaction);
+            matchingObsIds = matchingObsIds.concat(obsIds);
+            // Filter the matchingObsIds to only include those obsIds corresponding to
+            // cell types in the current motif.
+            matchingObsIds = matchingObsIds.filter(obsId => {
+              const obsIdCellType = obsSetsMembership.get(obsId)
+                ?.find(setPath => setPath[0] === currSelectedSetGroup)
+                ?.[1]; // Again, we take the second element of the setPath as the cell type name string.
+                // TODO: Should we consider the full potential hierarchy of cell types instead?
+              return motif.includes(obsIdCellType);
+            });
+          }
+        });
+        const obsIds = Array.from(new Set(matchingObsIds));
+        return { ...itemset, obsIds };
+      });
+      console.log(sortedItemsetsWithObsIds);
+
 
       // TODO: compute p-values for each motif
       // Currently, SpatialQuery only provides p-values for cellTypeOfInterest queries
