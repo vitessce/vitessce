@@ -26,6 +26,7 @@ import {
 
 } from './utils.js';
 import { useBaseScale } from './hooks.js';
+import { Passthrough } from './Passthrough.js';
 
 // TODO: the initial value after 0 changes, should be a way to capture it as is
 const deckZoom = -4.4;
@@ -44,38 +45,145 @@ export function NeuroglancerSubscriber(props) {
   } = props;
 
   const { classes } = useStyles();
+  const [{
+    spatialZoom,
+  }, {
+    setSpatialZoom: setZoom,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
+
+  /*
+  const [{
+    dataset,
+    obsType,
+    spatialZoom,
+    // spatialTargetX,
+    // spatialTargetY,
+    spatialRotationX,
+    spatialRotationY,
+    spatialRotationZ,
+    // spatialRotationOrbit,
+    // spatialOrbitAxis,
+    embeddingType: mapping,
+    obsSetSelection: cellSetSelection,
+    additionalObsSets: additionalCellSets,
+    obsSetColor: cellSetColor,
+  }, {
+    setAdditionalObsSets: setAdditionalCellSets,
+    setObsSetColor: setCellSetColor,
+    setObsColorEncoding: setCellColorEncoding,
+    setObsSetSelection: setCellSetSelection,
+    setObsHighlight: setCellHighlight,
+    setSpatialTargetX: setTargetX,
+    setSpatialTargetY: setTargetY,
+    setSpatialRotationX: setRotationX,
+    setSpatialRotationY: setRotationY,
+    // setSpatialRotationZ: setRotationZ,
+    // setSpatialRotationOrbit: setRotationOrbit,
+
+    setSpatialZoom: setZoom,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
+  // const [latestViewerState, setLatestViewerState] = useState(initialViewerState);
+  const latestViewerStateRef = useRef(initialViewerState);
+  // console.log(spatialRotationX, spatialRotationY)
+  
+  const loaders = useLoaders();
+
+  const [{ obsSets: cellSets }] = useObsSetsData(
+    loaders, dataset, false,
+    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
+    { cellSetSelection, obsSetColor: cellSetColor },
+    { obsType },
+  );
+
+  const [{ obsIndex }] = useObsEmbeddingData(
+    loaders, dataset, true, {}, {},
+    { obsType, embeddingType: mapping },
+  );
+  */
+
+  // const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
+  const BASE_SCALE = 1;
+  const hasMountedRef = useRef(false);
+  const lastInteractionSource = useRef(null);
+  const applyNgUpdateTimeoutRef = useRef(null);
+
+  /*
+  useEffect(() => {
+    // Avoiding circular updates on first render
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+    if (lastInteractionSource.current === 'neuroglancer') return;
+    lastInteractionSource.current = 'vitessce';
+    // console.log('🔁 Vitessce interaction', lastInteractionSource.current);
+  }, [spatialRotationX, spatialRotationY]);
+  */
+
+  // Vitessce does not set rotation
+  // useEffect(() => {
+  //   setTimeout(() => setRotationX(22.5), 2000); // Force pitch after load
+  // }, []);
+
+  // console.log("render spatialRotationX, Intereaction Source", spatialRotationX, lastInteractionSource.current);
 
 
-  const NeuroglancerMemo = React.memo(Neuroglancer, (prevProps, nextProps) => {
-    // console.log("NeuroglancerMemo", prevProps.viewerState, nextProps.viewerState);
-    // Compare the viewer states to avoid unnecessary re-renders
-    // It should return true if the old and new props are equal
-    return true;
-    //return compareViewerState(prevProps.viewerState, nextProps.viewerState);
+  // const lastNgPushOrientationRef = useRef(null);
 
-  });
+  const handleStateUpdate = useCallback((newState) => {
+    const { projectionScale, projectionOrientation, position } = newState;
+    // const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
+
+    // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
+
+    //setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
+
+    /*
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionOrientation,
+      projectionScale,
+      position,
+    };
+
+    // Ignore loopback from Vitessce
+    if (
+      !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
+    ) {
+      // console.log('⛔️ Skip NG → Vitessce update (loopback)');
+      return;
+    }
+
+    if (applyNgUpdateTimeoutRef.current) {
+      clearTimeout(applyNgUpdateTimeoutRef.current);
+    }
+    lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
+    applyNgUpdateTimeoutRef.current = setTimeout(() => {
+      const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+
+      const pitchDiff = Math.abs(pitch - spatialRotationX);
+      if (pitchDiff > 0.001) {
+        console.log('🌀 NG → Vitessce (debounced apply):', pitch);
+        setRotationX(pitch);
+        setRotationY(yaw);
+        lastInteractionSource.current = 'neuroglancer';
+      }
+    }, VITESSCE_INTERACTION_DELAY);
+    */
+  }, []);
+
+
+  /*
+  const onSegmentHighlight = useCallback((obsId) => {
+    setCellHighlight(String(obsId));
+  }, [obsIndex, setCellHighlight]);
+  */
 
   return (
-    <TitleInfo
-      title={title}
-      helpText={helpText}
-      isSpatial
-      theme={theme}
-      closeButtonVisible={closeButtonVisible}
-      downloadButtonVisible={downloadButtonVisible}
-      removeGridComponent={removeGridComponent}
-      isReady
-      withPadding={false}
-    >
-      {/* <button onClick={updateVitessceRotation}>Update</button> */}
-      <NeuroglancerMemo
-        classes={classes}
-        onSegmentClick={() => {}}
-        onSelectHoveredCoords={() => {}}
-        viewerState={initialViewerState}
-        // viewerState={initialViewerState}
-        setViewerState={() => {}}
-      />
-    </TitleInfo>
+    <Passthrough
+      classes={classes}
+      initialViewerState={initialViewerState}
+      spatialZoom={spatialZoom}
+    />
   );
 }

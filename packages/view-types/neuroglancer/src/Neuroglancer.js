@@ -20,6 +20,15 @@ export class Neuroglancer extends PureComponent {
 
     this.bundleRoot = createWorker();
     this.viewerState = props.viewerState;
+  }
+  /*
+  constructor(props) {
+    super(props);
+
+    console.log('Neuroglancer.constructor');
+
+    this.bundleRoot = createWorker();
+    this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
 
     this.prevElement = null;
@@ -97,6 +106,7 @@ export class Neuroglancer extends PureComponent {
       }, 100);
     }
   }
+  */
 
   render() {
     const {
@@ -113,9 +123,9 @@ export class Neuroglancer extends PureComponent {
             <LazyReactNeuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={this.viewerState}
-              onViewerStateChanged={this.onViewerStateChanged}
+              //onViewerStateChanged={this.onViewerStateChanged}
               bundleRoot={this.bundleRoot}
-              ref={this.onRef}
+              //ref={this.onRef}
             />
           </Suspense>
         </div>
