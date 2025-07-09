@@ -25,7 +25,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     options: {
       obsIndex: 'id',
       obsEmbedding: ['tSNE1', 'tSNE2'],
@@ -38,7 +38,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -85,11 +85,11 @@ function generateNeuroglancerMinimalConfiguration() {
       0.034036338329315186,
       0.8644407391548157,
     ],
-    projectionScale: 32768,
+    // projectionScale: 32768,
     layers: [
       {
         type: 'segmentation',
-        source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_meshes',
+        source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
         segments: [],
         // segments: [
         //   '1',

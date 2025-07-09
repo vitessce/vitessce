@@ -90,11 +90,13 @@ export function NeuroglancerSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
 
-  const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
+  // const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
+  const BASE_SCALE = 1;
   const hasMountedRef = useRef(false);
   const lastInteractionSource = useRef(null);
   const applyNgUpdateTimeoutRef = useRef(null);
 
+  /*
   useEffect(() => {
     // Avoiding circular updates on first render
     if (!hasMountedRef.current) {
@@ -105,6 +107,7 @@ export function NeuroglancerSubscriber(props) {
     lastInteractionSource.current = 'vitessce';
     // console.log('🔁 Vitessce interaction', lastInteractionSource.current);
   }, [spatialRotationX, spatialRotationY]);
+  */
 
   // Vitessce does not set rotation
   // useEffect(() => {
@@ -114,16 +117,17 @@ export function NeuroglancerSubscriber(props) {
   // console.log("render spatialRotationX, Intereaction Source", spatialRotationX, lastInteractionSource.current);
 
 
-  const lastNgPushOrientationRef = useRef(null);
+  // const lastNgPushOrientationRef = useRef(null);
 
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
-    const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
+    // const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
 
     // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
 
     setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
 
+    /*
     latestViewerStateRef.current = {
       ...latestViewerStateRef.current,
       projectionOrientation,
@@ -154,7 +158,8 @@ export function NeuroglancerSubscriber(props) {
         lastInteractionSource.current = 'neuroglancer';
       }
     }, VITESSCE_INTERACTION_DELAY);
-  }, [setZoom, setRotationX, BASE_SCALE, spatialRotationX]);
+    */
+  }, []);
 
 
   const onSegmentClick = useCallback((value) => {
@@ -193,46 +198,31 @@ export function NeuroglancerSubscriber(props) {
     cellColors.forEach((color, cell) => {
       colorCellMapping[cell] = rgbToHex(color);
     });
-    // console.log("color mapping")
     return colorCellMapping;
-  }, [JSON.stringify([...cellColors.entries()].sort()), rgbToHex]);
+  }, [cellColors, rgbToHex]);
 
-  const derivedViewerState = useMemo(() => {
-    const { current } = latestViewerStateRef;
-
-    const nextSegments = Object.keys(cellColorMapping).map(String);
-    const prevSegments = current.layers[0].segments;
-    const prevColors = current.layers[0].segmentColors;
-
-    const segmentsChanged = nextSegments.length !== prevSegments.length
-      || !nextSegments.every((v, i) => v === prevSegments[i]);
-
-    const colorsChanged = !isEqual(cellColorMapping, prevColors);
-
-    if (!segmentsChanged && !colorsChanged) {
-      return current; // Reuse previous object to avoid triggering downstream re-renders
-    }
-
-    const newLayer0 = {
-      ...current.layers[0],
-      ...(segmentsChanged && { segments: nextSegments }),
-      ...(colorsChanged && { segmentColors: cellColorMapping }),
-    };
-
-    return {
-      ...current,
-      layers: [newLayer0, ...current.layers.slice(1)],
-    };
-  }, [cellColorMapping]);
+  const derivedViewerState = useMemo(() => ({
+    ...initialViewerState,
+    layers: initialViewerState.layers.map((layer, index) => (index === 0
+      ? {
+        ...layer,
+        segments: Object.keys(cellColorMapping).map(String),
+        segmentColors: cellColorMapping,
+      }
+      : layer)),
+  }), [cellColorMapping, initialViewerState]);
 
 
   const derivedViewerState2 = useMemo(() => {
     // console.log('derivedViewerState2', spatialRotationX, lastNgPushOrientationRef.current, derivedViewerState.projectionOrientation, latestViewerStateRef.current.projectionOrientation);
     let { projectionScale, projectionOrientation } = derivedViewerState;
-    if (typeof spatialZoom === 'number' && BASE_SCALE) {
+    if (typeof spatialZoom === 'number') {
       projectionScale = deckZoomToProjectionScale(spatialZoom, BASE_SCALE);
+    } else {
+      projectionScale = deckZoomToProjectionScale(0, BASE_SCALE);
     }
 
+    /*
     const vitessceRotation = eulerToQuaternion(
       spatialRotationX,
       spatialRotationY,
@@ -257,6 +247,7 @@ export function NeuroglancerSubscriber(props) {
     // else {
     //   console.log('Vitessce → NG: Skipping due to unknown source');
     // }
+    */
 
 
     return {

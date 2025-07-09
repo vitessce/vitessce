@@ -36,7 +36,7 @@ function generateNeuroglancerMinimalConfiguration() {
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
     url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     options: {
       obsIndex: 'id',
       obsEmbedding: ['tSNE1', 'tSNE2'],
@@ -50,7 +50,7 @@ function generateNeuroglancerMinimalConfiguration() {
   dataset.addFile({
     fileType: 'obsSets.csv',
     url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -97,12 +97,12 @@ function generateNeuroglancerMinimalConfiguration() {
       0.5443811416625977,
       0.2145828753709793,
     ],
-    projectionScale: 1024,
+    //projectionScale: 1024,
     layers: [
       {
         type: 'segmentation',
-        source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/invasive_meshes',
-        // source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_meshes',
+        source: 'precomputed://https://data-2.vitessce.io/data/sorger/invasive_meshes',
+        // source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
         segments: ['5'],
         segmentColors: {
           5: 'red',

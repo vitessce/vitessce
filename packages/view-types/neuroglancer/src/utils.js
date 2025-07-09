@@ -81,17 +81,19 @@ export function quaternionsAreClose(q1, q2, epsilon = 1e-3) {
     return Math.abs(dot) > 1 - epsilon;
 }
 
+const SCALE_FACTOR = 11; // 2^11 = 2048
+
 /* Deck.gl zoom → Neuroglancer projectionScale
   */
 export function deckZoomToProjectionScale(zoom, baseScaleUm) {
-  return baseScaleUm * (2 ** -zoom);
+  return 2 ** (SCALE_FACTOR - zoom);
 }
 
 /**
   * Neuroglancer projectionScale → Deck.gl zoom
   */
 export function projectionScaleToDeckZoom(projectionScale, baseScaleUm) {
-  return Math.log2(baseScaleUm / (projectionScale));
+  return SCALE_FACTOR - Math.log2(projectionScale);
 }
 
 // function quaternionsAreClose(q1, q2, epsilon = 1e-4) {
@@ -123,6 +125,13 @@ export function eulerToQuaternion(pitch, yaw, roll = 0) {
     const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
     const quaternion = new Quaternion().setFromEuler(euler);
     return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+}
+
+export function valueGreaterThanEpsilon(a, b, epsilon) {
+  if(Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+    return a.some((val, i) => Math.abs(val - b[i]) > epsilon);
+  }
+  return Math.abs(a - b) > epsilon;
 }
 
 //   /**
