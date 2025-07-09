@@ -35,7 +35,7 @@ import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -104,6 +104,7 @@ export function SpatialSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    photometricInterpretation: photometricInterpretationFromCoordination,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -240,7 +241,7 @@ export function SpatialSubscriber(props) {
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
+  const { loaders: imageLayerLoaders = [], meta = [], instance } = image || {};
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
@@ -253,6 +254,11 @@ export function SpatialSubscriber(props) {
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
+  const photometricInterpretation = (
+    photometricInterpretationFromCoordination
+    ?? instance?.getPhotometricInterpretation()
   );
 
 
@@ -654,6 +660,7 @@ export function SpatialSubscriber(props) {
         getExpressionValue={getExpressionValue}
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
+        photometricInterpretation={photometricInterpretation}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

@@ -14,6 +14,7 @@ import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
 import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
+import { geneIdMappingExample } from './view-configs/gene-id-mapping-example.js';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -44,6 +45,7 @@ import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js'
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
+import { spatialDataKpmp2023 } from './view-configs/spatial-beta/spatialdata-kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
@@ -125,6 +127,7 @@ export const configs = {
   'spraggins-2020': spraggins2020,
   'neumann-2020': neumann2020,
   'satija-2020': satija2020,
+  'gene-id-mapping-example': geneIdMappingExample,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
@@ -160,6 +163,7 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'sdata-kpmp-2023': spatialDataKpmp2023,
   'exemplar-small': exemplarSmall2024,
   'exemplar-small-partial-init': exemplarSmallPartialInit,
 

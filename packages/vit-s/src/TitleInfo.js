@@ -1,21 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
-import {
+import { makeStyles, MenuItem, IconButton, Link,
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   iconButton: {
     border: 'none',
     marginLeft: 0,
@@ -27,7 +26,7 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: theme.palette.primaryBackgroundLight,
     },
-    '&:first-child': {
+    '&:first-of-type': {
       marginLeft: '0.25em',
     },
     '&:last-child': {
@@ -69,7 +68,7 @@ function SettingsIconWithArrow({ open }) {
 function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
@@ -98,7 +97,7 @@ function CloudDownloadIconWithArrow({ open }) {
 function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
   return (urls && urls.length ? (
     <PopperMenu
@@ -123,7 +122,7 @@ function DownloadOptions(props) {
 function HelpButton(props) {
   const { helpText } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <PopperMenu
       open={open}
@@ -142,7 +141,7 @@ function HelpButton(props) {
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <IconButton
       onClick={removeGridComponent}
@@ -163,7 +162,7 @@ export function TitleInfo(props) {
     helpText, withPadding = true,
   } = props;
 
-  const classes = useTitleStyles();
+  const { classes } = useTitleStyles();
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.

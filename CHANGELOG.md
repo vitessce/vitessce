@@ -1,4 +1,72 @@
 
+## 3.6.4
+
+### Patch Changes
+
+- Add a new generateConfig implementation. (`@vitessce/config`) ([#2155](https://github.com/vitessce/vitessce/pull/2155))
+
+- Add obsFeatureColumns option for anndata.zarr fileType. (`@vitessce/schemas`) ([#2156](https://github.com/vitessce/vitessce/pull/2156))
+
+
+## 3.6.3
+
+### Patch Changes
+
+- Support the latest spatialdata table metadata format. (`@vitessce/spatial-zarr`) ([#2138](https://github.com/vitessce/vitessce/pull/2138))
+
+- Override photometricInterpretation from image metadata in blin-2019 example. (`@vitessce/example-configs`) ([#2143](https://github.com/vitessce/vitessce/pull/2143))
+
+- Updated genes_filtered file bucket to data-v1 (`@vitessce/biomarker-select`) ([#2141](https://github.com/vitessce/vitessce/pull/2141))
+
+- Fix bug preventing correct feature value extents in spatialBeta view legend (`@vitessce/legend`) ([#2149](https://github.com/vitessce/vitessce/pull/2149))
+
+
+## 3.6.2
+
+### Patch Changes
+
+- Fix React.lazy and patch neuroglancer to prevent crashing in docs site and Jupyter widget contexts. (`@vitessce/neuroglancer`) ([#2130](https://github.com/vitessce/vitessce/pull/2130))
+
+
+## 3.6.1
+
+### Patch Changes
+
+- Added coordination between Neuroglancer and other views (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/vit-s`) ([#2084](https://github.com/vitessce/vitessce/pull/2084))
+
+- Upgrade Zustand from v3 to v5. Upgrade react-query from v4 to v5. (`@vitessce/vit-s`) ([#2128](https://github.com/vitessce/vitessce/pull/2128))
+
+
+## 3.6.0
+
+### Minor Changes
+
+- Support React v19. Upgrade docs site to Docusaurus v3. (`vitessce`, `demo`, `docs`) ([#2127](https://github.com/vitessce/vitessce/pull/2127))
+
+- Upgrade from Material UI (MUI) v4 to v7. (`@vitessce/styles`) ([#2124](https://github.com/vitessce/vitessce/pull/2124))
+
+### Patch Changes
+
+- Add CLI for creating a new view. (`vitessce`) ([#2120](https://github.com/vitessce/vitessce/pull/2120))
+
+- Update showcase page of docs. (`docs`) ([#2123](https://github.com/vitessce/vitessce/pull/2123))
+
+- Update tutorials for plugins. Add last_updated dates to tutorials. (`docs`) ([#2125](https://github.com/vitessce/vitessce/pull/2125))
+
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated tutorial for gh-pages deployment (`docs`) ([#2113](https://github.com/vitessce/vitessce/pull/2113))
+
+- Use PhotometricInterpretation TIFF metadata rather than heuristic in spatial/layerController views to determine RGB vs. not. Use photometricInterpretation coordination type in spatial/layerController views to enable overriding TIFF metadata when necessary. (`@vitessce/layer-controller`, `@vitessce/spatial`) ([#2107](https://github.com/vitessce/vitessce/pull/2107))
+
+- Fixed transformation matrix for assuming xy having equal physical sizes (`@vitessce/spatial-utils`) ([#2112](https://github.com/vitessce/vitessce/pull/2112))
+
+- Update showcase and docs. (`docs`) ([#2117](https://github.com/vitessce/vitessce/pull/2117))
+
+
 ## 3.5.11
 
 ### Patch Changes

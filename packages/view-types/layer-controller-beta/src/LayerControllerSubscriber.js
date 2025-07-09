@@ -227,6 +227,7 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.POINT_LAYER,
   );
 
+  /*
   const [
     {
       imageLayerCallbacks,
@@ -244,6 +245,7 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  */
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.

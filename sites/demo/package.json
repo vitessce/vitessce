@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "3.3.39",
+  "version": "3.3.45",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
@@ -14,15 +14,15 @@
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
     "@vitessce/globals": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
     "vitessce": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "catalog:",
     "cypress": "^13.14.1",
-    "sass": "^1.55.0",
-    "vite": "^4.3.0",
+    "sass": "1.55.0",
+    "vite": "catalog:",
     "@vitejs/plugin-basic-ssl": "^1.0.2"
   },
   "license": "MIT"

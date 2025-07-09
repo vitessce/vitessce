@@ -17,6 +17,10 @@ function getRadiusPath(path) {
   return `${path}/radius`;
 }
 
+function getGeometryPath(path) {
+  return `${path}/geometry`;
+}
+
 function getAttrsPath(path) {
   return `${path}/.zattrs`;
 }
@@ -143,6 +147,16 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
       this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
+
+      let locations;
+      const formatVersion = await this.dataSource.getFormatVersion(path);
+      if (formatVersion === '0.1') {
+        locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
+      } else if (formatVersion === '0.2') {
+        locations = await this.dataSource.loadCircleShapes(getGeometryPath(path));
+      }
+      this.locations = locations;
+
 
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader

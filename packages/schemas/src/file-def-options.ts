@@ -347,6 +347,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
   obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
@@ -366,12 +367,17 @@ export const anndataH5adSchema = anndataZarrSchema.extend({
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple images
+  // TODO: allow multiple images?
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels
+  // TODO: allow multiple labels?
   labels: obsSegmentationsSpatialdataSchema,
+  // TODO: allow multiple shapes?
+  // TODO: unify labels and shapes to obsSegmentations,
+  // then distinguish in expand function based on
+  // "labels/*" vs. "shapes/*" in path?
+  shapes: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints

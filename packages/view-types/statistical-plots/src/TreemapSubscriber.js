@@ -31,7 +31,7 @@ export function TreemapSubscriber(props) {
     helpText = ViewHelpMapping.TREEMAP,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
