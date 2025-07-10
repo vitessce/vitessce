@@ -32,6 +32,28 @@ import { Passthrough } from './Passthrough.js';
 const deckZoom = -4.4;
 const VITESSCE_INTERACTION_DELAY = 50;
 
+export const PassthroughMemo = React.memo(Passthrough, (prevProps, nextProps) => {
+
+    let needsRender = false;
+
+    if(Math.abs(prevProps.spatialZoom - nextProps.spatialZoom) > 0.1) {
+      needsRender = true;
+    }
+    if(Math.abs(prevProps.spatialRotationX - nextProps.spatialRotationX) > 0.1) {
+      needsRender = true;
+    }
+    if(Math.abs(prevProps.spatialRotationY - nextProps.spatialRotationY) > 0.1) {
+      needsRender = true;
+    }
+
+    // console.log("NeuroglancerMemo", prevProps.viewerState, nextProps.viewerState);
+    // Compare the viewer states to avoid unnecessary re-renders
+    // It should return true if the old and new props are equal
+    return !needsRender;
+    //return compareViewerState(prevProps.viewerState, nextProps.viewerState);
+
+});
+
 export function NeuroglancerSubscriber(props) {
   const {
     coordinationScopes,
@@ -45,13 +67,7 @@ export function NeuroglancerSubscriber(props) {
   } = props;
 
   const { classes } = useStyles();
-  const [{
-    spatialZoom,
-  }, {
-    setSpatialZoom: setZoom,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
-  /*
   const [{
     dataset,
     obsType,
@@ -83,12 +99,12 @@ export function NeuroglancerSubscriber(props) {
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
   // const [latestViewerState, setLatestViewerState] = useState(initialViewerState);
-  const latestViewerStateRef = useRef(initialViewerState);
+  //const latestViewerStateRef = useRef(initialViewerState);
   // console.log(spatialRotationX, spatialRotationY)
   
   const loaders = useLoaders();
 
-  const [{ obsSets: cellSets }] = useObsSetsData(
+  const [{ obsSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { cellSetSelection, obsSetColor: cellSetColor },
@@ -99,13 +115,6 @@ export function NeuroglancerSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
-  */
-
-  // const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
-  const BASE_SCALE = 1;
-  const hasMountedRef = useRef(false);
-  const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
 
   /*
   useEffect(() => {
@@ -131,12 +140,17 @@ export function NeuroglancerSubscriber(props) {
   // const lastNgPushOrientationRef = useRef(null);
 
   const handleStateUpdate = useCallback((newState) => {
+    // Note: https://github.com/clio-janelia/clio_website/blob/e0c7667073bc83cec01bd701058b940ac7dcf2a4/src/reducers/viewer.js#L50
     const { projectionScale, projectionOrientation, position } = newState;
     // const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
 
     // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
+    //console.log('setZoom in handleStateUpdate');
+    //const [pitch, yaw] = quaternionToEuler(projectionOrientation);
 
-    //setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
+    setZoom(projectionScaleToDeckZoom(projectionScale, null));
+    //setRotationX(pitch);
+    //setRotationY(yaw);
 
     /*
     latestViewerStateRef.current = {
@@ -179,11 +193,19 @@ export function NeuroglancerSubscriber(props) {
   }, [obsIndex, setCellHighlight]);
   */
 
+  // NOTE: Keep the logic in this component to a minimum.
+  // Pass the props from the coordinationSpace down into the Passthrough component,
+  // and use the arePropsEqual function to avoid unnecessary re-renders.
   return (
-    <Passthrough
+    <PassthroughMemo
       classes={classes}
       initialViewerState={initialViewerState}
+      handleStateUpdate={handleStateUpdate}
       spatialZoom={spatialZoom}
+      spatialRotationX={spatialRotationX}
+      spatialRotationY={spatialRotationY}
+      obsSets={obsSets}
+      obsIndex={obsIndex}
     />
   );
 }
