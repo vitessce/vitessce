@@ -17,7 +17,7 @@ export class Neuroglancer extends PureComponent {
   constructor(props) {
     super(props);
 
-    console.log('Neuroglancer.constructor');
+    // console.log('Neuroglancer.constructor');
 
     this.bundleRoot = createWorker();
     this.viewerState = props.viewerState;

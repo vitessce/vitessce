@@ -92,7 +92,7 @@ function generateNeuroglancerMinimalConfiguration() {
         source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
         segments: Array.from({
           //length: 11366
-          length: 3000,
+          length: 1000,
         }).fill(0).map((_, i) => (i + 1).toString()),
         selectedLayer: {
           visible: true,

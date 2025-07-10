@@ -1,20 +1,30 @@
 import React, { useMemo, useCallback } from 'react';
 import { Neuroglancer } from './Neuroglancer.js';
+import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
+import { isEqual } from 'lodash-es';
 import { compareViewerState, deckZoomToProjectionScale, projectionScaleToDeckZoom } from './utils.js';
 
-/*
-const NeuroglancerMemo = React.memo(Neuroglancer, (prevProps, nextProps) => {
+export const PassthroughMemo = React.memo(Passthrough, (prevProps, nextProps) => {
     let needsRender = false;
-    
-    // Compare the viewer states to avoid unnecessary re-renders
-    needsRender = !compareViewerState(prevProps.viewerState, nextProps.viewerState);
 
+    if(Math.abs(prevProps.spatialZoom - nextProps.spatialZoom) > 0.1) {
+      needsRender = true;
+    }
+    if(Math.abs(prevProps.spatialRotationX - nextProps.spatialRotationX) > 0.1) {
+      needsRender = true;
+    }
+    if(Math.abs(prevProps.spatialRotationY - nextProps.spatialRotationY) > 0.1) {
+      needsRender = true;
+    }
+
+    // console.log("NeuroglancerMemo", prevProps.viewerState, nextProps.viewerState);
+    // Compare the viewer states to avoid unnecessary re-renders
     // It should return true if the old and new props are equal
     return !needsRender;
-});
-*/
 
-export function Passthrough(props) {
+});
+
+function Passthrough(props) {
     const {
         classes,
         initialViewerState,
@@ -22,11 +32,13 @@ export function Passthrough(props) {
         setSpatialZoom,
         spatialRotationX,
         spatialRotationY,
+        setCellHighlight,
     } = props;
 
-    //console.log('Passthrough render');
-
     const derivedViewerState = useMemo(() => {
+        // DeckGL coordinate system to Neuroglancer coordinate system
+        // ==========================================================
+
         let projectionScale = deckZoomToProjectionScale(0, null);
         if(typeof spatialZoom === 'number') {
             projectionScale = deckZoomToProjectionScale(spatialZoom, null);
@@ -44,59 +56,36 @@ export function Passthrough(props) {
     }, [initialViewerState, spatialZoom]);
 
     const handleStateUpdate = useCallback((newState) => {
+        // Neuroglancer coordinate system to DeckGL coordinate system
+        // ==========================================================
+
+
         // Note: https://github.com/clio-janelia/clio_website/blob/e0c7667073bc83cec01bd701058b940ac7dcf2a4/src/reducers/viewer.js#L50
         const { projectionScale, projectionOrientation, position } = newState;
-        // const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
     
-        // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
-        //console.log('setZoom in handleStateUpdate');
         //const [pitch, yaw] = quaternionToEuler(projectionOrientation);
     
         setSpatialZoom(projectionScaleToDeckZoom(projectionScale, null));
         //setRotationX(pitch);
         //setRotationY(yaw);
     
-        /*
-        latestViewerStateRef.current = {
-          ...latestViewerStateRef.current,
-          projectionOrientation,
-          projectionScale,
-          position,
-        };
-    
-        // Ignore loopback from Vitessce
-        if (
-          !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
-        ) {
-          // console.log('⛔️ Skip NG → Vitessce update (loopback)');
-          return;
-        }
-    
-        if (applyNgUpdateTimeoutRef.current) {
-          clearTimeout(applyNgUpdateTimeoutRef.current);
-        }
-        lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
-        applyNgUpdateTimeoutRef.current = setTimeout(() => {
-          const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
-    
-          const pitchDiff = Math.abs(pitch - spatialRotationX);
-          if (pitchDiff > 0.001) {
-            console.log('🌀 NG → Vitessce (debounced apply):', pitch);
-            setRotationX(pitch);
-            setRotationY(yaw);
-            lastInteractionSource.current = 'neuroglancer';
-          }
-        }, VITESSCE_INTERACTION_DELAY);
-        */
-      }, []);
+    }, []);
+
+    // Other callbacks
+    const onSegmentHighlight = useCallback((obsId) => {
+        setCellHighlight(String(obsId));
+    }, [setCellHighlight]);
+
+    // TODO: set segment colors based on obsSets and colors (further derived viewerState)
+    // TODO: define callback for segment click
+
 
     return (
         <Neuroglancer
             classes={classes}
             onSegmentClick={() => {}}
-            onSelectHoveredCoords={() => {}}
+            onSelectHoveredCoords={onSegmentHighlight}
             viewerState={derivedViewerState}
-            // viewerState={initialViewerState}
             setViewerState={handleStateUpdate}
         />
     );
