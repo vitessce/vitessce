@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Neuroglancer } from './Neuroglancer.js';
-import { compareViewerState, deckZoomToProjectionScale, eulerToQuaternion } from './utils.js';
+import { compareViewerState, deckZoomToProjectionScale, projectionScaleToDeckZoom } from './utils.js';
 
-
+/*
 const NeuroglancerMemo = React.memo(Neuroglancer, (prevProps, nextProps) => {
     let needsRender = false;
     
@@ -12,13 +12,14 @@ const NeuroglancerMemo = React.memo(Neuroglancer, (prevProps, nextProps) => {
     // It should return true if the old and new props are equal
     return !needsRender;
 });
+*/
 
 export function Passthrough(props) {
     const {
         classes,
         initialViewerState,
-        handleStateUpdate,
         spatialZoom,
+        setSpatialZoom,
         spatialRotationX,
         spatialRotationY,
     } = props;
@@ -40,10 +41,57 @@ export function Passthrough(props) {
             projectionScale,
             //projectionOrientation
         };
-    }, [initialViewerState, spatialZoom, spatialRotationX, spatialRotationY]);
+    }, [initialViewerState, spatialZoom]);
+
+    const handleStateUpdate = useCallback((newState) => {
+        // Note: https://github.com/clio-janelia/clio_website/blob/e0c7667073bc83cec01bd701058b940ac7dcf2a4/src/reducers/viewer.js#L50
+        const { projectionScale, projectionOrientation, position } = newState;
+        // const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
+    
+        // console.log("handleStateUpdate", prevProjectionOrientation, projectionOrientation);
+        //console.log('setZoom in handleStateUpdate');
+        //const [pitch, yaw] = quaternionToEuler(projectionOrientation);
+    
+        setSpatialZoom(projectionScaleToDeckZoom(projectionScale, null));
+        //setRotationX(pitch);
+        //setRotationY(yaw);
+    
+        /*
+        latestViewerStateRef.current = {
+          ...latestViewerStateRef.current,
+          projectionOrientation,
+          projectionScale,
+          position,
+        };
+    
+        // Ignore loopback from Vitessce
+        if (
+          !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
+        ) {
+          // console.log('⛔️ Skip NG → Vitessce update (loopback)');
+          return;
+        }
+    
+        if (applyNgUpdateTimeoutRef.current) {
+          clearTimeout(applyNgUpdateTimeoutRef.current);
+        }
+        lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
+        applyNgUpdateTimeoutRef.current = setTimeout(() => {
+          const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+    
+          const pitchDiff = Math.abs(pitch - spatialRotationX);
+          if (pitchDiff > 0.001) {
+            console.log('🌀 NG → Vitessce (debounced apply):', pitch);
+            setRotationX(pitch);
+            setRotationY(yaw);
+            lastInteractionSource.current = 'neuroglancer';
+          }
+        }, VITESSCE_INTERACTION_DELAY);
+        */
+      }, []);
 
     return (
-        <NeuroglancerMemo
+        <Neuroglancer
             classes={classes}
             onSegmentClick={() => {}}
             onSelectHoveredCoords={() => {}}
