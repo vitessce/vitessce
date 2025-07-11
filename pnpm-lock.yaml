@@ -1071,6 +1071,9 @@ importers:
       '@vitessce/spatial-beta':
         specifier: workspace:*
         version: link:../../view-types/spatial-beta
+      '@vitessce/spatial-query':
+        specifier: workspace:*
+        version: link:../../view-types/spatial-query
       '@vitessce/spatial-three':
         specifier: workspace:*
         version: link:../../view-types/spatial-three
@@ -2285,6 +2288,58 @@ importers:
         specifier: ^1.0.6
         version: 1.0.7
     devDependencies:
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+      vite:
+        specifier: 'catalog:'
+        version: 6.3.5(@types/node@20.16.10)(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.1.4(@types/debug@4.1.12)(@types/node@20.16.10)(@vitest/ui@3.1.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+
+  packages/view-types/spatial-query:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: ^4.29.12
+        version: 4.40.1(react-dom@19.1.0(react@18.3.1))(react@18.3.1)
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/styles':
+        specifier: workspace:*
+        version: link:../../styles
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      clsx:
+        specifier: 'catalog:'
+        version: 1.2.1
+      d3-array:
+        specifier: 'catalog:'
+        version: 2.12.1
+      flatbush:
+        specifier: ^4.4.0
+        version: 4.4.0
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
+      node-fpgrowth:
+        specifier: ^1.2.1
+        version: 1.2.1
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@19.1.0(react@18.3.1))(react@18.3.1)
+      '@testing-library/user-event':
+        specifier: 'catalog:'
+        version: 14.6.1(@testing-library/dom@10.4.0)
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -6517,8 +6572,23 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
+  '@tanstack/query-core@4.40.0':
+    resolution: {integrity: sha512-7MJTtZkCSuehMC7IxMOCGsLvHS3jHx4WjveSrGsG1Nc1UQLjaFwwkpLA2LmPfvOAxnH4mszMOBFD6LlZE+aB+Q==}
+
   '@tanstack/query-core@5.80.2':
     resolution: {integrity: sha512-g2Es97uwFk7omkWiH9JmtLWSA8lTUFVseIyzqbjqJEEx7qN+Hg6jbBdDvelqtakamppaJtGORQ64hEJ5S6ojSg==}
+
+  '@tanstack/react-query@4.40.1':
+    resolution: {integrity: sha512-mgD07S5N8e5v81CArKDWrHE4LM7HxZ9k/KLeD3+NUD9WimGZgKIqojUZf/rXkfAMYZU9p0Chzj2jOXm7xpgHHQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
 
   '@tanstack/react-query@5.80.2':
     resolution: {integrity: sha512-LfA0SVheJBOqC8RfJw/JbOW3yh2zuONQeWU5Prjm7yjUGUONeOedky1Bj39Cfj8MRdXrZV+DxNT7/DN/M907lQ==}
@@ -7277,9 +7347,6 @@ packages:
 
   '@zarrita/indexing@0.1.0-next.15':
     resolution: {integrity: sha512-1WAHDZvWYq0bnMquwWbCsKnx1rsuvDNcgersD5e6tNMpYnqPRUZUyOFpYaxBhrvJjEf5AM9CI3uCPE8RGYg7ag==}
-
-  '@zarrita/storage@0.1.0':
-    resolution: {integrity: sha512-lSGDQik2fLt/UyvWzWd23sJFHckEmk50F9Baz2XlbgFQhvd2EVBcHGweOTBhu3c5SB05TzOnlY1M1i2FMDi6YA==}
 
   '@zarrita/storage@0.1.1':
     resolution: {integrity: sha512-6/NUCvpzsIxfxeMv59jRTl/bOZg3GZfMP6iR8EIqrTaaE0S2jLL/ceX1OxcFBKnuA8/Z2YmgX4SFBHwFGrCcsw==}
@@ -8614,10 +8681,6 @@ packages:
     resolution: {integrity: sha512-33qQ+ZoZlli19IFiQx4QEpf2CBEayMRzhlisJHSCsSUbDXv6ZishqS1x7uFVClKG4Wr7rZVHvaAttoLow6GqdQ==}
     engines: {node: '>=12'}
 
-  d3-array@3.2.0:
-    resolution: {integrity: sha512-3yXFQo0oG3QCxbF06rMPFyGRMGJNS7NvsV1+2joOjbBE+9xvWQ8+GcMJAjRCzw06zQ3/arXeJgbPYcjUCuC+3g==}
-    engines: {node: '>=12'}
-
   d3-array@3.2.4:
     resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
     engines: {node: '>=12'}
@@ -9817,6 +9880,13 @@ packages:
 
   flatbuffers@24.3.25:
     resolution: {integrity: sha512-3HDgPbgiwWMI9zVB7VYBHaMrbOO7Gm0v+yD2FV/sCKj+9NDeVL7BOBYUuhWAQGKWOzBo8S9WdMvV0eixO233XQ==}
+
+  flatbush@4.4.0:
+    resolution: {integrity: sha512-cf6G+sfy/+/FLH7Ls1URQ5GCRlXgwgqUZiEsMNrMZqb3Us3EkKmzUlKbnyoBy/4wI4oLJ+8cyCQoKJIVm92Fmg==}
+
+  flatqueue@2.0.3:
+    resolution: {integrity: sha512-RZCWZNkmxzUOh8jqEcEGZCycb3B8KAfpPwg3H//cURasunYxsg1eIvE+QDSjX+ZPHTIVfINfK1aLTrVKKO0i4g==}
+    engines: {node: '>= 12.17.0'}
 
   flatted@2.0.2:
     resolution: {integrity: sha512-r5wGx7YeOwNWNlCA0wQ86zKyDLMQr+/RB8xy74M4hTphfmjlijTSSXGuH8rnvKZnfT9i+75zmd8jcKdMR4O6jA==}
@@ -11954,6 +12024,9 @@ packages:
   node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
     engines: {node: '>= 6.13.0'}
+
+  node-fpgrowth@1.2.1:
+    resolution: {integrity: sha512-JYdqMnE8IQNTOxZR70esVn8sWEaDVfxyMug99880gaS0qJjQ/VUgDmVvS/7rltUQHEG4K9kCi0wVwCPYFd49Vw==}
 
   node-libs-browser@2.2.1:
     resolution: {integrity: sha512-h/zcD8H9kaDZ9ALUWwlBUDo6TKF8a7qBSCSEGfjTVIYeqsioSKaAX+BN7NgiMGp6iSIXZ3PxgCu8KS3b71YK5Q==}
@@ -17449,7 +17522,7 @@ snapshots:
       '@luma.gl/constants': 8.5.21
       '@math.gl/web-mercator': 3.6.3
       cartocolor: 4.0.2
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-color: 3.1.0
       d3-format: 3.1.0
       d3-scale: 4.0.2
@@ -21315,7 +21388,17 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
+  '@tanstack/query-core@4.40.0': {}
+
   '@tanstack/query-core@5.80.2': {}
+
+  '@tanstack/react-query@4.40.1(react-dom@19.1.0(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 4.40.0
+      react: 18.3.1
+      use-sync-external-store: 1.5.0(react@18.3.1)
+    optionalDependencies:
+      react-dom: 19.1.0(react@18.3.1)
 
   '@tanstack/react-query@5.80.2(react@18.3.1)':
     dependencies:
@@ -21349,6 +21432,16 @@ snapshots:
       '@testing-library/dom': 10.4.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.1.6
+      '@types/react-dom': 18.0.6
+
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@19.1.0(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.27.4
+      '@testing-library/dom': 10.4.0
+      react: 18.3.1
+      react-dom: 19.1.0(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.1.6
       '@types/react-dom': 18.0.6
@@ -22557,20 +22650,15 @@ snapshots:
 
   '@zarrita/core@0.1.0-next.14':
     dependencies:
-      '@zarrita/storage': 0.1.0
+      '@zarrita/storage': 0.1.1
       '@zarrita/typedarray': 0.1.0-next.3
       numcodecs: 0.3.2
 
   '@zarrita/indexing@0.1.0-next.15':
     dependencies:
       '@zarrita/core': 0.1.0-next.14
-      '@zarrita/storage': 0.1.0
+      '@zarrita/storage': 0.1.1
       '@zarrita/typedarray': 0.1.0-next.3
-
-  '@zarrita/storage@0.1.0':
-    dependencies:
-      reference-spec-reader: 0.2.0
-      unzipit: 1.4.3
 
   '@zarrita/storage@0.1.1':
     dependencies:
@@ -24072,10 +24160,6 @@ snapshots:
     dependencies:
       internmap: 2.0.3
 
-  d3-array@3.2.0:
-    dependencies:
-      internmap: 2.0.3
-
   d3-array@3.2.4:
     dependencies:
       internmap: 2.0.3
@@ -24152,7 +24236,7 @@ snapshots:
   d3-geo-projection@4.0.0:
     dependencies:
       commander: 7.2.0
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-geo: 3.0.1
 
   d3-geo@1.7.1:
@@ -24165,7 +24249,7 @@ snapshots:
 
   d3-geo@3.0.1:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
 
   d3-hexbin@0.2.2: {}
 
@@ -24201,10 +24285,10 @@ snapshots:
 
   d3-scale@4.0.2:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-format: 3.1.0
       d3-interpolate: 3.0.1
-      d3-time: 3.0.0
+      d3-time: 3.1.0
       d3-time-format: 4.1.0
 
   d3-selection@2.0.0: {}
@@ -24217,11 +24301,11 @@ snapshots:
 
   d3-time-format@4.1.0:
     dependencies:
-      d3-time: 3.0.0
+      d3-time: 3.1.0
 
   d3-time@3.0.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
 
   d3-time@3.1.0:
     dependencies:
@@ -25767,6 +25851,12 @@ snapshots:
   flatbuffers@1.12.0: {}
 
   flatbuffers@24.3.25: {}
+
+  flatbush@4.4.0:
+    dependencies:
+      flatqueue: 2.0.3
+
+  flatqueue@2.0.3: {}
 
   flatted@2.0.2: {}
 
@@ -28451,6 +28541,10 @@ snapshots:
 
   node-forge@1.3.1: {}
 
+  node-fpgrowth@1.2.1:
+    dependencies:
+      events: 1.1.1
+
   node-libs-browser@2.2.1:
     dependencies:
       assert: 1.5.1
@@ -30036,6 +30130,11 @@ snapshots:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
+
+  react-dom@19.1.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      scheduler: 0.26.0
 
   react-dom@19.1.0(react@19.1.0):
     dependencies:
@@ -32277,7 +32376,7 @@ snapshots:
 
   vega-crossfilter@4.1.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       vega-dataflow: 5.7.4
       vega-util: 1.17.0
     transitivePeerDependencies:
@@ -32306,7 +32405,7 @@ snapshots:
 
   vega-encode@4.9.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-interpolate: 3.0.1
       vega-dataflow: 5.7.4
       vega-scale: 7.2.0
@@ -32331,7 +32430,7 @@ snapshots:
 
   vega-format@1.1.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-format: 3.1.0
       d3-time-format: 4.1.0
       vega-time: 2.1.0
@@ -32339,7 +32438,7 @@ snapshots:
 
   vega-functions@5.13.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-color: 3.1.0
       d3-geo: 3.0.1
       vega-dataflow: 5.7.4
@@ -32355,7 +32454,7 @@ snapshots:
 
   vega-geo@4.4.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-color: 3.1.0
       d3-geo: 3.0.1
       vega-canvas: 1.2.6
@@ -32427,7 +32526,7 @@ snapshots:
 
   vega-regression@1.1.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       vega-dataflow: 5.7.4
       vega-statistics: 1.8.0
       vega-util: 1.17.0
@@ -32443,7 +32542,7 @@ snapshots:
 
   vega-scale@7.2.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-interpolate: 3.0.1
       d3-scale: 4.0.2
       vega-time: 2.1.0
@@ -32479,7 +32578,7 @@ snapshots:
 
   vega-statistics@1.8.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
 
   vega-themes@2.12.0(vega-lite@5.5.0(vega@5.22.1))(vega@5.22.1):
     dependencies:
@@ -32488,7 +32587,7 @@ snapshots:
 
   vega-time@2.1.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-time: 3.0.0
       vega-util: 1.17.0
 
@@ -32508,7 +32607,7 @@ snapshots:
 
   vega-transforms@4.10.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       vega-dataflow: 5.7.4
       vega-statistics: 1.8.0
       vega-time: 2.1.0
@@ -32536,7 +32635,7 @@ snapshots:
 
   vega-view@5.11.0:
     dependencies:
-      d3-array: 3.2.0
+      d3-array: 3.2.4
       d3-timer: 3.0.1
       vega-dataflow: 5.7.4
       vega-format: 1.1.0
@@ -33269,7 +33368,7 @@ snapshots:
     dependencies:
       '@zarrita/core': 0.1.0-next.14
       '@zarrita/indexing': 0.1.0-next.15
-      '@zarrita/storage': 0.1.0
+      '@zarrita/storage': 0.1.1
 
   zarrita@0.5.2:
     dependencies:

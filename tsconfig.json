@@ -62,6 +62,7 @@
     { "path": "packages/view-types/spatial" },
     { "path": "packages/view-types/spatial-three" },
     { "path": "packages/view-types/spatial-beta" },
+    { "path": "packages/view-types/spatial-query" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" },
     { "path": "packages/view-types/biomarker-select" },
