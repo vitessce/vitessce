@@ -3,3 +3,5 @@ export { default as LoaderValidationError } from './LoaderValidationError.js';
 export { default as LoaderNotFoundError } from './LoaderNotFoundError.js';
 export { default as DatasetNotFoundError } from './DatasetNotFoundError.js';
 export { default as DataSourceFetchError } from './DataSourceFetchError.js';
+export { default as DataTypeValidationError } from './DataTypeValidationError.js';
+export { default as OptimizationError } from './OptimizationError.js';
