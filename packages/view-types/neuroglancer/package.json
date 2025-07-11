@@ -39,7 +39,8 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
-    "lodash-es": "catalog:"
+    "lodash-es": "catalog:",
+    "three": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
