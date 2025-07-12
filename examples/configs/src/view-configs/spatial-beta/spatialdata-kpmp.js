@@ -27,8 +27,8 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_tubules/X',
             },
-            shapes: {
-              path: 'shapes/shapes_tubules',
+            labels: {
+              path: 'labels/labels_tubules',
               tablePath: 'tables/table_tubules',
               coordinateSystem: 'global',
             },
@@ -44,8 +44,8 @@ export const spatialDataKpmp2023 = {
           fileType: 'spatialdata.zarr',
           url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023/S-1905-017737/sdata.zarr',
           options: {
-            shapes: {
-              path: 'shapes/shapes_arteries_arterioles',
+            labels: {
+              path: 'labels/labels_arteries_arterioles',
               tablePath: 'tables/table',
               coordinateSystem: 'global',
             },
@@ -141,6 +141,30 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_peritubular_capillaries/X',
             },
+            obsSets: {
+              obsSets: [
+                {
+                  name: 'Cortex and IFTA membership',
+                  path: 'tables/table_peritubular_capillaries/obs/cortex_ifta_set',
+                },
+                {
+                  name: 'Cortex membership',
+                  path: 'tables/table_peritubular_capillaries/obs/cortex_set',
+                },
+                {
+                  name: 'IFTA membership',
+                  path: 'tables/table_peritubular_capillaries/obs/ifta_set',
+                },
+                {
+                  name: 'Cortex and IFTA hierarchy',
+                  path: [
+                    'tables/table_peritubular_capillaries/obs/cortex_set',
+                    'tables/table_peritubular_capillaries/obs/ifta_set',
+                  ],
+                },
+              ],
+              tablePath: 'tables/table_peritubular_capillaries',
+            },
             labels: {
               path: 'labels/labels_peritubular_capillaries',
               tablePath: 'tables/table_peritubular_capillaries',
@@ -178,13 +202,15 @@ export const spatialDataKpmp2023 = {
     },
     featureSelection: {
       A: null,
-      B: null,
+      B: [
+        'Area',
+      ],
       C: null,
       D: null,
     },
     obsColorEncoding: {
       A: 'spatialChannelColor',
-      B: 'spatialChannelColor',
+      B: 'cellSetSelection',
       C: 'spatialChannelColor',
       D: 'spatialChannelColor',
       init_A_obsSegmentations_0: 'spatialChannelColor',
@@ -218,11 +244,14 @@ export const spatialDataKpmp2023 = {
       ],
       init_A_obsSegmentations_4: [
         0,
-        1,
+        0.5,
       ],
     },
     imageLayer: {
       init_A_image_0: '__dummy__',
+    },
+    spatialLayerOpacity: {
+      init_A_image_0: 0.1,
     },
     photometricInterpretation: {
       init_A_image_0: 'RGB',
@@ -248,6 +277,9 @@ export const spatialDataKpmp2023 = {
     metaCoordinationScopesBy: {
       init_A_image_0: {
         imageLayer: {
+          spatialLayerOpacity: {
+            init_A_image_0: 'init_A_image_0',
+          },
           photometricInterpretation: {
             init_A_image_0: 'init_A_image_0',
           },
@@ -385,6 +417,15 @@ export const spatialDataKpmp2023 = {
             init_A_obsSegmentations_5: 'init_A_obsSegmentations_5',
             init_A_obsSegmentations_6: 'init_A_obsSegmentations_6',
           },
+          spatialSegmentationFilled: {
+            init_A_obsSegmentations_0: 'init_A_obsSegmentations_0',
+            init_A_obsSegmentations_1: 'init_A_obsSegmentations_1',
+            init_A_obsSegmentations_2: 'init_A_obsSegmentations_2',
+            init_A_obsSegmentations_3: 'init_A_obsSegmentations_3',
+            init_A_obsSegmentations_4: 'init_A_obsSegmentations_4',
+            init_A_obsSegmentations_5: 'init_A_obsSegmentations_5',
+            init_A_obsSegmentations_6: 'init_A_obsSegmentations_6',
+          },
           obsHighlight: {
             init_A_obsSegmentations_0: 'init_A_obsSegmentations_0',
             init_A_obsSegmentations_1: 'init_A_obsSegmentations_1',
@@ -434,24 +475,24 @@ export const spatialDataKpmp2023 = {
       init_A_obsSegmentations_6: 0,
     },
     spatialChannelVisible: {
-      init_A_obsSegmentations_0: true,
-      init_A_obsSegmentations_1: true,
+      init_A_obsSegmentations_0: false,
+      init_A_obsSegmentations_1: false,
       init_A_obsSegmentations_2: false,
       init_A_obsSegmentations_3: false,
       init_A_obsSegmentations_4: false,
-      init_A_obsSegmentations_5: false,
-      init_A_obsSegmentations_6: false,
+      init_A_obsSegmentations_5: true,
+      init_A_obsSegmentations_6: true,
     },
     spatialChannelColor: {
       init_A_obsSegmentations_0: [
-        255,
-        255,
-        255,
+        73,
+        155,
+        119,
       ],
       init_A_obsSegmentations_1: [
-        255,
-        255,
-        255,
+        237,
+        226,
+        107,
       ],
       init_A_obsSegmentations_2: [
         255,
@@ -459,34 +500,34 @@ export const spatialDataKpmp2023 = {
         255,
       ],
       init_A_obsSegmentations_3: [
-        255,
-        255,
-        255,
+        52,
+        113,
+        171,
       ],
       init_A_obsSegmentations_4: [
-        255,
-        255,
-        255,
+        114,
+        179,
+        226,
       ],
       init_A_obsSegmentations_5: [
-        255,
-        255,
-        255,
+        218,
+        161,
+        66,
       ],
       init_A_obsSegmentations_6: [
-        255,
-        255,
-        255,
+        197,
+        101,
+        47,
       ],
     },
     spatialChannelOpacity: {
       init_A_obsSegmentations_0: 0.5,
-      init_A_obsSegmentations_1: 1.0,
+      init_A_obsSegmentations_1: 0.5,
       init_A_obsSegmentations_2: 0.5,
       init_A_obsSegmentations_3: 0.5,
       init_A_obsSegmentations_4: 0.5,
-      init_A_obsSegmentations_5: 0.5,
-      init_A_obsSegmentations_6: 0.5,
+      init_A_obsSegmentations_5: 1.0,
+      init_A_obsSegmentations_6: 1.0,
     },
     featureAggregationStrategy: {
       init_A_obsSegmentations_0: 'first',
@@ -496,6 +537,15 @@ export const spatialDataKpmp2023 = {
       init_A_obsSegmentations_4: 'first',
       init_A_obsSegmentations_5: 'first',
       init_A_obsSegmentations_6: 'first',
+    },
+    spatialSegmentationFilled: {
+      init_A_obsSegmentations_0: true,
+      init_A_obsSegmentations_1: true,
+      init_A_obsSegmentations_2: true,
+      init_A_obsSegmentations_3: true,
+      init_A_obsSegmentations_4: true,
+      init_A_obsSegmentations_5: false,
+      init_A_obsSegmentations_6: true,
     },
     obsHighlight: {
       init_A_obsSegmentations_0: null,
@@ -524,7 +574,7 @@ export const spatialDataKpmp2023 = {
       x: 0,
       y: 0,
       w: 9,
-      h: 6,
+      h: 4,
     },
     {
       component: 'layerControllerBeta',
@@ -542,7 +592,7 @@ export const spatialDataKpmp2023 = {
       x: 9,
       y: 0,
       w: 3,
-      h: 6,
+      h: 4,
     },
     {
       component: 'featureList',
@@ -555,9 +605,9 @@ export const spatialDataKpmp2023 = {
         obsColorEncoding: 'A',
       },
       x: 0,
-      y: 6,
+      y: 4,
       w: 3,
-      h: 3,
+      h: 2,
       props: {
         title: 'Tubules',
       },
@@ -573,9 +623,9 @@ export const spatialDataKpmp2023 = {
         obsColorEncoding: 'A',
       },
       x: 0,
-      y: 9,
+      y: 6,
       w: 3,
-      h: 3,
+      h: 2,
     },
     {
       component: 'featureList',
@@ -588,9 +638,9 @@ export const spatialDataKpmp2023 = {
         obsColorEncoding: 'B',
       },
       x: 3,
-      y: 6,
+      y: 4,
       w: 3,
-      h: 3,
+      h: 2,
       props: {
         title: 'Peritubular Capillaries',
       },
@@ -606,9 +656,9 @@ export const spatialDataKpmp2023 = {
         obsColorEncoding: 'B',
       },
       x: 3,
-      y: 9,
+      y: 6,
       w: 3,
-      h: 3,
+      h: 2,
     },
     {
       component: 'featureList',
@@ -622,9 +672,9 @@ export const spatialDataKpmp2023 = {
         featureValueColormapRange: 'A',
       },
       x: 6,
-      y: 6,
+      y: 4,
       w: 3,
-      h: 3,
+      h: 2,
       props: {
         title: 'Globally Sclerotic Glomeruli',
       },
@@ -641,9 +691,9 @@ export const spatialDataKpmp2023 = {
         featureValueColormapRange: 'A',
       },
       x: 6,
-      y: 9,
+      y: 6,
       w: 3,
-      h: 3,
+      h: 2,
     },
     {
       component: 'featureList',
@@ -657,9 +707,9 @@ export const spatialDataKpmp2023 = {
         featureValueColormapRange: 'B',
       },
       x: 9,
-      y: 6,
+      y: 4,
       w: 3,
-      h: 3,
+      h: 2,
       props: {
         title: 'Non-Globally Sclerotic Glomeruli',
       },
@@ -676,9 +726,57 @@ export const spatialDataKpmp2023 = {
         featureValueColormapRange: 'B',
       },
       x: 9,
-      y: 9,
+      y: 6,
       w: 3,
-      h: 3,
+      h: 2,
+    },
+    {
+      component: 'obsSets',
+      coordinationScopes: {
+        dataset: 'A',
+        obsType: 'B',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'B',
+        obsColorEncoding: 'B',
+      },
+      x: 0,
+      y: 8,
+      w: 4,
+      h: 4,
+    },
+    {
+      component: 'obsSetSizes',
+      coordinationScopes: {
+        dataset: 'A',
+        obsType: 'B',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'B',
+        obsColorEncoding: 'B',
+      },
+      x: 4,
+      y: 8,
+      w: 4,
+      h: 4,
+    },
+    {
+      component: 'obsSetFeatureValueDistribution',
+      coordinationScopes: {
+        dataset: 'A',
+        obsType: 'B',
+        featureType: 'A',
+        featureValueType: 'A',
+        featureSelection: 'B',
+        obsColorEncoding: 'B',
+      },
+      x: 8,
+      y: 8,
+      w: 4,
+      h: 4,
+      props: {
+        jitter: true,
+      },
     },
   ],
   initStrategy: 'auto',
