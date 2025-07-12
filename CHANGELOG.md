@@ -1,4 +1,13 @@
 
+## 3.6.6
+
+### Patch Changes
+
+- Violin plot title uses featureValueType instead of hard-coded "Expression". (`@vitessce/statistical-plots`) ([#2178](https://github.com/vitessce/vitessce/pull/2178))
+
+- Update KPMP configuration: add statistical plots and PTC sets. (`@vitessce/example-configs`) ([#2181](https://github.com/vitessce/vitessce/pull/2181))
+
+
 ## 3.6.5
 
 ### Patch Changes
