@@ -39,10 +39,10 @@ export default function DotPlot(props) {
     featureType,
     featureValueType,
     featureValueTransformName,
-    // TODO: re-enable featureValueColormap coordination
-    // featureValueColormap,
+    featureValueColormap,
     obsSetSelection,
     obsSetColor,
+    onDotSelect,
   } = props;
 
   const vegaContainerRef = useRef();
@@ -112,6 +112,26 @@ export default function DotPlot(props) {
       // Reference: https://vega.github.io/vega-lite/docs/mark.html
       opacity: 1.0,
     },
+    params: [
+      {
+        name: 'dot_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey === false]',
+          fields: ['feature'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_dot_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
+          fields: ['feature'],
+          empty: 'none',
+        },
+      },
+    ],
     encoding: {
       [(transpose ? 'y' : 'x')]: {
         field: 'keyFeature',
@@ -135,8 +155,7 @@ export default function DotPlot(props) {
         type: 'quantitative',
         title: meanTransform,
         scale: {
-          // scheme: featureValueColormap,
-          scheme: 'greys',
+          scheme: featureValueColormap,
         },
         legend: {
           direction: 'horizontal',
@@ -178,6 +197,15 @@ export default function DotPlot(props) {
     },
   };
 
+  const handleSignal = (name, value) => {
+    if (name === 'dot_select') {
+      onDotSelect(value.feature);
+    } else if (name === 'shift_dot_select') {
+      onDotSelect(value.feature, true);
+    }
+  };
+
+  const signalListeners = { dot_select: handleSignal, shift_dot_select: handleSignal };
   const getTooltipText = useCallback(item => ({
     [`${capitalize(featureType)}`]: item.datum.feature,
     [`${capitalize(obsType)} Set`]: item.datum.group,
@@ -237,6 +265,7 @@ export default function DotPlot(props) {
         data={data}
         spec={spec}
         onNewView={onNewView}
+        signalListeners={signalListeners}
         getTooltipText={getTooltipText}
         renderer="svg"
       />
