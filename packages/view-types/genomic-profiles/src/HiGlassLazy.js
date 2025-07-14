@@ -44,7 +44,7 @@ export default function HiGlassLazy(props) {
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
-    genomeSize,
+    genomeSize = 3100000000,
     height,
   } = props;
 
@@ -67,6 +67,11 @@ export default function HiGlassLazy(props) {
   const isActiveRef = useRef();
 
   const hgOptions = useMemo(() => ({
+    bounded: true,
+    pixelPreciseMarginPadding: true,
+    containerPaddingX: 0,
+    containerPaddingY: 0,
+    sizeMode: 'default',
     ...hgOptionsProp,
     theme,
   }), [hgOptionsProp, theme]);
@@ -184,14 +189,3 @@ export default function HiGlassLazy(props) {
     </div>
   );
 }
-
-HiGlassLazy.defaultProps = {
-  hgOptions: {
-    bounded: true,
-    pixelPreciseMarginPadding: true,
-    containerPaddingX: 0,
-    containerPaddingY: 0,
-    sizeMode: 'default',
-  },
-  genomeSize: 3100000000,
-};

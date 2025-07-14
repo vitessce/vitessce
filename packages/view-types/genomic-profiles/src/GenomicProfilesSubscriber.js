@@ -10,7 +10,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import HiGlassLazy from './HiGlassLazy.js';
-import { useStyles } from './styles.js';
+import { useStyles, HiglassGlobalStyles } from './styles.js';
 
 const REFERENCE_TILESETS = {
   hg38: {
@@ -273,6 +273,7 @@ export function GenomicProfilesSubscriber(props) {
         helpText={helpText}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
+          <HiglassGlobalStyles classes={classes} />
           {hgViewConfig ? (
             <HiGlassLazy
               coordinationScopes={coordinationScopes}
