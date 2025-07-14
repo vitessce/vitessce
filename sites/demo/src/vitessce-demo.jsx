@@ -118,7 +118,7 @@ export function VitessceDemo() {
     const isBounded = urlParams.get('isBounded') === 'true';
     const strictMode = urlParams.get('strictMode') === 'true';
     const pageMode = urlParams.get('pageMode') === 'true';
-    const debugMode = urlParams.get('debugMode') === 'true';
+    const debugMode = urlParams.get('debugMode')?.toLowerCase() === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
