@@ -88,20 +88,17 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
   }
 
   updateState(args) {
-    super.updateState(args);
-    this.loadTexture(this.props.image);
     const { props, oldProps } = args;
     if (props.colormap !== oldProps.colormap) {
-      const { device } = this.context;
-      // eslint-disable-next-line no-unused-expressions
+      // Reference: https://github.com/visgl/deck.gl/blob/87883cdaae08c6eeddf112382da9b572d1503674/modules/layers/src/bitmap-layer/bitmap-layer.ts#L169
+      const attributeManager = this.getAttributeManager();
       this.state.model?.destroy();
-      // eslint-disable-next-line no-underscore-dangle
-      this.state.model = this._getModel(device);
-      this.getAttributeManager().invalidateAll();
+      this.state.model = this._getModel();
+      attributeManager.invalidateAll();
     }
-    /*if(props.bounds !== oldProps.bounds) {
-      this.setState({ bounds: props.bounds })
-    }*/
+    // For some reason, super.updateState must come after the above colormap check.
+    super.updateState(args);
+    this.loadTexture(this.props.image);
   }
 
   /**
@@ -111,7 +108,6 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {*} opts
    */
   draw(opts) {
-    const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
     const {
       aggSizeX, aggSizeY, colorScaleLo, colorScaleHi,
@@ -126,7 +122,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
           uColorScaleRange: [colorScaleLo, colorScaleHi],
         };
         model.shaderInputs.setProps({ uBlock: bitmapProps });
-        model.draw(opts);
+        model.draw(this.context.renderPass);
 
     }
   }

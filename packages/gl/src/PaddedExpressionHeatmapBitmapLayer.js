@@ -97,15 +97,16 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
   }
 
   updateState(args) {
-    super.updateState(args);
     const { props, oldProps } = args;
     if (props.colormap !== oldProps.colormap) {
-      const { device } = this.context;
-      // eslint-disable-next-line no-unused-expressions
+      // Reference: https://github.com/visgl/deck.gl/blob/87883cdaae08c6eeddf112382da9b572d1503674/modules/layers/src/bitmap-layer/bitmap-layer.ts#L169
+      const attributeManager = this.getAttributeManager();
       this.state.model?.destroy();
-      this.state.model = this._getModel(device);
-      this.getAttributeManager().invalidateAll();
+      this.state.model = this._getModel();
+      attributeManager.invalidateAll();
     }
+    // For some reason, super.updateState must come after the above colormap check.
+    super.updateState(args);
     if (props.image !== oldProps.image) {
       this.loadTexture(this.props.image);
     }
@@ -118,19 +119,13 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * @param {*} opts
    */
   draw(opts) {
-    const { uniforms } = opts;
-    const { bitmapTexture, model, coordinateConversion, bounds } = this.state;
+    const { bitmapTexture, model } = this.state;
     const {
       aggSizeX,
       aggSizeY,
       colorScaleLo,
       colorScaleHi,
       origDataSize,
-      tileI,
-      tileJ,
-      numXTiles,
-      numYTiles,
-      desaturate, transparentColor, tintColor,
     } = this.props;
     // Render the image
     if (bitmapTexture && model) {
@@ -142,13 +137,9 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
         uTextureSize: [TILE_SIZE, TILE_SIZE],
         uAggSize: [aggSizeX, aggSizeY],
         uColorScaleRange: [colorScaleLo, colorScaleHi],
-        //tileIJ: [tileI, tileJ],
-        //dataIJ: [0, 0],
-        //numTiles: [numXTiles, numYTiles],
-        //numData: [1, 1],
       };
       model.shaderInputs.setProps({ uBlock: bitmapProps });
-      model.draw(opts);
+      model.draw(this.context.renderPass);
     }
   }
 

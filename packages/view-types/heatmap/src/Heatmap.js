@@ -128,7 +128,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     obsIndex,
     featureIndex,
     featureLabelsMap,
-    onBeforeRender,
   } = props;
 
   const viewState = {
@@ -324,7 +323,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // then new tiles need to be generated,
   // so add a new task to the backlog.
   useEffect(() => {
-    if (!gl || !uint8ObsFeatureMatrix || uint8ObsFeatureMatrix.length < DATA_TEXTURE_SIZE ** 2) {
+    if (!uint8ObsFeatureMatrix || shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length)) {
       return;
     }
     // Use a uuid to give the task a unique ID,
@@ -336,7 +335,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     ) {
       setBacklog(prev => [...prev, uuidv4()]);
     }
-  }, [dataRef, uint8ObsFeatureMatrix, axisTopLabels, axisLeftLabels, xTiles, yTiles, gl]);
+  }, [dataRef, uint8ObsFeatureMatrix, axisTopLabels, axisLeftLabels, xTiles, yTiles]);
 
   // When the backlog has updated, a new worker job can be submitted if:
   // - the backlog has length >= 1 (at least one job is waiting), and
@@ -374,7 +373,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex, gl]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -438,7 +437,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   const heatmapLayers = useMemo(() => {
     const usePaddedExpressions = uint8ObsFeatureMatrix
       && shouldUsePaddedImplementation(uint8ObsFeatureMatrix.length);
-    if (!gl || ((!tilesRef.current || backlog.length) && !usePaddedExpressions)) {
+    if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
     }
     if (usePaddedExpressions) {
@@ -504,7 +503,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [uint8ObsFeatureMatrix, tilesRef, backlog.length, transpose, axisTopLabels, axisLeftLabels,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex, gl]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -874,7 +873,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       layers={layers}
       layerFilter={layerFilter}
       getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
-      deviceProps={{ type: 'webgl', webgl: DEFAULT_GL_OPTIONS }}
       onViewStateChange={onViewStateChange}
       viewState={viewState}
       onHover={onHover}
@@ -882,7 +880,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       onClick={onHeatmapClick}
       width="100%"
       height="100%"
-      onLoad={onBeforeRender}
     />
   );
 });
