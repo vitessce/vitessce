@@ -172,7 +172,7 @@ describe('generateConfig', () => {
             path: 'images/raw_image',
             coordinateSystem: 'global',
           },
-          labels: {
+          obsSegmentations: {
             path: 'labels/segmentation_mask',
             coordinateSystem: 'global',
           },
