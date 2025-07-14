@@ -201,7 +201,8 @@ export function GenomicProfilesSubscriber(props) {
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
 
       // Store the storeRoot on the global to make it available to the HiGlass data fetcher.
-      // This is not ideal, but it is our current workaround.
+      // This is not ideal, but it is our current workaround because we cannot pass the storeRoot
+      // object via the HiGlass config, as the config must be serializable to JSON.
       // Reference: https://github.com/higlass/higlass-zarr-datafetchers/pull/6
       setStoreRootForHiGlass(url, genomicProfilesStoreRoot);
 
