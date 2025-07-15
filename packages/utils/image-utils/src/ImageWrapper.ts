@@ -8,6 +8,7 @@ import type {
   BoundingCube,
 } from '@vitessce/types';
 import {
+  normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
   getNgffAxes,
   getNgffAxesForTiff,
@@ -82,7 +83,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const {
         multiscales: [
           {
-            coordinateTransformations,
+            datasets,
+            coordinateTransformations: coordinateTransformationsFromFile,
             axes,
           },
         ],
@@ -92,8 +94,12 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
       );
+      // Normalize the coordinate transformations from the file.
+      const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+        coordinateTransformationsFromFile, datasets,
+      );
       const transformMatrixFromFile = coordinateTransformationsToMatrix(
-        coordinateTransformations, ngffAxes,
+        normCoordinateTransformationsFromFile, ngffAxes,
       );
       const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
       return transformMatrix;
