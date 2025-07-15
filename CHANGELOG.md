@@ -1,4 +1,15 @@
 
+## 3.6.6
+
+### Patch Changes
+
+- Violin plot title uses featureValueType instead of hard-coded "Expression". (`@vitessce/statistical-plots`) ([#2178](https://github.com/vitessce/vitessce/pull/2178))
+
+- Update KPMP configuration: add statistical plots and PTC sets. (`@vitessce/example-configs`) ([#2181](https://github.com/vitessce/vitessce/pull/2181))
+
+- Fix CSS for genomicProfiles view so that HiGlass renders correctly. Add support for passing a Zarr store object to the HiGlass Zarr Multivec plugin data fetcher. (`@vitessce/genomic-profiles`) ([#2184](https://github.com/vitessce/vitessce/pull/2184))
+
+
 ## 3.6.5
 
 ### Patch Changes
