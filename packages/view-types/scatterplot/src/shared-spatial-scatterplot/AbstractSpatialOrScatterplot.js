@@ -2,7 +2,10 @@ import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
+// import {debounce} from 'lodash-es'
 
+const ROTATION_THRESHOLD = 1;
+const ZOOM_THRESHOLD = 0.01;
 /**
  * Abstract class component intended to be inherited by
  * the Spatial and Scatterplot class components.
@@ -17,7 +20,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       gl: null,
       tool: null,
     };
-
+    this.lastApplied = null;
     this.viewport = null;
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
@@ -35,11 +38,31 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * @param {object} params
    * @param {object} params.viewState The next deck.gl viewState.
    */
+  // onViewStateChange({ viewState: nextViewState }) {
+  //   const {
+  //     setViewState, viewState, spatialAxisFixed,
+  //   } = this.props;
+  //   const use3d = this.use3d();
+  //   console.log("viewerStateChange", viewState,nextViewState);
+  //   setViewState({
+  //     ...nextViewState,
+  //     // If the axis is fixed, just use the current target in state i.e don't change target.
+  //     target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
+  //   });
+  // }
+
+
   onViewStateChange({ viewState: nextViewState }) {
-    const {
-      setViewState, viewState, spatialAxisFixed,
-    } = this.props;
+    const { setViewState, spatialAxisFixed, viewState } = this.props;
     const use3d = this.use3d();
+    const prev = this.lastApplied || viewState;
+    const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0)) > ZOOM_THRESHOLD;
+    const orbitChanged = Math.abs((nextViewState.rotationOrbit ?? 0) - (prev.rotationOrbit ?? 0)) > ROTATION_THRESHOLD;
+    const xChanged = Math.abs((nextViewState.rotationX ?? 0) - (prev.rotationX ?? 0)) > ROTATION_THRESHOLD;
+    if (!(zoomChanged || orbitChanged || xChanged)) {
+      return;
+    }
+    this.lastApplied = nextViewState;
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.

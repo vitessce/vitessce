@@ -5,7 +5,7 @@ import {
 
 export const EPSILON_KEYS_MAPPING = {
   projectionScale: 1e-1,
-  projectionOrientation: 1e-3,
+  projectionOrientation: 1e-1,
   position: 1e-3,
 };
 
