@@ -417,6 +417,33 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
     // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
     coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'affine') {
+        const { affine } = transform;
+        const xyzRows = xyzIndices.map(axisIndex => axisIndex >= 0 ? affine[axisIndex] : null).filter(Boolean);
+        if(xyzRows.length === 3) {
+          const nextMat = (new Matrix4()).fromArray([
+            ...xyzRows.flat(),
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+        } else if(xyzRows.length === 2) {
+          const a11 = xyzRows[0][0];
+          const a12 = xyzRows[0][1];
+          const a21 = xyzRows[1][0];
+          const a22 = xyzRows[1][1];
+          const tx = xyzRows[0][2];
+          const ty = xyzRows[1][2];
+          const nextMat = (new Matrix4()).fromArray([
+            a11, a12, 0, tx,
+            a21, a22, 0, ty,
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+        } else {
+          throw new Error('Affine transformation must have 2 or 3 rows.');
+        }
+      }
       if (transform.type === 'translation') {
         const { translation: axisOrderedTranslation } = transform;
         if (axisOrderedTranslation.length !== axes.length) {
@@ -510,12 +537,19 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
             scale: transform.scale,
           };
         }
+        if (type === 'affine') {
+          return {
+            type,
+            affine: transform.affine,
+          };
+        }
         if (type === 'identity') {
           return { type };
         }
         if (type === 'sequence') {
           return normalizeCoordinateTransformations(transform.transformations, datasets);
         }
+
         log.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.

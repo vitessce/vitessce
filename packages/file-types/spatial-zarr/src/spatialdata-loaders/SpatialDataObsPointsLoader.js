@@ -6,15 +6,18 @@ import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
+  normalizeAxes,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
-function getCoordsPath(path) {
-  return `${path}/coords`;
-}
 
 function getGeometryPath(path) {
   return `${path}/geometry`;
+}
+
+function getIndexPath(path) {
+  // TODO: find the index column from the parquet pandas metadata?
+  return `${path}/__null_dask_index__`;
 }
 
 function getAttrsPath(path) {
@@ -29,6 +32,11 @@ const DEFAULT_AXES = [
   },
   {
     name: 'y',
+    type: 'space',
+    unit: 'unit',
+  },
+   {
+    name: 'z',
     type: 'space',
     unit: 'unit',
   },
@@ -47,8 +55,13 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
           type: 'space',
           unit: 'unit',
         },
+        {
+          name: 'z',
+          type: 'space',
+          unit: 'unit',
+        },
       ],
-      name: 'xy',
+      name: 'xyz',
     },
     output: {
       axes: [
@@ -59,6 +72,11 @@ const DEFAULT_COORDINATE_TRANSFORMATIONS = [
         },
         {
           name: 'y',
+          type: 'space',
+          unit: 'unit',
+        },
+        {
+          name: 'z',
           type: 'space',
           unit: 'unit',
         },
@@ -85,16 +103,10 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     const {
       'encoding-type': encodingType,
       spatialdata_attrs: {
-        geos = {},
         version: attrsVersion,
       },
     } = zattrs;
-    const hasExpectedAttrs = (
-      encodingType === 'ngff:shapes'
-      && ((geos?.name === 'POINT'
-      && geos?.type === 0
-      && attrsVersion === '0.1') || attrsVersion === '0.2')
-    );
+    const hasExpectedAttrs = (encodingType === 'ngff:points' && attrsVersion === '0.1');
     if (!hasExpectedAttrs) {
       throw new AbstractLoaderError(
         'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
@@ -102,7 +114,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
-    // coordinate system which maps from the input "xy" to the specified
+    // coordinate system which maps from the input "xyz" to the specified
     // output coordinate system.
 
     // TODO: In a future version of the shapes transformation on-disk format,
@@ -114,9 +126,11 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     const coordinateTransformationsFromFile = (
       zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xy' && outputName === coordinateSystem
+      inputName === 'xyz' && outputName === coordinateSystem
     ));
     const axes = zattrs?.axes || DEFAULT_AXES;
+    const normAxes = normalizeAxes(axes);
+
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
     // TODO: do the reverse, convert old spec to new spec
@@ -124,7 +138,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       coordinateTransformationsFromFile, null,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, axes,
+      normCoordinateTransformationsFromFile, normAxes,
     );
     this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
@@ -137,21 +151,21 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   async loadPoints() {
     const { path } = this.options;
 
+    // TODO: if points are XYZ, and in 2D rendering mode, pass in the current Z index and filter (after coordinate transformation?)
+
     if (this.locations) {
       return this.locations;
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
 
       let locations;
-      const formatVersion = await this.dataSource.getFormatVersion(path);
+      const { formatVersion } = await this.dataSource.getEncodingTypeAndFormatVersion(path);
       if (formatVersion === '0.1') {
-        locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
-      } else if (formatVersion === '0.2') {
-        locations = await this.dataSource.loadCircleShapes(getGeometryPath(path));
+        locations = await this.dataSource.loadPoints(getGeometryPath(path));
       }
       this.locations = locations;
+
 
 
       // Apply transformation matrix to the coordinates
@@ -167,10 +181,19 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         // eslint-disable-next-line prefer-destructuring
         this.locations.data[1][i] = transformed[1];
       }
+
       return this.locations;
     }
     this.locations = Promise.resolve(null);
     return this.locations;
+  }
+
+  async loadObsIndex() {
+    const { path } = this.options;
+    // TODO: will the label column of the parquet table always be numeric?
+    const arr = await this.dataSource.loadNumeric(getIndexPath(path));
+    const obsIds = Array.from(arr.data, String);
+    return obsIds;
   }
 
   async load() {
@@ -181,17 +204,19 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
 
     return Promise.all([
-      this.dataSource.loadObsIndex(getCoordsPath(path), tablePath),
+      this.loadObsIndex(),
       this.loadPoints(),
     ]).then(([obsIndex, obsPoints]) => {
+
+      // TODO: get the genes / point-types here? May require changing the obsPoints format (breaking change?)
 
       const coordinationValues = {
         pointLayer: CL({
           obsType: 'point',
-          // obsColorEncoding: 'spatialLayerColor',
-          // spatialLayerColor: [255, 255, 255],
+          obsColorEncoding: 'spatialLayerColor',
+          spatialLayerColor: [255, 255, 255],
           spatialLayerVisible: true,
-          spatialLayerOpacity: 1.0,
+          spatialLayerOpacity: 0.1,
           // featureValueColormapRange: [0, 1],
           // obsHighlight: null,
           // obsSetColor: null,

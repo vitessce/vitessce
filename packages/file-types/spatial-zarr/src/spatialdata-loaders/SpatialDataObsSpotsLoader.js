@@ -148,7 +148,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       const modelMatrix = await this.loadModelMatrix();
 
       let locations;
-      const formatVersion = await this.dataSource.getFormatVersion(path);
+      const { formatVersion } = await this.dataSource.getEncodingTypeAndFormatVersion(path);
       if (formatVersion === '0.1') {
         locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
       } else if (formatVersion === '0.2') {

@@ -38,8 +38,8 @@ async function getReadParquet() {
 // If the array path starts with table/something/rest
 // capture table/something.
 
-const elementRegex = /^shapes\/([^/]*)$/;
-const subElementRegex = /^shapes\/([^/]*)\/(.*)$/;
+const shapesElementRegex = /^shapes\/([^/]*)$/;
+const shapesSubElementRegex = /^shapes\/([^/]*)\/(.*)$/;
 
 /**
  *
@@ -48,13 +48,35 @@ const subElementRegex = /^shapes\/([^/]*)\/(.*)$/;
  */
 function getShapesPrefix(arrPath) {
   if (arrPath) {
-    const matches = arrPath.match(subElementRegex);
+    const matches = arrPath.match(shapesSubElementRegex);
     if (matches && matches.length === 3) {
       return `shapes/${matches[1]}/`;
     }
-    const elementMatches = arrPath.match(elementRegex);
+    const elementMatches = arrPath.match(shapesElementRegex);
     if (elementMatches && elementMatches.length === 2) {
       return `shapes/${elementMatches[1]}/`;
+    }
+  }
+  return '';
+}
+
+const pointsElementRegex = /^points\/([^/]*)$/;
+const pointsSubElementRegex = /^points\/([^/]*)\/(.*)$/;
+
+/**
+ *
+ * @param {string|undefined} arrPath
+ * @returns
+ */
+function getPointsPrefix(arrPath) {
+  if (arrPath) {
+    const matches = arrPath.match(pointsSubElementRegex);
+    if (matches && matches.length === 3) {
+      return `points/${matches[1]}/`;
+    }
+    const elementMatches = arrPath.match(pointsElementRegex);
+    if (elementMatches && elementMatches.length === 2) {
+      return `points/${elementMatches[1]}/`;
     }
   }
   return '';
@@ -65,8 +87,25 @@ function getShapesPrefix(arrPath) {
  * @param {string|undefined} arrPath
  * @returns
  */
+function getElementPrefix(arrPath) {
+  const shapesPrefix = getShapesPrefix(arrPath);
+  if (shapesPrefix.length > 0) {
+    return shapesPrefix;
+  }
+  const pointsPrefix = getPointsPrefix(arrPath);
+  if (pointsPrefix.length > 0) {
+    return pointsPrefix;
+  }
+  throw new Error(`Cannot determine element (shapes/points) for array path: ${arrPath}`);
+}
+
+/**
+ *
+ * @param {string|undefined} arrPath
+ * @returns
+ */
 export function getIndexPath(arrPath) {
-  return `${getShapesPrefix(arrPath)}Index`;
+  return `${getElementPrefix(arrPath)}Index`;
 }
 
 /**
@@ -75,7 +114,7 @@ export function getIndexPath(arrPath) {
  * @returns
  */
 export function getVarPath(arrPath) {
-  return `${getShapesPrefix(arrPath)}var`;
+  return `${getElementPrefix(arrPath)}var`;
 }
 
 /**
@@ -84,7 +123,14 @@ export function getVarPath(arrPath) {
  * @returns
  */
 export function getParquetPath(arrPath) {
-  return `${getShapesPrefix(arrPath)}shapes.parquet`;
+  const elementPrefix = getElementPrefix(arrPath);
+  if (elementPrefix.startsWith('shapes/')) {
+    return `${elementPrefix}shapes.parquet`;
+  }
+  if (elementPrefix.startsWith('points/')) {
+    return `${elementPrefix}points.parquet`;
+  }
+  throw new Error(`Cannot determine parquet path for array path: ${arrPath}`);
 }
 
 /**
@@ -93,7 +139,24 @@ export function getParquetPath(arrPath) {
  * @returns
  */
 export function getAttrsPath(arrPath) {
-  return `${getShapesPrefix(arrPath)}.zattrs`;
+  return `${getElementPrefix(arrPath)}.zattrs`;
+}
+
+/**
+ * Converts a BigInt64Array to a Float32Array if needed.
+ * @param {any} input - The typed array to convert.
+ * @returns {Float32Array} - The converted or original Float32Array.
+ */
+function toFloat32Array(input) {
+  if (input instanceof BigInt64Array) {
+    const floats = new Float32Array(input.length);
+    for (let i = 0; i < input.length; i++) {
+      floats[i] = Number(input[i]); // May lose precision for large BigInts
+    }
+    return floats;
+  }
+
+  return new Float32Array(input);
 }
 
 
@@ -110,6 +173,9 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     this.varIndices = {};
     /** @type {{ [k: string]: string[] }} */
     this.varAliases = {};
+
+    /** @type {{ [k: string]: import('apache-arrow').Table }} */
+    this.parquetTables = {};
   }
 
   /**
@@ -124,17 +190,40 @@ export default class SpatialDataShapesSource extends AnnDataSource {
   /**
    *
    * @param {string} path A path to within shapes.
-   * @returns {Promise<"0.1"|"0.2">} The format version.
+   * @returns {Promise<{formatVersion: "0.1"|"0.2", encodingType: "ngff:points"|"ngff:shapes"}>} The format version.
    */
-  async getFormatVersion(path) {
+  async getEncodingTypeAndFormatVersion(path) {
     const zattrs = await this.getJson(getAttrsPath(path));
     const formatVersion = zattrs.spatialdata_attrs.version;
-    if (!(formatVersion === '0.1' || formatVersion === '0.2')) {
+    const encodingType = zattrs['encoding-type'];
+    if (encodingType === "ngff:shapes" && !(formatVersion === '0.1' || formatVersion === '0.2')) {
       throw new Error(
         `Unexpected version for shapes spatialdata_attrs: ${formatVersion}`,
       );
     }
-    return formatVersion;
+    if (encodingType === "ngff:points" && !(formatVersion === '0.1')) {
+      throw new Error(
+        `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
+      );
+    }
+    return { encodingType, formatVersion };
+  }
+
+  /**
+   * 
+   * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
+   * @returns {Promise<Uint8Array|undefined>} The parquet file bytes.
+   */
+  async loadParquetBytes(parquetPath) {
+    let parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
+    if (!parquetBytes) {
+      // This may be a directory with multiple parts.
+      const part0Path = `${parquetPath}/part.0.parquet`;
+      parquetBytes = await this.storeRoot.store.get(`/${part0Path}`);
+
+      // TODO: support loading multiple parts.
+    }
+    return parquetBytes;
   }
 
   /**
@@ -143,13 +232,13 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @returns
    */
   async loadParquetTable(path) {
-    if (this.parquetTable) {
+    const parquetPath = getParquetPath(path);
+    if (this.parquetTables[parquetPath]) {
       // Return cached table if present.
-      return this.parquetTable;
+      return this.parquetTables[parquetPath];
     }
     const readParquet = await getReadParquet();
-    const parquetPath = getParquetPath(path);
-    let parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
+    let parquetBytes = await this.loadParquetBytes(parquetPath);
     if (!parquetBytes) {
       throw new Error('Failed to load parquet data from store.');
     }
@@ -162,8 +251,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     const wasmTable = readParquet(parquetBytes);
     // TODO: use streaming?
     const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-    this.parquetTable = arrowTable;
-    return this.parquetTable;
+    this.parquetTables[parquetPath] = arrowTable;
+    return this.parquetTables[parquetPath];
   }
 
   /**
@@ -205,8 +294,9 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
-    const formatVersion = await this.getFormatVersion(path);
-    if (formatVersion === '0.1') {
+    const { formatVersion, encodingType } = await this.getEncodingTypeAndFormatVersion(path);
+    if (encodingType === "ngff:shapes" && formatVersion === '0.1') {
+      // Shapes v0.1 did not use Parquet, so we use the parent Zarr-based column loading function.
       return super.loadNumeric(path);
     }
     const arrowTable = await this.loadParquetTable(path);
@@ -214,7 +304,7 @@ export default class SpatialDataShapesSource extends AnnDataSource {
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
-      data: new Float32Array(columnArr),
+      data: toFloat32Array(columnArr),
       stride: [1],
     };
   }
@@ -347,6 +437,39 @@ export default class SpatialDataShapesSource extends AnnDataSource {
       };
     }
     throw new Error('Unexpected encoding type for points, currently only WKB is supported');
+  }
+
+  /**
+   *
+   * @param {string} path
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPoints(path) {
+    const arrowTable = await this.loadParquetTable(path);
+    const xColumn = arrowTable.getChild('x');
+    const yColumn = arrowTable.getChild('y');
+    const zColumn = arrowTable.getChild('z');
+
+    const xColumnArr = xColumn?.toArray();
+    const yColumnArr = yColumn?.toArray();
+    const zColumnArr = zColumn?.toArray();
+
+    const xColumnF32Arr = toFloat32Array(xColumnArr);
+    const yColumnF32Arr = toFloat32Array(yColumnArr);
+    const zColumnF32Arr = toFloat32Array(zColumnArr);
+
+    // TODO: use the z column
+    
+    return {
+      shape: [2, arrowTable.numRows],
+      data: [
+        xColumnF32Arr,
+        yColumnF32Arr,
+      ],
+    };
   }
 
   /**
