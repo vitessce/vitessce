@@ -140,6 +140,7 @@ export default class BitmaskLayer extends XRLayer {
     this.setState({ colorTex });
   }
 
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
     const {
       channelsVisible,
@@ -171,7 +172,7 @@ export default class BitmaskLayer extends XRLayer {
         expressionTex,
         ...textures,
       });
-      model.draw(opts);
+      model.draw(this.context.renderPass);
     }
   }
 

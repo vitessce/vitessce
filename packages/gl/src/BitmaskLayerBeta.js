@@ -161,8 +161,8 @@ export default class BitmaskLayer extends XRLayer {
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
-    const { uniforms } = opts;
     const {
       channelStrokeWidths,
       channelsFilled,
@@ -277,7 +277,7 @@ export default class BitmaskLayer extends XRLayer {
         valueTex,
         colorTex,
       });
-      model.draw(opts);
+      model.draw(this.context.renderPass);
     }
   }
 
