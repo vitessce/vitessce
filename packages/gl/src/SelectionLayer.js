@@ -72,10 +72,6 @@ const PASS_THROUGH_PROPS = [
 ];
 
 export default class SelectionLayer extends CompositeLayer {
-  constructor(props) {
-    super(props);
-    console.log('SelectionLayer constructor', props);
-  }
   _selectPolygonObjects(coordinates) {
     const {
       flipY,
@@ -157,7 +153,6 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    console.log(this.props.selectionType);
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {};

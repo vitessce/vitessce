@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
-import { GL } from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from '../constants.js';
 import module from './shader-module.js';

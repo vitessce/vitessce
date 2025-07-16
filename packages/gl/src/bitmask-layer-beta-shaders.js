@@ -1,5 +1,6 @@
 import { colormaps } from './glsl/index.js';
 
+// lang: glsl
 export const vs = `\
 #version 300 es
 #define SHADER_NAME bitmask-layer-vertex-shader
@@ -23,6 +24,7 @@ void main(void) {
 }
 `;
 
+// lang: glsl
 export const fs = `\
 #version 300 es
 #define SHADER_NAME bitmask-layer-fragment-shader

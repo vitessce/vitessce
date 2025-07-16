@@ -4,6 +4,7 @@ import { colormaps } from './glsl/index.js';
  * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
+// lang: glsl
 export const vertexShader = `\
 #version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
@@ -37,6 +38,7 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hms-dbmi/viv/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
+// lang: glsl
 export const fragmentShader = `\
 #version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader

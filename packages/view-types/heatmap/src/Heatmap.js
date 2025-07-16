@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  deck, luma,
+  deck,
   HeatmapCompositeTextLayer,
   PixelatedBitmapLayer,
   PaddedExpressionHeatmapBitmapLayer,
@@ -20,7 +20,6 @@ import {
 import { range, clamp, isEqual } from 'lodash-es';
 import {
   getLongestString,
-  DEFAULT_GL_OPTIONS,
   createDefaultUpdateCellsHover,
   createDefaultUpdateGenesHover,
   createDefaultUpdateTracksHover,
@@ -441,7 +440,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
     }
-    if(![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
+    if (![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
       return [];
     }
     if (usePaddedExpressions) {
@@ -684,7 +683,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!cellColorsTilesList) {
       return [];
     }
-    if(![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
+    if (![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
       return [];
     }
 

@@ -1,5 +1,3 @@
-import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
-
 // Image texture dimensions
 export const TILE_SIZE = 4096;
 // Reshaped data texture dimensions

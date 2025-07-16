@@ -6,6 +6,7 @@ import { colormaps } from '../glsl/index.js';
  * Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
  * Reference: https://github.com/flekschas/regl-scatterplot/blob/5e3b03e/src/point.vs
  */
+// lang: glsl
 const vs = `
 ${colormaps}
 
@@ -19,6 +20,7 @@ uniform bool uIsExpressionMode;
 `;
 
 const inject = {
+  // lang: glsl
   'vs:DECKGL_FILTER_COLOR': `
     if(uIsExpressionMode) {
       float normalizedExpressionValue = expressionValue / 255.0;

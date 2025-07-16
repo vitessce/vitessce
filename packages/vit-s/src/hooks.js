@@ -125,7 +125,7 @@ export function useDeckCanvasSize() {
   // width/height.
   useEffect(() => {
     if (!deckRef?.current?.deck?.canvas) return;
-    
+
     const { canvas } = deckRef.current.deck;
     const canvasRect = canvas.getBoundingClientRect();
     setHeight(canvasRect.height);

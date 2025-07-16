@@ -311,7 +311,6 @@ export default class BitmaskLayer extends XRLayer {
     setColorValues,
     channelIsSetColorMode,
   ) {
-
     const [
       totalData,
       valueTexHeight,

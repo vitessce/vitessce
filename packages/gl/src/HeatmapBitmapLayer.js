@@ -1,7 +1,6 @@
-import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+/* eslint-disable no-underscore-dangle */
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants.js';
 import {
   GLSL_COLORMAPS,
@@ -32,7 +31,7 @@ export const bitmapUniforms = {
     uTextureSize: 'vec2<f32>',
     uAggSize: 'vec2<f32>',
     uColorScaleRange: 'vec2<f32>',
-  }
+  },
 };
 
 
@@ -56,15 +55,17 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
-  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
+    // TODO: Update to not use param-reassign.
+    // eslint-disable-next-line no-param-reassign
     shaders = _mergeShaders(shaders, {
       disableWarnings: true,
-      modules: this.context.defaultShaderModules
+      modules: this.context.defaultShaderModules,
     });
-    for (const extension of this.props.extensions) {
+    this.props.extensions.forEach((extension) => {
+      // eslint-disable-next-line no-param-reassign
       shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
-    }
+    });
     return shaders;
   }
 
@@ -107,6 +108,7 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L173
    * @param {*} opts
    */
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
     const { bitmapTexture, model } = this.state;
     const {
@@ -115,15 +117,14 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
 
     // Render the image
     if (bitmapTexture && model) {
-        const bitmapProps = {
-          uBitmapTexture: bitmapTexture,
-          uTextureSize: [TILE_SIZE, TILE_SIZE],
-          uAggSize: [aggSizeX, aggSizeY],
-          uColorScaleRange: [colorScaleLo, colorScaleHi],
-        };
-        model.shaderInputs.setProps({ uBlock: bitmapProps });
-        model.draw(this.context.renderPass);
-
+      const bitmapProps = {
+        uBitmapTexture: bitmapTexture,
+        uTextureSize: [TILE_SIZE, TILE_SIZE],
+        uAggSize: [aggSizeX, aggSizeY],
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
+      };
+      model.shaderInputs.setProps({ uBlock: bitmapProps });
+      model.draw(this.context.renderPass);
     }
   }
 

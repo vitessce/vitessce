@@ -1,14 +1,9 @@
 /* eslint-disable no-underscore-dangle */
-import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE, DATA_TEXTURE_SIZE } from './heatmap-constants.js';
 import { GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, COLORMAP_SHADER_PLACEHOLDER } from './constants.js';
 import { vertexShader, fragmentShader } from './padded-expression-heatmap-bitmap-layer-shaders.js';
-
-
-
 
 
 const uniformBlock = `\
@@ -41,9 +36,8 @@ export const bitmapUniforms = {
     uTextureSize: 'vec2<f32>',
     uAggSize: 'vec2<f32>',
     uColorScaleRange: 'vec2<f32>',
-  }
+  },
 };
-
 
 
 const defaultProps = {
@@ -68,14 +62,17 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * @returns {object} Merged shaders.
    */
   _getShaders(shaders) {
-      shaders = _mergeShaders(shaders, {
-        disableWarnings: true,
-        modules: this.context.defaultShaderModules
-      });
-      for (const extension of this.props.extensions) {
-        shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
-      }
-      return shaders;
+    // TODO: Update to not use param-reassign.
+    // eslint-disable-next-line no-param-reassign
+    shaders = _mergeShaders(shaders, {
+      disableWarnings: true,
+      modules: this.context.defaultShaderModules,
+    });
+    this.props.extensions.forEach((extension) => {
+      // eslint-disable-next-line no-param-reassign
+      shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
+    });
+    return shaders;
   }
 
   /**
@@ -118,6 +115,7 @@ export default class PaddedExpressionHeatmapBitmapLayer extends BitmapLayer {
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L173
    * @param {*} opts
    */
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
     const { bitmapTexture, model } = this.state;
     const {

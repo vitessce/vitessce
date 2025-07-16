@@ -1,4 +1,3 @@
-import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { XRLayer } from '@hms-dbmi/viv';
 import { fs, vs } from './bitmask-layer-shaders.js';
@@ -78,14 +77,15 @@ export default class BitmaskLayer extends XRLayer {
           channelData.height,
         );
       }, this);
-      for (const key in textures) {
-        if (!textures[key])
+      Object.keys(textures).forEach((key) => {
+        if (!textures[key]) {
           textures[key] = this.dataToTexture(
             [],
             0,
             0,
           );
-      }
+        }
+      });
       this.setState({ textures });
     }
   }
@@ -141,7 +141,6 @@ export default class BitmaskLayer extends XRLayer {
   }
 
   draw(opts) {
-    const { uniforms } = opts;
     const {
       channelsVisible,
       hoveredCell,
@@ -173,7 +172,6 @@ export default class BitmaskLayer extends XRLayer {
         ...textures,
       });
       model.draw(opts);
-        
     }
   }
 

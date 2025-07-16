@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
-import { GL } from '@luma.gl/constants';
 import { LayerExtension } from '@deck.gl/core';
 import module from './shader-module.js';
 
@@ -12,6 +11,7 @@ export default class SelectionExtension extends LayerExtension {
     };
   }
 
+  // eslint-disable-next-line no-unused-vars
   initializeState(context, extension) {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
