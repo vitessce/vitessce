@@ -1,4 +1,11 @@
 
+## 3.6.7
+
+### Patch Changes
+
+- Fix bug preventing loading SpatialData attrs for shapes elements to obtain format version. Normalize coordinate transformation for SpatialData image elements to enable sequence-type transformations. (`@vitessce/spatial-zarr`, `@vitessce/image-utils`) ([#2189](https://github.com/vitessce/vitessce/pull/2189))
+
+
 ## 3.6.6
 
 ### Patch Changes
