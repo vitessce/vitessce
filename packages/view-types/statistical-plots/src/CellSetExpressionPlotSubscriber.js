@@ -264,7 +264,7 @@ export function CellSetExpressionPlotSubscriber(props) {
   return (
     <TitleInfo
       title={title ? `${title}${titleSuffix}`
-        : `Expression by ${capitalize(obsType)} Set${titleSuffix}`
+        : `${capitalize(featureValueType)} by ${capitalize(obsType)} Set${titleSuffix}`
       }
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}

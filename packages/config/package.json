@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/config",
-  "version": "3.6.1",
+  "version": "3.6.7",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -32,6 +32,8 @@
   "dependencies": {
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/globals": "workspace:*"
+    "@vitessce/globals": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
+    "zarrita": "catalog:"
   }
 }

@@ -1,4 +1,58 @@
 
+## 3.6.7
+
+### Patch Changes
+
+- Fix bug preventing loading SpatialData attrs for shapes elements to obtain format version. Normalize coordinate transformation for SpatialData image elements to enable sequence-type transformations. (`@vitessce/spatial-zarr`, `@vitessce/image-utils`) ([#2189](https://github.com/vitessce/vitessce/pull/2189))
+
+
+## 3.6.6
+
+### Patch Changes
+
+- Violin plot title uses featureValueType instead of hard-coded "Expression". (`@vitessce/statistical-plots`) ([#2178](https://github.com/vitessce/vitessce/pull/2178))
+
+- Update KPMP configuration: add statistical plots and PTC sets. (`@vitessce/example-configs`) ([#2181](https://github.com/vitessce/vitessce/pull/2181))
+
+- Fix CSS for genomicProfiles view so that HiGlass renders correctly. Add support for passing a Zarr store object to the HiGlass Zarr Multivec plugin data fetcher. (`@vitessce/genomic-profiles`) ([#2184](https://github.com/vitessce/vitessce/pull/2184))
+
+
+## 3.6.5
+
+### Patch Changes
+
+- Support polygons stored in SpatialData shapes elements. (`@vitessce/spatial-zarr`) ([#2168](https://github.com/vitessce/vitessce/pull/2168))
+
+
+## 3.6.4
+
+### Patch Changes
+
+- Add a new generateConfig implementation. (`@vitessce/config`) ([#2155](https://github.com/vitessce/vitessce/pull/2155))
+
+- Add obsFeatureColumns option for anndata.zarr fileType. (`@vitessce/schemas`) ([#2156](https://github.com/vitessce/vitessce/pull/2156))
+
+
+## 3.6.3
+
+### Patch Changes
+
+- Support the latest spatialdata table metadata format. (`@vitessce/spatial-zarr`) ([#2138](https://github.com/vitessce/vitessce/pull/2138))
+
+- Override photometricInterpretation from image metadata in blin-2019 example. (`@vitessce/example-configs`) ([#2143](https://github.com/vitessce/vitessce/pull/2143))
+
+- Updated genes_filtered file bucket to data-v1 (`@vitessce/biomarker-select`) ([#2141](https://github.com/vitessce/vitessce/pull/2141))
+
+- Fix bug preventing correct feature value extents in spatialBeta view legend (`@vitessce/legend`) ([#2149](https://github.com/vitessce/vitessce/pull/2149))
+
+
+## 3.6.2
+
+### Patch Changes
+
+- Fix React.lazy and patch neuroglancer to prevent crashing in docs site and Jupyter widget contexts. (`@vitessce/neuroglancer`) ([#2130](https://github.com/vitessce/vitessce/pull/2130))
+
+
 ## 3.6.1
 
 ### Patch Changes

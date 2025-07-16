@@ -96,6 +96,7 @@ export default function MultiLegend(props) {
           featureType,
           featureValueType,
           featureSelection,
+          featureAggregationStrategy,
           spatialLayerColor,
           legendVisible,
           obsSetSelection,
@@ -126,6 +127,7 @@ export default function MultiLegend(props) {
             obsColorEncoding={obsColorEncoding}
             spatialLayerColor={spatialLayerColor}
             featureSelection={featureSelection}
+            featureAggregationStrategy={featureAggregationStrategy}
             featureLabelsMap={featureLabelsMap}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
@@ -159,6 +161,7 @@ export default function MultiLegend(props) {
             featureType,
             featureValueType,
             featureSelection,
+            featureAggregationStrategy,
             legendVisible,
             obsSetSelection,
             obsSetColor,
@@ -183,6 +186,7 @@ export default function MultiLegend(props) {
               featureValueType={featureValueType}
               obsColorEncoding={obsColorEncoding}
               featureSelection={featureSelection}
+              featureAggregationStrategy={featureAggregationStrategy}
               // featureLabelsMap={featureLabelsMap} // TODO
               featureValueColormap={featureValueColormap}
               featureValueColormapRange={featureValueColormapRange}

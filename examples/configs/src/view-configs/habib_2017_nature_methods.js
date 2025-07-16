@@ -172,20 +172,24 @@ export const habib2017withQualityMetrics = {
           }],
         },
       },
+      // Here, we use a second anndata.zarr file definition to be able to
+      // provide different coordinationValues.
       {
-        fileType: 'obsFeatureColumns.anndata.zarr',
+        fileType: 'anndata.zarr',
         url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'qualityMetric',
           featureValueType: 'value',
         },
-        options: [
-          { path: 'obs/n_genes' },
-          { path: 'obs/n_counts' },
-          { path: 'obs/percent_mito' },
-          { path: 'obs/percent_ribo' },
-        ],
+        options: {
+          obsFeatureColumns: [
+            { path: 'obs/n_genes' },
+            { path: 'obs/n_counts' },
+            { path: 'obs/percent_mito' },
+            { path: 'obs/percent_ribo' },
+          ],
+        },
       },
     ],
   }],

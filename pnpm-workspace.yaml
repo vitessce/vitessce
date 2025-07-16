@@ -18,8 +18,8 @@ catalog:
   "@tanstack/react-query": ^5.80.2
   "clsx": ^1.1.1
   # Zarrita
-  "zarrita": 0.4.0
-  "@zarrita/storage": 0.1.0
+  "zarrita": 0.5.2
+  "@zarrita/storage": 0.1.1
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
@@ -30,11 +30,11 @@ catalog:
   # note - packages/legend was on d3-scale ^3.2.3
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0
-  "d3-color": ^1.4.0
-  "d3-interpolate": ^2.0.1
+  "d3-color": ^3.1.0
+  "d3-interpolate": ^3.0.1
   "d3-shape": ^3.2.0
   "d3-selection": ^3.0.0
-  "vega-scale": ^6.0.0
+  "vega-scale": ^8.0.0
   "pluralize": ^8.0.0
   "math.gl": ^3.5.6
   "@math.gl/core": ^3.5.6

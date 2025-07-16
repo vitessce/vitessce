@@ -1,7 +1,7 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.6.1",
+  "version": "3.6.7",
   "description": "Vitessce app and React component library",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io/",
@@ -30,7 +30,8 @@
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
     "changeset-status": "changeset status --since=origin/main",
     "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs",
-    "create-view": "node ./scripts/create-view.mjs"
+    "create-view": "node ./scripts/create-view.mjs",
+    "sync-cdn": "node ./scripts/sync-cdn.mjs cdn"
   },
   "devDependencies": {
     "@ast-grep/cli": "^0.6.3",
