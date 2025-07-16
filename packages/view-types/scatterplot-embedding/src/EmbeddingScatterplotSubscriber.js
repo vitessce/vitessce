@@ -161,7 +161,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const featureAggregationStrategyToUse = featureAggregationStrategy
     ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
-  const [width, height, deckRef] = useDeckCanvasSize();
+  const [width, height, deckRef, onBeforeRender] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
@@ -597,6 +597,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+        onBeforeRender={onBeforeRender}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber

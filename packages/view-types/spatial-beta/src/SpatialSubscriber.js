@@ -361,7 +361,7 @@ export function SpatialSubscriber(props) {
   const is3dMode = spatialRenderingMode === '3D';
   const shouldUseThree = threeFor3d && is3dMode;
 
-  const [deckWidth, deckHeight, deckRef] = useDeckCanvasSize();
+  const [deckWidth, deckHeight, deckRef, onBeforeRender] = useDeckCanvasSize();
   const [threeWidth, threeHeight, threeRef] = useGridItemSize();
   const width = threeFor3d && deckWidth === undefined
     ? threeWidth
@@ -930,6 +930,7 @@ export function SpatialSubscriber(props) {
           imageChannelCoordination={imageChannelCoordination}
 
           // TODO: useFullResolutionImage={useFullResolutionImage}
+          onBeforeRender={onBeforeRender}
         />
       )}
       {!disableTooltip && (

@@ -128,6 +128,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     obsIndex,
     featureIndex,
     featureLabelsMap,
+    onBeforeRender,
   } = props;
 
   const viewState = {
@@ -440,6 +441,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     if ((!tilesRef.current || backlog.length) && !usePaddedExpressions) {
       return [];
     }
+    if(![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
+      return [];
+    }
     if (usePaddedExpressions) {
       const cellOrdering = transpose ? axisTopLabels : axisLeftLabels;
       // eslint-disable-next-line no-inner-declarations, no-shadow
@@ -680,6 +684,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!cellColorsTilesList) {
       return [];
     }
+    if(![matrixLeft, matrixTop, tileHeight, tileWidth].every(n => typeof n === 'number' && !Number.isNaN(n))) {
+      return [];
+    }
 
     const result = cellColorsTilesList.map((cellColorsTiles, track) => (cellColorsTiles
       ? cellColorsTiles.map((tile, i) => new PixelatedBitmapLayer({
@@ -880,6 +887,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       onClick={onHeatmapClick}
       width="100%"
       height="100%"
+      onBeforeRender={onBeforeRender}
     />
   );
 });
