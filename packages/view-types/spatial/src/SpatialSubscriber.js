@@ -153,7 +153,7 @@ export function SpatialSubscriber(props) {
 
   const use3d = imageLayers?.some(l => l.use3d);
 
-  const [width, height, deckRef] = useDeckCanvasSize();
+  const [width, height, deckRef, onBeforeRender] = useDeckCanvasSize();
 
   const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
@@ -661,6 +661,7 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
+        onBeforeRender={onBeforeRender}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

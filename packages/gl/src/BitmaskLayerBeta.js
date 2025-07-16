@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+import { GL } from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { range } from 'lodash-es';
 import { fs, vs } from './bitmask-layer-beta-shaders.js';
@@ -151,19 +150,19 @@ export default class BitmaskLayer extends XRLayer {
       });
     }
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       if (this.state.model) {
-        this.state.model.delete();
+        this.state.model.destroy();
       }
       // eslint-disable-next-line no-underscore-dangle
-      this.setState({ model: this._getModel(gl) });
+      this.setState({ model: this._getModel(device) });
 
       this.getAttributeManager().invalidateAll();
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
-    const { uniforms } = opts;
     const {
       channelStrokeWidths,
       channelsFilled,
@@ -200,86 +199,85 @@ export default class BitmaskLayer extends XRLayer {
     if (textures && model) {
       const scaleFactor = 1 / (2 ** (maxZoom - zoom));
       const colors = Object.fromEntries(range(MAX_CHANNELS).map(i => ([`color${i}`, getColor(channelColors[i])])));
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            ...colors,
-            // Bitmask image channel data textures
-            ...textures,
-            multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
-            // Expression textures with offsets
-            valueTex,
-            valueTexOffsets: padWithDefault(
-              valueTexOffsets,
-              0,
-              MAX_CHANNELS - valueTexOffsets.length,
-            ),
-            valueTexHeight,
-            // Set indices and colors textures with offsets
-            colorTex,
-            colorTexOffsets: padWithDefault(
-              colorTexOffsets,
-              0,
-              MAX_CHANNELS - colorTexOffsets.length,
-            ),
-            colorTexHeight,
-            // Visualization properties
-            channelsFilled: padWithDefault(
-              channelsFilled,
-              true,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelsFilled.length,
-            ),
-            channelOpacities: padWithDefault(
-              channelOpacities,
-              0.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelOpacities.length,
-            ),
-            channelStrokeWidths: padWithDefault(
-              channelStrokeWidths,
-              1.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelStrokeWidths.length,
-            ),
-            channelColormapRangeStarts: padWithDefault(
-              channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),
-              0.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
-            ),
-            channelColormapRangeEnds: padWithDefault(
-              channelFeatureValueColormapRanges.map(r => r?.[1] || 1.0),
-              1.0,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelFeatureValueColormapRanges.length,
-            ),
-            channelIsStaticColorMode: padWithDefault(
-              channelIsStaticColorMode,
-              true,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelIsStaticColorMode.length,
-            ),
-            channelIsSetColorMode: padWithDefault(
-              channelIsSetColorMode,
-              false,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelIsSetColorMode.length,
-            ),
-            hovered: hoveredCell || 0,
-            channelsVisible: padWithDefault(
-              channelsVisible,
-              false,
-              // There are six texture entries on the shaders
-              MAX_CHANNELS - channelsVisible.length,
-            ),
-            // uColorScaleRange: [colorScaleLo, colorScaleHi],
-            // uIsExpressionMode: isExpressionMode,
-            // uIsOutlined: false,
-            scaleFactor,
-          }),
-        )
-        .draw();
+      model.setUniforms({
+        ...colors,
+        multiFeatureTexSize: MULTI_FEATURE_TEX_SIZE,
+        // Expression textures with offsets
+        valueTexOffsets: padWithDefault(
+          valueTexOffsets,
+          0,
+          MAX_CHANNELS - valueTexOffsets.length,
+        ),
+        valueTexHeight,
+        // Set indices and colors textures with offsets
+        colorTexOffsets: padWithDefault(
+          colorTexOffsets,
+          0,
+          MAX_CHANNELS - colorTexOffsets.length,
+        ),
+        colorTexHeight,
+        // Visualization properties
+        channelsFilled: padWithDefault(
+          channelsFilled,
+          true,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelsFilled.length,
+        ),
+        channelOpacities: padWithDefault(
+          channelOpacities,
+          0.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelOpacities.length,
+        ),
+        channelStrokeWidths: padWithDefault(
+          channelStrokeWidths,
+          1.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelStrokeWidths.length,
+        ),
+        channelColormapRangeStarts: padWithDefault(
+          channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),
+          0.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+        ),
+        channelColormapRangeEnds: padWithDefault(
+          channelFeatureValueColormapRanges.map(r => r?.[1] || 1.0),
+          1.0,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelFeatureValueColormapRanges.length,
+        ),
+        channelIsStaticColorMode: padWithDefault(
+          channelIsStaticColorMode,
+          true,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelIsStaticColorMode.length,
+        ),
+        channelIsSetColorMode: padWithDefault(
+          channelIsSetColorMode,
+          false,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelIsSetColorMode.length,
+        ),
+        hovered: hoveredCell || 0,
+        channelsVisible: padWithDefault(
+          channelsVisible,
+          false,
+          // There are six texture entries on the shaders
+          MAX_CHANNELS - channelsVisible.length,
+        ),
+        // uColorScaleRange: [colorScaleLo, colorScaleHi],
+        // uIsExpressionMode: isExpressionMode,
+        // uIsOutlined: false,
+        scaleFactor,
+      });
+      model.setBindings({
+        // Bitmask image channel data textures
+        ...textures,
+        valueTex,
+        colorTex,
+      });
+      model.draw(this.context.renderPass);
     }
   }
 
@@ -287,25 +285,23 @@ export default class BitmaskLayer extends XRLayer {
    * This function creates textures from the data
    */
   dataToTexture(data, width, height) {
-    const isWebGL2On = isWebGL2(this.context.gl);
-    return new Texture2D(this.context.gl, {
+    return this.context.device.createTexture({
       width,
       height,
+      dimension: '2d',
       // Only use Float32 so we don't have to write two shaders
       data: new Float32Array(data),
       // we don't want or need mimaps
       mipmaps: false,
-      parameters: {
+      sampler: {
         // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+        minFilter: 'nearest',
+        magFilter: 'nearest',
         // CLAMP_TO_EDGE to remove tile artifacts
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+        addressModeU: 'clamp-to-edge',
+        addressModeV: 'clamp-to-edge',
       },
-      format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-      dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-      type: GL.FLOAT,
+      format: 'r32float',
     });
   }
 
@@ -315,8 +311,6 @@ export default class BitmaskLayer extends XRLayer {
     setColorValues,
     channelIsSetColorMode,
   ) {
-    const isWebGL2On = isWebGL2(this.context.gl);
-
     const [
       totalData,
       valueTexHeight,
@@ -334,44 +328,42 @@ export default class BitmaskLayer extends XRLayer {
 
     return [
       // Color indices texture
-      new Texture2D(this.context.gl, {
+      this.context.device.createTexture({
         width: MULTI_FEATURE_TEX_SIZE,
         height: valueTexHeight,
+        dimension: '2d',
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalData),
         // we don't want or need mimaps
         mipmaps: false,
-        parameters: {
+        sampler: {
           // NEAREST for integer data
-          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          minFilter: 'nearest',
+          magFilter: 'nearest',
           // CLAMP_TO_EDGE to remove tile artifacts
-          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+          addressModeU: 'clamp-to-edge',
+          addressModeV: 'clamp-to-edge',
         },
-        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-        type: GL.FLOAT,
+        format: 'r32float',
       }),
       // Colors texture
-      new Texture2D(this.context.gl, {
+      this.context.device.createTexture({
         width: MULTI_FEATURE_TEX_SIZE,
         height: colorTexHeight,
+        dimension: '2d',
         // Only use Float32 so we don't have to write two shaders
         data: new Float32Array(totalColors),
         // we don't want or need mimaps
         mipmaps: false,
-        parameters: {
+        sampler: {
           // NEAREST for integer data
-          [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-          [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+          minFilter: 'nearest',
+          magFilter: 'nearest',
           // CLAMP_TO_EDGE to remove tile artifacts
-          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+          addressModeU: 'clamp-to-edge',
+          addressModeV: 'clamp-to-edge',
         },
-        format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-        dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-        type: GL.FLOAT,
+        format: 'r32float',
       }),
       // Offsets
       indicesOffsets,

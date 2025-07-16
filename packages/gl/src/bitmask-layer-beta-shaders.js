@@ -1,14 +1,16 @@
 import { colormaps } from './glsl/index.js';
 
-export const vs = `
+// lang: glsl
+export const vs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-vertex-shader
 
-attribute vec2 texCoords;
-attribute vec3 positions;
-attribute vec3 positions64Low;
-attribute vec3 instancePickingColors;
+in vec2 texCoords;
+in vec3 positions;
+in vec3 positions64Low;
+in vec3 instancePickingColors;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 void main(void) {
   geometry.worldPosition = positions;
@@ -22,7 +24,9 @@ void main(void) {
 }
 `;
 
-export const fs = `
+// lang: glsl
+export const fs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-fragment-shader
 precision highp float;
 
@@ -84,7 +88,9 @@ uniform float channelStrokeWidths[7];
 // opacity
 uniform float opacity;
 
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 vec3 sampleAndGetData(sampler2D dataTex, vec2 coord, bool isFilled, float strokeWidth, bool isOn) {
   float sampledData = texture(dataTex, coord).r;
@@ -190,25 +196,25 @@ void main() {
     discard;
   }
   
-  // If the next channel color and the currently stored color (gl_FragColor) are identical,
+  // If the next channel color and the currently stored color (fragColor) are identical,
   // or the next channel color is transparent black,
   // just use the currently stored color. Repeat this for all channels.
 
   // Mix colors where necessary, using the alpha value of the next channel as the weight.
   // Use the maximum alpha value as the resulting alpha value.
-  gl_FragColor = val0;
-  gl_FragColor = (val1 == gl_FragColor || val1 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val1, val1.a).rgb, max(gl_FragColor.a, val1.a));
-  gl_FragColor = (val2 == gl_FragColor || val2 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val2, val2.a).rgb, max(gl_FragColor.a, val2.a));
-  gl_FragColor = (val3 == gl_FragColor || val3 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val3, val3.a).rgb, max(gl_FragColor.a, val3.a));
-  gl_FragColor = (val4 == gl_FragColor || val4 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val4, val4.a).rgb, max(gl_FragColor.a, val4.a));
-  gl_FragColor = (val5 == gl_FragColor || val5 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val5, val5.a).rgb, max(gl_FragColor.a, val5.a));
-  gl_FragColor = (val6 == gl_FragColor || val6 == vec4(0.)) ? gl_FragColor : vec4(mix(gl_FragColor, val6, val6.a).rgb, max(gl_FragColor.a, val6.a));
+  fragColor = val0;
+  fragColor = (val1 == fragColor || val1 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val1, val1.a).rgb, max(fragColor.a, val1.a));
+  fragColor = (val2 == fragColor || val2 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val2, val2.a).rgb, max(fragColor.a, val2.a));
+  fragColor = (val3 == fragColor || val3 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val3, val3.a).rgb, max(fragColor.a, val3.a));
+  fragColor = (val4 == fragColor || val4 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val4, val4.a).rgb, max(fragColor.a, val4.a));
+  fragColor = (val5 == fragColor || val5 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val5, val5.a).rgb, max(fragColor.a, val5.a));
+  fragColor = (val6 == fragColor || val6 == vec4(0.)) ? fragColor : vec4(mix(fragColor, val6, val6.a).rgb, max(fragColor.a, val6.a));
 
   
 
   // TODO: multiply the resulting channel-level opacity value by the layer-level opacity value.
 
   geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;

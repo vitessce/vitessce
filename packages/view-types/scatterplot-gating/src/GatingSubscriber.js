@@ -124,7 +124,7 @@ export function GatingSubscriber(props) {
     coordinationScopes,
   );
 
-  const [width, height, deckRef] = useDeckCanvasSize();
+  const [width, height, deckRef, onBeforeRender] = useDeckCanvasSize();
 
   const title = useMemo(() => {
     if (titleOverride) {
@@ -448,7 +448,7 @@ export function GatingSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
-
+        onBeforeRender={onBeforeRender}
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

@@ -16,8 +16,6 @@ catalog:
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
   "@tanstack/react-query": ^5.80.2
-  # note packages/types was on @hms-dbmi/viv ~0.13.8
-  "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
   # Zarrita
   "zarrita": 0.5.2
@@ -83,33 +81,50 @@ catalog:
 # (i.e., every package within the catalog has the same version value)
 catalogs:
   deck.gl:
-    "deck.gl": 8.8.27
-    "@deck.gl/core": 8.8.27
-    "@deck.gl/geo-layers": 8.8.27
-    "@deck.gl/mesh-layers": 8.8.27
-    "@deck.gl/aggregation-layers": 8.8.27
-    "@deck.gl/extensions": 8.8.27
-    "@deck.gl/layers": 8.8.27
-    "@deck.gl/react": 8.8.27
+    "deck.gl": ~9.1.11
+    "@deck.gl/core": ~9.1.11
+    "@deck.gl/geo-layers": ~9.1.11
+    "@deck.gl/mesh-layers": ~9.1.11
+    "@deck.gl/aggregation-layers": ~9.1.11
+    "@deck.gl/extensions": ~9.1.11
+    "@deck.gl/layers": ~9.1.11
+    "@deck.gl/react": ~9.1.11
+    "@deck.gl/widgets": ~9.1.11
+    "@math.gl/core": ^4.0.1
   luma.gl:
-    "luma.gl": 8.5.21
-    "@luma.gl/constants": 8.5.21
-    "@luma.gl/core": 8.5.21
-    "@luma.gl/engine": 8.5.21
-    "@luma.gl/gltools": 8.5.21
-    "@luma.gl/shadertools": 8.5.21
-    "@luma.gl/experimental": 8.5.21
-    "@luma.gl/webgl": 8.5.21
+    "@luma.gl/constants": ~9.1.9
+    "@luma.gl/core": ~9.1.9
+    "@luma.gl/engine": ~9.1.9
+    "@luma.gl/shadertools": ~9.1.9
+    "@luma.gl/webgl": ~9.1.9
+    "@luma.gl/gltf": ~9.1.9
+  viv:
+    "@hms-dbmi/viv": 0.18.0
+    "@vivjs/constants": 0.18.0
+    "@vivjs/extensions": 0.18.0
+    "@vivjs/layers": 0.18.0
+    "@vivjs/loaders": 0.18.0
+    "@vivjs/types": 0.18.0
+    "@vivjs/viewers": 0.18.0
+    "@vivjs/views": 0.18.0
   loaders.gl:
-    "loaders.gl": ^3.0.0
-    "@loaders.gl/3d-tiles": ^3.0.0
-    "@loaders.gl/core": ^3.0.0
-    "@loaders.gl/images": ^3.0.0
-    "@loaders.gl/loader-utils": ^3.0.0
+    "@loaders.gl/3d-tiles": 4.3.4
+    "@loaders.gl/core": 4.3.4
+    "@loaders.gl/images": 4.3.4
+    "@loaders.gl/loader-utils": 4.3.4
+    "@loaders.gl/worker-utils": 4.3.4
+    "@loaders.gl/math": 4.3.4
+    "@loaders.gl/schema": 4.3.4
+    "@loaders.gl/compression": 4.3.4
+    "@loaders.gl/crypto": 4.3.4
+    "@loaders.gl/draco": 4.3.4
+    "@loaders.gl/i3s": 4.3.4
+    "@loaders.gl/textures": 4.3.4
+    "@loaders.gl/tiles": 4.3.4
+    "@loaders.gl/zip": 4.3.4
   nebula.gl:
-    "nebula.gl": 0.23.8
-    "@nebula.gl/layers": 0.23.8
-    "@nebula.gl/edit-modes": 0.23.8
+    "@deck.gl-community/layers": 9.1.1
+    "@deck.gl-community/editable-layers": 9.1.1
   turf:
     "@turf/area": ^7.2.0
     "@turf/boolean-contains": ^7.2.0

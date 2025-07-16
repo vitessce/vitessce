@@ -1,14 +1,16 @@
 import { colormaps } from './glsl/index.js';
 
-export const vs = `
+// lang: glsl
+export const vs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-vertex-shader
 
-attribute vec2 texCoords;
-attribute vec3 positions;
-attribute vec3 positions64Low;
-attribute vec3 instancePickingColors;
+in vec2 texCoords;
+in vec3 positions;
+in vec3 positions64Low;
+in vec3 instancePickingColors;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 void main(void) {
   geometry.worldPosition = positions;
@@ -22,7 +24,9 @@ void main(void) {
 }
 `;
 
-export const fs = `
+// lang: glsl
+export const fs = `\
+#version 300 es
 #define SHADER_NAME bitmask-layer-fragment-shader
 precision highp float;
 
@@ -52,7 +56,9 @@ uniform sampler2D expressionTex;
 // opacity
 uniform float opacity;
 
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
   float sampledData = texture(dataTex, coord).r;
@@ -69,24 +75,24 @@ vec4 sampleAndGetColor(sampler2D dataTex, vec2 coord, bool isOn){
 
 void main() {
 
-  gl_FragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0]);
+  fragColor = sampleAndGetColor(channel0, vTexCoord, channelsVisible[0]);
 
-  // If the sampled color and the currently stored color (gl_FragColor) are identical, don't blend and use the sampled color,
+  // If the sampled color and the currently stored color (fragColor) are identical, don't blend and use the sampled color,
   // otherwise just use the currently stored color.  Repeat this for all channels.
   vec4 sampledColor = sampleAndGetColor(channel1, vTexCoord, channelsVisible[1]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  fragColor = (sampledColor == fragColor || sampledColor == vec4(0.)) ? fragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel2, vTexCoord, channelsVisible[2]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  fragColor = (sampledColor == fragColor || sampledColor == vec4(0.)) ? fragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel3, vTexCoord, channelsVisible[3]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  fragColor = (sampledColor == fragColor || sampledColor == vec4(0.)) ? fragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel4, vTexCoord, channelsVisible[4]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  fragColor = (sampledColor == fragColor || sampledColor == vec4(0.)) ? fragColor : sampledColor;
   sampledColor = sampleAndGetColor(channel5, vTexCoord, channelsVisible[5]);
-  gl_FragColor = (sampledColor == gl_FragColor || sampledColor == vec4(0.)) ? gl_FragColor : sampledColor;
+  fragColor = (sampledColor == fragColor || sampledColor == vec4(0.)) ? fragColor : sampledColor;
   // Apply the opacity if there is pixel data, and if the pixel data is empty i.e no segmentation, use 0 opacity.
-  gl_FragColor = vec4(gl_FragColor.rgb, (gl_FragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
+  fragColor = vec4(fragColor.rgb, (fragColor.rgb == vec3(0., 0., 0.)) ? 0.0 : opacity);
 
   geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
