@@ -9,8 +9,8 @@ import {
   useGenomicProfilesData,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import HiGlassLazy from './HiGlassLazy.js';
-import { useStyles } from './styles.js';
+import HiGlassLazy, { setStoreRootForHiGlass } from './HiGlassLazy.js';
+import { useStyles, HiglassGlobalStyles } from './styles.js';
 
 const REFERENCE_TILESETS = {
   hg38: {
@@ -98,8 +98,8 @@ export function GenomicProfilesSubscriber(props) {
   );
 
   const [
-    genomicProfilesAttrs, genomicProfilesStatus,
-    genomicProfilesUrls, genomicProfilesRequestInit,
+    genomicProfilesData, genomicProfilesStatus,
+    genomicProfilesUrls,
   ] = useGenomicProfilesData(
     loaders, dataset, true, {}, {},
     {},
@@ -108,7 +108,13 @@ export function GenomicProfilesSubscriber(props) {
   const urls = useUrls([genomicProfilesUrls]);
 
   const hgViewConfig = useMemo(() => {
-    if (!genomicProfilesAttrs || urls.length !== 1) {
+    const { genomicProfiles } = genomicProfilesData;
+    if (!genomicProfiles) {
+      return null;
+    }
+    const { attrs: genomicProfilesAttrs, storeRoot: genomicProfilesStoreRoot } = genomicProfiles;
+
+    if (!genomicProfilesAttrs || !genomicProfilesStoreRoot) {
       return null;
     }
     // Get the URL to the data file from the downloadable URLs array.
@@ -193,10 +199,13 @@ export function GenomicProfilesSubscriber(props) {
       const setColor = isPath ? cellSetColor?.find(s => isEqual(s.path, trackUid))?.color : null;
       // Get the track UID as a string before passing to HiGlass.
       const trackUidString = isPath ? trackUid.join('__') : trackUid;
-      // Get the requestInit object from the current loader, if it exists.
-      const options = genomicProfilesRequestInit
-        ? { overrides: genomicProfilesRequestInit }
-        : undefined;
+
+      // Store the storeRoot on the global to make it available to the HiGlass data fetcher.
+      // This is not ideal, but it is our current workaround because we cannot pass the storeRoot
+      // object via the HiGlass config, as the config must be serializable to JSON.
+      // Reference: https://github.com/higlass/higlass-zarr-datafetchers/pull/6
+      setStoreRootForHiGlass(url, genomicProfilesStoreRoot);
+
       // Create the HiGlass track definition for this profile.
       const track = {
         type: 'horizontal-bar',
@@ -204,7 +213,8 @@ export function GenomicProfilesSubscriber(props) {
         data: {
           type: 'zarr-multivec',
           url,
-          options,
+          // The storeRoot takes precedence over the URL.
+          hasStoreRoot: true,
           row: i,
         },
         options: {
@@ -253,7 +263,7 @@ export function GenomicProfilesSubscriber(props) {
       },
     };
     return hgView;
-  }, [genomicProfilesAttrs, urls, theme, height, profileTrackUidKey,
+  }, [genomicProfilesData, urls, theme, height, profileTrackUidKey,
     profileTrackNameKey, cellSetSelection, cellSetColor,
     higlassServer, assembly]);
 
@@ -273,6 +283,7 @@ export function GenomicProfilesSubscriber(props) {
         helpText={helpText}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
+          <HiglassGlobalStyles classes={classes} />
           {hgViewConfig ? (
             <HiGlassLazy
               coordinationScopes={coordinationScopes}

@@ -37,7 +37,9 @@ async function getReadParquet() {
 
 // If the array path starts with table/something/rest
 // capture table/something.
-const regex = /^shapes\/([^/]*)\/(.*)$/;
+
+const elementRegex = /^shapes\/([^/]*)$/;
+const subElementRegex = /^shapes\/([^/]*)\/(.*)$/;
 
 /**
  *
@@ -46,9 +48,13 @@ const regex = /^shapes\/([^/]*)\/(.*)$/;
  */
 function getShapesPrefix(arrPath) {
   if (arrPath) {
-    const matches = arrPath.match(regex);
+    const matches = arrPath.match(subElementRegex);
     if (matches && matches.length === 3) {
       return `shapes/${matches[1]}/`;
+    }
+    const elementMatches = arrPath.match(elementRegex);
+    if (elementMatches && elementMatches.length === 2) {
+      return `shapes/${elementMatches[1]}/`;
     }
   }
   return '';
