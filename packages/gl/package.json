@@ -55,9 +55,9 @@
     "@luma.gl/engine": "catalog:luma.gl",
     "@luma.gl/shadertools": "catalog:luma.gl",
     "@luma.gl/webgl": "catalog:luma.gl",
+    "@deck.gl-community/layers": "catalog:nebula.gl",
+    "@deck.gl-community/editable-layers": "catalog:nebula.gl",
     "@math.gl/core": "catalog:",
-    "@nebula.gl/edit-modes": "catalog:nebula.gl",
-    "@nebula.gl/layers": "catalog:nebula.gl",
     "@turf/area": "catalog:turf",
     "@turf/boolean-contains": "catalog:turf",
     "@turf/boolean-overlap": "catalog:turf",
@@ -74,8 +74,7 @@
     "d3-array": "catalog:",
     "glslify": "^7.0.0",
     "lodash-es": "catalog:",
-    "mathjs": "catalog:",
-    "nebula.gl": "catalog:nebula.gl"
+    "mathjs": "catalog:"
   },
   "devDependencies": {
     "glsl-colormap": "^1.0.1",

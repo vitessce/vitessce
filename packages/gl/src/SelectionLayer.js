@@ -9,10 +9,14 @@ import { booleanContains } from '@turf/boolean-contains';
 import { booleanOverlap } from '@turf/boolean-overlap';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { SELECTION_TYPE } from 'nebula.gl';
-import { EditableGeoJsonLayer } from '@nebula.gl/layers';
-import { DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
+import {
+  EditableGeoJsonLayer,
+  DrawPolygonByDraggingMode,
+  ViewMode,
+  SELECTION_TYPE as ST,
+} from '@deck.gl-community/editable-layers';
 
+export const SELECTION_TYPE = ST;
 const EDIT_TYPE_ADD = 'addFeature';
 const EDIT_TYPE_CLEAR = 'clearFeatures';
 
@@ -68,6 +72,10 @@ const PASS_THROUGH_PROPS = [
 ];
 
 export default class SelectionLayer extends CompositeLayer {
+  constructor(props) {
+    super(props);
+    console.log('SelectionLayer constructor', props);
+  }
   _selectPolygonObjects(coordinates) {
     const {
       flipY,
@@ -149,6 +157,7 @@ export default class SelectionLayer extends CompositeLayer {
   }
 
   renderLayers() {
+    console.log(this.props.selectionType);
     const mode = MODE_MAP[this.props.selectionType] || ViewMode;
 
     const inheritedProps = {};

@@ -10,4 +10,4 @@ export const COLORMAP_SHADER_PLACEHOLDER = 'COLORMAP_FUNC';
 
 export const DEFAULT_GL_OPTIONS = { webgl2: true };
 
-export const SELECTION_TYPE = {};
+export { SELECTION_TYPE } from './SelectionLayer.js';
