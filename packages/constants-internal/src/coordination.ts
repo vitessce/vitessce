@@ -53,6 +53,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_Y,
     CoordinationType.SPATIAL_ROTATION_Z,
     CoordinationType.SPATIAL_AXIS_FIXED,
+    CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.OBS_FILTER,
