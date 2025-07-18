@@ -23,6 +23,13 @@ export default defineConfig({
     // - https://stackoverflow.com/a/70524430
     'import.meta.env.PACKAGE_VERSION': JSON.stringify(process.env.npm_package_version),
   },
+  server: {
+    fs: {
+      // Without this, Vite blocks data-URI query parameters,
+      // such as http://localhost:3000/?url=data:,{}
+      strict: false,
+    },
+  },
 });
 
 
