@@ -219,6 +219,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     // if we only need a subset of columns?
     // For example, if the store supports
     // getRange like above to get the schema bytes.
+    // See https://github.com/kylebarron/parquet-wasm/issues/758
     let parquetBytes = await this.loadParquetBytes(parquetPath);
     if (!parquetBytes) {
       throw new Error('Failed to load parquet data from store.');
@@ -247,6 +248,10 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     const wasmTable = readParquet(parquetBytes, options);
     const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
 
+    // TODO: rather than storing the table, store the tableBytes.
+    // This is because the table may not include all columns, but if we store the full tableBytes,
+    // we can use readParquet's options.columns to get additional columns later without needing to get the bytes again.
+    // If we eventually support loading per-column bytes, then we can do this differently.
     this.parquetTables[parquetPath] = arrowTable;
     return this.parquetTables[parquetPath];
   }
