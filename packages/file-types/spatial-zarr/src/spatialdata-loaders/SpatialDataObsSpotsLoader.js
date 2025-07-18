@@ -21,10 +21,6 @@ function getGeometryPath(path) {
   return `${path}/geometry`;
 }
 
-function getAttrsPath(path) {
-  return `${path}/.zattrs`;
-}
-
 const DEFAULT_AXES = [
   {
     name: 'x',
@@ -84,26 +80,8 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return this.modelMatrix;
     }
     // Load the transformations from the .zattrs for the shapes
-    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
 
-    const {
-      'encoding-type': encodingType,
-      spatialdata_attrs: {
-        geos = {},
-        version: attrsVersion,
-      },
-    } = zattrs;
-    const hasExpectedAttrs = (
-      encodingType === 'ngff:shapes'
-      && ((geos?.name === 'POINT'
-      && geos?.type === 0
-      && attrsVersion === '0.1') || attrsVersion === '0.2')
-    );
-    if (!hasExpectedAttrs) {
-      throw new AbstractLoaderError(
-        'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
-      );
-    }
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
     // coordinate system which maps from the input "xy" to the specified
@@ -148,7 +126,8 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       const modelMatrix = await this.loadModelMatrix();
 
       let locations;
-      const { formatVersion } = await this.dataSource.getEncodingTypeAndFormatVersion(path);
+      const formatVersion = await this.dataSource.getShapesFormatVersion(path);
+      // TODO: move versioned logic to the dataSource class?
       if (formatVersion === '0.1') {
         locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
       } else if (formatVersion === '0.2') {
@@ -208,7 +187,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
 
     return Promise.all([
-      this.dataSource.loadObsIndex(getCoordsPath(path), tablePath),
+      this.dataSource.loadObsIndex(path, tablePath),
       this.loadSpots(),
       this.loadRadius(),
     ]).then(([obsIndex, obsSpots, obsRadius]) => {

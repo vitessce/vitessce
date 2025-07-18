@@ -1,35 +1,48 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-import { AnnDataSource } from '@vitessce/zarr';
+import AbstractSpatialDataSource from './AbstractSpatialDataSource.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 
 // If the array path starts with table/something/rest
 // capture table/something.
-const pluralRegex = /^tables\/([^/]*)(\/?)(.*)$/;
-const singularRegex = /^table\/([^/]*)(\/?)(.*)$/;
+const pluralSubElementRegex = /^tables\/([^/]*)\/(.*)$/;
+const singularSubElementRegex = /^table\/([^/]*)\/(.*)$/;
+
+const pluralRegex = /^tables\/([^/]*)$/;
+const singularRegex = /^table\/([^/]*)$/;
 
 /**
  *
  * @param {string|undefined} arrPath
  * @returns
  */
-function getTablePrefix(arrPath) {
+function getTableElementPath(arrPath) {
   if (arrPath) {
-    // First try the plural "tables/{something}"
-    const pluralMatches = arrPath.match(pluralRegex);
-    if (pluralMatches && pluralMatches.length >= 3) {
-      return `tables/${pluralMatches[1]}/`;
+    // First try the plural "tables/{something}/{arr}"
+    const pluralMatches = arrPath.match(pluralSubElementRegex);
+    if (pluralMatches && pluralMatches.length === 3) {
+      return `tables/${pluralMatches[1]}`;
     }
-    const singularMatches = arrPath.match(singularRegex);
-    if (singularMatches && singularMatches.length >= 3) {
-      return `table/${singularMatches[1]}/`;
+    // Then try the plural "tables/{something}"
+    const pluralElementMatches = arrPath.match(pluralRegex);
+    if (pluralElementMatches && pluralElementMatches.length === 2) {
+      return `tables/${pluralElementMatches[1]}`;
     }
+    // Then try the singular "table/{something}/{arr}"
+    const singularMatches = arrPath.match(singularSubElementRegex);
+    if (singularMatches && singularMatches.length === 3) {
+      return `table/${singularMatches[1]}`;
+    }
+    // Finally try the singular "table/{something}"
+    const singularElementMatches = arrPath.match(singularRegex);
+    if (singularElementMatches && singularElementMatches.length === 2) {
+      return `table/${singularElementMatches[1]}`;
+    }
+
   }
-  // TODO: what to do here when there are multiple tables?
-  // ObsSetsAnndataLoader will need to pass a path to loadObsIndex().
-  return 'table/table/';
+  return ''; // TODO: throw an error?
 }
 
 /**
@@ -37,8 +50,8 @@ function getTablePrefix(arrPath) {
  * @param {string|undefined} arrPath
  * @returns
  */
-export function getObsPath(arrPath) {
-  return `${getTablePrefix(arrPath)}obs`;
+function getObsPath(arrPath) {
+  return `${getTableElementPath(arrPath)}/obs`;
 }
 
 /**
@@ -46,11 +59,11 @@ export function getObsPath(arrPath) {
  * @param {string|undefined} arrPath
  * @returns
  */
-export function getVarPath(arrPath) {
-  return `${getTablePrefix(arrPath)}var`;
+function getVarPath(arrPath) {
+  return `${getTableElementPath(arrPath)}/var`;
 }
 
-export default class SpatialDataTableSource extends AnnDataSource {
+export default class SpatialDataTableSource extends AbstractSpatialDataSource {
   /**
    *
    * @param {DataSourceParams} params
@@ -63,26 +76,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
     this.varIndices = {};
     /** @type {{ [k: string]: string[] }} */
     this.varAliases = {};
-  }
-
-  /**
-   *
-   * @param {string} tablePath
-   * @returns
-   */
-  async loadSpatialDataAttrs(tablePath) {
-    const v0_4_0_attrs = await this.getJson(`${tablePath}.zattrs`);
-    const attrsKeys = Object.keys(v0_4_0_attrs);
-    if (['instance_key', 'region', 'region_key'].every(k => attrsKeys.includes(k))) {
-      // TODO: assert things about "spatialdata-encoding-type" and "version" values?
-      // TODO: first check the "spatialdata_software_version" metadata in
-      // the root of the spatialdata object? (i.e., sdata.zarr/.zattrs)
-      return v0_4_0_attrs;
-    }
-    // Prior to v0.4.0 of the spatialdata package, the spatialdata_attrs
-    // lived within their own dictionary within "uns".
-    const pre_v0_4_0_attrs = await this._loadDict(`${tablePath}uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
-    return pre_v0_4_0_attrs;
   }
 
   /**
@@ -100,7 +93,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // TODO: filter table index by region and element type.
       // region_key: regionKey,
       // region,
-    } = await this.loadSpatialDataAttrs(getTablePrefix(path));
+    } = await this.loadSpatialDataElementAttrs(getTableElementPath(path));
 
     if (instanceKey !== undefined && instanceKey !== null) {
       // Use a specific instanceKey column for the index if

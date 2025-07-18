@@ -20,9 +20,6 @@ function getIndexPath(path) {
   return `${path}/__null_dask_index__`;
 }
 
-function getAttrsPath(path) {
-  return `${path}/.zattrs`;
-}
 
 const DEFAULT_AXES = [
   {
@@ -98,20 +95,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       return this.modelMatrix;
     }
     // Load the transformations from the .zattrs for the shapes
-    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
+    console.log(path, zattrs);
 
-    const {
-      'encoding-type': encodingType,
-      spatialdata_attrs: {
-        version: attrsVersion,
-      },
-    } = zattrs;
-    const hasExpectedAttrs = (encodingType === 'ngff:points' && attrsVersion === '0.1');
-    if (!hasExpectedAttrs) {
-      throw new AbstractLoaderError(
-        'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
-      );
-    }
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
     // coordinate system which maps from the input "xyz" to the specified
@@ -160,12 +146,11 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       const modelMatrix = await this.loadModelMatrix();
 
       let locations;
-      const { formatVersion } = await this.dataSource.getEncodingTypeAndFormatVersion(path);
+      const formatVersion = await this.dataSource.getPointsFormatVersion(path);
       if (formatVersion === '0.1') {
         locations = await this.dataSource.loadPoints(getGeometryPath(path));
       }
       this.locations = locations;
-
 
 
       // Apply transformation matrix to the coordinates
@@ -189,6 +174,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async loadObsIndex() {
+    // TODO: remove this function and just use the one from the dataSource?
+    // But why is the index column name always different?...
+
     const { path } = this.options;
     // TODO: will the label column of the parquet table always be numeric?
     const arr = await this.dataSource.loadNumeric(getIndexPath(path));
@@ -197,12 +185,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const { path, tablePath } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     return Promise.all([
       this.loadObsIndex(),
       this.loadPoints(),

@@ -2,38 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-unresolved */
 /* eslint-disable no-undef */
-import { tableFromIPC } from 'apache-arrow';
 import WKB from 'ol/format/WKB.js';
-import { AnnDataSource, basename } from '@vitessce/zarr';
+import { basename } from '@vitessce/zarr';
+import AbstractSpatialDataSource from './AbstractSpatialDataSource.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
-async function getReadParquet() {
-  // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
-  // TODO: host somewhere we control, like cdn.vitessce.io?
-  // @ts-ignore
-  const module = await import(/* webpackIgnore: true */ 'https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
-  await module.default();
-  // We cannot use regulary dynamic import here because it breaks NextJS builds
-  // due to pointing to a remote URL.
-  // I could not figure out a NextJS webpack configuration to resolve it.
-  // The following becomes inlined by Vite in library mode
-  // eliminating the benefit of dynamic import.
-  // Reference: https://github.com/vitejs/vite/issues/4454
-  // const responsePromise = await fetch(
-  //   new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href
-  // );
-  // const responsePromise = await fetch('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm');
-  // const wasmBuffer = await responsePromise.arrayBuffer();
-  // module.initSync(wasmBuffer);
-  // Another issue is that when we import parquet-wasm JS from node_modules,
-  // running module.default there is a MIME type issue because the Vite dev
-  // server does not serve the .wasm with a MIME type of application/wasm.
-  // I can't seem to get a custom Vite plugin that sets the MIME type in
-  // request headers to work.
-  return module.readParquet;
-}
 
 // If the array path starts with table/something/rest
 // capture table/something.
@@ -46,40 +21,18 @@ const shapesSubElementRegex = /^shapes\/([^/]*)\/(.*)$/;
  * @param {string|undefined} arrPath
  * @returns
  */
-function getShapesPrefix(arrPath) {
+function getShapesElementPath(arrPath) {
   if (arrPath) {
     const matches = arrPath.match(shapesSubElementRegex);
     if (matches && matches.length === 3) {
-      return `shapes/${matches[1]}/`;
+      return `shapes/${matches[1]}`;
     }
     const elementMatches = arrPath.match(shapesElementRegex);
     if (elementMatches && elementMatches.length === 2) {
-      return `shapes/${elementMatches[1]}/`;
+      return `shapes/${elementMatches[1]}`;
     }
   }
-  return '';
-}
-
-const pointsElementRegex = /^points\/([^/]*)$/;
-const pointsSubElementRegex = /^points\/([^/]*)\/(.*)$/;
-
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
-function getPointsPrefix(arrPath) {
-  if (arrPath) {
-    const matches = arrPath.match(pointsSubElementRegex);
-    if (matches && matches.length === 3) {
-      return `points/${matches[1]}/`;
-    }
-    const elementMatches = arrPath.match(pointsElementRegex);
-    if (elementMatches && elementMatches.length === 2) {
-      return `points/${elementMatches[1]}/`;
-    }
-  }
-  return '';
+  return ''; // TODO: throw an error?
 }
 
 /**
@@ -87,16 +40,8 @@ function getPointsPrefix(arrPath) {
  * @param {string|undefined} arrPath
  * @returns
  */
-function getElementPrefix(arrPath) {
-  const shapesPrefix = getShapesPrefix(arrPath);
-  if (shapesPrefix.length > 0) {
-    return shapesPrefix;
-  }
-  const pointsPrefix = getPointsPrefix(arrPath);
-  if (pointsPrefix.length > 0) {
-    return pointsPrefix;
-  }
-  throw new Error(`Cannot determine element (shapes/points) for array path: ${arrPath}`);
+function getIndexPath(arrPath) {
+  return `${getShapesElementPath(arrPath)}/Index`;
 }
 
 /**
@@ -104,155 +49,34 @@ function getElementPrefix(arrPath) {
  * @param {string|undefined} arrPath
  * @returns
  */
-export function getIndexPath(arrPath) {
-  return `${getElementPrefix(arrPath)}Index`;
-}
-
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
-export function getVarPath(arrPath) {
-  return `${getElementPrefix(arrPath)}var`;
-}
-
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
-export function getParquetPath(arrPath) {
-  const elementPrefix = getElementPrefix(arrPath);
+function getParquetPath(arrPath) {
+  const elementPrefix = getShapesElementPath(arrPath);
   if (elementPrefix.startsWith('shapes/')) {
-    return `${elementPrefix}shapes.parquet`;
+    return `${elementPrefix}/shapes.parquet`;
   }
-  if (elementPrefix.startsWith('points/')) {
-    return `${elementPrefix}points.parquet`;
-  }
-  throw new Error(`Cannot determine parquet path for array path: ${arrPath}`);
+  throw new Error(`Cannot determine parquet path for shapes array path: ${arrPath}`);
 }
 
-/**
- *
- * @param {string|undefined} arrPath
- * @returns
- */
-export function getAttrsPath(arrPath) {
-  return `${getElementPrefix(arrPath)}.zattrs`;
-}
-
-/**
- * Converts a BigInt64Array to a Float32Array if needed.
- * @param {any} input - The typed array to convert.
- * @returns {Float32Array} - The converted or original Float32Array.
- */
-function toFloat32Array(input) {
-  if (input instanceof BigInt64Array) {
-    const floats = new Float32Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      floats[i] = Number(input[i]); // May lose precision for large BigInts
-    }
-    return floats;
-  }
-
-  return new Float32Array(input);
-}
-
-
-export default class SpatialDataShapesSource extends AnnDataSource {
-  /**
-   *
-   * @param {DataSourceParams} params
-   */
-  constructor(params) {
-    super(params);
-    /** @type {{ [k: string]: Promise<string[]> }} */
-    this.obsIndices = {};
-    /** @type {{ [k: string]: Promise<string[]> }} */
-    this.varIndices = {};
-    /** @type {{ [k: string]: string[] }} */
-    this.varAliases = {};
-
-    /** @type {{ [k: string]: import('apache-arrow').Table }} */
-    this.parquetTables = {};
-  }
-
-  /**
-   *
-   * @param {string} tablePath
-   * @returns
-   */
-  async loadSpatialDataAttrs(tablePath) {
-    return this._loadDict(`${tablePath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
-  }
-
+export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
   /**
    *
    * @param {string} path A path to within shapes.
-   * @returns {Promise<{formatVersion: "0.1"|"0.2", encodingType: "ngff:points"|"ngff:shapes"}>} The format version.
+   * @returns {Promise<"0.1"|"0.2">} The format version.
    */
-  async getEncodingTypeAndFormatVersion(path) {
-    const zattrs = await this.getJson(getAttrsPath(path));
+  async getShapesFormatVersion(path) {
+    const zattrs = await this.loadSpatialDataElementAttrs(path);
     const formatVersion = zattrs.spatialdata_attrs.version;
+    const geos = zattrs.spatialdata_attrs.geos || {}; // Used only by v0.1
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === "ngff:shapes" && !(formatVersion === '0.1' || formatVersion === '0.2')) {
+    if (encodingType !== "ngff:shapes" || !(
+      formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0)
+      || formatVersion === '0.2'
+    )) {
       throw new Error(
-        `Unexpected version for shapes spatialdata_attrs: ${formatVersion}`,
+        `Unexpected encoding type or version for shapes spatialdata_attrs: ${encodingType} ${formatVersion}`,
       );
     }
-    if (encodingType === "ngff:points" && !(formatVersion === '0.1')) {
-      throw new Error(
-        `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
-      );
-    }
-    return { encodingType, formatVersion };
-  }
-
-  /**
-   * 
-   * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
-   * @returns {Promise<Uint8Array|undefined>} The parquet file bytes.
-   */
-  async loadParquetBytes(parquetPath) {
-    let parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
-    if (!parquetBytes) {
-      // This may be a directory with multiple parts.
-      const part0Path = `${parquetPath}/part.0.parquet`;
-      parquetBytes = await this.storeRoot.store.get(`/${part0Path}`);
-
-      // TODO: support loading multiple parts.
-    }
-    return parquetBytes;
-  }
-
-  /**
-   *
-   * @param {string} path A path to an array within shapes.
-   * @returns
-   */
-  async loadParquetTable(path) {
-    const parquetPath = getParquetPath(path);
-    if (this.parquetTables[parquetPath]) {
-      // Return cached table if present.
-      return this.parquetTables[parquetPath];
-    }
-    const readParquet = await getReadParquet();
-    let parquetBytes = await this.loadParquetBytes(parquetPath);
-    if (!parquetBytes) {
-      throw new Error('Failed to load parquet data from store.');
-    }
-    if (!ArrayBuffer.isView(parquetBytes)) {
-      // This is required because in vitessce-python the
-      // experimental.invoke store wrapper can return an ArrayBuffer,
-      // but readParquet expects a Uint8Array.
-      parquetBytes = new Uint8Array(parquetBytes);
-    }
-    const wasmTable = readParquet(parquetBytes);
-    // TODO: use streaming?
-    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-    this.parquetTables[parquetPath] = arrowTable;
-    return this.parquetTables[parquetPath];
+    return formatVersion;
   }
 
   /**
@@ -262,6 +86,10 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
    */
   async loadObsIndex(path = undefined, tablePath = undefined) {
+
+    // TODO: if a tablePath is provided, use it to load the obsIndex.
+    // Otherwise use the index column from the parquet table.
+
     let indexPath = getIndexPath(path);
     if (tablePath) {
       // TODO: given a path to the shapes,
@@ -276,16 +104,12 @@ export default class SpatialDataShapesSource extends AnnDataSource {
         // TODO: filter table index by region and element type.
         // region_key: regionKey,
         // region,
-      } = await this.loadSpatialDataAttrs(tablePath);
+      } = await this.loadSpatialDataElementAttrs(tablePath);
 
       indexPath = `${obsPath}/${instanceKey}`;
     }
-    if (indexPath in this.obsIndices) {
-      return this.obsIndices[indexPath];
-    }
     // TODO: support loading from parquet if no tablePath was provided.
-    this.obsIndices[indexPath] = this._loadColumn(indexPath);
-    return this.obsIndices[indexPath];
+    return this._loadColumn(indexPath);
   }
 
   /**
@@ -294,17 +118,19 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
-    const { formatVersion, encodingType } = await this.getEncodingTypeAndFormatVersion(path);
-    if (encodingType === "ngff:shapes" && formatVersion === '0.1') {
+    const formatVersion = await this.getShapesFormatVersion(path);
+    if (formatVersion === '0.1') {
       // Shapes v0.1 did not use Parquet, so we use the parent Zarr-based column loading function.
       return super.loadNumeric(path);
     }
-    const arrowTable = await this.loadParquetTable(path);
+    const parquetPath = getParquetPath(path);
+    const arrowTable = await this.loadParquetTable(parquetPath);
     const columnArr = arrowTable.getChild(basename(path))?.toArray();
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
-      data: toFloat32Array(columnArr),
+      // TODO: support BigInt64Array.
+      data: new Float32Array(columnArr),
       stride: [1],
     };
   }
@@ -398,7 +224,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    */
   async loadPolygonShapes(path) {
     const columnName = basename(path);
-    const arrowTable = await this.loadParquetTable(path);
+    const parquetPath = getParquetPath(path);
+    const arrowTable = await this.loadParquetTable(parquetPath);
     const geometryColumn = this._getGeometryColumn(arrowTable, columnName);
     if (this._isWkbColumn(arrowTable, columnName)) {
       // If the geometry column is WKB encoded, decode it.
@@ -422,7 +249,8 @@ export default class SpatialDataShapesSource extends AnnDataSource {
    */
   async loadCircleShapes(path) {
     const columnName = basename(path);
-    const arrowTable = await this.loadParquetTable(path);
+    const parquetPath = getParquetPath(path);
+    const arrowTable = await this.loadParquetTable(parquetPath);
     const geometryColumn = this._getGeometryColumn(arrowTable, columnName);
     if (this._isWkbColumn(arrowTable, columnName)) {
       // If the geometry column is WKB encoded, decode it.
@@ -436,73 +264,6 @@ export default class SpatialDataShapesSource extends AnnDataSource {
         ],
       };
     }
-    throw new Error('Unexpected encoding type for points, currently only WKB is supported');
-  }
-
-  /**
-   *
-   * @param {string} path
-   * @returns {Promise<{
-   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
-   *  shape: [number, number],
-   * }>} A promise for a zarr array containing the data.
-   */
-  async loadPoints(path) {
-    const arrowTable = await this.loadParquetTable(path);
-    const xColumn = arrowTable.getChild('x');
-    const yColumn = arrowTable.getChild('y');
-    const zColumn = arrowTable.getChild('z');
-
-    const xColumnArr = xColumn?.toArray();
-    const yColumnArr = yColumn?.toArray();
-    const zColumnArr = zColumn?.toArray();
-
-    const xColumnF32Arr = toFloat32Array(xColumnArr);
-    const yColumnF32Arr = toFloat32Array(yColumnArr);
-    const zColumnF32Arr = toFloat32Array(zColumnArr);
-
-    // TODO: use the z column
-    
-    return {
-      shape: [2, arrowTable.numRows],
-      data: [
-        xColumnF32Arr,
-        yColumnF32Arr,
-      ],
-    };
-  }
-
-  /**
-   * Class method for loading the var index.
-   * @param {string|undefined} path
-   * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
-   */
-  loadVarIndex(path = undefined) {
-    const varPath = getVarPath(path);
-    if (varPath in this.varIndices) {
-      return this.varIndices[varPath];
-    }
-    this.varIndices[varPath] = this.getJson(`${varPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
-    return this.varIndices[varPath];
-  }
-
-  /**
-   * Class method for loading the var alias.
-   * @param {string} varPath
-   * @param {string} matrixPath
-   * @returns {Promise<string[]>} An promise for a zarr array containing the aliased names.
-   */
-  async loadVarAlias(varPath, matrixPath) {
-    if (varPath in this.varAliases) {
-      return this.varAliases[varPath];
-    }
-    const [varAliasData] = await this.loadVarColumns([varPath]);
-    this.varAliases[varPath] = /** @type {string[]} */ (varAliasData);
-    const index = await this.loadVarIndex(matrixPath);
-    this.varAliases[varPath] = this.varAliases[varPath].map(
-      (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
-    );
-    return this.varAliases[varPath];
+    throw new Error('Unexpected encoding type for circles, currently only WKB is supported');
   }
 }
