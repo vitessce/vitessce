@@ -13,10 +13,13 @@ function generateMerfishConfig() {
     name: 'SpatialData with MERFISH data',
   });
 
-  const onlyPoints = false;
+  const withPoints = false;
+  const withImages = true;
+  const withLabels = true;
 
   let dataset = vc.addDataset('My dataset');
-  if (!onlyPoints) {
+
+  if(withImages) {
     dataset = dataset.addFile({
         fileType: 'spatialdata.zarr',
         url: sdataUrl,
@@ -29,7 +32,10 @@ function generateMerfishConfig() {
         coordinationValues: {
           fileUid: "stains"
         },
-    }).addFile({
+    })
+  }
+  if(withLabels) {
+    dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
       options: {
@@ -58,25 +64,27 @@ function generateMerfishConfig() {
     })
   }
 
-  dataset = dataset.addFile({
-    fileType: 'spatialdata.zarr',
-    url: sdataUrl,
-    options: {
-      obsPoints: {
-        path: 'points/molecules',
+  if(withPoints) {
+    dataset = dataset.addFile({
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        obsPoints: {
+          path: 'points/molecules',
+        },
+        coordinateSystem: 'global',
       },
-      coordinateSystem: 'global',
-    },
-    coordinationValues: {
-      obsType: "point",
-    },
-  });
+      coordinationValues: {
+        obsType: "point",
+      },
+    });
+  }
   
 
   const spatialView = vc.addView(dataset, "spatialBeta");
   const lcView = vc.addView(dataset, "layerControllerBeta");
 
-  if(!onlyPoints) {
+  if(withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
       imageLayer: CL([
         {
@@ -101,7 +109,8 @@ function generateMerfishConfig() {
         }
       ])
     }, { scopePrefix: getInitialCoordinationScopePrefix("A", "image") });
-
+  }
+  if(withLabels) {
     vc.linkViewsByObject([spatialView, lcView], {
       segmentationLayer: CL([
         {
@@ -134,14 +143,15 @@ function generateMerfishConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsSegmentations") });
   }
 
-
-  vc.linkViewsByObject([spatialView, lcView], {
+  if(withPoints) {
+    vc.linkViewsByObject([spatialView, lcView], {
       pointLayer: CL([
         {
           obsType: 'point',
         }
       ])
     }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsPoints") });
+  }
 
 
   vc.layout(hconcat(spatialView, lcView));

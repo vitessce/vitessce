@@ -30,6 +30,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   options: ImageOptions;
 
+  modelMatrix: number[]|null = null;
+
   constructor(vivLoader: VivLoaderType, options: ImageOptions) {
     this.options = options || {};
     this.vivLoader = vivLoader;
@@ -73,6 +75,14 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   getModelMatrix(): number[] {
+    if(!this.modelMatrix) {
+      // Cache the model matrix
+      this.modelMatrix = this._getModelMatrix();
+    }
+    return this.modelMatrix;
+  }
+
+  _getModelMatrix(): number[] {
     // The user can always provide an additional transform matrix
     // via the file definition options property.
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
