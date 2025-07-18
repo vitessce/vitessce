@@ -8,7 +8,7 @@ import { AnnDataSource } from '@vitessce/zarr';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
-async function getReadParquet() {
+async function getParquetModule() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
   // TODO: host somewhere we control, like cdn.vitessce.io?
   // @ts-ignore
@@ -31,7 +31,25 @@ async function getReadParquet() {
   // server does not serve the .wasm with a MIME type of application/wasm.
   // I can't seem to get a custom Vite plugin that sets the MIME type in
   // request headers to work.
-  return module.readParquet;
+  return { readParquet: module.readParquet, readSchema: module.readSchema };
+}
+
+/**
+ * Get the name of the index column from an Apache Arrow table.
+ * @param {import('apache-arrow').Table} arrowTable
+ * @returns {string|null}
+ */
+function tableToIndexColumnName(arrowTable) {
+  const pandasMetadata = arrowTable.schema.metadata.get('pandas');
+  if (pandasMetadata) {
+    const pandasMetadataJson = JSON.parse(pandasMetadata);
+    if(Array.isArray(pandasMetadataJson.index_columns) && pandasMetadataJson.index_columns.length === 1) {
+      return pandasMetadataJson.index_columns?.[0];
+    } else {
+      throw new Error('Expected a single index column in the pandas metadata.');
+    }
+  }
+  return null;
 }
 
 /**
@@ -52,6 +70,8 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     // TODO: change to column-specific storage.
     /** @type {{ [k: string]: import('apache-arrow').Table }} */
     this.parquetTables = {};
+
+    this.parquetModulePromise = getParquetModule();
   }
 
   /**
@@ -110,17 +130,91 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
   }
 
   /**
+   * Try to load only the schema bytes of a parquet file.
+   * This is useful for getting the index column name without loading the full table.
+   * This will only work if the store supports getRange, for example FetchStore.
+   * Reference: https://github.com/manzt/zarrita.js/blob/c0dd684dc4da79a6f42ab2a591246947bde8d143/packages/%40zarrita-storage/src/fetch.ts#L87
+   * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
+   * @returns {Promise<Uint8Array|null>} The parquet file bytes, or null if the store does not support getRange.
+   */
+  async loadParquetSchemaBytes(parquetPath) {
+    const { store } = this.storeRoot;
+    if (store.getRange) {
+      // Step 1: Fetch last 8 bytes to get footer length and magic number
+      const TAIL_LENGTH = 8;
+      let partZeroPath = parquetPath;
+      let tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
+      if(!tailBytes) {
+        // This may be a directory with multiple parts.
+        partZeroPath = `${parquetPath}/part.0.parquet`;
+        tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
+      }
+      if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
+        throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
+      }
+      // Step 2: Extract footer length and magic number
+      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true); // little-endian
+      const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
+
+      if (magic !== 'PAR1') {
+        throw new Error('Invalid Parquet file: missing PAR1 magic number');
+      }
+      
+      // Step 3. Fetch the full footer bytes
+      const footerBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: footerLength + TAIL_LENGTH });
+      if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
+        throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
+      }
+
+      // Step 4: Return the footer bytes
+      return footerBytes;
+    }
+    // Store does not support getRange.
+    return null;
+  }
+
+  /**
    * TODO: change implementation so that subsets of columns can be loaded if the whole table is not needed.
    * Will first need to load the table schema.
    * @param {string} parquetPath A path to a parquet file (or directory).
+   * @param {string[]|undefined} columns An optional list of column names to load.
    * @returns
    */
-  async loadParquetTable(parquetPath) {
+  async loadParquetTable(parquetPath, columns = undefined) {
     if (this.parquetTables[parquetPath]) {
       // Return cached table if present.
       return this.parquetTables[parquetPath];
     }
-    const readParquet = await getReadParquet();
+    const { readParquet, readSchema } = await this.parquetModulePromise;
+
+    const options = {
+      columns,
+    };
+    
+    let indexColumnName;
+
+    if (columns) {
+      // If columns are specified, we also want to ensure that the index column is included.
+      // Otherwise, the user wants the full table anyway.
+
+      // We first try to load the schema bytes to determine the index column name.
+      // Perhaps in the future SpatialData can store the index column name
+      // in the .zattrs so that we do not need to load the schema first,
+      // since only certain stores such as FetchStores support getRange.
+      // Reference: https://github.com/scverse/spatialdata/issues/958
+      const schemaBytes = await this.loadParquetSchemaBytes(parquetPath);
+      if (schemaBytes) {
+        const wasmSchema = readSchema(schemaBytes);
+        const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+        indexColumnName = tableToIndexColumnName(arrowTableForSchema);
+      }
+    }
+    // Load the full table bytes.
+
+    // TODO: can we avoid loading the full table bytes
+    // if we only need a subset of columns?
+    // For example, if the store supports
+    // getRange like above to get the schema bytes.
     let parquetBytes = await this.loadParquetBytes(parquetPath);
     if (!parquetBytes) {
       throw new Error('Failed to load parquet data from store.');
@@ -131,10 +225,26 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
       // but readParquet expects a Uint8Array.
       parquetBytes = new Uint8Array(parquetBytes);
     }
-    const wasmTable = readParquet(parquetBytes);
-    // TODO: use streaming?
+    
+    if (columns && !indexColumnName) {
+      // The user requested specific columns, but we did not load the schema bytes
+      // to successfully get the index column name.
+      // Here we try again to get the index column name, but this
+      // time from the full table bytes (rather than only the schema-bytes).
+      const wasmSchema = readSchema(parquetBytes);
+      const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+      indexColumnName = tableToIndexColumnName(arrowTableForSchema);
+    }
+
+    if (options.columns && indexColumnName) {
+      options.columns = [...options.columns, indexColumnName];
+    }
+    
+    const wasmTable = readParquet(parquetBytes, options);
     const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
+
     this.parquetTables[parquetPath] = arrowTable;
     return this.parquetTables[parquetPath];
   }
+  
 }

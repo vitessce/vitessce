@@ -96,7 +96,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
-    console.log(path, zattrs);
 
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
@@ -148,7 +147,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       let locations;
       const formatVersion = await this.dataSource.getPointsFormatVersion(path);
       if (formatVersion === '0.1') {
-        locations = await this.dataSource.loadPoints(getGeometryPath(path));
+        locations = await this.dataSource.loadPoints(path);
       }
       this.locations = locations;
 

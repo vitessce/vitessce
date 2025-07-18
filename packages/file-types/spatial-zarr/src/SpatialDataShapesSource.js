@@ -281,6 +281,10 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
   async loadCircleShapes(path) {
     const columnName = basename(path);
     const parquetPath = getParquetPath(path);
+
+    // TODO: specify columns here. TODO: also include the radius column if needed.
+    // TODO: refactor to not load the table twice when radius is needed.
+
     const arrowTable = await this.loadParquetTable(parquetPath);
     const geometryColumn = this._getGeometryColumn(arrowTable, columnName);
     if (this._isWkbColumn(arrowTable, columnName)) {
