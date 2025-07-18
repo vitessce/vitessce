@@ -417,7 +417,7 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
     // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
     coordinateTransformations.forEach((transform) => {
-      if (transform.type === 'affine') {
+      if (transform.type === 'affine' && false) {
         const { affine } = transform;
         const xyzRows = xyzIndices.map(axisIndex => axisIndex >= 0 ? affine[axisIndex] : null).filter(Boolean);
         if(xyzRows.length === 3) {

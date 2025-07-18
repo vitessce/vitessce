@@ -180,7 +180,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     const { path } = this.options;
     // TODO: will the label column of the parquet table always be numeric?
     const arr = await this.dataSource.loadNumeric(getIndexPath(path));
-    const obsIds = Array.from(arr.data, String);
+    const obsIds = Array.from(arr.data).map(i => String(i));
     return obsIds;
   }
 

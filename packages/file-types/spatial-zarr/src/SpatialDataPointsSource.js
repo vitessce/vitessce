@@ -59,20 +59,28 @@ function getParquetPath(arrPath) {
 }
 
 /**
- * Converts a BigInt64Array to a Float32Array if needed.
- * @param {any} input - The typed array to convert.
+ * Converts BigInt64Array or Float64Array to Float32Array if needed.
+ * @param {Array<number>} input - The typed array to convert.
  * @returns {Float32Array} - The converted or original Float32Array.
  */
 function toFloat32Array(input) {
+  if (input instanceof Float32Array) {
+    return input; // Already a Float32Array
+  }
+
   if (input instanceof BigInt64Array) {
     const floats = new Float32Array(input.length);
     for (let i = 0; i < input.length; i++) {
-      floats[i] = Number(input[i]); // May lose precision for large BigInts
+      floats[i] = Number(input[i]); // May lose precision
     }
     return floats;
   }
 
-  return new Float32Array(input);
+  if (input instanceof Float64Array) {
+    return new Float32Array(input); // Converts with reduced precision
+  }
+
+  throw new TypeError("Input must be Float32Array, Float64Array, or BigInt64Array");
 }
 
 

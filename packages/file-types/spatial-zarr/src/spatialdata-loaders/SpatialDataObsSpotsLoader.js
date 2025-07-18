@@ -21,6 +21,10 @@ function getGeometryPath(path) {
   return `${path}/geometry`;
 }
 
+function getIndexPath(path) {
+  return `${path}/Index`;
+}
+
 const DEFAULT_AXES = [
   {
     name: 'x',
@@ -179,6 +183,17 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     return this.radius;
   }
 
+  async loadObsIndex() {
+    // TODO: remove this function and just use the one from the dataSource?
+    // But why is the index column name different?...
+
+    const { path } = this.options;
+    // TODO: will the label column of the parquet table always be numeric?
+    const arr = await this.dataSource.loadNumeric(getIndexPath(path));
+    const obsIds = Array.from(arr.data).map(i => String(i));
+    return obsIds;
+  }
+
   async load() {
     const { path, tablePath } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
@@ -187,7 +202,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
 
     return Promise.all([
-      this.dataSource.loadObsIndex(path, tablePath),
+      this.loadObsIndex(),
       this.loadSpots(),
       this.loadRadius(),
     ]).then(([obsIndex, obsSpots, obsRadius]) => {

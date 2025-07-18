@@ -13,7 +13,7 @@ function generateMerfishConfig() {
     name: 'SpatialData with MERFISH data',
   });
 
-  const onlyPoints = true;
+  const onlyPoints = false;
 
   let dataset = vc.addDataset('My dataset');
   if (!onlyPoints) {
@@ -57,6 +57,7 @@ function generateMerfishConfig() {
       },
     })
   }
+
   dataset = dataset.addFile({
     fileType: 'spatialdata.zarr',
     url: sdataUrl,
@@ -70,6 +71,7 @@ function generateMerfishConfig() {
       obsType: "point",
     },
   });
+  
 
   const spatialView = vc.addView(dataset, "spatialBeta");
   const lcView = vc.addView(dataset, "layerControllerBeta");
@@ -132,6 +134,7 @@ function generateMerfishConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsSegmentations") });
   }
 
+
   vc.linkViewsByObject([spatialView, lcView], {
       pointLayer: CL([
         {
@@ -139,6 +142,7 @@ function generateMerfishConfig() {
         }
       ])
     }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsPoints") });
+
 
   vc.layout(hconcat(spatialView, lcView));
   const configJSON = vc.toJSON();

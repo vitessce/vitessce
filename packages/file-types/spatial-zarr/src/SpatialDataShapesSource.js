@@ -57,6 +57,31 @@ function getParquetPath(arrPath) {
   throw new Error(`Cannot determine parquet path for shapes array path: ${arrPath}`);
 }
 
+/**
+ * Converts BigInt64Array or Float64Array to Float32Array if needed.
+ * @param {Array<number>} input - The typed array to convert.
+ * @returns {Float32Array} - The converted or original Float32Array.
+ */
+function toFloat32Array(input) {
+  if (input instanceof Float32Array) {
+    return input; // Already a Float32Array
+  }
+
+  if (input instanceof BigInt64Array) {
+    const floats = new Float32Array(input.length);
+    for (let i = 0; i < input.length; i++) {
+      floats[i] = Number(input[i]); // May lose precision
+    }
+    return floats;
+  }
+
+  if (input instanceof Float64Array) {
+    return new Float32Array(input); // Converts with reduced precision
+  }
+
+  throw new TypeError("Input must be Float32Array, Float64Array, or BigInt64Array");
+}
+
 export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
   /**
    *
@@ -118,10 +143,17 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
-    const formatVersion = await this.getShapesFormatVersion(path);
+    const elementPath = getShapesElementPath(path);
+    const formatVersion = await this.getShapesFormatVersion(elementPath);
     if (formatVersion === '0.1') {
       // Shapes v0.1 did not use Parquet, so we use the parent Zarr-based column loading function.
-      return super.loadNumeric(path);
+      const zarrArr = await super.loadNumeric(path);
+      // TODO: move BigInt conversion into superclass
+      return {
+        stride: zarrArr.stride,
+        shape: zarrArr.shape,
+        data: toFloat32Array(/** @type {number[]} */ (zarrArr.data)),
+      };
     }
     const parquetPath = getParquetPath(path);
     const arrowTable = await this.loadParquetTable(parquetPath);
@@ -129,8 +161,7 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
-      // TODO: support BigInt64Array.
-      data: new Float32Array(columnArr),
+      data: toFloat32Array(columnArr),
       stride: [1],
     };
   }
@@ -259,8 +290,8 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
       return {
         shape: [2, points.length],
         data: [
-          new Float32Array(points.map((/** @type {[number, number]} */ p) => p[0])),
-          new Float32Array(points.map((/** @type {[number, number]} */ p) => p[1])),
+          toFloat32Array(points.map((/** @type {[number, number]} */ p) => p[0])),
+          toFloat32Array(points.map((/** @type {[number, number]} */ p) => p[1])),
         ],
       };
     }
