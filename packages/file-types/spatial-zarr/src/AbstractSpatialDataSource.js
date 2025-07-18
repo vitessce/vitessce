@@ -36,6 +36,8 @@ async function getParquetModule() {
 
 /**
  * Get the name of the index column from an Apache Arrow table.
+ * In the future, this may not be needed if more metadata is included in the Zarr Attributes.
+ * Reference: https://github.com/scverse/spatialdata/issues/958
  * @param {import('apache-arrow').Table} arrowTable
  * @returns {string|null}
  */
@@ -134,6 +136,8 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
    * This is useful for getting the index column name without loading the full table.
    * This will only work if the store supports getRange, for example FetchStore.
    * Reference: https://github.com/manzt/zarrita.js/blob/c0dd684dc4da79a6f42ab2a591246947bde8d143/packages/%40zarrita-storage/src/fetch.ts#L87
+   * In the future, this may not be needed if more metadata is included in the Zarr Attributes.
+   * Reference: https://github.com/scverse/spatialdata/issues/958
    * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
    * @returns {Promise<Uint8Array|null>} The parquet file bytes, or null if the store does not support getRange.
    */
