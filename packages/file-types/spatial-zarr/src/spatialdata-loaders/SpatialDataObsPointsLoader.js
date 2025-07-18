@@ -1,7 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
-import { log } from '@vitessce/globals';
+import { isEqual } from 'lodash-es';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   normalizeCoordinateTransformations,
@@ -10,79 +10,12 @@ import {
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
-
-function getGeometryPath(path) {
-  return `${path}/geometry`;
-}
-
 function getIndexPath(path) {
   // TODO: find the index column from the parquet pandas metadata?
   return `${path}/__null_dask_index__`;
 }
 
 
-const DEFAULT_AXES = [
-  {
-    name: 'x',
-    type: 'space',
-    unit: 'unit',
-  },
-  {
-    name: 'y',
-    type: 'space',
-    unit: 'unit',
-  },
-   {
-    name: 'z',
-    type: 'space',
-    unit: 'unit',
-  },
-];
-const DEFAULT_COORDINATE_TRANSFORMATIONS = [
-  {
-    input: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'z',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'xyz',
-    },
-    output: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'z',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'global',
-    },
-    type: 'identity',
-  },
-];
 
 
 /**
@@ -97,24 +30,35 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
 
-    // Convert the coordinate transformations to a modelMatrix.
-    // For attrsVersion === "0.1", we can assume that there is always a
-    // coordinate system which maps from the input "xyz" to the specified
-    // output coordinate system.
+    // According to the design doc for Points as of July 18, 2025:
+    // > The table MUST contains axis name to represent the axes.
+    // > - If 2D, the axes should be ["x","y"].
+    // > - If 3D, the axes should be ["x","y","z"].
+    // > It MUST also contain coordinate transformations.
 
-    // TODO: In a future version of the shapes transformation on-disk format,
-    // the SpatialData team plans to relax this so that it will
-    // become necessary to create a full tree
+    const { axes, coordinateTransformations } = zattrs;
+
+    if (!(isEqual(axes, ['x', 'y']) || isEqual(axes, ['x', 'y', 'z']))) {
+      throw new Error('The axes must be ["x", "y"] for 2D or ["x", "y", "z"] for 3D.');
+    }
+
+    if (!coordinateTransformations) {
+      throw new Error('The coordinate transformations metadata must be defined for point elements.');
+    }
+
+    // We convert the axes to objects for compatibility with the
+    // coordinateTransformationsToMatrix function.
+    const normAxes = normalizeAxes(axes);
+
+    // TODO: create a full tree
     // of coordinate transformations, and traverse the tree from
     // the node corresponding to the output coordinate system of interest
     // back to the root node, applying each transformation along the way.
     const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
+      coordinateTransformations
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
       inputName === 'xyz' && outputName === coordinateSystem
     ));
-    const axes = zattrs?.axes || DEFAULT_AXES;
-    const normAxes = normalizeAxes(axes);
 
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
