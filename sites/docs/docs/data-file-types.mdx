@@ -1228,6 +1228,27 @@ coordinationValues={`{
 }`}
 />
 
+
+### `obsPoints.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsPoints.spatialdata.zarr"
+fileConst="OBS_POINTS_SPATIALDATA_ZARR"
+options={`{
+    // Should point to the table containing the point coordinates.
+    "path": "points/some_region_points",
+    // Should point to the table which annotates the specified shapes. Optional.
+    "tablePath": "tables/table",
+    // Region value to use for filtering the rows of the table.
+    "region": "some_region_points"
+}`}
+coordinationValues={`{
+    "obsType": "cell"
+}`}
+/>
+
+
 ### `shapes.spatialdata.zarr`
 
 <FileDefTabs
