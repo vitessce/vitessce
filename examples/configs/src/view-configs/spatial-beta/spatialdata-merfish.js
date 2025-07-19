@@ -13,7 +13,7 @@ function generateMerfishConfig() {
     name: 'SpatialData with MERFISH data',
   });
 
-  const withPoints = false;
+  const withPoints = true;
   const withImages = true;
   const withLabels = true;
 

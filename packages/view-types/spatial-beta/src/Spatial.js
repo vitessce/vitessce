@@ -612,13 +612,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
+
+    const hasChannelDimension = image?.obsSegmentations?.instance?.hasDimC();
+
     const nextLoaderSelection = channelScopes
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: image?.obsSegmentations?.instance?.getChannelIndex(
-          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-        ),
+        c: (hasChannelDimension
+          ? image?.obsSegmentations?.instance?.getChannelIndex(
+              channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+            )
+          : undefined),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
