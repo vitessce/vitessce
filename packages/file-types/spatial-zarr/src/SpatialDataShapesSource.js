@@ -79,7 +79,7 @@ function toFloat32Array(input) {
     return new Float32Array(input); // Converts with reduced precision
   }
 
-  throw new TypeError("Input must be Float32Array, Float64Array, or BigInt64Array");
+  throw new TypeError('Input must be Float32Array, Float64Array, or BigInt64Array');
 }
 
 export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
@@ -93,7 +93,7 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
     const formatVersion = zattrs.spatialdata_attrs.version;
     const geos = zattrs.spatialdata_attrs.geos || {}; // Used only by v0.1
     const encodingType = zattrs['encoding-type'];
-    if (encodingType !== "ngff:shapes" || !(
+    if (encodingType !== 'ngff:shapes' || !(
       formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0)
       || formatVersion === '0.2'
     )) {
@@ -111,7 +111,6 @@ export default class SpatialDataShapesSource extends AbstractSpatialDataSource {
    * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
    */
   async loadObsIndex(path = undefined, tablePath = undefined) {
-
     // TODO: if a tablePath is provided, use it to load the obsIndex.
     // Otherwise use the index column from the parquet table.
 

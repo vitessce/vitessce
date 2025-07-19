@@ -403,7 +403,7 @@ export function getNgffAxesForTiff(dimOrder) {
 /**
  * Get a 4x4 matrix that swaps axes.
  * TODO: add unit tests.
- * @param {("x"|"y"|"z")[]} inputAxes 
+ * @param {("x"|"y"|"z")[]} inputAxes
  * @param {("x"|"y"|"z")[]} outputAxes
  * @return {number[][]} 4x4 matrix that swaps axes.
  */
@@ -459,22 +459,24 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         // This is needed since axes can include "c" for example.
         const excludeEntries = input.axes
           .map((axis, i) => ([axis, i]))
+          // eslint-disable-next-line no-unused-vars
           .filter(([axis, i]) => axis.type !== 'space')
+          // eslint-disable-next-line no-unused-vars
           .map(([axis, i]) => i);
 
         // We only want to keep the affine transformation entries for the spatial axes.
         const filteredAffine = affine
           .filter((_, i) => !excludeEntries.includes(i))
-          .map((row) => row.filter((_, i) => !excludeEntries.includes(i)));
-        
+          .map(row => row.filter((_, i) => !excludeEntries.includes(i)));
+
         // TODO: if there was some affine transformation for the "c" axis, warn/error.
 
         const spatialInputAxes = input.axes.filter(axis => axis.type === 'space');
         const spatialOutputAxes = output.axes.filter(axis => axis.type === 'space');
-        
+
         const inputAxisNames = spatialInputAxes.map(axis => axis.name);
         const outputAxisNames = spatialOutputAxes.map(axis => axis.name);
-        
+
         if (spatialInputAxes.length === 3) { // 3D case
           const nextMat = (new Matrix4()).fromArray([
             ...filteredAffine[0],
@@ -490,7 +492,6 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
             const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
             mat = mat.multiplyLeft(swapMat);
           }
-
         } else if (spatialOutputAxes.length === 2) { // 2D case
           const nextMat = (new Matrix4()).fromArray([
             ...filteredAffine[0],

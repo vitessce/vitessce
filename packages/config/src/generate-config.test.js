@@ -185,7 +185,7 @@ describe('generateConfig', () => {
             path: 'tables/table/X',
           },
           obsPoints: {
-            "path": "points/transcripts",
+            path: 'points/transcripts',
           },
           obsSets: {
             tablePath: 'tables/table',

@@ -3,8 +3,8 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
-import AbstractSpatialDataSource from './AbstractSpatialDataSource.js';
 import { normalizeAxes } from '@vitessce/spatial-utils';
+import AbstractSpatialDataSource from './AbstractSpatialDataSource.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
@@ -12,7 +12,7 @@ import { normalizeAxes } from '@vitessce/spatial-utils';
 
 /*
  * Notes from https://spatialdata.scverse.org/en/stable/design_doc.html#points as of July 18, 2025:
- * 
+ *
  * > This representation is still under discussion and it might change...
  * > Coordinates of points for single molecule data.
  * > Each observation is a point, and might have additional information (intensity etc.).
@@ -97,12 +97,11 @@ function toFloat32Array(input) {
     return new Float32Array(input); // Converts with reduced precision
   }
 
-  throw new TypeError("Input must be Float32Array, Float64Array, or BigInt64Array");
+  throw new TypeError('Input must be Float32Array, Float64Array, or BigInt64Array');
 }
 
 
 export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
-
   /**
    *
    * @param {string} path A path to within shapes.
@@ -112,7 +111,7 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
     const formatVersion = zattrs.spatialdata_attrs.version;
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === "ngff:points" && !(formatVersion === '0.1')) {
+    if (encodingType === 'ngff:points' && !(formatVersion === '0.1')) {
       throw new Error(
         `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
       );
@@ -127,13 +126,11 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
    * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
    */
   async loadObsIndex(path = undefined, tablePath = undefined) {
-
     // TODO: if a tablePath is provided, use it to load the obsIndex.
     // Otherwise use the index column from the parquet table.
 
     let indexPath = getIndexPath(path);
     if (tablePath) {
-
       // TODO: simplify by reusing SpatialDataTableSource.loadObsIndex?
 
       // TODO: given a path to the shapes,
@@ -196,7 +193,7 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
 
     // TODO: this table will also contain the index column, and potentially the featureKey column.
-    // Do something with these here, otherwise they will need to be loaded redundantly.    
+    // Do something with these here, otherwise they will need to be loaded redundantly.
 
     const axisColumnArrs = axisNames.map((/** @type {string} */ name) => {
       const column = arrowTable.getChild(name);

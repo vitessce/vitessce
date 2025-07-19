@@ -16,8 +16,6 @@ function getIndexPath(path) {
 }
 
 
-
-
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
@@ -132,7 +130,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       this.loadObsIndex(),
       this.loadPoints(),
     ]).then(([obsIndex, obsPoints]) => {
-
       // TODO: get the genes / point-types here? May require changing the obsPoints format (breaking change?)
 
       const coordinationValues = {

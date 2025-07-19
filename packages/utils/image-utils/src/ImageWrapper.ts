@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import type {
   AbstractImageWrapper,
   VivLoaderType,
@@ -75,7 +76,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   getModelMatrix(): number[] {
-    if(!this.modelMatrix) {
+    if (!this.modelMatrix) {
       // Cache the model matrix
       this.modelMatrix = this._getModelMatrix();
     }
@@ -355,7 +356,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasZStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
-    if(!labels.includes('z')) {
+    if (!labels.includes('z')) {
       // If there is no 'z' dimension, then there is no z stack.
       return false;
     }
@@ -366,7 +367,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasTStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
-    if(!labels.includes('t')) {
+    if (!labels.includes('t')) {
       // If there is no 't' dimension, then there is no time stack.
       return false;
     }
@@ -377,7 +378,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasCStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
-    if(!labels.includes('c')) {
+    if (!labels.includes('c')) {
       // If there is no 'c' dimension, then there is no channel stack.
       return false;
     }

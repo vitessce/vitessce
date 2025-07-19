@@ -43,8 +43,8 @@ describe('Spatial.js', () => {
     });
 
     it('swap axes works for 2D', () => {
-      const inputAxes = ["x", "y"];
-      const outputAxes = ["y", "x"];
+      const inputAxes = ['x', 'y'];
+      const outputAxes = ['y', 'x'];
       const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
       expect(swapMatrix.flat()).toEqual([
         0, 1, 0, 0,
@@ -54,8 +54,8 @@ describe('Spatial.js', () => {
       ]);
     });
     it('swap axes works for 3D', () => {
-      const inputAxes = ["x", "y", "z"];
-      const outputAxes = ["z", "y", "x"];
+      const inputAxes = ['x', 'y', 'z'];
+      const outputAxes = ['z', 'y', 'x'];
       const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
       expect(swapMatrix.flat()).toEqual([
         0, 0, 1, 0,
@@ -65,8 +65,8 @@ describe('Spatial.js', () => {
       ]);
     });
     it('swap axes works for 3D, different order', () => {
-      const inputAxes = ["x", "z", "y"];
-      const outputAxes = ["x", "y", "z"];
+      const inputAxes = ['x', 'z', 'y'];
+      const outputAxes = ['x', 'y', 'z'];
       const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
       expect(swapMatrix.flat()).toEqual([
         1, 0, 0, 0,
@@ -88,7 +88,7 @@ describe('Spatial.js', () => {
             [0, 13.76, 0, 0, -13.76],
           ],
           input: {
-            name: "czyx",
+            name: 'czyx',
             axes: [
               { type: 'channel', name: 'c' },
               { type: 'space', name: 'x' },
@@ -97,7 +97,7 @@ describe('Spatial.js', () => {
             ],
           },
           output: {
-            name: "global",
+            name: 'global',
             axes: [
               // Notice: swap-axes (CXYZ to CZYX).
               { type: 'channel', name: 'c' },
@@ -105,8 +105,8 @@ describe('Spatial.js', () => {
               { type: 'space', name: 'y' },
               { type: 'space', name: 'x' },
             ],
-          }
-        }
+          },
+        },
       ];
       const axes = [
         { type: 'channel', name: 'c' },
@@ -132,7 +132,7 @@ describe('Spatial.js', () => {
             [13.76, 0, 0, -13.76],
           ],
           input: {
-            name: "zyx",
+            name: 'zyx',
             axes: [
               { type: 'space', name: 'z' },
               { type: 'space', name: 'y' },
@@ -140,15 +140,15 @@ describe('Spatial.js', () => {
             ],
           },
           output: {
-            name: "global",
+            name: 'global',
             axes: [
               // Notice: swap-axes (ZYX to XYZ).
               { type: 'space', name: 'x' },
               { type: 'space', name: 'y' },
               { type: 'space', name: 'z' },
             ],
-          }
-        }
+          },
+        },
       ];
       const axes = [
         { type: 'space', name: 'z' },

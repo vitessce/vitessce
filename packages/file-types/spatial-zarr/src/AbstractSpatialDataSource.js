@@ -45,11 +45,10 @@ function tableToIndexColumnName(arrowTable) {
   const pandasMetadata = arrowTable.schema.metadata.get('pandas');
   if (pandasMetadata) {
     const pandasMetadataJson = JSON.parse(pandasMetadata);
-    if(Array.isArray(pandasMetadataJson.index_columns) && pandasMetadataJson.index_columns.length === 1) {
+    if (Array.isArray(pandasMetadataJson.index_columns) && pandasMetadataJson.index_columns.length === 1) {
       return pandasMetadataJson.index_columns?.[0];
-    } else {
-      throw new Error('Expected a single index column in the pandas metadata.');
     }
+    throw new Error('Expected a single index column in the pandas metadata.');
   }
   return null;
 }
@@ -82,7 +81,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
    * @returns
    */
   async loadSpatialDataObjectAttrs() {
-    const rootAttrs = await this.getJson(`.zattrs`);
+    const rootAttrs = await this.getJson('.zattrs');
     const { spatialdata_attrs } = rootAttrs;
     const { spatialdata_software_version: softwareVersion, version: formatVersion } = spatialdata_attrs;
     return { softwareVersion, formatVersion };
@@ -97,8 +96,8 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     // TODO: normalize the elementPath to always end without a slash?
     // TODO: ensure that elementPath is a valid spatial element path?
     const v0_4_0_attrs = await this.getJson(`${elementPath}/.zattrs`);
-    
-    if (v0_4_0_attrs["encoding-type"] === "anndata") {
+
+    if (v0_4_0_attrs['encoding-type'] === 'anndata') {
       const attrsKeys = Object.keys(v0_4_0_attrs);
       if (['instance_key', 'region', 'region_key'].every(k => attrsKeys.includes(k))) {
         // TODO: assert things about "spatialdata-encoding-type" and "version" values?
@@ -115,7 +114,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
   }
 
   /**
-   * 
+   *
    * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
    * @returns {Promise<Uint8Array|undefined>} The parquet file bytes.
    */
@@ -148,7 +147,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
       const TAIL_LENGTH = 8;
       let partZeroPath = parquetPath;
       let tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
-      if(!tailBytes) {
+      if (!tailBytes) {
         // This may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.0.parquet`;
         tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
@@ -163,7 +162,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
       if (magic !== 'PAR1') {
         throw new Error('Invalid Parquet file: missing PAR1 magic number');
       }
-      
+
       // Step 3. Fetch the full footer bytes
       const footerBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: footerLength + TAIL_LENGTH });
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
@@ -194,7 +193,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     const options = {
       columns,
     };
-    
+
     let indexColumnName;
 
     if (columns) {
@@ -230,7 +229,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
       // but readParquet expects a Uint8Array.
       parquetBytes = new Uint8Array(parquetBytes);
     }
-    
+
     if (columns && !indexColumnName) {
       // The user requested specific columns, but we did not load the schema bytes
       // to successfully get the index column name.
@@ -244,7 +243,7 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     if (options.columns && indexColumnName) {
       options.columns = [...options.columns, indexColumnName];
     }
-    
+
     const wasmTable = readParquet(parquetBytes, options);
     const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
 
@@ -255,5 +254,4 @@ export default class AbstractSpatialDataSource extends AnnDataSource {
     this.parquetTables[parquetPath] = arrowTable;
     return this.parquetTables[parquetPath];
   }
-  
 }

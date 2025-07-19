@@ -40,7 +40,6 @@ function getTableElementPath(arrPath) {
     if (singularElementMatches && singularElementMatches.length === 2) {
       return `table/${singularElementMatches[1]}`;
     }
-
   }
   return ''; // TODO: throw an error?
 }

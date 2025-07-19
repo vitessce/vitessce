@@ -621,8 +621,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         t: targetT,
         c: (hasChannelDimension
           ? image?.obsSegmentations?.instance?.getChannelIndex(
-              channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-            )
+            channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+          )
           : undefined),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];

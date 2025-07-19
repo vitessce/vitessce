@@ -1,15 +1,15 @@
 import {
-    VitessceConfig,
-    hconcat,
-    CoordinationLevel as CL,
-    getInitialCoordinationScopePrefix,
+  VitessceConfig,
+  hconcat,
+  CoordinationLevel as CL,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-const sdataUrl = "https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr";
+const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
 
 function generateMerfishConfig() {
   const vc = new VitessceConfig({
-    schemaVersion: "1.0.18",
+    schemaVersion: '1.0.18',
     name: 'SpatialData with MERFISH data',
   });
 
@@ -19,22 +19,22 @@ function generateMerfishConfig() {
 
   let dataset = vc.addDataset('My dataset');
 
-  if(withImages) {
+  if (withImages) {
     dataset = dataset.addFile({
-        fileType: 'spatialdata.zarr',
-        url: sdataUrl,
-        options: {
-          image: {
-            path: 'images/stains',
-          },
-          coordinateSystem: 'global',
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        image: {
+          path: 'images/stains',
         },
-        coordinationValues: {
-          fileUid: "stains"
-        },
-    })
+        coordinateSystem: 'global',
+      },
+      coordinationValues: {
+        fileUid: 'stains',
+      },
+    });
   }
-  if(withLabels) {
+  if (withLabels) {
     dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -45,9 +45,9 @@ function generateMerfishConfig() {
         coordinateSystem: 'global',
       },
       coordinationValues: {
-        obsType: "nucleus",
-        fileUid: "dapi"
-      }
+        obsType: 'nucleus',
+        fileUid: 'dapi',
+      },
     }).addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -58,13 +58,13 @@ function generateMerfishConfig() {
         coordinateSystem: 'global',
       },
       coordinationValues: {
-        obsType: "cell",
-        fileUid: "membrane"
+        obsType: 'cell',
+        fileUid: 'membrane',
       },
-    })
+    });
   }
 
-  if(withPoints) {
+  if (withPoints) {
     dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -75,20 +75,20 @@ function generateMerfishConfig() {
         coordinateSystem: 'global',
       },
       coordinationValues: {
-        obsType: "point",
+        obsType: 'point',
       },
     });
   }
-  
 
-  const spatialView = vc.addView(dataset, "spatialBeta");
-  const lcView = vc.addView(dataset, "layerControllerBeta");
 
-  if(withImages) {
+  const spatialView = vc.addView(dataset, 'spatialBeta');
+  const lcView = vc.addView(dataset, 'layerControllerBeta');
+
+  if (withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
       imageLayer: CL([
         {
-          fileUid: "stains",
+          fileUid: 'stains',
           photometricInterpretation: 'BlackIsZero',
           spatialLayerOpacity: 1.0,
           spatialLayerVisible: true,
@@ -97,24 +97,24 @@ function generateMerfishConfig() {
               spatialChannelVisible: true,
               spatialTargetC: 0, // DAPI, Nucleus
               spatialChannelColor: [0, 0, 255],
-              spatialChannelOpacity: 1.0
+              spatialChannelOpacity: 1.0,
             },
             {
               spatialChannelVisible: true,
               spatialTargetC: 1, // Membrane, Cell
               spatialChannelColor: [255, 255, 255],
-              spatialChannelOpacity: 1.0
-            }
-          ])
-        }
-      ])
-    }, { scopePrefix: getInitialCoordinationScopePrefix("A", "image") });
+              spatialChannelOpacity: 1.0,
+            },
+          ]),
+        },
+      ]),
+    }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   }
-  if(withLabels) {
+  if (withLabels) {
     vc.linkViewsByObject([spatialView, lcView], {
       segmentationLayer: CL([
         {
-          fileUid: "membrane",
+          fileUid: 'membrane',
           spatialLayerOpacity: 1.0,
           spatialLayerVisible: true,
           segmentationChannel: CL([
@@ -122,12 +122,12 @@ function generateMerfishConfig() {
               spatialChannelVisible: true,
               obsType: 'cell',
               spatialChannelColor: [200, 200, 200],
-              obsColorEncoding: "spatialChannelColor"
-            }
-          ])
+              obsColorEncoding: 'spatialChannelColor',
+            },
+          ]),
         },
         {
-          fileUid: "dapi",
+          fileUid: 'dapi',
           spatialLayerOpacity: 1.0,
           spatialLayerVisible: true,
           segmentationChannel: CL([
@@ -135,22 +135,22 @@ function generateMerfishConfig() {
               spatialChannelVisible: true,
               obsType: 'nucleus',
               spatialChannelColor: [255, 255, 255],
-              obsColorEncoding: "spatialChannelColor"
-            }
-          ])
-        }
-      ])
-    }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsSegmentations") });
+              obsColorEncoding: 'spatialChannelColor',
+            },
+          ]),
+        },
+      ]),
+    }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
   }
 
-  if(withPoints) {
+  if (withPoints) {
     vc.linkViewsByObject([spatialView, lcView], {
       pointLayer: CL([
         {
           obsType: 'point',
-        }
-      ])
-    }, { scopePrefix: getInitialCoordinationScopePrefix("A", "obsPoints") });
+        },
+      ]),
+    }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
 
