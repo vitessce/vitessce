@@ -1,75 +1,25 @@
 import {
   LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
 } from '@vitessce/abstract';
+import { isEqual } from 'lodash-es';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
-  normalizeAxes,
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
+  normalizeAxes,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
-function getGeometryPath(path) {
-  return `${path}/geometry`;
-}
-
 function getIndexPath(path) {
-  return `${path}/label`;
+  // TODO: find the index column from the parquet pandas metadata?
+  return `${path}/__null_dask_index__`;
 }
-
-const DEFAULT_AXES = [
-  {
-    name: 'x',
-    type: 'space',
-    unit: 'unit',
-  },
-  {
-    name: 'y',
-    type: 'space',
-    unit: 'unit',
-  },
-];
-const DEFAULT_COORDINATE_TRANSFORMATIONS = [
-  {
-    input: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'xy',
-    },
-    output: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'global',
-    },
-    type: 'identity',
-  },
-];
 
 
 /**
    * Loader for embedding arrays located in anndata.zarr stores.
    */
-export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLoader {
+export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   async loadModelMatrix() {
     const { path, coordinateSystem = 'global' } = this.options;
     if (this.modelMatrix) {
@@ -78,24 +28,36 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
     // Load the transformations from the .zattrs for the shapes
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
 
-    // Convert the coordinate transformations to a modelMatrix.
-    // For attrsVersion === "0.1", we can assume that there is always a
-    // coordinate system which maps from the input "xy" to the specified
-    // output coordinate system.
+    // According to the design doc for Points as of July 18, 2025:
+    // > The table MUST contains axis name to represent the axes.
+    // > - If 2D, the axes should be ["x","y"].
+    // > - If 3D, the axes should be ["x","y","z"].
+    // > It MUST also contain coordinate transformations.
 
-    // TODO: In a future version of the shapes transformation on-disk format,
-    // the SpatialData team plans to relax this so that it will
-    // become necessary to create a full tree
+    const { axes, coordinateTransformations } = zattrs;
+
+    if (!(isEqual(axes, ['x', 'y']) || isEqual(axes, ['x', 'y', 'z']))) {
+      throw new Error('The axes must be ["x", "y"] for 2D or ["x", "y", "z"] for 3D.');
+    }
+
+    if (!coordinateTransformations) {
+      throw new Error('The coordinate transformations metadata must be defined for point elements.');
+    }
+
+    // We convert the axes to objects for compatibility with the
+    // coordinateTransformationsToMatrix function.
+    const normAxes = normalizeAxes(axes);
+
+    // TODO: create a full tree
     // of coordinate transformations, and traverse the tree from
     // the node corresponding to the output coordinate system of interest
     // back to the root node, applying each transformation along the way.
     const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations ?? DEFAULT_COORDINATE_TRANSFORMATIONS
+      coordinateTransformations
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xy' && outputName === coordinateSystem
+      inputName === 'xyz' && outputName === coordinateSystem
     ));
-    const axes = zattrs?.axes ?? DEFAULT_AXES;
-    const normAxes = normalizeAxes(axes);
+
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
     // TODO: do the reverse, convert old spec to new spec
@@ -113,28 +75,38 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
      * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
-  async loadPolygons() {
+  async loadPoints() {
     const { path } = this.options;
+
+    // TODO: if points are XYZ, and in 2D rendering mode, pass in the current Z index and filter (after coordinate transformation?)
 
     if (this.locations) {
       return this.locations;
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      const { data: polygons } = await this.dataSource.loadPolygonShapes(getGeometryPath(path));
+
+      let locations;
+      const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+      if (formatVersion === '0.1') {
+        locations = await this.dataSource.loadPoints(path);
+      }
+      this.locations = locations;
+
 
       // Apply transformation matrix to the coordinates
-      const transformedCoords = polygons.map(polygon => polygon.map((coord) => {
-        const transformed = new math.Vector2(coord[0], coord[1])
+      // TODO: instead of applying here, pass matrix all the way down to WebGL shader
+      // (or DeckGL layer)
+      for (let i = 0; i < this.locations.shape[1]; i++) {
+        const xCoord = this.locations.data[0][i];
+        const yCoord = this.locations.data[1][i];
+        const transformed = new math.Vector2(xCoord, yCoord)
           .transformAsPoint(modelMatrix);
-        return [transformed[0], transformed[1]];
-      }));
-
-      this.locations = {
-        // This is a ragged array, so the second dimension is not fixed
-        shape: [polygons.length, null],
-        data: transformedCoords,
-      };
+        // eslint-disable-next-line prefer-destructuring
+        this.locations.data[0][i] = transformed[0];
+        // eslint-disable-next-line prefer-destructuring
+        this.locations.data[1][i] = transformed[1];
+      }
 
       return this.locations;
     }
@@ -144,7 +116,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
 
   async loadObsIndex() {
     // TODO: remove this function and just use the one from the dataSource?
-    // But why is the index column name different?...
+    // But why is the index column name always different?...
 
     const { path } = this.options;
     // TODO: will the label column of the parquet table always be numeric?
@@ -154,23 +126,19 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     return Promise.all([
       this.loadObsIndex(),
-      this.loadPolygons(),
-    ]).then(([obsIndex, obsSegmentations]) => {
-      const coordinationValues = {
-        segmentationLayer: CL({
-          // TODO: more coordination values here?
+      this.loadPoints(),
+    ]).then(([obsIndex, obsPoints]) => {
+      // TODO: get the genes / point-types here? May require changing the obsPoints format (breaking change?)
 
-          // obsColorEncoding: 'spatialLayerColor',
-          // spatialLayerColor: [255, 255, 255],
+      const coordinationValues = {
+        pointLayer: CL({
+          obsType: 'point',
+          obsColorEncoding: 'spatialLayerColor',
+          spatialLayerColor: [255, 255, 255],
           spatialLayerVisible: true,
-          spatialLayerOpacity: 1.0,
+          spatialLayerOpacity: 0.1,
           // featureValueColormapRange: [0, 1],
           // obsHighlight: null,
           // obsSetColor: null,
@@ -180,7 +148,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       };
 
       return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
+        { obsIndex, obsPoints },
         null,
         coordinationValues,
       ));

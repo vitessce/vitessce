@@ -27,7 +27,7 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_tubules/X',
             },
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_tubules',
               tablePath: 'tables/table_tubules',
               coordinateSystem: 'global',
@@ -44,7 +44,7 @@ export const spatialDataKpmp2023 = {
           fileType: 'spatialdata.zarr',
           url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023/S-1905-017737/sdata.zarr',
           options: {
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_arteries_arterioles',
               tablePath: 'tables/table',
               coordinateSystem: 'global',
@@ -64,7 +64,7 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_cortical_interstitia/X',
             },
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_cortical_interstitia',
               tablePath: 'tables/table_cortical_interstitia',
               coordinateSystem: 'global',
@@ -84,7 +84,7 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_globally_sclerotic_glomeruli/X',
             },
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_globally_sclerotic_glomeruli',
               tablePath: 'tables/table_globally_sclerotic_glomeruli',
               coordinateSystem: 'global',
@@ -104,7 +104,7 @@ export const spatialDataKpmp2023 = {
             obsFeatureMatrix: {
               path: 'tables/table_non_globally_sclerotic_glomeruli/X',
             },
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_non_globally_sclerotic_glomeruli',
               tablePath: 'tables/table_non_globally_sclerotic_glomeruli',
               coordinateSystem: 'global',
@@ -121,7 +121,7 @@ export const spatialDataKpmp2023 = {
           fileType: 'spatialdata.zarr',
           url: 'https://storage.googleapis.com/vitessce-demo-data/kpmp-f2f-march-2023/S-1905-017737/sdata.zarr',
           options: {
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_interstitialfibrosis_and_tubular_atrophy',
               tablePath: 'tables/table_interstitialfibrosis_and_tubular_atrophy',
               coordinateSystem: 'global',
@@ -165,7 +165,7 @@ export const spatialDataKpmp2023 = {
               ],
               tablePath: 'tables/table_peritubular_capillaries',
             },
-            labels: {
+            obsSegmentations: {
               path: 'labels/labels_peritubular_capillaries',
               tablePath: 'tables/table_peritubular_capillaries',
               coordinateSystem: 'global',

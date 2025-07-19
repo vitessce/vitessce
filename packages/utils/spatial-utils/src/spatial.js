@@ -401,6 +401,42 @@ export function getNgffAxesForTiff(dimOrder) {
 }
 
 /**
+ * Get a 4x4 matrix that swaps axes.
+ * TODO: add unit tests.
+ * @param {("x"|"y"|"z")[]} inputAxes
+ * @param {("x"|"y"|"z")[]} outputAxes
+ * @return {number[][]} 4x4 matrix that swaps axes.
+ */
+export function getSwapAxesMatrix(inputAxes, outputAxes) {
+  const size = inputAxes.length;
+  if (!(size === 2 || size === 3)) {
+    throw new Error(`Expected input and output axes to have 2 or 3 elements, got ${size}.`);
+  }
+
+  // Initialize a 4x4 matrix.
+  const matrix = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, (size === 2 ? 1 : 0), 0], // In 2D, leave Z unchanged.
+    [0, 0, 0, 1],
+  ];
+
+  // Fill linear transformation (top-left 3x3)
+  // Iterate over output rows.
+  for (let outRow = 0; outRow < size; outRow++) {
+    // Get the axis name for the current output row.
+    const axis = outputAxes[outRow];
+    const inCol = inputAxes.indexOf(axis);
+    if (inCol === -1) {
+      throw new Error(`Axis "${axis}" not found in inputAxes`);
+    }
+    matrix[outRow][inCol] = 1;
+  }
+
+  return matrix;
+}
+
+/**
  * Convert an array of coordinateTransformations objects to a 16-element
  * plain JS array using Matrix4 linear algebra transformation functions.
  * @param {object[]|undefined} coordinateTransformations List of objects matching the
@@ -417,6 +453,64 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
     // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
     coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'affine') {
+        const { affine, input, output } = transform;
+
+        // This is needed since axes can include "c" for example.
+        const excludeEntries = input.axes
+          .map((axis, i) => ([axis, i]))
+          // eslint-disable-next-line no-unused-vars
+          .filter(([axis, i]) => axis.type !== 'space')
+          // eslint-disable-next-line no-unused-vars
+          .map(([axis, i]) => i);
+
+        // We only want to keep the affine transformation entries for the spatial axes.
+        const filteredAffine = affine
+          .filter((_, i) => !excludeEntries.includes(i))
+          .map(row => row.filter((_, i) => !excludeEntries.includes(i)));
+
+        // TODO: if there was some affine transformation for the "c" axis, warn/error.
+
+        const spatialInputAxes = input.axes.filter(axis => axis.type === 'space');
+        const spatialOutputAxes = output.axes.filter(axis => axis.type === 'space');
+
+        const inputAxisNames = spatialInputAxes.map(axis => axis.name);
+        const outputAxisNames = spatialOutputAxes.map(axis => axis.name);
+
+        if (spatialInputAxes.length === 3) { // 3D case
+          const nextMat = (new Matrix4()).fromArray([
+            ...filteredAffine[0],
+            ...filteredAffine[1],
+            ...filteredAffine[2],
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 3D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+        } else if (spatialOutputAxes.length === 2) { // 2D case
+          const nextMat = (new Matrix4()).fromArray([
+            ...filteredAffine[0],
+            ...filteredAffine[1],
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 2D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+        } else {
+          throw new Error('Affine transformation must have 2 or 3 rows.');
+        }
+      }
       if (transform.type === 'translation') {
         const { translation: axisOrderedTranslation } = transform;
         if (axisOrderedTranslation.length !== axes.length) {
@@ -431,6 +525,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).translate(xyzTranslation);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a translation on the "c" axis.
       }
       if (transform.type === 'scale') {
         const { scale: axisOrderedScale } = transform;
@@ -447,6 +543,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).scale(xyzScale);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a scale on the "c" axis.
       }
     });
   }
@@ -510,12 +608,23 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
             scale: transform.scale,
           };
         }
+        if (type === 'affine') {
+          return {
+            type,
+            affine: transform.affine,
+            // Affine transformations can potentially swap axes,
+            // so we need to include the input and output axes.
+            input: transform.input,
+            output: transform.output,
+          };
+        }
         if (type === 'identity') {
           return { type };
         }
         if (type === 'sequence') {
           return normalizeCoordinateTransformations(transform.transformations, datasets);
         }
+
         log.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.

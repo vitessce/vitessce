@@ -197,12 +197,20 @@ export const imageSpatialdataSchema = z.object({
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this be renamed labelsSpatialdataSchema?
-  // TODO: support obsTypesFromChannelNames?
-  path: z.string(),
+  // TODO: support obsTypesFromElementNames?
+  path: z.string().describe('The path to the segmentation data, stored in either shapes/ or labels/.'),
   tablePath: z.string()
     .optional()
-    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+    .describe('The path to a table which annotates the labels or shapes. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+});
+export const obsPointsSpatialdataSchema = z.object({
+  path: z.string().describe('The path to the point data.'),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the points. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
@@ -371,13 +379,10 @@ export const spatialdataZarrSchema = z.object({
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels?
-  labels: obsSegmentationsSpatialdataSchema,
+  // TODO: allow multiple labels/shapes?
+  obsSegmentations: obsSegmentationsSpatialdataSchema,
+  obsPoints: obsPointsSpatialdataSchema,
   // TODO: allow multiple shapes?
-  // TODO: unify labels and shapes to obsSegmentations,
-  // then distinguish in expand function based on
-  // "labels/*" vs. "shapes/*" in path?
-  shapes: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
