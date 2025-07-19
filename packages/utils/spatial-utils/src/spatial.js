@@ -413,10 +413,11 @@ export function getSwapAxesMatrix(inputAxes, outputAxes) {
     throw new Error(`Expected input and output axes to have 2 or 3 elements, got ${size}.`);
   }
 
+  // Initialize a 4x4 matrix.
   const matrix = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
-    [0, 0, (size === 2 ? 1 : 0), 0], // Is this correct for 2D?
+    [0, 0, (size === 2 ? 1 : 0), 0], // In 2D, leave Z unchanged.
     [0, 0, 0, 1],
   ];
 

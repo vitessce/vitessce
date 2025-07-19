@@ -184,6 +184,9 @@ describe('generateConfig', () => {
           obsFeatureMatrix: {
             path: 'tables/table/X',
           },
+          obsPoints: {
+            "path": "points/transcripts",
+          },
           obsSets: {
             tablePath: 'tables/table',
             obsSets: [
