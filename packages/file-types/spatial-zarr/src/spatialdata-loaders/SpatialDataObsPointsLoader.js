@@ -84,29 +84,12 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       return this.locations;
     }
     if (!this.locations) {
-      const modelMatrix = await this.loadModelMatrix();
-
       let locations;
       const formatVersion = await this.dataSource.getPointsFormatVersion(path);
       if (formatVersion === '0.1') {
         locations = await this.dataSource.loadPoints(path);
       }
       this.locations = locations;
-
-
-      // Apply transformation matrix to the coordinates
-      // TODO: instead of applying here, pass matrix all the way down to WebGL shader
-      // (or DeckGL layer)
-      for (let i = 0; i < this.locations.shape[1]; i++) {
-        const xCoord = this.locations.data[0][i];
-        const yCoord = this.locations.data[1][i];
-        const transformed = new math.Vector2(xCoord, yCoord)
-          .transformAsPoint(modelMatrix);
-        // eslint-disable-next-line prefer-destructuring
-        this.locations.data[0][i] = transformed[0];
-        // eslint-disable-next-line prefer-destructuring
-        this.locations.data[1][i] = transformed[1];
-      }
 
       return this.locations;
     }
@@ -129,7 +112,8 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return Promise.all([
       this.loadObsIndex(),
       this.loadPoints(),
-    ]).then(([obsIndex, obsPoints]) => {
+      this.loadModelMatrix(),
+    ]).then(([obsIndex, obsPoints, modelMatrix]) => {
       // TODO: get the genes / point-types here? May require changing the obsPoints format (breaking change?)
 
       const coordinationValues = {
@@ -148,7 +132,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       };
 
       return Promise.resolve(new LoaderResult(
-        { obsIndex, obsPoints },
+        { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
         null,
         coordinationValues,
       ));

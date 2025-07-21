@@ -75,31 +75,6 @@ function getParquetPath(arrPath) {
   throw new Error(`Cannot determine parquet path for points array path: ${arrPath}`);
 }
 
-/**
- * Converts BigInt64Array or Float64Array to Float32Array if needed.
- * @param {Array<number>} input - The typed array to convert.
- * @returns {Float32Array} - The converted or original Float32Array.
- */
-function toFloat32Array(input) {
-  if (input instanceof Float32Array) {
-    return input; // Already a Float32Array
-  }
-
-  if (input instanceof BigInt64Array) {
-    const floats = new Float32Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      floats[i] = Number(input[i]); // May lose precision
-    }
-    return floats;
-  }
-
-  if (input instanceof Float64Array) {
-    return new Float32Array(input); // Converts with reduced precision
-  }
-
-  throw new TypeError('Input must be Float32Array, Float64Array, or BigInt64Array');
-}
-
 
 export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
   /**
@@ -165,7 +140,7 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
-      data: toFloat32Array(columnArr),
+      data: columnArr,
       stride: [1],
     };
   }
@@ -200,7 +175,7 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
       if (!column) {
         throw new Error(`Column "${name}" not found in the arrow table.`);
       }
-      return toFloat32Array(column.toArray());
+      return column.toArray();
     });
 
     return {

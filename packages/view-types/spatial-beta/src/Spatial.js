@@ -385,6 +385,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       theme,
       delegateHover,
+      targetZ,
     } = this.props;
 
     const {
@@ -415,6 +416,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return target;
     };
 
+    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData[layerScope].src || {};
+    const hasZ = obsPoints?.shape?.[0] === 3;
+    const modelMatrix = obsPointsModelMatrix?.clone();
+
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -424,6 +429,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 3,
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
+      modelMatrix,
       getRadius: 300,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
@@ -442,6 +448,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
+      ...(hasZ ? {
+        // TODO: support targetT filtering as well.
+        filterRange: [targetZ, targetZ],
+        getFilterValue: (object, { data, index }) => {
+          return data.src.obsPoints.data[2][index];
+        },
+        extensions: [
+          new deck.DataFilterExtension({ filterSize: 1 })
+        ],
+      } : {})
     });
   }
 
@@ -1324,7 +1340,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsPoints,
       pointMultiObsLabels,
     } = this.props;
-    const { obsIndex, obsPoints: layerObsPoints } = obsPoints?.[layerScope] || {};
+    const { obsIndex, obsPoints: layerObsPoints, obsPointsModelMatrix } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
       const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
@@ -1333,6 +1349,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         src: {
           obsIndex,
           obsPoints: layerObsPoints,
+          obsPointsModelMatrix,
           obsLabelsMap: null,
           uniqueObsLabels: null,
           PALETTE: null,
