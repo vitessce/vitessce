@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
 import { normalizeAxes } from '@vitessce/spatial-utils';
-import AbstractSpatialDataSource from './AbstractSpatialDataSource.js';
+import SpatialDataTableSource from './SpatialDataTableSource.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
@@ -52,16 +52,6 @@ function getPointsElementPath(arrPath) {
   return ''; // TODO: throw an error?
 }
 
-
-/**
- * TODO: remove this function once loadObsIndex is correctly implemented.
- * @param {string|undefined} arrPath
- * @returns
- */
-function getIndexPath(arrPath) {
-  return `${getPointsElementPath(arrPath)}/Index`;
-}
-
 /**
  *
  * @param {string|undefined} arrPath
@@ -76,7 +66,7 @@ function getParquetPath(arrPath) {
 }
 
 
-export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
+export default class SpatialDataPointsSource extends SpatialDataTableSource {
   /**
    *
    * @param {string} path A path to within shapes.
@@ -95,54 +85,36 @@ export default class SpatialDataPointsSource extends AbstractSpatialDataSource {
   }
 
   /**
-   * Class method for loading the obs index.
-   * @param {string|undefined} path
-   * @param {string|undefined} tablePath
-   * @returns {Promise<string[]>} An promise for a zarr array containing the indices.
-   */
-  async loadObsIndex(path = undefined, tablePath = undefined) {
-    // TODO: if a tablePath is provided, use it to load the obsIndex.
-    // Otherwise use the index column from the parquet table.
-
-    let indexPath = getIndexPath(path);
-    if (tablePath) {
-      // TODO: simplify by reusing SpatialDataTableSource.loadObsIndex?
-
-      // TODO: given a path to the shapes,
-      // is there a better way to know which table annotates it
-      // (without the manually-specified table path)?
-      // Reference: https://github.com/scverse/spatialdata/issues/298#issuecomment-1718161329
-      const obsPath = `${tablePath}/obs`;
-      const { _index } = await this.getJson(`${obsPath}/.zattrs`);
-      indexPath = `${obsPath}/${_index}`;
-      const {
-        instance_key: instanceKey,
-        // TODO: filter table index by region and element type.
-        // region_key: regionKey,
-        // region,
-      } = await this.loadSpatialDataElementAttrs(tablePath);
-
-      indexPath = `${obsPath}/${instanceKey}`;
-    }
-    // TODO: support loading from parquet if no tablePath was provided.
-    return this._loadColumn(indexPath);
-  }
-
-  /**
    * Class method for loading general numeric arrays.
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
     const parquetPath = getParquetPath(path);
-    const arrowTable = await this.loadParquetTable(parquetPath);
-    const columnArr = arrowTable.getChild(basename(path))?.toArray();
+    const columnName = basename(path);
+    const columns = [columnName];
+    const arrowTable = await this.loadParquetTable(parquetPath, columns);
+    const columnArr = arrowTable.getChild(columnName)?.toArray();
     return {
       shape: [columnArr.length],
       // TODO: support other kinds of TypedArrays via @vitessce/arrow-utils.
       data: columnArr,
       stride: [1],
     };
+  }
+
+  /**
+   * 
+   * @param {string} elementPath 
+   * @returns {Promise<Array<any>|null>}
+   */
+  async loadPointsIndex(elementPath) {
+    const parquetPath = getParquetPath(elementPath);
+    const indexColumn = await this.loadParquetTableIndex(parquetPath);
+    if (indexColumn) {
+      return indexColumn.toArray();
+    }
+    return null;
   }
 
   /**

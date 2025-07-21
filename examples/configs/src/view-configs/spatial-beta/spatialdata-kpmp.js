@@ -28,7 +28,7 @@ export const spatialDataKpmp2023 = {
               path: 'tables/table_tubules/X',
             },
             obsSegmentations: {
-              path: 'labels/labels_tubules',
+              path: 'shapes/shapes_tubules',
               tablePath: 'tables/table_tubules',
               coordinateSystem: 'global',
             },

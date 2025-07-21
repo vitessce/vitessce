@@ -21,10 +21,6 @@ function getGeometryPath(path) {
   return `${path}/geometry`;
 }
 
-function getIndexPath(path) {
-  return `${path}/Index`;
-}
-
 const DEFAULT_AXES = [
   {
     name: 'x',
@@ -184,14 +180,17 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
   }
 
   async loadObsIndex() {
-    // TODO: remove this function and just use the one from the dataSource?
-    // But why is the index column name different?...
-
-    const { path } = this.options;
-    // TODO: will the label column of the parquet table always be numeric?
-    const arr = await this.dataSource.loadNumeric(getIndexPath(path));
-    const obsIds = Array.from(arr.data).map(i => String(i));
-    return obsIds;
+    const { tablePath, path } = this.options;
+    if (tablePath) {
+      return this.dataSource.loadObsIndex(tablePath);
+    }
+    const indexColumn = await this.dataSource.loadShapesIndex(path);
+    if (indexColumn) {
+      const obsIds = Array.from(indexColumn).map(i => String(i));
+      return obsIds;
+    }
+    // TODO: if still no index column (neither from AnnData.obs.index nor from parquet table index),
+    // then create an index based on the row count?
   }
 
   async load() {

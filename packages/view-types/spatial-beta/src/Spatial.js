@@ -450,6 +450,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       ...(hasZ ? {
         // TODO: support targetT filtering as well.
+        // TODO: allow filtering by Z coordinate (rather than slice index)
+        // Reference: https://github.com/vitessce/vitessce/issues/2194
         filterRange: [targetZ, targetZ],
         getFilterValue: (object, { data, index }) => {
           return data.src.obsPoints.data[2][index];
