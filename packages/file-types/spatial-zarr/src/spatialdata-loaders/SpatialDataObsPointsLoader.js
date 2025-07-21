@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+  LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { isEqual } from 'lodash-es';
 import { CoordinationLevel as CL } from '@vitessce/config';
@@ -8,12 +8,6 @@ import {
   coordinateTransformationsToMatrix,
   normalizeAxes,
 } from '@vitessce/spatial-utils';
-import { math } from '@vitessce/gl';
-
-function getIndexPath(path) {
-  // TODO: find the index column from the parquet pandas metadata?
-  return `${path}/__null_dask_index__`;
-}
 
 
 /**
@@ -72,13 +66,16 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   /**
-     * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
+     * Class method for loading embedding coordinates,
+     * such as those from UMAP or t-SNE.
      * @returns {Promise} A promise for an array of columns.
      */
   async loadPoints() {
     const { path } = this.options;
 
-    // TODO: if points are XYZ, and in 2D rendering mode, pass in the current Z index and filter (after coordinate transformation?)
+    // TODO: if points are XYZ, and in 2D rendering mode,
+    // pass in the current Z index and filter
+    // (after coordinate transformation?)
 
     if (this.locations) {
       return this.locations;
@@ -107,8 +104,10 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       const obsIds = Array.from(indexColumn).map(i => String(i));
       return obsIds;
     }
-    // TODO: if still no index column (neither from AnnData.obs.index nor from parquet table index),
+    // TODO: if still no index column
+    // (neither from AnnData.obs.index nor from parquet table index),
     // then create an index based on the row count?
+    return null;
   }
 
   async load() {
@@ -117,7 +116,8 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       this.loadPoints(),
       this.loadModelMatrix(),
     ]).then(([obsIndex, obsPoints, modelMatrix]) => {
-      // TODO: get the genes / point-types here? May require changing the obsPoints format (breaking change?)
+      // TODO: get the genes / point-types here?
+      // May require changing the obsPoints format (breaking change?)
 
       const coordinationValues = {
         pointLayer: CL({

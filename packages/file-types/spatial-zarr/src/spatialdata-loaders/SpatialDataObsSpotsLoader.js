@@ -189,12 +189,13 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       const obsIds = Array.from(indexColumn).map(i => String(i));
       return obsIds;
     }
-    // TODO: if still no index column (neither from AnnData.obs.index nor from parquet table index),
+    // TODO: if still no index column
+    // (neither from AnnData.obs.index nor from parquet table index),
     // then create an index based on the row count?
+    return null;
   }
 
   async load() {
-    const { path, tablePath } = this.options;
     const superResult = await super.load().catch(reason => Promise.resolve(reason));
     if (superResult instanceof AbstractLoaderError) {
       return Promise.reject(superResult);

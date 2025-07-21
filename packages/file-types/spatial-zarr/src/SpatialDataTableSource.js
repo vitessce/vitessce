@@ -1,6 +1,7 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
+/* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 
@@ -51,14 +52,16 @@ function tableToIndexColumnName(arrowTable) {
   const pandasMetadata = arrowTable.schema.metadata.get('pandas');
   if (pandasMetadata) {
     const pandasMetadataJson = JSON.parse(pandasMetadata);
-    if (Array.isArray(pandasMetadataJson.index_columns) && pandasMetadataJson.index_columns.length === 1) {
+    if (
+      Array.isArray(pandasMetadataJson.index_columns)
+      && pandasMetadataJson.index_columns.length === 1
+    ) {
       return pandasMetadataJson.index_columns?.[0];
     }
     throw new Error('Expected a single index column in the pandas metadata.');
   }
   return null;
 }
-
 
 
 // If the array path starts with table/something/rest
@@ -175,13 +178,17 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // Load the root attrs.
     const rootAttrs = await this.getJson('.zattrs');
     const { spatialdata_attrs } = rootAttrs;
-    const { spatialdata_software_version: softwareVersion, version: formatVersion } = spatialdata_attrs;
+    const {
+      spatialdata_software_version: softwareVersion,
+      version: formatVersion,
+    } = spatialdata_attrs;
     this.rootAttrs = { softwareVersion, formatVersion };
     return this.rootAttrs;
   }
 
   /**
-   * Get the attrs for a specific element (e.g., "shapes/{element_name}" or "tables/{element_name}").
+   * Get the attrs for a specific element
+   * (e.g., "shapes/{element_name}" or "tables/{element_name}").
    * @param {string} elementPath
    * @returns
    */
@@ -196,7 +203,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
     let result = v0_4_0_attrs;
     if (v0_4_0_attrs['encoding-type'] === 'anndata') {
       const attrsKeys = Object.keys(v0_4_0_attrs);
-      if (['instance_key', 'region', 'region_key'].every(k => attrsKeys.includes(k))) {
+      if (
+        ['instance_key', 'region', 'region_key']
+          .every(k => attrsKeys.includes(k))
+      ) {
         // TODO: assert things about "spatialdata-encoding-type" and "version" values?
         // TODO: first check the "spatialdata_software_version" metadata in
         // the root of the spatialdata object? (i.e., sdata.zarr/.zattrs)
@@ -204,7 +214,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
       } else {
         // Prior to v0.4.0 of the spatialdata package, the spatialdata_attrs
         // lived within their own dictionary within "uns".
-        const pre_v0_4_0_attrs = await this._loadDict(`${elementPath}/uns/spatialdata_attrs`, ['instance_key', 'region', 'region_key']);
+        const pre_v0_4_0_attrs = await this._loadDict(
+          `${elementPath}/uns/spatialdata_attrs`,
+          ['instance_key', 'region', 'region_key'],
+        );
         result = pre_v0_4_0_attrs;
       }
     }
@@ -214,7 +227,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
   /**
    *
-   * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
+   * @param {string} parquetPath The path to the parquet file or directory,
+   * relative to the store root.
    * @returns {Promise<Uint8Array|undefined>} The parquet file bytes.
    */
   async loadParquetBytes(parquetPath) {
@@ -239,13 +253,18 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
   /**
    * Try to load only the schema bytes of a parquet file.
-   * This is useful for getting the index column name without loading the full table.
-   * This will only work if the store supports getRange, for example FetchStore.
+   * This is useful for getting the index column name without
+   * loading the full table.
+   * This will only work if the store supports getRange,
+   * for example FetchStore.
    * Reference: https://github.com/manzt/zarrita.js/blob/c0dd684dc4da79a6f42ab2a591246947bde8d143/packages/%40zarrita-storage/src/fetch.ts#L87
-   * In the future, this may not be needed if more metadata is included in the Zarr Attributes.
+   * In the future, this may not be needed if more metadata is
+   * included in the Zarr Attributes.
    * Reference: https://github.com/scverse/spatialdata/issues/958
-   * @param {string} parquetPath The path to the parquet file or directory, relative to the store root.
-   * @returns {Promise<Uint8Array|null>} The parquet file bytes, or null if the store does not support getRange.
+   * @param {string} parquetPath The path to the parquet file or directory,
+   * relative to the store root.
+   * @returns {Promise<Uint8Array|null>} The parquet file bytes,
+   * or null if the store does not support getRange.
    */
   async loadParquetSchemaBytes(parquetPath) {
     const { store } = this.storeRoot;
@@ -253,17 +272,22 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
       let partZeroPath = parquetPath;
-      let tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
+      let tailBytes = await store.getRange(`/${partZeroPath}`, {
+        suffixLength: TAIL_LENGTH,
+      });
       if (!tailBytes) {
         // This may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.0.parquet`;
-        tailBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: TAIL_LENGTH });
+        tailBytes = await store.getRange(`/${partZeroPath}`, {
+          suffixLength: TAIL_LENGTH,
+        });
       }
       if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
         throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
       }
       // Step 2: Extract footer length and magic number
-      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true); // little-endian
+      // little-endian
+      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
       const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
 
       if (magic !== 'PAR1') {
@@ -271,7 +295,9 @@ export default class SpatialDataTableSource extends AnnDataSource {
       }
 
       // Step 3. Fetch the full footer bytes
-      const footerBytes = await store.getRange(`/${partZeroPath}`, { suffixLength: footerLength + TAIL_LENGTH });
+      const footerBytes = await store.getRange(`/${partZeroPath}`, {
+        suffixLength: footerLength + TAIL_LENGTH,
+      });
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
         throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
       }
@@ -299,7 +325,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
   }
 
   /**
-   * TODO: change implementation so that subsets of columns can be loaded if the whole table is not needed.
+   * TODO: change implementation so that subsets of
+   * columns can be loaded if the whole table is not needed.
    * Will first need to load the table schema.
    * @param {string} parquetPath A path to a parquet file (or directory).
    * @param {string[]|undefined} columns An optional list of column names to load.
@@ -391,7 +418,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // defined according to spatialdata_attrs metadata.
       indexPath = `${obsPath}/${instanceKey}`;
     }
-    
+
     if (indexPath in this.obsIndices) {
       return this.obsIndices[indexPath];
     }

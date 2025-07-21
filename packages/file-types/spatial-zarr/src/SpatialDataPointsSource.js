@@ -1,32 +1,36 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable import/no-unresolved */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
 import { normalizeAxes } from '@vitessce/spatial-utils';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
 
-/** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
-
 
 /*
  * Notes from https://spatialdata.scverse.org/en/stable/design_doc.html#points as of July 18, 2025:
  *
  * > This representation is still under discussion and it might change...
  * > Coordinates of points for single molecule data.
- * > Each observation is a point, and might have additional information (intensity etc.).
- * > Current implementation represent points as a Parquet file and a dask.dataframe.DataFrame in memory.
+ * > Each observation is a point, and might have additional information
+ * > (intensity etc.).
+ * > Current implementation represent points as a Parquet file and a
+ * > dask.dataframe.DataFrame in memory.
  * > The requirements are the following:
  * > - The table MUST contains axis name to represent the axes.
  * >     - If it’s 2D, the axes should be ["x","y"].
  * >     - If it’s 3D, the axes should be ["x","y","z"].
- * > - It MUST also contains coordinates transformations in dask.dataframe.DataFrame().attrs["transform"].
- * > Additional information is stored in dask.dataframe.DataFrame().attrs["spatialdata_attrs"]
- * > - It MAY also contains "feature_key", that is, the column name of the table that refers to the features.
+ * > - It MUST also contains coordinates transformations in
+ * >   dask.dataframe.DataFrame().attrs["transform"].
+ * > Additional information is stored in
+ * > dask.dataframe.DataFrame().attrs["spatialdata_attrs"]
+ * > - It MAY also contains "feature_key", that is, the column name of
+ * >   the table that refers to the features.
  * >     - This Series MAY be of type pandas.Categorical.
- * > - It MAY contains additional information in dask.dataframe.DataFrame().attrs["spatialdata_attrs"], specifically:
- * >     - "instance_key": the column name of the table where unique instance ids that this point refers to are stored, if available.
+ * > - It MAY contains additional information in
+ * >   dask.dataframe.DataFrame().attrs["spatialdata_attrs"], specifically:
+ * >     - "instance_key": the column name of the table where unique
+ * >       instance ids that this point refers to are stored, if available.
  */
 
 
@@ -104,8 +108,8 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
   }
 
   /**
-   * 
-   * @param {string} elementPath 
+   *
+   * @param {string} elementPath
    * @returns {Promise<Array<any>|null>}
    */
   async loadPointsIndex(elementPath) {

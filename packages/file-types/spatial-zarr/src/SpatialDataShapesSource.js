@@ -1,12 +1,10 @@
 // @ts-check
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable import/no-unresolved */
 /* eslint-disable no-undef */
 import WKB from 'ol/format/WKB.js';
 import { basename } from '@vitessce/zarr';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
 
-/** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
 
@@ -94,7 +92,7 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
     const geos = zattrs.spatialdata_attrs.geos || {}; // Used only by v0.1
     const encodingType = zattrs['encoding-type'];
     if (encodingType !== 'ngff:shapes' || !(
-      formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0)
+      (formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0))
       || formatVersion === '0.2'
     )) {
       throw new Error(
@@ -215,8 +213,8 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
   }
 
   /**
-   * 
-   * @param {string} elementPath 
+   *
+   * @param {string} elementPath
    * @returns {Promise<Array<any>|null>}
    */
   async loadShapesIndex(elementPath) {

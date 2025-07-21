@@ -453,13 +453,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // TODO: allow filtering by Z coordinate (rather than slice index)
         // Reference: https://github.com/vitessce/vitessce/issues/2194
         filterRange: [targetZ, targetZ],
-        getFilterValue: (object, { data, index }) => {
-          return data.src.obsPoints.data[2][index];
-        },
+        getFilterValue: (object, { data, index }) => data.src.obsPoints.data[2][index],
         extensions: [
-          new deck.DataFilterExtension({ filterSize: 1 })
+          new deck.DataFilterExtension({ filterSize: 1 }),
         ],
-      } : {})
+      } : {}),
     });
   }
 
@@ -1342,7 +1340,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsPoints,
       pointMultiObsLabels,
     } = this.props;
-    const { obsIndex, obsPoints: layerObsPoints, obsPointsModelMatrix } = obsPoints?.[layerScope] || {};
+    const {
+      obsIndex,
+      obsPoints: layerObsPoints,
+      obsPointsModelMatrix,
+    } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
       const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
