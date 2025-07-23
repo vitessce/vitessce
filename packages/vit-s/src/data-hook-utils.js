@@ -9,12 +9,14 @@ import { STATUS } from '@vitessce/constants-internal';
 import {
   AbstractLoaderError,
   LoaderNotFoundError,
-} from '@vitessce/abstract';
+} from '@vitessce/error';
 import {
   getMatchingLoader,
   useMatchingLoader,
   useSetWarning,
 } from './state/hooks.js';
+
+const loggedErrors = new Set();
 
 /**
  * Warn via publishing to the console
@@ -22,12 +24,12 @@ import {
  * @param {AbstractLoaderError} error An error instance.
  */
 export function warn(error, setWarning) {
-  setWarning(error.message);
-  log.warn(error.message);
-  log.error(error.stack);
-  if (error instanceof AbstractLoaderError) {
-    error.warnInConsole();
+  if (loggedErrors.has(error)) {
+    return; // Already logged this error.
   }
+  setWarning(error.message);
+  log.error(error);
+  loggedErrors.add(error);
 }
 
 /**
@@ -201,6 +203,8 @@ export function useDataTypeMulti(
 
   const anyLoading = dataQueries.some(q => q.isFetching);
   const anyError = dataQueries.some(q => q.isError);
+  // TODO: wrap in useMemo?
+  const errors = anyError ? dataQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const isSuccess = dataStatus === STATUS.SUCCESS;
@@ -253,7 +257,7 @@ export function useDataTypeMulti(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [dataQueries]);
 
-  return [data, dataStatus, urls];
+  return [data, dataStatus, urls, errors];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

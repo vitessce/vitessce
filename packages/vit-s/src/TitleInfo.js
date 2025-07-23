@@ -7,6 +7,7 @@ import { makeStyles, MenuItem, IconButton, Link,
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
+  Warning as WarningIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -138,6 +139,32 @@ function HelpButton(props) {
   );
 }
 
+function ErrorInfo(props) {
+  const { errors } = props;
+  const [open, setOpen] = useState(false);
+  const { classes } = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<WarningIcon style={{ color: 'red' }} />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      aria-label="Open error info"
+      withPaper={false}
+    >
+      <span className={classes.helpTextSpan}>
+        <p>Errors</p>
+        <ul>
+          {errors.map((error, index) => (
+            <li key={index}>{error.name}: {error.message}</li>
+          ))}
+        </ul>
+      </span>
+    </PopperMenu>
+  );
+}
+
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
@@ -159,7 +186,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true,
+    helpText, withPadding = true, errors,
   } = props;
 
   const { classes } = useTitleStyles();
@@ -181,6 +208,11 @@ export function TitleInfo(props) {
           {downloadButtonVisible ? (
             <DownloadOptions
               urls={urls}
+            />
+          ) : null}
+          {Array.isArray(errors) && errors.length > 0 ? (
+            <ErrorInfo
+              errors={errors}
             />
           ) : null}
           {helpText ? (

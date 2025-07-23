@@ -1,6 +1,5 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 
 
 /**

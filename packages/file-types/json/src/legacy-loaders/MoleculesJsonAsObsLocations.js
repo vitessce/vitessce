@@ -1,5 +1,6 @@
 import { range, sum } from 'lodash-es';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 import { DEFAULT_MOLECULES_LAYER } from '@vitessce/spatial-utils';
 import { moleculesSchema } from './schemas/molecules.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';

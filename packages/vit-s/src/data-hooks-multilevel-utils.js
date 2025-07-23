@@ -4,7 +4,7 @@ import { extent } from 'd3-array';
 import { DataType, STATUS } from '@vitessce/constants-internal';
 import {
   LoaderNotFoundError,
-} from '@vitessce/abstract';
+} from '@vitessce/error';
 import {
   getMatchingLoader,
   useSetWarning,

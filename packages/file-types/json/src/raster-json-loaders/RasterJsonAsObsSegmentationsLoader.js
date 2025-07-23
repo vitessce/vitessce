@@ -1,4 +1,5 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 import { log } from '@vitessce/globals';
 import RasterLoader from './RasterJsonLoader.js';
 

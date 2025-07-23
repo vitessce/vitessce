@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { csvParse } from 'd3-dsv';
-import { DataSourceFetchError, AbstractLoaderError } from '@vitessce/abstract';
+import { DataSourceFetchError, AbstractLoaderError } from '@vitessce/error';
 
 export default class CsvSource {
   constructor({ url, requestInit }) {

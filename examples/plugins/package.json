@@ -18,6 +18,7 @@
   "dependencies": {
     "@vitessce/styles": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/plugins": "workspace:*",

@@ -1,8 +1,10 @@
 import { FileType } from '@vitessce/constants-internal';
 import {
-  AbstractTwoStepLoader,
   LoaderValidationError,
   AbstractLoaderError,
+} from '@vitessce/error';
+import {
+  AbstractTwoStepLoader,
   LoaderResult,
 } from '@vitessce/abstract';
 

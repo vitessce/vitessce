@@ -1,4 +1,5 @@
-import { AbstractTwoStepLoader, AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 
 export default class CsvLoader extends AbstractTwoStepLoader {
   getSourceData() {

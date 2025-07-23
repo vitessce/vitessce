@@ -1,4 +1,5 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 import { genesSchema } from './schemas/genes.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 

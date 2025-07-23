@@ -35,6 +35,7 @@
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",

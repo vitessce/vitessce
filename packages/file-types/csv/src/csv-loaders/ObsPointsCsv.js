@@ -1,5 +1,6 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsPointsCsvLoader extends CsvLoader {

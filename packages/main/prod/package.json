@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",

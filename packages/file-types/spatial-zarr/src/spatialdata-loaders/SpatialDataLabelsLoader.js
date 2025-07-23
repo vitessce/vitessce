@@ -1,6 +1,6 @@
 import {
   AbstractLoaderError,
-} from '@vitessce/abstract';
+} from '@vitessce/error';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import SpatialDataImageLoader from './SpatialDataImageLoader.js';
 

@@ -1,6 +1,5 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+import { AbstractLoaderError } from '@vitessce/error';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { CoordinationLevel as CL } from '@vitessce/config';
 

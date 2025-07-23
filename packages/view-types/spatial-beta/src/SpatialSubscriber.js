@@ -373,7 +373,7 @@ export function SpatialSubscriber(props) {
     : deckHeight;
 
   // Points data
-  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useMultiObsPoints(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
@@ -793,6 +793,9 @@ export function SpatialSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
+      errors={[
+        ...obsPointsErrors,
+      ]}
     >
       {shouldUseThree ? (
         <SpatialThreeAdapter

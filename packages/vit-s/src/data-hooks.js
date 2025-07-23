@@ -3,7 +3,7 @@ import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   LoaderNotFoundError,
-} from '@vitessce/abstract';
+} from '@vitessce/error';
 import {
   useMultiCoordinationValues,
   useComplexCoordination,
@@ -541,12 +541,12 @@ export function useMultiObsPoints(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useDataTypeMulti(
     DataType.OBS_POINTS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
+  return [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors];
 }
 
 export function useMultiObsSpots(

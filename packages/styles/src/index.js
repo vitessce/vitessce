@@ -81,6 +81,7 @@ export { default as RemoveCircle } from '@mui/icons-material/RemoveCircle';
 export { default as Settings } from '@mui/icons-material/Settings';
 export { default as Visibility } from '@mui/icons-material/Visibility';
 export { default as VisibilityOff } from '@mui/icons-material/VisibilityOff';
+export { default as Warning } from '@mui/icons-material/Warning';
 
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';

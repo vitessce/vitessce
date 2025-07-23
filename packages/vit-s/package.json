@@ -33,6 +33,7 @@
     "@vitessce/styles": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",

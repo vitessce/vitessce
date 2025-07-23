@@ -11,6 +11,8 @@ import {
 } from '@vitessce/image-utils';
 import {
   AbstractLoaderError,
+} from '@vitessce/error';
+import {
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/abstract';

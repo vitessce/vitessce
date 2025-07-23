@@ -1,6 +1,7 @@
 import {
   LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
+import { UnknownSpatialDataFormatError } from '@vitessce/error';
 import { isEqual } from 'lodash-es';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
@@ -80,17 +81,14 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     if (this.locations) {
       return this.locations;
     }
-    if (!this.locations) {
-      let locations;
-      const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-      if (formatVersion === '0.1') {
-        locations = await this.dataSource.loadPoints(path);
-      }
-      this.locations = locations;
-
-      return this.locations;
+    let locations;
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1') {
+      locations = await this.dataSource.loadPoints(path);
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
-    this.locations = Promise.resolve(null);
+    this.locations = locations;
     return this.locations;
   }
 
@@ -111,34 +109,32 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    return Promise.all([
+    const [obsIndex, obsPoints, modelMatrix] = await Promise.all([
       this.loadObsIndex(),
       this.loadPoints(),
       this.loadModelMatrix(),
-    ]).then(([obsIndex, obsPoints, modelMatrix]) => {
-      // TODO: get the genes / point-types here?
-      // May require changing the obsPoints format (breaking change?)
+    ]);
+    // May require changing the obsPoints format (breaking change?)
 
-      const coordinationValues = {
-        pointLayer: CL({
-          obsType: 'point',
-          obsColorEncoding: 'spatialLayerColor',
-          spatialLayerColor: [255, 255, 255],
-          spatialLayerVisible: true,
-          spatialLayerOpacity: 0.1,
-          // featureValueColormapRange: [0, 1],
-          // obsHighlight: null,
-          // obsSetColor: null,
-          // obsSetSelection: null,
-          // additionalObsSets: null,
-        }),
-      };
+    const coordinationValues = {
+      pointLayer: CL({
+        obsType: 'point',
+        obsColorEncoding: 'spatialLayerColor',
+        spatialLayerColor: [255, 255, 255],
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 0.1,
+        // featureValueColormapRange: [0, 1],
+        // obsHighlight: null,
+        // obsSetColor: null,
+        // obsSetSelection: null,
+        // additionalObsSets: null,
+      }),
+    };
 
-      return Promise.resolve(new LoaderResult(
-        { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
-        null,
-        coordinationValues,
-      ));
-    });
+    return new LoaderResult(
+      { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
+      null,
+      coordinationValues,
+    );
   }
 }

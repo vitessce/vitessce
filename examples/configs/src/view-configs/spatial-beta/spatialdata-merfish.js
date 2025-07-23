@@ -14,8 +14,8 @@ function generateMerfishConfig() {
   });
 
   const withPoints = true;
-  const withImages = true;
-  const withLabels = true;
+  const withImages = false;
+  const withLabels = false;
 
   let dataset = vc.addDataset('My dataset');
 
