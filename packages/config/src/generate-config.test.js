@@ -172,7 +172,7 @@ describe('generateConfig', () => {
             path: 'images/raw_image',
             coordinateSystem: 'global',
           },
-          labels: {
+          obsSegmentations: {
             path: 'labels/segmentation_mask',
             coordinateSystem: 'global',
           },
@@ -183,6 +183,9 @@ describe('generateConfig', () => {
           },
           obsFeatureMatrix: {
             path: 'tables/table/X',
+          },
+          obsPoints: {
+            path: 'points/transcripts',
           },
           obsSets: {
             tablePath: 'tables/table',

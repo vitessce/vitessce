@@ -29,7 +29,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
       // Handle labels elements.
       if (relPath.match(/^(labels)\/([^/]*)$/)) {
-        options.labels = {
+        options.obsSegmentations = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
           // TODO: support a fileUid property in the schema?
@@ -43,6 +43,16 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
         // TODO: check if shapes are circles or polygons
         // to determine which Vitessce data type to use.
         options.obsSpots = {
+          path: relPath,
+          coordinateSystem: firstCoordinateSystem,
+        };
+
+        // TODO: check which table annotates these shapes.
+      }
+
+      // Handle point elements.
+      if (relPath.match(/^(points)\/([^/]*)$/)) {
+        options.obsPoints = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
         };

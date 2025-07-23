@@ -385,6 +385,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       theme,
       delegateHover,
+      targetZ,
     } = this.props;
 
     const {
@@ -415,6 +416,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return target;
     };
 
+    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData[layerScope].src || {};
+    const hasZ = obsPoints?.shape?.[0] === 3;
+    const modelMatrix = obsPointsModelMatrix?.clone();
+
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -424,6 +429,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       radiusMaxPixels: 3,
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
+      modelMatrix,
       getRadius: 300,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
@@ -442,6 +448,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
+      ...(hasZ ? {
+        // TODO: support targetT filtering as well.
+        // TODO: allow filtering by Z coordinate (rather than slice index)
+        // Reference: https://github.com/vitessce/vitessce/issues/2194
+        filterRange: [targetZ, targetZ],
+        getFilterValue: (object, { data, index }) => data.src.obsPoints.data[2][index],
+        extensions: [
+          new deck.DataFilterExtension({ filterSize: 1 }),
+        ],
+      } : {}),
     });
   }
 
@@ -612,13 +628,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // since selections is one of its `updateTriggers`.
     // Reference: https://github.com/hms-dbmi/viv/blob/ad86d0f/src/layers/MultiscaleImageLayer/MultiscaleImageLayer.js#L127
     let selections;
+
+    const hasChannelDimension = image?.obsSegmentations?.instance?.hasDimC();
+
     const nextLoaderSelection = channelScopes
       .map(cScope => filterSelection(data, {
         z: targetZ,
         t: targetT,
-        c: image?.obsSegmentations?.instance?.getChannelIndex(
-          channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
-        ),
+        c: (hasChannelDimension
+          ? image?.obsSegmentations?.instance?.getChannelIndex(
+            channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+          )
+          : undefined),
       }));
     const prevLoaderSelection = this.segmentationLayerLoaderSelections[layerScope];
     if (isEqual(prevLoaderSelection, nextLoaderSelection)) {
@@ -1319,7 +1340,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsPoints,
       pointMultiObsLabels,
     } = this.props;
-    const { obsIndex, obsPoints: layerObsPoints } = obsPoints?.[layerScope] || {};
+    const {
+      obsIndex,
+      obsPoints: layerObsPoints,
+      obsPointsModelMatrix,
+    } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
       const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
@@ -1328,6 +1353,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         src: {
           obsIndex,
           obsPoints: layerObsPoints,
+          obsPointsModelMatrix,
           obsLabelsMap: null,
           uniqueObsLabels: null,
           PALETTE: null,
