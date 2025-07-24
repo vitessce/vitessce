@@ -254,29 +254,29 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsError] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [imageData, imageDataStatus, imageError] = useMultiImages(
+  const [imageData, imageDataStatus, imageUrls, imageErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsSpotsData, obsSpotsDataStatus, obsSpotsError] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsPointsData, obsPointsDataStatus, obsPointsError] = useMultiObsPoints(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
 
   // Consolidate error values from data hooks.
   const errors = [
-    obsSegmentationsError,
-    imageError,
-    obsSpotsError,
-    obsPointsError,
+    ...obsSegmentationsErrors,
+    ...imageErrors,
+    ...obsSpotsErrors,
+    ...obsPointsErrors,
   ];
 
   const isReady = useReady([

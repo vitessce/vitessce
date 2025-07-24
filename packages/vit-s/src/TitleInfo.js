@@ -162,7 +162,6 @@ function HelpButton(props) {
 
 function ErrorInfo(props) {
   const { errors } = props;
-  console.log(errors);
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
