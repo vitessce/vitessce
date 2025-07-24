@@ -19,10 +19,7 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
 
     const channelCoordination = [{
       // obsType: null,
@@ -53,10 +50,10 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }

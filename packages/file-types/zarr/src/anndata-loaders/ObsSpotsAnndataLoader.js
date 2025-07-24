@@ -25,11 +25,6 @@ export default class ObsSpotsAnndataLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     const coordinationValues = {
       spotLayer: CL({
         obsType: 'spot',
@@ -47,14 +42,14 @@ export default class ObsSpotsAnndataLoader extends AbstractTwoStepLoader {
         // additionalObsSets: null,
       }),
     };
-
-    return Promise.all([
+    const [obsIndex, obsSpots] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadSpots(),
-    ]).then(([obsIndex, obsSpots]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsSpots },
       null,
       coordinationValues,
-    )));
+    );
   }
 }

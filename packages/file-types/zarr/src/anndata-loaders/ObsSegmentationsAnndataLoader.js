@@ -1,5 +1,4 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
@@ -49,11 +48,6 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     const channelCoordination = [{
       // obsType: null,
       spatialChannelColor: [255, 255, 255],
@@ -84,17 +78,16 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       ]),
     };
 
-    return Promise.all([
+    const [obsIndex, obsSegmentations] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadSegmentations(),
-    ]).then(([obsIndex, obsSegmentations]) => Promise.resolve(new LoaderResult(
-      {
-        obsIndex,
-        obsSegmentations,
-        obsSegmentationsType: 'polygon',
-      },
+    ]);
+
+    console.log(obsIndex, obsSegmentations);
+    return new LoaderResult(
+      { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
       null,
       coordinationValues,
-    )));
+    );
   }
 }

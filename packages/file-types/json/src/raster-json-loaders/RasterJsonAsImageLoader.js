@@ -1,15 +1,11 @@
 import { LoaderResult } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 import { log } from '@vitessce/globals';
 
 import RasterLoader from './RasterJsonLoader.js';
 
 export default class RasterJsonAsImageLoader extends RasterLoader {
   async load() {
-    const loaderResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (loaderResult instanceof AbstractLoaderError) {
-      return Promise.reject(loaderResult);
-    }
+    const loaderResult = await super.load();
     const { data = {}, url: urls, coordinationValues } = loaderResult;
     const { loaders: allLoaders = [], meta: allMeta = [] } = data;
 

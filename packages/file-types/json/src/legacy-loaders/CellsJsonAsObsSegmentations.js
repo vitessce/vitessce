@@ -52,18 +52,15 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
     const coordinationValues = {
       spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
     };
-    return Promise.resolve(new LoaderResult({
+    return new LoaderResult({
       ...result,
       obsSegmentationsType: 'polygon',
-    }, url, coordinationValues));
+    }, url, coordinationValues);
   }
 }

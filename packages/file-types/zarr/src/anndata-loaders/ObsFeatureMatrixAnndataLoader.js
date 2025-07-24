@@ -355,17 +355,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
 
   async load() {
     const { path } = this.getOptions();
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, featureIndex, obsFeatureMatrix] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadInitialFilteredGeneNames(),
       this.loadCellXGene(),
-    ]).then(([obsIndex, featureIndex, obsFeatureMatrix]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, featureIndex, obsFeatureMatrix },
       null,
-    )));
+    );
   }
 }

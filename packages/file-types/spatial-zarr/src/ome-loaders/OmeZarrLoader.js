@@ -26,11 +26,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
-
+    // const zattrs = await this.dataSource.getJson('.zattrs', this.storeRoot);
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
@@ -48,7 +44,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
 
     if (!isSpatialData && !omero) {
       log.error('image.ome-zarr must have omero metadata in attributes.');
-      return Promise.reject(payload);
+      return;
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {

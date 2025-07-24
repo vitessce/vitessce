@@ -1,7 +1,6 @@
 import { FileType } from '@vitessce/constants-internal';
 import {
-  LoaderValidationError,
-  AbstractLoaderError,
+  JsonLoaderValidationError,
 } from '@vitessce/error';
 import {
   AbstractTwoStepLoader,
@@ -29,25 +28,19 @@ export default class JsonLoader extends AbstractTwoStepLoader {
     this.schema = fileTypeToSchema[fileType];
   }
 
-  load() {
+  async load() {
     const {
       url, type, fileType,
     } = this;
     if (this.data) {
       return this.data;
     }
-    this.data = this.dataSource.data
-      .then((data) => {
-        if (data instanceof AbstractLoaderError) {
-          return Promise.reject(data);
-        }
-        const [valid, reason] = this.validate(data);
-        if (valid) {
-          return Promise.resolve(new LoaderResult(data, url));
-        }
-        return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
-      });
-    return this.data;
+    this.data = await this.dataSource.data;
+    const [valid, reason] = this.validate(this.data);
+    if (valid) {
+      return new LoaderResult(this.data, url);
+    }
+    throw new JsonLoaderValidationError(reason);
   }
 
   validate(data) {

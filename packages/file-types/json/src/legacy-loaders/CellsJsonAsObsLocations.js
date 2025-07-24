@@ -32,15 +32,12 @@ export default class CellsJsonAsObsLocationsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
-    ));
+    );
   }
 }

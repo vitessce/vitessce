@@ -51,6 +51,12 @@ export default class ZarrDataSource {
     if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
       dirKey = key.substring(0, key.length - 8);
     }
-    return (await zarrOpen(storeRootToUse.resolve(dirKey))).attrs;
+    try {
+      const location = storeRootToUse.resolve(dirKey);
+      const arrOrGroup = await zarrOpen(location);
+      return arrOrGroup.attrs;
+    } catch (error) {
+      return {};
+    }
   }
 }

@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import { csvParse } from 'd3-dsv';
-import { DataSourceFetchError, AbstractLoaderError } from '@vitessce/error';
 
 export default class CsvSource {
   constructor({ url, requestInit }) {
@@ -8,21 +7,14 @@ export default class CsvSource {
     this.requestInit = requestInit;
   }
 
-  get data() {
+  async loadCsv() {
     if (this._data) return this._data;
-    this._data = fetch(this.url, this.requestInit).then((response) => {
-      if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('CsvSource', this.url, response.headers));
-      }
-      return response.text();
-    // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('CsvSource', this.url, {})))
-      .then((data) => {
-        if (data instanceof AbstractLoaderError) {
-          return Promise.reject(data);
-        }
-        return csvParse(data);
-      });
+    const response = await fetch(this.url, this.requestInit);
+    if (!response.ok) {
+      throw new DataFetchError('CsvSource', this.url, response.headers);
+    }
+    const responseText = await response.text();
+    this._data = csvParse(responseText);
     return this._data;
   }
 }

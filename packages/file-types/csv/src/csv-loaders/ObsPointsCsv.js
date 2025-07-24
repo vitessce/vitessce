@@ -21,10 +21,7 @@ export default class ObsPointsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
 
     const coordinationValues = {
       pointLayer: CL({

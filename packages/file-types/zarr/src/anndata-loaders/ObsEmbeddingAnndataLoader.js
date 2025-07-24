@@ -33,19 +33,16 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
    */
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, obsEmbedding] = await Promise.all([
       // Pass in the obsEmbedding path,
       // to handle the MuData case where the obsIndex is located at
       // `mod/rna/index` rather than `index`.
       this.dataSource.loadObsIndex(path),
       this.loadEmbedding(),
-    ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsEmbedding },
       null,
-    )));
+    );
   }
 }

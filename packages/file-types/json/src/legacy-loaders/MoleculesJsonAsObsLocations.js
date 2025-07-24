@@ -35,16 +35,13 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
     const coordinationValues = {
       // TODO: do this for anndata segmentation loader
       spatialPointLayer: DEFAULT_MOLECULES_LAYER,
     };
-    return Promise.resolve(new LoaderResult(result, url, coordinationValues));
+    return new LoaderResult(result, url, coordinationValues);
   }
 }

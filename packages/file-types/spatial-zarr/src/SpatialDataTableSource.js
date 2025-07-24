@@ -404,7 +404,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadObsIndex(path = undefined) {
     const obsPath = getObsPath(path);
     const { _index } = await this.getJson(`${obsPath}/.zattrs`);
-    let indexPath = `${obsPath}/${_index}`;
+    let indexPath;
+    if(_index) {
+      indexPath = `${obsPath}/${_index}`;
+    }
 
     const {
       instance_key: instanceKey,
@@ -419,8 +422,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
       indexPath = `${obsPath}/${instanceKey}`;
     }
 
-    if (indexPath in this.obsIndices) {
+    if (indexPath && indexPath in this.obsIndices) {
       return this.obsIndices[indexPath];
+    }
+    if (!indexPath) {
+      throw new Error(`No index path found for obs index at ${path}`);
     }
     this.obsIndices[indexPath] = this._loadColumn(indexPath);
     return this.obsIndices[indexPath];

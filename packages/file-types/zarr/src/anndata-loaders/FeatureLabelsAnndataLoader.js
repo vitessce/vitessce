@@ -34,23 +34,20 @@ export default class FeatureLabelsAnndataLoader extends AbstractTwoStepLoader {
    */
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [featureIndex, featureLabels] = await Promise.all([
       // Pass in the obsEmbedding path,
       // to handle the MuData case where the obsIndex is located at
       // `mod/rna/index` rather than `index`.
       this.dataSource.loadVarIndex(path),
       this.loadLabels(),
-    ]).then(([featureIndex, featureLabels]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       {
         featureIndex,
         featureLabels,
         featureLabelsMap: new Map(featureIndex.map((key, i) => ([key, featureLabels?.[i]]))),
       },
       null,
-    )));
+    );
   }
 }

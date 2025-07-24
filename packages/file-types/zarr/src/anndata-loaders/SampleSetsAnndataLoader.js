@@ -45,10 +45,6 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
     if (!this.cachedResult) {
       const { options } = this;
       this.cachedResult = Promise.all([
@@ -76,12 +72,6 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     // coordinationValues.sampleSetSelection = newAutoSetSelections;
     coordinationValues.sampleSetColor = newAutoSetColors;
-    return Promise.resolve(
-      new LoaderResult({
-        sampleIndex: obsIndex,
-        sampleSets: obsSets,
-        sampleSetsMembership: obsSetsMembership,
-      }, null, coordinationValues),
-    );
+    return new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues);
   }
 }

@@ -21,10 +21,7 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
 
     const coordinationValues = {
       spotLayer: CL({
@@ -46,10 +43,10 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }

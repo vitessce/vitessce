@@ -44,10 +44,7 @@ export default class ObsSetsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
     const { data, url } = payload;
     const [
       obsIndex,
@@ -55,10 +52,8 @@ export default class ObsSetsCsvLoader extends CsvLoader {
       obsSetsMembership,
       coordinationValues,
     ] = this.loadFromCache(data);
-    return Promise.resolve(
-      new LoaderResult({
-        obsIndex, obsSets: cellSetsTree, obsSetsMembership,
-      }, url, coordinationValues),
-    );
+    return new LoaderResult({
+      obsIndex, obsSets: cellSetsTree, obsSetsMembership,
+    }, url, coordinationValues);
   }
 }
