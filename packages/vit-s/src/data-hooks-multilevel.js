@@ -60,11 +60,11 @@ export function useSegmentationMultiFeatureSelection(
     JSON.stringify(useMemoDependency.length > 0 ? useMemoDependency : [null]),
   ]);
   const [
-    featureData, loadedSelections, extents, normData, featureStatus,
+    featureData, loadedSelections, extents, normData, featureStatus, errors
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
-  return [featureData, loadedSelections, extents, normData, featureStatus];
+  return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
 export function useSpotMultiFeatureSelection(
@@ -106,11 +106,11 @@ export function useSpotMultiFeatureSelection(
       .flatMap(layerVal => layerVal.featureSelection),
   ]);
   const [
-    featureData, loadedSelections, extents, normData, featureStatus,
+    featureData, loadedSelections, extents, normData, featureStatus, errors,
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 1,
   );
-  return [featureData, loadedSelections, extents, normData, featureStatus];
+  return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
 export function useSegmentationMultiObsFeatureMatrixIndices(
@@ -132,10 +132,10 @@ export function useSegmentationMultiObsFeatureMatrixIndices(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
 export function useSpotMultiObsFeatureMatrixIndices(
@@ -156,10 +156,10 @@ export function useSpotMultiObsFeatureMatrixIndices(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
 export function usePointMultiObsLabels(
@@ -179,10 +179,10 @@ export function usePointMultiObsLabels(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsLabelsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsLabelsMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
 export function useSegmentationMultiObsLocations(
@@ -202,10 +202,10 @@ export function useSegmentationMultiObsLocations(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsLocationsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsLocationsMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
 export function useSegmentationMultiObsSets(
@@ -225,8 +225,8 @@ export function useSegmentationMultiObsSets(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsSetsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsSetsMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }

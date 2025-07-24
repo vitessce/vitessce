@@ -353,6 +353,7 @@ export function useFeatureSelectionMultiLevel(
 
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
+  const errors = anyError ? featureQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatGeneData = featureQueries.map(q => q.data?.data || null);
@@ -390,7 +391,7 @@ export function useFeatureSelectionMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [geneData, loadedGeneName, extents, normData, dataStatus];
+  return [geneData, loadedGeneName, extents, normData, dataStatus, errors];
 }
 
 async function matrixIndicesQueryFn(ctx) {
@@ -453,6 +454,7 @@ export function useObsFeatureMatrixIndicesMultiLevel(
 
   const anyLoading = indicesQueries.some(q => q.isFetching);
   const anyError = indicesQueries.some(q => q.isError);
+  const errors = anyError ? indicesQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatIndicesData = indicesQueries.map(q => q.data?.data || null);
@@ -484,7 +486,7 @@ export function useObsFeatureMatrixIndicesMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indicesQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [indicesData, dataStatus];
+  return [indicesData, dataStatus, errors];
 }
 
 function useDataTypeMultiLevel(
@@ -510,6 +512,7 @@ function useDataTypeMultiLevel(
 
   const anyLoading = locationsQueries.some(q => q.isFetching);
   const anyError = locationsQueries.some(q => q.isError);
+  const errors = anyError ? locationsQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatIndicesData = locationsQueries.map(q => q.data?.data || null);
@@ -539,7 +542,7 @@ function useDataTypeMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationsQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [locationsData, dataStatus];
+  return [locationsData, dataStatus, errors];
 }
 
 export function useObsLocationsMultiLevel(

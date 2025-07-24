@@ -103,7 +103,6 @@ export default class AnnDataSource extends ZarrDataSource {
     const path = prependSlash(pathOrig);
     const prefixOrig = dirname(path);
     const prefix = prependSlash(prefixOrig);
-    console.log(pathOrig, path, prefixOrig, prefix);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     /** @type {string[]} */
     let categoriesValues;

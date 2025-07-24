@@ -298,6 +298,7 @@ export function useFeatureSelection(
   });
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
+  const errors = anyError ? featureQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading
     ? STATUS.LOADING
@@ -321,7 +322,7 @@ export function useFeatureSelection(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [anyError, setWarning]);
 
-  return [geneData, loadedGeneName, dataStatus];
+  return [geneData, loadedGeneName, dataStatus, errors];
 }
 
 /**
@@ -405,7 +406,7 @@ export function useComparativeDataType(
     }
   }, [error, setWarning]);
 
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, error];
 }
 
 export function useFeatureStatsData(
@@ -521,7 +522,7 @@ export function useObsFeatureMatrixIndices(
     }
   }, [error, setWarning]);
 
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, error];
 }
 
 export function useMultiObsPoints(
@@ -566,12 +567,12 @@ export function useMultiObsSpots(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useDataTypeMulti(
     DataType.OBS_SPOTS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
+  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors];
 }
 
 export function useSpotMultiObsSets(
@@ -590,12 +591,12 @@ export function useSpotMultiObsSets(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsSetsData, obsSetsDataStatus, obsSetsUrls] = useDataTypeMulti(
+  const [obsSetsData, obsSetsDataStatus, obsSetsUrls, obsSetsErrors] = useDataTypeMulti(
     DataType.OBS_SETS, loaders, dataset,
     false, {}, {},
     matchOnObj,
   );
-  return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
+  return [obsSetsData, obsSetsDataStatus, obsSetsUrls, obsSetsErrors];
 }
 
 
@@ -615,12 +616,12 @@ export function useSpotMultiFeatureLabels(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls] = useDataTypeMulti(
+  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls, featureLabelsErrors] = useDataTypeMulti(
     DataType.FEATURE_LABELS, loaders, dataset,
     false, {}, {},
     matchOnObj,
   );
-  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls];
+  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls, featureLabelsErrors];
 }
 
 
@@ -637,12 +638,12 @@ export function useMultiObsLabels(
       { obsLabelsType, obsType },
     ])),
   ), [obsLabelsTypes, obsType]);
-  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls] = useDataTypeMulti(
+  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls, obsLabelsErrors] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
     false, {}, {},
     obsLabelsMatchOnObj,
   );
-  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls];
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls, obsLabelsErrors];
 }
 
 export function useMultiObsSegmentations(
@@ -666,12 +667,18 @@ export function useMultiObsSegmentations(
     obsSegmentationsData,
     obsSegmentationsDataStatus,
     obsSegmentationsUrls,
+    obsSegmentationsErrors,
   ] = useDataTypeMulti(
     DataType.OBS_SEGMENTATIONS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls];
+  return [
+    obsSegmentationsData,
+    obsSegmentationsDataStatus,
+    obsSegmentationsUrls,
+    obsSegmentationsErrors,
+  ];
 }
 
 export function useMultiImages(
@@ -693,10 +700,10 @@ export function useMultiImages(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [imageData, imageDataStatus, imageUrls] = useDataTypeMulti(
+  const [imageData, imageDataStatus, imageUrls, imageErrors] = useDataTypeMulti(
     DataType.IMAGE, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [imageData, imageDataStatus, imageUrls];
+  return [imageData, imageDataStatus, imageUrls, imageErrors];
 }

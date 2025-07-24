@@ -83,7 +83,6 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       this.loadSegmentations(),
     ]);
 
-    console.log(obsIndex, obsSegmentations);
     return new LoaderResult(
       { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
       null,

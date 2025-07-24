@@ -150,7 +150,7 @@ export function useDataType(
   }, [error, setWarning]);
 
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  return [loadedData, dataStatus, urls, requestInit];
+  return [loadedData, dataStatus, urls, error];
 }
 
 /**
@@ -203,7 +203,6 @@ export function useDataTypeMulti(
 
   const anyLoading = dataQueries.some(q => q.isFetching);
   const anyError = dataQueries.some(q => q.isError);
-  // TODO: wrap in useMemo?
   const errors = anyError ? dataQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);

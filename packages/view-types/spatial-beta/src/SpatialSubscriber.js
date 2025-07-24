@@ -378,21 +378,21 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
-  const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus] = usePointMultiObsLabels(
+  const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus, pointMultiObsLabelsErrors] = usePointMultiObsLabels(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Spots data
-  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
 
-  const [obsSpotsSetsData, obsSpotsSetsDataStatus] = useSpotMultiObsSets(
+  const [obsSpotsSetsData, obsSpotsSetsDataStatus,obsSpotSetsUrls, obsSpotsSetsErrors] = useSpotMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [obsSpotsFeatureLabelsData, obsSpotsFeatureLabelsDataStatus] = useSpotMultiFeatureLabels(
+  const [obsSpotsFeatureLabelsData, obsSpotsFeatureLabelsDataStatus, obsSpotsFeatureLabelsUrls, obsSpotsFeatureLabelsErrors] = useSpotMultiFeatureLabels(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -402,25 +402,26 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionExtents,
     spotMultiExpressionNormData,
     spotMultiFeatureSelectionStatus,
+    spotMultiFeatureSelectionErrors,
   ] = useSpotMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [spotMultiIndicesData, spotMultiIndicesDataStatus] = useSpotMultiObsFeatureMatrixIndices(
+  const [spotMultiIndicesData, spotMultiIndicesDataStatus, spotMultiIndicesDataErrors] = useSpotMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Segmentations data
-  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus] = useSegmentationMultiObsLocations(
+  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus, obsSegmentationsLocationsDataErrors] = useSegmentationMultiObsLocations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsDataErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
 
-  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus] = useSegmentationMultiObsSets(
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus, obsSegmentationsSetsDataErrors] = useSegmentationMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -430,20 +431,36 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionExtents,
     segmentationMultiExpressionNormData,
     segmentationMultiFeatureSelectionStatus,
+    segmentationMultiFeatureSelectionErrors,
   ] = useSegmentationMultiFeatureSelection(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
-  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus] = useSegmentationMultiObsFeatureMatrixIndices(
+  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus, segmentationMultiIndicesDataErrors] = useSegmentationMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   // Image data
-  const [imageData, imageDataStatus, imageUrls] = useMultiImages(
+  const [imageData, imageDataStatus, imageUrls, imageDataErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
 
+  const errors = [
+    ...obsPointsErrors,
+    ...obsSpotsErrors,
+    ...obsSegmentationsDataErrors,
+    ...imageDataErrors,
+    ...obsSpotsSetsErrors,
+    ...obsSegmentationsSetsDataErrors,
+    ...obsSpotsFeatureLabelsErrors,
+    ...spotMultiFeatureSelectionErrors,
+    ...spotMultiIndicesDataErrors,
+    ...pointMultiObsLabelsErrors,
+    ...segmentationMultiFeatureSelectionErrors,
+    ...segmentationMultiIndicesDataErrors,
+    ...obsSegmentationsLocationsDataErrors,
+  ];
 
   /*
   const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
@@ -793,9 +810,7 @@ export function SpatialSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      errors={[
-        ...obsPointsErrors,
-      ]}
+      errors={errors}
     >
       {shouldUseThree ? (
         <SpatialThreeAdapter
