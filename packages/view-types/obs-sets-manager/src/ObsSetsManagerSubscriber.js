@@ -108,12 +108,15 @@ export function ObsSetsManagerSubscriber(props) {
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const errors = [
+    obsSetsError,
+  ];
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
@@ -661,6 +664,7 @@ export function ObsSetsManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       {manager}
     </TitleInfo>

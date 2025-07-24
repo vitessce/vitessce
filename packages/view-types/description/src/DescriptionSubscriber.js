@@ -41,10 +41,13 @@ export function DescriptionSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const [{ image }, imageStatus] = useImageData(
+  const [{ image }, imageStatus, imageUrls, imageError] = useImageData(
     loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  const errors = [
+    imageError,
+  ];
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
 
   const isReady = useReady([imageStatus]);
@@ -75,6 +78,7 @@ export function DescriptionSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <Description
         description={descriptionOverride || description}

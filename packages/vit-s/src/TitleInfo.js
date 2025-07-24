@@ -162,6 +162,7 @@ function HelpButton(props) {
 
 function ErrorInfo(props) {
   const { errors } = props;
+  console.log(errors);
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -213,8 +214,10 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors,
+    helpText, withPadding = true, errors: errorsProp,
   } = props;
+
+  const errors = errorsProp?.filter(Boolean);
 
   const { classes } = useTitleStyles();
 

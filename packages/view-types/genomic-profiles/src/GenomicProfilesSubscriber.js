@@ -100,10 +100,14 @@ export function GenomicProfilesSubscriber(props) {
   const [
     genomicProfilesData, genomicProfilesStatus,
     genomicProfilesUrls,
+    genomicProfilesError,
   ] = useGenomicProfilesData(
     loaders, dataset, true, {}, {},
     {},
   );
+  const errors = [
+    genomicProfilesError,
+  ];
   const isReady = useReady([genomicProfilesStatus]);
   const urls = useUrls([genomicProfilesUrls]);
 
@@ -281,6 +285,7 @@ export function GenomicProfilesSubscriber(props) {
         isReady={isReady}
         urls={urls}
         helpText={helpText}
+        errors={errors}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
           <HiglassGlobalStyles classes={classes} />

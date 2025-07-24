@@ -33,6 +33,7 @@ const LayerControllerMemoized = React.memo(
   forwardRef((props, ref) => {
     const {
       title,
+      errors,
       closeButtonVisible,
       downloadButtonVisible,
       removeGridComponent,
@@ -96,6 +97,7 @@ const LayerControllerMemoized = React.memo(
         theme={theme}
         isReady={isReady}
         helpText={helpText}
+        errors={errors}
       >
         <div className="layer-controller-container" ref={ref}>
           {moleculesLayer && (
@@ -379,7 +381,7 @@ export function LayerControllerSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // eslint-disable-next-line no-unused-vars
-  const [obsLocationsData, obsLocationsStatus] = useObsLocationsData(
+  const [obsLocationsData, obsLocationsStatus, obsLocationsUrls, obsLocationsError] = useObsLocationsData(
     loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
@@ -388,19 +390,27 @@ export function LayerControllerSubscriber(props) {
   const [
     { obsSegmentations, obsSegmentationsType },
     obsSegmentationsStatus,
+    obsSegmentationsUrls,
+    obsSegmentationsError,
   ] = useObsSegmentationsData(
     loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
     {}, // TODO: use obsType once #1240 is merged.
   );
-  const [{ image }, imageStatus] = useImageData(
+  const [{ image }, imageStatus, imageUrls, imageError] = useImageData(
     loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: rasterLayers },
     {}, // TODO: which values to match on
   );
   const { loaders: imageLayerLoaders, meta: imageLayerMeta, instance } = image || {};
+
+  const errors = [
+    obsLocationsError,
+    obsSegmentationsError,
+    imageError,
+  ];
   const isReady = useReady([
     obsLocationsStatus,
     obsSegmentationsStatus,
@@ -464,6 +474,7 @@ export function LayerControllerSubscriber(props) {
     <LayerControllerMemoized
       ref={layerControllerRef}
       title={title}
+      errors={errors}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}

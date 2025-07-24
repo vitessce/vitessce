@@ -254,22 +254,30 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsError] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [imageData, imageDataStatus] = useMultiImages(
+  const [imageData, imageDataStatus, imageError] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsError] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
+  const [obsPointsData, obsPointsDataStatus, obsPointsError] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    obsSegmentationsError,
+    imageError,
+    obsSpotsError,
+    obsPointsError,
+  ];
 
   const isReady = useReady([
     obsSpotsDataStatus,
@@ -287,6 +295,7 @@ export function LayerControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
+      errors={errors}
     >
       <LayerController
         theme={theme}

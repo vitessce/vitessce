@@ -95,12 +95,16 @@ export function CellSetCompositionBarPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ obsSetStats }, obsSetStatsStatus] = useObsSetStatsData(
+  const [{ obsSetStats }, obsSetStatsStatus, obsSetStatsUrls, obsSetStatsError] = useObsSetStatsData(
     loaders, dataset, false,
     { obsType, sampleType },
     // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
+
+  const errors = [
+    obsSetStatsError,
+  ];
 
   const isReady = useReady([
     obsSetStatsStatus,
@@ -123,6 +127,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {obsSetStats ? (
