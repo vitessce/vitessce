@@ -1498,6 +1498,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/error':
+        specifier: workspace:*
+        version: link:../../error
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl

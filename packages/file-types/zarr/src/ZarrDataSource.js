@@ -1,6 +1,8 @@
 // @ts-check
+import { log } from '@vitessce/globals';
 import { zarrOpenRoot } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { ZarrNodeNotFoundError } from '@vitessce/error';
 
 /** @import { Location as ZarrLocation, Readable } from 'zarrita' */
 /** @import { DataSourceParams } from '@vitessce/types' */
@@ -14,6 +16,7 @@ export default class ZarrDataSource {
    * @param {DataSourceParams & { refSpecUrl?: string }} params The parameters object.
    */
   constructor({ url, requestInit, refSpecUrl, store, fileType }) {
+    log.info('Using a Zarr-based data source. 403 and 404 HTTP responses for Zarr metadata files (.zattrs, .zarray, .zgroup, zarr.json) are to be expected and do not necessarily indicate errors.');
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
@@ -55,8 +58,13 @@ export default class ZarrDataSource {
       const location = storeRootToUse.resolve(dirKey);
       const arrOrGroup = await zarrOpen(location);
       return arrOrGroup.attrs;
-    } catch (error) {
-      return {};
+    } catch (/** @type {any} */ e) {
+      if (e.name === 'NodeNotFoundError') {
+        // Throw our own error with a more specific message.
+        throw new ZarrNodeNotFoundError(dirKey);
+      }
+      // Re-throw the error if it is not a NodeNotFoundError.
+      throw e;
     }
   }
 }

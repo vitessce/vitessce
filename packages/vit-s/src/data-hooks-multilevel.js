@@ -13,6 +13,14 @@ import {
 } from './data-hooks-multilevel-utils.js';
 
 
+/**
+ * Wrapper around useFeatureSelectionMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [featureData, loadedSelections, extents, normData, featureStatus, errors]
+ */
 export function useSegmentationMultiFeatureSelection(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -67,6 +75,14 @@ export function useSegmentationMultiFeatureSelection(
   return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
+/**
+ * Wrapper around useFeatureSelectionMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [featureData, loadedSelections, extents, normData, featureStatus, errors]
+ */
 export function useSpotMultiFeatureSelection(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -113,6 +129,14 @@ export function useSpotMultiFeatureSelection(
   return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [indicesData, status, errors]
+ */
 export function useSegmentationMultiObsFeatureMatrixIndices(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -138,6 +162,14 @@ export function useSegmentationMultiObsFeatureMatrixIndices(
   return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [indicesData, status, errors]
+ */
 export function useSpotMultiObsFeatureMatrixIndices(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -162,6 +194,14 @@ export function useSpotMultiObsFeatureMatrixIndices(
   return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsLabelsMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [data, status, errors]
+ */
 export function usePointMultiObsLabels(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -185,6 +225,14 @@ export function usePointMultiObsLabels(
   return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsLocationsMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [data, status, errors]
+ */
 export function useSegmentationMultiObsLocations(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -208,6 +256,14 @@ export function useSegmentationMultiObsLocations(
   return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsSetsMultiLevel.
+ * @param {object} coordinationScopes 
+ * @param {object} coordinationScopesBy 
+ * @param {object} loaders 
+ * @param {string} dataset 
+ * @returns {array} [data, status, errors]
+ */
 export function useSegmentationMultiObsSets(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {

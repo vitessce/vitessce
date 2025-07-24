@@ -121,6 +121,7 @@ function generateMerfishConfig() {
             {
               spatialChannelVisible: true,
               obsType: 'cell',
+              obsHighlight: null,
               spatialChannelColor: [200, 200, 200],
               obsColorEncoding: 'spatialChannelColor',
             },
@@ -134,6 +135,7 @@ function generateMerfishConfig() {
             {
               spatialChannelVisible: true,
               obsType: 'nucleus',
+              obsHighlight: null,
               spatialChannelColor: [255, 255, 255],
               obsColorEncoding: 'spatialChannelColor',
             },
@@ -148,6 +150,7 @@ function generateMerfishConfig() {
       pointLayer: CL([
         {
           obsType: 'point',
+          obsHighlight: null,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

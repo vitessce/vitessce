@@ -5,12 +5,14 @@ import {
   createCache,
 } from '@vitessce/styles';
 import {
+  QueryCache,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
 import {
+  log,
   setLogLevel, setDebugMode,
   DEFAULT_LOG_LEVEL, DEFAULT_DEBUG_MODE,
 } from '@vitessce/globals';
@@ -21,7 +23,6 @@ import {
   AuxiliaryProvider,
   createAuxiliaryStore,
 } from './state/hooks.js';
-
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
 import { DebugWindow } from './DebugWindow.js';
@@ -206,6 +207,15 @@ export function VitS(props) {
         retry: 2,
       },
     },
+    // Reference: https://tkdodo.eu/blog/react-query-error-handling#the-global-callbacks
+    queryCache: new QueryCache({
+      onError: (error) => {
+        log.error(error);
+        if (onWarn) {
+          onWarn(error.message);
+        }
+      }
+    }),
     // TODO: should the queryClient be shared? Or have an option to be shared
     // (e.g., based on remountOnUidChange)?
   }), [configKey]);

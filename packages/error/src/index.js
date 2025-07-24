@@ -62,3 +62,10 @@ export class DataFetchError extends DataLoaderError {
     this.name = "DataFetchError";
   }
 }
+
+export class ZarrNodeNotFoundError extends DataLoaderError {
+  constructor(message) {
+    super(message);
+    this.name = "ZarrNodeNotFoundError";
+  }
+}

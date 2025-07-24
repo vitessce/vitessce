@@ -1,6 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link,
+import {
+  makeStyles,
+  MenuItem,
+  IconButton,
+  Link,
+  List,
+  Alert,
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
@@ -55,6 +61,18 @@ const useStyles = makeStyles()(theme => ({
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
     border: '10px solid grey',
   },
+  errorList: {
+    width: '100%',
+    maxWidth: 300,
+    padding: '0 4px',
+  },
+  errorListAlert: {
+    marginTop: '2px',
+    marginBottom: '2px',
+  },
+  errorListItemText: {
+    fontSize: '12px',
+  },
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -79,6 +97,7 @@ function PlotOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Plot Options"
       aria-label="Open plot options menu"
     >
       {options}
@@ -107,6 +126,7 @@ function DownloadOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Download Options"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
@@ -131,6 +151,7 @@ function HelpButton(props) {
       buttonIcon={<HelpIcon />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Help Info"
       aria-label="Open help info"
       withPaper={false}
     >
@@ -147,20 +168,25 @@ function ErrorInfo(props) {
     <PopperMenu
       open={open}
       setOpen={setOpen}
-      buttonIcon={<WarningIcon style={{ color: 'red' }} />}
+      buttonIcon={<WarningIcon color="error" />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="View Errors"
       aria-label="Open error info"
-      withPaper={false}
     >
-      <span className={classes.helpTextSpan}>
-        <p>Errors</p>
-        <ul>
-          {errors.map((error, index) => (
-            <li key={index}>{error.name}: {error.message}</li>
-          ))}
-        </ul>
-      </span>
+      <List className={classes.errorList}>
+        {errors.map((error, index) => (
+          <Alert
+            key={index}
+            severity="error"
+            className={classes.errorListAlert}
+            slots={{ message: 'span' }}
+            slotProps={{ message: { className: classes.errorListItemText } }}
+          >
+            {error.name}: {error.message}
+          </Alert>
+        ))}
+      </List>
     </PopperMenu>
   );
 }
@@ -174,7 +200,7 @@ function ClosePaneButton(props) {
       onClick={removeGridComponent}
       size="small"
       className={classes.iconButton}
-      title="close"
+      title="Close View"
       aria-label="Close panel button"
     >
       <CloseIcon />

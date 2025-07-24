@@ -4,33 +4,14 @@ import {
   capitalize,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/utils';
-import { log } from '@vitessce/globals';
 import { STATUS } from '@vitessce/constants-internal';
 import {
-  AbstractLoaderError,
   LoaderNotFoundError,
 } from '@vitessce/error';
 import {
   getMatchingLoader,
   useMatchingLoader,
-  useSetWarning,
 } from './state/hooks.js';
-
-const loggedErrors = new Set();
-
-/**
- * Warn via publishing to the console
- * and to the global warning store.
- * @param {AbstractLoaderError} error An error instance.
- */
-export function warn(error, setWarning) {
-  if (loggedErrors.has(error)) {
-    return; // Already logged this error.
-  }
-  setWarning(error.message);
-  log.error(error);
-  loggedErrors.add(error);
-}
 
 /**
  * Initialize values in the coordination space.
@@ -78,7 +59,7 @@ export async function dataQueryFn(ctx) {
   // No loader was found.
   if (isRequired) {
     // Status: error
-    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+    throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${dataType}, ${JSON.stringify(matchOn)}`);
   } else {
     // Status: success
     return { data: placeholderObject };
@@ -102,7 +83,7 @@ export async function dataQueryFn(ctx) {
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [data, status, urls] where
+ * @returns {array} [data, status, urls, error] where
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
@@ -110,7 +91,6 @@ export function useDataType(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
   const dataQuery = useQuery({
     // TODO: only enable when loaders has been initialized?
@@ -143,12 +123,6 @@ export function useDataType(
     );
   }, [coordinationValues]);
 
-  useEffect(() => {
-    if (error) {
-      warn(error, setWarning);
-    }
-  }, [error, setWarning]);
-
   const dataStatus = isFetching ? STATUS.LOADING : status;
   return [loadedData, dataStatus, urls, error];
 }
@@ -170,9 +144,10 @@ export function useDataType(
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
- * cells is an object and cellsCount is the
- * number of items in the cells object.
+ * @param {object} matchOnObj Coordination values used to obtain a matching loader.
+ * @param {function} mergeCoordination Function to merge coordination values.
+ * @param {string} viewUid The view UID to use for merging coordination values.
+ * @returns {array} [data, status, urls, errors]
  */
 export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
@@ -180,8 +155,6 @@ export function useDataTypeMulti(
   mergeCoordination, viewUid,
 ) {
   const placeholderObject = useMemo(() => ({}), []);
-  const setWarning = useSetWarning();
-
   const matchOnEntries = matchOnObj ? Object.entries(matchOnObj) : [];
   const dataQueries = useQueries({
     // eslint-disable-next-line no-unused-vars
@@ -231,14 +204,6 @@ export function useDataTypeMulti(
   // Deliberate dependency omissions: use indirect dependencies for efficiency.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
-
-  useEffect(() => {
-    dataQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
-      warn(error, setWarning);
-    });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
 
   // Convert data to object keyed by scopeKey.
   const data = useMemo(() => Object.fromEntries(
