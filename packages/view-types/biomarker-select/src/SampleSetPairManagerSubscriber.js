@@ -58,9 +58,13 @@ export function SampleSetPairManagerSubscriber(props) {
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  const [{ comparisonMetadata }, cmpMetadataStatus] = useComparisonMetadata(
+  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls, cmpMetadataError] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
+
+  const errors = [
+    cmpMetadataError,
+  ];
 
   const isReady = useReady([
     cmpMetadataStatus,
@@ -114,6 +118,7 @@ export function SampleSetPairManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <ul className={classes.pairUl}>
         {stratificationOptions?.map((pairObj) => {

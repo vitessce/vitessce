@@ -375,6 +375,7 @@ export function GatingSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}

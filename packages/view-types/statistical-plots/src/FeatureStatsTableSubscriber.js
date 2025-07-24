@@ -92,6 +92,7 @@ export function FeatureStatsTableSubscriber(props) {
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
+
   const errors = [
     featureStatsError,
   ];
