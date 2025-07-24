@@ -179,21 +179,29 @@ export function CellSetExpressionPlotSubscriber(props) {
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls, featureLabelsError] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
@@ -202,14 +210,18 @@ export function CellSetExpressionPlotSubscriber(props) {
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError] = useSampleSetsData(
+  const [
+    { sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError,
+  ] = useSampleSetsData(
     loaders, dataset, false,
     { setSampleSetColor },
     { sampleSetColor },
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );

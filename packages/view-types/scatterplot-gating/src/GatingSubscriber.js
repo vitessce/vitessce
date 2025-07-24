@@ -150,18 +150,24 @@ export function GatingSubscriber(props) {
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus, featureSelectionColorErrors] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataColor, loadedColor, featureSelectionColorStatus, featureSelectionColorErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, gatingFeatureSelectionColor,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus, featureSelectionXErrors] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataX, loadedX, featureSelectionXStatus, featureSelectionXErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionX,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus, featureSelectionYErrors] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataY, loadedY, featureSelectionYStatus, featureSelectionYErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionY,
     { obsType, featureType, featureValueType },
   );

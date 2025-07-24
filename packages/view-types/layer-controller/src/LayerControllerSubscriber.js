@@ -380,8 +380,10 @@ export function LayerControllerSubscriber(props) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [obsLocationsData, obsLocationsStatus, obsLocationsUrls, obsLocationsError] = useObsLocationsData(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLocationsData, obsLocationsStatus, obsLocationsUrls, obsLocationsError,
+  ] = useObsLocationsData(
     loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },

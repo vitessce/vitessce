@@ -41,6 +41,7 @@ export function DescriptionSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
+  // eslint-disable-next-line no-unused-vars
   const [{ image }, imageStatus, imageUrls, imageError] = useImageData(
     loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.

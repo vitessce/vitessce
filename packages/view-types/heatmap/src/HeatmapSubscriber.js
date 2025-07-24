@@ -107,12 +107,20 @@ export function HeatmapSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   // Get data from loaders using the data hooks.
-  const [obsLabelsTypes, obsLabelsData, obsLabelsStatus, obsLabelsUrls, obsLabelsErrors] = useMultiObsLabels(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLabelsTypes, obsLabelsData, obsLabelsStatus, obsLabelsUrls, obsLabelsErrors,
+  ] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
   // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls, featureLabelsError] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
@@ -126,7 +134,9 @@ export function HeatmapSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },

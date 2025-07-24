@@ -88,7 +88,9 @@ export function TreemapSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
 
   // TODO: how to deal with multimodal cases (multiple obsIndex, one per modality)?
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
@@ -97,7 +99,9 @@ export function TreemapSubscriber(props) {
     { obsType },
   );
 
-  const [{ sampleIndex, sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError] = useSampleSetsData(
+  const [
+    { sampleIndex, sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError,
+  ] = useSampleSetsData(
     loaders,
     dataset,
     // TODO: support `false`, i.e., configurations in which
@@ -108,7 +112,9 @@ export function TreemapSubscriber(props) {
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders,
     dataset,
     // TODO: support `false`, i.e., configurations in which

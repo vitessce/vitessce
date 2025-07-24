@@ -155,7 +155,10 @@ export function SpatialSubscriber(props) {
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const [obsLabelsTypes, obsLabelsData, obsLabelsStatusMulti, obsLabelsUrlsMulti, obsLabelsErrorsMulti] = useMultiObsLabels(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLabelsTypes, obsLabelsData, obsLabelsStatusMulti, obsLabelsUrlsMulti, obsLabelsErrorsMulti,
+  ] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
 
@@ -199,11 +202,16 @@ export function SpatialSubscriber(props) {
     loaders, dataset, false, {}, {},
     { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const [{
-    obsIndex: obsSegmentationsIndex,
-    obsSegmentations,
-    obsSegmentationsType,
-  }, obsSegmentationsStatus, obsSegmentationsUrls, obsSegmentationsError] = useObsSegmentationsData(
+  const [
+    {
+      obsIndex: obsSegmentationsIndex,
+      obsSegmentations,
+      obsSegmentationsType,
+    },
+    obsSegmentationsStatus,
+    obsSegmentationsUrls,
+    obsSegmentationsError,
+  ] = useObsSegmentationsData(
     loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -218,14 +226,19 @@ export function SpatialSubscriber(props) {
     obsSegmentationsStatus === STATUS.SUCCESS
     && !(obsSegmentations || obsSegmentationsType)
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors] = useFeatureSelection(
+
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
@@ -242,13 +255,19 @@ export function SpatialSubscriber(props) {
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta = [], instance } = image || {};
-  const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls, neighborhoodsError] = useNeighborhoodsData(
+  const [
+    neighborhoods, neighborhoodsStatus, neighborhoodsUrls, neighborhoodsError,
+  ] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls, featureLabelsError] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );

@@ -86,7 +86,9 @@ export function FeatureStatsTableSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureStats }, featureStatsStatus, featureStatsUrls, featureStatsError] = useFeatureStatsData(
+  const [
+    { featureStats }, featureStatsStatus, featureStatsUrls, featureStatsError,
+  ] = useFeatureStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():

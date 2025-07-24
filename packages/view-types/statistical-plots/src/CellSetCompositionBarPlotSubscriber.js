@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -95,7 +95,9 @@ export function CellSetCompositionBarPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ obsSetStats }, obsSetStatsStatus, obsSetStatsUrls, obsSetStatsError] = useObsSetStatsData(
+  const [
+    { obsSetStats }, obsSetStatsStatus, obsSetStatsUrls, obsSetStatsError,
+  ] = useObsSetStatsData(
     loaders, dataset, false,
     { obsType, sampleType },
     // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():

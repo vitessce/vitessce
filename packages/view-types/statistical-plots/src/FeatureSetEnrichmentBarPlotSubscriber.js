@@ -98,7 +98,9 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureSetStats }, featureSetStatsStatus, featureSetStatsUrls, featureSetStatsError] = useFeatureSetStatsData(
+  const [
+    { featureSetStats }, featureSetStatsStatus, featureSetStatsUrls, featureSetStatsError,
+  ] = useFeatureSetStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():

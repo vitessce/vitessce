@@ -58,7 +58,10 @@ export function SampleSetPairManagerSubscriber(props) {
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls, cmpMetadataError] = useComparisonMetadata(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    { comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls, cmpMetadataError,
+  ] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
 

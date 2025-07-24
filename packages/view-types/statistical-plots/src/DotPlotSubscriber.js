@@ -70,31 +70,43 @@ export function DotPlotSubscriber(props) {
   const isStratified = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 1;
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrl, featureLabelsError] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrl, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrl, matrixIndicesError] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrl, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrl, obsSetsError] = useObsSetsData(
+  const [
+    { obsSets: cellSets }, obsSetsStatus, obsSetsUrl, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl, sampleSetsError] = useSampleSetsData(
+  const [
+    { sampleSets }, sampleSetsStatus, sampleSetsUrl, sampleSetsError,
+  ] = useSampleSetsData(
     loaders, dataset, false, {}, {},
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl, sampleEdgesError] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrl, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );

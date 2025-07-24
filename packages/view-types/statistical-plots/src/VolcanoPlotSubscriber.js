@@ -96,7 +96,12 @@ export function VolcanoPlotSubscriber(props) {
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
   // Get data from loaders using the data hooks.
-  const [{ featureStats }, featureStatsStatus, featureStatsUrls, featureStatsError] = useFeatureStatsData(
+  const [
+    { featureStats },
+    featureStatsStatus,
+    featureStatsUrls,
+    featureStatsError,
+  ] = useFeatureStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
