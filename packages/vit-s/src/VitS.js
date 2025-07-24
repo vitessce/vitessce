@@ -214,7 +214,7 @@ export function VitS(props) {
         if (onWarn) {
           onWarn(error.message);
         }
-      }
+      },
     }),
     // TODO: should the queryClient be shared? Or have an option to be shared
     // (e.g., based on remountOnUidChange)?

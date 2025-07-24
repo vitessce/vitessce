@@ -29,13 +29,11 @@ export default class JsonLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const {
-      url, type, fileType,
-    } = this;
+    const { url } = this;
     if (this.data) {
       return this.data;
     }
-    this.data = await this.dataSource.data;
+    this.data = await this.dataSource.loadJson();
     const [valid, reason] = this.validate(this.data);
     if (valid) {
       return new LoaderResult(this.data, url);

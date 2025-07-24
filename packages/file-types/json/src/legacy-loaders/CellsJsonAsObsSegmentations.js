@@ -1,5 +1,4 @@
 import { LoaderResult } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { cellsSchema } from './schemas/cells.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';

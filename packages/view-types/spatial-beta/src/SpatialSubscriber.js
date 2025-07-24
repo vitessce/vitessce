@@ -388,7 +388,7 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
-  const [obsSpotsSetsData, obsSpotsSetsDataStatus,obsSpotSetsUrls, obsSpotsSetsErrors] = useSpotMultiObsSets(
+  const [obsSpotsSetsData, obsSpotsSetsDataStatus, obsSpotSetsUrls, obsSpotsSetsErrors] = useSpotMultiObsSets(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 

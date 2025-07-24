@@ -112,8 +112,6 @@ export function useDataType(
 
   const coordinationValues = data?.coordinationValues;
   const urls = data?.urls;
-  const requestInit = data?.requestInit;
-
 
   useEffect(() => {
     initCoordinationSpace(

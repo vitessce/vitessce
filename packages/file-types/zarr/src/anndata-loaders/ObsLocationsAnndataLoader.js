@@ -1,5 +1,4 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 
 /**
  * Loader for embedding arrays located in anndata.zarr stores.

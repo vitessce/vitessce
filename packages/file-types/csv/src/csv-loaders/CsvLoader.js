@@ -1,7 +1,6 @@
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class CsvLoader extends AbstractTwoStepLoader {
-
   async getSourceData() {
     return new LoaderResult(await this.dataSource.loadCsv(), this.url);
   }

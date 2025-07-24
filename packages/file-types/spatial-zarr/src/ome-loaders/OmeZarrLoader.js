@@ -10,9 +10,6 @@ import {
   ImageWrapper,
 } from '@vitessce/image-utils';
 import {
-  AbstractLoaderError,
-} from '@vitessce/error';
-import {
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/abstract';
@@ -43,8 +40,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const isLabels = !!imageLabel;
 
     if (!isSpatialData && !omero) {
-      log.error('image.ome-zarr must have omero metadata in attributes.');
-      return;
+      throw new Error('image.ome-zarr must have omero metadata in attributes.');
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {
@@ -190,7 +186,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       ]),
     };
 
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       {
         image: {
           loaders: imageLayerLoaders, // TODO: replace with imageWrapper
@@ -201,6 +197,6 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       },
       null,
       coordinationValues,
-    ));
+    );
   }
 }

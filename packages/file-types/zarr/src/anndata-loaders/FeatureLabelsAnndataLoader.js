@@ -1,6 +1,5 @@
 // @ts-check
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureLabelsData } from '@vitessce/types' */

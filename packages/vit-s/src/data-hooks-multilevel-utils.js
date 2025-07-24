@@ -330,12 +330,12 @@ async function featureSelectionQueryFn(ctx) {
 
 /**
  * Get feature values for a multi-level feature selection.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {array} selections 
- * @param {number} depth 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {array} selections
+ * @param {number} depth
  * @returns [data, geneName, extents, normData, status, errors]
  */
 export function useFeatureSelectionMultiLevel(
@@ -428,11 +428,11 @@ async function matrixIndicesQueryFn(ctx) {
 
 /**
  * Get matrix indices for a multi-level coordination.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {number} depth 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
  * @returns [data, dataStatus, errors]
  */
 export function useObsFeatureMatrixIndicesMultiLevel(
@@ -482,12 +482,12 @@ export function useObsFeatureMatrixIndicesMultiLevel(
 
 /**
  * Get data for multi-level coordination.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {number} depth 
- * @param {string} dataType 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @param {string} dataType
  * @returns {array} [data, status, errors]
  */
 function useDataTypeMultiLevel(
@@ -535,11 +535,11 @@ function useDataTypeMultiLevel(
 
 /**
  * Wrapper around useDataTypeMultiLevel.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {number} depth 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
  * @returns {array} [data, status, errors]
  */
 export function useObsLocationsMultiLevel(
@@ -554,11 +554,11 @@ export function useObsLocationsMultiLevel(
 
 /**
  * Wrapper around useDataTypeMultiLevel.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {number} depth 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
  * @returns {array} [data, status, errors]
  */
 export function useObsSetsMultiLevel(
@@ -573,11 +573,11 @@ export function useObsSetsMultiLevel(
 
 /**
  * Wrapper around useDataTypeMultiLevel.
- * @param {object} loaders 
- * @param {string} dataset 
- * @param {boolean} isRequired 
- * @param {object} matchOnObj 
- * @param {number} depth 
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
  * @returns {array} [data, status, errors]
  */
 export function useObsLabelsMultiLevel(

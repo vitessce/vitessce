@@ -1,5 +1,4 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 /**

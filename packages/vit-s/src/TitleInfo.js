@@ -177,7 +177,8 @@ function ErrorInfo(props) {
       <List className={classes.errorList}>
         {errors.map((error, index) => (
           <Alert
-            key={index}
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${index}-${error.name}-${error.message}`}
             severity="error"
             className={classes.errorListAlert}
             slots={{ message: 'span' }}

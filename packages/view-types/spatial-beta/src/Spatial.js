@@ -422,7 +422,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const modelMatrix = obsPointsModelMatrix?.clone();
 
     if (hasZ && typeof targetZ !== 'number') {
-      log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.')
+      log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
     return new deck.ScatterplotLayer({

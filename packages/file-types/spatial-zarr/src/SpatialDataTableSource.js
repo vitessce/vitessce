@@ -358,7 +358,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
           const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
           indexColumnName = tableToIndexColumnName(arrowTableForSchema);
         }
-      } catch(/** @type {any} */ e) {
+      } catch (/** @type {any} */ e) {
         // If we fail to load the schema bytes, we can proceed to try to load the full table bytes,
         // for instance if range requests are not supported but the full table can be loaded.
         log.warn(`Failed to load parquet schema bytes for ${parquetPath}: ${e.message}`);
@@ -412,7 +412,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const obsPath = getObsPath(path);
     const { _index } = await this.getJson(`${obsPath}/.zattrs`);
     let indexPath;
-    if(_index) {
+    if (_index) {
       indexPath = `${obsPath}/${_index}`;
     }
 

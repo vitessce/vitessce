@@ -5,7 +5,6 @@ import {
   treeToMembershipMap,
 } from '@vitessce/sets-utils';
 import { LoaderResult } from '@vitessce/abstract';
-import { AbstractLoaderError } from '@vitessce/error';
 import { obsSetsSchema } from '@vitessce/schemas';
 import JsonLoader from './JsonLoader.js';
 
