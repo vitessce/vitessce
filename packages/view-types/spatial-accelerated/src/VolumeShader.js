@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import { Vector2, Vector3, Vector4 } from 'three';
-import vertexShader from '../shaders/VolumeVertexShader.glsl?raw';
-import fragmentShader from '../shaders/VolumeFragmentShader.glsl?raw';
+import { volumeVertexShader } from './shaders/VolumeVertexShader.js';
+import { volumeFragmentShader } from './shaders/VolumeFragmentShader.js';
 
 export const VolumeShader = {
   uniforms: {
@@ -70,6 +70,6 @@ export const VolumeShader = {
     scale8: { value: new Vector3(256, 256, 256) },
     scale9: { value: new Vector3(512, 512, 512) },
   },
-  vertexShader,
-  fragmentShader,
+  vertexShader: volumeVertexShader,
+  fragmentShader: volumeFragmentShader,
 };

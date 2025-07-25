@@ -173,6 +173,8 @@
  * - Jittered sampling for noise reduction
  */
 
+// lang: glsl
+export const volumeFragmentShader = `//
 // #include <packing>
 precision highp float;
 precision highp int;
@@ -1810,3 +1812,4 @@ void main(void) {
                   outColor.a);
     
 }
+`;

@@ -52,6 +52,8 @@
  * 4. Larger kernels create stronger blur effects
  */
 
+// lang: glsl
+export const gaussianFragmentShader = `//
 // Input texture to blur
 uniform sampler2D tDiffuse;
 // Resolution of the texture (width, height)
@@ -236,3 +238,4 @@ void main() {
     // Output the final blurred color
     gl_FragColor = color;
 }
+`;

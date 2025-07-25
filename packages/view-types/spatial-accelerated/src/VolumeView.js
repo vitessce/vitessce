@@ -12,8 +12,8 @@ import { WebGLMultipleRenderTargets } from 'three';
 import { VolumeDataManager } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
-import gaussianVertexShader from '../shaders/GaussianVertexShader.glsl?raw';
-import gaussianFragmentShader from '../shaders/GaussianFragmentShader.glsl?raw';
+import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
+import { gaussianFragmentShader } from './shaders/GaussianFragmentShader.js';
 
 function framebufferFor(renderer, rt) {
   const p = renderer.properties?.get(rt);
