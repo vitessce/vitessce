@@ -71,6 +71,10 @@ export default class SampleSetsAnndataLoader extends AbstractTwoStepLoader {
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     // coordinationValues.sampleSetSelection = newAutoSetSelections;
     coordinationValues.sampleSetColor = newAutoSetColors;
-    return new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues);
+    return new LoaderResult({
+      sampleIndex: obsIndex,
+      sampleSets: obsSets,
+      sampleSetsMembership: obsSetsMembership,
+    }, null, coordinationValues);
   }
 }
