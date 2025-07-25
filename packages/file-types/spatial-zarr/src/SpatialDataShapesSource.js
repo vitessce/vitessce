@@ -3,6 +3,7 @@
 /* eslint-disable no-undef */
 import WKB from 'ol/format/WKB.js';
 import { basename } from '@vitessce/zarr';
+import { log } from '@vitessce/globals';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
@@ -57,8 +58,9 @@ function getParquetPath(arrPath) {
 
 /**
  * Converts BigInt64Array or Float64Array to Float32Array if needed.
+ * TODO: remove this and support BigInts/Float64s in downstream code.
  * @param {Array<number>} input - The typed array to convert.
- * @returns {Float32Array} - The converted or original Float32Array.
+ * @returns {any} - The converted or original Float32Array.
  */
 function toFloat32Array(input) {
   if (input instanceof Float32Array) {
@@ -77,7 +79,12 @@ function toFloat32Array(input) {
     return new Float32Array(input); // Converts with reduced precision
   }
 
-  throw new TypeError('Input must be Float32Array, Float64Array, or BigInt64Array');
+  if (input instanceof Array) {
+    return new Float32Array(input);
+  }
+
+  log.warn('toFloat32Array expected Float32Array, Float64Array, BigInt64Array, or Array input');
+  return new Float32Array(input);
 }
 
 export default class SpatialDataShapesSource extends SpatialDataTableSource {
