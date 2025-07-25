@@ -6,6 +6,7 @@ import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
+  normalizeAxes,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
 
@@ -98,7 +99,8 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
       inputName === 'xy' && outputName === coordinateSystem
     ));
-    const axes = zattrs?.axes || DEFAULT_AXES;
+    const axes = zattrs?.axes ?? DEFAULT_AXES;
+    const normAxes = normalizeAxes(axes);
     // This new spec is very flexible,
     // so here we will attempt to convert it back to the old spec.
     // TODO: do the reverse, convert old spec to new spec
@@ -106,7 +108,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       coordinateTransformationsFromFile, null,
     );
     const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, axes,
+      normCoordinateTransformationsFromFile, normAxes,
     );
     this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
