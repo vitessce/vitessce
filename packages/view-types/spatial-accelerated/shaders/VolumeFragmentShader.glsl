@@ -1,6 +1,4 @@
 /*
- * Volume Rendering Fragment Shader for Scientific Visualization
- * 
  * This shader implements ray-marching volume rendering with:
  * - Multi-resolution level-of-detail (LOD) support
  * - Brick-based caching system for large datasets
@@ -11,28 +9,23 @@
  * ========================================
  * BRICK CACHE AND PAGE TABLE EXPLANATION
  * ========================================
+ * Volumes can be gigabytes in size, but GPU memory is limited.
+ * We need a way to efficiently render these datasets without
+ * loading everything into memory at once.
  * 
- * For developers unfamiliar with computer graphics concepts:
- * 
- * PROBLEM: Large 3D datasets (like medical scans or scientific volumes) can be 
- * gigabytes in size, but GPU memory is limited. We need a way to efficiently 
- * render these datasets without loading everything into memory at once.
- * 
- * SOLUTION: A two-tier caching system using "Bricks" and a "Page Table":
+ * SOLUTION: A two-tier caching system using a Brick Cache and a Page Table:
  * 
  * 1. BRICK CACHE (The Data Storage):
  *    - Think of the 3D dataset as a large cube divided into smaller 32x32x32 
- *      voxel "bricks" (like LEGO blocks)
+ *      voxel "bricks"
  *    - The Brick Cache is a 3D texture (2048x2048x128) that acts as a "cache" 
  *      or "working memory" for these bricks
  *    - Only the most recently used bricks are kept in this cache
  *    - When you need data from a brick that's not in the cache, it gets loaded 
  *      from disk and stored in the cache (replacing the least recently used brick)
- *    - This is similar to how a web browser caches web pages - you don't load 
- *      the entire internet, just the pages you're currently viewing
  * 
  * 2. PAGE TABLE (The Index/Map):
- *    - The Page Table is like a "phone book" or "index" that tells us where 
+ *    - The Page Table is an index that tells us where 
  *      each brick is stored in the Brick Cache
  *    - Each entry in the Page Table corresponds to one brick in the 3D dataset
  *    - The Page Table entry contains:
@@ -96,14 +89,7 @@
  * 4. If Level 0 bricks aren't loaded yet → Temporarily shows Level 1 bricks
  * 5. Once Level 0 bricks arrive → Smoothly transitions to highest detail
  * 
- * BENEFITS:
- * - Memory efficient: Only loads what you need
- * - Fast rendering: Frequently accessed data stays in cache
- * - Scalable: Can handle datasets much larger than GPU memory
- * - Adaptive: Automatically loads higher resolution data for areas you're 
- *   looking at closely
- * 
- * ASCII Art Diagrams:
+ * Diagrams:
  * 
  * 1. Ray-Marching Through Volume:
  *    Camera
@@ -177,7 +163,7 @@
  *    Medium: ████████░░░░░░░░████████░░░░  (Medium res, medium steps)
  *    Far:    ██░░░░░░░░░░░░░░██░░░░░░░░░░  (Low res, large steps)
  * 
- * Key Features:
+ * Other features:
  * - Ray-box intersection for volume bounds
  * - Adaptive step size based on LOD
  * - Trilinear interpolation for smooth sampling
@@ -211,7 +197,7 @@ uniform sampler3D brickCacheTex;
 uniform usampler3D pageTableTex;
 
 // ========================================
-// RENDERING PARAMETERS
+// RENDERING PARAMETERS/CONSTANTS
 // ========================================
 // Rendering style: 0=MIP, 1=MinIP, 2=standard volume rendering
 uniform int u_renderstyle;
@@ -220,52 +206,37 @@ uniform float opacity;
 
 // ========================================
 // CONTRAST LIMITS (per channel)
+// per channel min/max values for value normalization
 // ========================================
-// Each channel has independent min/max values for value normalization
-// Channel 0: (min_value, max_value)
 uniform vec2 clim0;
-// Channel 1: (min_value, max_value)
 uniform vec2 clim1;
-// Channel 2: (min_value, max_value)
 uniform vec2 clim2;
-// Channel 3: (min_value, max_value)
 uniform vec2 clim3;
-// Channel 4: (min_value, max_value)
 uniform vec2 clim4;
-// Channel 5: (min_value, max_value)
 uniform vec2 clim5;
-// Channel 6: (min_value, max_value)
 uniform vec2 clim6;
 
 // ========================================
 // CLIPPING PLANES
+// e.g., for X-axis clipping: (min_x, max_x) or (-1, -1) if disabled
 // ========================================
-// X-axis clipping: (min_x, max_x) or (-1, -1) if disabled
 uniform vec2 xClip;
-// Y-axis clipping: (min_y, max_y) or (-1, -1) if disabled
 uniform vec2 yClip;
-// Z-axis clipping: (min_z, max_z) or (-1, -1) if disabled
 uniform vec2 zClip;
 
 // ========================================
 // CHANNEL COLORS AND OPACITIES
+// rgb -- color values, a -- visibility (boolean)
 // ========================================
-// Each channel has independent color (RGB) and opacity (A)
-// Channel 0: (r, g, b, opacity)
 uniform vec4 color0;
-// Channel 1: (r, g, b, opacity)
 uniform vec4 color1;
-// Channel 2: (r, g, b, opacity)
 uniform vec4 color2;
-// Channel 3: (r, g, b, opacity)
 uniform vec4 color3;
-// Channel 4: (r, g, b, opacity)
 uniform vec4 color4;
-// Channel 5: (r, g, b, opacity)
 uniform vec4 color5;
-// Channel 6: (r, g, b, opacity)
 uniform vec4 color6;
 
+// maps colors to physical spaces
 uniform int channelMapping[7];
 
 // ========================================
@@ -274,90 +245,77 @@ uniform int channelMapping[7];
 // Volume bounding box size in world space
 uniform highp vec3 boxSize;
 // Rendering resolution level (affects step size)
+// stepsize, correlates with resolution
 uniform int renderRes;
 // Volume dimensions in voxels (x, y, z)
+// resolution 0 voxel extents
 uniform uvec3 voxelExtents;
 // Global resolution range: (min_res, max_res)
+// global range of requested resolutions
 uniform ivec2 resGlobal;
 // Maximum number of active channels
+// max number of channels (relevant for the cache statistics)
+// between 1 and 7
 uniform int maxChannels;
 
 // ========================================
 // PER-CHANNEL RESOLUTION RANGES
-// ========================================
+// per color channel resolution range
 // Each channel can have different available resolution levels
-// Channel 0: (min_res, max_res)
+// e.g., for Channel 0: (min_res, max_res)
+// ========================================
 uniform ivec2 res0;
-// Channel 1: (min_res, max_res)
 uniform ivec2 res1;
-// Channel 2: (min_res, max_res)
 uniform ivec2 res2;
-// Channel 3: (min_res, max_res)
 uniform ivec2 res3;
-// Channel 4: (min_res, max_res)
 uniform ivec2 res4;
-// Channel 5: (min_res, max_res)
 uniform ivec2 res5;
-// Channel 6: (min_res, max_res)
 uniform ivec2 res6;
-// Channel 7: (min_res, max_res) - unused
+// Channel 7: unused
 uniform ivec2 res7;
 
 // ========================================
 // LEVEL-OF-DETAIL PARAMETERS
+// controls how fast we decrease the resolution
 // ========================================
 // LOD factor for distance-based resolution selection
 uniform float lodFactor;
 
 // ========================================
 // ANCHOR POINTS (per resolution level)
+// per resolution anchor point for pagetable
 // ========================================
 // Anchor points define the origin of page table for each resolution level
 // Resolution 0 anchor point (highest detail)
 uniform uvec3 anchor0;
-// Resolution 1 anchor point
 uniform uvec3 anchor1;
-// Resolution 2 anchor point
 uniform uvec3 anchor2;
-// Resolution 3 anchor point
 uniform uvec3 anchor3;
-// Resolution 4 anchor point
 uniform uvec3 anchor4;
-// Resolution 5 anchor point
 uniform uvec3 anchor5;
-// Resolution 6 anchor point
 uniform uvec3 anchor6;
-// Resolution 7 anchor point
 uniform uvec3 anchor7;
-// Resolution 8 anchor point
 uniform uvec3 anchor8;
-// Resolution 9 anchor point (lowest detail)
 uniform uvec3 anchor9;
+// Resolution 9 anchor point (lowest detail)
 
 // ========================================
 // SCALE FACTORS (per resolution level)
+// per resolution downsample factor
 // ========================================
 // Scale factors determine voxel size at each resolution level
 // Resolution 0 scale factors (should be 1,1,1)
 uniform vec3 scale0;
-// Resolution 1 scale factors
 uniform vec3 scale1;
-// Resolution 2 scale factors
 uniform vec3 scale2;
-// Resolution 3 scale factors
 uniform vec3 scale3;
-// Resolution 4 scale factors
 uniform vec3 scale4;
-// Resolution 5 scale factors
 uniform vec3 scale5;
-// Resolution 6 scale factors
 uniform vec3 scale6;
-// Resolution 7 scale factors
 uniform vec3 scale7;
-// Resolution 8 scale factors
 uniform vec3 scale8;
-// Resolution 9 scale factors
 uniform vec3 scale9;
+// Resolution 9 scale factors
 
 // ========================================
 // VARYING VARIABLES (unused but required)
@@ -369,6 +327,7 @@ varying vec3 worldSpaceCoords;
 
 // ========================================
 // OUTPUT VARIABLES (multiple render targets)
+// output buffers
 // ========================================
 // Final rendered color (sRGB)
 layout(location = 0) out vec4 gColor;
@@ -397,6 +356,7 @@ const float BRICK_CACHE_BRICKS_Z = BRICK_CACHE_SIZE_Z / BRICK_SIZE;
 
 // ========================================
 // RAY-VOLUME INTERSECTION
+// calculating the intersection of the ray with the bounding box
 // ========================================
 // Calculates the intersection of a ray with the volume's bounding box
 // Returns (entry_time, exit_time) for the ray-box intersection
@@ -449,6 +409,7 @@ vec2 intersect_hit(vec3 orig, vec3 dir) {
 // ========================================
 
 // Pseudo-random number generator for jittered sampling
+// random number generator based on the uv coordinate
 // Author @patriciogv - 2015
 // http://patriciogonzalezvivo.com
 //
@@ -490,6 +451,7 @@ vec4 linear_to_srgb(vec4 x) {
 
 // ========================================
 // PAGE TABLE COORDINATE PACKING
+// transform the pagetable coordinate into a RGBA8 value
 // ========================================
 // Packs 3D page table coordinates into RGBA8 texture format
 // Uses 10 bits for X, 10 bits for Y, 12 bits for Z
@@ -571,7 +533,7 @@ int getLowestRes() {
     return 9;
 }
 
-// Get scale factors for a resolution level
+// Get the downsample factor for a resolution level
 // Scale factors determine the voxel size at each resolution
 //
 // Parameters:
@@ -594,7 +556,7 @@ vec3 getScale(int index) {
     return vec3(-1.0, -1.0, -1.0);
 }
 
-// Get resolution range for a channel
+// Get the resolution range for a color channel
 // Returns (min_res, max_res) for the channel
 //
 // Parameters:
@@ -614,7 +576,7 @@ ivec2 getRes(int index) {
     return ivec2(-1, -1);
 }
 
-// Get contrast limits for a channel
+// Get the min/max values (contrast limits) for a color channel
 // Returns (min_value, max_value) for normalization
 //
 // Parameters:
@@ -638,7 +600,8 @@ vec2 getClim(int index) {
 // COORDINATE TRANSFORMATIONS
 // ========================================
 
-// Convert normalized coordinates (0-1) to voxel coordinates
+// Convert normalized coordinates (0-1) to voxel coordinates.
+// get the voxel coordinate in the specified resolution from the normalized coordinate
 //
 // Parameters:
 //   normalized - vec3: Normalized coordinates in range [0,1] for each axis
@@ -653,6 +616,7 @@ vec3 getVoxelFromNormalized(vec3 normalized, int res) {
 }
 
 // Convert voxel coordinates to normalized coordinates (0-1)
+// get the normalized coordinate based on the voxel coordinate in the specified resolution
 //
 // Parameters:
 //   voxel - vec3: Voxel coordinates in the volume space
@@ -666,7 +630,9 @@ vec3 getNormalizedFromVoxel(vec3 voxel, int res) {
     return normalized;
 }
 
-// Convert normalized coordinates to brick coordinates
+// Convert normalized coordinates to brick coordinates.
+// get the brick coordinate in the specified resolution based on the normalized coordinate
+// needed for pagetable calculations
 //
 // Parameters:
 //   normalized - vec3: Normalized coordinates in range [0,1] for each axis
@@ -680,7 +646,8 @@ vec3 getBrickFromNormalized(vec3 normalized, int res) {
     return brick;
 }
 
-// Convert voxel coordinates to brick coordinates
+// Convert voxel coordinates to brick coordinates.
+// get the brick coordinate in the specified resolution based on the voxel coordinate
 //
 // Parameters:
 //   voxel - vec3: Voxel coordinates in the volume space
@@ -697,7 +664,8 @@ vec3 getBrickFromVoxel(vec3 voxel, int res) {
 // CHANNEL-SPECIFIC ACCESSORS
 // ========================================
 
-// Get channel offset in page table
+// Get channel offset in page table.
+// get the vector for the specified channel slot in the pagetable
 // Different channels are stored at different Z-offsets in the page table
 //
 // Parameters:
@@ -716,7 +684,8 @@ uvec3 getChannelOffset(int index) {
     return uvec3(0, 0, 0);
 }
 
-// Get color for a channel
+// Get color for a channel.
+// get the color per color channel
 //
 // Parameters:
 //   index - int: Channel index (0-6)
@@ -735,6 +704,7 @@ vec3 getChannelColor(int index) {
 }
 
 // Get opacity for a channel
+// get the opacity (used as visibility) per color channel
 //
 // Parameters:
 //   index - int: Channel index (0-6)
@@ -755,6 +725,33 @@ float getChannelOpacity(int index) {
 // ========================================
 // PAGE TABLE DECODING
 // ========================================
+
+/**
+ * retrieving the brick based on:
+ * location   -- normalized coordinate
+ * targetRes  -- target resolution
+ * channel    -- physical channel slot
+ * rnd        -- random number for jittering requests 
+ * query      -- whether to query the brick (we dont query for interblock interpolation)
+ * colorIndex -- color index for querying the min max values
+ * 
+ * returns:
+ * w >= 0 -- xyz contains brick cache coordinate, w stores resolution
+ * w == -1 -- not resident in any resolution, should be treated as empty
+ * w == -2 -- empty (with respect to current transfer function)
+ * w == -3 -- constant full (with respect to current transfer function)
+ * w == -4 -- constant value within range, x stores that value
+ *
+ * bit layout:
+ * [1] 31    | 0 — flag resident
+ * [1] 30    | 1 — flag init
+ * [7] 23…29 | 2…8 — min → 128
+ * [7] 16…22 | 9…15 — max → 128
+ * [6] 10…15 | 16…21 — x offset in brick cache → max 64
+ * [6] 4…9   | 22…27 — y offset in brick cache →  max 64
+ * [4] 0…3   | 28…31 — z offset in brick cache → max 16, effectively 4
+*/
+
 /*
 Page table entry format (32 bits):
 [31]    | 0 — flag resident (1=loaded in cache)
@@ -789,7 +786,10 @@ Page table entry format (32 bits):
 // add maxres here
 ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, bool query, int colorIndex) {
 
-    vec2 clim = getClim(channel);
+    // min max for current color 
+    vec2 clim = getClim(colorIndex);
+
+    // resolution ranges, TODO: connect this back to color
     int channelMin = getRes(channel).x;
     int channelMax = getRes(channel).y;
 
@@ -798,13 +798,15 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
     currentRes = clamp(currentRes, resGlobal.x, resGlobal.y);
     int lowestRes = clamp(resGlobal.y, channelMin, channelMax);
 
-    // Determine if this channel should request brick loading
+    // Determine if this channel should request brick loading.
+    // request the current channel based on probability
     bool requestChannel = false;
-    if (int(floor(rnd * float(maxChannels))) == channel) {
+    if (int(floor(rnd * float(maxChannels))) == colorIndex) {
         requestChannel = true;
     }
 
-    // Try progressively lower resolutions until we find data
+    // Try progressively lower resolutions until we find data.
+    // loop through resolutions
     while (currentRes <= lowestRes) {
 
         // Calculate page table coordinates for this brick
@@ -819,11 +821,12 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
             coordinate = vec3(anchorPoint) + vec3(0.0, 0.0, zExtent * channel) + brickLocation;
         }
 
-        // Query the page table
+        // Query the page table.
+        // get PT entry
         uint ptEntry = texelFetch(pageTableTex, ivec3(coordinate), 0).r;
-        vec2 clim = getClim(colorIndex);
 
-        // Check if brick is initialized
+        // Check if brick is initialized.
+        // check if the PT entry is initialized
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
             currentRes++; 
@@ -834,13 +837,15 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
             continue;
         }
         
-        // Extract min/max values from page table entry
+        // Extract min/max values from page table entry.
+        // get the min max values of the brick
         uint umin = ((ptEntry >> 23u) & 0x7Fu);
         uint umax = ((ptEntry >> 16u) & 0x7Fu);
         float min = float(int(umin)) / 127.0;
         float max = float(int(umax)) / 127.0;
         
-        // Check if brick is empty (all values below threshold)
+        // Check if brick is empty (all values below threshold).
+        // exit early if brick is constant
         if (float(max) <= clim.x) {
             return ivec4(0,0,0,-2);
             // EMPTY
@@ -850,7 +855,9 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
             return ivec4(min,0,0,-4);  // CONSTANT OTHER VALUE
         }
         
-        // Check if brick is resident in cache
+        // Check if brick is resident in cache.
+        // return brick cache location if resident
+        // continue to next resolution if not resident
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
             currentRes++;
@@ -870,11 +877,13 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
         }
     }
 
+    // not resident in any resolution, should be treated as empty
     return ivec4(0,0,0,-1);  // Not found
 }
 
-// Request brick loading for a specific location and resolution
-// Initiates a request to load a brick from disk into the brick cache
+// Request brick loading for a specific location and resolution.
+// Initiates a request to load a brick from disk into the brick cache.
+// set the brick request for the specified slot channel
 //
 // Parameters:
 //   location - vec3: Normalized world space coordinates (0.0 to 1.0) where the brick is needed
@@ -902,8 +911,9 @@ void setBrickRequest(vec3 location, int targetRes, int channel, float rnd) {
     }
 }
 
-// Track brick usage for cache management
-// Records which brick in the cache is being accessed for LRU (Least Recently Used) eviction
+// Track brick usage for cache management.
+// Records which brick in the cache is being accessed for LRU (Least Recently Used) eviction.
+// set the usage for the specified brick
 //
 // Parameters:
 //   brickCacheOffset - ivec3: 3D coordinates of the brick within the brick cache texture
@@ -925,7 +935,8 @@ void setUsage(ivec3 brickCacheOffset, float t_hit_min_os, float t_hit_max_os, fl
 // UTILITY FUNCTIONS
 // ========================================
 
-// Get maximum component of a 3D vector
+// Get maximum component of a 3D vector.
+// get the max value of a vec3
 //
 // Parameters:
 //   v - vec3: Input 3D vector
@@ -936,7 +947,8 @@ float vec3_max(vec3 v) {
     return max(v.x, max(v.y, v.z));
 }
 
-// Get minimum component of a 3D vector
+// Get minimum component of a 3D vector.
+// get the min value of a vec3
 //
 // Parameters:
 //   v - vec3: Input 3D vector
@@ -947,8 +959,9 @@ float vec3_min(vec3 v) {
     return min(v.x, min(v.y, v.z));
 }
 
-// Calculate level-of-detail based on distance
-// Uses logarithmic scaling to determine appropriate resolution level
+// Calculate level-of-detail based on distance.
+// Uses logarithmic scaling to determine appropriate resolution level.
+// get the LOD based on the distance to the camera
 //
 // Parameters:
 //   distance - float: Distance from camera to sampling point
@@ -963,8 +976,9 @@ int getLOD(float distance, int highestRes, int lowestRes, float lodFactor) {
     return clamp(lod, highestRes, lowestRes);
 }
 
-// Calculate step size for ray marching at a given resolution
-// Determines optimal sampling step size based on voxel dimensions and ray direction
+// Calculate step size for ray marching at a given resolution.
+// Determines optimal sampling step size based on voxel dimensions and ray direction.
+// get the voxel step in object space
 //
 // Parameters:
 //   res - int: Resolution level index (0-9, where 0 is highest resolution)
@@ -982,8 +996,8 @@ float voxelStepOS(int res, vec3 osDir) {
 // INTERPOLATION FUNCTIONS
 // ========================================
 
-// Linear interpolation between two values
-// Performs smooth interpolation between two scalar values
+// Linear interpolation between two values.
+// Performs smooth interpolation between two scalar values.
 //
 // Parameters:
 //   v0 - float: First value to interpolate from
@@ -1052,8 +1066,9 @@ float trilerp(
 // BRICK CACHE SAMPLING
 // ========================================
 
-// Sample a value from the brick cache texture
-// Converts brick coordinates and voxel position to texture coordinates for sampling
+// Sample a value from the brick cache texture.
+// Converts brick coordinates and voxel position to texture coordinates for sampling.
+// sample the brick cache based on the brick cache coordinate and the in-brick coordinate
 //
 // Parameters:
 //   brickCacheCoord - vec3: 3D coordinates of the brick within the brick cache
@@ -1070,6 +1085,9 @@ float sampleBrick(vec3 brickCacheCoord, vec3 voxelInBrick) {
     return texture(brickCacheTex, brickCacheCoordNormalized).r;
 }
 
+/**
+ * main renderloop
+*/
 void main(void) {
 
     // ========================================
@@ -1080,6 +1098,8 @@ void main(void) {
     gRequest = vec4(0,0,0,0);  // Brick loading requests
     gUsage = vec4(0,0,0,0);    // Brick usage tracking
     gColor = vec4(0.0, 0.0, 0.0, 0.0);  // Final color output
+
+    // out color sums up our accumulated value before writing it into the gColor buffer
     vec4 outColor = vec4(0.0, 0.0, 0.0, 0.0);  // Accumulated color
 
     // Generate random number for jittered sampling (reduces artifacts)
@@ -1116,8 +1136,11 @@ void main(void) {
     float t_hit_max_os = t_hit.y * ws2os;       // Exit point in object space
     float t_os = t_hit_min_os;                  // Current position in object space
 
-    // Calculate effective LOD factor based on volume size
+    // Calculate effective LOD factor based on volume size.
+    // voxel edge is the max extent of the volume
     float voxelEdge = float(max(voxelExtents.x, max(voxelExtents.y, voxelExtents.z)));
+
+    // calculate LOD factor based on the voxel edge
     float lodFactorEffective = lodFactor * voxelEdge / 256.0;
 
     // ========================================
@@ -1151,18 +1174,25 @@ void main(void) {
     
     // Apply jittered sampling to reduce artifacts
     p += dp * (rnd);
-    p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);  // Avoid boundary issues
+    // Avoid boundary issues
+    p = clamp(p, 0.0 + 0.0000028, 1.0 - 0.0000028);
 
     // ========================================
     // RENDERING VARIABLES
     // ========================================
     
-    // Color accumulation for front-to-back compositing
+    // Color accumulation for front-to-back compositing.
+    // color accumulation variables, are calculated per 'slice'
     vec3 rgbCombo = vec3(0.0);
     float total = 0.0;
-    float alphaMultiplicator = 1.0;  // For alpha blending
 
-    // Request tracking (for brick loading)
+    // For alpha blending.
+    // alpha accumulation variable runs globally
+    float alphaMultiplicator = 1.0;
+
+    // Request tracking (for brick loading).
+    // if we have a request for a brick which not visible in lower
+    // resolutions, we can overwrite it once
     bool overWrittenRequest = false;
 
     // Current state tracking
@@ -1173,9 +1203,12 @@ void main(void) {
     // CHANNEL-SPECIFIC CONSTANTS
     // ========================================
     
-    // Pre-compute channel properties for efficiency
+    // Pre-compute channel properties for efficiency.
+    // constants per color channel
     vec3 [] c_color = vec3[7](getChannelColor(0), getChannelColor(1), getChannelColor(2), getChannelColor(3), getChannelColor(4), getChannelColor(5), getChannelColor(6));
     float [] c_opacity = float[7](getChannelOpacity(0), getChannelOpacity(1), getChannelOpacity(2), getChannelOpacity(3), getChannelOpacity(4), getChannelOpacity(5), getChannelOpacity(6));
+    // resolution ranges (currently) per color channel
+    // TODO: figure out how to hook it up with frontend
     int [] c_res_min = int[7](getRes(0).x, getRes(1).x, getRes(2).x, getRes(3).x, getRes(4).x, getRes(5).x, getRes(6).x);
     int [] c_res_max = int[7](getRes(0).y, getRes(1).y, getRes(2).y, getRes(3).y, getRes(4).y, getRes(5).y, getRes(6).y);
     
@@ -1183,26 +1216,38 @@ void main(void) {
     // PER-CHANNEL STATE ARRAYS
     // ========================================
     
-    // Current state for each channel
+    // Current state for each channel.
+    // current state variables per color channel
+    
+    // current resolution
     int []   c_res_current =             int[7](0,0,0,0,0,0,0);
+    // current value
     float [] c_val_current =             float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // current brick cache coordinate
     vec3 []  c_brickCacheCoord_current = vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    // current voxel in current resolution
     vec3 []  c_voxel_current =           vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    // current pagetable coordinate
     vec3 []  c_ptCoord_current =         vec3[7](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    // current render mode -- 0: empty (add 0), 1: constant (add current val), 2: voxel (query new voxel)
+    // upon change of PT we re-query anyways
     int []   c_renderMode_current =      int[7](-1, -1, -1, -1, -1, -1, -1);
-    int []   c_res_prev =                int[7](-1,-1,-1,-1,-1,-1,-1);
     
     // Adjacent brick caching for interpolation
+    // current pagetable coordinate of the adjacent bricks in X, Y, Z or diagonal direction
     vec3 []  c_PT_X_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 []  c_PT_Y_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 []  c_PT_Z_adjacent =           vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 []  c_PT_XYZ_adjacent =         vec3[7](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
+    // corresponding brick coordinates of the adjacent bricks in X, Y, Z or diagonal direction
     vec4 []  c_brick_X_adjacent =        vec4[7](vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0));
     vec4 []  c_brick_Y_adjacent =        vec4[7](vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0));
     vec4 []  c_brick_Z_adjacent =        vec4[7](vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0));
     vec4 []  c_brick_XYZ_adjacent =      vec4[7](vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0), vec4(-1.0));
 
-    // Min/max tracking for MIP/MinIP rendering
+    // Min/max tracking for MIP/MinIP rendering.
+    // min and max values of the current color
+    // used for minimum/maximum intensity projection
     float [] c_minVal = float[7](-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0);
     float [] c_maxVal = float[7](0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -1212,29 +1257,35 @@ void main(void) {
     vec3 [] r_prevPTCoord = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
     vec3 [] r_prevVoxel = vec3[10](vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0), vec3(-1.0));
 
+    // resolution changed flag
     bool resolutionChanged = false;
+    // number of repetitions (for debugging purposes)
     int reps = 0;
 
     // ========================================
     // MAIN RAY-MARCHING LOOP
     // ========================================
     
-    // Continue marching until we exit the volume or reach maximum opacity
+    // while we are 'in' the volume.
+    // Continue marching until we exit the volume or reach maximum opacity.
     while (t_os < t_hit_max_os && t_os >= t_hit_min_os
         && vec3_max(p) < 1.0 && vec3_min(p) >= 0.0
     ) {
 
-        // Reset per-sample accumulation
+        // Reset per-sample accumulation.
+        // initialize slice values
         vec3 rgbCombo = vec3(0.0);
         float total   = 0.0;
 
-        // Update target resolution based on current distance (with jitter)
+        // Update target resolution based on current distance (with jitter).
+        // calculate target resolution based on distance and lod factor
         targetRes = getLOD(t, 0, 9, lodFactorEffective * (0.999 + 0.002 * rnd));
 
         // ========================================
         // RESOLUTION CHANGE HANDLING
         // ========================================
         
+        // if target resolution changed, update the current resolution and stepsize
         if (targetRes != currentLOD) {
             currentLOD = targetRes;
             stepResAdaptive++;
@@ -1274,6 +1325,7 @@ void main(void) {
         // 1: constant brick (uniform value)
         // 2: voxel brick (variable data)
 
+        // initialize the per channel slice values
         vec3 sliceColor = vec3(0.0);
         float sliceAlpha = 0.0;
 
@@ -1281,22 +1333,28 @@ void main(void) {
         // MULTI-CHANNEL SAMPLING
         // ========================================
         
-        // Process each channel independently
+        // Process each channel independently.
+        // iterate over up to 7 channels by color
         for (int c = 0; c < 7; c++) {
-            // Skip channels with zero opacity
+            // Skip channels with zero opacity.
+            // skip if opacity is 0 or if color is not mapped to a physical slot
             if (c_opacity[c] <= 0.000001) {
                 continue;
             } else if (channelMapping[c] == -1) {
                 continue;
             }
 
+            // physical slot in pagetable
             int slot = channelMapping[c];
 
+            // keep track of status
             bool newBrick = false;
             bool newVoxel = false;
+            // best possible resolution
             int bestRes = clamp(targetRes, c_res_min[c], c_res_max[c]);
 
-            // Check if we need to load a new brick at a better resolution
+            // Check if we need to load a new brick at a better resolution.
+            // check if any new better resolution could be available, if so, we need to re-query the brick
             bool betterResChanged = false;
             for (int r = bestRes; r <= c_res_current[c]; r++ ) {
                 if (r_ptCoord[r] != r_prevPTCoord[r]) {
@@ -1305,7 +1363,8 @@ void main(void) {
                 }
             }
 
-            // Determine if we need to load new brick data
+            // Determine if we need to load new brick data.
+            // check if we need to re-query the brick / voxel or reuse past 'val'
             if (r_ptCoord[bestRes] != r_prevPTCoord[bestRes]
                 || c_renderMode_current[c] == -1
                 || resolutionChanged == true
@@ -1323,36 +1382,44 @@ void main(void) {
             // BRICK LOADING AND CACHING
             // ========================================
             
+            // check if a new brick is available in the best possible resolution
             if (newBrick) {
                 // Query page table for brick location and status
                 ivec4 brickCacheInfo = getBrickLocation(p, bestRes, slot, rnd, true, c);
+                // check information about the newly queried brick
+                // if the res is not at best res, possibly the same as previous brick
                 if (brickCacheInfo.w == -1 || brickCacheInfo.w == -2) {
-                    // Empty brick - no data available
+                    // Empty brick - no data available.
+                    // we can skip the rest of the loop
                     c_val_current[c] = 0.0;
                     c_renderMode_current[c] = 0;
                     c_minVal[c] = 0.0;
                     continue;
                 } else if (brickCacheInfo.w == -3) {
-                    // Solid brick - constant maximum value
+                    // Solid brick - constant maximum value.
+                    // we set the value and do not need to query a voxel
                     c_val_current[c] = 1.0;
                     c_renderMode_current[c] = 1;
                     c_maxVal[c] = 1.0;
                     newVoxel = false;
                 } else if (brickCacheInfo.w == -4) {
-                    // Constant brick - uniform value
+                    // Constant brick - uniform value.
+                    // static value -- we set the value and do not need to query a voxel
                     float val = float(brickCacheInfo.x);
                     c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
                     c_renderMode_current[c] = 1;
                     newVoxel = false;
                 } else if (brickCacheInfo.w >= 0) {
-                    // Voxel brick - variable data, load from cache
+                    // Voxel brick - variable data, load from cache.
+                    // new brick -- we set the coordinate and resolution and need to query a voxel
                     c_res_current[c] = brickCacheInfo.w;
                     c_ptCoord_current[c] = r_ptCoord[c_res_current[c]];
                     c_brickCacheCoord_current[c] = vec3(brickCacheInfo.xyz);
                     c_renderMode_current[c] = 2;
                     newVoxel = true;
                     
-                    // Track brick usage for cache management
+                    // Track brick usage for cache management.
+                    // we set the usage of the brick based on the channel and the relative distance into the cube
                     if (int(floor(rnd * float(maxChannels))) == c) {
                         setUsage(brickCacheInfo.xyz, t_hit_min_os, t_hit_max_os, t_os, rnd);
                     }
@@ -1363,9 +1430,11 @@ void main(void) {
             // VOXEL SAMPLING WITH INTERPOLATION
             // ========================================
             
+            // we need to query a new voxel e.g. sample the brick cache
             if (newVoxel) {
                 c_voxel_current[c] = r_voxel[c_res_current[c]];
 
+                // we clamp the coordinate to be inside the brick and sample the volume
                 reps++;
                 
                 // Calculate position within the brick (0-31 range)
@@ -1378,7 +1447,9 @@ void main(void) {
                 // HIGH-QUALITY INTERPOLATION (renderRes == 0)
                 // ========================================
                 
+                // interblock interpolation
                 if (renderRes == 0) {
+                    // calculate what axis we need to interpolate
                     
                     // Check if we're near brick boundaries (need interpolation)
                     bvec3 clampedMin = lessThan(voxelInBrick, clampedVoxelInBrick);
@@ -1425,19 +1496,24 @@ void main(void) {
 
                             // Sample the neighboring voxel
                             vec3 otherPTcoord = getBrickFromNormalized(otherP, c_res_current[c]);
+                            otherPTcoord = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]);
                             vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0);
                             otherVoxelInBrick -= diff;
 
                             // Check if neighbor is outside volume bounds
                             if (otherP.x < 0.0 || otherP.x >= 1.0 || otherP.y < 0.0 || otherP.y >= 1.0 || otherP.z < 0.0 || otherP.z >= 1.0) {
                                 otherVoxelVal = val;
-                            } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz) {
+                            } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {
                                 // Use cached adjacent brick
                                 otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick);
                             } else {
                                 // Load new adjacent brick
-                                ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); 
-                                float otherVoxelVal;
+                                ivec4 otherBrickCacheInfo = ivec4(-1);
+                                if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz) {
+                                    otherBrickCacheInfo = ivec4(c_brick_XYZ_adjacent[c]);
+                                } else {
+                                    otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); 
+                                }
                                 if (otherBrickCacheInfo.w == -1 || otherBrickCacheInfo.w == -2) {
                                     otherVoxelVal = val;
                                 } else if (otherBrickCacheInfo.w == -3) {
@@ -1445,6 +1521,7 @@ void main(void) {
                                 } else if (otherBrickCacheInfo.w == -4) {
                                     otherVoxelVal = float(otherBrickCacheInfo.x);
                                 } else {
+                                    // TODO: we do not recalculate the voxelInBrick based on the resolution
                                     otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
                                 }
                                 c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); 
@@ -1491,24 +1568,27 @@ void main(void) {
                                     vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff;     \
                                                                                                         \
                                     bool matched = false;                                               \
-                                    if (otherPTcoord == c_PT_X_adjacent[c].xyz)   {                         \
+                                    if (otherPTcoord == c_PT_X_adjacent[c].xyz && c_brick_X_adjacent[c].w >= 0.0)   {                         \
                                         DEST = sampleBrick(c_brick_X_adjacent[c].xyz, otherVoxelInBrick);   \
                                         matched = true;                                                 \
-                                    } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz) {                    \
+                                    } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz && c_brick_Y_adjacent[c].w >= 0.0) {                    \
                                         DEST = sampleBrick(c_brick_Y_adjacent[c].xyz, otherVoxelInBrick);   \
                                         matched = true;                                                 \
-                                    } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz) {                    \
+                                    } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz && c_brick_Z_adjacent[c].w >= 0.0) {                    \
                                         DEST = sampleBrick(c_brick_Z_adjacent[c].xyz, otherVoxelInBrick);   \
                                         matched = true;                                                 \
-                                    } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz) {                  \
+                                    } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {                  \
                                         DEST = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick); \
                                         matched = true;                                                 \
-                                    }                                                                   \
-                                                                                                        \
+                                    }             \
+                                    ivec4 info = ivec4(-1); \
+                                    if (otherPTcoord == c_PT_X_adjacent[c].xyz) { info = ivec4(c_brick_X_adjacent[c]); } \
+                                    else if (otherPTcoord == c_PT_Y_adjacent[c].xyz) { info = ivec4(c_brick_Y_adjacent[c]); } \
+                                    else if (otherPTcoord == c_PT_Z_adjacent[c].xyz) { info = ivec4(c_brick_Z_adjacent[c]); } \
+                                    else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz) { info = ivec4(c_brick_XYZ_adjacent[c]); } \
+                                    else { info = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); } \
+                                    \
                                     if (!matched) {                                                     \
-                                        ivec4 info = getBrickLocation(otherP,                           \
-                                                                      c_res_current[c], slot,              \
-                                                                      rnd, false, c);                      \
                                         if (info.w == -1 || info.w == -2) {                            \
                                             DEST = val;                                                 \
                                         } else if (info.w == -3) {                                      \
@@ -1570,13 +1650,13 @@ void main(void) {
                                     } else { \
                                         vec3 otherPTcoord      = getBrickFromNormalized(otherP, c_res_current[c]);             \
                                         vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff;     \
-                                        if (otherPTcoord == c_PT_X_adjacent[c])   {                         \
+                                        if (otherPTcoord == c_PT_X_adjacent[c] && c_brick_X_adjacent[c].w >= 0.0)   {                         \
                                             DEST = sampleBrick(c_brick_X_adjacent[c].xyz, otherVoxelInBrick);   \
-                                        } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz) {                    \
+                                        } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz && c_brick_Y_adjacent[c].w >= 0.0) {                    \
                                             DEST = sampleBrick(c_brick_Y_adjacent[c].xyz, otherVoxelInBrick);   \
-                                        } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz) {                    \
+                                        } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz && c_brick_Z_adjacent[c].w >= 0.0) {                    \
                                             DEST = sampleBrick(c_brick_Z_adjacent[c].xyz, otherVoxelInBrick);   \
-                                        } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz) {                  \
+                                        } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {                  \
                                             DEST = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick); \
                                         } else {                                                               \
                                             ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); \
@@ -1612,9 +1692,10 @@ void main(void) {
                         }
 
                     } else {
-                        // No boundary interpolation needed - clear adjacent brick cache
-                        c_PT_X_adjacent[c] = c_PT_Y_adjacent[c] = c_PT_Z_adjacent[c] = vec3(-1.0);
-                        c_brick_X_adjacent[c] = c_brick_Y_adjacent[c] = c_brick_Z_adjacent[c] = vec4(-1.0);
+                        // No boundary interpolation needed - clear adjacent brick cache.
+                        // no adjacent bricks -> reset the adjacent trackers
+                        c_PT_X_adjacent[c] = c_PT_Y_adjacent[c] = c_PT_Z_adjacent[c] = c_PT_XYZ_adjacent[c] = vec3(-1.0);
+                        c_brick_X_adjacent[c] = c_brick_Y_adjacent[c] = c_brick_Z_adjacent[c] = c_brick_XYZ_adjacent[c] = vec4(-1.0);
                     }
                 }
 
@@ -1622,11 +1703,12 @@ void main(void) {
                 // VALUE NORMALIZATION AND TRACKING
                 // ========================================
                 
-                // Normalize value to 0-1 range using channel-specific contrast limits
+                // Normalize value to 0-1 range using channel-specific contrast limits.
+                // we normalize the (accumulated) value to the range of the color channel
                 c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
-                c_res_prev[c] = c_res_current[c];
 
-                // Track min/max values for MIP/MinIP rendering
+                // Track min/max values for MIP/MinIP rendering.
+                // update the min and max values for the min/max projection
                 if (c_minVal[c] == -1.0) {
                     c_minVal[c] = c_val_current[c];
                 } else {
@@ -1640,7 +1722,8 @@ void main(void) {
             // BRICK REQUEST GENERATION
             // ========================================
             
-            // Request higher resolution bricks if we're using lower resolution than optimal
+            // Request higher resolution bricks if we're using lower resolution than optimal.
+            // potentially overwrite brick request
             if (!overWrittenRequest 
                 && c_res_current[c] != bestRes
                 && c_val_current[c] > 0.0
@@ -1654,7 +1737,8 @@ void main(void) {
             // CHANNEL COMPOSITING
             // ========================================
             
-            // Accumulate this channel's contribution
+            // Accumulate this channel's contribution.
+            // sum up the values onto the slice values
             total += c_val_current[c];
             rgbCombo += c_val_current[c] * c_color[c];
 
@@ -1664,7 +1748,8 @@ void main(void) {
         // FRONT-TO-BACK COMPOSITING
         // ========================================
         
-        // Clamp total intensity and calculate alpha
+        // Clamp total intensity and calculate alpha.
+        // add the calculated slice to the total color
         total = clamp(total, 0.0, 1.0);
         sliceAlpha = total * opacity * dt * 32.0;  // Scale by step size and brick size
         sliceColor = rgbCombo;
@@ -1674,7 +1759,8 @@ void main(void) {
         outColor.a += sliceAlpha * alphaMultiplicator;
         alphaMultiplicator *= (1.0 - sliceAlpha);
 
-        // Early termination for opaque regions (standard rendering only)
+        // Early termination for opaque regions (standard rendering only).
+        // check if we can exit early
         if (outColor.a > 0.99 && u_renderstyle == 0) { break; }
 
         // ========================================

@@ -541,18 +541,18 @@ export class VolumeRenderManager {
     console.warn('zarrStore.brickLayout', zarrStore.brickLayout);
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
-        0, zarrStore.brickLayout.length - 1,
+        1, zarrStore.brickLayout.length - 1,
       );
     }
     this.uniforms.resGlobal.value.set(
-      0, zarrStore.brickLayout.length - 1,
+      1, zarrStore.brickLayout.length - 1,
     );
     this.uniforms.voxelExtents.value.set(
       zarrStore.shapes[0][4],
       zarrStore.shapes[0][3],
       zarrStore.shapes[0][2],
     );
-    this.uniforms.maxChannels.value = zarrStore.channelCount;
+    this.uniforms.maxChannels.value = Math.min(zarrStore.channelCount, 7);
     console.log('this.channelsVisible', this.channelsVisible);
     console.log('zarrStore.shapes[0]', zarrStore.shapes[0]);
     console.log('PT', PT);
