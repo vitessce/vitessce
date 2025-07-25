@@ -3,8 +3,8 @@
 /* eslint-disable no-undef */
 import WKB from 'ol/format/WKB.js';
 import { basename } from '@vitessce/zarr';
-import SpatialDataTableSource from './SpatialDataTableSource.js';
 import { log } from '@vitessce/globals';
+import SpatialDataTableSource from './SpatialDataTableSource.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
@@ -78,7 +78,7 @@ function toFloat32Array(input) {
   if (input instanceof Float64Array) {
     return new Float32Array(input); // Converts with reduced precision
   }
- 
+
   if (input instanceof Array) {
     return new Float32Array(input);
   }
