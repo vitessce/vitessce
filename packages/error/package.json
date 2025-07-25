@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/error",
-  "version": "3.6.7",
+  "version": "3.6.8",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -29,9 +29,7 @@
     "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
-  "dependencies": {
-    
-  },
+  "dependencies": {},
   "devDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
