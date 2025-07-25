@@ -77,8 +77,10 @@ describe('Vitessce Data URIs', () => {
     // We use a retry: 2 and the default exponential backoff function,
     // so we wait 1s here for that second request to be triggered
     // after which the error will be rendered.
-    cy.wait(1000);
-    cy.contains('JsonSource failed to fetch from https://example.com/bad-url.json');
+    cy.wait(10000);
+
+    cy.get('[aria-label="Open error info"]').click();
+    cy.contains('loadJson failed');
   });
 
   it('handles errors from bad view config v0.1.0', () => {
