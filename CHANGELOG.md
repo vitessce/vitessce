@@ -1,4 +1,11 @@
 
+## 3.6.10
+
+### Patch Changes
+
+- Fix obsSpots bug preventing coordinate transformation. (`@vitessce/spatial-zarr`) ([#2209](https://github.com/vitessce/vitessce/pull/2209))
+
+
 ## 3.6.9
 
 ### Patch Changes
