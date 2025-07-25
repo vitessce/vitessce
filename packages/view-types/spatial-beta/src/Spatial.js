@@ -14,6 +14,7 @@ import {
 } from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
+import { log } from '@vitessce/globals';
 import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
 const POINT_LAYER_PREFIX = 'point-layer-';
@@ -420,6 +421,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
+    if (hasZ && typeof targetZ !== 'number') {
+      log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
+    }
+
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -448,7 +453,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
-      ...(hasZ ? {
+      ...(hasZ && typeof targetZ === 'number' ? {
         // TODO: support targetT filtering as well.
         // TODO: allow filtering by Z coordinate (rather than slice index)
         // Reference: https://github.com/vitessce/vitessce/issues/2194

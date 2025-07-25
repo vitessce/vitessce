@@ -165,37 +165,51 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
-  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLabelsTypes, obsLabelsData, obsLabelsStatus, obsLabelsUrls, obsLabelsErrors,
+  ] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
 
   // Get data from loaders using the data hooks.
   const [
-    { obsIndex: obsEmbeddingIndex, obsEmbedding }, obsEmbeddingStatus, obsEmbeddingUrls,
+    { obsIndex: obsEmbeddingIndex, obsEmbedding },
+    obsEmbeddingStatus,
+    obsEmbeddingUrls,
+    obsEmbeddingError,
   ] = useObsEmbeddingData(
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   const [
-    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
   ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
@@ -203,15 +217,26 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl, sampleSetsError] = useSampleSetsData(
     loaders, dataset, false, {}, {},
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl, sampleEdgesError] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );
+
+  const errors = [
+    ...obsLabelsErrors,
+    obsEmbeddingError,
+    obsSetsError,
+    ...featureSelectionErrors,
+    matrixIndicesError,
+    featureLabelsError,
+    sampleSetsError,
+    sampleEdgesError,
+  ];
 
   const isReady = useReady([
     obsEmbeddingStatus,
@@ -508,6 +533,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}

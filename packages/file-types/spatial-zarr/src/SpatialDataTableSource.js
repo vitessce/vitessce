@@ -4,6 +4,7 @@
 /* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
+import { log } from '@vitessce/globals';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 
@@ -350,11 +351,17 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // in the .zattrs so that we do not need to load the schema first,
       // since only certain stores such as FetchStores support getRange.
       // Reference: https://github.com/scverse/spatialdata/issues/958
-      const schemaBytes = await this.loadParquetSchemaBytes(parquetPath);
-      if (schemaBytes) {
-        const wasmSchema = readSchema(schemaBytes);
-        const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
-        indexColumnName = tableToIndexColumnName(arrowTableForSchema);
+      try {
+        const schemaBytes = await this.loadParquetSchemaBytes(parquetPath);
+        if (schemaBytes) {
+          const wasmSchema = readSchema(schemaBytes);
+          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+          indexColumnName = tableToIndexColumnName(arrowTableForSchema);
+        }
+      } catch (/** @type {any} */ e) {
+        // If we fail to load the schema bytes, we can proceed to try to load the full table bytes,
+        // for instance if range requests are not supported but the full table can be loaded.
+        log.warn(`Failed to load parquet schema bytes for ${parquetPath}: ${e.message}`);
       }
     }
     // Load the full table bytes.
@@ -404,7 +411,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadObsIndex(path = undefined) {
     const obsPath = getObsPath(path);
     const { _index } = await this.getJson(`${obsPath}/.zattrs`);
-    let indexPath = `${obsPath}/${_index}`;
+    let indexPath;
+    if (_index) {
+      indexPath = `${obsPath}/${_index}`;
+    }
 
     const {
       instance_key: instanceKey,
@@ -419,8 +429,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
       indexPath = `${obsPath}/${instanceKey}`;
     }
 
-    if (indexPath in this.obsIndices) {
+    if (indexPath && indexPath in this.obsIndices) {
       return this.obsIndices[indexPath];
+    }
+    if (!indexPath) {
+      throw new Error(`No index path found for obs index at ${path}`);
     }
     this.obsIndices[indexPath] = this._loadColumn(indexPath);
     return this.obsIndices[indexPath];

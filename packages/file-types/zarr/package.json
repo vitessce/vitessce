@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",

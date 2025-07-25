@@ -1,5 +1,5 @@
 {
-  "name": "@vitessce/csv",
+  "name": "@vitessce/error",
   "version": "3.6.7",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
@@ -26,16 +26,19 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/abstract": "workspace:*",
-    "@vitessce/error": "workspace:*",
-    "@vitessce/config": "workspace:*",
-    "d3-array": "catalog:",
-    "d3-dsv": "catalog:"
+    
+  },
+  "devDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

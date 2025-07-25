@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+  LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
@@ -155,36 +155,30 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
-    return Promise.all([
+    const [obsIndex, obsSegmentations] = await Promise.all([
       this.loadObsIndex(),
       this.loadPolygons(),
-    ]).then(([obsIndex, obsSegmentations]) => {
-      const coordinationValues = {
-        segmentationLayer: CL({
-          // TODO: more coordination values here?
+    ]);
+    const coordinationValues = {
+      segmentationLayer: CL({
+        // TODO: more coordination values here?
 
-          // obsColorEncoding: 'spatialLayerColor',
-          // spatialLayerColor: [255, 255, 255],
-          spatialLayerVisible: true,
-          spatialLayerOpacity: 1.0,
-          // featureValueColormapRange: [0, 1],
-          // obsHighlight: null,
-          // obsSetColor: null,
-          // obsSetSelection: null,
-          // additionalObsSets: null,
-        }),
-      };
+        // obsColorEncoding: 'spatialLayerColor',
+        // spatialLayerColor: [255, 255, 255],
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 1.0,
+        // featureValueColormapRange: [0, 1],
+        // obsHighlight: null,
+        // obsSetColor: null,
+        // obsSetSelection: null,
+        // additionalObsSets: null,
+      }),
+    };
 
-      return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
-        null,
-        coordinationValues,
-      ));
-    });
+    return new LoaderResult(
+      { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
+      null,
+      coordinationValues,
+    );
   }
 }

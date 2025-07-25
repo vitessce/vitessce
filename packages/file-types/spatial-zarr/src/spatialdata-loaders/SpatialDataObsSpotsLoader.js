@@ -1,5 +1,5 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+  LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { log } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
@@ -196,41 +196,34 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
-    return Promise.all([
+    const [obsIndex, obsSpots, obsRadius] = await Promise.all([
       this.loadObsIndex(),
       this.loadSpots(),
       this.loadRadius(),
-    ]).then(([obsIndex, obsSpots, obsRadius]) => {
-      const spatialSpotRadius = obsRadius?.data?.[0];
+    ]);
+    const spatialSpotRadius = obsRadius?.data?.[0];
 
-      const coordinationValues = {
-        spotLayer: CL({
-          obsType: 'spot',
-          // obsColorEncoding: 'spatialLayerColor',
-          // spatialLayerColor: [255, 255, 255],
-          spatialLayerVisible: true,
-          spatialLayerOpacity: 1.0,
-          spatialSpotRadius,
-          // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
-          // after resolving https://github.com/vitessce/vitessce/issues/1760
-          // featureValueColormapRange: [0, 1],
-          // obsHighlight: null,
-          // obsSetColor: null,
-          // obsSetSelection: null,
-          // additionalObsSets: null,
-        }),
-      };
-
-      return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSpots },
-        null,
-        coordinationValues,
-      ));
-    });
+    const coordinationValues = {
+      spotLayer: CL({
+        obsType: 'spot',
+        // obsColorEncoding: 'spatialLayerColor',
+        // spatialLayerColor: [255, 255, 255],
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 1.0,
+        spatialSpotRadius,
+        // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
+        // after resolving https://github.com/vitessce/vitessce/issues/1760
+        // featureValueColormapRange: [0, 1],
+        // obsHighlight: null,
+        // obsSetColor: null,
+        // obsSetSelection: null,
+        // additionalObsSets: null,
+      }),
+    };
+    return new LoaderResult(
+      { obsIndex, obsSpots },
+      null,
+      coordinationValues,
+    );
   }
 }

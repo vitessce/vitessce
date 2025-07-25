@@ -10,7 +10,6 @@ import {
   ImageWrapper,
 } from '@vitessce/image-utils';
 import {
-  AbstractLoaderError,
   LoaderResult,
   AbstractTwoStepLoader,
 } from '@vitessce/abstract';
@@ -24,11 +23,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const payload = await this.dataSource.getJson('.zattrs', this.storeRoot).catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
-
+    // const zattrs = await this.dataSource.getJson('.zattrs', this.storeRoot);
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options || {};
 
     // Here, we use this.storeRoot as opposed to this.dataSource.storeRoot.
@@ -45,8 +40,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const isLabels = !!imageLabel;
 
     if (!isSpatialData && !omero) {
-      log.error('image.ome-zarr must have omero metadata in attributes.');
-      return Promise.reject(payload);
+      throw new Error('image.ome-zarr must have omero metadata in attributes.');
     }
 
     if (!Array.isArray(multiscales) || multiscales.length === 0) {
@@ -192,7 +186,7 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       ]),
     };
 
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       {
         image: {
           loaders: imageLayerLoaders, // TODO: replace with imageWrapper
@@ -203,6 +197,6 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       },
       null,
       coordinationValues,
-    ));
+    );
   }
 }
