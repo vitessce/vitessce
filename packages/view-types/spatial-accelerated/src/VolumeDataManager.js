@@ -26,6 +26,7 @@ import {
   NearestFilter,
   Vector3,
 } from 'three';
+import { isEqual } from 'lodash-es';
 
 // Default chunk sizes
 // const CHUNK_SIZE = 32;
@@ -221,7 +222,103 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
 }
 
 
+/* ------------------------------------------------------------- *
+ * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
+ * ------------------------------------------------------------- */
+export function _packPT(min, max, bcX, bcY, bcZ) {
+  // Scale down to 7-bit range (0-127) by dividing by 2
+  const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
+  // console.log('Scaled min/max:', clamp7(min), clamp7(max));
+  return (
+    (1 << 31) // bit‑31 = resident
+    | (1 << 30) // bit‑30 = init‑done
+    | (clamp7(min) << 23) // 7 bits
+    | (clamp7(max) << 16) // 7 bits
+    | ((bcX & 0x3F) << 10) // 6 bits
+    | ((bcY & 0x3F) << 4) // 6 bits
+    | (bcZ & 0x0F) // 4 bits
+  ) >>> 0; // keep unsigned
+}
 
+// Pack PT entry indicating "not resident but init" with min/max preserved
+// Note: this is not used anywhere?
+/*
+export function _packPTNotResident(min, max, bcX, bcY, bcZ) {
+  // Scale down to 7-bit range (0-127) by dividing by 2
+  const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
+
+  return (
+    (0 << 31) // bit-31 = NOT resident
+    | (1 << 30) // bit-30 = init-done
+    | (clamp7(min) << 23) // 7 bits
+    | (clamp7(max) << 16) // 7 bits
+    | ((bcX & 0x3F) << 10) // 6 bits
+    | ((bcY & 0x3F) << 4) // 6 bits
+    | (bcZ & 0x0F) // 4 bits
+  ) >>> 0; // keep unsigned
+}
+*/
+
+export function _ptToZarr(ptx, pty, ptz, ptInfo) {
+  const { PT_zExtent, PT_z0Extent, PT_anchors } = ptInfo;
+  let channel = -1;
+  let resolution = -1;
+  let x = -1;
+  let y = -1;
+  let z = -1;
+  // console.log('pt', ptx, pty, ptz);
+  // console.log('pt', ptx, pty, ptz);
+  // console.log('ptz', this.PT.z, this.PT.l0z);
+  if (ptz >= PT_zExtent) {
+    // console.log('ptz >= this.PT.zExtent');
+    resolution = 0;
+    x = ptx;
+    y = pty;
+    z = (ptz - PT_zExtent) % PT_z0Extent;
+    channel = Math.floor((ptz - PT_zExtent) / PT_z0Extent);
+  } else {
+    // console.log('ptz < this.PT.zExtent');
+    // console.log('this.PT.anchors', this.PT.anchors);
+    for (let i = 1; i < PT_anchors.length; i++) {
+      if (ptx < PT_anchors[i][0] && pty < PT_anchors[i][1] && ptz < PT_anchors[i][2]) {
+        // all PT coordinates are less than the anchor -> one res lower
+        // console.log('all PT coordinates are less than the anchor -> one res lower');
+      } else {
+        // console.log('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
+        resolution = i;
+        const channelMask = [0, 0, 0];
+        // console.log('ptx', ptx);
+        // console.log('pty', pty);
+        // console.log('ptz', ptz);
+        // console.log('this.PT.anchors[i]', this.PT.anchors[i]);
+        if (ptx >= PT_anchors[i][0]) { channelMask[0] = 1; }
+        if (pty >= PT_anchors[i][1]) { channelMask[1] = 1; }
+        if (ptz >= PT_anchors[i][2]) { channelMask[2] = 1; }
+        const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
+        channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
+        // console.log('channel', channel);
+        const thisOffset = channelMask.map((v, j) => v * PT_anchors[i][j]);
+        // console.log('thisOffset', thisOffset);
+        x = ptx - thisOffset[0];
+        y = pty - thisOffset[1];
+        z = ptz - thisOffset[2];
+        // console.log('x', x);
+        // console.log('y', y);
+        // console.log('z', z);
+        break;
+      }
+    }
+  }
+  // console.log(channel, resolution, x, y, z);
+
+  return {
+    channel,
+    resolution,
+    x,
+    y,
+    z,
+  };
+}
 
 
 /* End extracted functions */
@@ -425,6 +522,11 @@ export class VolumeDataManager {
 
       // Get all resolution levels
       const imageWrapper = this.images?.[this.imageLayerScopes?.[0]]?.image?.instance;
+
+      if(!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
+        throw new Error('Invalid imageWrapper or not an OME-Zarr image');
+      }
+
       const multiResolutionStats = imageWrapper.getMultiResolutionStats();
       const shapes = _resolutionStatsToShapes(multiResolutionStats);
       const resolutions = multiResolutionStats.length;
@@ -433,6 +535,17 @@ export class VolumeDataManager {
 
       // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
       const vivData = imageWrapper.getData();
+
+      if(!Array.isArray(vivData) || vivData.length < 1) {
+        throw new Error('Not a multiresolution loader');
+      }
+
+      if(!isEqual(vivData[0].labels, ['t', 'c', 'z', 'y', 'x'])) {
+        // TODO: relax this and remove the error.
+        throw new Error('Expected OME-Zarr data with dimensions [t, c, z, y, x]');
+      }
+
+      console.log('vivData', vivData);
 
       // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
       const arrays = vivData.map(resolutionData => resolutionData._data);
@@ -525,19 +638,23 @@ export class VolumeDataManager {
         }
 
         // console.warn('group.attrs', this.group.attrs);
-        if (this.group.attrs && this.group.attrs.multiscales
-            && this.group.attrs.multiscales[0].datasets
-            && this.group.attrs.multiscales[0].datasets[0].coordinateTransformations) {
+        const { multiscales } = this.group.attrs || {};
+
+        if(!multiscales) {
+          throw new Error('Expected multiscales metadata in group.attrs');
+        }
+
+        // Check the per-resolution coordinate transformations
+        if (multiscales?.[0]?.datasets?.[0]?.coordinateTransformations) {
           for (let i = 0; i < resolutions; i++) {
-            if (this.group.attrs.multiscales[0].datasets[i]
-                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations
-                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0]
-                && this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0].scale) {
-              const { scale } = this.group.attrs.multiscales[0].datasets[i].coordinateTransformations[0];
+            if (multiscales?.[0]?.datasets?.[i]?.coordinateTransformations?.[0]?.scale) {
+              const { scale } = multiscales[0].datasets[i].coordinateTransformations[0];
               scales[i] = [scale[4], scale[3], scale[2]];
               // console.warn('scale', i, scales[i]);
             }
           }
+
+          // TODO: if the scales are not powers of two, throw an error?
         } else {
           console.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
           for (let i = 0; i < resolutions; i++) {
@@ -549,11 +666,10 @@ export class VolumeDataManager {
         // console.warn('scales', scales);
         this.zarrStore.scales = scales;
 
-        // Use coordinateTransformations scale if available
-        if (this.group.attrs && this.group.attrs.coordinateTransformations
-            && this.group.attrs.coordinateTransformations[0]
-            && this.group.attrs.coordinateTransformations[0].scale) {
-          const { scale } = this.group.attrs.coordinateTransformations[0];
+        // Use the top-level coordinateTransformations scale if available
+        const { coordinateTransformations } = this.group.attrs || {};
+        if (coordinateTransformations?.[0]?.scale) {
+          const { scale } = coordinateTransformations[0];
           // Assuming scale is in format [..., zscale, yscale, xscale]
           const scaleLength = scale.length;
 
@@ -599,12 +715,13 @@ export class VolumeDataManager {
         // console.log('initializing channel mappings');
         console.log('config', config);
         // for each key in config, add to channel mappings
+        const { omero } = this.group.attrs || {};
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
           this.channels.zarrMappings[i] = configChannel;
           this.channels.colorMappings[i] = i;
-          this.channels.downsampleMin[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.min || 0;
-          this.channels.downsampleMax[i] = this.zarrStore.group.attrs?.omero?.channels?.[configChannel]?.window?.max || 65535;
+          this.channels.downsampleMin[i] = omero?.channels?.[configChannel]?.window?.min || 0;
+          this.channels.downsampleMax[i] = omero?.channels?.[configChannel]?.window?.max || 65535;
         });
         console.log('zarrMappings after init', this.channels.zarrMappings);
         console.log('colorMappings after init', this.channels.colorMappings);
@@ -815,6 +932,7 @@ export class VolumeDataManager {
    * @param {Array} arrays - Array to store the loaded arrays
    * @returns {Promise} Promise resolving when the resolution is loaded or rejected
    */
+  /*
   async tryLoadResolution(resolutionIndex, arrays) {
     log('tryLoadResolution');
     console.warn(resolutionIndex, arrays);
@@ -832,6 +950,7 @@ export class VolumeDataManager {
       return { success: false, level: resolutionIndex, error: err.message };
     }
   }
+  */
 
   /**
    * Get physical dimensions
@@ -1070,22 +1189,6 @@ export class VolumeDataManager {
     gl.bindTexture(gl.TEXTURE_3D, null);
   }
 
-  // Pack PT entry indicating "not resident but init" with min/max preserved
-  _packPTNotResident(min, max, bcX, bcY, bcZ) {
-    // Scale down to 7-bit range (0-127) by dividing by 2
-    const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
-
-    return (
-      (0 << 31) // bit-31 = NOT resident
-      | (1 << 30) // bit-30 = init-done
-      | (clamp7(min) << 23) // 7 bits
-      | (clamp7(max) << 16) // 7 bits
-      | ((bcX & 0x3F) << 10) // 6 bits
-      | ((bcY & 0x3F) << 4) // 6 bits
-      | (bcZ & 0x0F) // 4 bits
-    ) >>> 0; // keep unsigned
-  }
-
   // Update a PT entry
   _updatePTEntry(ptX, ptY, ptZ, ptVal) {
     if (!this.ptTHREE) return;
@@ -1102,66 +1205,6 @@ export class VolumeDataManager {
       new Uint32Array([ptVal]),
     );
     gl.bindTexture(gl.TEXTURE_3D, null);
-  }
-
-  _ptToZarr(ptx, pty, ptz) {
-    let channel = -1;
-    let resolution = -1;
-    let x = -1;
-    let y = -1;
-    let z = -1;
-    // console.log('pt', ptx, pty, ptz);
-    // console.log('pt', ptx, pty, ptz);
-    // console.log('ptz', this.PT.z, this.PT.l0z);
-    if (ptz >= this.PT.zExtent) {
-      // console.log('ptz >= this.PT.zExtent');
-      resolution = 0;
-      x = ptx;
-      y = pty;
-      z = (ptz - this.PT.zExtent) % this.PT.z0Extent;
-      channel = Math.floor((ptz - this.PT.zExtent) / this.PT.z0Extent);
-    } else {
-      // console.log('ptz < this.PT.zExtent');
-      // console.log('this.PT.anchors', this.PT.anchors);
-      for (let i = 1; i < this.PT.anchors.length; i++) {
-        if (ptx < this.PT.anchors[i][0] && pty < this.PT.anchors[i][1] && ptz < this.PT.anchors[i][2]) {
-          // all PT coordinates are less than the anchor -> one res lower
-          // console.log('all PT coordinates are less than the anchor -> one res lower');
-        } else {
-          // console.log('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
-          resolution = i;
-          const channelMask = [0, 0, 0];
-          // console.log('ptx', ptx);
-          // console.log('pty', pty);
-          // console.log('ptz', ptz);
-          // console.log('this.PT.anchors[i]', this.PT.anchors[i]);
-          if (ptx >= this.PT.anchors[i][0]) { channelMask[0] = 1; }
-          if (pty >= this.PT.anchors[i][1]) { channelMask[1] = 1; }
-          if (ptz >= this.PT.anchors[i][2]) { channelMask[2] = 1; }
-          const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
-          channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
-          // console.log('channel', channel);
-          const thisOffset = channelMask.map((v, j) => v * this.PT.anchors[i][j]);
-          // console.log('thisOffset', thisOffset);
-          x = ptx - thisOffset[0];
-          y = pty - thisOffset[1];
-          z = ptz - thisOffset[2];
-          // console.log('x', x);
-          // console.log('y', y);
-          // console.log('z', z);
-          break;
-        }
-      }
-    }
-    // console.log(channel, resolution, x, y, z);
-
-    return {
-      channel,
-      resolution,
-      x,
-      y,
-      z,
-    };
   }
 
   /* ------------------------------------------------------------- *
@@ -1201,24 +1244,6 @@ export class VolumeDataManager {
   }
 
   /* ------------------------------------------------------------- *
- * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
- * ------------------------------------------------------------- */
-  _packPT(min, max, bcX, bcY, bcZ) {
-    // Scale down to 7-bit range (0-127) by dividing by 2
-    const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
-    // console.log('Scaled min/max:', clamp7(min), clamp7(max));
-    return (
-      (1 << 31) // bit‑31 = resident
-      | (1 << 30) // bit‑30 = init‑done
-      | (clamp7(min) << 23) // 7 bits
-      | (clamp7(max) << 16) // 7 bits
-      | ((bcX & 0x3F) << 10) // 6 bits
-      | ((bcY & 0x3F) << 4) // 6 bits
-      | (bcZ & 0x0F) // 4 bits
-    ) >>> 0; // keep unsigned
-  }
-
-  /* ------------------------------------------------------------- *
  * 4. Upload one brick + PT entry                                *
  * ------------------------------------------------------------- */
   async _uploadBrick(ptCoord, bcSlot) {
@@ -1241,7 +1266,10 @@ export class VolumeDataManager {
 
 
     /* 4.1 fetch chunk from Zarr */
-    const { channel, resolution, x, y, z } = this._ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z);
+    const { channel, resolution, x, y, z } = _ptToZarr(
+      ptCoord.x, ptCoord.y, ptCoord.z,
+      { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors },
+    );
 
     const zarrChannel = this.channels.zarrMappings[channel];
 
@@ -1321,7 +1349,7 @@ export class VolumeDataManager {
       max = 255;
     }
 
-    const ptVal = this._packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
+    const ptVal = _packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_3D, texPT);

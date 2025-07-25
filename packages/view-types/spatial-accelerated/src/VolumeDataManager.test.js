@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { _initMRMCPT, _resolutionStatsToBrickLayout } from './VolumeDataManager.js';
-
+import {
+  _initMRMCPT,
+  _resolutionStatsToBrickLayout,
+  _packPT,
+  _ptToZarr,
+} from './VolumeDataManager.js';
 
 describe('spatial-accelerated data utils', () => {
   describe('initialization of page table and brick cache', () => {
@@ -125,4 +129,36 @@ describe('spatial-accelerated data utils', () => {
       expect(bcTHREE.source.data.data.length).toEqual(536870912);
     });
   });
+  describe('_packPT converts page table properties for a brick into its packed representation', () => {
+    it('correctly packs the properties', () => {
+      expect(_packPT(0, 80, 1, 0, 0)).toEqual(3223847936);
+      expect(_packPT(0, 56, 2, 0, 0)).toEqual(3223062528);
+      expect(_packPT(0, 0, 27, 0, 0)).toEqual(3221253120);
+      expect(_packPT(0, 111, 61, 0, 0)).toEqual(3224892416);
+      expect(_packPT(0, 3, 14, 1, 0)).toEqual(3221305360);
+      expect(_packPT(0, 41, 60, 1, 0)).toEqual(3222597648);
+    });
+  });
+  describe('_ptToZarr returns the channel, resolution, and xyz coordinates for a page table coordinate', () => {
+    it('correctly converts page table coordinates to image pyramid chunk keys', () => {
+      const ptInfo = {
+        PT_zExtent: 36,
+        PT_z0Extent: 7,
+        PT_anchors: [
+          [0, 0, 36],
+          [64, 53, 29],
+          [32, 28, 22],
+          [16, 15, 15],
+          [8, 8, 8],
+          [4, 4, 4],
+          [2, 2, 2],
+          [1, 1, 1]
+        ],
+      };
+      expect(_ptToZarr(4, 1, 13, ptInfo)).toEqual({ channel: 0, resolution: 4, x: 4, y: 1, z: 5 });
+      expect(_ptToZarr(7, 1, 14, ptInfo)).toEqual({ channel: 0, resolution: 4, x: 7, y: 1, z: 6 });
+      expect(_ptToZarr(2, 1, 4, ptInfo)).toEqual({ channel: 0, resolution: 5, x: 2, y: 1, z: 0 });
+      expect(_ptToZarr(0, 4, 14, ptInfo)).toEqual({ channel: 0, resolution: 4, x: 0, y: 4, z: 6 });
+    })
+  })
 });
