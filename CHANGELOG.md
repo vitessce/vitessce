@@ -1,4 +1,13 @@
 
+## 3.6.8
+
+### Patch Changes
+
+- Support loading SpatialData Points elements. (`@vitessce/spatial-zarr`, `@vitessce/spatial-beta`) ([#2183](https://github.com/vitessce/vitessce/pull/2183))
+
+- Improve error handling: allow errors thrown in data loaders to halt react-query. Pass data-loading errors to TitleInfo for display in the UI. (`@vitessce/error`, `@vitessce/vit-s`) ([#2202](https://github.com/vitessce/vitessce/pull/2202))
+
+
 ## 3.6.7
 
 ### Patch Changes
