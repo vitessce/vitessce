@@ -1,4 +1,11 @@
 
+## 3.6.9
+
+### Patch Changes
+
+- Fixes a bug in which DataSource classes were not selected correctly following JS bundle minification, as the class names were being mapped to conflicting minified strings. (`@vitessce/vit-s`) ([#2207](https://github.com/vitessce/vitessce/pull/2207))
+
+
 ## 3.6.8
 
 ### Patch Changes
