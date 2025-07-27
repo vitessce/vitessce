@@ -43,6 +43,8 @@ export function VolumeView(props) {
     // scene,
     // camera
   } = useThree();
+
+  // Request a new render.
   const invalidate = useThree(state => state.invalidate);
 
   const orbitRef = useRef(null);
@@ -139,10 +141,12 @@ export function VolumeView(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images, imageLayerScopes, firstImageLayerChannelCoordination]); // run when props.images changes
 
+  /*
   useEffect(() => {
     log('useEffect GL');
     gl.autoClear = false;
   }, [gl]);
+  */
 
   /*
   const extractSettings = useCallback(() => {
@@ -289,6 +293,7 @@ export function VolumeView(props) {
     };
   }, [gl]);
 
+  // TODO(mark): extract these functions outside of the component, or into a useCallback.
   function performGeometryPass(_gl, _camera, _scene) {
     // log('performGeometryPass');
     _gl.setRenderTarget(processingRT);
@@ -395,13 +400,23 @@ export function VolumeView(props) {
     }
   }
 
-  useFrame((state) => {
+  // Execute code on every rendered frame.
+  // A numerical renderPriority value will cause React Three Fiber
+  // to disable automatic rendering altogether.
+  // It will now be your responsibility to render
+  // (by calling invalidate()).
+  // Reference: https://r3f.docs.pmnd.rs/api/hooks#useframe
+  const RENDER_PRIORITY = 1;
+  useFrame((state, delta, xrFrame) => {
     if (!processingRT || !managers) return;
 
+    // Receive the same state as the useThree hook.
     const {
       gl: frameGl,
       camera: frameCamera,
-      scene: frameScene } = state;
+      scene: frameScene,
+      clock,
+    } = state;
 
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene);
@@ -411,10 +426,10 @@ export function VolumeView(props) {
 
     handleRequests(frameGl);
 
-    handleAdaptiveQuality(state.clock);
+    handleAdaptiveQuality(clock);
 
     frameRef.current += 1;
-  }, 1);
+  }, RENDER_PRIORITY);
 
   useEffect(() => {
     log('useEffect setProcessingTargets');

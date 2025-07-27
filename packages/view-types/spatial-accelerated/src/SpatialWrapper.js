@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => {
-  const [renderingStats, setRenderingStats] = useState({ fps: 0 });
+  // const [renderingStats, setRenderingStats] = useState({ fps: 0 });
   const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
   const [deviceLimits, setDeviceLimits] = useState(null);
   const volumeViewRef = useRef(null);
@@ -43,6 +43,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
           antialias: true,
           logarithmicDepthBuffer: false,
           preserveDrawingBuffer: false,
+          autoClear: false,
         }}
         ref={canvasRef}
       >
