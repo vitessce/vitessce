@@ -34,8 +34,15 @@ export function VolumeView(props) {
     imageLayerCoordination,
     imageChannelScopesByLayer,
     imageChannelCoordination,
+    onInitComplete,
+    spatialRenderingMode,
+    spatialRenderingModeChanging,
   } = props;
-  const { gl, scene, camera } = useThree();
+  const {
+    gl,
+    // scene,
+    // camera
+  } = useThree();
   const invalidate = useThree(state => state.invalidate);
 
   const orbitRef = useRef(null);
@@ -45,12 +52,14 @@ export function VolumeView(props) {
   const [processingRT, setRT] = useState(null);
 
   const [managers, setManagers] = useState(null);
-  const [renderState, setRenderState] = useState({ uniforms: null,
+  const [renderState, setRenderState] = useState({
+    uniforms: null,
     shader: null,
     meshScale: [1, 1, 1],
-    geometrySize: [1, 1, 1] });
-  const [lastRes, setLastRes] = useState(null);
-  const [lastChannels, setLastChannels] = useState([]);
+    geometrySize: [1, 1, 1],
+  });
+  // const [lastRes, setLastRes] = useState(null);
+  // const [lastChannels, setLastChannels] = useState([]);
   const [is3D, setIs3D] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -63,7 +72,7 @@ export function VolumeView(props) {
   const interactionTimeoutRef = useRef(null);
   
   // Track interaction-triggering props
-  const prevInteractionChannels = useRef();
+  // const prevInteractionChannels = useRef();
 
   // new refs from step 2
   const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
@@ -73,8 +82,13 @@ export function VolumeView(props) {
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
   const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
+  
+  // const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
-  const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
+  const firstImageLayerScope = imageLayerScopes?.[0];
+  const firstImage = images?.[firstImageLayerScope];
+  const firstImageChannelScope = imageChannelScopesByLayer?.[firstImageLayerScope];
+  const firstImageLayerChannelCoordination = imageChannelCoordination?.[0]?.[firstImageLayerScope];
 
   useEffect(() => {
     log('useEffect INIT');
@@ -84,23 +98,26 @@ export function VolumeView(props) {
       return;
     }
 
-    // Fix the path to access the store URL
-    const imageUrl = props.images?.A?.image?.instance?.vivLoader?.data?.[0]?._data?.store?.url;
-    if (!imageUrl && props.images) {
-      console.log('no image url yet');
+    if (!firstImage) {
+      console.log('no first image layer yet');
+      return;
+    }
+
+    if(!firstImageLayerChannelCoordination) {
+      console.log('no firstImageLayerChannelCoordination yet');
       return;
     }
 
     (async () => {
       const dm = new VolumeDataManager(
-        imageUrl,
         gl.getContext?.() || gl,
         gl,
         images,
         imageLayerScopes,
       );
       const rm = new VolumeRenderManager();
-      await dm.init(props.imageChannelCoordination[0].A); // device limits, zarr meta
+      // TODO: generalize to more than one image layer.
+      await dm.init(firstImageLayerChannelCoordination); // device limits, zarr meta
 
       console.log('dm.physicalScale', dm.physicalScale);
 
@@ -110,8 +127,8 @@ export function VolumeView(props) {
       console.log('rm.uniforms', rm.uniforms);
 
       setManagers({ dataManager: dm, renderManager: rm });
-      if (props.onInitComplete) {
-        props.onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
+      if (onInitComplete) {
+        onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       }
     })();
 
@@ -119,20 +136,23 @@ export function VolumeView(props) {
       managers?.dataManager.clearCache();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images, imageLayerScopes]); // run when props.images changes
+  }, [images, imageLayerScopes, firstImageLayerChannelCoordination]); // run when props.images changes
 
   useEffect(() => {
     log('useEffect GL');
     gl.autoClear = false;
   }, [gl]);
 
+  /*
   const extractSettings = useCallback(() => {
     log('callback extractSettings');
     if (!managers) return null;
     const ok = managers.renderManager.updateFromProps(props);
     return ok ? managers.renderManager.extractRenderingSettingsFromProps(props) : null;
   }, [props, managers]);
+  */
 
+  /*
   const loadIfNeeded = useCallback(async (settings) => {
     if (!settings || !managers) return;
 
@@ -149,19 +169,29 @@ export function VolumeView(props) {
 
     stillRef.current = false;
   }, [managers, lastRes, lastChannels]);
+  */
 
   useEffect(() => {
-    const on3D = props.spatialRenderingMode === '3D';
+    const on3D = spatialRenderingMode === '3D';
     setIs3D(on3D);
 
     if (on3D && managers) {
       // Direct call, no callbacks needed
-      if (managers.renderManager.updateFromProps(props)) {
+      const propsForRenderManager = {
+        images,
+        imageLayerScopes,
+        imageLayerCoordination,
+        imageChannelScopesByLayer,
+        imageChannelCoordination,
+        spatialRenderingMode,
+      };
+      if (managers.renderManager.updateFromProps(propsForRenderManager)) {
         const renderState = managers.renderManager.updateRendering(managers.dataManager);
         if (renderState) setRenderState(renderState);
       }
     }
-  }, [props, managers]);
+  }, [managers, images, imageLayerScopes, imageLayerCoordination,
+    imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
 
   useEffect(() => {
     // console.log('useEffect stillRef');
@@ -275,7 +305,7 @@ export function VolumeView(props) {
       managers.dataManager.triggerUsage = true;
       return;
     }
-    if (props.spatialRenderingModeChanging) return;
+    if (spatialRenderingModeChanging) return;
 
     if (managers?.dataManager.noNewRequests) {
       if (renderSpeed !== 0) {
@@ -406,19 +436,14 @@ export function VolumeView(props) {
     setIsInteracting(true);
     console.log('something about channels changed');
 
-    managers?.dataManager.updateChannels(props.imageChannelCoordination[0].A);
+    managers?.dataManager.updateChannels(firstImageLayerChannelCoordination);
     managers?.renderManager.setChannelMapping(managers?.dataManager.channels.colorMappings);
 
     clearTimeout(interactionTimeoutRef.current);
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-  }, [props.imageChannelCoordination]);
-
-  useEffect(() => {
-    console.log('useEffect imageChannelCoordination.length');
-    console.log('imageChannelCoordination.length', props.imageChannelCoordination.length);
-  }, [props.imageChannelCoordination.length]);
+  }, [firstImageLayerChannelCoordination]);
 
   if (!is3D || !managers) return null;
 

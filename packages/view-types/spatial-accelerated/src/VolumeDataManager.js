@@ -324,10 +324,9 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
 /* End extracted functions */
 
 export class VolumeDataManager {
-  constructor(url, gl, renderer, images, imageLayerScopes) {
+  constructor(gl, renderer, images, imageLayerScopes) {
     log('CLASS INITIALIZING');
-    this.url = url; // TODO: use this.images instead
-    this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
+   // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
 
     this.images = images;
     this.imageLayerScopes = imageLayerScopes;
@@ -393,8 +392,8 @@ export class VolumeDataManager {
       physicalSizeTotal: [], // [795 x 0.0688, 1024 x 0.03417, 1024 x 0.03417]
       physicalSizeVoxel: [], // [0.0688, 0.03417, 0.03417]
       brickLayout: [], // [[25, 32, 32],[13, 16, 16], ..., [2,2,2],[1,1,1]]
-      store: '', // ref to this.store
-      group: '', // ref to this.group
+      // store: '', // ref to this.store
+      // group: '', // ref to this.group
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
       scales: [], // downsample ratios, [x,y,z] per resolution level
       lowestDataRes: 0, // lowest resolution level with data
@@ -518,10 +517,13 @@ export class VolumeDataManager {
     log('INIT() IN PROGRESS');
     try {
       // Query Zarr store details
-      this.group = await zarrita.open(this.store);
 
       // Get all resolution levels
       const imageWrapper = this.images?.[this.imageLayerScopes?.[0]]?.image?.instance;
+
+      // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
+      this.ngffMetadata = imageWrapper.vivLoader.metadata;
+      console.log('ngffMetadata', this.ngffMetadata);
 
       if(!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
         throw new Error('Invalid imageWrapper or not an OME-Zarr image');
@@ -588,8 +590,8 @@ export class VolumeDataManager {
           physicalSizeTotal: [], // Will be populated if metadata exists
           physicalSizeVoxel: [], // Will be populated if metadata exists
           brickLayout: [], // Calculate from shapes and chunk sizes
-          store: this.store,
-          group: this.group,
+          // store: this.store,
+          // group: this.group,
           channelCount: shapes[0][1],
           scales,
         };
@@ -638,7 +640,7 @@ export class VolumeDataManager {
         }
 
         // console.warn('group.attrs', this.group.attrs);
-        const { multiscales } = this.group.attrs || {};
+        const { multiscales } = this.ngffMetadata;
 
         if(!multiscales) {
           throw new Error('Expected multiscales metadata in group.attrs');
@@ -667,7 +669,7 @@ export class VolumeDataManager {
         this.zarrStore.scales = scales;
 
         // Use the top-level coordinateTransformations scale if available
-        const { coordinateTransformations } = this.group.attrs || {};
+        const { coordinateTransformations } = this.ngffMetadata;
         if (coordinateTransformations?.[0]?.scale) {
           const { scale } = coordinateTransformations[0];
           // Assuming scale is in format [..., zscale, yscale, xscale]
@@ -715,7 +717,15 @@ export class VolumeDataManager {
         // console.log('initializing channel mappings');
         console.log('config', config);
         // for each key in config, add to channel mappings
-        const { omero } = this.group.attrs || {};
+        const { omero } = this.ngffMetadata || {};
+
+        if(!omero) {
+          // TODO(mark): do not use omero metadata directly, use the ImageWrapper channel methods.
+          throw new Error('Expected omero metadata in ngffMetadata');
+        }
+
+        console.log('omero', omero);
+
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
           this.channels.zarrMappings[i] = configChannel;
@@ -739,11 +749,13 @@ export class VolumeDataManager {
 
       // console.warn(this.zarrStore);
 
-      if (this.zarrStore.group.attrs.coordinateTransformations
-          && this.zarrStore.group.attrs.coordinateTransformations[0]
-          && this.zarrStore.group.attrs.coordinateTransformations[0].scale) {
-        // console.warn('scale', this.zarrStore.group.attrs.coordinateTransformations[0].scale);
+      /*
+      if (this.ngffMetadata.coordinateTransformations
+          && this.ngffMetadata.coordinateTransformations[0]
+          && this.ngffMetadata.coordinateTransformations[0].scale) {
+        // console.warn('scale', this.ngffMetadata.coordinateTransformations[0].scale);
       }
+      */
 
       // Return data that can be displayed in the HUD
       return {
@@ -868,10 +880,10 @@ export class VolumeDataManager {
         if (nextFreeSlot !== -1) {
           this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
           console.log('channelData', channelData);
-          console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
+          console.log('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
           console.log('targetZarrChannel', targetZarrChannel);
-          this.channels.downsampleMin[nextFreeSlot] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
-          this.channels.downsampleMax[nextFreeSlot] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+          this.channels.downsampleMin[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+          this.channels.downsampleMax[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
           console.log(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
           console.log('channels', this.channels);
         } else {
@@ -893,8 +905,8 @@ export class VolumeDataManager {
             if (slotToReuse !== -1) {
               const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
               this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
-              this.channels.downsampleMin[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
-              this.channels.downsampleMax[slotToReuse] = this.zarrStore.group.attrs?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+              this.channels.downsampleMin[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+              this.channels.downsampleMax[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
               console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
 
               this._purgeChannel(slotToReuse);
@@ -1287,13 +1299,13 @@ export class VolumeDataManager {
         const channelId = this.channels.zarrMappings[channel];
         console.log('channelId was not found in this.channels.downsampleMin[channel]', channelId);
         // get the downsample min and max for the channel from omero
-        this.channels.downsampleMin[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.min || 0;
-        this.channels.downsampleMax[channel] = this.zarrStore.group.attrs?.omero?.channels?.[channelId]?.window?.max || 65535;
+        this.channels.downsampleMin[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.min || 0;
+        this.channels.downsampleMax[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.max || 65535;
 
         console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
         console.log('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
 
-        console.log('this.zarrStore.group.attrs?.omero?.channels', this.zarrStore.group.attrs?.omero?.channels);
+        console.log('this.ngffMetadata.attrs?.omero?.channels', this.ngffMetadata?.omero?.channels);
         console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
       }
       const uint8Chunk = new Uint8Array(chunk.length);
