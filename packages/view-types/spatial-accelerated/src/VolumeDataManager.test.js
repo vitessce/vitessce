@@ -4,6 +4,7 @@ import {
   _resolutionStatsToBrickLayout,
   _packPT,
   _ptToZarr,
+  _requestBufferToRequestObjects,
 } from './VolumeDataManager.js';
 
 describe('spatial-accelerated data utils', () => {
@@ -159,6 +160,21 @@ describe('spatial-accelerated data utils', () => {
       expect(_ptToZarr(7, 1, 14, ptInfo)).toEqual({ channel: 0, resolution: 4, x: 7, y: 1, z: 6 });
       expect(_ptToZarr(2, 1, 4, ptInfo)).toEqual({ channel: 0, resolution: 5, x: 2, y: 1, z: 0 });
       expect(_ptToZarr(0, 4, 14, ptInfo)).toEqual({ channel: 0, resolution: 4, x: 0, y: 4, z: 6 });
-    })
-  })
+    });
+  });
+  describe('_requestBufferToRequestObjects', () => {
+    it('correctly converts a buffer to request objects', () => {
+      const buffer = new Uint8Array([
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 128, 16, 13,
+        0, 0, 0, 0,
+      ]);
+      const k = 40;
+      const result = _requestBufferToRequestObjects(buffer, k);
+      expect(result).toEqual([
+        { x: 2, y: 1, z: 13 },
+      ]);
+    });
+  });
 });

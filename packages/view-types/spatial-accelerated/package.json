@@ -43,6 +43,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "catalog:",
+    "internmap": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
     "mathjs": "catalog:",

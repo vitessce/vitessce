@@ -224,7 +224,16 @@ export class VolumeRenderManager {
    * @param {VolumeDataManager} volumeDataManager - Reference to the volume data manager
    * @returns {Object|null} Updated rendering settings or null if rendering is not possible
    */
-  updateRendering(volumeDataManager) {
+  updateRendering({
+    zarrStoreShapes,
+    originalScaleXYZ,
+    physicalDimensionsXYZ,
+    maxResolutionXYZ,
+    boxDimensionsXYZ,
+    normalizedScaleXYZ,
+    bcTHREE,
+    ptTHREE,
+  }) {
     log('Updating rendering');
 
     // Check if we have at least one visible channel
@@ -237,13 +246,12 @@ export class VolumeRenderManager {
     // }
 
     // Instead of getting dimensions from a volume, get from zarrStore
-    if (!volumeDataManager.zarrStore || !volumeDataManager.zarrStore.shapes
-        || volumeDataManager.zarrStore.shapes.length === 0) {
+    if (!Array.isArray(zarrStoreShapes) || zarrStoreShapes.length === 0) {
       return null;
     }
 
     // Get dimensions from zarrStore
-    const shape = volumeDataManager.zarrStore.shapes[0];
+    const shape = zarrStoreShapes[0];
     // Use the highest resolution shape (shape at index 0)
     // Shape format is typically [t, c, z, y, x]
     const dimensions = {
@@ -303,11 +311,11 @@ export class VolumeRenderManager {
 
     if (!this.zarrInit) {
       // Initialize from zarrStore data
-      this.originalScale = volumeDataManager.getOriginalScaleXYZ();
-      this.physicalDimensions = volumeDataManager.getPhysicalDimensionsXYZ();
-      this.maxResolution = volumeDataManager.getMaxResolutionXYZ();
-      const scaledResolution = volumeDataManager.getBoxDimensionsXYZ();
-      this.normalizedScale = volumeDataManager.getNormalizedScaleXYZ();
+      this.originalScale = originalScaleXYZ;
+      this.physicalDimensions = physicalDimensionsXYZ;
+      this.maxResolution = maxResolutionXYZ;
+      const scaledResolution = boxDimensionsXYZ;
+      this.normalizedScale = normalizedScaleXYZ;
 
       this.meshScale = [
         this.originalScale[0] / this.originalScale[0],
@@ -325,23 +333,7 @@ export class VolumeRenderManager {
       console.log('this.maxResolution', this.maxResolution);
       console.log('scaledResolution', scaledResolution);
 
-
-      this.brickCacheTexture = volumeDataManager.bcTHREE;
-      this.pageTableTexture = volumeDataManager.ptTHREE;
       this.zarrInit = true;
-
-      // Initialize textures without warnings
-      volumeDataManager.ptTHREE.needsUpdate = false;
-      volumeDataManager.bcTHREE.needsUpdate = false;
-
-      const texPropsBC = volumeDataManager.renderer.properties.get(volumeDataManager.bcTHREE);
-      const texPropsPT = volumeDataManager.renderer.properties.get(volumeDataManager.ptTHREE);
-
-      // Initialize textures if needed
-      volumeDataManager.renderer.initTexture(volumeDataManager.bcTHREE);
-      volumeDataManager.renderer.initTexture(volumeDataManager.ptTHREE);
-
-      volumeDataManager.initTexture();
     }
 
     // Update shader uniforms
@@ -353,8 +345,8 @@ export class VolumeRenderManager {
       colorsSave,
       this.layerTransparency,
       this.xSlice, this.ySlice, this.zSlice,
-      this.brickCacheTexture,
-      this.pageTableTexture,
+      bcTHREE,
+      ptTHREE,
     );
 
     return {
@@ -510,6 +502,8 @@ export class VolumeRenderManager {
     this.uniforms.channelMapping.value = channelMapping;
   }
 
+
+  // Only called on initialization of the VolumeDataManager and VolumeRenderManager for a particular image.
   setZarrUniforms(
     zarrStore, PT,
   ) {

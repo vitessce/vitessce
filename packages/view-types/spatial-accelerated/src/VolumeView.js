@@ -133,6 +133,7 @@ export function VolumeView(props) {
     })();
 
     return () => {
+      console.log('VolumeView useEffect cleanup: running dataManager.clearCache()');
       managers?.dataManager.clearCache();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,6 +173,7 @@ export function VolumeView(props) {
   */
 
   useEffect(() => {
+    log('useEffect spatialRenderingMode');
     const on3D = spatialRenderingMode === '3D';
     setIs3D(on3D);
 
@@ -186,7 +188,34 @@ export function VolumeView(props) {
         spatialRenderingMode,
       };
       if (managers.renderManager.updateFromProps(propsForRenderManager)) {
-        const renderState = managers.renderManager.updateRendering(managers.dataManager);
+        const zarrInit = managers.renderManager.zarrInit;
+        if (!zarrInit) {
+          // If textures have not yet been initialized, do so prior to calling .updateRendering,
+          // as this internally calls renderManager.updateUniforms,
+          // which (I anticipate) expects the textures to be initialized.
+          
+          // Initialize textures without warnings
+          managers.dataManager.ptTHREE.needsUpdate = false;
+          managers.dataManager.bcTHREE.needsUpdate = false;
+
+          // Initialize textures if needed
+          managers.dataManager.renderer.initTexture(managers.dataManager.bcTHREE);
+          managers.dataManager.renderer.initTexture(managers.dataManager.ptTHREE);
+
+          // Handle the first brick request.
+          managers.dataManager.initTexture();
+        }
+        // Render manager needs some things from the data manager.
+        const renderState = managers.renderManager.updateRendering({
+          zarrStoreShapes: managers.dataManager.zarrStore.shapes,
+          originalScaleXYZ: managers.dataManager.getOriginalScaleXYZ(),
+          physicalDimensionsXYZ: managers.dataManager.getPhysicalDimensionsXYZ(),
+          maxResolutionXYZ: managers.dataManager.getMaxResolutionXYZ(),
+          boxDimensionsXYZ: managers.dataManager.getBoxDimensionsXYZ(),
+          normalizedScaleXYZ: managers.dataManager.getNormalizedScaleXYZ(),
+          bcTHREE: managers.dataManager.bcTHREE,
+          ptTHREE: managers.dataManager.ptTHREE,
+        });
         if (renderState) setRenderState(renderState);
       }
     }
@@ -194,6 +223,7 @@ export function VolumeView(props) {
     imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
 
   useEffect(() => {
+    log('useEffect stillRef');
     // console.log('useEffect stillRef');
     // console.log('stillRef', stillRef.current);
     if (!screenQuadRef.current) {
@@ -280,27 +310,39 @@ export function VolumeView(props) {
     const f = frameRef.current;
 
     if (managers?.dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
+      // Every 100th frame of the first 500 frames.
       managers.dataManager.noNewRequests = false;
     }
-    if (managers?.dataManager.triggerRequest === true
-        && managers?.dataManager.noNewRequests === false) {
+    if (managers?.dataManager.triggerRequest === true && managers?.dataManager.noNewRequests === false) {
+      // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
+      // Based on the request buffer contents, process the requests
+      // (e.g., start loading the brick data and upload to the brick cache). 
+      // Finally, it will set triggerUsage to true.
       managers?.dataManager.processRequestData(bufRequest.current);
-    } else if (managers?.dataManager.triggerUsage === true
-      && managers?.dataManager.noNewRequests === false) {
+    } else if (managers?.dataManager.triggerUsage === true && managers?.dataManager.noNewRequests === false) {
+      // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
       ctx.readPixels(0, 0, processingRT.width, processingRT.height,
         ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
+      // Based on the usage buffer contents, process the usage data.
+      // This identifies used bricks and updates their timestamps.
+      // Timestamps are used to determine which bricks are most/least recently used for cache eviction.
+      // If the brick cache is full, it will create an LRU cache.
+      // Finally, it will set triggerRequest to true.
       managers?.dataManager.processUsageData(bufUsage.current);
     }
   }
 
   function handleAdaptiveQuality(clock) {
     if (isInteracting) {
+      // While the user is interacting, we want to ensure that the next frame's handleRequests call
+      // will trigger the processUsageData call, and subsequently the processRequestData call
+      // (since processUsageData will set triggerRequest to true its conclusion).
       managers.dataManager.noNewRequests = false;
       managers.dataManager.triggerUsage = true;
       return;
@@ -308,6 +350,7 @@ export function VolumeView(props) {
     if (spatialRenderingModeChanging) return;
 
     if (managers?.dataManager.noNewRequests) {
+      // If there are no more new requests, we can render in higher resolution.
       if (renderSpeed !== 0) {
         setRenderSpeed(0);
         console.log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
@@ -379,12 +422,14 @@ export function VolumeView(props) {
   }, [managers, processingRT]);
 
   useEffect(() => {
+    log('useEffect renderState');
     const u = meshRef.current?.material?.uniforms;
     if (!u) return;
     u.renderRes.value = renderSpeed;
   }, [renderSpeed]);
 
   useEffect(() => {
+    log('useEffect isInteracting');
     if (isInteracting) {
       setRenderSpeed(managers?.dataManager.PT.lowestDataRes);
       stillRef.current = false;
@@ -393,6 +438,7 @@ export function VolumeView(props) {
   }, [invalidate, isInteracting]);
 
   useEffect(() => {
+    log('useEffect mainOrbitControlsRef');
     const controlsInstance = mainOrbitControlsRef.current; // Renamed to avoid conflict with controls in event handlers
     if (!controlsInstance) {
       return;
@@ -402,13 +448,13 @@ export function VolumeView(props) {
 
     const handleEnd = () => {
       clearTimeout(interactionTimeoutRef.current);
-      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 1000);
     };
 
     const handleWheel = () => {
       setIsInteracting(true);
       clearTimeout(interactionTimeoutRef.current);
-      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 1000);
     };
 
     controlsInstance.addEventListener('start', handleStart);
@@ -433,6 +479,7 @@ export function VolumeView(props) {
   }, [mainOrbitControlsRef.current, setIsInteracting]);
 
   useEffect(() => {
+    log('useEffect firstImageLayerChannelCoordination');
     setIsInteracting(true);
     console.log('something about channels changed');
 

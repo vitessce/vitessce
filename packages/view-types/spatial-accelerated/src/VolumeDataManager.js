@@ -14,7 +14,6 @@
 // eslint-disable-next-line import/no-unresolved
 // eslint-disable-next-line import/no-extraneous-dependencies
 
-import * as zarrita from 'zarrita';
 import {
   Data3DTexture,
   RedFormat,
@@ -27,6 +26,8 @@ import {
   Vector3,
 } from 'three';
 import { isEqual } from 'lodash-es';
+import { InternMap } from 'internmap';
+
 
 // Default chunk sizes
 // const CHUNK_SIZE = 32;
@@ -320,6 +321,30 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   };
 }
 
+export function _requestBufferToRequestObjects(buffer, k) {
+  const counts = new Map();
+  for (let i = 0; i < buffer.length; i += 4) {
+    const r = buffer[i];
+    const g = buffer[i + 1];
+    const b = buffer[i + 2];
+    const a = buffer[i + 3];
+    if ((r | g | b | a) === 0) continue;
+    const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
+    counts.set(packed, (counts.get(packed) || 0) + 1);
+  }
+  // console.log('counts', counts);
+  // console.log('this.k', this.k);
+  /* Top‑K (≤ k) PT requests */
+  const requests = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, k)
+    .map(([packed]) => ({
+      x: (packed >> 22) & 0x3FF,
+      y: (packed >> 12) & 0x3FF,
+      z: packed & 0xFFF,
+    }));
+  return requests;
+}
 
 /* End extracted functions */
 
@@ -383,6 +408,7 @@ export class VolumeDataManager {
       maxRenderbufferSize: this.gl.getParameter(this.gl.MAX_RENDERBUFFER_SIZE),
       maxUniformBufferBindings: this.gl.getParameter(this.gl.MAX_UNIFORM_BUFFER_BINDINGS),
     };
+
     this.zarrStore = {
       resolutions: null, // 6 (the number of resolutions aka. pyramid levels in the file)
       chunkSize: [], // [32, 32, 32]
@@ -397,6 +423,7 @@ export class VolumeDataManager {
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
       scales: [], // downsample ratios, [x,y,z] per resolution level
       lowestDataRes: 0, // lowest resolution level with data
+      chunkKeyToAbortController: new InternMap([], JSON.stringify), // Map of chunk keys to AbortSignal
     };
 
     this.ptTHREE = null;
@@ -477,6 +504,7 @@ export class VolumeDataManager {
   /**
    * Initialize the VolumeDataManager with Zarr store details and device limits
    * This should be called ONCE at website initialization
+   * TODO(mark): merge this with the constructor?
    * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
   async init(config) {
@@ -830,7 +858,7 @@ export class VolumeDataManager {
     log('updateChannels');
     console.log('channelProps', channelProps);
 
-    console.error('TODO: init channel mappings first ');
+    //console.error('TODO: init channel mappings first ');
     console.log('this.channels.zarrMappings', this.channels.zarrMappings);
     console.log('this.channels.colorMappings', this.channels.colorMappings);
     console.log('this.channels.downsampleMin', this.channels.downsampleMin);
@@ -1064,30 +1092,15 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
-    const counts = new Map();
-    for (let i = 0; i < buffer.length; i += 4) {
-      const r = buffer[i]; const g = buffer[i + 1]; const b = buffer[i + 2]; const
-        a = buffer[i + 3];
-      if ((r | g | b | a) === 0) continue;
-      const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
-      counts.set(packed, (counts.get(packed) || 0) + 1);
-    }
-    // console.log('counts', counts);
-    // console.log('this.k', this.k);
-    /* Top‑K (≤ k) PT requests */
-    const requests = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, this.k)
-      .map(([packed]) => ({
-        x: (packed >> 22) & 0x3FF,
-        y: (packed >> 12) & 0x3FF,
-        z: packed & 0xFFF,
-      }));
+    const requests = _requestBufferToRequestObjects(buffer, this.k);
+
     if (requests.length === 0) {
       this.noNewRequests = true;
     }
-    // console.log('requests', requests);
+    console.log(`processRequestData: handling ${requests.length} requests`);
     await this.handleBrickRequests(requests);
+
+    // We want processRequestData to alternate with processUsageData.
     this.triggerUsage = true;
     this.isBusy = false;
   }
@@ -1129,10 +1142,12 @@ export class VolumeDataManager {
     // if (this.BCFull || this.BCUnusedIndex >= this.BCTimeStamps.length - this.k) { // Always update LRU list
 
     // do NOT overwrite BCFull; it is latched in _allocateBCSlots()
-    if (this.BCFull) this._buildLRU();
+    if (this.BCFull) this._buildLRU(); // The brick cache is full, so update the list of least recently used bricks, as it will be needed for eviction during the next _allocateBCSlots
 
     // console.warn('this.BCTimeStamps', this.BCTimeStamps);
     // console.warn('this.timeStamp', this.timeStamp);
+
+    // We want processRequestData to alternate with processUsageData.
     this.triggerRequest = true;
     this.isBusy = false;
   }
@@ -1222,14 +1237,22 @@ export class VolumeDataManager {
   /* ------------------------------------------------------------- *
  * 2. Allocate the next n free bricks in the brick cache         *
  * ------------------------------------------------------------- */
+  /**
+   * 
+   * @param {number} n The number of slots to allocate
+   * @returns {{ bcIndex, x, y, z }[]} Array of brick cache coordinates for the allocated slots.
+   */
   _allocateBCSlots(n) {
     let slots = [];
     const total = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
     if (!this.BCFull && this.BCUnusedIndex + n > total) {
+      // The brick cache was not already full,
+      // but allocating N more bricks will put us over the limit.
       this.BCFull = true;
       console.warn('BRICK CACHE FULL');
     }
+    // Do the allocation.
     if (!this.BCFull) {
       for (let i = 0; i < n; ++i) {
         const bcIndex = (this.BCUnusedIndex + i) % total; // wrap for now
@@ -1242,7 +1265,12 @@ export class VolumeDataManager {
       }
       this.BCUnusedIndex += n;
     } else { // ---- BC already full ----
+      // Before proceeding to choose old slots from the LRU stack,
+      // we need to ensure that the LRU stack is at least as long as N
+      // (since N is the number of new brick slots to allocate).
       if (this.LRUStack.length < n) this._buildLRU(); // top-up list
+      // Use the LRU stack to evict the least-recently-used bricks
+      // and return their coordinates for the new bricks to use.
       slots = this.LRUStack.splice(0, n).map((bcIndex) => {
         this._evictBrick(bcIndex);
         const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
@@ -1290,6 +1318,7 @@ export class VolumeDataManager {
       return;
     }
 
+    console.log('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
     let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
@@ -1304,9 +1333,6 @@ export class VolumeDataManager {
 
         console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
         console.log('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
-
-        console.log('this.ngffMetadata.attrs?.omero?.channels', this.ngffMetadata?.omero?.channels);
-        console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
       }
       const uint8Chunk = new Uint8Array(chunk.length);
       for (let i = 0; i < chunk.length; i++) {
@@ -1415,8 +1441,10 @@ export class VolumeDataManager {
     // console.log('slots', slots);
 
     /* upload each (sequentially or Promise.all if you prefer IO overlap) */
+    console.log('handleBrickRequests: starting for loop');
     for (let i = 0; i < ptRequests.length; ++i) {
     // eslint-disable-next-line no-await-in-loop
+      console.log('uploading brick', ptRequests[i], slots[i]);
       await this._uploadBrick(ptRequests[i], slots[i]);
       this.bricksAllocated++;
       const rlength = this.bricksEverLoaded.size;
@@ -1438,6 +1466,10 @@ export class VolumeDataManager {
    * Rebuild the LRUStack with the k least-recently-used bricks *
    * --------------------------------------------------------- */
   _buildLRU() {
+    // Update this.LRUStack based on BCTimeStamps.
+    // BCTimeStamps is updated during both initial brick upload and processUsageData.
+    // However it is not until _buildLRU is called that the timestamps are sorted
+    // to update this.LRUStack.
     const brickIndicesWithTimes = this.BCTimeStamps
       .map((time, index) => ({ index, time }));
     this.LRUStack = brickIndicesWithTimes

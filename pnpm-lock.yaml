@@ -2115,6 +2115,9 @@ importers:
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
+      internmap:
+        specifier: 'catalog:'
+        version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
