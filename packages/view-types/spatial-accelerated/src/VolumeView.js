@@ -28,9 +28,9 @@ function log(msg) {
 }
 
 // Functions called with useFrame
-function performGeometryPass(_gl, _camera, _scene, { processingRT }) {
+function performGeometryPass(_gl, _camera, _scene, { mrtRef }) {
   // log('performGeometryPass');
-  _gl.setRenderTarget(processingRT);
+  _gl.setRenderTarget(mrtRef.current);
   _gl.clear(true, true, true);
   _gl.render(_scene, _camera);
 }
@@ -42,7 +42,7 @@ function performBlitPass(_gl, { screenSceneRef, screenCameraRef }) {
   _gl.render(screenSceneRef.current, screenCameraRef.current);
 }
 
-function handleRequests(_gl, { frameRef, dataManager, processingRT, bufRequest, bufUsage }) {
+function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage }) {
   // log('handleRequests');
   // console.log('handleRequests', frameRef.current);
   const ctx = _gl.getContext();
@@ -54,9 +54,9 @@ function handleRequests(_gl, { frameRef, dataManager, processingRT, bufRequest, 
   }
   if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
     // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
-    ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
+    ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
     ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
-    ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+    ctx.readPixels(0, 0, mrtRef.current.width, mrtRef.current.height,
       ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
     // Based on the request buffer contents, process the requests
     // (e.g., start loading the brick data and upload to the brick cache). 
@@ -64,9 +64,9 @@ function handleRequests(_gl, { frameRef, dataManager, processingRT, bufRequest, 
     dataManager.processRequestData(bufRequest.current);
   } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
     // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
-    ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
+    ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
     ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
-    ctx.readPixels(0, 0, processingRT.width, processingRT.height,
+    ctx.readPixels(0, 0, mrtRef.current.width, mrtRef.current.height,
       ctx.RGBA, ctx.UNSIGNED_BYTE, bufUsage.current);
     // Based on the usage buffer contents, process the usage data.
     // This identifies used bricks and updates their timestamps.
@@ -193,7 +193,7 @@ export function VolumeView(props) {
   const meshRef = useRef(null);
   const bufRequest = useRef(null);
   const bufUsage = useRef(null);
-  const [processingRT, setRT] = useState(null);
+  const mrtRef = useRef(null);
 
   // const [managers, setManagers] = useState(null);
   const [renderState, setRenderState] = useState({
@@ -243,6 +243,10 @@ export function VolumeView(props) {
     log('useEffect MRT target matching canvas');
 
     const { width, height } = gl.domElement;
+    // We use three render targets:
+    // layout(location = 0) out vec4 gColor: Final rendered color (sRGB)
+    // layout(location = 1) out vec4 gRequest: Brick loading requests (packed coordinates)
+    // layout(location = 2) out vec4 gUsage: Brick usage tracking (for cache management)
     const mrt = new WebGLMultipleRenderTargets(width, height, 3);
     mrt.texture.forEach((tex) => {
       tex.format = THREE.RGBAFormat;
@@ -259,6 +263,7 @@ export function VolumeView(props) {
 
     const screenMaterial = new THREE.ShaderMaterial({
       uniforms: {
+        // Bind the first render target texture as the input of the gaussian blur shader.
         tDiffuse: { value: mrt.texture[0] },
         resolution: { value: new THREE.Vector2(width, height) },
         gaussian: { value: 7 },
@@ -280,7 +285,7 @@ export function VolumeView(props) {
 
     bufRequest.current = new Uint8Array(width * height * 4);
     bufUsage.current = new Uint8Array(width * height * 4);
-    setRT(mrt);
+    mrtRef.current = mrt;
 
     return () => {
       mrt.dispose();
@@ -314,6 +319,7 @@ export function VolumeView(props) {
       return;
     }
 
+    // TODO(mark): prevent dataManager.init from being called more than once.
     (async () => {
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
       dataManager.initImages(images, imageLayerScopes)
@@ -340,7 +346,7 @@ export function VolumeView(props) {
     // };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataManager, renderManager,
-    images, imageLayerScopes, firstImageLayerChannelCoordination
+    images, imageLayerScopes,
   ]);
 
   /*
@@ -474,7 +480,7 @@ export function VolumeView(props) {
   useFrame((state, delta, xrFrame) => {
     // NOTE: Do not update React state inside useFrame.
     // Reference: https://r3f.docs.pmnd.rs/advanced/pitfalls#%E2%9D%8C-setstate-in-useframe-is-bad
-    if (!processingRT || !dataManager || !renderManager) return;
+    if (!mrtRef.current || !dataManager || !renderManager) return;
 
     // Receive the same state as the useThree hook.
     const {
@@ -485,10 +491,10 @@ export function VolumeView(props) {
     } = state;
 
     if (!stillRef.current) {
-      performGeometryPass(frameGl, frameCamera, frameScene, { processingRT });
+      performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
     }
     performBlitPass(frameGl, { screenSceneRef, screenCameraRef });
-    handleRequests(frameGl, { frameRef, dataManager, processingRT, bufRequest, bufUsage });
+    handleRequests(frameGl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage });
     handleAdaptiveQuality(clock, {
       invalidate,
       isInteracting,
@@ -508,8 +514,8 @@ export function VolumeView(props) {
   /*
   useEffect(() => {
     log('useEffect setProcessingTargets');
-    renderManager.setProcessingTargets(processingRT);
-  }, [renderManager, processingRT]);
+    renderManager.setProcessingTargets(mrtRef.current);
+  }, [renderManager, mrtRef]);
   */
 
   /*
