@@ -1,8 +1,8 @@
 ### Ideas for refactoring
 
-
+- Upgrade THREE and React-Three-Fiber?
 - Remove VolumeRenderManager - convert to more functional implementation
-- Decouple the pageTable and brickCache initialization. These will always be needed
+- Decouple the pageTable and brickCache initialization
 - Un-nest the class variables in VolumeDataManager (this.zarrStore.*, this.channels, etc.)
 - State machine for stillRef, noNewRequests, triggerRequests, triggerUsage, isBusy, etc to clearly know which states are valid at which time
 - Promise.all for loading Zarr chunks (Rather than for loop)

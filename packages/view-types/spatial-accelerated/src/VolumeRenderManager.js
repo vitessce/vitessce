@@ -47,7 +47,7 @@ export class VolumeRenderManager {
     this.maxRangeSet = false;
 
     // Additional state
-    this.mrt = null; // Single MRT reference
+    // this.mrt = null; // Single MRT reference
 
     // Initialize shader
     this.initializeShader();
@@ -491,10 +491,12 @@ export class VolumeRenderManager {
    * Sets the processing render target
    * @param {WebGLMultipleRenderTargets} mrt - Multiple render targets object with 3 attachments
    */
+  /*
   setProcessingTargets(mrt) {
     log('setting processing targets');
     this.mrt = mrt;
   }
+  */
 
   setChannelMapping(channelMapping) {
     log('setting channel mapping');

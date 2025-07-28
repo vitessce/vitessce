@@ -77,13 +77,13 @@ export function VolumeView(props) {
   // const prevInteractionChannels = useRef();
 
   // new refs from step 2
-  const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
+  // const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
   const stillRef = useRef(false); // skip geometry pass when true
   const frameRef = useRef(0); // frame counter
   const lastSampleRef = useRef(0);
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
-  const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
+  // const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
   
   // const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
@@ -111,6 +111,7 @@ export function VolumeView(props) {
     }
 
     (async () => {
+      // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
       const dm = new VolumeDataManager(
         gl.getContext?.() || gl,
         gl,
@@ -128,6 +129,7 @@ export function VolumeView(props) {
 
       console.log('rm.uniforms', rm.uniforms);
 
+      // TODO(mark): un-nest managers (have a single top-level manager object) once renderManager is converted to functions.
       setManagers({ dataManager: dm, renderManager: rm });
       if (onInitComplete) {
         onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
@@ -354,10 +356,15 @@ export function VolumeView(props) {
     }
     if (spatialRenderingModeChanging) return;
 
+    const meshRefUniforms = meshRef.current?.material?.uniforms;
+    const renderSpeed = meshRefUniforms?.renderRes?.value ?? managers?.dataManager?.PT?.lowestDataRes;
+
     if (managers?.dataManager.noNewRequests) {
       // If there are no more new requests, we can render in higher resolution.
       if (renderSpeed !== 0) {
-        setRenderSpeed(0);
+        if (meshRefUniforms) {
+          meshRefUniforms.renderRes.value = 0; // Set to best quality
+        }
         console.log('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
         stillRef.current = false;
         screenQuadRef.current.material.uniforms.gaussian.value = 7;
@@ -395,7 +402,9 @@ export function VolumeView(props) {
 
     if (upscale || downscale) {
       const newSpeed = renderSpeed + (downscale ? 1 : -1);
-      setRenderSpeed(newSpeed);
+      if (meshRefUniforms) {
+        meshRefUniforms.renderRes.value = newSpeed;
+      }
       invalidate(); // Ensure the change takes effect
     }
   }
@@ -408,6 +417,8 @@ export function VolumeView(props) {
   // Reference: https://r3f.docs.pmnd.rs/api/hooks#useframe
   const RENDER_PRIORITY = 1;
   useFrame((state, delta, xrFrame) => {
+    // NOTE: Do not update React state inside useFrame.
+    // Reference: https://r3f.docs.pmnd.rs/advanced/pitfalls#%E2%9D%8C-setstate-in-useframe-is-bad
     if (!processingRT || !managers) return;
 
     // Receive the same state as the useThree hook.
@@ -431,27 +442,36 @@ export function VolumeView(props) {
     frameRef.current += 1;
   }, RENDER_PRIORITY);
 
+  /*
   useEffect(() => {
     log('useEffect setProcessingTargets');
     managers?.renderManager.setProcessingTargets(processingRT);
   }, [managers, processingRT]);
+  */
 
+  /*
   useEffect(() => {
     log('useEffect renderState');
     const u = meshRef.current?.material?.uniforms;
     if (!u) return;
     u.renderRes.value = renderSpeed;
   }, [renderSpeed]);
+  */
 
   useEffect(() => {
     log('useEffect isInteracting');
     if (isInteracting) {
-      setRenderSpeed(managers?.dataManager.PT.lowestDataRes);
+      const meshRefUniforms = meshRef.current?.material?.uniforms;
+      if (meshRefUniforms) {
+        meshRefUniforms.renderRes.value = managers?.dataManager.PT.lowestDataRes;
+      }
+      // setRenderSpeed(managers?.dataManager.PT.lowestDataRes);
       stillRef.current = false;
       invalidate();
     }
   }, [invalidate, isInteracting]);
 
+  /*
   useEffect(() => {
     log('useEffect mainOrbitControlsRef');
     const controlsInstance = mainOrbitControlsRef.current; // Renamed to avoid conflict with controls in event handlers
@@ -463,13 +483,13 @@ export function VolumeView(props) {
 
     const handleEnd = () => {
       clearTimeout(interactionTimeoutRef.current);
-      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 1000);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
     };
 
     const handleWheel = () => {
       setIsInteracting(true);
       clearTimeout(interactionTimeoutRef.current);
-      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 1000);
+      interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 300);
     };
 
     controlsInstance.addEventListener('start', handleStart);
@@ -492,6 +512,20 @@ export function VolumeView(props) {
       clearTimeout(interactionTimeoutRef.current);
     };
   }, [mainOrbitControlsRef.current, setIsInteracting]);
+  */
+
+  const onOrbitControlsStart = useCallback((e) => {
+    setIsInteracting(true);
+  }, []);
+
+
+  const onOrbitControlsEnd = useCallback((e) => {
+    clearTimeout(interactionTimeoutRef.current);
+    interactionTimeoutRef.current = setTimeout(() => {
+      setIsInteracting(false);
+    }, 300);
+  }, []);
+
 
   useEffect(() => {
     log('useEffect firstImageLayerChannelCoordination');
@@ -524,8 +558,10 @@ export function VolumeView(props) {
   return (
     <group>
       <OrbitControls
-        ref={mainOrbitControlsRef}
+        //ref={mainOrbitControlsRef}
         enableDamping={false}
+        onStart={onOrbitControlsStart}
+        onEnd={onOrbitControlsEnd}
       />
       <mesh ref={meshRef} scale={renderState.meshScale}>
         <boxGeometry args={renderState.geometrySize} />
