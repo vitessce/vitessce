@@ -456,7 +456,8 @@ export function VolumeView(props) {
   */
 
   // TODO(mark): can this logic be moved into useFrame?
-  // But currently, it only runs upon a change of isInteracting.
+  // But need to be careful, since currently, it only runs upon change of isInteracting,
+  // and we do not want to execute more `invalidate` calls than necessary/currently.
   useEffect(() => {
     log('useEffect isInteracting');
     if (isInteracting) {
