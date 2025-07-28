@@ -3,7 +3,7 @@
  * VolumeView.js
  */
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -34,7 +34,7 @@ export function VolumeView(props) {
     imageLayerCoordination,
     imageChannelScopesByLayer,
     imageChannelCoordination,
-    onInitComplete,
+    // onInitComplete,
     spatialRenderingMode,
     spatialRenderingModeChanging,
   } = props;
@@ -53,7 +53,7 @@ export function VolumeView(props) {
   const bufUsage = useRef(null);
   const [processingRT, setRT] = useState(null);
 
-  const [managers, setManagers] = useState(null);
+  // const [managers, setManagers] = useState(null);
   const [renderState, setRenderState] = useState({
     uniforms: null,
     shader: null,
@@ -77,7 +77,7 @@ export function VolumeView(props) {
   // const prevInteractionChannels = useRef();
 
   // new refs from step 2
-  // const [renderSpeed, setRenderSpeed] = useState(managers?.dataManager.PT.lowestDataRes);
+  // const [renderSpeed, setRenderSpeed] = useState(dataManager.PT.lowestDataRes);
   const stillRef = useRef(false); // skip geometry pass when true
   const frameRef = useRef(0); // frame counter
   const lastSampleRef = useRef(0);
@@ -92,11 +92,21 @@ export function VolumeView(props) {
   const firstImageChannelScope = imageChannelScopesByLayer?.[firstImageLayerScope];
   const firstImageLayerChannelCoordination = imageChannelCoordination?.[0]?.[firstImageLayerScope];
 
+  const dataManager = useMemo(() => {
+    return new VolumeDataManager(gl);
+  }, [gl]);
+
+  const renderManager = useMemo(() => {
+    return new VolumeRenderManager();
+  }, []);
+
+
+
   useEffect(() => {
     log('useEffect INIT');
 
-    if (managers) {
-      console.log('managers already initialized');
+    if(!dataManager || !renderManager) {
+      console.log('dataManager or renderManager not initialized yet');
       return;
     }
 
@@ -112,36 +122,31 @@ export function VolumeView(props) {
 
     (async () => {
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
-      const dm = new VolumeDataManager(
-        gl.getContext?.() || gl,
-        gl,
-        images,
-        imageLayerScopes,
-      );
-      const rm = new VolumeRenderManager();
+      dataManager.initImages(images, imageLayerScopes)
       // TODO: generalize to more than one image layer.
-      await dm.init(firstImageLayerChannelCoordination); // device limits, zarr meta
+      await dataManager.init(firstImageLayerChannelCoordination); // device limits, zarr meta
 
-      console.log('dm.physicalScale', dm.physicalScale);
+      console.log('dm.physicalScale', dataManager.physicalScale);
 
-      rm.setZarrUniforms(dm.zarrStore, dm.PT);
-      rm.setChannelMapping(dm.channels.colorMappings);
+      renderManager.setZarrUniforms(dataManager.zarrStore, dataManager.PT);
+      renderManager.setChannelMapping(dataManager.channels.colorMappings);
 
-      console.log('rm.uniforms', rm.uniforms);
+      console.log('rm.uniforms', renderManager.uniforms);
 
-      // TODO(mark): un-nest managers (have a single top-level manager object) once renderManager is converted to functions.
-      setManagers({ dataManager: dm, renderManager: rm });
-      if (onInitComplete) {
-        onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
-      }
+      // setManagers({ dataManager: dm, renderManager: rm });
+      // if (onInitComplete) {
+      //   onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
+      // }
     })();
 
     return () => {
       console.log('VolumeView useEffect cleanup: running dataManager.clearCache()');
-      managers?.dataManager.clearCache();
+      dataManager?.clearCache?.();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images, imageLayerScopes, firstImageLayerChannelCoordination]); // run when props.images changes
+  }, [dataManager, renderManager,
+    images, imageLayerScopes, firstImageLayerChannelCoordination
+  ]);
 
   /*
   useEffect(() => {
@@ -153,21 +158,21 @@ export function VolumeView(props) {
   /*
   const extractSettings = useCallback(() => {
     log('callback extractSettings');
-    if (!managers) return null;
-    const ok = managers.renderManager.updateFromProps(props);
-    return ok ? managers.renderManager.extractRenderingSettingsFromProps(props) : null;
-  }, [props, managers]);
+    if (!dataManager || !renderManager) return null;
+    const ok = renderManager.updateFromProps(props);
+    return ok ? renderManager.extractRenderingSettingsFromProps(props) : null;
+  }, [props, dataManager, renderManager]);
   */
 
   /*
   const loadIfNeeded = useCallback(async (settings) => {
-    if (!settings || !managers) return;
+    if (!settings || !dataManager || !renderManager) return;
 
     const resolutionChanged = settings.resolution !== lastRes;
     const channelsChanged = !sameArray(settings.channelTargetC, lastChannels);
 
     // Always update rendering state
-    const renderManagerState = managers.renderManager.updateRendering(managers.dataManager);
+    const renderManagerState = renderManager.updateRendering(dataManager);
     if (renderManagerState) setRenderState(renderManagerState);
 
     // Update tracking state
@@ -175,7 +180,7 @@ export function VolumeView(props) {
     if (channelsChanged) setLastChannels([...settings.channelTargetC]);
 
     stillRef.current = false;
-  }, [managers, lastRes, lastChannels]);
+  }, [dataManager, renderManager, lastRes, lastChannels]);
   */
 
   useEffect(() => {
@@ -183,7 +188,7 @@ export function VolumeView(props) {
     const on3D = spatialRenderingMode === '3D';
     setIs3D(on3D);
 
-    if (on3D && managers) {
+    if (on3D && dataManager && renderManager) {
       // Direct call, no callbacks needed
       const propsForRenderManager = {
         images,
@@ -193,41 +198,42 @@ export function VolumeView(props) {
         imageChannelCoordination,
         spatialRenderingMode,
       };
-      if (managers.renderManager.updateFromProps(propsForRenderManager)) {
-        const zarrInit = managers.renderManager.zarrInit;
+      if (renderManager.updateFromProps(propsForRenderManager)) {
+        const zarrInit = renderManager.zarrInit;
         if (!zarrInit) {
           // If textures have not yet been initialized, do so prior to calling .updateRendering,
           // as this internally calls renderManager.updateUniforms,
           // which (I anticipate) expects the textures to be initialized.
           
           // Initialize textures without warnings
-          managers.dataManager.ptTHREE.needsUpdate = false;
-          managers.dataManager.bcTHREE.needsUpdate = false;
+          dataManager.ptTHREE.needsUpdate = false;
+          dataManager.bcTHREE.needsUpdate = false;
 
           // Initialize textures if needed
-          managers.dataManager.renderer.initTexture(managers.dataManager.bcTHREE);
-          managers.dataManager.renderer.initTexture(managers.dataManager.ptTHREE);
+          dataManager.renderer.initTexture(dataManager.bcTHREE);
+          dataManager.renderer.initTexture(dataManager.ptTHREE);
 
           // Handle the first brick request.
-          managers.dataManager.initTexture();
+          dataManager.initTexture();
         }
         // Render manager needs some things from the data manager.
-        const renderState = managers.renderManager.updateRendering({
-          zarrStoreShapes: managers.dataManager.zarrStore.shapes,
-          originalScaleXYZ: managers.dataManager.getOriginalScaleXYZ(),
-          physicalDimensionsXYZ: managers.dataManager.getPhysicalDimensionsXYZ(),
-          maxResolutionXYZ: managers.dataManager.getMaxResolutionXYZ(),
-          boxDimensionsXYZ: managers.dataManager.getBoxDimensionsXYZ(),
-          normalizedScaleXYZ: managers.dataManager.getNormalizedScaleXYZ(),
-          bcTHREE: managers.dataManager.bcTHREE,
-          ptTHREE: managers.dataManager.ptTHREE,
+        const renderState = renderManager.updateRendering({
+          zarrStoreShapes: dataManager.zarrStore.shapes,
+          originalScaleXYZ: dataManager.getOriginalScaleXYZ(),
+          physicalDimensionsXYZ: dataManager.getPhysicalDimensionsXYZ(),
+          maxResolutionXYZ: dataManager.getMaxResolutionXYZ(),
+          boxDimensionsXYZ: dataManager.getBoxDimensionsXYZ(),
+          normalizedScaleXYZ: dataManager.getNormalizedScaleXYZ(),
+          bcTHREE: dataManager.bcTHREE,
+          ptTHREE: dataManager.ptTHREE,
         });
         if (renderState) setRenderState(renderState);
       }
     }
-  }, [managers, images, imageLayerScopes, imageLayerCoordination,
+  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination,
     imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
 
+  // TODO(mark): move this logic into within useFrame?
   useEffect(() => {
     log('useEffect stillRef');
     // console.log('useEffect stillRef');
@@ -244,7 +250,7 @@ export function VolumeView(props) {
       screenQuadRef.current.material.uniforms.gaussian.value = 0;
     }
   }, [stillRef.current]);
-
+  
   useEffect(() => {
     log('useEffect MRT target matching canvas');
 
@@ -316,11 +322,11 @@ export function VolumeView(props) {
     const ctx = _gl.getContext();
     const f = frameRef.current;
 
-    if (managers?.dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
+    if (dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
       // Every 100th frame of the first 500 frames.
-      managers.dataManager.noNewRequests = false;
+      dataManager.noNewRequests = false;
     }
-    if (managers?.dataManager.triggerRequest === true && managers?.dataManager.noNewRequests === false) {
+    if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
       // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
@@ -329,8 +335,8 @@ export function VolumeView(props) {
       // Based on the request buffer contents, process the requests
       // (e.g., start loading the brick data and upload to the brick cache). 
       // Finally, it will set triggerUsage to true.
-      managers?.dataManager.processRequestData(bufRequest.current);
-    } else if (managers?.dataManager.triggerUsage === true && managers?.dataManager.noNewRequests === false) {
+      dataManager.processRequestData(bufRequest.current);
+    } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
       // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
       ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, processingRT));
       ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
@@ -341,7 +347,7 @@ export function VolumeView(props) {
       // Timestamps are used to determine which bricks are most/least recently used for cache eviction.
       // If the brick cache is full, it will create an LRU cache.
       // Finally, it will set triggerRequest to true.
-      managers?.dataManager.processUsageData(bufUsage.current);
+      dataManager.processUsageData(bufUsage.current);
     }
   }
 
@@ -350,16 +356,16 @@ export function VolumeView(props) {
       // While the user is interacting, we want to ensure that the next frame's handleRequests call
       // will trigger the processUsageData call, and subsequently the processRequestData call
       // (since processUsageData will set triggerRequest to true its conclusion).
-      managers.dataManager.noNewRequests = false;
-      managers.dataManager.triggerUsage = true;
+      dataManager.noNewRequests = false;
+      dataManager.triggerUsage = true;
       return;
     }
     if (spatialRenderingModeChanging) return;
 
     const meshRefUniforms = meshRef.current?.material?.uniforms;
-    const renderSpeed = meshRefUniforms?.renderRes?.value ?? managers?.dataManager?.PT?.lowestDataRes;
+    const renderSpeed = meshRefUniforms?.renderRes?.value ?? dataManager?.PT?.lowestDataRes;
 
-    if (managers?.dataManager.noNewRequests) {
+    if (dataManager.noNewRequests) {
       // If there are no more new requests, we can render in higher resolution.
       if (renderSpeed !== 0) {
         if (meshRefUniforms) {
@@ -398,7 +404,7 @@ export function VolumeView(props) {
     lastFrameCountRef.current = frameRef.current;
 
     const upscale = fps > 100 && renderSpeed > 0; // Can't go below 0
-    const downscale = fps < 30 && renderSpeed < managers?.dataManager.PT.lowestDataRes; // Can't go above
+    const downscale = fps < 30 && renderSpeed < dataManager.PT.lowestDataRes; // Can't go above
 
     if (upscale || downscale) {
       const newSpeed = renderSpeed + (downscale ? 1 : -1);
@@ -419,7 +425,7 @@ export function VolumeView(props) {
   useFrame((state, delta, xrFrame) => {
     // NOTE: Do not update React state inside useFrame.
     // Reference: https://r3f.docs.pmnd.rs/advanced/pitfalls#%E2%9D%8C-setstate-in-useframe-is-bad
-    if (!processingRT || !managers) return;
+    if (!processingRT || !dataManager || !renderManager) return;
 
     // Receive the same state as the useThree hook.
     const {
@@ -445,8 +451,8 @@ export function VolumeView(props) {
   /*
   useEffect(() => {
     log('useEffect setProcessingTargets');
-    managers?.renderManager.setProcessingTargets(processingRT);
-  }, [managers, processingRT]);
+    renderManager.setProcessingTargets(processingRT);
+  }, [renderManager, processingRT]);
   */
 
   /*
@@ -463,9 +469,9 @@ export function VolumeView(props) {
     if (isInteracting) {
       const meshRefUniforms = meshRef.current?.material?.uniforms;
       if (meshRefUniforms) {
-        meshRefUniforms.renderRes.value = managers?.dataManager.PT.lowestDataRes;
+        meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
       }
-      // setRenderSpeed(managers?.dataManager.PT.lowestDataRes);
+      // setRenderSpeed(dataManager.PT.lowestDataRes);
       stillRef.current = false;
       invalidate();
     }
@@ -532,8 +538,8 @@ export function VolumeView(props) {
     setIsInteracting(true);
     console.log('something about channels changed');
 
-    managers?.dataManager.updateChannels(firstImageLayerChannelCoordination);
-    managers?.renderManager.setChannelMapping(managers?.dataManager.channels.colorMappings);
+    dataManager.updateChannels(firstImageLayerChannelCoordination);
+    renderManager.setChannelMapping(dataManager.channels.colorMappings);
 
     clearTimeout(interactionTimeoutRef.current);
     interactionTimeoutRef.current = setTimeout(() => {
@@ -541,7 +547,7 @@ export function VolumeView(props) {
     }, 300);
   }, [firstImageLayerChannelCoordination]);
 
-  if (!is3D || !managers) return null;
+  if (!is3D || !dataManager || !renderManager) return null;
 
   if (loading || !renderState.shader) {
     return (

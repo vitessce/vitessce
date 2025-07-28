@@ -349,12 +349,15 @@ export function _requestBufferToRequestObjects(buffer, k) {
 /* End extracted functions */
 
 export class VolumeDataManager {
-  constructor(gl, renderer, images, imageLayerScopes) {
+  constructor(glParam) {
     log('CLASS INITIALIZING');
    // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
 
-    this.images = images;
-    this.imageLayerScopes = imageLayerScopes;
+   const gl = glParam.getContext?.() || glParam;
+   const renderer = glParam;
+
+    // this.images = images;
+    // this.imageLayerScopes = imageLayerScopes;
 
     // Handle both WebGLRenderer and WebGL context
     if (gl.domElement && gl.getContext) {
@@ -499,6 +502,12 @@ export class VolumeDataManager {
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
     log('VolumeDataManager constructor complete');
+  }
+
+  initImages(images, imageLayerScopes) {
+    log('INIT IMAGES');
+    this.images = images;
+    this.imageLayerScopes = imageLayerScopes;
   }
 
   /**

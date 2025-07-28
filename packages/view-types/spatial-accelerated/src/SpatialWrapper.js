@@ -1,14 +1,15 @@
-import React, { forwardRef, useState, useEffect, useRef } from 'react';
+import React, { forwardRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
 
 export const SpatialWrapper = forwardRef((props, canvasRef) => {
   // const [renderingStats, setRenderingStats] = useState({ fps: 0 });
-  const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
-  const [deviceLimits, setDeviceLimits] = useState(null);
-  const volumeViewRef = useRef(null);
+  // const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
+  // const [deviceLimits, setDeviceLimits] = useState(null);
+  // const volumeViewRef = useRef(null);
 
   // Handle initialization completion from VolumeView
+  /*
   const handleInitComplete = (initData) => {
     if (initData.zarrStoreInfo) {
       setZarrStoreInfo(initData.zarrStoreInfo);
@@ -17,6 +18,7 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
       setDeviceLimits(initData.deviceLimits);
     }
   };
+  */
 
   return (
     <>
@@ -49,8 +51,8 @@ export const SpatialWrapper = forwardRef((props, canvasRef) => {
       >
         <VolumeView
           {...props}
-          forwardRef={volumeViewRef}
-          onInitComplete={handleInitComplete}
+          // forwardRef={volumeViewRef}
+          // onInitComplete={handleInitComplete}
         />
       </Canvas>
     </>
