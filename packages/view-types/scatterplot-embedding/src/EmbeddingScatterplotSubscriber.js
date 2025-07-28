@@ -418,7 +418,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // which surrounds all points in the scatterplot,
   // which we can use to position text labels along.
   const circleInfo = useMemo(() => {
-    if (!originalViewState || !width || !height) {
+    if (!originalViewState || !width || !height || !xRange || !yRange) {
       return null;
     }
     const center = [
@@ -429,7 +429,10 @@ export function EmbeddingScatterplotSubscriber(props) {
     if (!(typeof scaleFactor === 'number' && typeof center[0] === 'number' && typeof center[1] === 'number') || Number.isNaN(scaleFactor)) {
       return null;
     }
-    const radius = Math.min(width, height) / 2 / scaleFactor;
+    const size = Math.max(xRange, yRange);
+    // TODO: figure out a better solution than
+    // scaling the radius by the arbitrary 0.8?
+    const radius = ((size * Math.sqrt(2)) / 2) * 0.8;
     const numPoints = 96;
     const options = { steps: numPoints, units: 'degrees' };
     const circlePolygon = circle(center, radius, options);
@@ -439,7 +442,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       polygon: circlePolygon,
       steps: numPoints,
     };
-  }, [originalViewState, width, height]);
+  }, [originalViewState, width, height, xRange, yRange]);
 
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding

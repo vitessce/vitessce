@@ -373,6 +373,9 @@ export default function Legend(props) {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     } else if (featureAggregationStrategy === 'last') {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.at(-1);
+    } else if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[i];
     } else if (featureAggregationStrategy === 'sum') {
       featureSelectionLabelRawStr = 'Sum of features';
     } else if (featureAggregationStrategy === 'mean') {
