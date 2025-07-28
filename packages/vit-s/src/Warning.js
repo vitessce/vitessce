@@ -8,7 +8,7 @@ export function Warning(props) {
     preformatted,
     unformatted,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={VITESSCE_CONTAINER}>
       <div className={clsx(classes.warningLayout, classes.containerFluid)}>

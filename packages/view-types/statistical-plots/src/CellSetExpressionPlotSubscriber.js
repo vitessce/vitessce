@@ -145,7 +145,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
@@ -179,40 +179,61 @@ export function CellSetExpressionPlotSubscriber(props) {
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
+  const [
+    { sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError,
+  ] = useSampleSetsData(
     loaders, dataset, false,
     { setSampleSetColor },
     { sampleSetColor },
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );
+
+  const errors = [
+    ...featureSelectionErrors,
+    featureLabelsError,
+    matrixIndicesError,
+    obsSetsError,
+    sampleSetsError,
+    sampleEdgesError,
+  ];
 
   const isReady = useReady([
     featureSelectionStatus,
@@ -264,7 +285,7 @@ export function CellSetExpressionPlotSubscriber(props) {
   return (
     <TitleInfo
       title={title ? `${title}${titleSuffix}`
-        : `Expression by ${capitalize(obsType)} Set${titleSuffix}`
+        : `${capitalize(featureValueType)} by ${capitalize(obsType)} Set${titleSuffix}`
       }
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
@@ -273,6 +294,7 @@ export function CellSetExpressionPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

@@ -39,6 +39,7 @@ export {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
   meshGlbSchema,

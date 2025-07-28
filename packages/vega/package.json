@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vega",
-  "version": "3.5.11",
+  "version": "3.6.10",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/legend": "workspace:*",
     "clsx": "catalog:",
@@ -45,6 +45,6 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

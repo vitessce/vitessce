@@ -36,7 +36,7 @@ export function CellSetSizesPlotSubscriber(props) {
     helpText = ViewHelpMapping.OBS_SET_SIZES,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const loaders = useLoaders();
 
@@ -63,12 +63,15 @@ export function CellSetSizesPlotSubscriber(props) {
   const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const errors = [
+    obsSetsError,
+  ];
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
@@ -139,6 +142,7 @@ export function CellSetSizesPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot

@@ -37,13 +37,13 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
       ]),
     };
 
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       {
         obsSegmentationsType: 'bitmask',
         obsSegmentations: result.data.image,
       },
       result.url,
       coordinationValues,
-    ));
+    );
   }
 }

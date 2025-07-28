@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/csv",
-  "version": "3.5.11",
+  "version": "3.6.10",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,6 +33,7 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/config": "workspace:*",
     "d3-array": "catalog:",
     "d3-dsv": "catalog:"

@@ -144,33 +144,51 @@ export function GatingSubscriber(props) {
   ), [gatingFeatureSelectionY]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataColor, loadedColor, featureSelectionColorStatus, featureSelectionColorErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, gatingFeatureSelectionColor,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataX, loadedX, featureSelectionXStatus, featureSelectionXErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionX,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataY, loadedY, featureSelectionYStatus, featureSelectionYErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionY,
     { obsType, featureType, featureValueType },
   );
   const [
     { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
+    matrixIndicesError,
   ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    obsSetsError,
+    ...featureSelectionColorErrors,
+    ...featureSelectionXErrors,
+    ...featureSelectionYErrors,
+    matrixIndicesError,
+  ];
+
+
   const cellsCount = obsIndex?.length || 0;
 
   const isReady = useReady([
@@ -363,6 +381,7 @@ export function GatingSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}

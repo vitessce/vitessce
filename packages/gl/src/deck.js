@@ -8,3 +8,4 @@ export {
 } from '@deck.gl/layers';
 export { OrthographicView, OrbitView } from '@deck.gl/core';
 export { ContourLayer } from '@deck.gl/aggregation-layers';
+export { DataFilterExtension } from '@deck.gl/extensions';

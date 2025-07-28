@@ -72,17 +72,26 @@ export function FeatureListSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrls, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [expandedFeatureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMap, { stripCuriePrefixes: true },
   );
-  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+  const [
+    { featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, true,
     { obsType, featureType },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    featureLabelsError,
+    matrixIndicesError,
+  ];
   const isReady = useReady([
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -123,6 +132,7 @@ export function FeatureListSubscriber(props) {
       isReady={isReady}
       urls={urls}
       helpText={helpText}
+      errors={errors}
       options={(
         <FeatureListOptions
           featureListSort={featureListSort}

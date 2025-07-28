@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField, Slider } from '@material-ui/core';
+import { TableCell, TableRow, TextField, Slider } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionsContainer, OptionSelect } from '@vitessce/vit-s';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 import { capitalize } from '@vitessce/utils';
@@ -25,7 +25,7 @@ export default function CellSetExpressionPlotOptions(props) {
 
   const cellSetExpressionPlotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   function handleFeatureValueColormapChange(event) {
     setFeatureValueColormap(event.target.value);
@@ -122,9 +122,7 @@ export default function CellSetExpressionPlotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={featureValueTransformCoefficient}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            slotProps={{ input: { shrink: true } }}
             id={`cellset-expression-transform-coeff-${cellSetExpressionPlotOptionsId}`}
           />
         </TableCell>
@@ -163,7 +161,10 @@ export default function CellSetExpressionPlotOptions(props) {
           </TableCell>
           <TableCell className={classes.inputCell}>
             <Slider
-              classes={{ root: classes.slider, valueLabel: classes.sliderValueLabel }}
+              slotProps={{
+                root: { className: classes.slider },
+                valueLabel: { className: classes.sliderValueLabel },
+              }}
               value={featureValuePositivityThreshold}
               onChange={handlePositivityThresholdChange}
               aria-labelledby="pos-threshold-slider"

@@ -30,7 +30,7 @@ export function VolcanoPlotSubscriber(props) {
     helpText = ViewHelpMapping.VOLCANO_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
@@ -95,12 +95,22 @@ export function VolcanoPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureStats }, featureStatsStatus] = useFeatureStatsData(
+  // Get data from loaders using the data hooks.
+  const [
+    { featureStats },
+    featureStatsStatus,
+    featureStatsUrls,
+    featureStatsError,
+  ] = useFeatureStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to FeatureStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    featureStatsError,
+  ];
 
   const isReady = useReady([
     featureStatsStatus,
@@ -117,6 +127,7 @@ export function VolcanoPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <VolcanoPlotOptions
           obsType={obsType}

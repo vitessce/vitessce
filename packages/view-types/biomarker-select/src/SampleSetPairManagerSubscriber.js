@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { isEqual } from 'lodash-es';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import {
   TitleInfo,
   useReady,
@@ -13,7 +13,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, DataType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   selectedPair: {
     fontWeight: 'bold',
   },
@@ -37,7 +37,7 @@ export function SampleSetPairManagerSubscriber(props) {
     helpText = ViewHelpMapping.SAMPLE_SET_PAIR_MANAGER,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
 
   // Get "props" from the coordination space.
@@ -58,9 +58,16 @@ export function SampleSetPairManagerSubscriber(props) {
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  const [{ comparisonMetadata }, cmpMetadataStatus] = useComparisonMetadata(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    { comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls, cmpMetadataError,
+  ] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
+
+  const errors = [
+    cmpMetadataError,
+  ];
 
   const isReady = useReady([
     cmpMetadataStatus,
@@ -114,6 +121,7 @@ export function SampleSetPairManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <ul className={classes.pairUl}>
         {stratificationOptions?.map((pairObj) => {

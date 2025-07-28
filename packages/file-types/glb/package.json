@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/glb",
-  "version": "3.5.11",
+  "version": "3.6.10",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",

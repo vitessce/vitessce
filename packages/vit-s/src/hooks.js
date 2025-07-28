@@ -359,7 +359,7 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
         ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
         : fetchedMapping
       ),
-      ...(featureLabelsMap || []),
+      ...Array.from(featureLabelsMap?.entries() || []),
     ]);
   }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
   // If not enabled, return success
