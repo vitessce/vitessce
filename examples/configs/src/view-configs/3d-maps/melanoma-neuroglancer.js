@@ -13,9 +13,9 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
     options: {
-      offsetsUrl: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
+      offsetsUrl: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
@@ -25,7 +25,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     options: {
       obsIndex: 'id',
       obsEmbedding: ['tSNE1', 'tSNE2'],
@@ -38,7 +38,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_with_embedding_red.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -85,7 +85,8 @@ function generateNeuroglancerMinimalConfiguration() {
       0.034036338329315186,
       0.8644407391548157,
     ],
-    projectionScale: 32768,
+    projectionScale: 1028,
+    // perspectiveZoom: 300,
     layers: [
       {
         type: 'segmentation',
@@ -11396,17 +11397,19 @@ function generateNeuroglancerMinimalConfiguration() {
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
-  // Sync the zoom/rotation/pan states
-  config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
+  // // Sync the zoom/rotation/pan states
+  config.linkViewsByObject([neuroglancerView, spatialThreeView, lcView], {
+  // config.linkViewsByObject([neuroglancerView], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
-    // spatialTargetT: 0,
-    // spatialTargetX: 0,
-    // spatialTargetY: 0,
-    // spatialTargetZ: 0,
+    spatialTargetT: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
+    spatialTargetZ: 0,
     spatialRotationX: 0,
     spatialRotationY: 0,
     spatialRotationZ: 0,
+    spatialRotationOrbit: 0,
     // Should there be a Z-target/rotation specified here?
   }, { meta: false });
 
@@ -11431,7 +11434,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
 
   config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
-
+  // config.layout(neuroglancerView)//, vconcat(obsSets, scatterView)));
   const configJSON = config.toJSON();
   return configJSON;
 }

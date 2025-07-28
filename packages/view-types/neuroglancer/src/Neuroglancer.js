@@ -6,13 +6,16 @@ import { NeuroglancerGlobalStyles } from './styles.js';
 
 import { compareViewerState } from './utils.js';
 
-const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
+// const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
+
+const LazyReactNeuroglancer = React.lazy(() => import('./JaneReactNeuroglancer.js'));
+// import { Neuroglancer } from './JaneReactNeuroglancer.js'
 
 function createWorker() {
   return new ChunkWorker();
 }
 
-export class Neuroglancer extends PureComponent {
+export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -25,7 +28,7 @@ export class Neuroglancer extends PureComponent {
     this.prevMouseStateChanged = null;
     this.prevHoverHandler = null;
 
-    this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
+    // this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
     this.onRef = this.onRef.bind(this);
     // console.log("Neuroglancer loaded", this.viewerState, this.cellSetUpdated)
   }
@@ -43,34 +46,34 @@ export class Neuroglancer extends PureComponent {
       const { viewer } = viewerRef;
       this.prevElement = viewer.element;
       this.prevMouseStateChanged = viewer.mouseState.changed;
-      this.prevClickHandler = (event) => {
-        if (event.button === 0) {
-          setTimeout(() => {
-            const { pickedValue } = viewer.mouseState;
-            if (pickedValue && pickedValue?.low) {
-              onSegmentClick(pickedValue?.low);
-            }
-          }, 100);
-        }
-      };
-      viewer.element.addEventListener('mousedown', this.prevClickHandler);
+      // this.prevClickHandler = (event) => {
+      //   if (event.button === 0) {
+      //     setTimeout(() => {
+      //       const { pickedValue } = viewer.mouseState;
+      //       if (pickedValue && pickedValue?.low) {
+      //         onSegmentClick(pickedValue?.low);
+      //       }
+      //     }, 100);
+      //   }
+      // };
+      // viewer.element.addEventListener('mousedown', this.prevClickHandler);
 
-      this.prevHoverHandler = () => {
-        if (viewer.mouseState.pickedValue !== undefined) {
-          const pickedSegment = viewer.mouseState.pickedValue;
-          onSelectHoveredCoords(pickedSegment?.low);
-        }
-      };
+      // this.prevHoverHandler = () => {
+      //   if (viewer.mouseState.pickedValue !== undefined) {
+      //     const pickedSegment = viewer.mouseState.pickedValue;
+      //     onSelectHoveredCoords(pickedSegment?.low);
+      //   }
+      // };
 
-      viewer.mouseState.changed.add(this.prevHoverHandler);
-    } else {
-      // Unmount (viewerRef is null)
-      if (this.prevElement && this.prevClickHandler) {
-        this.prevElement.removeEventListener('mousedown', this.prevClickHandler);
-      }
-      if (this.prevMouseStateChanged && this.prevHoverHandler) {
-        this.prevMouseStateChanged.remove(this.prevHoverHandler);
-      }
+    //   viewer.mouseState.changed.add(this.prevHoverHandler);
+    // } else {
+    //   // Unmount (viewerRef is null)
+    //   if (this.prevElement && this.prevClickHandler) {
+    //     this.prevElement.removeEventListener('mousedown', this.prevClickHandler);
+    //   }
+    //   if (this.prevMouseStateChanged && this.prevHoverHandler) {
+    //     this.prevMouseStateChanged.remove(this.prevHoverHandler);
+    //   }
     }
   }
 

@@ -13,24 +13,15 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-invasive-margin.ome.tiff',
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-invasive-margin.ome.tiff',
     options: {
-      offsetsUrl: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-invasive-margin.offsets.json',
+      offsetsUrl: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-invasive-margin.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
     },
   });
-  // const dataset = config.addDataset('My dataset').addFile({
-  //   fileType: 'image.ome-tiff',
-  //   url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
-  //   options: {
-  //       offsetsUrl: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
-  //   },
-  //   coordinationValues: {
-  //     fileUid: 'melanoma',
-  //   },
-  // });
+
 
 
   dataset.addFile({
