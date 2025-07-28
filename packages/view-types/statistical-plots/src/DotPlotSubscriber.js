@@ -153,6 +153,7 @@ export function DotPlotSubscriber(props) {
 
   const onDotSelect = useCallback((featureName, isShiftDown = false) => {
       // TODO: Implement different behavior when isShiftDown
+      /// (featureName array will need to be aggregated)
       const featureI = geneSelection.indexOf(featureName?.[0]);
       if(featureI >= 0) {
         setFeatureAggregationStrategy(featureI);
