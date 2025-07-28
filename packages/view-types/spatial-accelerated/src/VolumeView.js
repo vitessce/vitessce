@@ -126,7 +126,7 @@ function handleAdaptiveQuality(clock, params) {
       stillRef.current = false;
       screenQuadRef.current.material.uniforms.gaussian.value = 7;
       invalidate();
-    } else if (!stillRef.currentt) {
+    } else if (!stillRef.current) {
       console.log('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
       stillRef.current = true;
       screenQuadRef.current.material.uniforms.gaussian.value = 0;

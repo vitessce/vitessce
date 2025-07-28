@@ -343,7 +343,7 @@ export function _requestBufferToRequestObjects(buffer, k) {
       y: (packed >> 12) & 0x3FF,
       z: packed & 0xFFF,
     }));
-  return requests;
+  return { requests, origRequestCount: counts.size };
 }
 
 /* End extracted functions */
@@ -497,6 +497,8 @@ export class VolumeDataManager {
     this.timeStamp = 0;
     this.k = 40;
     this.noNewRequests = false;
+
+    this.needsBailout = false; // Flag to indicate if we need to bail out of processing requests
 
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
@@ -1097,16 +1099,19 @@ export class VolumeDataManager {
   }
 
   async processRequestData(buffer) {
-    if (this.isBusy) return;
+    if (this.isBusy) {
+      console.log('processRequestData: already busy, skipping');
+      return;
+    }
     this.isBusy = true;
     this.triggerRequest = false;
 
-    const requests = _requestBufferToRequestObjects(buffer, this.k);
+    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k);
 
     if (requests.length === 0) {
       this.noNewRequests = true;
     }
-    console.log(`processRequestData: handling ${requests.length} requests`);
+    console.log(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`);
     await this.handleBrickRequests(requests);
 
     // We want processRequestData to alternate with processUsageData.
@@ -1116,7 +1121,11 @@ export class VolumeDataManager {
 
 
   async processUsageData(buffer) {
-    if (this.isBusy) return;
+    if (this.isBusy) {
+      console.log('processUsageData: already busy, skipping');
+      this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests 
+      return;
+    }
     this.isBusy = true;
     this.triggerUsage = false;
 
@@ -1331,7 +1340,9 @@ export class VolumeDataManager {
     let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
     // console.log('chunk', chunk);
 
+    // TODO(mark): is there a better way than iterating over all of the chunk values?
     if (chunk instanceof Uint16Array) {
+      console.log('chunk is Uint16Array, converting to Uint8Array');
       if (this.channels.downsampleMin[channel] === undefined) {
         // get the channel ID from this.channels.zarrMappings
         const channelId = this.channels.zarrMappings[channel];
@@ -1460,6 +1471,14 @@ export class VolumeDataManager {
       this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
       if (rlength === this.bricksEverLoaded.size) {
         console.warn('DUPLICATE BRICK LOADED', ptRequests[i]);
+      }
+
+      if(this.needsBailout) {
+        console.warn('Bailing out of handleBrickRequests early due to needsBailout flag');
+        this.needsBailout = false; // Reset the flag
+        break; // Exit the loop early
+
+        // TODO(mark): do something with the allocated slots that were not used?
       }
     }
     // console.log('this.bricksAllocated', this.bricksAllocated);
