@@ -91,6 +91,18 @@ function handleAdaptiveQuality(clock, params) {
     lastFrameCountRef,
   } = params;
 
+  // Moved out of useEffect
+  if(screenQuadRef.current) {
+    if (!stillRef.current) {
+      // console.log('stillRef is false');
+      screenQuadRef.current.material.uniforms.gaussian.value = 7;
+    } else {
+      //console.log('stillRef is true');
+      screenQuadRef.current.material.uniforms.gaussian.value = 0;
+    }
+  }
+  // End moved out of useEffect
+
   if (isInteracting) {
     // While the user is interacting, we want to ensure that the next frame's handleRequests call
     // will trigger the processUsageData call, and subsequently the processRequestData call
@@ -193,7 +205,7 @@ export function VolumeView(props) {
   // const [lastRes, setLastRes] = useState(null);
   // const [lastChannels, setLastChannels] = useState([]);
   const [is3D, setIs3D] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   // Add new refs for screen quad setup
   const screenSceneRef = useRef(null);
@@ -418,6 +430,7 @@ export function VolumeView(props) {
     imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
 
   // TODO(mark): can this logic be moved into useFrame?
+  /*
   useEffect(() => {
     log('useEffect stillRef');
     // console.log('useEffect stillRef');
@@ -434,8 +447,10 @@ export function VolumeView(props) {
       screenQuadRef.current.material.uniforms.gaussian.value = 0;
     }
   }, [stillRef.current]);
+  */
 
   // TODO(mark): can this logic be moved into useFrame?
+  // But currently, it only runs upon a change of isInteracting.
   useEffect(() => {
     log('useEffect isInteracting');
     if (isInteracting) {
@@ -580,7 +595,7 @@ export function VolumeView(props) {
   // Render nothing during initialization.
   if (!is3D || !dataManager || !renderManager) return null;
 
-  if (loading || !renderState.shader) {
+  if (!renderState.shader) {
     return (
       <group>
         <mesh>
