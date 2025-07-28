@@ -1362,11 +1362,9 @@ export class VolumeDataManager {
       chunk = uint8Chunk;
     }
 
-    // console.log('chunk', chunk);
-    chunk = new Uint8Array(chunk);
-    // if (chunk instanceof Uint8Array) {
-    //   console.log('chunk is Uint8Array');
-    // }
+    if(!(chunk instanceof Uint8Array)) {
+      throw new Error(`Unsupported chunk type: ${chunk.constructor.name}. Expected Uint8Array.`);
+    }
 
     let min = 255;
     let max = 0;
