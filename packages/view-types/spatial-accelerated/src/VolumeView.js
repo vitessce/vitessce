@@ -326,7 +326,7 @@ export function VolumeView(props) {
       // TODO: generalize to more than one image layer.
       await dataManager.init(firstImageLayerChannelCoordination); // device limits, zarr meta
 
-      console.log('dm.physicalScale', dataManager.physicalScale);
+      // console.log('dm.physicalScale', dataManager.physicalScale);
 
       renderManager.setZarrUniforms(dataManager.zarrStore, dataManager.PT);
       renderManager.setChannelMapping(dataManager.channels.colorMappings);

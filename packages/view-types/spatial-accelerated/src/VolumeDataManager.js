@@ -11,22 +11,16 @@
 // 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
 // 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
 
-// eslint-disable-next-line import/no-unresolved
-// eslint-disable-next-line import/no-extraneous-dependencies
-
 import {
   Data3DTexture,
   RedFormat,
   RedIntegerFormat,
-  FloatType,
   UnsignedByteType,
   UnsignedIntType,
   LinearFilter,
   NearestFilter,
-  Vector3,
 } from 'three';
 import { isEqual } from 'lodash-es';
-import { InternMap } from 'internmap';
 
 
 // Default chunk sizes
@@ -426,7 +420,6 @@ export class VolumeDataManager {
       channelCount: 1, // MAX 7 TODO: get from zarr metadata
       scales: [], // downsample ratios, [x,y,z] per resolution level
       lowestDataRes: 0, // lowest resolution level with data
-      chunkKeyToAbortController: new InternMap([], JSON.stringify), // Map of chunk keys to AbortSignal
     };
 
     this.ptTHREE = null;
@@ -459,24 +452,24 @@ export class VolumeDataManager {
       zTotal: 0, // original z extent plus the l0 z extent times the channel count
     };
 
-    this.minimumMin = 255;
-    this.maximumMin = 0;
-    this.minimumMax = 255;
-    this.maximumMax = 0;
+    // this.minimumMin = 255;
+    // this.maximumMin = 0;
+    // this.minimumMax = 255;
+    // this.maximumMax = 0;
 
-    this.bricksAllocated = 0;
+    // this.bricksAllocated = 0;
     this.bricksEverLoaded = new Set();
 
     // Properties for volume rendering
-    this.originalScale = [1, 1, 1]; // Original dimensions
+    // this.originalScale = [1, 1, 1]; // Original dimensions
     // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
-    this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 1 }]; // Physical size scaling
-    this.testArray = [];
-    this.ptArray = [];
-    this.ptManOffsets = [];
+    // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 1 }]; // Physical size scaling
+    // this.testArray = [];
+    // this.ptArray = [];
+    // this.ptManOffsets = [];
 
     // top k page table addresses
-    this.requestsStack = [];
+    // this.requestsStack = [];
     this.isBusy = false;
 
     // brick cache structure for internal calculations
@@ -491,7 +484,7 @@ export class VolumeDataManager {
 
     // top k unused brick cache addresses
     this.LRUStack = [];
-    this.LRUReady = false;
+    // this.LRUReady = false;
     this.triggerUsage = true;
     this.triggerRequest = false;
     this.timeStamp = 0;
@@ -530,7 +523,7 @@ export class VolumeDataManager {
           success: true,
           deviceLimits: this.deviceLimits,
           zarrStore: this.zarrStore,
-          physicalScale: this.physicalScale,
+          // physicalScale: this.physicalScale,
           physicalSizeTotal: this.zarrStore.physicalSizeTotal,
           physicalSizeVoxel: this.zarrStore.physicalSizeVoxel,
           error: null,
@@ -720,11 +713,11 @@ export class VolumeDataManager {
             const xScale = scale[scaleLength - 1];
 
             // Update physicalScale
-            this.physicalScale = [
-              { size: xScale },
-              { size: yScale },
-              { size: zScale },
-            ];
+            // this.physicalScale = [
+            //   { size: xScale },
+            //   { size: yScale },
+            //   { size: zScale },
+            // ];
 
             // console.warn('physicalScale', this.physicalScale);
 
@@ -801,7 +794,7 @@ export class VolumeDataManager {
         success: true,
         deviceLimits: this.deviceLimits,
         zarrStore: this.zarrStore,
-        physicalScale: this.physicalScale,
+        // physicalScale: this.physicalScale,
         physicalSizeTotal: this.zarrStore.physicalSizeTotal,
         physicalSizeVoxel: this.zarrStore.physicalSizeVoxel,
         error: null,
@@ -1354,6 +1347,8 @@ export class VolumeDataManager {
         console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
         console.log('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
       }
+      // TODO(mark): to reduce memory usage, create the Uint8Array as a view of the Uint16Array
+      // and use bitwise operations. Then scale the values.
       const uint8Chunk = new Uint8Array(chunk.length);
       for (let i = 0; i < chunk.length; i++) {
         // Scale from 0-65535 to 0-255
@@ -1464,7 +1459,7 @@ export class VolumeDataManager {
     // eslint-disable-next-line no-await-in-loop
       console.log('uploading brick', ptRequests[i], slots[i]);
       await this._uploadBrick(ptRequests[i], slots[i]);
-      this.bricksAllocated++;
+      // this.bricksAllocated++;
       const rlength = this.bricksEverLoaded.size;
       this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
       if (rlength === this.bricksEverLoaded.size) {
