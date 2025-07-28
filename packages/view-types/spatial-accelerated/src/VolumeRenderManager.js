@@ -106,6 +106,8 @@ export class VolumeRenderManager {
       // but their range will be much larger (e.g., 0-65535).
 
       // TODO(mark): the defaults should be set based on the image dtype.
+      // TODO(mark): wait for all channel IQR ranges to be computed before initializing,
+      // as we do not want this.maxRange to be incorrect.
       return {
         valid: false,
       };
