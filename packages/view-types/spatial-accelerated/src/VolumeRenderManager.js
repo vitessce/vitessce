@@ -98,6 +98,19 @@ export class VolumeRenderManager {
       };
     }
 
+
+    if (!channelCoordination[channelScopes?.[0]][CoordinationType.SPATIAL_CHANNEL_WINDOW]) {
+      // We don't want to initialize with a null spatialChannelWindow,
+      // since down below we use the default value of [0, 255], but we may have a Uint16 image.
+      // This will cause the sliders to not affect the contrast limits until below 255,
+      // but their range will be much larger (e.g., 0-65535).
+
+      // TODO(mark): the defaults should be set based on the image dtype.
+      return {
+        valid: false,
+      };
+    }
+
     const imageWrapperInstance = images[layerScope].image.instance;
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';

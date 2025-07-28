@@ -73,7 +73,7 @@ export default function ChannelSlider(props) {
       }}
       getAriaValueText={() => `Current colormap values: ${rgbColor}-${window}`}
       min={min}
-      max={500}
+      max={max}
       step={step}
       orientation="horizontal"
       className={classes.channelSlider}
