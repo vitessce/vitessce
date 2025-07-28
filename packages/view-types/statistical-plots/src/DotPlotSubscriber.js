@@ -54,6 +54,7 @@ export function DotPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     sampleType,
     sampleSetSelection,
+    // eslint-disable-next-line no-unused-vars
     featureAggregationStrategy,
   }, {
     setFeatureValueTransform,
@@ -151,14 +152,15 @@ export function DotPlotSubscriber(props) {
     o => o.value === featureValueTransform,
   )?.name;
 
+  // eslint-disable-next-line no-unused-vars
   const onDotSelect = useCallback((featureName, isShiftDown = false) => {
-      // TODO: Implement different behavior when isShiftDown
-      /// (featureName array will need to be aggregated)
-      const featureI = geneSelection.indexOf(featureName?.[0]);
-      if(featureI >= 0) {
-        setFeatureAggregationStrategy(featureI);
-      }
-    }, [setFeatureAggregationStrategy, geneSelection]);
+    // TODO: Implement different behavior when isShiftDown
+    // / (featureName array will need to be aggregated)
+    const featureI = geneSelection.indexOf(featureName?.[0]);
+    if (featureI >= 0) {
+      setFeatureAggregationStrategy(featureI);
+    }
+  }, [setFeatureAggregationStrategy, geneSelection]);
 
   return (
     <TitleInfo
