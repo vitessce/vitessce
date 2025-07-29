@@ -1,17 +1,24 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat,
 } from '@vitessce/config';
 
+const idToUrl = {
+  'lsp-1': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
+  'lsp-2': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
+  'lsp-3': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
+  'kingsnake': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+  'gloria': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+}
 
-function generateThreeMinimalConfiguration() {
+function generateThreeMinimalConfiguration(imageId) {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Minimal Three',
+    name: 'Spatial Accelerated',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-zarr',
+    url: idToUrl[imageId],
     // url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ/0',
     // url: 'http://127.0.0.1:8080/kingsnake_1024x1024x795_uint8_z_manual.zarr',
     // url: 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
@@ -22,7 +29,7 @@ function generateThreeMinimalConfiguration() {
     // url: 'http://127.0.0.1:8080/gloria_conversion/v1',
 
     // Example 1 clarence -- 0-7
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
+    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
     // Example 2 clarence -- 0-8
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
     // Example 350 GB
@@ -33,9 +40,6 @@ function generateThreeMinimalConfiguration() {
     // options: {
     //   offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.offsets.json',
     // },
-    coordinationValues: {
-      fileUid: 'kiemen',
-    },
   });
 
   const spatialAcceleratedView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 }).setProps({ three: true, accelerated: true });
@@ -47,7 +51,6 @@ function generateThreeMinimalConfiguration() {
     spatialRenderingMode: '3D',
     imageLayer: CL([
       {
-        fileUid: 'kiemen',
         spatialLayerOpacity: 1,
         // spatialTargetResolution: 5,
         imageChannel: CL([
@@ -69,4 +72,8 @@ function generateThreeMinimalConfiguration() {
   return configJSON;
 }
 
-export const threeMinimal = generateThreeMinimalConfiguration();
+export const saLsp1 = generateThreeMinimalConfiguration('lsp-1');
+export const saLsp2 = generateThreeMinimalConfiguration('lsp-2');
+export const saLsp3 = generateThreeMinimalConfiguration('lsp-3');
+export const saKingsnake = generateThreeMinimalConfiguration('kingsnake');
+export const saGloria = generateThreeMinimalConfiguration('gloria');
