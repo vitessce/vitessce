@@ -362,6 +362,11 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return shape[labels.indexOf('t')];
   }
 
+  getNumResolutions(): number {
+    const loader = this.vivLoader;
+    return Array.isArray(loader.data) ? loader.data.length : 1;
+  }
+
   isMultiResolution(): boolean {
     const loader = this.vivLoader;
     const hasViewableResolutions = Boolean(

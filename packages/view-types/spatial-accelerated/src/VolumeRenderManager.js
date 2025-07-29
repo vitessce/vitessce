@@ -33,6 +33,8 @@ export class VolumeRenderManager {
     // Channel and texture state
     this.channelsVisible = [];
     this.channelTargetC = [];
+    this.zarrStoreNumResolutions = null;
+    this.channelMaxResolutionIndex = [];
     this.colors = [];
     this.contrastLimits = [];
     this.layerTransparency = 1.0;
@@ -163,12 +165,14 @@ export class VolumeRenderManager {
       )
     ));
 
-    // Get resolution
-    const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
-    const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
-    const resolution = (targetResolution === null || Number.isNaN(targetResolution))
-      ? autoTargetResolution
-      : targetResolution;
+    // Get max resolution index
+    const channelMaxResolutionIndex = isRgb ? ([
+      visible && null,
+      visible && null,
+      visible && null,
+    ]) : channelScopes.map(cScope => (
+      channelCoordination[cScope][CoordinationType.SPATIAL_MAX_RESOLUTION]
+    ));
 
     // Get slice planes
     let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X];
@@ -186,7 +190,7 @@ export class VolumeRenderManager {
       channelsVisible,
       allChannels,
       channelTargetC,
-      resolution,
+      channelMaxResolutionIndex,
       data,
       colors,
       contrastLimits,
@@ -213,6 +217,7 @@ export class VolumeRenderManager {
     // Store the extracted settings
     this.channelsVisible = settings.channelsVisible;
     this.channelTargetC = settings.channelTargetC;
+    this.channelMaxResolutionIndex = settings.channelMaxResolutionIndex;
     this.colors = settings.colors;
     this.contrastLimits = settings.contrastLimits;
     this.renderingMode = settings.renderingMode;
@@ -500,6 +505,13 @@ export class VolumeRenderManager {
       colors.length > 6 ? colors[6][2] : null,
       colors.length > 6 ? colors[6][3] : null,
     );
+    for (let i = 0; i < 7; i++) {
+      if (typeof this.channelMaxResolutionIndex[i] === 'number') {
+        this.uniforms[`res${i}`].value.set(
+          Math.max(1, this.channelMaxResolutionIndex[i]), this.zarrStoreNumResolutions - 1,
+        );
+      }
+    }
   }
 
   /**
@@ -550,8 +562,10 @@ export class VolumeRenderManager {
       }
     }
     console.warn('zarrStore.brickLayout', zarrStore.brickLayout);
+    this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
+        // TODO(mark) make this dependent on the per-channel maxResolution slider value.
         1, zarrStore.brickLayout.length - 1,
       );
     }

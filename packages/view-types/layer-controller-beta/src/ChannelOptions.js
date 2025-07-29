@@ -2,7 +2,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, Select } from '@material-ui/core';
+import { makeStyles, MenuItem, Select, Slider } from '@material-ui/core';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
@@ -28,6 +28,9 @@ export default function ChannelOptions(props) {
     onResetWindowUsingIQR,
     showValueExtent,
     setShowValueExtent,
+    numResolutions,
+    spatialMaxResolution,
+    setSpatialMaxResolution,
   } = props;
   const [open, setOpen] = useState(false);
 
@@ -71,6 +74,26 @@ export default function ChannelOptions(props) {
           <option value="Value Min/Max">Value Min/Max</option>
           <option value="Dtype Min/Max">Dtype Min/Max</option>
         </Select>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+      <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
+          Best Resolution:&nbsp;
+        </label>
+        <Slider
+          value={spatialMaxResolution || 1}
+          valueLabelDisplay="auto"
+          onChange={(e, v) => {
+            console.log('Slider value changed:', v);
+            setSpatialMaxResolution(v);
+          }}
+          min={1}
+          max={numResolutions - 1}
+          step={1}
+          orientation="horizontal"
+          // className={classes.channelSlider}
+          // style={{ color: rgbColor }}
+          // disabled={disabled}
+        />
       </MenuItem>
       <MenuItem
         dense

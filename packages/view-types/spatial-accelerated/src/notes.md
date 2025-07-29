@@ -1,5 +1,6 @@
 ### Ideas for refactoring
 
+- [x] Add maxResolutionSlider for each channel
 - [ ] Remove VolumeRenderManager - convert to more functional implementation
 - [ ] Un-nest the class variables in VolumeDataManager (this.zarrStore.*, this.channels, etc.)
 - [ ] Functions for all indexing operations (bcIndex to bc coords, etc.), to unit test
