@@ -62,21 +62,6 @@ export default function ChannelOptions(props) {
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
-          Slider Extent:&nbsp;
-        </label>
-        <Select
-          native
-          onChange={handleDomainTypeChange}
-          value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
-          inputProps={{ id: domainTypeId, 'aria-label': 'Slider extent selector' }}
-          classes={{ root: selectClasses.selectRoot }}
-        >
-          <option value="Value Min/Max">Value Min/Max</option>
-          <option value="Dtype Min/Max">Dtype Min/Max</option>
-        </Select>
-      </MenuItem>
-      <MenuItem dense disableGutters>
-      <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
           Best Resolution:&nbsp;
         </label>
         <Slider
@@ -94,6 +79,21 @@ export default function ChannelOptions(props) {
           // style={{ color: rgbColor }}
           // disabled={disabled}
         />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
+          Slider Extent:&nbsp;
+        </label>
+        <Select
+          native
+          onChange={handleDomainTypeChange}
+          value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
+          inputProps={{ id: domainTypeId, 'aria-label': 'Slider extent selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option value="Value Min/Max">Value Min/Max</option>
+          <option value="Dtype Min/Max">Dtype Min/Max</option>
+        </Select>
       </MenuItem>
       <MenuItem
         dense
