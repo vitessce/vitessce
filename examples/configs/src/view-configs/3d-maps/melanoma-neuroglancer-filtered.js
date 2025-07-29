@@ -94,10 +94,11 @@ function generateNeuroglancerMinimalConfiguration() {
         type: 'segmentation',
         source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/invasive_meshes',
         // source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_meshes',
-        segments: ['5'],
-        segmentColors: {
-          5: 'red',
-        },
+        // segments: ['5'],
+        segments: [],
+        // segmentColors: {
+        //   5: 'red',
+        // },
         name: 'segmentation',
       },
 

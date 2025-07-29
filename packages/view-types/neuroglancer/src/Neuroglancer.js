@@ -1,15 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-
 import { NeuroglancerGlobalStyles } from './styles.js';
-
 import { compareViewerState } from './utils.js';
+import Neuroglancer from './JaneReactNeuroglancer.js';
 
-// const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
-const LazyReactNeuroglancer = React.lazy(() => import('./JaneReactNeuroglancer.js'));
-// import { Neuroglancer } from './JaneReactNeuroglancer.js'
+// const LazyReactNeuroglancer = React.lazy(() => import('./JaneReactNeuroglancer.js'));
 
 function createWorker() {
   return new ChunkWorker();
@@ -18,8 +15,9 @@ function createWorker() {
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
-
+    console.log("NG Middle component", Object.keys(props.cellColorMapping).length);
     this.bundleRoot = createWorker();
+    this.cellColorMapping = props.cellColorMapping;
     this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
 
@@ -27,8 +25,7 @@ export class NeuroglancerComp extends PureComponent {
     this.prevClickHandler = null;
     this.prevMouseStateChanged = null;
     this.prevHoverHandler = null;
-
-    // this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
+    this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
     this.onRef = this.onRef.bind(this);
     // console.log("Neuroglancer loaded", this.viewerState, this.cellSetUpdated)
   }
@@ -100,8 +97,10 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
+    // console.log("rendered", this.props, this.cellColorMapping)
     const {
       classes,
+      cellColorMapping,
     } = this.props;
 
     return (
@@ -109,11 +108,13 @@ export class NeuroglancerComp extends PureComponent {
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            <LazyReactNeuroglancer
+            {/* <LazyReactNeuroglancer */}
+            <Neuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={this.viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
               bundleRoot={this.bundleRoot}
+              cellColorMapping={cellColorMapping}
               ref={this.onRef}
             />
           </Suspense>

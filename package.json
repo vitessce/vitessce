@@ -93,7 +93,6 @@
     },
     "patchedDependencies": {
       "@janelia-flyem/neuroglancer@2.37.5": "patches/@janelia-flyem__neuroglancer@2.37.5.patch",
-      "@janelia-flyem/react-neuroglancer@2.5.0": "patches/@janelia-flyem__react-neuroglancer@2.5.0.patch",
       "rc-tree@2.1.0": "patches/rc-tree@2.1.0.patch"
     }
   },

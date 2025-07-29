@@ -1,40 +1,57 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { isEqual } from "lodash-es";
 import { AnnotationUserLayer } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer";
 import { getObjectColor } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend";
 import { SegmentationUserLayer } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer";
 import { serializeColor } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color";
 import { setupDefaultViewer } from "@janelia-flyem/neuroglancer";
 import { Uint64 } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64";
-import { urlSafeParse } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json";
-import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
+// import { urlSafeParse } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json";
+// import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
+
+function hexToRGBFloat(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return [r, g, b];
+}
+
 
 const viewersKeyed = {};
 let viewerNoKey;
 
-// Adopted from neuroglancer/ui/url_hash_binding.ts
-export function parseUrlHash(url) {
-  let state = null;
+// // Adopted from neuroglancer/ui/url_hash_binding.ts
+// export function parseUrlHash(url) {
+//   let state = null;
 
-  let s = url.replace(/^[^#]+/, '');
-  if (s === '' || s === '#' || s === '#!') {
-    s = '#!{}';
-  }
+//   let s = url.replace(/^[^#]+/, '');
+//   if (s === '' || s === '#' || s === '#!') {
+//     s = '#!{}';
+//   }
 
-  if (s.startsWith('#!+')) {
-    s = s.slice(3);
-    // Firefox always %-encodes the URL even if it is not typed that way.
-    s = decodeURIComponent(s);
-    state = urlSafeParse(s);
-  } else if (s.startsWith('#!')) {
-    s = s.slice(2);
-    s = decodeURIComponent(s);
-    state = urlSafeParse(s);
-  } else {
-    throw new Error(`URL hash is expected to be of the form "#!{...}" or "#!+{...}".`);
-  }
+//   if (s.startsWith('#!+')) {
+//     s = s.slice(3);
+//     // Firefox always %-encodes the URL even if it is not typed that way.
+//     s = decodeURIComponent(s);
+//     state = urlSafeParse(s);
+//   } else if (s.startsWith('#!')) {
+//     s = s.slice(2);
+//     s = decodeURIComponent(s);
+//     state = urlSafeParse(s);
+//   } else {
+//     throw new Error(`URL hash is expected to be of the form "#!{...}" or "#!+{...}".`);
+//   }
 
-  return state;
+//   return state;
+// }
+
+export function hexToFloatRGB(hex){
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return [r, g, b];
+
 }
 
 export function getNeuroglancerViewerState(key) {
@@ -44,7 +61,7 @@ export function getNeuroglancerViewerState(key) {
 
 export function getNeuroglancerColor(idStr, key) {
   try {
-    const id = Uint64.parseString(idStr);
+    const id = idStr;
     const v = key ? viewersKeyed[key] : viewerNoKey;
     if (v) {
       // eslint-disable-next-line no-restricted-syntax
@@ -68,7 +85,7 @@ export function getNeuroglancerColor(idStr, key) {
   } catch {
     // suppress eslint no-empty
   }
-  return '';
+  return "";
 }
 
 export function closeSelectionTab(key) {
@@ -89,7 +106,7 @@ export function getLayerManager(key) {
 export function getManagedLayer(key, name) {
   const layerManager = getLayerManager(key);
   if (layerManager) {
-    return layerManager.managedLayers.filter(layer => layer.name === name)[0];
+    return layerManager.managedLayers.filter((layer) => layer.name === name)[0];
   }
   return undefined;
 }
@@ -133,9 +150,11 @@ export function unsubscribeLayersChangedSignals(layerManager, signalKey) {
   if (layerManager) {
     if (layerManager.customSignalHandlerRemovers) {
       if (layerManager.customSignalHandlerRemovers[signalKey]) {
-        layerManager.customSignalHandlerRemovers[signalKey].forEach(remover => {
-          remover();
-        });
+        layerManager.customSignalHandlerRemovers[signalKey].forEach(
+          (remover) => {
+            remover();
+          }
+        );
         delete layerManager.customSignalHandlerRemovers[signalKey];
       }
     }
@@ -148,25 +167,27 @@ export function configureLayersChangedSignals(key, layerConfig) {
     const { layerName } = layerConfig;
     unsubscribeLayersChangedSignals(layerManager, layerName);
     if (layerConfig.process) {
-      const recordRemover = (remover) => addLayerSignalRemover(undefined, layerName, remover);
+      const recordRemover = (remover) =>
+        addLayerSignalRemover(undefined, layerName, remover);
       recordRemover(
         layerManager.layersChanged.add(() => {
           const layer = getManagedLayer(undefined, layerName);
           if (layer) {
             layerConfig.process(layer);
           }
-        }));
+        })
+      );
       const layer = getManagedLayer(undefined, layerName);
       if (layer) {
         layerConfig.process(layer);
       }
 
-      return () =>  {
+      return () => {
         if (layerConfig.cancel) {
           layerConfig.cancel();
         }
         unsubscribeLayersChangedSignals(layerManager, layerName);
-      }
+      };
     }
   }
   return layerConfig.cancel;
@@ -175,19 +196,25 @@ export function configureLayersChangedSignals(key, layerConfig) {
 function configureAnnotationSource(source, props, recordRemover) {
   if (source && !source.signalReady) {
     if (props.onAnnotationAdded) {
-      recordRemover(source.childAdded.add((annotation) => {
-        props.onAnnotationAdded(annotation);
-      }));
+      recordRemover(
+        source.childAdded.add((annotation) => {
+          props.onAnnotationAdded(annotation);
+        })
+      );
     }
     if (props.onAnnotationDeleted) {
-      recordRemover(source.childDeleted.add((id) => {
-        props.onAnnotationDeleted(id);
-      }));
+      recordRemover(
+        source.childDeleted.add((id) => {
+          props.onAnnotationDeleted(id);
+        })
+      );
     }
     if (props.onAnnotationUpdated) {
-      recordRemover(source.childUpdated.add((annotation => {
-        props.onAnnotationUpdated(annotation);
-      })));
+      recordRemover(
+        source.childUpdated.add((annotation) => {
+          props.onAnnotationUpdated(annotation);
+        })
+      );
     }
     if (props.onAnnotationChanged && source.referencesChanged) {
       recordRemover(source.referencesChanged.add(props.onAnnotationChanged));
@@ -202,7 +229,12 @@ function configureAnnotationSource(source, props, recordRemover) {
 
 function getLoadedDataSource(layer) {
   /* eslint-disable-next-line no-underscore-dangle */
-  if (layer.dataSources && layer.dataSources.length > 0 && layer.dataSources[0].loadState_ && layer.dataSources[0].loadState_.dataSource) {
+  if (
+    layer.dataSources &&
+    layer.dataSources.length > 0 &&
+    layer.dataSources[0].loadState_ &&
+    layer.dataSources[0].loadState_.dataSource
+  ) {
     /* eslint-disable-next-line no-underscore-dangle */
     return layer.dataSources[0].loadState_.dataSource;
   }
@@ -215,13 +247,17 @@ function getAnnotationSourceFromLayer(layer) {
   }
 }
 
-function configureAnnotationSourceChange(annotationLayer, props, recordRemover) {
+function configureAnnotationSourceChange(
+  annotationLayer,
+  props,
+  recordRemover
+) {
   const configure = () => {
     const source = getAnnotationSourceFromLayer(annotationLayer);
     if (source) {
       configureAnnotationSource(source, props, recordRemover);
     }
-  }
+  };
 
   const sourceChanged = annotationLayer.dataSourcesChanged;
   if (sourceChanged && !sourceChanged.signalReady) {
@@ -237,11 +273,16 @@ function configureAnnotationSourceChange(annotationLayer, props, recordRemover) 
 export function configureAnnotationLayer(layer, props, recordRemover) {
   if (layer) {
     layer.expectingExternalTable = true;
-    if (layer.selectedAnnotation && !layer.selectedAnnotation.changed.signalReady) {
+    if (
+      layer.selectedAnnotation &&
+      !layer.selectedAnnotation.changed.signalReady
+    ) {
       if (props.onAnnotationSelectionChanged) {
-        recordRemover(layer.selectedAnnotation.changed.add(() => {
-          props.onAnnotationSelectionChanged(layer.selectedAnnotation.value);
-        }));
+        recordRemover(
+          layer.selectedAnnotation.changed.add(() => {
+            props.onAnnotationSelectionChanged(layer.selectedAnnotation.value);
+          })
+        );
         recordRemover(() => {
           layer.selectedAnnotation.changed.signalReady = false;
         });
@@ -271,9 +312,9 @@ export function getAnnotationSelectionHost(key) {
   const viewer = key ? viewersKeyed[key] : viewerNoKey;
   if (viewer) {
     if (viewer.selectionDetailsState) {
-      return 'viewer';
+      return "viewer";
     }
-    return 'layer';
+    return "layer";
   }
 
   return null;
@@ -282,12 +323,15 @@ export function getAnnotationSelectionHost(key) {
 export function getSelectedAnnotationId(key, layerName) {
   const viewer = key ? viewersKeyed[key] : viewerNoKey;
   if (viewer) {
-    if (viewer.selectionDetailsState) { // New neurolgancer version
+    if (viewer.selectionDetailsState) {
+      // New neurolgancer version
       // v.selectionDetailsState.value.layers[0].layer.managedLayer.name
       if (viewer.selectionDetailsState.value) {
         const { layers } = viewer.selectionDetailsState.value;
         if (layers) {
-          const layer = layers.find((_layer) => _layer.layer.managedLayer.name === layerName);
+          const layer = layers.find(
+            (_layer) => _layer.layer.managedLayer.name === layerName
+          );
           if (layer && layer.state) {
             return layer.state.annotationId;
           }
@@ -312,6 +356,7 @@ export default class Neuroglancer extends React.Component {
   }
 
   componentDidMount() {
+    console.log("mount JaneNG - cellColorMapping", Object.keys(this?.props.cellColorMapping).length);
     const {
       perspectiveZoom,
       viewerState,
@@ -320,12 +365,14 @@ export default class Neuroglancer extends React.Component {
       onViewerStateChanged,
       callbacks,
       ngServer,
-      key
+      key,
+      bundleRoot,
+      cellColorMapping,
     } = this.props;
     this.viewer = setupDefaultViewer({
       brainMapsClientId,
       target: this.ngContainer.current,
-      bundleRoot: "/"
+      bundleRoot,
     });
 
     this.setCallbacks(callbacks);
@@ -335,30 +382,33 @@ export default class Neuroglancer extends React.Component {
     }
 
     this.viewer.expectingExternalUI = true;
-    if (ngServer) {
-      this.viewer.makeUrlFromState = (state) => {
-        const newState = { ...state };
-        if (state.layers) {
-          // Do not include clio annotation layers
-          newState.layers = state.layers.filter((layer) => {
-            if (layer.source) {
-              const sourceUrl = layer.source.url || layer.source;
-              if (typeof sourceUrl === 'string') {
-                return !sourceUrl.startsWith('clio://');
-              }
-            }
-            return true;
-          });
-        }
-        return `${ngServer}/#!${encodeFragment(JSON.stringify(newState))}`;
-      };
-    }
+    // if (ngServer) {
+    //   this.viewer.makeUrlFromState = (state) => {
+    //     const newState = { ...state };
+    //     if (state.layers) {
+    //       // Do not include clio annotation layers
+    //       newState.layers = state.layers.filter((layer) => {
+    //         if (layer.source) {
+    //           const sourceUrl = layer.source.url || layer.source;
+    //           if (typeof sourceUrl === 'string') {
+    //             return !sourceUrl.startsWith('clio://');
+    //           }
+    //         }
+    //         return true;
+    //       });
+    //     }
+    //     return `${ngServer}/#!${encodeFragment(JSON.stringify(newState))}`;
+    //   };
+    // }
     if (this.viewer.selectionDetailsState) {
-      this.viewer.selectionDetailsState.changed.add(this.selectionDetailsStateChanged);
+      this.viewer.selectionDetailsState.changed.add(
+        this.selectionDetailsStateChanged
+      );
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
 
     if (viewerState) {
+      // console.log("new viewerState", cellColorMapping);
       const newViewerState = viewerState;
       if (newViewerState.projectionScale === null) {
         delete newViewerState.projectionScale;
@@ -379,32 +429,32 @@ export default class Neuroglancer extends React.Component {
           grayscale: {
             type: "image",
             source:
-              "dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg"
+              "dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg",
           },
           segmentation: {
             type: "segmentation",
             source:
-              "dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation"
-          }
+              "dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation",
+          },
         },
         perspectiveZoom,
         navigation: {
-          zoomFactor: 8
-        }
+          zoomFactor: 8,
+        },
       });
     }
 
-    this.viewer.state.changed.add(() => {
-      if (onViewerStateChanged) {
-        try {
-          if (this.viewer.state.viewer.position) {
-            onViewerStateChanged(this.viewer.state.toJSON());
-          }
-        } catch (error) {
-          console.debug(error);
-        }
-      }
-    });
+    // this.viewer.state.changed.add(() => {
+    //   if (onViewerStateChanged) {
+    //     try {
+    //       if (this.viewer.state.viewer.position) {
+    //         onViewerStateChanged(this.viewer.state.toJSON());
+    //       }
+    //     } catch (error) {
+    //       console.debug(error);
+    //     }
+    //   }
+    // });
 
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
     // That function can be used to synchronize an external Redux store with any
@@ -419,11 +469,12 @@ export default class Neuroglancer extends React.Component {
     window.viewer = this.viewer;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     // The restoreState() call clears the "selected" (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
     // it after restoreState().
+    // console.log("update", this.props)
     const selectedSegments = {};
     // eslint-disable-next-line no-restricted-syntax
     for (const layer of this.viewer.layerManager.managedLayers) {
@@ -436,9 +487,11 @@ export default class Neuroglancer extends React.Component {
     const { viewerState } = this.props;
     if (viewerState) {
       let newViewerState = { ...viewerState };
-      let restoreStates = [() => {
-        this.viewer.state.restoreState(newViewerState)
-      }];
+      let restoreStates = [
+        () => {
+          this.viewer.state.restoreState(newViewerState);
+        },
+      ];
       if (viewerState.projectionScale === null) {
         delete newViewerState.projectionScale;
         restoreStates.push(() => {
@@ -448,7 +501,7 @@ export default class Neuroglancer extends React.Component {
       if (viewerState.crossSectionScale === null) {
         delete newViewerState.crossSectionScale;
       }
-      restoreStates.forEach(restore => restore());
+      restoreStates.forEach((restore) => restore());
     }
 
     // eslint-disable-next-line no-restricted-syntax
@@ -463,11 +516,56 @@ export default class Neuroglancer extends React.Component {
     // the position in the viewer. This should handle those cases by looking
     // for the empty position array and calling the position reset function if
     // found.
-    if ('position' in viewerState) {
-      if (Array.isArray(viewerState.position)) {
-        if (viewerState.position.length === 0) {
-          this.viewer.position.reset();
-        }
+    // if ("position" in viewerState) {
+    //   if (Array.isArray(viewerState.position)) {
+    //     if (viewerState.position.length === 0) {
+    //       this.viewer.position.reset();
+    //     }
+    //   }
+    // }
+
+    const { cellColorMapping } = this.props;
+
+    console.log('🔁 previous keys:', Object.keys(prevProps.cellColorMapping).slice(0, 5));
+    console.log('🆕 current keys:', Object.keys(cellColorMapping).slice(0, 5));
+    console.log('ref changed?', cellColorMapping !== prevProps.cellColorMapping);
+    console.log('deep equal?', isEqual(prevProps.cellColorMapping, cellColorMapping));
+
+    // console.log("update", Object.keys(cellColorMapping).length, Object.keys(prevProps.cellColorMapping).length)
+  // Skip if no new colors
+
+  const didMappingChange = !isEqual(prevProps.cellColorMapping, cellColorMapping);
+  console.log("JaneNG didMappingChange", didMappingChange)
+  // if (
+  //   cellColorMapping &&
+  //   Object.keys(cellColorMapping).length > 0 &&
+  //   cellColorMapping !== prevProps.cellColorMapping
+  // ) {
+
+    const segmentColorHash = new Map();
+    const visibleSegments = new Set();
+
+    for (const [idStr, hex] of Object.entries(cellColorMapping)) {
+      const id = Uint64.parseString(idStr);
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      segmentColorHash.set(id, [r, g, b]);
+      visibleSegments.add(id);
+    }
+
+    // console.log("before mL", segmentColorHash, visibleSegments)
+
+    for (const layer of this.viewer.layerManager.managedLayers) {
+      if (layer.layer instanceof SegmentationUserLayer) {
+        const displayState = layer.layer.displayState;
+        displayState.segmentColorHash.update(() => segmentColorHash);
+        const visibleSegmentsTrackable = displayState.segmentationGroupState.value.visibleSegments;
+        visibleSegmentsTrackable.clear();
+        for (const id of visibleSegments) {
+          visibleSegmentsTrackable.add(id);
+}
+        console.log(`🟢 Applied ${visibleSegments.size} segments to layer "${layer.name}"`);
       }
     }
   }
@@ -494,16 +592,19 @@ export default class Neuroglancer extends React.Component {
    *
    */
   setCallbacks(callbacks) {
-    callbacks.forEach(callback => {
-      this.viewer.bindCallback(callback.name, callback.function)
-      this.viewer.inputEventBindings.sliceView.set(callback.event, callback.name)
+    callbacks.forEach((callback) => {
+      this.viewer.bindCallback(callback.name, callback.function);
+      this.viewer.inputEventBindings.sliceView.set(
+        callback.event,
+        callback.name
+      );
     });
   }
 
-  updateEventBindings = eventBindingsToUpdate => {
+  updateEventBindings = (eventBindingsToUpdate) => {
     const root = this.viewer.inputEventBindings;
 
-    const traverse = current => {
+    const traverse = (current) => {
       const replace = (eaMap, event0, event1) => {
         const action = eaMap.get(event0);
         if (action) {
@@ -515,7 +616,7 @@ export default class Neuroglancer extends React.Component {
       };
 
       const eventActionMap = current.bindings;
-      eventBindingsToUpdate.forEach(oldNewBinding => {
+      eventBindingsToUpdate.forEach((oldNewBinding) => {
         const eventOldBase = Array.isArray(oldNewBinding)
           ? oldNewBinding[0]
           : oldNewBinding;
@@ -533,7 +634,7 @@ export default class Neuroglancer extends React.Component {
         replace(eventActionMap, eventOldB, eventNewB);
       });
 
-      current.parents.forEach(parent => {
+      current.parents.forEach((parent) => {
         traverse(parent);
       });
     };
@@ -550,13 +651,13 @@ export default class Neuroglancer extends React.Component {
         onSelectionDetailsStateChanged();
       }
     }
-  }
+  };
 
   layersChanged = () => {
     if (this.handlerRemovers) {
       // If change handlers have been added already, call the function to remove each one,
       // so there won't be duplicates when new handlers are added below.
-      this.handlerRemovers.forEach(remover => remover());
+      this.handlerRemovers.forEach((remover) => remover());
     }
 
     if (this.viewer) {
@@ -568,16 +669,16 @@ export default class Neuroglancer extends React.Component {
         for (const layer of this.viewer.layerManager.managedLayers) {
           if (layer.layer instanceof SegmentationUserLayer) {
             const { segmentSelectionState } = layer.layer.displayState;
-            const { visibleSegments } = layer.layer.displayState.segmentationGroupState.value;
+            const { visibleSegments } =
+              layer.layer.displayState.segmentationGroupState.value;
             if (segmentSelectionState && onSelectedChanged) {
               // Bind the layer so it will be an argument to the handler when called.
               const selectedChanged = this.selectedChanged.bind(
                 undefined,
                 layer
               );
-              const remover = segmentSelectionState.changed.add(
-                selectedChanged
-              );
+              const remover =
+                segmentSelectionState.changed.add(selectedChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);
             }
@@ -594,7 +695,7 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
-  selectedChanged = layer => {
+  selectedChanged = (layer) => {
     if (this.viewer) {
       const { onSelectedChanged } = this.props;
       if (onSelectedChanged) {
@@ -609,11 +710,12 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
-  visibleChanged = layer => {
+  visibleChanged = (layer) => {
     if (this.viewer) {
       const { onVisibleChanged } = this.props;
       if (onVisibleChanged) {
-        const { visibleSegments } = layer.layer.displayState.segmentationGroupState.value;
+        const { visibleSegments } =
+          layer.layer.displayState.segmentationGroupState.value;
         if (visibleSegments) {
           onVisibleChanged(visibleSegments, layer);
         }
@@ -625,9 +727,7 @@ export default class Neuroglancer extends React.Component {
     const { perspectiveZoom } = this.props;
     return (
       <div className="neuroglancer-container" ref={this.ngContainer}>
-        <p>
-          Neuroglancer here with zoom {perspectiveZoom}
-        </p>
+        <p>Neuroglancer here with zoom {perspectiveZoom}</p>
       </div>
     );
   }
@@ -683,7 +783,7 @@ Neuroglancer.propTypes = {
 Neuroglancer.defaultProps = {
   perspectiveZoom: 20,
   eventBindingsToUpdate: null,
-  brainMapsClientId: 'NOT_A_VALID_ID',
+  brainMapsClientId: "NOT_A_VALID_ID",
   viewerState: null,
   onSelectedChanged: null,
   onVisibleChanged: null,
@@ -691,5 +791,5 @@ Neuroglancer.defaultProps = {
   onViewerStateChanged: null,
   key: null,
   callbacks: [],
-  ngServer: 'https://neuroglancer-demo.appspot.com/',
+  ngServer: "https://neuroglancer-demo.appspot.com/",
 };

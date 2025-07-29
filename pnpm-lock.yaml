@@ -287,9 +287,6 @@ patchedDependencies:
   '@janelia-flyem/neuroglancer@2.37.5':
     hash: uab3cyeavcsc46wsi5ptukamoa
     path: patches/@janelia-flyem__neuroglancer@2.37.5.patch
-  '@janelia-flyem/react-neuroglancer@2.5.0':
-    hash: hxg6sfd36o4iswp27bowaavnia
-    path: patches/@janelia-flyem__react-neuroglancer@2.5.0.patch
   rc-tree@2.1.0:
     hash: hn6ocsle7tvl24ochfytc7eqjy
     path: patches/rc-tree@2.1.0.patch
@@ -1914,7 +1911,7 @@ importers:
         version: 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
       '@janelia-flyem/react-neuroglancer':
         specifier: 2.5.0
-        version: 2.5.0(patch_hash=hxg6sfd36o4iswp27bowaavnia)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.5.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -18874,7 +18871,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@janelia-flyem/react-neuroglancer@2.5.0(patch_hash=hxg6sfd36o4iswp27bowaavnia)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@janelia-flyem/neuroglancer': 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
       prop-types: 15.8.1
