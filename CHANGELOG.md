@@ -1,4 +1,13 @@
 
+## 3.6.11
+
+### Patch Changes
+
+- Make the draggableHandle class more specific (the title text rather than the title container) to prevent accidental activation of dragging state (e.g., when opening the plot options dropdown). (`@vitessce/vit-s`) ([#2214](https://github.com/vitessce/vitessce/pull/2214))
+
+- Add click handler for dot plot. Support 'greys' colormap selection. (`@vitessce/statistical-plots`, `@vitessce/legend`) ([#2159](https://github.com/vitessce/vitessce/pull/2159))
+
+
 ## 3.6.10
 
 ### Patch Changes
