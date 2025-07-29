@@ -8,6 +8,7 @@ export const useTitleStyles = makeStyles()(theme => ({
     flexDirection: 'row',
     flexShrink: '0',
   },
+  // Note: This class is specified as the draggable handle for the grid layout.
   titleLeft: {
     flexShrink: '1',
     textOverflow: 'ellipsis',
