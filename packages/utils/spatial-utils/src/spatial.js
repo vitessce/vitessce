@@ -5,6 +5,8 @@ import { VIEWER_PALETTE } from '@vitessce/utils';
 import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
 import { getMultiSelectionStats } from './layer-controller.js';
+import { DAG } from './dag.js';
+
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders
@@ -582,6 +584,13 @@ export function normalizeAxes(axes) {
   });
 }
 
+export function getIntrinsicCoordinateSystem(normAxes) {
+  // Get the intrinsic coordinate system from the axes.
+  // TODO: is this correct?
+  return normAxes.map(axis => axis.name).join('');
+}
+
+
 /**
  * Normalize coordinate transformations to the OME-NGFF v0.4 format,
  * despite potentially being in the new format proposed in
@@ -603,36 +612,18 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         // This is a new-style coordinate transformation.
         // (As proposed in https://github.com/ome/ngff/pull/138)
         const { type } = transform;
-        if (type === 'translation') {
-          return {
-            type,
-            translation: transform.translation,
-          };
+         if (type === 'sequence') {
+          // Recursion to flatten the sequence of transformations.
+          return normalizeCoordinateTransformations(transform.transformations, null);
+        } else if (type === 'affine' || type === 'translation' || type === 'scale' || type === 'identity') {
+          // TODO: normalize the transform.input/transform.output if they are missing?
+          // Old transformations did not specify them for translation/scale/identity.
+          // But we are currently only using them for affine.
+          return transform;
+        } else {
+          // If the type is not recognized, log an error.
+          log.error(`Coordinate transformation type "${type}" is not supported.`);
         }
-        if (type === 'scale') {
-          return {
-            type,
-            scale: transform.scale,
-          };
-        }
-        if (type === 'affine') {
-          return {
-            type,
-            affine: transform.affine,
-            // Affine transformations can potentially swap axes,
-            // so we need to include the input and output axes.
-            input: transform.input,
-            output: transform.output,
-          };
-        }
-        if (type === 'identity') {
-          return { type };
-        }
-        if (type === 'sequence') {
-          return normalizeCoordinateTransformations(transform.transformations, datasets);
-        }
-
-        log.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
       return transform;
@@ -653,4 +644,48 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
     ];
   }
   return result;
+}
+
+/**
+ * Convert coordinate transformations to a 4x4 matrix for SpatialData spatial elements.
+ * This function is intended to be used with SpatialData objects which have named coordinate systems.
+ * This function should be compatible with any SpatialElement (shapes, points, labels, images).
+ * @param {{
+ *  axes: (string[]|{ name: string, type: string }[]|null),
+ *  coordinateTransformations: object[],
+ *  datasets?: object[]
+ * }} ngffMetadata For images/labels, this is multiscales[0] from .zattrs.
+ * For shapes/points, this is { axes, coordinateTransformations } from .zattrs.
+ * @param {string} targetCoordinateSystem A target coordinate system name.
+ * @returns {Matrix4} A 4x4 transformation matrix.
+ * This can later be multiplied with other matrices if needed.
+ */
+export function coordinateTransformationsToMatrixForSpatialData(ngffMetadata, targetCoordinateSystem) {
+  const {
+    datasets,
+    coordinateTransformations,
+    axes,
+  } = ngffMetadata; // In the image/labels case, this is multiscales[0].
+
+  // In case axes is an array of strings like ['x', 'y', 'z'],
+  // we convert them to a consistent object format.
+  const normAxes = normalizeAxes(axes);
+  // We know the target coordinate system, but not yet the starting (intrinsic) one.
+  const intrinsicCoordinateSystem = getIntrinsicCoordinateSystem(normAxes);
+  // Create a DAG of coordinate transformations.
+  const edges = coordinateTransformations.map((ct) => ({
+      from: ct.input.name,
+      to: ct.output.name,
+      attributes: ct,
+  }));
+  const dag = new DAG(edges);
+  const ctPath = dag.findPath(intrinsicCoordinateSystem, targetCoordinateSystem);
+  if (!ctPath) {
+    throw new Error(`No path found from "${intrinsicCoordinateSystem}" to "${targetCoordinateSystem}".`);
+  }
+  const filteredTransformations = ctPath.map(ctPath => ctPath.attributes);
+  // Normalize the coordinate transformations to OME-NGFF v0.4 format.
+  const normalizedTransformations = normalizeCoordinateTransformations(filteredTransformations, datasets);
+  // Convert the coordinate transformations to a 4x4 matrix.
+  return coordinateTransformationsToMatrix(normalizedTransformations, normAxes);
 }

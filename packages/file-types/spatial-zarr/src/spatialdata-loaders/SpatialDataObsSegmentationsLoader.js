@@ -3,63 +3,19 @@ import {
 } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
-  normalizeAxes,
-  normalizeCoordinateTransformations,
-  coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
+import {
+  OLD_SHAPES_DEFAULT_AXES,
+  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
+} from './old-defaults.js';
 
 function getGeometryPath(path) {
   return `${path}/geometry`;
 }
 
-const DEFAULT_AXES = [
-  {
-    name: 'x',
-    type: 'space',
-    unit: 'unit',
-  },
-  {
-    name: 'y',
-    type: 'space',
-    unit: 'unit',
-  },
-];
-const DEFAULT_COORDINATE_TRANSFORMATIONS = [
-  {
-    input: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'xy',
-    },
-    output: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'global',
-    },
-    type: 'identity',
-  },
-];
+
 
 
 /**
@@ -79,29 +35,17 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
     // coordinate system which maps from the input "xy" to the specified
     // output coordinate system.
 
-    // TODO: In a future version of the shapes transformation on-disk format,
-    // the SpatialData team plans to relax this so that it will
-    // become necessary to create a full tree
-    // of coordinate transformations, and traverse the tree from
-    // the node corresponding to the output coordinate system of interest
-    // back to the root node, applying each transformation along the way.
-    const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations ?? DEFAULT_COORDINATE_TRANSFORMATIONS
-    ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xy' && outputName === coordinateSystem
-    ));
-    const axes = zattrs?.axes ?? DEFAULT_AXES;
-    const normAxes = normalizeAxes(axes);
-    // This new spec is very flexible,
-    // so here we will attempt to convert it back to the old spec.
-    // TODO: do the reverse, convert old spec to new spec
-    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-      coordinateTransformationsFromFile, null,
+    // These should only not-be-present for very old objects
+    // (zattrs.spatialdata_attrs.version == "0.1").
+    const coordinateTransformations = (
+      zattrs?.coordinateTransformations ?? OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
     );
-    const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, normAxes,
+    const axes = zattrs?.axes ?? OLD_SHAPES_DEFAULT_AXES;
+    
+    this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
+      { axes, coordinateTransformations },
+      coordinateSystem,
     );
-    this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
   }
 
