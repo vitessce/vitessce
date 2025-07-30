@@ -41,6 +41,19 @@ export class NeuroglancerComp extends PureComponent {
     if (viewerRef) {
       // Mount
       const { viewer } = viewerRef;
+      console.log("ref")
+
+      // viewer.state.changed.add(() => {
+      //      console.log("onViewerStateChanged")
+      //     const { setViewerState } = this.props;
+      //     const { viewerState: prevState } = this.viewerState;
+      //     if (!compareViewerState(prevState, viewer.state)) {
+      //       console.log("updated")
+      //       this.viewerState = viewer.state;
+      //       this.justReceivedExternalUpdate = false;
+      //       setViewerState(viewer.state);
+      //     }
+      // })
       this.prevElement = viewer.element;
       this.prevMouseStateChanged = viewer.mouseState.changed;
       // this.prevClickHandler = (event) => {
@@ -75,11 +88,11 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   onViewerStateChanged(nextState) {
-    // console.log("onViewerStateChanged")
+    console.log("onViewerStateChanged", this.props)
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
     if (!this.justReceivedExternalUpdate && !compareViewerState(prevState, nextState)) {
-      // console.log("updated")
+      console.log("updated")
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);
@@ -98,10 +111,7 @@ export class NeuroglancerComp extends PureComponent {
 
   render() {
     // console.log("rendered", this.props, this.cellColorMapping)
-    const {
-      classes,
-      cellColorMapping,
-    } = this.props;
+    const { classes, viewerState, cellColorMapping, onMinimalPoseChanged } = this.props; 
 
     return (
       <>
@@ -111,8 +121,9 @@ export class NeuroglancerComp extends PureComponent {
             {/* <LazyReactNeuroglancer */}
             <Neuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
-              viewerState={this.viewerState}
+              viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
+              // onMinimalPoseChanged={this.onViewerStateChanged}
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}

@@ -76,6 +76,7 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
   // const [latestViewerState, setLatestViewerState] = useState(initialViewerState);
   const latestViewerStateRef = useRef(initialViewerState);
+  // const didSendInitialSegmentsRef = useRef(false); // NEW
   // console.log("render", spatialRotationX, spatialRotationOrbit, spatialOrbitAxis)
   const { classes } = useStyles();
   const loaders = useLoaders();
@@ -187,34 +188,25 @@ export function NeuroglancerSubscriber(props) {
     if (batchedUpdateTimeoutRef.current) {
       clearTimeout(batchedUpdateTimeoutRef.current);
     }
-    // batchedUpdateTimeoutRef.current = setTimeout(() => {
-    //   setBatchedCellColors(cellColors);
-    //   // console.log("batched Updates")
-    // }, 100);
-
-    startTransition(() => {
+    batchedUpdateTimeoutRef.current = setTimeout(() => {
       setBatchedCellColors(cellColors);
-    });
+    }, 100);
+
+    // TODO: look into deferredValue from REact
+    // startTransition(() => {
+    //   setBatchedCellColors(cellColors);
+    // });
 
   }, [cellColors]);
 
+  // console.log("cellColors", cellColors, batchedCellColors)
 
 
   // const cellColorMapping = useMemo(() => {
   //   const colorMapping = {};
-  //   let changed = false;
   //   batchedCellColors.forEach((color, cell) => {
-  //     const hex = rgbToHex(color);
-  //     if (cellColorMappingRef.current[cell] !== hex) {
-  //       changed = true;
-  //     }
-  //     colorMapping[cell] = hex;
+  //     colorMapping[cell] = rgbToHex(color);
   //   });
-  //   if (!changed
-  //     && Object.keys(colorMapping).length === Object.keys(cellColorMappingRef.current).length) {
-  //     return cellColorMappingRef.current;
-  //   }
-  //   cellColorMappingRef.current = colorMapping;
   //   return colorMapping;
   // }, [batchedCellColors]);
 
@@ -323,10 +315,6 @@ export function NeuroglancerSubscriber(props) {
 
   }, [setZoom, setRotationX, setRotationOrbit]);
 
-  useEffect(() => {
-    console.log('🧪 cellColorMapping changed in Subscriber:', Object.keys(cellColorMapping).length);
-  }, [cellColorMapping]);
-
   // const [stableColorMapping, setStableColorMapping] = useState({});
 
 // useEffect(() => {
@@ -339,6 +327,7 @@ export function NeuroglancerSubscriber(props) {
   //   return null; // or show loading spinner
   // }
 
+  // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view
   if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
     return;
   }
@@ -365,6 +354,7 @@ export function NeuroglancerSubscriber(props) {
         viewerState={derivedViewerState}
         cellColorMapping={cellColorMapping}
         setViewerState={handleStateUpdate}
+        // setViewerState={(s) => { latestViewerStateRef.current = s; }}
       />
     </TitleInfo>
   );

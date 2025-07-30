@@ -10,16 +10,19 @@ import { Uint64 } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/uti
 // import { urlSafeParse } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json";
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-function hexToRGBFloat(hex) {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  return [r, g, b];
-}
+// function hexToRGBFloat(hex) {
+//   const r = parseInt(hex.slice(1, 3), 16) / 255;
+//   const g = parseInt(hex.slice(3, 5), 16) / 255;
+//   const b = parseInt(hex.slice(5, 7), 16) / 255;
+//   return [r, g, b];
+// }
 
 
 const viewersKeyed = {};
 let viewerNoKey;
+
+const rgbToHex = rgb => (typeof rgb === 'string' ? rgb
+  : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
 
 // // Adopted from neuroglancer/ui/url_hash_binding.ts
 // export function parseUrlHash(url) {
@@ -353,7 +356,86 @@ export default class Neuroglancer extends React.Component {
     super(props);
     this.ngContainer = React.createRef();
     this.viewer = null;
+    this.muteViewerChanged = false;
+    this.prevVisibleIds = new Set();
+    this.prevColorMap = null;
+    this.disposers = [];
   }
+    minimalPoseSnapshot = () => {
+      const v = this.viewer;
+      return {
+        position: Array.from(v.position.value || []),
+        projectionScale: v.projectionScale.value,
+        projectionOrientation: Array.from(v.projectionOrientation.value || []),
+      };
+    };
+  
+    scheduleEmit = () => {
+      let raf = null;
+      return () => {
+        if (this.muteViewerChanged) return; // muted when we push changes
+        if (raf !== null) return;
+        raf = requestAnimationFrame(() => {
+          raf = null;
+          console.log("Minimal", this.minimalPoseSnapshot())
+          this.props.onViewerStateChanged?.(this.minimalPoseSnapshot());
+        });
+      };
+    };
+  
+    withoutEmitting = (fn) => {
+      this.muteViewerChanged = true;
+      try { fn(); } finally {
+        requestAnimationFrame(() => { this.muteViewerChanged = false; });
+      }
+    };
+  
+    poseChanged = (prev, next) => { // NEW: compare only pose fields
+      const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i)=>v===b[i]);
+      return (
+        prev?.projectionScale !== next?.projectionScale ||
+        !arrEq(prev?.projectionOrientation, next?.projectionOrientation) ||
+        !arrEq(prev?.position, next?.position)
+      );
+    };
+  
+    applyColorsAndVisibility = (cellColorMapping) => { // NEW
+      // Build color map and string id set:
+      const segmentColorHash = new Map();
+      const newIds = new Set();
+  
+      for (const [idStr, rgb01] of Object.entries(cellColorMapping || {})) {
+        const id = Uint64.parseString(idStr);
+        segmentColorHash.set(id, rgb01); // rgb01 already normalized [0..1]
+        newIds.add(idStr);
+      }
+  
+      // Find NG segmentation layer(s)
+      for (const managed of this.viewer.layerManager.managedLayers) {
+        const layer = managed.layer;
+        if (!(layer instanceof SegmentationUserLayer)) continue;
+  
+        const displayState = layer.displayState;
+  
+        // Update colors (IndirectTrackableValue)
+        displayState.segmentColorHash.update(() => segmentColorHash);
+  
+        // Update visibility by DIFF (fast):
+        const vs = displayState.segmentationGroupState.value.visibleSegments; // Uint64Set2
+        // Compute diffs vs previous snapshot
+        const prevIds = this.prevVisibleIds;
+        // Remove old
+        for (const oldId of prevIds) {
+          if (!newIds.has(oldId)) vs.delete(Uint64.parseString(oldId));
+        }
+        // Add new
+        for (const newId of newIds) {
+          if (!prevIds.has(newId)) vs.add(Uint64.parseString(newId));
+        }
+        // Save snapshot
+        this.prevVisibleIds = newIds;
+      }
+  };
 
   componentDidMount() {
     console.log("mount JaneNG - cellColorMapping", Object.keys(this?.props.cellColorMapping).length);
@@ -367,7 +449,6 @@ export default class Neuroglancer extends React.Component {
       ngServer,
       key,
       bundleRoot,
-      cellColorMapping,
     } = this.props;
     this.viewer = setupDefaultViewer({
       brainMapsClientId,
@@ -407,47 +488,28 @@ export default class Neuroglancer extends React.Component {
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
 
+
+    const emit = this.scheduleEmit();
+    this.disposers.push(this.viewer.projectionScale.changed.add(emit));
+    this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
+    this.disposers.push(this.viewer.position.changed.add(emit));
+
+    // Initial restore ONLY if provided
     if (viewerState) {
-      // console.log("new viewerState", cellColorMapping);
-      const newViewerState = viewerState;
-      if (newViewerState.projectionScale === null) {
-        delete newViewerState.projectionScale;
-      }
-      if (newViewerState.crossSectionScale === null) {
-        delete newViewerState.crossSectionScale;
-      }
-      if (newViewerState.projectionOrientation === null) {
-        delete newViewerState.projectionOrientation;
-      }
-      if (newViewerState.crossSectionOrientation === null) {
-        delete newViewerState.crossSectionOrientation;
-      }
-      this.viewer.state.restoreState(newViewerState);
-    } else {
-      this.viewer.state.restoreState({
-        layers: {
-          grayscale: {
-            type: "image",
-            source:
-              "dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg",
-          },
-          segmentation: {
-            type: "segmentation",
-            source:
-              "dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation",
-          },
-        },
-        perspectiveZoom,
-        navigation: {
-          zoomFactor: 8,
-        },
+      this.withoutEmitting(() => {
+        console.log("emit")
+        this.viewer.state.restoreState(viewerState);
       });
-    }
+    } 
+    // else {
+    //   this.viewer.state.restoreState(viewerState);
+    // }
 
     // this.viewer.state.changed.add(() => {
     //   if (onViewerStateChanged) {
     //     try {
     //       if (this.viewer.state.viewer.position) {
+    //         console.log("position")
     //         onViewerStateChanged(this.viewer.state.toJSON());
     //       }
     //     } catch (error) {
@@ -484,25 +546,25 @@ export default class Neuroglancer extends React.Component {
       }
     }
 
-    const { viewerState } = this.props;
-    if (viewerState) {
-      let newViewerState = { ...viewerState };
-      let restoreStates = [
-        () => {
-          this.viewer.state.restoreState(newViewerState);
-        },
-      ];
-      if (viewerState.projectionScale === null) {
-        delete newViewerState.projectionScale;
-        restoreStates.push(() => {
-          this.viewer.projectionScale.reset();
-        });
-      }
-      if (viewerState.crossSectionScale === null) {
-        delete newViewerState.crossSectionScale;
-      }
-      restoreStates.forEach((restore) => restore());
-    }
+    const { viewerState, cellColorMapping } = this.props;
+    // if (viewerState) {
+    //   let newViewerState = { ...viewerState };
+    //   let restoreStates = [
+    //     () => {
+    //       this.viewer.state.restoreState(newViewerState);
+    //     },
+    //   ];
+    //   if (viewerState.projectionScale === null) {
+    //     delete newViewerState.projectionScale;
+    //     restoreStates.push(() => {
+    //       this.viewer.projectionScale.reset();
+    //     });
+    //   }
+    //   if (viewerState.crossSectionScale === null) {
+    //     delete newViewerState.crossSectionScale;
+    //   }
+    //   restoreStates.forEach((restore) => restore());
+    // }
 
     // eslint-disable-next-line no-restricted-syntax
     for (const layer of this.viewer.layerManager.managedLayers) {
@@ -524,49 +586,27 @@ export default class Neuroglancer extends React.Component {
     //   }
     // }
 
-    const { cellColorMapping } = this.props;
 
-    console.log('🔁 previous keys:', Object.keys(prevProps.cellColorMapping).slice(0, 5));
-    console.log('🆕 current keys:', Object.keys(cellColorMapping).slice(0, 5));
-    console.log('ref changed?', cellColorMapping !== prevProps.cellColorMapping);
-    console.log('deep equal?', isEqual(prevProps.cellColorMapping, cellColorMapping));
 
-    // console.log("update", Object.keys(cellColorMapping).length, Object.keys(prevProps.cellColorMapping).length)
-  // Skip if no new colors
-
-  const didMappingChange = !isEqual(prevProps.cellColorMapping, cellColorMapping);
-  console.log("JaneNG didMappingChange", didMappingChange)
-  // if (
-  //   cellColorMapping &&
-  //   Object.keys(cellColorMapping).length > 0 &&
-  //   cellColorMapping !== prevProps.cellColorMapping
-  // ) {
-
-    const segmentColorHash = new Map();
-    const visibleSegments = new Set();
-
-    for (const [idStr, hex] of Object.entries(cellColorMapping)) {
-      const id = Uint64.parseString(idStr);
-      const r = parseInt(hex.slice(1, 3), 16) / 255;
-      const g = parseInt(hex.slice(3, 5), 16) / 255;
-      const b = parseInt(hex.slice(5, 7), 16) / 255;
-      segmentColorHash.set(id, [r, g, b]);
-      visibleSegments.add(id);
+    //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
+    if (viewerState && prevProps.viewerState && this.poseChanged(prevProps.viewerState, viewerState)) {
+      this.withoutEmitting(() => {
+        this.viewer.state.restoreState({
+          ...viewerState,
+          // layers: keep as-is (colors are applied imperatively below)
+        });
+      });
     }
 
-    // console.log("before mL", segmentColorHash, visibleSegments)
+    //Apply colors/visibility if mapping changed by reference OR by size OR by a simple checksum 
+    const prevSize = prevProps.cellColorMapping ? Object.keys(prevProps.cellColorMapping).length : 0;
+    const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
+    const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
 
-    for (const layer of this.viewer.layerManager.managedLayers) {
-      if (layer.layer instanceof SegmentationUserLayer) {
-        const displayState = layer.layer.displayState;
-        displayState.segmentColorHash.update(() => segmentColorHash);
-        const visibleSegmentsTrackable = displayState.segmentationGroupState.value.visibleSegments;
-        visibleSegmentsTrackable.clear();
-        for (const id of visibleSegments) {
-          visibleSegmentsTrackable.add(id);
-}
-        console.log(`🟢 Applied ${visibleSegments.size} segments to layer "${layer.name}"`);
-      }
+    if (mappingRefChanged || prevSize !== currSize) {
+      this.withoutEmitting(() => {
+        this.applyColorsAndVisibility(cellColorMapping);
+      });
     }
   }
 
@@ -738,6 +778,8 @@ Neuroglancer.propTypes = {
   viewerState: PropTypes.object,
   brainMapsClientId: PropTypes.string,
   key: PropTypes.string,
+  cellColorMapping: PropTypes.object,
+  onViewerStateChanged: PropTypes.func,
 
   /**
    * An array of event bindings to change in Neuroglancer.  The array format is as follows:
@@ -792,4 +834,5 @@ Neuroglancer.defaultProps = {
   key: null,
   callbacks: [],
   ngServer: "https://neuroglancer-demo.appspot.com/",
+  onViewerStateChanged: null,
 };
