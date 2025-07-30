@@ -814,7 +814,7 @@ export class VolumeDataManager {
 
   /**
    * Initialize the BrickCache and PageTable
-   * MRMCPT: multi-resolution? MC? page table
+   * MRMCPT: multi-resolution multi-channel page table
    * 
    * Depends on:
    *   - zarrStore.brickLayout
