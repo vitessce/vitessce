@@ -5,6 +5,7 @@ export type VivLoaderType = LoadOmeTiffReturnValue<string[]> | LoadOmeZarrReturn
 export type VivLoaderDataType = VivLoaderType['data'];
 
 export type ImageOptions = {
+  coordinateSystem?: string;
   coordinateTransformations?: object[]; // TODO: stricter type
   offsetsUrl?: string;
 };

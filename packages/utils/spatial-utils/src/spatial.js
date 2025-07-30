@@ -494,8 +494,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
           }
         } else if (spatialOutputAxes.length === 2) { // 2D case
           const nextMat = (new Matrix4()).fromArray([
-            ...filteredAffine[0],
-            ...filteredAffine[1],
+            filteredAffine[0][0], filteredAffine[0][1], 0, filteredAffine[0][2],
+            filteredAffine[1][0], filteredAffine[1][1], 0, filteredAffine[1][2],
             0, 0, 1, 0,
             0, 0, 0, 1,
           ]);
@@ -507,6 +507,10 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
             const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
             mat = mat.multiplyLeft(swapMat);
           }
+          // TODO: is the transpose needed? why?
+          // TODO: is transpose only needed when axis-swapping?
+          // TODO: is it also needed in the 3D case? Why was it not needed before?
+          mat = mat.transpose();
         } else {
           throw new Error('Affine transformation must have 2 or 3 rows.');
         }
@@ -547,6 +551,9 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         // TODO: error if the user tries to use a scale on the "c" axis.
       }
     });
+  }
+  if(mat.some((value) => isNaN(value))) {
+    throw new Error('Matrix contains NaN values');
   }
   return mat;
 }

@@ -86,7 +86,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
   _getModelMatrix(): number[] {
     // The user can always provide an additional transform matrix
     // via the file definition options property.
-    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
+    const {
+      coordinateSystem = 'global',
+      coordinateTransformations: coordinateTransformationsFromOptions,
+    } = this.options;
     // We combine any user-provided transform matrix with the one
     // from the image file.
     if ('multiscales' in this.vivLoader.metadata) {
@@ -100,6 +103,14 @@ export default class ImageWrapper implements AbstractImageWrapper {
           },
         ],
       } = this.vivLoader.metadata;
+      // TODO: implement the full DAG traversal to filter the coordinate transformations.
+      let filteredCoordinateTransformationsFromFile = coordinateTransformationsFromFile;
+      if('spatialdata_attrs' in this.vivLoader.metadata && Array.isArray(filteredCoordinateTransformationsFromFile)) {
+        // This is a SpatialData images or labels element.
+        filteredCoordinateTransformationsFromFile = filteredCoordinateTransformationsFromFile.filter((ct: any) => {
+          return ct.output.name === coordinateSystem;
+        });
+      }
       // Axes in v0.4 format.
       const ngffAxes = getNgffAxes(axes);
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
@@ -107,7 +118,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
       );
       // Normalize the coordinate transformations from the file.
       const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-        coordinateTransformationsFromFile, datasets,
+        filteredCoordinateTransformationsFromFile, datasets,
       );
       const transformMatrixFromFile = coordinateTransformationsToMatrix(
         normCoordinateTransformationsFromFile, ngffAxes,
