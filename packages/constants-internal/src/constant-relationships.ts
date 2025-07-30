@@ -57,6 +57,8 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SETS_SPATIALDATA_ZARR]: DataType.OBS_SETS,
   [FileType.FEATURE_LABELS_SPATIALDATA_ZARR]: DataType.FEATURE_LABELS,
   [FileType.OBS_POINTS_SPATIALDATA_ZARR]: DataType.OBS_POINTS,
+  [FileType.OBS_BINS_SHAPES_SPATIALDATA_ZARR]: DataType.OBS_BINS,
+  [FileType.OBS_BINS_IMAGE_SPATIALDATA_ZARR]: DataType.OBS_BINS,
 
   // For new file types to support old file types
   [FileType.OBS_EMBEDDING_CELLS_JSON]: DataType.OBS_EMBEDDING,
@@ -91,6 +93,9 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.EMBEDDING_TYPE,
   ],
   [DataType.OBS_SPOTS]: [
+    CoordinationType.OBS_TYPE,
+  ],
+  [DataType.OBS_BINS]: [
     CoordinationType.OBS_TYPE,
   ],
   [DataType.OBS_POINTS]: [
@@ -246,5 +251,11 @@ export const ALT_ZARR_STORE_TYPES = {
   },
   [FileType.OBS_POINTS_SPATIALDATA_ZARR]: {
     zip: FileType.OBS_POINTS_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_BINS_SHAPES_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_BINS_SHAPES_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_BINS_IMAGE_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_BINS_IMAGE_SPATIALDATA_ZARR_ZIP,
   },
 };

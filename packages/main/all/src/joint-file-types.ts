@@ -319,7 +319,26 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
         obsType: baseFileDef.coordinationValues.obsType,
       },
     }] : []),
-    // TODO: obsPoints?
+    // obsBins
+    // TODO: handle multiple obsBins?
+    ...(options.obsBins ? [{
+      ...baseFileDef,
+      // Determine the fileType based on the path.
+      // If the path starts with "labels/", use LABELS_SPATIALDATA_ZARR,
+      // otherwise use SHAPES_SPATIALDATA_ZARR.
+      fileType: (options.obsBins.path.startsWith('images/')
+        ? getFileType(FileType.OBS_BINS_IMAGE_SPATIALDATA_ZARR)
+        : getFileType(FileType.OBS_BINS_SHAPES_SPATIALDATA_ZARR)
+      ),
+      options: {
+        coordinateSystem: defaultCoordinateSystem,
+        ...options.obsBins,
+      },
+      coordinationValues: {
+        ...extraCoordinationValues,
+        obsType: baseFileDef.coordinationValues.obsType,
+      },
+    }] : []),
     // TODO: obsLocations?
     // TODO: obsLabels
     // TODO: featureLabels

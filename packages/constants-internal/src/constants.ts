@@ -41,10 +41,16 @@ export const DataType = {
   OBS_SETS: 'obsSets',
   FEATURE_LABELS: 'featureLabels',
   IMAGE: 'image',
+  // obsSegmentations data will have an obsSegmentationsType: 'polygon' | 'bitmask'
+  // but will be visualized the same way (or as close as possible).
   OBS_SEGMENTATIONS: 'obsSegmentations',
   NEIGHBORHOODS: 'neighborhoods',
   GENOMIC_PROFILES: 'genomic-profiles',
   OBS_SPOTS: 'obsSpots',
+  // obsBins data will have an obsBinsType: 'polygon' | 'raster'
+  // but will be visualized the same way (or as close as possible).
+  // Reference: https://spatialdata.scverse.org/en/stable/tutorials/notebooks/notebooks/examples/technology_visium_hd.html#performant-on-the-fly-data-rasterization
+  OBS_BINS: 'obsBins',
   OBS_POINTS: 'obsPoints',
   OBS_LOCATIONS: 'obsLocations',
   SAMPLE_SETS: 'sampleSets',
@@ -161,6 +167,8 @@ export const FileType = {
   OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
   FEATURE_LABELS_SPATIALDATA_ZARR: 'featureLabels.spatialdata.zarr',
   OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
+  OBS_BINS_SHAPES_SPATIALDATA_ZARR: 'obsBinsShapes.spatialdata.zarr',
+  OBS_BINS_IMAGE_SPATIALDATA_ZARR: 'obsBinsImage.spatialdata.zarr',
 
   // SpatialData - zipped
   IMAGE_SPATIALDATA_ZARR_ZIP: 'image.spatialdata.zarr.zip',
@@ -171,6 +179,9 @@ export const FileType = {
   OBS_SPOTS_SPATIALDATA_ZARR_ZIP: 'obsSpots.spatialdata.zarr.zip',
   FEATURE_LABELS_SPATIALDATA_ZARR_ZIP: 'featureLabels.spatialdata.zarr.zip',
   OBS_POINTS_SPATIALDATA_ZARR_ZIP: 'obsPoints.spatialdata.zarr.zip',
+  OBS_BINS_SHAPES_SPATIALDATA_ZARR_ZIP: 'obsBinsShapes.spatialdata.zarr.zip',
+  OBS_BINS_IMAGE_SPATIALDATA_ZARR_ZIP: 'obsBinsImage.spatialdata.zarr.zip',
+
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',

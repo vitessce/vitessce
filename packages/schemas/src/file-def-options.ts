@@ -230,6 +230,15 @@ export const obsSpotsSpatialdataSchema = z.object({
     .optional()
     .describe('The name of a coordinate transformation output used to transform the coordinates and radii. If not provided, the "global" coordinate system is assumed.'),
 });
+export const obsBinsSpatialdataSchema = z.object({
+  path: z.string(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the bins. If available but not specified, the bin identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the bin coordinates and sizes. If not provided, the "global" coordinate system is assumed.'),
+});
 export const obsFeatureMatrixSpatialdataSchema = annDataObsFeatureMatrix.extend({
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')
@@ -372,25 +381,26 @@ export const anndataH5adSchema = anndataZarrSchema.extend({
   refSpecUrl: z.string(),
 });
 
+// TODO: allow multiple images/shapes/etc.?
+// This would require to allow specifying `fileUid` per one,
+// like for embeddingType within the anndata.zarr options.
+// For now, it works fine to add multiple spatialdata.zarr
+// file definitions pointing to the same spatialdata object/URL
+// (one per obsType, for example).
 export const spatialdataZarrSchema = z.object({
-  // TODO: should `image` be a special schema
-  // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple images?
   image: imageSpatialdataSchema,
-  // TODO: should this be a special schema
-  // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels/shapes?
   obsSegmentations: obsSegmentationsSpatialdataSchema,
   obsPoints: obsPointsSpatialdataSchema,
-  // TODO: allow multiple shapes?
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
-  // TODO: obsPoints
-  // TODO: obsLocations
+  obsBins: obsBinsSpatialdataSchema,
   obsSets: obsSetsSpatialdataSchema,
   // TODO: obsEmbedding
   // TODO: obsLabels
   // TODO: featureLabels
+  // TODO: obsLocations
+  // TODO: obsFeatureColumns
+  // TODO: sampleEdges
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),
