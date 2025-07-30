@@ -1,4 +1,11 @@
 
+## 3.6.12
+
+### Patch Changes
+
+- Fix broken links in readme/docs. (`docs`) ([#2215](https://github.com/vitessce/vitessce/pull/2215))
+
+
 ## 3.6.11
 
 ### Patch Changes
