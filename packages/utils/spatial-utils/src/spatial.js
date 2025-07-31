@@ -651,8 +651,8 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
  * This function is intended to be used with SpatialData objects which have named coordinate systems.
  * This function should be compatible with any SpatialElement (shapes, points, labels, images).
  * @param {{
- *  axes: (string[]|{ name: string, type: string }[]|null),
- *  coordinateTransformations: object[],
+ *  axe?: (string[]|{ name: string, type?: string, unit?: string }[]),
+ *  coordinateTransformations?: object[],
  *  datasets?: object[]
  * }} ngffMetadata For images/labels, this is multiscales[0] from .zattrs.
  * For shapes/points, this is { axes, coordinateTransformations } from .zattrs.
