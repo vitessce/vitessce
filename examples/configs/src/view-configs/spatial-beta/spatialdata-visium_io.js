@@ -47,6 +47,7 @@ function generateVisiumIoConfig() {
       fileType: 'obsSets.spatialdata.zarr',
       url: baseUrl,
       options: {
+        tablePath: 'table/table',
         obsSets: [
           {
             name: 'Region',

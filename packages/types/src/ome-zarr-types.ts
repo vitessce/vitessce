@@ -37,6 +37,9 @@ type Multiscale = {
 }
 
 type SpatialDataTempAttrs = {
+  spatialdata_attrs?: {
+    version: '0.2';
+  }
   channels_metadata?: {
     channels: { label: number }[];
   }

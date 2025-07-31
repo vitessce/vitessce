@@ -39,6 +39,7 @@
     "lodash-es": "catalog:",
     "zarrita": "catalog:",
     "math.gl": "catalog:",
-    "mathjs": "catalog:"
+    "mathjs": "catalog:",
+    "internmap": "catalog:"
   }
 }
