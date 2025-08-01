@@ -151,7 +151,7 @@ export function NeuroglancerSubscriber(props) {
     if (value) {
       const selectedCellIds = [String(value)];
       if (isEqual(cellSetSelection, selectedCellIds)) return;
-      console.log("onSegmentClick")
+      console.log("onSegmentClick", selectedCellIds)
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -349,7 +349,7 @@ export function NeuroglancerSubscriber(props) {
     </button>
       <NeuroglancerComp
         classes={classes}
-        // onSegmentClick={onSegmentClick}
+        onSegmentClick={onSegmentClick}
         // onSelectHoveredCoords={onSegmentHighlight}
         viewerState={derivedViewerState}
         cellColorMapping={cellColorMapping}

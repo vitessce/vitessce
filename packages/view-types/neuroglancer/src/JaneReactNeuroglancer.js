@@ -725,6 +725,7 @@ export default class Neuroglancer extends React.Component {
 
             if (visibleSegments && onVisibleChanged) {
               const visibleChanged = this.visibleChanged.bind(undefined, layer);
+              console.log("visibleCHanged", visibleChanged)
               const remover = visibleSegments.changed.add(visibleChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);
@@ -735,20 +736,44 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
-  selectedChanged = (layer) => {
-    if (this.viewer) {
+  // selectedChanged = (layer) => {
+  //   if (this.viewer) {
+  //     const { onSelectedChanged } = this.props;
+  //     if (onSelectedChanged) {
+  //       const { segmentSelectionState } = layer.layer.displayState;
+  //       if (segmentSelectionState) {
+  //         const segment = segmentSelectionState.hasSelectedSegment
+  //           ? segmentSelectionState.selectedSegment
+  //           : null;
+  //         console.log("inside one", segment, layer)
+  //         onSelectedChanged(segment, layer);
+         
+  //       }
+  //     }
+  //   }
+  // };
+
+    selectedChanged = (layer) => {
+      if (!this.viewer) return;
       const { onSelectedChanged } = this.props;
-      if (onSelectedChanged) {
-        const { segmentSelectionState } = layer.layer.displayState;
-        if (segmentSelectionState) {
-          const segment = segmentSelectionState.hasSelectedSegment
-            ? segmentSelectionState.selectedSegment
-            : null;
-          onSelectedChanged(segment, layer);
-        }
+      const { segmentSelectionState, segmentationGroupState } = layer.layer.displayState;
+    
+      if (!segmentSelectionState || !segmentationGroupState) return;
+    
+      const selected = segmentSelectionState.selectedSegment;
+      const vs = segmentationGroupState.value.visibleSegments;
+    
+      if (selected) {
+        // Hide all other segments and show only the selected one
+        vs.clear(); // This clears all visible segments
+        vs.add(selected); // Add only the selected one back
       }
-    }
-  };
+    
+      if (onSelectedChanged) {
+        onSelectedChanged(selected, layer);
+      }
+    };
+  
 
   visibleChanged = (layer) => {
     if (this.viewer) {

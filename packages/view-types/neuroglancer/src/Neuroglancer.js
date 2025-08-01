@@ -111,7 +111,7 @@ export class NeuroglancerComp extends PureComponent {
 
   render() {
     // console.log("rendered", this.props, this.cellColorMapping)
-    const { classes, viewerState, cellColorMapping, onMinimalPoseChanged } = this.props; 
+    const { classes, viewerState, cellColorMapping, onMinimalPoseChanged, onSegmentClick } = this.props; 
 
     return (
       <>
@@ -123,6 +123,7 @@ export class NeuroglancerComp extends PureComponent {
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
+              onSelectedChanged={onSegmentClick}
               // onMinimalPoseChanged={this.onViewerStateChanged}
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
