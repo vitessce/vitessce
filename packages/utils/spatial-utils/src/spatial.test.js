@@ -308,6 +308,44 @@ describe('Spatial.js', () => {
         // the user to specify this somehow and use that information to filter which transforms
         // are included here.
         {
+          input: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'cyx',
+          },
+          output: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'ST8059048',
+          },
           scale: [
             1.0,
             8.670500183814605,
