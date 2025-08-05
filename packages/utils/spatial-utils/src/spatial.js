@@ -688,7 +688,7 @@ export function coordinateTransformationsToMatrixForSpatialData(
     // is "global" but the set of coordinate transformations does not
     // include one with output.name "global".
     if (!coordinateTransformations.find(
-      ct => ct.output.name === targetCoordinateSystem
+      ct => ct.output.name === targetCoordinateSystem,
     )) {
       throw new Error(`No coordinate transformation found with output.name "${targetCoordinateSystem}".`);
     }
