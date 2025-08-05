@@ -355,7 +355,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
         const schemaBytes = await this.loadParquetSchemaBytes(parquetPath);
         if (schemaBytes) {
           const wasmSchema = readSchema(schemaBytes);
-          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+          /** @type {import('apache-arrow').Table} */
+          const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
           indexColumnName = tableToIndexColumnName(arrowTableForSchema);
         }
       } catch (/** @type {any} */ e) {
@@ -388,7 +389,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // Here we try again to get the index column name, but this
       // time from the full table bytes (rather than only the schema-bytes).
       const wasmSchema = readSchema(parquetBytes);
-      const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+      /** @type {import('apache-arrow').Table} */
+      const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
       indexColumnName = tableToIndexColumnName(arrowTableForSchema);
     }
 
@@ -397,7 +399,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
 
     const wasmTable = readParquet(parquetBytes, options);
-    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
+    /** @type {import('apache-arrow').Table} */
+    const arrowTable = await tableFromIPC(wasmTable.intoIPCStream());
     return arrowTable;
   }
 
