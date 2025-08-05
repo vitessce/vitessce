@@ -587,6 +587,7 @@ export function normalizeAxes(axes) {
 export function getIntrinsicCoordinateSystem(normAxes) {
   // Get the intrinsic coordinate system from the axes.
   // TODO: is this correct?
+  // See https://github.com/scverse/spatialdata/pull/963
   return normAxes.map(axis => axis.name).join('');
 }
 
