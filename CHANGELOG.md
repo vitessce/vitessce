@@ -1,4 +1,19 @@
 
+## 3.6.12
+
+### Patch Changes
+
+- Support requestInit param for VitessceConfigDataset.addFile method. (`@vitessce/config`) ([#1855](https://github.com/vitessce/vitessce/pull/1855))
+
+- Fix jsdoc type annotation for VitessceConfig.addView options.mapping parameter. (`@vitessce/config`) ([#2222](https://github.com/vitessce/vitessce/pull/2222))
+
+- Fixes type errors during local dev build (`@vitessce/spatial-zarr`) ([#2220](https://github.com/vitessce/vitessce/pull/2220))
+
+- Fix broken links in readme/docs. (`docs`) ([#2215](https://github.com/vitessce/vitessce/pull/2215))
+
+- Fix SpatialData coordinate transformations bugs. Traverse DAG of coordinate transformations to identify target path. Refactor model matrix generation code in data loader classes. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`) ([#2216](https://github.com/vitessce/vitessce/pull/2216))
+
+
 ## 3.6.11
 
 ### Patch Changes
