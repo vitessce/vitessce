@@ -6,7 +6,7 @@ import {
   useObsSetsData,
 } from '@vitessce/vit-s';
 import { isEqual } from 'lodash-es';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import {
   mergeObsSets, treeToSetSizesBySetNames, filterPathsByExpansionAndSelection, findChangedHierarchy,
 } from '@vitessce/sets-utils';
@@ -33,9 +33,10 @@ export function CellSetSizesPlotSubscriber(props) {
     removeGridComponent,
     theme,
     title: titleOverride,
+    helpText = ViewHelpMapping.OBS_SET_SIZES,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const loaders = useLoaders();
 
@@ -62,12 +63,15 @@ export function CellSetSizesPlotSubscriber(props) {
   const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const errors = [
+    obsSetsError,
+  ];
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
@@ -137,6 +141,8 @@ export function CellSetSizesPlotSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot

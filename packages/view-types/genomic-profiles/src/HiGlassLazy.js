@@ -7,15 +7,6 @@ import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
 
-// Temporary usage of the package 'higlass-no-github-deps'
-// rather than 'higlass' is discussed at
-// https://github.com/vitessce/vitessce/pull/1404
-// When a new version of 'higlass' that follows v1.11.11
-// is released, we can switch over to that one here.
-const HIGLASS_PKG_NAME = 'higlass-no-github-deps';
-const HIGLASS_BUNDLE_VERSION = '1.11.13';
-const HIGLASS_CSS_URL = `https://unpkg.com/${HIGLASS_PKG_NAME}@${HIGLASS_BUNDLE_VERSION}/dist/hglib.css`;
-
 // Register the zarr-multivec plugin data fetcher.
 // References:
 // https://github.com/higlass/higlass-register
@@ -28,16 +19,20 @@ register(
 // Lazy load the HiGlass React component,
 // using a dynamic import.
 const LazyHiGlassComponent = React.lazy(async () => {
-  // Temporary fix until a new release of HiGlass is made after 1.11.11,
-  // which removes the github.com dependencies in the higlass package.json,
-  // which is causing issues with PNPM install on GitHub Actions.
-  const { HiGlassComponent } = await import('higlass-no-github-deps');
+  const { HiGlassComponent } = await import('higlass');
   return { default: HiGlassComponent };
 });
 
 // Use an arbitrary size for normalization of the zoom level.
 // (800 means 800 px width for the full genome)
 const HG_SIZE = 800;
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function setStoreRootForHiGlass(url, storeRoot) {
+  // Store the storeRoot on the global to make it available to the HiGlass data fetcher.
+  // Reference: https://github.com/higlass/higlass-zarr-datafetchers/blob/e6c29457d8617d85c8a2d61fb3fda79679d16898/src/ZarrMultivecDataFetcher.js#L68
+  ZarrMultivecDataFetcher.urlToStoreRoot[url] = storeRoot;
+}
 
 /**
    * A wrapper around HiGlass (http://higlass.io/).
@@ -56,7 +51,7 @@ export default function HiGlassLazy(props) {
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
-    genomeSize,
+    genomeSize = 3100000000,
     height,
   } = props;
 
@@ -79,6 +74,11 @@ export default function HiGlassLazy(props) {
   const isActiveRef = useRef();
 
   const hgOptions = useMemo(() => ({
+    bounded: true,
+    pixelPreciseMarginPadding: true,
+    containerPaddingX: 0,
+    containerPaddingY: 0,
+    sizeMode: 'default',
     ...hgOptionsProp,
     theme,
   }), [hgOptionsProp, theme]);
@@ -179,11 +179,10 @@ export default function HiGlassLazy(props) {
   }, [hgInstance, genomeSize, width, height, setGenomicZoomX, setGenomicZoomY,
     setGenomicTargetX, setGenomicTargetY]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.higlassWrapperParent}>
-      <link rel="stylesheet" type="text/css" href={HIGLASS_CSS_URL} />
       <div className={classes.higlassWrapper} ref={containerRef} style={{ height: `${height}px` }}>
         <Suspense fallback={<div>Loading...</div>}>
           <LazyHiGlassComponent
@@ -197,14 +196,3 @@ export default function HiGlassLazy(props) {
     </div>
   );
 }
-
-HiGlassLazy.defaultProps = {
-  hgOptions: {
-    bounded: true,
-    pixelPreciseMarginPadding: true,
-    containerPaddingX: 0,
-    containerPaddingY: 0,
-    sizeMode: 'default',
-  },
-  genomeSize: 3100000000,
-};

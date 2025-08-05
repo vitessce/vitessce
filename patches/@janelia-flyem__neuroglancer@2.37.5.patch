@@ -1,0 +1,28 @@
+diff --git a/dist/module/neuroglancer/viewer.js b/dist/module/neuroglancer/viewer.js
+index 3de16138d44b19d2ce2960e1160bec562a295ff2..b49b07056cdb822653dff3681dbe83cafe9e6446 100644
+--- a/dist/module/neuroglancer/viewer.js
++++ b/dist/module/neuroglancer/viewer.js
+@@ -71,7 +71,7 @@ export class DataManagementContext extends RefCounted {
+         this.gl = gl;
+         this.frameNumberCounter = frameNumberCounter;
+         const chunk_worker_url = bundleRoot + 'chunk_worker.bundle.js';
+-        this.worker = new Worker(chunk_worker_url);
++        this.worker = (typeof bundleRoot === 'string' ? new Worker(chunk_worker_url) : bundleRoot);
+         this.chunkQueueManager = this.registerDisposer(new ChunkQueueManager(new RPC(this.worker), this.gl, this.frameNumberCounter, {
+             gpuMemory: new CapacitySpecification({ defaultItemLimit: 1e6, defaultSizeLimit: 1e9 }),
+             systemMemory: new CapacitySpecification({ defaultItemLimit: 1e7, defaultSizeLimit: 2e9 }),
+diff --git a/dist/module/neuroglancer/widget/delete_button.js b/dist/module/neuroglancer/widget/delete_button.js
+index a3d7bc19ad8d8af4dc186002065365a0d41ef572..fbd28049fc81537179cfb548b9784c89b493f2b4 100644
+--- a/dist/module/neuroglancer/widget/delete_button.js
++++ b/dist/module/neuroglancer/widget/delete_button.js
+@@ -19,7 +19,9 @@ import { makeIcon } from './icon';
+ export function makeDeleteButton(options = {}) {
+   const icon = makeIcon(_Object$assign({ svg: svg_bin }, options));
+   const svg = icon.firstElementChild;
+-  svg.style.fill = 'white';
++  if(svg) {
++    svg.style.fill = 'white';
++  }
+   return icon;
+ }
+ //# sourceMappingURL=delete_button.js.map

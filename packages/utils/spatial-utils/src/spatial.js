@@ -2,49 +2,14 @@ import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { divide, compare, unit } from 'mathjs';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-import { viv } from '@vitessce/gl';
+import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
+import { log } from '@vitessce/globals';
 import { getMultiSelectionStats } from './layer-controller.js';
-
-export function square(x, y, r) {
-  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
-}
-
-export const GLOBAL_LABELS = ['z', 't'];
-
-export const DEFAULT_RASTER_DOMAIN_TYPE = 'Min/Max';
-
-export const DEFAULT_RASTER_LAYER_PROPS = {
-  visible: true,
-  colormap: null,
-  opacity: 1,
-  domainType: DEFAULT_RASTER_DOMAIN_TYPE,
-  transparentColor: [0, 0, 0],
-  renderingMode: viv.RENDERING_MODES.ADDITIVE,
-  use3d: false,
-};
-
-export const DEFAULT_MOLECULES_LAYER = {
-  opacity: 1, radius: 20, visible: true,
-};
-export const DEFAULT_CELLS_LAYER = {
-  opacity: 1, radius: 50, visible: true, stroked: false,
-};
-export const DEFAULT_NEIGHBORHOODS_LAYER = {
-  visible: false,
-};
-
-export const DEFAULT_LAYER_TYPE_ORDERING = [
-  'molecules',
-  'cells',
-  'neighborhoods',
-  'raster',
-];
-
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders
  * @param {object} loader { data: (PixelSource[]|PixelSource), metadata, channels } object
- * @param {number=} level Level of the multiscale loader from which to get a PixelSource
+ * @param {number | undefined} level Level of the multiscale loader from which to get a PixelSource
  * @returns {object} PixelSource object
  */
 export function getSourceFromLoader(loader, level) {
@@ -130,10 +95,11 @@ export function physicalSizeToMatrix(xSize, ySize, zSize, xUnit, yUnit, zUnit) {
 
   // TODO: is this still needed
   // sizes are special objects with own equals method - see `unit` in declaration
-  if (!sizes[0].equals(sizes[1])) {
-    // Handle scaling in the Y direction for non-square pixels
-    scale[1] = divide(sizes[1], sizes[0]);
-  }
+  // This messess the dimensions when the x & y are little different (e.g., for the geomx data)
+  // if (!sizes[0].equals(sizes[1])) {
+  //   // Handle scaling in the Y direction for non-square pixels
+  //   scale[1] = divide(sizes[1], sizes[0]);
+  // }
   // END TODO: is this still needed
 
   // Add in z dimension needed for Matrix4 scale API.
@@ -435,6 +401,42 @@ export function getNgffAxesForTiff(dimOrder) {
 }
 
 /**
+ * Get a 4x4 matrix that swaps axes.
+ * TODO: add unit tests.
+ * @param {("x"|"y"|"z")[]} inputAxes
+ * @param {("x"|"y"|"z")[]} outputAxes
+ * @return {number[][]} 4x4 matrix that swaps axes.
+ */
+export function getSwapAxesMatrix(inputAxes, outputAxes) {
+  const size = inputAxes.length;
+  if (!(size === 2 || size === 3)) {
+    throw new Error(`Expected input and output axes to have 2 or 3 elements, got ${size}.`);
+  }
+
+  // Initialize a 4x4 matrix.
+  const matrix = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, (size === 2 ? 1 : 0), 0], // In 2D, leave Z unchanged.
+    [0, 0, 0, 1],
+  ];
+
+  // Fill linear transformation (top-left 3x3)
+  // Iterate over output rows.
+  for (let outRow = 0; outRow < size; outRow++) {
+    // Get the axis name for the current output row.
+    const axis = outputAxes[outRow];
+    const inCol = inputAxes.indexOf(axis);
+    if (inCol === -1) {
+      throw new Error(`Axis "${axis}" not found in inputAxes`);
+    }
+    matrix[outRow][inCol] = 1;
+  }
+
+  return matrix;
+}
+
+/**
  * Convert an array of coordinateTransformations objects to a 16-element
  * plain JS array using Matrix4 linear algebra transformation functions.
  * @param {object[]|undefined} coordinateTransformations List of objects matching the
@@ -451,6 +453,64 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
     // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
     coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'affine') {
+        const { affine, input, output } = transform;
+
+        // This is needed since axes can include "c" for example.
+        const excludeEntries = input.axes
+          .map((axis, i) => ([axis, i]))
+          // eslint-disable-next-line no-unused-vars
+          .filter(([axis, i]) => axis.type !== 'space')
+          // eslint-disable-next-line no-unused-vars
+          .map(([axis, i]) => i);
+
+        // We only want to keep the affine transformation entries for the spatial axes.
+        const filteredAffine = affine
+          .filter((_, i) => !excludeEntries.includes(i))
+          .map(row => row.filter((_, i) => !excludeEntries.includes(i)));
+
+        // TODO: if there was some affine transformation for the "c" axis, warn/error.
+
+        const spatialInputAxes = input.axes.filter(axis => axis.type === 'space');
+        const spatialOutputAxes = output.axes.filter(axis => axis.type === 'space');
+
+        const inputAxisNames = spatialInputAxes.map(axis => axis.name);
+        const outputAxisNames = spatialOutputAxes.map(axis => axis.name);
+
+        if (spatialInputAxes.length === 3) { // 3D case
+          const nextMat = (new Matrix4()).fromArray([
+            ...filteredAffine[0],
+            ...filteredAffine[1],
+            ...filteredAffine[2],
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 3D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+        } else if (spatialOutputAxes.length === 2) { // 2D case
+          const nextMat = (new Matrix4()).fromArray([
+            ...filteredAffine[0],
+            ...filteredAffine[1],
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 2D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+        } else {
+          throw new Error('Affine transformation must have 2 or 3 rows.');
+        }
+      }
       if (transform.type === 'translation') {
         const { translation: axisOrderedTranslation } = transform;
         if (axisOrderedTranslation.length !== axes.length) {
@@ -465,6 +525,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).translate(xyzTranslation);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a translation on the "c" axis.
       }
       if (transform.type === 'scale') {
         const { scale: axisOrderedScale } = transform;
@@ -481,6 +543,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).scale(xyzScale);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a scale on the "c" axis.
       }
     });
   }
@@ -494,6 +558,21 @@ export function hexToRgb(hex) {
     parseInt(result[2].toLowerCase(), 16),
     parseInt(result[3].toLowerCase(), 16),
   ];
+}
+
+
+// TODO: is this needed?
+// In the spatialdata metadata the axis name/type/unit info are also listed in
+// coordinateTransformations[].input|output.axes[] entries.
+export function normalizeAxes(axes) {
+  // Normalize axes to OME-NGFF v0.4 format.
+  return axes.map((axisInfo) => {
+    if (typeof axisInfo === 'string') {
+      // If the axis is a string, assume it is a name and set type to 'space'.
+      return { name: axisInfo, type: 'space' };
+    }
+    return axisInfo;
+  });
 }
 
 /**
@@ -512,7 +591,7 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
   let result = [];
 
   if (Array.isArray(coordinateTransformations)) {
-    result = coordinateTransformations.map((transform) => {
+    result = coordinateTransformations.flatMap((transform) => {
       if (transform.input && transform.output) {
         // This is a new-style coordinate transformation.
         // (As proposed in https://github.com/ome/ngff/pull/138)
@@ -529,10 +608,24 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
             scale: transform.scale,
           };
         }
+        if (type === 'affine') {
+          return {
+            type,
+            affine: transform.affine,
+            // Affine transformations can potentially swap axes,
+            // so we need to include the input and output axes.
+            input: transform.input,
+            output: transform.output,
+          };
+        }
         if (type === 'identity') {
           return { type };
         }
-        console.warn(`Coordinate transformation type "${type}" is not supported.`);
+        if (type === 'sequence') {
+          return normalizeCoordinateTransformations(transform.transformations, datasets);
+        }
+
+        log.warn(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
       return transform;

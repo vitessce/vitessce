@@ -19,6 +19,8 @@ import {
   configSchema1_0_14,
   configSchema1_0_15,
   configSchema1_0_16,
+  configSchema1_0_17,
+  configSchema1_0_18,
 } from './previous-config-schemas.js';
 import {
   upgradeFrom0_1_0,
@@ -38,9 +40,11 @@ import {
   upgradeFrom1_0_13,
   upgradeFrom1_0_14,
   upgradeFrom1_0_15,
+  upgradeFrom1_0_16,
+  upgradeFrom1_0_17,
 } from './previous-config-upgraders.js';
 
-export const latestConfigSchema = configSchema1_0_16;
+export const latestConfigSchema = configSchema1_0_18;
 
 export type AnyVersionConfig =
   z.infer<typeof configSchema0_1_0> |
@@ -60,7 +64,9 @@ export type AnyVersionConfig =
   z.infer<typeof configSchema1_0_13> |
   z.infer<typeof configSchema1_0_14> |
   z.infer<typeof configSchema1_0_15> |
-  z.infer<typeof configSchema1_0_16>;
+  z.infer<typeof configSchema1_0_16> |
+  z.infer<typeof configSchema1_0_17> |
+  z.infer<typeof configSchema1_0_18>;
 
 export type UpgradeFunction = (config: any) => AnyVersionConfig;
 
@@ -82,4 +88,6 @@ export const SCHEMA_HANDLERS: [z.ZodTypeAny, UpgradeFunction][] = [
   [configSchema1_0_13, upgradeFrom1_0_13],
   [configSchema1_0_14, upgradeFrom1_0_14],
   [configSchema1_0_15, upgradeFrom1_0_15],
+  [configSchema1_0_16, upgradeFrom1_0_16],
+  [configSchema1_0_17, upgradeFrom1_0_17],
 ];

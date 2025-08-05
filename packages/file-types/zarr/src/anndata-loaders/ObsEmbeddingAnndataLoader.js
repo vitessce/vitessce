@@ -1,7 +1,5 @@
 // @ts-check
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { ObsEmbeddingData, MatrixResult } from '@vitessce/types' */
@@ -19,11 +17,11 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
   async loadEmbedding() {
     const { path, dims = [0, 1] } = this.options;
     if (this.embedding) {
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      return /** @type {MatrixResult} */ (this.embedding);
     }
     if (!this.embedding) {
-      this.embedding = this.dataSource.loadNumericForDims(path, dims);
-      return /** @type {Promise<MatrixResult>} */ (this.embedding);
+      this.embedding = await this.dataSource.loadNumericForDims(path, dims);
+      return /** @type {MatrixResult} */ (this.embedding);
     }
     return this.embedding;
   }
@@ -34,19 +32,16 @@ export default class ObsEmbeddingAnndataLoader extends AbstractTwoStepLoader {
    */
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, obsEmbedding] = await Promise.all([
       // Pass in the obsEmbedding path,
       // to handle the MuData case where the obsIndex is located at
       // `mod/rna/index` rather than `index`.
       this.dataSource.loadObsIndex(path),
       this.loadEmbedding(),
-    ]).then(([obsIndex, obsEmbedding]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsEmbedding },
       null,
-    )));
+    );
   }
 }

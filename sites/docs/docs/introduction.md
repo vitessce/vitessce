@@ -21,7 +21,7 @@ A [JSON-based configuration](/docs/view-config-json/) termed the "view config" d
 
 For some file types, the view config can be generated automatically by Vitessce, given the URLs of the files. For more details, see [default view config](/docs/default-config-json/) page.    
 
-To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](/docs/view-config-js/), [Python](https://vitessce.github.io/vitessce-python/api_config.html), and [R](https://vitessce.github.io/vitessceR/reference/VitessceConfig.html#examples).
+To simplify the configuration process, we also provide object-oriented APIs for generating view configs in [JavaScript](/docs/view-config-js/), [Python](https://python-docs.vitessce.io/api_config.html), and [R](https://r-docs.vitessce.io/reference/VitessceConfig.html#examples).
 
 ### Views
 

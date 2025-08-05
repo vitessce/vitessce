@@ -1,6 +1,6 @@
 import { extent } from 'd3-array';
 import { range } from 'lodash-es';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { clustersSchema } from './schemas/clusters.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
@@ -41,15 +41,12 @@ export default class ClustersJsonAsObsFeatureMatrixLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
-    ));
+    );
   }
 }

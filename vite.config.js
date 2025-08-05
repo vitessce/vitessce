@@ -1,7 +1,43 @@
 import react from '@vitejs/plugin-react';
 import serveStatic from 'serve-static';
+import svgInlineLoader from "svg-inline-loader"
 import { defineConfig } from 'vite';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
+
+const { getExtractedSVG } = svgInlineLoader;
+
+/**
+ * The @janelia-flyem/neuroglancer package in node_modules
+ * includes code in its production bundle like this:
+ * `import save_icon from './save_icon.svg'` without
+ * inlining the SVG file contents.
+ * This means we need to do this asset inlining ourselves.
+ * Bundlers like vite generally do not perform asset inlining
+ * for code in node_modules by default, which is why we
+ * define a custom Vite plugin here.
+ * @param {*} options 
+ * @param {[string]} options.classPrefix
+ * @param {[string]} options.idPrefix
+ * @param {[boolean]} options.removeSVGTagAttrs
+ * @param {[boolean]} options.warnTags
+ * @param {[boolean]} options.removeTags
+ * @param {[boolean]} options.warnTagAttrs
+ * @param {[boolean]} options.removingTagAttrs
+ */
+export function svgLoaderForNeuroglancerIcons(options) {
+  // Reference: https://github.com/vitejs/vite/issues/1204#issuecomment-846189641
+  return {
+    name: 'vite-svg-patch-plugin-for-neuroglancer-icons',
+    transform: function (code, id) {
+      if (id.endsWith('.svg')) {
+        const extractedSvg = readFileSync(id, "utf8")
+        return `export default '${getExtractedSVG(extractedSvg, options)}'`
+      }
+      return code;
+    }
+  };
+};
 
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
@@ -55,6 +91,7 @@ export default defineConfig({
       jsxRuntime: 'classic',
     }),
     serveTestFixtures(),
+    svgLoaderForNeuroglancerIcons(),
   ],
   test: {
     api: 4204,
@@ -64,7 +101,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './vitest.setup.js')],
     deps: {
-      inline: ['vitest-canvas-mock'],
+      optimizer: {
+        web: {
+          include: ['vitest-canvas-mock'],
+        }
+      }
     },
     environmentOptions: {
       jsdom: {

@@ -4,7 +4,7 @@ import {
   nodeToSet,
   treeToMembershipMap,
 } from '@vitessce/sets-utils';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { obsSetsSchema } from '@vitessce/schemas';
 import JsonLoader from './JsonLoader.js';
 
@@ -16,10 +16,7 @@ export default class ObsSetsJsonLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data: rawData, url } = payload;
     const datatype = this.fileType.endsWith('cell-sets.json') ? 'cell' : 'obs';
     const [upgradedData] = tryUpgradeTreeToLatestSchema(rawData, datatype);

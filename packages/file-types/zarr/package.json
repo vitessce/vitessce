@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/zarr",
-  "version": "3.3.11",
-  "author": "Gehlenborg Lab",
+  "version": "3.6.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -30,23 +30,23 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
-    "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
-    "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/vit-s": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
-    "d3-array": "^2.4.0",
-    "lodash-es": "^4.17.21",
-    "zarrita": "0.4.0-next.10"
+    "@vitessce/globals": "workspace:*",
+    "d3-array": "catalog:",
+    "lodash-es": "catalog:",
+    "zarrita": "catalog:",
+    "apache-arrow": "catalog:",
+    "parquet-wasm": "catalog:",
+    "ol": "^10.2.1"
   },
   "devDependencies": {
-    "@vitessce/types": "workspace:*",
-    "@zarrita/core": "0.1.0-next.8",
-    "@zarrita/storage": "0.1.0-next.4",
-    "@zarrita/typedarray": "0.1.0-next.2"
+    "@vitessce/types": "workspace:*"
   }
 }

@@ -2,10 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
 import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
-import { makeStyles } from '@material-ui/core';
-import { CenterFocusStrong } from '@material-ui/icons';
+import { makeStyles, CenterFocusStrong } from '@vitessce/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   toolButton: {
     display: 'inline-flex',
     '&:active': {
@@ -52,6 +51,7 @@ const useStyles = makeStyles(() => ({
 
     '& > svg': {
       verticalAlign: 'middle',
+      display: 'inline-block',
       color: 'black',
     },
     '&:active': {
@@ -72,7 +72,7 @@ export function IconTool(props) {
   const {
     alt, onClick, isActive, children,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <button
       className={clsx(classes.toolIcon, { [classes.toolActive]: isActive })}
@@ -89,7 +89,7 @@ export function IconButton(props) {
   const {
     alt, onClick, children,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <button
       className={clsx(classes.toolIcon, classes.toolButton)}
@@ -103,13 +103,15 @@ export function IconButton(props) {
 }
 
 export default function ToolMenu(props) {
+  const pointerIconAltText = 'Pointer tool';
+  const lassoIconAltText = 'Select lasso';
   const {
     setActiveTool,
     activeTool,
     visibleTools = { pan: true, selectLasso: true },
     recenterOnClick = () => {},
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const onRecenterButtonCLick = () => {
     recenterOnClick();
@@ -119,7 +121,7 @@ export default function ToolMenu(props) {
     <div className={classes.tool}>
       {visibleTools.pan && (
       <IconTool
-        alt="pointer tool"
+        alt={pointerIconAltText}
         onClick={() => setActiveTool(null)}
         isActive={activeTool === null}
       ><PointerIconSVG />
@@ -127,7 +129,7 @@ export default function ToolMenu(props) {
       )}
       {visibleTools.selectLasso ? (
         <IconTool
-          alt="select lasso"
+          alt={lassoIconAltText}
           onClick={() => setActiveTool(SELECTION_TYPE.POLYGON)}
           isActive={activeTool === SELECTION_TYPE.POLYGON}
         ><SelectLassoIconSVG />

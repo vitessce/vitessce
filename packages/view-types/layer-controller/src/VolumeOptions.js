@@ -5,17 +5,16 @@ import {
   Typography,
   Button,
   makeStyles,
-  createStyles,
   FormControl,
-  Select,
+  NativeSelect,
   InputLabel,
   Slider,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
 import { abbreviateNumber, getBoundingCube } from '@vitessce/spatial-utils';
 import { useSelectStyles } from './styles.js';
 
-const useSlicerStyles = makeStyles(theme => createStyles({
+const useSlicerStyles = makeStyles()(theme => ({
   enabled: {},
   disabled: {
     color: theme.palette.text.disabled,
@@ -61,7 +60,7 @@ const Slicer = ({
     ],
   ];
 
-  const classes = useSlicerStyles();
+  const { classes } = useSlicerStyles();
   const Slicers = sliceValuesAndSetSliceFunctions.map(
     ([val, setVal, label, [min, max]]) => (
       <Grid
@@ -71,7 +70,7 @@ const Slicer = ({
         alignItems="center"
         key={label}
       >
-        <Grid item xs={1}>
+        <Grid size={1}>
           <Typography
             className={!use3d ? classes.disabled : classes.enabled}
             style={{ marginBottom: 0 }}
@@ -79,7 +78,7 @@ const Slicer = ({
             {label}:
           </Typography>
         </Grid>
-        <Grid item xs={11}>
+        <Grid size={11}>
           <Slider
             disabled={!use3d}
             className={!use3d ? classes.disabled : classes.enabled}
@@ -87,7 +86,7 @@ const Slicer = ({
             onChange={(e, v) => setVal(v)}
             valueLabelDisplay="auto"
             valueLabelFormat={v => abbreviateNumber(v)}
-            aria-label={`Volume options ${label} slider`}
+            getAriaLabel={index => `Clipping plane ${label} slider ${index === 0 ? 'min' : 'max'}`}
             min={min}
             max={max}
             step={0.005}
@@ -117,14 +116,13 @@ function RenderingModeSelect({
   renderingMode,
   use3d,
 }) {
-  const classes = useSelectStyles();
+  const { classes } = useSelectStyles();
   // Empty option allows for displaying the title of the dropdown fully in the UI.
   const options = !use3d ? [...renderingOptions, ''] : renderingOptions;
   return (
     <FormControl fullWidth>
-      <InputLabel htmlFor="rendering-mode-select">Rendering Mode</InputLabel>
-      <Select
-        native
+      <InputLabel htmlFor="rendering-mode-select" variant="standard">Rendering Mode</InputLabel>
+      <NativeSelect
         onChange={e => handleRenderingModeChange(e.target.value)}
         value={use3d ? renderingMode : ''}
         inputProps={{
@@ -140,7 +138,7 @@ function RenderingModeSelect({
             {name}
           </option>
         ))}
-      </Select>
+      </NativeSelect>
     </FormControl>
   );
 }
@@ -153,7 +151,7 @@ const ReCenterButton = ({
   loader,
   modelMatrix,
 }) => (
-  <Grid item xs="auto" key="recenter">
+  <Grid size="auto" key="recenter">
     <Button
       onClick={() => {
         const defaultViewState = viv.getDefaultInitialViewState(

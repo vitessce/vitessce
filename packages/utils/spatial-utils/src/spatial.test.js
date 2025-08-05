@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
-  square,
   coordinateTransformationsToMatrix,
   normalizeCoordinateTransformations,
+  getSwapAxesMatrix,
 } from './spatial.js';
 
 const defaultAxes = [
@@ -14,11 +14,6 @@ const defaultAxes = [
 ];
 
 describe('Spatial.js', () => {
-  describe('square()', () => {
-    it('gives the right coordinates', () => {
-      expect(square(0, 0, 50)).toEqual([[0, 50], [50, 0], [0, -50], [-50, 0]]);
-    });
-  });
   describe('coordinateTransformationsToMatrix', () => {
     it('returns an Array instance', () => {
       const transformations = [
@@ -43,6 +38,127 @@ describe('Spatial.js', () => {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
+        0, 0, 0, 1,
+      ]);
+    });
+
+    it('swap axes works for 2D', () => {
+      const inputAxes = ['x', 'y'];
+      const outputAxes = ['y', 'x'];
+      const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
+      expect(swapMatrix.flat()).toEqual([
+        0, 1, 0, 0,
+        1, 0, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
+      ]);
+    });
+    it('swap axes works for 3D', () => {
+      const inputAxes = ['x', 'y', 'z'];
+      const outputAxes = ['z', 'y', 'x'];
+      const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
+      expect(swapMatrix.flat()).toEqual([
+        0, 0, 1, 0,
+        0, 1, 0, 0,
+        1, 0, 0, 0,
+        0, 0, 0, 1,
+      ]);
+    });
+    it('swap axes works for 3D, different order', () => {
+      const inputAxes = ['x', 'z', 'y'];
+      const outputAxes = ['x', 'y', 'z'];
+      const swapMatrix = getSwapAxesMatrix(inputAxes, outputAxes);
+      expect(swapMatrix.flat()).toEqual([
+        1, 0, 0, 0,
+        0, 0, 1, 0,
+        0, 1, 0, 0,
+        0, 0, 0, 1,
+      ]);
+    });
+
+    it('supports 3D affine transformation, for coordinate system with C axis', () => {
+      const coordinateTransformations = [
+        { type: 'scale', scale: [1, 1, 1, 1] },
+        {
+          type: 'affine',
+          affine: [
+            [1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0],
+            [0, 13.76, 0, 0, -13.76],
+          ],
+          input: {
+            name: 'czyx',
+            axes: [
+              { type: 'channel', name: 'c' },
+              { type: 'space', name: 'x' },
+              { type: 'space', name: 'y' },
+              { type: 'space', name: 'z' },
+            ],
+          },
+          output: {
+            name: 'global',
+            axes: [
+              // Notice: swap-axes (CXYZ to CZYX).
+              { type: 'channel', name: 'c' },
+              { type: 'space', name: 'z' },
+              { type: 'space', name: 'y' },
+              { type: 'space', name: 'x' },
+            ],
+          },
+        },
+      ];
+      const axes = [
+        { type: 'channel', name: 'c' },
+        { type: 'space', name: 'x' },
+        { type: 'space', name: 'y' },
+        { type: 'space', name: 'z' },
+      ];
+      expect(coordinateTransformationsToMatrix(coordinateTransformations, axes)).toEqual([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 13.76, -13.76, // scale in Z by 13.76; translate in Z by -13.76 after scaling.
+        0, 0, 0, 1,
+      ]);
+    });
+    it('supports 3D affine transformation, for coordinate system without C axis', () => {
+      const coordinateTransformations = [
+        { type: 'scale', scale: [1, 1, 1] },
+        {
+          type: 'affine',
+          affine: [
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [13.76, 0, 0, -13.76],
+          ],
+          input: {
+            name: 'zyx',
+            axes: [
+              { type: 'space', name: 'z' },
+              { type: 'space', name: 'y' },
+              { type: 'space', name: 'x' },
+            ],
+          },
+          output: {
+            name: 'global',
+            axes: [
+              // Notice: swap-axes (ZYX to XYZ).
+              { type: 'space', name: 'x' },
+              { type: 'space', name: 'y' },
+              { type: 'space', name: 'z' },
+            ],
+          },
+        },
+      ];
+      const axes = [
+        { type: 'space', name: 'z' },
+        { type: 'space', name: 'y' },
+        { type: 'space', name: 'x' },
+      ];
+      expect(coordinateTransformationsToMatrix(coordinateTransformations, axes)).toEqual([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 13.76, -13.76, // scale in Z by 13.76; translate in Z by -13.76 after scaling.
         0, 0, 0, 1,
       ]);
     });

@@ -1,5 +1,5 @@
 import { range, sum } from 'lodash-es';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { DEFAULT_MOLECULES_LAYER } from '@vitessce/spatial-utils';
 import { moleculesSchema } from './schemas/molecules.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -34,16 +34,13 @@ export default class MoleculesJsonAsObsLocationsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
     const coordinationValues = {
       // TODO: do this for anndata segmentation loader
       spatialPointLayer: DEFAULT_MOLECULES_LAYER,
     };
-    return Promise.resolve(new LoaderResult(result, url, coordinationValues));
+    return new LoaderResult(result, url, coordinationValues);
   }
 }

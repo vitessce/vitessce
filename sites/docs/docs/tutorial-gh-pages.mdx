@@ -3,6 +3,8 @@ id: tutorial-gh-pages
 title: 'Tutorial: Deploy Vitessce instance to GitHub Pages'
 sidebar_label: GitHub Pages Deployment
 slug: /tutorial-gh-pages
+last_update:
+  date: 2025-05-09
 ---
 
 This tutorial covers how to embed Vitessce as a React component in a website that can be deployed to [GitHub Pages](https://pages.github.com/) (GitHub's free static website hosting service).
@@ -16,23 +18,28 @@ This tutorial was written using the following versions of NodeJS and NPM:
 node --version
 ```
 
-v18.6.0
+v23.6.0
 
 
 ```sh
 npm --version
 ```
 
-8.13.2
+10.9.2
 
 ## React app setup
 
-Use [Create React App](https://create-react-app.dev/docs/getting-started) to initialize a new React project:
+Use [Vite](https://vite.dev/guide/#scaffolding-your-first-vite-project) to initialize a new React project:
 
 ```sh
-npm init react-app vitessce-demo-gh-pages --use-npm
+npm create vite@latest vitessce-demo-gh-pages -- --template react
 cd vitessce-demo-gh-pages
+npm install
+npm install react@18.0.0 react-dom@18.0.0 
+npm run dev
+# Press Ctrl-C to stop the development server.
 ```
+Notes: React version 18 is compatible with Vitessce. At the time of writing, the latest version of Vite is `6.3.5`.
 
 Initialize the new React app directory as a Git repository:
 
@@ -43,17 +50,27 @@ git commit -m "Initial commit"
 git branch -M main
 ```
 
-Make a new GitHub repository (https://github.com/new) (here I called the repository `vitessce-demo-gh-pages`) and set it as the remote origin:
+## Repo setup
+Create a new GitHub repository (https://github.com/new) (here I called the repository `vitessce-demo-gh-pages`) and set it as the remote origin:
 
 ```sh
 # Replace my-username with your GitHub username in the following line:
 git remote add origin git@github.com:my-username/vitessce-demo-gh-pages.git
 git push -u origin main
-```
 
-Install Vitessce:
+```
+### Troubleshooting
+
+If you encounter an error in pushing to the main branch, try the following and commit the changes in the editor:
+```sh
+git pull origin main --allow-unrelated-histories --no-rebase
+
+```
+## Install Vitessce
+Install the Vitessce NPM package to be able to use the React component in the app:
 
 ```sh
+# from within the `vitessce-demo-gh-pages` directory
 npm install vitessce --save
 ```
 
@@ -64,83 +81,93 @@ Make a new file `src/my-view-config.js`:
 
 ```js
 export const myViewConfig = {
-  version: "1.0.4",
-  name: "My example config",
-  description: "This demonstrates the JSON schema",
+  version: "1.0.17",
+  name: "Habib et al., 2017 Nature Methods",
+  description: "Archived frozen adult human post-mortem brain tissue profiled by snRNA-seq (DroNc-seq)",
   datasets: [
     {
-      uid: "D1",
-      name: "Dries",
+      uid: "habib-2017",
+      name: "Habib 2017",
       files: [
         {
-          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cells.json",
-          type: "cells",
-          fileType: "cells.json"
+          fileType: "anndata.zarr",
+          url: "https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr",
+          coordinationValues: {
+            embeddingType: "UMAP",
+          },
+          options: {
+            obsFeatureMatrix: {
+              path: "X",
+              initialFeatureFilterPath: "var/top_highly_variable",
+            },
+            obsEmbedding: {
+              path: "obsm/X_umap",
+            },
+            obsSets: [
+              {
+                name: "Cell Type",
+                path: "obs/CellType",
+              },
+            ],
+          },
         },
-        {
-          url: "https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json",
-          type: "cell-sets",
-          fileType: "cell-sets.json"
-        }
-      ]
-    }
+      ],
+    },
   ],
+  initStrategy: "auto",
   coordinationSpace: {
-    dataset: {
-      A: "D1"
-    },
     embeddingType: {
-      A: "UMAP",
-      B: "t-SNE"
+      UMAP: "UMAP",
     },
-    embeddingZoom: {
-      A: 2.5
-    }
+    featureValueColormapRange: {
+      A: [0, 0.35],
+    },
   },
   layout: [
     {
-      component: "scatterplot",
-      coordinationScopes: {
-        dataset: "A",
-        embeddingType: "A",
-        embeddingZoom: "A"
-      },
-      x: 6, y: 0, w: 6, h: 6
+      component: "obsSets",
+      h: 4, w: 4, x: 4, y: 0,
+    },
+    {
+      component: "obsSetSizes",
+      h: 4, w: 4, x: 8, y: 0,
     },
     {
       component: "scatterplot",
+      h: 4, w: 4, x: 0, y: 0,
       coordinationScopes: {
-        dataset: "A",
-        embeddingType: "B",
-        embeddingZoom: "A"
+        embeddingType: "UMAP",
+        featureValueColormapRange: "A",
       },
-      x: 0, y: 0, w: 6, h: 6
     },
     {
-      component: "cellSets",
+      component: "heatmap",
+      h: 4, w: 8, x: 0, y: 4,
       coordinationScopes: {
-        dataset: "A"
+        featureValueColormapRange: "A",
       },
-      x: 0, y: 6, w: 6, h: 6
+      props: {
+        transpose: true,
+      },
     },
     {
-      component: "cellSetSizes",
-      coordinationScopes: {
-        dataset: "A"
-      },
-      x: 6, y: 6, w: 6, h: 6
-    }
+      component: "featureList",
+      h: 4, w: 2, x: 8, y: 4,
+    },
+    {
+      component: "description",
+      h: 4, w: 2, x: 10, y: 4,
+    },
   ],
-  initStrategy: "auto"
 };
 ```
 
-In `src/App.js`:
+In `src/App.jsx`:
 
 ```js
 import React from 'react';
 import { Vitessce } from 'vitessce';
-import { myViewConfig } from './my-view-config';
+import { myViewConfig } from './my-view-config.js';
 
 export default function App() {
   return (
@@ -152,7 +179,9 @@ export default function App() {
 }
 ```
 
-In `src/index.css` (which is imported by `src/index.js`):
+For more information about the React component, see the [documentation page](../js-react-vitessce/).
+
+In `src/index.css` (which is imported by `src/main.jsx`):
 
 ```css
 html {
@@ -177,6 +206,30 @@ body {
   width: 100%;
 }
 ```
+
+### Configure Vite project
+Edit the `vite.config.js` file to allow Vite to serve correctly from a subpath like `https://my-username.github.io/vitessce-demo-gh-pages/`
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  base: '/vitessce-demo-gh-pages/',
+})
+```
+
+### Run app locally
+
+To try out the app locally, run the following in the terminal:
+
+```sh
+npm run dev
+```
+
+This starts the Vite development server, which should auto-reload the web application upon code changes.
+
 
 ## Data deployment
 
@@ -212,18 +265,18 @@ jobs:
     runs-on: ubuntu-22.04
     name: Build React app and deploy to GitHub Pages
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 23.6.0
       - name: Install NPM dependencies
         run: npm ci
       - name: Build React app
         run: npm run build
-      - uses: actions/upload-pages-artifact@v1
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build
+          path: dist
   deploy:
     runs-on: ubuntu-22.04
     needs: build
@@ -234,9 +287,10 @@ jobs:
       - name: Deploy to GitHub Pages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
     
 ```
+
 
 
 ### Allow GitHub Pages to be deployed from GitHub Actions
@@ -278,5 +332,5 @@ https://my-username.github.io/vitessce-demo-gh-pages/
 
 ## Complete example
 
-For reference, a complete example can be found in the [`vitessce-demo-gh-pages`](https://github.com/keller-mark/vitessce-demo-gh-pages) GitHub repository
-with corresponding deployment at https://keller-mark.github.io/vitessce-demo-gh-pages/.
+For reference, a complete example can be found in the [`vitessce-demo-gh-pages`](https://github.com/vitessce/vitessce-demo-gh-pages) GitHub repository
+with corresponding deployment at https://vitessce.github.io/vitessce-demo-gh-pages/.

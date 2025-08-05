@@ -1,4 +1,4 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import JsonLoader from './JsonLoader.js';
 
@@ -18,10 +18,7 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
 
     const channelCoordination = [{
       // obsType: null,
@@ -52,10 +49,10 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }

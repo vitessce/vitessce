@@ -6,7 +6,8 @@ export {
   DEFAULT_RASTER_DOMAIN_TYPE,
   DEFAULT_RASTER_LAYER_PROPS,
   DEFAULT_LAYER_TYPE_ORDERING,
-  square,
+} from '@vitessce/constants-internal';
+export {
   initializeLayerChannels,
   initializeRasterLayersAndChannels,
   getSourceFromLoader,
@@ -20,6 +21,7 @@ export {
   getStatsForResolution,
   canLoadResolution,
   normalizeCoordinateTransformations,
+  normalizeAxes,
 } from './spatial.js';
 export {
   loadOmeZarr,

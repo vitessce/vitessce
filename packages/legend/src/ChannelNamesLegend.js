@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography } from '@vitessce/styles';
 import { colorArrayToString } from '@vitessce/sets-utils';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   channelNamesLegendContainer: {
     position: 'absolute',
     bottom: '0px',
@@ -35,7 +35,7 @@ export default function ChannelNamesLegend(props) {
     imageChannelCoordination,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const reversedImageLayerScopes = useMemo(() => (
     [...(imageLayerScopes || [])].reverse()
@@ -85,13 +85,15 @@ export default function ChannelNamesLegend(props) {
               } = channelCoordination[cScope];
 
               const rgbColor = colorArrayToString(spatialChannelColor);
-              const channelNames = images?.[layerScope]?.image?.instance.getChannelNames();
-              const channelName = channelNames?.[spatialTargetC];
+              const imageWrapperInstance = images?.[layerScope]?.image?.instance;
+              const channelNames = imageWrapperInstance?.getChannelNames();
+              const channelIndex = imageWrapperInstance?.getChannelIndex(spatialTargetC);
+              const channelName = channelNames?.[channelIndex];
 
               return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
                 <Typography
                   variant="h6"
-                  key={`${layerScope}-${cScope}-${spatialTargetC}-${rgbColor}`}
+                  key={`${layerScope}-${cScope}-${channelIndex}-${rgbColor}`}
                   className={classes.channelNameText}
                   style={{
                     color: rgbColor,

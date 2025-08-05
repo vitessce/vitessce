@@ -6,28 +6,12 @@ import {
 } from '@vitessce/utils';
 import { STATUS } from '@vitessce/constants-internal';
 import {
+  LoaderNotFoundError,
+} from '@vitessce/error';
+import {
   getMatchingLoader,
   useMatchingLoader,
-  useSetWarning,
 } from './state/hooks.js';
-import {
-  AbstractLoaderError,
-  LoaderNotFoundError,
-} from './errors/index.js';
-
-/**
- * Warn via publishing to the console
- * and to the global warning store.
- * @param {AbstractLoaderError} error An error instance.
- */
-export function warn(error, setWarning) {
-  setWarning(error.message);
-  console.warn(error.message);
-  console.error(error.stack);
-  if (error instanceof AbstractLoaderError) {
-    error.warnInConsole();
-  }
-}
 
 /**
  * Initialize values in the coordination space.
@@ -66,16 +50,16 @@ export async function dataQueryFn(ctx) {
     // TODO: can cacheing logic be removed from all loaders?
     const payload = await loader.load();
     if (!payload) return placeholderObject; // TODO: throw error instead?
-    const { data, url, coordinationValues } = payload;
+    const { data, url, requestInit, coordinationValues } = payload;
     // Status: success
     // Array of objects like  { url, name }.
     const urls = (Array.isArray(url) ? url : [{ url, name: dataType }]).filter(d => d.url);
-    return { data, coordinationValues, urls };
+    return { data, coordinationValues, urls, requestInit };
   }
   // No loader was found.
   if (isRequired) {
     // Status: error
-    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+    throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${dataType}, ${JSON.stringify(matchOn)}`);
   } else {
     // Status: success
     return { data: placeholderObject };
@@ -99,7 +83,7 @@ export async function dataQueryFn(ctx) {
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [data, status, urls] where
+ * @returns {array} [data, status, urls, error] where
  * cells is an object and cellsCount is the
  * number of items in the cells object.
  */
@@ -107,7 +91,6 @@ export function useDataType(
   dataType, loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
 ) {
-  const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
   const dataQuery = useQuery({
     // TODO: only enable when loaders has been initialized?
@@ -138,14 +121,8 @@ export function useDataType(
     );
   }, [coordinationValues]);
 
-  useEffect(() => {
-    if (error) {
-      warn(error, setWarning);
-    }
-  }, [error, setWarning]);
-
   const dataStatus = isFetching ? STATUS.LOADING : status;
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, error];
 }
 
 /**
@@ -165,9 +142,10 @@ export function useDataType(
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
- * cells is an object and cellsCount is the
- * number of items in the cells object.
+ * @param {object} matchOnObj Coordination values used to obtain a matching loader.
+ * @param {function} mergeCoordination Function to merge coordination values.
+ * @param {string} viewUid The view UID to use for merging coordination values.
+ * @returns {array} [data, status, urls, errors]
  */
 export function useDataTypeMulti(
   dataType, loaders, dataset, isRequired,
@@ -175,8 +153,6 @@ export function useDataTypeMulti(
   mergeCoordination, viewUid,
 ) {
   const placeholderObject = useMemo(() => ({}), []);
-  const setWarning = useSetWarning();
-
   const matchOnEntries = matchOnObj ? Object.entries(matchOnObj) : [];
   const dataQueries = useQueries({
     // eslint-disable-next-line no-unused-vars
@@ -198,6 +174,7 @@ export function useDataTypeMulti(
 
   const anyLoading = dataQueries.some(q => q.isFetching);
   const anyError = dataQueries.some(q => q.isError);
+  const errors = anyError ? dataQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const isSuccess = dataStatus === STATUS.SUCCESS;
@@ -226,14 +203,6 @@ export function useDataTypeMulti(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
-  useEffect(() => {
-    dataQueries.map(q => q.error).filter(e => Boolean(e)).forEach((error) => {
-      warn(error, setWarning);
-    });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
-
   // Convert data to object keyed by scopeKey.
   const data = useMemo(() => Object.fromEntries(
     matchOnEntries.map(([scopeKey], i) => ([scopeKey, dataQueries[i].data?.data])),
@@ -250,7 +219,7 @@ export function useDataTypeMulti(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [dataQueries]);
 
-  return [data, dataStatus, urls];
+  return [data, dataStatus, urls, errors];
 }
 
 export function useHasLoader(loaders, dataset, dataType, matchOn) {

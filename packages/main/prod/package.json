@@ -1,7 +1,7 @@
 {
   "name": "vitessce",
-  "version": "3.3.11",
-  "author": "Gehlenborg Lab",
+  "version": "3.6.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -32,20 +32,22 @@
     "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
   },
   "dependencies": {
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/export-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "catalog:",
     "cross-env": "^7.0.0",
     "rimraf": "^3.0.2",
     "rollup-plugin-visualizer": "^5.8.3",
-    "vite": "^4.3.0"
+    "vite": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

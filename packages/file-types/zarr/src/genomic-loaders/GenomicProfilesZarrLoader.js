@@ -1,17 +1,28 @@
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class GenomicProfilesZarrLoader extends AbstractTwoStepLoader {
-  loadAttrs() {
+  async loadAttrs() {
     if (this.attrs) {
       return this.attrs;
     }
-    this.attrs = this.dataSource.getJson('.zattrs');
+    this.attrs = await this.dataSource.getJson('.zattrs');
     return this.attrs;
   }
 
-  load() {
-    const { url } = this;
-    return this.loadAttrs()
-      .then(attrs => Promise.resolve(new LoaderResult(attrs, url)));
+  async load() {
+    const { url, requestInit } = this;
+    const storeRoot = this.dataSource.getStoreRoot('/');
+    const attrs = await this.loadAttrs();
+    return new LoaderResult(
+      {
+        genomicProfiles: {
+          storeRoot,
+          attrs,
+        },
+      },
+      url,
+      null,
+      requestInit,
+    );
   }
 }

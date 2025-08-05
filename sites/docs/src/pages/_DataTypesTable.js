@@ -54,7 +54,9 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointscsv')}><code>obsPoints.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointsanndatazarr')}><code>obsPoints.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointsmudatazarr')}><code>obsPoints.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsspatialdatazarr')}><code>obsPoints.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
             </ul>
           </td>
           <td>
@@ -271,7 +273,60 @@ export default function DataTypesTable() {
         </tr>
         <tr>
           <td><code>sampleSets</code><br /> Lists or hierarchies of sets of samples.</td>
-          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#samplesetscsv')}><code>sampleSets.csv</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#samplesetsanndatazarr')}><code>sampleSets.anndata.zarr</code></a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><code>comparisonMetadata</code><br /> Comparison metadata.</td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparisonmetadataanndatazarr')}><code>comparisonMetadata.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>featureStats</code>
+            <br />
+            Per-feature statistics. For example, differential expression test results.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturestatsanndatazarr')}><code>comparativeFeatureStats.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>featureSetStats</code>
+            <br />
+            Per-feature-set statistics. For example, gene set enrichment test results.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturesetstatsanndatazarr')}><code>comparativeFeatureSetStats.anndata.zarr</code></a></li></ul></td>
+          <td>
+            <ul>
+              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>obsSetStats</code>
+            <br />
+            Per-observation-set statistics. For example, cell type composition analysis results.
+          </td>
+          <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativeobssetstatsanndatazarr')}><code>comparativeObsSetStats.anndata.zarr</code></a></li></ul></td>
           <td>
             <ul>
               <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>

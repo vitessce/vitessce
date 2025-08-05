@@ -31,6 +31,11 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_LABELS_ANNDATA_ZARR]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: DataType.FEATURE_LABELS,
   [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: DataType.SAMPLE_EDGES,
+  [FileType.SAMPLE_SETS_ANNDATA_ZARR]: DataType.SAMPLE_SETS,
+  [FileType.COMPARISON_METADATA_ANNDATA_ZARR]: DataType.COMPARISON_METADATA,
+  [FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR]: DataType.FEATURE_STATS,
+  [FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR]: DataType.FEATURE_SET_STATS,
+  [FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR]: DataType.OBS_SET_STATS,
   [FileType.IMAGE_OME_TIFF]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_OME_TIFF]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_MUDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
@@ -42,6 +47,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_MUDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_LABELS_MUDATA_ZARR]: DataType.OBS_LABELS,
   [FileType.FEATURE_LABELS_MUDATA_ZARR]: DataType.FEATURE_LABELS,
+  [FileType.OBS_SEGMENTATIONS_GLB]: DataType.OBS_SEGMENTATIONS,
 
   [FileType.IMAGE_SPATIALDATA_ZARR]: DataType.IMAGE,
   [FileType.LABELS_SPATIALDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
@@ -50,6 +56,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SETS_SPATIALDATA_ZARR]: DataType.OBS_SETS,
   [FileType.FEATURE_LABELS_SPATIALDATA_ZARR]: DataType.FEATURE_LABELS,
+  [FileType.OBS_POINTS_SPATIALDATA_ZARR]: DataType.OBS_POINTS,
 
   // For new file types to support old file types
   [FileType.OBS_EMBEDDING_CELLS_JSON]: DataType.OBS_EMBEDDING,
@@ -119,43 +126,125 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.OBS_TYPE,
     CoordinationType.SAMPLE_TYPE,
   ],
+  [DataType.COMPARISON_METADATA]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+  ],
+  [DataType.FEATURE_STATS]: [
+    CoordinationType.FEATURE_TYPE,
+    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
+  ],
+  [DataType.FEATURE_SET_STATS]: [
+    CoordinationType.FEATURE_TYPE,
+    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
+  ],
+  [DataType.OBS_SET_STATS]: [
+    CoordinationType.OBS_TYPE,
+    // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
+  ],
 };
 
 // For Zarr-based file types, we keep a mapping to file types
 // corresponding to alternative store implementations,
 // to avoid having to rely on file extensions.
 export const ALT_ZARR_STORE_TYPES = {
+  // For AnnData:
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: {
     zip: FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_FEATURE_MATRIX_ANNDATA_H5AD,
   },
   [FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR]: {
     zip: FileType.OBS_FEATURE_COLUMNS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_FEATURE_COLUMNS_ANNDATA_H5AD,
   },
   [FileType.OBS_SETS_ANNDATA_ZARR]: {
     zip: FileType.OBS_SETS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_SETS_ANNDATA_H5AD,
   },
   [FileType.OBS_EMBEDDING_ANNDATA_ZARR]: {
     zip: FileType.OBS_EMBEDDING_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_EMBEDDING_ANNDATA_H5AD,
   },
   [FileType.OBS_SPOTS_ANNDATA_ZARR]: {
     zip: FileType.OBS_SPOTS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_SPOTS_ANNDATA_H5AD,
   },
   [FileType.OBS_POINTS_ANNDATA_ZARR]: {
     zip: FileType.OBS_POINTS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_POINTS_ANNDATA_H5AD,
   },
   [FileType.OBS_LOCATIONS_ANNDATA_ZARR]: {
     zip: FileType.OBS_LOCATIONS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_LOCATIONS_ANNDATA_H5AD,
   },
   [FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR]: {
     zip: FileType.OBS_SEGMENTATIONS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_SEGMENTATIONS_ANNDATA_H5AD,
   },
   [FileType.OBS_LABELS_ANNDATA_ZARR]: {
     zip: FileType.OBS_LABELS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.OBS_LABELS_ANNDATA_H5AD,
   },
   [FileType.FEATURE_LABELS_ANNDATA_ZARR]: {
     zip: FileType.FEATURE_LABELS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.FEATURE_LABELS_ANNDATA_H5AD,
   },
   [FileType.SAMPLE_EDGES_ANNDATA_ZARR]: {
     zip: FileType.SAMPLE_EDGES_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.SAMPLE_EDGES_ANNDATA_H5AD,
+  },
+  [FileType.SAMPLE_SETS_ANNDATA_ZARR]: {
+    zip: FileType.SAMPLE_SETS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.SAMPLE_SETS_ANNDATA_H5AD,
+  },
+  [FileType.COMPARISON_METADATA_ANNDATA_ZARR]: {
+    zip: FileType.COMPARISON_METADATA_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.COMPARISON_METADATA_ANNDATA_H5AD,
+  },
+  [FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR]: {
+    zip: FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_H5AD,
+  },
+  [FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR]: {
+    zip: FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_H5AD,
+  },
+  [FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR]: {
+    zip: FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR_ZIP,
+    h5ad: FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_H5AD,
+  },
+
+  // For OME-Zarr:
+  [FileType.IMAGE_OME_ZARR]: {
+    zip: FileType.IMAGE_OME_ZARR_ZIP,
+  },
+  [FileType.OBS_SEGMENTATIONS_OME_ZARR]: {
+    zip: FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP,
+  },
+
+  // For SpatialData:
+  [FileType.IMAGE_SPATIALDATA_ZARR]: {
+    zip: FileType.IMAGE_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.LABELS_SPATIALDATA_ZARR]: {
+    zip: FileType.LABELS_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.SHAPES_SPATIALDATA_ZARR]: {
+    zip: FileType.SHAPES_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SETS_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_SETS_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_SPOTS_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_SPOTS_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.FEATURE_LABELS_SPATIALDATA_ZARR]: {
+    zip: FileType.FEATURE_LABELS_SPATIALDATA_ZARR_ZIP,
+  },
+  [FileType.OBS_POINTS_SPATIALDATA_ZARR]: {
+    zip: FileType.OBS_POINTS_SPATIALDATA_ZARR_ZIP,
   },
 };

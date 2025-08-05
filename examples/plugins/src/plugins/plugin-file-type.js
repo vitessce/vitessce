@@ -2,7 +2,7 @@ import { range } from 'lodash-es';
 import { JsonLoader, JsonSource } from '@vitessce/json';
 import {
   LoaderResult,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 import {
   PluginFileType,
 } from '@vitessce/plugins';

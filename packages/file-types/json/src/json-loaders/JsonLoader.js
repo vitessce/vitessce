@@ -1,10 +1,11 @@
 import { FileType } from '@vitessce/constants-internal';
 import {
+  JsonLoaderValidationError,
+} from '@vitessce/error';
+import {
   AbstractTwoStepLoader,
-  LoaderValidationError,
-  AbstractLoaderError,
   LoaderResult,
-} from '@vitessce/vit-s';
+} from '@vitessce/abstract';
 
 import { obsSetsSchema, rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import { cellsSchema } from '../legacy-loaders/schemas/cells.js';
@@ -27,25 +28,17 @@ export default class JsonLoader extends AbstractTwoStepLoader {
     this.schema = fileTypeToSchema[fileType];
   }
 
-  load() {
-    const {
-      url, type, fileType,
-    } = this;
+  async load() {
+    const { url } = this;
     if (this.data) {
       return this.data;
     }
-    this.data = this.dataSource.data
-      .then((data) => {
-        if (data instanceof AbstractLoaderError) {
-          return Promise.reject(data);
-        }
-        const [valid, reason] = this.validate(data);
-        if (valid) {
-          return Promise.resolve(new LoaderResult(data, url));
-        }
-        return Promise.reject(new LoaderValidationError(type, fileType, url, reason));
-      });
-    return this.data;
+    this.data = await this.dataSource.loadJson();
+    const [valid, reason] = this.validate(this.data);
+    if (valid) {
+      return new LoaderResult(this.data, url);
+    }
+    throw new JsonLoaderValidationError(reason);
   }
 
   validate(data) {

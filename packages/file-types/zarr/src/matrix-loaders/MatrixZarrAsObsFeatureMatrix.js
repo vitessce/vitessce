@@ -1,6 +1,6 @@
 import { open as zarrOpen } from 'zarrita';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepLoader {
   async loadAttrs() {
@@ -24,12 +24,11 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
     return this.arr;
   }
 
-  load() {
-    return Promise
-      .all([this.loadAttrs(), this.loadArr()])
-      .then(([attrs, arr]) => Promise.resolve(new LoaderResult(
-        { obsIndex: attrs.data.rows, featureIndex: attrs.data.cols, obsFeatureMatrix: arr },
-        null,
-      )));
+  async load() {
+    const [attrs, arr] = await Promise.all([this.loadAttrs(), this.loadArr()]);
+    return new LoaderResult(
+      { obsIndex: attrs.data.rows, featureIndex: attrs.data.cols, obsFeatureMatrix: arr },
+      null,
+    );
   }
 }

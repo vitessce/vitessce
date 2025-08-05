@@ -12,7 +12,7 @@ import {
   useUrls, useReady,
   useObsSetsData,
 } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES, ViewType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import {
   treeExportLevelZeroNode,
   treeExportSet,
@@ -74,6 +74,7 @@ export function ObsSetsManagerSubscriber(props) {
     removeGridComponent,
     theme,
     title: titleOverride,
+    helpText = ViewHelpMapping.OBS_SETS,
   } = props;
 
   const loaders = useLoaders();
@@ -100,17 +101,24 @@ export function ObsSetsManagerSubscriber(props) {
 
   // Reset file URLs and loader progress when the dataset has changed.
   useEffect(() => {
-    setCellSetExpansion([]);
+    if (cellSetExpansion && cellSetExpansion.length > 0) {
+      setCellSetExpansion([]);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
-    loaders, dataset, true,
+  const [
+    { obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
+    loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const errors = [
+    obsSetsError,
+  ];
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
@@ -657,6 +665,8 @@ export function ObsSetsManagerSubscriber(props) {
       urls={urls}
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      errors={errors}
     >
       {manager}
     </TitleInfo>

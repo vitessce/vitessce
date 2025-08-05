@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { DataSourceFetchError } from '@vitessce/vit-s';
+import { DataFetchError } from '@vitessce/error';
 
 export default class JsonSource {
   constructor({ url, requestInit }) {
@@ -7,15 +7,13 @@ export default class JsonSource {
     this.requestInit = requestInit;
   }
 
-  get data() {
+  async loadJson() {
     if (this._data) return this._data;
-    this._data = fetch(this.url, this.requestInit).then((response) => {
-      if (!response.ok) {
-        return Promise.reject(new DataSourceFetchError('JsonSource', this.url, response.headers));
-      }
-      return response.json();
-    // eslint-disable-next-line no-console
-    }).catch(() => Promise.reject(new DataSourceFetchError('JsonSource', this.url, {})));
+    const response = await fetch(this.url, this.requestInit);
+    if (!response.ok) {
+      throw new DataFetchError(`loadJson failed for ${this.url}`);
+    }
+    this._data = await response.json();
     return this._data;
   }
 }

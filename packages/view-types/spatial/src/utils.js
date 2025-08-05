@@ -196,3 +196,8 @@ export function renderSubBitmaskLayers(props) {
     tileId: { x, y, z },
   });
 }
+
+export const HOVER_MODE = {
+  CELL_LAYER: 'cell_layer_hover',
+  MOLECULE_LAYER: 'molecule_layer_hover',
+};

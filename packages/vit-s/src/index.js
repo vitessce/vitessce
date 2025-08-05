@@ -1,4 +1,5 @@
 export { VitS } from './VitS.js';
+export { VitSContainer } from './VitSContainer.js';
 export { TitleInfo } from './TitleInfo.js';
 export { PopperMenu } from './shared-mui/components.js';
 // For plugin view types:
@@ -15,6 +16,8 @@ export {
   useClosestVitessceContainerSize,
   useWindowDimensions,
   useGridItemSize,
+  useExpandedFeatureLabelsMap,
+  useColumnNameMapping,
 } from './hooks.js';
 export {
   useCoordinationScopes,
@@ -35,6 +38,8 @@ export {
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
+  useViewConfig,
+  useSetViewConfig,
   useComponentHover,
   useSetComponentHover,
   useComponentViewInfo,
@@ -73,6 +78,11 @@ export {
   useObsFeatureMatrixData,
   useFeatureLabelsData,
   useGenomicProfilesData,
+
+  useComparisonMetadata,
+  useFeatureStatsData,
+  useFeatureSetStatsData,
+  useObsSetStatsData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
@@ -87,21 +97,11 @@ export {
   useHasLoader,
 } from './data-hook-utils.js';
 export {
-  AbstractLoader,
-  AbstractTwoStepLoader,
-  LoaderResult,
-} from './data/index.js';
-export {
-  AbstractLoaderError,
-  DatasetNotFoundError,
-  LoaderNotFoundError,
-  LoaderValidationError,
-  DataSourceFetchError,
-} from './errors/index.js';
-export {
   CellColorEncodingOption,
   OptionsContainer,
   OptionSelect,
   usePlotOptionsStyles,
 } from './shared-plot-options/index.js';
 export { logConfig } from './view-config-utils.js';
+export { useAsyncFunction, usePageModeView } from './contexts.js';
+export { createLoaders } from './vitessce-grid-utils.js';

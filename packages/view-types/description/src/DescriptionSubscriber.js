@@ -5,7 +5,7 @@ import {
   useCoordination, useLoaders,
   useDescription, useImageData,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import Description from './Description.js';
 
 /**
@@ -23,10 +23,12 @@ export function DescriptionSubscriber(props) {
   const {
     coordinationScopes,
     description: descriptionOverride,
+    descriptionType,
     removeGridComponent,
     theme,
     title = 'Description',
     closeButtonVisible,
+    helpText = ViewHelpMapping.DESCRIPTION,
   } = props;
 
   const loaders = useLoaders();
@@ -39,10 +41,14 @@ export function DescriptionSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [description] = useDescription(loaders, dataset);
-  const [{ image }, imageStatus] = useImageData(
+  // eslint-disable-next-line no-unused-vars
+  const [{ image }, imageStatus, imageUrls, imageError] = useImageData(
     loaders, dataset, false, {}, {},
     {}, // TODO: which properties to match on. Revisit after #830.
   );
+  const errors = [
+    imageError,
+  ];
   const { loaders: imageLayerLoaders = [], meta: imageLayerMeta = [] } = image || {};
 
   const isReady = useReady([imageStatus]);
@@ -72,9 +78,12 @@ export function DescriptionSubscriber(props) {
       isScroll
       theme={theme}
       isReady={isReady}
+      helpText={helpText}
+      errors={errors}
     >
       <Description
         description={descriptionOverride || description}
+        descriptionType={descriptionType}
         metadata={metadata}
       />
     </TitleInfo>

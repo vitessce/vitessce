@@ -1,5 +1,6 @@
-const path = require('path');
-module.exports = {
+import prismLightTheme from './src/pages/_prism-light-theme.js';
+import prismDarkTheme from './src/pages/_prism-dark-theme.js';
+export default {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
@@ -18,8 +19,15 @@ module.exports = {
       disableSwitch: false,
     },
     prism: {
-      theme: require('./src/pages/_prism-light-theme.cjs.js'),
-      darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
+      additionalLanguages: ['bash', 'diff', 'json'],
+      theme: prismLightTheme,
+      darkTheme: prismDarkTheme,
+    },
+    algolia: {
+      appId: 'VM9PGXT4A9',
+      indexName: 'vitessce',
+      apiKey: process.env.ALGOLIA_API_KEY || 'none',
+      contextualSearch: true,
     },
     navbar: {
       title: 'Vitessce',
@@ -52,12 +60,12 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessce-python/',
+          href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
           position: 'left',
         },
         {
-          href: 'https://vitessce.github.io/vitessceR/',
+          href: 'https://r-docs.vitessce.io/',
           label: 'For R',
           position: 'left',
         },
@@ -83,6 +91,10 @@ module.exports = {
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
+        },
+        {
+          type: 'search',
+          position: 'right',
         },
       ],
     },
@@ -133,7 +145,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://gehlenborglab.org/">Gehlenborg Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is Creative Commons licensed (CC BY 4.0).`,
+      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://hidivelab.org/">HIDIVE Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.`,
     },
   },
   presets: [
@@ -141,15 +153,16 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
+          showLastUpdateTime: false,
         },
         blog: {
           showReadingTime: true,
         },
         theme: {
           customCss: [
-            require.resolve('./src/css/custom.css'),
+            './src/css/custom.css',
             // TODO(monorepo)
             //require.resolve('../dist/esm/index.css'),
           ],
@@ -169,6 +182,6 @@ module.exports = {
     }
   ],
   clientModules: [
-    require.resolve('./analytics.js'),
+    './analytics.js',
   ],
 };

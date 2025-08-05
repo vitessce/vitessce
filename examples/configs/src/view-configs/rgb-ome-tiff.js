@@ -10,7 +10,10 @@ export const rgbOmeTiff = {
       files: [
         {
           fileType: 'image.ome-tiff',
-          url: 'https://assets.hubmapconsortium.org/a4be39d9c1606130450a011d2f1feeff/ometiff-pyramids/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tif',
+          url: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/ometiff-pyramids/lab_processed/images/VAN0052-RK-3-81-PAS.ome.tif?token=',
+          options: {
+            offsetsUrl: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/output_offsets/lab_processed/images/VAN0052-RK-3-81-PAS.offsets.json?token=',
+          },
         },
       ],
     },
@@ -23,16 +26,19 @@ export const rgbOmeTiff = {
   initStrategy: 'auto',
   layout: [
     {
-      component: 'spatialBeta',
+      component: 'spatial',
+      coordinationScopes: {
+        photometricInterpretation: 'init_HBM836.VTFP.364_image_0',
+      },
       x: 0,
       y: 0,
       w: 8,
       h: 12,
     },
     {
-      component: 'layerControllerBeta',
-      props: {
-        disableChannelsIfRgbDetected: true,
+      component: 'layerController',
+      coordinationScopes: {
+        photometricInterpretation: 'init_HBM836.VTFP.364_image_0',
       },
       x: 8,
       y: 0,

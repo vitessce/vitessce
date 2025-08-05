@@ -2,12 +2,17 @@
 function createHabib2017(storeType) {
   let adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr';
   let fileType = 'anndata.zarr';
+  const extraOptions = {};
   if (storeType === 'zip') {
     adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr.zip';
     fileType = 'anndata.zarr.zip';
+  } else if (storeType === 'h5ad') {
+    adataUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad';
+    fileType = 'anndata.h5ad';
+    extraOptions.refSpecUrl = 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.reference.json';
   }
   return {
-    version: '1.0.15',
+    version: '1.0.17',
     name: 'Habib et al., 2017 Nature Methods',
     description: 'Archived frozen adult human post-mortem brain tissue profiled by snRNA-seq (DroNc-seq)',
     datasets: [{
@@ -23,9 +28,13 @@ function createHabib2017(storeType) {
           embeddingType: 'UMAP',
         },
         options: {
+          ...extraOptions,
           obsFeatureMatrix: {
             path: 'X',
-            initialFeatureFilterPath: 'var/top_highly_variable',
+            initialFeatureFilterPath: (storeType === 'h5ad'
+              ? 'var/highly_variable'
+              : 'var/top_highly_variable'
+            ),
           },
           obsEmbedding: {
             path: 'obsm/X_umap',
@@ -163,20 +172,24 @@ export const habib2017withQualityMetrics = {
           }],
         },
       },
+      // Here, we use a second anndata.zarr file definition to be able to
+      // provide different coordinationValues.
       {
-        fileType: 'obsFeatureColumns.anndata.zarr',
+        fileType: 'anndata.zarr',
         url: 'https://storage.googleapis.com/vitessce-demo-data/habib-2017/habib17.processed.h5ad.zarr',
         coordinationValues: {
           obsType: 'cell',
           featureType: 'qualityMetric',
           featureValueType: 'value',
         },
-        options: [
-          { path: 'obs/n_genes' },
-          { path: 'obs/n_counts' },
-          { path: 'obs/percent_mito' },
-          { path: 'obs/percent_ribo' },
-        ],
+        options: {
+          obsFeatureColumns: [
+            { path: 'obs/n_genes' },
+            { path: 'obs/n_counts' },
+            { path: 'obs/percent_mito' },
+            { path: 'obs/percent_ribo' },
+          ],
+        },
       },
     ],
   }],
@@ -289,3 +302,4 @@ export const habib2017withQualityMetrics = {
 
 export const habib2017natureMethods = createHabib2017(null);
 export const habib2017natureMethodsZip = createHabib2017('zip');
+export const habib2017natureMethodsH5ad = createHabib2017('h5ad');

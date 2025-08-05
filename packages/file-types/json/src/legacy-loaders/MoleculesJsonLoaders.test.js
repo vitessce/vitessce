@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import MoleculesJsonAsObsLocationsLoader from './MoleculesJsonAsObsLocations.js';
 import MoleculesJsonAsObsLabelsLoader from './MoleculesJsonAsObsLabels.js';
 import JsonSource from '../JsonSource.js';

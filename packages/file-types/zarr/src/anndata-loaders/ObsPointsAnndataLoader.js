@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 /**
@@ -11,13 +9,13 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
    * Class method for loading embedding coordinates, such as those from UMAP or t-SNE.
    * @returns {Promise} A promise for an array of columns.
    */
-  loadPoints() {
+  async loadPoints() {
     const { path, dims = [0, 1] } = this.options;
     if (this.locations) {
       return this.locations;
     }
     if (!this.locations) {
-      this.locations = this.dataSource.loadNumericForDims(path, dims);
+      this.locations = await this.dataSource.loadNumericForDims(path, dims);
       return this.locations;
     }
     this.locations = Promise.resolve(null);
@@ -26,11 +24,6 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     const coordinationValues = {
       pointLayer: CL({
         obsType: 'point',
@@ -47,14 +40,14 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
         // obsLabelsType: null,
       }),
     };
-
-    return Promise.all([
+    const [obsIndex, obsPoints] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadPoints(),
-    ]).then(([obsIndex, obsPoints]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsPoints },
       null,
       coordinationValues,
-    )));
+    );
   }
 }

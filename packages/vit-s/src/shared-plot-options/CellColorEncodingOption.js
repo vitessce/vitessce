@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@vitessce/styles';
 import { capitalize } from '@vitessce/utils';
 import OptionSelect from './OptionSelect.js';
 import { useStyles } from './styles.js';
@@ -12,7 +12,7 @@ export default function CellColorEncodingOption(props) {
     setCellColorEncoding,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const cellColorEncodingId = useId();
 

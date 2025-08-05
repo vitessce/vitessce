@@ -4,9 +4,9 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest demos and documentation](http://vitessce.io/)
-- [Sandbox environment](http://vitessce.io/#?edit=true)
-- [Older demos](DEMOS.md)
+- [Documentation and demos](http://vitessce.io/)
+- [Online configuration editor](http://vitessce.io/#?edit=true)
+- [Older releases and demos](https://github.com/vitessce/vitessce/releases)
 - [Older releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 <table><tr>
@@ -42,9 +42,14 @@ npm install vitessce
 
 For more details, please visit the [documentation](http://vitessce.io/docs/js-overview/).
 
+## How to Contribute
+
+We welcome contributions! Please check out our [Contributing Guide](CONTRIBUTING.md) for detailed instructions.
+
+
 ## Development
 
-First install [PNPM](https://pnpm.io/installation) v8. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
+First install [PNPM](https://pnpm.io/installation) v9.5. We develop and test against NodeJS `v18.6.0` and NPM `8.13.2`.
 
 > **Note**
 > NodeJS may require the [`max_old_space_size`](https://stackoverflow.com/a/59572966) value to be increased.
@@ -62,12 +67,13 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
-Further details for internal developers can be found within [dev-docs](./dev-docs/).
+To get started creating a new view:
 
-> **VSCode Note**
-> We are currently using a nightly version of TypeScript which supports `@import` statements in JSDoc comments.
-> To use VSCode features like jump-to-implementation with this syntax, install the [TypeScript Nightly extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next).
-<!-- TODO: Remove this note once TS v5.5 has been released -->
+```sh
+pnpm run create-view line-plot
+```
+
+Further details for internal developers can be found within [dev-docs](./dev-docs/).
 
 ### Changesets
 
@@ -87,18 +93,14 @@ We use squash merging for pull requests.
 
 ### Monorepo organization
 
-#### Meta-updater script
-
-```sh
-pnpm run meta-dryrun
-pnpm run meta-update
-```
+See `pnpm-workspace.yaml` for more information.
+We are using PNPM [catalogs](https://pnpm.io/catalogs) which are available from v9.5.0 of PNPM.
 
 ### Testing
 
 For the end-to-end tests, they depend on 
 ```sh
-pnpm run build-demo
+cd sites/demo && pnpm run build-demo
 ```
 
 - To run all the tests, both unit and e2e: `./scripts/test.sh`
@@ -127,7 +129,7 @@ The following commands can be helpful in case the local environment gets into a 
 Before running any of the deployment scripts, confirm that you have installed the AWS CLI and are in the appropriate AWS account:
 ```
 $ aws iam list-account-aliases --query 'AccountAliases[0]'
-"gehlenborglab"
+"hdv-vitessce"
 ```
 
 ### Staging
@@ -141,7 +143,7 @@ This will build the demo and docs, push both to S3, and finally open the docs de
 
 #### Publish staged development site
 
-After doing a [manual test](TESTING.md) of the deployment of the dev site,
+After doing a [manual test](./dev-docs/manual-testing.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
 ```sh
@@ -151,7 +153,7 @@ if it looks good, copy it to dev.vitessce.io:
 Note: if you need to obtain this URL later:
 
 ```
-Copy dev to https://s3.amazonaws.com/vitessce-data/demos/$DATE/$HASH/index.html
+Copy dev to https://legacy.vitessce.io/demos/$DATE/$HASH/index.html
 ```
 
 #### Publish staged docs to vitessce.io
@@ -166,7 +168,7 @@ if it looks good, copy it to vitessce.io:
 Note: if you need to obtain this URL later:
 
 ```
-Copy docs to https://s3.amazonaws.com/vitessce-data/docs-root/$DATE/$HASH/index.html
+Copy docs to https://data-1.vitessce.io/docs-root/$DATE/$HASH/index.html
 ```
 
 ## Release
@@ -260,13 +262,13 @@ Changes to the directory structure or filenames in the `dist/` directory that co
 To cite Vitessce in your work, please use:
 
 ```bibtex
-@article{keller2021vitessce,
-  title = {{Vitessce: a framework for integrative visualization of multi-modal and spatially-resolved single-cell data}},
+@article{keller2024vitessce,
+  title = {{Vitessce: integrative visualization of multimodal and spatially resolved single-cell data}},
   author = {Keller, Mark S. and Gold, Ilan and McCallum, Chuck and Manz, Trevor and Kharchenko, Peter V. and Gehlenborg, Nils},
-  journal = {OSF Preprints},
-  year = {2021},
-  month = oct,
-  doi = {10.31219/osf.io/y8thv}
+  journal = {Nature Methods},
+  year = {2024},
+  month = sep,
+  doi = {10.1038/s41592-024-02436-x}
 }
 ```
 

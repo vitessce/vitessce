@@ -71,14 +71,23 @@ describe('Vitessce Data URIs', () => {
       ]
     };
     loadConfig(config);
-    cy.intercept('https://example.com/bad-url.json').as('badUrl');
+    cy.intercept({
+      method: 'GET',
+      url: 'https://example.com/bad-url.json'
+    }, {
+      statusCode: 404,
+      body: 'Not Found',
+    }).as('badUrl');
     // Wait for initial request by react-query
     cy.wait('@badUrl');
     // We use a retry: 2 and the default exponential backoff function,
     // so we wait 1s here for that second request to be triggered
     // after which the error will be rendered.
     cy.wait(1000);
-    cy.contains('JsonSource Error HTTP Status fetching from https://example.com/bad-url.json');
+
+    cy.get('[aria-label="Open error info"]').click();
+    cy.contains('DataFetchError')
+    cy.contains('loadJson failed for https://example.com/bad-url.json');
   });
 
   it('handles errors from bad view config v0.1.0', () => {

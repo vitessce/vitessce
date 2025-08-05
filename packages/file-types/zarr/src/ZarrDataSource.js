@@ -1,9 +1,10 @@
 // @ts-check
+import { log } from '@vitessce/globals';
 import { zarrOpenRoot } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { ZarrNodeNotFoundError } from '@vitessce/error';
 
-/** @import { Location as ZarrLocation } from '@zarrita/core' */
-/** @import { Readable } from '@zarrita/storage' */
+/** @import { Location as ZarrLocation, Readable } from 'zarrita' */
 /** @import { DataSourceParams } from '@vitessce/types' */
 
 /**
@@ -12,14 +13,15 @@ import { open as zarrOpen, root as zarrRoot } from 'zarrita';
  */
 export default class ZarrDataSource {
   /**
-   * @param {DataSourceParams} params The parameters object.
+   * @param {DataSourceParams & { refSpecUrl?: string }} params The parameters object.
    */
-  constructor({ url, requestInit, store, fileType }) {
+  constructor({ url, requestInit, refSpecUrl, store, fileType }) {
+    log.info('Using a Zarr-based data source. 403 and 404 HTTP responses for Zarr metadata files (.zattrs, .zarray, .zgroup, zarr.json) are to be expected and do not necessarily indicate errors.');
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else if (url) {
-      this.storeRoot = zarrOpenRoot(url, fileType, requestInit);
+      this.storeRoot = zarrOpenRoot(url, fileType, { requestInit, refSpecUrl });
     } else {
       throw new Error('Either a store or a URL must be provided to the ZarrDataSource constructor.');
     }
@@ -45,7 +47,6 @@ export default class ZarrDataSource {
    */
   async getJson(key, storeRootParam = null) {
     const { storeRoot } = this;
-
     const storeRootToUse = storeRootParam || storeRoot;
 
     let dirKey = key;
@@ -53,6 +54,17 @@ export default class ZarrDataSource {
     if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
       dirKey = key.substring(0, key.length - 8);
     }
-    return (await zarrOpen(storeRootToUse.resolve(dirKey))).attrs;
+    try {
+      const location = storeRootToUse.resolve(dirKey);
+      const arrOrGroup = await zarrOpen(location);
+      return arrOrGroup.attrs;
+    } catch (/** @type {any} */ e) {
+      if (e.name === 'NodeNotFoundError') {
+        // Throw our own error with a more specific message.
+        throw new ZarrNodeNotFoundError(dirKey);
+      }
+      // Re-throw the error if it is not a NodeNotFoundError.
+      throw e;
+    }
   }
 }

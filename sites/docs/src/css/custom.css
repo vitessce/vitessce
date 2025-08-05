@@ -74,6 +74,11 @@
   height: calc(100vh - var(--ifm-navbar-height));
 }
 
+.vitessce-and-toolbar.vitessce-page {
+  height: auto !important;
+  top: calc(var(--ifm-navbar-height) - 30px);
+}
+
 .vitessce-toolbar {
   position: relative;
   width: 100%;
@@ -116,10 +121,13 @@
   left: 10%
 }
 
-.vitessce-app.vitessce-expanded .vitessce-container {
+.vitessce-app.vitessce-expanded .vitessce-container, .vitessce-app.vitessce-page .vitessce-container {
   position: relative;
   width: 100%;
   left: 0;
+}
+
+.vitessce-app.vitessce-expanded .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height) - var(--ifm-vitessce-toolbar-height));
 }
 
@@ -131,9 +139,11 @@
   border: none !important;
 }
 
+/* 
 .vitessce-container table * {
   border: none;
 }
+ */
 
 .vitessce-container table tr:nth-child(2n) {
   background-color: transparent;
@@ -214,4 +224,14 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
 [data-theme='dark'] .header-pronunciation-link::before {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="white" d="M157.27 21.22a12 12 0 0 0-12.64 1.31L75.88 76H32a20 20 0 0 0-20 20v64a20 20 0 0 0 20 20h43.88l68.75 53.47A12 12 0 0 0 164 224V32a12 12 0 0 0-6.73-10.78ZM36 100h32v56H36Zm104 99.46l-48-37.33V93.87l48-37.33ZM212 128a44 44 0 0 1-11 29.11a12 12 0 1 1-18-15.88a20 20 0 0 0 0-26.43a12 12 0 0 1 18-15.86A43.94 43.94 0 0 1 212 128Zm40 0a83.87 83.87 0 0 1-21.39 56a12 12 0 0 1-17.89-16a60 60 0 0 0 0-80a12 12 0 1 1 17.88-16a83.87 83.87 0 0 1 21.4 56Z"/></svg>');
   background-repeat: no-repeat;
+}
+
+.navbar__inner {
+  --ifm-navbar-item-padding-vertical: 0;
+}
+
+@media (max-width: 1160px) {
+  .DocSearch-Button-Placeholder, .DocSearch-Button-Keys, .header-pronunciation-link {
+    display: none !important;
+  }
 }

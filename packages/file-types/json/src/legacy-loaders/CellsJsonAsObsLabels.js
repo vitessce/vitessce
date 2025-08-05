@@ -1,4 +1,4 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { LoaderResult } from '@vitessce/abstract';
 import { cellsSchema } from './schemas/cells.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
@@ -21,12 +21,9 @@ export default class CellsJsonAsObsLabelsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(result, url));
+    return new LoaderResult(result, url);
   }
 }

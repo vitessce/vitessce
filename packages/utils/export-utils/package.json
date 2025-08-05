@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/export-utils",
-  "version": "3.3.11",
-  "author": "Gehlenborg Lab",
+  "version": "3.6.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "bowser": "^2.11.0",
-    "lz-string": "^1.4.4"
+    "lz-string": "^1.4.4",
+    "@vitessce/globals": "workspace:*"
   }
 }

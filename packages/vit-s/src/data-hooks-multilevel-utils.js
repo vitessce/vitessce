@@ -1,16 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { extent } from 'd3-array';
 import { DataType, STATUS } from '@vitessce/constants-internal';
 import {
+  LoaderNotFoundError,
+} from '@vitessce/error';
+import {
   getMatchingLoader,
-  useSetWarning,
 } from './state/hooks.js';
 import {
-  LoaderNotFoundError,
-} from './errors/index.js';
-import {
-  warn,
   dataQueryFn,
 } from './data-hook-utils.js';
 
@@ -324,18 +322,26 @@ async function featureSelectionQueryFn(ctx) {
   }
   // No loader was found.
   if (isRequired) {
-    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+    throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${dataType}, ${JSON.stringify(matchOn)}`);
   } else {
     return { data: null, dataKey: null };
   }
 }
 
+/**
+ * Get feature values for a multi-level feature selection.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {array} selections
+ * @param {number} depth
+ * @returns [data, geneName, extents, normData, status, errors]
+ */
 export function useFeatureSelectionMultiLevel(
   loaders, dataset, isRequired, matchOnObj, selections,
   depth,
 ) {
-  const setWarning = useSetWarning();
-
   // Create a flat list of tuples (queryKey, scopeInfo).
   const queryKeyScopeTuples = useMemo(() => getFeatureSelectionQueryKeyScopeTuples(
     selections, matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX, isRequired,
@@ -353,23 +359,13 @@ export function useFeatureSelectionMultiLevel(
 
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
+  const errors = anyError ? featureQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatGeneData = featureQueries.map(q => q.data?.data || null);
   const flatLoadedGeneName = featureQueries.map(q => q.data?.dataKey || null);
   const flatExtents = featureQueries.map(q => q.data?.dataExtent || null);
   const flatNormData = featureQueries.map(q => q.data?.normData || null);
-
-  useEffect(() => {
-    featureQueries
-      .map(q => q.error)
-      .filter(e => Boolean(e))
-      .forEach((error) => {
-        warn(error, setWarning);
-      });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const [geneData, loadedGeneName, extents, normData] = useMemo(() => {
@@ -390,7 +386,7 @@ export function useFeatureSelectionMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featureQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [geneData, loadedGeneName, extents, normData, dataStatus];
+  return [geneData, loadedGeneName, extents, normData, dataStatus, errors];
 }
 
 async function matrixIndicesQueryFn(ctx) {
@@ -424,18 +420,25 @@ async function matrixIndicesQueryFn(ctx) {
   }
   // No loader was found.
   if (isRequired) {
-    throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+    throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${dataType}, ${JSON.stringify(matchOn)}`);
   } else {
     return { data: null, dataKey: null };
   }
 }
 
+/**
+ * Get matrix indices for a multi-level coordination.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @returns [data, dataStatus, errors]
+ */
 export function useObsFeatureMatrixIndicesMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
   depth,
 ) {
-  const setWarning = useSetWarning();
-
   // Create a flat list of tuples (queryKey, scopeInfo).
   const queryKeyScopeTuples = useMemo(() => getMatrixIndicesQueryKeyScopeTuples(
     matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX, isRequired,
@@ -453,20 +456,10 @@ export function useObsFeatureMatrixIndicesMultiLevel(
 
   const anyLoading = indicesQueries.some(q => q.isFetching);
   const anyError = indicesQueries.some(q => q.isError);
+  const errors = anyError ? indicesQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatIndicesData = indicesQueries.map(q => q.data?.data || null);
-
-  useEffect(() => {
-    indicesQueries
-      .map(q => q.error)
-      .filter(e => Boolean(e))
-      .forEach((error) => {
-        warn(error, setWarning);
-      });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const indicesData = useMemo(() => {
@@ -484,15 +477,23 @@ export function useObsFeatureMatrixIndicesMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indicesQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [indicesData, dataStatus];
+  return [indicesData, dataStatus, errors];
 }
 
+/**
+ * Get data for multi-level coordination.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @param {string} dataType
+ * @returns {array} [data, status, errors]
+ */
 function useDataTypeMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
   depth, dataType,
 ) {
-  const setWarning = useSetWarning();
-
   // Create a flat list of tuples (queryKey, scopeInfo).
   const queryKeyScopeTuples = useMemo(() => getQueryKeyScopeTuples(
     matchOnObj, depth, dataset, dataType, isRequired,
@@ -510,20 +511,10 @@ function useDataTypeMultiLevel(
 
   const anyLoading = locationsQueries.some(q => q.isFetching);
   const anyError = locationsQueries.some(q => q.isError);
+  const errors = anyError ? locationsQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
   const flatIndicesData = locationsQueries.map(q => q.data?.data || null);
-
-  useEffect(() => {
-    locationsQueries
-      .map(q => q.error)
-      .filter(e => Boolean(e))
-      .forEach((error) => {
-        warn(error, setWarning);
-      });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const locationsData = useMemo(() => {
@@ -539,9 +530,18 @@ function useDataTypeMultiLevel(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationsQueries.reduce((a, h) => a + h.dataUpdatedAt, 0), queryKeyScopeTuples]);
 
-  return [locationsData, dataStatus];
+  return [locationsData, dataStatus, errors];
 }
 
+/**
+ * Wrapper around useDataTypeMultiLevel.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @returns {array} [data, status, errors]
+ */
 export function useObsLocationsMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
   depth,
@@ -552,6 +552,15 @@ export function useObsLocationsMultiLevel(
   );
 }
 
+/**
+ * Wrapper around useDataTypeMultiLevel.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @returns {array} [data, status, errors]
+ */
 export function useObsSetsMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
   depth,
@@ -562,6 +571,15 @@ export function useObsSetsMultiLevel(
   );
 }
 
+/**
+ * Wrapper around useDataTypeMultiLevel.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @returns {array} [data, status, errors]
+ */
 export function useObsLabelsMultiLevel(
   loaders, dataset, isRequired, matchOnObj,
   depth,

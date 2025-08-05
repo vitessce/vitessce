@@ -4,74 +4,44 @@ import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import AnnDataSource from './AnnDataSource.js';
 import anndata_0_7_DenseFixture from './json-fixtures/anndata-0.7/anndata-dense.json';
 import anndata_0_8_DenseFixture from './json-fixtures/anndata-0.8/anndata-dense.json';
+import anndata_0_9_DenseFixture from './json-fixtures/anndata-0.9/anndata-dense.json';
+import anndata_0_10_DenseFixture from './json-fixtures/anndata-0.10/anndata-dense.json';
 
 
 describe('sources/AnnDataSource', () => {
-  describe('AnnData v0.7', () => {
-    it('getJson returns json', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_7_DenseFixture),
+  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture }).forEach(([version, fixture]) => {
+    describe(`AnnData v${version}`, () => {
+      it('getJson returns json', async () => {
+        const dataSource = new AnnDataSource({
+          url: `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
+          store: createStoreFromMapContents(fixture),
+        });
+        const zAttrs = await dataSource.getJson('obs/.zattrs');
+        expect(Object.keys(zAttrs)).toEqual([
+          '_index',
+          'column-order',
+          'encoding-type',
+          'encoding-version',
+        ]);
       });
-      const zAttrs = await dataSource.getJson('obs/.zattrs');
-      expect(Object.keys(zAttrs)).toEqual([
-        '_index',
-        'column-order',
-        'encoding-type',
-        'encoding-version',
-      ]);
-    });
 
-    it('loadObsColumns returns ids for location in store', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_7_DenseFixture),
+      it('loadObsColumns returns ids for location in store', async () => {
+        const dataSource = new AnnDataSource({
+          url: `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
+          store: createStoreFromMapContents(fixture),
+        });
+        const ids = await dataSource.loadObsColumns(['obs/leiden']);
+        expect(ids).toEqual([['1', '1', '2']]);
       });
-      const ids = await dataSource.loadObsColumns(['obs/leiden']);
-      expect(ids).toEqual([['1', '1', '2']]);
-    });
 
-    it('loadObsIndex returns names', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.7/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_7_DenseFixture),
+      it('loadObsIndex returns names', async () => {
+        const dataSource = new AnnDataSource({
+          url: `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
+          store: createStoreFromMapContents(fixture),
+        });
+        const names = await dataSource.loadObsIndex();
+        expect(names).toEqual(['CTG', 'GCA', 'ACG']);
       });
-      const names = await dataSource.loadObsIndex();
-      expect(names).toEqual(['CTG', 'GCA', 'CTG']);
-    });
-  });
-
-  describe('AnnData v0.8', () => {
-    it('getJson returns json', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_8_DenseFixture),
-      });
-      const zAttrs = await dataSource.getJson('obs/.zattrs');
-      expect(Object.keys(zAttrs)).toEqual([
-        '_index',
-        'column-order',
-        'encoding-type',
-        'encoding-version',
-      ]);
-    });
-
-    it('loadObsColumns returns ids for location in store', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_8_DenseFixture),
-      });
-      const ids = await dataSource.loadObsColumns(['obs/leiden']);
-      expect(ids).toEqual([['1', '1', '2']]);
-    });
-
-    it('loadObsIndex returns names', async () => {
-      const dataSource = new AnnDataSource({
-        url: '@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
-        store: createStoreFromMapContents(anndata_0_8_DenseFixture),
-      });
-      const names = await dataSource.loadObsIndex();
-      expect(names).toEqual(['CTG', 'GCA', 'CTG']);
     });
   });
 });

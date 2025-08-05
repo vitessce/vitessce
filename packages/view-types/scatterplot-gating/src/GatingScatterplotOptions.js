@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow, TextField } from '@material-ui/core';
+import { TableCell, TableRow, TextField } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 import { capitalize, pluralize as plur } from '@vitessce/utils';
 
@@ -21,7 +21,7 @@ export default function GatingScatterplotOptions(props) {
 
   const gatingScatterplotOptionsId = useId();
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   // Handlers for custom option field changes.
   const handleGeneSelectChange = (event) => {
@@ -129,9 +129,7 @@ export default function GatingScatterplotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={gatingFeatureValueTransformCoefficient}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            slotProps={{ input: { shrink: true } }}
             id={`scatterplot-gating-transform-coefficient-${gatingScatterplotOptionsId}`}
           />
         </TableCell>

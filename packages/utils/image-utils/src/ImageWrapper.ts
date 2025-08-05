@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import type {
   AbstractImageWrapper,
   VivLoaderType,
@@ -8,6 +9,7 @@ import type {
   BoundingCube,
 } from '@vitessce/types';
 import {
+  normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
   getNgffAxes,
   getNgffAxesForTiff,
@@ -19,7 +21,7 @@ import {
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-
+import { log } from '@vitessce/globals';
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
@@ -28,6 +30,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
   vivLoader: VivLoaderType;
 
   options: ImageOptions;
+
+  modelMatrix: number[]|null = null;
 
   constructor(vivLoader: VivLoaderType, options: ImageOptions) {
     this.options = options || {};
@@ -72,6 +76,14 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   getModelMatrix(): number[] {
+    if (!this.modelMatrix) {
+      // Cache the model matrix
+      this.modelMatrix = this._getModelMatrix();
+    }
+    return this.modelMatrix;
+  }
+
+  _getModelMatrix(): number[] {
     // The user can always provide an additional transform matrix
     // via the file definition options property.
     const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
@@ -82,7 +94,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const {
         multiscales: [
           {
-            coordinateTransformations,
+            datasets,
+            coordinateTransformations: coordinateTransformationsFromFile,
             axes,
           },
         ],
@@ -92,8 +105,12 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
       );
+      // Normalize the coordinate transformations from the file.
+      const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+        coordinateTransformationsFromFile, datasets,
+      );
       const transformMatrixFromFile = coordinateTransformationsToMatrix(
-        coordinateTransformations, ngffAxes,
+        normCoordinateTransformationsFromFile, ngffAxes,
       );
       const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
       return transformMatrix;
@@ -135,7 +152,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultT,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultT || 0;
@@ -150,7 +167,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             defaultZ,
-          },
+          } = {},
         },
       } = this.vivLoader.metadata;
       return defaultZ || 0;
@@ -251,6 +268,20 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return [];
   }
 
+  getChannelIndex(channelSpecifier: string|number): number {
+    if (typeof channelSpecifier === 'number') {
+      return channelSpecifier;
+    }
+    // If not a number,
+    // then assume the user passed a string corresponding to a channel name.
+    const channelNames = this.getChannelNames();
+    const channelIndex = channelNames.indexOf(channelSpecifier);
+    if (channelIndex === -1) {
+      log.error(`Channel ${channelSpecifier} not found in image.`);
+    }
+    return channelIndex;
+  }
+
   // TODO: support passing a custom color palette array.
   getChannelObjects(): ChannelObject[] {
     // SpatialData cases (image-label and channels_metadata)
@@ -315,7 +346,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   getDtype(): string | undefined {
     const loader = this.vivLoader;
-    const source = getSourceFromLoader(loader) as any;
+    const source = getSourceFromLoader(loader, undefined) as any;
     if ('dtype' in source) {
       return source.dtype as string;
     }
@@ -325,6 +356,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasZStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('z')) {
+      // If there is no 'z' dimension, then there is no z stack.
+      return false;
+    }
     const hasZStack = shape[labels.indexOf('z')] > 1;
     return hasZStack;
   }
@@ -332,8 +367,41 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasTStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('t')) {
+      // If there is no 't' dimension, then there is no time stack.
+      return false;
+    }
     const hasTStack = shape[labels.indexOf('t')] > 1;
     return hasTStack;
+  }
+
+  hasCStack(): boolean {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('c')) {
+      // If there is no 'c' dimension, then there is no channel stack.
+      return false;
+    }
+    const hasCStack = shape[labels.indexOf('c')] > 1;
+    return hasCStack;
+  }
+
+  hasDimZ(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('z');
+  }
+
+  hasDimT(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('t');
+  }
+
+  hasDimC(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('c');
   }
 
   getNumZ(): number {
@@ -346,6 +414,12 @@ export default class ImageWrapper implements AbstractImageWrapper {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
     return shape[labels.indexOf('t')];
+  }
+
+  getNumC(): number {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return shape[labels.indexOf('c')];
   }
 
   isMultiResolution(): boolean {
@@ -443,7 +517,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         omero: {
           rdefs: {
             model,
-          },
+          } = {},
         },
       } = loader.metadata;
       if (model === 'color') {

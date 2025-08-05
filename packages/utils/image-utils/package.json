@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/image-utils",
-  "version": "3.3.11",
-  "author": "Gehlenborg Lab",
+  "version": "3.6.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -33,10 +33,11 @@
     "@vitessce/types": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@hms-dbmi/viv": "~0.13.8"
+    "@vitessce/globals": "workspace:*",
+    "@hms-dbmi/viv": "catalog:"
   },
   "devDependencies": {
-    "vite": "^4.3.0",
-    "vitest": "^0.32.2"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

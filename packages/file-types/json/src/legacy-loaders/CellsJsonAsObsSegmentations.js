@@ -1,7 +1,18 @@
-import { AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
-import { DEFAULT_CELLS_LAYER, square } from '@vitessce/spatial-utils';
+import { LoaderResult } from '@vitessce/abstract';
+import { DEFAULT_CELLS_LAYER } from '@vitessce/constants-internal';
 import { cellsSchema } from './schemas/cells.js';
 import JsonLoader from '../json-loaders/JsonLoader.js';
+
+/**
+ *
+ * @param {number} x x
+ * @param {number} y y
+ * @param {number} r radius
+ * @returns
+ */
+export function square(x, y, r) {
+  return [[x, y + r], [x + r, y], [x, y - r], [x - r, y]];
+}
 
 export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   constructor(dataSource, params) {
@@ -40,18 +51,15 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data, url } = payload;
     const result = this.loadFromCache(data);
     const coordinationValues = {
       spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
     };
-    return Promise.resolve(new LoaderResult({
+    return new LoaderResult({
       ...result,
       obsSegmentationsType: 'polygon',
-    }, url, coordinationValues));
+    }, url, coordinationValues);
   }
 }

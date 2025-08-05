@@ -1,7 +1,7 @@
 import React from 'react';
-import { makeStyles, CircularProgress } from '@material-ui/core';
+import { makeStyles, CircularProgress } from '@vitessce/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   loadingIndicatorBackdrop: {
     position: 'absolute',
     top: '0',
@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function LoadingIndicator() {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <div className={classes.loadingIndicatorBackdrop}>
       <div className={classes.loadingIndicatorContainer} role="status" aria-live="polite">

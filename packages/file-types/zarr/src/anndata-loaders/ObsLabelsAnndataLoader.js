@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/vit-s';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 
 
 /**
@@ -11,14 +9,14 @@ export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
    * Class method for loading observation string labels.
    * @returns {Promise} A promise for the array.
    */
-  loadLabels() {
+  async loadLabels() {
     const { path } = this.options;
     if (this.labels) {
       return this.labels;
     }
     if (!this.labels) {
       // eslint-disable-next-line no-underscore-dangle
-      this.labels = this.dataSource._loadColumn(path);
+      this.labels = await this.dataSource._loadColumn(path);
       return this.labels;
     }
     this.labels = Promise.resolve(null);
@@ -27,16 +25,13 @@ export default class ObsLabelsAnndataLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, obsLabels] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadLabels(),
-    ]).then(([obsIndex, obsLabels]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsLabels },
       null,
-    )));
+    );
   }
 }

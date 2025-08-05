@@ -1,8 +1,8 @@
 {
   "name": "@vitessce/example-plugins",
   "private": true,
-  "version": "3.3.11",
-  "author": "Gehlenborg Lab",
+  "version": "3.6.11",
+  "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
     "type": "git",
@@ -16,18 +16,20 @@
   ],
   "scripts": {},
   "dependencies": {
-    "@material-ui/core": "~4.12.3",
+    "@vitessce/styles": "workspace:*",
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
-    "react": "^18.0.0"
+    "react": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

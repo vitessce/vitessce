@@ -5,8 +5,9 @@ import {
   useReady, useUrls,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
+  useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
-import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
+import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import FeatureList from './FeatureList.js';
 import FeatureListOptions from './FeatureListOptions.js';
 
@@ -45,6 +46,7 @@ export function FeatureListSubscriber(props) {
     sortKey = null,
     closeButtonVisible,
     downloadButtonVisible,
+    helpText = ViewHelpMapping.FEATURE_LIST,
   } = props;
 
   const loaders = useLoaders();
@@ -70,25 +72,39 @@ export function FeatureListSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrls, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+  const [expandedFeatureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
+    featureType, featureLabelsMap, { stripCuriePrefixes: true },
+  );
+  const [
+    { featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, true,
     { obsType, featureType },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    featureLabelsError,
+    matrixIndicesError,
+  ];
   const isReady = useReady([
     featureLabelsStatus,
+    expandedFeatureLabelsStatus,
     matrixIndicesStatus,
   ]);
   const urls = useUrls([
     featureLabelsUrls,
     obsFeatureMatrixUrls,
   ]);
+
   const geneList = featureIndex || [];
   const numGenes = geneList.length;
-  const hasFeatureLabels = Boolean(featureLabelsMap);
+  const hasFeatureLabels = Boolean(expandedFeatureLabelsMap);
 
   function setGeneSelectionAndColorEncoding(newSelection) {
     setGeneSelection(newSelection);
@@ -115,6 +131,8 @@ export function FeatureListSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
+      helpText={helpText}
+      errors={errors}
       options={(
         <FeatureListOptions
           featureListSort={featureListSort}
@@ -123,7 +141,7 @@ export function FeatureListSubscriber(props) {
           setFeatureListSortKey={setFeatureListSortKey}
           showFeatureTable={showFeatureTable}
           setShowFeatureTable={setShowFeatureTable}
-          hasFeatureLabels={Boolean(featureLabelsMap)}
+          hasFeatureLabels={hasFeatureLabels}
           primaryColumnName={primaryColumnName}
         />
       )}
@@ -134,7 +152,7 @@ export function FeatureListSubscriber(props) {
         geneList={geneList}
         featureListSort={featureListSort}
         featureListSortKey={featureListSortKey || initialSortKey}
-        featureLabelsMap={featureLabelsMap}
+        featureLabelsMap={expandedFeatureLabelsMap}
         featureType={featureType}
         geneSelection={geneSelection}
         geneFilter={geneFilter}
@@ -142,7 +160,7 @@ export function FeatureListSubscriber(props) {
         setGeneFilter={setGeneFilter}
         setGeneHighlight={setGeneHighlight}
         enableMultiSelect={enableMultiSelect}
-        hasFeatureLabels={Boolean(featureLabelsMap)}
+        hasFeatureLabels={hasFeatureLabels}
         primaryColumnName={primaryColumnName}
       />
     </TitleInfo>

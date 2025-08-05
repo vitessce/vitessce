@@ -42,9 +42,9 @@ fileName="my_expression_matrix.csv"
 fileType="obsFeatureMatrix.csv"
 fileConst="OBS_FEATURE_MATRIX_CSV"
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -67,14 +67,14 @@ fileName="my_umap.csv"
 fileType="obsEmbedding.csv"
 fileConst="OBS_EMBEDDING_CSV"
 options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The two columns containing the embedding coordinates.
-  "obsEmbedding": ["UMAP_1", "UMAP_2"]
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The two columns containing the embedding coordinates.
+    "obsEmbedding": ["UMAP_1", "UMAP_2"]
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "embeddingType": "UMAP"
+    "obsType": "cell",
+    "embeddingType": "UMAP"
 }`}
 />
 
@@ -96,13 +96,13 @@ fileName="my_cell_coordinates.csv"
 fileType="obsPoints.csv"
 fileConst="OBS_POINTS_CSV"
 options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The two columns containing the (x, y) coordinates.
-  "obsPoints": ["X", "Y"]
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The two columns containing the (x, y) coordinates.
+    "obsPoints": ["X", "Y"]
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -124,13 +124,13 @@ fileName="my_cell_coordinates.csv"
 fileType="obsSpots.csv"
 fileConst="OBS_SPOTS_CSV"
 options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The two columns containing the (x, y) coordinates.
-  "obsSpots": ["X", "Y"]
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The two columns containing the (x, y) coordinates.
+    "obsSpots": ["X", "Y"]
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -153,13 +153,13 @@ fileName="my_cell_coordinates.csv"
 fileType="obsLocations.csv"
 fileConst="OBS_LOCATIONS_CSV"
 options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The two columns containing the (x, y) coordinates.
-  "obsLocations": ["X", "Y"]
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The two columns containing the (x, y) coordinates.
+    "obsLocations": ["X", "Y"]
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -188,25 +188,25 @@ fileName="my_cell_set_membership.csv"
 fileType="obsSets.csv"
 fileConst="OBS_SETS_CSV"
 options={`{
-  "obsIndex": "cell_id",
-  "obsSets": [
-    {
-      "name": "Leiden Clustering",
-      "column": "leiden"
-    },
-    {
-      "name": "Cell Type Annotations",
-      "column": ["cell_type_coarse", "cell_type_fine"]
-    },
-    {
-      "name": "Predicted Cell Types",
-      "column": "pred_cell_type",
-      "scoreColumn": "pred_score"
-    }
-  ]
+    "obsIndex": "cell_id",
+    "obsSets": [
+      {
+        "name": "Leiden Clustering",
+        "column": "leiden"
+      },
+      {
+        "name": "Cell Type Annotations",
+        "column": ["cell_type_coarse", "cell_type_fine"]
+      },
+      {
+        "name": "Predicted Cell Types",
+        "column": "pred_cell_type",
+        "scoreColumn": "pred_score"
+      }
+    ]
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -228,14 +228,14 @@ fileName="my_cell_barcodes.csv"
 fileType="obsLabels.csv"
 fileConst="OBS_LABELS_CSV"
 options={`{
-  // The column containing the observation index.
-  "obsIndex": "cell_id",
-  // The column containing the string labels.
-  "obsLabels": "alt_cell_id"
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The column containing the string labels.
+    "obsLabels": "alt_cell_id"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "obsLabelsType": "Alternate cell ID"
+    "obsType": "cell",
+    "obsLabelsType": "Alternate cell ID"
 }`}
 />
 
@@ -257,14 +257,14 @@ fileName="my_gene_symbols.csv"
 fileType="featureLabels.csv"
 fileConst="FEATURE_LABELS_CSV"
 options={`{
-  // The column containing the feature index.
-  "featureIndex": "ensembl_gene_id",
-  // The column containing the string labels.
-  "featureLabels": "gene_symbol"
+    // The column containing the feature index.
+    "featureIndex": "ensembl_gene_id",
+    // The column containing the string labels.
+    "featureLabels": "gene_symbol"
 }`}
 coordinationValues={`{
-  "featureType": "gene",
-  "featureLabelsType": "Gene symbol"
+    "featureType": "gene",
+    "featureLabelsType": "Gene symbol"
 }`}
 />
 
@@ -290,16 +290,16 @@ fileName="my_sample_set_membership.csv"
 fileType="sampleSets.csv"
 fileConst="SAMPLE_SETS_CSV"
 options={`{
-  "sampleIndex": "donor_id",
-  "sampleSets": [
-    {
-      "name": "Disease state",
-      "column": "disease_state"
-    }
-  ]
+    "sampleIndex": "donor_id",
+    "sampleSets": [
+      {
+        "name": "Disease state",
+        "column": "disease_state"
+      }
+    ]
 }`}
 coordinationValues={`{
-  "sampleType": "donor"
+    "sampleType": "donor"
 }`}
 />
 
@@ -335,13 +335,13 @@ fileName="my_adata.zarr"
 fileType="obsFeatureMatrix.anndata.zarr"
 fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
 options={`{
-  // Should point to the observation-by-feature matrix
-  "path": "X"
+    // Should point to the observation-by-feature matrix
+    "path": "X"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -364,13 +364,13 @@ fileName="my_adata.zarr"
 fileType="obsFeatureMatrix.anndata.zarr"
 fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
 options={`{
-  // Should point to the observation-by-feature matrix
-  "path": "layers/X_uint8"
+    // Should point to the observation-by-feature matrix
+    "path": "layers/X_uint8"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -397,18 +397,18 @@ fileName="my_adata.zarr"
 fileType="obsFeatureMatrix.anndata.zarr"
 fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
 options={`{
-  // Should point to the observation-by-feature matrix
-  "path": "X",
-  // If you would like to limit the amount of data loaded
-  // initially (specifically in the heatmap),
-  // then "initialFeatureFilterPath" should point to a boolean array
-  // that indicates which features to load initially.
-  "initialFeatureFilterPath": "var/highly_variable"
+    // Should point to the observation-by-feature matrix
+    "path": "X",
+    // If you would like to limit the amount of data loaded
+    // initially (specifically in the heatmap),
+    // then "initialFeatureFilterPath" should point to a boolean array
+    // that indicates which features to load initially.
+    "initialFeatureFilterPath": "var/highly_variable"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -428,17 +428,17 @@ fileName="my_adata.zarr"
 fileType="obsFeatureMatrix.anndata.zarr"
 fileConst="OBS_FEATURE_MATRIX_ANNDATA_ZARR"
 options={`{
-  // Should point to the observation-by-feature matrix
-  "path": "obsm/X_subset",
-  // If the matrix specified in "path" is a subset of X,
-  // then "featureFilterPath" must point to a boolean array
-  // that indicates which features are contained in the subsetted matrix.
-  "featureFilterPath": "var/highly_variable"
+    // Should point to the observation-by-feature matrix
+    "path": "obsm/X_subset",
+    // If the matrix specified in "path" is a subset of X,
+    // then "featureFilterPath" must point to a boolean array
+    // that indicates which features are contained in the subsetted matrix.
+    "featureFilterPath": "var/highly_variable"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -463,14 +463,14 @@ fileName="my_adata.zarr"
 fileType="obsEmbedding.anndata.zarr"
 fileConst="OBS_EMBEDDING_ANNDATA_ZARR"
 options={`{
-  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obsm/X_umap",
-  // Dimension indices are optional. By default, [0, 1].
-  "dims": [0, 1]
+    // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "obsm/X_umap",
+    // Dimension indices are optional. By default, [0, 1].
+    "dims": [0, 1]
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "embeddingType": "UMAP"
+    "obsType": "cell",
+    "embeddingType": "UMAP"
 }`}
 />
 
@@ -495,11 +495,11 @@ fileName="my_adata.zarr"
 fileType="obsPoints.anndata.zarr"
 fileConst="OBS_POINTS_ANNDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "molecule"
+    "obsType": "molecule"
 }`}
 />
 
@@ -524,11 +524,11 @@ fileName="my_adata.zarr"
 fileType="obsSpots.anndata.zarr"
 fileConst="OBS_SPOTS_ANNDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "bead"
+    "obsType": "bead"
 }`}
 />
 
@@ -557,22 +557,22 @@ fileName="my_adata.zarr"
 fileType="obsSets.anndata.zarr"
 fileConst="OBS_SETS_ANNDATA_ZARR"
 options={`[
-  {
-    "name": "Leiden Clustering",
-    "path": "obs/leiden"
-  },
-  {
-    "name": "Cell Type Annotations",
-    "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
-  },
-  {
-    "name": "Predicted Cell Types",
-    "path": "obs/pred_cell_type",
-    "scorePath": "obs/pred_score"
-  }
+    {
+      "name": "Leiden Clustering",
+      "path": "obs/leiden"
+    },
+    {
+      "name": "Cell Type Annotations",
+      "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+    },
+    {
+      "name": "Predicted Cell Types",
+      "path": "obs/pred_cell_type",
+      "scorePath": "obs/pred_score"
+    }
 ]`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -583,11 +583,11 @@ fileName="my_adata.zarr"
 fileType="obsSegmentations.anndata.zarr"
 fileConst="OBS_SEGMENTATIONS_ANNDATA_ZARR"
 options={`{
-  // Should point to an array of polygon vertices, one polygon per obs/cell.
-  "path": "obs/X_segmentations"
+    // Should point to an array of polygon vertices, one polygon per obs/cell.
+    "path": "obs/X_segmentations"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -609,12 +609,12 @@ fileName="my_adata.zarr"
 fileType="obsLabels.anndata.zarr"
 fileConst="OBS_LABELS_ANNDATA_ZARR"
 options={`{
-  // Should point to a string column
-  "path": "obs/alt_cell_ids"
+    // Should point to a string column
+    "path": "obs/alt_cell_ids"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "obsLabelsType": "Alternate cell ID"
+    "obsType": "cell",
+    "obsLabelsType": "Alternate cell ID"
 }`}
 />
 
@@ -639,11 +639,11 @@ fileName="my_adata.zarr"
 fileType="obsLocations.anndata.zarr"
 fileConst="OBS_LOCATIONS_ANNDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -667,12 +667,12 @@ fileName="my_adata.zarr"
 fileType="featureLabels.anndata.zarr"
 fileConst="FEATURE_LABELS_ANNDATA_ZARR"
 options={`{
-  // Should point to a string column
-  "path": "var/gene_symbol"
+    // Should point to a string column
+    "path": "var/gene_symbol"
 }`}
 coordinationValues={`{
-  "featureType": "gene",
-  "featureLabelsType": "Gene symbol"
+    "featureType": "gene",
+    "featureLabelsType": "Gene symbol"
 }`}
 />
 
@@ -694,11 +694,164 @@ fileName="my_adata.zarr"
 fileType="sampleEdges.anndata.zarr"
 fileConst="SAMPLE_EDGES_ANNDATA_ZARR"
 options={`{
-  "path": "obs/donor_id"
+    "path": "obs/donor_id"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "sampleType": "donor"
+    "obsType": "cell",
+    "sampleType": "donor"
+}`}
+/>
+
+### `sampleSets.anndata.zarr`
+
+Maps each sample to membership in one or more sets.
+
+If a group of sets is organized as a flat list, then `"column"` points to a column containing string labels.
+Alternatively, if organized as a hierarchy, then `"column"` can point to an array of columns, progressing from coarser to finer labels.
+
+For example, the file contents might look like:
+
+| donor_id | disease_state |
+| ----- | ----- |
+| donor_1 | Healthy reference |
+| donor_2 | Diabetes |
+| donor_3 | Diabetes |
+| donor_4 | Healthy reference |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_sample_adata.zarr"
+fileType="sampleSets.anndata.zarr"
+fileConst="SAMPLE_SETS_ANNDATA_ZARR"
+options={`{
+    "sampleSets": [
+      {
+        "name": "Disease State",
+        "path": "disease_state"
+      }
+    ]
+}`}
+coordinationValues={`{
+    "sampleType": "donor"
+}`}
+/>
+
+### `comparisonMetadata.anndata.zarr`
+
+Provides metadata about comparative analyses that have been pre-computed and stored in the AnnData object.
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparisonMetadata.anndata.zarr"
+fileConst="COMPARISON_METADATA_ANNDATA_ZARR"
+options={`{
+    "path": "uns/comparison_metadata"
+}`}
+coordinationValues={`{
+    "obsType": "cell",
+    "sampleType": "sample"
+}`}
+/>
+
+### `comparativeFeatureStats.anndata.zarr`
+
+Per-feature statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureStats dataframes,
+for example, the results of multiple differential expression tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeFeatureStats.anndata.zarr"
+fileConst="COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR"
+options={`{
+    // Path to the comparison metadata.
+    "metadataPath": "uns/comparison_metadata",
+    // Optionally, specify the name of a column containing the feature index.
+    "indexColumn": "names",
+    // Specify the column containing p-values.
+    "pValueColumn": "pvals_adj",
+    // Optionally, specify how the p-values have already been transformed.
+    "pValueTransformation": "minuslog10",
+    // Does the p-value column contain adjusted p-values?
+    "pValueAdjusted": true,
+    // Specify the column containing fold-change values.
+    "foldChangeColumn": "logfoldchanges",
+    // Optionally, specify how the fold-change values have already been tranformed.
+    "foldChangeTransformation": "log2"
+}`}
+coordinationValues={`{
+    "obsType": "cell",
+    "sampleType": "sample",
+    "featureType": "gene"
+}`}
+/>
+
+### `comparativeFeatureSetStats.anndata.zarr`
+
+Per-feature-set statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple featureSetStats dataframes,
+for example, the results of multiple gene set enrichment tests).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeFeatureSetStats.anndata.zarr"
+fileConst="COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR"
+options={`{
+    // Path to the comparison metadata.
+    "metadataPath": "uns/comparison_metadata",
+    // Optionally, specify the name of a column containing the feature set index.
+    "indexColumn": "pathway_name",
+    // Specify the column containing ontology terms (CURIE strings).
+    "termColumn": "pathway_term",
+    // Specify the column containing p-values.
+    "pValueColumn": "pvals_adj",
+    // Does the p-value column contain adjusted p-values?
+    "pValueAdjusted": true,
+    // Optionally, what gene set library was used for testing and is specified in the metadata?
+    "featureSetLibrary": "Reactome_2022"
+}`}
+coordinationValues={`{
+    "obsType": "cell",
+    "sampleType": "sample",
+    "featureType": "gene"
+}`}
+/>
+
+### `comparativeObsSetStats.anndata.zarr`
+
+Per-observation-set statistics that have been pre-computed and stored in the AnnData object.
+Rather than pointing to the location of the results directly,
+with this file type, we point to the comparison metadata location
+(which should internally contain references to multiple obsSetStats dataframes,
+for example, the results of multiple cell type composition analyses).
+
+<FileDefTabs
+fileName="my_comparative_adata.zarr"
+fileType="comparativeObsSetStats.anndata.zarr"
+fileConst="COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR"
+options={`{
+    // Path to the comparison metadata.
+    "metadataPath": "uns/comparison_metadata",
+    // Optionally, specify the name of a column containing the obs set index.
+    "indexColumn": "names",
+    // Specify the column containing fold-change values.
+    "foldChangeColumn": "logfoldchanges",
+    // Optionally, specify how the fold-change values have already been tranformed.
+    "foldChangeTransformation": "log2",
+    // For scCODA results, this indicates the expected value for a new sample in absence of the covariate.
+    "interceptExpectedSampleColumn": "interceptExpectedSample",
+    // For scCODA results, this indicates the expected value for a new sample in presence of the covariate.
+    "effectExpectedSampleColumn": "effectExpectedSample",
+    // For scCODA results, this is a boolean column indicating whether a credible change was detected for the cell type.
+    "isCredibleEffectColumn": "isCredibleEffect"
+}`}
+coordinationValues={`{
+    "obsType": "cell",
+    "sampleType": "sample"
 }`}
 />
 
@@ -711,61 +864,61 @@ fileName="my_adata.zarr"
 fileType="anndata.zarr"
 fileConst="ANNDATA_ZARR"
 options={`{
-  "obsPoints": {
-    // Accepts the same options as obsPoints.anndata.zarr
-    "path": "obsm/X_spatial"
-  },
-  "obsSpots": {
-    // Accepts the same options as obsSpots.anndata.zarr
-    "path": "obsm/X_spatial"
-  },
-  "obsSegmentations": {
-    // Accepts the same options as obsSegmentations.anndata.zarr
-    "path": "obsm/X_segmentations"
-  },
-  "obsLocations": {
-    // Accepts the same options as obsLocations.anndata.zarr
-    "path": "obsm/X_centroids"
-  },
-  "obsEmbedding": [
-    {
-      // Accepts a superset of the options from obsEmbedding.anndata.zarr
-      // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
-      "path": "obsm/X_umap",
-      // An embeddingType must be specified to distinguish between multiple embedding arrays.
-      "embeddingType": "UMAP"
+    "obsPoints": {
+      // Accepts the same options as obsPoints.anndata.zarr
+      "path": "obsm/X_spatial"
     },
-    {
-      "path": "obsm/X_pca",
-      "dims": [4, 5],
-      "embeddingType": "PCA"
+    "obsSpots": {
+      // Accepts the same options as obsSpots.anndata.zarr
+      "path": "obsm/X_spatial"
+    },
+    "obsSegmentations": {
+      // Accepts the same options as obsSegmentations.anndata.zarr
+      "path": "obsm/X_segmentations"
+    },
+    "obsLocations": {
+      // Accepts the same options as obsLocations.anndata.zarr
+      "path": "obsm/X_centroids"
+    },
+    "obsEmbedding": [
+      {
+        // Accepts a superset of the options from obsEmbedding.anndata.zarr
+        // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+        "path": "obsm/X_umap",
+        // An embeddingType must be specified to distinguish between multiple embedding arrays.
+        "embeddingType": "UMAP"
+      },
+      {
+        "path": "obsm/X_pca",
+        "dims": [4, 5],
+        "embeddingType": "PCA"
+      }
+    ],
+    "obsLabels": [
+      {
+        // Accepts a superset of the options from obsLabels.anndata.zarr
+        "path": "obs/alt_cell_id",
+        // An obsLabelsType must be specified to distinguish between multiple label columns.
+        "obsLabelsType": "Alternate cell ID"
+      }
+    ],
+    "obsSets": [
+      // Accepts the same options as obsSets.anndata.zarr
+      {
+        "name": "Cell Type Annotations",
+        "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
+      }
+    ],
+    "obsFeatureMatrix": {
+      // Accepts the same options as obsFeatureMatrix.anndata.zarr
+      // Should point to the observation-by-feature matrix
+      "path": "X"
     }
-  ],
-  "obsLabels": [
-    {
-      // Accepts a superset of the options from obsLabels.anndata.zarr
-      "path": "obs/alt_cell_id",
-      // An obsLabelsType must be specified to distinguish between multiple label columns.
-      "obsLabelsType": "Alternate cell ID"
-    }
-  ],
-  "obsSets": [
-    // Accepts the same options as obsSets.anndata.zarr
-    {
-      "name": "Cell Type Annotations",
-      "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
-    }
-  ],
-  "obsFeatureMatrix": {
-    // Accepts the same options as obsFeatureMatrix.anndata.zarr
-    // Should point to the observation-by-feature matrix
-    "path": "X"
-  }
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -791,13 +944,13 @@ fileName="my_mdata.zarr"
 fileType="obsFeatureMatrix.mudata.zarr"
 fileConst="OBS_FEATURE_MATRIX_MUDATA_ZARR"
 options={`{
-  // Should point to an observation-by-feature matrix
-  "path": "mod/rna/X"
+    // Should point to an observation-by-feature matrix
+    "path": "mod/rna/X"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -823,14 +976,14 @@ fileName="my_mdata.zarr"
 fileType="obsEmbedding.mudata.zarr"
 fileConst="OBS_EMBEDDING_MUDATA_ZARR"
 options={`{
-  // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "mod/rna/obsm/X_umap",
-  // Dimension indices are optional. By default, [0, 1].
-  "dims": [0, 1]
+    // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "mod/rna/obsm/X_umap",
+    // Dimension indices are optional. By default, [0, 1].
+    "dims": [0, 1]
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "embeddingType": "UMAP"
+    "obsType": "cell",
+    "embeddingType": "UMAP"
 }`}
 />
 
@@ -855,11 +1008,11 @@ fileName="my_mdata.zarr"
 fileType="obsPoints.mudata.zarr"
 fileConst="OBS_POINTS_MUDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "mod/rna/obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "mod/rna/obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -884,11 +1037,11 @@ fileName="my_mdata.zarr"
 fileType="obsSpots.mudata.zarr"
 fileConst="OBS_SPOTS_MUDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "mod/rna/obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "mod/rna/obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -916,22 +1069,22 @@ fileName="my_mdata.zarr"
 fileType="obsSets.mudata.zarr"
 fileConst="OBS_SETS_MUDATA_ZARR"
 options={`[
-  {
-    "name": "Leiden Clustering",
-    "path": "mod/rna/obs/leiden"
-  },
-  {
-    "name": "Cell Type Annotations",
-    "path": ["mod/rna/obs/cell_type_coarse", "mod/rna/obs/cell_type_fine"]
-  },
-  {
-    "name": "Predicted Cell Types",
-    "path": "mod/rna/obs/pred_cell_type",
-    "scorePath": "mod/rna/obs/pred_score"
-  }
+    {
+      "name": "Leiden Clustering",
+      "path": "mod/rna/obs/leiden"
+    },
+    {
+      "name": "Cell Type Annotations",
+      "path": ["mod/rna/obs/cell_type_coarse", "mod/rna/obs/cell_type_fine"]
+    },
+    {
+      "name": "Predicted Cell Types",
+      "path": "mod/rna/obs/pred_cell_type",
+      "scorePath": "mod/rna/obs/pred_score"
+    }
 ]`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -942,11 +1095,11 @@ fileName="my_mdata.zarr"
 fileType="obsSegmentations.mudata.zarr"
 fileConst="OBS_SEGMENTATIONS_MUDATA_ZARR"
 options={`{
-  // Should point to an array of polygon vertices, one polygon per obs/cell.
-  "path": "mod/rna/obs/X_segmentations"
+    // Should point to an array of polygon vertices, one polygon per obs/cell.
+    "path": "mod/rna/obs/X_segmentations"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -968,12 +1121,12 @@ fileName="my_mdata.zarr"
 fileType="obsLabels.mudata.zarr"
 fileConst="OBS_LABELS_MUDATA_ZARR"
 options={`{
-  // Should point to a string column
-  "path": "mod/rna/obs/alt_cell_ids"
+    // Should point to a string column
+    "path": "mod/rna/obs/alt_cell_ids"
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "obsLabelsType": "Alternate cell ID"
+    "obsType": "cell",
+    "obsLabelsType": "Alternate cell ID"
 }`}
 />
 
@@ -998,11 +1151,11 @@ fileName="my_mdata.zarr"
 fileType="obsLocations.mudata.zarr"
 fileConst="OBS_LOCATIONS_MUDATA_ZARR"
 options={`{
-  // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
-  "path": "mod/rna/obs/X_spatial"
+    // Should point to an array of (x, y) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "mod/rna/obs/X_spatial"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -1026,12 +1179,12 @@ fileName="my_mdata.zarr"
 fileType="featureLabels.mudata.zarr"
 fileConst="FEATURE_LABELS_MUDATA_ZARR"
 options={`{
-  // Should point to a string column
-  "path": "mod/rna/var/gene_symbol"
+    // Should point to a string column
+    "path": "mod/rna/var/gene_symbol"
 }`}
 coordinationValues={`{
-  "featureType": "gene",
-  "featureLabelsType": "Gene symbol"
+    "featureType": "gene",
+    "featureLabelsType": "Gene symbol"
 }`}
 />
 
@@ -1063,15 +1216,55 @@ fileName="my_sdata.zarr"
 fileType="obsSpots.spatialdata.zarr"
 fileConst="OBS_SPOTS_SPATIALDATA_ZARR"
 options={`{
-  // Should point to the table containing the circular shape coordinates.
-  "path": "shapes/some_region_shapes",
-  // Should point to the table which annotates the specified shapes. Optional.
-  "tablePath": "table/table",
-  // Region value to use for filtering the rows of the table.
-  "region": "some_region_shapes"
+    // Should point to the table containing the circular shape geometries.
+    "path": "shapes/some_region_shapes",
+    // Should point to the table which annotates the specified shapes. Optional.
+    "tablePath": "tables/table",
+    // Region value to use for filtering the rows of the table.
+    "region": "some_region_shapes"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
+}`}
+/>
+
+
+### `obsPoints.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsPoints.spatialdata.zarr"
+fileConst="OBS_POINTS_SPATIALDATA_ZARR"
+options={`{
+    // Should point to the table containing the point coordinates.
+    "path": "points/some_region_points",
+    // Should point to the table which annotates the specified shapes. Optional.
+    "tablePath": "tables/table",
+    // Region value to use for filtering the rows of the table.
+    "region": "some_region_points"
+}`}
+coordinationValues={`{
+    "obsType": "cell"
+}`}
+/>
+
+
+### `shapes.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="shapes.spatialdata.zarr"
+fileConst="SHAPES_SPATIALDATA_ZARR"
+options={`{
+    // Should point to the table containing the polygon shape geometries.
+    "path": "shapes/some_region_shapes",
+    // Should point to the table which annotates the specified shapes. Optional.
+    "tablePath": "tables/table",
+    // Region value to use for filtering the rows of the table.
+    "region": "some_region_shapes"
+}`}
+coordinationValues={`{
+    "obsType": "cell"
 }`}
 />
 
@@ -1084,12 +1277,12 @@ fileName="my_sdata.zarr"
 fileType="labels.spatialdata.zarr"
 fileConst="LABELS_SPATIALDATA_ZARR"
 options={`{
-  // Should point to a label image.
-  "path": "labels/my_cell_bitmask"
+    // Should point to a label image.
+    "path": "labels/my_cell_bitmask"
 }`}
 coordinationValues={`{
-  "fileUid": "cell-bitmask",
-  "obsType": "cell"
+    "fileUid": "cell-bitmask",
+    "obsType": "cell"
 }`}
 />
 
@@ -1100,11 +1293,11 @@ fileName="my_sdata.zarr"
 fileType="image.spatialdata.zarr"
 fileConst="IMAGE_SPATIALDATA_ZARR"
 options={`{
-  // Should point to an image.
-  "path": "images/some_image"
+    // Should point to an image.
+    "path": "images/some_image"
 }`}
 coordinationValues={`{
-  "fileUid": "histology-image"
+    "fileUid": "histology-image"
 }`}
 />
 
@@ -1115,11 +1308,11 @@ fileName="my_sdata.zarr"
 fileType="obsFeatureMatrix.spatialdata.zarr"
 fileConst="OBS_FEATURE_MATRIX_SPATIALDATA_ZARR"
 options={`{
-  // Should point to a 2D array within the AnnData table object.
-  "path": "table/table/X"
+    // Should point to a 2D array within the AnnData table object.
+    "path": "tables/table/X"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -1147,29 +1340,29 @@ fileName="my_sdata.zarr"
 fileType="obsSets.spatialdata.zarr"
 fileConst="OBS_SETS_SPATIALDATA_ZARR"
 options={`{
-  // Array of { name, path, ... } objects specifying columns containing set values.
-  "obsSets": [
-    {
-      "name": "Leiden Clustering",
-      "path": "table/table/obs/leiden"
-    },
-    {
-      "name": "Cell Type Annotations",
-      "path": ["table/table/obs/cell_type_coarse", "table/table/obs/cell_type_fine"]
-    },
-    {
-      "name": "Predicted Cell Types",
-      "path": "table/table/obs/pred_cell_type",
-      "scorePath": "table/table/obs/pred_score"
-    }
-  ],
-  // Region value to filter the rows of the table. Optional.
-  "region": "some_region",
-  // Path to table containing the index that is aligned to the set columns. Optional.
-  "tablePath": "table/table"
+    // Array of { name, path, ... } objects specifying columns containing set values.
+    "obsSets": [
+      {
+        "name": "Leiden Clustering",
+        "path": "tables/table/obs/leiden"
+      },
+      {
+        "name": "Cell Type Annotations",
+        "path": ["tables/table/obs/cell_type_coarse", "tables/table/obs/cell_type_fine"]
+      },
+      {
+        "name": "Predicted Cell Types",
+        "path": "tables/table/obs/pred_cell_type",
+        "scorePath": "tables/table/obs/pred_score"
+      }
+    ],
+    // Region value to filter the rows of the table. Optional.
+    "region": "some_region",
+    // Path to table containing the index that is aligned to the set columns. Optional.
+    "tablePath": "tables/table"
 }`}
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -1177,42 +1370,45 @@ coordinationValues={`{
 
 Defines an SpatialData object that has been written to a Zarr store. This is a [joint](/docs/data-types-file-types/#joint-file-types) file type.
 
+Note that while this options schema only supports a single image/obsSegmentations/etc.,
+multiple `spatialdata.zarr` files (pointing to the same or different SpatialData objects) can be defined in a single list of files in the dataset configuration.
+
 <FileDefTabs
 fileName="my_sdata.zarr"
 fileType="spatialdata.zarr"
 fileConst="SPATIALDATA_ZARR"
 options={`{
-  "image": {
-    // Accepts the same options as image.spatialdata.zarr
-    "path": "images/visium_151673_full_image"
-  },
-  "labels": {
-    // Accepts the same options as labels.spatialdata.zarr
-    "path": "images/visium_151673_annotations"
-  },
-  "obsFeatureMatrix": {
-    // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
-    "path": "table/table/X"
-  }
-  "obsSpots": {
-    // Accepts the same options as obsSpots.spatialdata.zarr
-    "path": "shapes/visium_151673",
-  },
-  "obsSets": {
-    // Accepts the same options as obsSets.spatialdata.zarr
-    "obsSets": [
-      // Accepts the same options as obsSets.anndata.zarr
-      {
-        "name": "Cell Type Annotations",
-        "path": ["obs/cell_type_coarse", "obs/cell_type_fine"]
-      }
-    ],
-  }
+    "image": {
+      // Accepts the same options as image.spatialdata.zarr
+      "path": "images/visium_151673_full_image"
+    },
+    "obsSegmentations": {
+      // Accepts the same options as {labels|shapes}.spatialdata.zarr
+      "path": "labels/visium_151673_annotations"
+    },
+    "obsFeatureMatrix": {
+      // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
+      "path": "tables/table/X"
+    }
+    "obsSpots": {
+      // Accepts the same options as obsSpots.spatialdata.zarr
+      "path": "shapes/visium_151673",
+    },
+    "obsSets": {
+      // Accepts the same options as obsSets.spatialdata.zarr; Similar to obsSets.anndata.zarr
+      "obsSets": [
+        {
+          "name": "Cell Type Annotations",
+          "path": ["tables/table/obs/cell_type_coarse", "tables/table/obs/cell_type_fine"]
+        }
+      ],
+      "tablePath": "tables/table"
+    }
 }`}
 coordinationValues={`{
-  "obsType": "cell",
-  "featureType": "gene",
-  "featureValueType": "expression"
+    "obsType": "cell",
+    "featureType": "gene",
+    "featureValueType": "expression"
 }`}
 />
 
@@ -1223,14 +1419,14 @@ coordinationValues={`{
 
 Storage of sets of observations in a tree data structure.
 If this tree has a uniform height within each top-level group then it may be more straightforward to use the [`obsSets.csv`](#obssetscsv) or [`obsSets.anndata.zarr`](#obssetsanndatazarr) file types.
-See the [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/obsSets.schema.json) and an [example](https://s3.amazonaws.com/vitessce-data/0.0.31/master_release/dries/dries.cell-sets.json) for reference.
+See the [JSON schema](https://github.com/vitessce/vitessce/blob/main/src/schemas/obsSets.schema.json) and an [example](https://data-1.vitessce.io/0.0.31/master_release/dries/dries.cell-sets.json) for reference.
 
 <FileDefTabs
 fileName="my_cell_sets.json"
 fileType="obsSets.json"
 fileConst="OBS_SETS_JSON"
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -1270,7 +1466,7 @@ fileName="my_cell_segmentations.json"
 fileType="obsSegmentations.json"
 fileConst="OBS_SEGMENTATIONS_JSON"
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 />
 
@@ -1284,18 +1480,18 @@ Note that for this file type, the top-level `"url"` property is not required (UR
 fileType="obsSegmentations.raster.json"
 fileConst="OBS_SEGMENTATIONS_RASTER_JSON"
 coordinationValues={`{
-  "obsType": "cell"
+    "obsType": "cell"
 }`}
 options={`{
-  "renderLayers": ["My OME-TIFF Mask"],
-  "schemaVersion": "0.0.2",
-  "images": [
-    {
-      "name": "My OME-TIFF Mask",
-      "url": "http://example.com/my_mask.ome.tif",
-      "type": "ome-tiff"
-    }
-  ]
+    "renderLayers": ["My OME-TIFF Mask"],
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My OME-TIFF Mask",
+        "url": "http://example.com/my_mask.ome.tif",
+        "type": "ome-tiff"
+      }
+    ]
 }`}
 />
 
@@ -1305,10 +1501,31 @@ options={`{
 Points to a label image ("bitmask") in OME-TIFF format.
 Pixel values are integers that correspond to segmented observations, with `0` representing background.
 
+See the [OME-TIFF Troubleshooting](../data-troubleshooting/#ome-tiff) documentation for more information.
+
 <FileDefTabs
 fileName="my_cell_segmentations.ome.tif"
 fileType="obsSegmentations.ome-tiff"
 fileConst="OBS_SEGMENTATIONS_OME_TIFF"
+options={`{
+    // Optionlly, specify a path to an offsets.json file.
+    // This is recommended to improve performance for large OME-TIFF files.
+    "offsetsUrl": "https://example.com/my_cell_segmentations.offsets.json",
+    // Optionally, specify coordinate transformations.
+    "coordinateTransformations": [
+      {
+        "type": "scale",
+        // Specify one value per dimension.
+        // e.g., to scale 2x in X and Y
+        // for an image with DimensionOrder "XYZCT":
+        "scale": [2.0, 2.0, 1.0, 1.0, 1.0]
+      },
+    ],
+    // Optionally, specify whether obsType values
+    // for each segmentation channel should be auto-initialized to
+    // the image channel names present within the OME-XML metadata.
+    "obsTypesFromChannelNames": false
+}`}
 />
 
 
@@ -1321,10 +1538,19 @@ If the OME-XML metadata contains `PhysicalSizeX`, `PhysicalSizeXUnit`, `Physical
 Optionally, `options.coordinateTransformations` can be defined, which will be interpreted according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
 The dimensions of these transformations must correspond to the `DimensionOrder` from OME-XML.
 
+
+See the [OME-TIFF Troubleshooting](../data-troubleshooting/#ome-tiff) documentation for more information.
+
+
 <FileDefTabs
 fileName="my_image.ome.tif"
 fileType="image.ome-tiff"
 fileConst="IMAGE_OME_TIFF"
+options={`{
+    // Optionlly, specify a path to an offsets.json file.
+    // This is recommended to improve performance for large OME-TIFF files.
+    "offsetsUrl": "https://example.com/my_image.offsets.json"
+}`}
 />
 
 ## `obsSegmentations.ome-zarr`
@@ -1336,6 +1562,22 @@ Pixel values are integers that correspond to segmented observations, with `0` re
 fileName="my_cell_segmentations.ome.zarr"
 fileType="obsSegmentations.ome-zarr"
 fileConst="OBS_SEGMENTATIONS_OME_ZARR"
+options={`{
+    // Optionally, specify coordinate transformations.
+    "coordinateTransformations": [
+      {
+        "type": "scale",
+        // Specify one value per dimension.
+        // e.g., to scale 2x in X and Y
+        // for an image with DimensionOrder "XYZCT":
+        "scale": [2.0, 2.0, 1.0, 1.0, 1.0]
+      },
+    ],
+    // Optionally, specify whether obsType values
+    // for each segmentation channel should be auto-initialized to
+    // the image channel names present within the OME-XML metadata.
+    "obsTypesFromChannelNames": false
+}`}
 />
 
 ## `image.ome-zarr`
@@ -1343,7 +1585,7 @@ fileConst="OBS_SEGMENTATIONS_OME_ZARR"
 Points to an image in OME-NGFF format that has been saved to a Zarr store.
 See [OME-NGFF data troubleshooting](/docs/data-troubleshooting/#ome-ngff) for more details.
 
-Optionally, `options.coordinateTransformations` can be defined according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec.
+Optionally, `options.coordinateTransformations` can be defined according to the OME-NGFF v0.4 [coordinateTransformations](https://ngff.openmicroscopy.org/0.4/#trafo-md) spec ([Zod schema](https://github.com/vitessce/vitessce/blob/25f61fa52ab5b10daf84afe9b8e4a8514189f404/packages/schemas/src/file-def-options.ts#L153)).
 These will be applied after any `coordinateTransformations` contained within the Zarr store's OME-NGFF metadata.
 
 <FileDefTabs
@@ -1359,16 +1601,16 @@ fileName="my_image.ome.zarr"
 fileType="image.ome-zarr"
 fileConst="IMAGE_OME_ZARR"
 options={`{
-  coordinateTransformations: [
-    {
-      type: 'translation',
-      translation: [0, 0, 1, 1],
-    },
-    {
-      type: 'scale',
-      scale: [1, 0.5, 0.5, 0.5],
-    },
-  ],
+    "coordinateTransformations": [
+      {
+        "type": "translation",
+        "translation": [0, 0, 1, 1],
+      },
+      {
+        "type": "scale",
+        "scale": [1, 0.5, 0.5, 0.5],
+      },
+    ],
 }`}
 />
 
@@ -1382,27 +1624,27 @@ Note that for this file type, the top-level `"url"` property is not required (UR
 fileType="image.raster.json"
 fileConst="IMAGE_RASTER_JSON"
 options={`{
-  "renderLayers": ["My OME-TIFF Image"],
-  "schemaVersion": "0.0.2",
-  "images": [
-    {
-      "name": "My OME-TIFF Image",
-      "url": "http://example.com/my_image.ome.tif",
-      "type": "ome-tiff",
-      "metadata": {
-        "transform": {
-          // An optional transformation matrix
-          // in column-major order.
-          "matrix": [
-            0.81915098, -0.57357901, 0, 3264.76514684,
-            0.57357502, 0.819152, 0, 556.50440621,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-          ]
+    "renderLayers": ["My OME-TIFF Image"],
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My OME-TIFF Image",
+        "url": "http://example.com/my_image.ome.tif",
+        "type": "ome-tiff",
+        "metadata": {
+          "transform": {
+            // An optional transformation matrix
+            // in column-major order.
+            "matrix": [
+              0.81915098, -0.57357901, 0, 3264.76514684,
+              0.57357502, 0.819152, 0, 556.50440621,
+              0, 0, 1, 0,
+              0, 0, 0, 1
+            ]
+          }
         }
       }
-    }
-  ]
+    ]
 }`}
 />
 
@@ -1412,46 +1654,46 @@ Example with a Zarr store:
 fileType="image.raster.json"
 fileConst="IMAGE_RASTER_JSON"
 options={`{
-  "schemaVersion": "0.0.2",
-  "images": [
-    {
-      "name": "My Bioformats-Zarr Image",
-      "url": "http://example.com/my_image.zarr",
-      "type": "zarr",
-      "metadata": {
-        "dimensions": [
-          {
-            "field": "channel",
-            "type": "nominal",
-            "values": [
-              "DAPI - Hoechst (nuclei)",
-              "FITC - Laminin (basement membrane)",
-              "Cy3 - Synaptopodin (glomerular)",
-              "Cy5 - THP (thick limb)"
-            ]
-          },
-          {
-            "field": "y",
-            "type": "quantitative",
-            "values": null
-          },
-          {
-            "field": "x",
-            "type": "quantitative",
-            "values": null
+    "schemaVersion": "0.0.2",
+    "images": [
+      {
+        "name": "My Bioformats-Zarr Image",
+        "url": "http://example.com/my_image.zarr",
+        "type": "zarr",
+        "metadata": {
+          "dimensions": [
+            {
+              "field": "channel",
+              "type": "nominal",
+              "values": [
+                "DAPI - Hoechst (nuclei)",
+                "FITC - Laminin (basement membrane)",
+                "Cy3 - Synaptopodin (glomerular)",
+                "Cy5 - THP (thick limb)"
+              ]
+            },
+            {
+              "field": "y",
+              "type": "quantitative",
+              "values": null
+            },
+            {
+              "field": "x",
+              "type": "quantitative",
+              "values": null
+            }
+          ],
+          "isPyramid": true,
+          "transform": {
+            "translate": {
+              "y": 0,
+              "x": 0
+            },
+            "scale": 1
           }
-        ],
-        "isPyramid": true,
-        "transform": {
-          "translate": {
-            "y": 0,
-            "x": 0
-          },
-          "scale": 1
         }
       }
-    }
-  ]
+    ]
 }`}
 />
 
@@ -1555,11 +1797,11 @@ Converted outputs can be used with the [AnnData as Zarr](#anndata-as-zarr) famil
 
 ### Seurat
 
-The Vitessce R package can be used to [convert Seurat objects](https://vitessce.github.io/vitessceR/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
+The Vitessce R package can be used to [convert Seurat objects](https://r-docs.vitessce.io/reference/SeuratWrapper.html) to the [`cells.json`](#cellsjson) and [`cell-sets.json`](#cell-setsjson) file types.
 
 ### SnapATAC
 
-The Vitessce Python package can be used to [convert SnapATAC outputs](https://vitessce.github.io/vitessce-python/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
+The Vitessce Python package can be used to [convert SnapATAC outputs](https://python-docs.vitessce.io/data_examples.html) to the [`genomic-profiles.zarr`](#genomic-profileszarr), [`cells.json`](#cellsjson), and [`cell-sets.json`](#cell-setsjson) file types.
 
 
 ### TIFF and Proprietary Image Formats

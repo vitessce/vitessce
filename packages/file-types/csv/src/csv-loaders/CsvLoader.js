@@ -1,33 +1,16 @@
-import { AbstractTwoStepLoader, AbstractLoaderError, LoaderResult } from '@vitessce/vit-s';
+import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class CsvLoader extends AbstractTwoStepLoader {
-  getSourceData() {
-    const {
-      url,
-    } = this;
-    if (this.data) {
-      return this.data;
-    }
-    this.data = this.dataSource.data
-      .then((data) => {
-        if (data instanceof AbstractLoaderError) {
-          return Promise.reject(data);
-        }
-        return Promise.resolve(new LoaderResult(data, url));
-      });
-    return this.data;
+  async getSourceData() {
+    return new LoaderResult(await this.dataSource.loadCsv(), this.url);
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
-    const { data, url } = payload;
+    const { data, url } = await this.getSourceData();
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
-    ));
+    );
   }
 }

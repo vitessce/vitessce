@@ -1,7 +1,9 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
+import Markdown from 'react-markdown';
+import { DescriptionType } from '@vitessce/constants-internal';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   description: {
     '& p, details, table': {
       fontSize: '80%',
@@ -29,7 +31,7 @@ const useStyles = makeStyles(theme => ({
         whiteSpace: 'nowrap',
         width: '50%',
       },
-      '& tr:nth-child(even)': {
+      '& tr:nth-of-type(even)': {
         // TODO(monorepo): lighten color by 5%
         backgroundColor: `1px solid ${theme.palette.primaryBackground}`,
       },
@@ -38,12 +40,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Description(props) {
-  const { description, metadata } = props;
-  const classes = useStyles();
+  const { description, metadata, descriptionType } = props;
+  const { classes } = useStyles();
   return (
     <div className={classes.description}>
-      <p>{description}</p>
-
+      {descriptionType && descriptionType === DescriptionType.MARKDOWN
+        ? <Markdown>{description}</Markdown> : <p>{description}</p>}
       {metadata && Array.from(metadata.entries())
         .map(([layerIndex, { name: layerName, metadata: metadataRecord }]) => (
           metadataRecord && Object.entries(metadataRecord).length > 0 ? (
