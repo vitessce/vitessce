@@ -586,13 +586,19 @@ export class VitessceConfig {
    * Add a new view to the config.
    * @param {VitessceConfigDataset} dataset The dataset instance which defines the data
    * that will be displayed in the view.
-   * @param {string} component A component name, such as "scatterplot" or "spatial".
+   * @param {string} component A component name, such as "scatterplot"
+   * or "spatial".
    * @param {object|undefined} options Extra options for the component.
-   * @param {number|undefined} options.x The x-coordinate for the view in the grid layout.
-   * @param {number|undefined} options.y The y-coordinate for the view in the grid layout.
-   * @param {number|undefined} options.w The width for the view in the grid layout.
-   * @param {number|undefined} options.h The height for the view in the grid layout.
-   * @param {string|undefined} options.mapping A convenience parameter for setting the EMBEDDING_TYPE
+   * @param {number|undefined} options.x The x-coordinate for the view
+   * in the grid layout.
+   * @param {number|undefined} options.y The y-coordinate for the view
+   * in the grid layout.
+   * @param {number|undefined} options.w The width for the view in the
+   * grid layout.
+   * @param {number|undefined} options.h The height for the view in the
+   * grid layout.
+   * @param {string|undefined} options.mapping A convenience parameter
+   * for setting the EMBEDDING_TYPE
    * coordination value. Only applicable if the component is "scatterplot".
    * @returns {VitessceConfigView} A new view instance.
    */
