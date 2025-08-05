@@ -11,6 +11,7 @@ import type {
 import {
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
   getNgffAxes,
   getNgffAxesForTiff,
   physicalSizeToMatrix,
@@ -86,7 +87,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
   _getModelMatrix(): number[] {
     // The user can always provide an additional transform matrix
     // via the file definition options property.
-    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
+    const {
+      coordinateSystem = 'global',
+      coordinateTransformations: coordinateTransformationsFromOptions,
+    } = this.options;
     // We combine any user-provided transform matrix with the one
     // from the image file.
     if ('multiscales' in this.vivLoader.metadata) {
@@ -105,13 +109,27 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
       );
-      // Normalize the coordinate transformations from the file.
-      const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-        coordinateTransformationsFromFile, datasets,
-      );
-      const transformMatrixFromFile = coordinateTransformationsToMatrix(
-        normCoordinateTransformationsFromFile, ngffAxes,
-      );
+
+      let transformMatrixFromFile;
+      // Note: Older SpatialData objects did not include 'spatialdata_attrs'
+      // in the image Element metadata.
+      if ('spatialdata_attrs' in this.vivLoader.metadata) {
+        // This is a SpatialData images or labels element.
+        transformMatrixFromFile = coordinateTransformationsToMatrixForSpatialData(
+          // Pass the first multiscales element.
+          this.vivLoader.metadata.multiscales[0],
+          coordinateSystem,
+        );
+      } else {
+        // TODO: update this if NGFF eventually supports named coordinate systems.
+        // Normalize the coordinate transformations from the file.
+        const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+          coordinateTransformationsFromFile, datasets,
+        );
+        transformMatrixFromFile = coordinateTransformationsToMatrix(
+          normCoordinateTransformationsFromFile, ngffAxes,
+        );
+      }
       const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
       return transformMatrix;
     }

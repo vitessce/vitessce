@@ -5,9 +5,7 @@ import { UnknownSpatialDataFormatError } from '@vitessce/error';
 import { isEqual } from 'lodash-es';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
-  normalizeCoordinateTransformations,
-  coordinateTransformationsToMatrix,
-  normalizeAxes,
+  coordinateTransformationsToMatrixForSpatialData,
 } from '@vitessce/spatial-utils';
 
 
@@ -39,30 +37,10 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       throw new Error('The coordinate transformations metadata must be defined for point elements.');
     }
 
-    // We convert the axes to objects for compatibility with the
-    // coordinateTransformationsToMatrix function.
-    const normAxes = normalizeAxes(axes);
-
-    // TODO: create a full tree
-    // of coordinate transformations, and traverse the tree from
-    // the node corresponding to the output coordinate system of interest
-    // back to the root node, applying each transformation along the way.
-    const coordinateTransformationsFromFile = (
-      coordinateTransformations
-    ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xyz' && outputName === coordinateSystem
-    ));
-
-    // This new spec is very flexible,
-    // so here we will attempt to convert it back to the old spec.
-    // TODO: do the reverse, convert old spec to new spec
-    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-      coordinateTransformationsFromFile, null,
+    this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
+      { axes, coordinateTransformations },
+      coordinateSystem,
     );
-    const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, normAxes,
-    );
-    this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
   }
 

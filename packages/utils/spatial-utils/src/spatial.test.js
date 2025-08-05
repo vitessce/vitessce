@@ -3,6 +3,7 @@ import {
   coordinateTransformationsToMatrix,
   normalizeCoordinateTransformations,
   getSwapAxesMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
 } from './spatial.js';
 
 const defaultAxes = [
@@ -308,6 +309,44 @@ describe('Spatial.js', () => {
         // the user to specify this somehow and use that information to filter which transforms
         // are included here.
         {
+          input: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'cyx',
+          },
+          output: {
+            axes: [
+              {
+                name: 'c',
+                type: 'channel',
+              },
+              {
+                name: 'y',
+                type: 'space',
+                unit: 'unit',
+              },
+              {
+                name: 'x',
+                type: 'space',
+                unit: 'unit',
+              },
+            ],
+            name: 'ST8059048',
+          },
           scale: [
             1.0,
             8.670500183814605,
@@ -315,6 +354,514 @@ describe('Spatial.js', () => {
           ],
           type: 'scale',
         },
+      ]);
+    });
+  });
+  describe('coordinateTransformationsToMatrixForSpatialData', () => {
+    it('supports transformations from visium_hd_3.0.0_io.zip labels/rasterized_016um element', () => {
+      const zattrs = {
+        'image-label': {
+          version: '0.4-dev-spatialdata',
+        },
+        multiscales: [
+          {
+            axes: [
+              {
+                name: 'y',
+                type: 'space',
+              },
+              {
+                name: 'x',
+                type: 'space',
+              },
+            ],
+            coordinateTransformations: [
+              {
+                input: {
+                  axes: [
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'yx',
+                },
+                output: {
+                  axes: [
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'Visium_HD_Mouse_Small_Intestine',
+                },
+                transformations: [
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'yx',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    transformations: [
+                      {
+                        affine: [
+                          [
+                            -0.38,
+                            58.43,
+                            257.07,
+                          ],
+                          [
+                            -58.42,
+                            -0.38,
+                            24102.79,
+                          ],
+                        ],
+                        input: {
+                          axes: [
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'yx',
+                        },
+                        output: {
+                          axes: [
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'global',
+                        },
+                        type: 'affine',
+                      },
+                    ],
+                    type: 'sequence',
+                  },
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'xy',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    type: 'identity',
+                  },
+                ],
+                type: 'sequence',
+              },
+              {
+                input: {
+                  axes: [
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'yx',
+                },
+                output: {
+                  axes: [
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'Visium_HD_Mouse_Small_Intestine_downscaled_hires',
+                },
+                transformations: [
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'yx',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    transformations: [
+                      {
+                        affine: [
+                          [
+                            -0.38,
+                            58.43,
+                            257.07,
+                          ],
+                          [
+                            -58.42,
+                            -0.38,
+                            24102.79,
+                          ],
+                        ],
+                        input: {
+                          axes: [
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'yx',
+                        },
+                        output: {
+                          axes: [
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'global',
+                        },
+                        type: 'affine',
+                      },
+                    ],
+                    type: 'sequence',
+                  },
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'xy',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    scale: [
+                      0.25,
+                      0.25,
+                    ],
+                    type: 'scale',
+                  },
+                ],
+                type: 'sequence',
+              },
+              {
+                input: {
+                  axes: [
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'yx',
+                },
+                output: {
+                  axes: [
+                    {
+                      name: 'x',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                    {
+                      name: 'y',
+                      type: 'space',
+                      unit: 'unit',
+                    },
+                  ],
+                  name: 'Visium_HD_Mouse_Small_Intestine_downscaled_lowres',
+                },
+                transformations: [
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'yx',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    transformations: [
+                      {
+                        affine: [
+                          [
+                            -0.38,
+                            58.43,
+                            257.07,
+                          ],
+                          [
+                            -58.42,
+                            -0.38,
+                            24102.79,
+                          ],
+                        ],
+                        input: {
+                          axes: [
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'yx',
+                        },
+                        output: {
+                          axes: [
+                            {
+                              name: 'x',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                            {
+                              name: 'y',
+                              type: 'space',
+                              unit: 'unit',
+                            },
+                          ],
+                          name: 'global',
+                        },
+                        type: 'affine',
+                      },
+                    ],
+                    type: 'sequence',
+                  },
+                  {
+                    input: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'xy',
+                    },
+                    output: {
+                      axes: [
+                        {
+                          name: 'x',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                        {
+                          name: 'y',
+                          type: 'space',
+                          unit: 'unit',
+                        },
+                      ],
+                      name: 'global',
+                    },
+                    scale: [
+                      0.025,
+                      0.025,
+                    ],
+                    type: 'scale',
+                  },
+                ],
+                type: 'sequence',
+              },
+            ],
+            datasets: [
+              {
+                coordinateTransformations: [
+                  {
+                    scale: [
+                      1.0,
+                      1.0,
+                    ],
+                    type: 'scale',
+                  },
+                ],
+                path: '0',
+              },
+            ],
+            name: 'rasterized_016um',
+            version: '0.4-dev-spatialdata',
+          },
+        ],
+        spatialdata_attrs: {
+          version: '0.2',
+        },
+      };
+      const firstMultiscales = zattrs.multiscales[0];
+      const targetCoordinateSystem = 'Visium_HD_Mouse_Small_Intestine';
+      const matrix = coordinateTransformationsToMatrixForSpatialData(
+        firstMultiscales,
+        targetCoordinateSystem,
+      );
+      expect(matrix).toEqual([
+        58.43, -0.38, 0, 0,
+        -0.38, -58.42, 0, 0,
+        0, 0, 1, 0,
+        257.07, 24102.79, 0, 1,
       ]);
     });
   });
