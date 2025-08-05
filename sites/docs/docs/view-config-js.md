@@ -517,7 +517,7 @@ vc.layout(vconcat(v1, v2));
 
 This class is not meant to be instantiated directly, but instances will be created and returned by the `VitessceConfig.addDataset()` method.
 
-### `addFile({ url, fileType, coordinationValues, options })`
+### `addFile(params)`
 
 #### Parameters:
 - `params` (`object`) - An object with named arguments.
@@ -525,6 +525,7 @@ This class is not meant to be instantiated directly, but instances will be creat
 - `params.fileType` (`string`) - The file type. We recommend using the [`FileType`](/docs/data-types-file-types/#constants) constant values rather than writing strings directly.
 - `params.coordinationValues` (`object|undefined`) An object defining the coordination values such as `obsType` and `featureType` which allow mapping between views to files.
 - `params.options` (`object|array|undefined`) -  An object or array which may provide additional parameters to the loader class corresponding to the specified `fileType`.
+- `params.requestInit` (`undefined|object`) - A set of options to pass when making HTTP requests. This corresponds to the second [parameter](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) of the JavaScript `fetch` function. For example, this allows requesting and visualizing protected data files that require an `Authorization` header with a bearer token.
 
 #### Returns:
 - Type: `VitessceConfigDataset`
