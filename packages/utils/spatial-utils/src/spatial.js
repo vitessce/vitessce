@@ -684,6 +684,14 @@ export function coordinateTransformationsToMatrixForSpatialData(
   const dag = new DAG(edges);
   const ctPath = dag.findPath(intrinsicCoordinateSystem, targetCoordinateSystem);
   if (!ctPath) {
+    // For example, this can be the case if the targetCoordinateSystem
+    // is "global" but the set of coordinate transformations does not
+    // include one with output.name "global".
+    if (!coordinateTransformations.find(
+      ct => ct.output.name === targetCoordinateSystem
+    )) {
+      throw new Error(`No coordinate transformation found with output.name "${targetCoordinateSystem}".`);
+    }
     throw new Error(`No path found from "${intrinsicCoordinateSystem}" to "${targetCoordinateSystem}".`);
   }
   const filteredTransformations = ctPath.map(ctEdge => ctEdge.attributes);

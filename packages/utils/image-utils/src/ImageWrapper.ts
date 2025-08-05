@@ -111,6 +111,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
       );
 
       let transformMatrixFromFile;
+      // Note: Older SpatialData objects did not include 'spatialdata_attrs'
+      // in the image Element metadata.
       if ('spatialdata_attrs' in this.vivLoader.metadata) {
         // This is a SpatialData images or labels element.
         transformMatrixFromFile = coordinateTransformationsToMatrixForSpatialData(
