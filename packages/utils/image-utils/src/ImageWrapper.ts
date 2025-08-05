@@ -111,11 +111,11 @@ export default class ImageWrapper implements AbstractImageWrapper {
       );
 
       let transformMatrixFromFile;
-      if('spatialdata_attrs' in this.vivLoader.metadata) {
+      if ('spatialdata_attrs' in this.vivLoader.metadata) {
         // This is a SpatialData images or labels element.
         transformMatrixFromFile = coordinateTransformationsToMatrixForSpatialData(
           // Pass the first multiscales element.
-          this.vivLoader.metadata['multiscales'][0],
+          this.vivLoader.metadata.multiscales[0],
           coordinateSystem,
         );
       } else {

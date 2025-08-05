@@ -8,14 +8,12 @@ import {
 import { math } from '@vitessce/gl';
 import {
   OLD_SHAPES_DEFAULT_AXES,
-  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
+  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS,
 } from './old-defaults.js';
 
 function getGeometryPath(path) {
   return `${path}/geometry`;
 }
-
-
 
 
 /**
@@ -41,7 +39,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       zattrs?.coordinateTransformations ?? OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
     );
     const axes = zattrs?.axes ?? OLD_SHAPES_DEFAULT_AXES;
-    
+
     this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
       { axes, coordinateTransformations },
       coordinateSystem,

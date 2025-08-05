@@ -9,7 +9,7 @@ import {
 import { math } from '@vitessce/gl';
 import {
   OLD_SHAPES_DEFAULT_AXES,
-  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
+  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS,
 } from './old-defaults.js';
 
 function getCoordsPath(path) {
@@ -48,7 +48,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       zattrs?.coordinateTransformations ?? OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
     );
     const axes = zattrs?.axes ?? OLD_SHAPES_DEFAULT_AXES;
-    
+
     this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
       { axes, coordinateTransformations },
       coordinateSystem,
@@ -146,7 +146,6 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       this.loadRadius(),
     ]);
     const spatialSpotRadius = obsRadius?.data?.[0];
-    console.log(spatialSpotRadius)
 
     const coordinationValues = {
       spotLayer: CL({

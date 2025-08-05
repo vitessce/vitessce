@@ -5,9 +5,9 @@ import { InternMap } from 'internmap';
 // to find a path from targetInput-to-targetOutput.
 // Edges can have arbitrary attributes.
 export class DAG {
-    /**
+  /**
      * DAG constructor.
-     * @param {{ from: string, to: string, attributes: any}[]} edges 
+     * @param {{ from: string, to: string, attributes: any}[]} edges
      */
   constructor(edges) {
     /**
@@ -23,7 +23,7 @@ export class DAG {
     this.edgeData = new InternMap([], JSON.stringify);
 
     // Build adjacency list
-    edges.forEach(edge => {
+    edges.forEach((edge) => {
       const { from, to } = edge;
       if (!this.graph.has(from)) {
         this.graph.set(from, []);
@@ -35,9 +35,10 @@ export class DAG {
 
   /**
    * Find a path from start to end using DFS.
-   * @param {string} start 
-   * @param {string} end 
-   * @returns {{ from: string, to: string, attributes: any }[] | null} Returns the path as an array of edges or null if no path exists.
+   * @param {string} start
+   * @param {string} end
+   * @returns {{ from: string, to: string, attributes: any }[] | null} Returns
+   * the path as an array of edges or null if no path exists.
    */
   findPath(start, end) {
     const path = [];
@@ -51,7 +52,8 @@ export class DAG {
       visited.add(node);
 
       const neighbors = this.graph.get(node) || [];
-      // Do not use forEach to allow early exit
+      // Do not use forEach to allow early exit (returning).
+      // eslint-disable-next-line no-restricted-syntax
       for (const neighbor of neighbors) {
         if (!visited.has(neighbor)) {
           path.push([node, neighbor]);
@@ -72,7 +74,7 @@ export class DAG {
       return path.map(([from, to]) => ({
         from,
         to,
-        attributes: this.edgeData.get([from, to])
+        attributes: this.edgeData.get([from, to]),
       }));
     }
     // If no path is found, return null.

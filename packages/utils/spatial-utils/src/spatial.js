@@ -554,7 +554,7 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
       }
     });
   }
-  if(mat.some((value) => isNaN(value))) {
+  if (mat.some(value => Number.isNaN(value))) {
     throw new Error('Matrix contains NaN values');
   }
   return mat;
@@ -612,18 +612,17 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         // This is a new-style coordinate transformation.
         // (As proposed in https://github.com/ome/ngff/pull/138)
         const { type } = transform;
-         if (type === 'sequence') {
+        if (type === 'sequence') {
           // Recursion to flatten the sequence of transformations.
           return normalizeCoordinateTransformations(transform.transformations, null);
-        } else if (type === 'affine' || type === 'translation' || type === 'scale' || type === 'identity') {
+        } if (type === 'affine' || type === 'translation' || type === 'scale' || type === 'identity') {
           // TODO: normalize the transform.input/transform.output if they are missing?
           // Old transformations did not specify them for translation/scale/identity.
           // But we are currently only using them for affine.
           return transform;
-        } else {
-          // If the type is not recognized, log an error.
-          log.error(`Coordinate transformation type "${type}" is not supported.`);
         }
+        // If the type is not recognized, log an error.
+        log.error(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
       return transform;
@@ -647,9 +646,10 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
 }
 
 /**
- * Convert coordinate transformations to a 4x4 matrix for SpatialData spatial elements.
- * This function is intended to be used with SpatialData objects which have named coordinate systems.
- * This function should be compatible with any SpatialElement (shapes, points, labels, images).
+ * Convert coordinate transformations to a 4x4 matrix for SpatialData
+ * spatial elements. This function is intended to be used with SpatialData
+ * objects which have named coordinate systems. This function should
+ * be compatible with any SpatialElement (shapes, points, labels, images).
  * @param {{
  *  axe?: (string[]|{ name: string, type?: string, unit?: string }[]),
  *  coordinateTransformations?: object[],
@@ -660,7 +660,9 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
  * @returns {Matrix4} A 4x4 transformation matrix.
  * This can later be multiplied with other matrices if needed.
  */
-export function coordinateTransformationsToMatrixForSpatialData(ngffMetadata, targetCoordinateSystem) {
+export function coordinateTransformationsToMatrixForSpatialData(
+  ngffMetadata, targetCoordinateSystem,
+) {
   const {
     datasets,
     coordinateTransformations,
@@ -673,19 +675,21 @@ export function coordinateTransformationsToMatrixForSpatialData(ngffMetadata, ta
   // We know the target coordinate system, but not yet the starting (intrinsic) one.
   const intrinsicCoordinateSystem = getIntrinsicCoordinateSystem(normAxes);
   // Create a DAG of coordinate transformations.
-  const edges = coordinateTransformations.map((ct) => ({
-      from: ct.input.name,
-      to: ct.output.name,
-      attributes: ct,
+  const edges = coordinateTransformations.map(ct => ({
+    from: ct.input.name,
+    to: ct.output.name,
+    attributes: ct,
   }));
   const dag = new DAG(edges);
   const ctPath = dag.findPath(intrinsicCoordinateSystem, targetCoordinateSystem);
   if (!ctPath) {
     throw new Error(`No path found from "${intrinsicCoordinateSystem}" to "${targetCoordinateSystem}".`);
   }
-  const filteredTransformations = ctPath.map(ctPath => ctPath.attributes);
+  const filteredTransformations = ctPath.map(ctEdge => ctEdge.attributes);
   // Normalize the coordinate transformations to OME-NGFF v0.4 format.
-  const normalizedTransformations = normalizeCoordinateTransformations(filteredTransformations, datasets);
+  const normalizedTransformations = normalizeCoordinateTransformations(
+    filteredTransformations, datasets,
+  );
   // Convert the coordinate transformations to a 4x4 matrix.
   return coordinateTransformationsToMatrix(normalizedTransformations, normAxes);
 }

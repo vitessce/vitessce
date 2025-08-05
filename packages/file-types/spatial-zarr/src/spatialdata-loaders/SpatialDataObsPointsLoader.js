@@ -39,7 +39,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
 
     this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
       { axes, coordinateTransformations },
-      coordinateSystem
+      coordinateSystem,
     );
     return this.modelMatrix;
   }
