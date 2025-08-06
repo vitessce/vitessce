@@ -53,6 +53,7 @@ function generateJainKidneyDecimatedConfig() {
   const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
     yUnits: 'microns cubed',
   });
+  const linkController = config.addView(dataset, 'linkController').setProps({ linkID: 5454 });
 
   const [
     selectionScope,
@@ -154,7 +155,7 @@ function generateJainKidneyDecimatedConfig() {
       vconcat(lcView,obsSetsView, barPlot)
     ));
   */
-  config.layout(hconcat(spatialThreeView, vconcat(lcView, vconcat(obsSetsView, barPlot))));
+  config.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, linkController, barPlot)));
 
   const configJSON = config.toJSON();
   return configJSON;
