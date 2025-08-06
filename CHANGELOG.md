@@ -1,4 +1,11 @@
 
+## 3.6.13
+
+### Patch Changes
+
+- Ensure that zip-based alternative fileTypes are registered for spatialdata fileTypes. (`@vitessce/all`) ([#2224](https://github.com/vitessce/vitessce/pull/2224))
+
+
 ## 3.6.12
 
 ### Patch Changes
