@@ -1,13 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { isEqual } from "lodash-es";
-import { AnnotationUserLayer } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer";
-import { getObjectColor } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend";
-import { SegmentationUserLayer } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer";
-import { serializeColor } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color";
-import { setupDefaultViewer } from "@janelia-flyem/neuroglancer";
-import { Uint64 } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64";
-// import { urlSafeParse } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { isEqual } from 'lodash-es';
+import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer';
+import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend';
+import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer';
+import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color';
+import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
+import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64';
+import { call } from 'three/examples/jsm/nodes/Nodes.js';
+// import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
 // function hexToRGBFloat(hex) {
@@ -20,9 +21,10 @@ import { Uint64 } from "@janelia-flyem/neuroglancer/dist/module/neuroglancer/uti
 
 const viewersKeyed = {};
 let viewerNoKey;
+let SEG_LAYER_NAME = null;
 
-const rgbToHex = rgb => (typeof rgb === 'string' ? rgb
-  : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
+// const rgbToHex = rgb => (typeof rgb === 'string' ? rgb
+//   : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
 
 // // Adopted from neuroglancer/ui/url_hash_binding.ts
 // export function parseUrlHash(url) {
@@ -43,19 +45,19 @@ const rgbToHex = rgb => (typeof rgb === 'string' ? rgb
 //     s = decodeURIComponent(s);
 //     state = urlSafeParse(s);
 //   } else {
-//     throw new Error(`URL hash is expected to be of the form "#!{...}" or "#!+{...}".`);
+//     throw new Error(`URL hash is expected to be of the form '#!{...}' or '#!+{...}'.`);
 //   }
 
 //   return state;
 // }
 
-export function hexToFloatRGB(hex){
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  return [r, g, b];
+// export function hexToFloatRGB(hex){
+//   const r = parseInt(hex.slice(1, 3), 16) / 255;
+//   const g = parseInt(hex.slice(3, 5), 16) / 255;
+//   const b = parseInt(hex.slice(5, 7), 16) / 255;
+//   return [r, g, b];
 
-}
+// }
 
 export function getNeuroglancerViewerState(key) {
   const v = key ? viewersKeyed[key] : viewerNoKey;
@@ -88,7 +90,7 @@ export function getNeuroglancerColor(idStr, key) {
   } catch {
     // suppress eslint no-empty
   }
-  return "";
+  return '';
 }
 
 export function closeSelectionTab(key) {
@@ -315,9 +317,9 @@ export function getAnnotationSelectionHost(key) {
   const viewer = key ? viewersKeyed[key] : viewerNoKey;
   if (viewer) {
     if (viewer.selectionDetailsState) {
-      return "viewer";
+      return 'viewer';
     }
-    return "layer";
+    return 'layer';
   }
 
   return null;
@@ -351,6 +353,45 @@ export function getSelectedAnnotationId(key, layerName) {
   return null;
 }
 
+// function makeSegmentClickCallback(ngInstance) {
+//   console.log("ngIns", ngInstance)
+//   return (mouseState) => {
+//     print("pickedVal", mouseState)
+//     const pickedValue = mouseState.pickedValue;
+   
+//     if (!pickedValue) return;
+
+//     const layer = pickedValue.layer;
+//     if (!(layer instanceof SegmentationUserLayer)) return;
+
+//     const segmentId = pickedValue.segment;
+//     const displayState = layer.displayState;
+//     const vs = displayState.segmentationGroupState.value.visibleSegments;
+
+//     const segStr = segmentId.toString();
+
+//     // Toggle behavior: click again to restore
+//     if (ngInstance.lastClickedSegment === segStr) {
+//       // Restore previous visibility
+//       vs.clear();
+//       for (const idStr of ngInstance.prevSegmentsBeforeClick) {
+//         vs.add(Uint64.parseString(idStr));
+//       }
+//       ngInstance.lastClickedSegment = null;
+//     } else {
+//       // Save current visibility
+//       ngInstance.prevSegmentsBeforeClick = new Set();
+//       for (const id of vs) {
+//         ngInstance.prevSegmentsBeforeClick.add(id.toString());
+//       }
+//       // Show only the clicked segment
+//       vs.clear();
+//       vs.add(segmentId);
+//       ngInstance.lastClickedSegment = segStr;
+//     }
+//   };
+// }
+
 export default class Neuroglancer extends React.Component {
   constructor(props) {
     super(props);
@@ -361,12 +402,12 @@ export default class Neuroglancer extends React.Component {
     this.prevColorMap = null;
     this.disposers = [];
   }
-    minimalPoseSnapshot = () => {
+  minimalPoseSnapshot = () => {
       const v = this.viewer;
       return {
         position: Array.from(v.position.value || []),
         projectionScale: v.projectionScale.value,
-        projectionOrientation: Array.from(v.projectionOrientation.value || []),
+        projectionOrientation: Array.from(v.projectionOrientation.orientation || []),
       };
     };
   
@@ -377,7 +418,7 @@ export default class Neuroglancer extends React.Component {
         if (raf !== null) return;
         raf = requestAnimationFrame(() => {
           raf = null;
-          console.log("Minimal", this.minimalPoseSnapshot())
+          // console.log('Minimal', this.minimalPoseSnapshot())
           this.props.onViewerStateChanged?.(this.minimalPoseSnapshot());
         });
       };
@@ -399,8 +440,8 @@ export default class Neuroglancer extends React.Component {
       );
     };
   
-    applyColorsAndVisibility = (cellColorMapping) => { // NEW
-      // Build color map and string id set:
+    applyColorsAndVisibility = (cellColorMapping) => {
+      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
       const segmentColorHash = new Map();
       const newIds = new Set();
   
@@ -438,9 +479,8 @@ export default class Neuroglancer extends React.Component {
   };
 
   componentDidMount() {
-    console.log("mount JaneNG - cellColorMapping", Object.keys(this?.props.cellColorMapping).length);
+    console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
     const {
-      perspectiveZoom,
       viewerState,
       brainMapsClientId,
       eventBindingsToUpdate,
@@ -456,6 +496,30 @@ export default class Neuroglancer extends React.Component {
       bundleRoot,
     });
 
+    // this.viewer.bindCallback('click-segment', () => {
+    //   const picked = this.viewer.mouseState.pickedValue;
+    //   console.log('🔍 pickedValue:', picked);
+    
+    //   if (picked?.low !== undefined) {
+    //     const id = picked.low.toString();
+    //     console.log('✅ Clicked segment:', id);
+    //   }
+    // });
+    // this.viewer.inputEventBindings.perspectiveView.set('click0', 'click-segment');
+    // this.viewer.mouseState.changed.add(() => {
+    //   const is3D = this.viewer.navigationState.displayDimensions.value?.displayDimensionIndices.length === 3;
+    //   if (!is3D) return;
+    
+    //   const picked = this.viewer.mouseState.pickedValue;
+    //   if (is3D && picked && picked.constructor?.name === '_Uint64') {
+    //     // Clone picked segment (to avoid side effects), but never clear
+    //     const dummy = new picked.constructor(0, 0);  
+    //     this.viewer.mouseState.pickedValue.low = dummy.low;
+    //     this.viewer.mouseState.pickedValue.high = dummy.high;
+    //     console.log('🧹 Suppressed hover without nulling pickedValue');
+    //     // TODO: Need to reset the segements
+    //   }
+    // });
     this.setCallbacks(callbacks);
 
     if (eventBindingsToUpdate) {
@@ -497,27 +561,9 @@ export default class Neuroglancer extends React.Component {
     // Initial restore ONLY if provided
     if (viewerState) {
       this.withoutEmitting(() => {
-        console.log("emit")
         this.viewer.state.restoreState(viewerState);
       });
     } 
-    // else {
-    //   this.viewer.state.restoreState(viewerState);
-    // }
-
-    // this.viewer.state.changed.add(() => {
-    //   if (onViewerStateChanged) {
-    //     try {
-    //       if (this.viewer.state.viewer.position) {
-    //         console.log("position")
-    //         onViewerStateChanged(this.viewer.state.toJSON());
-    //       }
-    //     } catch (error) {
-    //       console.debug(error);
-    //     }
-    //   }
-    // });
-
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
     // That function can be used to synchronize an external Redux store with any
     // state changes made internally by the viewer.
@@ -532,17 +578,18 @@ export default class Neuroglancer extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // The restoreState() call clears the "selected" (hovered on) segment, which is needed
+    // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
     // it after restoreState().
-    // console.log("update", this.props)
     const selectedSegments = {};
     // eslint-disable-next-line no-restricted-syntax
     for (const layer of this.viewer.layerManager.managedLayers) {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
+        // TODO:
+        // segmentSelectionState.set(null);
       }
     }
 
@@ -570,6 +617,7 @@ export default class Neuroglancer extends React.Component {
     for (const layer of this.viewer.layerManager.managedLayers) {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
+        SEG_LAYER_NAME = layer.name;
         segmentSelectionState.set(selectedSegments[layer.name]);
       }
     }
@@ -578,7 +626,7 @@ export default class Neuroglancer extends React.Component {
     // the position in the viewer. This should handle those cases by looking
     // for the empty position array and calling the position reset function if
     // found.
-    // if ("position" in viewerState) {
+    // if ('position' in viewerState) {
     //   if (Array.isArray(viewerState.position)) {
     //     if (viewerState.position.length === 0) {
     //       this.viewer.position.reset();
@@ -640,7 +688,6 @@ export default class Neuroglancer extends React.Component {
       );
     });
   }
-
   updateEventBindings = (eventBindingsToUpdate) => {
     const root = this.viewer.inputEventBindings;
 
@@ -725,7 +772,7 @@ export default class Neuroglancer extends React.Component {
 
             if (visibleSegments && onVisibleChanged) {
               const visibleChanged = this.visibleChanged.bind(undefined, layer);
-              console.log("visibleCHanged", visibleChanged)
+              console.log('visibleCHanged', visibleChanged)
               const remover = visibleSegments.changed.add(visibleChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);
@@ -745,7 +792,7 @@ export default class Neuroglancer extends React.Component {
   //         const segment = segmentSelectionState.hasSelectedSegment
   //           ? segmentSelectionState.selectedSegment
   //           : null;
-  //         console.log("inside one", segment, layer)
+  //         console.log('inside one', segment, layer)
   //         onSelectedChanged(segment, layer);
          
   //       }
@@ -791,7 +838,7 @@ export default class Neuroglancer extends React.Component {
   render() {
     const { perspectiveZoom } = this.props;
     return (
-      <div className="neuroglancer-container" ref={this.ngContainer}>
+      <div className='neuroglancer-container' ref={this.ngContainer}>
         <p>Neuroglancer here with zoom {perspectiveZoom}</p>
       </div>
     );
@@ -819,7 +866,7 @@ Neuroglancer.propTypes = {
 
   /**
    * A function of the form `(segment, layer) => {}`, called each time there is a change to
-   * the segment the user has "selected" (i.e., hovered over) in Neuroglancer.
+   * the segment the user has 'selected' (i.e., hovered over) in Neuroglancer.
    * The `segment` argument will be a Neuroglancer `Uint64` with the ID of the now-selected
    * segment, or `null` if no segment is now selected.
    * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
@@ -829,7 +876,7 @@ Neuroglancer.propTypes = {
 
   /**
    * A function of the form `(segments, layer) => {}`, called each time there is a change to
-   * the segments the user has designated as "visible" (i.e., double-clicked on) in Neuroglancer.
+   * the segments the user has designated as 'visible' (i.e., double-clicked on) in Neuroglancer.
    * The `segments` argument will be a Neuroglancer `Uint64Set` whose elements are `Uint64`
    * instances for the IDs of the now-visible segments.
    * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
@@ -850,7 +897,7 @@ Neuroglancer.propTypes = {
 Neuroglancer.defaultProps = {
   perspectiveZoom: 20,
   eventBindingsToUpdate: null,
-  brainMapsClientId: "NOT_A_VALID_ID",
+  brainMapsClientId: 'NOT_A_VALID_ID',
   viewerState: null,
   onSelectedChanged: null,
   onVisibleChanged: null,
@@ -858,6 +905,6 @@ Neuroglancer.defaultProps = {
   onViewerStateChanged: null,
   key: null,
   callbacks: [],
-  ngServer: "https://neuroglancer-demo.appspot.com/",
+  ngServer: 'https://neuroglancer-demo.appspot.com/',
   onViewerStateChanged: null,
 };
