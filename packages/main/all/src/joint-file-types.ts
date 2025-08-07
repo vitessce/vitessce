@@ -326,13 +326,15 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // obsEmbedding
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsEmbedding ? (
-      Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
+      Array.isArray(options.obsEmbedding.obsEmbedding) ? options.obsEmbedding.obsEmbedding.map((oe: any) => ({
         // obsEmbedding was an array, process each element.
         ...baseFileDef,
         fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
         options: {
           path: oe.path,
           dims: oe.dims,
+          tablePath: options.obsEmbedding.tablePath,
+          region: options.obsEmbedding.region,
         },
         coordinationValues: {
           ...extraCoordinationValues,
@@ -345,7 +347,9 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
         ...baseFileDef,
         fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
         options: {
-          ...options.obsEmbedding,
+          ...options.obsEmbedding.obsEmbedding,
+          tablePath: options.obsEmbedding.tablePath,
+          region: options.obsEmbedding.region,
         },
         coordinationValues: {
           ...extraCoordinationValues,

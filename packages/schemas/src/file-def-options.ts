@@ -247,15 +247,14 @@ export const obsSetsSpatialdataSchema = z.object({
     .describe('The path to a table which contains the index for the set values.'),
   obsSets: annDataObsSetsArr,
 });
-
-export const obsEmbeddingSpatialdataSchema = z.object({
+export const obsEmbeddingSpatialdataSchema = annDataObsEmbedding.extend({
+  // We extend anndataObsEmbedding which already has properties like `dims` and `path`.
   region: z.string()
     .describe('The name of a region to use to filter instances (i.e., rows) in the table')
     .optional(),
   tablePath: z.string()
     .optional()
     .describe('The path to a table which contains the index for the set values.'),
-  obsEmbedding: annDataObsEmbedding,
 });
 
 const obsEmbeddingSpatialdataSchemaConvenience = z.object({
@@ -415,6 +414,8 @@ export const spatialdataZarrSchema = z.object({
   obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
   // TODO: obsLabels
   // TODO: featureLabels
+
+  // TODO: allow specifying tablePath and region at the top-level here.
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),
