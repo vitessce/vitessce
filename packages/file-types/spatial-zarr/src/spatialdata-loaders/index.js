@@ -4,3 +4,4 @@ export { default as SpatialDataObsSpotsLoader } from './SpatialDataObsSpotsLoade
 export { default as SpatialDataObsSegmentationsLoader } from './SpatialDataObsSegmentationsLoader.js';
 export { default as SpatialDataObsPointsLoader } from './SpatialDataObsPointsLoader.js';
 export { default as SpatialDataObsSetsLoader } from './SpatialDataObsSetsLoader.js';
+export { default as SpatialDataObsEmbeddingLoader } from './SpatialDataObsEmbeddingLoader.js';

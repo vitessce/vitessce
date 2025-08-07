@@ -248,6 +248,30 @@ export const obsSetsSpatialdataSchema = z.object({
   obsSets: annDataObsSetsArr,
 });
 
+export const obsEmbeddingSpatialdataSchema = z.object({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+  obsEmbedding: annDataObsEmbedding,
+});
+
+const obsEmbeddingSpatialdataSchemaConvenience = z.object({
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+  obsEmbedding: z.union([
+    annDataObsEmbedding,
+    // For convenience, allow an array of items with `embeddingType` properties.
+    z.array(annDataConvenienceObsEmbeddingItem),
+  ]),
+});
+
 // GLB
 export const meshGlbSchema = z.object({
   targetX: z.number(),
@@ -388,7 +412,7 @@ export const spatialdataZarrSchema = z.object({
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
-  // TODO: obsEmbedding
+  obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
   // TODO: obsLabels
   // TODO: featureLabels
   coordinateSystem: z.string()
