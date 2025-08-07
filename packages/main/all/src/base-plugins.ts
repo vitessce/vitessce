@@ -64,6 +64,7 @@ import {
   obsSpotsSpatialdataSchema,
   obsPointsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   obsSetPath,
   rgbArray,
   obsSetsSchema,
@@ -178,6 +179,7 @@ import {
   SpatialDataObsPointsLoader,
   SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
+  SpatialDataObsEmbeddingLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -333,6 +335,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_POINTS_SPATIALDATA_ZARR, DataType.OBS_POINTS, SpatialDataObsPointsLoader, SpatialDataPointsSource, obsPointsSpatialdataSchema),
   ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   ...makeZarrFileTypes(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR, DataType.OBS_EMBEDDING, SpatialDataObsEmbeddingLoader, SpatialDataTableSource, obsEmbeddingSpatialdataSchema),
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
