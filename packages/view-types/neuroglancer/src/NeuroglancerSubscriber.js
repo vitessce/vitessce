@@ -116,7 +116,7 @@ export function NeuroglancerSubscriber(props) {
 
 
   const onSegmentClick = useCallback((value) => {
-    // TODO multiple segments are not added to the selection - each click replaces the other
+    // TODO multiple segments are added sometime to the selection - each click replaces the other
     if (value) {
       const id = String(value);
       const selectedCellIds = [id];
@@ -125,7 +125,7 @@ export function NeuroglancerSubscriber(props) {
       if (alreadySelectedId) {
         // TODO: reset the setObsSelection
         return;
-      }
+      };
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,

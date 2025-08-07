@@ -3,7 +3,7 @@ import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
 import { compareViewerState } from './utils.js';
-import Neuroglancer from './JaneReactNeuroglancer.js';
+import Neuroglancer from './ReactNeuroglancer.js';
 
 function createWorker() {
   return new ChunkWorker();
