@@ -418,7 +418,7 @@ export default class Neuroglancer extends React.Component {
         if (raf !== null) return;
         raf = requestAnimationFrame(() => {
           raf = null;
-          // console.log('Minimal', this.minimalPoseSnapshot())
+          console.log('Minimal', this.minimalPoseSnapshot())
           this.props.onViewerStateChanged?.(this.minimalPoseSnapshot());
         });
       };
@@ -433,6 +433,7 @@ export default class Neuroglancer extends React.Component {
   
     poseChanged = (prev, next) => { // NEW: compare only pose fields
       const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i)=>v===b[i]);
+      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale )
       return (
         prev?.projectionScale !== next?.projectionScale ||
         !arrEq(prev?.projectionOrientation, next?.projectionOrientation) ||
@@ -477,6 +478,24 @@ export default class Neuroglancer extends React.Component {
         this.prevVisibleIds = newIds;
       }
   };
+
+  componentWillupdate(prevProps){
+    console.log("componentWillupdate Jan", prevProps)
+    const {viewerState} = this.props
+    if (!prevProps) {
+      // Skip comparison during the first render
+      return;
+    }
+  
+    console.log("Previous Props:", prevProps.viewerState);
+    console.log("Current Props:", viewerState);
+  
+    // Compare previous props with current props
+    if (prevProps.viewerState.projectionScale !== viewerState.projectionScale) {
+      console.log("Props have changed!");
+      // Handle prop change logic here
+    }
+  }
 
   componentDidMount() {
     console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
@@ -578,10 +597,25 @@ export default class Neuroglancer extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { viewerState, cellColorMapping } = this.props;
+    console.log("componentDidUpdate")
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
     // it after restoreState().
+      // if (!prevProps) {
+      //   // Skip comparison during the first render
+      //   return;
+      // }
+    
+      // console.log("Previous Props:", prevProps.viewerState);
+      // console.log("Current Props:", viewerState);
+    
+      // // Compare previous props with current props
+      // if (prevProps.viewerState.projectionScale !== viewerState.projectionScale) {
+      //   console.log("Props have changed!");
+      //   // Handle prop change logic here
+      // }
     const selectedSegments = {};
     // eslint-disable-next-line no-restricted-syntax
     for (const layer of this.viewer.layerManager.managedLayers) {
@@ -593,7 +627,7 @@ export default class Neuroglancer extends React.Component {
       }
     }
 
-    const { viewerState, cellColorMapping } = this.props;
+
     // if (viewerState) {
     //   let newViewerState = { ...viewerState };
     //   let restoreStates = [

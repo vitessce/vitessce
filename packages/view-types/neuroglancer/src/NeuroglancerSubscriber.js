@@ -23,12 +23,14 @@ import {
   quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
+  compareViewerState,
 } from './utils.js';
 import { useBaseScale } from './hooks.js';
 
 
 // TODO: the initial value after 0 changes, should be a way to capture it as is
 const deckZoom = 0;
+const VITESSCE_INTERACTION_DELAY = 50;
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -74,7 +76,9 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
   const latestViewerStateRef = useRef(initialViewerState);
   // const [clickedSegmentId, setClickedSegmentId] = useState(null);
-
+  console.log("NG Subs REnder Zoom", spatialZoom);
+  // console.log("NG Subs REnder translation", spatialTargetX, spatialTargetY)
+  // console.log("NG Subs REnder Rotation",     spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit,spatialOrbitAxis)
   const { classes } = useStyles();
   const loaders = useLoaders();
 
@@ -96,16 +100,56 @@ export function NeuroglancerSubscriber(props) {
   const applyNgUpdateTimeoutRef = useRef(null);
   const prevSegmentsRef = useRef([]);
   const lastNgPushOrientationRef = useRef(null);
+
+  useEffect(() => {
+    console.log('useEffect');
+        // Avoiding circular updates on first render
+        if (!hasMountedRef.current) {
+          hasMountedRef.current = true;
+          // setTargetX(250);
+          return;
+        }
+        if (lastInteractionSource.current === 'neuroglancer') return;
+        lastInteractionSource.current = 'vitessce';
+        // console.log('🔁 Vitessce interaction', lastInteractionSource.current);
+      }, [spatialZoom, spatialRotationX, spatialRotationY]);
+    
+  
   /*
-   * 
    * handleStateUpdate - Interactions from NG to Vitessce
    */
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
     const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
-    console.log("handleStateUpdate", projectionScale, projectionOrientation, position)
+    const deckZoomFromNG = projectionScaleToDeckZoom(projectionScale, BASE_SCALE);
+    setZoom(deckZoomFromNG);
 
-    // setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
+
+    console.log("handleStateUpdate", BASE_SCALE, projectionScale, deckZoomFromNG, projectionOrientation, position);
+    if (
+      !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
+    ) {
+      // console.log('⛔️ Skip NG → Vitessce update (loopback)');
+      return;
+    }
+
+    if (applyNgUpdateTimeoutRef.current) {
+      clearTimeout(applyNgUpdateTimeoutRef.current);
+    }
+    lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
+    applyNgUpdateTimeoutRef.current = setTimeout(() => {
+      const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+
+      const pitchDiff = Math.abs(pitch - spatialRotationX);
+      if (pitchDiff > 0.001) {
+        console.log('🌀 NG → Vitessce (debounced apply):', pitch);
+        setRotationX(pitch);
+        setRotationOrbit(yaw);
+        lastInteractionSource.current = 'neuroglancer';
+      }
+    }, VITESSCE_INTERACTION_DELAY);
+
+
     latestViewerStateRef.current = {
       ...latestViewerStateRef.current,
       projectionOrientation,
@@ -183,15 +227,45 @@ export function NeuroglancerSubscriber(props) {
 
 
 
-  // console.log("NG cellColorMapping", Object.keys(cellColorMapping).length)
-  // For the first render, assign the cellSets and their colors to segments
   const derivedViewerState = useMemo(() => {
+
     const { current } = latestViewerStateRef;
     const nextSegments = Object.keys(cellColorMapping);
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
-    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current);
-    if (prevSegments?.length > 0) return current;
+    // let hasInteractionsChangedState = false;
+    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length);
+    let { projectionScale, projectionOrientation } = current;
+    if (typeof spatialZoom === 'number' && BASE_SCALE) {
+      projectionScale = deckZoomToProjectionScale(spatialZoom, BASE_SCALE);
+      console.log("spatialZoom, projectionScale, current.projectionScale), BASE_SCALE" ,spatialZoom, projectionScale, current.projectionScale, BASE_SCALE)
+    }
+
+    const vitessceRotation = eulerToQuaternion(
+      spatialRotationX,
+      spatialRotationOrbit,
+      spatialRotationZ,
+    );
+    console.log("vitessceRotation", vitessceRotation)
+    // Only update state if coming from Vitessce - avoid circular self changes
+    if (lastInteractionSource.current === 'vitessce') {
+      if (valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, 1e-2)) {
+        projectionOrientation = vitessceRotation;
+        console.log('Vitessce → NG: pushing new orientation');
+      }
+       else {
+        console.log('Skip push to NG — no quaternion change');
+      }
+    } else if (lastInteractionSource.current === 'neuroglancer') {
+      // prevent override by committing what NG sent
+      projectionOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
+      // console.log('NG → NG: committing NG-derived orientation');
+      lastInteractionSource.current = null;
+    }
+    else {
+      console.log('Vitessce → NG: Skipping due to unknown source');
+    }
+
     const newLayer0 = {
       ...prevLayer,
       segments: nextSegments,
@@ -200,14 +274,25 @@ export function NeuroglancerSubscriber(props) {
 
     const updated = {
       ...current,
+      projectionScale,
+      // projectionOrientation,
       layers: [newLayer0, ...(current?.layers?.slice(1) || [])],
     };
+    console.log("before", compareViewerState(current, updated))
+    const hasInteractionsChangedState = compareViewerState(current, updated);
     latestViewerStateRef.current = updated;
+    // if (!hasInteractionsChangedState){
+      console.log("interactions From vitessce", prevSegments?.length > 0, hasInteractionsChangedState, prevSegments?.length === 0 && hasInteractionsChangedState, isEqual( latestViewerStateRef.current, updated));
+    // }
+    
+    lastInteractionSource.current = updated
+
+    if (prevSegments?.length === 0 && hasInteractionsChangedState) 
+        return current;
 
     return updated;
-  }, [cellColorMapping]);
-  // , spatialZoom, spatialRotationX, spatialRotationY,
-  //   spatialRotationZ, BASE_SCALE, latestViewerStateRef.current]);
+  }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
+    spatialRotationZ,]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
