@@ -305,7 +305,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         /*
         getLineWidth: [stroked],
         isSelected: cellSelection,
-        getExpressionValue,
         getFillColor: [opacity, cellColorEncoding, cellSelection, cellColors],
         getLineColor: [cellColorEncoding, cellSelection, cellColors],
         getPolygon: [radius],
