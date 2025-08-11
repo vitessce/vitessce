@@ -1,4 +1,15 @@
 
+## 3.6.14
+
+### Patch Changes
+
+- Fix updateTriggers for getExpressionValue of PolygonLayer and ScaledExpressionExtension in spatialBeta view, to ensure that polygon segmentations can be colored by expression value as intended. (`@vitessce/spatial-beta`) ([#2230](https://github.com/vitessce/vitessce/pull/2230))
+
+- Add data loader for obsEmbedding.spatialdata.zarr to enable loading dimensionality reduction scatterplot coordinates from SpatialData Table elements (within obsm). (`@vitessce/spatial-zarr`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2227](https://github.com/vitessce/vitessce/pull/2227))
+
+- Fix styles and sizing for FeatureList virtual-scrolling table element. (`@vitessce/feature-list`) ([#2232](https://github.com/vitessce/vitessce/pull/2232))
+
+
 ## 3.6.13
 
 ### Patch Changes
