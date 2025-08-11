@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
@@ -27,6 +27,8 @@ const configAttrs = {
   'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
 };
 
+const configAttrsUnique = Array.from(new Set(Object.values(configAttrs).flat()));
+
 function cleanAttr(attrVal) {
   if (attrVal.match(/^\d/)) {
     // eslint-disable-next-line no-param-reassign
@@ -34,6 +36,7 @@ function cleanAttr(attrVal) {
   }
   return attrVal.toLowerCase().replace('-', '');
 }
+
 
 function DemoList(props) {
   const {
@@ -62,16 +65,108 @@ function DemoList(props) {
     ],
   } = props;
 
+  const [attrsFilter, setAttrsFilter] = useState(configAttrsUnique);
+  const [attrsSelected, setAttrsSelected] = useState([]);
+
+  /**
+   * Get overlap between searchbar value and list of unique attributes and set this to attrsFilter.
+   * If the searchbar is empty, set attrsFilter to the full list of unique attributes.
+   */
+  function searchAttr() {
+    const input = document.getElementById('searchbar').value;
+    if (input === '') {
+      setAttrsFilter(configAttrsUnique);
+    }
+    const showAttr = configAttrsUnique.filter(
+      attr => attr.toLowerCase().includes(input.toLowerCase()),
+    );
+    setAttrsFilter(showAttr);
+  }
+
   const baseUrl = useBaseUrl('/#?dataset=');
 
   const demos = subset.map(key => ([key, configs[key]]));
+
+  /**
+   * Checks if two arrays have at least 1 item that is the same.
+   */
+  function hasOverlap(arr1, arr2) {
+    return arr2.filter(item => new Set(arr1).has(item)).length > 0;
+  }
+
+  /**
+   * Filters demos with attrsSelected if attrsSelected exists and has at least 1 entry.
+   * Keeps demo if any of the attrs overlap.
+   */
+  function filterDemos() {
+    if (attrsSelected && attrsSelected.length > 0) {
+      return demos.filter(demo => hasOverlap(configAttrs[demo[0]], attrsSelected));
+    }
+    return demos;
+  }
+
+
+  /**
+   * Add attr from click event to attrsSelected, if it isn't yet in there.
+   * Clears the searchbox when an item is selected.
+   */
+  function selectAttr(event) {
+    const newAttrs = Array.from(attrsSelected);
+    if (!newAttrs.includes(event.target.innerText)) {
+      newAttrs.push(event.target.innerText);
+      setAttrsSelected(newAttrs);
+    }
+    document.getElementById('searchbar').value = '';
+    setAttrsFilter(configAttrsUnique);
+  }
+
+  /**
+   * Remove attr from click event to attrsSelected.
+   */
+  function removeAttr(event) {
+    let newAttrs = Array.from(attrsSelected);
+    newAttrs = newAttrs.filter(attr => attr !== event.target.innerText);
+    setAttrsSelected(newAttrs);
+  }
+
   return (
     <>
       <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
         The demos compiled here showcase the core features of Vitessce.
       </p>
+
+      <div key="tags" className={clsx(styles.searchbarContainer, styles.demoGridItem)}>
+        <p className={clsx(styles.filterTagsHeading)}>
+          <b>Filter by tags</b>
+        </p>
+        <input
+          id="searchbar"
+          className={clsx(styles.searchBar)}
+          onKeyUp={() => searchAttr()}
+          type="text"
+          name="search"
+          placeholder="e.g. CSV"
+        />
+
+        {attrsFilter.map(attrVal => (
+          <button type="button" key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={event => selectAttr(event)}>
+            {attrVal}
+          </button>
+        ))}
+
+        <div>
+          Selected:
+          {(attrsSelected && attrsSelected.length) > 0 ? attrsSelected.map(attrVal => (
+            <button type="button" key={`tags-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])} onClick={event => removeAttr(event)}>
+              {attrVal}
+            </button>
+          )) : null}
+        </div>
+
+        <button type="button" onClick={() => setAttrsSelected([])}>Reset tags</button>
+      </div>
       <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
-        {demos.map(([key, d]) => (
+        {filterDemos(demos, attrsSelected).map(([key, d]) => (
           <div key={key} className={styles.demoGridItem}>
             <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
             <p className={styles.demoGridItemDescription}>{d.description}</p>
