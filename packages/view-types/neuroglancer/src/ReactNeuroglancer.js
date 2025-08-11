@@ -403,13 +403,23 @@ export default class Neuroglancer extends React.Component {
     this.disposers = [];
   }
   minimalPoseSnapshot = () => {
-      const v = this.viewer;
-      return {
-        position: Array.from(v.position.value || []),
-        projectionScale: v.projectionScale.value,
-        projectionOrientation: Array.from(v.projectionOrientation.orientation || []),
-      };
+    const v = this.viewer;
+    console.log("v", v)
+    const crossScale = v.crossSectionScale?.value;
+    const crossQuat  = v.crossSectionOrientation?.orientation;
+    const projScale  = v.projectionScale?.value;
+    const projQuat   = v.projectionOrientation?.orientation;
+    const sEff = (Number.isFinite(crossScale) && crossScale > 0) ? crossScale : projScale;
+    const qEff = Array.isArray(crossQuat) ? crossQuat : projQuat;
+    return {
+      position: Array.from(v.position.value || []),
+      projectionScale: projScale,
+      projectionOrientation: Array.from(projQuat || []),
+      crossSectionScale: crossScale,                            
+      crossSectionOrientation: Array.from(crossQuat || []),     
+      orthographicProjection: !!v.orthographicProjection?.value,
     };
+  };
   
     scheduleEmit = () => {
       let raf = null;
@@ -423,7 +433,6 @@ export default class Neuroglancer extends React.Component {
         });
       };
     };
-  
     withoutEmitting = (fn) => {
       this.muteViewerChanged = true;
       try { fn(); } finally {
@@ -442,7 +451,7 @@ export default class Neuroglancer extends React.Component {
     };
   
     applyColorsAndVisibility = (cellColorMapping) => {
-      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
+      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length, cellColorMapping)
       const segmentColorHash = new Map();
       const newIds = new Set();
   
@@ -452,6 +461,7 @@ export default class Neuroglancer extends React.Component {
         newIds.add(idStr);
       }
   
+      console.log("segmentColorHash", segmentColorHash)
       // Find NG segmentation layer(s)
       for (const managed of this.viewer.layerManager.managedLayers) {
         const layer = managed.layer;
@@ -482,6 +492,7 @@ export default class Neuroglancer extends React.Component {
   componentWillupdate(prevProps){
     console.log("componentWillupdate Jan", prevProps)
     const {viewerState} = this.props
+
     if (!prevProps) {
       // Skip comparison during the first render
       return;
@@ -576,11 +587,32 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
+    if (this.viewer.crossSectionScale) this.disposers.push(this.viewer.crossSectionScale.changed.add(emit));
+    if (this.viewer.crossSectionOrientation) this.disposers.push(this.viewer.crossSectionOrientation.changed.add(emit));
+    if (this.viewer.orthographicProjection) this.disposers.push(this.viewer.orthographicProjection.changed.add(emit));
 
     // Initial restore ONLY if provided
     if (viewerState) {
       this.withoutEmitting(() => {
-        this.viewer.state.restoreState(viewerState);
+         // 1) force ortho if requested
+         if (viewerState.orthographicProjection === true && this.viewer.orthographicProjection) {
+           this.viewer.orthographicProjection.value = true;
+         }
+         // 2) apply effective scale/orientation to BOTH panels
+         const sEff = Number.isFinite(viewerState.crossSectionScale)// && viewerState.crossSectionScale > 1
+           ? viewerState.crossSectionScale
+           : viewerState.projectionScale;
+         const qEff = viewerState.crossSectionOrientation ?? viewerState.projectionOrientation;
+         if (Number.isFinite(sEff)) {
+           if (this.viewer.crossSectionScale) this.viewer.crossSectionScale.value = sEff;
+           if (this.viewer.projectionScale)   this.viewer.projectionScale.value   = sEff;
+         }
+         if (Array.isArray(qEff)) {
+           if (this.viewer.crossSectionOrientation) this.viewer.crossSectionOrientation.value = qEff;
+           if (this.viewer.projectionOrientation)   this.viewer.projectionOrientation.value   = qEff;
+         }
+         // 3) finally, restore the rest of the state (layers, etc.)
+         this.viewer.state.restoreState(viewerState);
       });
     } 
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
@@ -673,10 +705,23 @@ export default class Neuroglancer extends React.Component {
     //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
     if (viewerState && prevProps.viewerState && this.poseChanged(prevProps.viewerState, viewerState)) {
       this.withoutEmitting(() => {
-        this.viewer.state.restoreState({
-          ...viewerState,
-          // layers: keep as-is (colors are applied imperatively below)
-        });
+        console.log("viewerState WithoutEmitting", viewerState)
+          if (viewerState.orthographicProjection === true && this.viewer.orthographicProjection) {
+            this.viewer.orthographicProjection.value = true;
+          }
+          const sEff = Number.isFinite(viewerState.crossSectionScale)
+            ? viewerState.crossSectionScale
+            : viewerState.projectionScale;
+          const qEff = viewerState.crossSectionOrientation ?? viewerState.projectionOrientation;
+          if (Number.isFinite(sEff)) {
+            if (this.viewer.crossSectionScale) this.viewer.crossSectionScale.value = sEff;
+            if (this.viewer.projectionScale)  this.viewer.projectionScale.value   = sEff;
+          }
+          if (Array.isArray(qEff)) {
+            if (this.viewer.crossSectionOrientation) this.viewer.crossSectionOrientation.value = qEff;
+            if (this.viewer.projectionOrientation)   this.viewer.projectionOrientation.value   = qEff;
+          }
+          this.viewer.state.restoreState({ ...viewerState });
       });
     }
 
