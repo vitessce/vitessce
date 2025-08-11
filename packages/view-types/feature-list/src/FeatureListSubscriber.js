@@ -2,14 +2,26 @@ import React, { useState } from 'react';
 import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
-  useReady, useUrls,
+  useReady, useUrls, useGridItemSize,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
   useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { makeStyles } from '@vitessce/styles';
 import FeatureList from './FeatureList.js';
 import FeatureListOptions from './FeatureListOptions.js';
+
+const useStyles = makeStyles()(theme => ({
+  featureListContainer: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: theme.palette.primaryBackground,
+    color: theme.palette.primaryForeground,
+  },
+}));
 
 
 /**
@@ -50,6 +62,8 @@ export function FeatureListSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const [width, height, containerRef] = useGridItemSize();
+  const { classes } = useStyles();
 
   // Get "props" from the coordination space.
   const [{
@@ -122,10 +136,7 @@ export function FeatureListSubscriber(props) {
       title={title}
       info={`${commaNumber(numGenes)} ${plur(variablesLabel, numGenes)}`}
       theme={theme}
-      // Virtual scroll is used but this allows for the same styling as a scroll component
-      // even though this no longer uses the TitleInfo component's
-      // scroll css (SelectableTable is virtual scroll).
-      isScroll
+      withPadding={false}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -146,23 +157,27 @@ export function FeatureListSubscriber(props) {
         />
       )}
     >
-      <FeatureList
-        hasColorEncoding={cellColorEncoding === 'geneSelection'}
-        showFeatureTable={showFeatureTable}
-        geneList={geneList}
-        featureListSort={featureListSort}
-        featureListSortKey={featureListSortKey || initialSortKey}
-        featureLabelsMap={expandedFeatureLabelsMap}
-        featureType={featureType}
-        geneSelection={geneSelection}
-        geneFilter={geneFilter}
-        setGeneSelection={setGeneSelectionAndColorEncoding}
-        setGeneFilter={setGeneFilter}
-        setGeneHighlight={setGeneHighlight}
-        enableMultiSelect={enableMultiSelect}
-        hasFeatureLabels={hasFeatureLabels}
-        primaryColumnName={primaryColumnName}
-      />
+      <div ref={containerRef} className={classes.featureListContainer}>
+        <FeatureList
+          width={width}
+          height={height}
+          hasColorEncoding={cellColorEncoding === 'geneSelection'}
+          showFeatureTable={showFeatureTable}
+          geneList={geneList}
+          featureListSort={featureListSort}
+          featureListSortKey={featureListSortKey || initialSortKey}
+          featureLabelsMap={expandedFeatureLabelsMap}
+          featureType={featureType}
+          geneSelection={geneSelection}
+          geneFilter={geneFilter}
+          setGeneSelection={setGeneSelectionAndColorEncoding}
+          setGeneFilter={setGeneFilter}
+          setGeneHighlight={setGeneHighlight}
+          enableMultiSelect={enableMultiSelect}
+          hasFeatureLabels={hasFeatureLabels}
+          primaryColumnName={primaryColumnName}
+        />
+      </div>
     </TitleInfo>
   );
 }

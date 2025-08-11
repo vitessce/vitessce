@@ -7,6 +7,9 @@ import { ALT_COLNAME } from './constants.js';
 
 const useStyles = makeStyles()(() => ({
   searchBar: {
+    marginTop: '10px',
+    marginLeft: '10px',
+    marginRight: '10px',
     marginBottom: '4px',
     border: '0',
     padding: '2px',
@@ -16,6 +19,8 @@ const useStyles = makeStyles()(() => ({
 
 export default function FeatureList(props) {
   const {
+    width,
+    height,
     hasColorEncoding,
     geneList = [],
     featureLabelsMap,
@@ -129,6 +134,8 @@ export default function FeatureList(props) {
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
         showTableHead={columnLabels.length > 1}
+        width={width}
+        height={height - 34}
       />
     </>
   );
