@@ -380,6 +380,10 @@ export default function Legend(props) {
       featureSelectionLabelRawStr = 'Sum of features';
     } else if (featureAggregationStrategy === 'mean') {
       featureSelectionLabelRawStr = 'Mean of features';
+    } else {
+      // Default to the first feature.
+      // featureAggregationStrategy was null.
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     }
     const combinedMissing = combineMissings(missing, featureAggregationStrategy);
     const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;
