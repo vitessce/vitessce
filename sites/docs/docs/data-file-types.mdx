@@ -1316,6 +1316,24 @@ coordinationValues={`{
 }`}
 />
 
+### `obsEmbedding.spatialdata.zarr`
+
+<FileDefTabs
+fileName="my_sdata.zarr"
+fileType="obsEmbedding.spatialdata.zarr"
+fileConst="OBS_EMBEDDING_SPATIALDATA_ZARR"
+options={`{
+    // Should point to an array of (d1, d2) coordinate pairs, one coordinate pair per obs/cell.
+    "path": "obsm/X_umap",
+    // Dimension indices are optional. By default, [0, 1].
+    "dims": [0, 1]
+}`}
+coordinationValues={`{
+    "obsType": "cell",
+    "embeddingType": "UMAP"
+}`}
+/>
+
 ### `obsSets.spatialdata.zarr`
 
 Maps each observation to membership in one or more sets.
@@ -1389,13 +1407,14 @@ options={`{
     "obsFeatureMatrix": {
       // Accepts the same options as obsFeatureMatrix.spatialdata.zarr
       "path": "tables/table/X"
-    }
+    },
     "obsSpots": {
       // Accepts the same options as obsSpots.spatialdata.zarr
       "path": "shapes/visium_151673",
     },
     "obsSets": {
-      // Accepts the same options as obsSets.spatialdata.zarr; Similar to obsSets.anndata.zarr
+      // Accepts the same options as obsSets.spatialdata.zarr;
+      // Similar to obsSets.anndata.zarr
       "obsSets": [
         {
           "name": "Cell Type Annotations",
@@ -1403,7 +1422,16 @@ options={`{
         }
       ],
       "tablePath": "tables/table"
-    }
+    },
+    "obsEmbedding": [
+      {
+        // Should point to an array of dimensionality reduction coordinates;
+        // Similar to obsEmbedding.anndata.zarr
+        "path": "tables/table/obsm/X_umap",
+        // An embeddingType must be specified to distinguish between multiple embedding arrays.
+        "embeddingType": "UMAP"
+      }
+    ]
 }`}
 coordinationValues={`{
     "obsType": "cell",
