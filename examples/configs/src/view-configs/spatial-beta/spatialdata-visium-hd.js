@@ -18,24 +18,24 @@ function generateVisiumHdConfig() {
     fileType: 'spatialdata.zarr',
     url: baseUrl,
     options: {
-        image: {
-            path: 'images/Visium_HD_Mouse_Small_Intestine_full_image',
-        },
-        obsFeatureMatrix: {
-            path: 'tables/square_016um/X',
-        },
-        obsSegmentations: {
-            path: 'labels/rasterized_016um',
-        },
-        obsEmbedding: [{
-            path: 'tables/square_016um/obsm/X_umap',
-            embeddingType: 'UMAP',
-        }],
-        coordinateSystem: 'Visium_HD_Mouse_Small_Intestine',
+      image: {
+        path: 'images/Visium_HD_Mouse_Small_Intestine_full_image',
+      },
+      obsFeatureMatrix: {
+        path: 'tables/square_016um/X',
+      },
+      obsSegmentations: {
+        path: 'labels/rasterized_016um',
+      },
+      obsEmbedding: [{
+        path: 'tables/square_016um/obsm/X_umap',
+        embeddingType: 'UMAP',
+      }],
+      coordinateSystem: 'Visium_HD_Mouse_Small_Intestine',
     },
     coordinationValues: {
-        obsType: 'bin',
-    }
+      obsType: 'bin',
+    },
   });
 
   const spatialView = config.addView(dataset1, 'spatialBeta');
@@ -54,12 +54,12 @@ function generateVisiumHdConfig() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   config.linkViewsByObject([spatialView, lcView], {
     segmentationLayer: CL([{
-        segmentationChannel: CL([{
-            'spatialChannelOpacity': 0.7,
-            'obsColorEncoding': 'geneSelection',
-            'featureValueColormapRange': featureValueColormapRangeScope,
-            'obsHighlight': null,
-        }])
+      segmentationChannel: CL([{
+        spatialChannelOpacity: 0.7,
+        obsColorEncoding: 'geneSelection',
+        featureValueColormapRange: featureValueColormapRangeScope,
+        obsHighlight: null,
+      }]),
     }]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 

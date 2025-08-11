@@ -173,7 +173,7 @@ export const FileType = {
   FEATURE_LABELS_SPATIALDATA_ZARR_ZIP: 'featureLabels.spatialdata.zarr.zip',
   OBS_POINTS_SPATIALDATA_ZARR_ZIP: 'obsPoints.spatialdata.zarr.zip',
   OBS_EMBEDDING_SPATIALDATA_ZARR_ZIP: 'obsEmbedding.spatialdata.zarr.zip',
-  
+
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',
