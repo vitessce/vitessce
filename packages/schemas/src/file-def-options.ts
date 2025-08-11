@@ -257,19 +257,12 @@ export const obsEmbeddingSpatialdataSchema = annDataObsEmbedding.extend({
     .describe('The path to a table which contains the index for the set values.'),
 });
 
-const obsEmbeddingSpatialdataSchemaConvenience = z.object({
-  region: z.string()
-    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
-    .optional(),
-  tablePath: z.string()
-    .optional()
-    .describe('The path to a table which contains the index for the set values.'),
-  obsEmbedding: z.union([
-    annDataObsEmbedding,
-    // For convenience, allow an array of items with `embeddingType` properties.
-    z.array(annDataConvenienceObsEmbeddingItem),
-  ]),
-});
+// TODO: should the convenience schema also allow specifying tablePath and region?
+const obsEmbeddingSpatialdataSchemaConvenience = z.union([
+  annDataObsEmbedding,
+  // For convenience, allow an array of items with `embeddingType` properties.
+  z.array(annDataConvenienceObsEmbeddingItem),
+]);
 
 // GLB
 export const meshGlbSchema = z.object({

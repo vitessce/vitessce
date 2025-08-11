@@ -50,6 +50,7 @@ import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-v
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
+import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata-visium-hd.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 // TODO(spatialBeta):
@@ -143,6 +144,7 @@ export const configs = {
   'spatialdata-visium_io': visiumIoSpatialdata2023,
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
+  'spatialdata-visium_hd': visiumHdSpatialdata2025,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
