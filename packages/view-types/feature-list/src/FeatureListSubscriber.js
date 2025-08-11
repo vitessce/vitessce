@@ -8,9 +8,9 @@ import {
   useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { makeStyles } from '@vitessce/styles';
 import FeatureList from './FeatureList.js';
 import FeatureListOptions from './FeatureListOptions.js';
-import { makeStyles } from '@vitessce/styles';
 
 const useStyles = makeStyles()(theme => ({
   featureListContainer: {
