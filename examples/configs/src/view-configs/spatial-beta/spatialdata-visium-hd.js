@@ -11,7 +11,7 @@ function generateVisiumHdConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.18',
     name: 'Visium HD dataset',
-    description: 'Visium HD example.',
+    description: 'Visium HD Spatial Gene Expression Library, Mouse Small Intestine (FFPE)',
   });
   const baseUrl = 'https://storage.googleapis.com/vitessce-demo-data/spatialdata-august-2025/visium_hd_3.0.0.spatialdata.zarr';
   const dataset1 = config.addDataset('Visium HD').addFile({
