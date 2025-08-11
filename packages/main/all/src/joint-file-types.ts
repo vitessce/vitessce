@@ -323,7 +323,41 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: obsLocations?
     // TODO: obsLabels
     // TODO: featureLabels
-    // TODO: obsEmbedding
+    // obsEmbedding
+    // eslint-disable-next-line no-nested-ternary
+    ...(options.obsEmbedding ? (
+      Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
+        // obsEmbedding was an array, process each element.
+        ...baseFileDef,
+        fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
+        options: {
+          path: oe.path,
+          dims: oe.dims,
+          tablePath: options.tablePath,
+          region: options.region,
+        },
+        coordinationValues: {
+          ...extraCoordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
+          // Move embedding type property out of options and into coordinationValues.
+          embeddingType: oe.embeddingType,
+        },
+      })) : [{
+        // obsEmbedding was an object.
+        ...baseFileDef,
+        fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
+        options: {
+          ...options.obsEmbedding,
+          tablePath: options.tablePath,
+          region: options.region,
+        },
+        coordinationValues: {
+          ...extraCoordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
+          embeddingType: baseFileDef.coordinationValues.embeddingType,
+        },
+      }]
+    ) : []),
     // image
     // TODO: handle multiple image elements?
     ...(options.image ? [{

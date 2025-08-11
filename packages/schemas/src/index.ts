@@ -42,6 +42,7 @@ export {
   obsPointsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   meshGlbSchema,
 } from './file-def-options.js';
 export {

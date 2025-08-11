@@ -161,6 +161,7 @@ export const FileType = {
   OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
   FEATURE_LABELS_SPATIALDATA_ZARR: 'featureLabels.spatialdata.zarr',
   OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
+  OBS_EMBEDDING_SPATIALDATA_ZARR: 'obsEmbedding.spatialdata.zarr',
 
   // SpatialData - zipped
   IMAGE_SPATIALDATA_ZARR_ZIP: 'image.spatialdata.zarr.zip',
@@ -171,6 +172,8 @@ export const FileType = {
   OBS_SPOTS_SPATIALDATA_ZARR_ZIP: 'obsSpots.spatialdata.zarr.zip',
   FEATURE_LABELS_SPATIALDATA_ZARR_ZIP: 'featureLabels.spatialdata.zarr.zip',
   OBS_POINTS_SPATIALDATA_ZARR_ZIP: 'obsPoints.spatialdata.zarr.zip',
+  OBS_EMBEDDING_SPATIALDATA_ZARR_ZIP: 'obsEmbedding.spatialdata.zarr.zip',
+
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',
