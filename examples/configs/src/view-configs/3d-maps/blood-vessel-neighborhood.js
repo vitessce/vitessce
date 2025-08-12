@@ -27,7 +27,7 @@ function generateBloodVesselNeighborhood() {
     y: 1,
     w: 4,
     h: 2,
-  }).setProps({ linkID: 5454 });
+  });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
   config.linkViewsByObject([spatialThreeView, lcView, linkController], {
     spatialTargetZ: 0,

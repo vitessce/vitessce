@@ -49,7 +49,7 @@ function generateBloodVesselConfig() {
     y: 1,
     w: 4,
     h: 2,
-  }).setProps({ linkID: 5454 });
+  });
   const [
     glomsObsTypeScope,
     glomsFeatureTypeScope,
