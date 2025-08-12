@@ -26,7 +26,9 @@ import {
   configSchema1_0_16,
   configSchema1_0_17,
   configSchema1_0_18,
+  configSchema1_0_19,
 } from './previous-config-schemas.js';
+import { cellsLayerObj, imageLayerObj, moleculesLayerObj, neighborhoodsLayerObj } from './spatial-layers.js';
 
 
 interface ViewProps {
@@ -841,5 +843,127 @@ export function upgradeFrom1_0_17(
     ...newConfig,
     datasets: newDatasets,
     version: '1.0.18',
+  };
+}
+
+// Added in version 1.0.19:
+// - Replace spatial and layerController components
+//   with spatialBeta and layerControllerBeta components.
+export function upgradeFrom1_0_18(
+  config: z.infer<typeof configSchema1_0_18>,
+): z.infer<typeof configSchema1_0_19> {
+  const newConfig = cloneDeep(config);
+
+  const { layout, coordinationSpace } = newConfig;
+  const newCoordinationSpace = {
+    ...coordinationSpace
+  };
+  const newLayout = layout.map((view): z.infer<typeof configSchema1_0_18.shape.layout.element> => {
+    const { coordinationScopes, coordinationScopesBy, component } = view;
+
+    if(component === 'spatial' || component === 'layerController') {
+      const newComponent = `${component}Beta`;
+
+      // Create a new coordinationScopes property that conforms to v1.0.16.
+      const newCoordinationScopes: z.infer<typeof componentCoordinationScopes> = {};
+      const newCoordinationScopesBy: z.infer<typeof componentCoordinationScopesBy> = {};
+
+      if(coordinationScopes && coordinationScopes.spatialImageLayer && !Array.isArray(coordinationScopes.spatialImageLayer)) {
+        const scopeName = coordinationScopes.spatialImageLayer;
+        const scopeValue: z.infer<typeof imageLayerObj> = coordinationSpace?.spatialImageLayer?.[scopeName];
+        // Consider each spatialImageLayer value.
+
+        // TODO
+      }
+      if(coordinationScopes && coordinationScopes.spatialSegmentationLayer && !Array.isArray(coordinationScopes.spatialSegmentationLayer)) {
+        const scopeName = coordinationScopes.spatialSegmentationLayer;
+        const scopeValue = coordinationSpace?.spatialSegmentationLayer?.[scopeName];
+        // Consider each spatialSegmentationLayer value.
+        // The type is a z.union([imageLayerObj, cellsLayerObj])
+
+        if(Array.isArray(scopeValue)) {
+          const bitmaskScopeValue: z.infer<typeof imageLayerObj> = scopeValue;
+          // TODO
+        } else {
+          const polygonScopeValue: z.infer<typeof cellsLayerObj> = scopeValue;
+          // TODO
+        }
+      }
+      if(coordinationScopes && coordinationScopes.spatialPointLayer && !Array.isArray(coordinationScopes.spatialPointLayer)) {
+        const scopeName = coordinationScopes.spatialPointLayer;
+        const scopeValue: z.infer<typeof moleculesLayerObj> = coordinationSpace?.spatialPointLayer?.[scopeName];
+        // Consider each spatialPointLayer value.
+
+        // TODO
+      }
+      if(coordinationScopes && coordinationScopes.spatialNeighborhoodLayer && !Array.isArray(coordinationScopes.spatialNeighborhoodLayer)) {
+        const scopeName = coordinationScopes.spatialNeighborhoodLayer;
+        const scopeValue: z.infer<typeof neighborhoodsLayerObj> = coordinationSpace?.spatialNeighborhoodLayer?.[scopeName];
+        // Consider each spatialNeighborhoodLayer value.
+        
+        // TODO
+      }
+        
+      // Consider each coordination type supported by spatial/layerController legacy implementations.
+      // layerController:
+      // - OLD: spatialImageLayer
+      // - OLD: spatialSegmentationLayer
+      // - OLD: spatialPointLayer
+      // - dataset
+      // - obsType
+      // - photometricInterpretation
+      // - spatialTargetX
+      // - spatialTargetY
+      // - spatialTargetZ
+      // - spatialRotationX
+      // - spatialRotationOrbit
+      // - spatialZoom
+      // spatial:
+      // - OLD: spatialImageLayer
+      // - OLD: spatialSegmentationLayer
+      // - OLD: spatialPointLayer
+      // - OLD: spatialNeighborhoodLayer
+      // - dataset
+      // - obsType
+      // - featureType
+      // - featureValueType
+      // - spatialZoom
+      // - spatialTargetX
+      // - spatialTargetY
+      // - spatialTargetZ
+      // - spatialRotationX
+      // - spatialRotationY
+      // - spatialRotationZ
+      // - spatialRotationOrbit
+      // - spatialOrbitAxis
+      // - obsFilter
+      // - obsHighlight
+      // - moleculeHighlight
+      // - featureSelection
+      // - obsSetSelection
+      // - obsSetColor
+      // - obsColorEncoding
+      // - additionalObsSets
+      // - spatialAxisFixed
+      // - featureValueColormap
+      // - featureValueColormapRange
+      // - tooltipsVisible
+      // - photometricInterpretation
+
+      return {
+        ...view,
+        coordinationScopes: newCoordinationScopes,
+        coordinationScopesBy: newCoordinationScopesBy,
+        component: newComponent,
+      };
+    }
+    return view;
+  });
+
+  return {
+    ...newConfig,
+    layout: newLayout,
+    coordinationSpace: newCoordinationSpace,
+    version: '1.0.19',
   };
 }
