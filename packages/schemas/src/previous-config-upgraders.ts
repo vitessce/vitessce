@@ -880,7 +880,10 @@ export function upgradeFrom1_0_18(
               const dataType = rasterJsonImageDef.metadata?.isBitmask ? 'obsSegmentations' : 'image';
               const fileType = rasterJsonImageDef.type === 'ome-tiff'
                 ? `${dataType}.ome-tiff`
-                : (rasterJsonImageDef.type === 'zarr' ? `${dataType}.legacy-zarr` : `${dataType}.ome-zarr`);
+                : `${dataType}.ome-zarr`;
+              if(rasterJsonImageDef.type === 'zarr') {
+                throw new Error('Bioformats-Zarr image fileType is no longer supported. Please use OME-Zarr (via image.ome-zarr fileType) instead.');
+              }
               return {
                 fileType,
                 url: rasterJsonImageDef.url,
