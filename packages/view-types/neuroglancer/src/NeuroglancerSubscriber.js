@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import { startTransition } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -13,54 +14,21 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-import { Neuroglancer } from './Neuroglancer.js';
+import { isEqual } from 'lodash-es';
+import { NeuroglancerComp } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
-
-const NEUROGLANCER_ZOOM_BASIS = 16;
-
-function mapVitessceToNeuroglancer(zoom) {
-  return NEUROGLANCER_ZOOM_BASIS * (2 ** -zoom);
-}
-
-function mapNeuroglancerToVitessce(projectionScale) {
-  return -Math.log2(projectionScale / NEUROGLANCER_ZOOM_BASIS);
-}
-
-function quaternionToEuler([x, y, z, w]) {
-  // X-axis rotation (Roll)
-  const thetaX = Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
-
-  // Y-axis rotation (Pitch)
-  const sinp = 2 * (w * y - z * x);
-  const thetaY = Math.abs(sinp) >= 1 ? Math.sign(sinp) * (Math.PI / 2) : Math.asin(sinp);
-
-  // Convert to degrees as Vitessce expects degrees?
-  return [thetaX * (180 / Math.PI), thetaY * (180 / Math.PI)];
-}
+import {
+  deckZoomToProjectionScale,
+  projectionScaleToDeckZoom,
+  quaternionToEuler,
+  eulerToQuaternion,
+  valueGreaterThanEpsilon,
+} from './utils.js';
+import { useBaseScale } from './hooks.js';
 
 
-function eulerToQuaternion(thetaX, thetaY) {
-  // Convert Euler angles (X, Y rotations) to quaternion
-  const halfThetaX = thetaX / 2;
-  const halfThetaY = thetaY / 2;
-
-  const sinX = Math.sin(halfThetaX);
-  const cosX = Math.cos(halfThetaX);
-  const sinY = Math.sin(halfThetaY);
-  const cosY = Math.cos(halfThetaY);
-
-  return [
-    sinX * cosY,
-    cosX * sinY,
-    sinX * sinY,
-    cosX * cosY,
-  ];
-}
-
-function normalizeQuaternion(q) {
-  const length = Math.sqrt((q[0] ** 2) + (q[1] ** 2) + (q[2] ** 2) + (q[3] ** 2));
-  return q.map(value => value / length);
-}
+// TODO: the initial value after 0 changes, should be a way to capture it as is
+const deckZoom = 0;
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -82,9 +50,9 @@ export function NeuroglancerSubscriber(props) {
     spatialTargetY,
     spatialRotationX,
     spatialRotationY,
-    // spatialRotationZ,
-    // spatialRotationOrbit,
-    // spatialOrbitAxis,
+    spatialRotationZ,
+    spatialRotationOrbit,
+    spatialOrbitAxis,
     embeddingType: mapping,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
@@ -100,10 +68,12 @@ export function NeuroglancerSubscriber(props) {
     setSpatialRotationX: setRotationX,
     setSpatialRotationY: setRotationY,
     // setSpatialRotationZ: setRotationZ,
-    // setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialRotationOrbit: setRotationOrbit,
 
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
+  const latestViewerStateRef = useRef(initialViewerState);
+  // const [clickedSegmentId, setClickedSegmentId] = useState(null);
 
   const { classes } = useStyles();
   const loaders = useLoaders();
@@ -120,23 +90,42 @@ export function NeuroglancerSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
 
+  const BASE_SCALE = useBaseScale(initialViewerState, deckZoom);
+  const hasMountedRef = useRef(false);
+  const lastInteractionSource = useRef(null);
+  const applyNgUpdateTimeoutRef = useRef(null);
+  const prevSegmentsRef = useRef([]);
+  const lastNgPushOrientationRef = useRef(null);
+  /*
+   * 
+   * handleStateUpdate - Interactions from NG to Vitessce
+   */
   const handleStateUpdate = useCallback((newState) => {
     const { projectionScale, projectionOrientation, position } = newState;
-    setZoom(mapNeuroglancerToVitessce(projectionScale));
-    const vitessceEularMapping = quaternionToEuler(projectionOrientation);
+    const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
+    console.log("handleStateUpdate", projectionScale, projectionOrientation, position)
 
-    // TODO: support z rotation on SpatialView?
-    setRotationX(vitessceEularMapping[0]);
-    setRotationY(vitessceEularMapping[1]);
+    // setZoom(projectionScaleToDeckZoom(projectionScale, BASE_SCALE));
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionOrientation,
+      projectionScale,
+      position,
+    };
+  }, []);
 
-    // Note: To pan in Neuroglancer, use shift+leftKey+drag
-    setTargetX(position[0]);
-    setTargetY(position[1]);
-  }, [setZoom, setTargetX, setTargetY, setRotationX, setRotationY]);
 
   const onSegmentClick = useCallback((value) => {
+    // TODO multiple segments are added sometime to the selection - each click replaces the other
     if (value) {
-      const selectedCellIds = [String(value)];
+      const id = String(value);
+      const selectedCellIds = [id];
+      const alreadySelectedId = cellSetSelection?.flat()?.some(sel => sel.includes(id));
+      // Don't create no selection from same ids
+      if (alreadySelectedId) {
+        // TODO: reset the setObsSelection
+        return;
+      };
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -165,47 +154,70 @@ export function NeuroglancerSubscriber(props) {
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
-  const cellColorMapping = useMemo(() => {
-    const colorCellMapping = {};
-    cellColors.forEach((color, cell) => {
-      colorCellMapping[cell] = rgbToHex(color);
-    });
-    return colorCellMapping;
-  }, [cellColors, rgbToHex]);
+  // const cellColorMappingRef = useRef({});
+  const batchedUpdateTimeoutRef = useRef(null);
+  const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
 
-  const derivedViewerState = useMemo(() => ({
-    ...initialViewerState,
-    layers: initialViewerState.layers.map((layer, index) => (index === 0
-      ? {
-        ...layer,
-        segments: Object.keys(cellColorMapping).map(String),
-        segmentColors: cellColorMapping,
-      }
-      : layer)),
-  }), [cellColorMapping, initialViewerState]);
-
-  const derivedViewerState2 = useMemo(() => {
-    if (typeof spatialZoom === 'number' && typeof spatialTargetX === 'number') {
-      const projectionScale = mapVitessceToNeuroglancer(spatialZoom);
-      const position = [spatialTargetX, spatialTargetY, derivedViewerState.position[2]];
-      const projectionOrientation = normalizeQuaternion(
-        eulerToQuaternion(spatialRotationX, spatialRotationY),
-      );
-      return {
-        ...derivedViewerState,
-        projectionScale,
-        position,
-        projectionOrientation,
-      };
+  useEffect(() => {
+    if (batchedUpdateTimeoutRef.current) {
+      clearTimeout(batchedUpdateTimeoutRef.current);
     }
-    return derivedViewerState;
-  }, [derivedViewerState, spatialZoom, spatialTargetX,
-    spatialTargetY, spatialRotationX, spatialRotationY]);
+    batchedUpdateTimeoutRef.current = setTimeout(() => {
+      setBatchedCellColors(cellColors);
+    }, 100);
+
+    // TODO: look into deferredValue from React
+    // startTransition(() => {
+    //   setBatchedCellColors(cellColors);
+    // });
+
+  }, [cellColors]);
+  // TODO use a ref if slow - see prev commits
+  const cellColorMapping = useMemo(() => {
+    const colorMapping = {};
+    batchedCellColors.forEach((color, cell) => {
+      colorMapping[cell] = rgbToHex(color);
+    });
+    return colorMapping;
+  }, [batchedCellColors]);
+
+
+
+  // console.log("NG cellColorMapping", Object.keys(cellColorMapping).length)
+  // For the first render, assign the cellSets and their colors to segments
+  const derivedViewerState = useMemo(() => {
+    const { current } = latestViewerStateRef;
+    const nextSegments = Object.keys(cellColorMapping);
+    const prevLayer = current?.layers?.[0] || {};
+    const prevSegments = prevLayer.segments || [];
+    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current);
+    if (prevSegments?.length > 0) return current;
+    const newLayer0 = {
+      ...prevLayer,
+      segments: nextSegments,
+      segmentColors: cellColorMapping,
+    };
+
+    const updated = {
+      ...current,
+      layers: [newLayer0, ...(current?.layers?.slice(1) || [])],
+    };
+    latestViewerStateRef.current = updated;
+
+    return updated;
+  }, [cellColorMapping]);
+  // , spatialZoom, spatialRotationX, spatialRotationY,
+  //   spatialRotationZ, BASE_SCALE, latestViewerStateRef.current]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
 
+  // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view
+  if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
+    return;
+  }
+  
   return (
     <TitleInfo
       title={title}
@@ -218,11 +230,12 @@ export function NeuroglancerSubscriber(props) {
       isReady
       withPadding={false}
     >
-      <Neuroglancer
+      <NeuroglancerComp
         classes={classes}
         onSegmentClick={onSegmentClick}
         onSelectHoveredCoords={onSegmentHighlight}
-        viewerState={derivedViewerState2}
+        viewerState={derivedViewerState}
+        cellColorMapping={cellColorMapping}
         setViewerState={handleStateUpdate}
       />
     </TitleInfo>
