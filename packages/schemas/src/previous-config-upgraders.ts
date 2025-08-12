@@ -29,6 +29,7 @@ import {
   configSchema1_0_19,
 } from './previous-config-schemas.js';
 import { cellsLayerObj, imageLayerObj, moleculesLayerObj, neighborhoodsLayerObj } from './spatial-layers.js';
+import { rasterJsonSchema } from './raster-json.js';
 
 
 interface ViewProps {
@@ -854,7 +855,53 @@ export function upgradeFrom1_0_18(
 ): z.infer<typeof configSchema1_0_19> {
   const newConfig = cloneDeep(config);
 
-  const { layout, coordinationSpace } = newConfig;
+  const { layout, coordinationSpace, datasets } = newConfig;
+
+  const newDatasets = datasets.map((datasetDef): z.infer<typeof configSchema1_0_18.shape.datasets.element> => {
+    const { files } = datasetDef;
+    return {
+      ...datasetDef,
+      files: files.map((fileDef): (z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element> | null | (z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>)[]) => {
+        const { fileType, url } = fileDef;
+        if(fileType === 'raster.json' || fileType === 'image.raster.json' || fileType === 'obsSegmentations.raster.json') {
+          if(url) {
+            throw new Error('Cannot upgrade a raster.json fileType with a url property. Please move content to fileDef.options.');
+          }
+          if(fileDef.options) {
+            const options: z.infer<typeof rasterJsonSchema> = fileDef.options;
+
+            const orderedImages = options.renderLayers
+              ? options.renderLayers.map(name => options.images.find(img => img.name === name))
+              : options.images;
+            return orderedImages.map((rasterJsonImageDef) => {
+              if(!rasterJsonImageDef) {
+                return null;
+              }
+              const dataType = rasterJsonImageDef.metadata?.isBitmask ? 'obsSegmentations' : 'image';
+              const fileType = rasterJsonImageDef.type === 'ome-tiff'
+                ? `${dataType}.ome-tiff`
+                : (rasterJsonImageDef.type === 'zarr' ? `${dataType}.legacy-zarr` : `${dataType}.ome-zarr`);
+              return {
+                fileType,
+                url: rasterJsonImageDef.url,
+                options: {
+                  ...(rasterJsonImageDef?.metadata?.omeTiffOffsetsUrl ? { offsetsUrl: rasterJsonImageDef.metadata.omeTiffOffsetsUrl } : {}),
+                  // TODO: support metadata.transform? But we do not know how many dimensions.
+                },
+                coordinationValues: {
+                  fileUid: rasterJsonImageDef.name,
+                },
+              };
+            }) as z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>[];
+
+          }
+        }
+        return fileDef;
+      }).flat().filter(Boolean) as z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>[],
+    };
+  });
+
+
   const newCoordinationSpace = {
     ...coordinationSpace
   };
@@ -962,6 +1009,7 @@ export function upgradeFrom1_0_18(
 
   return {
     ...newConfig,
+    datasets: newDatasets,
     layout: newLayout,
     coordinationSpace: newCoordinationSpace,
     version: '1.0.19',
