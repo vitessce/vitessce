@@ -40,14 +40,14 @@ export class NeuroglancerComp extends PureComponent {
       this.prevMouseStateChanged = viewer.mouseState.changed;
       viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:dblclick0', () => {});
-
       this.prevClickHandler = (event) => {
         if (event.button === 0) {
           // Wait for mouseState to update
           // setTimeout(() => {
           requestAnimationFrame(() => {
-            const { pickedValue } = viewer.mouseState;
-            if (pickedValue && pickedValue.low !== undefined) {
+            const { pickedValue, pickedRenderLayer } = viewer.mouseState;
+            // Only trigger selection when a segment is clicked rather than any click on the view
+            if (pickedValue && pickedValue.low !== undefined && pickedRenderLayer) {
               onSegmentClick(pickedValue.low);
             }
           });
