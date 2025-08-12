@@ -4,6 +4,8 @@ import { shallow } from 'zustand/shallow';
 import {
   useViewConfigStoreApi,
   createLoaders,
+  useViewConfig,
+  useSetViewConfig,
 } from '@vitessce/vit-s';
 import {
   Checkbox,
@@ -24,6 +26,8 @@ export default function LinkController(props) {
   } = props;
   const viewConfigStoreApi = useViewConfigStoreApi();
 
+  const viewConfig = useViewConfig();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
   const [socketOpen, setSocketOpen] = useState(false);
   const [sync, setSync] = useState(true);
   const connection = useRef(null);
@@ -72,6 +76,11 @@ export default function LinkController(props) {
         },
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
+        const newViewConfig = {
+          ...viewConfig,
+
+        };
+        setViewConfig(newViewConfig);
       }).catch((err) => {
         log.error('Fetch Error :-S', err);
       });
