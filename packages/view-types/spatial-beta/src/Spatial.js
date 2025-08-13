@@ -690,7 +690,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix: layerDefModelMatrix,
       // hoveredCell: Number(this.props.cellHighlight),
       multiFeatureValues: channelScopes
-        .map(cScope => (layerFeatureValues?.[cScope]?.[0] || [])),
+        .map(cScope => (layerFeatureValues?.[cScope]?.[0])),
       // Pass in the matrixObsIndex to account for the fact that
       // the obsIndex of the obsFeatureMatrix
       // may not be ["1", "2", "3", "4", ... "N"] and
@@ -702,7 +702,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         )),
       setColorValues: channelScopes
         .map(cScope => (
-          this.segmentationColors?.[layerScope]?.[cScope] || []
+          this.segmentationColors?.[layerScope]?.[cScope]
         )),
       renderSubLayers: renderSubBitmaskLayers,
       loader: data,
@@ -1550,8 +1550,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
-        // 'cellFilter',
-        // 'cellSelection',
+        // Data props.
+        'obsSegmentations',
+        'obsSegmentationsSets',
+        'obsSegmentationsLocations',
+        'segmentationMatrixIndices',
+        'segmentationMultiExpressionData',
+        // Coordination props.
         'segmentationLayerScopes',
         'segmentationLayerCoordination',
         'segmentationChannelScopesByLayer',
@@ -1635,10 +1640,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
+        // Data props.
         'obsSpots',
+        'obsSpotsSets',
+        'spotMatrixIndices',
+        'spotMultiExpressionData',
+        // Coordination props.
         'spotLayerScopes',
         'spotLayerCoordination',
-        'spotMultiExpressionData',
       ].some(shallowDiff)
     ) {
       // Expression data prop changed.
@@ -1667,10 +1676,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
+        // Data props.
         'obsPoints',
+        'pointMultiObsLabels',
+        // Coordination props.
         'pointLayerScopes',
         'pointLayerCoordination',
-        'pointMultiObsLabels',
       ].some(shallowDiff)
     ) {
       this.onUpdatePointsLayer();
@@ -1679,10 +1690,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if (
       [
+        // Data props.
         'images',
+        // Coordination props.
         'imageLayerScopes',
         'imageLayerCoordination',
-
         'imageChannelScopesByLayer',
         'imageChannelCoordination',
       ].some(shallowDiff)
