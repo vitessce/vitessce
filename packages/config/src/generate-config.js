@@ -1,6 +1,7 @@
 // TODO: ts-check
 import { FileType } from '@vitessce/constants-internal';
 import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
@@ -71,7 +72,9 @@ function getStore(parsedUrl) {
     return null;
   }
   return fileType.endsWith('.zip')
-    ? ZipFileStore.fromUrl(url)
+    ? ZipFileStore.fromUrl(url, {
+        transformEntries: transformEntriesForZipFileStore
+      })
     : new FetchStore(url);
 }
 

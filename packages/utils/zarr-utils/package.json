@@ -33,5 +33,8 @@
     "zarrita": "catalog:",
     "@zarrita/storage": "catalog:",
     "@vitessce/globals": "workspace:*"
+  },
+  "devDependencies": {
+    "unzipit": "^1.4.3"
   }
 }
