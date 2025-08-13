@@ -39,7 +39,7 @@ class RelaxedFetchStore extends FetchStore {
 
 // Define a transformEntries function that expects a single top-level .zarr directory
 // and strips that prefix from all entries.
-export function transformEntries(entries: ZipInfo["entries"]) {
+export function transformEntriesForZipFileStore(entries: ZipInfo["entries"]) {
   // Find all top-level directories that end with .zarr
   const topLevelZarrDirectories = new Set(
     Object.keys(entries)
@@ -72,7 +72,10 @@ export function transformEntries(entries: ZipInfo["entries"]) {
 export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
   let store: Readable;
   if (fileType && fileType.endsWith('.zip')) {
-    store = ZipFileStore.fromUrl(url, { overrides: opts?.requestInit, transformEntries });
+    store = ZipFileStore.fromUrl(url, {
+      overrides: opts?.requestInit,
+      transformEntries: transformEntriesForZipFileStore,
+    });
   } else if (fileType && fileType.endsWith('.h5ad')) {
     if (!opts?.refSpecUrl) {
       throw new Error('refSpecUrl is required for H5AD files');
