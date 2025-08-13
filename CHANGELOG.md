@@ -1,4 +1,15 @@
 
+## 3.6.15
+
+### Patch Changes
+
+- Fix bug preventing coloring bitmask by obsSets colors on initial load. (`@vitessce/spatial-beta`, `@vitessce/gl`) ([#2235](https://github.com/vitessce/vitessce/pull/2235))
+
+- Support zipped .zarr directories without cd-ing inside during zipping. (`@vitessce/zarr-utils`) ([#2236](https://github.com/vitessce/vitessce/pull/2236))
+
+- Add linkController view to more example configs. Modify linkController message handling to set linkID prop in the configuration when null. (`@vitessce/link-controller`, `@vitessce/example-configs`) ([#2226](https://github.com/vitessce/vitessce/pull/2226))
+
+
 ## 3.6.14
 
 ### Patch Changes
