@@ -523,6 +523,9 @@ export default class ImageWrapper implements AbstractImageWrapper {
         if (meta && 'photometricInterpretation' in meta) {
           const numericValue = meta.photometricInterpretation;
           if (numericValue === 2) {
+            if (this.getNumChannels() < 3) {
+              throw new Error('Expected at least 3 channels for RGB photometric interpretation.');
+            }
             return 'RGB';
           }
           // We use BlackIsZero as default but should ideally be specified by a value of 1.
@@ -539,6 +542,9 @@ export default class ImageWrapper implements AbstractImageWrapper {
         },
       } = loader.metadata;
       if (model === 'color') {
+        if (this.getNumChannels() < 3) {
+          throw new Error('Expected at least 3 channels for RGB photometric interpretation.');
+        }
         return 'RGB';
       }
     }

@@ -48,7 +48,7 @@ export const codeluppiViaZarr = {
           fileType: 'anndata.zarr',
           url: 'https://data-1.vitessce.io/0.0.33/main/codeluppi-2018-via-zarr/codeluppi_2018_nature_methods.molecules.h5ad.zarr',
           options: {
-            obsLocations: {
+            obsPoints: {
               path: 'obsm/X_spatial',
             },
             obsLabels: {
@@ -60,47 +60,8 @@ export const codeluppiViaZarr = {
           },
         },
         {
-          fileType: 'image.raster.json',
-          options: {
-            schemaVersion: '0.0.2',
-            images: [
-              {
-                name: 'Image',
-                url: 'https://vitessce-data.storage.googleapis.com/0.0.31/master_release/linnarsson/linnarsson.images.zarr',
-                type: 'zarr',
-                metadata: {
-                  dimensions: [
-                    {
-                      field: 'channel',
-                      type: 'nominal',
-                      values: [
-                        'polyT',
-                        'nuclei',
-                      ],
-                    },
-                    {
-                      field: 'y',
-                      type: 'quantitative',
-                      values: null,
-                    },
-                    {
-                      field: 'x',
-                      type: 'quantitative',
-                      values: null,
-                    },
-                  ],
-                  isPyramid: true,
-                  transform: {
-                    translate: {
-                      y: 0,
-                      x: 0,
-                    },
-                    scale: 1,
-                  },
-                },
-              },
-            ],
-          },
+          fileType: 'image.ome-tiff',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/bioformats-zarr-conversion/linnarsson.pyramid.ome.tif',
         },
       ],
     },
