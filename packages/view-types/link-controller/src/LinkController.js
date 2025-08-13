@@ -76,9 +76,16 @@ export default function LinkController(props) {
         },
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
+
+        const newLayout = viewConfig.layout.map(viewDef => {
+          if(viewDef.component === 'linkController') {
+            return { ...viewDef, props: { ...viewDef.props, linkID: response.link_id } };
+          }
+          return viewDef;
+        });
         const newViewConfig = {
           ...viewConfig,
-
+          layout: newLayout,
         };
         setViewConfig(newViewConfig);
       }).catch((err) => {
