@@ -64,7 +64,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
 
     const coordinationValues = {
       // Old
-      spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
+      // spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
       // New
       // spatialTargetZ: imageWrapper.getDefaultTargetZ(),
       // spatialTargetT: imageWrapper.getDefaultTargetT(),

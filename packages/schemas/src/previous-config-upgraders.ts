@@ -908,15 +908,25 @@ export function upgradeFrom1_0_18(
   const newCoordinationSpace = {
     ...coordinationSpace
   };
+
+  // Keep track of spatialPointLayer scopes that have already been upgraded.
+  // Reuse, for instance to support pairs of spatial and layerController views
+  // that share the same spatialPointLayer scope.
+  // This is a mapping from `spatialPointLayer` scope name to [metaCoordinationScope, metaCoordinationScopesBy] scope names tuple.
+  const hasAlreadyUpgradedPointLayerScopes: Record<string, [string, string]> = {};
+
   const newLayout = layout.map((view): z.infer<typeof configSchema1_0_18.shape.layout.element> => {
     const { coordinationScopes, coordinationScopesBy, component } = view;
+
+    // TODO find pairs of spatial and layerController views.
 
     if(component === 'spatial' || component === 'layerController') {
       const newComponent = `${component}Beta`;
 
       // Create a new coordinationScopes property that conforms to v1.0.16.
-      const newCoordinationScopes: z.infer<typeof componentCoordinationScopes> = {};
-      const newCoordinationScopesBy: z.infer<typeof componentCoordinationScopesBy> = {};
+      const newCoordinationScopes: z.infer<typeof componentCoordinationScopes> = {
+        ...coordinationScopes,
+      };
 
       if(coordinationScopes && coordinationScopes.spatialImageLayer && !Array.isArray(coordinationScopes.spatialImageLayer)) {
         const scopeName = coordinationScopes.spatialImageLayer;
@@ -939,12 +949,110 @@ export function upgradeFrom1_0_18(
           // TODO
         }
       }
-      if(coordinationScopes && coordinationScopes.spatialPointLayer && !Array.isArray(coordinationScopes.spatialPointLayer)) {
+      if (coordinationScopes && coordinationScopes.spatialPointLayer && !Array.isArray(coordinationScopes.spatialPointLayer)) {
         const scopeName = coordinationScopes.spatialPointLayer;
-        const scopeValue: z.infer<typeof moleculesLayerObj> = coordinationSpace?.spatialPointLayer?.[scopeName];
-        // Consider each spatialPointLayer value.
 
-        // TODO
+        let metaCoordinationScope: string;
+        let metaCoordinationScopesBy: string;
+
+        if(hasAlreadyUpgradedPointLayerScopes[scopeName]) {
+          // If we have already upgraded this scope, reuse the existing metaCoordinationScope and metaCoordinationScopesBy.
+          [metaCoordinationScope, metaCoordinationScopesBy] = hasAlreadyUpgradedPointLayerScopes[scopeName];
+        } else {
+          // Consider each spatialPointLayer value.
+          const scopeValue: z.infer<typeof moleculesLayerObj> = coordinationSpace?.spatialPointLayer?.[scopeName];
+
+          metaCoordinationScope = getNextScope(Object.keys(coordinationSpace?.metaCoordinationScopes ?? {}));
+          metaCoordinationScopesBy = getNextScope(Object.keys(coordinationSpace?.metaCoordinationScopesBy ?? {}));
+
+          // We need to create a pointLayer: ['someLayerScope'] scope,
+          // and define a pointLayer with an obsType of 'point' (or the obsType defined in the coordinationValues for the obsPoints fileType).
+          const pointLayerScope = getNextScope(Object.keys(coordinationSpace?.pointLayer ?? {}));
+          const obsTypeScope = getNextScope(Object.keys(coordinationSpace?.obsType ?? {}));
+          const visibleScope = getNextScope(Object.keys(coordinationSpace?.spatialLayerVisible ?? {}));
+          const opacityScope = getNextScope(Object.keys(coordinationSpace?.spatialLayerOpacity ?? {}));
+
+          // Obtain the obsType from the coordinationValues of the obsPoints fileType,
+          // or default to 'point' if not defined.
+          let pointsObsType: string | null = null;
+          // First, need to get the dataset that corresponds to this view.
+          let datasetUid: string | undefined;
+          if (coordinationScopes?.dataset && typeof coordinationScopes?.dataset === 'string') {
+            datasetUid = newCoordinationSpace.dataset[coordinationScopes.dataset];
+          }
+          if (datasets.length > 0) {
+            datasetUid = datasets[0].uid;
+          }
+          const dataset = datasets.find(d => d.uid === datasetUid);
+          if(dataset) {
+            // This is a bit tricky since obsPoints can be within anndata.zarr.
+            const obsPointsFileDef = dataset.files.find(file => {
+              if(['anndata.zarr', 'anndata.zarr.zip'].includes(file.fileType) && file.options && file.options.obsPoints) {
+                return true;
+              }
+              if(['obsPoints.anndata.zarr', 'obsPoints.anndata.zarr.zip', 'obsPoints.csv'].includes(file.fileType)) {
+                return true;
+              }
+              return false;
+            });
+            if(obsPointsFileDef?.coordinationValues?.obsType) {
+              pointsObsType = obsPointsFileDef.coordinationValues.obsType;
+            }
+          }
+
+          // Add the values to the coordinationSpace.
+          newCoordinationSpace.metaCoordinationScopes = {
+            ...(newCoordinationSpace.metaCoordinationScopes ?? {}),
+            [metaCoordinationScope]: {
+              pointLayer: pointLayerScope
+            },
+          };
+          newCoordinationSpace.metaCoordinationScopesBy = {
+            ...(newCoordinationSpace.metaCoordinationScopesBy ?? {}),
+            [metaCoordinationScopesBy]: {
+              pointLayer: {
+                obsType: {
+                  [pointLayerScope]: obsTypeScope,
+                },
+                spatialLayerVisible: {
+                  [pointLayerScope]: visibleScope,
+                },
+                spatialLayerOpacity: {
+                  [pointLayerScope]: opacityScope,
+                },
+              },
+            },
+          };
+          newCoordinationSpace.pointLayer = {
+            ...(newCoordinationSpace.pointLayer ?? {}),
+            [pointLayerScope]: '__dummy__',
+          };
+          newCoordinationSpace.obsType = {
+            ...(newCoordinationSpace.obsType ?? {}),
+            [obsTypeScope]: pointsObsType ?? 'point',
+          };
+          newCoordinationSpace.spatialLayerVisible = {
+            ...(newCoordinationSpace.spatialLayerVisible ?? {}),
+            [visibleScope]: scopeValue.visible,
+          };
+          newCoordinationSpace.spatialLayerOpacity = {
+            ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
+            [opacityScope]: scopeValue.opacity,
+          };
+
+          hasAlreadyUpgradedPointLayerScopes[scopeName] = [metaCoordinationScope, metaCoordinationScopesBy];
+        }
+
+        // Update the meta-coordination scope mappings for the view.
+        newCoordinationScopes.metaCoordinationScopes = [
+          ...(newCoordinationScopes.metaCoordinationScopes ?? []),
+          metaCoordinationScope,
+        ];
+        newCoordinationScopes.metaCoordinationScopesBy = [
+          ...(newCoordinationScopes.metaCoordinationScopesBy ?? []),
+          metaCoordinationScopesBy,
+        ];
+        delete newCoordinationScopes['spatialPointLayer'];
       }
       if(coordinationScopes && coordinationScopes.spatialNeighborhoodLayer && !Array.isArray(coordinationScopes.spatialNeighborhoodLayer)) {
         const scopeName = coordinationScopes.spatialNeighborhoodLayer;
@@ -1003,7 +1111,6 @@ export function upgradeFrom1_0_18(
       return {
         ...view,
         coordinationScopes: newCoordinationScopes,
-        coordinationScopesBy: newCoordinationScopesBy,
         component: newComponent,
       };
     }

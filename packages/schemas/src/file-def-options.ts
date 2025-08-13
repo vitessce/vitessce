@@ -317,7 +317,7 @@ export const obsSpotsCsvSchema = z.object({
 });
 export const obsPointsCsvSchema = z.object({
   obsIndex: z.string(),
-  obsPoints: z.array(z.string()).length(3),
+  obsPoints: z.array(z.string()).length(2),
 });
 export const obsLocationsCsvSchema = z.object({
   obsIndex: z.string(),
