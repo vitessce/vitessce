@@ -107,7 +107,8 @@ export function NeuroglancerSubscriber(props) {
   const lastNgPushOrientationRef = useRef(null);
   const calibratorRef = useRef(null);
   const translationOffsetRef = useRef([0, 0, 0]);
-
+  const zoomRafRef = useRef(null);
+  
   useEffect(() => {
     console.log('useEffect');
         // Avoiding circular updates on first render
@@ -165,7 +166,14 @@ export function NeuroglancerSubscriber(props) {
   
       if (Number.isFinite(deckZoomFromNG) &&
         Math.abs(deckZoomFromNG - (spatialZoom ?? 0)) > ZOOM_EPS) {
-          setZoom(deckZoomFromNG);
+
+          if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
+          console.log("[ZOOM] NG to VIT", deckZoomFromNG)
+          zoomRafRef.current = requestAnimationFrame(() => {
+            setZoom(deckZoomFromNG);
+            zoomRafRef.current = null;
+            });
+          // setZoom(deckZoomFromNG);
       }
       lastInteractionSource.current = 'neuroglancer';
       
@@ -210,7 +218,7 @@ export function NeuroglancerSubscriber(props) {
       ...latestViewerStateRef.current,
       projectionOrientation,
       projectionScale,
-      position,
+      // position,
     };
   }, []);
 
@@ -254,6 +262,24 @@ export function NeuroglancerSubscriber(props) {
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
+  // const toNormalizedRgb = (c) => {
+  //   if (Array.isArray(c)) {
+  //     const [r, g, b] = c;
+  //     // accept either 0..255 or 0..1
+  //     return (r <= 1 && g <= 1 && b <= 1)
+  //       ? [r, g, b]
+  //       : [r / 255, g / 255, b / 255];
+  //   }
+  //   if (typeof c === 'string' && c[0] === '#') {
+  //     return [
+  //       parseInt(c.slice(1, 3), 16) / 255,
+  //       parseInt(c.slice(3, 5), 16) / 255,
+  //       parseInt(c.slice(5, 7), 16) / 255,
+  //     ];
+  //   }
+  //   return [0, 0, 0];
+  // };
+
   // const cellColorMappingRef = useRef({});
   const batchedUpdateTimeoutRef = useRef(null);
   const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
@@ -277,6 +303,7 @@ export function NeuroglancerSubscriber(props) {
     const colorMapping = {};
     batchedCellColors.forEach((color, cell) => {
       colorMapping[cell] = rgbToHex(color);
+      // colorMapping[cell] = toNormalizedRgb(color);
     });
     return colorMapping;
   }, [batchedCellColors]);
@@ -290,10 +317,10 @@ export function NeuroglancerSubscriber(props) {
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
     // let hasInteractionsChangedState = false;
-    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length);
+    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
     let { projectionScale, projectionOrientation, position,  crossSectionScale, crossSectionOrientation } = current;
 
-    if (typeof spatialZoom === 'number' && calibratorRef.current) {
+    if (typeof spatialZoom === 'number' && calibratorRef.current && lastInteractionSource.current !== 'neuroglancer') {
        const s = calibratorRef.current.deckToNg(spatialZoom);
        if (Number.isFinite(s) && s > 0) {
         projectionScale = s;
@@ -317,12 +344,12 @@ export function NeuroglancerSubscriber(props) {
       spatialRotationOrbit,
       spatialRotationZ,
     );
-    console.log("vitessceRotation", vitessceRotation)
     // Only update state if coming from Vitessce - avoid circular self changes
     if (lastInteractionSource.current === 'vitessce') {
+      console.log('Vitessce → NG: pushing new orientation Before', vitessceRotation, projectionOrientation);
       if (valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, 1e-2)) {
         projectionOrientation = vitessceRotation;
-        console.log('Vitessce → NG: pushing new orientation');
+        console.log('Vitessce → NG: pushing new orientation', vitessceRotation, projectionOrientation);
       }
        else {
         console.log('Skip push to NG — no quaternion change');
@@ -342,26 +369,26 @@ export function NeuroglancerSubscriber(props) {
       segments: nextSegments,
       segmentColors: cellColorMapping,
     };
-    const xySliceQuat = [0, 0, 0, 1];
     const desiredQuat = snapTopDownQuat(spatialRotationOrbit ?? 0);
-    // eulerToQuaternion(0, (spatialRotationOrbit ?? 0), 0);
-    console.log("desiredQuat", desiredQuat)
 
     const updated = {
       ...current,
       projectionScale,
-      projectionOrientation: desiredQuat,
-      position,
-      orthographicProjection: true,
-      crossSectionScale,                    
-      crossSectionOrientation: desiredQuat, 
+      // TODO: Uncomment if we want a rotated view to match Spatial View (xy)
+      // projectionOrientation,
+      // Below changes the view to yz plan to mimic Spatial view projection
+      projectionOrientation: desiredQuat, // TODO - move y upward
+      // position,
+      // orthographicProjection: true,
+      // crossSectionScale,
+      // crossSectionOrientation: desiredQuat,
       layers: [newLayer0, ...(current?.layers?.slice(1) || [])],
     };
     // console.log("before", compareViewerState(current, updated))
     const hasInteractionsChangedState = compareViewerState(current, updated);
     latestViewerStateRef.current = updated;
     // if (!hasInteractionsChangedState){
-      console.log("interactions From vitessce", prevSegments?.length > 0, hasInteractionsChangedState, prevSegments?.length === 0 && hasInteractionsChangedState, isEqual( latestViewerStateRef.current, updated));
+      // console.log("interactions From vitessce", prevSegments?.length > 0, hasInteractionsChangedState, prevSegments?.length === 0 && hasInteractionsChangedState, isEqual( latestViewerStateRef.current, updated));
     // }
     
 
