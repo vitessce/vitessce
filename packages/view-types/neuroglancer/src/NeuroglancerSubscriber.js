@@ -200,7 +200,7 @@ export function NeuroglancerSubscriber(props) {
     if (applyNgUpdateTimeoutRef.current) {
       clearTimeout(applyNgUpdateTimeoutRef.current);
     }
-    lastNgPushOrientationRef.current = latestViewerStateRef.current.projectionOrientation;
+    lastNgPushOrientationRef.current = projectionOrientation;
     applyNgUpdateTimeoutRef.current = setTimeout(() => {
       const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
 
@@ -262,24 +262,6 @@ export function NeuroglancerSubscriber(props) {
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
-  // const toNormalizedRgb = (c) => {
-  //   if (Array.isArray(c)) {
-  //     const [r, g, b] = c;
-  //     // accept either 0..255 or 0..1
-  //     return (r <= 1 && g <= 1 && b <= 1)
-  //       ? [r, g, b]
-  //       : [r / 255, g / 255, b / 255];
-  //   }
-  //   if (typeof c === 'string' && c[0] === '#') {
-  //     return [
-  //       parseInt(c.slice(1, 3), 16) / 255,
-  //       parseInt(c.slice(3, 5), 16) / 255,
-  //       parseInt(c.slice(5, 7), 16) / 255,
-  //     ];
-  //   }
-  //   return [0, 0, 0];
-  // };
-
   // const cellColorMappingRef = useRef({});
   const batchedUpdateTimeoutRef = useRef(null);
   const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
@@ -303,7 +285,6 @@ export function NeuroglancerSubscriber(props) {
     const colorMapping = {};
     batchedCellColors.forEach((color, cell) => {
       colorMapping[cell] = rgbToHex(color);
-      // colorMapping[cell] = toNormalizedRgb(color);
     });
     return colorMapping;
   }, [batchedCellColors]);
@@ -344,32 +325,36 @@ export function NeuroglancerSubscriber(props) {
       spatialRotationOrbit,
       spatialRotationZ,
     );
-    // Only update state if coming from Vitessce - avoid circular self changes
+
+    let nextOrientation = projectionOrientation;
+    const desiredQuat = snapTopDownQuat(spatialRotationOrbit ?? 0);
+
     if (lastInteractionSource.current === 'vitessce') {
       console.log('Vitessce → NG: pushing new orientation Before', vitessceRotation, projectionOrientation);
-      if (valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, 1e-2)) {
-        projectionOrientation = vitessceRotation;
-        console.log('Vitessce → NG: pushing new orientation', vitessceRotation, projectionOrientation);
-      }
-       else {
+      // Vitessce is the source: only then push the top-down quat.
+      if (valueGreaterThanEpsilon(desiredQuat, projectionOrientation, 1e-2)) {
+        nextOrientation = desiredQuat;
+        console.log('Vitessce → NG: pushing new orientation', nextOrientation);
+      } else {
         console.log('Skip push to NG — no quaternion change');
       }
     } else if (lastInteractionSource.current === 'neuroglancer') {
-      // prevent override by committing what NG sent
-      projectionOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
-      // console.log('NG → NG: committing NG-derived orientation');
+      // NG is the source: commit what NG sent (from Fix 1)
+      nextOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
       lastInteractionSource.current = null;
-    }
-    else {
+    } else {
       console.log('Vitessce → NG: Skipping due to unknown source');
     }
+
 
     const newLayer0 = {
       ...prevLayer,
       segments: nextSegments,
       segmentColors: cellColorMapping,
     };
-    const desiredQuat = snapTopDownQuat(spatialRotationOrbit ?? 0);
+
+    console.log('[SRC]', lastInteractionSource.current, 'projOri', projectionOrientation);
+
 
     const updated = {
       ...current,
@@ -377,7 +362,7 @@ export function NeuroglancerSubscriber(props) {
       // TODO: Uncomment if we want a rotated view to match Spatial View (xy)
       // projectionOrientation,
       // Below changes the view to yz plan to mimic Spatial view projection
-      projectionOrientation: desiredQuat, // TODO - move y upward
+      projectionOrientation: nextOrientation, // TODO - move y upward
       // position,
       // orthographicProjection: true,
       // crossSectionScale,
@@ -385,7 +370,7 @@ export function NeuroglancerSubscriber(props) {
       layers: [newLayer0, ...(current?.layers?.slice(1) || [])],
     };
     // console.log("before", compareViewerState(current, updated))
-    const hasInteractionsChangedState = compareViewerState(current, updated);
+    // const hasInteractionsChangedState = compareViewerState(current, updated);
     latestViewerStateRef.current = updated;
     // if (!hasInteractionsChangedState){
       // console.log("interactions From vitessce", prevSegments?.length > 0, hasInteractionsChangedState, prevSegments?.length === 0 && hasInteractionsChangedState, isEqual( latestViewerStateRef.current, updated));
