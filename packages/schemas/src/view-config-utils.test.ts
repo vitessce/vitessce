@@ -40,7 +40,7 @@ describe('src/app/view-config-utils.js', () => {
     });
     it('upgrades more than once', () => {
       const latestConfig = upgradeAndParse(legacyViewConfig1_0_0);
-      expect(latestConfig.version).toEqual('1.0.19');
+      expect(latestConfig.version).toEqual('1.0.20');
     });
   });
 });

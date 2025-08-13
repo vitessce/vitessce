@@ -10,7 +10,7 @@ const e = React.createElement;
 
 const eng2019 = {
   name: 'Eng et al., Nature 2019',
-  version: '1.0.19', // Must be the latest version because using VitS rather than Vitessce
+  version: '1.0.20', // Must be the latest version because using VitS rather than Vitessce
   description: '',
   datasets: [],
   initStrategy: 'auto',

@@ -254,12 +254,10 @@ export const baseViewTypes = [
   makeViewType(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
   makeViewType(ViewType.DUAL_SCATTERPLOT, DualEmbeddingScatterplotSubscriber),
   makeViewType(ViewType.GATING, GatingSubscriber),
-  //makeViewType(ViewType.SPATIAL, SpatialSubscriber),
-  makeViewType(ViewType.SPATIAL_BETA, SpatialBetaSubscriber),
+  makeViewType(ViewType.SPATIAL, SpatialBetaSubscriber),
   makeViewType(ViewType.HEATMAP, HeatmapSubscriber),
   makeViewType(ViewType.FEATURE_LIST, FeatureListSubscriber),
-  //makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerSubscriber),
-  makeViewType(ViewType.LAYER_CONTROLLER_BETA, LayerControllerBetaSubscriber),
+  makeViewType(ViewType.LAYER_CONTROLLER, LayerControllerBetaSubscriber),
   makeViewType(ViewType.STATUS, StatusSubscriber),
   makeViewType(ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION, CellSetExpressionPlotSubscriber),
   makeViewType(ViewType.OBS_SET_SIZES, CellSetSizesPlotSubscriber),
@@ -278,6 +276,10 @@ export const baseViewTypes = [
   makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
   makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
   makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
+
+  // Unused, but defined here to support schema parsing for older configs (pre-upgrade).
+  makeViewType(ViewType.SPATIAL_BETA, () => null),
+  makeViewType(ViewType.LAYER_CONTROLLER_BETA, () => null),
 ];
 
 export const baseFileTypes = [

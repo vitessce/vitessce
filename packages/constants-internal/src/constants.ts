@@ -8,10 +8,8 @@ export const ViewType = {
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
-  SPATIAL_BETA: 'spatialBeta',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
-  LAYER_CONTROLLER_BETA: 'layerControllerBeta',
   GENOMIC_PROFILES: 'genomicProfiles',
   GATING: 'gating',
   FEATURE_LIST: 'featureList',
@@ -32,6 +30,9 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  // Unused, but we need to keep for compatibility with schema validation.
+  SPATIAL_BETA: 'spatialBeta',
+  LAYER_CONTROLLER_BETA: 'layerControllerBeta',
 };
 
 export const DataType = {
@@ -205,9 +206,6 @@ export const FileType = {
   OBS_FEATURE_MATRIX_CLUSTERS_JSON: 'obsFeatureMatrix.clusters.json',
   // - expression-matrix.zarr
   OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR: 'obsFeatureMatrix.expression-matrix.zarr',
-  // - raster.json
-  IMAGE_RASTER_JSON: 'image.raster.json',
-  OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
   // - molecules.json
   OBS_LOCATIONS_MOLECULES_JSON: 'obsLocations.molecules.json',
   OBS_LABELS_MOLECULES_JSON: 'obsLabels.molecules.json',
@@ -218,11 +216,15 @@ export const FileType = {
   ANNDATA_CELLS_ZARR: 'anndata-cells.zarr',
   EXPRESSION_MATRIX_ZARR: 'expression-matrix.zarr',
   MOLECULES_JSON: 'molecules.json',
-  RASTER_JSON: 'raster.json',
-  RASTER_OME_ZARR: 'raster.ome-zarr',
   CLUSTERS_JSON: 'clusters.json',
   GENES_JSON: 'genes.json',
   ANNDATA_EXPRESSION_MATRIX_ZARR: 'anndata-expression-matrix.zarr',
+
+  // Unused, but we need to keep for compatibility with schema validation.
+  RASTER_JSON: 'raster.json',
+  RASTER_OME_ZARR: 'raster.ome-zarr',
+  IMAGE_RASTER_JSON: 'image.raster.json',
+  OBS_SEGMENTATIONS_RASTER_JSON: 'obsSegmentations.raster.json',
 };
 
 /**
@@ -291,10 +293,6 @@ export const CoordinationType = {
   FEATURE_VALUE_COLORMAP_RANGE: 'featureValueColormapRange',
   FEATURE_AGGREGATION_STRATEGY: 'featureAggregationStrategy',
   OBS_COLOR_ENCODING: 'obsColorEncoding',
-  SPATIAL_IMAGE_LAYER: 'spatialImageLayer',
-  SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
-  SPATIAL_POINT_LAYER: 'spatialPointLayer',
-  SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
   GENOMIC_ZOOM_X: 'genomicZoomX',
   GENOMIC_ZOOM_Y: 'genomicZoomY',
   GENOMIC_TARGET_X: 'genomicTargetX',
@@ -369,6 +367,12 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+
+  // Unused, but we need to keep for compatibility with schema validation.
+  SPATIAL_IMAGE_LAYER: 'spatialImageLayer',
+  SPATIAL_SEGMENTATION_LAYER: 'spatialSegmentationLayer',
+  SPATIAL_POINT_LAYER: 'spatialPointLayer',
+  SPATIAL_NEIGHBORHOOD_LAYER: 'spatialNeighborhoodLayer',
 };
 
 export const STATUS = {
