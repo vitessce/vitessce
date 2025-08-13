@@ -73,8 +73,8 @@ function getStore(parsedUrl) {
   }
   return fileType.endsWith('.zip')
     ? ZipFileStore.fromUrl(url, {
-        transformEntries: transformEntriesForZipFileStore,
-      })
+      transformEntries: transformEntriesForZipFileStore,
+    })
     : new FetchStore(url);
 }
 

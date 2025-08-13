@@ -1,6 +1,6 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L26
 import { root as zarrRoot, FetchStore, type Readable, type AbsolutePath } from 'zarrita';
-import type { ZipInfo } from "unzipit";
+import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
 import { getDebugMode } from '@vitessce/globals';
@@ -39,26 +39,26 @@ class RelaxedFetchStore extends FetchStore {
 
 // Define a transformEntries function that expects a single top-level .zarr directory
 // and strips that prefix from all entries.
-export function transformEntriesForZipFileStore(entries: ZipInfo["entries"]) {
+export function transformEntriesForZipFileStore(entries: ZipInfo['entries']) {
   // Find all top-level directories that end with .zarr
   const topLevelZarrDirectories = new Set(
     Object.keys(entries)
-      .map((k) => k.split("/")[0])
-      .filter((firstPathItem) => firstPathItem?.endsWith(".zarr")),
+      .map(k => k.split('/')[0])
+      .filter(firstPathItem => firstPathItem?.endsWith('.zarr')),
   );
   if (topLevelZarrDirectories.size === 0) {
     return entries;
   }
   // Check that there is exactly one such directory.
   if (topLevelZarrDirectories.size > 1) {
-    throw Error(`expected exactly one top-level .zarr directory`);
+    throw Error('expected exactly one top-level .zarr directory');
   }
   const topLevelZarrDirectory = Array.from(topLevelZarrDirectories)[0];
   // Modify the entries to strip the top-level .zarr directory prefix from paths.
   const newEntries = Object.fromEntries(
     Object.entries(entries).map(([k, v]) => {
       let newKey = k;
-      if (k.split("/")[0] === topLevelZarrDirectory) {
+      if (k.split('/')[0] === topLevelZarrDirectory) {
         // Use substring to remove the top-level directory name
         // and the following slash from the internal zip paths.
         newKey = k.substring(topLevelZarrDirectory.length + 1);
