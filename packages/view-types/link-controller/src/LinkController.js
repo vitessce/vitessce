@@ -77,9 +77,15 @@ export default function LinkController(props) {
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
 
-        const newLayout = viewConfig.layout.map(viewDef => {
-          if(viewDef.component === 'linkController') {
-            return { ...viewDef, props: { ...viewDef.props, linkID: response.link_id } };
+        const newLayout = viewConfig.layout.map((viewDef) => {
+          if (viewDef.component === 'linkController') {
+            return {
+              ...viewDef,
+              props: {
+                ...(viewDef.props || {}),
+                linkID: response.link_id,
+              },
+            };
           }
           return viewDef;
         });
@@ -99,9 +105,9 @@ export default function LinkController(props) {
       viewConfig: state.viewConfig,
       mostRecentConfigSource: state.mostRecentConfigSource,
     }),
-    ({ viewConfig, mostRecentConfigSource }) => {
-      if (onConfigChange && viewConfig && mostRecentConfigSource === 'internal') {
-        onConfigChange(viewConfig);
+    ({ viewConfig: nextViewConfig, mostRecentConfigSource }) => {
+      if (onConfigChange && nextViewConfig && mostRecentConfigSource === 'internal') {
+        onConfigChange(nextViewConfig);
       }
     },
     { equalityFn: shallow },
