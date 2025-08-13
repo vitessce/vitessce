@@ -155,7 +155,7 @@ function generateJainKidneyDecimatedConfig() {
       vconcat(lcView,obsSetsView, barPlot)
     ));
   */
-  //onfig.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, linkController, barPlot)));
+  config.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, linkController, barPlot)));
 
   const configJSON = config.toJSON();
   return configJSON;
