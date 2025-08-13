@@ -47,12 +47,13 @@ function generateJainKidneyDecimatedConfig() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
-  const obsSetsView = config.addView(dataset, 'obsSets');
-  const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
+  const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 }).setProps({ three: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 2 });
+  const obsSetsView = config.addView(dataset, 'obsSets', { x: 8, y: 4, w: 4, h: 2 });
+  const barPlot = config.addView(dataset, 'featureBarPlot', { x: 8, y: 4, w: 4, h: 2 }).setProps({
     yUnits: 'microns cubed',
   });
+  const linkController = config.addView(dataset, 'linkController', { x: 8, y: 2, w: 4, h: 2 });
 
   const [
     selectionScope,
@@ -154,7 +155,7 @@ function generateJainKidneyDecimatedConfig() {
       vconcat(lcView,obsSetsView, barPlot)
     ));
   */
-  config.layout(hconcat(spatialThreeView, vconcat(lcView, vconcat(obsSetsView, barPlot))));
+  config.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, linkController, barPlot)));
 
   const configJSON = config.toJSON();
   return configJSON;

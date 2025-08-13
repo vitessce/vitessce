@@ -77,6 +77,7 @@ export const FileType = {
   ANNDATA_ZARR_ZIP: 'anndata.zarr.zip',
   ANNDATA_H5AD: 'anndata.h5ad',
   SPATIALDATA_ZARR: 'spatialdata.zarr',
+  SPATIALDATA_ZARR_ZIP: 'spatialdata.zarr.zip',
   // Atomic file types
   OBS_EMBEDDING_CSV: 'obsEmbedding.csv',
   OBS_SPOTS_CSV: 'obsSpots.csv',
@@ -159,9 +160,20 @@ export const FileType = {
   OBS_SETS_SPATIALDATA_ZARR: 'obsSets.spatialdata.zarr',
   OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
   FEATURE_LABELS_SPATIALDATA_ZARR: 'featureLabels.spatialdata.zarr',
-  // TODO:
-  // OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
-  // OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
+  OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
+  OBS_EMBEDDING_SPATIALDATA_ZARR: 'obsEmbedding.spatialdata.zarr',
+
+  // SpatialData - zipped
+  IMAGE_SPATIALDATA_ZARR_ZIP: 'image.spatialdata.zarr.zip',
+  LABELS_SPATIALDATA_ZARR_ZIP: 'labels.spatialdata.zarr.zip',
+  SHAPES_SPATIALDATA_ZARR_ZIP: 'shapes.spatialdata.zarr.zip',
+  OBS_FEATURE_MATRIX_SPATIALDATA_ZARR_ZIP: 'obsFeatureMatrix.spatialdata.zarr.zip',
+  OBS_SETS_SPATIALDATA_ZARR_ZIP: 'obsSets.spatialdata.zarr.zip',
+  OBS_SPOTS_SPATIALDATA_ZARR_ZIP: 'obsSpots.spatialdata.zarr.zip',
+  FEATURE_LABELS_SPATIALDATA_ZARR_ZIP: 'featureLabels.spatialdata.zarr.zip',
+  OBS_POINTS_SPATIALDATA_ZARR_ZIP: 'obsPoints.spatialdata.zarr.zip',
+  OBS_EMBEDDING_SPATIALDATA_ZARR_ZIP: 'obsEmbedding.spatialdata.zarr.zip',
+
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',

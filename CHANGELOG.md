@@ -1,4 +1,127 @@
 
+## 3.6.15
+
+### Patch Changes
+
+- Fix bug preventing coloring bitmask by obsSets colors on initial load. (`@vitessce/spatial-beta`, `@vitessce/gl`) ([#2235](https://github.com/vitessce/vitessce/pull/2235))
+
+- Support zipped .zarr directories without cd-ing inside during zipping. (`@vitessce/zarr-utils`) ([#2236](https://github.com/vitessce/vitessce/pull/2236))
+
+- Add linkController view to more example configs. Modify linkController message handling to set linkID prop in the configuration when null. (`@vitessce/link-controller`, `@vitessce/example-configs`) ([#2226](https://github.com/vitessce/vitessce/pull/2226))
+
+
+## 3.6.14
+
+### Patch Changes
+
+- Fix updateTriggers for getExpressionValue of PolygonLayer and ScaledExpressionExtension in spatialBeta view, to ensure that polygon segmentations can be colored by expression value as intended. (`@vitessce/spatial-beta`) ([#2230](https://github.com/vitessce/vitessce/pull/2230))
+
+- Add data loader for obsEmbedding.spatialdata.zarr to enable loading dimensionality reduction scatterplot coordinates from SpatialData Table elements (within obsm). (`@vitessce/spatial-zarr`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2227](https://github.com/vitessce/vitessce/pull/2227))
+
+- Fix styles and sizing for FeatureList virtual-scrolling table element. (`@vitessce/feature-list`) ([#2232](https://github.com/vitessce/vitessce/pull/2232))
+
+
+## 3.6.13
+
+### Patch Changes
+
+- Ensure that zip-based alternative fileTypes are registered for spatialdata fileTypes. (`@vitessce/all`) ([#2224](https://github.com/vitessce/vitessce/pull/2224))
+
+
+## 3.6.12
+
+### Patch Changes
+
+- Support requestInit param for VitessceConfigDataset.addFile method. (`@vitessce/config`) ([#1855](https://github.com/vitessce/vitessce/pull/1855))
+
+- Fix jsdoc type annotation for VitessceConfig.addView options.mapping parameter. (`@vitessce/config`) ([#2222](https://github.com/vitessce/vitessce/pull/2222))
+
+- Fixes type errors during local dev build (`@vitessce/spatial-zarr`) ([#2220](https://github.com/vitessce/vitessce/pull/2220))
+
+- Fix broken links in readme/docs. (`docs`) ([#2215](https://github.com/vitessce/vitessce/pull/2215))
+
+- Fix SpatialData coordinate transformations bugs. Traverse DAG of coordinate transformations to identify target path. Refactor model matrix generation code in data loader classes. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`) ([#2216](https://github.com/vitessce/vitessce/pull/2216))
+
+
+## 3.6.11
+
+### Patch Changes
+
+- Make the draggableHandle class more specific (the title text rather than the title container) to prevent accidental activation of dragging state (e.g., when opening the plot options dropdown). (`@vitessce/vit-s`) ([#2214](https://github.com/vitessce/vitessce/pull/2214))
+
+- Add click handler for dot plot. Support 'greys' colormap selection. (`@vitessce/statistical-plots`, `@vitessce/legend`) ([#2159](https://github.com/vitessce/vitessce/pull/2159))
+
+
+## 3.6.10
+
+### Patch Changes
+
+- Fix obsSpots bug preventing coordinate transformation. (`@vitessce/spatial-zarr`) ([#2209](https://github.com/vitessce/vitessce/pull/2209))
+
+
+## 3.6.9
+
+### Patch Changes
+
+- Fixes a bug in which DataSource classes were not selected correctly following JS bundle minification, as the class names were being mapped to conflicting minified strings. (`@vitessce/vit-s`) ([#2207](https://github.com/vitessce/vitessce/pull/2207))
+
+
+## 3.6.8
+
+### Patch Changes
+
+- Support loading SpatialData Points elements. (`@vitessce/spatial-zarr`, `@vitessce/spatial-beta`) ([#2183](https://github.com/vitessce/vitessce/pull/2183))
+
+- Improve error handling: allow errors thrown in data loaders to halt react-query. Pass data-loading errors to TitleInfo for display in the UI. (`@vitessce/error`, `@vitessce/vit-s`) ([#2202](https://github.com/vitessce/vitessce/pull/2202))
+
+
+## 3.6.7
+
+### Patch Changes
+
+- Fix bug preventing loading SpatialData attrs for shapes elements to obtain format version. Normalize coordinate transformation for SpatialData image elements to enable sequence-type transformations. (`@vitessce/spatial-zarr`, `@vitessce/image-utils`) ([#2189](https://github.com/vitessce/vitessce/pull/2189))
+
+
+## 3.6.6
+
+### Patch Changes
+
+- Violin plot title uses featureValueType instead of hard-coded "Expression". (`@vitessce/statistical-plots`) ([#2178](https://github.com/vitessce/vitessce/pull/2178))
+
+- Update KPMP configuration: add statistical plots and PTC sets. (`@vitessce/example-configs`) ([#2181](https://github.com/vitessce/vitessce/pull/2181))
+
+- Fix CSS for genomicProfiles view so that HiGlass renders correctly. Add support for passing a Zarr store object to the HiGlass Zarr Multivec plugin data fetcher. (`@vitessce/genomic-profiles`) ([#2184](https://github.com/vitessce/vitessce/pull/2184))
+
+
+## 3.6.5
+
+### Patch Changes
+
+- Support polygons stored in SpatialData shapes elements. (`@vitessce/spatial-zarr`) ([#2168](https://github.com/vitessce/vitessce/pull/2168))
+
+
+## 3.6.4
+
+### Patch Changes
+
+- Add a new generateConfig implementation. (`@vitessce/config`) ([#2155](https://github.com/vitessce/vitessce/pull/2155))
+
+- Add obsFeatureColumns option for anndata.zarr fileType. (`@vitessce/schemas`) ([#2156](https://github.com/vitessce/vitessce/pull/2156))
+
+
+## 3.6.3
+
+### Patch Changes
+
+- Support the latest spatialdata table metadata format. (`@vitessce/spatial-zarr`) ([#2138](https://github.com/vitessce/vitessce/pull/2138))
+
+- Override photometricInterpretation from image metadata in blin-2019 example. (`@vitessce/example-configs`) ([#2143](https://github.com/vitessce/vitessce/pull/2143))
+
+- Updated genes_filtered file bucket to data-v1 (`@vitessce/biomarker-select`) ([#2141](https://github.com/vitessce/vitessce/pull/2141))
+
+- Fix bug preventing correct feature value extents in spatialBeta view legend (`@vitessce/legend`) ([#2149](https://github.com/vitessce/vitessce/pull/2149))
+
+
 ## 3.6.2
 
 ### Patch Changes

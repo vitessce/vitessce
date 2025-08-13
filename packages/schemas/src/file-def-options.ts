@@ -197,12 +197,20 @@ export const imageSpatialdataSchema = z.object({
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this be renamed labelsSpatialdataSchema?
-  // TODO: support obsTypesFromChannelNames?
-  path: z.string(),
+  // TODO: support obsTypesFromElementNames?
+  path: z.string().describe('The path to the segmentation data, stored in either shapes/ or labels/.'),
   tablePath: z.string()
     .optional()
-    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+    .describe('The path to a table which annotates the labels or shapes. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+});
+export const obsPointsSpatialdataSchema = z.object({
+  path: z.string().describe('The path to the point data.'),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the points. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
@@ -239,6 +247,22 @@ export const obsSetsSpatialdataSchema = z.object({
     .describe('The path to a table which contains the index for the set values.'),
   obsSets: annDataObsSetsArr,
 });
+export const obsEmbeddingSpatialdataSchema = annDataObsEmbedding.extend({
+  // We extend anndataObsEmbedding which already has properties like `dims` and `path`.
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+});
+
+// TODO: should the convenience schema also allow specifying tablePath and region?
+const obsEmbeddingSpatialdataSchemaConvenience = z.union([
+  annDataObsEmbedding,
+  // For convenience, allow an array of items with `embeddingType` properties.
+  z.array(annDataConvenienceObsEmbeddingItem),
+]);
 
 // GLB
 export const meshGlbSchema = z.object({
@@ -347,6 +371,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
   obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
@@ -366,20 +391,24 @@ export const anndataH5adSchema = anndataZarrSchema.extend({
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple images
+  // TODO: allow multiple images?
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels
-  labels: obsSegmentationsSpatialdataSchema,
+  // TODO: allow multiple labels/shapes?
+  obsSegmentations: obsSegmentationsSpatialdataSchema,
+  obsPoints: obsPointsSpatialdataSchema,
+  // TODO: allow multiple shapes?
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
-  // TODO: obsEmbedding
+  obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
   // TODO: obsLabels
   // TODO: featureLabels
+
+  // TODO: allow specifying tablePath and region at the top-level here.
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),

@@ -212,7 +212,7 @@ function generateKpmpPremiereConfig() {
   vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
     // featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
-    featureValueColormap: 'jet',
+    featureValueColormap: 'greys',
     featureValueColormapRange: [0, 0.25],
     featureAggregationStrategy: null,
   }, { meta: false });

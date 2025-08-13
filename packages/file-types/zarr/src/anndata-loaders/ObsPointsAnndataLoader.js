@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 
 /**
@@ -26,11 +24,6 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
     const coordinationValues = {
       pointLayer: CL({
         obsType: 'point',
@@ -47,14 +40,14 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
         // obsLabelsType: null,
       }),
     };
-
-    return Promise.all([
+    const [obsIndex, obsPoints] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadPoints(),
-    ]).then(([obsIndex, obsPoints]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, obsPoints },
       null,
       coordinationValues,
-    )));
+    );
   }
 }

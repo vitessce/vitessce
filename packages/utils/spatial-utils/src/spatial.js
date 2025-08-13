@@ -5,6 +5,8 @@ import { VIEWER_PALETTE } from '@vitessce/utils';
 import { GLOBAL_LABELS, DEFAULT_RASTER_LAYER_PROPS } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
 import { getMultiSelectionStats } from './layer-controller.js';
+import { DAG } from './dag.js';
+
 /**
  * Get a representative PixelSource from a loader object returned from
  * the Vitessce imaging loaders
@@ -401,6 +403,42 @@ export function getNgffAxesForTiff(dimOrder) {
 }
 
 /**
+ * Get a 4x4 matrix that swaps axes.
+ * TODO: add unit tests.
+ * @param {("x"|"y"|"z")[]} inputAxes
+ * @param {("x"|"y"|"z")[]} outputAxes
+ * @return {number[][]} 4x4 matrix that swaps axes.
+ */
+export function getSwapAxesMatrix(inputAxes, outputAxes) {
+  const size = inputAxes.length;
+  if (!(size === 2 || size === 3)) {
+    throw new Error(`Expected input and output axes to have 2 or 3 elements, got ${size}.`);
+  }
+
+  // Initialize a 4x4 matrix.
+  const matrix = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, (size === 2 ? 1 : 0), 0], // In 2D, leave Z unchanged.
+    [0, 0, 0, 1],
+  ];
+
+  // Fill linear transformation (top-left 3x3)
+  // Iterate over output rows.
+  for (let outRow = 0; outRow < size; outRow++) {
+    // Get the axis name for the current output row.
+    const axis = outputAxes[outRow];
+    const inCol = inputAxes.indexOf(axis);
+    if (inCol === -1) {
+      throw new Error(`Axis "${axis}" not found in inputAxes`);
+    }
+    matrix[outRow][inCol] = 1;
+  }
+
+  return matrix;
+}
+
+/**
  * Convert an array of coordinateTransformations objects to a 16-element
  * plain JS array using Matrix4 linear algebra transformation functions.
  * @param {object[]|undefined} coordinateTransformations List of objects matching the
@@ -417,6 +455,68 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
     // Apply each transformation sequentially and in order according to the OME-NGFF v0.4 spec.
     // Reference: https://ngff.openmicroscopy.org/0.4/#trafo-md
     coordinateTransformations.forEach((transform) => {
+      if (transform.type === 'affine') {
+        const { affine, input, output } = transform;
+
+        // This is needed since axes can include "c" for example.
+        const excludeEntries = input.axes
+          .map((axis, i) => ([axis, i]))
+          // eslint-disable-next-line no-unused-vars
+          .filter(([axis, i]) => axis.type !== 'space')
+          // eslint-disable-next-line no-unused-vars
+          .map(([axis, i]) => i);
+
+        // We only want to keep the affine transformation entries for the spatial axes.
+        const filteredAffine = affine
+          .filter((_, i) => !excludeEntries.includes(i))
+          .map(row => row.filter((_, i) => !excludeEntries.includes(i)));
+
+        // TODO: if there was some affine transformation for the "c" axis, warn/error.
+
+        const spatialInputAxes = input.axes.filter(axis => axis.type === 'space');
+        const spatialOutputAxes = output.axes.filter(axis => axis.type === 'space');
+
+        const inputAxisNames = spatialInputAxes.map(axis => axis.name);
+        const outputAxisNames = spatialOutputAxes.map(axis => axis.name);
+
+        if (spatialInputAxes.length === 3) { // 3D case
+          const nextMat = (new Matrix4()).fromArray([
+            ...filteredAffine[0],
+            ...filteredAffine[1],
+            ...filteredAffine[2],
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 3D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+        } else if (spatialOutputAxes.length === 2) { // 2D case
+          const nextMat = (new Matrix4()).fromArray([
+            filteredAffine[0][0], filteredAffine[0][1], 0, filteredAffine[0][2],
+            filteredAffine[1][0], filteredAffine[1][1], 0, filteredAffine[1][2],
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+          ]);
+          mat = mat.multiplyLeft(nextMat);
+
+          if (!isEqual(inputAxisNames, outputAxisNames)) {
+            // Handle 2D axis swapping.
+            const swapMatNested = getSwapAxesMatrix(inputAxisNames, outputAxisNames);
+            const swapMat = (new Matrix4()).fromArray(swapMatNested.flat());
+            mat = mat.multiplyLeft(swapMat);
+          }
+          // TODO: is the transpose needed? why?
+          // TODO: is transpose only needed when axis-swapping?
+          // TODO: is it also needed in the 3D case? Why was it not needed before?
+          mat = mat.transpose();
+        } else {
+          throw new Error('Affine transformation must have 2 or 3 rows.');
+        }
+      }
       if (transform.type === 'translation') {
         const { translation: axisOrderedTranslation } = transform;
         if (axisOrderedTranslation.length !== axes.length) {
@@ -431,6 +531,8 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).translate(xyzTranslation);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a translation on the "c" axis.
       }
       if (transform.type === 'scale') {
         const { scale: axisOrderedScale } = transform;
@@ -447,8 +549,13 @@ export function coordinateTransformationsToMatrix(coordinateTransformations, axe
         ));
         const nextMat = (new Matrix4()).scale(xyzScale);
         mat = mat.multiplyLeft(nextMat);
+
+        // TODO: error if the user tries to use a scale on the "c" axis.
       }
     });
+  }
+  if (mat.some(value => Number.isNaN(value))) {
+    throw new Error('Matrix contains NaN values');
   }
   return mat;
 }
@@ -461,6 +568,29 @@ export function hexToRgb(hex) {
     parseInt(result[3].toLowerCase(), 16),
   ];
 }
+
+
+// TODO: is this needed?
+// In the spatialdata metadata the axis name/type/unit info are also listed in
+// coordinateTransformations[].input|output.axes[] entries.
+export function normalizeAxes(axes) {
+  // Normalize axes to OME-NGFF v0.4 format.
+  return axes.map((axisInfo) => {
+    if (typeof axisInfo === 'string') {
+      // If the axis is a string, assume it is a name and set type to 'space'.
+      return { name: axisInfo, type: 'space' };
+    }
+    return axisInfo;
+  });
+}
+
+export function getIntrinsicCoordinateSystem(normAxes) {
+  // Get the intrinsic coordinate system from the axes.
+  // TODO: is this correct?
+  // See https://github.com/scverse/spatialdata/pull/963
+  return normAxes.map(axis => axis.name).join('');
+}
+
 
 /**
  * Normalize coordinate transformations to the OME-NGFF v0.4 format,
@@ -483,25 +613,17 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
         // This is a new-style coordinate transformation.
         // (As proposed in https://github.com/ome/ngff/pull/138)
         const { type } = transform;
-        if (type === 'translation') {
-          return {
-            type,
-            translation: transform.translation,
-          };
-        }
-        if (type === 'scale') {
-          return {
-            type,
-            scale: transform.scale,
-          };
-        }
-        if (type === 'identity') {
-          return { type };
-        }
         if (type === 'sequence') {
-          return normalizeCoordinateTransformations(transform.transformations, datasets);
+          // Recursion to flatten the sequence of transformations.
+          return normalizeCoordinateTransformations(transform.transformations, null);
+        } if (type === 'affine' || type === 'translation' || type === 'scale' || type === 'identity') {
+          // TODO: normalize the transform.input/transform.output if they are missing?
+          // Old transformations did not specify them for translation/scale/identity.
+          // But we are currently only using them for affine.
+          return transform;
         }
-        log.warn(`Coordinate transformation type "${type}" is not supported.`);
+        // If the type is not recognized, log an error.
+        log.error(`Coordinate transformation type "${type}" is not supported.`);
       }
       // Assume it was already an old-style (NGFF v0.4) coordinate transformation.
       return transform;
@@ -522,4 +644,61 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
     ];
   }
   return result;
+}
+
+/**
+ * Convert coordinate transformations to a 4x4 matrix for SpatialData
+ * spatial elements. This function is intended to be used with SpatialData
+ * objects which have named coordinate systems. This function should
+ * be compatible with any SpatialElement (shapes, points, labels, images).
+ * @param {{
+ *  axe?: (string[]|{ name: string, type?: string, unit?: string }[]),
+ *  coordinateTransformations?: object[],
+ *  datasets?: object[]
+ * }} ngffMetadata For images/labels, this is multiscales[0] from .zattrs.
+ * For shapes/points, this is { axes, coordinateTransformations } from .zattrs.
+ * @param {string} targetCoordinateSystem A target coordinate system name.
+ * @returns {Matrix4} A 4x4 transformation matrix.
+ * This can later be multiplied with other matrices if needed.
+ */
+export function coordinateTransformationsToMatrixForSpatialData(
+  ngffMetadata, targetCoordinateSystem,
+) {
+  const {
+    datasets,
+    coordinateTransformations,
+    axes,
+  } = ngffMetadata; // In the image/labels case, this is multiscales[0].
+
+  // In case axes is an array of strings like ['x', 'y', 'z'],
+  // we convert them to a consistent object format.
+  const normAxes = normalizeAxes(axes);
+  // We know the target coordinate system, but not yet the starting (intrinsic) one.
+  const intrinsicCoordinateSystem = getIntrinsicCoordinateSystem(normAxes);
+  // Create a DAG of coordinate transformations.
+  const edges = coordinateTransformations.map(ct => ({
+    from: ct.input.name,
+    to: ct.output.name,
+    attributes: ct,
+  }));
+  const dag = new DAG(edges);
+  const ctPath = dag.findPath(intrinsicCoordinateSystem, targetCoordinateSystem);
+  if (!ctPath) {
+    // For example, this can be the case if the targetCoordinateSystem
+    // is "global" but the set of coordinate transformations does not
+    // include one with output.name "global".
+    if (!coordinateTransformations.find(
+      ct => ct.output.name === targetCoordinateSystem,
+    )) {
+      throw new Error(`No coordinate transformation found with output.name "${targetCoordinateSystem}".`);
+    }
+    throw new Error(`No path found from "${intrinsicCoordinateSystem}" to "${targetCoordinateSystem}".`);
+  }
+  const filteredTransformations = ctPath.map(ctEdge => ctEdge.attributes);
+  // Normalize the coordinate transformations to OME-NGFF v0.4 format.
+  const normalizedTransformations = normalizeCoordinateTransformations(
+    filteredTransformations, datasets,
+  );
+  // Convert the coordinate transformations to a 4x4 matrix.
+  return coordinateTransformationsToMatrix(normalizedTransformations, normAxes);
 }

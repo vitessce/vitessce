@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "3.6.2",
+  "version": "3.6.15",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/constants": "workspace:*",

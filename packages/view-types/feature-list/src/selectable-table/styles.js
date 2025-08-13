@@ -34,6 +34,7 @@ export const useStyles = makeStyles()(theme => ({
     flexGrow: 1,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    paddingLeft: '10px',
   },
   inputContainer: {
     width: '1em',

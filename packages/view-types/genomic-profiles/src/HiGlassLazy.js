@@ -27,6 +27,13 @@ const LazyHiGlassComponent = React.lazy(async () => {
 // (800 means 800 px width for the full genome)
 const HG_SIZE = 800;
 
+// eslint-disable-next-line react-refresh/only-export-components
+export function setStoreRootForHiGlass(url, storeRoot) {
+  // Store the storeRoot on the global to make it available to the HiGlass data fetcher.
+  // Reference: https://github.com/higlass/higlass-zarr-datafetchers/blob/e6c29457d8617d85c8a2d61fb3fda79679d16898/src/ZarrMultivecDataFetcher.js#L68
+  ZarrMultivecDataFetcher.urlToStoreRoot[url] = storeRoot;
+}
+
 /**
    * A wrapper around HiGlass (http://higlass.io/).
    * The HiGlassComponent react component is loaded lazily.
@@ -44,7 +51,7 @@ export default function HiGlassLazy(props) {
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
-    genomeSize,
+    genomeSize = 3100000000,
     height,
   } = props;
 
@@ -67,6 +74,11 @@ export default function HiGlassLazy(props) {
   const isActiveRef = useRef();
 
   const hgOptions = useMemo(() => ({
+    bounded: true,
+    pixelPreciseMarginPadding: true,
+    containerPaddingX: 0,
+    containerPaddingY: 0,
+    sizeMode: 'default',
     ...hgOptionsProp,
     theme,
   }), [hgOptionsProp, theme]);
@@ -184,14 +196,3 @@ export default function HiGlassLazy(props) {
     </div>
   );
 }
-
-HiGlassLazy.defaultProps = {
-  hgOptions: {
-    bounded: true,
-    pixelPreciseMarginPadding: true,
-    containerPaddingX: 0,
-    containerPaddingY: 0,
-    sizeMode: 'default',
-  },
-  genomeSize: 3100000000,
-};

@@ -31,6 +31,7 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingcsv')}><code>obsEmbedding.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddinganndatazarr')}><code>obsEmbedding.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingmudatazarr')}><code>obsEmbedding.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingspatialdatazarr')}><code>obsEmbedding.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
             </ul>
           </td>
@@ -54,7 +55,9 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointscsv')}><code>obsPoints.csv</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointsanndatazarr')}><code>obsPoints.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obspointsmudatazarr')}><code>obsPoints.mudata.zarr</code></a></li>
+              <li><a href={useBaseUrl('/docs/data-file-types/#obspointsspatialdatazarr')}><code>obsPoints.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
+              {spatialdataConvenienceFileType}
             </ul>
           </td>
           <td>

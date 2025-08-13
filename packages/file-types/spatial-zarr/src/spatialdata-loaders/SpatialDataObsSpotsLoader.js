@@ -1,13 +1,16 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+  LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { log } from '@vitessce/globals';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
-  normalizeCoordinateTransformations,
-  coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
 } from '@vitessce/spatial-utils';
 import { math } from '@vitessce/gl';
+import {
+  OLD_SHAPES_DEFAULT_AXES,
+  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS,
+} from './old-defaults.js';
 
 function getCoordsPath(path) {
   return `${path}/coords`;
@@ -17,57 +20,9 @@ function getRadiusPath(path) {
   return `${path}/radius`;
 }
 
-function getAttrsPath(path) {
-  return `${path}/.zattrs`;
+function getGeometryPath(path) {
+  return `${path}/geometry`;
 }
-
-const DEFAULT_AXES = [
-  {
-    name: 'x',
-    type: 'space',
-    unit: 'unit',
-  },
-  {
-    name: 'y',
-    type: 'space',
-    unit: 'unit',
-  },
-];
-const DEFAULT_COORDINATE_TRANSFORMATIONS = [
-  {
-    input: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'xy',
-    },
-    output: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'global',
-    },
-    type: 'identity',
-  },
-];
 
 
 /**
@@ -80,53 +35,24 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       return this.modelMatrix;
     }
     // Load the transformations from the .zattrs for the shapes
-    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
 
-    const {
-      'encoding-type': encodingType,
-      spatialdata_attrs: {
-        geos = {},
-        version: attrsVersion,
-      },
-    } = zattrs;
-    const hasExpectedAttrs = (
-      encodingType === 'ngff:shapes'
-      && ((geos?.name === 'POINT'
-      && geos?.type === 0
-      && attrsVersion === '0.1') || attrsVersion === '0.2')
-    );
-    if (!hasExpectedAttrs) {
-      throw new AbstractLoaderError(
-        'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
-      );
-    }
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
     // coordinate system which maps from the input "xy" to the specified
     // output coordinate system.
 
-    // TODO: In a future version of the shapes transformation on-disk format,
-    // the SpatialData team plans to relax this so that it will
-    // become necessary to create a full tree
-    // of coordinate transformations, and traverse the tree from
-    // the node corresponding to the output coordinate system of interest
-    // back to the root node, applying each transformation along the way.
-    const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations || DEFAULT_COORDINATE_TRANSFORMATIONS
-    ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xy' && outputName === coordinateSystem
-    ));
-    const axes = zattrs?.axes || DEFAULT_AXES;
-    // This new spec is very flexible,
-    // so here we will attempt to convert it back to the old spec.
-    // TODO: do the reverse, convert old spec to new spec
-    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-      coordinateTransformationsFromFile, null,
+    // These should only not-be-present for very old objects
+    // (zattrs.spatialdata_attrs.version == "0.1").
+    const coordinateTransformations = (
+      zattrs?.coordinateTransformations ?? OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
     );
-    const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, axes,
+    const axes = zattrs?.axes ?? OLD_SHAPES_DEFAULT_AXES;
+
+    this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
+      { axes, coordinateTransformations },
+      coordinateSystem,
     );
-    this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
   }
 
@@ -142,7 +68,17 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     }
     if (!this.locations) {
       const modelMatrix = await this.loadModelMatrix();
-      this.locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
+
+      let locations;
+      const formatVersion = await this.dataSource.getShapesFormatVersion(path);
+      // TODO: move versioned logic to the dataSource class?
+      if (formatVersion === '0.1') {
+        locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
+      } else if (formatVersion === '0.2') {
+        locations = await this.dataSource.loadCircleShapes(getGeometryPath(path));
+      }
+      this.locations = locations;
+
 
       // Apply transformation matrix to the coordinates
       // TODO: instead of applying here, pass matrix all the way down to WebGL shader
@@ -187,43 +123,51 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
     return this.radius;
   }
 
-  async load() {
-    const { path, tablePath } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
+  async loadObsIndex() {
+    const { tablePath, path } = this.options;
+    if (tablePath) {
+      return this.dataSource.loadObsIndex(tablePath);
     }
+    const indexColumn = await this.dataSource.loadShapesIndex(path);
+    if (indexColumn) {
+      const obsIds = Array.from(indexColumn).map(i => String(i));
+      return obsIds;
+    }
+    // TODO: if still no index column
+    // (neither from AnnData.obs.index nor from parquet table index),
+    // then create an index based on the row count?
+    return null;
+  }
 
-    return Promise.all([
-      this.dataSource.loadObsIndex(getCoordsPath(path), tablePath),
+  async load() {
+    const [obsIndex, obsSpots, obsRadius] = await Promise.all([
+      this.loadObsIndex(),
       this.loadSpots(),
       this.loadRadius(),
-    ]).then(([obsIndex, obsSpots, obsRadius]) => {
-      const spatialSpotRadius = obsRadius?.data?.[0];
+    ]);
+    const spatialSpotRadius = obsRadius?.data?.[0];
 
-      const coordinationValues = {
-        spotLayer: CL({
-          obsType: 'spot',
-          // obsColorEncoding: 'spatialLayerColor',
-          // spatialLayerColor: [255, 255, 255],
-          spatialLayerVisible: true,
-          spatialLayerOpacity: 1.0,
-          spatialSpotRadius,
-          // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
-          // after resolving https://github.com/vitessce/vitessce/issues/1760
-          // featureValueColormapRange: [0, 1],
-          // obsHighlight: null,
-          // obsSetColor: null,
-          // obsSetSelection: null,
-          // additionalObsSets: null,
-        }),
-      };
-
-      return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSpots },
-        null,
-        coordinationValues,
-      ));
-    });
+    const coordinationValues = {
+      spotLayer: CL({
+        obsType: 'spot',
+        // obsColorEncoding: 'spatialLayerColor',
+        // spatialLayerColor: [255, 255, 255],
+        spatialLayerVisible: true,
+        spatialLayerOpacity: 1.0,
+        spatialSpotRadius,
+        // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
+        // after resolving https://github.com/vitessce/vitessce/issues/1760
+        // featureValueColormapRange: [0, 1],
+        // obsHighlight: null,
+        // obsSetColor: null,
+        // obsSetSelection: null,
+        // additionalObsSets: null,
+      }),
+    };
+    return new LoaderResult(
+      { obsIndex, obsSpots },
+      null,
+      coordinationValues,
+    );
   }
 }

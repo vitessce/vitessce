@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "3.3.43",
+  "version": "3.3.56",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",

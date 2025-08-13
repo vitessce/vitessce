@@ -53,17 +53,23 @@ const rectMarginX = 2;
 
 function combineExtents(extents, featureAggregationStrategy) {
   if (Array.isArray(extents)) {
-    if (featureAggregationStrategy === 'first') {
-      return extents[0];
-    } if (featureAggregationStrategy === 'last') {
-      return extents.at(-1);
-    } if (typeof featureAggregationStrategy === 'number') {
-      const i = featureAggregationStrategy;
-      return extents[i];
-    } if (featureAggregationStrategy === 'sum') {
-      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
-    } if (featureAggregationStrategy === 'mean') {
-      return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+    if (Array.isArray(extents?.[0])) {
+      // Extents is an array of [min, max] tuples.
+      if (featureAggregationStrategy === 'first') {
+        return extents[0];
+      } if (featureAggregationStrategy === 'last') {
+        return extents.at(-1);
+      } if (typeof featureAggregationStrategy === 'number') {
+        const i = featureAggregationStrategy;
+        return extents[i];
+      } if (featureAggregationStrategy === 'sum') {
+        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+      } if (featureAggregationStrategy === 'mean') {
+        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+      }
+    } else {
+      // Extents is a single [min, max] tuple.
+      return extents;
     }
   }
   return null;
@@ -367,10 +373,17 @@ export default function Legend(props) {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     } else if (featureAggregationStrategy === 'last') {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.at(-1);
+    } else if (typeof featureAggregationStrategy === 'number') {
+      const i = featureAggregationStrategy;
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[i];
     } else if (featureAggregationStrategy === 'sum') {
       featureSelectionLabelRawStr = 'Sum of features';
     } else if (featureAggregationStrategy === 'mean') {
       featureSelectionLabelRawStr = 'Mean of features';
+    } else {
+      // Default to the first feature.
+      // featureAggregationStrategy was null.
+      featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     }
     const combinedMissing = combineMissings(missing, featureAggregationStrategy);
     const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;
