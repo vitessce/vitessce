@@ -44,12 +44,12 @@ function generateBloodVesselConfig() {
   const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 })
     .setProps({ three: true });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
-  const description = config.addView(dataset, 'description', {
+  const linkController = config.addView(dataset, 'linkController', {
     x: 8,
     y: 1,
     w: 4,
     h: 2,
-  }).setProps({ description: 'To connect your mixed reality headset to this instance, navigate the web browser of your headset to: http://vitessce.link. Enter this 4 digit code: 7566. Next, move any slider in the channel controller. This will link the two sessions. As soon as the data is loaded (loading indicator disappears) in the headset, toggle the 3D button (top right of the channel controller). As soon as the dataset has loaded in the spatial view, you can select the "Enter AR" button.' });
+  });
   const [
     glomsObsTypeScope,
     glomsFeatureTypeScope,
@@ -69,7 +69,7 @@ function generateBloodVesselConfig() {
   glomsFeatureSelectionScope.setValue(['Volume']);
 
 
-  config.linkViewsByObject([spatialThreeView, lcView, description], {
+  config.linkViewsByObject([spatialThreeView, lcView, linkController], {
     spatialTargetZ: 0,
     spatialTargetT: 0,
     imageLayer: CL([
