@@ -83,11 +83,9 @@ import {
   DualEmbeddingScatterplotSubscriber,
 } from '@vitessce/scatterplot-embedding';
 import { GatingSubscriber } from '@vitessce/scatterplot-gating';
-import { SpatialSubscriber } from '@vitessce/spatial';
 import { SpatialBetaSubscriber } from '@vitessce/spatial-beta';
 import { HeatmapSubscriber } from '@vitessce/heatmap';
 import { FeatureListSubscriber } from '@vitessce/feature-list';
-import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { LinkControllerSubscriber } from '@vitessce/link-controller';
 import { StatusSubscriber } from '@vitessce/status';

@@ -1,3 +1,4 @@
+/*
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { debounce } from 'lodash-es';
 import {
@@ -40,7 +41,7 @@ import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
-
+*/
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -51,6 +52,7 @@ import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './uti
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
+/*
 export function SpatialSubscriber(props) {
   const {
     uuid,
@@ -729,3 +731,4 @@ export function SpatialSubscriber(props) {
     </TitleInfo>
   );
 }
+*/
