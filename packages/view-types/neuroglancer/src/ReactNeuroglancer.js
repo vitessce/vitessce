@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash-es';
 import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer';
 import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend';
 import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer';
@@ -11,20 +10,10 @@ import { call } from 'three/examples/jsm/nodes/Nodes.js';
 // import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-// function hexToRGBFloat(hex) {
-//   const r = parseInt(hex.slice(1, 3), 16) / 255;
-//   const g = parseInt(hex.slice(3, 5), 16) / 255;
-//   const b = parseInt(hex.slice(5, 7), 16) / 255;
-//   return [r, g, b];
-// }
-
 
 const viewersKeyed = {};
 let viewerNoKey;
 let SEG_LAYER_NAME = null;
-
-// const rgbToHex = rgb => (typeof rgb === 'string' ? rgb
-//   : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
 
 // // Adopted from neuroglancer/ui/url_hash_binding.ts
 // export function parseUrlHash(url) {
@@ -49,14 +38,6 @@ let SEG_LAYER_NAME = null;
 //   }
 
 //   return state;
-// }
-
-// export function hexToFloatRGB(hex){
-//   const r = parseInt(hex.slice(1, 3), 16) / 255;
-//   const g = parseInt(hex.slice(3, 5), 16) / 255;
-//   const b = parseInt(hex.slice(5, 7), 16) / 255;
-//   return [r, g, b];
-
 // }
 
 export function getNeuroglancerViewerState(key) {
@@ -353,45 +334,6 @@ export function getSelectedAnnotationId(key, layerName) {
   return null;
 }
 
-// function makeSegmentClickCallback(ngInstance) {
-//   console.log("ngIns", ngInstance)
-//   return (mouseState) => {
-//     print("pickedVal", mouseState)
-//     const pickedValue = mouseState.pickedValue;
-   
-//     if (!pickedValue) return;
-
-//     const layer = pickedValue.layer;
-//     if (!(layer instanceof SegmentationUserLayer)) return;
-
-//     const segmentId = pickedValue.segment;
-//     const displayState = layer.displayState;
-//     const vs = displayState.segmentationGroupState.value.visibleSegments;
-
-//     const segStr = segmentId.toString();
-
-//     // Toggle behavior: click again to restore
-//     if (ngInstance.lastClickedSegment === segStr) {
-//       // Restore previous visibility
-//       vs.clear();
-//       for (const idStr of ngInstance.prevSegmentsBeforeClick) {
-//         vs.add(Uint64.parseString(idStr));
-//       }
-//       ngInstance.lastClickedSegment = null;
-//     } else {
-//       // Save current visibility
-//       ngInstance.prevSegmentsBeforeClick = new Set();
-//       for (const id of vs) {
-//         ngInstance.prevSegmentsBeforeClick.add(id.toString());
-//       }
-//       // Show only the clicked segment
-//       vs.clear();
-//       vs.add(segmentId);
-//       ngInstance.lastClickedSegment = segStr;
-//     }
-//   };
-// }
-
 export default class Neuroglancer extends React.Component {
   constructor(props) {
     super(props);
@@ -420,7 +362,8 @@ export default class Neuroglancer extends React.Component {
       orthographicProjection: !!v.orthographicProjection?.value,
     };
   };
-  
+
+    // Coalesce many NG changes → one upstream update per frame.
     scheduleEmit = () => {
       let raf = null;
       return () => {
@@ -433,16 +376,19 @@ export default class Neuroglancer extends React.Component {
         });
       };
     };
+
+    // Guard to mute outgoing emits we are programmatically making changes
     withoutEmitting = (fn) => {
       this.muteViewerChanged = true;
       try { fn(); } finally {
         requestAnimationFrame(() => { this.muteViewerChanged = false; });
       }
     };
-  
-    poseChanged = (prev, next) => { // NEW: compare only pose fields
+
+    // Only consider actual changes in camera settings, i.e., position/rotation/zoom
+    poseChanged = (prev, next) => {
       const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i)=>v===b[i]);
-      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale )
+      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale)
       return (
         prev?.projectionScale !== next?.projectionScale ||
         !arrEq(prev?.projectionOrientation, next?.projectionOrientation) ||
@@ -450,6 +396,7 @@ export default class Neuroglancer extends React.Component {
       );
     };
   
+    // To add colors to the segments
     applyColorsAndVisibility = (cellColorMapping) => {
       console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length, cellColorMapping)
       const segmentColorHash = new Map();
@@ -584,6 +531,7 @@ export default class Neuroglancer extends React.Component {
 
 
     const emit = this.scheduleEmit();
+    // Disposers to unsubscribe handles for NG signals to prevent leaks/duplicates.
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
@@ -593,7 +541,9 @@ export default class Neuroglancer extends React.Component {
 
     // Initial restore ONLY if provided
     if (viewerState) {
+      // restore state only when all the changes are added - avoids calling .changed() for each change and leads to smooth updates
       this.withoutEmitting(() => {
+        console.log("EMIT orthographicProjection crossScale, projScale", viewerState.orthographicProjection, viewerState.crossSectionScale, viewerState.projectionScale, this.viewer.crossSectionOrientation)
          // 1) force ortho if requested
          if (viewerState.orthographicProjection === true && this.viewer.orthographicProjection) {
            this.viewer.orthographicProjection.value = true;
@@ -625,7 +575,7 @@ export default class Neuroglancer extends React.Component {
     }
 
     // TODO: This is purely for debugging and we need to remove it.
-    window.viewer = this.viewer;
+    // window.viewer = this.viewer;
   }
 
   componentDidUpdate(prevProps, prevState) {
