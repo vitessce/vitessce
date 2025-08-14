@@ -67,8 +67,7 @@ export default function LinkController(props) {
   useEffect(() => {
     if (linkIDInit != null) {
       setLinkID(linkIDInit);
-    }
-    else if (linkID === null) {
+    } else if (linkID === null) {
       fetch(linkEndpoint, {
         method: 'GET',
         headers: {

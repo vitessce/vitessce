@@ -1,7 +1,6 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
 } from '@vitessce/config';
 
 function generateJainKidneyDecimatedConfig() {
@@ -53,6 +52,7 @@ function generateJainKidneyDecimatedConfig() {
   const barPlot = config.addView(dataset, 'featureBarPlot', { x: 8, y: 4, w: 4, h: 2 }).setProps({
     yUnits: 'microns cubed',
   });
+  // eslint-disable-next-line no-unused-vars
   const linkController = config.addView(dataset, 'linkController', { x: 8, y: 2, w: 4, h: 2 });
 
   const [
@@ -148,7 +148,7 @@ function generateJainKidneyDecimatedConfig() {
     obsSetColor: colorScope,
     obsColorEncoding: colorEncodingScope,
   }, { meta: false });
-  
+
   const configJSON = config.toJSON();
   return configJSON;
 }
