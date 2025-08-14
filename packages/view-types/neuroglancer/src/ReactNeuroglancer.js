@@ -388,7 +388,7 @@ export default class Neuroglancer extends React.Component {
     // Only consider actual changes in camera settings, i.e., position/rotation/zoom
     poseChanged = (prev, next) => {
       const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i)=>v===b[i]);
-      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale)
+      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
       return (
         prev?.projectionScale !== next?.projectionScale ||
         !arrEq(prev?.projectionOrientation, next?.projectionOrientation) ||
@@ -655,23 +655,47 @@ export default class Neuroglancer extends React.Component {
     //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
     if (viewerState && prevProps.viewerState && this.poseChanged(prevProps.viewerState, viewerState)) {
       this.withoutEmitting(() => {
-        console.log("viewerState WithoutEmitting", viewerState)
-          if (viewerState.orthographicProjection === true && this.viewer.orthographicProjection) {
-            this.viewer.orthographicProjection.value = true;
+        console.log("viewerState WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation)
+          if (Number.isFinite(viewerState.projectionScale) && this?.viewer.projectionScale) {
+              this.viewer.projectionScale.value = viewerState.projectionScale;
           }
-          const sEff = Number.isFinite(viewerState.crossSectionScale)
-            ? viewerState.crossSectionScale
-            : viewerState.projectionScale;
-          const qEff = viewerState.crossSectionOrientation ?? viewerState.projectionOrientation;
-          if (Number.isFinite(sEff)) {
-            if (this.viewer.crossSectionScale) this.viewer.crossSectionScale.value = sEff;
-            if (this.viewer.projectionScale)  this.viewer.projectionScale.value   = sEff;
+          if (Array.isArray(viewerState.projectionOrientation) && this.viewer?.projectionOrientation) {
+              this.viewer.projectionOrientation.value = viewerState.projectionOrientation;
           }
-          if (Array.isArray(qEff)) {
-            if (this.viewer.crossSectionOrientation) this.viewer.crossSectionOrientation.value = qEff;
-            if (this.viewer.projectionOrientation)   this.viewer.projectionOrientation.value   = qEff;
+          if (Array.isArray(viewerState.position) && this.viewer.position) {
+              this.viewer.position.value = viewerState.position;
           }
           this.viewer.state.restoreState({ ...viewerState });
+      });
+    }
+
+    // NEW: treat "real" layer source/type changes differently from segment list changes.
+    // We only restore layers (not pose) when sources change OR on the first time segments appear.
+    const stripSegFields = (layers) => (layers || []).map((l) => {
+      if (!l) return l;
+      const { segments, segmentColors, ...rest } = l;
+      return rest; // ignore segments + segmentColors for comparison
+    });
+
+    const prevLayers = prevProps.viewerState?.layers;
+    const nextLayers = viewerState?.layers;
+
+    const prevCore = JSON.stringify(stripSegFields(prevLayers));
+    const nextCore = JSON.stringify(stripSegFields(nextLayers));
+    const sourcesChanged = prevCore !== nextCore; // real structural change?
+
+    const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
+      ? prevLayers[0].segments.length : 0;
+    const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
+      ? nextLayers[0].segments.length : 0;
+
+    // first-time seeding – from 0 segments → N segments
+    const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
+
+    if (sourcesChanged || initialSegmentsAdded) {
+      this.withoutEmitting(() => {
+        // restore only the layers to avoid clobbering pose/rotation/zoom.
+        this.viewer.state.restoreState({ layers: nextLayers });
       });
     }
 
