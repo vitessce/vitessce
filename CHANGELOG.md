@@ -1,4 +1,11 @@
 
+## 3.6.16
+
+### Patch Changes
+
+- Fixes linkController bug. (`@vitessce/link-controller`) ([#2239](https://github.com/vitessce/vitessce/pull/2239))
+
+
 ## 3.6.15
 
 ### Patch Changes
