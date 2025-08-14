@@ -148,15 +148,7 @@ function generateJainKidneyDecimatedConfig() {
     obsSetColor: colorScope,
     obsColorEncoding: colorEncodingScope,
   }, { meta: false });
-
-  /*
-    config.layout(hconcat(
-      vconcat(spatialThreeView,spatialVolumeView),
-      vconcat(lcView,obsSetsView, barPlot)
-    ));
-  */
-  config.layout(hconcat(spatialThreeView, vconcat(lcView, obsSetsView, linkController, barPlot)));
-
+  
   const configJSON = config.toJSON();
   return configJSON;
 }

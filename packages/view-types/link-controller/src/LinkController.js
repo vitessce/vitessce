@@ -68,7 +68,7 @@ export default function LinkController(props) {
     if (linkIDInit != null) {
       setLinkID(linkIDInit);
     }
-    if (linkID === null) {
+    else if (linkID === null) {
       fetch(linkEndpoint, {
         method: 'GET',
         headers: {
@@ -76,7 +76,6 @@ export default function LinkController(props) {
         },
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
-
         const newLayout = viewConfig.layout.map((viewDef) => {
           if (viewDef.component === 'linkController') {
             return {
