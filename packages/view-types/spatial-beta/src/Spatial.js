@@ -837,6 +837,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       contrastLimits,
       selections,
       channelsVisible,
+      visible,
       opacity: layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY],
       colormap,
       modelMatrix: layerDefModelMatrix,
