@@ -9,6 +9,58 @@ export const EPSILON_KEYS_MAPPING = {
   position: 1e-3,
 };
 
+// const DPR = (typeof window !== 'undefined' ? window.devicePixelRatio : 1) || 1;
+const DPR = -2;
+const ZOOM_OFFSET = 0;
+// console.log("DPR", DPR)
+// Calibrate once from an initial deck zoom and NG projectionScale
+export function makeDeckNgCalibrator(initialNgProjectionScale, initialDeckZoom = 0) {
+  const base = (initialNgProjectionScale / (2 ** -initialDeckZoom)) + ZOOM_OFFSET;
+  // console.log("base", base)
+
+  return {
+    base,
+    deckToNg(z) {
+      return (base) * (2 ** -z);
+    },
+    ngToDeck(sNg) {
+      return Math.log2(base / (sNg));
+    },
+  };
+}
+
+
+// ---- Y-up correction: 180° around X so X stays right, Y flips up (Z flips sign, which is OK) ----
+
+export const mulQuat = (a, b) => {
+  const [ax, ay, az, aw] = a;
+  const [bx, by, bz, bw] = b;
+  return [
+    aw * bx + ax * bw + ay * bz - az * by,
+    aw * by - ax * bz + ay * bw + az * bx,
+    aw * bz + ax * by - ay * bx + az * bw,
+    aw * bw - ax * bx - ay * by - az * bz,
+  ];
+};
+export const conjQuat = (q) => ([-q[0], -q[1], -q[2], q[3]]); // inverse for unit quats
+
+
+// Calibrate once from a zoom/scale pair you trust (first load)
+export function computeBaseScaleCss(initialNgProjectionScale, initialDeckZoom) {
+  // baseScale measured in CSS px per world unit (deck’s space)
+  return (initialNgProjectionScale * DPR) / (2 ** -initialDeckZoom);
+}
+
+// deck -> Neuroglancer
+export function deckZoomToNgProjectionScale(z, baseScaleCss) {
+  return (baseScaleCss / DPR) * (2 ** -z);
+}
+
+// Neuroglancer -> deck
+export function ngProjectionScaleToDeckZoom(sNg, baseScaleCss) {
+  return Math.log2(baseScaleCss / (sNg * DPR));
+}
+
 /**
  * Is this a valid viewerState object?
  * @param {object} viewerState
@@ -92,15 +144,16 @@ export function quaternionsAreClose(q1, q2, epsilon = 1e-3) {
 
 /* Deck.gl zoom → Neuroglancer projectionScale
   */
-export function deckZoomToProjectionScale(zoom, baseScaleUm) {
-  return baseScaleUm * (2 ** -zoom);
+export function deckZoomToProjectionScale(zoom, baseScale) {
+  // return baseScale * (2 ** -zoom);
+  return (baseScale / DPR) * (2 ** -zoom);
 }
 
 /**
   * Neuroglancer projectionScale → Deck.gl zoom
   */
-export function projectionScaleToDeckZoom(projectionScale, baseScaleUm) {
-  return Math.log2(baseScaleUm / (projectionScale));
+export function projectionScaleToDeckZoom(projectionScale, baseScale) {
+  return Math.log2(baseScale / (projectionScale) * (1 / DPR));
 }
 
 // function quaternionsAreClose(q1, q2, epsilon = 1e-4) {
@@ -131,6 +184,37 @@ export function eulerToQuaternion(pitch, yaw, roll = 0) {
   const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
   const quaternion = new Quaternion().setFromEuler(euler);
   return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+}
+
+const YAW_OFFSET = -Math.PI / 2;// try +π/2; if it's mirrored, use -π/2 or add π
+export function deckYawToNgYaw(yawDeckRad) {
+  return -(yawDeckRad ?? 0) + YAW_OFFSET;
+}
+
+export function snapTopDownQuat(yawDeckRad) {
+  const yawNg = deckYawToNgYaw(yawDeckRad ?? 0);
+  return eulerToQuaternion(0, yawNg, 0);  // pitch=0, roll=0
+}
+
+export function quatFromAxisAngle(ax, ay, az, angle) {
+  const s = Math.sin(angle / 2);
+  return [ax * s, ay * s, az * s, Math.cos(angle / 2)];
+}
+export function quatMul([ax, ay, az, aw], [bx, by, bz, bw]) {
+  return [
+    aw*bx + ax*bw + ay*bz - az*by,
+    aw*by - ax*bz + ay*bw + az*bx,
+    aw*bz + ax*by - ay*bx + az*bw,
+    aw*bw - ax*bx - ay*by - az*bz,
+  ];
+}
+
+export function quatToYawZ([x, y, z, w]) {
+  // yaw around Z for in-plane rotation
+  // Equivalent analytic form: atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z))
+  const t0 = 2 * (w * z + x * y);
+  const t1 = 1 - 2 * (y * y + z * z);
+  return Math.atan2(t0, t1);
 }
 
 //   /**

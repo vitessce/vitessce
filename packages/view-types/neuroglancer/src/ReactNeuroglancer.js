@@ -379,7 +379,13 @@ export default class Neuroglancer extends React.Component {
 
     // Only consider actual changes in camera settings, i.e., position/rotation/zoom
     poseChanged = (prev, next) => {
-      const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
+      // const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
+      const EPS = 1e-5;
+      const arrEq = (a, b) =>
+        Array.isArray(a) &&
+        Array.isArray(b) &&
+        a.length === b.length &&
+        a.every((v, i) => Math.abs(v - b[i]) < EPS);
       console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
       return (
         prev?.projectionScale !== next?.projectionScale ||
@@ -543,7 +549,7 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping } = this.props;
-    console.log("componentDidUpdate")
+    console.log("componentDidUpdate React Comp")
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
