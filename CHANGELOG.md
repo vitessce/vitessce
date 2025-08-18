@@ -1,4 +1,11 @@
 
+## 3.6.17
+
+### Patch Changes
+
+- Hide image layer completely on `spatialLayerVisible: false` (`@vitessce/spatial-beta`) ([#2241](https://github.com/vitessce/vitessce/pull/2241))
+
+
 ## 3.6.16
 
 ### Patch Changes
