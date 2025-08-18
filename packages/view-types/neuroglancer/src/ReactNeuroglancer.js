@@ -13,7 +13,6 @@ import { call } from 'three/examples/jsm/nodes/Nodes.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
-let SEG_LAYER_NAME = null;
 
 // // Adopted from neuroglancer/ui/url_hash_binding.ts
 // export function parseUrlHash(url) {
@@ -344,22 +343,15 @@ export default class Neuroglancer extends React.Component {
     this.prevColorMap = null;
     this.disposers = [];
   }
+
   minimalPoseSnapshot = () => {
     const v = this.viewer;
-    console.log("v", v)
-    const crossScale = v.crossSectionScale?.value;
-    const crossQuat  = v.crossSectionOrientation?.orientation;
-    const projScale  = v.projectionScale?.value;
-    const projQuat   = v.projectionOrientation?.orientation;
-    const sEff = (Number.isFinite(crossScale) && crossScale > 0) ? crossScale : projScale;
-    const qEff = Array.isArray(crossQuat) ? crossQuat : projQuat;
+    const projScale = v.projectionScale?.value;
+    const projQuat = v.projectionOrientation?.orientation;
     return {
       position: Array.from(v.position.value || []),
       projectionScale: projScale,
       projectionOrientation: Array.from(projQuat || []),
-      crossSectionScale: crossScale,                            
-      crossSectionOrientation: Array.from(crossQuat || []),     
-      orthographicProjection: !!v.orthographicProjection?.value,
     };
   };
 
@@ -387,7 +379,7 @@ export default class Neuroglancer extends React.Component {
 
     // Only consider actual changes in camera settings, i.e., position/rotation/zoom
     poseChanged = (prev, next) => {
-      const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i)=>v===b[i]);
+      const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
       console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
       return (
         prev?.projectionScale !== next?.projectionScale ||
@@ -395,10 +387,16 @@ export default class Neuroglancer extends React.Component {
         !arrEq(prev?.position, next?.position)
       );
     };
+
+    didLayersChange = (prevVS, nextVS) => {
+      const prevLayers = prevVS?.layers ?? [];
+      const nextLayers = nextVS?.layers ?? [];
+      return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
+    };
   
     // To add colors to the segments
     applyColorsAndVisibility = (cellColorMapping) => {
-      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length, cellColorMapping)
+      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
       const segmentColorHash = new Map();
       const newIds = new Set();
   
@@ -408,7 +406,7 @@ export default class Neuroglancer extends React.Component {
         newIds.add(idStr);
       }
   
-      console.log("segmentColorHash", segmentColorHash)
+      // console.log("segmentColorHash", segmentColorHash)
       // Find NG segmentation layer(s)
       for (const managed of this.viewer.layerManager.managedLayers) {
         const layer = managed.layer;
@@ -436,25 +434,6 @@ export default class Neuroglancer extends React.Component {
       }
   };
 
-  componentWillupdate(prevProps){
-    console.log("componentWillupdate Jan", prevProps)
-    const {viewerState} = this.props
-
-    if (!prevProps) {
-      // Skip comparison during the first render
-      return;
-    }
-  
-    console.log("Previous Props:", prevProps.viewerState);
-    console.log("Current Props:", viewerState);
-  
-    // Compare previous props with current props
-    if (prevProps.viewerState.projectionScale !== viewerState.projectionScale) {
-      console.log("Props have changed!");
-      // Handle prop change logic here
-    }
-  }
-
   componentDidMount() {
     console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
     const {
@@ -462,6 +441,7 @@ export default class Neuroglancer extends React.Component {
       brainMapsClientId,
       eventBindingsToUpdate,
       onViewerStateChanged,
+      cellColorMapping,
       callbacks,
       ngServer,
       key,
@@ -535,34 +515,17 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
-    if (this.viewer.crossSectionScale) this.disposers.push(this.viewer.crossSectionScale.changed.add(emit));
-    if (this.viewer.crossSectionOrientation) this.disposers.push(this.viewer.crossSectionOrientation.changed.add(emit));
-    if (this.viewer.orthographicProjection) this.disposers.push(this.viewer.orthographicProjection.changed.add(emit));
+    // if (this.viewer.crossSectionScale) this.disposers.push(this.viewer.crossSectionScale.changed.add(emit));
+    // if (this.viewer.crossSectionOrientation) this.disposers.push(this.viewer.crossSectionOrientation.changed.add(emit));
+    // if (this.viewer.orthographicProjection) this.disposers.push(this.viewer.orthographicProjection.changed.add(emit));
 
     // Initial restore ONLY if provided
     if (viewerState) {
       // restore state only when all the changes are added - avoids calling .changed() for each change and leads to smooth updates
       this.withoutEmitting(() => {
         console.log("EMIT orthographicProjection crossScale, projScale", viewerState.orthographicProjection, viewerState.crossSectionScale, viewerState.projectionScale, this.viewer.crossSectionOrientation)
-         // 1) force ortho if requested
-         if (viewerState.orthographicProjection === true && this.viewer.orthographicProjection) {
-           this.viewer.orthographicProjection.value = true;
-         }
-         // 2) apply effective scale/orientation to BOTH panels
-         const sEff = Number.isFinite(viewerState.crossSectionScale)// && viewerState.crossSectionScale > 1
-           ? viewerState.crossSectionScale
-           : viewerState.projectionScale;
-         const qEff = viewerState.crossSectionOrientation ?? viewerState.projectionOrientation;
-         if (Number.isFinite(sEff)) {
-           if (this.viewer.crossSectionScale) this.viewer.crossSectionScale.value = sEff;
-           if (this.viewer.projectionScale)   this.viewer.projectionScale.value   = sEff;
-         }
-         if (Array.isArray(qEff)) {
-           if (this.viewer.crossSectionOrientation) this.viewer.crossSectionOrientation.value = qEff;
-           if (this.viewer.projectionOrientation)   this.viewer.projectionOrientation.value   = qEff;
-         }
-         // 3) finally, restore the rest of the state (layers, etc.)
-         this.viewer.state.restoreState(viewerState);
+          this.viewer.state.restoreState(viewerState);
+          this.applyColorsAndVisibility(cellColorMapping);
       });
     } 
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
@@ -585,19 +548,6 @@ export default class Neuroglancer extends React.Component {
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
     // it after restoreState().
-      // if (!prevProps) {
-      //   // Skip comparison during the first render
-      //   return;
-      // }
-    
-      // console.log("Previous Props:", prevProps.viewerState);
-      // console.log("Current Props:", viewerState);
-    
-      // // Compare previous props with current props
-      // if (prevProps.viewerState.projectionScale !== viewerState.projectionScale) {
-      //   console.log("Props have changed!");
-      //   // Handle prop change logic here
-      // }
     const selectedSegments = {};
     // eslint-disable-next-line no-restricted-syntax
     for (const layer of this.viewer.layerManager.managedLayers) {
@@ -633,7 +583,6 @@ export default class Neuroglancer extends React.Component {
     for (const layer of this.viewer.layerManager.managedLayers) {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
-        SEG_LAYER_NAME = layer.name;
         segmentSelectionState.set(selectedSegments[layer.name]);
       }
     }
@@ -650,24 +599,54 @@ export default class Neuroglancer extends React.Component {
     //   }
     // }
 
+      if (!viewerState) return;
 
+      const prevVS = prevProps.viewerState;
+      const poseChangedOnly = prevVS
+      && this.poseChanged(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
 
-    //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
-    if (viewerState && prevProps.viewerState && this.poseChanged(prevProps.viewerState, viewerState)) {
-      this.withoutEmitting(() => {
-        console.log("viewerState WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation)
-          if (Number.isFinite(viewerState.projectionScale) && this?.viewer.projectionScale) {
-              this.viewer.projectionScale.value = viewerState.projectionScale;
-          }
-          if (Array.isArray(viewerState.projectionOrientation) && this.viewer?.projectionOrientation) {
-              this.viewer.projectionOrientation.value = viewerState.projectionOrientation;
-          }
-          if (Array.isArray(viewerState.position) && this.viewer.position) {
-              this.viewer.position.value = viewerState.position;
-          }
-          this.viewer.state.restoreState({ ...viewerState });
+      //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
+      if (poseChangedOnly) {
+        console.log("poseChangedOnly")
+        this.withoutEmitting(() => {
+          console.log("viewerState WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
+          const {
+            projectionScale,
+            projectionOrientation,
+            position,
+            } = viewerState;
+            if (Number.isFinite(projectionScale) && this.viewer.projectionScale) {
+              this.viewer.projectionScale.value = projectionScale;
+            }
+            if (Array.isArray(projectionOrientation) && this.viewer.projectionOrientation)
+              this.viewer.projectionOrientation.value = projectionOrientation;
+          
+            if (Array.isArray(position)) {
+              this.viewer.position.value = position;
+            }
       });
     }
+    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
+    if (this.didLayersChange(prevVS, viewerState)) {
+      this.withoutEmitting(() => {
+        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
+        this.viewer.state.restoreState({ layers });
+        if (cellColorMapping && Object.keys(cellColorMapping).length) {
+          this.applyColorsAndVisibility(cellColorMapping);
+        }
+      });
+    }
+
+    // If colors changed (but layers didn’t): re-apply colors
+    const prevSize = prevProps.cellColorMapping ? Object.keys(prevProps.cellColorMapping).length : 0;
+    const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
+    const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
+    if (!this.didLayersChange(prevVS, viewerState) && (mappingRefChanged || prevSize !== currSize)) {
+      this.withoutEmitting(() => {
+        this.applyColorsAndVisibility(cellColorMapping);
+      });
+    }
+  
 
     // NEW: treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
@@ -696,17 +675,6 @@ export default class Neuroglancer extends React.Component {
       this.withoutEmitting(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
-      });
-    }
-
-    //Apply colors/visibility if mapping changed by reference OR by size OR by a simple checksum 
-    const prevSize = prevProps.cellColorMapping ? Object.keys(prevProps.cellColorMapping).length : 0;
-    const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
-    const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
-
-    if (mappingRefChanged || prevSize !== currSize) {
-      this.withoutEmitting(() => {
-        this.applyColorsAndVisibility(cellColorMapping);
       });
     }
   }
