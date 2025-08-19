@@ -170,7 +170,7 @@ export function useUrls(urls) {
  * @returns {array} `[width, height]` where width and height
  * are numbers.
  */
-export function useClosestVitessceContainerSize(ref) {
+export function useClosestVitessceContainerSize(ref, sidebarWidth) {
   const [height, setHeight] = useState();
   const [width, setWidth] = useState();
 
@@ -180,7 +180,7 @@ export function useClosestVitessceContainerSize(ref) {
         const {
           clientHeight: componentHeight, clientWidth: componentWidth,
         } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
-        setWidth(componentWidth);
+        setWidth(componentWidth - sidebarWidth);
         setHeight(componentHeight);
       }
     }

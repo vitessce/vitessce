@@ -2535,6 +2535,9 @@ importers:
 
   packages/vit-s:
     dependencies:
+      '@placemarkio/flat-drop-files':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.80.2(react@18.3.1)
@@ -2598,6 +2601,9 @@ importers:
       uuid:
         specifier: 'catalog:'
         version: 9.0.1
+      zarrita:
+        specifier: 'catalog:'
+        version: 0.4.0
       zustand:
         specifier: 'catalog:'
         version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
@@ -5584,6 +5590,9 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
+
+  '@placemarkio/flat-drop-files@1.0.2':
+    resolution: {integrity: sha512-nx9S/59s756N+BSIfuyidaQYYHva2QoWihqgfm6oYcQ8g+26Gg2qbcToROOxxDK4mKgKbOjnw04VsXMKFqqX6w==}
 
   '@playwright/test@1.52.0':
     resolution: {integrity: sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==}
@@ -20487,6 +20496,8 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
+
+  '@placemarkio/flat-drop-files@1.0.2': {}
 
   '@playwright/test@1.52.0':
     dependencies:
