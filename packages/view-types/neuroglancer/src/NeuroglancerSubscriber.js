@@ -18,23 +18,15 @@ import { isEqual } from 'lodash-es';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 import {
-  // deckZoomToProjectionScale,
-  // projectionScaleToDeckZoom,
   quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   compareViewerState,
-  // computeBaseScaleCss,
-  snapTopDownQuat,
-  // deckZoomToNgProjectionScale,
-  // ngProjectionScaleToDeckZoom,
   makeDeckNgCalibrator,
   conjQuat,
-  mulQuat
+  mulQuat,
 
 } from './utils.js';
-import { useBaseScale } from './hooks.js';
-
 
 // TODO: the initial value after 0 changes, should be a way to capture it as is
 // const deckZoom = 0;
@@ -92,7 +84,7 @@ export function NeuroglancerSubscriber(props) {
   // const [clickedSegmentId, setClickedSegmentId] = useState(null);
   console.log("NG Subs REnder Zoom", spatialZoom, spatialTargetX, spatialTargetY);
   // console.log("NG Subs REnder translation", spatialTargetX, spatialTargetY)
-  // console.log("NG Subs REnder Rotation",     spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit,spatialOrbitAxis)
+  // console.log("NG Subs REnder Rotation",     spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit)
   const { classes } = useStyles();
   const loaders = useLoaders();
 
@@ -124,7 +116,6 @@ export function NeuroglancerSubscriber(props) {
     orbit: spatialRotationOrbit,
   });
 
-  
   // Track the last coord values we saw, and only mark "vitessce"
   // when *those* actually change. This prevents cell set renders
   // from spoofing the source.
@@ -134,6 +125,8 @@ export function NeuroglancerSubscriber(props) {
     ry: spatialRotationY,
     rz: spatialRotationZ,
     orbit: spatialRotationOrbit,
+    tx: spatialTargetX,
+    ty: spatialTargetY,
   });
 
   /*
@@ -146,9 +139,9 @@ export function NeuroglancerSubscriber(props) {
 
      const dotY = (q) => {
       // rotate world Y=(0,1,0) by quaternion q; read the resulting Y component
-      const [x,y,z,w]=q;
+      const [x, y, z, w]=q;
       // v' = q * (0,i,j,k=vector) * q^-1; only need the Y component:
-      const yy = 1 - 2*(x*x + z*z); // derived from quat→matrix
+      const yy = 1 - 2 * (x * x + z * z); // derived from quat→matrix
       console.log('[Y-up check] world Y projects to screen Y scale ~', yy);
     };
     dotY(projectionOrientation);
@@ -290,7 +283,6 @@ export function NeuroglancerSubscriber(props) {
   const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
     : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
-  // const cellColorMappingRef = useRef({});
   const batchedUpdateTimeoutRef = useRef(null);
   const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
 
@@ -318,7 +310,6 @@ export function NeuroglancerSubscriber(props) {
   }, [batchedCellColors]);
 
 
-
   const derivedViewerState = useMemo(() => {
     // TODO: Tune NG to sync with Vitessce on first load
     const { current } = latestViewerStateRef;
@@ -337,6 +328,7 @@ export function NeuroglancerSubscriber(props) {
        }
      }
 
+    // Translation
     const TARGET_EPS = 0.5;
     const [ox, oy, oz] = translationOffsetRef.current;
     const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
@@ -374,13 +366,18 @@ export function NeuroglancerSubscriber(props) {
     
     const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom);
 
+    const transChangedNow =
+    !nearEq(spatialTargetX, prevCoordsRef.current.tx)
+    || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
+
+
     // If NG quat ≠ Vitessce quat on first render, push Vitessce once.
     const shouldForceInitialVitPush = !initialRotationPushedRef.current &&
       valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROT_EPS);
 
    // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const src = lastInteractionSource.current
-    ?? ((rotChangedNow || zoomChangedNow) ? 'vitessce'
+    ?? ((rotChangedNow || zoomChangedNow || transChangedNow) ? 'vitessce'
     : (shouldForceInitialVitPush ? 'vitessce' : null));
     
     console.log('[ORIENT] src=', src, 'NG projOri=', projectionOrientation, 'VIT quat=', eulerToQuaternion(
@@ -401,6 +398,13 @@ export function NeuroglancerSubscriber(props) {
           x: spatialRotationX, y: spatialRotationY, z: spatialRotationZ, orbit: spatialRotationOrbit,
         };
         initialRotationPushedRef.current = true;
+        // Re-anchor NG -> Deck translation once we commit the initial orientation, the center shows a right translated image
+        const [cx = 0, cy = 0, cz = (position?.[2] ?? current.position?.[2] ?? 0)] = position
+          || current.position || [];
+        const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
+        const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
+        translationOffsetRef.current = [cx - tX, cy - tY, cz];
+
         console.log('Vitessce → NG: pushing new orientation', nextOrientation);
       } else {
         // No real Vitessce rotation change → do not overwrite NG's quat.
@@ -409,50 +413,48 @@ export function NeuroglancerSubscriber(props) {
       if (lastInteractionSource.current === 'vitessce') {
         lastInteractionSource.current = null;
       }
-    }
-    else if (src === 'neuroglancer') {
+    } else if (src === 'neuroglancer') {
       nextOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
       lastInteractionSource.current = null;
     } else {
       console.log('Vitessce → NG: Rotation -  Unknown Source');
     }
 
-    // if (prevSegments?.length === 0){
       const newLayer0 = {
         ...prevLayer,
         segments: nextSegments,
         segmentColors: cellColorMapping,
       };
-  // }
+
     console.log('[SRC]', lastInteractionSource.current, 'projOri', projectionOrientation);
 
 
     const updated = {
       ...current,
       projectionScale,
-      // TODO: Uncomment if we want a rotated view to match Spatial View (xy)
-      // projectionOrientation,
-      // Below changes the view to yz plan to mimic Spatial view projection
-      projectionOrientation: nextOrientation, // TODO - move y upward
+      projectionOrientation: nextOrientation,
       position,
-      layers: prevSegments.length === 0 ? [newLayer0, ...(current?.layers?.slice(1) || [])]  : current?.layers,
+      layers: prevSegments.length === 0 ? [newLayer0, ...(current?.layers?.slice(1)
+        || [])] : current?.layers,
     };
-    // console.log("before", compareViewerState(current, updated))
-    // const hasInteractionsChangedState = compareViewerState(current, updated);
-    latestViewerStateRef.current = updated;
-    // if (!hasInteractionsChangedState){
-      // console.log("interactions From vitessce", prevSegments?.length > 0, hasInteractionsChangedState, prevSegments?.length === 0 && hasInteractionsChangedState, isEqual( latestViewerStateRef.current, updated));
-    // }
-    
 
-    // if (prevSegments?.length === 0 && hasInteractionsChangedState) 
-    //     return current;
+    latestViewerStateRef.current = updated;
 
     console.log("derivedState end", updated?.projectionOrientation,  latestViewerStateRef.current?.projectionOrientation )
 
+    prevCoordsRef.current = {
+      zoom: spatialZoom,
+      rx: spatialRotationX,
+      ry: spatialRotationY,
+      rz: spatialRotationZ,
+      orbit: spatialRotationOrbit,
+      tx: spatialTargetX,
+      ty: spatialTargetY,
+    };
+
     return updated;
   }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ,]);
+    spatialRotationZ, spatialTargetX, spatialTargetY]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
