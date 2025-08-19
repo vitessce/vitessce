@@ -613,23 +613,21 @@ export default class Neuroglancer extends React.Component {
 
       //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
       if (poseChangedOnly) {
-        console.log("poseChangedOnly")
         this.withoutEmitting(() => {
-          console.log("viewerState WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
-          const {
-            projectionScale,
-            projectionOrientation,
-            position,
-            } = viewerState;
-            if (Number.isFinite(projectionScale) && this.viewer.projectionScale) {
-              this.viewer.projectionScale.value = projectionScale;
-            }
-            if (Array.isArray(projectionOrientation) && this.viewer.projectionOrientation)
-              this.viewer.projectionOrientation.value = projectionOrientation;
-          
-            if (Array.isArray(position)) {
-              this.viewer.position.value = position;
-            }
+          console.log("poseChangedOnly WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
+            const patch = {
+              ...(Number.isFinite(viewerState.projectionScale) && {
+                projectionScale: viewerState.projectionScale,
+              }),
+              ...(Array.isArray(viewerState.projectionOrientation) && {
+                projectionOrientation: viewerState.projectionOrientation,
+              }),
+              ...(Array.isArray(viewerState.position) && {
+                position: viewerState.position,
+              }),
+            };
+            // Restore the state with updated camera setting/position changes
+            this.viewer.state.restoreState(patch);
       });
     }
     // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
