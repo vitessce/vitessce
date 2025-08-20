@@ -32,10 +32,10 @@ import {
 // const deckZoom = 0;
 const VITESSCE_INTERACTION_DELAY = 50;
 const INIT_DECK_ZOOM = -3.6;
-const ZOOM_EPS = 1e-3;
-const ROT_EPS = ZOOM_EPS;
-const Q_YUP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
+const ZOOM_EPS = 1e-2;
+const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
+const Q_YUP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -83,7 +83,7 @@ export function NeuroglancerSubscriber(props) {
   const latestViewerStateRef = useRef(initialViewerState);
   const initialRotationPushedRef = useRef(false);
 
-  console.log("NG Subs REnder Zoom", spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit);
+  console.log("NG Subs Render", spatialZoom)//, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit);
 
   const { classes } = useStyles();
   const loaders = useLoaders();
@@ -106,6 +106,8 @@ export function NeuroglancerSubscriber(props) {
   const calibratorRef = useRef(null);
   const translationOffsetRef = useRef([0, 0, 0]);
   const zoomRafRef = useRef(null);
+  const lastNgQuatRef = useRef([0, 0, 0, 1]);
+  const lastNgScaleRef = useRef(null);
   const lastVitessceRotationRef = useRef({
     x: spatialRotationX,
     y: spatialRotationY,
@@ -130,7 +132,8 @@ export function NeuroglancerSubscriber(props) {
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
    */
   const handleStateUpdate = useCallback((newState) => {
-    console.log("handleStateUpdate", newState, "current", lastInteractionSource.current, calibratorRef.current)
+    console.log("handleStateUpdate", "current", lastInteractionSource.current, calibratorRef.current)
+     lastInteractionSource.current = 'neuroglancer';
      const { projectionScale, projectionOrientation, position, crossSectionScale} = newState;
      const prevProjectionOrientation = latestViewerStateRef.current.projectionOrientation;
 
@@ -158,28 +161,30 @@ export function NeuroglancerSubscriber(props) {
           setZoom(INIT_DECK_ZOOM);
         }
       return;
-      }
+      } // First mount setup
       
       // ZOOM (NG → deck) — do this only after calibrator exists
-      const ngScaleEff = (Number.isFinite(projectionScale) && projectionScale > 0)
-        ? projectionScale
-        : crossSectionScale;
-      const deckZoomFromNG = calibratorRef.current.ngToDeck(ngScaleEff);
-      // console.log("deckZoomFromNG", ngScaleEff, deckZoomFromNG,spatialZoom, zoomRafRef.current,  Math.abs(deckZoomFromNG - (spatialZoom ?? 0)) > ZOOM_EPS)
-   
-      if (Number.isFinite(deckZoomFromNG) &&
-        Math.abs(deckZoomFromNG - (spatialZoom ?? 0)) > ZOOM_EPS) {
-
+      if(Number.isFinite(projectionScale) && projectionScale > 0){
+        const deckZoomFromNG = calibratorRef.current.ngToDeck(projectionScale);
+        console.log("ZOOM from NG -> VIT", projectionScale , lastNgScaleRef.current, projectionScale - lastNgScaleRef.current)
+        const scaleChanged =
+          lastNgScaleRef.current == null ||
+          Math.abs(projectionScale - lastNgScaleRef.current) > 1e-6 * Math.max(1, projectionScale);
+        if (scaleChanged && Number.isFinite(deckZoomFromNG) &&
+            Math.abs(deckZoomFromNG - (spatialZoom ?? 0)) > ZOOM_EPS) {
           if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
-          console.log("[ZOOM] NG to VIT", deckZoomFromNG, spatialZoom)
+          console.log("[ZOOM] NG to VIT getting pushed", deckZoomFromNG, spatialZoom);
           zoomRafRef.current = requestAnimationFrame(() => {
             setZoom(deckZoomFromNG);
             zoomRafRef.current = null;
-            });
-      }
-      lastInteractionSource.current = 'neuroglancer';
-      
-    //TRANSLATION
+          });
+        }
+        // remember last NG scale
+        lastNgScaleRef.current = projectionScale;
+        
+    }
+
+    // TRANSLATION
     if (Array.isArray(position) && position.length >= 2) {
       const [px, py] = position;
       const [ox, oy] = translationOffsetRef.current;
@@ -190,32 +195,58 @@ export function NeuroglancerSubscriber(props) {
     }
 
 
-    console.log("handleStateUpdate", projectionScale, deckZoomFromNG, projectionOrientation, position);
-    if (
-      !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
-    ) {
-      console.log('⛔️ Skip NG → Vitessce update (loopback)');
-      return;
-    }
-    // ROTATION
-    if (applyNgUpdateTimeoutRef.current) {
-      clearTimeout(applyNgUpdateTimeoutRef.current);
-    }
-    lastNgPushOrientationRef.current = projectionOrientation;
-    applyNgUpdateTimeoutRef.current = setTimeout(() => {
-    // Remove our Y-up correction before feeding angles back to Vitessce
-      const qVit = mulQuat(conjQuat(Q_YUP), projectionOrientation);
-      const [pitch, yaw] = quaternionToEuler(qVit);
-      // const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+    // console.log("handleStateUpdate", projectionScale, deckZoomFromNG, projectionOrientation, position);
+    // if (
+    //   !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
+    // ) {
+    //   console.log('⛔️ Skip NG → Vitessce update (loopback)');
+    //   return;
+    // }
 
-      const pitchDiff = Math.abs(pitch - spatialRotationX);
-      if (pitchDiff > 0.001) {
-        console.log('🌀 NG → Vitessce Rotation applied:', pitch, yaw);
-        setRotationX(pitch);
-        setRotationOrbit(yaw);
-        lastInteractionSource.current = 'neuroglancer';
+    // // ROTATION
+    // if (applyNgUpdateTimeoutRef.current) {
+    //   clearTimeout(applyNgUpdateTimeoutRef.current);
+    // }
+    // lastNgPushOrientationRef.current = projectionOrientation;
+    // applyNgUpdateTimeoutRef.current = setTimeout(() => {
+    // // Remove our Y-up correction before feeding angles back to Vitessce
+    //   const qVit = mulQuat(conjQuat(Q_YUP), projectionOrientation);
+    //   const [pitch, yaw] = quaternionToEuler(qVit);
+    //   // const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
+
+    //   const pitchDiff = Math.abs(pitch - spatialRotationX);
+    //   if (pitchDiff > 0.001) {
+    //     console.log('🌀 NG → Vitessce Rotation applied:', pitch, yaw);
+    //     setRotationX(pitch);
+    //     setRotationOrbit(yaw);
+    //     // lastInteractionSource.current = 'neuroglancer';
+    //   }
+    // }, VITESSCE_INTERACTION_DELAY);
+
+
+    // ROTATION — only when NG quat actually changes
+    const quatChanged = valueGreaterThanEpsilon(
+      projectionOrientation, lastNgQuatRef.current, 1e-5
+    );
+    if (quatChanged) {
+      if (applyNgUpdateTimeoutRef.current) {
+        clearTimeout(applyNgUpdateTimeoutRef.current);
       }
-    }, VITESSCE_INTERACTION_DELAY);
+      lastNgPushOrientationRef.current = projectionOrientation;
+      applyNgUpdateTimeoutRef.current = setTimeout(() => {
+        // remove Y-up correction before sending to Vitessce
+        const qVit = mulQuat(conjQuat(Q_YUP), projectionOrientation);
+        const [pitch, yaw] = quaternionToEuler(qVit);
+        const pitchDiff = Math.abs(pitch - (spatialRotationX ?? 0));
+        const yawDiff   = Math.abs(yaw   - (spatialRotationOrbit ?? 0));
+        if (pitchDiff > 0.001 || yawDiff > 0.001) {
+          console.log('🌀 NG → Vitessce Rotation applied:', pitch, yaw);
+          setRotationX(pitch);
+          setRotationOrbit(yaw);
+        }
+      }, VITESSCE_INTERACTION_DELAY);
+      lastNgQuatRef.current = projectionOrientation;
+    }
 
 
     latestViewerStateRef.current = {
@@ -327,7 +358,7 @@ export function NeuroglancerSubscriber(props) {
     // ** --- Orientation handling --- ** //
     // const desiredQuat = snapTopDownQuat(spatialRotationOrbit ?? 0);
 
-    const nearEq = (a, b, eps = ROT_EPS) => (
+    const nearEq = (a, b, eps = ROTATION_EPS) => (
       Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
     );
     
@@ -356,7 +387,7 @@ export function NeuroglancerSubscriber(props) {
 
     // If NG quat ≠ Vitessce quat on first render, push Vitessce once.
     const shouldForceInitialVitPush = !initialRotationPushedRef.current &&
-      valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROT_EPS);
+      valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
    // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const src = lastInteractionSource.current
@@ -373,7 +404,7 @@ export function NeuroglancerSubscriber(props) {
       'VIT quat=', vitessceRotation);
     if (src === 'vitessce') {
       // Only push if Vitessce rotation actually changed since last time.
-      const rotDiffers = valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROT_EPS);
+      const rotDiffers = valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
     
       if (rotDiffers) {
         nextOrientation = vitessceRotation;
