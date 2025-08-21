@@ -101,20 +101,40 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       this.loadObsIndex(),
       this.loadPolygons(),
     ]);
-    const coordinationValues = {
-      segmentationLayer: CL({
-        // TODO: more coordination values here?
 
-        // obsColorEncoding: 'spatialLayerColor',
-        // spatialLayerColor: [255, 255, 255],
-        spatialLayerVisible: true,
-        spatialLayerOpacity: 1.0,
-        // featureValueColormapRange: [0, 1],
-        // obsHighlight: null,
-        // obsSetColor: null,
-        // obsSetSelection: null,
-        // additionalObsSets: null,
-      }),
+    // This matches the logic in packages/file-types/json/src/json-loaders/ObsSegmentationsJson.js.
+    const channelCoordination = [{
+      // obsType: null,
+      spatialChannelColor: [255, 255, 255],
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: null,
+      // featureType: 'feature',
+      // featureValueType: 'value',
+      obsColorEncoding: 'spatialChannelColor',
+      spatialSegmentationFilled: true,
+      spatialSegmentationStrokeWidth: 1.0,
+      obsHighlight: null,
+    }];
+
+    const coordinationValues = {
+      segmentationLayer: CL([
+        {
+          // TODO: more coordination values here?
+
+          // obsColorEncoding: 'spatialLayerColor',
+          // spatialLayerColor: [255, 255, 255],
+          fileUid: this.coordinationValues?.fileUid || null,
+          spatialLayerVisible: true,
+          spatialLayerOpacity: 1.0,
+          segmentationChannel: CL(channelCoordination),
+          // featureValueColormapRange: [0, 1],
+          // obsHighlight: null,
+          // obsSetColor: null,
+          // obsSetSelection: null,
+          // additionalObsSets: null,
+        },
+      ]),
     };
 
     return new LoaderResult(

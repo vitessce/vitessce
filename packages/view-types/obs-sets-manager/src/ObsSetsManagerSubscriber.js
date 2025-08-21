@@ -84,36 +84,29 @@ export function ObsSetsManagerSubscriber(props) {
   const [{
     dataset,
     obsType,
-    obsSetSelection: cellSetSelection,
-    obsSetExpansion: cellSetExpansion,
-    obsSetColor: cellSetColor,
-    additionalObsSets: additionalCellSets,
-    obsColorEncoding: cellColorEncoding,
+    obsSetSelection,
+    obsSetExpansion,
+    obsSetColor,
+    additionalObsSets,
+    obsColorEncoding,
   }, {
-    setObsSetSelection: setCellSetSelection,
-    setObsColorEncoding: setCellColorEncoding,
-    setObsSetColor: setCellSetColor,
-    setObsSetExpansion: setCellSetExpansion,
-    setAdditionalObsSets: setAdditionalCellSets,
+    setObsSetSelection,
+    setObsColorEncoding,
+    setObsSetColor,
+    setObsSetExpansion,
+    setAdditionalObsSets,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
 
-  // Reset file URLs and loader progress when the dataset has changed.
-  useEffect(() => {
-    if (cellSetExpansion && cellSetExpansion.length > 0) {
-      setCellSetExpansion([]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaders, dataset]);
 
   // Get data from loaders using the data hooks.
   const [
     { obsIndex, obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError,
   ] = useObsSetsData(
     loaders, dataset, false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
+    { setObsSetSelection, setObsSetColor, setObsSetExpansion },
+    { obsSetSelection, obsSetColor, obsSetExpansion },
     { obsType },
   );
   const errors = [
@@ -122,61 +115,61 @@ export function ObsSetsManagerSubscriber(props) {
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
-  // Validate and upgrade the additionalCellSets.
+  // Validate and upgrade the additionalObsSets.
   useEffect(() => {
-    if (additionalCellSets) {
+    if (additionalObsSets) {
       let upgradedCellSets;
       let didUpgrade;
       try {
         [upgradedCellSets, didUpgrade] = tryUpgradeTreeToLatestSchema(
-          additionalCellSets, SETS_DATATYPE_OBS,
+          additionalObsSets, SETS_DATATYPE_OBS,
         );
       } catch (e) {
         setWarning(e.message);
         return;
       }
       if (didUpgrade) {
-        setAdditionalCellSets(upgradedCellSets);
+        setAdditionalObsSets(upgradedCellSets);
       }
     }
-  }, [additionalCellSets, setAdditionalCellSets, setWarning]);
+  }, [additionalObsSets, setAdditionalObsSets, setWarning]);
 
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => (obsIndex || []), [obsIndex]);
 
   // A helper function for updating the encoding for cell colors,
   // which may have previously been set to 'geneSelection'.
-  const setCellSetColorEncoding = useCallback(() => {
-    setCellColorEncoding('cellSetSelection');
-  }, [setCellColorEncoding]);
+  const setObsSetColorEncoding = useCallback(() => {
+    setObsColorEncoding('cellSetSelection');
+  }, [setObsColorEncoding]);
 
   // Merged cell sets are only to be used for convenience when reading
-  // (if writing: update either `cellSets` _or_ `additionalCellSets`).
-  const mergedCellSets = useMemo(
-    () => mergeObsSets(cellSets, additionalCellSets),
-    [cellSets, additionalCellSets],
+  // (if writing: update either `cellSets` _or_ `additionalObsSets`).
+  const mergedObsSets = useMemo(
+    () => mergeObsSets(cellSets, additionalObsSets),
+    [cellSets, additionalObsSets],
   );
 
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {
-    if (cellSetSelection && cellSetSelection.length > 0
-    && mergedCellSets && mergedCellSets.tree.length > 0) {
-      return treeToExpectedCheckedLevel(mergedCellSets, cellSetSelection);
+    if (obsSetSelection && obsSetSelection.length > 0
+    && mergedObsSets && mergedObsSets.tree.length > 0) {
+      return treeToExpectedCheckedLevel(mergedObsSets, obsSetSelection);
     }
     return null;
-  }, [cellSetSelection, mergedCellSets]);
+  }, [obsSetSelection, mergedObsSets]);
 
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
   const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
-    const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
+    const lzn = mergedObsSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
-      const newCellSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-      setCellSetSelection(newCellSetSelection);
-      setCellSetColorEncoding();
+      const newObsSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+      setObsSetSelection(newObsSetSelection);
+      setObsSetColorEncoding();
     }
-  }, [mergedCellSets, setCellSetColorEncoding, setCellSetSelection]);
+  }, [mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to check or uncheck a cell set node.
   const onCheckNode = useCallback((targetKey, checked) => {
@@ -185,25 +178,25 @@ export function ObsSetsManagerSubscriber(props) {
       return;
     }
     if (checked) {
-      setCellSetSelection([...cellSetSelection, targetPath]);
+      setObsSetSelection([...obsSetSelection, targetPath]);
     } else {
-      setCellSetSelection(cellSetSelection.filter(d => !isEqual(d, targetPath)));
+      setObsSetSelection(obsSetSelection.filter(d => !isEqual(d, targetPath)));
     }
-    setCellSetColorEncoding();
-  }, [cellSetSelection, setCellSetColorEncoding, setCellSetSelection]);
+    setObsSetColorEncoding();
+  }, [obsSetSelection, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to expand or collapse a node in the tree.
   const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
-    const prevCellSetExpansion = cellSetExpansion || [];
+    const prevObsSetExpansion = obsSetExpansion || [];
     if (expanded) {
-      setCellSetExpansion([...prevCellSetExpansion, targetKey.split(PATH_SEP)]);
+      setObsSetExpansion([...prevObsSetExpansion, targetKey.split(PATH_SEP)]);
     } else {
-      const newCellSetExpansion = prevCellSetExpansion.filter(
+      const newObsSetExpansion = prevObsSetExpansion.filter(
         d => !isEqual(d, targetKey.split(PATH_SEP)),
       );
-      setCellSetExpansion(newCellSetExpansion);
+      setObsSetExpansion(newObsSetExpansion);
     }
-  }, [cellSetExpansion, setCellSetExpansion]);
+  }, [obsSetExpansion, setObsSetExpansion]);
 
   // The user dragged a tree node and dropped it somewhere else in the tree
   // to re-arrange or re-order the nodes.
@@ -211,7 +204,7 @@ export function ObsSetsManagerSubscriber(props) {
   // the tree re-arrangement.
   const onDropNode = useCallback((dropKey, dragKey, dropPosition, dropToGap) => {
     const dropPath = dropKey.split(PATH_SEP);
-    const dropNode = treeFindNodeByNamePath(additionalCellSets, dropPath);
+    const dropNode = treeFindNodeByNamePath(additionalObsSets, dropPath);
     if (!dropNode.children && !dropToGap) {
       // Do not allow a node with a set (i.e. leaf) to become a child of another node with a set,
       // as this will result in an internal node having a set, which we do not allow.
@@ -222,7 +215,7 @@ export function ObsSetsManagerSubscriber(props) {
 
     // Get drag node.
     const dragPath = dragKey.split(PATH_SEP);
-    const dragNode = treeFindNodeByNamePath(additionalCellSets, dragPath);
+    const dragNode = treeFindNodeByNamePath(additionalObsSets, dragPath);
 
     if (dropNodeIsLevelZero && dropToGap && !dragNode.children) {
       // Do not allow a leaf node to become a level zero node.
@@ -234,10 +227,10 @@ export function ObsSetsManagerSubscriber(props) {
     let dropNodeCurrIndex;
     if (!dropNodeIsLevelZero) {
       dropParentPath = dropPath.slice(0, -1);
-      dropParentNode = treeFindNodeByNamePath(additionalCellSets, dropParentPath);
+      dropParentNode = treeFindNodeByNamePath(additionalObsSets, dropParentPath);
       dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropNode.name);
     } else {
-      dropNodeCurrIndex = additionalCellSets.tree.findIndex(
+      dropNodeCurrIndex = additionalObsSets.tree.findIndex(
         lzn => lzn.name === dropNode.name,
       );
     }
@@ -252,7 +245,7 @@ export function ObsSetsManagerSubscriber(props) {
       hasSiblingNameConflict = dropNode.children
         .find(c => c !== dragNode && c.name === dragNodeName);
     } else {
-      hasSiblingNameConflict = additionalCellSets.tree
+      hasSiblingNameConflict = additionalObsSets.tree
         .find(lzn => lzn !== dragNode && lzn.name === dragNodeName);
     }
 
@@ -265,9 +258,9 @@ export function ObsSetsManagerSubscriber(props) {
     // matches the path of the node to delete.
     // If so, return null, and then always use
     // .filter(Boolean) to eliminate any null array elements.
-    const nextAdditionalCellSets = {
-      ...additionalCellSets,
-      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [], dragPath)).filter(Boolean),
+    const nextAdditionalObsSets = {
+      ...additionalObsSets,
+      tree: additionalObsSets.tree.map(lzn => filterNode(lzn, [], dragPath)).filter(Boolean),
     };
 
     // Update index values after temporarily removing the dragged node.
@@ -275,7 +268,7 @@ export function ObsSetsManagerSubscriber(props) {
     if (!dropNodeIsLevelZero) {
       dropNodeCurrIndex = dropParentNode.children.findIndex(c => c.name === dropNode.name);
     } else {
-      dropNodeCurrIndex = nextAdditionalCellSets.tree.findIndex(
+      dropNodeCurrIndex = nextAdditionalObsSets.tree.findIndex(
         lzn => lzn.name === dropNode.name,
       );
     }
@@ -303,7 +296,7 @@ export function ObsSetsManagerSubscriber(props) {
           addChildFunction = n => nodeInsertChild(n, dragNode, insertIndex);
         }
       }
-      nextAdditionalCellSets.tree = nextAdditionalCellSets.tree.map(
+      nextAdditionalObsSets.tree = nextAdditionalObsSets.tree.map(
         node => nodeTransform(
           node,
           (n, path) => checkPathFunction(path),
@@ -315,28 +308,28 @@ export function ObsSetsManagerSubscriber(props) {
         ),
       );
       // Done
-      setAdditionalCellSets(nextAdditionalCellSets);
+      setAdditionalObsSets(nextAdditionalObsSets);
       newDragPath = [...newPath[0], dragNode.name];
-      setCellSetSelection([newDragPath]);
+      setObsSetSelection([newDragPath]);
     } else if (dropPosition === -1) {
       // We need to drop the dragNode to level zero,
       // and level zero nodes do not have parents.
       // Set dragNode as first level zero node of the tree.
-      nextAdditionalCellSets.tree.unshift(dragNode);
-      setAdditionalCellSets(nextAdditionalCellSets);
+      nextAdditionalObsSets.tree.unshift(dragNode);
+      setAdditionalObsSets(nextAdditionalObsSets);
       newDragPath = [dragNode.name];
-      setCellSetSelection([newDragPath]);
+      setObsSetSelection([newDragPath]);
     } else {
       // Set dragNode before or after dropNode in level zero.
       const insertIndex = dropNodeCurrIndex + (dropPosition > dropNodeCurrIndex ? 1 : 0);
-      const newLevelZero = Array.from(nextAdditionalCellSets.tree);
+      const newLevelZero = Array.from(nextAdditionalObsSets.tree);
       newLevelZero.splice(insertIndex, 0, dragNode);
-      nextAdditionalCellSets.tree = newLevelZero;
-      setAdditionalCellSets(nextAdditionalCellSets);
+      nextAdditionalObsSets.tree = newLevelZero;
+      setAdditionalObsSets(nextAdditionalObsSets);
       newDragPath = [dragNode.name];
-      setCellSetSelection([newDragPath]);
+      setObsSetSelection([newDragPath]);
     }
-    const oldColors = cellSetColor.filter(
+    const oldColors = obsSetColor.filter(
       i => isEqualOrPrefix(dragPath, i.path),
     );
     const newColors = oldColors.map(
@@ -349,37 +342,37 @@ export function ObsSetsManagerSubscriber(props) {
         }
       ),
     );
-    const newCellSetColor = cellSetColor.filter(
+    const newObsSetColor = obsSetColor.filter(
       i => !isEqualOrPrefix(dragPath, i.path),
     );
-    newCellSetColor.push(...newColors);
-    setCellSetColor(newCellSetColor);
-  }, [additionalCellSets, cellSetColor, setAdditionalCellSets, setCellSetColor,
-    setCellSetSelection,
+    newObsSetColor.push(...newColors);
+    setObsSetColor(newObsSetColor);
+  }, [additionalObsSets, obsSetColor, setAdditionalObsSets, setObsSetColor,
+    setObsSetSelection,
   ]);
 
   // The user wants to change the color of a cell set node.
   const onNodeSetColor = useCallback((targetPath, color) => {
     // Replace the color if an array element for this path already exists.
-    const prevNodeColor = cellSetColor?.find(d => isEqual(d.path, targetPath));
+    const prevNodeColor = obsSetColor?.find(d => isEqual(d.path, targetPath));
     if (!prevNodeColor) {
-      setCellSetColor([
-        ...(cellSetColor || []),
+      setObsSetColor([
+        ...(obsSetColor || []),
         {
           path: targetPath,
           color,
         },
       ]);
     } else {
-      setCellSetColor([
-        ...cellSetColor.filter(d => !isEqual(d.path, targetPath)),
+      setObsSetColor([
+        ...obsSetColor.filter(d => !isEqual(d.path, targetPath)),
         {
           path: targetPath,
           color,
         },
       ]);
     }
-  }, [cellSetColor, setCellSetColor]);
+  }, [obsSetColor, setObsSetColor]);
 
   // The user wants to change the name of a cell set node.
   const onNodeSetName = useCallback((targetPath, name) => {
@@ -387,7 +380,7 @@ export function ObsSetsManagerSubscriber(props) {
     nextNamePath.pop();
     nextNamePath.push(name);
 
-    const prevCellSetExpansion = cellSetExpansion || [];
+    const prevObsSetExpansion = obsSetExpansion || [];
 
     // Recursively check whether each node path
     // matches the path or a prefix of the path of the node to rename.
@@ -407,29 +400,29 @@ export function ObsSetsManagerSubscriber(props) {
         children: node.children.map(c => renameNode(c, [...prevPath, node.name])),
       };
     }
-    const nextAdditionalCellSets = {
-      ...additionalCellSets,
-      tree: additionalCellSets.tree.map(lzn => renameNode(lzn, [])),
+    const nextAdditionalObsSets = {
+      ...additionalObsSets,
+      tree: additionalObsSets.tree.map(lzn => renameNode(lzn, [])),
     };
     // Change all paths that have this node as a prefix (i.e. descendants).
-    const nextCellSetColor = cellSetColor.map(d => ({
+    const nextObsSetColor = obsSetColor.map(d => ({
       path: tryRenamePath(targetPath, d.path, nextNamePath),
       color: d.color,
     }));
-    const nextCellSetSelection = cellSetSelection.map(d => (
+    const nextObsSetSelection = obsSetSelection.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
-    const nextCellSetExpansion = prevCellSetExpansion.map(d => (
+    const nextObsSetExpansion = prevObsSetExpansion.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
     // Need to update the node path everywhere it may be present.
-    setAdditionalCellSets(nextAdditionalCellSets);
-    setCellSetColor(nextCellSetColor);
-    setCellSetSelection(nextCellSetSelection);
-    setCellSetExpansion(nextCellSetExpansion);
-  }, [additionalCellSets, cellSetColor, cellSetExpansion, cellSetSelection,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection,
-    setCellSetExpansion,
+    setAdditionalObsSets(nextAdditionalObsSets);
+    setObsSetColor(nextObsSetColor);
+    setObsSetSelection(nextObsSetSelection);
+    setObsSetExpansion(nextObsSetExpansion);
+  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection,
+    setAdditionalObsSets, setObsSetColor, setObsSetSelection,
+    setObsSetExpansion,
   ]);
 
   // Each time the user types while renaming a cell set node,
@@ -442,34 +435,34 @@ export function ObsSetsManagerSubscriber(props) {
     nextNamePath.push(name);
     const hasConflicts = (
       !isEqual(targetPath, nextNamePath)
-      && treeFindNodeByNamePath(additionalCellSets, nextNamePath)
+      && treeFindNodeByNamePath(additionalObsSets, nextNamePath)
     );
     return hasConflicts;
-  }, [additionalCellSets]);
+  }, [additionalObsSets]);
 
   // The user wants to delete a cell set node, and has confirmed their choice.
   const onNodeRemove = useCallback((targetPath) => {
-    const prevCellSetExpansion = cellSetExpansion || [];
+    const prevObsSetExpansion = obsSetExpansion || [];
     // Recursively check whether each node path
     // matches the path of the node to delete.
     // If so, return null, and then always use
     // .filter(Boolean) to eliminate any null array elements.
-    const nextAdditionalCellSets = {
-      ...additionalCellSets,
-      tree: additionalCellSets.tree.map(lzn => filterNode(lzn, [], targetPath)).filter(Boolean),
+    const nextAdditionalObsSets = {
+      ...additionalObsSets,
+      tree: additionalObsSets.tree.map(lzn => filterNode(lzn, [], targetPath)).filter(Boolean),
     };
     // Delete state for all paths that have this node
     // path as a prefix (i.e. delete all descendents).
-    const nextCellSetColor = cellSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
-    const nextCellSetSelection = cellSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
-    const nextCellSetExpansion = prevCellSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
-    setAdditionalCellSets(nextAdditionalCellSets);
-    setCellSetColor(nextCellSetColor);
-    setCellSetSelection(nextCellSetSelection);
-    setCellSetExpansion(nextCellSetExpansion);
-  }, [additionalCellSets, cellSetColor, cellSetExpansion, cellSetSelection,
-    setAdditionalCellSets, setCellSetColor, setCellSetSelection,
-    setCellSetExpansion,
+    const nextObsSetColor = obsSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
+    const nextObsSetSelection = obsSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
+    const nextObsSetExpansion = prevObsSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
+    setAdditionalObsSets(nextAdditionalObsSets);
+    setObsSetColor(nextObsSetColor);
+    setObsSetSelection(nextObsSetSelection);
+    setObsSetExpansion(nextObsSetExpansion);
+  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection,
+    setAdditionalObsSets, setObsSetColor, setObsSetSelection,
+    setObsSetExpansion,
   ]);
 
   // The user wants to view (i.e. select) a particular node,
@@ -480,7 +473,7 @@ export function ObsSetsManagerSubscriber(props) {
     const setsToView = [];
     // Recursively determine which descendent nodes are currently expanded.
     function viewNode(node, nodePath) {
-      if (cellSetExpansion?.find(expandedPath => isEqual(nodePath, expandedPath))) {
+      if (obsSetExpansion?.find(expandedPath => isEqual(nodePath, expandedPath))) {
         if (node.children) {
           node.children.forEach((c) => {
             viewNode(c, [...nodePath, c.name]);
@@ -492,68 +485,68 @@ export function ObsSetsManagerSubscriber(props) {
         setsToView.push(nodePath);
       }
     }
-    const targetNode = treeFindNodeByNamePath(mergedCellSets, targetPath);
+    const targetNode = treeFindNodeByNamePath(mergedObsSets, targetPath);
     viewNode(targetNode, targetPath);
-    setCellSetSelection(setsToView);
-    setCellSetColorEncoding();
-  }, [cellSetExpansion, mergedCellSets, setCellSetColorEncoding, setCellSetSelection]);
+    setObsSetSelection(setsToView);
+    setObsSetColorEncoding();
+  }, [obsSetExpansion, mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to create a new level zero node.
   const onCreateLevelZeroNode = useCallback(() => {
-    const nextName = getNextNumberedNodeName(additionalCellSets?.tree, 'My hierarchy ', '');
-    setAdditionalCellSets({
-      ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
+    const nextName = getNextNumberedNodeName(additionalObsSets?.tree, 'My hierarchy ', '');
+    setAdditionalObsSets({
+      ...(additionalObsSets || treeInitialize(SETS_DATATYPE_OBS)),
       tree: [
-        ...(additionalCellSets ? additionalCellSets.tree : []),
+        ...(additionalObsSets ? additionalObsSets.tree : []),
         {
           name: nextName,
           children: [],
         },
       ],
     });
-  }, [additionalCellSets, setAdditionalCellSets]);
+  }, [additionalObsSets, setAdditionalObsSets]);
 
   // The user wants to create a new node corresponding to
   // the union of the selected sets.
   const onUnion = useCallback(() => {
-    const newSet = treeToUnion(mergedCellSets, cellSetSelection);
+    const newSet = treeToUnion(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-      setCellColorEncoding,
+      newSet, additionalObsSets, obsSetColor,
+      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      setObsColorEncoding,
       'Union ',
     );
-  }, [additionalCellSets, cellSetColor, cellSetSelection, mergedCellSets,
-    setAdditionalCellSets, setCellColorEncoding, setCellSetColor, setCellSetSelection,
+  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
   // the intersection of the selected sets.
   const onIntersection = useCallback(() => {
-    const newSet = treeToIntersection(mergedCellSets, cellSetSelection);
+    const newSet = treeToIntersection(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-      setCellColorEncoding,
+      newSet, additionalObsSets, obsSetColor,
+      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      setObsColorEncoding,
       'Intersection ',
     );
-  }, [additionalCellSets, cellSetColor, cellSetSelection, mergedCellSets,
-    setAdditionalCellSets, setCellColorEncoding, setCellSetColor, setCellSetSelection,
+  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
   // the complement of the selected sets.
   const onComplement = useCallback(() => {
-    const newSet = treeToComplement(mergedCellSets, cellSetSelection, allCellIds);
+    const newSet = treeToComplement(mergedObsSets, obsSetSelection, allCellIds);
     setObsSelection(
-      newSet, additionalCellSets, cellSetColor,
-      setCellSetSelection, setAdditionalCellSets, setCellSetColor,
-      setCellColorEncoding,
+      newSet, additionalObsSets, obsSetColor,
+      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      setObsColorEncoding,
       'Complement ',
     );
-  }, [additionalCellSets, allCellIds, cellSetColor, cellSetSelection,
-    mergedCellSets, setAdditionalCellSets, setCellColorEncoding, setCellSetColor,
-    setCellSetSelection,
+  }, [additionalObsSets, allCellIds, obsSetColor, obsSetSelection,
+    mergedObsSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
+    setObsSetSelection,
   ]);
 
   // The user wants to import a cell set hierarchy,
@@ -561,67 +554,67 @@ export function ObsSetsManagerSubscriber(props) {
   const onImportTree = useCallback((treeToImport) => {
     // Check for any naming conflicts with the current sets
     // (both user-defined and dataset-defined) before importing.
-    const hasConflict = treesConflict(mergedCellSets, treeToImport);
+    const hasConflict = treesConflict(mergedObsSets, treeToImport);
     if (!hasConflict) {
-      setAdditionalCellSets({
-        ...(additionalCellSets || treeInitialize(SETS_DATATYPE_OBS)),
+      setAdditionalObsSets({
+        ...(additionalObsSets || treeInitialize(SETS_DATATYPE_OBS)),
         tree: [
-          ...(additionalCellSets ? additionalCellSets.tree : []),
+          ...(additionalObsSets ? additionalObsSets.tree : []),
           ...treeToImport.tree,
         ],
       });
       // Automatically initialize set colors for the imported sets.
-      const importAutoSetColors = initializeCellSetColor(treeToImport, cellSetColor);
-      setCellSetColor([
-        ...cellSetColor,
+      const importAutoSetColors = initializeCellSetColor(treeToImport, obsSetColor);
+      setObsSetColor([
+        ...obsSetColor,
         ...importAutoSetColors,
       ]);
     }
-  }, [additionalCellSets, cellSetColor, mergedCellSets, setAdditionalCellSets,
-    setCellSetColor,
+  }, [additionalObsSets, obsSetColor, mergedObsSets, setAdditionalObsSets,
+    setObsSetColor,
   ]);
 
   // The user wants to download a particular hierarchy to a JSON file.
   const onExportLevelZeroNodeJSON = useCallback((nodePath) => {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
+    } = treeExportLevelZeroNode(mergedObsSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
-  }, [cellSetColor, mergedCellSets, theme]);
+  }, [obsSetColor, mergedObsSets, theme]);
 
   // The user wants to download a particular hierarchy to a CSV file.
   const onExportLevelZeroNodeTabular = useCallback((nodePath) => {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, cellSetColor, theme);
+    } = treeExportLevelZeroNode(mergedObsSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_TABULAR}`,
     );
-  }, [cellSetColor, mergedCellSets, theme]);
+  }, [obsSetColor, mergedObsSets, theme]);
 
   // The user wants to download a particular set to a JSON file.
   const onExportSetJSON = useCallback((nodePath) => {
-    const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
+    const { setToExport, nodeName } = treeExportSet(mergedObsSets, nodePath);
     downloadForUser(
       handleExportJSON(setToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
     );
-  }, [mergedCellSets]);
+  }, [mergedObsSets]);
 
   const manager = useMemo(() => (
     <SetsManager
-      setColor={cellSetColor}
+      setColor={obsSetColor}
       sets={cellSets}
-      additionalSets={additionalCellSets}
+      additionalSets={additionalObsSets}
       levelSelection={checkedLevel}
-      setSelection={cellSetSelection}
-      setExpansion={cellSetExpansion}
-      hasColorEncoding={cellColorEncoding === 'cellSetSelection'}
+      setSelection={obsSetSelection}
+      setExpansion={obsSetExpansion}
+      hasColorEncoding={obsColorEncoding === 'cellSetSelection'}
       draggable
       datatype={SETS_DATATYPE_OBS}
       onError={setWarning}
@@ -642,12 +635,12 @@ export function ObsSetsManagerSubscriber(props) {
       onUnion={onUnion}
       onIntersection={onIntersection}
       onComplement={onComplement}
-      hasCheckedSetsToUnion={cellSetSelection?.length > 1}
-      hasCheckedSetsToIntersect={cellSetSelection?.length > 1}
-      hasCheckedSetsToComplement={cellSetSelection?.length > 0}
+      hasCheckedSetsToUnion={obsSetSelection?.length > 1}
+      hasCheckedSetsToIntersect={obsSetSelection?.length > 1}
+      hasCheckedSetsToComplement={obsSetSelection?.length > 0}
       theme={theme}
     />
-  ), [additionalCellSets, cellColorEncoding, cellSetColor, cellSetExpansion, cellSetSelection,
+  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetExpansion, obsSetSelection,
     cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
