@@ -133,7 +133,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
           // obsSetColor: null,
           // obsSetSelection: null,
           // additionalObsSets: null,
-        }
+        },
       ]),
     };
 
