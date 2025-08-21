@@ -145,7 +145,7 @@ export function ObsSetsManagerSubscriber(props) {
 
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalObsSets`).
-  const mergedCellSets = useMemo(
+  const mergedObsSets = useMemo(
     () => mergeObsSets(cellSets, additionalObsSets),
     [cellSets, additionalObsSets],
   );
@@ -153,23 +153,23 @@ export function ObsSetsManagerSubscriber(props) {
   // Infer the state of the "checked level" radio button based on the selected cell sets.
   const checkedLevel = useMemo(() => {
     if (obsSetSelection && obsSetSelection.length > 0
-    && mergedCellSets && mergedCellSets.tree.length > 0) {
-      return treeToExpectedCheckedLevel(mergedCellSets, obsSetSelection);
+    && mergedObsSets && mergedObsSets.tree.length > 0) {
+      return treeToExpectedCheckedLevel(mergedObsSets, obsSetSelection);
     }
     return null;
-  }, [obsSetSelection, mergedCellSets]);
+  }, [obsSetSelection, mergedObsSets]);
 
   // Callback functions
 
   // The user wants to select all nodes at a particular hierarchy level.
   const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
-    const lzn = mergedCellSets.tree.find(n => n.name === levelZeroName);
+    const lzn = mergedObsSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
       const newObsSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
       setObsSetSelection(newObsSetSelection);
       setObsSetColorEncoding();
     }
-  }, [mergedCellSets, setObsSetColorEncoding, setObsSetSelection]);
+  }, [mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to check or uncheck a cell set node.
   const onCheckNode = useCallback((targetKey, checked) => {
@@ -485,11 +485,11 @@ export function ObsSetsManagerSubscriber(props) {
         setsToView.push(nodePath);
       }
     }
-    const targetNode = treeFindNodeByNamePath(mergedCellSets, targetPath);
+    const targetNode = treeFindNodeByNamePath(mergedObsSets, targetPath);
     viewNode(targetNode, targetPath);
     setObsSetSelection(setsToView);
     setObsSetColorEncoding();
-  }, [obsSetExpansion, mergedCellSets, setObsSetColorEncoding, setObsSetSelection]);
+  }, [obsSetExpansion, mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to create a new level zero node.
   const onCreateLevelZeroNode = useCallback(() => {
@@ -509,35 +509,35 @@ export function ObsSetsManagerSubscriber(props) {
   // The user wants to create a new node corresponding to
   // the union of the selected sets.
   const onUnion = useCallback(() => {
-    const newSet = treeToUnion(mergedCellSets, obsSetSelection);
+    const newSet = treeToUnion(mergedObsSets, obsSetSelection);
     setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
       setObsColorEncoding,
       'Union ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedCellSets,
+  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
     setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
   // the intersection of the selected sets.
   const onIntersection = useCallback(() => {
-    const newSet = treeToIntersection(mergedCellSets, obsSetSelection);
+    const newSet = treeToIntersection(mergedObsSets, obsSetSelection);
     setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
       setObsColorEncoding,
       'Intersection ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedCellSets,
+  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
     setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
   // the complement of the selected sets.
   const onComplement = useCallback(() => {
-    const newSet = treeToComplement(mergedCellSets, obsSetSelection, allCellIds);
+    const newSet = treeToComplement(mergedObsSets, obsSetSelection, allCellIds);
     setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
@@ -545,7 +545,7 @@ export function ObsSetsManagerSubscriber(props) {
       'Complement ',
     );
   }, [additionalObsSets, allCellIds, obsSetColor, obsSetSelection,
-    mergedCellSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
+    mergedObsSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
     setObsSetSelection,
   ]);
 
@@ -554,7 +554,7 @@ export function ObsSetsManagerSubscriber(props) {
   const onImportTree = useCallback((treeToImport) => {
     // Check for any naming conflicts with the current sets
     // (both user-defined and dataset-defined) before importing.
-    const hasConflict = treesConflict(mergedCellSets, treeToImport);
+    const hasConflict = treesConflict(mergedObsSets, treeToImport);
     if (!hasConflict) {
       setAdditionalObsSets({
         ...(additionalObsSets || treeInitialize(SETS_DATATYPE_OBS)),
@@ -570,7 +570,7 @@ export function ObsSetsManagerSubscriber(props) {
         ...importAutoSetColors,
       ]);
     }
-  }, [additionalObsSets, obsSetColor, mergedCellSets, setAdditionalObsSets,
+  }, [additionalObsSets, obsSetColor, mergedObsSets, setAdditionalObsSets,
     setObsSetColor,
   ]);
 
@@ -578,33 +578,33 @@ export function ObsSetsManagerSubscriber(props) {
   const onExportLevelZeroNodeJSON = useCallback((nodePath) => {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
+    } = treeExportLevelZeroNode(mergedObsSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
     downloadForUser(
       handleExportJSON(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_JSON}`,
     );
-  }, [obsSetColor, mergedCellSets, theme]);
+  }, [obsSetColor, mergedObsSets, theme]);
 
   // The user wants to download a particular hierarchy to a CSV file.
   const onExportLevelZeroNodeTabular = useCallback((nodePath) => {
     const {
       treeToExport, nodeName,
-    } = treeExportLevelZeroNode(mergedCellSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
+    } = treeExportLevelZeroNode(mergedObsSets, nodePath, SETS_DATATYPE_OBS, obsSetColor, theme);
     downloadForUser(
       handleExportTabular(treeToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-hierarchy.${FILE_EXTENSION_TABULAR}`,
     );
-  }, [obsSetColor, mergedCellSets, theme]);
+  }, [obsSetColor, mergedObsSets, theme]);
 
   // The user wants to download a particular set to a JSON file.
   const onExportSetJSON = useCallback((nodePath) => {
-    const { setToExport, nodeName } = treeExportSet(mergedCellSets, nodePath);
+    const { setToExport, nodeName } = treeExportSet(mergedObsSets, nodePath);
     downloadForUser(
       handleExportJSON(setToExport),
       `${nodeName}_${packageJson.name}-${SETS_DATATYPE_OBS}-set.${FILE_EXTENSION_JSON}`,
       FILE_EXTENSION_JSON,
     );
-  }, [mergedCellSets]);
+  }, [mergedObsSets]);
 
   const manager = useMemo(() => (
     <SetsManager
