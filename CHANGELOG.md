@@ -1,4 +1,13 @@
 
+## 3.6.18
+
+### Patch Changes
+
+- Implement meta-coordination in all views. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/description`, `@vitessce/heatmap`, `@vitessce/status`) ([#2245](https://github.com/vitessce/vitessce/pull/2245))
+
+- Fix bug overwriting config-based initialization of obsSetExpansion in obsSets view. Ensure initialization of segmentationChannel coordination values in SpatialDataObsSegmentations (polygon) loader. (`@vitessce/obs-sets-manager`, `@vitessce/spatial-zarr`) ([#2243](https://github.com/vitessce/vitessce/pull/2243))
+
+
 ## 3.6.17
 
 ### Patch Changes
