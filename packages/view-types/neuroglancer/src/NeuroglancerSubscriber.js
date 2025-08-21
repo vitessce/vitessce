@@ -28,14 +28,13 @@ import {
 
 } from './utils.js';
 
-// TODO: the initial value after 0 changes, should be a way to capture it as is
-// const deckZoom = 0;
 const VITESSCE_INTERACTION_DELAY = 50;
 const INIT_DECK_ZOOM = -3.6;
 const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
-const Q_YUP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
+// To rotate the y-axis up in NG
+const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
 export function NeuroglancerSubscriber(props) {
   const {
@@ -59,7 +58,7 @@ export function NeuroglancerSubscriber(props) {
     spatialRotationY,
     spatialRotationZ,
     spatialRotationOrbit,
-    spatialOrbitAxis,
+    // spatialOrbitAxis, // always along Y-axis - not used in conversion
     embeddingType: mapping,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
@@ -73,7 +72,7 @@ export function NeuroglancerSubscriber(props) {
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
     setSpatialRotationX: setRotationX,
-    setSpatialRotationY: setRotationY,
+    // setSpatialRotationY: setRotationY,
     // setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialZoom: setZoom,
@@ -83,7 +82,7 @@ export function NeuroglancerSubscriber(props) {
   const latestViewerStateRef = useRef(initialViewerState);
   const initialRotationPushedRef = useRef(false);
 
-  console.log("NG Subs Render", spatialZoom)//, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY,spatialRotationZ,spatialRotationOrbit);
+  console.log("NG Subs Render orbit", `ORBIT ${spatialOrbitAxis}`);
 
   const { classes } = useStyles();
   const loaders = useLoaders();
@@ -194,39 +193,9 @@ export function NeuroglancerSubscriber(props) {
       if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
     }
 
-
-    // console.log("handleStateUpdate", projectionScale, deckZoomFromNG, projectionOrientation, position);
-    // if (
-    //   !valueGreaterThanEpsilon(projectionOrientation, prevProjectionOrientation, 1e-5)
-    // ) {
-    //   console.log('⛔️ Skip NG → Vitessce update (loopback)');
-    //   return;
-    // }
-
-    // // ROTATION
-    // if (applyNgUpdateTimeoutRef.current) {
-    //   clearTimeout(applyNgUpdateTimeoutRef.current);
-    // }
-    // lastNgPushOrientationRef.current = projectionOrientation;
-    // applyNgUpdateTimeoutRef.current = setTimeout(() => {
-    // // Remove our Y-up correction before feeding angles back to Vitessce
-    //   const qVit = mulQuat(conjQuat(Q_YUP), projectionOrientation);
-    //   const [pitch, yaw] = quaternionToEuler(qVit);
-    //   // const [pitch, yaw] = quaternionToEuler(latestViewerStateRef.current.projectionOrientation);
-
-    //   const pitchDiff = Math.abs(pitch - spatialRotationX);
-    //   if (pitchDiff > 0.001) {
-    //     console.log('🌀 NG → Vitessce Rotation applied:', pitch, yaw);
-    //     setRotationX(pitch);
-    //     setRotationOrbit(yaw);
-    //     // lastInteractionSource.current = 'neuroglancer';
-    //   }
-    // }, VITESSCE_INTERACTION_DELAY);
-
-
     // ROTATION — only when NG quat actually changes
     const quatChanged = valueGreaterThanEpsilon(
-      projectionOrientation, lastNgQuatRef.current, 1e-5
+      projectionOrientation, lastNgQuatRef.current, ROTATION_EPS,
     );
     if (quatChanged) {
       if (applyNgUpdateTimeoutRef.current) {
@@ -234,15 +203,16 @@ export function NeuroglancerSubscriber(props) {
       }
       lastNgPushOrientationRef.current = projectionOrientation;
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
-        // remove Y-up correction before sending to Vitessce
-        const qVit = mulQuat(conjQuat(Q_YUP), projectionOrientation);
-        const [pitch, yaw] = quaternionToEuler(qVit);
-        const pitchDiff = Math.abs(pitch - (spatialRotationX ?? 0));
-        const yawDiff   = Math.abs(yaw   - (spatialRotationOrbit ?? 0));
-        if (pitchDiff > 0.001 || yawDiff > 0.001) {
-          console.log('🌀 NG → Vitessce Rotation applied:', pitch, yaw);
-          setRotationX(pitch);
-          setRotationOrbit(yaw);
+        // remove Y-up correction before sending to Vitessce to avoid dup application
+        const qVit = mulQuat(conjQuat(Q_Y_UP), projectionOrientation);
+        const [pitchDeg, yawDeg] = quaternionToEuler(qVit);
+
+        const pitchDiff = Math.abs(pitchDeg - (spatialRotationX ?? 0));
+        const yawDiff = Math.abs(yawDeg - (spatialRotationOrbit ?? 0));
+        if (pitchDiff > ROTATION_EPS || yawDiff > ROTATION_EPS) {
+          console.log('🌀 NG → Vitessce Rotation applied:', pitchDeg, yawDeg ,"prev", spatialRotationX, spatialRotationOrbit);
+          setRotationX(pitchDeg);
+          setRotationOrbit(yawDeg);
         }
       }, VITESSCE_INTERACTION_DELAY);
       lastNgQuatRef.current = projectionOrientation;
@@ -268,7 +238,7 @@ export function NeuroglancerSubscriber(props) {
       if (alreadySelectedId) {
         // TODO: reset the setObsSelection
         return;
-      };
+      }
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -356,8 +326,6 @@ export function NeuroglancerSubscriber(props) {
     }
 
     // ** --- Orientation handling --- ** //
-    // const desiredQuat = snapTopDownQuat(spatialRotationOrbit ?? 0);
-
     const nearEq = (a, b, eps = ROTATION_EPS) => (
       Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
     );
@@ -369,7 +337,7 @@ export function NeuroglancerSubscriber(props) {
       spatialRotationZ,
      );
 
-    const vitessceRotation = mulQuat(Q_YUP, vitessceRotationRaw);
+    const vitessceRotation = mulQuat(Q_Y_UP, vitessceRotationRaw);
 
     // Did Vitessce coords change vs the *previous* render?
     const rotChangedNow =
@@ -474,7 +442,7 @@ export function NeuroglancerSubscriber(props) {
     setCellHighlight(String(obsId));
   }, [obsIndex, setCellHighlight]);
 
-  // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view
+  // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
     return;
   }
