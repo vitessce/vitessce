@@ -3,7 +3,11 @@ import React, {
 } from 'react';
 import register from 'higlass-register';
 import { ZarrMultivecDataFetcher } from 'higlass-zarr-datafetchers';
-import { useGridItemSize, useCoordination } from '@vitessce/vit-s';
+import {
+  useGridItemSize,
+  useCoordination,
+  useCoordinationScopes,
+} from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { useStyles } from './styles.js';
 
@@ -47,13 +51,15 @@ export function setStoreRootForHiGlass(url, storeRoot) {
    */
 export default function HiGlassLazy(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     theme,
     hgViewConfig: hgViewConfigProp,
     hgOptions: hgOptionsProp,
     genomeSize = 3100000000,
     height,
   } = props;
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import {
   useCoordination,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber.js';
@@ -25,8 +26,10 @@ import { EmbeddingScatterplotSubscriber } from './EmbeddingScatterplotSubscriber
 export function DualEmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
   } = props;
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

@@ -11,6 +11,7 @@ import {
   TitleInfo,
   useUrls, useReady,
   useObsSetsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import {
@@ -68,7 +69,7 @@ const packageJson = { name: 'vitessce' };
  */
 export function ObsSetsManagerSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -78,6 +79,7 @@ export function ObsSetsManagerSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setWarning = useSetWarning();
 
   // Get "props" from the coordination space.

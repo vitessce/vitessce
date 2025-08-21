@@ -6,6 +6,7 @@ import {
   useObsSetsData,
   useLoaders,
   useObsEmbeddingData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -64,7 +65,7 @@ function normalizeQuaternion(q) {
 
 export function NeuroglancerSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -107,6 +108,7 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
