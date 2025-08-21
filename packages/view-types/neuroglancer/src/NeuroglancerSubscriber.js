@@ -75,6 +75,9 @@ export function NeuroglancerSubscriber(props) {
     viewerState: initialViewerState,
   } = props;
 
+  const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+
   const [{
     dataset,
     obsType,
@@ -107,8 +110,6 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
   const { classes } = useStyles();
-  const loaders = useLoaders();
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
