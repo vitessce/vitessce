@@ -9,6 +9,7 @@ import {
   useFeatureStatsData,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -24,7 +25,7 @@ import { useRawSetPaths } from './utils.js';
 export function VolcanoPlotSubscriber(props) {
   const {
     title = 'Volcano Plot',
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.VOLCANO_PLOT,
@@ -32,6 +33,7 @@ export function VolcanoPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

@@ -11,6 +11,7 @@ import {
   useComparisonMetadata,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES, DataType } from '@vitessce/constants-internal';
 import { ScmdUi } from './scmd-ui.js';
@@ -23,11 +24,12 @@ import { ScmdUi } from './scmd-ui.js';
  */
 export function BiomarkerSelectSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     stratificationOptions: stratificationOptionsProp, // TODO: Remove; Get from comparisonMetadata instead
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{
     dataset,

@@ -126,13 +126,14 @@ import {
   useCoordination,
   useLoaders,
   useObsFeatureMatrixIndices,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { ${pascalName} } from './${pascalName}.js';
 
 export function ${pascalName}Subscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     title = '${pascalName}',
@@ -141,6 +142,7 @@ export function ${pascalName}Subscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

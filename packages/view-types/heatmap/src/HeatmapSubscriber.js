@@ -16,6 +16,7 @@ import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
@@ -40,7 +41,7 @@ import HeatmapOptions from './HeatmapOptions.js';
 export function HeatmapSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -53,6 +54,7 @@ export function HeatmapSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 

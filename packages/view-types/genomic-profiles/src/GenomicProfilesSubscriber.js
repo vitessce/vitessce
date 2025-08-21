@@ -7,6 +7,7 @@ import {
   useReady, useUrls, useGridItemSize,
   useCoordination, useLoaders,
   useGenomicProfilesData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import HiGlassLazy, { setStoreRootForHiGlass } from './HiGlassLazy.js';
@@ -69,7 +70,7 @@ const REFERENCE_STATIC_FILES = {
  */
 export function GenomicProfilesSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     theme,
     closeButtonVisible,
     downloadButtonVisible,
@@ -86,6 +87,7 @@ export function GenomicProfilesSubscriber(props) {
   // eslint-disable-next-line no-unused-vars
   const [width, height, containerRef] = useGridItemSize();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

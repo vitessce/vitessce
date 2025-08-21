@@ -8,6 +8,7 @@ import {
   useFeatureStatsData,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -21,13 +22,14 @@ import { useRawSetPaths } from './utils.js';
 export function FeatureStatsTableSubscriber(props) {
   const {
     title = 'Differential Expression Results',
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.FEATURE_STATS_TABLE,
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

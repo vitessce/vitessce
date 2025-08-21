@@ -25,6 +25,7 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -58,7 +59,7 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -74,6 +75,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 

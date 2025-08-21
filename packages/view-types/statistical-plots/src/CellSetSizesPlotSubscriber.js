@@ -4,6 +4,7 @@ import {
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { isEqual } from 'lodash-es';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
@@ -27,7 +28,7 @@ import { useStyles } from './styles.js';
  */
 export function CellSetSizesPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -39,6 +40,7 @@ export function CellSetSizesPlotSubscriber(props) {
   const { classes } = useStyles();
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

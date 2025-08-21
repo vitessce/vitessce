@@ -7,6 +7,7 @@ import {
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsFeatureMatrixData, useFeatureSelection,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
@@ -24,7 +25,7 @@ import { useStyles } from './styles.js';
  */
 export function ExpressionHistogramSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -34,6 +35,7 @@ export function ExpressionHistogramSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

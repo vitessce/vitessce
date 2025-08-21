@@ -4,6 +4,7 @@ import {
   useReady,
   useCoordination, useLoaders,
   useDescription, useImageData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import Description from './Description.js';
@@ -21,7 +22,7 @@ import Description from './Description.js';
  */
 export function DescriptionSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     description: descriptionOverride,
     descriptionType,
     removeGridComponent,
@@ -32,6 +33,7 @@ export function DescriptionSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

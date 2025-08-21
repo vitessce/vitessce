@@ -20,6 +20,7 @@ import {
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
@@ -49,7 +50,7 @@ import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 export function GatingSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -62,6 +63,7 @@ export function GatingSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
