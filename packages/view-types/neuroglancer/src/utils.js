@@ -4,7 +4,8 @@ import {
 } from 'three';
 
 
-const RAD2DEG = 180 / Math.PI;
+// For now deckGl uses degrees, but if changes to radian can change here
+// const VIT_UNITS = 'degrees';
 
 export const EPSILON_KEYS_MAPPING = {
   projectionScale: 1e-1,
@@ -23,7 +24,18 @@ export const mulQuat = (a, b) => {
     aw * bw - ax * bx - ay * by - az * bz,
   ];
 };
-export const conjQuat = (q) => ([-q[0], -q[1], -q[2], q[3]]); // inverse for unit quats
+export const conjQuat = q => ([-q[0], -q[1], -q[2], q[3]]); // inverse for unit quats
+
+// Helper function to compute the cosine dot product of two quaternion
+export const quatdotAbs = (a, b) => Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
+
+
+export const rad2deg = r => r * 180 / Math.PI;
+export const deg2rad = d => d * Math.PI / 180;
+
+// export const toVitUnits = rad => VIT_UNITS === 'degrees' ? (rad * 180 / Math.PI) : rad;
+// export const fromVitUnits = val => VIT_UNITS === 'degrees' ? (val * Math.PI / 180) : val;
+
 
 /**
  * Is this a valid viewerState object?
@@ -93,7 +105,8 @@ export function quaternionToEuler([x, y, z, w]) {
   const pitch = euler.x; // X-axis rotation
   const yaw = euler.y; // Y-axis rotation
 
-  return [pitch * RAD2DEG, yaw * RAD2DEG];
+  // return [pitch * RAD2DEG, yaw * RAD2DEG];
+  return [pitch, yaw];
 }
 
 
