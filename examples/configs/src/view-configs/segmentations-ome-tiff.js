@@ -13,6 +13,12 @@ export const segmentationsOmeTiff = {
           url: 'https://assets.hubmapconsortium.org/69d9c52bc9edb625b496cecb623ec081/ometiff-pyramids/pipeline_output/expr/reg001_expr.ome.tif',
           options: {
             offsetsUrl: 'https://assets.hubmapconsortium.org/69d9c52bc9edb625b496cecb623ec081/output_offsets/pipeline_output/expr/reg001_expr.offsets.json',
+            coordinateTransformations: [
+              {
+                type: 'scale',
+                scale: [1000/377.4, 1000/377.4, 1, 1, 1],
+              }
+            ]
           },
         },
         {
