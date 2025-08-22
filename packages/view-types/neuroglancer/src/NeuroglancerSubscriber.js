@@ -22,17 +22,17 @@ import {
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   compareViewerState,
-  makeDeckNgCalibrator,
+  makeVitNgZoomCalibrator,
   conjQuat,
   multiplyQuat,
-  quatdotAbs,
+  // quatdotAbs,
   rad2deg,
   deg2rad,
 
 } from './utils.js';
 
 const VITESSCE_INTERACTION_DELAY = 50;
-const INIT_DECK_ZOOM = -3.6;
+const INIT_VIT_ZOOM = -3.6;
 const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
@@ -41,7 +41,7 @@ const NG_ROT_COOLDOWN_MS = 120;
 // To rotate the y-axis up in NG
 const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
-const fmt = (v) => Array.isArray(v) ? v.map(n => Number(n).toFixed(6)) : v;
+// const fmt = (v) => Array.isArray(v) ? v.map(n => Number(n).toFixed(6)) : v;
 export function NeuroglancerSubscriber(props) {
   const {
     coordinationScopes,
@@ -146,38 +146,38 @@ export function NeuroglancerSubscriber(props) {
       if (!initialRenderCalibratorRef.current) {
         if (!Number.isFinite(projectionScale) || projectionScale <= 0) return; // wait for a real scale
       
-        const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0; // anchor to current deck zoom
-        initialRenderCalibratorRef.current = makeDeckNgCalibrator(projectionScale, zRef);
+        const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0; // anchor to current Vitessce zoom
+        initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
       
         const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-        // TODO: translation off in the first render
-        translationOffsetRef.current = [px - tX, py - tY, -pz];
+        // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
+        translationOffsetRef.current = [px - tX, py - tY, pz];
         // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-        const syncedZoom = initialRenderCalibratorRef.current.deckToNg(INIT_DECK_ZOOM);
+        const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
         latestViewerStateRef.current = {
           ...latestViewerStateRef.current,
           projectionScale: syncedZoom,
         };
 
-        if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_DECK_ZOOM) > ZOOM_EPS) {
-          setZoom(INIT_DECK_ZOOM);
+        if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
+          setZoom(INIT_VIT_ZOOM);
         }
       return;
       }
       
-      // ZOOM (NG → deck) — do this only after calibrator exists
+      // ZOOM (NG → Vitessce) — do this only after calibrator exists
       if(Number.isFinite(projectionScale) && projectionScale > 0) {
-        const deckZoomFromNG = initialRenderCalibratorRef.current.ngToDeck(projectionScale);
+        const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
         const scaleChanged = lastNgScaleRef.current == null
           || (Math.abs(projectionScale - lastNgScaleRef.current)
           > 1e-6 * Math.max(1, projectionScale));
-        if (scaleChanged && Number.isFinite(deckZoomFromNG)
-            && Math.abs(deckZoomFromNG - (spatialZoom ?? 0)) > ZOOM_EPS) {
+        if (scaleChanged && Number.isFinite(vitZoomFromNg)
+            && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
           if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
           zoomRafRef.current = requestAnimationFrame(() => {
-            setZoom(deckZoomFromNG);
+            setZoom(vitZoomFromNg);
             zoomRafRef.current = null;
           });
         }
@@ -190,7 +190,7 @@ export function NeuroglancerSubscriber(props) {
     if (Array.isArray(position) && position.length >= 2) {
       const [px, py] = position;
       const [ox, oy] = translationOffsetRef.current;
-      const tx = px - ox; // map NG → deck
+      const tx = px - ox; // map NG → Vitessce
       const ty = py - oy;
       if (Number.isFinite(tx) && Math.abs(tx - (spatialTargetX ?? tx)) > TARGET_EPS) setTargetX(tx);
       if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
@@ -348,7 +348,7 @@ export function NeuroglancerSubscriber(props) {
         && initialRenderCalibratorRef.current
         && lastInteractionSource.current !== 'neuroglancer'
         && zoomChangedNow) {
-       const s = initialRenderCalibratorRef.current.deckToNg(spatialZoom);
+       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
        if (Number.isFinite(s) && s > 0) {
         projectionScale = s;
        }
@@ -357,9 +357,10 @@ export function NeuroglancerSubscriber(props) {
         // ** --- Translation handling --- ** //
     const [ox, oy, oz] = translationOffsetRef.current;
     const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
-    const hasDeckTarget = Number.isFinite(spatialTargetX) && Number.isFinite(spatialTargetY);
-    if (hasDeckTarget) {
-       const nx = spatialTargetX + ox; // deck → NG
+    const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
+       && Number.isFinite(spatialTargetY);
+    if (hasVitessceSpatialTarget && lastInteractionSource.current !== 'neuroglancer' && transChangedNow) {
+       const nx = spatialTargetX + ox; // Vitessce → NG
        const ny = spatialTargetY + oy;
         if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
         position = [nx, ny, pz];
@@ -430,7 +431,7 @@ export function NeuroglancerSubscriber(props) {
           x: spatialRotationX, y: spatialRotationY, z: spatialRotationZ, orbit: spatialRotationOrbit,
         };
         initialRotationPushedRef.current = true;
-        // Re-anchor NG -> Deck translation once we commit the initial orientation, the center shows a right translated image
+        // Re-anchor NG -> Vitessce translation once we commit the initial orientation, the center shows a right translated image
         const [cx = 0, cy = 0, cz = (position?.[2] ?? current.position?.[2] ?? 0)] = position
           || current.position || [];
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;

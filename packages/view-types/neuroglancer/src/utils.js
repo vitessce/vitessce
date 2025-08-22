@@ -116,20 +116,16 @@ export function eulerToQuaternion(pitch, yaw, roll = 0) {
   return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
 }
 
-const YAW_OFFSET = -Math.PI / 2;// try +π/2; if it's mirrored, use -π/2 or add π
-export function deckYawToNgYaw(yawDeckRad) {
-  return -(yawDeckRad ?? 0) + YAW_OFFSET;
-}
 
 // Calibrate once from an initial deck zoom and NG projectionScale
-export function makeDeckNgCalibrator(initialNgProjectionScale, initialDeckZoom = 0) {
+export function makeVitNgZoomCalibrator(initialNgProjectionScale, initialDeckZoom = 0) {
   const base = (initialNgProjectionScale / (2 ** -initialDeckZoom));
   return {
     base,
-    deckToNg(z) {
+    vitToNgZoom(z) {
       return (base) * (2 ** -z);
     },
-    ngToDeck(sNg) {
+    ngToVitZoom(sNg) {
       return Math.log2(base / (sNg));
     },
   };
