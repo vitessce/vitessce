@@ -17,12 +17,14 @@ export const useStyles = makeStyles()(() => ({
 // directly to the `document` by neuroglancer,
 // so we cannot scope them as children of the
 // .neuroglancer-container class.
+// .neuroglancer-display-dimensions-widget,
 const globalNeuroglancerCss = `
 
 .neuroglancer-position-widget, 
 .neuroglancer-viewer-top-row,
 .neuroglancer-layer-panel, 
 .neuroglancer-side-panel-column,
+.neuroglancer-display-dimensions-widget,
 .neuroglancer-data-panel-layout-controls button{
     display: none !important;
 }
@@ -1427,7 +1429,7 @@ const globalNeuroglancerStyles = {
     borderColor: '#000',
     borderWidth: '2px',
   },
-  '.neuroglancer-panel:focus-within': { borderColor: '#fff' },
+  // '.neuroglancer-panel:focus-within': { borderColor: '#fff' },
   '.neuroglancer-layer-group-viewer': { outline: '0px' },
   '.neuroglancer-layer-group-viewer-context-menu': {
     flexDirection: 'column',
