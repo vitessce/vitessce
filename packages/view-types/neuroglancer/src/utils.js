@@ -14,7 +14,7 @@ export const EPSILON_KEYS_MAPPING = {
 };
 
 // ---- Y-up correction: 180° around X so X stays right, Y flips up (Z flips sign, which is OK) ----
-export const mulQuat = (a, b) => {
+export const multiplyQuat = (a, b) => {
   const [ax, ay, az, aw] = a;
   const [bx, by, bz, bw] = b;
   return [
@@ -134,99 +134,3 @@ export function makeDeckNgCalibrator(initialNgProjectionScale, initialDeckZoom =
     },
   };
 }
-
-
-// // Calibrate once from a zoom/scale pair you trust (first load)
-// export function computeBaseScaleCss(initialNgProjectionScale, initialDeckZoom) {
-//   // baseScale measured in CSS px per world unit (deck’s space)
-//   return (initialNgProjectionScale * DPR) / (2 ** -initialDeckZoom);
-// }
-
-// // deck -> Neuroglancer
-// export function deckZoomToNgProjectionScale(z, baseScaleCss) {
-//   return (baseScaleCss / DPR) * (2 ** -z);
-// }
-
-// // Neuroglancer -> deck
-// export function ngProjectionScaleToDeckZoom(sNg, baseScaleCss) {
-//   return Math.log2(baseScaleCss / (sNg * DPR));
-// }
-
-
-// /* Deck.gl zoom → Neuroglancer projectionScale
-//   */
-// export function deckZoomToProjectionScale(zoom, baseScale) {
-//   // return baseScale * (2 ** -zoom);
-//   return (baseScale / DPR) * (2 ** -zoom);
-// }
-
-/**
-  * Neuroglancer projectionScale → Deck.gl zoom
-//   */
-// export function projectionScaleToDeckZoom(projectionScale, baseScale) {
-//   return Math.log2(baseScale / (projectionScale) * (1 / DPR));
-// }
-
-// function quaternionsAreClose(q1, q2, epsilon = 1e-4) {
-//     for (let i = 0; i < 4; i++) {
-//       if (Math.abs(q1[i] - q2[i]) > epsilon) return false;
-//     }
-//     return true;
-//   }
-//   if (!quaternionsAreClose(projectionOrientationNew, projectionOrientationOld)) {
-//     setRotationX(vitessceEulerMapping[0]);
-//   }
-
-
-
-
-// export function snapTopDownQuat(yawDeckRad) {
-//   const yawNg = deckYawToNgYaw(yawDeckRad ?? 0);
-//   return eulerToQuaternion(0, yawNg, 0);  // pitch=0, roll=0
-// }
-
-// export function quatFromAxisAngle(ax, ay, az, angle) {
-//   const s = Math.sin(angle / 2);
-//   return [ax * s, ay * s, az * s, Math.cos(angle / 2)];
-// }
-// export function quatMul([ax, ay, az, aw], [bx, by, bz, bw]) {
-//   return [
-//     aw*bx + ax*bw + ay*bz - az*by,
-//     aw*by - ax*bz + ay*bw + az*bx,
-//     aw*bz + ax*by - ay*bx + az*bw,
-//     aw*bw - ax*bx - ay*by - az*bz,
-//   ];
-// }
-
-// export function quatToYawZ([x, y, z, w]) {
-//   // yaw around Z for in-plane rotation
-//   // Equivalent analytic form: atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z))
-//   const t0 = 2 * (w * z + x * y);
-//   const t1 = 1 - 2 * (y * y + z * z);
-//   return Math.atan2(t0, t1);
-// }
-
-//   /**
-//    *
-//    * @param {} dimensions
-//    * @returns
-// */
-//   export function getProjectionScaleInMicrons(dimensions, projectionScale) {
-//     const unitConversion = {
-//       m: 1e6,
-//       mm: 1e3,
-//       µm: 1,
-//       um: 1,
-//       nm: 1e-3,
-//       pm: 1e-6,
-//     };
-
-//     // Use any axis — assume uniform voxel scale
-//     const [scale, unit] = Object.values(dimensions)[0] || [null, null];
-//     const toMicrons = unitConversion[unit];
-
-//     if (!projectionScale || !toMicrons || !scale) return 1;
-//     console.log("dim", projectionScale , toMicrons)
-//     // scale = physical size per voxel (e.g. 1e-9 m), so:
-//     return projectionScale * toMicrons * scale; // = microns per voxel unit
-//   }

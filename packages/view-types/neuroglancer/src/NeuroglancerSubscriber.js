@@ -24,7 +24,7 @@ import {
   compareViewerState,
   makeDeckNgCalibrator,
   conjQuat,
-  mulQuat,
+  multiplyQuat,
   quatdotAbs,
   rad2deg,
   deg2rad,
@@ -206,7 +206,7 @@ export function NeuroglancerSubscriber(props) {
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
           // Remove the Y-up correction before converting to Euler for Vitessce
-          const qVit = mulQuat(conjQuat(Q_Y_UP), projectionOrientation);
+          const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
           const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
           const currPitchRad = deg2rad(spatialRotationX ?? 0);
           const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
@@ -223,20 +223,20 @@ export function NeuroglancerSubscriber(props) {
                 setRotationOrbit(yawDeg);
                 ngRotPushAtRef.current = performance.now();
 
-        // Verify after state propagates
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => { // give the coordination store a tick
-              const qVitNow = eulerToQuaternion(fromVitUnits(spatialRotationX ?? 0), fromVitUnits(spatialRotationOrbit ?? 0), 0);
-              const qNgExp  = mulQuat(Q_Y_UP, qVitNow);
-              const qNgCurr = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
-              const dot = Math.abs(qNgExp[0]*qNgCurr[0] + qNgExp[1]*qNgCurr[1] + qNgExp[2]*qNgCurr[2] + qNgExp[3]*qNgCurr[3]);
-              console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
-            });
-          });
-          const qNgExpected = mulQuat(Q_Y_UP, qVitNow);
-          const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
-          console.log('[POST-APPLY] |dot| =', quatdotAbs(qNgExpected, qNgCurrent).toFixed(6));
+                // // Test to verify rotation from NG to Vitessce and back to NG
+                // requestAnimationFrame(() => {
+                //   requestAnimationFrame(() => {
+                //     // Recreate the Vitessce quaternion from the angles we *just set*
+                //     const qVitJustSet = eulerToQuaternion(deg2rad(pitchDeg), deg2rad(yawDeg), 0);
+                //     // Convert to NG frame (apply Y-up)
+                //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
+                //     // What NG is currently holding (latest from ref, fallback to local)
+                //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
 
+                //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
+                //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
+                //   });
+                // });
         }
         }, VITESSCE_INTERACTION_DELAY);
 
@@ -319,92 +319,106 @@ export function NeuroglancerSubscriber(props) {
 
 
   const derivedViewerState = useMemo(() => {
-    // TODO: Tune NG to sync with Vitessce on first load
     const { current } = latestViewerStateRef;
     const nextSegments = Object.keys(cellColorMapping);
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
-    // let hasInteractionsChangedState = false;
-    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
-    let { projectionScale, projectionOrientation, position,  crossSectionScale, crossSectionOrientation } = current;
 
-    if (typeof spatialZoom === 'number' && initialRenderCalibratorRef.current && lastInteractionSource.current !== 'neuroglancer') {
+    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
+    let { projectionScale, projectionOrientation, position } = current;
+    // TODO: custome EPS for each interaction?
+    const nearEq = (a, b, eps = ROTATION_EPS) => (
+      Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
+    );
+    
+        // Did Vitessce coords change vs the *previous* render?
+    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx)
+        || !nearEq(spatialRotationY, prevCoordsRef.current.ry)
+        || !nearEq(spatialRotationZ, prevCoordsRef.current.rz)
+        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit);
+  
+    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom);
+  
+    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx)
+      || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
+  
+  
+        // ** --- Zoom handling --- ** //
+    if (typeof spatialZoom === 'number'
+        && initialRenderCalibratorRef.current
+        && lastInteractionSource.current !== 'neuroglancer'
+        && zoomChangedNow) {
        const s = initialRenderCalibratorRef.current.deckToNg(spatialZoom);
        if (Number.isFinite(s) && s > 0) {
         projectionScale = s;
-        // crossSectionScale = s;
        }
      }
 
-    // Translation
+        // ** --- Translation handling --- ** //
     const [ox, oy, oz] = translationOffsetRef.current;
     const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
-    const hasDeckTarget =  Number.isFinite(spatialTargetX) && Number.isFinite(spatialTargetY);
+    const hasDeckTarget = Number.isFinite(spatialTargetX) && Number.isFinite(spatialTargetY);
     if (hasDeckTarget) {
-       const nx = spatialTargetX + ox;  // deck → NG
+       const nx = spatialTargetX + ox; // deck → NG
        const ny = spatialTargetY + oy;
         if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
         position = [nx, ny, pz];
       }
     }
 
-    // ** --- Orientation handling --- ** //
-    const nearEq = (a, b, eps = ROTATION_EPS) => (
-      Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
-    );
-    
+    // ** --- Orientation/Rotation handling --- ** //
     const vitessceRotationRaw = eulerToQuaternion(
       deg2rad(spatialRotationX ?? 0),
       deg2rad(spatialRotationOrbit ?? 0),
       deg2rad(spatialRotationZ ?? 0),
      );
 
-    const vitessceRotation = mulQuat(Q_Y_UP, vitessceRotationRaw);
+    // Apply Y-up to have both views with same axis-direction (xy)
+    const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
 
-    const qVitBack = mulQuat(conjQuat(Q_Y_UP), vitessceRotation);
-    const dotVitLoop = quatdotAbs(qVitBack, vitessceRotationRaw);
-    console.log('[CHK Vit→NG→Vit] |dot| =', dotVitLoop.toFixed(6), 
-                ' qVitRaw=', fmt(vitessceRotationRaw), 
-                ' qVitBack=', fmt(qVitBack));
-    // Expect ~1.000000 (± sign OK).
+    // // Round-trip check: NG -> Vit (remove Y-UP)
+    // const qVitBack = multiplyQuat(conjQuat(Q_Y_UP), vitessceRotation);
+    // const dotVitLoop = quatdotAbs(qVitBack, vitessceRotationRaw);
 
-    // (D) Cross-view check: does the NG orientation we're about to send match our Vit->NG?
-    const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
-    console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
+    // // Expect ~1 (± sign OK)
+    // console.log('[CHK Vit→NG→Vit] |dot| =', dotVitLoop.toFixed(6),
+    //             ' qVitRaw=', fmt(vitessceRotationRaw),
+    //             ' qVitBack=', fmt(qVitBack));
+   
 
-    // Did Vitessce coords change vs the *previous* render?
-    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx)
-      || !nearEq(spatialRotationY, prevCoordsRef.current.ry)
-      || !nearEq(spatialRotationZ, prevCoordsRef.current.rz)
-      || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit);
+    // // (D) Cross-view check: does the NG orientation we're about to send match our Vit -> NG?
+    // const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
+    // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 
-    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom);
-
-    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx)
-    || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
-
-
-    // If NG quat ≠ Vitessce quat on first render, push Vitessce once.
+    // If NG quat != Vitessce quat on first render, push Vitessce once.
     const shouldForceInitialVitPush = !initialRotationPushedRef.current
       && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
     // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const ngFresh = (performance.now() - (ngRotPushAtRef.current || 0)) < NG_ROT_COOLDOWN_MS;
+
+    const changedNowOrIInitialVitPush =
+    rotChangedNow || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
+
     const src = ngFresh ? 'neuroglancer'
-      : (lastInteractionSource.current ?? ((rotChangedNow || zoomChangedNow || transChangedNow) ? 'vitessce'  : (shouldForceInitialVitPush ? 'vitessce' : null) ))
-      
-      console.log('[ORIENT] src=', src,
-        'NG projOri=', projectionOrientation,
-        'VIT quat=', eulerToQuaternion(
-           deg2rad(spatialRotationX ?? 0),
-           deg2rad(spatialRotationOrbit ?? 0),
-           deg2rad(spatialRotationZ ?? 0),
-        ));
+      : (lastInteractionSource.current ?? (changedNowOrIInitialVitPush ? 'vitessce' : null));
+
 
     let nextOrientation = projectionOrientation; // start from NG's current quat
-    console.log('[ORIENT] src=', lastInteractionSource.current,
-      'NG projOri=', projectionOrientation,
-      'VIT quat=', vitessceRotation);
+
+    // console.log('[ORIENT]',
+    //   'srcResolved=', src,
+    //   'lastSource=', lastInteractionSource.current,
+    //   'dotLoop=', dotVitLoop.toFixed(6),
+    //   'dotCross=', dotVsNg.toFixed(6)
+    // );
+    
+    // console.log('[ORIENT Q]',
+    //   'qVitRaw=', fmt(vitessceRotationRaw), // Vit frame (pre Y-up)
+    //   'qVitToNg=', fmt(vitessceRotation), // NG frame (post Y-up)
+    //   'qNgCurr=', fmt(projectionOrientation),
+    // );
+
 
     if (src === 'vitessce') {
       // Only push if Vitessce rotation actually changed since last time.
@@ -444,7 +458,6 @@ export function NeuroglancerSubscriber(props) {
         segmentColors: cellColorMapping,
       };
 
-    console.log('[SRC]', lastInteractionSource.current, 'projOri', projectionOrientation);
 
     const updated = {
       ...current,
