@@ -41,8 +41,7 @@
     "@vitessce/tooltip": "workspace:*",
     "lodash-es": "catalog:",
     "three": "catalog:",
-    "react": "catalog:",
-    "prop-types": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

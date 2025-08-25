@@ -1994,6 +1994,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
       three:
         specifier: 'catalog:'
         version: 0.154.0
@@ -2004,9 +2007,6 @@ importers:
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 'catalog:'
-        version: 18.3.1
       react-dom:
         specifier: 'catalog:'
         version: 18.3.1(react@18.3.1)
@@ -27014,7 +27014,7 @@ snapshots:
       hast-util-to-parse5: 8.0.0
       html-void-elements: 3.0.0
       mdast-util-to-hast: 13.2.0
-      parse5: 7.1.1
+      parse5: 7.3.0
       unist-util-position: 5.0.0
       unist-util-visit: 5.0.0
       vfile: 6.0.2
@@ -29596,7 +29596,7 @@ snapshots:
   parse5-htmlparser2-tree-adapter@7.0.0:
     dependencies:
       domhandler: 5.0.3
-      parse5: 7.1.1
+      parse5: 7.3.0
 
   parse5@4.0.0: {}
 
