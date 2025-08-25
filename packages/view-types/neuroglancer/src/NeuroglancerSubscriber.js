@@ -138,52 +138,51 @@ export function NeuroglancerSubscriber(props) {
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
    */
   const handleStateUpdate = useCallback((newState) => {
-      console.log("handleStateUpdate")
-      lastInteractionSource.current = 'neuroglancer';
-      const { projectionScale, projectionOrientation, position } = newState;
+    console.log('handleStateUpdate');
+    lastInteractionSource.current = 'neuroglancer';
+    const { projectionScale, projectionOrientation, position } = newState;
 
-      // Set the views on first mount
-      if (!initialRenderCalibratorRef.current) {
-        if (!Number.isFinite(projectionScale) || projectionScale <= 0) return; // wait for a real scale
-      
-        const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0; // anchor to current Vitessce zoom
-        initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
-      
-        const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
-        const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
-        const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-        // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
-        translationOffsetRef.current = [px - tX, py - tY, pz];
-        // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-        const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
-        latestViewerStateRef.current = {
-          ...latestViewerStateRef.current,
-          projectionScale: syncedZoom,
-        };
+    // Set the views on first mount
+    if (!initialRenderCalibratorRef.current) {
+      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return; // wait for a real scale
 
-        if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
-          setZoom(INIT_VIT_ZOOM);
-        }
-      return;
+      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0; // anchor to current Vitessce zoom
+      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
+
+      const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
+      const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
+      const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
+      // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
+      translationOffsetRef.current = [px - tX, py - tY, pz];
+      // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
+      const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
+      latestViewerStateRef.current = {
+        ...latestViewerStateRef.current,
+        projectionScale: syncedZoom,
+      };
+
+      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
+        setZoom(INIT_VIT_ZOOM);
       }
-      
-      // ZOOM (NG → Vitessce) — do this only after calibrator exists
-      if(Number.isFinite(projectionScale) && projectionScale > 0) {
-        const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
-        const scaleChanged = lastNgScaleRef.current == null
+      return;
+    }
+
+    // ZOOM (NG → Vitessce) — do this only after calibrator exists
+    if (Number.isFinite(projectionScale) && projectionScale > 0) {
+      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
+      const scaleChanged = lastNgScaleRef.current == null
           || (Math.abs(projectionScale - lastNgScaleRef.current)
           > 1e-6 * Math.max(1, projectionScale));
-        if (scaleChanged && Number.isFinite(vitZoomFromNg)
+      if (scaleChanged && Number.isFinite(vitZoomFromNg)
             && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
-          if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
-          zoomRafRef.current = requestAnimationFrame(() => {
-            setZoom(vitZoomFromNg);
-            zoomRafRef.current = null;
-          });
-        }
-        // remember last NG scale
-        lastNgScaleRef.current = projectionScale;
-        
+        if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
+        zoomRafRef.current = requestAnimationFrame(() => {
+          setZoom(vitZoomFromNg);
+          zoomRafRef.current = null;
+        });
+      }
+      // remember last NG scale
+      lastNgScaleRef.current = projectionScale;
     }
 
     // TRANSLATION
@@ -205,40 +204,39 @@ export function NeuroglancerSubscriber(props) {
       lastNgPushOrientationRef.current = projectionOrientation;
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
-          // Remove the Y-up correction before converting to Euler for Vitessce
-          const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
-          const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
-          const currPitchRad = deg2rad(spatialRotationX ?? 0);
-          const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
+        // Remove the Y-up correction before converting to Euler for Vitessce
+        const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
+        const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
+        const currPitchRad = deg2rad(spatialRotationX ?? 0);
+        const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
 
-          if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
+        if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
               || Math.abs(yawRad - currYawRad) > ROTATION_EPS) {
+          const pitchDeg = rad2deg(pitchRad);
+          const yawDeg = rad2deg(yawRad);
 
-                const pitchDeg = rad2deg(pitchRad);
-                const yawDeg = rad2deg(yawRad);
+          // Mark Vitessce as the source for the next derived pass
+          lastInteractionSource.current = 'vitessce';
+          setRotationX(pitchDeg);
+          setRotationOrbit(yawDeg);
+          ngRotPushAtRef.current = performance.now();
 
-                // Mark Vitessce as the source for the next derived pass
-                lastInteractionSource.current = 'vitessce';
-                setRotationX(pitchDeg);
-                setRotationOrbit(yawDeg);
-                ngRotPushAtRef.current = performance.now();
+          // // Test to verify rotation from NG to Vitessce and back to NG
+          // requestAnimationFrame(() => {
+          //   requestAnimationFrame(() => {
+          //     // Recreate the Vitessce quaternion from the angles we *just set*
+          //     const qVitJustSet = eulerToQuaternion(deg2rad(pitchDeg), deg2rad(yawDeg), 0);
+          //     // Convert to NG frame (apply Y-up)
+          //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
+          //     // What NG is currently holding (latest from ref, fallback to local)
+          //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
 
-                // // Test to verify rotation from NG to Vitessce and back to NG
-                // requestAnimationFrame(() => {
-                //   requestAnimationFrame(() => {
-                //     // Recreate the Vitessce quaternion from the angles we *just set*
-                //     const qVitJustSet = eulerToQuaternion(deg2rad(pitchDeg), deg2rad(yawDeg), 0);
-                //     // Convert to NG frame (apply Y-up)
-                //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
-                //     // What NG is currently holding (latest from ref, fallback to local)
-                //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
-
-                //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
-                //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
-                //   });
-                // });
+          //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
+          //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
+          //   });
+          // });
         }
-        }, VITESSCE_INTERACTION_DELAY);
+      }, VITESSCE_INTERACTION_DELAY);
 
       lastNgQuatRef.current = projectionOrientation;
     }
@@ -306,7 +304,6 @@ export function NeuroglancerSubscriber(props) {
     // startTransition(() => {
     //   setBatchedCellColors(cellColors);
     // });
-
   }, [cellColors]);
   // TODO use a ref if slow - see prev commits
   const cellColorMapping = useMemo(() => {
@@ -324,45 +321,45 @@ export function NeuroglancerSubscriber(props) {
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
 
-    console.log("derivedViewerState", prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
+    console.log('derivedViewerState', prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
     let { projectionScale, projectionOrientation, position } = current;
     // TODO: custome EPS for each interaction?
     const nearEq = (a, b, eps = ROTATION_EPS) => (
       Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
     );
-    
-        // Did Vitessce coords change vs the *previous* render?
+
+    // Did Vitessce coords change vs the *previous* render?
     const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx)
         || !nearEq(spatialRotationY, prevCoordsRef.current.ry)
         || !nearEq(spatialRotationZ, prevCoordsRef.current.rz)
         || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit);
-  
+
     const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom);
-  
+
     const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx)
       || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
-  
-  
-        // ** --- Zoom handling --- ** //
+
+
+    // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
         && initialRenderCalibratorRef.current
         && lastInteractionSource.current !== 'neuroglancer'
         && zoomChangedNow) {
-       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
-       if (Number.isFinite(s) && s > 0) {
+      const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
+      if (Number.isFinite(s) && s > 0) {
         projectionScale = s;
-       }
-     }
+      }
+    }
 
-        // ** --- Translation handling --- ** //
+    // ** --- Translation handling --- ** //
     const [ox, oy, oz] = translationOffsetRef.current;
     const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
     const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
        && Number.isFinite(spatialTargetY);
     if (hasVitessceSpatialTarget && lastInteractionSource.current !== 'neuroglancer' && transChangedNow) {
-       const nx = spatialTargetX + ox; // Vitessce → NG
-       const ny = spatialTargetY + oy;
-        if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
+      const nx = spatialTargetX + ox; // Vitessce → NG
+      const ny = spatialTargetY + oy;
+      if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
         position = [nx, ny, pz];
       }
     }
@@ -372,7 +369,7 @@ export function NeuroglancerSubscriber(props) {
       deg2rad(spatialRotationX ?? 0),
       deg2rad(spatialRotationOrbit ?? 0),
       deg2rad(spatialRotationZ ?? 0),
-     );
+    );
 
     // Apply Y-up to have both views with same axis-direction (xy)
     const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
@@ -385,7 +382,7 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[CHK Vit→NG→Vit] |dot| =', dotVitLoop.toFixed(6),
     //             ' qVitRaw=', fmt(vitessceRotationRaw),
     //             ' qVitBack=', fmt(qVitBack));
-   
+
 
     // // (D) Cross-view check: does the NG orientation we're about to send match our Vit -> NG?
     // const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
@@ -398,8 +395,8 @@ export function NeuroglancerSubscriber(props) {
     // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const ngFresh = (performance.now() - (ngRotPushAtRef.current || 0)) < NG_ROT_COOLDOWN_MS;
 
-    const changedNowOrIInitialVitPush =
-    rotChangedNow || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
+    const changedNowOrIInitialVitPush = rotChangedNow
+      || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
 
     const src = ngFresh ? 'neuroglancer'
       : (lastInteractionSource.current ?? (changedNowOrIInitialVitPush ? 'vitessce' : null));
@@ -413,7 +410,7 @@ export function NeuroglancerSubscriber(props) {
     //   'dotLoop=', dotVitLoop.toFixed(6),
     //   'dotCross=', dotVsNg.toFixed(6)
     // );
-    
+
     // console.log('[ORIENT Q]',
     //   'qVitRaw=', fmt(vitessceRotationRaw), // Vit frame (pre Y-up)
     //   'qVitToNg=', fmt(vitessceRotation), // NG frame (post Y-up)
@@ -423,15 +420,23 @@ export function NeuroglancerSubscriber(props) {
 
     if (src === 'vitessce') {
       // Only push if Vitessce rotation actually changed since last time.
-      const rotDiffers = valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
-    
+      const rotDiffers = valueGreaterThanEpsilon(
+        vitessceRotation,
+        projectionOrientation,
+        ROTATION_EPS,
+      );
+
       if (rotDiffers) {
         nextOrientation = vitessceRotation;
         lastVitessceRotationRef.current = {
-          x: spatialRotationX, y: spatialRotationY, z: spatialRotationZ, orbit: spatialRotationOrbit,
+          x: spatialRotationX,
+          y: spatialRotationY,
+          z: spatialRotationZ,
+          orbit: spatialRotationOrbit,
         };
         initialRotationPushedRef.current = true;
-        // Re-anchor NG -> Vitessce translation once we commit the initial orientation, the center shows a right translated image
+        // Re-anchor NG -> Vitessce translation once we commit the initial orientation,
+        // the center shows a right translated image
         const [cx = 0, cy = 0, cz = (position?.[2] ?? current.position?.[2] ?? 0)] = position
           || current.position || [];
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
@@ -453,11 +458,11 @@ export function NeuroglancerSubscriber(props) {
       console.log('Vitessce → NG: Rotation -  Unknown Source');
     }
 
-      const newLayer0 = {
-        ...prevLayer,
-        segments: nextSegments,
-        segmentColors: cellColorMapping,
-      };
+    const newLayer0 = {
+      ...prevLayer,
+      segments: nextSegments,
+      segmentColors: cellColorMapping,
+    };
 
 
     const updated = {
@@ -493,7 +498,7 @@ export function NeuroglancerSubscriber(props) {
   if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
     return;
   }
-  
+
   return (
     <TitleInfo
       title={title}

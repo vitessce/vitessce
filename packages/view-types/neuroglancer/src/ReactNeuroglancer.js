@@ -91,7 +91,7 @@ export function getLayerManager(key) {
 export function getManagedLayer(key, name) {
   const layerManager = getLayerManager(key);
   if (layerManager) {
-    return layerManager.managedLayers.filter((layer) => layer.name === name)[0];
+    return layerManager.managedLayers.filter(layer => layer.name === name)[0];
   }
   return undefined;
 }
@@ -138,7 +138,7 @@ export function unsubscribeLayersChangedSignals(layerManager, signalKey) {
         layerManager.customSignalHandlerRemovers[signalKey].forEach(
           (remover) => {
             remover();
-          }
+          },
         );
         delete layerManager.customSignalHandlerRemovers[signalKey];
       }
@@ -152,15 +152,14 @@ export function configureLayersChangedSignals(key, layerConfig) {
     const { layerName } = layerConfig;
     unsubscribeLayersChangedSignals(layerManager, layerName);
     if (layerConfig.process) {
-      const recordRemover = (remover) =>
-        addLayerSignalRemover(undefined, layerName, remover);
+      const recordRemover = remover => addLayerSignalRemover(undefined, layerName, remover);
       recordRemover(
         layerManager.layersChanged.add(() => {
           const layer = getManagedLayer(undefined, layerName);
           if (layer) {
             layerConfig.process(layer);
           }
-        })
+        }),
       );
       const layer = getManagedLayer(undefined, layerName);
       if (layer) {
@@ -184,21 +183,21 @@ function configureAnnotationSource(source, props, recordRemover) {
       recordRemover(
         source.childAdded.add((annotation) => {
           props.onAnnotationAdded(annotation);
-        })
+        }),
       );
     }
     if (props.onAnnotationDeleted) {
       recordRemover(
         source.childDeleted.add((id) => {
           props.onAnnotationDeleted(id);
-        })
+        }),
       );
     }
     if (props.onAnnotationUpdated) {
       recordRemover(
         source.childUpdated.add((annotation) => {
           props.onAnnotationUpdated(annotation);
-        })
+        }),
       );
     }
     if (props.onAnnotationChanged && source.referencesChanged) {
@@ -215,10 +214,10 @@ function configureAnnotationSource(source, props, recordRemover) {
 function getLoadedDataSource(layer) {
   /* eslint-disable-next-line no-underscore-dangle */
   if (
-    layer.dataSources &&
-    layer.dataSources.length > 0 &&
-    layer.dataSources[0].loadState_ &&
-    layer.dataSources[0].loadState_.dataSource
+    layer.dataSources
+    && layer.dataSources.length > 0
+    && layer.dataSources[0].loadState_
+    && layer.dataSources[0].loadState_.dataSource
   ) {
     /* eslint-disable-next-line no-underscore-dangle */
     return layer.dataSources[0].loadState_.dataSource;
@@ -235,7 +234,7 @@ function getAnnotationSourceFromLayer(layer) {
 function configureAnnotationSourceChange(
   annotationLayer,
   props,
-  recordRemover
+  recordRemover,
 ) {
   const configure = () => {
     const source = getAnnotationSourceFromLayer(annotationLayer);
@@ -259,14 +258,14 @@ export function configureAnnotationLayer(layer, props, recordRemover) {
   if (layer) {
     layer.expectingExternalTable = true;
     if (
-      layer.selectedAnnotation &&
-      !layer.selectedAnnotation.changed.signalReady
+      layer.selectedAnnotation
+      && !layer.selectedAnnotation.changed.signalReady
     ) {
       if (props.onAnnotationSelectionChanged) {
         recordRemover(
           layer.selectedAnnotation.changed.add(() => {
             props.onAnnotationSelectionChanged(layer.selectedAnnotation.value);
-          })
+          }),
         );
         recordRemover(() => {
           layer.selectedAnnotation.changed.signalReady = false;
@@ -315,7 +314,7 @@ export function getSelectedAnnotationId(key, layerName) {
         const { layers } = viewer.selectionDetailsState.value;
         if (layers) {
           const layer = layers.find(
-            (_layer) => _layer.layer.managedLayer.name === layerName
+            _layer => _layer.layer.managedLayer.name === layerName,
           );
           if (layer && layer.state) {
             return layer.state.annotationId;
@@ -355,89 +354,88 @@ export default class Neuroglancer extends React.Component {
     };
   };
 
-    // Coalesce many NG changes → one upstream update per frame.
-    scheduleEmit = () => {
-      let raf = null;
-      return () => {
-        if (this.muteViewerChanged) return; // muted when we push changes
-        if (raf !== null) return;
-        raf = requestAnimationFrame(() => {
-          raf = null;
-          console.log('Minimal', this.minimalPoseSnapshot())
-          this.props.onViewerStateChanged?.(this.minimalPoseSnapshot());
-        });
-      };
+  // Coalesce many NG changes → one upstream update per frame.
+  scheduleEmit = () => {
+    let raf = null;
+    return () => {
+      if (this.muteViewerChanged) return; // muted when we push changes
+      if (raf !== null) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        // console.log('Minimal', this.minimalPoseSnapshot())
+        this.props.onViewerStateChanged?.(this.minimalPoseSnapshot());
+      });
     };
+  };
 
-    // Guard to mute outgoing emits we are programmatically making changes
-    withoutEmitting = (fn) => {
-      this.muteViewerChanged = true;
-      try { fn(); } finally {
-        requestAnimationFrame(() => { this.muteViewerChanged = false; });
-      }
-    };
+  // Guard to mute outgoing emits we are programmatically making changes
+  withoutEmitting = (fn) => {
+    this.muteViewerChanged = true;
+    try { fn(); } finally {
+      requestAnimationFrame(() => { this.muteViewerChanged = false; });
+    }
+  };
 
-    // Only consider actual changes in camera settings, i.e., position/rotation/zoom
-    poseChanged = (prev, next) => {
-      // const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
-      const EPS = 1e-5;
-      const arrEq = (a, b) =>
-        Array.isArray(a) &&
-        Array.isArray(b) &&
-        a.length === b.length &&
-        a.every((v, i) => Math.abs(v - b[i]) < EPS);
-      console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
-      return (
-        prev?.projectionScale !== next?.projectionScale ||
-        !arrEq(prev?.projectionOrientation, next?.projectionOrientation) ||
-        !arrEq(prev?.position, next?.position)
-      );
-    };
+  // Only consider actual changes in camera settings, i.e., position/rotation/zoom
+  poseChanged = (prev, next) => {
+    // const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
+    const EPS = 1e-5;
+    const arrEq = (a, b) => Array.isArray(a)
+        && Array.isArray(b)
+        && a.length === b.length
+        && a.every((v, i) => Math.abs(v - b[i]) < EPS);
+      // console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
+    return (
+      prev?.projectionScale !== next?.projectionScale
+        || !arrEq(prev?.projectionOrientation, next?.projectionOrientation)
+        || !arrEq(prev?.position, next?.position)
+    );
+  };
 
-    didLayersChange = (prevVS, nextVS) => {
-      const prevLayers = prevVS?.layers ?? [];
-      const nextLayers = nextVS?.layers ?? [];
-      return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
-    };
-  
-    // To add colors to the segments
-    applyColorsAndVisibility = (cellColorMapping) => {
-      console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
-      const segmentColorHash = new Map();
-      const newIds = new Set();
-  
-      for (const [idStr, rgb01] of Object.entries(cellColorMapping || {})) {
-        const id = Uint64.parseString(idStr);
-        segmentColorHash.set(id, rgb01); // rgb01 already normalized [0..1]
-        newIds.add(idStr);
+  didLayersChange = (prevVS, nextVS) => {
+    const prevLayers = prevVS?.layers ?? [];
+    const nextLayers = nextVS?.layers ?? [];
+    return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
+  };
+
+  // To add colors to the segments
+  applyColorsAndVisibility = (cellColorMapping) => {
+    // console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
+    const segmentColorHash = new Map();
+    const newIds = new Set();
+
+    for (const [idStr, rgb01] of Object.entries(cellColorMapping || {})) {
+      const id = Uint64.parseString(idStr);
+      segmentColorHash.set(id, rgb01); // rgb01 already normalized [0..1]
+      newIds.add(idStr);
+    }
+
+    // console.log("segmentColorHash", segmentColorHash)
+    // Find NG segmentation layer(s)
+    for (const managed of this.viewer.layerManager.managedLayers) {
+      const { layer } = managed;
+      if (!(layer instanceof SegmentationUserLayer)) continue;
+
+      const { displayState } = layer;
+
+      // Update colors (IndirectTrackableValue)
+      displayState.segmentColorHash.update(() => segmentColorHash);
+
+      // Update visibility by DIFF (fast):
+      const vs = displayState.segmentationGroupState.value.visibleSegments; // Uint64Set2
+      // Compute diffs vs previous snapshot
+      const prevIds = this.prevVisibleIds;
+      // Remove old
+      for (const oldId of prevIds) {
+        if (!newIds.has(oldId)) vs.delete(Uint64.parseString(oldId));
       }
-  
-      // console.log("segmentColorHash", segmentColorHash)
-      // Find NG segmentation layer(s)
-      for (const managed of this.viewer.layerManager.managedLayers) {
-        const layer = managed.layer;
-        if (!(layer instanceof SegmentationUserLayer)) continue;
-  
-        const displayState = layer.displayState;
-  
-        // Update colors (IndirectTrackableValue)
-        displayState.segmentColorHash.update(() => segmentColorHash);
-  
-        // Update visibility by DIFF (fast):
-        const vs = displayState.segmentationGroupState.value.visibleSegments; // Uint64Set2
-        // Compute diffs vs previous snapshot
-        const prevIds = this.prevVisibleIds;
-        // Remove old
-        for (const oldId of prevIds) {
-          if (!newIds.has(oldId)) vs.delete(Uint64.parseString(oldId));
-        }
-        // Add new
-        for (const newId of newIds) {
-          if (!prevIds.has(newId)) vs.add(Uint64.parseString(newId));
-        }
-        // Save snapshot
-        this.prevVisibleIds = newIds;
+      // Add new
+      for (const newId of newIds) {
+        if (!prevIds.has(newId)) vs.add(Uint64.parseString(newId));
       }
+      // Save snapshot
+      this.prevVisibleIds = newIds;
+    }
   };
 
   componentDidMount() {
@@ -462,7 +460,7 @@ export default class Neuroglancer extends React.Component {
     // this.viewer.bindCallback('click-segment', () => {
     //   const picked = this.viewer.mouseState.pickedValue;
     //   console.log('🔍 pickedValue:', picked);
-    
+
     //   if (picked?.low !== undefined) {
     //     const id = picked.low.toString();
     //     console.log('✅ Clicked segment:', id);
@@ -472,11 +470,11 @@ export default class Neuroglancer extends React.Component {
     // this.viewer.mouseState.changed.add(() => {
     //   const is3D = this.viewer.navigationState.displayDimensions.value?.displayDimensionIndices.length === 3;
     //   if (!is3D) return;
-    
+
     //   const picked = this.viewer.mouseState.pickedValue;
     //   if (is3D && picked && picked.constructor?.name === '_Uint64') {
     //     // Clone picked segment (to avoid side effects), but never clear
-    //     const dummy = new picked.constructor(0, 0);  
+    //     const dummy = new picked.constructor(0, 0);
     //     this.viewer.mouseState.pickedValue.low = dummy.low;
     //     this.viewer.mouseState.pickedValue.high = dummy.high;
     //     console.log('🧹 Suppressed hover without nulling pickedValue');
@@ -510,7 +508,7 @@ export default class Neuroglancer extends React.Component {
     // }
     if (this.viewer.selectionDetailsState) {
       this.viewer.selectionDetailsState.changed.add(
-        this.selectionDetailsStateChanged
+        this.selectionDetailsStateChanged,
       );
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
@@ -529,11 +527,11 @@ export default class Neuroglancer extends React.Component {
     if (viewerState) {
       // restore state only when all the changes are added - avoids calling .changed() for each change and leads to smooth updates
       this.withoutEmitting(() => {
-        console.log("EMIT orthographicProjection crossScale, projScale", viewerState.orthographicProjection, viewerState.crossSectionScale, viewerState.projectionScale, this.viewer.crossSectionOrientation)
-          this.viewer.state.restoreState(viewerState);
-          this.applyColorsAndVisibility(cellColorMapping);
+        // console.log("EMIT orthographicProjection crossScale, projScale", viewerState.orthographicProjection, viewerState.crossSectionScale, viewerState.projectionScale, this.viewer.crossSectionOrientation)
+        this.viewer.state.restoreState(viewerState);
+        this.applyColorsAndVisibility(cellColorMapping);
       });
-    } 
+    }
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
     // That function can be used to synchronize an external Redux store with any
     // state changes made internally by the viewer.
@@ -549,7 +547,7 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping } = this.props;
-    console.log("componentDidUpdate React Comp")
+    // console.log("componentDidUpdate React Comp")
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -605,29 +603,29 @@ export default class Neuroglancer extends React.Component {
     //   }
     // }
 
-      if (!viewerState) return;
+    if (!viewerState) return;
 
-      const prevVS = prevProps.viewerState;
-      const poseChangedOnly = prevVS
+    const prevVS = prevProps.viewerState;
+    const poseChangedOnly = prevVS
       && this.poseChanged(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
 
-      //Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
-      if (poseChangedOnly) {
-        this.withoutEmitting(() => {
-          console.log("poseChangedOnly WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
-            const patch = {
-              ...(Number.isFinite(viewerState.projectionScale) && {
-                projectionScale: viewerState.projectionScale,
-              }),
-              ...(Array.isArray(viewerState.projectionOrientation) && {
-                projectionOrientation: viewerState.projectionOrientation,
-              }),
-              ...(Array.isArray(viewerState.position) && {
-                position: viewerState.position,
-              }),
-            };
-            // Restore the state with updated camera setting/position changes
-            this.viewer.state.restoreState(patch);
+    // Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
+    if (poseChangedOnly) {
+      this.withoutEmitting(() => {
+        // console.log("poseChangedOnly WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
+        const patch = {
+          ...(Number.isFinite(viewerState.projectionScale) && {
+            projectionScale: viewerState.projectionScale,
+          }),
+          ...(Array.isArray(viewerState.projectionOrientation) && {
+            projectionOrientation: viewerState.projectionOrientation,
+          }),
+          ...(Array.isArray(viewerState.position) && {
+            position: viewerState.position,
+          }),
+        };
+        // Restore the state with updated camera setting/position changes
+        this.viewer.state.restoreState(patch);
       });
     }
     // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
@@ -642,19 +640,21 @@ export default class Neuroglancer extends React.Component {
     }
 
     // If colors changed (but layers didn’t): re-apply colors
-    const prevSize = prevProps.cellColorMapping ? Object.keys(prevProps.cellColorMapping).length : 0;
+    const prevSize = prevProps.cellColorMapping
+      ? Object.keys(prevProps.cellColorMapping).length : 0;
     const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
-    if (!this.didLayersChange(prevVS, viewerState) && (mappingRefChanged || prevSize !== currSize)) {
+    if (!this.didLayersChange(prevVS, viewerState)
+      && (mappingRefChanged || prevSize !== currSize)) {
       this.withoutEmitting(() => {
         this.applyColorsAndVisibility(cellColorMapping);
       });
     }
-  
+
 
     // NEW: treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
-    const stripSegFields = (layers) => (layers || []).map((l) => {
+    const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
       const { segments, segmentColors, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
@@ -709,10 +709,11 @@ export default class Neuroglancer extends React.Component {
       this.viewer.bindCallback(callback.name, callback.function);
       this.viewer.inputEventBindings.sliceView.set(
         callback.event,
-        callback.name
+        callback.name,
       );
     });
   }
+
   updateEventBindings = (eventBindingsToUpdate) => {
     const root = this.viewer.inputEventBindings;
 
@@ -769,7 +770,7 @@ export default class Neuroglancer extends React.Component {
     if (this.handlerRemovers) {
       // If change handlers have been added already, call the function to remove each one,
       // so there won't be duplicates when new handlers are added below.
-      this.handlerRemovers.forEach((remover) => remover());
+      this.handlerRemovers.forEach(remover => remover());
     }
 
     if (this.viewer) {
@@ -781,23 +782,21 @@ export default class Neuroglancer extends React.Component {
         for (const layer of this.viewer.layerManager.managedLayers) {
           if (layer.layer instanceof SegmentationUserLayer) {
             const { segmentSelectionState } = layer.layer.displayState;
-            const { visibleSegments } =
-              layer.layer.displayState.segmentationGroupState.value;
+            const { visibleSegments } = layer.layer.displayState.segmentationGroupState.value;
             if (segmentSelectionState && onSelectedChanged) {
               // Bind the layer so it will be an argument to the handler when called.
               const selectedChanged = this.selectedChanged.bind(
                 undefined,
-                layer
+                layer,
               );
-              const remover =
-                segmentSelectionState.changed.add(selectedChanged);
+              const remover = segmentSelectionState.changed.add(selectedChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);
             }
 
             if (visibleSegments && onVisibleChanged) {
               const visibleChanged = this.visibleChanged.bind(undefined, layer);
-              console.log('visibleCHanged', visibleChanged)
+              // console.log('visibleCHanged', visibleChanged)
               const remover = visibleSegments.changed.add(visibleChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);
@@ -819,40 +818,39 @@ export default class Neuroglancer extends React.Component {
   //           : null;
   //         console.log('inside one', segment, layer)
   //         onSelectedChanged(segment, layer);
-         
+
   //       }
   //     }
   //   }
   // };
 
-    selectedChanged = (layer) => {
-      if (!this.viewer) return;
-      const { onSelectedChanged } = this.props;
-      const { segmentSelectionState, segmentationGroupState } = layer.layer.displayState;
-    
-      if (!segmentSelectionState || !segmentationGroupState) return;
-    
-      const selected = segmentSelectionState.selectedSegment;
-      const vs = segmentationGroupState.value.visibleSegments;
-    
-      if (selected) {
-        // Hide all other segments and show only the selected one
-        vs.clear(); // This clears all visible segments
-        vs.add(selected); // Add only the selected one back
-      }
-    
-      if (onSelectedChanged) {
-        onSelectedChanged(selected, layer);
-      }
-    };
-  
+  selectedChanged = (layer) => {
+    if (!this.viewer) return;
+    const { onSelectedChanged } = this.props;
+    const { segmentSelectionState, segmentationGroupState } = layer.layer.displayState;
+
+    if (!segmentSelectionState || !segmentationGroupState) return;
+
+    const selected = segmentSelectionState.selectedSegment;
+    const vs = segmentationGroupState.value.visibleSegments;
+
+    if (selected) {
+      // Hide all other segments and show only the selected one
+      vs.clear(); // This clears all visible segments
+      vs.add(selected); // Add only the selected one back
+    }
+
+    if (onSelectedChanged) {
+      onSelectedChanged(selected, layer);
+    }
+  };
+
 
   visibleChanged = (layer) => {
     if (this.viewer) {
       const { onVisibleChanged } = this.props;
       if (onVisibleChanged) {
-        const { visibleSegments } =
-          layer.layer.displayState.segmentationGroupState.value;
+        const { visibleSegments } = layer.layer.displayState.segmentationGroupState.value;
         if (visibleSegments) {
           onVisibleChanged(visibleSegments, layer);
         }
@@ -863,7 +861,7 @@ export default class Neuroglancer extends React.Component {
   render() {
     const { perspectiveZoom } = this.props;
     return (
-      <div className='neuroglancer-container' ref={this.ngContainer}>
+      <div className="neuroglancer-container" ref={this.ngContainer}>
         <p>Neuroglancer here with zoom {perspectiveZoom}</p>
       </div>
     );

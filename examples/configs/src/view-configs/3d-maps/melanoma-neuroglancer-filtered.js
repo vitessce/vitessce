@@ -23,7 +23,6 @@ function generateNeuroglancerMinimalConfiguration() {
   });
 
 
-
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
     url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',

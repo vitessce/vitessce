@@ -51,13 +51,16 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       const dy = Math.abs((nextViewState.target[1] ?? 0) - (viewState.target[1] ?? 0));
       targetChanged = dx > TRANSLATION_THRESHOLD || dy > TRANSLATION_THRESHOLD;
     }
-      const prev = this.lastApplied || viewState;
-      const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0)) > ZOOM_THRESHOLD;
-      const orbitChanged = Math.abs((nextViewState.rotationOrbit ?? 0) - (prev.rotationOrbit ?? 0)) > ROTATION_THRESHOLD;
-      const xChanged = Math.abs((nextViewState.rotationX ?? 0) - (prev.rotationX ?? 0)) > ROTATION_THRESHOLD;
-      if (!(zoomChanged || orbitChanged || xChanged || targetChanged)) {
-        return;
-      }
+    const prev = this.lastApplied || viewState;
+    const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0))
+      > ZOOM_THRESHOLD;
+    const orbitChanged = Math.abs((nextViewState.rotationOrbit ?? 0) - (prev.rotationOrbit ?? 0))
+      > ROTATION_THRESHOLD;
+    const xChanged = Math.abs((nextViewState.rotationX ?? 0) - (prev.rotationX ?? 0))
+      > ROTATION_THRESHOLD;
+    if (!(zoomChanged || orbitChanged || xChanged || targetChanged)) {
+      return;
+    }
     this.lastApplied = nextViewState;
     setViewState({
       ...nextViewState,
@@ -66,24 +69,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     });
   }
 
-
-  // onViewStateChange({ viewState: nextViewState }) {
-  //   const { setViewState, spatialAxisFixed, viewState } = this.props;
-  //   const use3d = this.use3d();
-  //   const prev = this.lastApplied || viewState;
-  //   const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0)) > ZOOM_THRESHOLD;
-  //   const orbitChanged = Math.abs((nextViewState.rotationOrbit ?? 0) - (prev.rotationOrbit ?? 0)) > ROTATION_THRESHOLD;
-  //   const xChanged = Math.abs((nextViewState.rotationX ?? 0) - (prev.rotationX ?? 0)) > ROTATION_THRESHOLD;
-  //   if (!(zoomChanged || orbitChanged || xChanged)) {
-  //     return;
-  //   }
-  //   this.lastApplied = nextViewState;
-    // setViewState({
-    //   ...nextViewState,
-    //   // If the axis is fixed, just use the current target in state i.e don't change target.
-    //   target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
-    // });
-  // }
 
   /**
    * Called by DeckGL upon viewport

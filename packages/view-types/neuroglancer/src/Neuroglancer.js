@@ -73,14 +73,15 @@ export class NeuroglancerComp extends PureComponent {
       }
     }
   }
+
   onViewerStateChanged(nextState) {
     // console.log(this.props)
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-    console.log('onViewerStateChanged', nextState.projectionScale, prevState.projectionScale,!compareViewerState(prevState, nextState), !this.justReceivedExternalUpdate)
+    // console.log('onViewerStateChanged', nextState.projectionScale, prevState.projectionScale,!compareViewerState(prevState, nextState), !this.justReceivedExternalUpdate)
     //  Check !compareViewerState
     if (!this.justReceivedExternalUpdate && compareViewerState(prevState, nextState)) {
-      console.log("updated", this.justReceivedExternalUpdate)
+      // console.log("updated", this.justReceivedExternalUpdate)
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);
@@ -88,9 +89,9 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   UNSAFE_componentWillUpdate(nextProps) {
-    console.log('componentWillUpdate', this.viewerState.projectionScale, nextProps.viewerState.projectionScale, this.props.viewerState.projectionScale)
+    // console.log('componentWillUpdate', this.viewerState.projectionScale, nextProps.viewerState.projectionScale, this.props.viewerState.projectionScale)
     if (!compareViewerState(this.viewerState, nextProps.viewerState)) {
-      console.log("!compare")
+      // console.log("!compare")
       this.viewerState = nextProps.viewerState;
       this.justReceivedExternalUpdate = true;
       setTimeout(() => {
@@ -100,7 +101,7 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    console.log('rendered')
+    // console.log('rendered')
     const { classes, viewerState, cellColorMapping } = this.props;
 
     return (
@@ -108,9 +109,8 @@ export class NeuroglancerComp extends PureComponent {
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            {/* <LazyReactNeuroglancer */}
             <Neuroglancer
-              brainMapsClientId='NOT_A_VALID_ID'
+              brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
               bundleRoot={this.bundleRoot}
