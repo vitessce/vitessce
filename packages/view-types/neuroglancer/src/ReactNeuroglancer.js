@@ -1,3 +1,4 @@
+/* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer';
@@ -7,6 +8,7 @@ import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neurogla
 import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
 import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64';
 // import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
+/* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
 import { compareViewerState } from './utils.js';
@@ -140,6 +142,7 @@ export function unsubscribeLayersChangedSignals(layerManager, signalKey) {
             remover();
           },
         );
+        // eslint-disable-next-line no-param-reassign
         delete layerManager.customSignalHandlerRemovers[signalKey];
       }
     }
@@ -203,9 +206,10 @@ function configureAnnotationSource(source, props, recordRemover) {
     if (props.onAnnotationChanged && source.referencesChanged) {
       recordRemover(source.referencesChanged.add(props.onAnnotationChanged));
     }
-
+    // eslint-disable-next-line no-param-reassign
     source.signalReady = true;
     recordRemover(() => {
+      // eslint-disable-next-line no-param-reassign
       source.signalReady = false;
     });
   }
@@ -216,12 +220,15 @@ function getLoadedDataSource(layer) {
   if (
     layer.dataSources
     && layer.dataSources.length > 0
+    /* eslint-disable-next-line no-underscore-dangle */
     && layer.dataSources[0].loadState_
+    /* eslint-disable-next-line no-underscore-dangle */
     && layer.dataSources[0].loadState_.dataSource
   ) {
     /* eslint-disable-next-line no-underscore-dangle */
     return layer.dataSources[0].loadState_.dataSource;
   }
+  /* eslint-disable-consistent-return */
 }
 
 function getAnnotationSourceFromLayer(layer) {
@@ -256,6 +263,7 @@ function configureAnnotationSourceChange(
 
 export function configureAnnotationLayer(layer, props, recordRemover) {
   if (layer) {
+    // eslint-disable-next-line no-param-reassign
     layer.expectingExternalTable = true;
     if (
       layer.selectedAnnotation
@@ -268,8 +276,10 @@ export function configureAnnotationLayer(layer, props, recordRemover) {
           }),
         );
         recordRemover(() => {
+          // eslint-disable-next-line no-param-reassign
           layer.selectedAnnotation.changed.signalReady = false;
         });
+        // eslint-disable-next-line no-param-reassign
         layer.selectedAnnotation.changed.signalReady = true;
       }
     }
@@ -282,9 +292,11 @@ export function configureAnnotationLayerChanged(layer, props, recordRemover) {
     const remover = layer.layerChanged.add(() => {
       configureAnnotationLayer(layer.layer, props, recordRemover);
     });
+    // eslint-disable-next-line no-param-reassign
     layer.layerChanged.signalReady = true;
     recordRemover(remover);
     recordRemover(() => {
+      // eslint-disable-next-line no-param-reassign
       layer.layerChanged.signalReady = false;
     });
 
@@ -377,7 +389,6 @@ export default class Neuroglancer extends React.Component {
   };
 
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
-  // poseChanged = (prev, next) => compareViewerState(prev, next);
 
   didLayersChange = (prevVS, nextVS) => {
     const prevLayers = prevVS?.layers ?? [];
@@ -426,7 +437,7 @@ export default class Neuroglancer extends React.Component {
   };
 
   componentDidMount() {
-    console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
+    // console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
     const {
       viewerState,
       brainMapsClientId,
@@ -444,30 +455,6 @@ export default class Neuroglancer extends React.Component {
       bundleRoot,
     });
 
-    // this.viewer.bindCallback('click-segment', () => {
-    //   const picked = this.viewer.mouseState.pickedValue;
-    //   console.log('🔍 pickedValue:', picked);
-
-    //   if (picked?.low !== undefined) {
-    //     const id = picked.low.toString();
-    //     console.log('✅ Clicked segment:', id);
-    //   }
-    // });
-    // this.viewer.inputEventBindings.perspectiveView.set('click0', 'click-segment');
-    // this.viewer.mouseState.changed.add(() => {
-    //   const is3D = this.viewer.navigationState.displayDimensions.value?.displayDimensionIndices.length === 3;
-    //   if (!is3D) return;
-
-    //   const picked = this.viewer.mouseState.pickedValue;
-    //   if (is3D && picked && picked.constructor?.name === '_Uint64') {
-    //     // Clone picked segment (to avoid side effects), but never clear
-    //     const dummy = new picked.constructor(0, 0);
-    //     this.viewer.mouseState.pickedValue.low = dummy.low;
-    //     this.viewer.mouseState.pickedValue.high = dummy.high;
-    //     console.log('🧹 Suppressed hover without nulling pickedValue');
-    //     // TODO: Need to reset the segements
-    //   }
-    // });
     this.setCallbacks(callbacks);
 
     if (eventBindingsToUpdate) {
@@ -506,15 +493,13 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
-    // if (this.viewer.crossSectionScale) this.disposers.push(this.viewer.crossSectionScale.changed.add(emit));
-    // if (this.viewer.crossSectionOrientation) this.disposers.push(this.viewer.crossSectionOrientation.changed.add(emit));
-    // if (this.viewer.orthographicProjection) this.disposers.push(this.viewer.orthographicProjection.changed.add(emit));
 
     // Initial restore ONLY if provided
     if (viewerState) {
-      // restore state only when all the changes are added - avoids calling .changed() for each change and leads to smooth updates
+      /* restore state only when all the changes are added -
+        avoids calling .changed() for each change and leads to smooth updates
+      */
       this.withoutEmitting(() => {
-        // console.log("EMIT orthographicProjection crossScale, projScale", viewerState.orthographicProjection, viewerState.crossSectionScale, viewerState.projectionScale, this.viewer.crossSectionOrientation)
         this.viewer.state.restoreState(viewerState);
         this.applyColorsAndVisibility(cellColorMapping);
       });

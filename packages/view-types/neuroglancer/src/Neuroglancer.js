@@ -74,13 +74,10 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   onViewerStateChanged(nextState) {
-    // console.log(this.props)
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-    console.log('onViewerStateChanged', nextState.projectionScale, prevState.projectionScale, !compareViewerState(prevState, nextState), !this.justReceivedExternalUpdate);
-    //  Check !compareViewerState
     if (!this.justReceivedExternalUpdate && compareViewerState(prevState, nextState)) {
-      console.log('updated', this.justReceivedExternalUpdate);
+      // console.log('onViewerStateChanged updated');
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);

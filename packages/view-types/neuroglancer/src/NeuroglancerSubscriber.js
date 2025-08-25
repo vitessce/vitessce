@@ -138,15 +138,17 @@ export function NeuroglancerSubscriber(props) {
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
    */
   const handleStateUpdate = useCallback((newState) => {
-    console.log('handleStateUpdate');
+    // console.log('handleStateUpdate');
     lastInteractionSource.current = 'neuroglancer';
     const { projectionScale, projectionOrientation, position } = newState;
 
     // Set the views on first mount
     if (!initialRenderCalibratorRef.current) {
-      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return; // wait for a real scale
+      // wait for a real scale
+      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return;
 
-      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0; // anchor to current Vitessce zoom
+      // anchor to current Vitessce zoom
+      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
       initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
 
       const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
@@ -229,7 +231,8 @@ export function NeuroglancerSubscriber(props) {
           //     // Convert to NG frame (apply Y-up)
           //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
           //     // What NG is currently holding (latest from ref, fallback to local)
-          //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation || projectionOrientation;
+          //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation
+          //  || projectionOrientation;
 
           //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
           //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
@@ -320,9 +323,7 @@ export function NeuroglancerSubscriber(props) {
     const nextSegments = Object.keys(cellColorMapping);
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
-
-    console.log('derivedViewerState', prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
-    let { projectionScale, projectionOrientation, position } = current;
+    const { projectionScale, projectionOrientation, position } = current;
     // TODO: custome EPS for each interaction?
     // const nearEq = (a, b, eps = ROTATION_EPS) => !valueGreaterThanEpsilon(a, b, eps);
     const nearEq = (a, b, eps = ROTATION_EPS) => (
@@ -340,6 +341,8 @@ export function NeuroglancerSubscriber(props) {
     const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx)
       || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
 
+    let nextProjectionScale = projectionScale;
+    let nextPosition = position;
 
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
@@ -348,7 +351,7 @@ export function NeuroglancerSubscriber(props) {
         && zoomChangedNow) {
       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
       if (Number.isFinite(s) && s > 0) {
-        projectionScale = s;
+        nextProjectionScale = s;
       }
     }
 
@@ -361,7 +364,7 @@ export function NeuroglancerSubscriber(props) {
       const nx = spatialTargetX + ox; // Vitessce → NG
       const ny = spatialTargetY + oy;
       if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
-        position = [nx, ny, pz];
+        nextPosition = [nx, ny, pz];
       }
     }
 
@@ -438,25 +441,24 @@ export function NeuroglancerSubscriber(props) {
         initialRotationPushedRef.current = true;
         // Re-anchor NG -> Vitessce translation once we commit the initial orientation,
         // the center shows a right translated image
-        const [cx = 0, cy = 0, cz = (position?.[2] ?? current.position?.[2] ?? 0)] = position
+        const [cx = 0, cy = 0,
+          cz = (nextPosition?.[2] ?? current.position?.[2] ?? 0),
+        ] = nextPosition
           || current.position || [];
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
         translationOffsetRef.current = [cx - tX, cy - tY, cz];
-
-        console.log('Vitessce → NG: pushing new orientation', nextOrientation);
-      } else {
-        // No real Vitessce rotation change → do not overwrite NG's quat.
-        console.log('Vitessce → NG: no rotation change, keep NG quat');
       }
+      // else {
+      //   // No real Vitessce rotation change → do not overwrite NG's quat.
+      //   console.log('Vitessce → NG: no rotation change, keep NG quat');
+      // }
       if (lastInteractionSource.current === 'vitessce') {
         lastInteractionSource.current = null;
       }
     } else if (src === 'neuroglancer') {
       nextOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
       lastInteractionSource.current = null;
-    } else {
-      console.log('Vitessce → NG: Rotation -  Unknown Source');
     }
 
     const newLayer0 = {
@@ -468,9 +470,9 @@ export function NeuroglancerSubscriber(props) {
 
     const updated = {
       ...current,
-      projectionScale,
+      projectionScale: nextProjectionScale,
       projectionOrientation: nextOrientation,
-      position,
+      position: nextPosition,
       layers: prevSegments.length === 0 ? [newLayer0, ...(current?.layers?.slice(1)
         || [])] : current?.layers,
     };
@@ -496,9 +498,9 @@ export function NeuroglancerSubscriber(props) {
   }, [obsIndex, setCellHighlight]);
 
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
-  if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
-    return;
-  }
+  // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
+  //   return;
+  // }
 
   return (
     <TitleInfo
