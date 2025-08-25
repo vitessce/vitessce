@@ -11,7 +11,6 @@ function createWorker() {
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
-    // console.log('NG Middle component', Object.keys(props.cellColorMapping).length);
     this.bundleRoot = createWorker();
     this.cellColorMapping = props.cellColorMapping;
     this.viewerState = props.viewerState;
@@ -78,10 +77,10 @@ export class NeuroglancerComp extends PureComponent {
     // console.log(this.props)
     const { setViewerState } = this.props;
     const { viewerState: prevState } = this;
-    // console.log('onViewerStateChanged', nextState.projectionScale, prevState.projectionScale,!compareViewerState(prevState, nextState), !this.justReceivedExternalUpdate)
+    console.log('onViewerStateChanged', nextState.projectionScale, prevState.projectionScale, !compareViewerState(prevState, nextState), !this.justReceivedExternalUpdate);
     //  Check !compareViewerState
     if (!this.justReceivedExternalUpdate && compareViewerState(prevState, nextState)) {
-      // console.log("updated", this.justReceivedExternalUpdate)
+      console.log('updated', this.justReceivedExternalUpdate);
       this.viewerState = nextState;
       this.justReceivedExternalUpdate = false;
       setViewerState(nextState);
@@ -89,9 +88,7 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   UNSAFE_componentWillUpdate(nextProps) {
-    // console.log('componentWillUpdate', this.viewerState.projectionScale, nextProps.viewerState.projectionScale, this.props.viewerState.projectionScale)
     if (!compareViewerState(this.viewerState, nextProps.viewerState)) {
-      // console.log("!compare")
       this.viewerState = nextProps.viewerState;
       this.justReceivedExternalUpdate = true;
       setTimeout(() => {
@@ -101,7 +98,6 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    // console.log('rendered')
     const { classes, viewerState, cellColorMapping } = this.props;
 
     return (

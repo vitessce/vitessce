@@ -6,10 +6,10 @@ import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/n
 import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color';
 import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
 import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64';
-import { call } from 'three/examples/jsm/nodes/Nodes.js';
 // import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
+import { compareViewerState } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
@@ -377,20 +377,7 @@ export default class Neuroglancer extends React.Component {
   };
 
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
-  poseChanged = (prev, next) => {
-    // const arrEq = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v,i) => v === b[i]);
-    const EPS = 1e-5;
-    const arrEq = (a, b) => Array.isArray(a)
-        && Array.isArray(b)
-        && a.length === b.length
-        && a.every((v, i) => Math.abs(v - b[i]) < EPS);
-      // console.log("poseChanged", prev?.projectionScale ,next?.projectionScale, prev?.projectionOrientation, next?.projectionOrientation)
-    return (
-      prev?.projectionScale !== next?.projectionScale
-        || !arrEq(prev?.projectionOrientation, next?.projectionOrientation)
-        || !arrEq(prev?.position, next?.position)
-    );
-  };
+  // poseChanged = (prev, next) => compareViewerState(prev, next);
 
   didLayersChange = (prevVS, nextVS) => {
     const prevLayers = prevVS?.layers ?? [];
@@ -607,12 +594,11 @@ export default class Neuroglancer extends React.Component {
 
     const prevVS = prevProps.viewerState;
     const poseChangedOnly = prevVS
-      && this.poseChanged(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
+      && !compareViewerState(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
 
     // Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
     if (poseChangedOnly) {
       this.withoutEmitting(() => {
-        // console.log("poseChangedOnly WithoutEmitting", viewerState.projectionScale, viewerState.crossSectionScale, viewerState.projectionOrientation);
         const patch = {
           ...(Number.isFinite(viewerState.projectionScale) && {
             projectionScale: viewerState.projectionScale,

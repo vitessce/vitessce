@@ -324,6 +324,7 @@ export function NeuroglancerSubscriber(props) {
     console.log('derivedViewerState', prevSegments?.length, Object.keys(cellColorMapping)?.length, current.projectionOrientation);
     let { projectionScale, projectionOrientation, position } = current;
     // TODO: custome EPS for each interaction?
+    // const nearEq = (a, b, eps = ROTATION_EPS) => !valueGreaterThanEpsilon(a, b, eps);
     const nearEq = (a, b, eps = ROTATION_EPS) => (
       Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
     );

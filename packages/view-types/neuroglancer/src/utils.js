@@ -97,6 +97,19 @@ export function compareViewerState(prevState, nextState) {
   return allKeysEqualCheck;
 }
 
+// export function compareViewerState(prevState, nextState) {
+//   if (!isValidState?.(nextState)) return false;
+//     for (const key of Object.keys(EPSILON_KEYS_MAPPING)) {
+//       const epsilon = EPSILON_KEYS_MAPPING[key];
+//       const prevVal = prevState?.[key];
+//       const nextVal = nextState?.[key];
+//       if (valueGreaterThanEpsilon(prevVal, nextVal, epsilon)) {
+//         return true;
+//       }
+//   }
+//   return false;
+//   }
+
 export function quaternionToEuler([x, y, z, w]) {
   const quaternion = new Quaternion(x, y, z, w);
   // deck.gl uses Y (yaw), X (pitch), Z (roll)
