@@ -10,6 +10,7 @@ import {
   useComparisonMetadata,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, DataType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 
@@ -29,7 +30,7 @@ const useStyles = makeStyles()(() => ({
 
 export function SampleSetPairManagerSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     title = 'Sample Sets',
@@ -39,6 +40,7 @@ export function SampleSetPairManagerSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -58,9 +60,16 @@ export function SampleSetPairManagerSubscriber(props) {
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  const [{ comparisonMetadata }, cmpMetadataStatus] = useComparisonMetadata(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    { comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls, cmpMetadataError,
+  ] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
+
+  const errors = [
+    cmpMetadataError,
+  ];
 
   const isReady = useReady([
     cmpMetadataStatus,
@@ -114,6 +123,7 @@ export function SampleSetPairManagerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <ul className={classes.pairUl}>
         {stratificationOptions?.map((pairObj) => {

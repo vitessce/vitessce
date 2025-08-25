@@ -4,9 +4,9 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest demos and documentation](http://vitessce.io/)
-- [Sandbox environment](http://vitessce.io/#?edit=true)
-- [Older demos](DEMOS.md)
+- [Documentation and demos](http://vitessce.io/)
+- [Online configuration editor](http://vitessce.io/#?edit=true)
+- [Older releases and demos](https://github.com/vitessce/vitessce/releases)
 - [Older releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 <table><tr>
@@ -143,7 +143,7 @@ This will build the demo and docs, push both to S3, and finally open the docs de
 
 #### Publish staged development site
 
-After doing a [manual test](TESTING.md) of the deployment of the dev site,
+After doing a [manual test](./dev-docs/manual-testing.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
 ```sh

@@ -14,7 +14,7 @@ function generateLinkControllerMinimalConfig() {
     y: 0,
     w: 5,
     h: 8,
-  }).setProps({ linkID: 5454 });
+  });
 
   const configJSON = config.toJSON();
   return configJSON;

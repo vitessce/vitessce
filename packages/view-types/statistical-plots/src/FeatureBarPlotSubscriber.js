@@ -9,6 +9,7 @@ import {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection } from '@vitessce/sets-utils';
@@ -18,7 +19,7 @@ import { useStyles } from './styles.js';
 
 export function FeatureBarPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     yMin = 0,
@@ -28,6 +29,7 @@ export function FeatureBarPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -56,22 +58,32 @@ export function FeatureBarPlotSubscriber(props) {
   const [width, height, containerRef] = useGridItemSize();
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrls, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [
-    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
   ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    ...featureSelectionErrors,
+    featureLabelsError,
+    matrixIndicesError,
+  ];
   const isReady = useReady([
     featureSelectionStatus,
     matrixIndicesStatus,
@@ -128,6 +140,7 @@ export function FeatureBarPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {expressionArr ? (

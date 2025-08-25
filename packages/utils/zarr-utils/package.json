@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/zarr-utils",
-  "version": "3.6.2",
+  "version": "3.6.18",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -33,5 +33,8 @@
     "zarrita": "catalog:",
     "@zarrita/storage": "catalog:",
     "@vitessce/globals": "workspace:*"
+  },
+  "devDependencies": {
+    "unzipit": "^1.4.3"
   }
 }

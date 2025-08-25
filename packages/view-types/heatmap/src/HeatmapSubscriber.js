@@ -16,6 +16,7 @@ import {
   useCoordination, useLoaders,
   useSetComponentHover, useSetComponentViewInfo,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
 import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
@@ -40,7 +41,7 @@ import HeatmapOptions from './HeatmapOptions.js';
 export function HeatmapSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -53,6 +54,7 @@ export function HeatmapSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
@@ -107,12 +109,20 @@ export function HeatmapSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   // Get data from loaders using the data hooks.
-  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLabelsTypes, obsLabelsData, obsLabelsStatus, obsLabelsUrls, obsLabelsErrors,
+  ] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
   // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
@@ -121,17 +131,26 @@ export function HeatmapSubscriber(props) {
   );
 
   const [
-    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
+    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls, matrixError,
   ] = useObsFeatureMatrixData(
     loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+
+  const errors = [
+    ...obsLabelsErrors,
+    featureLabelsError,
+    matrixError,
+    obsSetsError,
+  ];
   const isReady = useReady([
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -212,6 +231,7 @@ export function HeatmapSubscriber(props) {
     <TitleInfo
       title={title}
       helpText={helpText}
+      errors={errors}
       info={`${commaNumber(cellsCount)} ${plur(observationsLabel, cellsCount)} × ${commaNumber(genesCount)} ${plur(variablesLabel, genesCount)},
              with ${commaNumber(selectedCount)} ${plur(observationsLabel, selectedCount)} selected`}
       urls={urls}

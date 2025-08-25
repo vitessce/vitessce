@@ -62,7 +62,9 @@ import {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   obsSetPath,
   rgbArray,
   obsSetsSchema,
@@ -170,10 +172,14 @@ import {
   // SpatialData
   SpatialDataTableSource,
   SpatialDataShapesSource,
+  SpatialDataPointsSource,
   SpatialDataImageLoader,
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
+  SpatialDataObsPointsLoader,
+  SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
+  SpatialDataObsEmbeddingLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -224,9 +230,13 @@ function makeViewType(name: string, component: any) {
 function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
-// For when we have multiple file types with the same data type and options schema.
+// For when we have multiple file types with the same data type and options schema,
+// e.g., for Zip- and H5AD- variants of Zarr file types.
 function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
   const altFileTypes = ALT_ZARR_STORE_TYPES[name];
+  if (!altFileTypes) {
+    throw new Error(`No alternative file types found for Zarr-based fileType ${name}`);
+  }
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
     ...Object.entries(altFileTypes).map(([key, fileType]) => {
@@ -318,18 +328,17 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
-  makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
-  // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'
-  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
-  // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
-  // TODO: create a new source for GeoPandas tables?
-  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
-  makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
-  makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
-  makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataObsSegmentationsLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_POINTS_SPATIALDATA_ZARR, DataType.OBS_POINTS, SpatialDataObsPointsLoader, SpatialDataPointsSource, obsPointsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR, DataType.OBS_EMBEDDING, SpatialDataObsEmbeddingLoader, SpatialDataTableSource, obsEmbeddingSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
-  makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -352,6 +361,7 @@ export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR_ZIP, expandAnndataZarr, anndataZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_H5AD, expandAnndataZarr, anndataH5adSchema),
   new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
+  new PluginJointFileType(FileType.SPATIALDATA_ZARR_ZIP, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),

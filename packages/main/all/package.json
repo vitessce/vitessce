@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.6.2",
+  "version": "3.6.18",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -35,6 +35,7 @@
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",

@@ -24,6 +24,7 @@ Vitessce is being used in the following projects:
   * [VoltRon](http://bioinformatics.mdc-berlin.de/VoltRon/interactive.html#Vitessce) ([code](https://github.com/BIMSBbioinfo/VoltRon)) ([preprint](https://doi.org/10.1101/2023.12.15.571667))
   * Cbioportal ([blog post](https://www.thehyve.nl/articles/single-cell-data-visualisation-in-cbioportal))
   * [Lamin](https://docs.lamin.ai/vitessce)
+  * SEAL ([code](https://github.com/simonwarchol/seal)) ([preprint](https://doi.org/10.1101/2025.07.19.665696)) 
 * Industry/commercial products  
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  

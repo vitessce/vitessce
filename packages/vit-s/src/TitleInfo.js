@@ -1,12 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link,
+import {
+  makeStyles,
+  MenuItem,
+  IconButton,
+  Link,
+  List,
+  Alert,
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
+  Warning as WarningIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -54,6 +61,18 @@ const useStyles = makeStyles()(theme => ({
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
     border: '10px solid grey',
   },
+  errorList: {
+    width: '100%',
+    maxWidth: 300,
+    padding: '0 4px',
+  },
+  errorListAlert: {
+    marginTop: '2px',
+    marginBottom: '2px',
+  },
+  errorListItemText: {
+    fontSize: '12px',
+  },
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -78,6 +97,7 @@ function PlotOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Plot Options"
       aria-label="Open plot options menu"
     >
       {options}
@@ -106,6 +126,7 @@ function DownloadOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Download Options"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
@@ -130,10 +151,43 @@ function HelpButton(props) {
       buttonIcon={<HelpIcon />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Help Info"
       aria-label="Open help info"
       withPaper={false}
     >
       <span className={classes.helpTextSpan}>{helpText}</span>
+    </PopperMenu>
+  );
+}
+
+function ErrorInfo(props) {
+  const { errors } = props;
+  const [open, setOpen] = useState(false);
+  const { classes } = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<WarningIcon color="error" />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      title="View Errors"
+      aria-label="Open error info"
+    >
+      <List className={classes.errorList}>
+        {errors.map((error, index) => (
+          <Alert
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${index}-${error.name}-${error.message}`}
+            severity="error"
+            className={classes.errorListAlert}
+            slots={{ message: 'span' }}
+            slotProps={{ message: { className: classes.errorListItemText } }}
+          >
+            {error.name}: {error.message}
+          </Alert>
+        ))}
+      </List>
     </PopperMenu>
   );
 }
@@ -147,7 +201,7 @@ function ClosePaneButton(props) {
       onClick={removeGridComponent}
       size="small"
       className={classes.iconButton}
-      title="close"
+      title="Close View"
       aria-label="Close panel button"
     >
       <CloseIcon />
@@ -159,8 +213,10 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true,
+    helpText, withPadding = true, errors: errorsProp,
   } = props;
+
+  const errors = errorsProp?.filter(Boolean);
 
   const { classes } = useTitleStyles();
 
@@ -181,6 +237,11 @@ export function TitleInfo(props) {
           {downloadButtonVisible ? (
             <DownloadOptions
               urls={urls}
+            />
+          ) : null}
+          {Array.isArray(errors) && errors.length > 0 ? (
+            <ErrorInfo
+              errors={errors}
             />
           ) : null}
           {helpText ? (

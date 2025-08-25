@@ -7,6 +7,7 @@ import {
   useObsSetsData,
   useLoaders,
   useObsEmbeddingData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -44,7 +45,7 @@ const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 // const fmt = (v) => Array.isArray(v) ? v.map(n => Number(n).toFixed(6)) : v;
 export function NeuroglancerSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -53,6 +54,9 @@ export function NeuroglancerSubscriber(props) {
     helpText = ViewHelpMapping.NEUROGLANCER,
     viewerState: initialViewerState,
   } = props;
+
+  const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{
     dataset,
@@ -91,7 +95,6 @@ export function NeuroglancerSubscriber(props) {
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
   const { classes } = useStyles();
-  const loaders = useLoaders();
 
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -9,6 +9,7 @@ import {
   useObsSetStatsData,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -24,7 +25,7 @@ import { useRawSetPaths } from './utils.js';
 
 export function CellSetCompositionBarPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.OBS_SET_COMPOSITION_BAR_PLOT,
@@ -32,6 +33,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -95,12 +97,18 @@ export function CellSetCompositionBarPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ obsSetStats }, obsSetStatsStatus] = useObsSetStatsData(
+  const [
+    { obsSetStats }, obsSetStatsStatus, obsSetStatsUrls, obsSetStatsError,
+  ] = useObsSetStatsData(
     loaders, dataset, false,
     { obsType, sampleType },
     // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
+
+  const errors = [
+    obsSetStatsError,
+  ];
 
   const isReady = useReady([
     obsSetStatsStatus,
@@ -123,6 +131,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {obsSetStats ? (

@@ -14,6 +14,7 @@ import { scAtacSeq10xPbmc } from './view-configs/tenx.js';
 import { blin2019, multipleOmeZarrViaRasterJson } from './view-configs/blin.js';
 import { omeNgffLegacy } from './view-configs/ome-ngff-legacy.js';
 import { hubmapIntestineSnAtacSeq } from './view-configs/hubmap.js';
+import { geneIdMappingExample } from './view-configs/gene-id-mapping-example.js';
 import {
   embeddingZoomConfig,
   embeddingTargetXConfig,
@@ -44,10 +45,12 @@ import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js'
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
+import { spatialDataKpmp2023 } from './view-configs/spatial-beta/spatialdata-kpmp.js';
 import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium.js';
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
+import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata-visium-hd.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 // TODO(spatialBeta):
@@ -58,6 +61,7 @@ import { neumanOop2023, neumannAutoInit } from './view-configs/spatial-beta/neum
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
+import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
@@ -125,6 +129,7 @@ export const configs = {
   'spraggins-2020': spraggins2020,
   'neumann-2020': neumann2020,
   'satija-2020': satija2020,
+  'gene-id-mapping-example': geneIdMappingExample,
   'sn-atac-seq-hubmap-2020': hubmapIntestineSnAtacSeq,
   'sc-atac-seq-10x-genomics-pbmc': scAtacSeq10xPbmc,
   'blin-2019': blin2019,
@@ -140,6 +145,7 @@ export const configs = {
   'spatialdata-visium_io': visiumIoSpatialdata2023,
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
+  'spatialdata-visium_hd': visiumHdSpatialdata2025,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
@@ -149,6 +155,7 @@ export const configs = {
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
+  'sdata-merfish': sdataMerfishConfig,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
@@ -159,6 +166,7 @@ export const configs = {
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
   'kpmp-2023-2': kpmpOop2023,
+  'sdata-kpmp-2023': spatialDataKpmp2023,
   'exemplar-small': exemplarSmall2024,
   'exemplar-small-partial-init': exemplarSmallPartialInit,
 

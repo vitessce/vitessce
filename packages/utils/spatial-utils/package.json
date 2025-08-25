@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-utils",
-  "version": "3.6.2",
+  "version": "3.6.18",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -35,9 +35,11 @@
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/globals": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "lodash-es": "catalog:",
     "zarrita": "catalog:",
     "math.gl": "catalog:",
-    "mathjs": "catalog:"
+    "mathjs": "catalog:",
+    "internmap": "catalog:"
   }
 }

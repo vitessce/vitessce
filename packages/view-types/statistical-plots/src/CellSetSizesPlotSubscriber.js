@@ -4,6 +4,7 @@ import {
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsSetsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { isEqual } from 'lodash-es';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
@@ -27,7 +28,7 @@ import { useStyles } from './styles.js';
  */
 export function CellSetSizesPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -39,6 +40,7 @@ export function CellSetSizesPlotSubscriber(props) {
   const { classes } = useStyles();
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -63,12 +65,15 @@ export function CellSetSizesPlotSubscriber(props) {
   const [prevCellSetSelection, setPrevCellSetSelection] = useState([]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, true,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
+  const errors = [
+    obsSetsError,
+  ];
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
@@ -139,6 +144,7 @@ export function CellSetSizesPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot
