@@ -15,6 +15,8 @@ import { compareViewerState } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
+// TODO: Grey color used by Vitessce - maybe set globally
+const GREY_HEX = '#323232';
 
 // // Adopted from neuroglancer/ui/url_hash_binding.ts
 // export function parseUrlHash(url) {
@@ -353,6 +355,9 @@ export default class Neuroglancer extends React.Component {
     this.prevVisibleIds = new Set();
     this.prevColorMap = null;
     this.disposers = [];
+    this.prevColorOverrides = new Set();
+    this.overrideColorsById = Object.create(null);
+    this.allKnownIds = new Set();
   }
 
   minimalPoseSnapshot = () => {
@@ -389,50 +394,69 @@ export default class Neuroglancer extends React.Component {
   };
 
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
-
   didLayersChange = (prevVS, nextVS) => {
-    const prevLayers = prevVS?.layers ?? [];
-    const nextLayers = nextVS?.layers ?? [];
+    const stripColors = layers => (layers || []).map((l) => {
+      if (!l) return l;
+      const { segmentColors, ...rest } = l;
+      return rest;
+    });
+    const prevLayers = stripColors(prevVS?.layers);
+    const nextLayers = stripColors(nextVS?.layers);
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
   };
 
-  // To add colors to the segments
-  applyColorsAndVisibility = (cellColorMapping) => {
-    // console.log("applying cellColrMapping", Object.keys(cellColorMapping)?.length)
-    const segmentColorHash = new Map();
-    const newIds = new Set();
+  // probeOneColor = (ids) => {
+  //   const probeId = ids?.[0];
+  //   if (!probeId || !this.viewer) return;
+  //   for (const managed of this.viewer.layerManager.managedLayers) {
+  //     const { layer } = managed;
+  //     if (layer instanceof SegmentationUserLayer) {
+  //       const c = getObjectColor(layer?.displayState, Uint64.parseString(probeId));
+  //       console.log('probe getObjectColor', probeId, Array.from(c || []));
+  //     }
+  //   }
+  // };
 
-    for (const [idStr, rgb01] of Object.entries(cellColorMapping || {})) {
-      const id = Uint64.parseString(idStr);
-      segmentColorHash.set(id, rgb01); // rgb01 already normalized [0..1]
-      newIds.add(idStr);
+  /* To add colors to the segments, turning unselected to grey  */
+  applyColorsAndVisibility = (cellColorMapping) => {
+    if (!this.viewer) return;
+    // Track all ids we've ever seen so we can grey the ones
+    // that drop out of the current selection.
+    const selected = { ...(cellColorMapping || {}) }; // clone, don't mutate props
+    for (const id of Object.keys(selected)) this.allKnownIds.add(id);
+    // If empty on first call, seed from initial segmentColors (if present)
+    if (this.allKnownIds.size === 0) {
+      const init = this.props.viewerState?.layers?.[0]?.segmentColors || {};
+      for (const id of Object.keys(init)) this.allKnownIds.add(id);
     }
 
-    // console.log("segmentColorHash", segmentColorHash)
-    // Find NG segmentation layer(s)
+    // Build a full color table: selected keep their hex, others grey
+    const fullSegmentColors = {};
+    for (const id of this.allKnownIds) {
+      fullSegmentColors[id] = selected[id] || GREY_HEX;
+    }
+    // Patch layers with the new segmentColors (pose untouched)
+    const baseLayers = (this.props.viewerState?.layers)
+      ?? (this.viewer.state.toJSON().layers || []);
+
+    const newLayers = baseLayers.map((layer, idx) => {
+      // if only one layer, take that or check layer.type === 'segmentation'.
+      if (idx === 0 || layer?.type === 'segmentation') {
+        return { ...layer, segmentColors: fullSegmentColors };
+      }
+      return layer;
+    });
+    this.withoutEmitting(() => {
+      this.viewer.state.restoreState({ layers: newLayers });
+    });
+    // Ensure NG isn't randomizing over our segmentColors 
     for (const managed of this.viewer.layerManager.managedLayers) {
       const { layer } = managed;
       if (!(layer instanceof SegmentationUserLayer)) continue;
-
-      const { displayState } = layer;
-
-      // Update colors (IndirectTrackableValue)
-      displayState.segmentColorHash.update(() => segmentColorHash);
-
-      // Update visibility by DIFF (fast):
-      const vs = displayState.segmentationGroupState.value.visibleSegments; // Uint64Set2
-      // Compute diffs vs previous snapshot
-      const prevIds = this.prevVisibleIds;
-      // Remove old
-      for (const oldId of prevIds) {
-        if (!newIds.has(oldId)) vs.delete(Uint64.parseString(oldId));
-      }
-      // Add new
-      for (const newId of newIds) {
-        if (!prevIds.has(newId)) vs.add(Uint64.parseString(newId));
-      }
-      // Save snapshot
-      this.prevVisibleIds = newIds;
+      const ds = layer.displayState;
+      /* eslint-disable no-unused-expressions,  no-empty */
+      try { ds.randomizeColors && (ds.randomizeColors.value = false); } catch {}
+      try { ds.objectAlpha && (ds.objectAlpha.value = 1); } catch {}
     }
   };
 
@@ -501,7 +525,7 @@ export default class Neuroglancer extends React.Component {
       */
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
-        this.applyColorsAndVisibility(cellColorMapping);
+        // this.applyColorsAndVisibility(cellColorMapping))
       });
     }
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
@@ -803,13 +827,13 @@ export default class Neuroglancer extends React.Component {
     if (!segmentSelectionState || !segmentationGroupState) return;
 
     const selected = segmentSelectionState.selectedSegment;
-    const vs = segmentationGroupState.value.visibleSegments;
+    // const vs = segmentationGroupState.value.visibleSegments;
 
-    if (selected) {
-      // Hide all other segments and show only the selected one
-      vs.clear(); // This clears all visible segments
-      vs.add(selected); // Add only the selected one back
-    }
+    // if (selected) {
+    //   // Hide all other segments and show only the selected one
+    //   vs.clear(); // This clears all visible segments
+    //   vs.add(selected); // Add only the selected one back
+    // }
 
     if (onSelectedChanged) {
       onSelectedChanged(selected, layer);
