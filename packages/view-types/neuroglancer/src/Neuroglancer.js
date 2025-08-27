@@ -22,15 +22,14 @@ export class NeuroglancerComp extends PureComponent {
     this.prevHoverHandler = null;
     this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
     this.onRef = this.onRef.bind(this);
+    // To avoid closure for onSegmentClick(), to update the selection
+    this.latestOnSegmentClick = props.onSegmentClick;
+    this.latestOnSelectHoveredCoords = props.onSelectHoveredCoords;
   }
 
   onRef(viewerRef) {
     // Here, we have access to the viewerRef.viewer object,
     // which we can use to add/remove event handlers.
-    const {
-      onSegmentClick,
-      onSelectHoveredCoords,
-    } = this.props;
 
     if (viewerRef) {
       // Mount
@@ -47,29 +46,31 @@ export class NeuroglancerComp extends PureComponent {
             const { pickedValue, pickedRenderLayer } = viewer.mouseState;
             // Only trigger selection when a segment is clicked rather than any click on the view
             if (pickedValue && pickedValue.low !== undefined && pickedRenderLayer) {
-              onSegmentClick(pickedValue.low);
+              this.latestOnSegmentClick?.(pickedValue.low);
             }
           });
         }
       };
-
-      viewer.element.addEventListener('mouseup', this.prevClickHandler);
       this.prevHoverHandler = () => {
         if (viewer.mouseState.pickedValue !== undefined) {
           const pickedSegment = viewer.mouseState.pickedValue;
-          onSelectHoveredCoords(pickedSegment?.low);
+          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
         }
       };
-
+      viewer.element.addEventListener('mouseup', this.prevClickHandler);
       viewer.mouseState.changed.add(this.prevHoverHandler);
     } else {
       // Unmount (viewerRef is null)
       if (this.prevElement && this.prevClickHandler) {
-        this.prevElement.removeEventListener('mousedown', this.prevClickHandler);
+        this.prevElement.removeEventListener('mouseup', this.prevClickHandler);
+        this.prevClickHandler = null;
       }
       if (this.prevMouseStateChanged && this.prevHoverHandler) {
         this.prevMouseStateChanged.remove(this.prevHoverHandler);
+        this.prevHoverHandler = null;
       }
+      this.prevElement = null;
+      this.prevMouseStateChanged = null;
     }
   }
 
@@ -91,6 +92,16 @@ export class NeuroglancerComp extends PureComponent {
       setTimeout(() => {
         this.justReceivedExternalUpdate = false;
       }, 100);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { onSegmentClick, onSelectHoveredCoords } = this.props;
+    if (prevProps.onSegmentClick !== onSegmentClick) {
+      this.latestOnSegmentClick = onSegmentClick;
+    }
+    if (prevProps.onSelectHoveredCoords !== onSelectHoveredCoords) {
+      this.latestOnSelectHoveredCoords = onSelectHoveredCoords;
     }
   }
 

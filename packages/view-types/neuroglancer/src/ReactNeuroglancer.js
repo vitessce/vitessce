@@ -461,7 +461,6 @@ export default class Neuroglancer extends React.Component {
   };
 
   componentDidMount() {
-    // console.log('mount JaneNG - cellColorMapping', Object.keys(this?.props.cellColorMapping).length);
     const {
       viewerState,
       brainMapsClientId,

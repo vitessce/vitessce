@@ -70,9 +70,9 @@ export function NeuroglancerSubscriber(props) {
     spatialRotationOrbit,
     // spatialOrbitAxis, // always along Y-axis - not used in conversion
     embeddingType: mapping,
+    obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
-    obsSetColor: cellSetColor,
   }, {
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
@@ -136,6 +136,23 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
+
+  const mergedCellSets = useMemo(() => mergeObsSets(
+    cellSets, additionalCellSets,
+  ), [cellSets, additionalCellSets]);
+
+
+  const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
+    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
+
+  const cellColors = useMemo(() => getCellColors({
+    cellSets: mergedCellSets,
+    cellSetSelection,
+    cellSetColor,
+    obsIndex,
+    theme,
+  }), [mergedCellSets, theme,
+    cellSetColor, cellSetSelection, obsIndex]);
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -255,16 +272,14 @@ export function NeuroglancerSubscriber(props) {
     };
   }, []);
 
-
   const onSegmentClick = useCallback((value) => {
     // TODO multiple segments are added sometime to the selection - each click replaces the other
     if (value) {
       const id = String(value);
       const selectedCellIds = [id];
       const alreadySelectedId = cellSetSelection?.flat()?.some(sel => sel.includes(id));
-      // Don't create no selection from same ids
+      // Don't create new selection from same ids
       if (alreadySelectedId) {
-        // TODO: reset the setObsSelection
         return;
       }
       setObsSelection(
@@ -278,22 +293,6 @@ export function NeuroglancerSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
   ]);
-
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
-
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetColor, cellSetSelection, obsIndex]);
-
-  const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
-    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
   const batchedUpdateTimeoutRef = useRef(null);
   const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
