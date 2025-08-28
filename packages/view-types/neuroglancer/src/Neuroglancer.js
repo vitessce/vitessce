@@ -2,7 +2,6 @@
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
-import { compareViewerState } from './utils.js';
 import Neuroglancer from './ReactNeuroglancer.js';
 
 function createWorker() {
@@ -76,23 +75,12 @@ export class NeuroglancerComp extends PureComponent {
 
   onViewerStateChanged(nextState) {
     const { setViewerState } = this.props;
-    const { viewerState: prevState } = this;
-    if (!this.justReceivedExternalUpdate && compareViewerState(prevState, nextState)) {
-      // console.log('onViewerStateChanged updated');
-      this.viewerState = nextState;
-      this.justReceivedExternalUpdate = false;
-      setViewerState(nextState);
-    }
+    this.viewerState = nextState;
+    setViewerState(nextState);
   }
 
   UNSAFE_componentWillUpdate(nextProps) {
-    if (!compareViewerState(this.viewerState, nextProps.viewerState)) {
-      this.viewerState = nextProps.viewerState;
-      this.justReceivedExternalUpdate = true;
-      setTimeout(() => {
-        this.justReceivedExternalUpdate = false;
-      }, 100);
-    }
+    this.viewerState = nextProps.viewerState;
   }
 
   componentDidUpdate(prevProps) {

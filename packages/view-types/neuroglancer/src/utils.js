@@ -7,10 +7,10 @@ import {
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
 
-export const EPSILON_KEYS_MAPPING = {
-  projectionScale: 1e-1,
-  projectionOrientation: 1e-1,
-  position: 1e-3,
+export const EPSILON_KEYS_MAPPING_NG = {
+  projectionScale: 100,
+  projectionOrientation: 2e-2,
+  position: 5e0,
 };
 
 // ---- Y-up correction: 180° around X so X stays right, Y flips up (Z flips sign, which is OK) ----
@@ -72,43 +72,48 @@ export function valueGreaterThanEpsilon(a, b, epsilon) {
   return undefined;
 }
 
+export const nearEq = (a, b, epsilon) => (
+  Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= epsilon : a === b
+);
+
 /**
  * Returns true if the two states are equal, or false if not.
  * @param {object} prevState Previous viewer state.
  * @param {object} nextState Next viewer state.
- * @returns
+ * @returns {Boolean} True if any key has changed
  */
 
 export function compareViewerState(prevState, nextState) {
-  let allKeysEqualCheck = true;
-  if (isValidState(nextState)) {
-    // Subset the viewerState objects to only the keys
-    // that we want to use for comparison.
-    Object.keys(EPSILON_KEYS_MAPPING).forEach((key) => {
-      const epsilon = EPSILON_KEYS_MAPPING[key];
-      const prevVal = prevState[key];
-      const nextVal = nextState[key];
-      const isKeyEqual = valueGreaterThanEpsilon(prevVal, nextVal, epsilon);
-      if (!isKeyEqual) {
-        allKeysEqualCheck = false;
-      }
-    });
-  }
-  return allKeysEqualCheck;
+  if (!isValidState?.(nextState)) return false;
+  /* eslint-disable consistent-return */
+  Object.keys(EPSILON_KEYS_MAPPING_NG).forEach((key) => {
+    const epsilon = EPSILON_KEYS_MAPPING_NG[key];
+    const prevVal = prevState?.[key];
+    const nextVal = nextState?.[key];
+    if (valueGreaterThanEpsilon(prevVal, nextVal, epsilon)) {
+      return true;
+    }
+  });
+  return false;
 }
 
 // export function compareViewerState(prevState, nextState) {
-//   if (!isValidState?.(nextState)) return false;
-//     for (const key of Object.keys(EPSILON_KEYS_MAPPING)) {
-//       const epsilon = EPSILON_KEYS_MAPPING[key];
-//       const prevVal = prevState?.[key];
-//       const nextVal = nextState?.[key];
-//       if (valueGreaterThanEpsilon(prevVal, nextVal, epsilon)) {
-//         return true;
+//   let allKeysEqualCheck = true;
+//   if (isValidState(nextState)) {
+//     // Subset the viewerState objects to only the keys
+//     // that we want to use for comparison.
+//     Object.keys(EPSILON_KEYS_MAPPING_NG).forEach((key) => {
+//       const epsilon = EPSILON_KEYS_MAPPING_NG[key];
+//       const prevVal = prevState[key];
+//       const nextVal = nextState[key];
+//       const isKeyEqual = valueGreaterThanEpsilon(prevVal, nextVal, epsilon);
+//       if (!isKeyEqual) {
+//         allKeysEqualCheck = false;
 //       }
+//     });
 //   }
-//   return false;
-//   }
+//   return allKeysEqualCheck;
+// }
 
 export function quaternionToEuler([x, y, z, w]) {
   const quaternion = new Quaternion(x, y, z, w);

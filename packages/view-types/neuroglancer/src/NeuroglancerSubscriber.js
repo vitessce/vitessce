@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
-// import { startTransition } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -15,21 +14,18 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
-// import { isEqual } from 'lodash-es';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
-  compareViewerState,
+  nearEq,
   makeVitNgZoomCalibrator,
   conjQuat,
   multiplyQuat,
-  // quatdotAbs,
   rad2deg,
   deg2rad,
-
 } from './utils.js';
 
 const VITESSCE_INTERACTION_DELAY = 50;
@@ -42,7 +38,6 @@ const NG_ROT_COOLDOWN_MS = 120;
 // To rotate the y-axis up in NG
 const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
-// const fmt = (v) => Array.isArray(v) ? v.map(n => Number(n).toFixed(6)) : v;
 export function NeuroglancerSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
@@ -158,7 +153,6 @@ export function NeuroglancerSubscriber(props) {
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
    */
   const handleStateUpdate = useCallback((newState) => {
-    // console.log('handleStateUpdate');
     lastInteractionSource.current = 'neuroglancer';
     const { projectionScale, projectionOrientation, position } = newState;
 
@@ -273,7 +267,6 @@ export function NeuroglancerSubscriber(props) {
   }, []);
 
   const onSegmentClick = useCallback((value) => {
-    // TODO multiple segments are added sometime to the selection - each click replaces the other
     if (value) {
       const id = String(value);
       const selectedCellIds = [id];
@@ -326,22 +319,17 @@ export function NeuroglancerSubscriber(props) {
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
     const { projectionScale, projectionOrientation, position } = current;
-    // TODO: custome EPS for each interaction?
-    // const nearEq = (a, b, eps = ROTATION_EPS) => !valueGreaterThanEpsilon(a, b, eps);
-    const nearEq = (a, b, eps = ROTATION_EPS) => (
-      Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) <= eps : a === b
-    );
 
     // Did Vitessce coords change vs the *previous* render?
-    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx)
-        || !nearEq(spatialRotationY, prevCoordsRef.current.ry)
-        || !nearEq(spatialRotationZ, prevCoordsRef.current.rz)
-        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit);
+    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx, ROTATION_EPS)
+        || !nearEq(spatialRotationY, prevCoordsRef.current.ry, ROTATION_EPS)
+        || !nearEq(spatialRotationZ, prevCoordsRef.current.rz, ROTATION_EPS)
+        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit, ROTATION_EPS);
 
-    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom);
+    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom, ROTATION_EPS);
 
-    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx)
-      || !nearEq(spatialTargetY, prevCoordsRef.current.ty);
+    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx, ROTATION_EPS)
+      || !nearEq(spatialTargetY, prevCoordsRef.current.ty, ROTATION_EPS);
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
@@ -385,12 +373,12 @@ export function NeuroglancerSubscriber(props) {
     // const dotVitLoop = quatdotAbs(qVitBack, vitessceRotationRaw);
 
     // // Expect ~1 (± sign OK)
+    // const fmt = (v) => Array.isArray(v) ? v.map(n => Number(n).toFixed(6)) : v;
     // console.log('[CHK Vit→NG→Vit] |dot| =', dotVitLoop.toFixed(6),
     //             ' qVitRaw=', fmt(vitessceRotationRaw),
     //             ' qVitBack=', fmt(qVitBack));
 
-
-    // // (D) Cross-view check: does the NG orientation we're about to send match our Vit -> NG?
+    // // Cross-view check: does the NG orientation we're about to send match our Vit -> NG?
     // const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
     // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 

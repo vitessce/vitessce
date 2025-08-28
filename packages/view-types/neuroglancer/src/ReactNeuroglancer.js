@@ -405,18 +405,6 @@ export default class Neuroglancer extends React.Component {
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
   };
 
-  // probeOneColor = (ids) => {
-  //   const probeId = ids?.[0];
-  //   if (!probeId || !this.viewer) return;
-  //   for (const managed of this.viewer.layerManager.managedLayers) {
-  //     const { layer } = managed;
-  //     if (layer instanceof SegmentationUserLayer) {
-  //       const c = getObjectColor(layer?.displayState, Uint64.parseString(probeId));
-  //       console.log('probe getObjectColor', probeId, Array.from(c || []));
-  //     }
-  //   }
-  // };
-
   /* To add colors to the segments, turning unselected to grey  */
   applyColorsAndVisibility = (cellColorMapping) => {
     if (!this.viewer) return;
@@ -449,14 +437,13 @@ export default class Neuroglancer extends React.Component {
     this.withoutEmitting(() => {
       this.viewer.state.restoreState({ layers: newLayers });
     });
-    // Ensure NG isn't randomizing over our segmentColors 
+    // Ensure NG isn't randomizing over our segmentColors
     for (const managed of this.viewer.layerManager.managedLayers) {
       const { layer } = managed;
       if (!(layer instanceof SegmentationUserLayer)) continue;
       const ds = layer.displayState;
       /* eslint-disable no-unused-expressions,  no-empty */
-      try { ds.randomizeColors && (ds.randomizeColors.value = false); } catch {}
-      try { ds.objectAlpha && (ds.objectAlpha.value = 1); } catch {}
+      // try { ds.objectAlpha && (ds.objectAlpha.value = 1); } catch {}
     }
   };
 
@@ -602,7 +589,7 @@ export default class Neuroglancer extends React.Component {
 
     const prevVS = prevProps.viewerState;
     const poseChangedOnly = prevVS
-      && !compareViewerState(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
+      && compareViewerState(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
 
     // Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
     if (poseChangedOnly) {
