@@ -1991,6 +1991,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
       react:
         specifier: 'catalog:'
         version: 18.3.1
