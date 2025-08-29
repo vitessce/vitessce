@@ -11,7 +11,7 @@ import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/uti
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { compareViewerState } from './utils.js';
+import { diffCameraState } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
@@ -588,26 +588,21 @@ export default class Neuroglancer extends React.Component {
     if (!viewerState) return;
 
     const prevVS = prevProps.viewerState;
-    const poseChangedOnly = prevVS
-      && compareViewerState(prevVS, viewerState) && !this.didLayersChange(prevVS, viewerState);
+    const camState = diffCameraState(prevVS, viewerState);
+    // Restore pose ONLY if it actually changed
+    if (camState.changed) {
+      const patch = {};
+      if (camState.scale) {
+        patch.projectionScale = viewerState.projectionScale;
+        // Couple position with zoom even if it didn’t cross the hard epsilon
+        if (Array.isArray(viewerState.position)) patch.position = viewerState.position;
+      } else if (camState.pos) {
+        patch.position = viewerState.position;
+      }
+      if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
 
-    // Restore pose ONLY if it actually changed (and mute outgoing signals)  // NEW
-    if (poseChangedOnly) {
-      this.withoutEmitting(() => {
-        const patch = {
-          ...(Number.isFinite(viewerState.projectionScale) && {
-            projectionScale: viewerState.projectionScale,
-          }),
-          ...(Array.isArray(viewerState.projectionOrientation) && {
-            projectionOrientation: viewerState.projectionOrientation,
-          }),
-          ...(Array.isArray(viewerState.position) && {
-            position: viewerState.position,
-          }),
-        };
-        // Restore the state with updated camera setting/position changes
-        this.viewer.state.restoreState(patch);
-      });
+      // Restore the state with updated camera setting/position changes
+      this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
     // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
     if (this.didLayersChange(prevVS, viewerState)) {
@@ -910,5 +905,4 @@ Neuroglancer.defaultProps = {
   key: null,
   callbacks: [],
   ngServer: 'https://neuroglancer-demo.appspot.com/',
-  onViewerStateChanged: null,
 };

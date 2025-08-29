@@ -10,8 +10,11 @@ import {
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 100,
   projectionOrientation: 2e-2,
-  position: 5e0,
+  position: 1,
 };
+
+// allow smaller pos deltas to pass when zoom changed
+const SOFT_POS_FACTOR = 0.15;
 
 // ---- Y-up correction: 180° around X so X stays right, Y flips up (Z flips sign, which is OK) ----
 export const multiplyQuat = (a, b) => {
@@ -83,38 +86,38 @@ export const nearEq = (a, b, epsilon) => (
  * @returns {Boolean} True if any key has changed
  */
 
-export function compareViewerState(prevState, nextState) {
-  if (!isValidState?.(nextState)) return false;
-  /* eslint-disable consistent-return */
-  Object.keys(EPSILON_KEYS_MAPPING_NG).forEach((key) => {
-    const epsilon = EPSILON_KEYS_MAPPING_NG[key];
-    const prevVal = prevState?.[key];
-    const nextVal = nextState?.[key];
-    if (valueGreaterThanEpsilon(prevVal, nextVal, epsilon)) {
-      return true;
-    }
-  });
-  return false;
+export function didCameraStateChange(prevState, nextState) {
+  if (!isValidState(nextState)) return false;
+  return Object.entries(EPSILON_KEYS_MAPPING_NG)
+    .some(([key, eps]) => valueGreaterThanEpsilon(
+      prevState?.[key],
+      nextState?.[key],
+      eps,
+    ));
 }
 
-// export function compareViewerState(prevState, nextState) {
-//   let allKeysEqualCheck = true;
-//   if (isValidState(nextState)) {
-//     // Subset the viewerState objects to only the keys
-//     // that we want to use for comparison.
-//     Object.keys(EPSILON_KEYS_MAPPING_NG).forEach((key) => {
-//       const epsilon = EPSILON_KEYS_MAPPING_NG[key];
-//       const prevVal = prevState[key];
-//       const nextVal = nextState[key];
-//       const isKeyEqual = valueGreaterThanEpsilon(prevVal, nextVal, epsilon);
-//       if (!isKeyEqual) {
-//         allKeysEqualCheck = false;
-//       }
-//     });
-//   }
-//   return allKeysEqualCheck;
-// }
+// To see if any and which cameraState has changed
+// adjust for coupled zoom+position changes
+export function diffCameraState(prev, next) {
+  if (!isValidState(next)) return { changed: false, scale: false, pos: false, rot: false };
 
+  const eps = EPSILON_KEYS_MAPPING_NG;
+  const scale = valueGreaterThanEpsilon(prev?.projectionScale,
+    next?.projectionScale, eps.projectionScale);
+  const posHard = valueGreaterThanEpsilon(prev?.position, next?.position, eps.position);
+  const rot = valueGreaterThanEpsilon(prev?.projectionOrientation,
+    next?.projectionOrientation, eps.projectionOrientation);
+
+  // If zoom changed, allow a softer position threshold so zoom+pos travel together.
+  const posSoft = !posHard && scale
+  && valueGreaterThanEpsilon(prev?.position, next?.position, SOFT_POS_FACTOR);
+  const pos = posHard || posSoft;
+
+  return { changed: scale || pos || rot, scale, pos, rot };
+}
+
+
+//  Convert WebGL's Quaternion rotation to DeckGL's Euler
 export function quaternionToEuler([x, y, z, w]) {
   const quaternion = new Quaternion(x, y, z, w);
   // deck.gl uses Y (yaw), X (pitch), Z (roll)
@@ -128,6 +131,7 @@ export function quaternionToEuler([x, y, z, w]) {
 }
 
 
+//  Convert DeckGL's rotation in Euler to WebGL's Quaternion
 export function eulerToQuaternion(pitch, yaw, roll = 0) {
   const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
   const quaternion = new Quaternion().setFromEuler(euler);
