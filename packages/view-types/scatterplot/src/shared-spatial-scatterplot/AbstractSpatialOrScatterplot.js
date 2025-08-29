@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
-// import {debounce} from 'lodash-es'
 
 const ROTATION_THRESHOLD = 1;
 const ZOOM_THRESHOLD = 0.01;
@@ -43,7 +42,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
-    // console.log("DeckGL", viewState.target)
     const use3d = this.use3d();
     let targetChanged = false;
     if (nextViewState.target && viewState.target) {
@@ -68,7 +66,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
     });
   }
-
 
   /**
    * Called by DeckGL upon viewport
