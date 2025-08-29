@@ -1,9 +1,13 @@
+/*
 import { LoaderResult } from '@vitessce/abstract';
 import { log } from '@vitessce/globals';
+*/
 import RasterLoader from './RasterJsonLoader.js';
 
 export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
   async load() {
+    throw new Error('No longer used.');
+    /*
     const loaderResult = await super.load();
     const { data = {}, url: urls, coordinationValues } = loaderResult;
     const { loaders: allLoaders = [], meta: allMeta = [] } = data;
@@ -40,5 +44,6 @@ export default class RasterJsonAsObsSegmentationsLoader extends RasterLoader {
           })),
       },
     );
+    */
   }
 }

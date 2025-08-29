@@ -28,7 +28,6 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const {
@@ -109,7 +108,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
       const coordinationValues = {
         // Old
-        spatialImageLayer: autoImageLayers,
+        // spatialImageLayer: autoImageLayers,
         // New
         spatialTargetZ: imageWrapper.getDefaultTargetZ(),
         spatialTargetT: imageWrapper.getDefaultTargetT(),
