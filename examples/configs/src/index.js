@@ -74,6 +74,7 @@ import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
+import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
@@ -190,6 +191,7 @@ export const configs = {
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
   'melanoma-neuroglancer': melanomaNeuroglancer,
+  'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,
