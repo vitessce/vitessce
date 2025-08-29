@@ -17,7 +17,6 @@ export const useStyles = makeStyles()(() => ({
 // directly to the `document` by neuroglancer,
 // so we cannot scope them as children of the
 // .neuroglancer-container class.
-// .neuroglancer-display-dimensions-widget,
 const globalNeuroglancerCss = `
 
 .neuroglancer-position-widget, 
@@ -1429,6 +1428,7 @@ const globalNeuroglancerStyles = {
     borderColor: '#000',
     borderWidth: '2px',
   },
+  // Hides the white border around NG view that shows the view is focused
   // '.neuroglancer-panel:focus-within': { borderColor: '#fff' },
   '.neuroglancer-layer-group-viewer': { outline: '0px' },
   '.neuroglancer-layer-group-viewer-context-menu': {

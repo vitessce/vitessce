@@ -1967,9 +1967,6 @@ importers:
       '@janelia-flyem/neuroglancer':
         specifier: 2.37.5
         version: 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
-      '@janelia-flyem/react-neuroglancer':
-        specifier: 2.5.0
-        version: 2.5.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -4935,13 +4932,6 @@ packages:
   '@janelia-flyem/neuroglancer@2.37.5':
     resolution: {integrity: sha512-pLLhJBcoXXpQMmpRfyl1QFTHdS6jGDqiMuaW0SQiF8s1daVMa8R5qzOZnMw9afHeqFjp+sLRYUYTnxmqCgTNoA==}
     engines: {node: '>=12'}
-
-  '@janelia-flyem/react-neuroglancer@2.5.0':
-    resolution: {integrity: sha512-1LUA43fz6NNH55llttFKM4v0MzeaebfnSo+rz10Y6/vg2J/xQJu3I/GTznQxRNGB9kjEgt3h+Or+GlccNDaMLQ==}
-    peerDependencies:
-      prop-types: ^15.6.2
-      react: ^16.5.2
-      react-dom: ^16.5.2
 
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
@@ -19560,16 +19550,6 @@ snapshots:
       pako: 2.0.4
       svg-inline-loader: 0.8.2
       typescript: 4.9.5
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@janelia-flyem/react-neuroglancer@2.5.0(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@janelia-flyem/neuroglancer': 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate

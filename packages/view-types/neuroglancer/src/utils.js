@@ -65,7 +65,6 @@ function isValidState(viewerState) {
  */
 
 export function valueGreaterThanEpsilon(a, b, epsilon) {
-  // console.log(a, b, epsilon, (Array.isArray(a) && Array.isArray(b) && a.length === b.length))
   if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
     return a.some((val, i) => Math.abs(val - b[i]) > epsilon);
   }

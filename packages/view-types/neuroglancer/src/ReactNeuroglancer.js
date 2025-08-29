@@ -850,8 +850,6 @@ Neuroglancer.propTypes = {
   brainMapsClientId: PropTypes.string,
   key: PropTypes.string,
   cellColorMapping: PropTypes.object,
-  onViewerStateChanged: PropTypes.func,
-
   /**
    * An array of event bindings to change in Neuroglancer.  The array format is as follows:
    * [[old-event1, new-event1], [old-event2], old-event3]
