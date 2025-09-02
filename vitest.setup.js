@@ -6,21 +6,20 @@ import { randomFillSync } from 'crypto';
 import intersection from 'set.prototype.intersection';
 
 import 'vitest-canvas-mock';
-import '@testing-library/jest-dom/vitest';
 import 'jsdom-worker';
+import '@testing-library/jest-dom/vitest';
 
 
 beforeAll(() => {
-  // jsdom doesn't come with a WebCrypto implementation (required for uuid)
-  global.crypto = {
-    getRandomValues(buffer) {
-      return randomFillSync(buffer);
-    },
-  };
+    // jsdom doesn't come with a WebCrypto implementation (required for uuid)
+    global.crypto = {
+        getRandomValues: function (buffer) {
+            return randomFillSync(buffer);
+        }
+    };
+    // jsdom doesn't come with a `URL.createObjectURL` implementation
+    global.URL.createObjectURL = () => { return ''; };
 
-  // jsdom doesn't come with a URL.createObjectURL implementation
-  global.URL.createObjectURL = () => '';
-
-  // Set.prototype.intersection is only available as of Node 22+.
-  intersection.shim();
+    // Set.prototype.intersection is only available as of NodeJS 22 and later.
+    intersection.shim();
 });

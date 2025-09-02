@@ -628,7 +628,7 @@ export default class Neuroglancer extends React.Component {
     }
 
 
-    // NEW: treat "real" layer source/type changes differently from segment list changes.
+    // Treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
@@ -772,7 +772,6 @@ export default class Neuroglancer extends React.Component {
 
             if (visibleSegments && onVisibleChanged) {
               const visibleChanged = this.visibleChanged.bind(undefined, layer);
-              // console.log('visibleCHanged', visibleChanged)
               const remover = visibleSegments.changed.add(visibleChanged);
               this.handlerRemovers.push(remover);
               layer.registerDisposer(remover);

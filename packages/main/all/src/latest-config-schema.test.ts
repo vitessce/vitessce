@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 
 class WebGLRenderingContextShim {}
@@ -24,7 +24,6 @@ vi.mock('@janelia-flyem/neuroglancer', () => ({
 /* eslint-disable import/first */
 import { CoordinationType } from '@vitessce/constants-internal';
 
-// --- rest of your existing tests unchanged ---
 describe('view config schema', () => {
   describe('coordination types', () => {
     it('defines schema for all valid coordination types', async () => {

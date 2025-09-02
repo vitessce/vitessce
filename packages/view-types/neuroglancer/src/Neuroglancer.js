@@ -14,7 +14,6 @@ export class NeuroglancerComp extends PureComponent {
     this.cellColorMapping = props.cellColorMapping;
     this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
-    this.isFirstRender = false;
     this.prevElement = null;
     this.prevClickHandler = null;
     this.prevMouseStateChanged = null;
@@ -40,7 +39,6 @@ export class NeuroglancerComp extends PureComponent {
       this.prevClickHandler = (event) => {
         if (event.button === 0) {
           // Wait for mouseState to update
-          // setTimeout(() => {
           requestAnimationFrame(() => {
             const { pickedValue, pickedRenderLayer } = viewer.mouseState;
             // Only trigger selection when a segment is clicked rather than any click on the view
