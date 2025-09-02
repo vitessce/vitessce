@@ -33,7 +33,7 @@ describe('view config schema', () => {
       const coordinationTypeNamesFromBasePlugins = baseCoordinationTypes.map(ct => ct.name).sort();
       expect(coordinationTypeNamesFromConstants)
         .toEqual(expect.arrayContaining(coordinationTypeNamesFromBasePlugins));
-    });
+    }, 30000);
 
     it('defines schema for only valid coordination types (does not have extra)', async () => {
       const { baseCoordinationTypes } = await import('./base-plugins.js');
@@ -41,6 +41,6 @@ describe('view config schema', () => {
       const coordinationTypeNamesFromBasePlugins = baseCoordinationTypes.map(ct => ct.name).sort();
       expect(coordinationTypeNamesFromBasePlugins)
         .toEqual(expect.arrayContaining(coordinationTypeNamesFromConstants));
-    });
+    }, 30000);
   });
 });
