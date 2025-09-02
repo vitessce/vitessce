@@ -152,18 +152,18 @@ export default function Legend(props) {
       } else {
         // Viewport fallback
         setAvailHeight(Math.max(0, Math.floor(window.innerHeight - elRect.top - 4)));
-        }
       }
-      const ro = new ResizeObserver(update);
-      ro.observe(el);
-      if (parent) ro.observe(parent);
-          window.addEventListener('resize', update);
-          requestAnimationFrame(update);
-          return () => {
-            ro.disconnect();
-            window.removeEventListener('resize', update);
-          };
-    }, []);
+    };
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    if (parent) ro.observe(parent);
+    window.addEventListener('resize', update);
+    requestAnimationFrame(update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
 
   const { classes } = useStyles();
 
@@ -476,10 +476,10 @@ export default function Legend(props) {
         [classes.legendInvisible]: !visible,
       })}
       style={{
-       ...(needsScroll
-       ? { maxHeight: `${Math.floor(availHeight)}px`, overflowY: 'auto' }
-       : { maxHeight: undefined, overflowY: 'visible' }),
-       }}
+        ...(needsScroll
+          ? { maxHeight: `${Math.floor(availHeight)}px`, overflowY: 'auto' }
+          : { maxHeight: undefined, overflowY: 'visible' }),
+      }}
     >
       <svg
         ref={svgRef}
