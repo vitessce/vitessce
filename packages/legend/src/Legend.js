@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, useLayoutEffect, useState } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@vitessce/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
@@ -125,6 +125,7 @@ export default function Legend(props) {
     missing,
     width = 100,
     height = 36,
+    maxHeight = null,
     theme,
     showObsLabel = false,
     pointsVisible = true,
@@ -136,34 +137,6 @@ export default function Legend(props) {
 
   const svgRef = useRef();
   const wrapperRef = useRef();
-  const [availHeight, setAvailHeight] = useState(Infinity);
-
-  useLayoutEffect(() => {
-    const el = wrapperRef.current;
-    const parent = el.parentElement?.parentElement || el.parentElement;
-    const update = () => {
-      const elRect = el.getBoundingClientRect();
-
-      if (parent) {
-        const pRect = parent.getBoundingClientRect();
-        // Remaining pixels from legend's top to the component's bottom
-        const remaining = pRect.bottom - elRect.top - 4;
-        setAvailHeight(Math.max(0, Math.floor(remaining)));
-      } else {
-        // Viewport fallback
-        setAvailHeight(Math.max(0, Math.floor(window.innerHeight - elRect.top - 4)));
-      }
-    };
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    if (parent) ro.observe(parent);
-    window.addEventListener('resize', update);
-    requestAnimationFrame(update);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, []);
 
   const { classes } = useStyles();
 
@@ -207,6 +180,12 @@ export default function Legend(props) {
   const dynamicHeight = isSetColor && obsSetSelection
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
+
+  // Note: availHeight does not account for multiple stacked legends.
+  // The needsScroll determination is made based on only
+  // the height of this legend and the height of the parent view.
+  const availHeight = maxHeight !== null ? Math.max(0, maxHeight - 4) : Infinity;
+  const needsScroll = Number.isFinite(availHeight) && (dynamicHeight > availHeight + 1);
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -462,8 +441,6 @@ export default function Legend(props) {
     contourPercentiles, contourThresholds, contoursFilled, contoursVisible,
     pointsVisible, featureAggregationStrategy,
   ]);
-
-  const needsScroll = Number.isFinite(availHeight) && (dynamicHeight > availHeight + 1);
 
   return (
     <div
