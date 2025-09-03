@@ -136,8 +136,6 @@ export default function Legend(props) {
   } = props;
 
   const svgRef = useRef();
-  const wrapperRef = useRef();
-
   const { classes } = useStyles();
 
   const isDarkTheme = theme === 'dark';
@@ -444,7 +442,6 @@ export default function Legend(props) {
 
   return (
     <div
-      ref={wrapperRef}
       className={clsx(classes.legend, {
         [classes.legendRelative]: positionRelative,
         [classes.legendAbsolute]: !positionRelative,
