@@ -984,6 +984,7 @@ export function SpatialSubscriber(props) {
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
+        maxHeight={height}
 
         // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}

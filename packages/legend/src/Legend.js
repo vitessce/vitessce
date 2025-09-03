@@ -125,6 +125,7 @@ export default function Legend(props) {
     missing,
     width = 100,
     height = 36,
+    maxHeight = null,
     theme,
     showObsLabel = false,
     pointsVisible = true,
@@ -177,6 +178,12 @@ export default function Legend(props) {
   const dynamicHeight = isSetColor && obsSetSelection
     ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
+
+  // Note: availHeight does not account for multiple stacked legends.
+  // The needsScroll determination is made based on only
+  // the height of this legend and the height of the parent view.
+  const availHeight = maxHeight !== null ? Math.max(0, maxHeight - 4) : Infinity;
+  const needsScroll = Number.isFinite(availHeight) && (dynamicHeight > availHeight + 1);
 
   useEffect(() => {
     const domElement = svgRef.current;
@@ -442,6 +449,11 @@ export default function Legend(props) {
         [classes.legendLowContrast]: !highContrast,
         [classes.legendInvisible]: !visible,
       })}
+      style={{
+        ...(needsScroll
+          ? { maxHeight: `${Math.floor(availHeight)}px`, overflowY: 'auto' }
+          : { maxHeight: undefined, overflowY: 'visible' }),
+      }}
     >
       <svg
         ref={svgRef}
