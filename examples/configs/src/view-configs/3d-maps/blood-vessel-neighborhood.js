@@ -7,7 +7,8 @@ import {
 function generateBloodVesselNeighborhood() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Blood Vessel Neighborhood',
+    name: 'Yapp et al., 2025 - 1',
+    description: 'Large scale 3D CyCIF of thick tissue sections preserves intact cells, enabling accurate analysis of cell states, interactions, and spatially restricted signaling that thin sections miss.',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',

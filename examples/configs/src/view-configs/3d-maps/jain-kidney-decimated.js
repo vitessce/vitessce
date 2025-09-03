@@ -6,7 +6,8 @@ import {
 function generateJainKidneyDecimatedConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Jain Kidney Decimated 2024',
+    name: 'McLaughlin et al. 2025',
+    description: '3D mapping of human nephrons reveals glomerular communities connected by extensive nerve networks, coordinating kidney function and changing with development and disease.',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
