@@ -25,9 +25,9 @@ const configAttrs = {
   'spatialdata-visium_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'spatialdata-mcmicro_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
-  'jain-2024': ['imaging', 'spatial', '3D', 'ome-tiff', 'scalability', 'multi-modal'],
-  'sorger-2024-2': ['imaging', 'spatial', '3D', 'ome-tiff', 'scalability', 'multi-modal'],
-  'sorger-2024-4': ['imaging', 'spatial', '3D', 'ome-tiff', 'scalability', 'multi-modal'],
+  'jain-2024': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+  'sorger-2024-2': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+  'sorger-2024-4': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
 };
 
 function cleanAttr(attrVal) {

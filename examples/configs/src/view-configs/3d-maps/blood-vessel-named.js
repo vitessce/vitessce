@@ -8,6 +8,7 @@ function generateBloodVesselConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
     name: 'Yapp et al., 2025 - 2',
+    // name: 'Figure3a_blood_vessel',
     description: 'Detailed view of a blood vessel and cells in 3D CyCIF reveals intact cellular structures, interactions, and spatial organization within preserved tissue.',
   });
   const dataset = config.addDataset('My dataset').addFile({
