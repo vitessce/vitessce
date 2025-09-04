@@ -1,4 +1,13 @@
 
+## 3.6.19
+
+### Patch Changes
+
+- Added fix for overflowing legends outside the parent grid container. (`@vitessce/legend`) ([#2248](https://github.com/vitessce/vitessce/pull/2248))
+
+- Added examples from Vitessce Link site (`docs`) ([#2247](https://github.com/vitessce/vitessce/pull/2247))
+
+
 ## 3.6.18
 
 ### Patch Changes
