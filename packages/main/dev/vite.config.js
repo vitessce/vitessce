@@ -1,5 +1,5 @@
 // References:
-// - https://github.com/gosling-lang/gosling.js/blob/master/vite.config.js
+// - https://github.com/gosling-lang/gosling.js/blob/master/vite.config.mjs
 // - https://github.com/gosling-lang/gosling.js/blob/master/scripts/build-embed.js
 // - https://github.com/gosling-lang/gosling.js/blob/master/scripts/build-umd.js
 // - https://github.com/hms-dbmi/viv/blob/master/scripts/bundle.mjs

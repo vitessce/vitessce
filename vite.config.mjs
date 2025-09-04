@@ -41,7 +41,7 @@ export function svgLoaderForNeuroglancerIcons(options) {
 
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
- * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.js#L12
+ * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.mjs#L12
  */
 export function serveTestFixtures() {
   const serveOptions = {

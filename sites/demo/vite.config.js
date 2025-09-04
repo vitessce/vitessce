@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { serveTestFixtures, svgLoaderForNeuroglancerIcons } from '../../vite.config.js';
+import { serveTestFixtures, svgLoaderForNeuroglancerIcons } from '../../vite.config.mjs';
 //import basicSsl from '@vitejs/plugin-basic-ssl';
 
 
