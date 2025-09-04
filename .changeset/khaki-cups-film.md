@@ -1,0 +1,57 @@
+---
+"@vitessce/layer-controller-beta": minor
+"@vitessce/scatterplot-embedding": minor
+"@vitessce/scatterplot-gating": minor
+"@vitessce/statistical-plots": minor
+"@vitessce/biomarker-select": minor
+"@vitessce/genomic-profiles": minor
+"@vitessce/layer-controller": minor
+"@vitessce/obs-sets-manager": minor
+"@vitessce/link-controller": minor
+"@vitessce/spatial-three": minor
+"@vitessce/spatial-zarr": minor
+"@vitessce/feature-list": minor
+"@vitessce/neuroglancer": minor
+"@vitessce/spatial-beta": minor
+"@vitessce/description": minor
+"@vitessce/scatterplot": minor
+"@vitessce/neuroglancer-workers": minor
+"@vitessce/abstract": minor
+"@vitessce/ome-tiff": minor
+"@vitessce/spatial-utils": minor
+"@vitessce/constants-internal": minor
+"@vitessce/export-utils": minor
+"@vitessce/heatmap": minor
+"@vitessce/spatial": minor
+"@vitessce/image-utils": minor
+"@vitessce/utils": minor
+"@vitessce/status": minor
+"@vitessce/sets-utils": minor
+"@vitessce/zarr-utils": minor
+"@vitessce/json": minor
+"@vitessce/zarr": minor
+"@vitessce/csv": minor
+"@vitessce/glb": minor
+"@vitessce/json-schema": minor
+"@vitessce/constants": minor
+"vitessce": minor
+"@vitessce/all": minor
+"@vitessce/dev": minor
+"@vitessce/globals": minor
+"@vitessce/plugins": minor
+"@vitessce/schemas": minor
+"@vitessce/tooltip": minor
+"@vitessce/workers": minor
+"@vitessce/config": minor
+"@vitessce/legend": minor
+"@vitessce/styles": minor
+"@vitessce/error": minor
+"@vitessce/types": minor
+"@vitessce/vit-s": minor
+"@vitessce/vega": minor
+"@vitessce/gl": minor
+"demo": minor
+"docs": minor
+---
+
+Upgraded vite to version7

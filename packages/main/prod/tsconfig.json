@@ -9,6 +9,6 @@
   "exclude": [
     "dist",
     "scripts",
-    "vite.config.js"
+    "vite.config.mjs"
   ]
 }

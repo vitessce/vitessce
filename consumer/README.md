@@ -15,7 +15,7 @@ pnpm run start-html
 
 Related directories/files:
 - `src/`
-- `vite.config.js`
+- `vite.config.mjs`
 
 Open http://localhost:3003/consumer/dist/index.html
 

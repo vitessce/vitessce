@@ -43,7 +43,7 @@ export function generatePackageJson({ viewName, version, author, license, homepa
       "dist-tsc"
     ],
     "scripts": {
-      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
       "test": "pnpm exec vitest --run"
     },
     "dependencies": {
@@ -89,7 +89,7 @@ export function generateTsConfig() {
  * @returns {string} The vitest.config.ts content
  */
 export function generateVitestConfig() {
-  return `import configShared from '../../../vite.config.js';
+  return `import configShared from '../../../vite.config.mjs';
 
 export default configShared;
 `;
