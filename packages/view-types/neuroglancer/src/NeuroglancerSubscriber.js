@@ -35,6 +35,11 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 
+const LAST_INTERACTION_SOURCE = {
+  vitessce: 'vitessce',
+  neuroglancer: 'neuroglancer',
+};
+
 // To rotate the y-axis up in NG
 const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
@@ -153,7 +158,7 @@ export function NeuroglancerSubscriber(props) {
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
    */
   const handleStateUpdate = useCallback((newState) => {
-    lastInteractionSource.current = 'neuroglancer';
+    lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
 
     // Set the views on first mount
@@ -232,7 +237,7 @@ export function NeuroglancerSubscriber(props) {
           const yawDeg = rad2deg(yawRad);
 
           // Mark Vitessce as the source for the next derived pass
-          lastInteractionSource.current = 'vitessce';
+          lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
           setRotationX(pitchDeg);
           setRotationOrbit(yawDeg);
           ngRotPushAtRef.current = performance.now();
@@ -337,7 +342,7 @@ export function NeuroglancerSubscriber(props) {
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
         && initialRenderCalibratorRef.current
-        && lastInteractionSource.current !== 'neuroglancer'
+        && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && zoomChangedNow) {
       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
       if (Number.isFinite(s) && s > 0) {
@@ -350,7 +355,9 @@ export function NeuroglancerSubscriber(props) {
     const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
     const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
        && Number.isFinite(spatialTargetY);
-    if (hasVitessceSpatialTarget && lastInteractionSource.current !== 'neuroglancer' && transChangedNow) {
+    if (hasVitessceSpatialTarget
+        && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
+        && transChangedNow) {
       const nx = spatialTargetX + ox; // Vitessce → NG
       const ny = spatialTargetY + oy;
       if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
@@ -392,8 +399,9 @@ export function NeuroglancerSubscriber(props) {
     const changedNowOrIInitialVitPush = rotChangedNow
       || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
 
-    const src = ngFresh ? 'neuroglancer'
-      : (lastInteractionSource.current ?? (changedNowOrIInitialVitPush ? 'vitessce' : null));
+    const src = ngFresh ? LAST_INTERACTION_SOURCE.neuroglancer
+      : (lastInteractionSource.current
+      ?? (changedNowOrIInitialVitPush ? LAST_INTERACTION_SOURCE.vitessce : null));
 
 
     let nextOrientation = projectionOrientation; // start from NG's current quat
@@ -412,7 +420,7 @@ export function NeuroglancerSubscriber(props) {
     // );
 
 
-    if (src === 'vitessce') {
+    if (src === LAST_INTERACTION_SOURCE.vitessce) {
       // Only push if Vitessce rotation actually changed since last time.
       const rotDiffers = valueGreaterThanEpsilon(
         vitessceRotation,
@@ -443,10 +451,10 @@ export function NeuroglancerSubscriber(props) {
       //   // No real Vitessce rotation change → do not overwrite NG's quat.
       //   console.log('Vitessce → NG: no rotation change, keep NG quat');
       // }
-      if (lastInteractionSource.current === 'vitessce') {
+      if (lastInteractionSource.current === LAST_INTERACTION_SOURCE.vitessce) {
         lastInteractionSource.current = null;
       }
-    } else if (src === 'neuroglancer') {
+    } else if (src === LAST_INTERACTION_SOURCE.neuroglancer) {
       nextOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
       lastInteractionSource.current = null;
     }

@@ -7,41 +7,41 @@ import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/n
 import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color';
 import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
 import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64';
-// import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
+import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
 import { diffCameraState } from './utils.js';
-
-const viewersKeyed = {};
-let viewerNoKey;
 // TODO: Grey color used by Vitessce - maybe set globally
 const GREY_HEX = '#323232';
 
-// // Adopted from neuroglancer/ui/url_hash_binding.ts
-// export function parseUrlHash(url) {
-//   let state = null;
+const viewersKeyed = {};
+let viewerNoKey;
 
-//   let s = url.replace(/^[^#]+/, '');
-//   if (s === '' || s === '#' || s === '#!') {
-//     s = '#!{}';
-//   }
+// Adopted from neuroglancer/ui/url_hash_binding.ts
+export function parseUrlHash(url) {
+  let state = null;
 
-//   if (s.startsWith('#!+')) {
-//     s = s.slice(3);
-//     // Firefox always %-encodes the URL even if it is not typed that way.
-//     s = decodeURIComponent(s);
-//     state = urlSafeParse(s);
-//   } else if (s.startsWith('#!')) {
-//     s = s.slice(2);
-//     s = decodeURIComponent(s);
-//     state = urlSafeParse(s);
-//   } else {
-//     throw new Error(`URL hash is expected to be of the form '#!{...}' or '#!+{...}'.`);
-//   }
+  let s = url.replace(/^[^#]+/, '');
+  if (s === '' || s === '#' || s === '#!') {
+    s = '#!{}';
+  }
 
-//   return state;
-// }
+  if (s.startsWith('#!+')) {
+    s = s.slice(3);
+    // Firefox always %-encodes the URL even if it is not typed that way.
+    s = decodeURIComponent(s);
+    state = urlSafeParse(s);
+  } else if (s.startsWith('#!')) {
+    s = s.slice(2);
+    s = decodeURIComponent(s);
+    state = urlSafeParse(s);
+  } else {
+    throw new Error(`URL hash is expected to be of the form '#!{...}' or '#!+{...}'.`);
+  }
+
+  return state;
+}
 
 export function getNeuroglancerViewerState(key) {
   const v = key ? viewersKeyed[key] : viewerNoKey;
@@ -50,7 +50,7 @@ export function getNeuroglancerViewerState(key) {
 
 export function getNeuroglancerColor(idStr, key) {
   try {
-    const id = idStr;
+    const id = Uint64.parseString(idStr);
     const v = key ? viewersKeyed[key] : viewerNoKey;
     if (v) {
       // eslint-disable-next-line no-restricted-syntax
@@ -351,6 +351,7 @@ export default class Neuroglancer extends React.Component {
     super(props);
     this.ngContainer = React.createRef();
     this.viewer = null;
+    /* ** Vitessce Integration update start ** */
     this.muteViewerChanged = false;
     this.prevVisibleIds = new Set();
     this.prevColorMap = null;
@@ -437,14 +438,7 @@ export default class Neuroglancer extends React.Component {
     this.withoutEmitting(() => {
       this.viewer.state.restoreState({ layers: newLayers });
     });
-    // Ensure NG isn't randomizing over our segmentColors
-    for (const managed of this.viewer.layerManager.managedLayers) {
-      const { layer } = managed;
-      if (!(layer instanceof SegmentationUserLayer)) continue;
-      const ds = layer.displayState;
-      /* eslint-disable no-unused-expressions,  no-empty */
-      // try { ds.objectAlpha && (ds.objectAlpha.value = 1); } catch {}
-    }
+    /* ** Vitessce integration update end ** */
   };
 
   componentDidMount() {
@@ -452,10 +446,8 @@ export default class Neuroglancer extends React.Component {
       viewerState,
       brainMapsClientId,
       eventBindingsToUpdate,
-      onViewerStateChanged,
-      cellColorMapping,
       callbacks,
-      ngServer,
+      // ngServer,
       key,
       bundleRoot,
     } = this.props;
@@ -497,7 +489,7 @@ export default class Neuroglancer extends React.Component {
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
 
-
+    /* ** Vitessce Integration update start ** */
     const emit = this.scheduleEmit();
     // Disposers to unsubscribe handles for NG signals to prevent leaks/duplicates.
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
@@ -506,14 +498,49 @@ export default class Neuroglancer extends React.Component {
 
     // Initial restore ONLY if provided
     if (viewerState) {
-      /* restore state only when all the changes are added -
-        avoids calling .changed() for each change and leads to smooth updates
-      */
+      // restore state only when all the changes are added -
+      // avoids calling .changed() for each change and leads to smooth updates
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
-        // this.applyColorsAndVisibility(cellColorMapping))
       });
     }
+    /* ** Vitessce Integration update end ** */
+
+    // if (viewerState) {
+    //   const newViewerState = viewerState;
+    //   if (newViewerState.projectionScale === null) {
+    //     delete newViewerState.projectionScale;
+    //   }
+    //   if (newViewerState.crossSectionScale === null) {
+    //     delete newViewerState.crossSectionScale;
+    //   }
+    //   if (newViewerState.projectionOrientation === null) {
+    //     delete newViewerState.projectionOrientation;
+    //   }
+    //   if (newViewerState.crossSectionOrientation === null) {
+    //     delete newViewerState.crossSectionOrientation;
+    //   }
+    //   this.viewer.state.restoreState(newViewerState);
+    // } else {
+    //   this.viewer.state.restoreState({
+    //     layers: {
+    //       grayscale: {
+    //         type: "image",
+    //         source:
+    //           "dvid://https://flyem.dvid.io/ab6e610d4fe140aba0e030645a1d7229/grayscalejpeg"
+    //       },
+    //       segmentation: {
+    //         type: "segmentation",
+    //         source:
+    //           "dvid://https://flyem.dvid.io/d925633ed0974da78e2bb5cf38d01f4d/segmentation"
+    //       }
+    //     },
+    //     perspectiveZoom,
+    //     navigation: {
+    //       zoomFactor: 8
+    //     }
+    //   });
+    // }
     // Make the Neuroglancer viewer accessible from getNeuroglancerViewerState().
     // That function can be used to synchronize an external Redux store with any
     // state changes made internally by the viewer.
@@ -529,7 +556,6 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping } = this.props;
-    // console.log("componentDidUpdate React Comp")
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -540,12 +566,8 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
-        // TODO:
-        // segmentSelectionState.set(null);
       }
     }
-
-
     // if (viewerState) {
     //   let newViewerState = { ...viewerState };
     //   let restoreStates = [
@@ -585,8 +607,10 @@ export default class Neuroglancer extends React.Component {
     //   }
     // }
 
-    if (!viewerState) return;
 
+    /* ** Vitessce Integration update start ** */
+    if (!viewerState) return;
+    // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
     const prevVS = prevProps.viewerState;
     const camState = diffCameraState(prevVS, viewerState);
     // Restore pose ONLY if it actually changed
@@ -616,6 +640,7 @@ export default class Neuroglancer extends React.Component {
     }
 
     // If colors changed (but layers didn’t): re-apply colors
+    // this was to avid NG randomly assigning colors to the segments by resetting them
     const prevSize = prevProps.cellColorMapping
       ? Object.keys(prevProps.cellColorMapping).length : 0;
     const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
@@ -626,7 +651,6 @@ export default class Neuroglancer extends React.Component {
         this.applyColorsAndVisibility(cellColorMapping);
       });
     }
-
 
     // Treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
@@ -657,9 +681,13 @@ export default class Neuroglancer extends React.Component {
         this.viewer.state.restoreState({ layers: nextLayers });
       });
     }
+    /* ** Vitessce Integration update end ** */
   }
 
   componentWillUnmount() {
+    /* eslint-disable no-empty */
+    this.disposers.forEach((off) => { try { off(); } catch {} });
+    this.disposers = [];
     const { key } = this.props;
     if (key) {
       delete viewersKeyed[key];
@@ -782,6 +810,7 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  /* ** Vitessce Integration update start ** */
   // selectedChanged = (layer) => {
   //   if (this.viewer) {
   //     const { onSelectedChanged } = this.props;
@@ -791,7 +820,6 @@ export default class Neuroglancer extends React.Component {
   //         const segment = segmentSelectionState.hasSelectedSegment
   //           ? segmentSelectionState.selectedSegment
   //           : null;
-  //         console.log('inside one', segment, layer)
   //         onSelectedChanged(segment, layer);
 
   //       }
@@ -803,17 +831,18 @@ export default class Neuroglancer extends React.Component {
     if (!this.viewer) return;
     const { onSelectedChanged } = this.props;
     const { segmentSelectionState, segmentationGroupState } = layer.layer.displayState;
+    if (!segmentSelectionState) return;
+    const selected = segmentSelectionState.hasSelectedSegment
+      ? segmentSelectionState.selectedSegment
+      : null;
 
-    if (!segmentSelectionState || !segmentationGroupState) return;
-
-    const selected = segmentSelectionState.selectedSegment;
-    // const vs = segmentationGroupState.value.visibleSegments;
-
-    // if (selected) {
-    //   // Hide all other segments and show only the selected one
-    //   vs.clear(); // This clears all visible segments
-    //   vs.add(selected); // Add only the selected one back
-    // }
+    // Optional behavior: only touch visibility if you actually need it
+    // and if there *is* a selected segment.
+    if (segmentationGroupState && selected !== null) {
+      const vs = segmentationGroupState.value.visibleSegments;
+      vs.clear();
+      vs.add(selected);
+    }
 
     if (onSelectedChanged) {
       onSelectedChanged(selected, layer);
