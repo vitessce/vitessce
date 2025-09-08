@@ -99,12 +99,12 @@ The feature value histogram view displays the distribution of values (e.g., expr
 
 ### `Neuroglancer`
 
-The Neuroglancer view embeds [Neuroglancer](https://github.com/google/neuroglancer) tool developed by Google to display 3D meshes as segments. It's a high-performance, WebGL2-based viewer for huge multi-resolution volumes and segmentations.
+The Neuroglancer view embeds [Neuroglancer](https://github.com/google/neuroglancer) - a high-performance, WebGL2-based viewer developed by Google for huge multi-resolution volumes and segmentations.
 
 <ComponentImage filename="neuroglancer.png" alt="Screenshot of Neuroglancer view" />
 
-The view requires a minimal viewerState configuration with the following properties that can be added to the the Vitessce config using the `setProps({ viewerState: VIEWER_STATE})`.
-Here is a a complete list of attributes in the [viewerState](https://neuroglancer-docs.web.app/json/api/index.html).
+The view requires a minimal viewerState configuration with the following properties that can be added to the Vitessce config using the `setProps({ viewerState: VIEWER_STATE})` call.
+A complete schema of the `viewerState` can be found [here](https://neuroglancer-docs.web.app/json/api/index.html).
 
 ```
 const VIEWER_STATE = {
@@ -119,13 +119,13 @@ const VIEWER_STATE = {
   // Layers — include at least one that actually draws something.
   layers: [
     {
-      name: "image",
+      name: "image_name",
       type: "image",
       source: "precomputed://<IMAGE_SOURCE>", // e.g. a precomputed pyramid
     },
     // Segmentation (only shows if segments are specified here or dynamically via `obsSets`)
     {
-        name: "seg",
+        name: "seg_name",
         type: "segmentation",
         source: "precomputed://<SEG_SOURCE>",
         segments: ["1","2"], // optional; can be empty array
