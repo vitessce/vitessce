@@ -13,9 +13,9 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
     options: {
-      offsetsUrl: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
@@ -90,7 +90,7 @@ function generateNeuroglancerMinimalConfiguration() {
     layers: [
       {
         type: 'segmentation',
-        source: 'precomputed://https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_meshes',
+        source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
         segments: [],
         // segments: [
         //   '1',
