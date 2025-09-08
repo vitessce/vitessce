@@ -26,7 +26,11 @@ import {
   configSchema1_0_16,
   configSchema1_0_17,
   configSchema1_0_18,
+  configSchema1_0_19,
+  configSchema1_0_20,
 } from './previous-config-schemas.js';
+import { cellsLayerObj, imageLayerObj, moleculesLayerObj, neighborhoodsLayerObj } from './spatial-layers.js';
+import { rasterJsonSchema } from './raster-json.js';
 
 
 interface ViewProps {
@@ -841,5 +845,454 @@ export function upgradeFrom1_0_17(
     ...newConfig,
     datasets: newDatasets,
     version: '1.0.18',
+  };
+}
+
+// Added in version 1.0.19:
+// - Replace spatial and layerController components
+//   with spatialBeta and layerControllerBeta components.
+export function upgradeFrom1_0_18(
+  config: z.infer<typeof configSchema1_0_18>,
+): z.infer<typeof configSchema1_0_19> {
+  const newConfig = cloneDeep(config);
+
+  const { layout, coordinationSpace, datasets } = newConfig;
+
+  const newDatasets = datasets.map((datasetDef): z.infer<typeof configSchema1_0_18.shape.datasets.element> => {
+    const { files } = datasetDef;
+    return {
+      ...datasetDef,
+      files: files.map((fileDef): (z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element> | null | (z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>)[]) => {
+        const { fileType, url } = fileDef;
+        if(fileType === 'raster.json' || fileType === 'image.raster.json' || fileType === 'obsSegmentations.raster.json') {
+          if(url) {
+            throw new Error('Cannot upgrade a raster.json fileType with a url property. Please move content to fileDef.options.');
+          }
+          if(fileDef.options) {
+            const options: z.infer<typeof rasterJsonSchema> = fileDef.options;
+
+            const orderedImages = options.renderLayers
+              ? options.renderLayers.map(name => options.images.find(img => img.name === name))
+              : options.images;
+            return orderedImages.map((rasterJsonImageDef) => {
+              if(!rasterJsonImageDef) {
+                return null;
+              }
+              const dataType = rasterJsonImageDef.metadata?.isBitmask ? 'obsSegmentations' : 'image';
+              const fileType = rasterJsonImageDef.type === 'ome-tiff'
+                ? `${dataType}.ome-tiff`
+                : `${dataType}.ome-zarr`;
+              if(rasterJsonImageDef.type === 'zarr') {
+                throw new Error('Bioformats-Zarr image fileType is no longer supported. Please use OME-Zarr (via image.ome-zarr fileType) instead.');
+              }
+              return {
+                fileType,
+                url: rasterJsonImageDef.url,
+                options: {
+                  ...(rasterJsonImageDef?.metadata?.omeTiffOffsetsUrl ? { offsetsUrl: rasterJsonImageDef.metadata.omeTiffOffsetsUrl } : {}),
+                  // TODO: support metadata.transform? But we do not know how many dimensions.
+                },
+                coordinationValues: {
+                  fileUid: rasterJsonImageDef.name,
+                },
+              };
+            }) as z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>[];
+
+          }
+        }
+        return fileDef;
+      }).flat().filter(Boolean) as z.infer<typeof configSchema1_0_18.shape.datasets.element.shape.files.element>[],
+    };
+  });
+
+
+  const newCoordinationSpace = {
+    ...coordinationSpace
+  };
+
+  // Keep track of spatialPointLayer scopes that have already been upgraded.
+  // Reuse, for instance to support pairs of spatial and layerController views
+  // that share the same spatialPointLayer scope.
+  // This is a mapping from `spatialPointLayer` scope name to [metaCoordinationScope, metaCoordinationScopesBy] scope names tuple.
+  const hasAlreadyUpgradedPointLayerScopes: Record<string, [string, string]> = {};
+  const hasAlreadyUpgradedImageLayerScopes: Record<string, [string, string]> = {};
+  const hasAlreadyUpgradedSegmentationLayerScopes: Record<string, [string, string]> = {};
+
+  const newLayout = layout.map((view): z.infer<typeof configSchema1_0_18.shape.layout.element> => {
+    const { coordinationScopes, coordinationScopesBy, component } = view;
+
+    // TODO find pairs of spatial and layerController views.
+
+    if(component === 'spatial' || component === 'layerController') {
+      const newComponent = `${component}Beta`;
+
+      // Create a new coordinationScopes property that conforms to v1.0.16.
+      const newCoordinationScopes: z.infer<typeof componentCoordinationScopes> = {
+        ...coordinationScopes,
+      };
+
+      // Consider each coordination type supported by spatial/layerController legacy implementations.
+      // - OLD: spatialImageLayer
+      // - OLD: spatialSegmentationLayer
+      // - OLD: spatialPointLayer
+      // - OLD: spatialNeighborhoodLayer
+
+      if(coordinationScopes && coordinationScopes.spatialImageLayer && !Array.isArray(coordinationScopes.spatialImageLayer)) {
+        const scopeName = coordinationScopes.spatialImageLayer;
+        const scopeValue: z.infer<typeof imageLayerObj> = coordinationSpace?.spatialImageLayer?.[scopeName];
+        // Consider each spatialImageLayer value.
+
+        // TODO
+      }
+      if(coordinationScopes && coordinationScopes.spatialSegmentationLayer && !Array.isArray(coordinationScopes.spatialSegmentationLayer)) {
+        const scopeName = coordinationScopes.spatialSegmentationLayer;
+        const scopeValue = coordinationSpace?.spatialSegmentationLayer?.[scopeName];
+        // Consider each spatialSegmentationLayer value.
+        // The type is a z.union([imageLayerObj, cellsLayerObj])
+
+        let metaCoordinationScope: string;
+        let metaCoordinationScopesBy: string;
+
+        if(hasAlreadyUpgradedSegmentationLayerScopes[scopeName]) {
+          // If we have already upgraded this scope, reuse the existing metaCoordinationScope and metaCoordinationScopesBy.
+          [metaCoordinationScope, metaCoordinationScopesBy] = hasAlreadyUpgradedSegmentationLayerScopes[scopeName];
+        } else {
+          // This is the first time we have encountered this spatialSegmentationLayer scope.
+          metaCoordinationScope = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopes ?? {}));
+          metaCoordinationScopesBy = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopesBy ?? {}));
+
+          if(Array.isArray(scopeValue)) {
+            const bitmaskScopeValue: z.infer<typeof imageLayerObj> = scopeValue;
+            // TODO
+            
+          } else {
+            const polygonScopeValue: z.infer<typeof cellsLayerObj> = scopeValue;
+
+            // We need to create a pointLayer: ['someLayerScope'] scope,
+            // and define a pointLayer with an obsType of 'point' (or the obsType defined in the coordinationValues for the obsPoints fileType).
+            const segmentationLayerScope = getNextScope(Object.keys(newCoordinationSpace?.segmentationLayer ?? {}));
+            const segmentationChannelScope = getNextScope(Object.keys(newCoordinationSpace?.segmentationChannel ?? {}));
+
+            const obsTypeScope = getNextScope(Object.keys(newCoordinationSpace?.obsType ?? {}));
+            const layerVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerVisible ?? {}));
+            const channelVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelVisible ?? {}));
+            const layerOpacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerOpacity ?? {}));
+            const channelOpacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelOpacity ?? {}));
+            const filledScope = getNextScope(Object.keys(newCoordinationSpace?.spatialSegmentationFilled ?? {}));
+            const strokeWidthScope = getNextScope(Object.keys(newCoordinationSpace?.spatialSegmentationStrokeWidth ?? {}));
+
+            // Obtain the obsType from the coordinationValues of the obsPoints fileType,
+            // or default to 'point' if not defined.
+            let segmentationsObsType: string | null = null;
+            // First, need to get the dataset that corresponds to this view.
+            let datasetUid: string | undefined;
+            if (coordinationScopes?.dataset && typeof coordinationScopes?.dataset === 'string') {
+              datasetUid = newCoordinationSpace.dataset[coordinationScopes.dataset];
+            }
+            if (datasets.length > 0) {
+              datasetUid = datasets[0].uid;
+            }
+            const dataset = datasets.find(d => d.uid === datasetUid);
+            if(dataset) {
+              // This is a bit tricky since obsPoints can be within anndata.zarr.
+              const obsSegmentationsFileDef = dataset.files.find(file => {
+                // TODO: support additional obsSegmentations fileTypes?
+                if(['anndata.zarr', 'anndata.zarr.zip', 'spatialdata.zarr', 'spatialdata.zarr.zip'].includes(file.fileType) && file.options?.obsSegmentations) {
+                  return true;
+                }
+                if(['obsSegmentations.anndata.zarr', 'obsSegmentations.anndata.zarr.zip', 'obsSegmentations.spatialdata.zarr', 'obsSegmentations.spatialdata.zarr.zip', 'obsSegmentations.json'].includes(file.fileType)) {
+                  return true;
+                }
+                return false;
+              });
+              if(obsSegmentationsFileDef?.coordinationValues?.obsType) {
+                segmentationsObsType = obsSegmentationsFileDef.coordinationValues.obsType;
+              }
+            }
+
+            // Add the values to the coordinationSpace.
+            newCoordinationSpace.metaCoordinationScopes = {
+              ...(newCoordinationSpace.metaCoordinationScopes ?? {}),
+              [metaCoordinationScope]: {
+                segmentationLayer: [segmentationLayerScope],
+              },
+            };
+            newCoordinationSpace.metaCoordinationScopesBy = {
+              ...(newCoordinationSpace.metaCoordinationScopesBy ?? {}),
+              [metaCoordinationScopesBy]: {
+                segmentationLayer: {
+                  spatialLayerVisible: {
+                    [segmentationLayerScope]: layerVisibleScope,
+                  },
+                  spatialLayerOpacity: {
+                    [segmentationLayerScope]: layerOpacityScope,
+                  },
+                  segmentationChannel: {
+                    [segmentationLayerScope]: [segmentationChannelScope],
+                  }
+                },
+                segmentationChannel: {
+                  obsType: {
+                    [segmentationChannelScope]: obsTypeScope,
+                  },
+                  spatialChannelVisible: {
+                    [segmentationChannelScope]: channelVisibleScope,
+                  },
+                  spatialChannelOpacity: {
+                    [segmentationChannelScope]: channelOpacityScope,
+                  },
+                  spatialSegmentationFilled: {
+                    [segmentationChannelScope]: filledScope,
+                  },
+                  spatialSegmentationStrokeWidth: {
+                    [segmentationChannelScope]: strokeWidthScope,
+                  },
+                },
+              },
+            };
+            newCoordinationSpace.segmentationLayer = {
+              ...(newCoordinationSpace.segmentationLayer ?? {}),
+              [segmentationLayerScope]: '__dummy__',
+            };
+            newCoordinationSpace.segmentationChannel = {
+              ...(newCoordinationSpace.segmentationChannel ?? {}),
+              [segmentationChannelScope]: '__dummy__',
+            };
+            newCoordinationSpace.obsType = {
+              ...(newCoordinationSpace.obsType ?? {}),
+              [obsTypeScope]: segmentationsObsType ?? 'cell',
+            };
+            newCoordinationSpace.spatialLayerVisible = {
+              ...(newCoordinationSpace.spatialLayerVisible ?? {}),
+              [layerVisibleScope]: true,
+            };
+            newCoordinationSpace.spatialLayerOpacity = {
+              ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
+              [layerOpacityScope]: 1.0,
+            };
+            newCoordinationSpace.spatialChannelVisible = {
+              ...(newCoordinationSpace.spatialChannelVisible ?? {}),
+              [channelVisibleScope]: polygonScopeValue.visible,
+            };
+            newCoordinationSpace.spatialChannelOpacity = {
+              ...(newCoordinationSpace.spatialChannelOpacity ?? {}),
+              [channelOpacityScope]: polygonScopeValue.opacity,
+            };
+            newCoordinationSpace.spatialSegmentationFilled = {
+              ...(newCoordinationSpace.spatialSegmentationFilled ?? {}),
+              [filledScope]: !polygonScopeValue.stroked,
+            };
+            newCoordinationSpace.spatialSegmentationStrokeWidth = {
+              ...(newCoordinationSpace.spatialSegmentationStrokeWidth ?? {}),
+              [strokeWidthScope]: 1,
+            };
+
+          }
+          hasAlreadyUpgradedSegmentationLayerScopes[scopeName] = [metaCoordinationScope, metaCoordinationScopesBy];
+        }
+
+        // Update the meta-coordination scope mappings for the view.
+        newCoordinationScopes.metaCoordinationScopes = [
+          ...(newCoordinationScopes.metaCoordinationScopes ?? []),
+          metaCoordinationScope,
+        ];
+        newCoordinationScopes.metaCoordinationScopesBy = [
+          ...(newCoordinationScopes.metaCoordinationScopesBy ?? []),
+          metaCoordinationScopesBy,
+        ];
+        delete newCoordinationScopes['spatialSegmentationLayer'];
+      }
+      if (coordinationScopes && coordinationScopes.spatialPointLayer && !Array.isArray(coordinationScopes.spatialPointLayer)) {
+        const scopeName = coordinationScopes.spatialPointLayer;
+
+        let metaCoordinationScope: string;
+        let metaCoordinationScopesBy: string;
+
+        if(hasAlreadyUpgradedPointLayerScopes[scopeName]) {
+          // If we have already upgraded this scope, reuse the existing metaCoordinationScope and metaCoordinationScopesBy.
+          [metaCoordinationScope, metaCoordinationScopesBy] = hasAlreadyUpgradedPointLayerScopes[scopeName];
+        } else {
+          // This is the first time we have encountered this spatialPointLayer scope.
+          // Consider each spatialPointLayer value.
+          const scopeValue: z.infer<typeof moleculesLayerObj> = coordinationSpace?.spatialPointLayer?.[scopeName];
+
+          metaCoordinationScope = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopes ?? {}));
+          metaCoordinationScopesBy = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopesBy ?? {}));
+
+          // We need to create a pointLayer: ['someLayerScope'] scope,
+          // and define a pointLayer with an obsType of 'point' (or the obsType defined in the coordinationValues for the obsPoints fileType).
+          const pointLayerScope = getNextScope(Object.keys(newCoordinationSpace?.pointLayer ?? {}));
+          const obsTypeScope = getNextScope(Object.keys(newCoordinationSpace?.obsType ?? {}));
+          const visibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerVisible ?? {}));
+          const opacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerOpacity ?? {}));
+
+          // Obtain the obsType from the coordinationValues of the obsPoints fileType,
+          // or default to 'point' if not defined.
+          let pointsObsType: string | null = null;
+          // First, need to get the dataset that corresponds to this view.
+          let datasetUid: string | undefined;
+          if (coordinationScopes?.dataset && typeof coordinationScopes?.dataset === 'string') {
+            datasetUid = newCoordinationSpace.dataset[coordinationScopes.dataset];
+          }
+          if (datasets.length > 0) {
+            datasetUid = datasets[0].uid;
+          }
+          const dataset = datasets.find(d => d.uid === datasetUid);
+          if(dataset) {
+            // This is a bit tricky since obsPoints can be within anndata.zarr.
+            const obsPointsFileDef = dataset.files.find(file => {
+              if(['anndata.zarr', 'anndata.zarr.zip'].includes(file.fileType) && file.options && file.options.obsPoints) {
+                return true;
+              }
+              if(['obsPoints.anndata.zarr', 'obsPoints.anndata.zarr.zip', 'obsPoints.csv'].includes(file.fileType)) {
+                return true;
+              }
+              return false;
+            });
+            if(obsPointsFileDef?.coordinationValues?.obsType) {
+              pointsObsType = obsPointsFileDef.coordinationValues.obsType;
+            }
+          }
+
+          // Add the values to the coordinationSpace.
+          newCoordinationSpace.metaCoordinationScopes = {
+            ...(newCoordinationSpace.metaCoordinationScopes ?? {}),
+            [metaCoordinationScope]: {
+              pointLayer: pointLayerScope
+            },
+          };
+          newCoordinationSpace.metaCoordinationScopesBy = {
+            ...(newCoordinationSpace.metaCoordinationScopesBy ?? {}),
+            [metaCoordinationScopesBy]: {
+              pointLayer: {
+                obsType: {
+                  [pointLayerScope]: obsTypeScope,
+                },
+                spatialLayerVisible: {
+                  [pointLayerScope]: visibleScope,
+                },
+                spatialLayerOpacity: {
+                  [pointLayerScope]: opacityScope,
+                },
+              },
+            },
+          };
+          newCoordinationSpace.pointLayer = {
+            ...(newCoordinationSpace.pointLayer ?? {}),
+            [pointLayerScope]: '__dummy__',
+          };
+          newCoordinationSpace.obsType = {
+            ...(newCoordinationSpace.obsType ?? {}),
+            [obsTypeScope]: pointsObsType ?? 'point',
+          };
+          newCoordinationSpace.spatialLayerVisible = {
+            ...(newCoordinationSpace.spatialLayerVisible ?? {}),
+            [visibleScope]: scopeValue.visible,
+          };
+          newCoordinationSpace.spatialLayerOpacity = {
+            ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
+            [opacityScope]: scopeValue.opacity,
+          };
+
+          hasAlreadyUpgradedPointLayerScopes[scopeName] = [metaCoordinationScope, metaCoordinationScopesBy];
+        }
+
+        // Update the meta-coordination scope mappings for the view.
+        newCoordinationScopes.metaCoordinationScopes = [
+          ...(newCoordinationScopes.metaCoordinationScopes ?? []),
+          metaCoordinationScope,
+        ];
+        newCoordinationScopes.metaCoordinationScopesBy = [
+          ...(newCoordinationScopes.metaCoordinationScopesBy ?? []),
+          metaCoordinationScopesBy,
+        ];
+        delete newCoordinationScopes['spatialPointLayer'];
+      }
+      if(coordinationScopes && coordinationScopes.spatialNeighborhoodLayer && !Array.isArray(coordinationScopes.spatialNeighborhoodLayer)) {
+        throw new Error('spatialNeighborhoodLayer is no longer supported. Please open a GitHub issue if you need this feature.');
+      }
+
+      return {
+        ...view,
+        coordinationScopes: newCoordinationScopes,
+        component: newComponent,
+      };
+    }
+    return view;
+  });
+
+  // Verify that no invalid fileTypes, coordination types, or view types remain.
+  newDatasets.forEach((dataset) => {
+    dataset.files.forEach((fileDef) => {
+      const { fileType } = fileDef;
+      if ([
+        'raster.ome-zarr',
+        'raster.json',
+        'image.raster.json',
+        'obsSegmentations.raster.json',
+      ].includes(fileType)) {
+        throw new Error(`Invalid fileType ${fileType} found. Please use image.ome-zarr, image.ome-tiff, obsSegmentations.ome-zarr, or obsSegmentations.ome-tiff instead.`);
+      }
+    });
+  });
+
+  const oldCoordinationTypes = ['spatialPointLayer', 'spatialSegmentationLayer', 'spatialNeighborhoodLayer']; // ['spatialImageLayer'];
+  oldCoordinationTypes.forEach((coordinationType) => {
+    delete newCoordinationSpace[coordinationType];
+  });
+  
+  Object.keys(newCoordinationSpace).forEach((coordinationType) => {
+    if (oldCoordinationTypes.includes(coordinationType)) {
+      throw new Error(`Invalid coordination type ${coordinationType} found in coordinationSpace.`);
+    }
+  });
+
+  newLayout.forEach((viewDef) => {
+    const { component, coordinationScopes } = viewDef;
+    if (['spatial', 'layerController'].includes(component)) {
+      throw new Error(`Invalid view type ${component} found in layout.`);
+    }
+    Object.keys(coordinationScopes || {}).forEach((coordinationType) => {
+      if (oldCoordinationTypes.includes(coordinationType)) {
+        throw new Error(`Invalid coordination type ${coordinationType} found in coordinationScopes for a view in the layout.`);
+      }
+    });
+  });
+
+  return {
+    ...newConfig,
+    datasets: newDatasets,
+    layout: newLayout,
+    coordinationSpace: newCoordinationSpace,
+    version: '1.0.19',
+  };
+}
+
+// Added in version 1.0.20:
+// rename spatialBeta to spatial, and
+// rename layerControllerBeta to layerController.
+export function upgradeFrom1_0_19(
+  config: z.infer<typeof configSchema1_0_19>,
+): z.infer<typeof configSchema1_0_20> {
+  const newConfig = cloneDeep(config);
+
+  const { layout } = newConfig;
+
+  // Rename spatialBeta to spatial and
+  // rename layerControllerBeta to layerController.
+  const newLayout = layout.map((viewDef) => {
+    const newViewDef = { ...viewDef };
+    if (viewDef.component === 'spatialBeta') {
+      newViewDef.component = 'spatial';
+    } else if (viewDef.component === 'layerControllerBeta') {
+      newViewDef.component = 'layerController';
+    }
+    return newViewDef;
+  });
+
+  return {
+    ...newConfig,
+    layout: newLayout,
+    version: '1.0.20',
   };
 }

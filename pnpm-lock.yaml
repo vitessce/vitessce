@@ -1074,9 +1074,6 @@ importers:
       '@vitessce/json':
         specifier: workspace:*
         version: link:../../file-types/json
-      '@vitessce/layer-controller':
-        specifier: workspace:*
-        version: link:../../view-types/layer-controller
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
@@ -1104,9 +1101,6 @@ importers:
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
-      '@vitessce/spatial':
-        specifier: workspace:*
-        version: link:../../view-types/spatial
       '@vitessce/spatial-beta':
         specifier: workspace:*
         version: link:../../view-types/spatial-beta

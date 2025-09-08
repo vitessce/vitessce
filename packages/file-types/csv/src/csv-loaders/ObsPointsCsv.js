@@ -41,10 +41,10 @@ export default class ObsPointsCsvLoader extends CsvLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }
