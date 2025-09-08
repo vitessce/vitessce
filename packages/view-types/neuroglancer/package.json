@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@janelia-flyem/neuroglancer": "2.37.5",
-    "prop-types": "^15.8.1",
     "@vitessce/neuroglancer-workers": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
