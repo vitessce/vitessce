@@ -1,6 +1,5 @@
 /* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer';
 import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend';
 import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer';
@@ -17,6 +16,47 @@ const GREY_HEX = '#323232';
 
 const viewersKeyed = {};
 let viewerNoKey;
+
+/**
+ * @typedef {Object} NgProps
+ * @property {number} perspectiveZoom
+ * @property {Object} viewerState
+ * @property {string} brainMapsClientId
+ * @property {string} key
+ * @property {Object<string, string>} cellColorMapping
+ *
+ * @property {Array} eventBindingsToUpdate
+ * An array of event bindings to change in Neuroglancer.  The array format is as follows:
+ * [[old-event1, new-event1], [old-event2], old-event3]
+ * Here, `old-event1`'s will be unbound and its action will be re-bound to `new-event1`.
+ * The bindings for `old-event2` and `old-event3` will be removed.
+ * Neuroglancer has its own syntax for event descriptors, and here are some examples:
+ * 'keya', 'shift+keyb' 'control+keyc', 'digit4', 'space', 'arrowleft', 'comma', 'period',
+ * 'minus', 'equal', 'bracketleft'.
+ *
+ * @property {(segment:any|null, layer:any) => void} onSelectedChanged
+ * A function of the form `(segment, layer) => {}`, called each time there is a change to
+ * the segment the user has 'selected' (i.e., hovered over) in Neuroglancer.
+ * The `segment` argument will be a Neuroglancer `Uint64` with the ID of the now-selected
+ * segment, or `null` if no segment is now selected.
+ * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
+ * will be a Neuroglancer `SegmentationUserLayer`.
+ *
+ * @property {(segments:any, layer:any) => void} onVisibleChanged
+ * A function of the form `(segments, layer) => {}`, called each time there is a change to
+ * the segments the user has designated as 'visible' (i.e., double-clicked on) in Neuroglancer.
+ * The `segments` argument will be a Neuroglancer `Uint64Set` whose elements are `Uint64`
+ * instances for the IDs of the now-visible segments.
+ * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
+ * will be a Neuroglancer `SegmentationUserLayer`.
+ *
+ * @property {() => void} onSelectionDetailsStateChanged
+ * A function of the form `() => {}` to respond to selection changes in the viewer.
+ * @property {() => void} onViewerStateChanged
+ *
+ * @property {Array<Object>} callbacks
+ * // ngServer: string,
+ */
 
 // Adopted from neuroglancer/ui/url_hash_binding.ts
 export function parseUrlHash(url) {
@@ -346,7 +386,22 @@ export function getSelectedAnnotationId(key, layerName) {
   return null;
 }
 
+/** @extends {React.Component<NgProps>} */
 export default class Neuroglancer extends React.Component {
+  static defaultProps = {
+    perspectiveZoom: 20,
+    eventBindingsToUpdate: null,
+    brainMapsClientId: 'NOT_A_VALID_ID',
+    viewerState: null,
+    onSelectedChanged: null,
+    onVisibleChanged: null,
+    onSelectionDetailsStateChanged: null,
+    onViewerStateChanged: null,
+    key: null,
+    callbacks: [],
+    ngServer: 'https://neuroglancer-demo.appspot.com/',
+  };
+
   constructor(props) {
     super(props);
     this.ngContainer = React.createRef();
@@ -811,44 +866,20 @@ export default class Neuroglancer extends React.Component {
   };
 
   /* ** Vitessce Integration update start ** */
-  // selectedChanged = (layer) => {
-  //   if (this.viewer) {
-  //     const { onSelectedChanged } = this.props;
-  //     if (onSelectedChanged) {
-  //       const { segmentSelectionState } = layer.layer.displayState;
-  //       if (segmentSelectionState) {
-  //         const segment = segmentSelectionState.hasSelectedSegment
-  //           ? segmentSelectionState.selectedSegment
-  //           : null;
-  //         onSelectedChanged(segment, layer);
-
-  //       }
-  //     }
-  //   }
-  // };
-
   selectedChanged = (layer) => {
     if (!this.viewer) return;
     const { onSelectedChanged } = this.props;
-    const { segmentSelectionState, segmentationGroupState } = layer.layer.displayState;
-    if (!segmentSelectionState) return;
-    const selected = segmentSelectionState.hasSelectedSegment
-      ? segmentSelectionState.selectedSegment
-      : null;
-
-    // Optional behavior: only touch visibility if you actually need it
-    // and if there *is* a selected segment.
-    if (segmentationGroupState && selected !== null) {
-      const vs = segmentationGroupState.value.visibleSegments;
-      vs.clear();
-      vs.add(selected);
-    }
-
     if (onSelectedChanged) {
-      onSelectedChanged(selected, layer);
+      const { segmentSelectionState } = layer.layer.displayState;
+      if (segmentSelectionState) {
+        const segment = segmentSelectionState.hasSelectedSegment
+          ? segmentSelectionState.selectedSegment
+          : null;
+
+        onSelectedChanged(segment, layer);
+      }
     }
   };
-
 
   visibleChanged = (layer) => {
     if (this.viewer) {
@@ -871,64 +902,3 @@ export default class Neuroglancer extends React.Component {
     );
   }
 }
-
-Neuroglancer.propTypes = {
-  perspectiveZoom: PropTypes.number,
-  viewerState: PropTypes.object,
-  brainMapsClientId: PropTypes.string,
-  key: PropTypes.string,
-  cellColorMapping: PropTypes.object,
-  /**
-   * An array of event bindings to change in Neuroglancer.  The array format is as follows:
-   * [[old-event1, new-event1], [old-event2], old-event3]
-   * Here, `old-event1`'s will be unbound and its action will be re-bound to `new-event1`.
-   * The bindings for `old-event2` and `old-event3` will be removed.
-   * Neuroglancer has its own syntax for event descriptors, and here are some examples:
-   * 'keya', 'shift+keyb' 'control+keyc', 'digit4', 'space', 'arrowleft', 'comma', 'period',
-   * 'minus', 'equal', 'bracketleft'.
-   */
-  eventBindingsToUpdate: PropTypes.array,
-
-  /**
-   * A function of the form `(segment, layer) => {}`, called each time there is a change to
-   * the segment the user has 'selected' (i.e., hovered over) in Neuroglancer.
-   * The `segment` argument will be a Neuroglancer `Uint64` with the ID of the now-selected
-   * segment, or `null` if no segment is now selected.
-   * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
-   * will be a Neuroglancer `SegmentationUserLayer`.
-   */
-  onSelectedChanged: PropTypes.func,
-
-  /**
-   * A function of the form `(segments, layer) => {}`, called each time there is a change to
-   * the segments the user has designated as 'visible' (i.e., double-clicked on) in Neuroglancer.
-   * The `segments` argument will be a Neuroglancer `Uint64Set` whose elements are `Uint64`
-   * instances for the IDs of the now-visible segments.
-   * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
-   * will be a Neuroglancer `SegmentationUserLayer`.
-   */
-  onVisibleChanged: PropTypes.func,
-
-  /**
-   * A function of the form `() => {}` to respond to selection changes in the viewer.
-   */
-  onSelectionDetailsStateChanged: PropTypes.func,
-  onViewerStateChanged: PropTypes.func,
-
-  callbacks: PropTypes.arrayOf(PropTypes.object),
-  ngServer: PropTypes.string,
-};
-
-Neuroglancer.defaultProps = {
-  perspectiveZoom: 20,
-  eventBindingsToUpdate: null,
-  brainMapsClientId: 'NOT_A_VALID_ID',
-  viewerState: null,
-  onSelectedChanged: null,
-  onVisibleChanged: null,
-  onSelectionDetailsStateChanged: null,
-  onViewerStateChanged: null,
-  key: null,
-  callbacks: [],
-  ngServer: 'https://neuroglancer-demo.appspot.com/',
-};
