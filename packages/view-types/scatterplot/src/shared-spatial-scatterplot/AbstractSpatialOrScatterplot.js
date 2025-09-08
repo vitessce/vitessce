@@ -47,7 +47,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (nextViewState.target && viewState.target) {
       const dx = Math.abs((nextViewState.target[0] ?? 0) - (viewState.target[0] ?? 0));
       const dy = Math.abs((nextViewState.target[1] ?? 0) - (viewState.target[1] ?? 0));
-      targetChanged = dx > TRANSLATION_THRESHOLD || dy > TRANSLATION_THRESHOLD;
+      const scale = 2 ** (nextViewState.zoom ?? 0);
+      const dxPx = Math.abs(dx) * scale;
+      const dyPx = Math.abs(dy) * scale;
+      targetChanged = dxPx > TRANSLATION_THRESHOLD || dyPx > TRANSLATION_THRESHOLD;
     }
     const prev = this.lastApplied || viewState;
     const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0))

@@ -77,7 +77,7 @@ export function parseUrlHash(url) {
     s = decodeURIComponent(s);
     state = urlSafeParse(s);
   } else {
-    throw new Error(`URL hash is expected to be of the form '#!{...}' or '#!+{...}'.`);
+    throw new Error('URL hash is expected to be of the form \'#!{...}\' or \'#!+{...}\'.');
   }
 
   return state;

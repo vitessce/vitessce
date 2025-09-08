@@ -2,7 +2,8 @@
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
-import Neuroglancer from './ReactNeuroglancer.js';
+
+const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
 function createWorker() {
   return new ChunkWorker();
@@ -99,7 +100,7 @@ export class NeuroglancerComp extends PureComponent {
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            <Neuroglancer
+            <LazyReactNeuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}

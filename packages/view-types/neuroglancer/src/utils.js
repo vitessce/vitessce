@@ -14,7 +14,9 @@ export const EPSILON_KEYS_MAPPING_NG = {
 };
 
 // allow smaller pos deltas to pass when zoom changed
-const SOFT_POS_FACTOR = 0.15;
+export const SOFT_POS_FACTOR = 0.15;
+// To rotate the y-axis up in NG
+export const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
 // ---- Y-up correction: 180° around X so X stays right, Y flips up (Z flips sign, which is OK) ----
 export const multiplyQuat = (a, b) => {
@@ -27,6 +29,7 @@ export const multiplyQuat = (a, b) => {
     aw * bw - ax * bx - ay * by - az * bz,
   ];
 };
+
 export const conjQuat = q => ([-q[0], -q[1], -q[2], q[3]]); // inverse for unit quats
 
 // Helper function to compute the cosine dot product of two quaternion

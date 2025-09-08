@@ -26,6 +26,7 @@ import {
   multiplyQuat,
   rad2deg,
   deg2rad,
+  Q_Y_UP,
 } from './utils.js';
 
 const VITESSCE_INTERACTION_DELAY = 50;
@@ -39,9 +40,6 @@ const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
   neuroglancer: 'neuroglancer',
 };
-
-// To rotate the y-axis up in NG
-const Q_Y_UP = [1, 0, 0, 0]; // [x,y,z,w] for 180° about X
 
 export function NeuroglancerSubscriber(props) {
   const {
