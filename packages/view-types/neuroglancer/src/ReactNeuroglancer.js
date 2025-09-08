@@ -1,12 +1,12 @@
 /* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
-import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer';
-import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend';
-import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer';
-import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color';
+import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer.js';
+import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend.js';
+import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer.js';
+import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color.js';
 import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
-import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64';
-import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json';
+import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64.js';
+import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json.js';
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
@@ -871,12 +871,10 @@ export default class Neuroglancer extends React.Component {
     const { onSelectedChanged } = this.props;
     if (onSelectedChanged) {
       const { segmentSelectionState } = layer.layer.displayState;
-      if (segmentSelectionState) {
-        const segment = segmentSelectionState.hasSelectedSegment
-          ? segmentSelectionState.selectedSegment
-          : null;
-
-        onSelectedChanged(segment, layer);
+      if (!segmentSelectionState) return;
+      const selected = segmentSelectionState.selectedSegment;
+      if (selected) {
+        onSelectedChanged(selected, layer);
       }
     }
   };
