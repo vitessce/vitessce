@@ -1,3 +1,17 @@
+/* *****
+  This react wrapper is originally developed by janelia-flyem group now called neuroglancerHub
+  code source: https://github.com/neuroglancerhub/react-neuroglancer/blob/master/src/index.jsx
+
+  The following  modifications were added  for Vitessce integration and
+  are  marked with a comment referring to Vitessce
+  1. applyColorsAndVisibility() adds the cellColorMapping (prop) from the cell-set selection
+  2. componentDidMount() and componentDidUpdate() renders and updates the viewerState using
+  the restoreState() for updating the camera setting and segments.
+  3. A set of functions to avoid frequent state updates and provide smoother animations
+  within the rendering cycling using requestAnimationFrame()
+*/
+
+
 /* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
 import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer.js';
