@@ -1,4 +1,19 @@
 
+## 3.7.0
+
+### Minor Changes
+
+- Upgraded vite to version7 (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/link-controller`, `@vitessce/spatial-three`, `@vitessce/spatial-zarr`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/spatial-beta`, `@vitessce/description`, `@vitessce/scatterplot`, `@vitessce/neuroglancer-workers`, `@vitessce/abstract`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/export-utils`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/status`, `@vitessce/sets-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/glb`, `@vitessce/json-schema`, `@vitessce/constants`, `vitessce`, `@vitessce/all`, `@vitessce/dev`, `@vitessce/globals`, `@vitessce/plugins`, `@vitessce/schemas`, `@vitessce/tooltip`, `@vitessce/workers`, `@vitessce/config`, `@vitessce/legend`, `@vitessce/styles`, `@vitessce/error`, `@vitessce/types`, `@vitessce/vit-s`, `@vitessce/vega`, `@vitessce/gl`, `demo`, `docs`) ([#2251](https://github.com/vitessce/vitessce/pull/2251))
+
+### Patch Changes
+
+- Add dropdown for selection of quantitative colormap to layerControllerBeta. Update bitmask layer shader to support a per-bitmask colormap function. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-zarr`, `@vitessce/gl`) ([#2259](https://github.com/vitessce/vitessce/pull/2259))
+
+- Added fix for overflowing legends outside the parent grid container. (`@vitessce/legend`) ([#2248](https://github.com/vitessce/vitessce/pull/2248))
+
+- Added examples from Vitessce Link site (`docs`) ([#2247](https://github.com/vitessce/vitessce/pull/2247))
+
+
 ## 3.6.18
 
 ### Patch Changes
