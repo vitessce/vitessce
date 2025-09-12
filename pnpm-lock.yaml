@@ -287,9 +287,6 @@ patchedDependencies:
   '@janelia-flyem/neuroglancer@2.37.5':
     hash: uab3cyeavcsc46wsi5ptukamoa
     path: patches/@janelia-flyem__neuroglancer@2.37.5.patch
-  '@janelia-flyem/react-neuroglancer@2.5.0':
-    hash: hxg6sfd36o4iswp27bowaavnia
-    path: patches/@janelia-flyem__react-neuroglancer@2.5.0.patch
   rc-tree@2.1.0:
     hash: hn6ocsle7tvl24ochfytc7eqjy
     path: patches/rc-tree@2.1.0.patch
@@ -1970,9 +1967,6 @@ importers:
       '@janelia-flyem/neuroglancer':
         specifier: 2.37.5
         version: 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
-      '@janelia-flyem/react-neuroglancer':
-        specifier: 2.5.0
-        version: 2.5.0(patch_hash=hxg6sfd36o4iswp27bowaavnia)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -1997,6 +1991,12 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+      three:
+        specifier: 'catalog:'
+        version: 0.154.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -2004,9 +2004,6 @@ importers:
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 'catalog:'
-        version: 18.3.1
       react-dom:
         specifier: 'catalog:'
         version: 18.3.1(react@18.3.1)
@@ -4935,13 +4932,6 @@ packages:
   '@janelia-flyem/neuroglancer@2.37.5':
     resolution: {integrity: sha512-pLLhJBcoXXpQMmpRfyl1QFTHdS6jGDqiMuaW0SQiF8s1daVMa8R5qzOZnMw9afHeqFjp+sLRYUYTnxmqCgTNoA==}
     engines: {node: '>=12'}
-
-  '@janelia-flyem/react-neuroglancer@2.5.0':
-    resolution: {integrity: sha512-1LUA43fz6NNH55llttFKM4v0MzeaebfnSo+rz10Y6/vg2J/xQJu3I/GTznQxRNGB9kjEgt3h+Or+GlccNDaMLQ==}
-    peerDependencies:
-      prop-types: ^15.6.2
-      react: ^16.5.2
-      react-dom: ^16.5.2
 
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
@@ -19730,16 +19720,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@janelia-flyem/react-neuroglancer@2.5.0(patch_hash=hxg6sfd36o4iswp27bowaavnia)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@janelia-flyem/neuroglancer': 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@jest/schemas@29.6.3':
     dependencies:
       '@sinclair/typebox': 0.27.8
@@ -27257,7 +27237,7 @@ snapshots:
       hast-util-to-parse5: 8.0.0
       html-void-elements: 3.0.0
       mdast-util-to-hast: 13.2.0
-      parse5: 7.1.1
+      parse5: 7.3.0
       unist-util-position: 5.0.0
       unist-util-visit: 5.0.0
       vfile: 6.0.2
@@ -29839,7 +29819,7 @@ snapshots:
   parse5-htmlparser2-tree-adapter@7.0.0:
     dependencies:
       domhandler: 5.0.3
-      parse5: 7.1.1
+      parse5: 7.3.0
 
   parse5@4.0.0: {}
 

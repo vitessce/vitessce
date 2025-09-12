@@ -30,7 +30,6 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@janelia-flyem/react-neuroglancer": "2.5.0",
     "@janelia-flyem/neuroglancer": "2.37.5",
     "@vitessce/neuroglancer-workers": "workspace:*",
     "@vitessce/styles": "workspace:*",
@@ -39,12 +38,14 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
-    "lodash-es": "catalog:"
+    "lodash-es": "catalog:",
+    "three": "catalog:",
+    "react": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
-    "react": "catalog:",
+
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

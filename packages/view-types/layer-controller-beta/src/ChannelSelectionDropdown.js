@@ -44,7 +44,8 @@ export default function ChannelSelectionDropdown(props) {
       inputProps={{ 'aria-label': 'Channel selector' }}
     >
       {featureIndex.map((channelName, channelIndex) => (
-        <option disabled={disabled} key={channelName} value={channelIndex}>
+        // eslint-disable-next-line react/no-array-index-key
+        <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
           {channelName}
         </option>
       ))}
