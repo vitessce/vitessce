@@ -30,6 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/globals": "workspace:*",
     "@vitessce/abstract": "workspace:*",
     "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",

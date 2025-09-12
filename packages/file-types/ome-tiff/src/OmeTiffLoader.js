@@ -7,6 +7,12 @@ import {
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
+import { getDebugMode } from '@vitessce/globals';
+
+function isPyramidalImage(loader) {
+  return !(loader?.metadata?.Pixels?.Interleaved === false
+    || loader?.metadata?.Pixels?.TiffData?.[0].PlaneCount > 1);
+}
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {
@@ -28,6 +34,19 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
+    if (getDebugMode()) {
+      const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
+      if (isPyramidalImage(loader) && !offsets) {
+        throw new Error(`Image has to be pyramidal and offsets file is also missing.
+        You can use the ${resourceUrl} to create one`);
+      }
+      if (!isPyramidalImage()) {
+        throw new Error('Image has to be pyramidal');
+      }
+      if (!offsets) {
+        throw new Error(`Offsets file is missing. You can use the ${resourceUrl} to create one`);
+      }
+    }
 
     const imageWrapper = new ImageWrapper(loader, this.options);
 
