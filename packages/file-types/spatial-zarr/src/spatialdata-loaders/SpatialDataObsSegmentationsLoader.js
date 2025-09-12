@@ -5,7 +5,7 @@ import { CoordinationLevel as CL } from '@vitessce/config';
 import {
   coordinateTransformationsToMatrixForSpatialData,
 } from '@vitessce/spatial-utils';
-import { math } from '@vitessce/gl';
+import { GLSL_COLORMAP_DEFAULT, math } from '@vitessce/gl';
 import {
   OLD_SHAPES_DEFAULT_AXES,
   OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS,
@@ -115,6 +115,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureValueColormap: GLSL_COLORMAP_DEFAULT,
     }];
 
     const coordinationValues = {
