@@ -10,8 +10,8 @@ import { CoordinationLevel as CL } from '@vitessce/config';
 import { getDebugMode } from '@vitessce/globals';
 
 function isPyramidalImage(loader) {
-  return !(loader?.metadata?.Pixels?.Interleaved === false
-    || loader?.metadata?.Pixels?.TiffData?.[0].PlaneCount > 1);
+  return (loader?.metadata?.Pixels?.Interleaved === false
+      && loader?.metadata?.Pixels?.TiffData?.[0].PlaneCount > 1);
 }
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
@@ -34,20 +34,21 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    if (getDebugMode()) {
+    const isPyramid = isPyramidalImage(loader);
+
+    if (getDebugMode() && loader) {
       const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
-      if (isPyramidalImage(loader) && !offsets) {
-        throw new Error(`Image has to be pyramidal and offsets file is also missing.
-        You can use the ${resourceUrl} to create one`);
+      if (!isPyramid && !offsets) {
+        throw new Error(
+          'Image must be pyramidal and an offsets file is required.\n'
+          + `You can create one with ${resourceUrl}`,
+        );
       }
-      if (!isPyramidalImage()) {
-        throw new Error('Image has to be pyramidal');
-      }
+      if (!isPyramid) throw new Error('Image has to be pyramidal');
       if (!offsets) {
-        throw new Error(`Offsets file is missing. You can use the ${resourceUrl} to create one`);
+        throw new Error(`Offsets file is missing. You can use ${resourceUrl} to create one`);
       }
     }
-
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const {
