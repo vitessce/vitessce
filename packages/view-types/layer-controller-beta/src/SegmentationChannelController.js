@@ -136,6 +136,7 @@ function SegmentationChannelEllipsisMenu(props) {
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Colormap:&nbsp;
         </label>
+        {/* TODO: disable the Select when obsColorEncoding is not 'geneSelection'? */}
         <NativeSelect
           onChange={e => setFeatureValueColormap(e.target.value)}
           value={featureValueColormap}
@@ -143,7 +144,7 @@ function SegmentationChannelEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           {GLSL_COLORMAPS.map(cmap => (
-              <option key={cmap} value={cmap}>{cmap}</option>
+            <option key={cmap} value={cmap}>{cmap}</option>
           ))}
         </NativeSelect>
       </MenuItem>
