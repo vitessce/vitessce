@@ -10,9 +10,9 @@ export const rgbOmeTiff = {
       files: [
         {
           fileType: 'image.ome-tiff',
-          url: 'https://assets.hubmapconsortium.org/664b8227e17ee2a35a504dd8c19c2531/processedMicroscopy/VAN0012-RK-102-167-PAS_IMS_images/VAN0012-RK-102-167-PAS_IMS-registered.ome.tiff',
+          url: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/ometiff-pyramids/lab_processed/images/VAN0052-RK-3-81-PAS.ome.tif?token=',
           options: {
-            // offsetsUrl: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/output_offsets/lab_processed/images/VAN0052-RK-3-81-PAS.offsets.json?token=',
+            offsetsUrl: 'https://assets.hubmapconsortium.org/f273b4e4c5b759a904736c96be7c17ec/output_offsets/lab_processed/images/VAN0052-RK-3-81-PAS.offsets.json?token=',
           },
         },
       ],
