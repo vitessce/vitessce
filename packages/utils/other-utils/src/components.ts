@@ -12,6 +12,12 @@ export function getDefaultColor(theme: 'dark' | 'light' | 'light2') {
     : (theme === 'light' ? DEFAULT_LIGHT_COLOR : DEFAULT_LIGHT2_COLOR);
 }
 
+export function getDefaultForegroundColor(theme: 'dark' | 'light' | 'light2') {
+  return theme === 'dark'
+    ? DEFAULT_LIGHT2_COLOR
+    : DEFAULT_DARK_COLOR;
+}
+
 // From https://personal.sron.nl/~pault/#sec:qualitative
 export const PALETTE = [
   [68, 119, 170],

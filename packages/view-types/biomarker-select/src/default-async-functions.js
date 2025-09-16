@@ -9,8 +9,7 @@ import Fuse from 'fuse.js/basic';
 /** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 
 const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
-const ENSG_TO_GENE_SYMBOL_URL = 'https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json';
-
+const ENSG_TO_GENE_SYMBOL_URL = 'https://data-1.vitessce.io/genes_filtered.json';
 /**
  * @returns {Promise<KgNode[]>}
  */
@@ -49,14 +48,18 @@ function loadCellTypeNodes() {
  * @returns {Promise<KgNode[]>}
  */
 function loadPathwayNodes() {
-  return fetch(`${KG_BASE_URL}/Reactome_2022.nodes.csv`)
-    .then(res => res.text())
+  const reactomeNodes = fetch(`${KG_BASE_URL}/Reactome_2022.nodes.csv`);
+  // TODO: load both GO and Reactome nodes, concat together.
+  // const goNodes = fetch(`${KG_BASE_URL}/GO_Biological_Process_2021.nodes.csv`);
+  return reactomeNodes.then(res => res.text())
     .then((res) => {
       const result = csvParse(res);
       return result.map((/** @type {any} */ d) => ({
         kgId: d.id,
-        label: d.pathway,
-        term: `reactome:${d.acc}`,
+        label: d.pathway, // For reactome
+        term: `REACTOME:${d.acc}`, // For reactome
+        // label: d.ontology_label, // For GO_BP
+        // term: d.acc, // For GO_BP
         nodeType: 'pathway',
       }));
     });
@@ -141,7 +144,10 @@ export async function autocompleteFeature({ queryClient }, partial, targetModali
 }
 
 async function loadPathwayToGeneEdges() {
-  return fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`)
+  const reactomeEdges = fetch(`${KG_BASE_URL}/Reactome_2022.Reactome.Gene.edges.csv`);
+  // TODO: load both GO and Reactome edges, concat together.
+  // const goEdges = fetch(`${KG_BASE_URL}/GO_Biological_Process_2021.GO_BP.Gene.edges.csv`);
+  return reactomeEdges
     .then(res => res.text())
     .then((res) => {
       const result = csvParse(res);
@@ -157,11 +163,14 @@ async function loadPathwayToGeneEdges() {
  * @satisfies {TransformFeatureFunc}
  * @param {object} ctx
  * @param {QueryClient} ctx.queryClient
- * @param {KgNode} node
+ * @param {KgNode} nodeOrig
  * @param {TargetModalityType} targetModality
  * @returns {Promise<KgNode[]>}
  */
-export async function transformFeature({ queryClient }, node, targetModality) {
+export async function transformFeature({ queryClient }, nodeOrig, targetModality) {
+  const node = {
+    ...nodeOrig,
+  };
   if (targetModality === node.nodeType) {
     // For example, if the target modality is gene and the node is already a gene node.
     return [node];
@@ -180,6 +189,21 @@ export async function transformFeature({ queryClient }, node, targetModality) {
         queryFn: loadPathwayToGeneEdges,
       });
 
+      if (!node.kgId) {
+        const pathwayNodes = await queryClient.fetchQuery({
+          queryKey: ['pathwayNodes'],
+          staleTime: Infinity,
+          queryFn: loadPathwayNodes,
+        });
+        const foundId = pathwayNodes.find(n => n.term === node.term)?.kgId;
+        if (foundId) {
+          node.kgId = foundId;
+        } else {
+          console.warn('Could not find matching pathway node based on term.');
+        }
+      }
+
+      // TODO: support matching using ontology term (rather than requiring kgId)?
       const matchingEdges = pathwayGeneEdges.filter((/** @type {KgEdge} */ d) => d.source === node.kgId);
       const matchingGeneIds = matchingEdges.map((/** @type {KgEdge} */ d) => d.target);
       const matchingGenes = geneNodes.filter(d => matchingGeneIds.includes(d.kgId));

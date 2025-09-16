@@ -7,6 +7,7 @@ import {
   useCoordination, useLoaders,
   useUrls, useReady, useGridItemSize,
   useObsFeatureMatrixData, useFeatureSelection,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
@@ -24,7 +25,7 @@ import { useStyles } from './styles.js';
  */
 export function ExpressionHistogramSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -32,8 +33,9 @@ export function ExpressionHistogramSubscriber(props) {
     helpText = ViewHelpMapping.FEATURE_VALUE_HISTOGRAM,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -58,16 +60,25 @@ export function ExpressionHistogramSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   const [
-    { obsIndex, featureIndex, obsFeatureMatrix }, matrixStatus, matrixUrls,
+    { obsIndex, featureIndex, obsFeatureMatrix },
+    matrixStatus, matrixUrls, matrixError,
   ] = useObsFeatureMatrixData(
     loaders, dataset, true, {}, {},
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    matrixError,
+    ...featureSelectionErrors,
+  ];
+
   const isReady = useReady([
     matrixStatus,
     featureSelectionStatus,
@@ -129,6 +140,7 @@ export function ExpressionHistogramSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram

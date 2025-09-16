@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { makeStyles, MenuItem } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem, Add as AddIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   addButton: {
     marginTop: '10px',
     marginBottom: '10px',
@@ -22,7 +21,7 @@ function ImageAddIcon() {
 
 function ImageAddButton({ imageOptions, handleImageAdd }) {
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const handleAdd = (imgData) => {
     setOpen(prev => !prev);

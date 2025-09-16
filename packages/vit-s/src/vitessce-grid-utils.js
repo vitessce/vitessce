@@ -129,6 +129,10 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
   const defaultCoordinationValues = Object.fromEntries(
     coordinationTypes.map(ct => ([ct.name, ct.defaultValue])),
   );
+  // Create an array of unique data source classes.
+  // This is used to get a unique index for each data source class,
+  // which is used below to construct `dataSourceKey`s.
+  const dataSourceClasses = Array.from(new Set(fileTypes.map(ft => ft.dataSourceClass)));
   datasets.forEach((dataset) => {
     const datasetLoaders = {
       name: dataset.name,
@@ -155,10 +159,11 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
       // Create _one_ DataSourceClass instance per (URL, DataSource class name) pair.
       // Derived loaders share this object.
       const fileId = url || JSON.stringify(options);
-      // The class name might be minified but that should not matter;
-      // we just need a string that is unique to the class for the key.
-      const dataSourceName = DataSourceClass.prototype.constructor.name;
-      const dataSourceKey = [fileId, dataSourceName];
+      // The DataSourceClass class name might be minified, so
+      // DataSourceClass.prototype.constructor.name
+      // will not work, as it can result in conflicting strings.
+      const dataSourceIndex = dataSourceClasses.indexOf(DataSourceClass);
+      const dataSourceKey = [fileId, dataSourceIndex];
       if (!dataSources.has(dataSourceKey)) {
         dataSources.set(dataSourceKey, new DataSourceClass({
           url,

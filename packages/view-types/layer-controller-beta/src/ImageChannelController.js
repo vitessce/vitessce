@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Grid,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import { useQuery } from '@tanstack/react-query';
 import {
   getMultiSelectionStats,
@@ -93,7 +93,7 @@ export default function ImageChannelController(props) {
 
   return (
     <Grid container direction="row" justifyContent="space-between">
-      <Grid item xs={1}>
+      <Grid size={1}>
         <ChannelVisibilityCheckbox
           color={color}
           setColor={setColor}
@@ -104,7 +104,7 @@ export default function ImageChannelController(props) {
           colormapOn={colormapOn}
         />
       </Grid>
-      <Grid item xs={1}>
+      <Grid size={1}>
         <ChannelColorPickerMenu
           color={color}
           setColor={setColor}
@@ -116,7 +116,7 @@ export default function ImageChannelController(props) {
           palette={VIEWER_PALETTE}
         />
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <ChannelSelectionDropdown
           featureIndex={featureIndex}
           targetC={targetC}
@@ -126,7 +126,7 @@ export default function ImageChannelController(props) {
         />
       </Grid>
 
-      <Grid item xs={3}>
+      <Grid size={3}>
         <ChannelSlider
           image={image}
           targetT={targetT}
@@ -142,7 +142,7 @@ export default function ImageChannelController(props) {
           minMaxDomain={minMaxDomain}
         />
       </Grid>
-      <Grid item xs={1}>
+      <Grid size={1}>
         <ChannelOptions
           onRemove={onRemove}
           showValueExtent={showValueExtent}

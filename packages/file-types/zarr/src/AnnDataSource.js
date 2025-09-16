@@ -1,4 +1,3 @@
-// @ts-check
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet } from 'zarrita';
 import { log } from '@vitessce/globals';
@@ -6,6 +5,18 @@ import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk, ByteStringArray } from 'zarrita' */
+
+
+function prependSlash(path) {
+  if (typeof path === 'string' && path.length >= 1) {
+    if (path.charAt(0) === '/') {
+      // No prepending needed.
+      return path;
+    }
+    return `/${path}`;
+  }
+  return path;
+}
 
 /**
  * A base AnnData loader which has all shared methods for more comlpex laoders,
@@ -83,12 +94,15 @@ export default class AnnDataSource extends ZarrDataSource {
 
   /**
    *
-   * @param {string} path
+   * @param {string} pathOrig
    * @returns
    */
-  async _loadColumn(path) {
+  async _loadColumn(pathOrig) {
     const { storeRoot } = this;
-    const prefix = dirname(path);
+
+    const path = prependSlash(pathOrig);
+    const prefixOrig = dirname(path);
+    const prefix = prependSlash(prefixOrig);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
     /** @type {string[]} */
     let categoriesValues;
@@ -96,31 +110,34 @@ export default class AnnDataSource extends ZarrDataSource {
     let codesPath;
     if (categories) {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${prefix}/${categories}`),
+        storeRoot.resolve(`${prefix}/${categories}`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${prefix}/${categories}`,
+          `${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}/categories`),
+        storeRoot.resolve(`${path}/categories`),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+
+      if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
-          `/${path}/categories`,
+          `${path}/categories`,
         );
       }
-      codesPath = `/${path}/codes`;
+      codesPath = `${path}/codes`;
+    } else if (encodingType === 'string-array') {
+      return this.getFlatArrDecompressed(path);
     } else {
       const { dtype } = await zarrOpen(
-        storeRoot.resolve(`/${path}`),
+        storeRoot.resolve(path),
         { kind: 'array' },
       );
-      if (dtype === 'v2:object') {
+      if (dtype === 'v2:object' || dtype === '|O') {
         return this.getFlatArrDecompressed(path);
       }
     }
@@ -202,7 +219,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.obsIndex;
     }
     this.obsIndex = this.getJson('obs/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/obs/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/obs/${_index}`));
     return this.obsIndex;
   }
 
@@ -218,7 +235,7 @@ export default class AnnDataSource extends ZarrDataSource {
   ) {
     const dfPath = path ? dirname(path) : '';
     return this.getJson(`${dfPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
+      .then(({ _index }) => this._loadColumn(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
   }
 
   /**
@@ -234,7 +251,7 @@ export default class AnnDataSource extends ZarrDataSource {
       return this.varIndex;
     }
     this.varIndex = this.getJson('var/.zattrs')
-      .then(({ _index }) => this.getFlatArrDecompressed(`/var/${_index}`));
+      .then(({ _index }) => this._loadColumn(`/var/${_index}`));
     return this.varIndex;
   }
 

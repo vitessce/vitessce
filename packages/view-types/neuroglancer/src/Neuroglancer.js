@@ -1,49 +1,110 @@
-import React, { useCallback, useMemo, Suspense } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { useStyles, globalNeuroglancerCss } from './styles.js';
+import { NeuroglancerGlobalStyles } from './styles.js';
 
-// We lazy load the Neuroglancer component,
-// because the non-dynamic import causes problems for Vitest,
-// as the package appears contain be a mix of CommonJS and ESM syntax.
-const LazyReactNeuroglancer = React.lazy(async () => {
-  const ReactNeuroglancer = await import('@janelia-flyem/react-neuroglancer');
-  return ReactNeuroglancer;
-});
+const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
-// Reference: https://github.com/developit/jsdom-worker/issues/14#issuecomment-1268070123
 function createWorker() {
   return new ChunkWorker();
 }
+export class NeuroglancerComp extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.bundleRoot = createWorker();
+    this.cellColorMapping = props.cellColorMapping;
+    this.justReceivedExternalUpdate = false;
+    this.prevElement = null;
+    this.prevClickHandler = null;
+    this.prevMouseStateChanged = null;
+    this.prevHoverHandler = null;
+    this.onViewerStateChanged = this.onViewerStateChanged.bind(this);
+    this.onRef = this.onRef.bind(this);
+    // To avoid closure for onSegmentClick(), to update the selection
+    this.latestOnSegmentClick = props.onSegmentClick;
+    this.latestOnSelectHoveredCoords = props.onSelectHoveredCoords;
+  }
 
-export function Neuroglancer(props) {
-  const {
-    viewerState,
-    onViewerStateChanged,
-  } = props;
-  const classes = useStyles();
-  const bundleRoot = useMemo(() => createWorker(), []);
+  onRef(viewerRef) {
+    // Here, we have access to the viewerRef.viewer object,
+    // which we can use to add/remove event handlers.
 
-  const handleStateChanged = useCallback((newState) => {
-    if (JSON.stringify(newState) !== JSON.stringify(viewerState)) {
-      if (onViewerStateChanged) {
-        onViewerStateChanged(newState);
+    if (viewerRef) {
+      // Mount
+      const { viewer } = viewerRef;
+      this.prevElement = viewer.element;
+      this.prevMouseStateChanged = viewer.mouseState.changed;
+      viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
+      viewer.inputEventBindings.perspectiveView.set('at:dblclick0', () => {});
+      this.prevClickHandler = (event) => {
+        if (event.button === 0) {
+          // Wait for mouseState to update
+          requestAnimationFrame(() => {
+            const { pickedValue, pickedRenderLayer } = viewer.mouseState;
+            // Only trigger selection when a segment is clicked rather than any click on the view
+            if (pickedValue && pickedValue.low !== undefined && pickedRenderLayer) {
+              this.latestOnSegmentClick?.(pickedValue.low);
+            }
+          });
+        }
+      };
+      this.prevHoverHandler = () => {
+        if (viewer.mouseState.pickedValue !== undefined) {
+          const pickedSegment = viewer.mouseState.pickedValue;
+          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+        }
+      };
+      viewer.element.addEventListener('mouseup', this.prevClickHandler);
+      viewer.mouseState.changed.add(this.prevHoverHandler);
+    } else {
+      // Unmount (viewerRef is null)
+      if (this.prevElement && this.prevClickHandler) {
+        this.prevElement.removeEventListener('mouseup', this.prevClickHandler);
+        this.prevClickHandler = null;
       }
+      if (this.prevMouseStateChanged && this.prevHoverHandler) {
+        this.prevMouseStateChanged.remove(this.prevHoverHandler);
+        this.prevHoverHandler = null;
+      }
+      this.prevElement = null;
+      this.prevMouseStateChanged = null;
     }
-  }, [onViewerStateChanged, viewerState]);
+  }
 
-  return (
-    <>
-      <style>{globalNeuroglancerCss}</style>
-      <div className={classes.neuroglancerWrapper}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LazyReactNeuroglancer
-            brainMapsClientId="NOT_A_VALID_ID"
-            viewerState={viewerState}
-            onViewerStateChanged={handleStateChanged}
-            bundleRoot={bundleRoot}
-          />
-        </Suspense>
-      </div>
-    </>
-  );
+  onViewerStateChanged(nextState) {
+    const { setViewerState } = this.props;
+    setViewerState(nextState);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { onSegmentClick, onSelectHoveredCoords } = this.props;
+    if (prevProps.onSegmentClick !== onSegmentClick) {
+      this.latestOnSegmentClick = onSegmentClick;
+    }
+    if (prevProps.onSelectHoveredCoords !== onSelectHoveredCoords) {
+      this.latestOnSelectHoveredCoords = onSelectHoveredCoords;
+    }
+  }
+
+  render() {
+    const { classes, viewerState, cellColorMapping } = this.props;
+
+    return (
+      <>
+        <NeuroglancerGlobalStyles classes={classes} />
+        <div className={classes.neuroglancerWrapper}>
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazyReactNeuroglancer
+              brainMapsClientId="NOT_A_VALID_ID"
+              viewerState={viewerState}
+              onViewerStateChanged={this.onViewerStateChanged}
+              bundleRoot={this.bundleRoot}
+              cellColorMapping={cellColorMapping}
+              ref={this.onRef}
+            />
+          </Suspense>
+        </div>
+      </>
+    );
+  }
 }

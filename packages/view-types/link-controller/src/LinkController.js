@@ -1,13 +1,16 @@
 /* eslint-disable no-console */
 import React, { useMemo, useEffect, useRef, useCallback, useState } from 'react';
+import { shallow } from 'zustand/shallow';
 import {
   useViewConfigStoreApi,
   createLoaders,
+  useViewConfig,
+  useSetViewConfig,
 } from '@vitessce/vit-s';
 import {
   Checkbox,
   Grid,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 
 import { log } from '@vitessce/globals';
 
@@ -23,6 +26,8 @@ export default function LinkController(props) {
   } = props;
   const viewConfigStoreApi = useViewConfigStoreApi();
 
+  const viewConfig = useViewConfig();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
   const [socketOpen, setSocketOpen] = useState(false);
   const [sync, setSync] = useState(true);
   const connection = useRef(null);
@@ -62,8 +67,7 @@ export default function LinkController(props) {
   useEffect(() => {
     if (linkIDInit != null) {
       setLinkID(linkIDInit);
-    }
-    if (linkID === null) {
+    } else if (linkID === null) {
       fetch(linkEndpoint, {
         method: 'GET',
         headers: {
@@ -71,6 +75,23 @@ export default function LinkController(props) {
         },
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
+        const newLayout = viewConfig.layout.map((viewDef) => {
+          if (viewDef.component === 'linkController') {
+            return {
+              ...viewDef,
+              props: {
+                ...(viewDef.props || {}),
+                linkID: response.link_id,
+              },
+            };
+          }
+          return viewDef;
+        });
+        const newViewConfig = {
+          ...viewConfig,
+          layout: newLayout,
+        };
+        setViewConfig(newViewConfig);
       }).catch((err) => {
         log.error('Fetch Error :-S', err);
       });
@@ -78,15 +99,16 @@ export default function LinkController(props) {
   }, [linkID, linkEndpoint]);
 
   useEffect(() => viewConfigStoreApi.subscribe(
-    ({ viewConfig, mostRecentConfigSource }) => {
-      if (onConfigChange && viewConfig && mostRecentConfigSource === 'internal') {
-        onConfigChange(viewConfig);
-      }
-    },
     state => ({
       viewConfig: state.viewConfig,
       mostRecentConfigSource: state.mostRecentConfigSource,
     }),
+    ({ viewConfig: nextViewConfig, mostRecentConfigSource }) => {
+      if (onConfigChange && nextViewConfig && mostRecentConfigSource === 'internal') {
+        onConfigChange(nextViewConfig);
+      }
+    },
+    { equalityFn: shallow },
   ), [viewConfigStoreApi, onConfigChange]);
 
 
@@ -138,13 +160,13 @@ export default function LinkController(props) {
           To join the same session navigate to <a href="https://vitessce.link">https://vitessce.link</a> and enter the <b>Link ID</b> displayed here in the view.
           The session is synced as long as the <b>Link Active</b> Checkbox is activated.
         </p>
-        <Grid container direction="row" style={{ gridGap: '10px' }}>
-          <Grid item xs={5} style={{ whiteSpace: 'nowrap' }}>
+        <Grid container direction="row" sx={{ gridGap: '10px' }}>
+          <Grid size={5} sx={{ whiteSpace: 'nowrap' }}>
             <p style={{ fontSize: '25px' }}>Link ID:&nbsp;&nbsp;<b>{linkID}</b></p>
           </Grid>
-          <Grid item xs={5} style={{ fontSize: '25px', whiteSpace: 'nowrap' }}>
+          <Grid size={5} sx={{ fontSize: '25px', whiteSpace: 'nowrap' }}>
             Link Active: <Checkbox
-              style={{ marginTop: '-2px', marginLeft: '-10px' }}
+              sx={{ marginTop: '-2px', marginLeft: '-10px' }}
               color="primary"
               checked={sync}
               onChange={e => setSync(e.target.checked)}

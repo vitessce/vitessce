@@ -4,7 +4,6 @@ import { viv } from '@vitessce/gl';
 import {
   GLOBAL_LABELS,
   getSourceFromLoader,
-  isRgb,
   getMultiSelectionStats,
   DOMAINS,
   canLoadResolution,
@@ -13,13 +12,12 @@ import {
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
   Accordion, AccordionDetails, AccordionSummary,
-} from '@material-ui/core';
-import {
+  Box,
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@vitessce/styles';
 
 import LayerOptions from './LayerOptions.js';
 import VolumeOptions from './VolumeOptions.js';
@@ -103,7 +101,7 @@ export default function LayerController(props) {
     disabled,
     spatialHeight,
     spatialWidth,
-    disableChannelsIfRgbDetected,
+    photometricInterpretation,
     shouldShowRemoveLayerButton,
   } = props;
 
@@ -399,10 +397,10 @@ export default function LayerController(props) {
     );
   }
 
-  const controllerSectionClasses = useControllerSectionStyles();
-  const accordionClasses = useAccordionStyles();
-  const inputLabelClasses = useInputLabelStyles();
-  const overflowEllipsisGridClasses = useOverflowEllipsisGridStyles();
+  const { classes: controllerSectionClasses } = useControllerSectionStyles();
+  const { classes: accordionClasses } = useAccordionStyles();
+  const { classes: inputLabelClasses } = useInputLabelStyles();
+  const { classes: overflowEllipsisGridClasses } = useOverflowEllipsisGridStyles();
 
   const { visible } = layer;
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
@@ -432,9 +430,7 @@ export default function LayerController(props) {
           handleGlobalChannelsSelectionChange
         }
         handleTransparentColorChange={setTransparentColor}
-        disableChannelsIfRgbDetected={
-          isRgb(loader, channels) && disableChannelsIfRgbDetected
-        }
+        disableChannelsIfRgbDetected={photometricInterpretation === 'RGB'}
         handleDomainChange={handleDomainChange}
         shouldShowTransparentColor={shouldShowTransparentColor}
         shouldShowDomain={shouldShowDomain}
@@ -451,10 +447,10 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected
+      {photometricInterpretation === 'RGB'
         ? null
         : channelControllers}
-      {isRgb(loader, channels) && disableChannelsIfRgbDetected ? null : (
+      {photometricInterpretation === 'RGB' ? null : (
         <Button
           disabled={channels.length === viv.MAX_CHANNELS}
           onClick={handleChannelAdd}
@@ -471,30 +467,36 @@ export default function LayerController(props) {
   );
   return (
     <Accordion
-      className={controllerSectionClasses.layerControllerRoot}
+      slotProps={{
+        root: { elevation: 4, className: controllerSectionClasses.accordionRoot },
+      }}
       onChange={(e, expanded) => !disabled
         && setIsExpanded(
           expanded && e?.target?.attributes?.role?.value === 'presentation',
         )
       }
-      TransitionProps={{ enter: false }}
       expanded={!disabled && isExpanded}
       id={`layer-controls-accordion-${layerControlsId}`}
     >
       <AccordionSummary
-        classes={{
-          root: accordionClasses.accordionSummaryRoot,
-          content: accordionClasses.content,
-          expanded: accordionClasses.expanded,
-          expandIcon: accordionClasses.expandIcon,
+        slotProps={{
+          content: { className: accordionClasses.content },
         }}
         expandIcon={<ExpandMoreIcon role="presentation" />}
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}
       >
-        <Grid container direction="column" m={1} justifyContent="center">
-          <Grid item classes={{ item: overflowEllipsisGridClasses.item }}>
-            <Button
+        <Grid container direction="column" justifyContent="center" sx={{ flexGrow: 1 }}>
+          <Grid
+            container
+            size={12}
+            direction="row"
+            alignItems="flex-start"
+            classes={{ item: overflowEllipsisGridClasses.item }}
+          >
+            <Box
+              component="div"
+              role="button"
               aria-label="Toggle layer visibility"
               onClick={(e) => {
                 if (!disabled) {
@@ -504,25 +506,21 @@ export default function LayerController(props) {
                   setVisible(nextVisible);
                 }
               }}
-              style={{
-                marginRight: 8,
-                marginBottom: 2,
-                padding: 0,
-                minWidth: 0,
-              }}
+              className={accordionClasses.accordionVisibilityIconBox}
             >
               <Visibility />
-            </Button>
-            {name}
+            </Box>
+            <Box component="div" className={accordionClasses.accordionNameBox}>
+              {name}
+            </Box>
           </Grid>
           {!disabled && !isExpanded && !use3d && (
             <Grid
               container
               direction="row"
-              alignItems="center"
-              justifyContent="center"
+              sx={{ justifyContent: 'flex-start', flexGrow: 1 }}
             >
-              <Grid item xs={6}>
+              <Grid size={5}>
                 <InputLabel
                   htmlFor={`layer-${name}-opacity-closed`}
                   classes={{ root: inputLabelClasses.inputLabelRoot }}
@@ -530,7 +528,7 @@ export default function LayerController(props) {
                   Opacity:
                 </InputLabel>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Slider
                   id={`layer-${name}-opacity-closed`}
                   value={opacity}
@@ -548,7 +546,6 @@ export default function LayerController(props) {
         </Grid>
       </AccordionSummary>
       <AccordionDetails
-        classes={{ root: accordionClasses.accordionDetailsRoot }}
         id={`layer-${name}-controls`}
       >
         {useVolumeTabs ? (

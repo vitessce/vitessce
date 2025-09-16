@@ -1,4 +1,273 @@
 
+## 3.7.0
+
+### Minor Changes
+
+- Upgraded vite to version7 (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/link-controller`, `@vitessce/spatial-three`, `@vitessce/spatial-zarr`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/spatial-beta`, `@vitessce/description`, `@vitessce/scatterplot`, `@vitessce/neuroglancer-workers`, `@vitessce/abstract`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/export-utils`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/status`, `@vitessce/sets-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/glb`, `@vitessce/json-schema`, `@vitessce/constants`, `vitessce`, `@vitessce/all`, `@vitessce/dev`, `@vitessce/globals`, `@vitessce/plugins`, `@vitessce/schemas`, `@vitessce/tooltip`, `@vitessce/workers`, `@vitessce/config`, `@vitessce/legend`, `@vitessce/styles`, `@vitessce/error`, `@vitessce/types`, `@vitessce/vit-s`, `@vitessce/vega`, `@vitessce/gl`, `demo`, `docs`) ([#2251](https://github.com/vitessce/vitessce/pull/2251))
+
+### Patch Changes
+
+- Add dropdown for selection of quantitative colormap to layerControllerBeta. Update bitmask layer shader to support a per-bitmask colormap function. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-zarr`, `@vitessce/gl`) ([#2259](https://github.com/vitessce/vitessce/pull/2259))
+
+- Added fix for overflowing legends outside the parent grid container. (`@vitessce/legend`) ([#2248](https://github.com/vitessce/vitessce/pull/2248))
+
+- Added examples from Vitessce Link site (`docs`) ([#2247](https://github.com/vitessce/vitessce/pull/2247))
+
+
+## 3.6.18
+
+### Patch Changes
+
+- Implement meta-coordination in all views. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/description`, `@vitessce/heatmap`, `@vitessce/status`) ([#2245](https://github.com/vitessce/vitessce/pull/2245))
+
+- Fix bug overwriting config-based initialization of obsSetExpansion in obsSets view. Ensure initialization of segmentationChannel coordination values in SpatialDataObsSegmentations (polygon) loader. (`@vitessce/obs-sets-manager`, `@vitessce/spatial-zarr`) ([#2243](https://github.com/vitessce/vitessce/pull/2243))
+
+
+## 3.6.17
+
+### Patch Changes
+
+- Hide image layer completely on `spatialLayerVisible: false` (`@vitessce/spatial-beta`) ([#2241](https://github.com/vitessce/vitessce/pull/2241))
+
+
+## 3.6.16
+
+### Patch Changes
+
+- Fixes linkController bug. (`@vitessce/link-controller`) ([#2239](https://github.com/vitessce/vitessce/pull/2239))
+
+
+## 3.6.15
+
+### Patch Changes
+
+- Fix bug preventing coloring bitmask by obsSets colors on initial load. (`@vitessce/spatial-beta`, `@vitessce/gl`) ([#2235](https://github.com/vitessce/vitessce/pull/2235))
+
+- Support zipped .zarr directories without cd-ing inside during zipping. (`@vitessce/zarr-utils`) ([#2236](https://github.com/vitessce/vitessce/pull/2236))
+
+- Add linkController view to more example configs. Modify linkController message handling to set linkID prop in the configuration when null. (`@vitessce/link-controller`, `@vitessce/example-configs`) ([#2226](https://github.com/vitessce/vitessce/pull/2226))
+
+
+## 3.6.14
+
+### Patch Changes
+
+- Fix updateTriggers for getExpressionValue of PolygonLayer and ScaledExpressionExtension in spatialBeta view, to ensure that polygon segmentations can be colored by expression value as intended. (`@vitessce/spatial-beta`) ([#2230](https://github.com/vitessce/vitessce/pull/2230))
+
+- Add data loader for obsEmbedding.spatialdata.zarr to enable loading dimensionality reduction scatterplot coordinates from SpatialData Table elements (within obsm). (`@vitessce/spatial-zarr`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2227](https://github.com/vitessce/vitessce/pull/2227))
+
+- Fix styles and sizing for FeatureList virtual-scrolling table element. (`@vitessce/feature-list`) ([#2232](https://github.com/vitessce/vitessce/pull/2232))
+
+
+## 3.6.13
+
+### Patch Changes
+
+- Ensure that zip-based alternative fileTypes are registered for spatialdata fileTypes. (`@vitessce/all`) ([#2224](https://github.com/vitessce/vitessce/pull/2224))
+
+
+## 3.6.12
+
+### Patch Changes
+
+- Support requestInit param for VitessceConfigDataset.addFile method. (`@vitessce/config`) ([#1855](https://github.com/vitessce/vitessce/pull/1855))
+
+- Fix jsdoc type annotation for VitessceConfig.addView options.mapping parameter. (`@vitessce/config`) ([#2222](https://github.com/vitessce/vitessce/pull/2222))
+
+- Fixes type errors during local dev build (`@vitessce/spatial-zarr`) ([#2220](https://github.com/vitessce/vitessce/pull/2220))
+
+- Fix broken links in readme/docs. (`docs`) ([#2215](https://github.com/vitessce/vitessce/pull/2215))
+
+- Fix SpatialData coordinate transformations bugs. Traverse DAG of coordinate transformations to identify target path. Refactor model matrix generation code in data loader classes. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`) ([#2216](https://github.com/vitessce/vitessce/pull/2216))
+
+
+## 3.6.11
+
+### Patch Changes
+
+- Make the draggableHandle class more specific (the title text rather than the title container) to prevent accidental activation of dragging state (e.g., when opening the plot options dropdown). (`@vitessce/vit-s`) ([#2214](https://github.com/vitessce/vitessce/pull/2214))
+
+- Add click handler for dot plot. Support 'greys' colormap selection. (`@vitessce/statistical-plots`, `@vitessce/legend`) ([#2159](https://github.com/vitessce/vitessce/pull/2159))
+
+
+## 3.6.10
+
+### Patch Changes
+
+- Fix obsSpots bug preventing coordinate transformation. (`@vitessce/spatial-zarr`) ([#2209](https://github.com/vitessce/vitessce/pull/2209))
+
+
+## 3.6.9
+
+### Patch Changes
+
+- Fixes a bug in which DataSource classes were not selected correctly following JS bundle minification, as the class names were being mapped to conflicting minified strings. (`@vitessce/vit-s`) ([#2207](https://github.com/vitessce/vitessce/pull/2207))
+
+
+## 3.6.8
+
+### Patch Changes
+
+- Support loading SpatialData Points elements. (`@vitessce/spatial-zarr`, `@vitessce/spatial-beta`) ([#2183](https://github.com/vitessce/vitessce/pull/2183))
+
+- Improve error handling: allow errors thrown in data loaders to halt react-query. Pass data-loading errors to TitleInfo for display in the UI. (`@vitessce/error`, `@vitessce/vit-s`) ([#2202](https://github.com/vitessce/vitessce/pull/2202))
+
+
+## 3.6.7
+
+### Patch Changes
+
+- Fix bug preventing loading SpatialData attrs for shapes elements to obtain format version. Normalize coordinate transformation for SpatialData image elements to enable sequence-type transformations. (`@vitessce/spatial-zarr`, `@vitessce/image-utils`) ([#2189](https://github.com/vitessce/vitessce/pull/2189))
+
+
+## 3.6.6
+
+### Patch Changes
+
+- Violin plot title uses featureValueType instead of hard-coded "Expression". (`@vitessce/statistical-plots`) ([#2178](https://github.com/vitessce/vitessce/pull/2178))
+
+- Update KPMP configuration: add statistical plots and PTC sets. (`@vitessce/example-configs`) ([#2181](https://github.com/vitessce/vitessce/pull/2181))
+
+- Fix CSS for genomicProfiles view so that HiGlass renders correctly. Add support for passing a Zarr store object to the HiGlass Zarr Multivec plugin data fetcher. (`@vitessce/genomic-profiles`) ([#2184](https://github.com/vitessce/vitessce/pull/2184))
+
+
+## 3.6.5
+
+### Patch Changes
+
+- Support polygons stored in SpatialData shapes elements. (`@vitessce/spatial-zarr`) ([#2168](https://github.com/vitessce/vitessce/pull/2168))
+
+
+## 3.6.4
+
+### Patch Changes
+
+- Add a new generateConfig implementation. (`@vitessce/config`) ([#2155](https://github.com/vitessce/vitessce/pull/2155))
+
+- Add obsFeatureColumns option for anndata.zarr fileType. (`@vitessce/schemas`) ([#2156](https://github.com/vitessce/vitessce/pull/2156))
+
+
+## 3.6.3
+
+### Patch Changes
+
+- Support the latest spatialdata table metadata format. (`@vitessce/spatial-zarr`) ([#2138](https://github.com/vitessce/vitessce/pull/2138))
+
+- Override photometricInterpretation from image metadata in blin-2019 example. (`@vitessce/example-configs`) ([#2143](https://github.com/vitessce/vitessce/pull/2143))
+
+- Updated genes_filtered file bucket to data-v1 (`@vitessce/biomarker-select`) ([#2141](https://github.com/vitessce/vitessce/pull/2141))
+
+- Fix bug preventing correct feature value extents in spatialBeta view legend (`@vitessce/legend`) ([#2149](https://github.com/vitessce/vitessce/pull/2149))
+
+
+## 3.6.2
+
+### Patch Changes
+
+- Fix React.lazy and patch neuroglancer to prevent crashing in docs site and Jupyter widget contexts. (`@vitessce/neuroglancer`) ([#2130](https://github.com/vitessce/vitessce/pull/2130))
+
+
+## 3.6.1
+
+### Patch Changes
+
+- Added coordination between Neuroglancer and other views (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/example-configs`, `@vitessce/vit-s`) ([#2084](https://github.com/vitessce/vitessce/pull/2084))
+
+- Upgrade Zustand from v3 to v5. Upgrade react-query from v4 to v5. (`@vitessce/vit-s`) ([#2128](https://github.com/vitessce/vitessce/pull/2128))
+
+
+## 3.6.0
+
+### Minor Changes
+
+- Support React v19. Upgrade docs site to Docusaurus v3. (`vitessce`, `demo`, `docs`) ([#2127](https://github.com/vitessce/vitessce/pull/2127))
+
+- Upgrade from Material UI (MUI) v4 to v7. (`@vitessce/styles`) ([#2124](https://github.com/vitessce/vitessce/pull/2124))
+
+### Patch Changes
+
+- Add CLI for creating a new view. (`vitessce`) ([#2120](https://github.com/vitessce/vitessce/pull/2120))
+
+- Update showcase page of docs. (`docs`) ([#2123](https://github.com/vitessce/vitessce/pull/2123))
+
+- Update tutorials for plugins. Add last_updated dates to tutorials. (`docs`) ([#2125](https://github.com/vitessce/vitessce/pull/2125))
+
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated tutorial for gh-pages deployment (`docs`) ([#2113](https://github.com/vitessce/vitessce/pull/2113))
+
+- Use PhotometricInterpretation TIFF metadata rather than heuristic in spatial/layerController views to determine RGB vs. not. Use photometricInterpretation coordination type in spatial/layerController views to enable overriding TIFF metadata when necessary. (`@vitessce/layer-controller`, `@vitessce/spatial`) ([#2107](https://github.com/vitessce/vitessce/pull/2107))
+
+- Fixed transformation matrix for assuming xy having equal physical sizes (`@vitessce/spatial-utils`) ([#2112](https://github.com/vitessce/vitessce/pull/2112))
+
+- Update showcase and docs. (`docs`) ([#2117](https://github.com/vitessce/vitessce/pull/2117))
+
+
+## 3.5.11
+
+### Patch Changes
+
+- Allow for spatialdata tablePath to be used for obsIndex and also allow for lack of trailing slash. (`@vitessce/spatial-zarr`, `@vitessce/zarr`) ([#2097](https://github.com/vitessce/vitessce/pull/2097))
+
+- Fix unit tests. (`@vitessce/statistical-plots`, `@vitessce/sets-utils`) ([#2104](https://github.com/vitessce/vitessce/pull/2104))
+
+- Limit the bar heights in the cell type composition plot. Update help text in comparative configurations. (`@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#2106](https://github.com/vitessce/vitessce/pull/2106))
+
+- Support featureAggregationStrategy for scatterplot and violin plot. Fix bug with obsIndex/varIndex with categorical pandas column. Temporary workaround for reactome terms. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/legend`) ([#2102](https://github.com/vitessce/vitessce/pull/2102))
+
+- traverse quadtree with overlapping points (`@vitessce/gl`) ([#2100](https://github.com/vitessce/vitessce/pull/2100))
+
+- Minor bug fixes for comparative data loader error states. Improvements to plot subtitles. Bug fix for embedding scatterplot. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/scatterplot`) ([#2095](https://github.com/vitessce/vitessce/pull/2095))
+
+- Fixed error thrown by RasterJson when incorrect filetype is used (`@vitessce/json`, `@vitessce/legend`) ([#2093](https://github.com/vitessce/vitessce/pull/2093))
+
+- Update kpmp-premiere config to reflect reprocessing of data. Update featureSetStats info to reflect usage of Reactome pathways. Update obsSetStats loading to not require covariate column. (`@vitessce/statistical-plots`, `@vitessce/zarr`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2099](https://github.com/vitessce/vitessce/pull/2099))
+
+
+## 3.5.10
+
+### Patch Changes
+
+- Fix bugs to ensure that statistical plots can be used with no sample set selection. Add basic sample set pair manager view for sidebar. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/scatterplot`, `@vitessce/sets-utils`) ([#2082](https://github.com/vitessce/vitessce/pull/2082))
+
+- Improve text positioning when scatterplot is rendering contours. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot`, `@vitessce/gl`) ([#2086](https://github.com/vitessce/vitessce/pull/2086))
+
+- Add table view for differential expression results. (`@vitessce/statistical-plots`) ([#2087](https://github.com/vitessce/vitessce/pull/2087))
+
+- Added props to voilinPlot for title and xAxisTitles (`@vitessce/statistical-plots`, `@vitessce/vit-s`) ([#2088](https://github.com/vitessce/vitessce/pull/2088))
+
+
+## 3.5.9
+
+### Patch Changes
+
+- Adds click handler for treemap, sticky header in pageMode example. Adds pageMode support for vitessce.io docs site. Adds a comparative analysis docs page. (`@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/utils`) ([#2080](https://github.com/vitessce/vitessce/pull/2080))
+
+
+## 3.5.8
+
+### Patch Changes
+
+- Update react prop docs. (`docs`) ([#2051](https://github.com/vitessce/vitessce/pull/2051))
+
+- Added Neuroglancer component as vitessce view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`, `demo`) ([#2033](https://github.com/vitessce/vitessce/pull/2033))
+
+- Wrap VitS and view components in ErrorBoundaries. (`@vitessce/vit-s`) ([#2052](https://github.com/vitessce/vitessce/pull/2052))
+
+- Upgrade to `zarrita` version with re-exports for `@zarrita/` packages (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`, `@vitessce/zarr`, `@vitessce/types`) ([#2044](https://github.com/vitessce/vitessce/pull/2044))
+
+- Add `featureStats`, `featureSetStats`, and `obsSetStats` data types and data loaders. Add volcano plot, gene set enrichment bar plot, and cell type composition bar plot views. (`@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/constants-internal`, `@vitessce/zarr`, `@vitessce/schemas`) ([#2063](https://github.com/vitessce/vitessce/pull/2063))
+
+- Do not error for 403 errors. (`@vitessce/zarr-utils`) ([#2069](https://github.com/vitessce/vitessce/pull/2069))
+
+- Added a default scaling value when the file does not provide information, in spatial-utils file for SpatialThree view. (`@vitessce/spatial-three`) ([#2050](https://github.com/vitessce/vitessce/pull/2050))
+
+- Update CCF-UI test to fix failures. (`html`) ([#2048](https://github.com/vitessce/vitessce/pull/2048))
+
+
 ## 3.5.7
 
 ### Patch Changes

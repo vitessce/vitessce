@@ -24,6 +24,10 @@ export {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
+  comparisonMetadataAnndataSchema,
+  featureStatsAnndataSchema,
+  featureSetStatsAnndataSchema,
+  obsSetStatsAnndataSchema,
   anndataZarrSchema,
   anndataH5adSchema,
   spatialdataZarrSchema,
@@ -35,8 +39,10 @@ export {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   meshGlbSchema,
 } from './file-def-options.js';
 export {

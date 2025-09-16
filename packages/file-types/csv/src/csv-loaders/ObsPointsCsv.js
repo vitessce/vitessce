@@ -1,5 +1,5 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsPointsCsvLoader extends CsvLoader {
@@ -20,10 +20,7 @@ export default class ObsPointsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
 
     const coordinationValues = {
       pointLayer: CL({

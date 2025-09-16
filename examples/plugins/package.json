@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/example-plugins",
   "private": true,
-  "version": "3.5.7",
+  "version": "3.7.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -16,8 +16,9 @@
   ],
   "scripts": {},
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants": "workspace:*",
     "@vitessce/json": "workspace:*",
     "@vitessce/plugins": "workspace:*",
@@ -29,6 +30,6 @@
     "react": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

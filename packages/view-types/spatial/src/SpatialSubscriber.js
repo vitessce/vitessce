@@ -35,7 +35,7 @@ import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -104,6 +104,7 @@ export function SpatialSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    photometricInterpretation: photometricInterpretationFromCoordination,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -154,7 +155,10 @@ export function SpatialSubscriber(props) {
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
-  const [obsLabelsTypes, obsLabelsData] = useMultiObsLabels(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    obsLabelsTypes, obsLabelsData, obsLabelsStatusMulti, obsLabelsUrlsMulti, obsLabelsErrorsMulti,
+  ] = useMultiObsLabels(
     coordinationScopes, obsType, loaders, dataset,
   );
 
@@ -179,7 +183,7 @@ export function SpatialSubscriber(props) {
   const [{
     obsIndex: obsLocationsIndex,
     obsLocations,
-  }, obsLocationsStatus, obsLocationsUrls] = useObsLocationsData(
+  }, obsLocationsStatus, obsLocationsUrls, obsLocationsError] = useObsLocationsData(
     loaders, dataset, false,
     { setSpatialPointLayer: setMoleculesLayer },
     { spatialPointLayer: moleculesLayer },
@@ -187,22 +191,27 @@ export function SpatialSubscriber(props) {
   );
   const [{
     obsLabels: obsLocationsLabels,
-  }, obsLabelsStatus, obsLabelsUrls] = useObsLabelsData(
+  }, obsLabelsStatus, obsLabelsUrls, obsLabelsError] = useObsLabelsData(
     loaders, dataset, false, {}, {},
     { obsType: 'molecule' }, // TODO: use obsType in matchOn once #1240 is merged.
   );
   const [{
     obsIndex: obsCentroidsIndex,
     obsLocations: obsCentroids,
-  }, obsCentroidsStatus, obsCentroidsUrls] = useObsLocationsData(
+  }, obsCentroidsStatus, obsCentroidsUrls, obsCentroidsError] = useObsLocationsData(
     loaders, dataset, false, {}, {},
     { obsType }, // TODO: use dynamic obsType in matchOn once #1240 is merged.
   );
-  const [{
-    obsIndex: obsSegmentationsIndex,
-    obsSegmentations,
-    obsSegmentationsType,
-  }, obsSegmentationsStatus, obsSegmentationsUrls] = useObsSegmentationsData(
+  const [
+    {
+      obsIndex: obsSegmentationsIndex,
+      obsSegmentations,
+      obsSegmentationsType,
+    },
+    obsSegmentationsStatus,
+    obsSegmentationsUrls,
+    obsSegmentationsError,
+  ] = useObsSegmentationsData(
     loaders, dataset, false,
     { setSpatialSegmentationLayer: setCellsLayer },
     { spatialSegmentationLayer: cellsLayer },
@@ -217,42 +226,72 @@ export function SpatialSubscriber(props) {
     obsSegmentationsStatus === STATUS.SUCCESS
     && !(obsSegmentations || obsSegmentationsType)
   );
-  const [{ obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   const [
-    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls,
+    { obsIndex: matrixObsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
   ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ image }, imageStatus, imageUrls] = useImageData(
+  const [{ image }, imageStatus, imageUrls, imageError] = useImageData(
     loaders, dataset, false,
     { setSpatialImageLayer: setRasterLayers },
     { spatialImageLayer: imageLayers },
     {}, // TODO: which properties to match on. Revisit after #830.
   );
-  const { loaders: imageLayerLoaders = [], meta = [] } = image || {};
-  const [neighborhoods, neighborhoodsStatus, neighborhoodsUrls] = useNeighborhoodsData(
+  const { loaders: imageLayerLoaders = [], meta = [], instance } = image || {};
+  const [
+    neighborhoods, neighborhoodsStatus, neighborhoodsUrls, neighborhoodsError,
+  ] = useNeighborhoodsData(
     loaders, dataset, false,
     { setSpatialNeighborhoodLayer: setNeighborhoodsLayer },
     { spatialNeighborhoodLayer: neighborhoodsLayer },
   );
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
+  );
+
+  const errors = [
+    ...obsLabelsErrorsMulti,
+    obsLocationsError,
+    obsLabelsError,
+    obsCentroidsError,
+    obsSegmentationsError,
+    obsSetsError,
+    ...featureSelectionErrors,
+    matrixIndicesError,
+    imageError,
+    neighborhoodsError,
+    featureLabelsError,
+  ];
+
+  const photometricInterpretation = (
+    photometricInterpretationFromCoordination
+    ?? instance?.getPhotometricInterpretation()
   );
 
 
@@ -578,6 +617,7 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       options={options}
       helpText={helpText}
+      errors={errors}
     >
       <div style={{
         position: 'absolute',
@@ -654,6 +694,7 @@ export function SpatialSubscriber(props) {
         getExpressionValue={getExpressionValue}
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
+        photometricInterpretation={photometricInterpretation}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { basename } from '../utils.js';
 
 /**
@@ -42,16 +40,12 @@ export default class ObsFeatureColumnsAnndataLoader extends AbstractTwoStepLoade
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [{ obsIndex, obsFeatureMatrix, featureIndex }] = await Promise.all([
       this.loadObsFeatureColumns(),
-    ]).then(([{ obsIndex, obsFeatureMatrix, featureIndex }]) => Promise
-      .resolve(new LoaderResult(
-        { obsIndex, obsFeatureMatrix, featureIndex },
-        null,
-      )));
+    ]);
+    return new LoaderResult(
+      { obsIndex, obsFeatureMatrix, featureIndex },
+      null,
+    );
   }
 }

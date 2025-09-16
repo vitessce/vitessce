@@ -228,6 +228,7 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.POINT_LAYER,
   );
 
+  /*
   const [
     {
       imageLayerCallbacks,
@@ -245,6 +246,7 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES.layerController,
     coordinationScopes,
   );
+  */
   // Spatial layout + window size is needed for the "re-center" button to work properly.
   // Dimensions of the Spatial component can be inferred and used for resetting view state to
   // a nice, centered view.
@@ -253,22 +255,30 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [imageData, imageDataStatus] = useMultiImages(
+  const [imageData, imageDataStatus, imageUrls, imageErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    ...obsSegmentationsErrors,
+    ...imageErrors,
+    ...obsSpotsErrors,
+    ...obsPointsErrors,
+  ];
 
   const isReady = useReady([
     obsSpotsDataStatus,
@@ -286,6 +296,7 @@ export function LayerControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
+      errors={errors}
     >
       <LayerController
         theme={theme}

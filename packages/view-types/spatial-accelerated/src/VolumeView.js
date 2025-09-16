@@ -609,7 +609,7 @@ export function VolumeView(props) {
           <boxGeometry args={[1, 1, 1]} />
           <meshBasicMaterial color="#444" wireframe />
         </mesh>
-        <OrbitControls ref={orbitRef} />
+        <OrbitControls />
       </group>
     );
   }

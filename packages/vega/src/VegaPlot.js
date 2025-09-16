@@ -1,12 +1,11 @@
 import React, { Suspense, useMemo } from 'react';
 import { Handler } from 'vega-tooltip';
 import * as vegaImport from 'vega';
-import clsx from 'clsx';
 import { useTooltipStyles } from '@vitessce/tooltip';
 import { getInterpolateFunction } from '@vitessce/legend';
 import ReactVega from './ReactVega.js';
 import { DATASET_NAME } from './utils.js';
-import { useStyles } from './styles.js';
+import { VegaGlobalStyles } from './styles.js';
 
 // Register additional colormaps using vega.scheme().
 // Reference: https://vega.github.io/vega/docs/schemes/
@@ -54,11 +53,12 @@ export function VegaPlot(props) {
     data,
     getTooltipText,
     signalListeners,
+    renderer = 'svg',
+    onNewView,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
-  const classes = useStyles();
-  const tooltipClasses = useTooltipStyles();
+  const { classes: tooltipClasses } = useTooltipStyles();
 
   const tooltipHandler = useMemo(() => {
     if (typeof getTooltipText === 'function') {
@@ -68,7 +68,7 @@ export function VegaPlot(props) {
         offsetY: 10,
         // Use table element to match packages/tooltip/TooltipContent implementation.
         formatTooltip: tooltipText => `
-          <div class="${clsx(classes.tooltipContainer, tooltipClasses.tooltipContent)}">
+          <div class="${tooltipClasses.tooltipContent}">
             ${renderTooltipContents(tooltipText)}
           </div>
         `,
@@ -87,7 +87,7 @@ export function VegaPlot(props) {
       return handlerInstance.call;
     }
     return false;
-  }, [getTooltipText, classes.tooltipContainer, tooltipClasses.tooltipContent]);
+  }, [getTooltipText, tooltipClasses.tooltipContent]);
 
   const spec = useMemo(() => ({
     ...partialSpec,
@@ -101,21 +101,25 @@ export function VegaPlot(props) {
   }), [partialSpec]);
 
   const vegaComponent = useMemo(() => (
-    <ReactVega
-      spec={spec}
-      data={{
-        [DATASET_NAME]: data,
-      }}
-      signalListeners={signalListeners}
-      tooltip={tooltipHandler}
-      renderer="svg"
-      scaleFactor={3}
-      // We need to force a re-render when the spec
-      // is the same except for changed width/height
-      // (to support responsive plots).
-      key={JSON.stringify({ width: spec.width, height: spec.height })}
-    />
-  ), [spec, data, signalListeners, tooltipHandler]);
+    <>
+      <VegaGlobalStyles />
+      <ReactVega
+        spec={spec}
+        data={{
+          [DATASET_NAME]: data,
+        }}
+        signalListeners={signalListeners}
+        tooltip={tooltipHandler}
+        renderer={renderer}
+        scaleFactor={3}
+        // We need to force a re-render when the spec
+        // is the same except for changed width/height
+        // (to support responsive plots).
+        key={JSON.stringify({ width: spec.width, height: spec.height })}
+        onNewView={onNewView}
+      />
+    </>
+  ), [spec, data, signalListeners, tooltipHandler, renderer, onNewView]);
 
   return (
     spec && data && data.length > 0 ? (

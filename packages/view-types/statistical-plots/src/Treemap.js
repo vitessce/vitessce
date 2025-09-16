@@ -1,13 +1,12 @@
 /* eslint-disable indent */
 /* eslint-disable camelcase */
 import React, { useMemo, useEffect, useRef } from 'react';
-import { scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
 import { treemap, treemapBinary, hierarchy as d3_hierarchy } from 'd3-hierarchy';
 import { rollup as d3_rollup } from 'd3-array';
 import { isEqual } from 'lodash-es';
-import { colorArrayToString } from '@vitessce/sets-utils';
-import { getDefaultColor, pluralize as plur } from '@vitessce/utils';
+import { pluralize as plur } from '@vitessce/utils';
+import { getColorScale } from './utils.js';
 
 // Based on Observable's built-in DOM.uid function.
 // This is intended to be used with SVG clipPaths
@@ -19,20 +18,6 @@ function uidGenerator(prefix) {
     i += 1;
     return { id: `${prefix}-${i}`, href: `#${prefix}-${i}` };
   };
-}
-
-// Create a d3-scale ordinal scale mapping set paths to color strings.
-function getColorScale(setSelectionArr, setColorArr, theme) {
-  return scaleOrdinal()
-    .domain(setSelectionArr || [])
-    .range(
-      setSelectionArr
-        ?.map(setNamePath => (
-          setColorArr?.find(d => isEqual(d.path, setNamePath))?.color
-          || getDefaultColor(theme)
-        ))
-        ?.map(colorArrayToString) || [],
-    );
 }
 
 /**
@@ -62,6 +47,7 @@ export default function Treemap(props) {
     marginRight = 5,
     marginLeft = 80,
     marginBottom,
+    onNodeClick,
   } = props;
 
   const hierarchyData = useMemo(() => {
@@ -119,6 +105,10 @@ export default function Treemap(props) {
   useEffect(() => {
     const domElement = svgRef.current;
 
+    if (!width || !height) {
+      return;
+    }
+
     const svg = select(domElement);
     svg.selectAll('g').remove();
     svg
@@ -127,7 +117,7 @@ export default function Treemap(props) {
       .attr('viewBox', [0, 0, width, height])
       .attr('style', 'font: 10px sans-serif');
 
-    if (!treemapLeaves || !obsSetSelection || !sampleSetSelection) {
+    if (!treemapLeaves || !obsSetSelection) {
       return;
     }
 
@@ -169,7 +159,14 @@ export default function Treemap(props) {
         .attr('fill', d => colorScale(getPathForColoring(d)))
         .attr('fill-opacity', 0.8)
         .attr('width', d => d.x1 - d.x0)
-        .attr('height', d => d.y1 - d.y0);
+        .attr('height', d => d.y1 - d.y0)
+        .on('click', (e, d) => {
+          const obsSetPath = (hierarchyLevels[0] === 'obsSet'
+            ? d.parent?.data?.[0]
+            : d.data?.[0]
+          );
+          onNodeClick(obsSetPath);
+        });
 
     // Append a clipPath to ensure text does not overflow.
     leaf.append('clipPath')
@@ -181,14 +178,28 @@ export default function Treemap(props) {
       .append('use')
         .attr('xlink:href', d => d.leafUid.href);
 
+    const hasSampleSetSelection = Array.isArray(sampleSetSelection);
+
     // Append multiline text.
     leaf.append('text')
         .attr('clip-path', d => `url(${d.clipUid.href})`)
       .selectAll('tspan')
       .data(d => ([
         // Each element in this array corresponds to a line of text.
-        d.data?.[0]?.at(-1),
-        d.parent?.data?.[0]?.at(-1),
+        ...(
+          hasSampleSetSelection
+          ? ([
+            d.data?.[0]?.at(-1),
+            d.parent?.data?.[0]?.at(-1),
+          ]) : ([
+            // Only use the cell set name
+            // for the line of text
+            // (since no sample set selection)
+            hierarchyLevels[0] === 'obsSet'
+              ? d.parent?.data?.[0].at(-1)
+              : d.data?.[0].at(-1),
+          ])
+        ),
         `${d.data?.[1].toLocaleString()} ${plur(obsType, d.data?.[1])}`,
       ]))
       .join('tspan')
@@ -199,7 +210,7 @@ export default function Treemap(props) {
   }, [width, height, marginLeft, marginBottom, theme, marginTop, marginRight,
     obsType, sampleType, treemapLeaves, sampleSetColor, sampleSetSelection,
     obsSetSelection, obsSetColor, obsSetColorScale, sampleSetColorScale,
-    obsColorEncoding, hierarchyLevels,
+    obsColorEncoding, hierarchyLevels, onNodeClick,
   ]);
 
   return (

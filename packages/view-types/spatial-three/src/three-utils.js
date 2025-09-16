@@ -361,20 +361,25 @@ function setUniformsTextures(
 * @param textures         ... from Store
 * @param contrastLimits   ... given by UI
 * @param volumeMinMax     ... from Store
-* @param scale            ... from Store
+* @param scaleOrUndefined ... from Store
 */
 export function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures,
-  contrastLimits, volumeMinMax, scale, renderstyle, layerTransparency,
+  contrastLimits, volumeMinMax, scaleOrUndefined, renderstyle, layerTransparency,
   xSlice, ySlice, zSlice, originalScale) {
   const texturesList = [];
   const colorsSave = [];
   const contrastLimitsList = [];
   let volume = null;
-  if (scale === undefined || !Array.isArray(scale) || scale.length < 3) {
-    scale = [{ size: 1 }, { size: 1 }, { size: 1 }];
+  let scale = scaleOrUndefined;
+  if (scale === undefined || scale === null || !Array.isArray(scale) || scale.length < 3) {
+    scale = [
+      { size: scale?.[0]?.size ?? 1 },
+      { size: scale?.[1]?.size ?? 1 },
+      { size: scale?.[2]?.size ?? 1 },
+    ];
   } else {
     for (let i = 0; i < scale.length; i++) {
-      if (!scale[i] || scale[i].size === undefined) {
+      if (!scale[i] || scale[i].size === undefined || scale[i].size === null) {
         scale[i] = { size: 1 };
       }
     }

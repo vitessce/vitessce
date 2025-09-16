@@ -4,11 +4,11 @@ import {
 } from '@vitessce/config';
 
 const idToUrl = {
-  'lsp-1': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
-  'lsp-2': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
-  'lsp-3': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
-  'kingsnake': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-  'gloria': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+  'lsp-1': 'https://data-2.vitessce.io/data/sorger/f8ii/',
+  'lsp-2': 'https://data-2.vitessce.io/data/sorger/lightsheet_colon/',
+  'lsp-3': 'https://data-2.vitessce.io/data/sorger/melanoma_zarr_32/',
+  'kingsnake': 'https://data-2.vitessce.io/data/zarr_test/kingsnake_1c_32_z.zarr/',
+  'gloria': 'https://data-2.vitessce.io/data/zarr_test/gloria/',
 }
 
 function generateThreeMinimalConfiguration(imageId) {

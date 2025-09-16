@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { every } from 'lodash-es';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   searchBar: {
+    marginTop: '10px',
+    marginLeft: '10px',
+    marginRight: '10px',
     marginBottom: '4px',
     border: '0',
     padding: '2px',
@@ -16,6 +19,8 @@ const useStyles = makeStyles(() => ({
 
 export default function FeatureList(props) {
   const {
+    width,
+    height,
     hasColorEncoding,
     geneList = [],
     featureLabelsMap,
@@ -30,7 +35,7 @@ export default function FeatureList(props) {
     primaryColumnName,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(geneList);
@@ -109,7 +114,7 @@ export default function FeatureList(props) {
     ];
   }, [showFeatureTable, primaryColumnName, hasFeatureLabels]);
 
-  return (
+  return (width > 0 && height > 0) ? (
     <>
       <input
         className={classes.searchBar}
@@ -129,7 +134,9 @@ export default function FeatureList(props) {
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
         showTableHead={columnLabels.length > 1}
+        width={width}
+        height={height - 34}
       />
     </>
-  );
+  ) : null;
 }
