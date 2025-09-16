@@ -23,10 +23,11 @@ beforeAll(() => {
     // Set.prototype.intersection is only available as of NodeJS 22 and later.
     intersection.shim();
 
+    /*
     class WebGLRenderingContextShim {}
     Object.assign(WebGLRenderingContextShim, {
-    VERTEX_SHADER: 0x8B31,
-    FRAGMENT_SHADER: 0x8B30,
+        VERTEX_SHADER: 0x8B31,
+        FRAGMENT_SHADER: 0x8B30,
     });
 
     class WebGL2RenderingContextShim extends WebGLRenderingContextShim {}
@@ -40,6 +41,7 @@ beforeAll(() => {
 
     // Mock neuroglancer so import side-effects don’t run in Node
     vi.mock('@janelia-flyem/neuroglancer', () => ({
-    setupDefaultViewer: () => ({}),
+        setupDefaultViewer: () => ({}),
     }));
+    */
 });
