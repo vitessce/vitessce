@@ -43,6 +43,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
     const use3d = this.use3d();
+    // Begin changes for neuroglancer.
+    // The following logic reduces the number of viewState updates emitted,
+    // which thereby reduces the number of re-renders required of Neuroglancer
+    // (when the Neuroglancer view is coordinated with a DeckGL-based Spatial view).
     let targetChanged = false;
     if (nextViewState.target && viewState.target) {
       const dx = Math.abs((nextViewState.target[0] ?? 0) - (viewState.target[0] ?? 0));
@@ -63,6 +67,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       return;
     }
     this.lastApplied = nextViewState;
+    // End changes for neuroglancer.
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
