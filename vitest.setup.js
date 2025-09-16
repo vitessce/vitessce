@@ -7,6 +7,7 @@ import intersection from 'set.prototype.intersection';
 
 import 'vitest-canvas-mock';
 import 'jsdom-worker';
+import '@testing-library/jest-dom/vitest';
 
 
 beforeAll(() => {
@@ -21,4 +22,26 @@ beforeAll(() => {
 
     // Set.prototype.intersection is only available as of NodeJS 22 and later.
     intersection.shim();
+
+    /*
+    class WebGLRenderingContextShim {}
+    Object.assign(WebGLRenderingContextShim, {
+        VERTEX_SHADER: 0x8B31,
+        FRAGMENT_SHADER: 0x8B30,
+    });
+
+    class WebGL2RenderingContextShim extends WebGLRenderingContextShim {}
+    global.WebGLRenderingContext ??= WebGLRenderingContextShim;
+    global.WebGL2RenderingContext ??= WebGL2RenderingContextShim;
+
+
+    global.HTMLCanvasElement ??= class {};
+    global.OffscreenCanvas ??= class {};
+    global.createImageBitmap ??= async () => ({});
+
+    // Mock neuroglancer so import side-effects don’t run in Node
+    vi.mock('@janelia-flyem/neuroglancer', () => ({
+        setupDefaultViewer: () => ({}),
+    }));
+    */
 });

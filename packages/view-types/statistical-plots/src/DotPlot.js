@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { clamp } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { capitalize, pluralize as plur } from '@vitessce/utils';
+import { select } from 'd3-selection';
+import { getColorScale } from './utils.js';
 
 /**
  * Gene expression dot plot,
@@ -32,13 +34,18 @@ export default function DotPlot(props) {
     marginRight,
     marginBottom,
     obsType,
+    sampleType,
     keyLength = 36,
     featureType,
     featureValueType,
     featureValueTransformName,
     featureValueColormap,
-    cellSetSelection,
+    obsSetSelection,
+    obsSetColor,
+    onDotSelect,
   } = props;
+
+  const vegaContainerRef = useRef();
 
   // Add a property `keyGroup` and `keyFeature` which concatenates the key and the name,
   // which is both unique and can easily be converted
@@ -80,17 +87,16 @@ export default function DotPlot(props) {
     || 30 + Math.sqrt(maxCharactersForSampleSet / 2) * 30;
 
   const plotWidth = transpose
-    ? clamp(width - autoMarginForFeature - 180, 10, Infinity) / (cellSetSelection?.length || 1)
+    ? clamp(width - autoMarginForFeature - 180, 10, Infinity) / (obsSetSelection?.length || 1)
     : clamp(width - autoMarginForGroup - autoMarginForSampleSet - 200, 10, Infinity);
   const plotHeight = transpose
     ? clamp((height - autoMarginForGroup - autoMarginForSampleSet - 50), 10, Infinity)
-    : clamp((height - autoMarginForFeature - 80), 10, Infinity) / (cellSetSelection?.length || 1);
+    : clamp((height - autoMarginForFeature - 80), 10, Infinity) / (obsSetSelection?.length || 1);
 
   // Get an array of keys for sorting purposes.
   const groupKeys = data.map(d => d.keyGroup);
   const featureKeys = data.map(d => d.keyFeature);
   const groupSecondaryKeys = data.map(d => d.keyGroupSecondary);
-
 
   const meanTransform = (featureValueTransformName && featureValueTransformName !== 'None')
     // Mean Log-Transformed Normalized Expression
@@ -106,6 +112,26 @@ export default function DotPlot(props) {
       // Reference: https://vega.github.io/vega-lite/docs/mark.html
       opacity: 1.0,
     },
+    params: [
+      {
+        name: 'dot_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey === false]',
+          fields: ['feature'],
+          empty: 'none',
+        },
+      },
+      {
+        name: 'shift_dot_select',
+        select: {
+          type: 'point',
+          on: 'click[event.shiftKey]',
+          fields: ['feature'],
+          empty: 'none',
+        },
+      },
+    ],
     encoding: {
       [(transpose ? 'y' : 'x')]: {
         field: 'keyFeature',
@@ -150,6 +176,11 @@ export default function DotPlot(props) {
         legend: {
           symbolFillColor: 'white',
         },
+        scale: { domain: [0, 100] },
+      },
+      tooltip: {
+        field: 'pctPosInGroup',
+        type: 'quantitative',
       },
     },
     width: plotWidth,
@@ -166,10 +197,78 @@ export default function DotPlot(props) {
     },
   };
 
+  const handleSignal = (name, value) => {
+    if (name === 'dot_select') {
+      onDotSelect(value.feature);
+    } else if (name === 'shift_dot_select') {
+      onDotSelect(value.feature, true);
+    }
+  };
+
+  const signalListeners = { dot_select: handleSignal, shift_dot_select: handleSignal };
+  const getTooltipText = useCallback(item => ({
+    [`${capitalize(featureType)}`]: item.datum.feature,
+    [`${capitalize(obsType)} Set`]: item.datum.group,
+    ...(isStratified
+      ? ({ [`${capitalize(sampleType)} Set`]: item.datum.secondaryGroup })
+      : {}
+    ),
+    [`Percentage of ${plur(obsType, 2)} in set`]: item.datum.pctPosInGroup,
+    [meanTransform.join(' ')]: item.datum.meanExpInGroup,
+  }), [featureType, obsType, featureValueType, featureValueTransformName]);
+
+  const obsSetColorScale = useMemo(() => getColorScale(
+    obsSetSelection, obsSetColor, theme,
+  ), [obsSetSelection, obsSetColor, theme]);
+
+  const [vegaRenderIncrement, setVegaRenderIncrement] = useState(0);
+
+  useEffect(() => {
+    // If the dot plot is stratified by both obsSet and sampleSet,
+    // then we want to add cell set colors.
+    // TODO: do we also want to add these color bars
+    // when only stratified by obsSet?
+    const domElement = vegaContainerRef.current;
+
+    // Here, we assume that the Vega SVG renderer is being used.
+    const svg = select(domElement)
+      .select('svg');
+    // We use the following CSS selector to identify all of
+    // the <line> elements that we are interested to modify.
+    const tickEls = svg.selectAll('g.root g.column_footer g.role-axis g.role-axis-domain line');
+
+    tickEls
+      .attr('stroke-width', 5)
+      .attr('dy', 2.5)
+      .attr('stroke', (d, i) => {
+        const obsSetPath = obsSetSelection?.[i];
+        return obsSetColorScale(obsSetPath);
+      });
+  }, [vegaContainerRef, vegaRenderIncrement, obsSetSelection, obsSetColorScale]);
+
+
+  // We want to increment the counter whenever we detect that VegaPlot
+  // has re-rendered.
+  const onNewView = useCallback(() => {
+    setVegaRenderIncrement(prev => prev + 1);
+  }, []);
+
+  // This is kind of hacky, since it is possible that the useEffect runs prior
+  // to the Vega rendering, but in practice it seems to work.
+  useEffect(() => {
+    setVegaRenderIncrement(prev => prev + 1);
+  }, [rawData]);
+
   return (
-    <VegaPlot
-      data={data}
-      spec={spec}
-    />
+    <div ref={vegaContainerRef}>
+      <VegaPlot
+        data={data}
+        spec={spec}
+        onNewView={onNewView}
+        signalListeners={signalListeners}
+        getTooltipText={getTooltipText}
+        renderer="svg"
+      />
+    </div>
   );
 }

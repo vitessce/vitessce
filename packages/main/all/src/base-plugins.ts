@@ -42,6 +42,10 @@ import {
   obsSegmentationsAnndataSchema,
   featureLabelsAnndataSchema,
   sampleEdgesAnndataSchema,
+  comparisonMetadataAnndataSchema,
+  featureStatsAnndataSchema,
+  featureSetStatsAnndataSchema,
+  obsSetStatsAnndataSchema,
   rasterJsonSchema,
   anndataZarrSchema,
   anndataH5adSchema,
@@ -58,7 +62,9 @@ import {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   obsSetPath,
   rgbArray,
   obsSetsSchema,
@@ -94,6 +100,10 @@ import {
   DotPlotSubscriber,
   FeatureBarPlotSubscriber,
   TreemapSubscriber,
+  VolcanoPlotSubscriber,
+  FeatureStatsTableSubscriber,
+  CellSetCompositionBarPlotSubscriber,
+  FeatureSetEnrichmentBarPlotSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -143,6 +153,10 @@ import {
   FeatureLabelsAnndataLoader,
   SampleEdgesAnndataLoader,
   SampleSetsAnndataLoader,
+  ComparisonMetadataAnndataLoader,
+  FeatureStatsAnndataLoader,
+  FeatureSetStatsAnndataLoader,
+  ObsSetStatsAnndataLoader,
   // MuData
   MuDataSource,
   // Legacy
@@ -158,10 +172,14 @@ import {
   // SpatialData
   SpatialDataTableSource,
   SpatialDataShapesSource,
+  SpatialDataPointsSource,
   SpatialDataImageLoader,
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
+  SpatialDataObsPointsLoader,
+  SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
+  SpatialDataObsEmbeddingLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -177,6 +195,8 @@ import {
 // Joint file types
 import {
   BiomarkerSelectSubscriber,
+  ComparativeHeadingSubscriber,
+  SampleSetPairManagerSubscriber,
   autocompleteFeature,
   transformFeature,
   getAlternativeTerms,
@@ -210,9 +230,13 @@ function makeViewType(name: string, component: any) {
 function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
-// For when we have multiple file types with the same data type and options schema.
+// For when we have multiple file types with the same data type and options schema,
+// e.g., for Zip- and H5AD- variants of Zarr file types.
 function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
   const altFileTypes = ALT_ZARR_STORE_TYPES[name];
+  if (!altFileTypes) {
+    throw new Error(`No alternative file types found for Zarr-based fileType ${name}`);
+  }
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
     ...Object.entries(altFileTypes).map(([key, fileType]) => {
@@ -244,10 +268,16 @@ export const baseViewTypes = [
   makeViewType('higlass', HiGlassSubscriber),
   makeViewType(ViewType.GENOMIC_PROFILES, GenomicProfilesSubscriber),
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
+  makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
+  makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
+  makeViewType(ViewType.COMPARATIVE_HEADING, ComparativeHeadingSubscriber),
+  makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
+  makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
+  makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -277,6 +307,11 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_ANNDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, AnnDataSource, featureLabelsAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_EDGES_ANNDATA_ZARR, DataType.SAMPLE_EDGES, SampleEdgesAnndataLoader, AnnDataSource, sampleEdgesAnndataSchema),
   ...makeZarrFileTypes(FileType.SAMPLE_SETS_ANNDATA_ZARR, DataType.SAMPLE_SETS, SampleSetsAnndataLoader, AnnDataSource, sampleSetsAnndataSchema),
+
+  ...makeZarrFileTypes(FileType.COMPARISON_METADATA_ANNDATA_ZARR, DataType.COMPARISON_METADATA, ComparisonMetadataAnndataLoader, AnnDataSource, comparisonMetadataAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_STATS_ANNDATA_ZARR, DataType.FEATURE_STATS, FeatureStatsAnndataLoader, AnnDataSource, featureStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_FEATURE_SET_STATS_ANNDATA_ZARR, DataType.FEATURE_SET_STATS, FeatureSetStatsAnndataLoader, AnnDataSource, featureSetStatsAnndataSchema),
+  ...makeZarrFileTypes(FileType.COMPARATIVE_OBS_SET_STATS_ANNDATA_ZARR, DataType.OBS_SET_STATS, ObsSetStatsAnndataLoader, AnnDataSource, obsSetStatsAnndataSchema),
   // All MuData file types
   makeFileType(FileType.OBS_SETS_MUDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, MuDataSource, obsSetsAnndataSchema),
   makeFileType(FileType.OBS_EMBEDDING_MUDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, MuDataSource, obsEmbeddingAnndataSchema),
@@ -293,18 +328,17 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
-  makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
-  // TODO: create a new loader for labels that returns obsSegmentations with obsSegmentationsType: 'bitmask'
-  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
-  // TODO: create a new loader for shapes that returns obsSegmentations with obsSegmentationsType: 'polygon' (or switch this to 'shape' everywhere?)
-  // TODO: create a new source for GeoPandas tables?
-  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, ObsSegmentationsAnndataLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
-  makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
-  makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
-  makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataObsSegmentationsLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_POINTS_SPATIALDATA_ZARR, DataType.OBS_POINTS, SpatialDataObsPointsLoader, SpatialDataPointsSource, obsPointsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR, DataType.OBS_EMBEDDING, SpatialDataObsEmbeddingLoader, SpatialDataTableSource, obsEmbeddingSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
-  makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -327,6 +361,7 @@ export const baseJointFileTypes = [
   new PluginJointFileType(FileType.ANNDATA_ZARR_ZIP, expandAnndataZarr, anndataZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_H5AD, expandAnndataZarr, anndataH5adSchema),
   new PluginJointFileType(FileType.SPATIALDATA_ZARR, expandSpatialdataZarr, spatialdataZarrSchema),
+  new PluginJointFileType(FileType.SPATIALDATA_ZARR_ZIP, expandSpatialdataZarr, spatialdataZarrSchema),
   // For legacy file types:
   new PluginJointFileType(FileType.ANNDATA_CELLS_ZARR, expandAnndataCellsZarr, anndataCellsZarrSchema),
   new PluginJointFileType(FileType.ANNDATA_CELL_SETS_ZARR, expandAnndataCellSetsZarr, anndataCellSetsZarrSchema),
@@ -451,6 +486,13 @@ export const baseCoordinationTypes = [
     null,
     z.array(z.string()).nullable(),
   ),
+  new PluginCoordinationType(CoordinationType.FEATURE_AGGREGATION_STRATEGY, null, z.union([
+    z.enum([
+      'first', 'last', 'mean', 'sum', 'difference',
+    ]),
+    // An index of a featureSelection array element.
+    z.number(),
+  ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,
     null,
@@ -573,6 +615,11 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR_ENCODING, 'cellSetSelection', z.enum(['cellSetSelection', 'sampleSetSelection', 'contourColor'])),
   new PluginCoordinationType(CoordinationType.CONTOUR_COLOR, null, rgbArray.nullable()),
   new PluginCoordinationType(CoordinationType.HIERARCHY_LEVELS, null, z.array(z.enum(['sampleSet', 'obsSet'])).nullable()),
+  // For volcano plot:
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
 ];
 
 export const baseAsyncFunctions = [

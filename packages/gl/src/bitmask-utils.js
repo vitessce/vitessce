@@ -32,7 +32,7 @@ export function multiSetsToTextureData(
   channelIsSetColorMode.forEach((isSetColorMode, channelIndex) => {
     if (isSetColorMode) {
       // totalValuesLength += setColorValues[channelIndex]?.obsIndex?.length || 0;
-      totalColorsLength += (setColorValues[channelIndex]?.setColors?.length || 0) * 3;
+      totalColorsLength += (setColorValues[channelIndex]?.setColors?.length ?? 0) * 3;
 
       // TODO: if we can assume values are monotonically increasing,
       // we can just use the final array value arr[-1] directly as the max.
@@ -49,7 +49,7 @@ export function multiSetsToTextureData(
       totalValuesLength += (
         multiMatrixObsIndex[channelIndex]
           ? d3_max(multiMatrixObsIndex[channelIndex].map(d => parseInt(d)))
-          : (multiFeatureValues[channelIndex]?.length || 0)
+          : (multiFeatureValues[channelIndex]?.length ?? 0)
       );
     }
   });
@@ -79,7 +79,7 @@ export function multiSetsToTextureData(
     // Assume the bitmask values correspond to the values in the matrixObsIndex (off by one).
     const bitmaskValueIsIndex = matrixObsIndex === null;
     if (isSetColorMode) {
-      const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] || {};
+      const { setColorIndices, setColors, obsIndex } = setColorValues[channelIndex] ?? {};
       if (setColorIndices && setColors && obsIndex) {
         for (let i = 0; i < obsIndex.length; i++) {
           let obsId = String(i + 1);
@@ -109,7 +109,7 @@ export function multiSetsToTextureData(
       indexOffset += (obsIndex?.length || 0);
       colorOffset += (setColors?.length || 0);
     } else {
-      const featureArr = multiFeatureValues[channelIndex];
+      const featureArr = multiFeatureValues[channelIndex] ?? [];
       const normalizedFeatureArr = normalize(featureArr);
 
       if (!bitmaskValueIsIndex && matrixObsIndex) {

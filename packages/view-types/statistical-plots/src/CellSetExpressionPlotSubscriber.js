@@ -9,6 +9,7 @@ import {
   useSampleSetsData,
   useSampleEdgesData,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS, capitalize, cleanFeatureId } from '@vitessce/utils';
@@ -25,6 +26,28 @@ import {
   summarizeStratifiedExpressionData,
   histogramStratifiedExpressionData,
 } from './expr-hooks.js';
+
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+
+function featureSummary(geneSelection, featureAggregationStrategy) {
+  if (featureAggregationStrategy === 'first') {
+    return geneSelection?.[0];
+  } if (featureAggregationStrategy === 'last') {
+    return geneSelection?.at(-1);
+  } if (typeof featureAggregationStrategy === 'number') {
+    const i = featureAggregationStrategy;
+    return geneSelection?.[i];
+  } if (featureAggregationStrategy === 'sum') {
+    // TODO: make these .join()-ed labels more scalable,
+    // in particular, if more than 10 or so elements.
+    return geneSelection?.join(' + ');
+  } if (featureAggregationStrategy === 'mean') {
+    return `Mean of ${geneSelection?.join(', ')}`;
+  } if (featureAggregationStrategy === 'difference') {
+    return geneSelection?.join(' - ');
+  }
+  return '';
+}
 
 /**
  * Get expression data for the cells
@@ -50,7 +73,7 @@ function useExpressionByCellSet(
   expressionData, obsIndex, cellSets, additionalCellSets,
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
-  theme, yMinProp,
+  theme, yMinProp, featureAggregationStrategy,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -68,7 +91,7 @@ function useExpressionByCellSet(
     );
     if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(
-        stratifiedData, geneSelection,
+        stratifiedData, geneSelection, featureAggregationStrategy,
       );
       const summarizedData = summarizeStratifiedExpressionData(
         aggregateData, true,
@@ -83,6 +106,7 @@ function useExpressionByCellSet(
     mergedCellSets, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     yMinProp, sampleEdges, sampleSets, sampleSetSelection,
+    featureAggregationStrategy,
   ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -109,19 +133,22 @@ function useExpressionByCellSet(
  */
 export function CellSetExpressionPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    title,
+    xAxisTitle,
     jitter = false,
     yMin = null,
     yUnits = null,
     helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -138,10 +165,12 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleType,
     sampleSetSelection,
     sampleSetColor,
+    featureAggregationStrategy,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setSampleSetColor,
+    setFeatureAggregationStrategy,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION],
     coordinationScopes,
@@ -152,40 +181,61 @@ export function CellSetExpressionPlotSubscriber(props) {
   const transformOptions = VALUE_TRANSFORM_OPTIONS;
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  // eslint-disable-next-line max-len
-  const [{ featureLabelsMap: featureLabelsMapOrig }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap: featureLabelsMapOrig },
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrls] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrls] = useSampleSetsData(
+  const [
+    { sampleSets }, sampleSetsStatus, sampleSetsUrls, sampleSetsError,
+  ] = useSampleSetsData(
     loaders, dataset, false,
     { setSampleSetColor },
     { sampleSetColor },
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrls] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrls, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );
+
+  const errors = [
+    ...featureSelectionErrors,
+    featureLabelsError,
+    matrixIndicesError,
+    obsSetsError,
+    sampleSetsError,
+    sampleEdgesError,
+  ];
 
   const isReady = useReady([
     featureSelectionStatus,
@@ -204,29 +254,41 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesUrls,
   ]);
 
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+
   const [histogramData, setArr, exprMax] = useExpressionByCellSet(
     sampleEdges, sampleSets, sampleSetSelection,
     expressionData, obsIndex, cellSets, additionalCellSets,
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
-    theme, yMin,
+    theme, yMin, featureAggregationStrategyToUse,
   );
 
-  const firstGeneSelected = geneSelection && geneSelection.length >= 1
-    ? (
-      featureLabelsMap?.get(geneSelection[0])
-      || featureLabelsMap?.get(cleanFeatureId(geneSelection[0]))
-      || geneSelection[0]
-    )
-    : null;
+  const featureSuffix = useMemo(() => {
+    const cleanedGeneSelection = geneSelection?.map(geneName => (
+      featureLabelsMap?.get(geneName)
+      || featureLabelsMap?.get(cleanFeatureId(geneName))
+      || geneName
+    ));
+    if (Array.isArray(cleanedGeneSelection)) {
+      return featureSummary(cleanedGeneSelection, featureAggregationStrategyToUse);
+    }
+    return null;
+  }, [geneSelection, featureAggregationStrategyToUse]);
+
+
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,
   )?.name;
-
+    // Use empty string when firstGeneSelected is null
+  const titleSuffix = featureSuffix ? ` (${featureSuffix})` : '';
 
   return (
     <TitleInfo
-      title={`Expression by ${capitalize(obsType)} Set${(firstGeneSelected ? ` (${firstGeneSelected})` : '')}`}
+      title={title ? `${title}${titleSuffix}`
+        : `${capitalize(featureValueType)} by ${capitalize(obsType)} Set${titleSuffix}`
+      }
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
@@ -234,6 +296,7 @@ export function CellSetExpressionPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}
@@ -241,6 +304,8 @@ export function CellSetExpressionPlotSubscriber(props) {
           featureValueTransformCoefficient={featureValueTransformCoefficient}
           setFeatureValueTransformCoefficient={setFeatureValueTransformCoefficient}
           transformOptions={transformOptions}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       )}
     >
@@ -250,7 +315,8 @@ export function CellSetExpressionPlotSubscriber(props) {
             yMin={yMin}
             yUnits={yUnits}
             jitter={jitter}
-            cellSetSelection={cellSetSelection}
+            obsSetSelection={cellSetSelection}
+            obsSetColor={cellSetColor}
             sampleSetSelection={sampleSetSelection}
             sampleSetColor={sampleSetColor}
             colors={setArr}
@@ -263,6 +329,7 @@ export function CellSetExpressionPlotSubscriber(props) {
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
+            xAxisTitle={xAxisTitle}
           />
         ) : (
           <span>Select a {featureType}.</span>

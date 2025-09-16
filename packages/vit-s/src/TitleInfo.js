@@ -1,21 +1,27 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link } from '@material-ui/core';
 import {
+  makeStyles,
+  MenuItem,
+  IconButton,
+  Link,
+  List,
+  Alert,
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
-} from '@material-ui/icons';
+  Warning as WarningIcon,
+} from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   iconButton: {
     border: 'none',
     marginLeft: 0,
@@ -27,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: theme.palette.primaryBackgroundLight,
     },
-    '&:first-child': {
+    '&:first-of-type': {
       marginLeft: '0.25em',
     },
     '&:last-child': {
@@ -55,6 +61,18 @@ const useStyles = makeStyles(theme => ({
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
     border: '10px solid grey',
   },
+  errorList: {
+    width: '100%',
+    maxWidth: 300,
+    padding: '0 4px',
+  },
+  errorListAlert: {
+    marginTop: '2px',
+    marginBottom: '2px',
+  },
+  errorListItemText: {
+    fontSize: '12px',
+  },
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -69,7 +87,7 @@ function SettingsIconWithArrow({ open }) {
 function PlotOptions(props) {
   const { options } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const buttonIcon = useMemo(() => (<SettingsIconWithArrow open={open} />), [open]);
   return (options ? (
@@ -79,6 +97,7 @@ function PlotOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Plot Options"
       aria-label="Open plot options menu"
     >
       {options}
@@ -98,7 +117,7 @@ function CloudDownloadIconWithArrow({ open }) {
 function DownloadOptions(props) {
   const { urls } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const buttonIcon = useMemo(() => (<CloudDownloadIconWithArrow open={open} />), [open]);
   return (urls && urls.length ? (
     <PopperMenu
@@ -107,6 +126,7 @@ function DownloadOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Download Options"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
@@ -123,7 +143,7 @@ function DownloadOptions(props) {
 function HelpButton(props) {
   const { helpText } = props;
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <PopperMenu
       open={open}
@@ -131,6 +151,7 @@ function HelpButton(props) {
       buttonIcon={<HelpIcon />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Help Info"
       aria-label="Open help info"
       withPaper={false}
     >
@@ -139,16 +160,48 @@ function HelpButton(props) {
   );
 }
 
+function ErrorInfo(props) {
+  const { errors } = props;
+  const [open, setOpen] = useState(false);
+  const { classes } = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<WarningIcon color="error" />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      title="View Errors"
+      aria-label="Open error info"
+    >
+      <List className={classes.errorList}>
+        {errors.map((error, index) => (
+          <Alert
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${index}-${error.name}-${error.message}`}
+            severity="error"
+            className={classes.errorListAlert}
+            slots={{ message: 'span' }}
+            slotProps={{ message: { className: classes.errorListItemText } }}
+          >
+            {error.name}: {error.message}
+          </Alert>
+        ))}
+      </List>
+    </PopperMenu>
+  );
+}
+
 
 function ClosePaneButton(props) {
   const { removeGridComponent } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <IconButton
       onClick={removeGridComponent}
       size="small"
       className={classes.iconButton}
-      title="close"
+      title="Close View"
       aria-label="Close panel button"
     >
       <CloseIcon />
@@ -160,10 +213,12 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText,
+    helpText, withPadding = true, errors: errorsProp,
   } = props;
 
-  const classes = useTitleStyles();
+  const errors = errorsProp?.filter(Boolean);
+
+  const { classes } = useTitleStyles();
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
@@ -182,6 +237,11 @@ export function TitleInfo(props) {
           {downloadButtonVisible ? (
             <DownloadOptions
               urls={urls}
+            />
+          ) : null}
+          {Array.isArray(errors) && errors.length > 0 ? (
+            <ErrorInfo
+              errors={errors}
             />
           ) : null}
           {helpText ? (
@@ -204,6 +264,8 @@ export function TitleInfo(props) {
             [classes.scrollCard]: isScroll,
             [classes.spatialCard]: isSpatial,
             [classes.noScrollCard]: !isScroll && !isSpatial,
+            [classes.noPaddingCard]: !withPadding,
+            [classes.paddingCard]: withPadding,
           },
         )}
         aria-busy={!isReady}

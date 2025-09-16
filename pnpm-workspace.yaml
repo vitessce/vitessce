@@ -9,18 +9,19 @@ packages:
   - '!consumer'
 
 catalog:
-  "zustand": ^3.5.10
+  "zustand": ^5.0.4
   "lodash-es": ^4.17.21
   "@types/lodash-es": ^4.17.7
   "internmap": ^2.0.3
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
+  "@tanstack/react-query": ^5.80.2
   # note packages/types was on @hms-dbmi/viv ~0.13.8
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
   # Zarrita
-  "zarrita": 0.4.0-next.24
-  "@zarrita/storage": 0.1.0-next.9
+  "zarrita": 0.5.3
+  "@zarrita/storage": 0.1.2
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
@@ -31,25 +32,30 @@ catalog:
   # note - packages/legend was on d3-scale ^3.2.3
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0
-  "d3-color": ^1.4.0
-  "d3-interpolate": ^2.0.1
+  "d3-color": ^3.1.0
+  "d3-interpolate": ^3.0.1
   "d3-shape": ^3.2.0
   "d3-selection": ^3.0.0
-  "vega-scale": ^6.0.0
+  "vega-scale": ^8.0.0
   "pluralize": ^8.0.0
   "math.gl": ^3.5.6
   "@math.gl/core": ^3.5.6
   "mathjs": ^9.2.0
   "zod": ^3.21.4
   "react-aria": ^3.28.0
+  "react-error-boundary": ^5.0.0
   "semver": ^7.3.8
   "@types/semver": ^7.3.13
   # Arrow/Parquet/DuckDB
   "apache-arrow": ^17.0.0
   "parquet-wasm": ^0.6.1
   # Material UI
-  "@material-ui/core": ~4.12.3
-  "@material-ui/icons": ~4.11.2
+  "@mui/material": ^7.1.0
+  "@mui/icons-material": ^7.1.0
+  "@mui/lab": ^7.0.0-beta.12
+  # The data grid added a .css import in a PR after 8.0.0-beta.3
+  # Reference: https://github.com/mui/mui-x/pull/17214
+  "@mui/x-data-grid": 8.0.0-beta.3
   # ThreeJS
   "three": ^0.154.0
   "@react-three/fiber": ^8.15.19
@@ -57,18 +63,20 @@ catalog:
   # note - packages/file-types/glb was on @react-three/drei ~9.89.0
   "@react-three/xr": ^5.7.1
   # Vite
-  "vite": ^4.3.0
-  "@vitejs/plugin-react": ^4.0.0
-  "vitest": ^0.32.2
+  "vite": ^7.0.0
+  "@vitejs/plugin-react": ^4.5.0
+  "vitest": ^3.1.4
+  "@vitest/coverage-v8": ^3.1.4
+  "@vitest/ui": ^3.1.4
   # React
   "react": ^18.0.0
   "react-dom": ^18.0.0
   "@types/react": ^18.0.28
   # Testing library
-  "@testing-library/jest-dom": ^5.16.4
-  "@testing-library/react": ^13.3.0
-  "@testing-library/react-hooks": ^8.0.1
-  "@testing-library/user-event": ^14.2.1
+  "@testing-library/jest-dom": ^6.6.3
+  "@testing-library/dom": ^10.4.0
+  "@testing-library/react": ^16.3.0
+  "@testing-library/user-event": ^14.6.1
 
 # We are using named catalogs for groups of packages
 # that are versioned together
@@ -103,10 +111,15 @@ catalogs:
     "@nebula.gl/layers": 0.23.8
     "@nebula.gl/edit-modes": 0.23.8
   turf:
-    "@turf/area": ^6.5.0
-    "@turf/boolean-contains": ^6.5.0
-    "@turf/boolean-overlap": ^6.5.0
-    "@turf/boolean-point-in-polygon": ^6.5.0
-    "@turf/boolean-within": ^6.5.0
-    "@turf/centroid": ^6.5.0
-    "@turf/helpers": ^6.5.0
+    "@turf/area": ^7.2.0
+    "@turf/boolean-contains": ^7.2.0
+    "@turf/boolean-overlap": ^7.2.0
+    "@turf/boolean-point-in-polygon": ^7.2.0
+    "@turf/boolean-within": ^7.2.0
+    "@turf/centroid": ^7.2.0
+    "@turf/helpers": ^7.2.0
+    "@turf/circle": ^7.2.0
+    "@turf/union": ^7.2.0
+    "@turf/meta": ^7.2.0
+    "@turf/invariant": ^7.2.0
+    "@turf/distance": ^7.2.0

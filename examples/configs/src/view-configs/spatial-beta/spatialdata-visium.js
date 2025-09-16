@@ -23,6 +23,7 @@ function generateVisiumConfig() {
     url: baseUrl,
     options: {
       path: 'images/ST8059049_image',
+      coordinateSystem: 'ST8059049',
     },
   }).addFile({
     fileType: 'obsFeatureMatrix.spatialdata.zarr',
@@ -41,6 +42,7 @@ function generateVisiumConfig() {
       path: 'shapes/ST8059049_shapes',
       tablePath: 'table/table',
       region: 'ST8059049_shapes',
+      coordinateSystem: 'ST8059049',
     },
     coordinationValues: {
       obsType: 'spot',

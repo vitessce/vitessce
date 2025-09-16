@@ -26,11 +26,10 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
     "@react-three/fiber": "catalog:",
     "@react-three/drei": "catalog:",
     "@react-three/xr": "catalog:",
@@ -42,6 +41,7 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/styles": "workspace:*",
     "d3-array": "catalog:",
     "internmap": "catalog:",
     "lodash-es": "catalog:",
@@ -55,10 +55,11 @@
   "devDependencies": {
     "@types/three": "^0.162.0",
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   TitleInfo, useCoordination, useWarning,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import Status from './Status.js';
@@ -19,13 +20,15 @@ import Status from './Status.js';
  */
 export function StatusSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     removeGridComponent,
     theme,
     title = 'Status',
     helpText = ViewHelpMapping.STATUS,
   } = props;
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

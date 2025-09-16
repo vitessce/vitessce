@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
-export const useTitleStyles = makeStyles(theme => ({
+export const useTitleStyles = makeStyles()(theme => ({
   title: {
     color: theme.palette.primaryForeground,
     overflowX: 'hidden',
@@ -8,6 +8,7 @@ export const useTitleStyles = makeStyles(theme => ({
     flexDirection: 'row',
     flexShrink: '0',
   },
+  // Note: This class is specified as the draggable handle for the grid layout.
   titleLeft: {
     flexShrink: '1',
     textOverflow: 'ellipsis',
@@ -40,7 +41,6 @@ export const useTitleStyles = makeStyles(theme => ({
     border: `${theme.cardBorderSize} solid ${theme.palette.cardBorder}`,
     flex: '1 1 auto',
     minHeight: '1px',
-    padding: '12px',
     marginTop: '8px',
     marginBottom: '8px',
     position: 'relative',
@@ -50,6 +50,12 @@ export const useTitleStyles = makeStyles(theme => ({
     wordWrap: 'break-word',
     backgroundClip: 'border-box',
     borderRadius: '4px',
+  },
+  paddingCard: {
+    padding: '12px',
+  },
+  noPaddingCard: {
+    padding: 0,
   },
   noScrollCard: {
     backgroundColor: theme.palette.secondaryBackground,

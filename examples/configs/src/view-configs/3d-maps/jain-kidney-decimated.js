@@ -1,13 +1,14 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat, vconcat,
 } from '@vitessce/config';
 
 function generateJainKidneyDecimatedConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Jain Kidney Decimated 2024',
+    name: 'McLaughlin et al. 2025',
+    // name: 'Jain Kidney Decimated 2024',
+    description: '3D mapping of human nephrons reveals glomerular communities connected by extensive nerve networks, coordinating kidney function and changing with development and disease.',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -47,12 +48,14 @@ function generateJainKidneyDecimatedConfig() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
-  const obsSetsView = config.addView(dataset, 'obsSets');
-  const barPlot = config.addView(dataset, 'featureBarPlot').setProps({
+  const spatialThreeView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 }).setProps({ three: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 2 });
+  const obsSetsView = config.addView(dataset, 'obsSets', { x: 8, y: 4, w: 4, h: 2 });
+  const barPlot = config.addView(dataset, 'featureBarPlot', { x: 8, y: 4, w: 4, h: 2 }).setProps({
     yUnits: 'microns cubed',
   });
+  // eslint-disable-next-line no-unused-vars
+  const linkController = config.addView(dataset, 'linkController', { x: 8, y: 2, w: 4, h: 2 });
 
   const [
     selectionScope,
@@ -147,14 +150,6 @@ function generateJainKidneyDecimatedConfig() {
     obsSetColor: colorScope,
     obsColorEncoding: colorEncodingScope,
   }, { meta: false });
-
-  /*
-    config.layout(hconcat(
-      vconcat(spatialThreeView,spatialVolumeView),
-      vconcat(lcView,obsSetsView, barPlot)
-    ));
-  */
-  config.layout(hconcat(spatialThreeView, vconcat(lcView, vconcat(obsSetsView, barPlot))));
 
   const configJSON = config.toJSON();
   return configJSON;

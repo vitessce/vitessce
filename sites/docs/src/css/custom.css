@@ -74,6 +74,11 @@
   height: calc(100vh - var(--ifm-navbar-height));
 }
 
+.vitessce-and-toolbar.vitessce-page {
+  height: auto !important;
+  top: calc(var(--ifm-navbar-height) - 30px);
+}
+
 .vitessce-toolbar {
   position: relative;
   width: 100%;
@@ -116,10 +121,13 @@
   left: 10%
 }
 
-.vitessce-app.vitessce-expanded .vitessce-container {
+.vitessce-app.vitessce-expanded .vitessce-container, .vitessce-app.vitessce-page .vitessce-container {
   position: relative;
   width: 100%;
   left: 0;
+}
+
+.vitessce-app.vitessce-expanded .vitessce-container {
   height: calc(100vh - var(--ifm-navbar-height) - var(--ifm-vitessce-toolbar-height));
 }
 
@@ -131,9 +139,11 @@
   border: none !important;
 }
 
+/* 
 .vitessce-container table * {
   border: none;
 }
+ */
 
 .vitessce-container table tr:nth-child(2n) {
   background-color: transparent;

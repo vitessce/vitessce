@@ -1,0 +1,42 @@
+{
+  "name": "@vitessce/error",
+  "version": "3.7.0",
+  "author": "HIDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.mjs",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   TitleInfo,
   useCoordination, useLoaders,
@@ -8,6 +8,7 @@ import {
   useFeatureLabelsData,
   useSampleSetsData,
   useSampleEdgesData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS } from '@vitessce/utils';
@@ -27,7 +28,7 @@ import { useExpressionSummaries } from './dot-plot-hook.js';
  */
 export function DotPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     title = 'Dot Plot',
@@ -35,8 +36,9 @@ export function DotPlotSubscriber(props) {
     helpText = ViewHelpMapping.DOT_PLOT,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
@@ -54,11 +56,14 @@ export function DotPlotSubscriber(props) {
     additionalObsSets: additionalCellSets,
     sampleType,
     sampleSetSelection,
+    // eslint-disable-next-line no-unused-vars
+    featureAggregationStrategy,
   }, {
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
     setFeatureValuePositivityThreshold: setPosThreshold,
     setFeatureValueColormap,
+    setFeatureAggregationStrategy,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.DOT_PLOT],
     coordinationScopes,
@@ -70,34 +75,56 @@ export function DotPlotSubscriber(props) {
   const isStratified = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 1;
 
   // Get data from loaders using the data hooks.
-  // eslint-disable-next-line no-unused-vars
-  const [expressionData, loadedFeatureSelection, featureSelectionStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionData, loadedFeatureSelection, featureSelectionStatus, featureSelectionErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, geneSelection,
     { obsType, featureType, featureValueType },
   );
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrl] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrl, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
-  const [{ obsIndex }, matrixIndicesStatus, matrixIndicesUrl] = useObsFeatureMatrixIndices(
+  const [
+    { obsIndex }, matrixIndicesStatus, matrixIndicesUrl, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrl] = useObsSetsData(
+  const [
+    { obsSets: cellSets }, obsSetsStatus, obsSetsUrl, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
 
-  const [{ sampleSets }, sampleSetsStatus, sampleSetsUrl] = useSampleSetsData(
+  const [
+    { sampleSets }, sampleSetsStatus, sampleSetsUrl, sampleSetsError,
+  ] = useSampleSetsData(
     loaders, dataset, false, {}, {},
     { sampleType },
   );
 
-  const [{ sampleEdges }, sampleEdgesStatus, sampleEdgesUrl] = useSampleEdgesData(
+  const [
+    { sampleEdges }, sampleEdgesStatus, sampleEdgesUrl, sampleEdgesError,
+  ] = useSampleEdgesData(
     loaders, dataset, false, {}, {},
     { obsType, sampleType },
   );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    ...featureSelectionErrors,
+    featureLabelsError,
+    matrixIndicesError,
+    obsSetsError,
+    sampleSetsError,
+    sampleEdgesError,
+  ];
 
   const isReady = useReady([
     featureSelectionStatus,
@@ -127,6 +154,16 @@ export function DotPlotSubscriber(props) {
     o => o.value === featureValueTransform,
   )?.name;
 
+  // eslint-disable-next-line no-unused-vars
+  const onDotSelect = useCallback((featureName, isShiftDown = false) => {
+    // TODO: Implement different behavior when isShiftDown
+    // / (featureName array will need to be aggregated)
+    const featureI = geneSelection.indexOf(featureName?.[0]);
+    if (featureI >= 0) {
+      setFeatureAggregationStrategy(featureI);
+    }
+  }, [setFeatureAggregationStrategy, geneSelection]);
+
   return (
     <TitleInfo
       title={title}
@@ -135,6 +172,7 @@ export function DotPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}
@@ -160,11 +198,14 @@ export function DotPlotSubscriber(props) {
             width={width}
             height={height}
             obsType={obsType}
+            sampleType={sampleType}
             featureType={featureType}
             featureValueType={featureValueType}
             featureValueTransformName={selectedTransformName}
             featureValueColormap={featureValueColormap}
-            cellSetSelection={cellSetSelection}
+            obsSetSelection={cellSetSelection}
+            obsSetColor={cellSetColor}
+            onDotSelect={onDotSelect}
           />
         ) : (
           <span>Select at least one {featureType}.</span>

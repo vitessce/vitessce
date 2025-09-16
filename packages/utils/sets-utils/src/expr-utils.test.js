@@ -74,6 +74,7 @@ describe('Utility functions for processing expression data', () => {
     ];
     const featureValueTransform = null;
     const featureValueTransformCoefficient = 1;
+    const featureAggregationStrategy = 'first';
 
 
     it('stratifyExpressionData: stratify by cell set, then sample set', () => {
@@ -91,7 +92,7 @@ describe('Utility functions for processing expression data', () => {
       expect(exprMax).toEqual(41);
 
       const aggregateData = aggregateStratifiedExpressionData(
-        result, geneSelection,
+        result, geneSelection, featureAggregationStrategy,
       );
 
       expect(Array.from(aggregateData.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
@@ -118,24 +119,25 @@ describe('Utility functions for processing expression data', () => {
         new Uint8Array([10, 20, 30, 40, 11, 21, 31, 41]),
       ];
 
-      const result = stratifyArrays(
+      const [result, cellCount] = stratifyArrays(
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
-          // TODO: aggregate and transform expression data if needed prior to passing here
-          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData?.[0] } : {}),
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
         },
+        featureAggregationStrategy,
       );
 
       expect(Array.from(result.keys())).toEqual([['Cell type', 'T cell'], ['Cell type', 'B cell']]);
       expect(Array.from(result.get(['Cell type', 'T cell']).keys())).toEqual([['Clinical groups', 'AKI'], ['Clinical groups', 'CKD']]);
       expect(Array.from(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).keys())).toEqual(['obsEmbeddingX', 'obsEmbeddingY', 'featureValue', 'obsIndex']);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue').length).toBe(2);
-      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue')).toEqual(new Uint8Array([10, 30]));
+      expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('featureValue')).toEqual([10, 30]);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('obsEmbeddingX').length).toBe(2);
       expect(result.get(['Cell type', 'T cell']).get(['Clinical groups', 'AKI']).get('obsEmbeddingY').length).toBe(2);
+      expect(cellCount).toBe(8);
     });
   });
 });

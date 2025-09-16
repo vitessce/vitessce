@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import {
   initializeCellSetColor,
   treeToMembershipMap,
@@ -12,6 +10,13 @@ import {
  * Loader for converting zarr into the cell sets json schema.
  */
 export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
+  constructor(dataSource, params) {
+    super(dataSource, params);
+    // These are used by the subclass SpatialDataObsSetsLoader.
+    this.region = null;
+    this.tablePath = null;
+  }
+
   loadObsIndices() {
     const { options } = this;
     const obsIndexPromises = options
@@ -45,14 +50,10 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
     if (!this.cachedResult) {
       const { options } = this;
       this.cachedResult = Promise.all([
-        this.dataSource.loadObsIndex(),
+        this.dataSource.loadObsIndex(this.tablePath),
         this.loadObsIndices(),
         this.loadCellSetIds(),
         this.loadCellSetScores(),
@@ -72,8 +73,6 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
-    return Promise.resolve(
-      new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),
-    );
+    return new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues);
   }
 }

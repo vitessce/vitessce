@@ -43,6 +43,20 @@ export type FeatureLabelsData = {
   featureLabelsMap: Map<string, string>;
 };
 
+export type ComparisonMetadata = {
+  comparisonMetadata: object; // TODO: update?
+};
+
+export type FeatureStatsData = {
+  featureId: string[]; // (Not "featureIndex" since feature values may repeat)
+  featureSignificance: number[];
+  featureFoldChange: number[];
+  // Used when faceting by sample
+  sampleId: string[] | null; // Null if not per-sample stats
+  // Used when faceting by obsSet
+  obsSetId: string[] | null; // Null if not obsSet-vs-rest stats
+};
+
 export type ObsLabelsData = {
   obsIndex: string[];
   obsLabels: string[];

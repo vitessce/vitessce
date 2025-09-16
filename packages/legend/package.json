@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/legend",
-  "version": "3.5.7",
+  "version": "3.7.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,11 +26,11 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@material-ui/core": "catalog:",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "clsx": "catalog:",
@@ -49,6 +49,6 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }

@@ -1,12 +1,12 @@
 import React from 'react';
 import {
   makeStyles,
-  Select,
-} from '@material-ui/core';
+  NativeSelect,
+} from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
     width: '90%',
     marginLeft: '5%',
@@ -27,8 +27,8 @@ export default function ChannelSelectionDropdown(props) {
     setWindow,
     disabled,
   } = props;
-  const classes = useStyles();
-  const selectClasses = useSelectStyles();
+  const { classes } = useStyles();
+  const { classes: selectClasses } = useSelectStyles();
 
   function handleChange(event) {
     setTargetC(event.target.value === '' ? null : Number(event.target.value));
@@ -36,8 +36,7 @@ export default function ChannelSelectionDropdown(props) {
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
   return (Array.isArray(featureIndex) ? (
-    <Select
-      native
+    <NativeSelect
       classes={{ root: selectClasses.selectRoot }}
       className={classes.oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
@@ -45,10 +44,11 @@ export default function ChannelSelectionDropdown(props) {
       inputProps={{ 'aria-label': 'Channel selector' }}
     >
       {featureIndex.map((channelName, channelIndex) => (
-        <option disabled={disabled} key={channelName} value={channelIndex}>
+        // eslint-disable-next-line react/no-array-index-key
+        <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
           {channelName}
         </option>
       ))}
-    </Select>
+    </NativeSelect>
   ) : null);
 }

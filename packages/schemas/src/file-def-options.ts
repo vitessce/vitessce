@@ -28,6 +28,69 @@ const annDataConvenienceObsEmbeddingItem = z.object({
   embeddingType: z.string(),
 });
 
+const annDataComparisonMetadata = z.object({
+  path: z.string().describe('Path to the comparison metadata, such as /uns/comparison_metadata'),
+});
+
+const annDataFeatureStats = z.object({
+  // TODO: implement a featureStats.anndata.zarr loader
+  // which does not depend on comparisonMetadata
+  // (instead, would point directly to the root of
+  // the dataframe containing a set of diff exp results)
+  // path: z.string().describe('Path to the dataframe containing the results.'),
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature index, if different than the default dataframe index.'),
+  pValueColumn: z.string(),
+  foldChangeColumn: z.string(),
+  pValueTransformation: z.enum(['minuslog10'])
+    .optional(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+});
+
+const annDataFeatureSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the feature set index, if different than the default dataframe index.'),
+  termColumn: z.string()
+    .optional(),
+  pValueColumn: z.string(),
+  pValueAdjusted: z.boolean()
+    .optional(),
+  featureSetLibrary: z.string()
+    .optional()
+    .describe('Optionally, provide a feature set library name. By default, Reactome_2022.'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, pertpy_hypergeometric.'),
+});
+
+// Reference: https://pertpy.readthedocs.io/en/stable/tutorials/notebooks/sccoda.html#Result-interpretation
+const annDataObsSetStats = z.object({
+  metadataPath: z.string().describe('Path to the comparison metadata.'),
+  indexColumn: z.string()
+    .optional()
+    .describe('Provide a column to use for the obs set index, if different than the default dataframe index.'),
+  interceptExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  effectExpectedSampleColumn: z.string()
+    .describe('If we had a new sample (with no active covariates) with a total number of cells equal to the mean sampling depth of the dataset, then this distribution over the cell types would be most likely.'),
+  foldChangeColumn: z.string()
+    .describe('The log-fold change is then calculated between this expected sample and the expected sample with no active covariates from the intercept section.'),
+  foldChangeTransformation: z.enum(['log2'])
+    .optional(),
+  isCredibleEffectColumn: z.string()
+    .describe('Column which annotates effects as being credible or not (boolean).'),
+  analysisType: z.string()
+    .optional()
+    .describe('Optionally, provide an analysis_type name. By default, sccoda_df.'),
+});
+
 const annDataObsLabels = annDataObs;
 const annDataFeatureLabels = annDataObs;
 const annDataSampleEdges = annDataObs;
@@ -134,12 +197,20 @@ export const imageSpatialdataSchema = z.object({
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this be renamed labelsSpatialdataSchema?
-  // TODO: support obsTypesFromChannelNames?
-  path: z.string(),
+  // TODO: support obsTypesFromElementNames?
+  path: z.string().describe('The path to the segmentation data, stored in either shapes/ or labels/.'),
   tablePath: z.string()
     .optional()
-    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+    .describe('The path to a table which annotates the labels or shapes. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+});
+export const obsPointsSpatialdataSchema = z.object({
+  path: z.string().describe('The path to the point data.'),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the points. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
@@ -176,6 +247,22 @@ export const obsSetsSpatialdataSchema = z.object({
     .describe('The path to a table which contains the index for the set values.'),
   obsSets: annDataObsSetsArr,
 });
+export const obsEmbeddingSpatialdataSchema = annDataObsEmbedding.extend({
+  // We extend anndataObsEmbedding which already has properties like `dims` and `path`.
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+});
+
+// TODO: should the convenience schema also allow specifying tablePath and region?
+const obsEmbeddingSpatialdataSchemaConvenience = z.union([
+  annDataObsEmbedding,
+  // For convenience, allow an array of items with `embeddingType` properties.
+  z.array(annDataConvenienceObsEmbeddingItem),
+]);
 
 // GLB
 export const meshGlbSchema = z.object({
@@ -213,6 +300,11 @@ export const obsLabelsAnndataSchema = annDataObsLabels;
 export const featureLabelsAnndataSchema = annDataFeatureLabels;
 export const obsFeatureColumnsAnndataSchema = annDataObsFeatureColumns;
 export const sampleEdgesAnndataSchema = annDataSampleEdges;
+
+export const comparisonMetadataAnndataSchema = annDataComparisonMetadata;
+export const featureStatsAnndataSchema = annDataFeatureStats;
+export const featureSetStatsAnndataSchema = annDataFeatureSetStats;
+export const obsSetStatsAnndataSchema = annDataObsSetStats;
 
 // CSV
 export const obsEmbeddingCsvSchema = z.object({
@@ -279,6 +371,7 @@ export const anndataZarrSchema = z.object({
     z.array(annDataConvenienceFeatureLabelsItem),
   ]),
   obsFeatureMatrix: annDataObsFeatureMatrix,
+  obsFeatureColumns: annDataObsFeatureColumnsArr,
   obsSets: annDataObsSetsArr,
   obsSpots: annDataObsSpots,
   obsPoints: annDataObsPoints,
@@ -298,20 +391,24 @@ export const anndataH5adSchema = anndataZarrSchema.extend({
 export const spatialdataZarrSchema = z.object({
   // TODO: should `image` be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple images
+  // TODO: allow multiple images?
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels
-  labels: obsSegmentationsSpatialdataSchema,
+  // TODO: allow multiple labels/shapes?
+  obsSegmentations: obsSegmentationsSpatialdataSchema,
+  obsPoints: obsPointsSpatialdataSchema,
+  // TODO: allow multiple shapes?
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
-  // TODO: obsEmbedding
+  obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
   // TODO: obsLabels
   // TODO: featureLabels
+
+  // TODO: allow specifying tablePath and region at the top-level here.
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),
