@@ -685,6 +685,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/image-utils':
         specifier: workspace:*
         version: link:../../utils/image-utils
