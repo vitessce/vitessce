@@ -3,6 +3,9 @@ import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
 
+const ROTATION_THRESHOLD = 1;
+const ZOOM_THRESHOLD = 0.01;
+const TRANSLATION_THRESHOLD = 2;
 /**
  * Abstract class component intended to be inherited by
  * the Spatial and Scatterplot class components.
@@ -17,7 +20,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       gl: null,
       tool: null,
     };
-
+    this.lastApplied = null;
     this.viewport = null;
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
@@ -40,6 +43,31 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
     const use3d = this.use3d();
+    // Begin changes for neuroglancer.
+    // The following logic reduces the number of viewState updates emitted,
+    // which thereby reduces the number of re-renders required of Neuroglancer
+    // (when the Neuroglancer view is coordinated with a DeckGL-based Spatial view).
+    let targetChanged = false;
+    if (nextViewState.target && viewState.target) {
+      const dx = Math.abs((nextViewState.target[0] ?? 0) - (viewState.target[0] ?? 0));
+      const dy = Math.abs((nextViewState.target[1] ?? 0) - (viewState.target[1] ?? 0));
+      const scale = 2 ** (nextViewState.zoom ?? 0);
+      const dxPx = Math.abs(dx) * scale;
+      const dyPx = Math.abs(dy) * scale;
+      targetChanged = dxPx > TRANSLATION_THRESHOLD || dyPx > TRANSLATION_THRESHOLD;
+    }
+    const prev = this.lastApplied || viewState;
+    const zoomChanged = Math.abs((nextViewState.zoom ?? 0) - (prev.zoom ?? 0))
+      > ZOOM_THRESHOLD;
+    const orbitChanged = Math.abs((nextViewState.rotationOrbit ?? 0) - (prev.rotationOrbit ?? 0))
+      > ROTATION_THRESHOLD;
+    const xChanged = Math.abs((nextViewState.rotationX ?? 0) - (prev.rotationX ?? 0))
+      > ROTATION_THRESHOLD;
+    if (!(zoomChanged || orbitChanged || xChanged || targetChanged)) {
+      return;
+    }
+    this.lastApplied = nextViewState;
+    // End changes for neuroglancer.
     setViewState({
       ...nextViewState,
       // If the axis is fixed, just use the current target in state i.e don't change target.
