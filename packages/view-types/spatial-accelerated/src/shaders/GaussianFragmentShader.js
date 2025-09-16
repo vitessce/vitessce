@@ -1,11 +1,11 @@
 /*
  * Gaussian Blur Fragment Shader
- * 
+ *
  * This shader applies Gaussian blur filtering to a texture using different kernel sizes.
  * The blur strength is controlled by the 'gaussian' uniform parameter.
- * 
+ *
  * ASCII Art Diagrams:
- * 
+ *
  * 3x3 Gaussian Kernel (gaussian3):
  * ┌─────────┬─────────┬─────────┐
  * │  0.0625 │  0.125  │  0.0625 │
@@ -14,7 +14,7 @@
  * ├─────────┼─────────┼─────────┤
  * │  0.0625 │  0.125  │  0.0625 │
  * └─────────┴─────────┴─────────┘
- * 
+ *
  * 5x5 Gaussian Kernel (gaussian5):
  * ┌─────┬─────┬─────┬─────┬─────┐
  * │ 1/273│ 4/273│ 7/273│ 4/273│ 1/273│
@@ -27,7 +27,7 @@
  * ├─────┼─────┼─────┼─────┼─────┤
  * │ 1/273│ 4/273│ 7/273│ 4/273│ 1/273│
  * └─────┴─────┴─────┴─────┴─────┘
- * 
+ *
  * 7x7 Gaussian Kernel (gaussian7):
  * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐
  * │     │     │ 1/1003│ 2/1003│ 1/1003│     │     │
@@ -44,7 +44,7 @@
  * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
  * │     │     │ 1/1003│ 2/1003│ 1/1003│     │     │
  * └─────┴─────┴─────┴─────┴─────┴─────┴─────┘
- * 
+ *
  * How it works:
  * 1. For each pixel, sample neighboring pixels based on kernel size
  * 2. Weight each sample by the corresponding kernel value

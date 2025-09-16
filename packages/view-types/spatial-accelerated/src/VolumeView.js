@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+/* eslint-disable no-underscore-dangle */
 /**
  * VolumeView.js
  */
@@ -59,7 +60,7 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
     ctx.readPixels(0, 0, mrtRef.current.width, mrtRef.current.height,
       ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
     // Based on the request buffer contents, process the requests
-    // (e.g., start loading the brick data and upload to the brick cache). 
+    // (e.g., start loading the brick data and upload to the brick cache).
     // Finally, it will set triggerUsage to true.
     dataManager.processRequestData(bufRequest.current);
   } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
@@ -92,12 +93,12 @@ function handleAdaptiveQuality(clock, params) {
   } = params;
 
   // Moved out of useEffect
-  if(screenQuadRef.current) {
+  if (screenQuadRef.current) {
     if (!stillRef.current) {
       // console.log('stillRef is false');
       screenQuadRef.current.material.uniforms.gaussian.value = 7;
     } else {
-      //console.log('stillRef is true');
+      // console.log('stillRef is true');
       screenQuadRef.current.material.uniforms.gaussian.value = 0;
     }
   }
@@ -214,7 +215,7 @@ export function VolumeView(props) {
 
   const [isInteracting, setIsInteracting] = useState(false);
   const interactionTimeoutRef = useRef(null);
-  
+
   // Track interaction-triggering props
   // const prevInteractionChannels = useRef();
 
@@ -226,18 +227,14 @@ export function VolumeView(props) {
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
   // const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
-  
+
   // const sameArray = (a, b) => a && b && a.length === b.length && a.every((v, i) => v === b[i]);
 
   // INITIALIZATION (GL-DEPENDENT ONLY)
 
-  const dataManager = useMemo(() => {
-    return new VolumeDataManager(gl);
-  }, [gl]);
+  const dataManager = useMemo(() => new VolumeDataManager(gl), [gl]);
 
-  const renderManager = useMemo(() => {
-    return new VolumeRenderManager();
-  }, []);
+  const renderManager = useMemo(() => new VolumeRenderManager(), []);
 
   useEffect(() => {
     log('useEffect MRT target matching canvas');
@@ -294,7 +291,7 @@ export function VolumeView(props) {
     };
   }, [gl]);
 
-  
+
   // INITIALIZATION (IMAGE-DEPENDENT)
   const firstImageLayerScope = imageLayerScopes?.[0];
   const firstImage = images?.[firstImageLayerScope];
@@ -304,7 +301,7 @@ export function VolumeView(props) {
   useEffect(() => {
     log('useEffect INIT');
 
-    if(!dataManager || !renderManager) {
+    if (!dataManager || !renderManager) {
       console.log('dataManager or renderManager not initialized yet');
       return;
     }
@@ -314,7 +311,7 @@ export function VolumeView(props) {
       return;
     }
 
-    if(!firstImageLayerChannelCoordination) {
+    if (!firstImageLayerChannelCoordination) {
       console.log('no firstImageLayerChannelCoordination yet');
       return;
     }
@@ -322,7 +319,7 @@ export function VolumeView(props) {
     // TODO(mark): prevent dataManager.init from being called more than once.
     (async () => {
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
-      dataManager.initImages(images, imageLayerScopes)
+      dataManager.initImages(images, imageLayerScopes);
       // TODO: generalize to more than one image layer.
       await dataManager.init(firstImageLayerChannelCoordination); // device limits, zarr meta
 
@@ -338,7 +335,7 @@ export function VolumeView(props) {
       //   onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       // }
     })();
-    
+
     // The data manager does not have a clearCache method, should it?
     // return () => {
     //   console.log('VolumeView useEffect cleanup: running dataManager.clearCache()');
@@ -401,12 +398,12 @@ export function VolumeView(props) {
         spatialRenderingMode,
       };
       if (renderManager.updateFromProps(propsForRenderManager)) {
-        const zarrInit = renderManager.zarrInit;
+        const { zarrInit } = renderManager;
         if (!zarrInit) {
           // If textures have not yet been initialized, do so prior to calling .updateRendering,
           // as this internally calls renderManager.updateUniforms,
           // which (I anticipate) expects the textures to be initialized.
-          
+
           // Initialize textures without warnings
           dataManager.ptTHREE.needsUpdate = false;
           dataManager.bcTHREE.needsUpdate = false;
@@ -618,7 +615,7 @@ export function VolumeView(props) {
   return (
     <group>
       <OrbitControls
-        //ref={mainOrbitControlsRef}
+        // ref={mainOrbitControlsRef}
         enableDamping={false}
         onStart={onOrbitControlsStart}
         onEnd={onOrbitControlsEnd}

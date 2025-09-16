@@ -57,4 +57,4 @@ export function SpatialWrapper(props) {
       />
     </Canvas>
   );
-};
+}

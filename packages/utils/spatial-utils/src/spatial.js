@@ -27,7 +27,7 @@ export const getStatsForResolution = (loader, resolution) => {
   const depth = shape[labels.indexOf('z')];
 
   const dims = Object.fromEntries(
-    labels.map((label, i) => ([label, shape[i]]))
+    labels.map((label, i) => ([label, shape[i]])),
   );
 
   // eslint-disable-next-line no-bitwise

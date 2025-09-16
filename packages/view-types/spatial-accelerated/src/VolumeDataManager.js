@@ -2,6 +2,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -64,11 +66,11 @@ export function _resolutionStatsToShapes(multiResolutionStats) {
     const { dims } = stats;
     const shape = [
       // Other spatial-accelerated code assumes TCZYX dimension order
-      dims['t'], // TODO: standardize lowercase/uppercase dim names at store-level
-      dims['c'], // TODO: handle case when dimension(s) are missing
-      dims['z'],
-      dims['y'],
-      dims['x'],
+      dims.t, // TODO: standardize lowercase/uppercase dim names at store-level
+      dims.c, // TODO: handle case when dimension(s) are missing
+      dims.z,
+      dims.y,
+      dims.x,
     ];
     return shape;
   });
@@ -76,9 +78,9 @@ export function _resolutionStatsToShapes(multiResolutionStats) {
 export function _resolutionStatsToBrickLayout(multiResolutionStats) {
   return multiResolutionStats.map((stats) => {
     const shape = [
-      stats.depth,  // z
+      stats.depth, // z
       stats.height, // y
-      stats.width,  // x
+      stats.width, // x
     ];
     // TODO: abstract chunkSize to always be 32x32x32 at store-level
     // const chunkSize = array0.chunks || [BRICK_SIZE, BRICK_SIZE, BRICK_SIZE];
@@ -91,9 +93,9 @@ export function _resolutionStatsToBrickLayout(multiResolutionStats) {
 }
 
 /**
- * 
- * @param {[number, number, number][]} zarrStoreBrickLayout 
- * @param {number} channelsZarrMappingsLength 
+ *
+ * @param {[number, number, number][]} zarrStoreBrickLayout
+ * @param {number} channelsZarrMappingsLength
  */
 export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   console.log('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
@@ -345,10 +347,10 @@ export function _requestBufferToRequestObjects(buffer, k) {
 export class VolumeDataManager {
   constructor(glParam) {
     log('CLASS INITIALIZING');
-   // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
+    // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
 
-   const gl = glParam.getContext?.() || glParam;
-   const renderer = glParam;
+    const gl = glParam.getContext?.() || glParam;
+    const renderer = glParam;
 
     // this.images = images;
     // this.imageLayerScopes = imageLayerScopes;
@@ -557,7 +559,7 @@ export class VolumeDataManager {
       this.ngffMetadata = imageWrapper.vivLoader.metadata;
       console.log('ngffMetadata', this.ngffMetadata);
 
-      if(!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
+      if (!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
         throw new Error('Invalid imageWrapper or not an OME-Zarr image');
       }
 
@@ -570,11 +572,11 @@ export class VolumeDataManager {
       // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
       const vivData = imageWrapper.getData();
 
-      if(!Array.isArray(vivData) || vivData.length < 1) {
+      if (!Array.isArray(vivData) || vivData.length < 1) {
         throw new Error('Not a multiresolution loader');
       }
 
-      if(!isEqual(vivData[0].labels, ['t', 'c', 'z', 'y', 'x'])) {
+      if (!isEqual(vivData[0].labels, ['t', 'c', 'z', 'y', 'x'])) {
         // TODO: relax this and remove the error.
         throw new Error('Expected OME-Zarr data with dimensions [t, c, z, y, x]');
       }
@@ -674,7 +676,7 @@ export class VolumeDataManager {
         // console.warn('group.attrs', this.group.attrs);
         const { multiscales } = this.ngffMetadata;
 
-        if(!multiscales) {
+        if (!multiscales) {
           throw new Error('Expected multiscales metadata in group.attrs');
         }
 
@@ -737,7 +739,7 @@ export class VolumeDataManager {
           }
         }
 
-        
+
         // Calculate brick layout for each resolution
         this.zarrStore.brickLayout = _resolutionStatsToBrickLayout(
           imageWrapper.getMultiResolutionStats(),
@@ -751,7 +753,7 @@ export class VolumeDataManager {
         // for each key in config, add to channel mappings
         const { omero } = this.ngffMetadata || {};
 
-        if(!omero) {
+        if (!omero) {
           // TODO(mark): do not use omero metadata directly, use the ImageWrapper channel methods.
           throw new Error('Expected omero metadata in ngffMetadata');
         }
@@ -815,11 +817,11 @@ export class VolumeDataManager {
   /**
    * Initialize the BrickCache and PageTable
    * MRMCPT: multi-resolution multi-channel page table
-   * 
+   *
    * Depends on:
    *   - zarrStore.brickLayout
    *   - zarrMappings.length (zarrMappings: the zarr channel index for every one of the up to 7 channels)
-   *   - 
+   *   -
    */
   initMRMCPT() {
     log('initMRMCPT');
@@ -828,7 +830,7 @@ export class VolumeDataManager {
     // console.warn('initMRMCPT', this.zarrStore.channelCount);
     // console.warn('initMRMCPT', this.channels.zarrMappings);
     // console.warn('initMRMCPT', this.channels.colorMappings);
-    
+
     const { PT, ptTHREE, bcTHREE } = _initMRMCPT(
       this.zarrStore.brickLayout,
       this.channels.zarrMappings.length,
@@ -862,7 +864,7 @@ export class VolumeDataManager {
     log('updateChannels');
     console.log('channelProps', channelProps);
 
-    //console.error('TODO: init channel mappings first ');
+    // console.error('TODO: init channel mappings first ');
     console.log('this.channels.zarrMappings', this.channels.zarrMappings);
     console.log('this.channels.colorMappings', this.channels.colorMappings);
     console.log('this.channels.downsampleMin', this.channels.downsampleMin);
@@ -967,7 +969,6 @@ export class VolumeDataManager {
     this.channels.colorMappings = newColorMappings;
 
     console.log('updatedChannels', this.channels);
-
   }
 
   /**
@@ -1116,7 +1117,7 @@ export class VolumeDataManager {
   async processUsageData(buffer) {
     if (this.isBusy) {
       console.log('processUsageData: already busy, skipping');
-      this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests 
+      this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
       return;
     }
     this.isBusy = true;
@@ -1249,7 +1250,7 @@ export class VolumeDataManager {
  * 2. Allocate the next n free bricks in the brick cache         *
  * ------------------------------------------------------------- */
   /**
-   * 
+   *
    * @param {number} n The number of slots to allocate
    * @returns {{ bcIndex, x, y, z }[]} Array of brick cache coordinates for the allocated slots.
    */
@@ -1357,7 +1358,7 @@ export class VolumeDataManager {
       chunk = uint8Chunk;
     }
 
-    if(!(chunk instanceof Uint8Array)) {
+    if (!(chunk instanceof Uint8Array)) {
       throw new Error(`Unsupported chunk type: ${chunk.constructor.name}. Expected Uint8Array.`);
     }
 
@@ -1466,7 +1467,7 @@ export class VolumeDataManager {
         console.warn('DUPLICATE BRICK LOADED', ptRequests[i]);
       }
 
-      if(this.needsBailout) {
+      if (this.needsBailout) {
         console.warn('Bailing out of handleBrickRequests early due to needsBailout flag');
         this.needsBailout = false; // Reset the flag
         break; // Exit the loop early

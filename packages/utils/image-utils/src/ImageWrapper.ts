@@ -508,7 +508,6 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
 
-
   getBoundingCube(): BoundingCube {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;

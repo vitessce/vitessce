@@ -5,27 +5,27 @@
  * - Multi-channel rendering with independent color/opacity
  * - Adaptive sampling based on distance and resolution
  * - Support for different rendering styles (MIP, MinIP, standard)
- * 
+ *
  * ========================================
  * BRICK CACHE AND PAGE TABLE EXPLANATION
  * ========================================
  * Volumes can be gigabytes in size, but GPU memory is limited.
  * We need a way to efficiently render these datasets without
  * loading everything into memory at once.
- * 
+ *
  * SOLUTION: A two-tier caching system using a Brick Cache and a Page Table:
- * 
+ *
  * 1. BRICK CACHE (The Data Storage):
- *    - Think of the 3D dataset as a large cube divided into smaller 32x32x32 
+ *    - Think of the 3D dataset as a large cube divided into smaller 32x32x32
  *      voxel "bricks"
- *    - The Brick Cache is a 3D texture (2048x2048x128) that acts as a "cache" 
+ *    - The Brick Cache is a 3D texture (2048x2048x128) that acts as a "cache"
  *      or "working memory" for these bricks
  *    - Only the most recently used bricks are kept in this cache
- *    - When you need data from a brick that's not in the cache, it gets loaded 
+ *    - When you need data from a brick that's not in the cache, it gets loaded
  *      from disk and stored in the cache (replacing the least recently used brick)
- * 
+ *
  * 2. PAGE TABLE (The Index/Map):
- *    - The Page Table is an index that tells us where 
+ *    - The Page Table is an index that tells us where
  *      each brick is stored in the Brick Cache
  *    - Each entry in the Page Table corresponds to one brick in the 3D dataset
  *    - The Page Table entry contains:
@@ -36,31 +36,32 @@
  *          we still need to request this data to be loaded into the brick cache.
  *      * The minimum and maximum values in the brick (for optimization)
  *      * The exact coordinates where the brick is stored in the Brick Cache
- *    - This is similar to how a library's card catalog tells you which shelf 
+ *    - This is similar to how a library's card catalog tells you which shelf
  *      and position a book is located
- * 
+ *
  * HOW IT WORKS TOGETHER:
- * 1. When rendering a pixel, the shader needs to sample data from a specific 
+ * 1. When rendering a pixel, the shader needs to sample data from a specific
  *    location in the 3D dataset
  * 2. It calculates which brick contains that location
  * 3. It looks up that brick in the Page Table to see if it's loaded in the cache
- * 4. If loaded: it uses the coordinates from the Page Table to sample from the 
+ * 4. If loaded: it uses the coordinates from the Page Table to sample from the
  *    Brick Cache
- * 5. If not loaded: it requests the brick to be loaded (and continues with 
+ * 5. If not loaded: it requests the brick to be loaded (and continues with
  *    lower resolution data until the brick arrives)
- *      The request is performed by modifying the gRequest value to append the coordinate of the brick being requested.
- * 
+ *      The request is performed by modifying the gRequest value
+ *      to append the coordinate of the brick being requested.
+ *
  * MULTI-RESOLUTION ADAPTATION:
- * The system supports multiple levels of detail (LOD) to handle different viewing 
+ * The system supports multiple levels of detail (LOD) to handle different viewing
  * distances and performance requirements:
- * 
+ *
  * RESOLUTION LEVELS:
  * - Level 0: Highest detail (1:1 scale) - every voxel is represented
  * - Level 1: 2:1 scale - every 2x2x2 block of voxels becomes 1 voxel
  * - Level 2: 4:1 scale - every 4x4x4 block of voxels becomes 1 voxel
  * - Level 3: 8:1 scale - every 8x8x8 block of voxels becomes 1 voxel
  * - ...and so on up to Level 9 (512:1 scale)
- * 
+ *
  * HOW BRICK CACHE HANDLES MULTIPLE RESOLUTIONS:
  * - Each resolution level has its own set of bricks in the same cache
  * - Higher resolution levels use more bricks (more detail)
@@ -68,29 +69,29 @@
  * - The cache can store bricks from different resolution levels simultaneously
  * - When you zoom in, the system loads higher resolution bricks
  * - When you zoom out, it can use lower resolution bricks (faster rendering)
- * 
+ *
  * HOW PAGE TABLE HANDLES MULTIPLE RESOLUTIONS:
  * - Each resolution level has its own "anchor point" in the page table
  * - The anchor point defines where that resolution's brick entries start
  * - Different channels can have different resolution ranges available
  * - The system automatically selects the best available resolution for each channel
  * - If a high-resolution brick isn't loaded, it falls back to lower resolution
- * 
+ *
  * ADAPTIVE RESOLUTION SELECTION:
  * - Distance-based: Objects far from the camera use lower resolution
  * - Performance-based: When rendering is slow, it uses lower resolution
  * - Quality-based: When high quality is needed, it requests higher resolution
  * - Channel-specific: Each channel can have different resolution requirements
- * 
+ *
  * EXAMPLE SCENARIO:
  * 1. User is viewing a large dataset from far away → Uses Level 5-7 bricks
  * 2. User zooms in on a specific region → System requests Level 2-3 bricks
  * 3. User continues zooming → System loads Level 0-1 bricks for maximum detail
  * 4. If Level 0 bricks aren't loaded yet → Temporarily shows Level 1 bricks
  * 5. Once Level 0 bricks arrive → Smoothly transitions to highest detail
- * 
+ *
  * Diagrams:
- * 
+ *
  * 1. Ray-Marching Through Volume:
  *    Camera
  *      |
@@ -105,17 +106,17 @@
  *    │  sampling at regular intervals      │
  *    │                                     │
  *    └─────────────────────────────────────┘
- * 
+ *
  * 2. Multi-Resolution LOD System:
  *    Resolution Levels (0 = highest, 9 = lowest):
- *    
+ *
  *    Level 0: ████████████████████████████  (1:1 scale)
  *    Level 1: ████████░░░░░░░░████████░░░░  (2:1 scale)
  *    Level 2: ████░░░░░░░░░░░░████░░░░░░░░  (4:1 scale)
  *    Level 3: ██░░░░░░░░░░░░░░██░░░░░░░░░░  (8:1 scale)
  *    ...
  *    Level 9: █░░░░░░░░░░░░░░░░░░░░░░░░░░░  (512:1 scale)
- * 
+ *
  * 3. Brick Cache Layout:
  *    ┌─────────────────────────────────────┐
  *    │ 2048 x 2048 x 128 texture           │
@@ -127,7 +128,7 @@
  *    │  Each brick = 32x32x32 voxels       │
  *    │  Total: 64x64x16 = 65,536 bricks    │
  *    └─────────────────────────────────────┘
- * 
+ *
  * 4. Page Table Structure:
  *    ┌─────────────────────────────────────┐
  *    │ 32-bit entry per brick:             │
@@ -140,7 +141,7 @@
  *    │ [9:4]  Y offset in cache (6 bits)   │
  *    │ [3:0]  Z offset in cache (4 bits)   │
  *    └─────────────────────────────────────┘
- * 
+ *
  * 5. Multi-Channel Rendering:
  *    Channel 0: ████████████████████████████
  *    Channel 1: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -149,20 +150,20 @@
  *    Channel 4: ████████████████████████████
  *    Channel 5: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░
  *    Channel 6: ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
- *    
+ *
  *    Each channel has independent:
  *    - Color mapping
  *    - Opacity
  *    - Resolution range
  *    - Contrast limits
- * 
+ *
  * 6. Adaptive Sampling:
  *    Distance-based LOD selection:
- *    
+ *
  *    Near:   ████████████████████████████  (High res, small steps)
  *    Medium: ████████░░░░░░░░████████░░░░  (Medium res, medium steps)
  *    Far:    ██░░░░░░░░░░░░░░██░░░░░░░░░░  (Low res, large steps)
- * 
+ *
  * Other features:
  * - Ray-box intersection for volume bounds
  * - Adaptive step size based on LOD

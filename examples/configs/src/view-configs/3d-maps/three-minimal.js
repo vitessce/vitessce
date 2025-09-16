@@ -7,9 +7,9 @@ const idToUrl = {
   'lsp-1': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
   'lsp-2': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
   'lsp-3': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
-  'kingsnake': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-  'gloria': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
-}
+  kingsnake: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
+  gloria: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+};
 
 function generateThreeMinimalConfiguration(imageId) {
   const config = new VitessceConfig({
@@ -43,7 +43,7 @@ function generateThreeMinimalConfiguration(imageId) {
   });
 
   const spatialAcceleratedView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 }).setProps({ three: true, accelerated: true });
-  const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true, accelerated: false });
+  // const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true, accelerated: false });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
   config.linkViewsByObject([spatialAcceleratedView, lcView], {
     spatialTargetZ: 0,
@@ -66,7 +66,7 @@ function generateThreeMinimalConfiguration(imageId) {
     ]),
   });
 
-  //config.layout(hconcat(spatialAcceleratedView, lcView));
+  // config.layout(hconcat(spatialAcceleratedView, lcView));
 
   const configJSON = config.toJSON();
   return configJSON;
