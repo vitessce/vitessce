@@ -41,6 +41,12 @@ const LAST_INTERACTION_SOURCE = {
   neuroglancer: 'neuroglancer',
 };
 
+function rgbToHex(rgb) {
+  return (typeof rgb === 'string'
+    ? rgb
+    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
+}
+
 export function NeuroglancerSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
@@ -138,10 +144,6 @@ export function NeuroglancerSubscriber(props) {
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
-
-
-  const rgbToHex = useCallback(rgb => (typeof rgb === 'string' ? rgb
-    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`), []);
 
   const cellColors = useMemo(() => getCellColors({
     cellSets: mergedCellSets,

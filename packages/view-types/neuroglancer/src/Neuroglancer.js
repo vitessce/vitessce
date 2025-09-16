@@ -13,7 +13,6 @@ export class NeuroglancerComp extends PureComponent {
     super(props);
     this.bundleRoot = createWorker();
     this.cellColorMapping = props.cellColorMapping;
-    this.viewerState = props.viewerState;
     this.justReceivedExternalUpdate = false;
     this.prevElement = null;
     this.prevClickHandler = null;
@@ -74,12 +73,7 @@ export class NeuroglancerComp extends PureComponent {
 
   onViewerStateChanged(nextState) {
     const { setViewerState } = this.props;
-    this.viewerState = nextState;
     setViewerState(nextState);
-  }
-
-  UNSAFE_componentWillUpdate(nextProps) {
-    this.viewerState = nextProps.viewerState;
   }
 
   componentDidUpdate(prevProps) {
