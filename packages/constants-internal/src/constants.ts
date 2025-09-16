@@ -191,6 +191,9 @@ export const FileType = {
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // GLB
   OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
+  // Neuroglancer
+  // Precomputed (mesh) format
+  OBS_SEGMENTATIONS_NG_PRECOMPUTED_ZARR: 'obsSegmentations.ng-precomputed.zarr',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
