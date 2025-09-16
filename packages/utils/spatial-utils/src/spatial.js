@@ -48,9 +48,8 @@ export const canLoadResolution = (loader, resolution) => {
   return (
     totalBytes < maxSize
     && height <= 2048
-    && depthDownsampled <= 2048
     && width <= 2048
-    && depthDownsampled > 1
+    && depthDownsampled <= 2048
   );
 };
 

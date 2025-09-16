@@ -7,12 +7,10 @@ import {
 import { ImageWrapper } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { getDebugMode } from '@vitessce/globals';
+import { getDebugMode, log } from '@vitessce/globals';
 
-function isPyramidalImage(loader) {
-  return (loader?.metadata?.Pixels?.Interleaved === false
-      && loader?.metadata?.Pixels?.TiffData?.[0].PlaneCount > 1);
-}
+const OFFSETS_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#ome-tiff-offsets';
+const PYRAMID_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#multi-resolution-pyramidal-representation';
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {
@@ -34,22 +32,25 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
     const offsets = await this.loadOffsets();
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
-    const isPyramid = isPyramidalImage(loader);
+    const imageWrapper = new ImageWrapper(loader, this.options);
 
-    if (getDebugMode() && loader) {
-      const resourceUrl = 'https://github.com/hms-dbmi/generate-tiff-offsets';
-      if (!isPyramid && !offsets) {
-        throw new Error(
-          'Image must be pyramidal and an offsets file is required.\n'
-          + `You can create one with ${resourceUrl}`,
-        );
-      }
-      if (!isPyramid) throw new Error('Image has to be pyramidal');
-      if (!offsets) {
-        throw new Error(`Offsets file is missing. You can use ${resourceUrl} to create one`);
+    // Check size of lowest resolution.
+    // TODO: does this multiResolutionStats logic still work when image is not pyramidal?
+    const multiResolutionStats = imageWrapper.getMultiResolutionStats();
+    const lowestResolutionStats = multiResolutionStats.at(-1);
+    if (!lowestResolutionStats.canLoad) {
+      throw new Error(`The lowest resolution of this image exceeds texture size limits or the browser max heap size. Please use an image pyramid with lower resolution levels. See documentation at ${PYRAMID_DOCS_URL}`);
+    }
+
+    // Check that offsets are provided.
+    if (!offsets) {
+      // Offsets are missing.
+      if (getDebugMode()) {
+        throw new Error(`In debug mode, OME-TIFF offsets JSON file is required. See documentation at ${OFFSETS_DOCS_URL}`);
+      } else {
+        log.error(`OME-TIFF offsets JSON file is missing, which can increase loading times and degrade performance. See documentation at ${OFFSETS_DOCS_URL}`);
       }
     }
-    const imageWrapper = new ImageWrapper(loader, this.options);
 
     const {
       Name: imageName,
