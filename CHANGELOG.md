@@ -1,4 +1,15 @@
 
+## 3.8.0
+
+### Minor Changes
+
+- Adds the spatialAccelerated view for rendering of large image volumes. (`@vitessce/spatial-accelerated`) ([#2264](https://github.com/vitessce/vitessce/pull/2264))
+
+### Patch Changes
+
+- Assume Parquet geometry column is WKB-encoded if it lacks encoding metadata. (`@vitessce/spatial-zarr`) ([#2268](https://github.com/vitessce/vitessce/pull/2268))
+
+
 ## 3.7.1
 
 ### Patch Changes
