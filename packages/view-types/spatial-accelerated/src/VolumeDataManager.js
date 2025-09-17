@@ -3,15 +3,6 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
-
-// NOTES:
-// 2048 x 2048 x 32 = 4096 bricks, around 134 MB
-// 2048 x 2048 x 64 = 8192 bricks, around 268 MB
-// 2048 x 2048 x 128 = 16384 bricks, around 537 MB **
-// 2048 x 2048 x 256 = 32768 bricks, around 1.074 GB
-// 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
-// 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
-
 import {
   Data3DTexture,
   RedFormat,
@@ -24,6 +15,13 @@ import {
 import { isEqual } from 'lodash-es';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 
+// NOTES:
+// 2048 x 2048 x 32 = 4096 bricks, around 134 MB
+// 2048 x 2048 x 64 = 8192 bricks, around 268 MB
+// 2048 x 2048 x 128 = 16384 bricks, around 537 MB **
+// 2048 x 2048 x 256 = 32768 bricks, around 1.074 GB
+// 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
+// 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
 
 // Default chunk sizes
 // const CHUNK_SIZE = 32;
@@ -32,12 +30,11 @@ const BRICK_SIZE = 32;
 const BRICK_CACHE_SIZE_X = 64;
 const BRICK_CACHE_SIZE_Y = 64;
 const BRICK_CACHE_SIZE_Z = 4;
-// const BRICK_CACHE_SIZE_TOTAL = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+const TOTAL_NUM_BRICKS = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
 const BRICK_CACHE_SIZE_VOXELS_X = BRICK_CACHE_SIZE_X * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Y = BRICK_CACHE_SIZE_Y * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Z = BRICK_CACHE_SIZE_Z * BRICK_SIZE;
-const TOTAL_NUM_BRICKS = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
 const PAGE_TABLE_ADDRESS_SIZE = 'uint32';
 const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
