@@ -9,6 +9,7 @@ export const ViewType = {
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   SPATIAL_BETA: 'spatialBeta',
+  SPATIAL_ACCELERATED: 'spatialAccelerated',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   LAYER_CONTROLLER_BETA: 'layerControllerBeta',
@@ -329,6 +330,7 @@ export const CoordinationType = {
   SPATIAL_RENDERING_MODE: 'spatialRenderingMode', // For whole spatial view
   VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
+  SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',

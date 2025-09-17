@@ -1,0 +1,1515 @@
+/* eslint-disable no-bitwise */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
+import {
+  Data3DTexture,
+  RedFormat,
+  RedIntegerFormat,
+  UnsignedByteType,
+  UnsignedIntType,
+  LinearFilter,
+  NearestFilter,
+} from 'three';
+import { isEqual } from 'lodash-es';
+import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
+
+// NOTES:
+// 2048 x 2048 x 32 = 4096 bricks, around 134 MB
+// 2048 x 2048 x 64 = 8192 bricks, around 268 MB
+// 2048 x 2048 x 128 = 16384 bricks, around 537 MB **
+// 2048 x 2048 x 256 = 32768 bricks, around 1.074 GB
+// 2048 x 2048 x 512 = 65536 bricks, around 2.148 GB
+// 2048 x 2048 x 1024 = 131072 bricks, around 4.295 GB
+
+// Default chunk sizes
+// const CHUNK_SIZE = 32;
+// const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
+const BRICK_SIZE = 32;
+const BRICK_CACHE_SIZE_X = 64;
+const BRICK_CACHE_SIZE_Y = 64;
+const BRICK_CACHE_SIZE_Z = 4;
+const TOTAL_NUM_BRICKS = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+
+const BRICK_CACHE_SIZE_VOXELS_X = BRICK_CACHE_SIZE_X * BRICK_SIZE;
+const BRICK_CACHE_SIZE_VOXELS_Y = BRICK_CACHE_SIZE_Y * BRICK_SIZE;
+const BRICK_CACHE_SIZE_VOXELS_Z = BRICK_CACHE_SIZE_Z * BRICK_SIZE;
+
+const PAGE_TABLE_ADDRESS_SIZE = 'uint32';
+const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
+
+const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
+
+// const manualChannelSelection = 0;
+
+// Add a constant for initialization status
+const INIT_STATUS = {
+  NOT_STARTED: 'not_started',
+  IN_PROGRESS: 'in_progress',
+  COMPLETE: 'complete',
+  FAILED: 'failed',
+};
+
+function logWithColor(message) {
+  if (atLeastLogLevel(LogLevel.DEBUG)) {
+    console.warn(`%cDM: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+  }
+}
+
+
+/* Begin extracted functions */
+export function _resolutionStatsToShapes(multiResolutionStats) {
+  return multiResolutionStats.map((stats) => {
+    const { dims } = stats;
+    const shape = [
+      // Other spatial-accelerated code assumes TCZYX dimension order
+      dims.t, // TODO: standardize lowercase/uppercase dim names at store-level
+      dims.c, // TODO: handle case when dimension(s) are missing
+      dims.z,
+      dims.y,
+      dims.x,
+    ];
+    return shape;
+  });
+}
+export function _resolutionStatsToBrickLayout(multiResolutionStats) {
+  return multiResolutionStats.map((stats) => {
+    const shape = [
+      stats.depth, // z
+      stats.height, // y
+      stats.width, // x
+    ];
+    // TODO: abstract chunkSize to always be 32x32x32 at store-level
+    // const chunkSize = array0.chunks || [BRICK_SIZE, BRICK_SIZE, BRICK_SIZE];
+    return [
+      Math.ceil((shape[0] || 1) / BRICK_SIZE),
+      Math.ceil((shape[1] || 1) / BRICK_SIZE),
+      Math.ceil((shape[2] || 1) / BRICK_SIZE),
+    ];
+  });
+}
+
+/**
+ *
+ * @param {[number, number, number][]} zarrStoreBrickLayout
+ * @param {number} channelsZarrMappingsLength
+ */
+export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
+  log.debug('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
+  // Page table
+  const PT = {
+    channelOffsets: [
+      [0, 0, 1],
+      [0, 1, 0],
+      [0, 1, 1],
+      [1, 0, 0],
+      [1, 0, 1],
+      [1, 1, 0],
+      [1, 1, 1],
+    ],
+    anchors: [],
+    offsets: [],
+    xExtent: 0, // includes the offset inclusive
+    yExtent: 0, // includes the offset inclusive
+    zExtent: 0, // includes the offset inclusive
+    z0Extent: 0, // l0 z extent
+    zTotal: 0, // original z extent plus the l0 z extent times the channel count
+  };
+
+  // Calculate PT extents first
+  PT.xExtent = 1;
+  PT.yExtent = 1;
+  PT.zExtent = 1;
+  const l0z = zarrStoreBrickLayout[0][0]; // Get z extent from highest resolution
+  PT.z0Extent = l0z;
+
+  // log.debug('PT', PT);
+
+  // log.debug('PT anchors', PT.anchors);
+
+  // log.debug('PT anchors with 0', PT.anchors);
+
+  PT.lowestDataRes = zarrStoreBrickLayout.length - 1;
+  // log.debug('lowestDataRes', PT.lowestDataRes);
+
+  // Sum up the extents from all resolution levels excluding the l0
+  for (let i = zarrStoreBrickLayout.length - 1; i > 0; i--) {
+    PT.anchors.push([
+      PT.xExtent,
+      PT.yExtent,
+      PT.zExtent,
+    ]);
+    PT.xExtent += zarrStoreBrickLayout[i][2];
+    PT.yExtent += zarrStoreBrickLayout[i][1];
+    PT.zExtent += zarrStoreBrickLayout[i][0];
+  }
+
+  PT.anchors.push([0, 0, PT.zExtent]);
+  PT.anchors.reverse();
+
+  // log.debug('PT anchors', PT.anchors);
+
+  // Calculate total Z extent including channel offsets
+  // PT.zTotal = PT.zExtent + (this.zarrStore.channelCount * l0z);
+  PT.zTotal = PT.zExtent + channelsZarrMappingsLength * l0z;
+  // log.debug('number of PT channels', channelsZarrMappingsLength);
+
+  // log.debug('Page Table Extents:', {
+  //   x: PT.xExtent,
+  //   y: PT.yExtent,
+  //   z: PT.zExtent,
+  //   z0: PT.z0Extent,
+  //   zTotal: PT.zTotal,
+  // });
+
+  // Initialize the BrickCache as a 3D texture (uint8)
+  const brickCacheData = new Uint8Array(
+    BRICK_CACHE_SIZE_VOXELS_X
+      * BRICK_CACHE_SIZE_VOXELS_Y
+      * BRICK_CACHE_SIZE_VOXELS_Z,
+  );
+  brickCacheData.fill(0);
+
+  // Initialize the PageTable data using calculated extents
+  const pageTableData = new Uint32Array(
+    PT.xExtent * PT.yExtent * PT.zTotal,
+  );
+  pageTableData.fill(0);
+
+  const bcTHREE = new Data3DTexture(
+    brickCacheData,
+    BRICK_CACHE_SIZE_VOXELS_X,
+    BRICK_CACHE_SIZE_VOXELS_Y,
+    BRICK_CACHE_SIZE_VOXELS_Z,
+  );
+  bcTHREE.format = RedFormat;
+  bcTHREE.type = UnsignedByteType;
+  bcTHREE.internalFormat = 'R8';
+  // bcTHREE.minFilter = NearestFilter;
+  // bcTHREE.magFilter = NearestFilter;
+  bcTHREE.minFilter = LinearFilter;
+  bcTHREE.magFilter = LinearFilter;
+  bcTHREE.generateMipmaps = false;
+  bcTHREE.needsUpdate = true;
+
+  const ptTHREE = new Data3DTexture(
+    pageTableData,
+    PT.xExtent,
+    PT.yExtent,
+    PT.zTotal,
+  );
+  ptTHREE.format = RedIntegerFormat;
+  ptTHREE.type = UnsignedIntType;
+  ptTHREE.internalFormat = 'R32UI';
+  ptTHREE.minFilter = NearestFilter;
+  ptTHREE.magFilter = NearestFilter;
+  ptTHREE.generateMipmaps = false;
+  ptTHREE.needsUpdate = true;
+
+  log.debug('_initMRMCPT', PT, ptTHREE, bcTHREE);
+
+  return {
+    PT,
+    ptTHREE,
+    bcTHREE,
+  };
+}
+
+
+/* ------------------------------------------------------------- *
+ * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
+ * ------------------------------------------------------------- */
+export function _packPT(min, max, bcX, bcY, bcZ) {
+  // Scale down to 7-bit range (0-127) by dividing by 2
+  const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
+  // log.debug('Scaled min/max:', clamp7(min), clamp7(max));
+  return (
+    (1 << 31) // bit‑31 = resident
+    | (1 << 30) // bit‑30 = init‑done
+    | (clamp7(min) << 23) // 7 bits
+    | (clamp7(max) << 16) // 7 bits
+    | ((bcX & 0x3F) << 10) // 6 bits
+    | ((bcY & 0x3F) << 4) // 6 bits
+    | (bcZ & 0x0F) // 4 bits
+  ) >>> 0; // keep unsigned
+}
+
+// Pack PT entry indicating "not resident but init" with min/max preserved
+// Note: this is not used anywhere?
+/*
+export function _packPTNotResident(min, max, bcX, bcY, bcZ) {
+  // Scale down to 7-bit range (0-127) by dividing by 2
+  const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
+
+  return (
+    (0 << 31) // bit-31 = NOT resident
+    | (1 << 30) // bit-30 = init-done
+    | (clamp7(min) << 23) // 7 bits
+    | (clamp7(max) << 16) // 7 bits
+    | ((bcX & 0x3F) << 10) // 6 bits
+    | ((bcY & 0x3F) << 4) // 6 bits
+    | (bcZ & 0x0F) // 4 bits
+  ) >>> 0; // keep unsigned
+}
+*/
+
+export function _ptToZarr(ptx, pty, ptz, ptInfo) {
+  const { PT_zExtent, PT_z0Extent, PT_anchors } = ptInfo;
+  let channel = -1;
+  let resolution = -1;
+  let x = -1;
+  let y = -1;
+  let z = -1;
+  // log.debug('pt', ptx, pty, ptz);
+  // log.debug('pt', ptx, pty, ptz);
+  // log.debug('ptz', this.PT.z, this.PT.l0z);
+  if (ptz >= PT_zExtent) {
+    // log.debug('ptz >= this.PT.zExtent');
+    resolution = 0;
+    x = ptx;
+    y = pty;
+    z = (ptz - PT_zExtent) % PT_z0Extent;
+    channel = Math.floor((ptz - PT_zExtent) / PT_z0Extent);
+  } else {
+    // log.debug('ptz < this.PT.zExtent');
+    // log.debug('this.PT.anchors', this.PT.anchors);
+    for (let i = 1; i < PT_anchors.length; i++) {
+      if (ptx < PT_anchors[i][0] && pty < PT_anchors[i][1] && ptz < PT_anchors[i][2]) {
+        // all PT coordinates are less than the anchor -> one res lower
+        // log.debug('all PT coordinates are less than the anchor -> one res lower');
+      } else {
+        // log.debug('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
+        resolution = i;
+        const channelMask = [0, 0, 0];
+        // log.debug('ptx', ptx);
+        // log.debug('pty', pty);
+        // log.debug('ptz', ptz);
+        // log.debug('this.PT.anchors[i]', this.PT.anchors[i]);
+        if (ptx >= PT_anchors[i][0]) { channelMask[0] = 1; }
+        if (pty >= PT_anchors[i][1]) { channelMask[1] = 1; }
+        if (ptz >= PT_anchors[i][2]) { channelMask[2] = 1; }
+        const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
+        channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
+        // log.debug('channel', channel);
+        const thisOffset = channelMask.map((v, j) => v * PT_anchors[i][j]);
+        // log.debug('thisOffset', thisOffset);
+        x = ptx - thisOffset[0];
+        y = pty - thisOffset[1];
+        z = ptz - thisOffset[2];
+        // log.debug('x', x);
+        // log.debug('y', y);
+        // log.debug('z', z);
+        break;
+      }
+    }
+  }
+  // log.debug(channel, resolution, x, y, z);
+
+  return {
+    channel,
+    resolution,
+    x,
+    y,
+    z,
+  };
+}
+
+export function _requestBufferToRequestObjects(buffer, k) {
+  const counts = new Map();
+  for (let i = 0; i < buffer.length; i += 4) {
+    const r = buffer[i];
+    const g = buffer[i + 1];
+    const b = buffer[i + 2];
+    const a = buffer[i + 3];
+    if ((r | g | b | a) === 0) {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+    const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
+    counts.set(packed, (counts.get(packed) || 0) + 1);
+  }
+  // log.debug('counts', counts);
+  // log.debug('this.k', this.k);
+  // Get the top K (potentially fewer than K) page table requests.
+  const requests = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, k)
+    .map(([packed]) => ({
+      x: (packed >> 22) & 0x3FF,
+      y: (packed >> 12) & 0x3FF,
+      z: packed & 0xFFF,
+    }));
+  return { requests, origRequestCount: counts.size };
+}
+
+/* End extracted functions */
+
+export class VolumeDataManager {
+  constructor(glParam) {
+    logWithColor('CLASS INITIALIZING');
+    // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
+
+    const gl = glParam.getContext?.() || glParam;
+    const renderer = glParam;
+
+    // this.images = images;
+    // this.imageLayerScopes = imageLayerScopes;
+
+    // Handle both WebGLRenderer and WebGL context
+    if (gl.domElement && gl.getContext) {
+      // This is likely a THREE.WebGLRenderer
+      this.gl = gl.getContext();
+    } else if (gl.isWebGLRenderer) {
+      // Explicit THREE.WebGLRenderer check
+      this.gl = gl.getContext();
+    } else {
+      // Assume it's already a WebGL context
+      this.gl = gl;
+    }
+
+    // const maxFragmentUniformVectors = this.gl.getParameter(this.gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+    // log.debug('maxFragmentUniformVectors', maxFragmentUniformVectors);
+    // 1024
+
+    this.renderer = renderer;
+
+    // Create a mock context if we couldn't get a real one
+    if (!this.gl || typeof this.gl.getParameter !== 'function') {
+      log.debug('Unable to get WebGL context, using mock context');
+      this.gl = {
+        getParameter: (param) => {
+          // Return reasonable defaults
+          const defaults = {
+            MAX_TEXTURE_SIZE: 4096,
+            MAX_3D_TEXTURE_SIZE: 256,
+            MAX_RENDERBUFFER_SIZE: 4096,
+            MAX_UNIFORM_BUFFER_BINDINGS: 16,
+          };
+          return defaults[param] || 0;
+        },
+        MAX_TEXTURE_SIZE: 'MAX_TEXTURE_SIZE',
+        MAX_3D_TEXTURE_SIZE: 'MAX_3D_TEXTURE_SIZE',
+        MAX_RENDERBUFFER_SIZE: 'MAX_RENDERBUFFER_SIZE',
+        MAX_UNIFORM_BUFFER_BINDINGS: 'MAX_UNIFORM_BUFFER_BINDINGS',
+      };
+    }
+
+    log.debug('GL CONSTANTS');
+    log.debug(this.gl);
+    log.debug(this.gl.TEXTURE0);
+    log.debug(this.gl.textures);
+    log.debug('RENDERER');
+    log.debug(this.renderer);
+
+    this.deviceLimits = {
+      maxTextureSize: this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE),
+      max3DTextureSize: this.gl.getParameter(this.gl.MAX_3D_TEXTURE_SIZE),
+      maxRenderbufferSize: this.gl.getParameter(this.gl.MAX_RENDERBUFFER_SIZE),
+      maxUniformBufferBindings: this.gl.getParameter(this.gl.MAX_UNIFORM_BUFFER_BINDINGS),
+    };
+
+    this.zarrStore = {
+      resolutions: null, // 6 (the number of resolutions aka. pyramid levels in the file)
+      chunkSize: [], // [32, 32, 32]
+      shapes: [], // [[795, 1024, 1024], ..., [64, 64, 64], [32, 32, 32]]
+      arrays: [], // [array0, array1, array2, array3, array4, array5]
+      dtype: '', // 'uint8'
+      physicalSizeTotal: [], // [795 x 0.0688, 1024 x 0.03417, 1024 x 0.03417]
+      physicalSizeVoxel: [], // [0.0688, 0.03417, 0.03417]
+      brickLayout: [], // [[25, 32, 32],[13, 16, 16], ..., [2,2,2],[1,1,1]]
+      // store: '', // ref to this.store
+      // group: '', // ref to this.group
+      channelCount: 1, // MAX 7 TODO: get from zarr metadata
+      scales: [], // downsample ratios, [x,y,z] per resolution level
+      lowestDataRes: 0, // lowest resolution level with data
+    };
+
+    this.ptTHREE = null;
+    this.bcTHREE = null;
+
+    this.channels = {
+      maxChannels: 7, // lower when dataset has fewer, dictates page table size
+      zarrMappings: [], // stores the zarr channel index for every one of the up to 7 channels
+      colorMappings: [], // stores the PT slot for every color
+      downsampleMin: [], // stores the downsample min for every one of the up to 7 channels
+      downsampleMax: [], // stores the downsample max for every one of the up to 7 channels
+    };
+
+    this.PT = {
+      channelOffsets: [
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1],
+      ],
+      anchors: [],
+      offsets: [],
+      xExtent: 0, // includes the offset inclusive
+      yExtent: 0, // includes the offset inclusive
+      zExtent: 0, // includes the offset inclusive
+      z0Extent: 0, // l0 z extent
+      zTotal: 0, // original z extent plus the l0 z extent times the channel count
+    };
+
+    // this.minimumMin = 255;
+    // this.maximumMin = 0;
+    // this.minimumMax = 255;
+    // this.maximumMax = 0;
+
+    // this.bricksAllocated = 0;
+    this.bricksEverLoaded = new Set();
+
+    // Properties for volume rendering
+    // this.originalScale = [1, 1, 1]; // Original dimensions
+    // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 2.1676 }]; // Physical size scaling
+    // this.physicalScale = [{ size: 1 }, { size: 1 }, { size: 1 }]; // Physical size scaling
+    // this.testArray = [];
+    // this.ptArray = [];
+    // this.ptManOffsets = [];
+
+    // top k page table addresses
+    // this.requestsStack = [];
+    this.isBusy = false;
+
+    // brick cache structure for internal calculations
+    this.BCTimeStamps = new Array(TOTAL_NUM_BRICKS).fill(0);
+    this.BCMinMax = new Array(TOTAL_NUM_BRICKS).fill([0, 0]);
+    this.BCFull = false;
+    this.BCUnusedIndex = 0;
+
+    // brick cache to page table mapping
+    this.bc2pt = new Array(TOTAL_NUM_BRICKS).fill(null);
+
+    // top k unused brick cache addresses
+    this.LRUStack = [];
+    // this.LRUReady = false;
+    this.triggerUsage = true;
+    this.triggerRequest = false;
+    this.timeStamp = 0;
+    this.k = 40;
+    this.noNewRequests = false;
+
+    this.needsBailout = false; // Flag to indicate if we need to bail out of processing requests
+
+    // Add initialization status
+    this.initStatus = INIT_STATUS.NOT_STARTED;
+    this.initError = null;
+    logWithColor('VolumeDataManager constructor complete');
+  }
+
+  initImages(images, imageLayerScopes) {
+    logWithColor('INIT IMAGES');
+    this.images = images;
+    this.imageLayerScopes = imageLayerScopes;
+  }
+
+  /**
+   * Initialize the VolumeDataManager with Zarr store details and device limits
+   * This should be called ONCE at website initialization
+   * TODO(mark): merge this with the constructor?
+   * @returns {Promise<Object>} Object with Zarr store details and device limits
+   */
+  async init(config) {
+    logWithColor('INIT()');
+    // Prevent multiple initializations
+    if (this.initStatus !== INIT_STATUS.NOT_STARTED) {
+      log.debug('VolumeDataManager init() was called more than once!');
+
+      if (this.initStatus === INIT_STATUS.COMPLETE) {
+        // Return existing initialized data
+        return {
+          success: true,
+          deviceLimits: this.deviceLimits,
+          zarrStore: this.zarrStore,
+          // physicalScale: this.physicalScale,
+          physicalSizeTotal: this.zarrStore.physicalSizeTotal,
+          physicalSizeVoxel: this.zarrStore.physicalSizeVoxel,
+          error: null,
+        };
+      }
+
+      if (this.initStatus === INIT_STATUS.FAILED) {
+        return {
+          success: false,
+          error: this.initError || 'Unknown initialization error',
+        };
+      }
+
+      // Still in progress, return a pending state
+      return {
+        success: false,
+        pending: true,
+        error: 'Initialization in progress',
+      };
+    }
+
+    this.initStatus = INIT_STATUS.IN_PROGRESS;
+    logWithColor('INIT() IN PROGRESS');
+    try {
+      // Query Zarr store details
+
+      // Get all resolution levels
+      const imageWrapper = this.images?.[this.imageLayerScopes?.[0]]?.image?.instance;
+
+      // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
+      this.ngffMetadata = imageWrapper.vivLoader.metadata;
+      log.debug('ngffMetadata', this.ngffMetadata);
+
+      if (!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
+        throw new Error('Invalid imageWrapper or not an OME-Zarr image');
+      }
+
+      const multiResolutionStats = imageWrapper.getMultiResolutionStats();
+      const shapes = _resolutionStatsToShapes(multiResolutionStats);
+      const resolutions = multiResolutionStats.length;
+
+      this.zarrStore.resolutions = resolutions;
+
+      // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
+      const vivData = imageWrapper.getData();
+
+      if (!Array.isArray(vivData) || vivData.length < 1) {
+        throw new Error('Not a multiresolution loader');
+      }
+
+      if (!isEqual(vivData[0].labels, ['t', 'c', 'z', 'y', 'x'])) {
+        // TODO: relax this and remove the error.
+        throw new Error('Expected OME-Zarr data with dimensions [t, c, z, y, x]');
+      }
+
+      log.debug('vivData', vivData);
+
+      // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
+      const arrays = vivData.map(resolutionData => resolutionData._data);
+      const scales = new Array(resolutions).fill(null);
+
+      // Try to load each resolution level in order
+      /*
+      const loadPromises = [];
+      for (let i = 0; i < resolutions; i++) {
+        loadPromises.push(this.tryLoadResolution(i, arrays));
+      }
+
+      const results = await Promise.all(loadPromises);
+
+      log.debug('results', results);
+
+      // Verify all resolutions were loaded successfully
+      const failedResolutions = results.filter(r => !r.success);
+      if (failedResolutions.length > 0) {
+        throw new Error(`Failed to load ${failedResolutions.length} resolution levels: ${failedResolutions.map(r => r.level).join(', ')}`);
+      }
+
+      console.info(`Successfully loaded ${resolutions} resolution levels.`);
+      */
+
+      // console.info('shapes', shapes);
+      // console.info('arrays', arrays);
+
+      // Get the first array for metadata
+      if (arrays.length > 0) {
+        const array0 = arrays[0];
+
+        // Update store information
+        this.zarrStore = {
+          resolutions,
+          chunkSize: array0.chunks,
+          shapes,
+          arrays,
+          dtype: array0.dtype,
+          physicalSizeTotal: [], // Will be populated if metadata exists
+          physicalSizeVoxel: [], // Will be populated if metadata exists
+          brickLayout: [], // Calculate from shapes and chunk sizes
+          // store: this.store,
+          // group: this.group,
+          channelCount: shapes[0][1],
+          scales,
+        };
+
+        // initializing channel mappings and slots as empty
+        this.channels.colorMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
+        this.channels.zarrMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+        this.channels.downsampleMin = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+        this.channels.downsampleMax = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
+
+        // log.debug('zarrMappings in init', this.channels.zarrMappings);
+        // log.debug('downsampleMin in init', this.channels.downsampleMin);
+        // log.debug('downsampleMax in init', this.channels.downsampleMax);
+
+        // Extract physical size information if available
+        if (array0.meta && array0.meta.physicalSizes) {
+          const { x, y, z } = array0.meta.physicalSizes;
+
+          // Get size data or use default value of 1
+          const zSize = z?.size || 1;
+          const ySize = y?.size || 1;
+          const xSize = x?.size || 1;
+
+          this.zarrStore.physicalSizeVoxel = [zSize, ySize, xSize];
+
+          // log.debug('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+
+          // Calculate total physical size
+          if (array0.shape && array0.shape.length >= 5) {
+            this.zarrStore.physicalSizeTotal = [
+              (array0.shape[2] || 1) * zSize,
+              (array0.shape[3] || 1) * ySize,
+              (array0.shape[4] || 1) * xSize,
+            ];
+          }
+        } else {
+          // log.debug('no physicalSizeVoxel');
+          this.zarrStore.physicalSizeVoxel = [1, 1, 1];
+          this.zarrStore.physicalSizeTotal = [
+            array0.shape[2] || 1,
+            array0.shape[3] || 1,
+            array0.shape[4] || 1,
+          ];
+          // log.debug('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          // log.debug('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+        }
+
+        // log.debug('group.attrs', this.group.attrs);
+        const { multiscales } = this.ngffMetadata;
+
+        if (!multiscales) {
+          throw new Error('Expected multiscales metadata in group.attrs');
+        }
+
+        // Check the per-resolution coordinate transformations
+        if (multiscales?.[0]?.datasets?.[0]?.coordinateTransformations) {
+          for (let i = 0; i < resolutions; i++) {
+            if (multiscales?.[0]?.datasets?.[i]?.coordinateTransformations?.[0]?.scale) {
+              const { scale } = multiscales[0].datasets[i].coordinateTransformations[0];
+              scales[i] = [scale[4], scale[3], scale[2]];
+              // log.debug('scale', i, scales[i]);
+            }
+          }
+
+          // TODO: if the scales are not powers of two, throw an error?
+        } else {
+          log.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
+          for (let i = 0; i < resolutions; i++) {
+            // 2 to the power of i
+            const scale = 2 ** i;
+            scales[i] = [scale, scale, scale];
+          }
+        }
+
+        // log.debug('scales', scales);
+        this.zarrStore.scales = scales;
+
+        // Use the top-level coordinateTransformations scale if available
+        const { coordinateTransformations } = this.ngffMetadata;
+        if (coordinateTransformations?.[0]?.scale) {
+          const { scale } = coordinateTransformations[0];
+          // Assuming scale is in format [..., zscale, yscale, xscale]
+          const scaleLength = scale.length;
+
+          if (scaleLength >= 3) {
+            const zScale = scale[scaleLength - 3];
+            const yScale = scale[scaleLength - 2];
+            const xScale = scale[scaleLength - 1];
+
+            // Update physicalScale
+            // this.physicalScale = [
+            //   { size: xScale },
+            //   { size: yScale },
+            //   { size: zScale },
+            // ];
+
+            // log.debug('physicalScale', this.physicalScale);
+
+            // Update zarrStore's physicalSizeVoxel
+            this.zarrStore.physicalSizeVoxel = [zScale, yScale, xScale];
+
+            // Calculate total physical size if shape exists
+            if (array0.shape && array0.shape.length >= 5) {
+              this.zarrStore.physicalSizeTotal = [
+                (array0.shape[2] || 1) * zScale,
+                (array0.shape[3] || 1) * yScale,
+                (array0.shape[4] || 1) * xScale,
+              ];
+            }
+
+            // log.debug('Using scale from coordinateTransformations:', this.physicalScale);
+          }
+        }
+
+
+        // Calculate brick layout for each resolution
+        this.zarrStore.brickLayout = _resolutionStatsToBrickLayout(
+          imageWrapper.getMultiResolutionStats(),
+        );
+
+        // log.debug('zarrStore', this.zarrStore);
+
+        // init channel mappings
+        // log.debug('initializing channel mappings');
+        log.debug('config', config);
+        // for each key in config, add to channel mappings
+        const { omero } = this.ngffMetadata || {};
+
+        if (!omero) {
+          // TODO(mark): do not use omero metadata directly, use the ImageWrapper channel methods.
+          throw new Error('Expected omero metadata in ngffMetadata');
+        }
+
+        log.debug('omero', omero);
+
+        Object.keys(config).forEach((key, i) => {
+          const configChannel = config[key].spatialTargetC;
+          this.channels.zarrMappings[i] = configChannel;
+          this.channels.colorMappings[i] = i;
+          this.channels.downsampleMin[i] = omero?.channels?.[configChannel]?.window?.min || 0;
+          this.channels.downsampleMax[i] = omero?.channels?.[configChannel]?.window?.max || 65535;
+        });
+        log.debug('zarrMappings after init', this.channels.zarrMappings);
+        log.debug('colorMappings after init', this.channels.colorMappings);
+        log.debug('downsampleMin after init', this.channels.downsampleMin);
+        log.debug('downsampleMax after init', this.channels.downsampleMax);
+
+        // Initialize MRMCPT textures after we have all the necessary information
+        this.initMRMCPT();
+        // this.populateMRMCPT();
+        // this.testTexture();
+      }
+
+      this.initStatus = INIT_STATUS.COMPLETE;
+      logWithColor('INIT() COMPLETE');
+
+      // log.debug(this.zarrStore);
+
+      /*
+      if (this.ngffMetadata.coordinateTransformations
+          && this.ngffMetadata.coordinateTransformations[0]
+          && this.ngffMetadata.coordinateTransformations[0].scale) {
+        // log.debug('scale', this.ngffMetadata.coordinateTransformations[0].scale);
+      }
+      */
+
+      // Return data that can be displayed in the HUD
+      return {
+        success: true,
+        deviceLimits: this.deviceLimits,
+        zarrStore: this.zarrStore,
+        // physicalScale: this.physicalScale,
+        physicalSizeTotal: this.zarrStore.physicalSizeTotal,
+        physicalSizeVoxel: this.zarrStore.physicalSizeVoxel,
+        error: null,
+      };
+    } catch (error) {
+      logWithColor('INIT() FAILED');
+      log.error('Error initializing VolumeDataManager:', error);
+      this.initStatus = INIT_STATUS.FAILED;
+      this.initError = error.message || 'Unknown error';
+
+      return {
+        success: false,
+        error: this.initError,
+      };
+    }
+  }
+
+  /**
+   * Initialize the BrickCache and PageTable
+   * MRMCPT: multi-resolution multi-channel page table
+   *
+   * Depends on:
+   *   - zarrStore.brickLayout
+   *   - zarrMappings.length (zarrMappings: the zarr channel index for every one of the up to 7 channels)
+   *   -
+   */
+  initMRMCPT() {
+    logWithColor('initMRMCPT');
+
+    // log.debug('initMRMCPT', this.zarrStore.shapes[0]);
+    // log.debug('initMRMCPT', this.zarrStore.channelCount);
+    // log.debug('initMRMCPT', this.channels.zarrMappings);
+    // log.debug('initMRMCPT', this.channels.colorMappings);
+
+    const { PT, ptTHREE, bcTHREE } = _initMRMCPT(
+      this.zarrStore.brickLayout,
+      this.channels.zarrMappings.length,
+    );
+
+    this.PT = PT;
+    this.ptTHREE = ptTHREE;
+    this.bcTHREE = bcTHREE;
+
+    // log.debug('gl', this.gl);
+    // log.debug('renderer', this.renderer);
+
+    logWithColor('initMRMCPT() COMPLETE');
+  }
+
+  /*
+  testTexture() {
+    log.debug('testTexture pt', this.ptTHREE);
+    log.debug('testTexture bc', this.bcTHREE);
+  }
+  */
+
+  async initTexture() {
+    const requests = [
+      { x: 0, y: 0, z: 1 },
+    ];
+    await this.handleBrickRequests(requests);
+  }
+
+  updateChannels(channelProps) {
+    logWithColor('updateChannels');
+    log.debug('channelProps', channelProps);
+
+    // log.error('TODO: init channel mappings first ');
+    log.debug('this.channels.zarrMappings', this.channels.zarrMappings);
+    log.debug('this.channels.colorMappings', this.channels.colorMappings);
+    log.debug('this.channels.downsampleMin', this.channels.downsampleMin);
+    log.debug('this.channels.downsampleMax', this.channels.downsampleMax);
+
+    if (this.channels.zarrMappings.length === 0) {
+      log.debug('channels not initialized yet');
+      return;
+    }
+
+    // Early exit check: compare requested mappings with current mappings
+    const requestedZarrChannels = Object.values(channelProps)
+      .map(channelData => channelData.spatialTargetC)
+      .filter(targetC => targetC !== undefined);
+
+    const currentZarrChannels = this.channels.zarrMappings
+      .filter(mapping => mapping !== undefined);
+
+    // Create sorted arrays for comparison
+    const requestedSorted = [...new Set(requestedZarrChannels)].sort((a, b) => a - b);
+    const currentSorted = [...new Set(currentZarrChannels)].sort((a, b) => a - b);
+
+    // Early exit if mappings haven't changed
+    if (requestedSorted.length === currentSorted.length
+        && requestedSorted.every((val, index) => val === currentSorted[index])) {
+      log.debug('Channel mappings unchanged, skipping update');
+      // return;
+    }
+
+    log.debug('Channel mappings changed:', {
+      current: currentSorted,
+      requested: requestedSorted,
+    });
+
+    // Instead of for...of loop, use Object.entries() with forEach
+    Object.entries(channelProps).forEach(([uiChannelKey, channelData]) => {
+      const targetZarrChannel = channelData.spatialTargetC;
+
+      log.debug(`UI channel "${uiChannelKey}" wants zarr channel ${targetZarrChannel}`);
+
+      // Check if this zarr channel is already mapped
+      const existingSlotIndex = this.channels.zarrMappings.indexOf(targetZarrChannel);
+
+      if (existingSlotIndex === -1) {
+        // Need to allocate a new slot for this zarr channel
+        const nextFreeSlot = this.channels.zarrMappings.findIndex(slot => slot === undefined);
+        if (nextFreeSlot !== -1) {
+          this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
+          log.debug('channelData', channelData);
+          log.debug('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
+          log.debug('targetZarrChannel', targetZarrChannel);
+          this.channels.downsampleMin[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+          this.channels.downsampleMax[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+          log.debug(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
+          log.debug('channels', this.channels);
+        } else {
+          log.debug('No free slots found, looking for unused mapped channels');
+
+          // Find zarr channels that are currently mapped but no longer requested
+          const currentlyMapped = this.channels.zarrMappings.filter(mapping => mapping !== undefined);
+          const stillRequested = requestedZarrChannels; // We calculated this earlier
+          const unusedMappedChannels = currentlyMapped.filter(mappedChannel => !stillRequested.includes(mappedChannel));
+
+          log.debug('Currently mapped:', currentlyMapped);
+          log.debug('Still requested:', stillRequested);
+          log.debug('Unused mapped channels:', unusedMappedChannels);
+
+          if (unusedMappedChannels.length > 0) {
+            // Find the first slot that maps to an unused zarr channel
+            const slotToReuse = this.channels.zarrMappings.findIndex(mapping => unusedMappedChannels.includes(mapping));
+
+            if (slotToReuse !== -1) {
+              const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
+              this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
+              this.channels.downsampleMin[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
+              this.channels.downsampleMax[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+              log.debug(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
+
+              this._purgeChannel(slotToReuse);
+            } else {
+              log.error('Could not find slot to reuse - this should not happen');
+            }
+          } else {
+            log.error('All slots are full and all mapped channels are still in use');
+          }
+        }
+      } else {
+        log.debug(`Zarr channel ${targetZarrChannel} already mapped to slot ${existingSlotIndex}`);
+      }
+    });
+
+    const newColorMappings = Object.values(channelProps).map((ch) => {
+      const slot = this.channels.zarrMappings.indexOf(ch.spatialTargetC);
+      return slot !== -1 ? slot : -1;
+    });
+
+    while (newColorMappings.length < 7) {
+      newColorMappings.push(-1);
+    }
+
+    log.debug('newColorMappings', newColorMappings);
+    this.channels.colorMappings = newColorMappings;
+
+    log.debug('updatedChannels', this.channels);
+  }
+
+  /**
+   * Try to load a resolution level
+   * @param {number} resolutionIndex - The resolution level to load
+   * @param {Array} arrays - Array to store the loaded arrays
+   * @returns {Promise} Promise resolving when the resolution is loaded or rejected
+   */
+  /*
+  async tryLoadResolution(resolutionIndex, arrays) {
+    logWithColor('tryLoadResolution');
+    log.debug(resolutionIndex, arrays);
+    try {
+      const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
+      // Create new arrays to avoid modifying parameters directly
+      const newArrays = [...arrays];
+      newArrays[resolutionIndex] = array;
+      // Update the original arrays
+      Object.assign(arrays, newArrays);
+      logWithColor('tryLoadResolution() COMPLETE');
+      return { success: true, level: resolutionIndex };
+    } catch (err) {
+      log.error(`Failed to load resolution ${resolutionIndex}:`, err);
+      return { success: false, level: resolutionIndex, error: err.message };
+    }
+  }
+  */
+
+  /**
+   * Get physical dimensions
+   * @returns {Array} Physical dimensions [X, Y, Z]
+   */
+  getPhysicalDimensionsXYZ() {
+    log.debug('getPhysicalDimensionsXYZ');
+    log.debug('this.zarrStore.physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+    const out = [this.zarrStore.physicalSizeTotal[2],
+      this.zarrStore.physicalSizeTotal[1],
+      this.zarrStore.physicalSizeTotal[0]];
+    log.debug('out', out);
+    return out;
+  }
+
+  /**
+   * Get the maximum resolution
+   * @returns {number} Maximum resolution
+   */
+  getMaxResolutionXYZ() {
+    log.debug('getMaxResolutionXYZ');
+    log.debug('this.zarrStore.shapes', this.zarrStore.shapes);
+    const out = [this.zarrStore.shapes[0][4],
+      this.zarrStore.shapes[0][3],
+      this.zarrStore.shapes[0][2]];
+    log.debug('out', out);
+    return out;
+  }
+
+  getOriginalScaleXYZ() {
+    logWithColor('getOriginalScaleXYZ');
+    log.debug('this.zarrStore.physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+    const out = [this.zarrStore.physicalSizeVoxel[2],
+      this.zarrStore.physicalSizeVoxel[1],
+      this.zarrStore.physicalSizeVoxel[0]];
+    log.debug('out', out);
+    return out;
+  }
+
+  getNormalizedScaleXYZ() {
+    log.debug('getNormalizedScaleXYZ');
+    const out = [
+      1.0,
+      this.zarrStore.physicalSizeVoxel[1] / this.zarrStore.physicalSizeVoxel[2],
+      this.zarrStore.physicalSizeVoxel[0] / this.zarrStore.physicalSizeVoxel[0],
+    ];
+    log.debug('out', out);
+    return out;
+  }
+
+  getBoxDimensionsXYZ() {
+    log.debug('getBoxDimensionsXYZ');
+    log.debug('this.zarrStore.shapes', this.zarrStore.shapes);
+    const out = [1,
+      this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
+      this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
+    ];
+    log.debug('out', out);
+    return out;
+  }
+
+  /**
+   * Load a specific Zarr chunk based on [t,c,z,y,x] coordinates
+   * @param {number} t - Time point (default 0)
+   * @param {number} c - Channel (default 0)
+   * @param {number} z - Z coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} x - X coordinate
+   * @param {number} resolution - Resolution level
+   * @returns {Promise<Uint8Array>} 32x32x32 chunk data
+   */
+  async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
+    // logWithColor('loadZarrChunk');
+    if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
+      throw new Error('Zarr store or resolution not initialized');
+    }
+
+    // log.debug('loadZarrChunk', t, c, z, y, x, resolution);
+
+    const array = this.zarrStore.arrays[resolution];
+
+    // TODO: Use zarrita's get(arr, slice) method (rather than arr.getChunk),
+    // which will enable reading from arrays with other chunk shapes
+    // (i.e., not strictly 32x32x32 chunks).
+    // To do so, will need to determine the slice indices corresponding
+    // to each "assumed 32x32x32 chunk key".
+    // Reference: https://zarrita.dev/slicing.html
+
+    const chunkEntry = await array.getChunk([t, c, z, y, x]);
+
+    // log.debug('chunkEntry', chunkEntry);
+
+    if (!chunkEntry) {
+      throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
+    }
+
+    // Ensure the chunk is the expected size
+    if (chunkEntry.data.length !== BRICK_SIZE * BRICK_SIZE * BRICK_SIZE) {
+      throw new Error(`Unexpected chunk size: ${chunkEntry.data.length}`);
+    }
+
+    return chunkEntry.data;
+  }
+
+  async processRequestData(buffer) {
+    if (this.isBusy) {
+      log.debug('processRequestData: already busy, skipping');
+      return;
+    }
+    this.isBusy = true;
+    this.triggerRequest = false;
+
+    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k);
+
+    if (requests.length === 0) {
+      this.noNewRequests = true;
+    }
+    log.debug(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`);
+    await this.handleBrickRequests(requests);
+
+    // We want processRequestData to alternate with processUsageData.
+    this.triggerUsage = true;
+    this.isBusy = false;
+  }
+
+
+  async processUsageData(buffer) {
+    if (this.isBusy) {
+      log.debug('processUsageData: already busy, skipping');
+      this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
+      return;
+    }
+    this.isBusy = true;
+    this.triggerUsage = false;
+
+    const now = ++this.timeStamp;
+    const usedBricks = new Set();
+
+    // Process buffer to identify used bricks
+    for (let i = 0; i < buffer.length; i += 4) {
+      const x = buffer[i];
+      const y = buffer[i + 1];
+      const z = buffer[i + 2];
+
+      // Skip empty entries
+      if ((x | y | z) === 0) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+
+      // Calculate brick index
+      const bcIndex = z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y + y * BRICK_CACHE_SIZE_X + x;
+
+      // Only add valid indices
+      if (bcIndex < this.BCTimeStamps.length) {
+        usedBricks.add(bcIndex);
+      }
+    }
+    // Update timestamps for all used bricks at once
+    Array.from(usedBricks).forEach((bcIndex) => {
+      this.BCTimeStamps[bcIndex] = now;
+    });
+
+    // Check if brick cache is full based on allocation index
+    // this.BCFull = this.BCUnusedIndex >= this.BCTimeStamps.length;
+    // If cache is full or we want to always maintain the LRU list
+    // if (this.BCFull || this.BCUnusedIndex >= this.BCTimeStamps.length - this.k) { // Always update LRU list
+
+    // do NOT overwrite BCFull; it is latched in _allocateBCSlots()
+    if (this.BCFull) this._buildLRU(); // The brick cache is full, so update the list of least recently used bricks, as it will be needed for eviction during the next _allocateBCSlots
+
+    // log.debug('this.BCTimeStamps', this.BCTimeStamps);
+    // log.debug('this.timeStamp', this.timeStamp);
+
+    // We want processRequestData to alternate with processUsageData.
+    this.triggerRequest = true;
+    this.isBusy = false;
+  }
+
+  // Helper method to update PT entries for evicted bricks
+  _evictBrick(bcIndex) {
+    const pt = this.bc2pt[bcIndex];
+    if (!pt) return; // brick was never resident
+
+    const [min, max] = this.BCMinMax[bcIndex] || [0, 0];
+    const ptVal = (
+      (0 << 31) // not-resident
+        | (1 << 30) // init-done
+        | (Math.min(127, min >> 1) << 23)
+        | (Math.min(127, max >> 1) << 16)
+    ) >>> 0;
+
+    this._updatePTEntry(pt.x, pt.y, pt.z, ptVal); // ← PT coord!
+    this.bc2pt[bcIndex] = null; // slot now free
+  }
+
+  _purgeChannel(ptChannelIndex) {
+    log.debug('purging channel', ptChannelIndex);
+    log.debug('corresponding zarr channel', this.channels.zarrMappings[ptChannelIndex]);
+
+    if (!this.ptTHREE) {
+      log.error('pagetable texture not initialized');
+      return;
+    }
+
+    this.channels.downsampleMin[ptChannelIndex] = undefined;
+    this.channels.downsampleMax[ptChannelIndex] = undefined;
+    this.channels.zarrMappings[ptChannelIndex] = undefined;
+
+    const channelMask = this.PT.channelOffsets[ptChannelIndex];
+
+    log.debug('channelMask', channelMask);
+    log.error('TODO: not tested yet');
+
+    const { gl } = this;
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+
+    for (let r = 0; r < this.zarrStore.resolutions; r++) {
+      const anchor = [
+        this.PT.anchors[r][2] * channelMask[2],
+        this.PT.anchors[r][1] * channelMask[1],
+        this.PT.anchors[r][0] * channelMask[0],
+      ];
+      log.debug('anchor', anchor);
+      const extents = this.zarrStore.brickLayout[r];
+      const size = extents[0] * extents[1] * extents[2];
+      log.debug('extents', extents);
+      log.debug('size', size);
+      // texsub 3D
+      // replace with a block of zeros
+      gl.texSubImage3D(
+        gl.TEXTURE_3D, 0,
+        anchor[0], anchor[1], anchor[2],
+        extents[0], extents[1], extents[2],
+        gl.RED_INTEGER, gl.UNSIGNED_INT,
+        new Uint32Array(size),
+      );
+    }
+    gl.bindTexture(gl.TEXTURE_3D, null);
+  }
+
+  // Update a PT entry
+  _updatePTEntry(ptX, ptY, ptZ, ptVal) {
+    if (!this.ptTHREE) return;
+
+    const { gl } = this;
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      ptX, ptY, ptZ,
+      1, 1, 1,
+      gl.RED_INTEGER, gl.UNSIGNED_INT,
+      new Uint32Array([ptVal]),
+    );
+    gl.bindTexture(gl.TEXTURE_3D, null);
+  }
+
+  /* ------------------------------------------------------------- *
+ * 2. Allocate the next n free bricks in the brick cache         *
+ * ------------------------------------------------------------- */
+  /**
+   *
+   * @param {number} n The number of slots to allocate
+   * @returns {{ bcIndex, x, y, z }[]} Array of brick cache coordinates for the allocated slots.
+   */
+  _allocateBCSlots(n) {
+    let slots = [];
+    const total = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+
+    if (!this.BCFull && this.BCUnusedIndex + n > total) {
+      // The brick cache was not already full,
+      // but allocating N more bricks will put us over the limit.
+      this.BCFull = true;
+      log.debug('BRICK CACHE FULL');
+    }
+    // Do the allocation.
+    if (!this.BCFull) {
+      for (let i = 0; i < n; ++i) {
+        const bcIndex = (this.BCUnusedIndex + i) % total; // wrap for now
+        const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+        const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+        const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+        const x = rem % BRICK_CACHE_SIZE_X;
+
+        slots.push({ bcIndex, x, y, z });
+      }
+      this.BCUnusedIndex += n;
+    } else { // ---- BC already full ----
+      // Before proceeding to choose old slots from the LRU stack,
+      // we need to ensure that the LRU stack is at least as long as N
+      // (since N is the number of new brick slots to allocate).
+      if (this.LRUStack.length < n) this._buildLRU(); // top-up list
+      // Use the LRU stack to evict the least-recently-used bricks
+      // and return their coordinates for the new bricks to use.
+      slots = this.LRUStack.splice(0, n).map((bcIndex) => {
+        this._evictBrick(bcIndex);
+        const z = Math.floor(bcIndex / (BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y));
+        const rem = bcIndex - z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y;
+        const y = Math.floor(rem / BRICK_CACHE_SIZE_X);
+        const x = rem % BRICK_CACHE_SIZE_X;
+        return { bcIndex, x, y, z };
+      });
+    }
+    return slots;
+  }
+
+  /* ------------------------------------------------------------- *
+ * 4. Upload one brick + PT entry                                *
+ * ------------------------------------------------------------- */
+  async _uploadBrick(ptCoord, bcSlot) {
+    // log.debug('uploading brick', ptCoord, bcSlot);
+
+    if (ptCoord.x >= this.PT.xExtent
+      || ptCoord.y >= this.PT.yExtent
+      || ptCoord.z >= this.PT.zTotal
+      || ptCoord.x < 0
+      || ptCoord.y < 0
+      || ptCoord.z < 0
+    ) {
+      log.error('this.PT', this.PT);
+      log.error('ptCoord out of bounds', ptCoord);
+      return;
+    }
+
+    // log.debug('ptCoord', ptCoord);
+    // log.debug('this.PT', this.PT);
+
+
+    /* 4.1 fetch chunk from Zarr */
+    const { channel, resolution, x, y, z } = _ptToZarr(
+      ptCoord.x, ptCoord.y, ptCoord.z,
+      { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors },
+    );
+
+    const zarrChannel = this.channels.zarrMappings[channel];
+
+    if (zarrChannel === undefined || zarrChannel === -1) {
+      log.error('zarrChannel is undefined or -1', zarrChannel);
+      return;
+    }
+
+    log.debug('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
+    let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
+    // log.debug('chunk', chunk);
+
+    // TODO(mark): is there a better way than iterating over all of the chunk values?
+    if (chunk instanceof Uint16Array) {
+      log.debug('chunk is Uint16Array, converting to Uint8Array');
+      if (this.channels.downsampleMin[channel] === undefined) {
+        // get the channel ID from this.channels.zarrMappings
+        const channelId = this.channels.zarrMappings[channel];
+        log.debug('channelId was not found in this.channels.downsampleMin[channel]', channelId);
+        // get the downsample min and max for the channel from omero
+        this.channels.downsampleMin[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.min || 0;
+        this.channels.downsampleMax[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.max || 65535;
+
+        log.debug('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
+        log.debug('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
+      }
+      // TODO(mark): to reduce memory usage, create the Uint8Array as a view of the Uint16Array
+      // and use bitwise operations. Then scale the values.
+      const uint8Chunk = new Uint8Array(chunk.length);
+      for (let i = 0; i < chunk.length; i++) {
+        // Scale from 0-65535 to 0-255
+        uint8Chunk[i] = Math.floor((chunk[i] - this.channels.downsampleMin[channel]) / (this.channels.downsampleMax[channel] - this.channels.downsampleMin[channel]) * 255);
+      }
+      chunk = uint8Chunk;
+    }
+
+    if (!(chunk instanceof Uint8Array)) {
+      throw new Error(`Unsupported chunk type: ${chunk.constructor.name}. Expected Uint8Array.`);
+    }
+
+    let min = 255;
+    let max = 0;
+
+    for (let i = 0; i < chunk.length; ++i) {
+      const v = chunk[i];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+
+    /* 4.3 brick‑cache upload */
+    const { gl } = this;
+    const texBC = this.renderer.properties.get(this.bcTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_3D, texBC);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      bcSlot.x * BRICK_SIZE,
+      bcSlot.y * BRICK_SIZE,
+      bcSlot.z * BRICK_SIZE,
+      BRICK_SIZE, BRICK_SIZE, BRICK_SIZE,
+      gl.RED, gl.UNSIGNED_BYTE, chunk,
+    );
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    gl.bindTexture(gl.TEXTURE_3D, null);
+    // log.debug('uploaded brick');
+
+    const error = gl.getError();
+    if (error !== gl.NO_ERROR) {
+      log.error('WebGL error during brick upload:', error, chunk);
+    }
+
+    /* 4.4 PT entry upload */
+    if (channel >= this.channels.zarrMappings.length) {
+      log.debug('channel is out of bounds', channel);
+      min = 255;
+      max = 255;
+    }
+
+    const ptVal = _packPT(min, max, bcSlot.x, bcSlot.y, bcSlot.z);
+    const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_3D, texPT);
+    gl.texSubImage3D(
+      gl.TEXTURE_3D, 0,
+      ptCoord.x, ptCoord.y, ptCoord.z,
+      1, 1, 1,
+      gl.RED_INTEGER, gl.UNSIGNED_INT,
+      new Uint32Array([ptVal]),
+    );
+    gl.bindTexture(gl.TEXTURE_3D, null);
+    // log.debug('uploaded PT entry');
+    // log.debug('ptVal', ptVal);
+    // log.debug('min', min);
+    // log.debug('max', max);
+    // log.debug('bcSlot', bcSlot);
+    // log.debug('channel', channel);
+    // log.debug('resolution', resolution);
+    // log.debug('x', x);
+    // log.debug('y', y);
+    // log.debug('z', z);
+    // log.debug('ptCoord', ptCoord);
+
+    const error2 = gl.getError();
+    if (error2 !== gl.NO_ERROR) {
+      log.error('WebGL error during pagetable upload:', error2, chunk);
+    }
+
+    /* 4.5 bookkeeping */
+    // const now = ++this.timeStamp;
+    this.BCTimeStamps[bcSlot.bcIndex] = this.timeStamp;
+    this.BCMinMax[bcSlot.bcIndex] = [min, max];
+    this.bc2pt[bcSlot.bcIndex] = ptCoord;
+    // log.debug('bookkeeping');
+  }
+
+  /* ------------------------------------------------------------- *
+ * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
+ * ------------------------------------------------------------- */
+  async handleBrickRequests(ptRequests) {
+    // log.debug('handleBrickRequests');
+    if (ptRequests.length === 0) return;
+    // log.debug('ptRequests', ptRequests);
+    // log.debug('this.BCFull', this.BCFull);
+    // log.debug('this.BCUnusedIndex', this.BCUnusedIndex);
+    // log.debug('this.BCTimeStamps', this.BCTimeStamps);
+    // log.debug('this.LRUStack', this.LRUStack);
+
+    /* <= k requests, allocate same number of bricks */
+    const slots = this._allocateBCSlots(ptRequests.length);
+    // log.debug('slots', slots);
+
+    /* upload each (sequentially or Promise.all if you prefer IO overlap) */
+    log.debug('handleBrickRequests: starting for loop');
+    for (let i = 0; i < ptRequests.length; ++i) {
+      log.debug('uploading brick', ptRequests[i], slots[i]);
+      // eslint-disable-next-line no-await-in-loop
+      await this._uploadBrick(ptRequests[i], slots[i]);
+      // this.bricksAllocated++;
+      const rlength = this.bricksEverLoaded.size;
+      this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
+      if (rlength === this.bricksEverLoaded.size) {
+        log.debug('DUPLICATE BRICK LOADED', ptRequests[i]);
+      }
+
+      if (this.needsBailout) {
+        log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
+        this.needsBailout = false; // Reset the flag
+        break; // Exit the loop early
+
+        // TODO(mark): do something with the allocated slots that were not used?
+      }
+    }
+    // log.debug('this.bricksAllocated', this.bricksAllocated);
+    log.debug('this.bricksEverLoaded', this.bricksEverLoaded);
+    // log.debug('uploaded bricks');
+
+    /* let Three.js know textures changed */
+    // this.bcTHREE.needsUpdate = true;
+    // this.ptTHREE.needsUpdate = true;
+  }
+
+  /* --------------------------------------------------------- *
+   * Rebuild the LRUStack with the k least-recently-used bricks *
+   * --------------------------------------------------------- */
+  _buildLRU() {
+    // Update this.LRUStack based on BCTimeStamps.
+    // BCTimeStamps is updated during both initial brick upload and processUsageData.
+    // However it is not until _buildLRU is called that the timestamps are sorted
+    // to update this.LRUStack.
+    const brickIndicesWithTimes = this.BCTimeStamps
+      .map((time, index) => ({ index, time }));
+    this.LRUStack = brickIndicesWithTimes
+      .sort((a, b) => a.time - b.time)
+      .slice(0, this.k)
+      .map(item => item.index);
+  }
+}

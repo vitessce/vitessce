@@ -42,5 +42,12 @@
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
     "three": "catalog:"
+  },
+  "devDependencies": {
+    "@types/three": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

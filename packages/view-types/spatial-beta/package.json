@@ -42,6 +42,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
+    "@vitessce/spatial-accelerated": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

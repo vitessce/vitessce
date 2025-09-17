@@ -1,6 +1,6 @@
 {
-  "name": "@vitessce/spatial-three",
-  "version": "3.7.1",
+  "name": "@vitessce/spatial-accelerated",
+  "version": "3.5.7",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,7 +30,6 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@vitessce/styles": "workspace:*",
     "@react-three/fiber": "catalog:",
     "@react-three/drei": "catalog:",
     "@react-three/xr": "catalog:",
@@ -42,13 +41,17 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/styles": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
+    "internmap": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
     "mathjs": "catalog:",
     "plur": "^5.1.0",
     "short-number": "^1.0.6",
-    "three": "catalog:"
+    "three": "catalog:",
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@types/three": "catalog:",

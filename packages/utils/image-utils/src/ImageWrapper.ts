@@ -440,6 +440,11 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return shape[labels.indexOf('c')];
   }
 
+  getNumResolutions(): number {
+    const loader = this.vivLoader;
+    return Array.isArray(loader.data) ? loader.data.length : 1;
+  }
+
   isMultiResolution(): boolean {
     const loader = this.vivLoader;
     const hasViewableResolutions = Boolean(
@@ -459,15 +464,25 @@ export default class ImageWrapper implements AbstractImageWrapper {
         const {
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
         } = getStatsForResolution(loader.data, resolution);
         return {
           canLoad: canLoadResolution(loader.data, resolution),
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
+          // chunkHeight
+          // chunkWidth
+          // chunkDepth
+          // physicalSizeVoxel
+          // eslint-disable-next-line max-len
+          // physicalSizeTotal (physicalSizeVoxel * highest-resolution numPixels, for each dimension)
         };
       });
   }
@@ -492,6 +507,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
     } while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1);
     return nextTargetResolution;
   }
+
 
   getBoundingCube(): BoundingCube {
     const loader = this.vivLoader;

@@ -455,6 +455,7 @@ export default function ImageLayerController(props) {
                 spatialChannelOpacity,
                 spatialChannelColor,
                 spatialChannelWindow,
+                spatialMaxResolution,
               } = channelCoordination[cScope];
               const {
                 setSpatialTargetC,
@@ -462,9 +463,11 @@ export default function ImageLayerController(props) {
                 setSpatialChannelOpacity,
                 setSpatialChannelColor,
                 setSpatialChannelWindow,
+                setSpatialMaxResolution,
               } = setChannelCoordination[cScope];
 
               const channelIndex = image?.getChannelIndex(spatialTargetC);
+              const numResolutions = image?.getNumResolutions();
 
               return (
                 <ImageChannelController
@@ -489,6 +492,9 @@ export default function ImageLayerController(props) {
                   featureIndex={featureIndex}
                   image={image}
                   spatialRenderingMode={spatialRenderingMode}
+                  numResolutions={numResolutions}
+                  spatialMaxResolution={spatialMaxResolution}
+                  setSpatialMaxResolution={setSpatialMaxResolution}
                 />
               );
             })}
