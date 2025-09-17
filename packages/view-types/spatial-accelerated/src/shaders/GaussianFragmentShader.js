@@ -1,3 +1,5 @@
+// Attribution: Originally written by @alexandrairger
+// Moved from .glsl file to .js file in this commit: https://github.com/vitessce/vitessce/pull/2264/commits/7f17fc003674a4ed1a8de6140db802781871cf88
 /*
  * Gaussian Blur Fragment Shader
  *

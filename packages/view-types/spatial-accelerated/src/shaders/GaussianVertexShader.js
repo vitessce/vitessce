@@ -1,4 +1,7 @@
-/* This is a simple vertex shader used for post-processing effects, specifically
+// Attribution: Originally written by @alexandrairger
+// Moved from .glsl file to .js file in this commit: https://github.com/vitessce/vitessce/pull/2264/commits/7f17fc003674a4ed1a8de6140db802781871cf88
+/*
+This is a simple vertex shader used for post-processing effects, specifically
 Gaussian blur filtering applied to the final rendered image. It's part of a
 two-pass rendering pipeline in the spatial-accelerated volume viewer.
 
