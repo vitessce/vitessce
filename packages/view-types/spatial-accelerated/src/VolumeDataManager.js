@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable no-bitwise */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable max-len */
@@ -23,6 +22,7 @@ import {
   NearestFilter,
 } from 'three';
 import { isEqual } from 'lodash-es';
+import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 
 
 // Default chunk sizes
@@ -37,7 +37,7 @@ const BRICK_CACHE_SIZE_Z = 4;
 const BRICK_CACHE_SIZE_VOXELS_X = BRICK_CACHE_SIZE_X * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Y = BRICK_CACHE_SIZE_Y * BRICK_SIZE;
 const BRICK_CACHE_SIZE_VOXELS_Z = BRICK_CACHE_SIZE_Z * BRICK_SIZE;
-const totalBricks = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
+const TOTAL_NUM_BRICKS = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
 const PAGE_TABLE_ADDRESS_SIZE = 'uint32';
 const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
@@ -55,8 +55,10 @@ const INIT_STATUS = {
   FAILED: 'failed',
 };
 
-function log(message) {
-  console.warn(`%cDM: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+function logWithColor(message) {
+  if (atLeastLogLevel(LogLevel.DEBUG)) {
+    console.warn(`%cDM: ${message}`, 'background: blue; color: white; padding: 2px; border-radius: 3px;');
+  }
 }
 
 
@@ -98,7 +100,7 @@ export function _resolutionStatsToBrickLayout(multiResolutionStats) {
  * @param {number} channelsZarrMappingsLength
  */
 export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
-  console.log('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
+  log.debug('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
   // Page table
   const PT = {
     channelOffsets: [
@@ -126,14 +128,14 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   const l0z = zarrStoreBrickLayout[0][0]; // Get z extent from highest resolution
   PT.z0Extent = l0z;
 
-  // console.warn('PT', PT);
+  // log.debug('PT', PT);
 
-  // console.warn('PT anchors', PT.anchors);
+  // log.debug('PT anchors', PT.anchors);
 
-  // console.warn('PT anchors with 0', PT.anchors);
+  // log.debug('PT anchors with 0', PT.anchors);
 
   PT.lowestDataRes = zarrStoreBrickLayout.length - 1;
-  // console.warn('lowestDataRes', PT.lowestDataRes);
+  // log.debug('lowestDataRes', PT.lowestDataRes);
 
   // Sum up the extents from all resolution levels excluding the l0
   for (let i = zarrStoreBrickLayout.length - 1; i > 0; i--) {
@@ -150,14 +152,14 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   PT.anchors.push([0, 0, PT.zExtent]);
   PT.anchors.reverse();
 
-  // console.warn('PT anchors', PT.anchors);
+  // log.debug('PT anchors', PT.anchors);
 
   // Calculate total Z extent including channel offsets
   // PT.zTotal = PT.zExtent + (this.zarrStore.channelCount * l0z);
   PT.zTotal = PT.zExtent + channelsZarrMappingsLength * l0z;
-  // console.log('number of PT channels', channelsZarrMappingsLength);
+  // log.debug('number of PT channels', channelsZarrMappingsLength);
 
-  // console.warn('Page Table Extents:', {
+  // log.debug('Page Table Extents:', {
   //   x: PT.xExtent,
   //   y: PT.yExtent,
   //   z: PT.zExtent,
@@ -209,7 +211,7 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   ptTHREE.generateMipmaps = false;
   ptTHREE.needsUpdate = true;
 
-  console.log('_initMRMCPT', PT, ptTHREE, bcTHREE);
+  log.debug('_initMRMCPT', PT, ptTHREE, bcTHREE);
 
   return {
     PT,
@@ -225,7 +227,7 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
 export function _packPT(min, max, bcX, bcY, bcZ) {
   // Scale down to 7-bit range (0-127) by dividing by 2
   const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
-  // console.log('Scaled min/max:', clamp7(min), clamp7(max));
+  // log.debug('Scaled min/max:', clamp7(min), clamp7(max));
   return (
     (1 << 31) // bit‑31 = resident
     | (1 << 30) // bit‑30 = init‑done
@@ -263,50 +265,50 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   let x = -1;
   let y = -1;
   let z = -1;
-  // console.log('pt', ptx, pty, ptz);
-  // console.log('pt', ptx, pty, ptz);
-  // console.log('ptz', this.PT.z, this.PT.l0z);
+  // log.debug('pt', ptx, pty, ptz);
+  // log.debug('pt', ptx, pty, ptz);
+  // log.debug('ptz', this.PT.z, this.PT.l0z);
   if (ptz >= PT_zExtent) {
-    // console.log('ptz >= this.PT.zExtent');
+    // log.debug('ptz >= this.PT.zExtent');
     resolution = 0;
     x = ptx;
     y = pty;
     z = (ptz - PT_zExtent) % PT_z0Extent;
     channel = Math.floor((ptz - PT_zExtent) / PT_z0Extent);
   } else {
-    // console.log('ptz < this.PT.zExtent');
-    // console.log('this.PT.anchors', this.PT.anchors);
+    // log.debug('ptz < this.PT.zExtent');
+    // log.debug('this.PT.anchors', this.PT.anchors);
     for (let i = 1; i < PT_anchors.length; i++) {
       if (ptx < PT_anchors[i][0] && pty < PT_anchors[i][1] && ptz < PT_anchors[i][2]) {
         // all PT coordinates are less than the anchor -> one res lower
-        // console.log('all PT coordinates are less than the anchor -> one res lower');
+        // log.debug('all PT coordinates are less than the anchor -> one res lower');
       } else {
-        // console.log('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
+        // log.debug('not all PT coordinates are less than the anchor ', this.PT.anchors[i]);
         resolution = i;
         const channelMask = [0, 0, 0];
-        // console.log('ptx', ptx);
-        // console.log('pty', pty);
-        // console.log('ptz', ptz);
-        // console.log('this.PT.anchors[i]', this.PT.anchors[i]);
+        // log.debug('ptx', ptx);
+        // log.debug('pty', pty);
+        // log.debug('ptz', ptz);
+        // log.debug('this.PT.anchors[i]', this.PT.anchors[i]);
         if (ptx >= PT_anchors[i][0]) { channelMask[0] = 1; }
         if (pty >= PT_anchors[i][1]) { channelMask[1] = 1; }
         if (ptz >= PT_anchors[i][2]) { channelMask[2] = 1; }
         const binaryChannel = (channelMask[0] << 2) | (channelMask[1] << 1) | channelMask[2];
         channel = Math.max(1, Math.min(7, binaryChannel)) - 1;
-        // console.log('channel', channel);
+        // log.debug('channel', channel);
         const thisOffset = channelMask.map((v, j) => v * PT_anchors[i][j]);
-        // console.log('thisOffset', thisOffset);
+        // log.debug('thisOffset', thisOffset);
         x = ptx - thisOffset[0];
         y = pty - thisOffset[1];
         z = ptz - thisOffset[2];
-        // console.log('x', x);
-        // console.log('y', y);
-        // console.log('z', z);
+        // log.debug('x', x);
+        // log.debug('y', y);
+        // log.debug('z', z);
         break;
       }
     }
   }
-  // console.log(channel, resolution, x, y, z);
+  // log.debug(channel, resolution, x, y, z);
 
   return {
     channel,
@@ -324,13 +326,16 @@ export function _requestBufferToRequestObjects(buffer, k) {
     const g = buffer[i + 1];
     const b = buffer[i + 2];
     const a = buffer[i + 3];
-    if ((r | g | b | a) === 0) continue;
+    if ((r | g | b | a) === 0) {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
     const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
     counts.set(packed, (counts.get(packed) || 0) + 1);
   }
-  // console.log('counts', counts);
-  // console.log('this.k', this.k);
-  /* Top‑K (≤ k) PT requests */
+  // log.debug('counts', counts);
+  // log.debug('this.k', this.k);
+  // Get the top K (potentially fewer than K) page table requests.
   const requests = [...counts.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, k)
@@ -346,7 +351,7 @@ export function _requestBufferToRequestObjects(buffer, k) {
 
 export class VolumeDataManager {
   constructor(glParam) {
-    log('CLASS INITIALIZING');
+    logWithColor('CLASS INITIALIZING');
     // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
 
     const gl = glParam.getContext?.() || glParam;
@@ -368,14 +373,14 @@ export class VolumeDataManager {
     }
 
     // const maxFragmentUniformVectors = this.gl.getParameter(this.gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-    // console.warn('maxFragmentUniformVectors', maxFragmentUniformVectors);
+    // log.debug('maxFragmentUniformVectors', maxFragmentUniformVectors);
     // 1024
 
     this.renderer = renderer;
 
     // Create a mock context if we couldn't get a real one
     if (!this.gl || typeof this.gl.getParameter !== 'function') {
-      console.warn('Unable to get WebGL context, using mock context');
+      log.debug('Unable to get WebGL context, using mock context');
       this.gl = {
         getParameter: (param) => {
           // Return reasonable defaults
@@ -394,12 +399,12 @@ export class VolumeDataManager {
       };
     }
 
-    console.warn('GL CONSTANTS');
-    console.warn(this.gl);
-    console.warn(this.gl.TEXTURE0);
-    console.warn(this.gl.textures);
-    console.warn('RENDERER');
-    console.warn(this.renderer);
+    log.debug('GL CONSTANTS');
+    log.debug(this.gl);
+    log.debug(this.gl.TEXTURE0);
+    log.debug(this.gl.textures);
+    log.debug('RENDERER');
+    log.debug(this.renderer);
 
     this.deviceLimits = {
       maxTextureSize: this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE),
@@ -475,14 +480,13 @@ export class VolumeDataManager {
     this.isBusy = false;
 
     // brick cache structure for internal calculations
-    const totalBricks = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
-    this.BCTimeStamps = new Array(totalBricks).fill(0);
-    this.BCMinMax = new Array(totalBricks).fill([0, 0]);
+    this.BCTimeStamps = new Array(TOTAL_NUM_BRICKS).fill(0);
+    this.BCMinMax = new Array(TOTAL_NUM_BRICKS).fill([0, 0]);
     this.BCFull = false;
     this.BCUnusedIndex = 0;
 
     // brick cache to page table mapping
-    this.bc2pt = new Array(totalBricks).fill(null);
+    this.bc2pt = new Array(TOTAL_NUM_BRICKS).fill(null);
 
     // top k unused brick cache addresses
     this.LRUStack = [];
@@ -498,11 +502,11 @@ export class VolumeDataManager {
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
-    log('VolumeDataManager constructor complete');
+    logWithColor('VolumeDataManager constructor complete');
   }
 
   initImages(images, imageLayerScopes) {
-    log('INIT IMAGES');
+    logWithColor('INIT IMAGES');
     this.images = images;
     this.imageLayerScopes = imageLayerScopes;
   }
@@ -514,10 +518,10 @@ export class VolumeDataManager {
    * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
   async init(config) {
-    log('INIT()');
+    logWithColor('INIT()');
     // Prevent multiple initializations
     if (this.initStatus !== INIT_STATUS.NOT_STARTED) {
-      console.warn('VolumeDataManager init() was called more than once!');
+      log.debug('VolumeDataManager init() was called more than once!');
 
       if (this.initStatus === INIT_STATUS.COMPLETE) {
         // Return existing initialized data
@@ -548,7 +552,7 @@ export class VolumeDataManager {
     }
 
     this.initStatus = INIT_STATUS.IN_PROGRESS;
-    log('INIT() IN PROGRESS');
+    logWithColor('INIT() IN PROGRESS');
     try {
       // Query Zarr store details
 
@@ -557,7 +561,7 @@ export class VolumeDataManager {
 
       // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
       this.ngffMetadata = imageWrapper.vivLoader.metadata;
-      console.log('ngffMetadata', this.ngffMetadata);
+      log.debug('ngffMetadata', this.ngffMetadata);
 
       if (!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
         throw new Error('Invalid imageWrapper or not an OME-Zarr image');
@@ -581,7 +585,7 @@ export class VolumeDataManager {
         throw new Error('Expected OME-Zarr data with dimensions [t, c, z, y, x]');
       }
 
-      console.log('vivData', vivData);
+      log.debug('vivData', vivData);
 
       // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
       const arrays = vivData.map(resolutionData => resolutionData._data);
@@ -596,7 +600,7 @@ export class VolumeDataManager {
 
       const results = await Promise.all(loadPromises);
 
-      console.warn('results', results);
+      log.debug('results', results);
 
       // Verify all resolutions were loaded successfully
       const failedResolutions = results.filter(r => !r.success);
@@ -636,9 +640,9 @@ export class VolumeDataManager {
         this.channels.downsampleMin = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
         this.channels.downsampleMax = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(undefined);
 
-        // console.log('zarrMappings in init', this.channels.zarrMappings);
-        // console.log('downsampleMin in init', this.channels.downsampleMin);
-        // console.log('downsampleMax in init', this.channels.downsampleMax);
+        // log.debug('zarrMappings in init', this.channels.zarrMappings);
+        // log.debug('downsampleMin in init', this.channels.downsampleMin);
+        // log.debug('downsampleMax in init', this.channels.downsampleMax);
 
         // Extract physical size information if available
         if (array0.meta && array0.meta.physicalSizes) {
@@ -651,7 +655,7 @@ export class VolumeDataManager {
 
           this.zarrStore.physicalSizeVoxel = [zSize, ySize, xSize];
 
-          // console.log('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          // log.debug('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
 
           // Calculate total physical size
           if (array0.shape && array0.shape.length >= 5) {
@@ -662,18 +666,18 @@ export class VolumeDataManager {
             ];
           }
         } else {
-          // console.log('no physicalSizeVoxel');
+          // log.debug('no physicalSizeVoxel');
           this.zarrStore.physicalSizeVoxel = [1, 1, 1];
           this.zarrStore.physicalSizeTotal = [
             array0.shape[2] || 1,
             array0.shape[3] || 1,
             array0.shape[4] || 1,
           ];
-          // console.log('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
-          // console.log('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+          // log.debug('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+          // log.debug('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
         }
 
-        // console.warn('group.attrs', this.group.attrs);
+        // log.debug('group.attrs', this.group.attrs);
         const { multiscales } = this.ngffMetadata;
 
         if (!multiscales) {
@@ -686,20 +690,21 @@ export class VolumeDataManager {
             if (multiscales?.[0]?.datasets?.[i]?.coordinateTransformations?.[0]?.scale) {
               const { scale } = multiscales[0].datasets[i].coordinateTransformations[0];
               scales[i] = [scale[4], scale[3], scale[2]];
-              // console.warn('scale', i, scales[i]);
+              // log.debug('scale', i, scales[i]);
             }
           }
 
           // TODO: if the scales are not powers of two, throw an error?
         } else {
-          console.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
+          log.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
           for (let i = 0; i < resolutions; i++) {
-            const scale = Math.pow(2, i);
+            // 2 to the power of i
+            const scale = 2 ** i;
             scales[i] = [scale, scale, scale];
           }
         }
 
-        // console.warn('scales', scales);
+        // log.debug('scales', scales);
         this.zarrStore.scales = scales;
 
         // Use the top-level coordinateTransformations scale if available
@@ -721,7 +726,7 @@ export class VolumeDataManager {
             //   { size: zScale },
             // ];
 
-            // console.warn('physicalScale', this.physicalScale);
+            // log.debug('physicalScale', this.physicalScale);
 
             // Update zarrStore's physicalSizeVoxel
             this.zarrStore.physicalSizeVoxel = [zScale, yScale, xScale];
@@ -735,7 +740,7 @@ export class VolumeDataManager {
               ];
             }
 
-            // console.warn('Using scale from coordinateTransformations:', this.physicalScale);
+            // log.debug('Using scale from coordinateTransformations:', this.physicalScale);
           }
         }
 
@@ -745,11 +750,11 @@ export class VolumeDataManager {
           imageWrapper.getMultiResolutionStats(),
         );
 
-        // console.warn('zarrStore', this.zarrStore);
+        // log.debug('zarrStore', this.zarrStore);
 
         // init channel mappings
-        // console.log('initializing channel mappings');
-        console.log('config', config);
+        // log.debug('initializing channel mappings');
+        log.debug('config', config);
         // for each key in config, add to channel mappings
         const { omero } = this.ngffMetadata || {};
 
@@ -758,7 +763,7 @@ export class VolumeDataManager {
           throw new Error('Expected omero metadata in ngffMetadata');
         }
 
-        console.log('omero', omero);
+        log.debug('omero', omero);
 
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
@@ -767,10 +772,10 @@ export class VolumeDataManager {
           this.channels.downsampleMin[i] = omero?.channels?.[configChannel]?.window?.min || 0;
           this.channels.downsampleMax[i] = omero?.channels?.[configChannel]?.window?.max || 65535;
         });
-        console.log('zarrMappings after init', this.channels.zarrMappings);
-        console.log('colorMappings after init', this.channels.colorMappings);
-        console.log('downsampleMin after init', this.channels.downsampleMin);
-        console.log('downsampleMax after init', this.channels.downsampleMax);
+        log.debug('zarrMappings after init', this.channels.zarrMappings);
+        log.debug('colorMappings after init', this.channels.colorMappings);
+        log.debug('downsampleMin after init', this.channels.downsampleMin);
+        log.debug('downsampleMax after init', this.channels.downsampleMax);
 
         // Initialize MRMCPT textures after we have all the necessary information
         this.initMRMCPT();
@@ -779,15 +784,15 @@ export class VolumeDataManager {
       }
 
       this.initStatus = INIT_STATUS.COMPLETE;
-      log('INIT() COMPLETE');
+      logWithColor('INIT() COMPLETE');
 
-      // console.warn(this.zarrStore);
+      // log.debug(this.zarrStore);
 
       /*
       if (this.ngffMetadata.coordinateTransformations
           && this.ngffMetadata.coordinateTransformations[0]
           && this.ngffMetadata.coordinateTransformations[0].scale) {
-        // console.warn('scale', this.ngffMetadata.coordinateTransformations[0].scale);
+        // log.debug('scale', this.ngffMetadata.coordinateTransformations[0].scale);
       }
       */
 
@@ -802,8 +807,8 @@ export class VolumeDataManager {
         error: null,
       };
     } catch (error) {
-      log('INIT() FAILED');
-      console.error('Error initializing VolumeDataManager:', error);
+      logWithColor('INIT() FAILED');
+      log.error('Error initializing VolumeDataManager:', error);
       this.initStatus = INIT_STATUS.FAILED;
       this.initError = error.message || 'Unknown error';
 
@@ -824,12 +829,12 @@ export class VolumeDataManager {
    *   -
    */
   initMRMCPT() {
-    log('initMRMCPT');
+    logWithColor('initMRMCPT');
 
-    // console.warn('initMRMCPT', this.zarrStore.shapes[0]);
-    // console.warn('initMRMCPT', this.zarrStore.channelCount);
-    // console.warn('initMRMCPT', this.channels.zarrMappings);
-    // console.warn('initMRMCPT', this.channels.colorMappings);
+    // log.debug('initMRMCPT', this.zarrStore.shapes[0]);
+    // log.debug('initMRMCPT', this.zarrStore.channelCount);
+    // log.debug('initMRMCPT', this.channels.zarrMappings);
+    // log.debug('initMRMCPT', this.channels.colorMappings);
 
     const { PT, ptTHREE, bcTHREE } = _initMRMCPT(
       this.zarrStore.brickLayout,
@@ -840,16 +845,16 @@ export class VolumeDataManager {
     this.ptTHREE = ptTHREE;
     this.bcTHREE = bcTHREE;
 
-    // console.warn('gl', this.gl);
-    // console.warn('renderer', this.renderer);
+    // log.debug('gl', this.gl);
+    // log.debug('renderer', this.renderer);
 
-    log('initMRMCPT() COMPLETE');
+    logWithColor('initMRMCPT() COMPLETE');
   }
 
   /*
   testTexture() {
-    console.warn('testTexture pt', this.ptTHREE);
-    console.warn('testTexture bc', this.bcTHREE);
+    log.debug('testTexture pt', this.ptTHREE);
+    log.debug('testTexture bc', this.bcTHREE);
   }
   */
 
@@ -861,17 +866,17 @@ export class VolumeDataManager {
   }
 
   updateChannels(channelProps) {
-    log('updateChannels');
-    console.log('channelProps', channelProps);
+    logWithColor('updateChannels');
+    log.debug('channelProps', channelProps);
 
-    // console.error('TODO: init channel mappings first ');
-    console.log('this.channels.zarrMappings', this.channels.zarrMappings);
-    console.log('this.channels.colorMappings', this.channels.colorMappings);
-    console.log('this.channels.downsampleMin', this.channels.downsampleMin);
-    console.log('this.channels.downsampleMax', this.channels.downsampleMax);
+    // log.error('TODO: init channel mappings first ');
+    log.debug('this.channels.zarrMappings', this.channels.zarrMappings);
+    log.debug('this.channels.colorMappings', this.channels.colorMappings);
+    log.debug('this.channels.downsampleMin', this.channels.downsampleMin);
+    log.debug('this.channels.downsampleMax', this.channels.downsampleMax);
 
     if (this.channels.zarrMappings.length === 0) {
-      console.error('channels not initialized yet');
+      log.error('channels not initialized yet');
       return;
     }
 
@@ -890,11 +895,11 @@ export class VolumeDataManager {
     // Early exit if mappings haven't changed
     if (requestedSorted.length === currentSorted.length
         && requestedSorted.every((val, index) => val === currentSorted[index])) {
-      console.log('Channel mappings unchanged, skipping update');
+      log.debug('Channel mappings unchanged, skipping update');
       // return;
     }
 
-    console.log('Channel mappings changed:', {
+    log.debug('Channel mappings changed:', {
       current: currentSorted,
       requested: requestedSorted,
     });
@@ -903,7 +908,7 @@ export class VolumeDataManager {
     Object.entries(channelProps).forEach(([uiChannelKey, channelData]) => {
       const targetZarrChannel = channelData.spatialTargetC;
 
-      console.log(`UI channel "${uiChannelKey}" wants zarr channel ${targetZarrChannel}`);
+      log.debug(`UI channel "${uiChannelKey}" wants zarr channel ${targetZarrChannel}`);
 
       // Check if this zarr channel is already mapped
       const existingSlotIndex = this.channels.zarrMappings.indexOf(targetZarrChannel);
@@ -913,24 +918,24 @@ export class VolumeDataManager {
         const nextFreeSlot = this.channels.zarrMappings.findIndex(slot => slot === undefined);
         if (nextFreeSlot !== -1) {
           this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
-          console.log('channelData', channelData);
-          console.log('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
-          console.log('targetZarrChannel', targetZarrChannel);
+          log.debug('channelData', channelData);
+          log.debug('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
+          log.debug('targetZarrChannel', targetZarrChannel);
           this.channels.downsampleMin[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
           this.channels.downsampleMax[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
-          console.log(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
-          console.log('channels', this.channels);
+          log.debug(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
+          log.debug('channels', this.channels);
         } else {
-          console.log('No free slots found, looking for unused mapped channels');
+          log.debug('No free slots found, looking for unused mapped channels');
 
           // Find zarr channels that are currently mapped but no longer requested
           const currentlyMapped = this.channels.zarrMappings.filter(mapping => mapping !== undefined);
           const stillRequested = requestedZarrChannels; // We calculated this earlier
           const unusedMappedChannels = currentlyMapped.filter(mappedChannel => !stillRequested.includes(mappedChannel));
 
-          console.log('Currently mapped:', currentlyMapped);
-          console.log('Still requested:', stillRequested);
-          console.log('Unused mapped channels:', unusedMappedChannels);
+          log.debug('Currently mapped:', currentlyMapped);
+          log.debug('Still requested:', stillRequested);
+          log.debug('Unused mapped channels:', unusedMappedChannels);
 
           if (unusedMappedChannels.length > 0) {
             // Find the first slot that maps to an unused zarr channel
@@ -941,18 +946,18 @@ export class VolumeDataManager {
               this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
               this.channels.downsampleMin[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
               this.channels.downsampleMax[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
-              console.log(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
+              log.debug(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
 
               this._purgeChannel(slotToReuse);
             } else {
-              console.error('Could not find slot to reuse - this should not happen');
+              log.error('Could not find slot to reuse - this should not happen');
             }
           } else {
-            console.error('All slots are full and all mapped channels are still in use');
+            log.error('All slots are full and all mapped channels are still in use');
           }
         }
       } else {
-        console.log(`Zarr channel ${targetZarrChannel} already mapped to slot ${existingSlotIndex}`);
+        log.debug(`Zarr channel ${targetZarrChannel} already mapped to slot ${existingSlotIndex}`);
       }
     });
 
@@ -965,10 +970,10 @@ export class VolumeDataManager {
       newColorMappings.push(-1);
     }
 
-    console.log('newColorMappings', newColorMappings);
+    log.debug('newColorMappings', newColorMappings);
     this.channels.colorMappings = newColorMappings;
 
-    console.log('updatedChannels', this.channels);
+    log.debug('updatedChannels', this.channels);
   }
 
   /**
@@ -979,8 +984,8 @@ export class VolumeDataManager {
    */
   /*
   async tryLoadResolution(resolutionIndex, arrays) {
-    log('tryLoadResolution');
-    console.warn(resolutionIndex, arrays);
+    logWithColor('tryLoadResolution');
+    log.debug(resolutionIndex, arrays);
     try {
       const array = await zarrita.open(this.group.resolve(String(resolutionIndex)));
       // Create new arrays to avoid modifying parameters directly
@@ -988,10 +993,10 @@ export class VolumeDataManager {
       newArrays[resolutionIndex] = array;
       // Update the original arrays
       Object.assign(arrays, newArrays);
-      log('tryLoadResolution() COMPLETE');
+      logWithColor('tryLoadResolution() COMPLETE');
       return { success: true, level: resolutionIndex };
     } catch (err) {
-      console.error(`Failed to load resolution ${resolutionIndex}:`, err);
+      log.error(`Failed to load resolution ${resolutionIndex}:`, err);
       return { success: false, level: resolutionIndex, error: err.message };
     }
   }
@@ -1002,12 +1007,12 @@ export class VolumeDataManager {
    * @returns {Array} Physical dimensions [X, Y, Z]
    */
   getPhysicalDimensionsXYZ() {
-    console.log('getPhysicalDimensionsXYZ');
-    console.log('this.zarrStore.physicalSizeTotal', this.zarrStore.physicalSizeTotal);
+    log.debug('getPhysicalDimensionsXYZ');
+    log.debug('this.zarrStore.physicalSizeTotal', this.zarrStore.physicalSizeTotal);
     const out = [this.zarrStore.physicalSizeTotal[2],
       this.zarrStore.physicalSizeTotal[1],
       this.zarrStore.physicalSizeTotal[0]];
-    console.log('out', out);
+    log.debug('out', out);
     return out;
   }
 
@@ -1016,44 +1021,44 @@ export class VolumeDataManager {
    * @returns {number} Maximum resolution
    */
   getMaxResolutionXYZ() {
-    console.log('getMaxResolutionXYZ');
-    console.log('this.zarrStore.shapes', this.zarrStore.shapes);
+    log.debug('getMaxResolutionXYZ');
+    log.debug('this.zarrStore.shapes', this.zarrStore.shapes);
     const out = [this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][3],
       this.zarrStore.shapes[0][2]];
-    console.log('out', out);
+    log.debug('out', out);
     return out;
   }
 
   getOriginalScaleXYZ() {
-    log('getOriginalScaleXYZ');
-    console.log('this.zarrStore.physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
+    logWithColor('getOriginalScaleXYZ');
+    log.debug('this.zarrStore.physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
     const out = [this.zarrStore.physicalSizeVoxel[2],
       this.zarrStore.physicalSizeVoxel[1],
       this.zarrStore.physicalSizeVoxel[0]];
-    console.log('out', out);
+    log.debug('out', out);
     return out;
   }
 
   getNormalizedScaleXYZ() {
-    console.log('getNormalizedScaleXYZ');
+    log.debug('getNormalizedScaleXYZ');
     const out = [
       1.0,
       this.zarrStore.physicalSizeVoxel[1] / this.zarrStore.physicalSizeVoxel[2],
       this.zarrStore.physicalSizeVoxel[0] / this.zarrStore.physicalSizeVoxel[0],
     ];
-    console.log('out', out);
+    log.debug('out', out);
     return out;
   }
 
   getBoxDimensionsXYZ() {
-    console.log('getBoxDimensionsXYZ');
-    console.log('this.zarrStore.shapes', this.zarrStore.shapes);
+    log.debug('getBoxDimensionsXYZ');
+    log.debug('this.zarrStore.shapes', this.zarrStore.shapes);
     const out = [1,
       this.zarrStore.shapes[0][3] / this.zarrStore.shapes[0][4],
       this.zarrStore.shapes[0][2] / this.zarrStore.shapes[0][4],
     ];
-    console.log('out', out);
+    log.debug('out', out);
     return out;
   }
 
@@ -1068,17 +1073,17 @@ export class VolumeDataManager {
    * @returns {Promise<Uint8Array>} 32x32x32 chunk data
    */
   async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
-    // log('loadZarrChunk');
+    // logWithColor('loadZarrChunk');
     if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
       throw new Error('Zarr store or resolution not initialized');
     }
 
-    // console.warn('loadZarrChunk', t, c, z, y, x, resolution);
+    // log.debug('loadZarrChunk', t, c, z, y, x, resolution);
 
     const array = this.zarrStore.arrays[resolution];
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
 
-    // console.log('chunkEntry', chunkEntry);
+    // log.debug('chunkEntry', chunkEntry);
 
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
@@ -1094,7 +1099,7 @@ export class VolumeDataManager {
 
   async processRequestData(buffer) {
     if (this.isBusy) {
-      console.log('processRequestData: already busy, skipping');
+      log.debug('processRequestData: already busy, skipping');
       return;
     }
     this.isBusy = true;
@@ -1105,7 +1110,7 @@ export class VolumeDataManager {
     if (requests.length === 0) {
       this.noNewRequests = true;
     }
-    console.log(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`);
+    log.debug(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`);
     await this.handleBrickRequests(requests);
 
     // We want processRequestData to alternate with processUsageData.
@@ -1116,7 +1121,7 @@ export class VolumeDataManager {
 
   async processUsageData(buffer) {
     if (this.isBusy) {
-      console.log('processUsageData: already busy, skipping');
+      log.debug('processUsageData: already busy, skipping');
       this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
       return;
     }
@@ -1133,7 +1138,10 @@ export class VolumeDataManager {
       const z = buffer[i + 2];
 
       // Skip empty entries
-      if ((x | y | z) === 0) continue;
+      if ((x | y | z) === 0) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
 
       // Calculate brick index
       const bcIndex = z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y + y * BRICK_CACHE_SIZE_X + x;
@@ -1156,8 +1164,8 @@ export class VolumeDataManager {
     // do NOT overwrite BCFull; it is latched in _allocateBCSlots()
     if (this.BCFull) this._buildLRU(); // The brick cache is full, so update the list of least recently used bricks, as it will be needed for eviction during the next _allocateBCSlots
 
-    // console.warn('this.BCTimeStamps', this.BCTimeStamps);
-    // console.warn('this.timeStamp', this.timeStamp);
+    // log.debug('this.BCTimeStamps', this.BCTimeStamps);
+    // log.debug('this.timeStamp', this.timeStamp);
 
     // We want processRequestData to alternate with processUsageData.
     this.triggerRequest = true;
@@ -1182,11 +1190,11 @@ export class VolumeDataManager {
   }
 
   _purgeChannel(ptChannelIndex) {
-    console.log('purging channel', ptChannelIndex);
-    console.log('corresponding zarr channel', this.channels.zarrMappings[ptChannelIndex]);
+    log.debug('purging channel', ptChannelIndex);
+    log.debug('corresponding zarr channel', this.channels.zarrMappings[ptChannelIndex]);
 
     if (!this.ptTHREE) {
-      console.error('pagetable texture not initialized');
+      log.error('pagetable texture not initialized');
       return;
     }
 
@@ -1196,8 +1204,8 @@ export class VolumeDataManager {
 
     const channelMask = this.PT.channelOffsets[ptChannelIndex];
 
-    console.log('channelMask', channelMask);
-    console.error('TODO: not tested yet');
+    log.debug('channelMask', channelMask);
+    log.error('TODO: not tested yet');
 
     const { gl } = this;
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
@@ -1210,11 +1218,11 @@ export class VolumeDataManager {
         this.PT.anchors[r][1] * channelMask[1],
         this.PT.anchors[r][0] * channelMask[0],
       ];
-      console.log('anchor', anchor);
+      log.debug('anchor', anchor);
       const extents = this.zarrStore.brickLayout[r];
       const size = extents[0] * extents[1] * extents[2];
-      console.log('extents', extents);
-      console.log('size', size);
+      log.debug('extents', extents);
+      log.debug('size', size);
       // texsub 3D
       // replace with a block of zeros
       gl.texSubImage3D(
@@ -1262,7 +1270,7 @@ export class VolumeDataManager {
       // The brick cache was not already full,
       // but allocating N more bricks will put us over the limit.
       this.BCFull = true;
-      console.warn('BRICK CACHE FULL');
+      log.debug('BRICK CACHE FULL');
     }
     // Do the allocation.
     if (!this.BCFull) {
@@ -1299,7 +1307,7 @@ export class VolumeDataManager {
  * 4. Upload one brick + PT entry                                *
  * ------------------------------------------------------------- */
   async _uploadBrick(ptCoord, bcSlot) {
-    // console.log('uploading brick', ptCoord, bcSlot);
+    // log.debug('uploading brick', ptCoord, bcSlot);
 
     if (ptCoord.x >= this.PT.xExtent
       || ptCoord.y >= this.PT.yExtent
@@ -1308,13 +1316,13 @@ export class VolumeDataManager {
       || ptCoord.y < 0
       || ptCoord.z < 0
     ) {
-      console.error('this.PT', this.PT);
-      console.error('ptCoord out of bounds', ptCoord);
+      log.error('this.PT', this.PT);
+      log.error('ptCoord out of bounds', ptCoord);
       return;
     }
 
-    // console.log('ptCoord', ptCoord);
-    // console.log('this.PT', this.PT);
+    // log.debug('ptCoord', ptCoord);
+    // log.debug('this.PT', this.PT);
 
 
     /* 4.1 fetch chunk from Zarr */
@@ -1326,27 +1334,27 @@ export class VolumeDataManager {
     const zarrChannel = this.channels.zarrMappings[channel];
 
     if (zarrChannel === undefined || zarrChannel === -1) {
-      console.error('zarrChannel is undefined or -1', zarrChannel);
+      log.error('zarrChannel is undefined or -1', zarrChannel);
       return;
     }
 
-    console.log('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
+    log.debug('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
     let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
-    // console.log('chunk', chunk);
+    // log.debug('chunk', chunk);
 
     // TODO(mark): is there a better way than iterating over all of the chunk values?
     if (chunk instanceof Uint16Array) {
-      console.log('chunk is Uint16Array, converting to Uint8Array');
+      log.debug('chunk is Uint16Array, converting to Uint8Array');
       if (this.channels.downsampleMin[channel] === undefined) {
         // get the channel ID from this.channels.zarrMappings
         const channelId = this.channels.zarrMappings[channel];
-        console.log('channelId was not found in this.channels.downsampleMin[channel]', channelId);
+        log.debug('channelId was not found in this.channels.downsampleMin[channel]', channelId);
         // get the downsample min and max for the channel from omero
         this.channels.downsampleMin[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.min || 0;
         this.channels.downsampleMax[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.max || 65535;
 
-        console.log('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
-        console.log('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
+        log.debug('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
+        log.debug('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
       }
       // TODO(mark): to reduce memory usage, create the Uint8Array as a view of the Uint16Array
       // and use bitwise operations. Then scale the values.
@@ -1387,16 +1395,16 @@ export class VolumeDataManager {
     );
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     gl.bindTexture(gl.TEXTURE_3D, null);
-    // console.log('uploaded brick');
+    // log.debug('uploaded brick');
 
     const error = gl.getError();
     if (error !== gl.NO_ERROR) {
-      console.error('WebGL error during brick upload:', error, chunk);
+      log.error('WebGL error during brick upload:', error, chunk);
     }
 
     /* 4.4 PT entry upload */
     if (channel >= this.channels.zarrMappings.length) {
-      console.log('channel is out of bounds', channel);
+      log.debug('channel is out of bounds', channel);
       min = 255;
       max = 255;
     }
@@ -1413,21 +1421,21 @@ export class VolumeDataManager {
       new Uint32Array([ptVal]),
     );
     gl.bindTexture(gl.TEXTURE_3D, null);
-    // console.log('uploaded PT entry');
-    // console.log('ptVal', ptVal);
-    // console.log('min', min);
-    // console.log('max', max);
-    // console.log('bcSlot', bcSlot);
-    // console.log('channel', channel);
-    // console.log('resolution', resolution);
-    // console.log('x', x);
-    // console.log('y', y);
-    // console.log('z', z);
-    // console.log('ptCoord', ptCoord);
+    // log.debug('uploaded PT entry');
+    // log.debug('ptVal', ptVal);
+    // log.debug('min', min);
+    // log.debug('max', max);
+    // log.debug('bcSlot', bcSlot);
+    // log.debug('channel', channel);
+    // log.debug('resolution', resolution);
+    // log.debug('x', x);
+    // log.debug('y', y);
+    // log.debug('z', z);
+    // log.debug('ptCoord', ptCoord);
 
     const error2 = gl.getError();
     if (error2 !== gl.NO_ERROR) {
-      console.error('WebGL error during pagetable upload:', error2, chunk);
+      log.error('WebGL error during pagetable upload:', error2, chunk);
     }
 
     /* 4.5 bookkeeping */
@@ -1435,49 +1443,49 @@ export class VolumeDataManager {
     this.BCTimeStamps[bcSlot.bcIndex] = this.timeStamp;
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
     this.bc2pt[bcSlot.bcIndex] = ptCoord;
-    // console.log('bookkeeping');
+    // log.debug('bookkeeping');
   }
 
   /* ------------------------------------------------------------- *
  * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
  * ------------------------------------------------------------- */
   async handleBrickRequests(ptRequests) {
-    // console.log('handleBrickRequests');
+    // log.debug('handleBrickRequests');
     if (ptRequests.length === 0) return;
-    // console.log('ptRequests', ptRequests);
-    // console.log('this.BCFull', this.BCFull);
-    // console.log('this.BCUnusedIndex', this.BCUnusedIndex);
-    // console.log('this.BCTimeStamps', this.BCTimeStamps);
-    // console.log('this.LRUStack', this.LRUStack);
+    // log.debug('ptRequests', ptRequests);
+    // log.debug('this.BCFull', this.BCFull);
+    // log.debug('this.BCUnusedIndex', this.BCUnusedIndex);
+    // log.debug('this.BCTimeStamps', this.BCTimeStamps);
+    // log.debug('this.LRUStack', this.LRUStack);
 
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);
-    // console.log('slots', slots);
+    // log.debug('slots', slots);
 
     /* upload each (sequentially or Promise.all if you prefer IO overlap) */
-    console.log('handleBrickRequests: starting for loop');
+    log.debug('handleBrickRequests: starting for loop');
     for (let i = 0; i < ptRequests.length; ++i) {
-    // eslint-disable-next-line no-await-in-loop
-      console.log('uploading brick', ptRequests[i], slots[i]);
+      log.debug('uploading brick', ptRequests[i], slots[i]);
+      // eslint-disable-next-line no-await-in-loop
       await this._uploadBrick(ptRequests[i], slots[i]);
       // this.bricksAllocated++;
       const rlength = this.bricksEverLoaded.size;
       this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
       if (rlength === this.bricksEverLoaded.size) {
-        console.warn('DUPLICATE BRICK LOADED', ptRequests[i]);
+        log.debug('DUPLICATE BRICK LOADED', ptRequests[i]);
       }
 
       if (this.needsBailout) {
-        console.warn('Bailing out of handleBrickRequests early due to needsBailout flag');
+        log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
         this.needsBailout = false; // Reset the flag
         break; // Exit the loop early
 
         // TODO(mark): do something with the allocated slots that were not used?
       }
     }
-    // console.log('this.bricksAllocated', this.bricksAllocated);
-    console.log('this.bricksEverLoaded', this.bricksEverLoaded);
-    // console.log('uploaded bricks');
+    // log.debug('this.bricksAllocated', this.bricksAllocated);
+    log.debug('this.bricksEverLoaded', this.bricksEverLoaded);
+    // log.debug('uploaded bricks');
 
     /* let Three.js know textures changed */
     // this.bcTHREE.needsUpdate = true;

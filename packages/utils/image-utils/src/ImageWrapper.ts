@@ -481,6 +481,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
           // chunkWidth
           // chunkDepth
           // physicalSizeVoxel
+          // eslint-disable-next-line max-len
           // physicalSizeTotal (physicalSizeVoxel * highest-resolution numPixels, for each dimension)
         };
       });

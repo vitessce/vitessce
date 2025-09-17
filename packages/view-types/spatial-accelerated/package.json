@@ -42,6 +42,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/styles": "workspace:*",
+    "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
     "internmap": "catalog:",
     "lodash-es": "catalog:",

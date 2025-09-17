@@ -1,18 +1,29 @@
-/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
 import {
   Vector2,
-  Vector3,
   UniformsUtils,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
+import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { VolumeShader } from './VolumeShader.js';
-import { VolumeDataManager } from './VolumeDataManager.js';
 
-function log(message) {
-  console.warn(
-    `%cRM: ${message}`,
-    'background: orange; color: white; padding: 2px; border-radius: 3px;',
-  );
+function logWithColor(message) {
+  if (atLeastLogLevel(LogLevel.DEBUG)) {
+    console.warn(
+      `%cRM: ${message}`,
+      'background: orange; color: white; padding: 2px; border-radius: 3px;',
+    );
+  }
+}
+
+/**
+ * Normalize a value based on the volume's min/max range
+ * @param {number} value - Value to normalize
+ * @param {Array} minMax - [min, max] values of the volume
+ * @returns {number} Normalized value
+ */
+function normalizeValue(value, minMax) {
+  return value / minMax[1];
 }
 
 /**
@@ -21,7 +32,7 @@ function log(message) {
  */
 export class VolumeRenderManager {
   constructor() {
-    log('Initializing VolumeRenderManager');
+    logWithColor('Initializing VolumeRenderManager');
     // Rendering settings
     this.uniforms = null;
     this.shader = null;
@@ -59,7 +70,7 @@ export class VolumeRenderManager {
    * Initialize shader and uniform objects
    */
   initializeShader() {
-    log('Initializing shader');
+    logWithColor('Initializing shader');
     this.shader = VolumeShader;
     this.uniforms = UniformsUtils.clone(this.shader.uniforms);
   }
@@ -70,9 +81,9 @@ export class VolumeRenderManager {
    * @returns {Object} Extracted rendering settings
    */
   extractRenderingSettingsFromProps(props) {
-    log('Extracting rendering settings from props');
-    // console.log('props', props);
-    // console.log('props.imageChannelCoordination', props.imageChannelCoordination[0]['A']);
+    logWithColor('Extracting rendering settings from props');
+    // log.debug('props', props);
+    // log.debug('props.imageChannelCoordination', props.imageChannelCoordination[0]['A']);
     const {
       images = {},
       imageLayerScopes = [],
@@ -208,7 +219,7 @@ export class VolumeRenderManager {
    * @returns {boolean} True if settings were successfully updated
    */
   updateFromProps(props) {
-    log('Updating from props');
+    logWithColor('Updating from props');
     const settings = this.extractRenderingSettingsFromProps(props);
     if (!settings.valid) {
       return false;
@@ -230,18 +241,8 @@ export class VolumeRenderManager {
   }
 
   /**
-   * Normalize a value based on the volume's min/max range
-   * @param {number} value - Value to normalize
-   * @param {Array} minMax - [min, max] values of the volume
-   * @returns {number} Normalized value
-   */
-  normalizeValue(value, minMax) {
-    return value / minMax[1];
-  }
-
-  /**
    * Update the rendering based on the current volume data from the data manager
-   * @param {VolumeDataManager} volumeDataManager - Reference to the volume data manager
+   * @param {object} volumeDataManagerProps - Params derived from the volume data manager
    * @returns {Object|null} Updated rendering settings or null if rendering is not possible
    */
   updateRendering({
@@ -254,7 +255,7 @@ export class VolumeRenderManager {
     bcTHREE,
     ptTHREE,
   }) {
-    log('Updating rendering');
+    logWithColor('Updating rendering');
 
     // Check if we have at least one visible channel
     const visibleChannelIndex = this.channelTargetC.findIndex(
@@ -287,15 +288,15 @@ export class VolumeRenderManager {
 
     // ', this);
 
-    // console.log('this.channelsVisible', this.channelsVisible);
-    // console.log('this.channelTargetC', this.channelTargetC);
-    // console.log('this.colors', this.colors);
-    // console.log('this.contrastLimits', this.contrastLimits);
+    // log.debug('this.channelsVisible', this.channelsVisible);
+    // log.debug('this.channelTargetC', this.channelTargetC);
+    // log.debug('this.colors', this.colors);
+    // log.debug('this.contrastLimits', this.contrastLimits);
 
     this.channelTargetC.forEach((channel, id) => {
-      // console.log('channel', channel);
-      // console.log('id', id);
-      // console.log('this.channelsVisible', this.channelsVisible);
+      // log.debug('channel', channel);
+      // log.debug('id', id);
+      // log.debug('this.channelsVisible', this.channelsVisible);
       if (this.channelsVisible[id] || true) { // TODO: remove true
         // Since we don't have volume-based minMax, use fixed values
         // or get them from your brick cache metadata if available
@@ -303,8 +304,8 @@ export class VolumeRenderManager {
         const max = this.maxRange ? this.maxRange : 255;
         const minMax = [0, max]; // Default values
 
-        // console.log('this.colors[id]', this.colors[id]);
-        // console.log('this.channelsVisible[id]', this.channelsVisible[id]);
+        // log.debug('this.colors[id]', this.colors[id]);
+        // log.debug('this.channelsVisible[id]', this.channelsVisible[id]);
 
         colorsSave.push([
           this.colors[id][0] / 255,
@@ -313,17 +314,17 @@ export class VolumeRenderManager {
           this.channelsVisible[id] ? 1.0 : 0.0,
         ]);
 
-        console.log('colorsSave', colorsSave);
+        log.debug('colorsSave', colorsSave);
 
         if (this.contrastLimits[id][0] === 0 && this.contrastLimits[id][1] === 255) {
           contrastLimitsList.push([
-            this.normalizeValue(minMax[0], minMax),
-            this.normalizeValue(minMax[1], minMax),
+            normalizeValue(minMax[0], minMax),
+            normalizeValue(minMax[1], minMax),
           ]);
         } else {
           contrastLimitsList.push([
-            this.normalizeValue(this.contrastLimits[id][0], minMax),
-            this.normalizeValue(this.contrastLimits[id][1], minMax),
+            normalizeValue(this.contrastLimits[id][0], minMax),
+            normalizeValue(this.contrastLimits[id][1], minMax),
           ]);
         }
       }
@@ -345,13 +346,13 @@ export class VolumeRenderManager {
       this.geometrySize = scaledResolution;
       this.boxSize = scaledResolution;
 
-      console.log('this.boxSize', this.boxSize);
-      console.log('this.geometrySize', this.geometrySize);
-      console.log('this.meshScale', this.meshScale);
-      console.log('this.originalScale', this.originalScale);
-      console.log('this.physicalDimensions', this.physicalDimensions);
-      console.log('this.maxResolution', this.maxResolution);
-      console.log('scaledResolution', scaledResolution);
+      log.debug('this.boxSize', this.boxSize);
+      log.debug('this.geometrySize', this.geometrySize);
+      log.debug('this.meshScale', this.meshScale);
+      log.debug('this.originalScale', this.originalScale);
+      log.debug('this.physicalDimensions', this.physicalDimensions);
+      log.debug('this.maxResolution', this.maxResolution);
+      log.debug('scaledResolution', scaledResolution);
 
       this.zarrInit = true;
     }
@@ -395,7 +396,7 @@ export class VolumeRenderManager {
     xSlice, ySlice, zSlice,
     brickCacheTexture, pageTableTexture,
   ) {
-    log('Updating uniforms');
+    logWithColor('Updating uniforms');
     // Set base uniforms
     this.uniforms.boxSize.value.set(this.boxSize[0], this.boxSize[1], this.boxSize[2]);
 
@@ -520,23 +521,24 @@ export class VolumeRenderManager {
    */
   /*
   setProcessingTargets(mrt) {
-    log('setting processing targets');
+    logWithColor('setting processing targets');
     this.mrt = mrt;
   }
   */
 
   setChannelMapping(channelMapping) {
-    log('setting channel mapping');
-    console.log('channelMapping', channelMapping);
+    logWithColor('setting channel mapping');
+    log.debug('channelMapping', channelMapping);
     this.uniforms.channelMapping.value = channelMapping;
   }
 
 
-  // Only called on initialization of the VolumeDataManager and VolumeRenderManager for a particular image.
+  // Only called on initialization of the
+  // VolumeDataManager and VolumeRenderManager for a particular image.
   setZarrUniforms(
     zarrStore, PT,
   ) {
-    log('setting zarr uniforms');
+    logWithColor('setting zarr uniforms');
     console.warn('zarrStore', zarrStore);
     console.warn('PT', PT);
     for (let i = 0; i <= 9; i++) {
@@ -578,10 +580,10 @@ export class VolumeRenderManager {
       zarrStore.shapes[0][2],
     );
     this.uniforms.maxChannels.value = Math.min(zarrStore.channelCount, 7);
-    console.log('this.channelsVisible', this.channelsVisible);
-    console.log('zarrStore.shapes[0]', zarrStore.shapes[0]);
-    console.log('PT', PT);
-    console.log('uniforms', this.uniforms);
+    log.debug('this.channelsVisible', this.channelsVisible);
+    log.debug('zarrStore.shapes[0]', zarrStore.shapes[0]);
+    log.debug('PT', PT);
+    log.debug('uniforms', this.uniforms);
     // this.uniforms.physicalScale.value.set(physicalScale);
   }
 }

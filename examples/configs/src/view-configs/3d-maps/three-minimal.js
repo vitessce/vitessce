@@ -4,11 +4,11 @@ import {
 } from '@vitessce/config';
 
 const idToUrl = {
-  'lsp-1': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
-  'lsp-2': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
-  'lsp-3': 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
-  kingsnake: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-  gloria: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+  'lsp-1': 'https://data-2.vitessce.io/data/sorger/f8ii/',
+  'lsp-2': 'https://data-2.vitessce.io/data/sorger/lightsheet_colon/',
+  'lsp-3': 'https://data-2.vitessce.io/data/sorger/melanoma_zarr_32/',
+  kingsnake: 'https://data-2.vitessce.io/data/zarr_test/kingsnake_1c_32_z.zarr/',
+  gloria: 'https://data-2.vitessce.io/data/zarr_test/gloria/',
 };
 
 function generateThreeMinimalConfiguration(imageId) {
@@ -23,17 +23,17 @@ function generateThreeMinimalConfiguration(imageId) {
     // url: 'http://127.0.0.1:8080/kingsnake_1024x1024x795_uint8_z_manual.zarr',
     // url: 'http://127.0.0.1:8080/kingsnake/kingsnake_1c_32_z.zarr',
 
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/kingsnake_1c_32_z.zarr/',
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/zarr_test/gloria/',
+    // url: 'https://data-2.vitessce.io/data/zarr_test/kingsnake_1c_32_z.zarr/',
+    // url: 'https://data-2.vitessce.io/data/zarr_test/gloria/',
     // url: 'http://127.0.0.1:8080/gloria/',
     // url: 'http://127.0.0.1:8080/gloria_conversion/v1',
 
     // Example 1 clarence -- 0-7
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/f8ii/',
+    // url: 'https://data-2.vitessce.io/data/sorger/f8ii/',
     // Example 2 clarence -- 0-8
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/lightsheet_colon/',
+    // url: 'https://data-2.vitessce.io/data/sorger/lightsheet_colon/',
     // Example 350 GB
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/melanoma_zarr_32/',
+    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_zarr_32/',
 
     // url: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.3/idr0079A/9836998.zarr',
     // url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE.ome.tiff',
@@ -42,8 +42,12 @@ function generateThreeMinimalConfiguration(imageId) {
     // },
   });
 
-  const spatialAcceleratedView = config.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 }).setProps({ three: true, accelerated: true });
-  // const spatialThreeView = config.addView(dataset, 'spatialBeta').setProps({ three: true, accelerated: false });
+  const spatialAcceleratedView = config
+    .addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 })
+    .setProps({ three: true, accelerated: true });
+  // const spatialThreeView = config
+  //   .addView(dataset, 'spatialBeta')
+  //   .setProps({ three: true, accelerated: false });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
   config.linkViewsByObject([spatialAcceleratedView, lcView], {
     spatialTargetZ: 0,

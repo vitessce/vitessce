@@ -2306,6 +2306,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/globals':
+        specifier: workspace:*
+        version: link:../../globals
       '@vitessce/legend':
         specifier: workspace:*
         version: link:../../legend

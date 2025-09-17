@@ -66,10 +66,7 @@ export default function ChannelOptions(props) {
         <Slider
           value={spatialMaxResolution || 1}
           valueLabelDisplay="auto"
-          onChange={(e, v) => {
-            console.log('Slider value changed:', v);
-            setSpatialMaxResolution(v);
-          }}
+          onChange={(e, v) => setSpatialMaxResolution(v)}
           min={1}
           max={numResolutions - 1}
           step={1}
