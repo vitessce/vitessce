@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/neuroglancer",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -45,7 +45,6 @@
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
-
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

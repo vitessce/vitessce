@@ -1,4 +1,13 @@
 
+## 3.7.1
+
+### Patch Changes
+
+- Refined coordination between Neuroglancer and Spatial views (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2148](https://github.com/vitessce/vitessce/pull/2148))
+
+- Adds error messages for non-pyramidal images and missing offsets file (`@vitessce/ome-tiff`, `demo`) ([#2262](https://github.com/vitessce/vitessce/pull/2262))
+
+
 ## 3.7.0
 
 ### Minor Changes
