@@ -1081,6 +1081,14 @@ export class VolumeDataManager {
     // log.debug('loadZarrChunk', t, c, z, y, x, resolution);
 
     const array = this.zarrStore.arrays[resolution];
+
+    // TODO: Use zarrita's get(arr, slice) method (rather than arr.getChunk),
+    // which will enable reading from arrays with other chunk shapes
+    // (i.e., not strictly 32x32x32 chunks).
+    // To do so, will need to determine the slice indices corresponding
+    // to each "assumed 32x32x32 chunk key".
+    // Reference: https://zarrita.dev/slicing.html
+
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
 
     // log.debug('chunkEntry', chunkEntry);
