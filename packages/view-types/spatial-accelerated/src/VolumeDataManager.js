@@ -873,7 +873,7 @@ export class VolumeDataManager {
     log.debug('this.channels.downsampleMax', this.channels.downsampleMax);
 
     if (this.channels.zarrMappings.length === 0) {
-      log.error('channels not initialized yet');
+      log.debug('channels not initialized yet');
       return;
     }
 

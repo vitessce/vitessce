@@ -539,8 +539,8 @@ export class VolumeRenderManager {
     zarrStore, PT,
   ) {
     logWithColor('setting zarr uniforms');
-    console.warn('zarrStore', zarrStore);
-    console.warn('PT', PT);
+    log.debug('zarrStore', zarrStore);
+    log.debug('PT', PT);
     for (let i = 0; i <= 9; i++) {
       if (PT.anchors && PT.anchors[i]) {
         this.uniforms[`anchor${i}`].value.set(
@@ -550,7 +550,7 @@ export class VolumeRenderManager {
         );
       } else {
         // Set default values if anchor doesn't exist
-        console.warn('anchor', i, 'does not exist');
+        log.debug('anchor', i, 'does not exist');
         this.uniforms[`anchor${i}`].value.set(0, 0, 0);
       }
       if (zarrStore.scales && zarrStore.scales[i]) {
@@ -560,10 +560,10 @@ export class VolumeRenderManager {
           zarrStore.scales[i][2] || 1,
         );
       } else {
-        console.error('scale', i, 'does not exist');
+        log.debug('scale', i, 'does not exist');
       }
     }
-    console.warn('zarrStore.brickLayout', zarrStore.brickLayout);
+    log.debug('zarrStore.brickLayout', zarrStore.brickLayout);
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
