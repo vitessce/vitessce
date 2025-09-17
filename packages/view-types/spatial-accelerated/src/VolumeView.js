@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unknown-property */
 /**
  * VolumeView.js
  */
@@ -54,6 +56,7 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
 
   if (dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
     // Every 100th frame of the first 500 frames.
+    // eslint-disable-next-line no-param-reassign
     dataManager.noNewRequests = false;
   }
   if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
@@ -249,10 +252,17 @@ export function VolumeView(props) {
     // layout(location = 2) out vec4 gUsage: Brick usage tracking (for cache management)
     const mrt = new WebGLMultipleRenderTargets(width, height, 3);
     mrt.texture.forEach((tex) => {
+      // eslint-disable-next-line no-param-reassign
       tex.format = THREE.RGBAFormat;
+      // eslint-disable-next-line no-param-reassign
       tex.type = THREE.UnsignedByteType;
+      // eslint-disable-next-line no-param-reassign
       // tex.encoding = THREE.LinearEncoding;
-      tex.minFilter = tex.magFilter = THREE.NearestFilter;
+      // eslint-disable-next-line no-param-reassign
+      tex.minFilter = THREE.NearestFilter;
+      // eslint-disable-next-line no-param-reassign
+      tex.magFilter = THREE.NearestFilter;
+      // eslint-disable-next-line no-param-reassign
       tex.generateMipmaps = false;
     });
 
@@ -419,7 +429,7 @@ export function VolumeView(props) {
           dataManager.initTexture();
         }
         // Render manager needs some things from the data manager.
-        const renderState = renderManager.updateRendering({
+        const nextRenderState = renderManager.updateRendering({
           zarrStoreShapes: dataManager.zarrStore.shapes,
           originalScaleXYZ: dataManager.getOriginalScaleXYZ(),
           physicalDimensionsXYZ: dataManager.getPhysicalDimensionsXYZ(),
@@ -429,7 +439,9 @@ export function VolumeView(props) {
           bcTHREE: dataManager.bcTHREE,
           ptTHREE: dataManager.ptTHREE,
         });
-        if (renderState) setRenderState(renderState);
+        if (nextRenderState) {
+          setRenderState(nextRenderState);
+        }
       }
     }
   }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination,

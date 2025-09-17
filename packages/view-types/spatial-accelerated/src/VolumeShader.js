@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 import { Vector2, Vector3, Vector4 } from 'three';
 import { volumeVertexShader } from './shaders/VolumeVertexShader.js';
 import { volumeFragmentShader } from './shaders/VolumeFragmentShader.js';
