@@ -173,20 +173,17 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
 
     // Check if the column has metadata indicating it is WKB encoded.
     // Reference: https://github.com/geopandas/geopandas/blob/6ab5a7145fa788d049a805f114bc46c6d0ed4507/geopandas/io/arrow.py#L172
-    const hasEncodingMetadata = arrowTable.schema.fields
+    const geometryEncodingValue = arrowTable.schema.fields
       .find(field => field.name === columnName)
-      ?.metadata?.has('ARROW:extension:name');
-    
-    if (!hasEncodingMetadata) {
+      ?.metadata?.get('ARROW:extension:name');
+
+    if (!geometryEncodingValue) {
       // This may occur if the Parquet file was written by pre-1.0.0 geopandas,
       // which neither included the metadata nor supported alternative encodings.
       // Reference: https://github.com/vitessce/vitessce/issues/2265
       return true;
     }
-
-    return arrowTable.schema.fields
-      .find(field => field.name === columnName)
-      ?.metadata?.get('ARROW:extension:name') === 'geoarrow.wkb';
+    return geometryEncodingValue === 'geoarrow.wkb';
   }
 
   /**
