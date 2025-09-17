@@ -71,7 +71,7 @@ catalog:
   "@vitest/ui": ^3.1.4
   # React
   # We pin these to avoid issues with different subpackages depending on different versions of react
-  # (e.g., spatial-three uses 18.2.0 and spatial-accelerated uses 18.3.1)
+  # (e.g., we do not want spatial-three to use 18.2.0 while spatial-accelerated uses 18.3.1)
   # which can cause PNPM to use multiple versions of @react-three/fiber
   # and lead to errors like "Canvas must be a parent of useThree" due to multiple copies of RTF.
   # TODO: alternatively, we can introduce a new subpackage like @vitessce/three that re-exports RTF
