@@ -255,8 +255,6 @@ export function GatingSubscriber(props) {
 
   const [originalViewState, setOriginalViewState] = useState(null);
 
-  console.log(originalViewState);
-
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -496,7 +494,7 @@ export function GatingSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
-        embeddingPointsVisible={true}
+        embeddingPointsVisible
 
       />
       {!disableTooltip && (
