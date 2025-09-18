@@ -2,7 +2,7 @@ import React from 'react';
 import { useId } from 'react-aria';
 import { TableCell, TableRow, TextField } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
-import { capitalize, pluralize as plur } from '@vitessce/utils';
+import { capitalize } from '@vitessce/utils';
 
 export default function GatingScatterplotOptions(props) {
   const {
@@ -20,28 +20,18 @@ export default function GatingScatterplotOptions(props) {
   } = props;
 
   const gatingScatterplotOptionsId = useId();
+  const gatingScatterplotGeneXId = useId();
+  const gatingScatterplotGeneYId = useId();
 
   const { classes } = usePlotOptionsStyles();
 
   // Handlers for custom option field changes.
-  const handleGeneSelectChange = (event) => {
-    const { options } = event.target;
-    const newValues = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        newValues.push(options[i].value);
-      }
-    }
+  const handleSelectionX = (event) => {
+    setGatingFeatureSelectionX(event.target.value === '' ? null : event.target.value);
+  };
 
-    if (newValues.length === 1
-          && gatingFeatureSelectionX
-          && !gatingFeatureSelectionY
-          && newValues[0] !== gatingFeatureSelectionX) {
-      setGatingFeatureSelectionY(newValues[0]);
-    } else if (newValues.length <= 2) {
-      setGatingFeatureSelectionX(newValues[0]);
-      setGatingFeatureSelectionY(newValues[1]);
-    }
+  const handleSelectionY = (event) => {
+    setGatingFeatureSelectionY(event.target.value === '' ? null : event.target.value);
   };
 
   const handleTransformChange = (event) => {
@@ -67,21 +57,51 @@ export default function GatingScatterplotOptions(props) {
       <TableRow>
         <TableCell className={classes.labelCell} variant="head" scope="row">
           <label
-            htmlFor={`scatterplot-gating-gene-select-${gatingScatterplotOptionsId}`}
+            htmlFor={`scatterplot-gating-gene-select-${gatingScatterplotGeneXId}`}
           >
-            {capitalize(plur(featureType, geneSelectOptions?.length))}
+            {capitalize(featureType)} along X
           </label>
         </TableCell>
         <TableCell className={classes.inputCell} variant="body">
           <OptionSelect
-            multiple
             className={classes.select}
-            value={[gatingFeatureSelectionX, gatingFeatureSelectionY].filter(v => v)}
-            onChange={handleGeneSelectChange}
+            value={gatingFeatureSelectionX ?? ''}
+            onChange={handleSelectionX}
             inputProps={{
-              id: `scatterplot-gating-gene-select-${gatingScatterplotOptionsId}`,
+              id: `scatterplot-gating-gene-select-${gatingScatterplotGeneXId}`,
             }}
           >
+            <option value="">
+              None
+            </option>
+            {geneSelectOptions.map(name => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </OptionSelect>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label
+            htmlFor={`scatterplot-gating-gene-select-${gatingScatterplotGeneYId}`}
+          >
+            {capitalize(featureType)} along Y
+          </label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <OptionSelect
+            className={classes.select}
+            value={gatingFeatureSelectionY ?? ''}
+            onChange={handleSelectionY}
+            inputProps={{
+              id: `scatterplot-gating-gene-select-${gatingScatterplotGeneYId}`,
+            }}
+          >
+            <option value="">
+              None
+            </option>
             {geneSelectOptions.map(name => (
               <option key={name} value={name}>
                 {name}
@@ -129,7 +149,7 @@ export default function GatingScatterplotOptions(props) {
             type="number"
             onChange={handleTransformCoefficientChange}
             value={gatingFeatureValueTransformCoefficient}
-            slotProps={{ input: { shrink: true } }}
+            slotProps={{ inputLabel: { shrink: true } }}
             id={`scatterplot-gating-transform-coefficient-${gatingScatterplotOptionsId}`}
           />
         </TableCell>
