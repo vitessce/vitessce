@@ -284,6 +284,20 @@ export const meshGlbSchema = z.object({
   materialSide: z.enum(['front', 'back']),
 }).partial().nullable();
 
+// NG
+export const ngSchema = z.object({
+  dimensionX: z.number(),
+  dimensionY: z.number(),
+  dimensionZ: z.number(),
+  dimensionUnit: z.enum(['nm', 'um', 'mm']),
+  projectionScale: z.number(),
+  position: z.array(z.number()).length(3),
+  projectionOrientation: z.array(z.number()).length(4),
+  type: z.enum(['segmentation', 'image']),
+  // TODO: do we want to restrict the layout to only 3D?
+  layout: z.enum(['4panel-alt', '4panel', 'xy', 'xz', 'yz', '3d', 'xy-3d', 'xz-3d', 'yz-3d']),
+}).partial().nullable();
+
 /**
  * Options schemas for atomic file types.
  */
