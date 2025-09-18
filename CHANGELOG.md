@@ -1,4 +1,13 @@
 
+## 3.8.1
+
+### Patch Changes
+
+- Fix coordination type docs and add test to ensure every viewType is mapped to an array of coordinationTypes. (`@vitessce/constants-internal`) ([#2270](https://github.com/vitessce/vitessce/pull/2270))
+
+- Fix gating scatterplot view. Bugs during MUI upgrade were preventing multi-selection of genes; for now, have split into two single select inputs. Also needed to specify `embeddingPointsVisible: true` (prop of `Scatterplot` component). (`@vitessce/scatterplot-gating`, `@vitessce/scatterplot`) ([#2271](https://github.com/vitessce/vitessce/pull/2271))
+
+
 ## 3.8.0
 
 ### Minor Changes
