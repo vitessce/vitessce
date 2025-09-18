@@ -17,6 +17,7 @@ import {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useCoordination,
+  useInitialCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
@@ -124,6 +125,14 @@ export function GatingSubscriber(props) {
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.GATING],
     coordinationScopes,
+  );
+
+  const {
+    embeddingZoom: initialZoom,
+    embeddingTargetX: initialTargetX,
+    embeddingTargetY: initialTargetY,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.GATING], coordinationScopes,
   );
 
   const [width, height, deckRef] = useDeckCanvasSize();
@@ -244,6 +253,8 @@ export function GatingSubscriber(props) {
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
+  const [originalViewState, setOriginalViewState] = useState(null);
+
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -323,19 +334,28 @@ export function GatingSubscriber(props) {
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === newTargetX && targetY === -newTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(newTargetX);
+          // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+          setTargetY(-newTargetY);
+          setZoom(newZoom);
+        }
+        setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, zoom, averageFillDensity]);
+    width, height, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (
@@ -371,6 +391,13 @@ export function GatingSubscriber(props) {
   }, [obsXY, obsIndex, featureValueTransform,
     gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
   ]);
+
+  const setViewState = ({ zoom: newZoom, target }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2] || 0);
+  };
 
   return (
     <TitleInfo
@@ -438,13 +465,10 @@ export function GatingSubscriber(props) {
         uuid={uuid}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
+        hideRecenter={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
-        }}
+        setViewState={setViewState}
+        originalViewState={originalViewState}
         obsEmbeddingIndex={obsIndex}
         obsEmbedding={obsXY}
         cellFilter={cellFilter}
@@ -469,6 +493,8 @@ export function GatingSubscriber(props) {
         updateViewInfo={setComponentViewInfo}
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
+
+        embeddingPointsVisible
 
       />
       {!disableTooltip && (
