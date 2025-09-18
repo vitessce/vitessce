@@ -17,7 +17,13 @@ describe('src/app/constant-relationships.js', () => {
     it('every view type is mapped to an array of coordination types', () => {
       const viewTypes = Object.values(ViewType).sort();
       const mappedViewTypes = Object.keys(COMPONENT_COORDINATION_TYPES).sort();
-      expect(viewTypes.length).toEqual(mappedViewTypes.length);
+      // There may be view types in mappedViewTypes that are not yet
+      // defined as constants in viewTypes
+      // (e.g., higlass, used to debug higlass integration
+      // but not intended as a user-facing view).
+      const everyViewTypeIsMapped = viewTypes
+        .every(vt => mappedViewTypes.includes(vt));
+      expect(everyViewTypeIsMapped).toBe(true);
     });
   });
 });
