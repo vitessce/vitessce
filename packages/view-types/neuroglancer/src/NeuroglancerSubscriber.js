@@ -7,6 +7,7 @@ import {
   useLoaders,
   useObsEmbeddingData,
   useCoordinationScopes,
+  useNeuroglancerViewerState,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -56,7 +57,6 @@ export function NeuroglancerSubscriber(props) {
     theme,
     title = 'Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
-    viewerState: initialViewerState,
   } = props;
 
   const loaders = useLoaders();
@@ -93,9 +93,6 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
 
-  const latestViewerStateRef = useRef(initialViewerState);
-  const initialRotationPushedRef = useRef(false);
-
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
   const { classes } = useStyles();
@@ -111,6 +108,15 @@ export function NeuroglancerSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
+
+  const [initalViewerState] = useNeuroglancerViewerState(
+    loaders, dataset, false,
+    undefined, undefined,
+    { obsType: 'cell' },
+  );
+
+  const latestViewerStateRef = useRef(initalViewerState);
+  const initialRotationPushedRef = useRef(false);
 
   const ngRotPushAtRef = useRef(0);
   const lastInteractionSource = useRef(null);

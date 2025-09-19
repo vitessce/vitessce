@@ -34,10 +34,10 @@ function generateNeuroglancerMinimalConfiguration() {
       position: [49.5, 1000.5, 5209.5],
       projectionScale: 1024,
       projectionOrientation: [
-          -0.636204183101654,
-            -0.5028395652770996,
-            0.5443811416625977,
-            0.2145828753709793],
+        -0.636204183101654,
+        -0.5028395652770996,
+        0.5443811416625977,
+        0.2145828753709793],
       layout: '3d',
     },
     coordinationValues: {
@@ -83,51 +83,7 @@ function generateNeuroglancerMinimalConfiguration() {
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer', { mapping: 'TSNE' });
-  // .setProps({ viewerState: {
-  //   dimensions: {
-  //     x: [
-  //       1e-9,
-  //       'm',
-  //     ],
-  //     y: [
-  //       1e-9,
-  //       'm',
-  //     ],
-  //     z: [
-  //       1e-9,
-  //       'm',
-  //     ],
-  //   },
-  //   position: [
-  //     49.5,
-  //     1000.5,
-  //     5209.5,
-  //   ],
-  //   crossSectionScale: 1,
-  //   projectionOrientation: [
-  //     -0.636204183101654,
-  //     -0.5028395652770996,
-  //     0.5443811416625977,
-  //     0.2145828753709793,
-  //   ],
-  //   projectionScale: 1024,
-  //   layers: [
-  //     {
-  //       type: 'segmentation',
-  //       source: 'precomputed://https://data-2.vitessce.io/data/sorger/invasive_meshes',
-  //       // source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
-  //       // segments: ['5'],
-  //       segments: [],
-  //       // segmentColors: {
-  //       //   5: 'red',
-  //       // },
-  //       name: 'segmentation',
-  //     },
 
-  //   ],
-  //   showSlices: false,
-  //   layout: '3d',
-  // } });
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 

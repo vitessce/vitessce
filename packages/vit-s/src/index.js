@@ -83,6 +83,7 @@ export {
   useFeatureStatsData,
   useFeatureSetStatsData,
   useObsSetStatsData,
+  useNeuroglancerViewerState,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,

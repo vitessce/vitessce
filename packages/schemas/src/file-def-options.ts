@@ -289,7 +289,7 @@ export const ngSchema = z.object({
   dimensionX: z.number(),
   dimensionY: z.number(),
   dimensionZ: z.number(),
-  dimensionUnit: z.enum(['nm', 'um', 'mm']),
+  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm']),
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
   projectionOrientation: z.array(z.number()).length(4),

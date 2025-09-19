@@ -226,3 +226,93 @@ export function useHasLoader(loaders, dataset, dataType, matchOn) {
   const loader = useMatchingLoader(loaders, dataset, dataType, matchOn);
   return loader !== null;
 }
+
+export function extractDataTypeEntities(loaders, dataset, dataType) {
+  const datasetEntry = loaders?.[dataset];
+  const internMap = datasetEntry?.loaders?.[dataType];
+  if (!internMap || typeof internMap.entries !== 'function') return [];
+
+  const extractedEntities = [];
+  for (const [key, loader] of internMap.entries()) {
+    const url = loader?.url ?? loader?.dataSource?.url ?? undefined;
+    const fileUid = key?.fileUid
+      ?? loader?.coordinationValues?.fileUid
+      ?? undefined;
+
+    const options = loader?.options ?? {};
+    const { type } = options;
+    const { layout } = options;
+    const unit = (options.dimensionUnit || 'm').toLowerCase();
+    const toMeters = (v) => {
+      if (v == null) return undefined;
+      if (unit === 'nm' && v !== 1e-9) return 1e-9;
+      if ((unit === 'um' || unit === 'µm') && v !== 1e-6) return 1e-6;
+      if (unit === 'mm' && v !== 1e-3) return 1e-3;
+      return v;
+    };
+
+    const dimensions = {
+      x: [toMeters(options.dimensionX) ?? 1, 'm'],
+      y: [toMeters(options.dimensionY) ?? 1, 'm'],
+      z: [toMeters(options.dimensionZ) ?? 1, 'm'],
+    };
+
+    const position = Array.isArray(options.position) ? options.position : undefined;
+    const projectionOrientation = Array.isArray(options.projectionOrientation)
+      ? options.projectionOrientation
+      : undefined;
+
+    extractedEntities.push({
+      key,
+      type,
+      fileUid,
+      layout,
+      url,
+      source: toPrecomputedSource(url),
+      name: fileUid ?? key?.name ?? 'segmentation',
+      dimensions,
+      position,
+      projectionOrientation,
+      projectionScale: Number.isFinite(options.projectionScale) ? options.projectionScale : 1024,
+      crossSectionScale: Number.isFinite(options.crossSectionScale) ? options.crossSectionScale : 1,
+    });
+  }
+  return extractedEntities;
+}
+
+
+function toPrecomputedSource(url) {
+  if (!url) return undefined;
+  return url.startsWith('precomputed://') ? url : `precomputed://${url}`;
+}
+
+export function useExtractOptionsForNg(loaders, dataset, dataType) {
+  const extractedEntities = extractDataTypeEntities(loaders, dataset, dataType);
+
+  const first = extractedEntities[0];
+
+  const layers = extractedEntities
+    .filter(t => t.source)
+    .map(t => ({
+      type: 'segmentation',
+      source: t.source,
+      segments: [],
+      name: t.name || 'segmentation',
+    }));
+
+  const viewerState = {
+    dimensions: first?.dimensions ?? {
+      x: [1e-9, 'm'],
+      y: [1e-9, 'm'],
+      z: [1e-9, 'm'],
+    },
+    position: first?.position ?? [0, 0, 0],
+    crossSectionScale: first?.crossSectionScale ?? 1,
+    projectionOrientation: first?.projectionOrientation ?? [0, 0, 0, 1],
+    projectionScale: first?.projectionScale ?? 1024,
+    layers,
+    layout: '3d',
+  };
+
+  return [viewerState];
+}
