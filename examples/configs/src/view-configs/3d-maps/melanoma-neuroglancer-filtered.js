@@ -13,9 +13,9 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-invasive-margin.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
     options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-invasive-margin.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
@@ -26,11 +26,10 @@ function generateNeuroglancerMinimalConfiguration() {
     url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
     options: {
       type: 'segmentation',
-      // TODO: can different dimensions be used? do we need a standard for integration?
       dimensionX: 1e-9,
       dimensionY: 1e-9,
       dimensionZ: 1e-9,
-      dimensionUnit: 'nm',
+      dimensionUnit: 'm',
       position: [49.5, 1000.5, 5209.5],
       projectionScale: 1024,
       projectionOrientation: [

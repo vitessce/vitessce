@@ -289,7 +289,8 @@ export const ngSchema = z.object({
   dimensionX: z.number(),
   dimensionY: z.number(),
   dimensionZ: z.number(),
-  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm']),
+  // For precomputed: nm is the unit - https://github.com/google/neuroglancer/issues/442#issuecomment-1440550158
+  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'm']),
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
   projectionOrientation: z.array(z.number()).length(4),
