@@ -176,7 +176,7 @@ export function NeuroglancerSubscriber(props) {
       const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
       initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
 
-      const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
+      const [px = 0, py = 0, pz = 0] = position;
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided

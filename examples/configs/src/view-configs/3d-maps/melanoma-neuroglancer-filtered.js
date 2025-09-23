@@ -21,22 +21,23 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanoma',
     },
   });
+
   dataset.addFile({
-    fileType: 'obsSegmentations.ng-precomputed.zarr',
+    fileType: 'obsSegmentations.ng-precomputed',
     url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
     options: {
-      type: 'segmentation',
       dimensionX: 1e-9,
       dimensionY: 1e-9,
       dimensionZ: 1e-9,
-      dimensionUnit: 'm',
+      dimensionUnit: 'nm',
       position: [49.5, 1000.5, 5209.5],
       projectionScale: 1024,
       projectionOrientation: [
         -0.636204183101654,
         -0.5028395652770996,
         0.5443811416625977,
-        0.2145828753709793],
+        0.2145828753709793,
+      ],
       layout: '3d',
     },
     coordinationValues: {

@@ -286,17 +286,16 @@ export const meshGlbSchema = z.object({
 
 // NG
 export const ngSchema = z.object({
+  // TODO: supported for sharded/unsharded format
   dimensionX: z.number(),
   dimensionY: z.number(),
   dimensionZ: z.number(),
   // For precomputed: nm is the unit - https://github.com/google/neuroglancer/issues/442#issuecomment-1440550158
-  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'm']),
+  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
   projectionOrientation: z.array(z.number()).length(4),
-  type: z.enum(['segmentation', 'image']),
-  // TODO: do we want to restrict the layout to only 3D?
-  layout: z.enum(['4panel-alt', '4panel', 'xy', 'xz', 'yz', '3d', 'xy-3d', 'xz-3d', 'yz-3d']),
+  layout: z.enum(['3d']),
 }).partial().nullable();
 
 /**

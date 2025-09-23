@@ -48,17 +48,18 @@ export const deg2rad = d => d * Math.PI / 180;
  * @param {object} viewerState
  * @returns {boolean}
  */
-function isValidState(viewerState) {
-  const { projectionScale, projectionOrientation, position, dimensions } = viewerState || {};
-  return (
-    dimensions !== undefined
-      && typeof projectionScale === 'number'
-      && Array.isArray(projectionOrientation)
-      && projectionOrientation.length === 4
-      && Array.isArray(position)
-      && position.length === 3
-  );
-}
+// function isValidState(viewerState) {
+//   const { projectionScale, projectionOrientation, position, dimensions } = viewerState || {};
+//   console.log ("valid", projectionScale, projectionOrientation, position, dimensions)
+//   return (
+//     dimensions !== undefined
+//       && typeof projectionScale === 'number'
+//       && Array.isArray(projectionOrientation)
+//       && projectionOrientation.length === 4
+//       && Array.isArray(position)
+//       && position.length === 3
+//   );
+// }
 
 /**
  * Returns true if the difference is greater than the epsilon for that key.
@@ -89,7 +90,7 @@ export const nearEq = (a, b, epsilon) => (
  */
 
 export function didCameraStateChange(prevState, nextState) {
-  if (!isValidState(nextState)) return false;
+  // if (!isValidState(nextState)) return false;
   return Object.entries(EPSILON_KEYS_MAPPING_NG)
     .some(([key, eps]) => valueGreaterThanEpsilon(
       prevState?.[key],
@@ -101,7 +102,7 @@ export function didCameraStateChange(prevState, nextState) {
 // To see if any and which cameraState has changed
 // adjust for coupled zoom+position changes
 export function diffCameraState(prev, next) {
-  if (!isValidState(next)) return { changed: false, scale: false, pos: false, rot: false };
+  // if (!isValidState(next)) return { changed: false, scale: false, pos: false, rot: false };
 
   const eps = EPSILON_KEYS_MAPPING_NG;
   const scale = valueGreaterThanEpsilon(prev?.projectionScale,
