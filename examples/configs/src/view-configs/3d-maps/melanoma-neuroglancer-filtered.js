@@ -29,7 +29,7 @@ function generateNeuroglancerMinimalConfiguration() {
       dimensionX: 1e-9,
       dimensionY: 1e-9,
       dimensionZ: 1e-9,
-      dimensionUnit: 'nm',
+      dimensionUnit: 'm',
       position: [49.5, 1000.5, 5209.5],
       projectionScale: 1024,
       projectionOrientation: [

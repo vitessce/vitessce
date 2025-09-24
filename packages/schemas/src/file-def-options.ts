@@ -286,11 +286,10 @@ export const meshGlbSchema = z.object({
 
 // NG
 export const ngSchema = z.object({
-  // TODO: supported for sharded/unsharded format
+  // TODO: To add support for sharded/unsharded format when we have data
   dimensionX: z.number(),
   dimensionY: z.number(),
   dimensionZ: z.number(),
-  // For precomputed: nm is the unit - https://github.com/google/neuroglancer/issues/442#issuecomment-1440550158
   dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
