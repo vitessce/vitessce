@@ -1,4 +1,4 @@
-const DEFAULT_NG_PROPS = {
+export const DEFAULT_NG_PROPS = {
   layout: '3d',
   position: [0, 0, 0],
   projectionOrientation: [0, 0, 0, 1],
