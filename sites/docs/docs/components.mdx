@@ -103,46 +103,4 @@ This view wraps [Neuroglancer](https://github.com/google/neuroglancer), a high-p
 
 <ComponentImage filename="neuroglancer.png" alt="Screenshot of Neuroglancer view" />
 
-In order to use this view, a minimal `viewerState` configuration must be passed as a prop to the view
-(e.g., using the `view.setProps({ viewerState: VIEWER_STATE })` [function](/docs/view-config-js/#setpropsprops)).
-The complete `viewerState` schema can be found in the [neuroglancer documentation](https://neuroglancer-docs.web.app/json/api/index.html).
-
-```js
-const VIEWER_STATE = {
-  // Global coordinate system. Values are [scale, unit].
-  dimensions: { x: [1, "nm"], y: [1, "nm"], z: [1, "nm"] },
-  // Camera settings.
-  position: [0, 0, 0],                 // position [x, y, z] in dimension units
-  projectionOrientation: [0, 0, 0, 1], // rotation in xyz space in quaternion units
-  projectionScale: 12000,              // zoom level
-  // 3D layout.
-  layout: "3d",
-  // Layers — include at least one that actually draws something.
-  layers: [
-    {
-      name: "image_name",
-      type: "image",
-      source: "precomputed://<IMAGE_SOURCE>", // e.g. a precomputed pyramid
-    },
-    // Segmentation (only shows if segments are specified here or dynamically via `obsSets`)
-    {
-        name: "seg_name",
-        type: "segmentation",
-        source: "precomputed://<SEG_SOURCE>",
-        segments: ["1","2"], // optional; can be empty array
-        segmentColors : {
-            "1": "#ff00ff",
-            "2": "#0000ff"
-        }
-    }
-  ]
-};
-```
-
-:::caution
-
-The requirement to pass the Neuroglancer `viewerState` as a prop is subject to change.
-See [#2136](https://github.com/vitessce/vitessce/issues/2136) for more details.
-
-
-:::
+This view is intended to be used with meshes provided via the `obsSegmentations.ng-precomputed` [file type](../data-file-types/#obssegmentationsng-precomputed).

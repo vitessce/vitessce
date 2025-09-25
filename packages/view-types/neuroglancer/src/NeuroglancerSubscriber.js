@@ -15,6 +15,7 @@ import {
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
+import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,
@@ -56,7 +57,6 @@ export function NeuroglancerSubscriber(props) {
     theme,
     title = 'Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
-    viewerState: initialViewerState,
   } = props;
 
   const loaders = useLoaders();
@@ -93,9 +93,6 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
 
-  const latestViewerStateRef = useRef(initialViewerState);
-  const initialRotationPushedRef = useRef(false);
-
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
   const { classes } = useStyles();
@@ -111,6 +108,15 @@ export function NeuroglancerSubscriber(props) {
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
   );
+
+  const [initalViewerState] = useNeuroglancerViewerState(
+    loaders, dataset, false,
+    undefined, undefined,
+    { obsType: 'cell' },
+  );
+
+  const latestViewerStateRef = useRef(initalViewerState);
+  const initialRotationPushedRef = useRef(false);
 
   const ngRotPushAtRef = useRef(0);
   const lastInteractionSource = useRef(null);
@@ -170,7 +176,7 @@ export function NeuroglancerSubscriber(props) {
       const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
       initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
 
-      const [px = 0, py = 0, pz = 0] = Array.isArray(position) ? position : [0, 0, 0];
+      const [px = 0, py = 0, pz = 0] = position;
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided

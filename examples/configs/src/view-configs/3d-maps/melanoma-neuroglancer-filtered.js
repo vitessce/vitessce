@@ -13,15 +13,36 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-invasive-margin.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
     options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-invasive-margin.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
     },
     coordinationValues: {
       fileUid: 'melanoma',
     },
   });
 
+  dataset.addFile({
+    fileType: 'obsSegmentations.ng-precomputed',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
+    options: {
+      dimensionX: 1e-9,
+      dimensionY: 1e-9,
+      dimensionZ: 1e-9,
+      dimensionUnit: 'm',
+      position: [49.5, 1000.5, 5209.5],
+      projectionScale: 1024,
+      projectionOrientation: [
+        -0.636204183101654,
+        -0.5028395652770996,
+        0.5443811416625977,
+        0.2145828753709793,
+      ],
+    },
+    coordinationValues: {
+      fileUid: 'melanom-meshes',
+    },
+  });
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
@@ -60,51 +81,8 @@ function generateNeuroglancerMinimalConfiguration() {
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer', { mapping: 'TSNE' }).setProps({ viewerState: {
-    dimensions: {
-      x: [
-        1e-9,
-        'm',
-      ],
-      y: [
-        1e-9,
-        'm',
-      ],
-      z: [
-        1e-9,
-        'm',
-      ],
-    },
-    position: [
-      49.5,
-      1000.5,
-      5209.5,
-    ],
-    crossSectionScale: 1,
-    projectionOrientation: [
-      -0.636204183101654,
-      -0.5028395652770996,
-      0.5443811416625977,
-      0.2145828753709793,
-    ],
-    projectionScale: 1024,
-    layers: [
-      {
-        type: 'segmentation',
-        source: 'precomputed://https://data-2.vitessce.io/data/sorger/invasive_meshes',
-        // source: 'precomputed://https://data-2.vitessce.io/data/sorger/melanoma_meshes',
-        // segments: ['5'],
-        segments: [],
-        // segmentColors: {
-        //   5: 'red',
-        // },
-        name: 'segmentation',
-      },
+  const neuroglancerView = config.addView(dataset, 'neuroglancer');
 
-    ],
-    showSlices: false,
-    layout: '3d',
-  } });
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 

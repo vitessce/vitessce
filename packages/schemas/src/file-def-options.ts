@@ -284,6 +284,20 @@ export const meshGlbSchema = z.object({
   materialSide: z.enum(['front', 'back']),
 }).partial().nullable();
 
+// NG
+export const ngSchema = z.object({
+  // TODO: Should this explicitly specify sharded vs. unsharded?
+  // Or can/should that be inferred from the data?
+  dimensionX: z.number(),
+  dimensionY: z.number(),
+  dimensionZ: z.number(),
+  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
+  // TODO: should the following be passed via coordination types instead?
+  projectionScale: z.number(),
+  position: z.array(z.number()).length(3),
+  projectionOrientation: z.array(z.number()).length(4),
+}).partial().nullable();
+
 /**
  * Options schemas for atomic file types.
  */
