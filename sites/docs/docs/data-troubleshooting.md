@@ -30,7 +30,7 @@ adata.write_zarr(out_path, chunks=(adata.shape[0], VAR_CHUNK_SIZE))
 
 ## AnnData-Zarr obsFeatureMatrix with sparse matrices
 
-Vitessce can load `obsFeatureMatrix` arrays stored as either dense or sparse matrices.
+Vitessce can load `obsFeatureMatrix` data (e.g., `adata.X` or `adata.layers["counts"]`) stored as either dense or sparse matrix.
 
 For sparse matrices, Vitessce supports the following SciPy sparse matrix types [supported by AnnData](https://anndata.readthedocs.io/en/latest/fileformat-prose.html#sparse-arrays): CSC and CSR.
 
