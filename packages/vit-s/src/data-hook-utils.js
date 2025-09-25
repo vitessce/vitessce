@@ -13,7 +13,6 @@ import {
   useMatchingLoader,
 } from './state/hooks.js';
 
-import { extractDataTypeEntities } from './data-hook-ng-utils.js';
 /**
  * Initialize values in the coordination space.
  * @param {object} values Object where
@@ -226,31 +225,4 @@ export function useDataTypeMulti(
 export function useHasLoader(loaders, dataset, dataType, matchOn) {
   const loader = useMatchingLoader(loaders, dataset, dataType, matchOn);
   return loader !== null;
-}
-
-export function useExtractOptionsForNg(loaders, dataset, dataType) {
-  const extractedEntities = useMemo(
-    () => extractDataTypeEntities(loaders, dataset, dataType),
-    [loaders, dataset, dataType],
-  );
-  const layers = useMemo(() => extractedEntities
-    .filter(t => t.source)
-    .map(t => ({
-      type: t.type,
-      source: t.source,
-      segments: [],
-      name: t.name || 'segmentation',
-    })), [extractedEntities]);
-
-  const viewerState = useMemo(() => ({
-    dimensions: extractedEntities[0]?.dimensions,
-    position: extractedEntities[0]?.position,
-    crossSectionScale: extractedEntities[0]?.crossSectionScale,
-    projectionOrientation: extractedEntities[0]?.projectionOrientation,
-    projectionScale: extractedEntities[0]?.projectionScale,
-    layers,
-    layout: extractedEntities[0].layout,
-  }));
-
-  return [viewerState];
 }

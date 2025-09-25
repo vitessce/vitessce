@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import {
   extractDataTypeEntities,
@@ -6,9 +6,6 @@ import {
 } from './data-hook-ng-utils.js';
 
 describe('extractDataTypeEntities (minimal tests)', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
 
   it('returns empty array when internMap is missing or invalid', () => {
     expect(extractDataTypeEntities({}, 'A', 'obsSegmentations')).toEqual([]);
@@ -23,7 +20,7 @@ describe('extractDataTypeEntities (minimal tests)', () => {
   });
 
   it('builds an entity for a precomputed loader and applies sane defaults', () => {
-    const key = { fileUid: 'melanom-meshes' };
+    const key = { fileUid: 'melanoma-meshes' };
     const loader = {
       fileType: 'obsSegmentations.ng-precomputed',
       url: 'https://www.example.com/example/example_meshes',
@@ -38,7 +35,7 @@ describe('extractDataTypeEntities (minimal tests)', () => {
     const e = out[0];
     expect(e.key).toBe(key);
     expect(e.type).toBe('segmentation');
-    expect(e.fileUid).toBe('melanom-meshes');
+    expect(e.fileUid).toBe('melanoma-meshes');
     expect(e.layout).toBe(DEFAULT_NG_PROPS.layout);
 
     // URL + source prefixing

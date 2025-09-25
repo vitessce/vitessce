@@ -7,7 +7,6 @@ import {
   useLoaders,
   useObsEmbeddingData,
   useCoordinationScopes,
-  useNeuroglancerViewerState,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -16,6 +15,7 @@ import {
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
+import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,

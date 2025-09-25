@@ -38,7 +38,6 @@ function generateNeuroglancerMinimalConfiguration() {
         0.5443811416625977,
         0.2145828753709793,
       ],
-      layout: '3d',
     },
     coordinationValues: {
       fileUid: 'melanom-meshes',
@@ -82,7 +81,7 @@ function generateNeuroglancerMinimalConfiguration() {
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer', { mapping: 'TSNE' });
+  const neuroglancerView = config.addView(dataset, 'neuroglancer');
 
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);

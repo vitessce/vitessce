@@ -12,7 +12,6 @@ import {
 import {
   useDataType,
   useDataTypeMulti,
-  useExtractOptionsForNg,
 } from './data-hook-utils.js';
 
 /**
@@ -41,25 +40,6 @@ export function useDescription(loaders, dataset) {
   }, [loaders, dataset]);
 
   return [description];
-}
-
-/**
- * Get the parameters for NG's viewerstate.
- * @param {object} loaders The object mapping
- * datasets and data types to loader instances.
- * @param {string} dataset The key for a dataset,
- * used to identify which loader to use.
- * @returns {array} [viewerstate] where
- * viewerState is an object. ref=> (https://neuroglancer-docs.web.app/json/api/index.html#json-Layer.name).
- */
-/**
- * @returns [viewerState]
- */
-export function useNeuroglancerViewerState(
-  loaders, dataset, isRequired,
-  coordinationSetters, initialCoordinationValues, matchOn,
-) {
-  return useExtractOptionsForNg(loaders, dataset, DataType.OBS_SEGMENTATIONS, matchOn);
 }
 
 /**

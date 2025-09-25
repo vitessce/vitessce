@@ -286,16 +286,17 @@ export const meshGlbSchema = z.object({
 
 // NG
 export const ngSchema = z.object({
-  // TODO: To add support for sharded/unsharded format when we have data
+  // TODO: Should this explicitly specify sharded vs. unsharded?
+  // Or can/should that be inferred from the data?
   dimensionX: z.number(),
   dimensionY: z.number(),
   dimensionZ: z.number(),
   dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
+  // TODO: should the following be passed via coordination types instead?
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
   projectionOrientation: z.array(z.number()).length(4),
-  layout: z.enum(['3d']),
-}).partial().nullable();
+});
 
 /**
  * Options schemas for atomic file types.

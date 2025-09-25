@@ -1,3 +1,7 @@
+import { useMemo } from 'react';
+import { DataType } from '@vitessce/constants-internal';
+
+
 export const DEFAULT_NG_PROPS = {
   layout: '3d',
   position: [0, 0, 0],
@@ -96,4 +100,51 @@ export function extractDataTypeEntities(loaders, dataset, dataType) {
         ? crossSectionScale : DEFAULT_NG_PROPS.crossSectionScale,
     };
   });
+}
+
+export function useExtractOptionsForNg(loaders, dataset, dataType) {
+  const extractedEntities = useMemo(
+    () => extractDataTypeEntities(loaders, dataset, dataType),
+    [loaders, dataset, dataType],
+  );
+  const layers = useMemo(() => extractedEntities
+    .filter(t => t.source)
+    .map(t => ({
+      type: t.type,
+      source: t.source,
+      segments: [],
+      name: t.name || 'segmentation',
+    })), [extractedEntities]);
+
+  const viewerState = useMemo(() => ({
+    dimensions: extractedEntities[0]?.dimensions,
+    position: extractedEntities[0]?.position,
+    crossSectionScale: extractedEntities[0]?.crossSectionScale,
+    projectionOrientation: extractedEntities[0]?.projectionOrientation,
+    projectionScale: extractedEntities[0]?.projectionScale,
+    layers,
+    layout: extractedEntities[0].layout,
+  }));
+
+  return [viewerState];
+}
+
+
+/**
+ * Get the parameters for NG's viewerstate.
+ * @param {object} loaders The object mapping
+ * datasets and data types to loader instances.
+ * @param {string} dataset The key for a dataset,
+ * used to identify which loader to use.
+ * @returns {array} [viewerstate] where
+ * viewerState is an object. ref=> (https://neuroglancer-docs.web.app/json/api/index.html#json-Layer.name).
+ */
+/**
+ * @returns [viewerState]
+ */
+export function useNeuroglancerViewerState(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useExtractOptionsForNg(loaders, dataset, DataType.OBS_SEGMENTATIONS, matchOn);
 }
