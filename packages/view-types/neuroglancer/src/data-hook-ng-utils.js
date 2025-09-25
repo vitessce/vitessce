@@ -11,8 +11,10 @@ export const DEFAULT_NG_PROPS = {
 };
 
 function toPrecomputedSource(url) {
-  if (!url) return undefined;
-  return url.startsWith('precomputed://') ? url : `precomputed://${url}`;
+  if (!url) {
+    return undefined;
+  }
+  return `precomputed://${url}`;
 }
 
 const UNIT_TO_NM = {
@@ -71,7 +73,7 @@ export function extractDataTypeEntities(loaders, dataset, dataType) {
         ?? loader?.coordinationValues?.fileUid
         ?? undefined;
 
-    const { layout, position, projectionOrientation,
+    const { position, projectionOrientation,
       projectionScale, crossSectionScale } = loader?.options ?? {};
     const isPrecomputed = loader?.fileType.includes('precomputed');
     if (!isPrecomputed) {
@@ -81,7 +83,7 @@ export function extractDataTypeEntities(loaders, dataset, dataType) {
       key,
       type: 'segmentation',
       fileUid,
-      layout: layout ?? DEFAULT_NG_PROPS.layout,
+      layout: DEFAULT_NG_PROPS.layout,
       url,
       source: toPrecomputedSource(url),
       name: fileUid ?? key?.name ?? 'segmentation',

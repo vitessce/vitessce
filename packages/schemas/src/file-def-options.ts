@@ -296,7 +296,7 @@ export const ngSchema = z.object({
   projectionScale: z.number(),
   position: z.array(z.number()).length(3),
   projectionOrientation: z.array(z.number()).length(4),
-});
+}).partial().nullable();
 
 /**
  * Options schemas for atomic file types.

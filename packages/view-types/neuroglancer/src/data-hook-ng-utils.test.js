@@ -6,7 +6,6 @@ import {
 } from './data-hook-ng-utils.js';
 
 describe('extractDataTypeEntities (minimal tests)', () => {
-
   it('returns empty array when internMap is missing or invalid', () => {
     expect(extractDataTypeEntities({}, 'A', 'obsSegmentations')).toEqual([]);
 
@@ -40,7 +39,7 @@ describe('extractDataTypeEntities (minimal tests)', () => {
 
     // URL + source prefixing
     expect(e.url).toBe(loader.url);
-    expect(e.source).toBe(`precomputed://${loader.url}`);
+    expect(e.source).toBe('precomputed://https://www.example.com/example/example_meshes');
 
     expect(e.dimensions).toEqual({ x: [1, 'nm'], y: [1, 'nm'], z: [1, 'nm'] });
 
