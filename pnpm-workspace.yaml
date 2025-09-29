@@ -20,8 +20,8 @@ catalog:
   "@hms-dbmi/viv": ~0.16.0
   "clsx": ^1.1.1
   # Zarrita
-  "zarrita": 0.5.3
-  "@zarrita/storage": 0.1.2
+  "zarrita": 0.5.4
+  "@zarrita/storage": 0.1.3
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
