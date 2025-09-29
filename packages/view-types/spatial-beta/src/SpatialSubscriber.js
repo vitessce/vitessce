@@ -816,7 +816,7 @@ export function SpatialSubscriber(props) {
       errors={errors}
     >
       {
-        is3dMode ? (
+        shouldUseThree ? (
           acceleratedFor3d ? (
             <SpatialAcceleratedAdapter
               ref={threeRef}
