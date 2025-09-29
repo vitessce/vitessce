@@ -1,4 +1,15 @@
 
+## 3.8.2
+
+### Patch Changes
+
+- Add note about sparse matrices. (`docs`) ([#2278](https://github.com/vitessce/vitessce/pull/2278))
+
+- Fix behavior of three/accelerated flags in props of spatialBeta view. Bump zarrita dependency to pull in URL decoding fix. (`@vitessce/spatial-beta`, `@vitessce/zarr`) ([#2279](https://github.com/vitessce/vitessce/pull/2279))
+
+- Neuroglancer viewerState via dataset.addFile (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`, `@vitessce/schemas`, `@vitessce/vit-s`) ([#2273](https://github.com/vitessce/vitessce/pull/2273))
+
+
 ## 3.8.1
 
 ### Patch Changes
