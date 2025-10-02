@@ -95,6 +95,7 @@ import { visium } from './view-configs/paper-figures/visium.js';
 // pageMode
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
+import { kpmpAug2025, kpmpAug2025Component } from './view-configs/kpmp-aug-2025.js';
 import { hubmapHeart, hubmapHeartComponent } from './view-configs/hubmap-heart.js';
 
 export const coordinationTypeConfigs = {
@@ -152,6 +153,7 @@ export const configs = {
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'kpmp-premiere': kpmpPremiere,
+  'kpmp-aug-2025': kpmpAug2025,
   'hubmap-heart': hubmapHeart,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
@@ -241,5 +243,6 @@ export const configStores = {
 export const configPages = {
   'lake-2023': lake2023component,
   'kpmp-premiere': kpmpPremiereComponent,
+  'kpmp-aug-2025': kpmpAug2025Component,
   'hubmap-heart': hubmapHeartComponent,
 };

@@ -27,6 +27,7 @@ export default function FeatureStatsTable(props) {
     sampleSetSelection,
     data,
     setFeatureSelection,
+    setFeatureAggregationStrategy,
     featurePointSignificanceThreshold,
     featurePointFoldChangeThreshold,
   } = props;
@@ -99,6 +100,9 @@ export default function FeatureStatsTable(props) {
 
   const onSelectionModelChange = useCallback((rowIds) => {
     const featureIds = Array.from(rowIds.ids).map(rowId => rowId.split(ROW_ID_DELIMITER)[0]);
+    // We want to clear this value upon selection, in case it was previously set.
+    setFeatureAggregationStrategy(null);
+    
     setFeatureSelection(featureIds);
   }, []);
 
