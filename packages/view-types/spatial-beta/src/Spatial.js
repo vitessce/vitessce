@@ -421,14 +421,66 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
+    console.log('createPointLayer', modelMatrix);
+
     // TODO: also consider a heuristic based on the number of unique Z values.
     // (e.g., if many unique values, then not 2.5D, so filtering by a single Z value does not make sense.)
 
-    if (hasZ && typeof targetZ !== 'number') {
+    const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
+
+    if (hasZ && typeof targetZ !== 'number' && considerZ) {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
-    const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
+    
+
+    // TODO: get current bounds. use tileLayer/composite layer to load tiled points via loader.loadPointsInRect(bounds)
+    
+    const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
+
+    return new deck.TileLayer({
+      id: `${POINT_LAYER_PREFIX}${layerScope}`,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      modelMatrix,
+      pickable: true,
+      maxZoom: 19, // TODO: refine min/max zoom
+      minZoom: -3,
+      getTileData: async (tileInfo) => {
+        const { index, signal, bbox, zoom } = tileInfo;
+        const { z, x, y } = index;
+        const { left, top, right, bottom } = bbox;
+        console.log('getTileData', tileInfo);
+
+        loadPointsInRect(bbox, signal);
+
+        return [
+          // TODO: get from loader.loadPointsInRect(bounds)
+          // Make up fake data:
+          [left, top],
+          [right, bottom],
+          [(left + right) / 4, (top + bottom) / 4],
+          [(left + right) / 2, (top + bottom) / 2],
+          [(left + right) * 3 / 4, (top + bottom) * 3 / 4],
+        ];
+      },
+      renderSubLayers: (subLayerProps) => {
+        const { bbox, content: tileData } = subLayerProps.tile;
+        const { left, top, right, bottom } = bbox;
+
+        console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
+
+        return new deck.ScatterplotLayer(subLayerProps, {
+          data: tileData,
+          getPosition: d => d,
+          getRadius: 10,
+          getFillColor: [255, 0, 0],
+          bounds: [left, top, right, bottom],
+        });
+      },
+      onTileError: (error) => {
+
+      },
+    });
 
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
@@ -1355,6 +1407,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsIndex,
       obsPoints: layerObsPoints,
       obsPointsModelMatrix,
+      loadPointsInRect,
     } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
@@ -1368,6 +1421,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           obsLabelsMap: null,
           uniqueObsLabels: null,
           PALETTE: null,
+          loadPointsInRect,
         },
         length: layerObsPoints.shape[1],
       };

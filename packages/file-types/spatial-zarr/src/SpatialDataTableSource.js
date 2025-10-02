@@ -272,12 +272,13 @@ export default class SpatialDataTableSource extends AnnDataSource {
     if (store.getRange) {
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
+      // Case 1: Parquet file.
       let partZeroPath = parquetPath;
       let tailBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: TAIL_LENGTH,
       });
       if (!tailBytes) {
-        // This may be a directory with multiple parts.
+        // Case 2: Rather than a single file, this may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.0.parquet`;
         tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
@@ -474,5 +475,50 @@ export default class SpatialDataTableSource extends AnnDataSource {
       (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
     );
     return this.varAliases[varPath];
+  }
+
+  /**
+   * TODO: change implementation so that subsets of
+   * columns can be loaded if the whole table is not needed.
+   * Will first need to load the table schema.
+   * @param {string} parquetPath A path to a parquet file (or directory).
+   * @param {{ left: number, top: number, right: number, bottom: number }} bounds
+   * @param {string[]|undefined} columns An optional list of column names to load.
+   * @returns
+   */
+  async loadParquetTableInRect(parquetPath, bounds, columns = undefined) {
+    const { readParquet, readSchema } = await this.parquetModulePromise;
+
+    // TODO: read the spatialdata attrs to get the original data extent. cache this too. or pass them as parameter.
+
+
+    // TODO: cache the schema associated with this path.
+
+
+    // We first try to load the schema bytes to determine the index column name.
+    // Perhaps in the future SpatialData can store the index column name
+    // in the .zattrs so that we do not need to load the schema first,
+    // since only certain stores such as FetchStores support getRange.
+    // Reference: https://github.com/scverse/spatialdata/issues/958
+    try {
+      const schemaBytes = await this.loadParquetSchemaBytes(parquetPath);
+      if (schemaBytes) {
+        const wasmSchema = readSchema(schemaBytes);
+        /** @type {import('apache-arrow').Table} */
+        const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+
+        console.log('arrowTableForSchema', arrowTableForSchema);
+        // TODO: ensure that this contains the morton_code_2d column. cache whether or not it does.
+      }
+    } catch (/** @type {any} */ e) {
+      // If we fail to load the schema bytes, we can proceed to try to load the full table bytes,
+      // for instance if range requests are not supported but the full table can be loaded.
+      log.warn(`Failed to load parquet schema bytes for ${parquetPath}: ${e.message}`);
+    }
+
+    // TODO: implement morton code rect querying functionality here.
+    // Port the python logic. Binary search over row groups. Cache morton code min/max of each row group to reduce search space.
+    
+
   }
 }

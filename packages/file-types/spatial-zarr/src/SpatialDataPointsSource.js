@@ -163,4 +163,41 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       data: axisColumnArrs,
     };
   }
+
+  /**
+   * 
+   * @param {string} elementPath 
+   * @param {{ left: number, top: number, right: number, bottom: number }} bounds 
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPointsInRect(elementPath, bounds) {
+    // TODO: implement morton code rect querying functionality here.
+    // Reference: https://github.com/vitessce/vitessce-python/pull/476
+
+    // TODO: cache the initial metadata/table schema things.
+    const parquetPath = getParquetPath(elementPath);
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const { axes, spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const normAxes = normalizeAxes(axes);
+    const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
+    const { feature_key: featureKey } = spatialDataAttrs;
+    const columnNames = [...axisNames, featureKey].filter(Boolean);
+
+    console.log('attrs', zattrs.bounding_box);
+    
+
+    const arrowTable = await this.loadParquetTableInRect(parquetPath, bounds);
+
+
+
+    console.log('loadPointsInRect', elementPath, bounds);
+
+    return {
+      data: [new Float32Array(0), new Float32Array(0)],
+      shape: [0, 0],
+    };
+  }
 }

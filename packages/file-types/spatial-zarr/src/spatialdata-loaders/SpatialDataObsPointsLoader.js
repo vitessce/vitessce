@@ -70,6 +70,26 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return this.locations;
   }
 
+  async loadPointsInRect(bounds) {
+    const { path } = this.options;
+
+    // TODO: if points are XYZ, and in 2D rendering mode,
+    // pass in the current Z index and filter
+    // (after coordinate transformation?)
+
+    let locations;
+    // TODO: cache the format version associated with this path.
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1') {
+      locations = await this.dataSource.loadPointsInRect(path, bounds);
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
+    }
+    // TODO: cacheing?
+
+    return locations;
+  }
+
   async loadObsIndex() {
     const { tablePath, path } = this.options;
     if (tablePath) {
@@ -87,9 +107,10 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const [obsIndex, obsPoints, modelMatrix] = await Promise.all([
-      this.loadObsIndex(),
-      this.loadPoints(),
+    
+    const [/*obsIndex, obsPoints, */modelMatrix] = await Promise.all([
+      /*this.loadObsIndex(), // TEMP
+      this.loadPoints(),*/
       this.loadModelMatrix(),
     ]);
     // May require changing the obsPoints format (breaking change?)
@@ -108,9 +129,21 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         // additionalObsSets: null,
       }),
     };
+    console.log(modelMatrix)
 
     return new LoaderResult(
-      { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
+      {
+        obsIndex: ["1"], // TEMP
+        obsPoints: { // TEMP
+          shape: [2, 1],
+          data: [[0], [0]],
+        },
+        obsPointsModelMatrix: modelMatrix,
+        // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
+        // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
+        // May need another function such as loader.supportsPointInRect() true/false.
+        loadPointsInRect: this.loadPointsInRect.bind(this)
+      },
       null,
       coordinationValues,
     );
