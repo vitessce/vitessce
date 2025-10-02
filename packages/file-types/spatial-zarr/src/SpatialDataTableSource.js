@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 /* eslint-disable import/no-unresolved */
@@ -39,7 +39,273 @@ async function getParquetModule() {
   // server does not serve the .wasm with a MIME type of application/wasm.
   // I can't seem to get a custom Vite plugin that sets the MIME type in
   // request headers to work.
-  return { readParquet: module.readParquet, readSchema: module.readSchema };
+  return {
+    readParquet: module.readParquet,
+    readSchema: module.readSchema,
+    // TODO: implement a readMetadata function in parquet-wasm to obtain the rowgroup size?
+    readParquetStream: module.readParquetStream, // TODO: implement a sync version
+  };
+}
+
+/**
+ * 
+ * @param {Uint8Array} footerBytes 
+ * @returns {{ totalNumRows: number, rowGroupSize: number }}
+ */
+function parquetFooterBytesToMetadata(footerBytes) {
+  console.log('Footer bytes length:', footerBytes.length);
+  console.log('First 20 bytes:', Array.from(footerBytes.slice(0, 20)));
+  console.log('Last 20 bytes:', Array.from(footerBytes.slice(-20)));
+  
+  // The Parquet file footer contains Thrift-encoded metadata.
+  // We need to parse it to extract row group info.
+  // This is a simplified parser that extracts the total num_rows and the num_rows field from the first RowGroup.
+  
+  // Extract footer length from last 8 bytes (4 bytes footer length + 4 bytes 'PAR1')
+  const footerLength = new DataView(footerBytes.buffer, footerBytes.byteOffset + footerBytes.length - 8, 4).getInt32(0, true);
+  console.log('Footer length from file:', footerLength);
+  
+  // The footer metadata starts at: (total length - 8 - footerLength)
+  // Because the layout is: [metadata][4-byte footer length][4-byte 'PAR1']
+  const metadataStart = footerBytes.length - 8 - footerLength;
+  const metadataEnd = footerBytes.length - 8;
+  
+  console.log('Metadata start:', metadataStart, 'Metadata end:', metadataEnd);
+  console.log('Metadata bytes:', Array.from(footerBytes.slice(metadataStart, Math.min(metadataStart + 50, metadataEnd))));
+  
+  // Thrift compact protocol parsing (simplified for num_rows extraction)
+  let offset = metadataStart;
+  let totalNumRows = 0;
+  let rowGroupSize = 0;
+  
+  // Helper function to read zigzag varint
+  const readZigzagVarint = () => {
+    let value = 0;
+    let shift = 0;
+    let byte;
+    do {
+      if (offset >= metadataEnd) {
+        throw new Error('Unexpected end of footer data while reading varint');
+      }
+      byte = footerBytes[offset++];
+      value |= (byte & 0x7F) << shift;
+      shift += 7;
+    } while (byte & 0x80);
+    const result = (value >>> 1) ^ -(value & 1);
+    console.log('  Read zigzag varint:', result);
+    return result;
+  };
+  
+  // Helper function to read unsigned varint (for i64)
+  const readVarint = () => {
+    let value = 0n;
+    let shift = 0;
+    let byte;
+    const startOffset = offset;
+    do {
+      if (offset >= metadataEnd) {
+        throw new Error('Unexpected end of footer data while reading varint');
+      }
+      byte = footerBytes[offset++];
+      value |= BigInt(byte & 0x7F) << BigInt(shift);
+      shift += 7;
+    } while (byte & 0x80);
+    
+    // Apply zigzag decoding for i64
+    const zigzagDecoded = (value >> 1n) ^ -(value & 1n);
+    const result = Number(zigzagDecoded);
+    console.log(`  Read varint at offset ${startOffset}: ${result}, consumed ${offset - startOffset} bytes`);
+    return result;
+  };
+  
+  // Helper function to read plain varint (unsigned, no zigzag)
+  const readPlainVarint = () => {
+    let value = 0;
+    let shift = 0;
+    let byte;
+    do {
+      if (offset >= metadataEnd) {
+        throw new Error('Unexpected end of footer data while reading varint');
+      }
+      byte = footerBytes[offset++];
+      value |= (byte & 0x7F) << shift;
+      shift += 7;
+    } while (byte & 0x80);
+    return value;
+  };
+
+  // Helper to skip a field based on its type
+  const skipField = (fieldType) => {
+    console.log(`  Skipping field type ${fieldType} at offset ${offset}`);
+    switch (fieldType) {
+      case 2: // BOOL (TRUE)
+      case 1: // BOOL (FALSE)
+        // Boolean, no additional bytes
+        break;
+      case 3: // BYTE
+        offset += 1;
+        break;
+      case 4: // I16
+        readZigzagVarint();
+        break;
+      case 5: // I32
+        readZigzagVarint();
+        break;
+      case 6: // I64
+        readVarint();
+        break;
+      case 7: // DOUBLE
+        offset += 8;
+        break;
+      case 8: // BINARY
+      case 11: // STRING
+        {
+          const length = readPlainVarint(); // Use plain varint for length
+          offset += length;
+        }
+        break;
+      case 9: // LIST
+      case 10: // SET
+        {
+          const collectionHeader = footerBytes[offset++];
+          const elementType = collectionHeader & 0x0F;
+          let size = (collectionHeader & 0xF0) >> 4;
+          if (size === 0x0F) {
+            size = readPlainVarint(); // Use plain varint for size
+          }
+          for (let i = 0; i < size; i++) {
+            skipField(elementType);
+          }
+        }
+        break;
+      case 12: // STRUCT
+        {
+          let nestedFieldId = 0;
+          while (offset < metadataEnd) {
+            const nestedHeader = footerBytes[offset++];
+            if (nestedHeader === 0) break;
+            const nestedType = nestedHeader & 0x0F;
+            const nestedDelta = (nestedHeader & 0xF0) >> 4;
+            if (nestedDelta === 0) {
+              nestedFieldId = readZigzagVarint();
+            } else {
+              nestedFieldId += nestedDelta;
+            }
+            skipField(nestedType);
+          }
+        }
+        break;
+      case 13: // MAP
+        {
+          const mapHeader = footerBytes[offset++];
+          let size = 0;
+          if (mapHeader !== 0) {
+            size = readPlainVarint(); // Use plain varint for size
+            const keyType = (mapHeader & 0xF0) >> 4;
+            const valueType = mapHeader & 0x0F;
+            for (let i = 0; i < size; i++) {
+              skipField(keyType);
+              skipField(valueType);
+            }
+          }
+        }
+        break;
+      default:
+        console.warn(`Unknown field type: ${fieldType} at offset ${offset}`);
+    }
+  };
+  
+  // Parse FileMetaData fields
+  let currentFieldId = 0;
+  let fieldCount = 0;
+  while (offset < metadataEnd) {
+    const fieldHeader = footerBytes[offset++];
+    
+    console.log(`\nField ${fieldCount++}: header byte = ${fieldHeader.toString(16)} at offset ${offset - 1}`);
+    
+    if (fieldHeader === 0) {
+      console.log('End of struct (stop byte)');
+      break;
+    }
+    
+    const fieldType = fieldHeader & 0x0F;
+    const fieldDelta = (fieldHeader & 0xF0) >> 4;
+    
+    if (fieldDelta !== 0) {
+      currentFieldId += fieldDelta;
+    } else {
+      currentFieldId = readZigzagVarint();
+    }
+    
+    console.log(`Field ID: ${currentFieldId}, Type: ${fieldType}, Delta: ${fieldDelta}`);
+    
+    // Field 1 is version (i32)
+    if (currentFieldId === 1 && fieldType === 5) {
+      const version = readZigzagVarint();
+      console.log(`Found Parquet version: ${version}`);
+    }
+    // Field 3 is num_rows (i64) - total rows in the file
+    else if (currentFieldId === 3 && fieldType === 6) {
+      totalNumRows = readVarint();
+      console.log(`✓ Found totalNumRows: ${totalNumRows}`);
+    }
+    // Field 4 is row_groups (LIST)
+    else if (currentFieldId === 4 && fieldType === 9) {
+      console.log('Found row_groups field');
+      console.log('Found row_groups field');
+      // Read list element type and size
+      const elementHeader = footerBytes[offset++];
+      const elementType = elementHeader & 0x0F;
+      let listSize = (elementHeader & 0xF0) >> 4;
+      
+      if (listSize === 0x0F) {
+        listSize = readVarint();
+      }
+      
+      console.log(`Row groups list size: ${listSize}, element type: ${elementType}`);
+      
+     // Parse first RowGroup to get num_rows
+      if (listSize > 0 && elementType === 12) { // 12 = STRUCT
+        let rgCurrentFieldId = 0;
+        while (offset < metadataEnd) {
+          const rgFieldHeader = footerBytes[offset++];
+          
+          if (rgFieldHeader === 0) break; // End of struct
+          
+          const rgFieldType = rgFieldHeader & 0x0F;
+          const rgFieldDelta = (rgFieldHeader & 0xF0) >> 4;
+          
+          if (rgFieldDelta !== 0) {
+            rgCurrentFieldId += rgFieldDelta;
+          } else {
+            rgCurrentFieldId = readZigzagVarint();
+          }
+          
+          console.log(`  RowGroup Field ID: ${rgCurrentFieldId}, Type: ${rgFieldType}, Delta: ${rgFieldDelta}`);
+          
+          // Field 3 is num_rows (i64) in RowGroup
+          if (rgCurrentFieldId === 3) {
+            if (rgFieldType === 6) {
+              rowGroupSize = readVarint();
+              console.log(`  ✓ Found rowGroupSize (I64): ${rowGroupSize}`);
+            } else {
+              skipField(rgFieldType);
+            }
+          } else {
+            // Skip other fields
+            skipField(rgFieldType);
+          }
+        }
+      }
+      break; // We've processed row_groups
+    } else {
+      // Skip fields we don't care about
+      skipField(fieldType);
+    }
+  }
+    
+  console.log(`\nFinal result - totalNumRows: ${totalNumRows}, rowGroupSize: ${rowGroupSize}`);
+  return { totalNumRows, rowGroupSize };
 }
 
 /**
@@ -304,7 +570,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
         throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
       }
 
-      // Step 4: Return the footer bytes
+      // Step 4: Parse Thrift-encoded FileMetaData to identify the total number of rows and the row group size,
+      // since this is not directly exposed by the table schema returned by readSchema.
+      const { totalNumRows, rowGroupSize } = parquetFooterBytesToMetadata(footerBytes);
+      console.log(`Parquet file ${parquetPath} has ${totalNumRows} total rows and row group size ${rowGroupSize}.`);
+
+      // Step 5: Return the footer bytes
       return footerBytes;
     }
     // Store does not support getRange.
@@ -476,20 +747,39 @@ export default class SpatialDataTableSource extends AnnDataSource {
     );
     return this.varAliases[varPath];
   }
+  
+  /*
+  async loadParquetRowGroup(parquetPath, rowIndex, columns = undefined) {
+    // Load a single row group which contains the row with the specified index.
+    const { readParquet, readParquetStream } = await this.parquetModulePromise;
+
+    // TODO: read first row group to determine row group size.
+    // TODO: need to implement a read_metadata sync function in parquet-wasm?
+    // Reference: https://github.com/kylebarron/parquet-wasm/blob/c54250bd54a3cbf6e4ef94a7e180e802a929073b/src/reader_async.rs#L440
+    const stream = await readParquetStream(url);
+    const firstRowGroup = readParquet()
+
+    // TODO: cache the row group size.
+
+    // TODO: cache the extent (values of first/last rows of group) of the morton_code_2d column values associated with this row group.
+
+
+
+  }
+  */
 
   /**
    * TODO: change implementation so that subsets of
    * columns can be loaded if the whole table is not needed.
    * Will first need to load the table schema.
    * @param {string} parquetPath A path to a parquet file (or directory).
-   * @param {{ left: number, top: number, right: number, bottom: number }} bounds
+   * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
+   * @param {{ x_min: number, y_min: number, x_max: number, y_max: number }} allPointsBbox
    * @param {string[]|undefined} columns An optional list of column names to load.
    * @returns
    */
-  async loadParquetTableInRect(parquetPath, bounds, columns = undefined) {
+  async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, columns = undefined) {
     const { readParquet, readSchema } = await this.parquetModulePromise;
-
-    // TODO: read the spatialdata attrs to get the original data extent. cache this too. or pass them as parameter.
 
 
     // TODO: cache the schema associated with this path.
@@ -509,6 +799,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
         console.log('arrowTableForSchema', arrowTableForSchema);
         // TODO: ensure that this contains the morton_code_2d column. cache whether or not it does.
+        const hasMortonCode2dColumn = arrowTableForSchema.schema.fields.find(f => f.name === 'morton_code_2d');
+        if (!hasMortonCode2dColumn) {
+          throw new Error('Parquet table does not contain a morton_code_2d column, which is required for rectangle queries of subsets of points.');
+        }
       }
     } catch (/** @type {any} */ e) {
       // If we fail to load the schema bytes, we can proceed to try to load the full table bytes,

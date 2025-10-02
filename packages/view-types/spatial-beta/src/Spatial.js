@@ -421,8 +421,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
-    console.log('createPointLayer', modelMatrix);
-
     // TODO: also consider a heuristic based on the number of unique Z values.
     // (e.g., if many unique values, then not 2.5D, so filtering by a single Z value does not make sense.)
 
@@ -443,7 +441,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       modelMatrix,
       pickable: true,
-      maxZoom: 19, // TODO: refine min/max zoom
+      // TODO: refine min/max zoom.
+      // make dependent on point bounding box metadata and number of points
+      // (e.g., based on point density + extent?)
+      maxZoom: 19,
       minZoom: -3,
       getTileData: async (tileInfo) => {
         const { index, signal, bbox, zoom } = tileInfo;
@@ -451,7 +452,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
 
-        loadPointsInRect(bbox, signal);
+        const pointsInTile = loadPointsInRect(bbox, signal);
+        console.log(pointsInTile);
 
         return [
           // TODO: get from loader.loadPointsInRect(bounds)
@@ -467,7 +469,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { bbox, content: tileData } = subLayerProps.tile;
         const { left, top, right, bottom } = bbox;
 
-        console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
+        //console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
 
         return new deck.ScatterplotLayer(subLayerProps, {
           data: tileData,

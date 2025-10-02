@@ -129,7 +129,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         // additionalObsSets: null,
       }),
     };
-    console.log(modelMatrix)
 
     return new LoaderResult(
       {
