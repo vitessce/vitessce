@@ -143,6 +143,8 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
 
+    console.log('arrowTable', arrowTable);
+
     // TODO: this table will also contain the index column, and potentially the featureKey column.
     // Do something with these here, otherwise they will need to be loaded redundantly.
 
@@ -153,6 +155,8 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       }
       return column.toArray();
     });
+
+    console.log('axisColumnArrs', axisColumnArrs);
 
     return {
       shape: [axisColumnArrs.length, arrowTable.numRows],

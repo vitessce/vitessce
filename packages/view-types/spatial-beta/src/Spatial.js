@@ -421,9 +421,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
+    // TODO: also consider a heuristic based on the number of unique Z values.
+    // (e.g., if many unique values, then not 2.5D, so filtering by a single Z value does not make sense.)
+
     if (hasZ && typeof targetZ !== 'number') {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
+
+    const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
 
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
@@ -453,7 +458,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
-      ...(hasZ && typeof targetZ === 'number' ? {
+      ...(hasZ && typeof targetZ === 'number' && considerZ ? {
         // TODO: support targetT filtering as well.
         // TODO: allow filtering by Z coordinate (rather than slice index)
         // Reference: https://github.com/vitessce/vitessce/issues/2194
