@@ -755,9 +755,15 @@ importers:
       apache-arrow:
         specifier: 'catalog:'
         version: 17.0.0
+      arrow-js-ffi:
+        specifier: ^0.4.3
+        version: 0.4.3(apache-arrow@17.0.0)
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
+      hyparquet:
+        specifier: ^1.19.0
+        version: 1.19.0
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -7847,6 +7853,11 @@ packages:
     resolution: {integrity: sha512-3CYzex9M9FGQjCGMGyi6/31c8GJbgb0qGyrx5HWxPd0aCwh4cB2YjMb2Xf9UuoogrMrlO9cTqnB5rI5GHZTcUA==}
     engines: {node: '>=0.10.0'}
 
+  arrow-js-ffi@0.4.3:
+    resolution: {integrity: sha512-VVXvqkZVNLk7t/JbcXUUndERZM54uvJIAASQNovHCI/eWXX0axLISQ2USf01T/sLbNdI2NOTEZQMWvuUQFc41Q==}
+    peerDependencies:
+      apache-arrow: '>=15'
+
   asn1.js@4.10.1:
     resolution: {integrity: sha512-p32cOF5q0Zqs9uBiONKYLm6BClCoBCM5O9JfeUSlnQLBTxYdTK+pW+nXflm8UkKd2UYlEbYz5qEi0JuZR9ckSw==}
 
@@ -10721,6 +10732,9 @@ packages:
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+
+  hyparquet@1.19.0:
+    resolution: {integrity: sha512-SY8PolBC2lR37cjyY9+wjxACNQdrBhLwNP/o59x3pBhaPdV4xXYtSEiulGFfW3i3cEUvquz/n+NCzVSRugqqjA==}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -23808,6 +23822,10 @@ snapshots:
 
   arrify@1.0.1: {}
 
+  arrow-js-ffi@0.4.3(apache-arrow@17.0.0):
+    dependencies:
+      apache-arrow: 17.0.0
+
   asn1.js@4.10.1:
     dependencies:
       bn.js: 4.12.2
@@ -27584,6 +27602,8 @@ snapshots:
   human-signals@1.1.1: {}
 
   human-signals@2.1.0: {}
+
+  hyparquet@1.19.0: {}
 
   iconv-lite@0.4.24:
     dependencies:
