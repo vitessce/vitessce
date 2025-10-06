@@ -5,8 +5,6 @@
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
-//import { parquetMetadata } from 'hyparquet'; // TODO: remove from package.json
-//import { parseRecordBatch, parseSchema } from 'arrow-js-ffi'; // TODO: remove from package.json
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
@@ -17,83 +15,6 @@ import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 // because when a table annotates points and shapes, it can be helpful to
 // have all of the required functionality to load the
 // table data and the parquet data.
-
-function wrapRecordBatchInIPC(schemaBytes, recordBatchBytes) {
-  const CONTINUATION_MARKER = 0xFFFFFFFF;
-  
-  function writeInt32LE(buffer, offset, value) {
-    const view = new DataView(buffer);
-    view.setInt32(offset, value, true);
-    return offset + 4;
-  }
-  
-  function readInt32LE(buffer, offset) {
-    const view = new DataView(buffer);
-    return view.getInt32(offset, true);
-  }
-  
-  function padTo8(length) {
-    return (length + 7) & ~7;
-  }
-  
-  // Parse the record batch bytes
-  // Arrow RecordBatch Flatbuffer starts with size prefix (4 bytes) in some formats
-  // or the bytes might already be the Flatbuffer message
-  
-  let metadataSize;
-  let metadataOffset = 0;
-  let bufferOffset;
-  
-  // Check if it starts with continuation marker (already IPC format)
-  const possibleMarker = readInt32LE(recordBatchBytes.buffer, 0);
-  if (possibleMarker === CONTINUATION_MARKER) {
-    metadataSize = readInt32LE(recordBatchBytes.buffer, 4);
-    metadataOffset = 8;
-    bufferOffset = 8 + padTo8(metadataSize);
-  } else {
-    // Assume first 4 bytes are metadata size
-    metadataSize = readInt32LE(recordBatchBytes.buffer, 0);
-    metadataOffset = 4;
-    bufferOffset = 4 + padTo8(metadataSize);
-  }
-  
-  const metadata = recordBatchBytes.slice(metadataOffset, metadataOffset + metadataSize);
-  const buffers = recordBatchBytes.slice(bufferOffset);
-  
-  // Schema message
-  const schemaPaddedSize = padTo8(schemaBytes.length);
-  const schemaMessage = new Uint8Array(8 + schemaPaddedSize);
-  writeInt32LE(schemaMessage.buffer, 0, CONTINUATION_MARKER);
-  writeInt32LE(schemaMessage.buffer, 4, schemaBytes.length);
-  schemaMessage.set(schemaBytes, 8);
-  
-  // RecordBatch message
-  const metadataPaddedSize = padTo8(metadata.length);
-  const recordBatchMessage = new Uint8Array(8 + metadataPaddedSize + buffers.length);
-  writeInt32LE(recordBatchMessage.buffer, 0, CONTINUATION_MARKER);
-  writeInt32LE(recordBatchMessage.buffer, 4, metadata.length);
-  recordBatchMessage.set(metadata, 8);
-  recordBatchMessage.set(buffers, 8 + metadataPaddedSize);
-  
-  // End-of-stream
-  const eosMarker = new Uint8Array(8);
-  writeInt32LE(eosMarker.buffer, 0, CONTINUATION_MARKER);
-  writeInt32LE(eosMarker.buffer, 4, 0);
-  
-  // Concatenate
-  const totalLength = schemaMessage.length + recordBatchMessage.length + eosMarker.length;
-  const result = new Uint8Array(totalLength);
-  
-  let offset = 0;
-  result.set(schemaMessage, offset);
-  offset += schemaMessage.length;
-  result.set(recordBatchMessage, offset);
-  offset += recordBatchMessage.length;
-  result.set(eosMarker, offset);
-  
-  return result;
-}
-
 
 async function getParquetModule() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
@@ -921,62 +842,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         const wasmSchema = readSchema(schemaBytes);
         /** @type {import('apache-arrow').Table} */
         const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
-
         console.log('arrowTableForSchema', arrowTableForSchema);
-
-
-        const part0Metadata = readMetadata(schemaBytes);
-
-        // TODO: check for additional parts.
-
-        const numRowsInPart = part0Metadata.fileMetadata().numRows();
-        const numRowGroups = part0Metadata.numRowGroups();
-        const firstRowGroup = part0Metadata.rowGroup(0);
-        const firstRowGroupNumRows = firstRowGroup.numRows();
-        const firstRowGroupFileOffset = firstRowGroup.fileOffset();
-        const firstRowGroupCompressedSize = firstRowGroup.compressedSize();
-        const firstRowGroupTotalByteSize = firstRowGroup.totalByteSize();
-
-        const firstRowGroupBytes = await this.loadParquetBytes(parquetPath, firstRowGroupFileOffset, firstRowGroupCompressedSize, 0);
-        const firstRowGroupIPC = readParquetRowGroup(schemaBytes, firstRowGroupBytes, 0).intoIPCStream();
-        const firstRowGroupTable = await tableFromIPC(firstRowGroupIPC);
-        console.log('firstRowGroupTable', firstRowGroupTable);
-
-        // TODO: get first and last morton_code_2d values for each row group.
-
-
-
-        // TODO: ensure that this contains the morton_code_2d column. cache whether or not it does.
-        const hasMortonCode2dColumn = arrowTableForSchema.schema.fields.find(f => f.name === 'morton_code_2d');
-        if (!hasMortonCode2dColumn) {
-          throw new Error('Parquet table does not contain a morton_code_2d column, which is required for rectangle queries of subsets of points.');
-        }
-
-
-        // Step 4: Parse Thrift-encoded FileMetaData to identify the total number of rows and the row group size,
-        // since this is not directly exposed by the table schema returned by readSchema.
-        //const part0Metadata = parquetMetadata(schemaBytes.buffer);
-        // NOTE: this is only the metadata for this part.0.parquet file.
-        // We do not yet know how many parts there are, or the sum of their rows.
-        const batch0 = await this.loadParquetBytes(parquetPath, 4, 2187392, 0);
-
-        const batchIPC = wrapRecordBatchInIPC(schemaBytes, batch0);
-        const batch0TableIPC = await tableFromIPC(batchIPC.buffer);
-        console.log('batch0TableIPC', batch0TableIPC);
-        /*
-
-        console.log(batch0, schemaBytes);
-        const wasm_memory = new Uint8Array(batch0.length + schemaBytes.length);
-        wasm_memory.set(batch0, 0);
-        wasm_memory.set(schemaBytes, batch0.length);
-
-        console.log(parseRecordBatch(wasm_memory.buffer, 0, batch0.length));
-
-        const batch0Table = readParquet(wasm_memory);
-        console.log(batch0Table);
-        */
-
-
       }
     } catch (/** @type {any} */ e) {
       console.log(e);
@@ -984,10 +850,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // for instance if range requests are not supported but the full table can be loaded.
       log.warn(`Failed to load parquet schema bytes for ${parquetPath}: ${e.message}`);
     }
-
-    // TODO: implement morton code rect querying functionality here.
-    // Port the python logic. Binary search over row groups. Cache morton code min/max of each row group to reduce search space.
-    
 
   }
 }

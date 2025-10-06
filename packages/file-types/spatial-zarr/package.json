@@ -43,9 +43,7 @@
     "zarrita": "catalog:",
     "apache-arrow": "catalog:",
     "parquet-wasm": "catalog:",
-    "ol": "^10.2.1",
-    "hyparquet": "^1.19.0",
-    "arrow-js-ffi": "^0.4.3"
+    "ol": "^10.2.1"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
