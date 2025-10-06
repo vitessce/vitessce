@@ -677,6 +677,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const rowGroupFileOffset = rowGroupMetadata.fileOffset();
     const rowGroupCompressedSize = rowGroupMetadata.compressedSize();
 
+    // TODO: store row group bytes/tables in an LRU cache.
     const rowGroupBytes = await this.loadParquetBytes(parquetPath, rowGroupFileOffset, rowGroupCompressedSize, partIndex);
     const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
     const rowGroupTable = await tableFromIPC(rowGroupIPC);
@@ -684,6 +685,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
   }
 
   async loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex) {
+    // TODO: cache the results.
     // Load the min/max extent (via first/last row) for a specific column in a specific row group.    
     const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
     const column = rowGroupTable.getChild(columnName);
@@ -712,6 +714,94 @@ export default class SpatialDataTableSource extends AnnDataSource {
     return row;
   }
   
+  async queryParquetRowValueLessThan(parquetPath, columnName, rowIndex, comparisonValue) {
+    // TODO: Leverage cached row group extents, to avoid loading the row if possible.
+
+    // For example, if the max value of the column in the row group is less than the comparison value,
+    // then we can return true without loading the row.
+    // If the min value of the column in the row group is greater than or equal to the comparison value,
+    // then we can return false without loading the row.
+    // Otherwise, we need to load the specific row to check its value.
+    // This will require storing the cached extents in a way that can be looked up by row group index.
+    const row = await this.loadParquetRowByRowIndex(parquetPath, rowIndex);
+    if(!row) {
+      throw new Error(`Row index ${rowIndex} not found in parquet table at ${parquetPath}.`);
+    }
+    const rowValue = row[columnName];
+    if(rowValue === undefined) {
+      throw new Error(`Column ${columnName} not found in row index ${rowIndex} of parquet table at ${parquetPath}.`);
+    }
+    return rowValue < comparisonValue;
+  }
+
+  async queryParquetRowValueGreaterThan(parquetPath, columnName, rowIndex, comparisonValue) {
+    // TODO: Leverage cached row group extents, to avoid loading the row if possible.
+
+    // For example, if the max value of the column in the row group is less than the comparison value,
+    // then we can return true without loading the row.
+    // If the min value of the column in the row group is greater than or equal to the comparison value,
+    // then we can return false without loading the row.
+    // Otherwise, we need to load the specific row to check its value.
+    // This will require storing the cached extents in a way that can be looked up by row group index.
+    const row = await this.loadParquetRowByRowIndex(parquetPath, rowIndex);
+    if(!row) {
+      throw new Error(`Row index ${rowIndex} not found in parquet table at ${parquetPath}.`);
+    }
+    const rowValue = row[columnName];
+    if(rowValue === undefined) {
+      throw new Error(`Column ${columnName} not found in row index ${rowIndex} of parquet table at ${parquetPath}.`);
+    }
+    return rowValue > comparisonValue;
+  }
+
+  /**
+   * Binary search to find the leftmost position where value could be inserted.
+   * Equivalent to Python's bisect_left.
+   * @param {*} parquetPath 
+   * @param {*} columnName 
+   * @param {*} targetValue 
+   * @returns {number} Index where value should be inserted
+   */
+  async parquetBisectLeft(parquetPath, columnName, targetValue) {
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    let low = 0;
+    let high = allMetadata.numRows;
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      const isLessThan = await this.queryParquetRowValueLessThan(parquetPath, columnName, mid, targetValue);
+      if (isLessThan) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    return low;
+  }
+
+  /**
+   * Binary search to find the rightmost position where value could be inserted.
+   * Equivalent to Python's bisect_right.
+   * @param {*} parquetPath 
+   * @param {*} columnName 
+   * @param {*} targetValue 
+   * @returns 
+   */
+  async parquetBisectRight(parquetPath, columnName, targetValue) {
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    let low = 0;
+    let high = allMetadata.numRows;
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      const isGreaterThan = await this.queryParquetRowValueGreaterThan(parquetPath, columnName, mid, targetValue);
+      if (isGreaterThan) {
+        high = mid;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return low;
+  }
+
 
   /**
    * TODO: change implementation so that subsets of
@@ -734,6 +824,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const mortonCodeExtent = await this.loadParquetRowGroupColumnExtent(parquetPath, 'morton_code_2d', 0);
     console.log('mortonCodeExtent', mortonCodeExtent);
 
+    const queryResult = await this.parquetBisectLeft(parquetPath, 'morton_code_2d', 1_000_000);
+    console.log('queryResult', queryResult);
 
     // We first try to load the schema bytes to determine the index column name.
     // Perhaps in the future SpatialData can store the index column name
