@@ -5,8 +5,8 @@
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
-import { parquetMetadata } from 'hyparquet';
-import { parseRecordBatch, parseSchema } from 'arrow-js-ffi';
+//import { parquetMetadata } from 'hyparquet'; // TODO: remove from package.json
+//import { parseRecordBatch, parseSchema } from 'arrow-js-ffi'; // TODO: remove from package.json
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 
@@ -98,7 +98,7 @@ async function getParquetModule() {
   // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
   // TODO: host somewhere we control, like cdn.vitessce.io?
   // @ts-ignore
-  const module = await import(/* webpackIgnore: true */ 'https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
+  const module = await import(/* webpackIgnore: true */ 'https://cdn.vitessce.io/parquet-wasm@2c23652/esm/parquet_wasm.js');
   await module.default();
   // We cannot use regulary dynamic import here because it breaks NextJS builds
   // due to pointing to a remote URL.
@@ -120,8 +120,8 @@ async function getParquetModule() {
   return {
     readParquet: module.readParquet,
     readSchema: module.readSchema,
-    // TODO: implement a readMetadata function in parquet-wasm to obtain the rowgroup size?
-    readParquetStream: module.readParquetStream, // TODO: implement a sync version
+    readMetadata: module.readMetadata, // Added in fork
+    readParquetRowGroup: module.readParquetRowGroup, // Added in fork
   };
 }
 
@@ -362,24 +362,26 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @returns {Promise<Uint8Array|null>} The parquet file bytes,
    * or null if the store does not support getRange.
    */
-  async loadParquetSchemaBytes(parquetPath) {
+  async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
     if (store.getRange) {
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
       // Case 1: Parquet file.
       let partZeroPath = parquetPath;
+      // TODO: cache this, to avoid redundantly checking the single-file case if subsequent parts need to be requested.
       let tailBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: TAIL_LENGTH,
       });
       if (!tailBytes) {
         // Case 2: Rather than a single file, this may be a directory with multiple parts.
-        partZeroPath = `${parquetPath}/part.0.parquet`;
+        partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
         tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
         });
       }
       if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
+        // TODO: throw custom error type to indicate no part was found to caller?
         throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
       }
       // Step 2: Extract footer length and magic number
@@ -571,31 +573,143 @@ export default class SpatialDataTableSource extends AnnDataSource {
     );
     return this.varAliases[varPath];
   }
-  
+
+  /**
+   * Load the metadata for a parquet file, or for all parts of a parquet directory.
+   * This function should handle determiniing how many parts there are.
+   * @param {string} parquetPath 
+   */
+  async loadParquetMetadataByPart(parquetPath) {
+    const { readSchema, readMetadata } = await this.parquetModulePromise;
+
+    // TODO: cache the metadata.
+
+    let partIndex = 0;
+    let numParts = undefined;
+    const allMetadata = [];
+    do {
+      try {
+        // TODO: support multiple tries upon failure?
+        const schemaBytes = await this.loadParquetSchemaBytes(parquetPath, partIndex);
+        if (schemaBytes) {
+          const wasmSchema = readSchema(schemaBytes);
+          /** @type {import('apache-arrow').Table} */
+          const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+          const partMetadata = readMetadata(schemaBytes);
+          const partInfo = {
+            schema: arrowTableForSchema,
+            schemaBytes,
+            metadata: partMetadata
+          };
+          allMetadata.push(partInfo);
+          partIndex += 1;
+        }
+      } catch (error) {
+        if (error.message.includes('Failed to load parquet footerLength')) {
+          // No more parts found.
+          numParts = partIndex;
+        }
+      }
+    } while(numParts === undefined);
+
+    // Accumulate metadata across all parts.
+    const metadata = {
+      numRows: 0,
+      numRowGroups: 0,
+      numRowsPerGroup: 0,
+      schema: null
+    };
+    if(allMetadata.length > 0) {
+      const firstPart = allMetadata[0];
+      metadata.numRows = allMetadata.reduce((sum, part) => sum + part.metadata.fileMetadata().numRows(), 0);
+      metadata.numRowGroups = allMetadata.reduce((sum, part) => sum + part.metadata.numRowGroups(), 0);
+      metadata.numRowsPerGroup = firstPart.metadata.rowGroup(0).numRows(); // TODO: try/catch in case no row groups?
+      metadata.schema = firstPart.schema.schema;
+    }
+
+    return {
+      ...metadata,
+      // TODO: extract metadata per part and rowGroup into plain objects that match the hyparquet parquetMetadata() return value?
+      // This will also make it easier to test.
+      parts: allMetadata,
+    };
+  }
+
+  // Utility functions for loading particular row groups, rows, row group extent, and binary searching based on a predicate function.
+
   /**
    * 
    * @param {string} parquetPath 
-   * @param {number} rowIndex 
+   * @param {number} rowGroupIndex Row group index, relative to whole table (not per part).
    * @param {string[]|undefined} columns 
    */
-  async loadParquetRowGroup(parquetPath, rowIndex, columns = undefined) {
+  async loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex) {
     // Load a single row group which contains the row with the specified index.
-    const { readParquet, readParquetStream } = await this.parquetModulePromise;
+    const { readParquetRowGroup } = await this.parquetModulePromise;
 
-    // TODO: read first row group to determine row group size.
-    // TODO: need to implement a read_metadata sync function in parquet-wasm?
-    // Reference: https://github.com/kylebarron/parquet-wasm/blob/c54250bd54a3cbf6e4ef94a7e180e802a929073b/src/reader_async.rs#L440
-    //const stream = await readParquetStream(url);
-    //const firstRowGroup = readParquet()
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
 
+    if(rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
+      throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.numRowGroups} row groups.`);
+    }
 
+    // Find the part index that contains this row group.
+    // TODO: extract logic into utility functions for easier testing.
+    let partIndex = undefined;
+    let cumulativeRowGroups = 0;
+    for(let i = 0; i < allMetadata.parts.length; i++) {
+      const part = allMetadata.parts[i];
+      const numRowGroupsInPart = part.metadata.numRowGroups();
+      if(rowGroupIndex < cumulativeRowGroups + numRowGroupsInPart) {
+        partIndex = i;
+        break;
+      }
+      cumulativeRowGroups += numRowGroupsInPart;
+    }
+    if(partIndex === undefined) {
+      throw new Error(`Failed to find part containing row group index ${rowGroupIndex}.`);
+    }
+    const partMetadata = allMetadata.parts[partIndex].metadata;
+    const schemaBytes = allMetadata.parts[partIndex].schemaBytes;
+    
+    const rowGroupIndexRelativeToPart = rowGroupIndex - cumulativeRowGroups;
+    const rowGroupMetadata = partMetadata.rowGroup(rowGroupIndexRelativeToPart);
+    const rowGroupFileOffset = rowGroupMetadata.fileOffset();
+    const rowGroupCompressedSize = rowGroupMetadata.compressedSize();
 
-    // TODO: cache the row group size.
+    const rowGroupBytes = await this.loadParquetBytes(parquetPath, rowGroupFileOffset, rowGroupCompressedSize, partIndex);
+    const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
+    const rowGroupTable = await tableFromIPC(rowGroupIPC);
+    return rowGroupTable;
+  }
 
-    // TODO: cache the extent (values of first/last rows of group) of the morton_code_2d column values associated with this row group.
+  async loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex) {
+    // Load the min/max extent (via first/last row) for a specific column in a specific row group.    
+    const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
+    const column = rowGroupTable.getChild(columnName);
+    if(!column) {
+      throw new Error(`Column ${columnName} not found in row group ${rowGroupIndex} of parquet table at ${parquetPath}.`);
+    }
+    if(column.length === 0) {
+      return { min: null, max: null };
+    }
+    return { min: column.get(0), max: column.get(column.length - 1) };
+  }
 
-
-
+  async loadParquetRowByRowIndex(parquetPath, rowIndex) {
+    // Load a single row which contains the specified index.
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    
+    if(rowIndex < 0 || rowIndex >= allMetadata.numRows) {
+      throw new Error(`Row index ${rowIndex} is out of bounds for parquet table with ${allMetadata.numRows} rows.`);
+    }
+    // Find the row group index that contains this row.
+    const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    const rowGroupIndex = Math.floor(rowIndex / numRowsPerGroup);
+    const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
+    const rowIndexInGroup = rowIndex % numRowsPerGroup;
+    const row = rowGroupTable.get(rowIndexInGroup);
+    return row;
   }
   
 
@@ -610,10 +724,15 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @returns
    */
   async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, columns = undefined) {
-    const { readParquet, readSchema } = await this.parquetModulePromise;
+    const { readSchema, readMetadata, readParquetRowGroup } = await this.parquetModulePromise;
 
 
     // TODO: cache the schema associated with this path.
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    console.log('allMetadata', allMetadata);
+
+    const mortonCodeExtent = await this.loadParquetRowGroupColumnExtent(parquetPath, 'morton_code_2d', 0);
+    console.log('mortonCodeExtent', mortonCodeExtent);
 
 
     // We first try to load the schema bytes to determine the index column name.
@@ -630,6 +749,29 @@ export default class SpatialDataTableSource extends AnnDataSource {
         const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
 
         console.log('arrowTableForSchema', arrowTableForSchema);
+
+
+        const part0Metadata = readMetadata(schemaBytes);
+
+        // TODO: check for additional parts.
+
+        const numRowsInPart = part0Metadata.fileMetadata().numRows();
+        const numRowGroups = part0Metadata.numRowGroups();
+        const firstRowGroup = part0Metadata.rowGroup(0);
+        const firstRowGroupNumRows = firstRowGroup.numRows();
+        const firstRowGroupFileOffset = firstRowGroup.fileOffset();
+        const firstRowGroupCompressedSize = firstRowGroup.compressedSize();
+        const firstRowGroupTotalByteSize = firstRowGroup.totalByteSize();
+
+        const firstRowGroupBytes = await this.loadParquetBytes(parquetPath, firstRowGroupFileOffset, firstRowGroupCompressedSize, 0);
+        const firstRowGroupIPC = readParquetRowGroup(schemaBytes, firstRowGroupBytes, 0).intoIPCStream();
+        const firstRowGroupTable = await tableFromIPC(firstRowGroupIPC);
+        console.log('firstRowGroupTable', firstRowGroupTable);
+
+        // TODO: get first and last morton_code_2d values for each row group.
+
+
+
         // TODO: ensure that this contains the morton_code_2d column. cache whether or not it does.
         const hasMortonCode2dColumn = arrowTableForSchema.schema.fields.find(f => f.name === 'morton_code_2d');
         if (!hasMortonCode2dColumn) {
@@ -639,10 +781,9 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
         // Step 4: Parse Thrift-encoded FileMetaData to identify the total number of rows and the row group size,
         // since this is not directly exposed by the table schema returned by readSchema.
-        const part0Metadata = parquetMetadata(schemaBytes.buffer);
+        //const part0Metadata = parquetMetadata(schemaBytes.buffer);
         // NOTE: this is only the metadata for this part.0.parquet file.
         // We do not yet know how many parts there are, or the sum of their rows.
-        console.log(part0Metadata);
         const batch0 = await this.loadParquetBytes(parquetPath, 4, 2187392, 0);
 
         const batchIPC = wrapRecordBatchInIPC(schemaBytes, batch0);
