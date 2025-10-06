@@ -9,7 +9,6 @@ import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 
-
 // Note: This file also serves as the parent for
 // SpatialDataPointsSource and SpatialDataShapesSource,
 // because when a table annotates points and shapes, it can be helpful to
@@ -46,6 +45,198 @@ async function getParquetModule() {
     readParquetRowGroup: module.readParquetRowGroup, // Added in fork
   };
 }
+
+
+
+
+
+
+
+
+
+async function _getParquetModule({ queryClient }) {
+  return queryClient.fetchQuery({
+    queryKey: ['parquetModule'],
+    staleTime: Infinity,
+    queryFn: getParquetModule,
+    meta: { queryClient },
+  });
+}
+
+async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery = undefined, partIndex = undefined) {
+  return queryClient.fetchQuery({
+    queryKey: ['SpatialDataTableSource', '_loadParquetBytes', parquetPath, rangeQuery, partIndex],
+    staleTime: Infinity,
+    queryFn: async (ctx) => {
+      const store = ctx.meta?.store;
+      const rangeQuery = ctx.queryKey[3];
+      const { offset, length, suffixLength } = rangeQuery || {};
+
+      let getter = (path) => store.get(path);
+      if (rangeQuery !== undefined && store.getRange) {
+        if(suffixLength !== undefined) {
+          getter = (path) => store.getRange(path, {
+            suffixLength
+          });
+        } else {
+          getter = (path) => store.getRange(path, {
+            offset,
+            length
+          });
+        }
+      }
+
+      let parquetBytes = undefined;
+      if (partIndex === undefined) {
+        // Part index is necessarily undefined for single-file queries.
+        parquetBytes = await getter(`/${parquetPath}`);
+      }
+      if (!parquetBytes) {
+        // This may be a directory with multiple parts.
+        const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+        parquetBytes = await getter(`/${part0Path}`);
+      }
+      return parquetBytes;
+    },
+    meta: { store },
+  });
+
+}
+
+async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, partIndex = undefined) {
+  return queryClient.fetchQuery({
+    queryKey: ['SpatialDataTableSource', '_loadParquetSchemaBytes', parquetPath, partIndex],
+    staleTime: Infinity,
+    queryFn: async (ctx) => {
+      const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
+      const store = ctx.meta?.store;
+
+
+      if (store.getRange) {
+        // Step 1: Fetch last 8 bytes to get footer length and magic number
+        const TAIL_LENGTH = 8;
+        // Case 1: single file.
+        let partZeroPath = parquetPath;
+
+        // TODO: use _loadParquetBytes here and below instead?
+        let tailBytes = await store.getRange(`/${partZeroPath}`, {
+          suffixLength: TAIL_LENGTH,
+        });
+        if (!tailBytes) {
+          // Case 2: Rather than a single file, this may be a directory with multiple parts.
+          partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+          tailBytes = await store.getRange(`/${partZeroPath}`, {
+            suffixLength: TAIL_LENGTH,
+          });
+        }
+
+        if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
+          // TODO: throw custom error type to indicate no part was found to caller?
+          throw new Error(`Failed to load parquet footerLength for ${partZeroPath}`);
+        }
+
+        // Step 2: Extract footer length and magic number
+        // little-endian
+        const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
+        const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
+
+        if (magic !== 'PAR1') {
+          throw new Error('Invalid Parquet file: missing PAR1 magic number');
+        }
+
+        // Step 3. Fetch the full footer bytes
+        const footerBytes = await store.getRange(`/${partZeroPath}`, {
+          suffixLength: footerLength + TAIL_LENGTH,
+        });
+        if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
+          throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
+        }
+        // Step 4: Return the footer bytes
+        return footerBytes;
+      }
+      // Store does not support getRange.
+      return null;
+    },
+    meta: { queryClient, store },
+  });
+}
+
+async function _loadParquetMetadataByPart({ queryClient, store }, parquetPath) {
+  return queryClient.fetchQuery({
+    queryKey: ['SpatialDataTableSource', '_loadParquetMetadataByPart', parquetPath],
+    staleTime: Infinity,
+    queryFn: async (ctx) => {
+      const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
+      const { readSchema, readMetadata } = await _getParquetModule({ queryClient });
+
+      let partIndex = 0;
+      let numParts = undefined;
+      const allMetadata = [];
+      do {
+        try {
+          // TODO: support multiple tries upon failure?
+          const schemaBytes = await _loadParquetSchemaBytes({ queryClient, store }, parquetPath, partIndex);
+          if (schemaBytes) {
+            const wasmSchema = readSchema(schemaBytes);
+            /** @type {import('apache-arrow').Table} */
+            const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
+            const partMetadata = readMetadata(schemaBytes);
+            const partInfo = {
+              schema: arrowTableForSchema,
+              schemaBytes,
+              metadata: partMetadata
+            };
+            allMetadata.push(partInfo);
+            partIndex += 1;
+          }
+        } catch (error) {
+          if (error.message.includes('Failed to load parquet footerLength')) {
+            // No more parts found.
+            numParts = partIndex;
+          }
+        }
+      } while(numParts === undefined);
+
+      // Accumulate metadata across all parts.
+      const metadata = {
+        numRows: 0,
+        numRowGroups: 0,
+        numRowsPerGroup: 0,
+        schema: null
+      };
+      if(allMetadata.length > 0) {
+        const firstPart = allMetadata[0];
+        metadata.numRows = allMetadata.reduce((sum, part) => sum + part.metadata.fileMetadata().numRows(), 0);
+        metadata.numRowGroups = allMetadata.reduce((sum, part) => sum + part.metadata.numRowGroups(), 0);
+        metadata.numRowsPerGroup = firstPart.metadata.rowGroup(0).numRows(); // TODO: try/catch in case no row groups?
+        metadata.schema = firstPart.schema.schema;
+      }
+
+      const result = {
+        ...metadata,
+        // TODO: extract metadata per part and rowGroup into plain objects that match the hyparquet parquetMetadata() return value?
+        // This will also make it easier to test.
+        parts: allMetadata,
+      };
+      return result;
+    },
+    meta: { queryClient },
+  });
+}
+
+
+async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex) {
+
+  // TODO
+
+}
+
+
+
+
+
+
+
 
 /**
  * Get the name of the index column from an Apache Arrow table.
@@ -823,13 +1014,16 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @returns
    */
   async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal) {
-    const { readSchema, readMetadata, readParquetRowGroup } = await this.parquetModulePromise;
+    const { readSchema } = await this.parquetModulePromise;
 
     console.log('queryClient', queryClient);
 
     // TODO: cache the schema associated with this path.
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    console.log('allMetadata', allMetadata);
+    //const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    //console.log('allMetadata', allMetadata);
+
+    const allMetadata2 = await _loadParquetMetadataByPart({ queryClient, store: this.storeRoot.store }, parquetPath);
+    console.log('allMetadata2', allMetadata2);
 
     const mortonCodeExtent = await this.loadParquetRowGroupColumnExtent(parquetPath, 'morton_code_2d', 0);
     console.log('mortonCodeExtent', mortonCodeExtent);
