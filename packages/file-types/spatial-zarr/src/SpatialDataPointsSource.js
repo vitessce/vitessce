@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
@@ -173,7 +173,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPointsInRect(elementPath, tileBbox) {
+  async loadPointsInRect(elementPath, tileBbox, queryClient, signal) {
     // TODO: implement morton code rect querying functionality here.
     // Reference: https://github.com/vitessce/vitessce-python/pull/476
 
@@ -195,7 +195,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     
 
-    const arrowTable = await this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox);
+    const arrowTable = await this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal);
 
 
     return {

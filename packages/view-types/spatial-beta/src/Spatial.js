@@ -387,6 +387,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
       delegateHover,
       targetZ,
+      queryClient,
     } = this.props;
 
     const {
@@ -452,7 +453,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
 
-        const pointsInTile = loadPointsInRect(bbox, signal);
+        const pointsInTile = loadPointsInRect(bbox, queryClient, signal);
         console.log(pointsInTile);
 
         return [

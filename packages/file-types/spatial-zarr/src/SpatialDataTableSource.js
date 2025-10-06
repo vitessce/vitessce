@@ -157,10 +157,13 @@ export default class SpatialDataTableSource extends AnnDataSource {
     this.parquetTableBytes = {};
     /** @type {{ [k: string]: boolean }} */
     this.parquetTableIsDirectory = {};
-    /** @type {{ [k: string]: number }} */
-    this.parquetDirectoryNumParts = {};
     /** @type {{ [k: string]: { min: number, max: number } }} */
     this.parquetTableColumnExtentByRowGroup = {};
+
+    /** @type {{ [k: string]: any }} */
+    this.parquetTableAllMetadata = {};
+    /** @type {{ [k: string]: Table }} */
+    this.parquetRowGroup = {};
 
 
     // Table-specific properties
@@ -425,7 +428,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         if (schemaBytes) {
           const wasmSchema = readSchema(schemaBytes);
           /** @type {import('apache-arrow').Table} */
-          const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
           indexColumnName = tableToIndexColumnName(arrowTableForSchema);
         }
       } catch (/** @type {any} */ e) {
@@ -459,7 +462,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // time from the full table bytes (rather than only the schema-bytes).
       const wasmSchema = readSchema(parquetBytes);
       /** @type {import('apache-arrow').Table} */
-      const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+      const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
       indexColumnName = tableToIndexColumnName(arrowTableForSchema);
     }
 
@@ -469,7 +472,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     const wasmTable = readParquet(parquetBytes, options);
     /** @type {import('apache-arrow').Table} */
-    const arrowTable = await tableFromIPC(wasmTable.intoIPCStream());
+    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
     return arrowTable;
   }
 
@@ -553,10 +556,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadParquetMetadataByPart(parquetPath) {
     const { readSchema, readMetadata } = await this.parquetModulePromise;
 
-    const cachedNumParts = this.parquetDirectoryNumParts[parquetPath];
+    if (this.parquetTableAllMetadata[parquetPath]) {
+      return this.parquetTableAllMetadata[parquetPath];
+    }
 
     let partIndex = 0;
-    let numParts = cachedNumParts;
+    let numParts = undefined;
     const allMetadata = [];
     do {
       try {
@@ -565,7 +570,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         if (schemaBytes) {
           const wasmSchema = readSchema(schemaBytes);
           /** @type {import('apache-arrow').Table} */
-          const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
           const partMetadata = readMetadata(schemaBytes);
           const partInfo = {
             schema: arrowTableForSchema,
@@ -581,11 +586,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
           numParts = partIndex;
         }
       }
-    } while(numParts === undefined || partIndex < numParts);
-
-    if (cachedNumParts === undefined) {
-      this.parquetDirectoryNumParts[parquetPath] = partIndex;
-    }
+    } while(numParts === undefined);
 
     // Accumulate metadata across all parts.
     const metadata = {
@@ -602,12 +603,16 @@ export default class SpatialDataTableSource extends AnnDataSource {
       metadata.schema = firstPart.schema.schema;
     }
 
-    return {
+    const result = {
       ...metadata,
       // TODO: extract metadata per part and rowGroup into plain objects that match the hyparquet parquetMetadata() return value?
       // This will also make it easier to test.
       parts: allMetadata,
     };
+
+    this.parquetTableAllMetadata[parquetPath] = result;
+
+    return result;
   }
 
   // Utility functions for loading particular row groups, rows, row group extent, and binary searching based on a predicate function.
@@ -622,8 +627,13 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // Load a single row group which contains the row with the specified index.
     const { readParquetRowGroup } = await this.parquetModulePromise;
 
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    const cacheKey = `${parquetPath}-rowgroup-${rowGroupIndex}`;
+    if (this.parquetRowGroup[cacheKey]) {
+      return this.parquetRowGroup[cacheKey];
+    }
 
+    // Cache miss.
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
     if(rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
       throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.numRowGroups} row groups.`);
     }
@@ -655,7 +665,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // TODO: store row group bytes/tables in an LRU cache.
     const rowGroupBytes = await this.loadParquetBytes(parquetPath, rowGroupFileOffset, rowGroupCompressedSize, partIndex);
     const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
-    const rowGroupTable = await tableFromIPC(rowGroupIPC);
+    const rowGroupTable = tableFromIPC(rowGroupIPC);
+
+    this.parquetRowGroup[cacheKey] = rowGroupTable;
+
     return rowGroupTable;
   }
 
@@ -809,9 +822,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @param {string[]|undefined} columns An optional list of column names to load.
    * @returns
    */
-  async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, columns = undefined) {
+  async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal) {
     const { readSchema, readMetadata, readParquetRowGroup } = await this.parquetModulePromise;
 
+    console.log('queryClient', queryClient);
 
     // TODO: cache the schema associated with this path.
     const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
@@ -841,7 +855,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       if (schemaBytes) {
         const wasmSchema = readSchema(schemaBytes);
         /** @type {import('apache-arrow').Table} */
-        const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+        const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
         console.log('arrowTableForSchema', arrowTableForSchema);
       }
     } catch (/** @type {any} */ e) {

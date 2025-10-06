@@ -33,6 +33,7 @@ import {
   useCoordinationScopesBy,
   useSpotMultiFeatureLabels,
   useGridItemSize,
+  useQueryClient,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -802,6 +803,9 @@ export function SpatialSubscriber(props) {
     }
   };
 
+  // TODO: instead, pass queryClient via createLoaders to loader/data source constructors?
+  const queryClient = useQueryClient();
+
   return (
     <TitleInfo
       title={title}
@@ -974,6 +978,8 @@ export function SpatialSubscriber(props) {
             imageLayerCoordination={imageLayerCoordination}
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
+
+            queryClient={queryClient}
           />
         )
       }
