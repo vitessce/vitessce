@@ -233,6 +233,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // TODO: change to column-specific storage.
     /** @type {{ [k: string]: Uint8Array }} */
     this.parquetTableBytes = {};
+    /** @type {{ [k: string]: boolean }} */
+    this.parquetTableIsDirectory = {};
+    /** @type {{ [k: string]: number }} */
+    this.parquetDirectoryNumParts = {};
+    /** @type {{ [k: string]: { min: number, max: number } }} */
+    this.parquetTableColumnExtentByRowGroup = {};
 
 
     // Table-specific properties
@@ -317,7 +323,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetBytes(parquetPath, offset = undefined, length = undefined, partIndex = undefined) {
     const { store } = this.storeRoot;
-    const cacheKey = `${parquetPath}-${offset ?? 'null'}-${length ?? 'null'}-${partIndex ?? 'null'}`;
+    const cacheKey = `table-${parquetPath}-${offset ?? 'null'}-${length ?? 'null'}-${partIndex ?? 0}`;
 
     if (this.parquetTableBytes[cacheKey]) {
       // Return the cached bytes.
@@ -332,14 +338,28 @@ export default class SpatialDataTableSource extends AnnDataSource {
       });
     }
 
-    let parquetBytes = await getter(`/${parquetPath}`);
-    if (!parquetBytes) {
-      // This may be a directory with multiple parts.
+    let parquetBytes = undefined;
+    const isDirectory = this.parquetTableIsDirectory[parquetPath];
+    if (isDirectory === undefined || isDirectory === false) {
+      parquetBytes = await getter(`/${parquetPath}`);
+      if(!parquetBytes && isDirectory === undefined) {
+        // We have not yet determined if this is a directory or a single file.
+
+        // This may be a directory with multiple parts.
+        const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+        parquetBytes = await getter(`/${part0Path}`);
+
+        // Set the flag to avoid the single-file path for next time.
+        this.parquetTableIsDirectory[parquetPath] = true;
+      } else {
+        throw new Error('Failed to load parquet data from single file when isDirectory (cached value) was false.');
+      }
+    } else {
+      // We already know this is a directory, so we skip the single-file case altogether.
       const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
       parquetBytes = await getter(`/${part0Path}`);
-
-      // TODO: support loading multiple parts.
     }
+
     if (parquetBytes) {
       // Cache the parquet bytes.
       this.parquetTableBytes[cacheKey] = parquetBytes;
@@ -364,22 +384,48 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
+    
+    const cacheKey = `schema-${parquetPath}-${partIndex ?? 0}`;
+    if (this.parquetTableBytes[cacheKey]) {
+      // Return the cached bytes.
+      return this.parquetTableBytes[cacheKey];
+    }
+    console.log('Cache miss for loadParquetSchemaBytes', cacheKey);
+
+    const isDirectory = this.parquetTableIsDirectory[parquetPath];
+
     if (store.getRange) {
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
-      // Case 1: Parquet file.
       let partZeroPath = parquetPath;
-      // TODO: cache this, to avoid redundantly checking the single-file case if subsequent parts need to be requested.
-      let tailBytes = await store.getRange(`/${partZeroPath}`, {
-        suffixLength: TAIL_LENGTH,
-      });
-      if (!tailBytes) {
+      let tailBytes = undefined;
+      if (isDirectory === undefined || isDirectory === false) {
+        // Case 1: Parquet file (or still unknown if file vs. directory).
+        tailBytes = await store.getRange(`/${partZeroPath}`, {
+          suffixLength: TAIL_LENGTH,
+        });
+
+        if (!tailBytes && isDirectory === undefined) {
+          // Case 2: Rather than a single file, this may be a directory with multiple parts.
+          partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+          tailBytes = await store.getRange(`/${partZeroPath}`, {
+            suffixLength: TAIL_LENGTH,
+          });
+
+          // Set flag.
+          this.parquetTableIsDirectory[parquetPath] = true;
+        } else {
+          throw new Error('Failed to load parquet data from single file when isDirectory (cached value) was false.');
+        }
+      } else {
+        // We already know this is a directory, so we skip the single-file path altogether.
         // Case 2: Rather than a single file, this may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
         tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
         });
       }
+
       if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
         // TODO: throw custom error type to indicate no part was found to caller?
         throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
@@ -400,6 +446,9 @@ export default class SpatialDataTableSource extends AnnDataSource {
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
         throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
       }
+
+      // Cache the schema bytes.
+      this.parquetTableBytes[cacheKey] = footerBytes;
 
       // Step 4: Return the footer bytes
       return footerBytes;
@@ -582,10 +631,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadParquetMetadataByPart(parquetPath) {
     const { readSchema, readMetadata } = await this.parquetModulePromise;
 
-    // TODO: cache the metadata.
+    const cachedNumParts = this.parquetDirectoryNumParts[parquetPath];
 
     let partIndex = 0;
-    let numParts = undefined;
+    let numParts = cachedNumParts;
     const allMetadata = [];
     do {
       try {
@@ -610,7 +659,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
           numParts = partIndex;
         }
       }
-    } while(numParts === undefined);
+    } while(numParts === undefined || partIndex < numParts);
+
+    if (cachedNumParts === undefined) {
+      this.parquetDirectoryNumParts[parquetPath] = partIndex;
+    }
 
     // Accumulate metadata across all parts.
     const metadata = {
@@ -685,7 +738,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
   }
 
   async loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex) {
-    // TODO: cache the results.
+    const cacheKey = `${parquetPath}-${columnName}-${rowGroupIndex}`;
+    if (this.parquetTableColumnExtentByRowGroup[cacheKey]) {
+      return this.parquetTableColumnExtentByRowGroup[cacheKey];
+    }
+
     // Load the min/max extent (via first/last row) for a specific column in a specific row group.    
     const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
     const column = rowGroupTable.getChild(columnName);
@@ -695,7 +752,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
     if(column.length === 0) {
       return { min: null, max: null };
     }
-    return { min: column.get(0), max: column.get(column.length - 1) };
+
+    let result = { min: column.get(0), max: column.get(column.length - 1) };
+    this.parquetTableColumnExtentByRowGroup[cacheKey] = result;
+    return result;
   }
 
   async loadParquetRowByRowIndex(parquetPath, rowIndex) {
@@ -715,12 +775,24 @@ export default class SpatialDataTableSource extends AnnDataSource {
   }
   
   async queryParquetRowValueLessThan(parquetPath, columnName, rowIndex, comparisonValue) {
-    // TODO: Leverage cached row group extents, to avoid loading the row if possible.
+    // Leverage cached row group extents, to avoid loading the row if possible.
+    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
+    const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    const rowGroupIndex = Math.floor(rowIndex / numRowsPerGroup);
 
+    const { min, max } = await this.loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex);
     // For example, if the max value of the column in the row group is less than the comparison value,
     // then we can return true without loading the row.
+    if (max !== null && max < comparisonValue) {
+      return true;
+    }
+
     // If the min value of the column in the row group is greater than or equal to the comparison value,
     // then we can return false without loading the row.
+    if (min !== null && min >= comparisonValue) {
+      return false;
+    }
+    
     // Otherwise, we need to load the specific row to check its value.
     // This will require storing the cached extents in a way that can be looked up by row group index.
     const row = await this.loadParquetRowByRowIndex(parquetPath, rowIndex);
@@ -768,6 +840,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     let high = allMetadata.numRows;
     while (low < high) {
       const mid = Math.floor((low + high) / 2);
+      console.log('bisectLeft checking row with index ', mid);
       const isLessThan = await this.queryParquetRowValueLessThan(parquetPath, columnName, mid, targetValue);
       if (isLessThan) {
         low = mid + 1;
@@ -826,6 +899,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     const queryResult = await this.parquetBisectLeft(parquetPath, 'morton_code_2d', 1_000_000);
     console.log('queryResult', queryResult);
+
+    console.log(this);
 
     // We first try to load the schema bytes to determine the index column name.
     // Perhaps in the future SpatialData can store the index column name
