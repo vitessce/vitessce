@@ -7,6 +7,7 @@ import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
 //import { parquetMetadata } from 'hyparquet'; // TODO: remove from package.json
 //import { parseRecordBatch, parseSchema } from 'arrow-js-ffi'; // TODO: remove from package.json
+import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 
@@ -841,6 +842,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     while (low < high) {
       const mid = Math.floor((low + high) / 2);
       console.log('bisectLeft checking row with index ', mid);
+      // TODO: bisect over rowGroups as the minimum unit (Rather than rows)?
       const isLessThan = await this.queryParquetRowValueLessThan(parquetPath, columnName, mid, targetValue);
       if (isLessThan) {
         low = mid + 1;
@@ -897,10 +899,15 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const mortonCodeExtent = await this.loadParquetRowGroupColumnExtent(parquetPath, 'morton_code_2d', 0);
     console.log('mortonCodeExtent', mortonCodeExtent);
 
-    const queryResult = await this.parquetBisectLeft(parquetPath, 'morton_code_2d', 1_000_000);
-    console.log('queryResult', queryResult);
+    //const queryResult = await this.parquetBisectLeft(parquetPath, 'morton_code_2d', 1_000_000);
+    //console.log('queryResult', queryResult);
 
-    console.log(this);
+    const mortonIntervals = sdataMortonQueryRectAux(allPointsBbox, [
+      [tileBbox.left, tileBbox.top], // TODO: is this backwards (bottom/top)?
+      [tileBbox.right, tileBbox.bottom],
+    ]);
+
+    console.log(mortonIntervals);
 
     // We first try to load the schema bytes to determine the index column name.
     // Perhaps in the future SpatialData can store the index column name
