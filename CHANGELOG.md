@@ -1,4 +1,11 @@
 
+## 3.8.3
+
+### Patch Changes
+
+- Use --dev and --no-minify options when building the "versioned" docs site that will live at legacy.vitessce.io/docs/{date}/{commit}/ (`docs`) ([#2284](https://github.com/vitessce/vitessce/pull/2284))
+
+
 ## 3.8.2
 
 ### Patch Changes
