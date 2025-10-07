@@ -447,9 +447,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // TODO: refine min/max zoom.
       // make dependent on point bounding box metadata and number of points
       // (e.g., based on point density + extent?)
-      maxZoom: -1,
+      maxZoom: 3,
       minZoom: -1,
-      tileSize: 512,
+      //tileSize: 512,
       //refinementStrategy: 'no-overlap',
       getTileData: async (tileInfo) => {
         const { index, signal, bbox, zoom } = tileInfo;

@@ -1257,7 +1257,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const TILE_SIZE = 512; // 512 x 512.
     
     // If tileBbox is larger than TILE_SIZE, we need to subdivide it.
-    const tileBboxes = [];
+    let tileBboxes = [];
     if (tileBbox.right - tileBbox.left > TILE_SIZE || tileBbox.bottom - tileBbox.top > TILE_SIZE) {
       const xSteps = Math.ceil((tileBbox.right - tileBbox.left) / TILE_SIZE);
       const ySteps = Math.ceil((tileBbox.bottom - tileBbox.top) / TILE_SIZE);
@@ -1277,6 +1277,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
     } else {
       tileBboxes = [tileBbox];
     }
+
+    console.log('tileBboxes', tileBboxes);
 
     // TODO: pass signal to react-query functions to allow aborting requests.
 
@@ -1303,8 +1305,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const rowGroupTables = await Promise.all(uniqueCoveredRowGroupIndices.map(async (rowGroupIndex) => {
       return _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex);
     }));
-
-    console.log(rowGroupTables);
     
     let rowOffset = 0;
     rowGroupTables.forEach((table) => {
