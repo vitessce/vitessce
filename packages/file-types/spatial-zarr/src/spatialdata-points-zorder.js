@@ -33,14 +33,14 @@ export function normCoordToOrigCoord(normCoord, origXMin, origXMax, origYMin, or
  * @param {number} origYMax The maximum original Y coordinate.
  * @returns {number[]} The coordinate in the normalized space.
  */
-export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, origYMax) {
+export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, origYMax, withFloor=true) {
   const [origX, origY] = origCoord;
   const origXRange = origXMax - origXMin;
   const origYRange = origYMax - origYMin;
   return [
     // Clamp to zero at low end, since using unsigned ints.
-    Math.max(Math.floor(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX), 0),
-    Math.max(Math.floor(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX), 0),
+    Math.max((withFloor ? Math.floor : Math.ceil)(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX), 0),
+    Math.max((withFloor ? Math.floor : Math.ceil)(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX), 0),
   ];
 }
 
@@ -195,7 +195,7 @@ export function sdataMortonQueryRectAux(boundingBox, origRect) {
 
   const normRect = [
     origCoordToNormCoord(origRect[0], xMin, xMax, yMin, yMax),
-    origCoordToNormCoord(origRect[1], xMin, xMax, yMin, yMax),
+    origCoordToNormCoord(origRect[1], xMin, xMax, yMin, yMax, false),
   ];
 
   console.log('boundingBox', boundingBox);

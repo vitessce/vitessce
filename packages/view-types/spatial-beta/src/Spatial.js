@@ -449,7 +449,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // (e.g., based on point density + extent?)
       maxZoom: -1,
       minZoom: -1,
-      //tileSize: 512,
+      tileSize: 512,
       //refinementStrategy: 'no-overlap',
       getTileData: async (tileInfo) => {
         const { index, signal, bbox, zoom } = tileInfo;

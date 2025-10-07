@@ -379,6 +379,95 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
   });
 }
 
+async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileBbox, allPointsBbox) {
+  return queryClient.fetchQuery({
+    queryKey: ['SpatialDataTableSource', '_rectToRowGroupIndices', parquetPath, tileBbox, allPointsBbox],
+    staleTime: Infinity,
+    queryFn: async (ctx) => {
+      const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
+      const store = ctx.meta?.store;
+
+      const mortonIntervals = sdataMortonQueryRectAux(allPointsBbox, [
+        [tileBbox.left, tileBbox.top], // TODO: is this backwards (bottom/top)?
+        [tileBbox.right, tileBbox.bottom],
+      ]);
+
+      //if(mortonIntervals.length >= 10_000) {
+      //  // Heuristic. This is too large.
+      //  throw new Error('More than 10 thousand morton intervals. Skipping.');
+      //}
+
+      console.log(mortonIntervals);
+
+
+      // We need to convert morton intervals to a set of row groups.
+      // Since the morton intervals are sorted and there can be thousands of intervals, we can binary search over them to find the minimal set of row groups.
+      // Binary search over the list of morton intervals.
+      // Note: we are not performing a binary search for each interval.
+      let coveredRowGroupIndices = [];
+
+      // Use recursion to search through half of the intervals.
+      const intervalsSpanMultipleRowGroups = async (startIndex, endIndex) => {
+        if (startIndex > endIndex) {
+          return [false, null];
+        }
+        // It may be the case that the start and end intervals are the same.
+        // We still need to check if they span multiple row groups.
+        const [startMin, startMax] = mortonIntervals[startIndex];
+        const [endMin, endMax] = mortonIntervals[endIndex];
+        // Check if the start and end intervals span multiple row groups.
+        const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', startMin);
+        const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax);
+        console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
+        if(rowGroupIndexMin === rowGroupIndexMax) {
+          // The intervals are contained within a single row group.
+          return [false, [rowGroupIndexMin]];
+        }
+        if(rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin - 1 === rowGroupIndexMax) {
+          // The intervals span two contiguous row groups.
+          return [false, [rowGroupIndexMin, rowGroupIndexMax]];
+        }
+        return [true, null];
+      };
+
+      // Begin dividing the intervals in half until we find all of the row groups they span.
+      let intervalIndicesToCheck = [[0, mortonIntervals.length - 1]];
+      while (intervalIndicesToCheck.length > 0) {
+        const [startIndex, endIndex] = intervalIndicesToCheck.pop();
+        console.log('Checking between ', startIndex, endIndex);
+        const [spansMultipleRowGroups, rowGroupIndices] = await intervalsSpanMultipleRowGroups(startIndex, endIndex);
+        if (!spansMultipleRowGroups) {
+          if (rowGroupIndices !== null) {
+            coveredRowGroupIndices = coveredRowGroupIndices.concat(rowGroupIndices);
+          }
+        } else {
+          if (startIndex === endIndex) {
+            // We have narrowed down to a single interval that spans multiple row groups.
+            // We need to find the row groups that this interval spans.
+            const [intervalMin, intervalMax] = mortonIntervals[startIndex];
+            const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin);
+            const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax);
+            if(rowGroupIndexMin <= rowGroupIndexMax) {
+              coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
+            } else {
+              coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMax, rowGroupIndexMin + 1));
+            }
+          } else {
+            // Split the intervals in half and check each half.
+            const midIndex = Math.floor((startIndex + endIndex) / 2);
+            intervalIndicesToCheck.push([startIndex, midIndex]);
+            intervalIndicesToCheck.push([midIndex + 1, endIndex]);
+          }
+        }
+      }
+
+      const uniqueCoveredRowGroupIndices = Array.from(new Set(coveredRowGroupIndices));
+      return uniqueCoveredRowGroupIndices;
+    },
+    meta: { queryClient, store },
+  });
+}
+
 
 
 
@@ -1164,85 +1253,42 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal) {
     const { store } = this.storeRoot;
 
-    const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-
-    const mortonIntervals = sdataMortonQueryRectAux(allPointsBbox, [
-      [tileBbox.left, tileBbox.top], // TODO: is this backwards (bottom/top)?
-      [tileBbox.right, tileBbox.bottom],
-    ]);
-
-    //if(mortonIntervals.length >= 10_000) {
-    //  // Heuristic. This is too large.
-    //  throw new Error('More than 10 thousand morton intervals. Skipping.');
-    //}
-
-    console.log(mortonIntervals);
-
-
-    // We need to convert morton intervals to a set of row groups.
-    // Since the morton intervals are sorted and there can be thousands of intervals, we can binary search over them to find the minimal set of row groups.
-    // Binary search over the list of morton intervals.
-    // Note: we are not performing a binary search for each interval.
-    let coveredRowGroupIndices = [];
-
-    // Use recursion to search through half of the intervals.
-    const intervalsSpanMultipleRowGroups = async (startIndex, endIndex) => {
-      if (startIndex > endIndex) {
-        return [false, null];
-      }
-      // It may be the case that the start and end intervals are the same.
-      // We still need to check if they span multiple row groups.
-      const [startMin, startMax] = mortonIntervals[startIndex];
-      const [endMin, endMax] = mortonIntervals[endIndex];
-      // Check if the start and end intervals span multiple row groups.
-      const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', startMin);
-      const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax);
-      console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
-      if(rowGroupIndexMin === rowGroupIndexMax) {
-        // The intervals are contained within a single row group.
-        return [false, [rowGroupIndexMin]];
-      }
-      if(rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin - 1 === rowGroupIndexMax) {
-        // The intervals span two contiguous row groups.
-        return [false, [rowGroupIndexMin, rowGroupIndexMax]];
-      }
-      return [true, null];
-    };
-
-    // Begin dividing the intervals in half until we find all of the row groups they span.
-    let intervalIndicesToCheck = [[0, mortonIntervals.length - 1]];
-    while (intervalIndicesToCheck.length > 0) {
-      const [startIndex, endIndex] = intervalIndicesToCheck.pop();
-      console.log('Checking between ', startIndex, endIndex);
-      const [spansMultipleRowGroups, rowGroupIndices] = await intervalsSpanMultipleRowGroups(startIndex, endIndex);
-      if (!spansMultipleRowGroups) {
-        if (rowGroupIndices !== null) {
-          coveredRowGroupIndices = coveredRowGroupIndices.concat(rowGroupIndices);
-        }
-      } else {
-        if (startIndex === endIndex) {
-          // We have narrowed down to a single interval that spans multiple row groups.
-          // We need to find the row groups that this interval spans.
-          const [intervalMin, intervalMax] = mortonIntervals[startIndex];
-          const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin);
-          const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax);
-          if(rowGroupIndexMin <= rowGroupIndexMax) {
-            coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
-          } else {
-            coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMax, rowGroupIndexMin + 1));
-          }
-        } else {
-          // Split the intervals in half and check each half.
-          const midIndex = Math.floor((startIndex + endIndex) / 2);
-          intervalIndicesToCheck.push([startIndex, midIndex]);
-          intervalIndicesToCheck.push([midIndex + 1, endIndex]);
+    // Subdivide tileBbox into rectangles of a fixed size.
+    const TILE_SIZE = 512; // 512 x 512.
+    
+    // If tileBbox is larger than TILE_SIZE, we need to subdivide it.
+    const tileBboxes = [];
+    if (tileBbox.right - tileBbox.left > TILE_SIZE || tileBbox.bottom - tileBbox.top > TILE_SIZE) {
+      const xSteps = Math.ceil((tileBbox.right - tileBbox.left) / TILE_SIZE);
+      const ySteps = Math.ceil((tileBbox.bottom - tileBbox.top) / TILE_SIZE);
+      const xStepSize = (tileBbox.right - tileBbox.left) / xSteps;
+      const yStepSize = (tileBbox.bottom - tileBbox.top) / ySteps;
+      for (let i = 0; i < xSteps; i++) {
+        for (let j = 0; j < ySteps; j++) {
+          const subTileBbox = {
+            left: tileBbox.left + i * xStepSize,
+            right: Math.min(tileBbox.left + (i + 1) * xStepSize, tileBbox.right),
+            top: tileBbox.top + j * yStepSize,
+            bottom: Math.min(tileBbox.top + (j + 1) * yStepSize, tileBbox.bottom),
+          };
+          tileBboxes.push(subTileBbox);
         }
       }
+    } else {
+      tileBboxes = [tileBbox];
     }
 
-    console.log('coveredRowGroupIndices', coveredRowGroupIndices);
+    // TODO: pass signal to react-query functions to allow aborting requests.
 
-    const uniqueCoveredRowGroupIndices = Array.from(new Set(coveredRowGroupIndices));
+    const rowGroupIndicesPerTile = await Promise.all(tileBboxes.map(async (subTileBbox) => {
+      return _rectToRowGroupIndices({ queryClient, store }, parquetPath, subTileBbox, allPointsBbox);
+    }));
+    // Combine the row group indices from all tiles, and remove duplicates.
+    const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat()));
+    console.log('Unique covered row group indices:', uniqueCoveredRowGroupIndices);
+
+
+    const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
 
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
