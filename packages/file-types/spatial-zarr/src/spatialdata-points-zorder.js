@@ -73,9 +73,14 @@ function pointInside(x, y, rx0, ry0, rx1, ry1) {
  * @returns {number[]} [lo, hi]
  */
 function cellRange(prefix, level, bits) {
+  // This is slightly modified compared to the python implementation,
+  // since JS bitwise operators convert operands to signed 32-bit integers,
+  // causing wraparound issues when shifting by 32 or more,
+  // which occurs when bits is 16 and level is zero.
   const shift = 2 * (bits - level);
-  const lo = prefix << shift;
-  const hi = ((prefix + 1) << shift) - 1;
+  const power = 2 ** shift;
+  const lo = prefix * power;
+  const hi = (prefix + 1) * power - 1;
   return [lo, hi];
 }
 
@@ -121,8 +126,6 @@ export function mergeAdjacent(intervals) {
  */
 export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merge = true) {
   const maxCoord = (1 << bits) - 1;
-  console.log(maxCoord);
-
 
   if (!(0 <= rx0 && rx0 <= rx1 && rx1 <= maxCoord && 0 <= ry0 && ry0 <= ry1 && ry1 <= maxCoord)) {
     throw new Error("Rectangle out of bounds for given bits.");

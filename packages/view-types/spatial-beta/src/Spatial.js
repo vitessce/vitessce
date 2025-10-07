@@ -433,7 +433,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     
 
-    // TODO: get current bounds. use tileLayer/composite layer to load tiled points via loader.loadPointsInRect(bounds)
+    // Get current bounds. use tileLayer/composite layer to load tiled points via loader.loadPointsInRect(bounds)
     
     const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
 
@@ -446,15 +446,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // make dependent on point bounding box metadata and number of points
       // (e.g., based on point density + extent?)
       maxZoom: 19,
-      minZoom: -3,
+      minZoom: 0,
       getTileData: async (tileInfo) => {
         const { index, signal, bbox, zoom } = tileInfo;
         const { z, x, y } = index;
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
 
-        const pointsInTile = loadPointsInRect(bbox, queryClient, signal);
+        const pointsInTile = await loadPointsInRect(bbox, queryClient, signal);
         console.log(pointsInTile);
+
+        return {
+          src: pointsInTile.data,
+          length: pointsInTile.shape?.[1] || 0,
+        };
 
         return [
           // TODO: get from loader.loadPointsInRect(bounds)
@@ -470,14 +475,39 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { bbox, content: tileData } = subLayerProps.tile;
         const { left, top, right, bottom } = bbox;
 
+        console.log('rendered tile sublayer', bbox);
+
         //console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
 
         return new deck.ScatterplotLayer(subLayerProps, {
-          data: tileData,
-          getPosition: d => d,
-          getRadius: 10,
-          getFillColor: [255, 0, 0],
           bounds: [left, top, right, bottom],
+          data: tileData,
+          getRadius: 5,
+          radiusMaxPixels: 3,
+          //getPosition: d => d,
+          //getFillColor: [255, 0, 0],
+          getPosition: (object, { data, index, target }) => {
+            // eslint-disable-next-line no-param-reassign
+            target[0] = data.src.x[index];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = data.src.y[index];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = 0; // TODO
+            return target;
+          },
+          getFillColor: (object, { data, index, target }) => {
+            // The index of the gene corresponding to the transcript,
+            // relative to the var dataframe index values.
+            const varIndex = data.src.featureIndices[index];
+            const color = PALETTE[varIndex % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            return target;
+          },
         });
       },
       onTileError: (error) => {

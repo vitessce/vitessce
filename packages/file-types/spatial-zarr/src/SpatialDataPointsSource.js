@@ -194,13 +194,6 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const { feature_key: featureKey } = spatialDataAttrs;
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     
-
-    const arrowTable = await this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal);
-
-
-    return {
-      data: [new Float32Array(0), new Float32Array(0)],
-      shape: [0, 0],
-    };
+    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal);
   }
 }
