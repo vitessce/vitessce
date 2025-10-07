@@ -82,8 +82,8 @@ function generateXeniumConfig() {
     }
 
 
-  const spatialView = vc.addView(dataset, 'spatialBeta');
-  const lcView = vc.addView(dataset, 'layerControllerBeta');
+  const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 12 });
+  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 12 });
 
   if(withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
@@ -152,7 +152,7 @@ function generateXeniumConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
-  vc.layout(hconcat(spatialView, lcView));
+  //vc.layout(hconcat(spatialView, lcView));
   const configJSON = vc.toJSON();
   return configJSON;
 }

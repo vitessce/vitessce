@@ -355,7 +355,7 @@ async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnN
 async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
   return queryClient.fetchQuery({
-    queryKey: ['SpatialDataTableSource', '_bisectRowGroupsLeft', parquetPath, columnName, targetValue],
+    queryKey: ['SpatialDataTableSource', '_bisectRowGroupsRight', parquetPath, columnName, targetValue],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
@@ -367,7 +367,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       while (lo < hi) {
         const mid = Math.floor((lo + hi) / 2);
         const { max: midVal } = await _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetPath, columnName, mid);
-        if (midVal === null || targetValue < midVal) {
+        if (midVal === null || targetValue <= midVal) {
           hi = mid;
         } else {
           lo = mid + 1;
@@ -416,8 +416,10 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
         const [startMin, startMax] = mortonIntervals[startIndex];
         const [endMin, endMax] = mortonIntervals[endIndex];
         // Check if the start and end intervals span multiple row groups.
-        const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', startMin);
-        const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax);
+        const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
+          _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
+          _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax),
+        ]);
         console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
         if(rowGroupIndexMin === rowGroupIndexMax) {
           // The intervals are contained within a single row group.
@@ -441,12 +443,15 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
             coveredRowGroupIndices = coveredRowGroupIndices.concat(rowGroupIndices);
           }
         } else {
+          // This else is rarely, if ever, hit in practice.
           if (startIndex === endIndex) {
             // We have narrowed down to a single interval that spans multiple row groups.
             // We need to find the row groups that this interval spans.
             const [intervalMin, intervalMax] = mortonIntervals[startIndex];
-            const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin);
-            const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax);
+            const[rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
+              _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin),
+              _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax),
+            ]);
             if(rowGroupIndexMin <= rowGroupIndexMax) {
               coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
             } else {
@@ -1288,7 +1293,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // Combine the row group indices from all tiles, and remove duplicates.
     const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat()));
     console.log('Unique covered row group indices:', uniqueCoveredRowGroupIndices);
-
 
     const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
 

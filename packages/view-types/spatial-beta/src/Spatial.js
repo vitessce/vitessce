@@ -460,7 +460,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // TODO: within loadPointsInRect, always subdivide large tiles into tiles of a fixed size.
 
         const pointsInTile = await loadPointsInRect(bbox, queryClient, signal);
-        console.log(pointsInTile);
+        //console.log(pointsInTile);
 
         return {
           src: pointsInTile.data,
