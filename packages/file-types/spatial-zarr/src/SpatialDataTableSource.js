@@ -1202,7 +1202,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         // The intervals are contained within a single row group.
         return [false, [rowGroupIndexMin]];
       }
-      if(rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin === rowGroupIndexMax - 1) {
+      if(rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin - 1 === rowGroupIndexMax) {
         // The intervals span two contiguous row groups.
         return [false, [rowGroupIndexMin, rowGroupIndexMax]];
       }
@@ -1226,7 +1226,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
           const [intervalMin, intervalMax] = mortonIntervals[startIndex];
           const rowGroupIndexMin = await _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin);
           const rowGroupIndexMax = await _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax);
-          coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
+          if(rowGroupIndexMin <= rowGroupIndexMax) {
+            coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
+          } else {
+            coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMax, rowGroupIndexMin + 1));
+          }
         } else {
           // Split the intervals in half and check each half.
           const midIndex = Math.floor((startIndex + endIndex) / 2);

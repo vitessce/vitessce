@@ -442,16 +442,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       modelMatrix,
       pickable: true,
+      opacity: spatialLayerOpacity,
+      visible: spatialLayerVisible,
       // TODO: refine min/max zoom.
       // make dependent on point bounding box metadata and number of points
       // (e.g., based on point density + extent?)
-      maxZoom: 19,
-      minZoom: 0,
+      maxZoom: -1,
+      minZoom: -1,
+      //tileSize: 512,
+      //refinementStrategy: 'no-overlap',
       getTileData: async (tileInfo) => {
         const { index, signal, bbox, zoom } = tileInfo;
         const { z, x, y } = index;
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
+
+        // TODO: within loadPointsInRect, always subdivide large tiles into tiles of a fixed size.
 
         const pointsInTile = await loadPointsInRect(bbox, queryClient, signal);
         console.log(pointsInTile);
@@ -508,6 +514,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[2] = color[2];
             return target;
           },
+          // TODO: use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
+          filterRange: [[left, right], [top, bottom]],
+          getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index]]),
+          extensions: [
+            new deck.DataFilterExtension({ filterSize: 2 }),
+          ],
         });
       },
       onTileError: (error) => {
