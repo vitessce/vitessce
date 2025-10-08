@@ -689,12 +689,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetBytes(parquetPath, offset = undefined, length = undefined, partIndex = undefined) {
     const { store } = this.storeRoot;
-    const cacheKey = `table-${parquetPath}-${offset ?? 'null'}-${length ?? 'null'}-${partIndex ?? 0}`;
-
-    if (this.parquetTableBytes[cacheKey]) {
-      // Return the cached bytes.
-      return this.parquetTableBytes[cacheKey];
-    }
 
     let getter = (path) => store.get(path);
     if (offset !== undefined && length !== undefined && store.getRange) {
@@ -704,32 +698,15 @@ export default class SpatialDataTableSource extends AnnDataSource {
       });
     }
 
-    let parquetBytes = undefined;
-    const isDirectory = this.parquetTableIsDirectory[parquetPath];
-    if (isDirectory === undefined || isDirectory === false) {
-      parquetBytes = await getter(`/${parquetPath}`);
-      if(!parquetBytes && isDirectory === undefined) {
-        // We have not yet determined if this is a directory or a single file.
+    let parquetBytes = await getter(`/${parquetPath}`);
+    if(!parquetBytes) {
+      // We have not yet determined if this is a directory or a single file.
 
-        // This may be a directory with multiple parts.
-        const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-        parquetBytes = await getter(`/${part0Path}`);
-
-        // Set the flag to avoid the single-file path for next time.
-        this.parquetTableIsDirectory[parquetPath] = true;
-      } else {
-        throw new Error('Failed to load parquet data from single file when isDirectory (cached value) was false.');
-      }
-    } else {
-      // We already know this is a directory, so we skip the single-file case altogether.
+      // This may be a directory with multiple parts.
       const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
       parquetBytes = await getter(`/${part0Path}`);
     }
 
-    if (parquetBytes) {
-      // Cache the parquet bytes.
-      this.parquetTableBytes[cacheKey] = parquetBytes;
-    }
     return parquetBytes;
   }
 
@@ -750,46 +727,21 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
-    
-    const cacheKey = `schema-${parquetPath}-${partIndex ?? 0}`;
-    if (this.parquetTableBytes[cacheKey]) {
-      // Return the cached bytes.
-      return this.parquetTableBytes[cacheKey];
-    }
-
-    const isDirectory = this.parquetTableIsDirectory[parquetPath];
 
     if (store.getRange) {
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
       let partZeroPath = parquetPath;
-      let tailBytes = undefined;
-      if (isDirectory === undefined || isDirectory === false) {
-        // Case 1: Parquet file (or still unknown if file vs. directory).
-        tailBytes = await store.getRange(`/${partZeroPath}`, {
-          suffixLength: TAIL_LENGTH,
-        });
-
-        if (!tailBytes && isDirectory === undefined) {
-          // Case 2: Rather than a single file, this may be a directory with multiple parts.
-          partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-          tailBytes = await store.getRange(`/${partZeroPath}`, {
-            suffixLength: TAIL_LENGTH,
-          });
-
-          // Set flag.
-          this.parquetTableIsDirectory[parquetPath] = true;
-        } else {
-          throw new Error('Failed to load parquet data from single file when isDirectory (cached value) was false.');
-        }
-      } else {
-        // We already know this is a directory, so we skip the single-file path altogether.
-        // Case 2: Rather than a single file, this may be a directory with multiple parts.
-        partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-        tailBytes = await store.getRange(`/${partZeroPath}`, {
-          suffixLength: TAIL_LENGTH,
-        });
-      }
+      // Case 1: Parquet file (or still unknown if file vs. directory).
+      let tailBytes = await store.getRange(`/${partZeroPath}`, {
+        suffixLength: TAIL_LENGTH,
+      });
+      // We already know this is a directory, so we skip the single-file path altogether.
+      // Case 2: Rather than a single file, this may be a directory with multiple parts.
+      partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+      tailBytes = await store.getRange(`/${partZeroPath}`, {
+        suffixLength: TAIL_LENGTH,
+      });
 
       if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
         // TODO: throw custom error type to indicate no part was found to caller?
@@ -811,9 +763,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
         throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
       }
-
-      // Cache the schema bytes.
-      this.parquetTableBytes[cacheKey] = footerBytes;
 
       // Step 4: Return the footer bytes
       return footerBytes;
@@ -991,9 +940,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
 
   /**
-   * TODO: change implementation so that subsets of
-   * columns can be loaded if the whole table is not needed.
-   * Will first need to load the table schema.
+   * Load point data using a tiled approach.
    * @param {string} parquetPath A path to a parquet file (or directory).
    * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
    * @param {{ x_min: number, y_min: number, x_max: number, y_max: number }} allPointsBbox
@@ -1002,6 +949,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal) {
     const { store } = this.storeRoot;
+
+    // TODO: load only the columns we need (x, y, feature_index) rather than the full table.
 
     // Subdivide tileBbox into rectangles of a fixed size.
     const TILE_SIZE = 256; // 512 x 512.

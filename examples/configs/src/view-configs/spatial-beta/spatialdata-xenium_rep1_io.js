@@ -15,7 +15,7 @@ function generateXeniumConfig() {
 
   const withPoints = true;
   const withImages = true;
-  const withPolygons = false;
+  const withPolygons = true;
 
   let dataset = vc.addDataset('My dataset')
   
@@ -83,7 +83,8 @@ function generateXeniumConfig() {
 
 
   const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 12 });
-  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 12 });
+  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
+  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 6, w: 4, h: 6 });
 
   if(withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
@@ -97,11 +98,12 @@ function generateXeniumConfig() {
             {
               spatialChannelVisible: true,
               spatialTargetC: 0,
-              spatialChannelColor: [0, 0, 255],
+              spatialChannelColor: [255, 255, 255],
               spatialChannelOpacity: 1.0,
             },
           ]),
         },
+        /*
         {
           fileUid: 'morphology_mip',
           photometricInterpretation: 'BlackIsZero',
@@ -116,6 +118,7 @@ function generateXeniumConfig() {
             },
           ]),
         },
+        */
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   }
@@ -129,10 +132,13 @@ function generateXeniumConfig() {
           segmentationChannel: CL([
             {
               spatialChannelVisible: true,
+              spatialChannelOpacity: 0.5,
               obsType: 'cell',
               obsHighlight: null,
               spatialChannelColor: [200, 200, 200],
               obsColorEncoding: 'spatialChannelColor',
+              spatialSegmentationFilled: false,
+              spatialSegmentationStrokeWidth: 10,
             },
           ]),
         },
