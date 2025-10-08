@@ -262,6 +262,8 @@ async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetP
       const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
       const rowGroupTable = tableFromIPC(rowGroupIPC);
 
+      console.log('Loaded row group', rowGroupIndex);
+
       return rowGroupTable;
     },
     meta: { queryClient, store },
@@ -293,13 +295,14 @@ async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetP
   });
 }
 
+/*
 async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
   return queryClient.fetchQuery({
     queryKey: ['SpatialDataTableSource', '_bisectRowGroupsLeft', parquetPath, columnName, targetValue],
     staleTime: Infinity,
     queryFn: async (ctx) => {
-      const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
+      const queryClient = ctx.meta?.queryClient;
       const store = ctx.meta?.store;
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
       const numRowGroups = allMetadata.numRowGroups;
@@ -319,6 +322,7 @@ async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnN
     meta: { queryClient, store },
   });
 }
+*/
 
 async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
@@ -330,6 +334,11 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       const store = ctx.meta?.store;
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
       const numRowGroups = allMetadata.numRowGroups;
+
+      // TODO: modify this to first check if a closer row group is already contained in the queryClient cache.
+      // If so, use that row group rather than performing a naive binary search that ignores the cached row groups.
+      
+
       let lo = 0;
       let hi = numRowGroups;
       while (lo < hi) {
@@ -365,7 +374,7 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
       //  throw new Error('More than 10 thousand morton intervals. Skipping.');
       //}
 
-      console.log(mortonIntervals);
+      //console.log(mortonIntervals);
 
 
       // We need to convert morton intervals to a set of row groups.
@@ -388,7 +397,7 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
           _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
           _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax),
         ]);
-        console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
+        //console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
         if(rowGroupIndexMin === rowGroupIndexMax) {
           // The intervals are contained within a single row group.
           return [false, [rowGroupIndexMin]];
@@ -404,7 +413,7 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
       let intervalIndicesToCheck = [[0, mortonIntervals.length - 1]];
       while (intervalIndicesToCheck.length > 0) {
         const [startIndex, endIndex] = intervalIndicesToCheck.pop();
-        console.log('Checking between ', startIndex, endIndex);
+        //console.log('Checking between ', startIndex, endIndex);
         const [spansMultipleRowGroups, rowGroupIndices] = await intervalsSpanMultipleRowGroups(startIndex, endIndex);
         if (!spansMultipleRowGroups) {
           if (rowGroupIndices !== null) {
@@ -703,7 +712,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // Return the cached bytes.
       return this.parquetTableBytes[cacheKey];
     }
-    console.log('Cache miss for loadParquetSchemaBytes', cacheKey);
 
     const isDirectory = this.parquetTableIsDirectory[parquetPath];
 
@@ -952,7 +960,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const { store } = this.storeRoot;
 
     // Subdivide tileBbox into rectangles of a fixed size.
-    const TILE_SIZE = 512; // 512 x 512.
+    const TILE_SIZE = 256; // 512 x 512.
     
     // If tileBbox is larger than TILE_SIZE, we need to subdivide it.
     let tileBboxes = [];
@@ -976,7 +984,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       tileBboxes = [tileBbox];
     }
 
-    console.log('tileBboxes', tileBboxes);
+    console.log('Starting query for tileBboxes', tileBboxes);
 
     // TODO: pass signal to react-query functions to allow aborting requests.
 

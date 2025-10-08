@@ -33,14 +33,14 @@ export function normCoordToOrigCoord(normCoord, origXMin, origXMax, origYMin, or
  * @param {number} origYMax The maximum original Y coordinate.
  * @returns {number[]} The coordinate in the normalized space.
  */
-export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, origYMax, withFloor=true) {
+export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, origYMax) {
   const [origX, origY] = origCoord;
   const origXRange = origXMax - origXMin;
   const origYRange = origYMax - origYMin;
   return [
     // Clamp to zero at low end, since using unsigned ints.
-    Math.max((withFloor ? Math.floor : Math.ceil)(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX), 0),
-    Math.max((withFloor ? Math.floor : Math.ceil)(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX), 0),
+    Math.max(Math.floor(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX), 0),
+    Math.max(Math.floor(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX), 0),
   ];
 }
 
@@ -127,6 +127,8 @@ export function mergeAdjacent(intervals) {
 export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merge = true) {
   const maxCoord = (1 << bits) - 1;
 
+  // TODO: clamp to [0, maxCoord] here instead of throwing. Revert clamping in origCoordToNormCoord.
+
   if (!(0 <= rx0 && rx0 <= rx1 && rx1 <= maxCoord && 0 <= ry0 && ry0 <= ry1 && ry1 <= maxCoord)) {
     throw new Error("Rectangle out of bounds for given bits.");
   }
@@ -195,12 +197,12 @@ export function sdataMortonQueryRectAux(boundingBox, origRect) {
 
   const normRect = [
     origCoordToNormCoord(origRect[0], xMin, xMax, yMin, yMax),
-    origCoordToNormCoord(origRect[1], xMin, xMax, yMin, yMax, false),
+    origCoordToNormCoord(origRect[1], xMin, xMax, yMin, yMax),
   ];
 
-  console.log('boundingBox', boundingBox);
-  console.log('origRect', origRect);
-  console.log('normRect', normRect);
+  //console.log('boundingBox', boundingBox);
+  //console.log('origRect', origRect);
+  //console.log('normRect', normRect);
 
   // Get a list of morton code intervals that cover this rectangle region
   // [ [morton_start, morton_end], ... ]
@@ -213,23 +215,4 @@ export function sdataMortonQueryRectAux(boundingBox, origRect) {
   );
 
   return mortonIntervals;
-}
-
-
-
-/**
- * Convert row ranges [i, j) to a list of row indices.
- * Then, can index into array/DataFrame using these indices.
- * 
- * @param {Array<[number, number]>} intervals - Row ranges
- * @returns {number[]} List of row indices
- */
-export function rowRangesToRowIndices(intervals) {
-  const indices = [];
-  for (const [i, j] of intervals) {
-    for (let k = i; k < j; k++) {
-      indices.push(k);
-    }
-  }
-  return indices;
 }
