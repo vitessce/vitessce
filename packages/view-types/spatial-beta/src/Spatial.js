@@ -388,6 +388,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       delegateHover,
       targetZ,
       queryClient,
+      segmentationMatrixIndices, // TEMP: we need to pass point-specific matrix/indices here.
     } = this.props;
 
     const {
@@ -395,7 +396,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerOpacity,
       obsColorEncoding,
       spatialLayerColor,
+      featureSelection,
     } = layerCoordination;
+
+    // Obtain the numeric indices of the selected features, to use for filtering.
+    // Note: this assumes that the feature names have been mapped to indices,
+    // relative to the corresponding sdata.tables[table].var.index
+    // (of the table that annotates the points).
+    let featureIndices = null;
+    if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
+      // TEMP: we need to use point-specific matrix/indices here.
+      const firstSegmentationLayerKey = Object.keys(segmentationMatrixIndices ?? {})?.[0];
+      const firstSegmentationChannelKey = Object.keys(segmentationMatrixIndices?.[firstSegmentationLayerKey] ?? {})?.[0];
+      const segmentationFeatureIndex = segmentationMatrixIndices?.[firstSegmentationLayerKey]?.[firstSegmentationChannelKey]?.featureIndex;
+      featureIndices = featureSelection.map(geneName => segmentationFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
+    }
+    console.log('featureSelection', featureSelection, segmentationMatrixIndices, featureIndices);
+
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
@@ -484,6 +501,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         console.log('rendered tile sublayer', bbox);
 
         //console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
+        
+        // TODO: invalidate tiles, or at least their filterExtension-related props, when featureSelection changes.
 
         return new deck.ScatterplotLayer(subLayerProps, {
           bounds: [left, top, right, bottom],
@@ -514,12 +533,24 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[2] = color[2];
             return target;
           },
-          // TODO: use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
-          filterRange: [[left, right], [top, bottom]],
-          getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index]]),
-          extensions: [
-            new deck.DataFilterExtension({ filterSize: 2 }),
-          ],
+          // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
+          ...(featureIndices && featureIndices.length === 1 ? {
+            filterRange: [[left, right], [top, bottom], [featureIndices[0], featureIndices[0]]],
+            getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 3 }),
+            ],
+          } : {
+            filterRange: [[left, right], [top, bottom]],
+            getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index]]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 2 }),
+            ],
+          }),
+          updateTriggers: {
+            getFilterValue: [featureSelection, featureIndices],
+            filterRange: [featureSelection, featureIndices],
+          },
         });
       },
       onTileError: (error) => {

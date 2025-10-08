@@ -53,7 +53,7 @@ function generateXeniumConfig() {
         url: sdataUrl,
         options: {
           obsFeatureMatrix: {
-              path: 'tables/dense_table',
+              path: 'tables/dense_table/X',
           },
           obsSegmentations: {
             path: 'shapes/cell_boundaries',
