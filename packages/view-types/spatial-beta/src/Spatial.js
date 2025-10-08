@@ -403,7 +403,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Note: this assumes that the feature names have been mapped to indices,
     // relative to the corresponding sdata.tables[table].var.index
     // (of the table that annotates the points).
-    let featureIndices = null;
+    let featureIndices = [];
     if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
       // TEMP: we need to use point-specific matrix/indices here.
       const firstSegmentationLayerKey = Object.keys(segmentationMatrixIndices ?? {})?.[0];
@@ -461,9 +461,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       pickable: true,
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
-      // TODO: refine min/max zoom.
-      // make dependent on point bounding box metadata and number of points
-      // (e.g., based on point density + extent?)
+      // Since points are tiled but not multi-resolution,
+      // it provides no benefit to request tiles at different zoom levels.
+      // TODO: Should this value be the same for every dataset, or do we need to
+      // adjust based on the extent/density of the point data (and/or account for modelMatrix, etc)?
       maxZoom: -1,
       minZoom: -1,
       tileSize: 512,
@@ -547,11 +548,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
               new deck.DataFilterExtension({ filterSize: 2 }),
             ],
           }),
-          updateTriggers: {
-            getFilterValue: [featureSelection, featureIndices],
-            filterRange: [featureSelection, featureIndices],
-          },
         });
+      },
+      updateTriggers: {
+        getTileData: [...featureIndices],
       },
       onTileError: (error) => {
 
