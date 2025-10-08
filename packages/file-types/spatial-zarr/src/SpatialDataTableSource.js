@@ -47,14 +47,7 @@ async function getParquetModule() {
   };
 }
 
-
-
-
-
-
-
-
-
+// Wrap getParquetModule in a react-query function.
 async function _getParquetModule({ queryClient }) {
   return queryClient.fetchQuery({
     queryKey: ['parquetModule'],
@@ -64,6 +57,7 @@ async function _getParquetModule({ queryClient }) {
   });
 }
 
+// Utility functions for loading particular row groups, rows, row group extent, and binary searching.
 async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery = undefined, partIndex = undefined) {
   return queryClient.fetchQuery({
     queryKey: ['SpatialDataTableSource', '_loadParquetBytes', parquetPath, rangeQuery, partIndex],
@@ -299,32 +293,6 @@ async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetP
   });
 }
 
-async function _loadParquetRowByRowIndex({ queryClient, store }, parquetPath, rowIndex) {
-  return queryClient.fetchQuery({
-    queryKey: ['SpatialDataTableSource', '_loadParquetRowByRowIndex', parquetPath, rowIndex],
-    staleTime: Infinity,
-    queryFn: async (ctx) => {
-      const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
-      const store = ctx.meta?.store;
-
-        // Load a single row which contains the specified index.
-      const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-      
-      if(rowIndex < 0 || rowIndex >= allMetadata.numRows) {
-        throw new Error(`Row index ${rowIndex} is out of bounds for parquet table with ${allMetadata.numRows} rows.`);
-      }
-      // Find the row group index that contains this row.
-      const numRowsPerGroup = allMetadata.numRowsPerGroup;
-      const rowGroupIndex = Math.floor(rowIndex / numRowsPerGroup);
-      const rowGroupTable = await _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex);
-      const rowIndexInGroup = rowIndex % numRowsPerGroup;
-      const row = rowGroupTable.get(rowIndexInGroup);
-      return row;
-    },
-    meta: { queryClient, store },
-  });
-}
-
 async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
   return queryClient.fetchQuery({
@@ -474,12 +442,6 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
 }
 
 
-
-
-
-
-
-
 /**
  * Get the name of the index column from an Apache Arrow table.
  * In the future, this may not be needed if more metadata is included in the Zarr Attributes.
@@ -585,18 +547,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
      */
     this.elementAttrs = {};
 
-    // TODO: change to column-specific storage.
+    // TODO: change to column-specific storage?
     /** @type {{ [k: string]: Uint8Array }} */
     this.parquetTableBytes = {};
     /** @type {{ [k: string]: boolean }} */
     this.parquetTableIsDirectory = {};
-    /** @type {{ [k: string]: { min: number, max: number } }} */
-    this.parquetTableColumnExtentByRowGroup = {};
-
-    /** @type {{ [k: string]: any }} */
-    this.parquetTableAllMetadata = {};
-    /** @type {{ [k: string]: Table }} */
-    this.parquetRowGroup = {};
 
 
     // Table-specific properties
@@ -981,268 +936,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
     return this.varAliases[varPath];
   }
 
-  /**
-   * Load the metadata for a parquet file, or for all parts of a parquet directory.
-   * This function should handle determiniing how many parts there are.
-   * @param {string} parquetPath 
-   */
-  async loadParquetMetadataByPart(parquetPath) {
-    const { readSchema, readMetadata } = await this.parquetModulePromise;
-
-    if (this.parquetTableAllMetadata[parquetPath]) {
-      return this.parquetTableAllMetadata[parquetPath];
-    }
-
-    let partIndex = 0;
-    let numParts = undefined;
-    const allMetadata = [];
-    do {
-      try {
-        // TODO: support multiple tries upon failure?
-        const schemaBytes = await this.loadParquetSchemaBytes(parquetPath, partIndex);
-        if (schemaBytes) {
-          const wasmSchema = readSchema(schemaBytes);
-          /** @type {import('apache-arrow').Table} */
-          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
-          const partMetadata = readMetadata(schemaBytes);
-          const partInfo = {
-            schema: arrowTableForSchema,
-            schemaBytes,
-            metadata: partMetadata
-          };
-          allMetadata.push(partInfo);
-          partIndex += 1;
-        }
-      } catch (error) {
-        if (error.message.includes('Failed to load parquet footerLength')) {
-          // No more parts found.
-          numParts = partIndex;
-        }
-      }
-    } while(numParts === undefined);
-
-    // Accumulate metadata across all parts.
-    const metadata = {
-      numRows: 0,
-      numRowGroups: 0,
-      numRowsPerGroup: 0,
-      schema: null
-    };
-    if(allMetadata.length > 0) {
-      const firstPart = allMetadata[0];
-      metadata.numRows = allMetadata.reduce((sum, part) => sum + part.metadata.fileMetadata().numRows(), 0);
-      metadata.numRowGroups = allMetadata.reduce((sum, part) => sum + part.metadata.numRowGroups(), 0);
-      metadata.numRowsPerGroup = firstPart.metadata.rowGroup(0).numRows(); // TODO: try/catch in case no row groups?
-      metadata.schema = firstPart.schema.schema;
-    }
-
-    const result = {
-      ...metadata,
-      // TODO: extract metadata per part and rowGroup into plain objects that match the hyparquet parquetMetadata() return value?
-      // This will also make it easier to test.
-      parts: allMetadata,
-    };
-
-    this.parquetTableAllMetadata[parquetPath] = result;
-
-    return result;
-  }
-
-  // Utility functions for loading particular row groups, rows, row group extent, and binary searching based on a predicate function.
-
-  /**
-   * 
-   * @param {string} parquetPath 
-   * @param {number} rowGroupIndex Row group index, relative to whole table (not per part).
-   * @param {string[]|undefined} columns 
-   */
-  async loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex) {
-    // Load a single row group which contains the row with the specified index.
-    const { readParquetRowGroup } = await this.parquetModulePromise;
-
-    const cacheKey = `${parquetPath}-rowgroup-${rowGroupIndex}`;
-    if (this.parquetRowGroup[cacheKey]) {
-      return this.parquetRowGroup[cacheKey];
-    }
-
-    // Cache miss.
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    if(rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
-      throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.numRowGroups} row groups.`);
-    }
-
-    // Find the part index that contains this row group.
-    // TODO: extract logic into utility functions for easier testing.
-    let partIndex = undefined;
-    let cumulativeRowGroups = 0;
-    for(let i = 0; i < allMetadata.parts.length; i++) {
-      const part = allMetadata.parts[i];
-      const numRowGroupsInPart = part.metadata.numRowGroups();
-      if(rowGroupIndex < cumulativeRowGroups + numRowGroupsInPart) {
-        partIndex = i;
-        break;
-      }
-      cumulativeRowGroups += numRowGroupsInPart;
-    }
-    if(partIndex === undefined) {
-      throw new Error(`Failed to find part containing row group index ${rowGroupIndex}.`);
-    }
-    const partMetadata = allMetadata.parts[partIndex].metadata;
-    const schemaBytes = allMetadata.parts[partIndex].schemaBytes;
-    
-    const rowGroupIndexRelativeToPart = rowGroupIndex - cumulativeRowGroups;
-    const rowGroupMetadata = partMetadata.rowGroup(rowGroupIndexRelativeToPart);
-    const rowGroupFileOffset = rowGroupMetadata.fileOffset();
-    const rowGroupCompressedSize = rowGroupMetadata.compressedSize();
-
-    // TODO: store row group bytes/tables in an LRU cache.
-    const rowGroupBytes = await this.loadParquetBytes(parquetPath, rowGroupFileOffset, rowGroupCompressedSize, partIndex);
-    const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
-    const rowGroupTable = tableFromIPC(rowGroupIPC);
-
-    this.parquetRowGroup[cacheKey] = rowGroupTable;
-
-    return rowGroupTable;
-  }
-
-  async loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex) {
-    const cacheKey = `${parquetPath}-${columnName}-${rowGroupIndex}`;
-    if (this.parquetTableColumnExtentByRowGroup[cacheKey]) {
-      return this.parquetTableColumnExtentByRowGroup[cacheKey];
-    }
-
-    // Load the min/max extent (via first/last row) for a specific column in a specific row group.    
-    const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
-    const column = rowGroupTable.getChild(columnName);
-    if(!column) {
-      throw new Error(`Column ${columnName} not found in row group ${rowGroupIndex} of parquet table at ${parquetPath}.`);
-    }
-    if(column.length === 0) {
-      return { min: null, max: null };
-    }
-
-    let result = { min: column.get(0), max: column.get(column.length - 1) };
-    this.parquetTableColumnExtentByRowGroup[cacheKey] = result;
-    return result;
-  }
-
-  async loadParquetRowByRowIndex(parquetPath, rowIndex) {
-    // Load a single row which contains the specified index.
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    
-    if(rowIndex < 0 || rowIndex >= allMetadata.numRows) {
-      throw new Error(`Row index ${rowIndex} is out of bounds for parquet table with ${allMetadata.numRows} rows.`);
-    }
-    // Find the row group index that contains this row.
-    const numRowsPerGroup = allMetadata.numRowsPerGroup;
-    const rowGroupIndex = Math.floor(rowIndex / numRowsPerGroup);
-    const rowGroupTable = await this.loadParquetRowGroupByGroupIndex(parquetPath, rowGroupIndex);
-    const rowIndexInGroup = rowIndex % numRowsPerGroup;
-    const row = rowGroupTable.get(rowIndexInGroup);
-    return row;
-  }
-  
-  async queryParquetRowValueLessThan(parquetPath, columnName, rowIndex, comparisonValue) {
-    // Leverage cached row group extents, to avoid loading the row if possible.
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    const numRowsPerGroup = allMetadata.numRowsPerGroup;
-    const rowGroupIndex = Math.floor(rowIndex / numRowsPerGroup);
-
-    const { min, max } = await this.loadParquetRowGroupColumnExtent(parquetPath, columnName, rowGroupIndex);
-    // For example, if the max value of the column in the row group is less than the comparison value,
-    // then we can return true without loading the row.
-    if (max !== null && max < comparisonValue) {
-      return true;
-    }
-
-    // If the min value of the column in the row group is greater than or equal to the comparison value,
-    // then we can return false without loading the row.
-    if (min !== null && min >= comparisonValue) {
-      return false;
-    }
-    
-    // Otherwise, we need to load the specific row to check its value.
-    // This will require storing the cached extents in a way that can be looked up by row group index.
-    const row = await this.loadParquetRowByRowIndex(parquetPath, rowIndex);
-    if(!row) {
-      throw new Error(`Row index ${rowIndex} not found in parquet table at ${parquetPath}.`);
-    }
-    const rowValue = row[columnName];
-    if(rowValue === undefined) {
-      throw new Error(`Column ${columnName} not found in row index ${rowIndex} of parquet table at ${parquetPath}.`);
-    }
-    return rowValue < comparisonValue;
-  }
-
-  async queryParquetRowValueGreaterThan(parquetPath, columnName, rowIndex, comparisonValue) {
-    // TODO: Leverage cached row group extents, to avoid loading the row if possible.
-
-    // For example, if the max value of the column in the row group is less than the comparison value,
-    // then we can return true without loading the row.
-    // If the min value of the column in the row group is greater than or equal to the comparison value,
-    // then we can return false without loading the row.
-    // Otherwise, we need to load the specific row to check its value.
-    // This will require storing the cached extents in a way that can be looked up by row group index.
-    const row = await this.loadParquetRowByRowIndex(parquetPath, rowIndex);
-    if(!row) {
-      throw new Error(`Row index ${rowIndex} not found in parquet table at ${parquetPath}.`);
-    }
-    const rowValue = row[columnName];
-    if(rowValue === undefined) {
-      throw new Error(`Column ${columnName} not found in row index ${rowIndex} of parquet table at ${parquetPath}.`);
-    }
-    return rowValue > comparisonValue;
-  }
-
-  /**
-   * Binary search to find the leftmost position where value could be inserted.
-   * Equivalent to Python's bisect_left.
-   * @param {*} parquetPath 
-   * @param {*} columnName 
-   * @param {*} targetValue 
-   * @returns {number} Index where value should be inserted
-   */
-  async parquetBisectLeft(parquetPath, columnName, targetValue) {
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    let low = 0;
-    let high = allMetadata.numRows;
-    while (low < high) {
-      const mid = Math.floor((low + high) / 2);
-      console.log('bisectLeft checking row with index ', mid);
-      // TODO: bisect over rowGroups as the minimum unit (Rather than rows)?
-      const isLessThan = await this.queryParquetRowValueLessThan(parquetPath, columnName, mid, targetValue);
-      if (isLessThan) {
-        low = mid + 1;
-      } else {
-        high = mid;
-      }
-    }
-    return low;
-  }
-
-  /**
-   * Binary search to find the rightmost position where value could be inserted.
-   * Equivalent to Python's bisect_right.
-   * @param {*} parquetPath 
-   * @param {*} columnName 
-   * @param {*} targetValue 
-   * @returns 
-   */
-  async parquetBisectRight(parquetPath, columnName, targetValue) {
-    const allMetadata = await this.loadParquetMetadataByPart(parquetPath);
-    let low = 0;
-    let high = allMetadata.numRows;
-    while (low < high) {
-      const mid = Math.floor((low + high) / 2);
-      const isGreaterThan = await this.queryParquetRowValueGreaterThan(parquetPath, columnName, mid, targetValue);
-      if (isGreaterThan) {
-        high = mid;
-      } else {
-        low = mid + 1;
-      }
-    }
-    return low;
-  }
 
 
   /**
@@ -1291,7 +984,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       return _rectToRowGroupIndices({ queryClient, store }, parquetPath, subTileBbox, allPointsBbox);
     }));
     // Combine the row group indices from all tiles, and remove duplicates.
-    const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat()));
+    const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat())).toSorted((a, b) => a - b);
     console.log('Unique covered row group indices:', uniqueCoveredRowGroupIndices);
 
     const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
