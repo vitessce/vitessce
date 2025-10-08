@@ -231,3 +231,127 @@ writer.write_image(
 )
 ```
 
+## Points
+
+As of October 2025, the SpatialData format stores points using multi-part Parquet files [on-disk](https://spatialdata.scverse.org/en/stable/design_doc.html#points).
+Note: the SpatialData design document mentions that the point format is subject to change.
+
+
+One idea for an alternative point storage approach is to [reuse OME-NGFF](https://github.com/scverse/spatialdata/issues/789).
+
+
+### Tiled points via SpatialData
+
+We have developed an [approach](https://github.com/scverse/spatialdata/issues/974) to load points from the current SpatialData Points Parquet-based format in a tiled manner.
+To use this approach, there are a few requirements and constraints on how the Parquet files are organized:
+
+#### Sorting Points dataframe rows along a Z-order curve (Morton order)
+
+We provide a utility function to sort the rows of the Points dataframe along a Z-order curve.
+This function is efficient as it leverages Dask for computing Morton codes and sorting the dataframe.
+
+
+```py
+from vitessce.data_utils import sdata_morton_sort_points
+
+sdata = sdata_morton_sort_points(sdata, "transcripts")
+```
+
+Note: this sorts `sdata.points["transcripts"]`, but does not update the on-disk data.
+
+#### Appending codes for dictionary-encoded columns
+
+If a `feature_key` column is present (i.e., containing the gene names corresponding to each transcript point), then the integer indices (relative to the annotating Table Element's `var` dataframe index) of each gene name must be appended to the dataframe as an additional column (e.g., `feature_index`).
+
+
+<!-- TODO: define utility function in vitessce.data_utils for this that uses `get_element_annotators`. -->
+
+```py
+from spatialdata import get_element_annotators
+
+ddf = sdata.points['transcripts']
+
+var_df = sdata.tables["table"].var
+var_index = var_df.index.values.tolist()
+
+def try_index(gene_name):
+    try:
+        return var_index.index(gene_name)
+    except:
+        return -1
+ddf["feature_index"] = ddf["feature_name"].apply(try_index).astype('int32')
+```
+
+Note: This is due to a current limitation of our [individual row-group reading implementation](https://github.com/kylebarron/parquet-wasm/issues/804#issuecomment-3367485956) (bug reading dictionary-encoded column data) and likely to be relaxed in the future.
+
+#### Sorting Points dataframe columns
+
+Dictionary-encoded columns (i.e., categorical and string) must be stored as the rightmost columns of the dataframe when written to the Parquet file.
+
+<!-- TODO: define utility function in vitessce.data_utils for this. -->
+
+```py
+orig_columns = ddf.columns.tolist()
+ordered_columns = sorted(orig_columns, key=lambda colname: orig_columns.index(colname) if colname != "feature_name" else len(orig_columns))
+ordered_columns
+
+# Reorder the columns of the dataframe
+ddf = ddf[ordered_columns]
+```
+
+
+Note: This is due to a current limitation of our [individual row-group reading implementation](https://github.com/kylebarron/parquet-wasm/issues/804#issuecomment-3367485956) (bug reading dictionary-encoded column data) and likely to be relaxed in the future.
+
+#### Writing output to new Points element
+
+Here, we associate the sorted Dask dataframe with a new Points element called `transcripts_with_morton_codes`.
+Then, we save this new element to disk using [write_element](https://spatialdata.scverse.org/en/stable/api/SpatialData.html#spatialdata.SpatialData.write_element).
+
+```py
+sdata["transcripts_with_morton_codes"] = ddf
+sdata.write_element("transcripts_with_morton_codes")
+```
+
+For more information about writing and overwriting Spatial Elements, see this [spatialdata discussion](https://github.com/scverse/spatialdata/discussions/520).
+
+#### Saving bounding box to Point element metadata (Zarr attrs)
+
+Running `sdata_morton_sort_points` will save the bounding box of the points to the `bounding_box` attribute of the Points element.
+However, this attribute will not be written to disk, as only [recognized attributes are preserved](https://github.com/scverse/spatialdata/blob/aeef0cc3ebd7c10a7ed17b84415213bb259a5f4b/src/spatialdata/_io/format.py#L116) during writing.
+
+<!--  TODO: implement one helper function to return the bounding box as a `dict`, given `sdata["transcripts_with_morton_codes"]`, and another helper function to manually save it to disk. -->
+
+```py
+import json
+# Note: this custom "bounding_box" attribute will not be written to disk:
+sdata["transcripts"].attrs["bounding_box"]
+
+json.dumps(sdata["transcripts"].attrs["bounding_box"])
+
+# TODO: code to manually save the bounding box to disk after writing the new Points element
+```
+
+#### Row group size
+
+The size of each Parquet row group must be limited in order to achieve performance benefits.
+This must be done after writing the sorted Points dataframe to disk, as the SpatialData API does not yet support configuration of the row group size [during writing](https://github.com/scverse/spatialdata/blob/aeef0cc3ebd7c10a7ed17b84415213bb259a5f4b/src/spatialdata/_io/io_points.py#L83C12-L83C22).
+
+Since SpatialData uses Dask to write the dataframe to Parquet, and Dask write multi-part Parquet files, we need to iterate over all of the `part.*.parquet` files to update all of their row group sizes.
+
+<!-- TODO: implement a utility function in `vitessce.data_utils` for this. -->
+
+```py
+import pyarrow.parquet as pq
+
+# Update the row group size in each .parquet file part.
+for i in range(8):
+    table_read = pq.read_table(join(spatialdata_filepath, "points", "transcripts_with_morton_codes", "points.parquet", f"part.{i}.parquet"))
+
+    # Write the table to a new Parquet file with the desired row group size.
+    pq.write_table(
+        table_read,
+        join(spatialdata_filepath, "points", "transcripts_with_morton_codes", "points.parquet", f"part.{i}.parquet"),
+        row_group_size=50_000,
+    )
+```
+
