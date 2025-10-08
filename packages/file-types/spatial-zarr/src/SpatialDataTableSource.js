@@ -385,7 +385,7 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
         const [endMin, endMax] = mortonIntervals[endIndex];
         // Check if the start and end intervals span multiple row groups.
         const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-          _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
+          _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
           _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax),
         ]);
         console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
@@ -417,7 +417,7 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
             // We need to find the row groups that this interval spans.
             const [intervalMin, intervalMax] = mortonIntervals[startIndex];
             const[rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-              _bisectRowGroupsLeft({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin),
+              _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin),
               _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax),
             ]);
             if(rowGroupIndexMin <= rowGroupIndexMax) {
