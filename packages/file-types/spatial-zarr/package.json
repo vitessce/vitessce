@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@zarrita/storage": "catalog:"
+    "@zarrita/storage": "catalog:",
+    "@tanstack/react-query": "catalog:"
   }
 }

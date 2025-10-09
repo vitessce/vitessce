@@ -9,6 +9,7 @@ import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 import { range } from 'lodash-es';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
+/** @import { QueryClient } from '@tanstack/react-query' */
 
 // Note: This file also serves as the parent for
 // SpatialDataPointsSource and SpatialDataShapesSource,
@@ -587,10 +588,13 @@ function getVarPath(arrPath) {
 export default class SpatialDataTableSource extends AnnDataSource {
   /**
    *
-   * @param {DataSourceParams} params
+   * @param {DataSourceParams & { queryClient: QueryClient }} params
    */
   constructor(params) {
     super(params);
+
+    const { queryClient } = params;
+    this.queryClient = queryClient;
 
     // Non-table-specific properties
     this.parquetModulePromise = getParquetModule();
@@ -949,7 +953,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @param {string[]|undefined} columns An optional list of column names to load.
    * @returns
    */
-  async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal) {
+  async loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal) {
+    const { queryClient } = this;
     const { store } = this.storeRoot;
 
     // TODO: load only the columns we need (x, y, feature_index) rather than the full table.

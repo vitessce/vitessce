@@ -257,6 +257,7 @@ export function VitS(props) {
         fileTypes,
         coordinationTypes,
         stores,
+        queryClient,
       );
       return createViewConfigStore(loaders, configOrWarning);
     }
@@ -300,6 +301,7 @@ export function VitS(props) {
                   theme={theme}
                   isBounded={isBounded}
                   stores={stores}
+                  queryClient={queryClient}
                 >
                   {children}
                 </VitessceGrid>

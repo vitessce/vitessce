@@ -803,9 +803,6 @@ export function SpatialSubscriber(props) {
     }
   };
 
-  // TODO: instead, pass queryClient via createLoaders to loader/data source constructors?
-  const queryClient = useQueryClient();
-
   return (
     <TitleInfo
       title={title}
@@ -978,8 +975,6 @@ export function SpatialSubscriber(props) {
             imageLayerCoordination={imageLayerCoordination}
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
-
-            queryClient={queryClient}
           />
         )
       }

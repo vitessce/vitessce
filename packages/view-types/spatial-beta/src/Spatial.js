@@ -387,7 +387,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
       delegateHover,
       targetZ,
-      queryClient,
       segmentationMatrixIndices, // TEMP: we need to pass point-specific matrix/indices here.
     } = this.props;
 
@@ -477,7 +476,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
         // TODO: within loadPointsInRect, always subdivide large tiles into tiles of a fixed size.
 
-        const pointsInTile = await loadPointsInRect(bbox, queryClient, signal);
+        const pointsInTile = await loadPointsInRect(bbox, signal);
         //console.log(pointsInTile);
 
         return {

@@ -173,7 +173,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPointsInRect(elementPath, tileBbox, queryClient, signal) {
+  async loadPointsInRect(elementPath, tileBbox, signal) {
     // TODO: implement morton code rect querying functionality here.
     // Reference: https://github.com/vitessce/vitessce-python/pull/476
 
@@ -194,6 +194,6 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const { feature_key: featureKey } = spatialDataAttrs;
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     
-    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, queryClient, signal);
+    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal);
   }
 }

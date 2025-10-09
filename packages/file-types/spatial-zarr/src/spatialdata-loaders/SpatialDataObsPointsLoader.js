@@ -70,7 +70,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return this.locations;
   }
 
-  async loadPointsInRect(bounds, queryClient, signal) {
+  async loadPointsInRect(bounds, signal) {
     const { path } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
@@ -81,7 +81,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPointsInRect(path, bounds, queryClient, signal);
+      locations = await this.dataSource.loadPointsInRect(path, bounds, signal);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }

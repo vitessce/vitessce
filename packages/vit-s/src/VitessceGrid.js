@@ -57,6 +57,7 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
+    queryClient,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -101,6 +102,7 @@ export default function VitessceGrid(props) {
         fileTypes,
         coordinationTypes,
         stores,
+        queryClient,
       );
       newConfig = config;
     }
