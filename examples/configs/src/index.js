@@ -157,7 +157,7 @@ export const configs = {
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
-  'empty': emptyConfig,
+  empty: emptyConfig,
   'sdata-merfish': sdataMerfishConfig,
 
   // Multi-level coordination with spatialBeta view:

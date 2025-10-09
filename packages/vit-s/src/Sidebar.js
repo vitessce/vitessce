@@ -1,13 +1,12 @@
 import React, { useCallback } from 'react';
 import {
-    makeStyles,
-    IconButton,
-    Code as CodeIcon,
-    LinkIcon,
-    InvertColors as InvertColorsIcon,
+  makeStyles,
+  IconButton,
+  Code as CodeIcon,
+  InvertColors as InvertColorsIcon,
 } from '@vitessce/styles';
 
-const useStyles = makeStyles()(theme => ({
+const useStyles = makeStyles()(() => ({
   sidebarContainer: {
     backgroundColor: 'silver',
     width: '30px',
@@ -19,7 +18,7 @@ const useStyles = makeStyles()(theme => ({
     padding: 0,
   },
   sidebarLi: {
-    
+
   },
   sidebarIconButton: {
     padding: '3px',
@@ -32,50 +31,50 @@ const useStyles = makeStyles()(theme => ({
 }));
 
 export function Sidebar(props) {
-    const {
-        theme,
-        setTheme,
-        configEditable,
-        themeEditable,
-    } = props;
-    const { classes } = useStyles();
+  const {
+    theme,
+    setTheme,
+    configEditable,
+    themeEditable,
+  } = props;
+  const { classes } = useStyles();
 
-    const onToggleTheme = useCallback(() => {
-        setTheme(theme === 'dark' ? 'light2' : 'dark');
-    }, [theme]);
+  const onToggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light2' : 'dark');
+  }, [theme]);
 
-    return (
-        <div className={classes.sidebarContainer}>
-            <ul className={classes.sidebarUl}>
-                {themeEditable ? (
-                  <li className={classes.sidebarLi}>
-                      <IconButton
-                          alt="Change theme"
-                          onClick={onToggleTheme}
-                          aria-label="Change theme"
-                          className={classes.sidebarIconButton}
-                      >
-                          <InvertColorsIcon
-                              className={classes.sidebarIcon}
-                          />
-                      </IconButton>
-                  </li>
-                ) : null}
-                {configEditable ? (
-                  <li className={classes.sidebarLi}>
-                    <IconButton
-                        alt="Edit configuration"
-                        onClick={() => {}}
-                        aria-label="Edit configuration"
-                        className={classes.sidebarIconButton}
-                    >
-                        <CodeIcon
-                            className={classes.sidebarIcon}
-                        />
-                    </IconButton>
-                  </li>
-                ) : null}
-            </ul>
-        </div>
-    );
+  return (
+    <div className={classes.sidebarContainer}>
+      <ul className={classes.sidebarUl}>
+        {themeEditable ? (
+          <li className={classes.sidebarLi}>
+            <IconButton
+              alt="Change theme"
+              onClick={onToggleTheme}
+              aria-label="Change theme"
+              className={classes.sidebarIconButton}
+            >
+              <InvertColorsIcon
+                className={classes.sidebarIcon}
+              />
+            </IconButton>
+          </li>
+        ) : null}
+        {configEditable ? (
+          <li className={classes.sidebarLi}>
+            <IconButton
+              alt="Edit configuration"
+              onClick={() => {}}
+              aria-label="Edit configuration"
+              className={classes.sidebarIconButton}
+            >
+              <CodeIcon
+                className={classes.sidebarIcon}
+              />
+            </IconButton>
+          </li>
+        ) : null}
+      </ul>
+    </div>
+  );
 }

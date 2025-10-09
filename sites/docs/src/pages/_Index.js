@@ -7,13 +7,13 @@ import {
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs, configPages } from '@vitessce/example-configs';
+import { createOnDrop } from '@vitessce/all';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
 import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJs, baseJson } from './_live-editor-examples.js';
-import { createOnDrop } from '@vitessce/all';
 
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
 const betaXrKeys = [
@@ -233,9 +233,9 @@ function IndexWithHashParams() {
   // PageMode
   const PageComponent = isDemo ? configPages?.[demo] : null;
 
-  const onDropHandler = useMemo(() => {
-    return createOnDrop({ setViewConfig: setValidConfig, setStores });
-  }, [setValidConfig, setStores]);
+  const onDropHandler = useMemo(() => createOnDrop(
+    { setViewConfig: setValidConfig, setStores },
+  ), [setValidConfig, setStores]);
 
   return (edit ? (
     <>

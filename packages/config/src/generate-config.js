@@ -1,6 +1,8 @@
 // TODO: ts-check
+
 import { FileType } from '@vitessce/constants-internal';
 import { withConsolidated, FetchStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
+// eslint-disable-next-line import/no-unresolved
 import ZipFileStore from '@zarrita/storage/zip';
 import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
 import { VitessceConfig } from './VitessceConfig.js';

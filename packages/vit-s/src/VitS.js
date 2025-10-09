@@ -104,7 +104,10 @@ export function VitS(props) {
   } = props;
 
   /*
-  const prefersDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const prefersDark = (
+    window.matchMedia
+    && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
   const defaultTheme = prefersDark ? 'dark' : 'light';
   const [theme, setTheme] = useState(themeProp ?? defaultTheme);
   */

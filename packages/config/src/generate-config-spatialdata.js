@@ -117,16 +117,16 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
     const controlViews = [lcView];
     // If obsSets are present, add obsSets view.
-    if(options.obsSets) {
+    if (options.obsSets) {
       const obsSets = vc.addView(dataset, 'obsSets');
       controlViews.push(obsSets);
     }
     // If obsFeatureMatrix is present, add featureList view.
-    if(options.obsFeatureMatrix) {
+    if (options.obsFeatureMatrix) {
       const featureList = vc.addView(dataset, 'featureList');
       controlViews.push(featureList);
     }
-    
+
     // TODO: set up coordination stuff here?
 
     // Layout.

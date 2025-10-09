@@ -7,4 +7,3 @@ export {
 } from '@vitessce/utils';
 
 export { generateConfig as generateConfigAlt, parseUrls } from './generate-config.js';
-
