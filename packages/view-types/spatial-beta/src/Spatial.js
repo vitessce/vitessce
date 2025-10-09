@@ -411,7 +411,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       const segmentationFeatureIndex = segmentationMatrixIndices?.[firstSegmentationLayerKey]?.[firstSegmentationChannelKey]?.featureIndex;
       featureIndices = featureSelection.map(geneName => segmentationFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
     }
-    console.log('featureSelection', featureSelection, segmentationMatrixIndices, featureIndices);
+    //console.log('featureSelection', featureSelection, segmentationMatrixIndices, featureIndices);
 
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';

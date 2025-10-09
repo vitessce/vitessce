@@ -324,6 +324,29 @@ async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnN
 }
 */
 
+function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
+  // The assumption here is that it is very cheap to check the cached
+  // row group indices (and their min/max values), while loading a row group is expensive.
+  const queryCache = queryClient.getQueryCache();
+  const prevQueries = queryCache.findAll({
+    // Note: Must (manually) keep in sync with queryKey used in _loadParquetRowGroupColumnExtent.
+    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName /* wildcard for rowGroupIndex */],
+    exact: false,
+  });
+  const cachedRowGroupInfo = prevQueries.map(q => {
+    if(!(q.state.status === 'success' && !q.state.isInvalidated)) {
+      return null;
+    }
+    return {
+      index: q.queryKey[4],
+      min: q.state.data.min,
+      max: q.state.data.max,
+    };
+  }).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
+
+  return cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
+}
+
 async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
   return queryClient.fetchQuery({
@@ -335,48 +358,27 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
       const numRowGroups = allMetadata.numRowGroups;
 
-      // First check if a closer row group is already contained in the queryClient cache.
-      // If so, use that row group rather than performing a naive binary search that ignores the cached row groups.
-      // The assumption here is that it is very cheap to check the cached
-      // row group indices (and their min/max values), while loading a row group is expensive.
-      const queryCache = queryClient.getQueryCache();
-      const prevQueries = queryCache.findAll({
-        // Note: Must (manually) keep in sync with queryKey used in _loadParquetRowGroupColumnExtent.
-        queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName /* wildcard for rowGroupIndex */],
-        exact: false,
-      });
-      const cachedRowGroupInfo = prevQueries.map(q => {
-        if(!(q.state.status === 'success' && !q.state.isInvalidated)) {
-          return null;
-        }
-        return {
-          index: q.queryKey[4],
-          min: q.state.data.min,
-          max: q.state.data.max,
-        };
-      }).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
-
-      // Keep a filtered version of cachedRowGroupInfo that only contains row groups between lo and hi,
-      // updating it each iteration of the while loop.
-      let cachedInRange = cachedRowGroupInfo;
-
       let lo = 0;
       let hi = numRowGroups;
       while (lo < hi) {
         // The optimization: Can we do better than lo and hi?
-        // Check cachedRowGroupInfo.
+        // Check cachedRowGroupInfo to determine whether a closer row group is already contained in the queryClient cache.
+        // If so, use that row group rather than performing a naive binary search that ignores the cached row groups.
         // Here, we can check if there is a cached row group between lo and mid that is closer to the targetValue.
-        cachedInRange = cachedInRange.filter(c => c.index >= lo && c.index < hi);
-        // We want to find the first interval (from left) where targetValue >= c.max, then go one further.
-        const betterLo = cachedInRange.find(c => c.index > lo && targetValue >= c.max);
+
+        // Check getQueryCache every iteration, in case it has changed while the loop was executing.
+        // (Is this even possible though? E.g., due to the usage of Promise.all?)
+        const cachedInRange = getCachedInRange(queryClient, parquetPath, columnName, lo, hi);
+        // We want to find the first interval (from right) where targetValue >= c.max.
+        const betterLo = cachedInRange.slice().reverse().find(c => c.index > lo && targetValue >= c.max);
         if (betterLo) {
-          //console.log('Found a better lo', lo, betterLo.index + 1);
+          //console.log('Found a better lo', lo, betterLo.index + 1, 'for', targetValue, 'from', cachedInRange);
           lo = Math.min(hi, betterLo.index + 1);
         }
-        // We want to find the first interval (from right) where targetValue < c.min, then go one before that.
-        const betterHi = cachedInRange.slice().reverse().find(c => targetValue < c.min);
+        // We want to find the first interval (from left) where targetValue < c.min.
+        const betterHi = cachedInRange.find(c => targetValue < c.min);
         if (betterHi) {
-          //console.log('Found a better hi', hi, betterHi.index - 1);
+          //console.log('Found a better hi', hi, betterHi.index - 1, 'for', targetValue, 'from', cachedInRange);
           hi = Math.max(lo, betterHi.index - 1);
         }
 

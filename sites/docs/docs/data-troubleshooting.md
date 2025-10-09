@@ -150,6 +150,26 @@ Use the `scale_factors` parameter of the `Image2DModel.parse` and `Labels2DModel
 Note that Vitessce does not yet support multi-resolution OME-NGFF images with a scaling factor other than `2`.
 As SpatialData Image and Labels elements are stored in OME-NGFF format, this point applies to both OME-NGFFs contained within SpatialData objects and standalone OME-NGFF Zarr stores.
 
+If you have an image with non-power-of-two scaling factors, you can use [Image2DModel](https://spatialdata.scverse.org/en/latest/api/models.html#spatialdata.models.Image2DModel.parse) to create a new image element with power-of-two scaling factors.
+
+```py
+from spatialdata.models import Image2DModel
+
+# Get highest-resolution image data as a NumPy array.
+img_arr = sdata.images['non_power_of_two'].scale0.image.to_numpy()
+
+# Use Image2DModel.parse to create a new Image element with power-of-two scaling factors.
+sdata['power_of_two'] = Image2DModel.parse(
+    data=img_arr,
+    dims=['c', 'y', 'x'],
+    scale_factors=[2, 2],
+)
+
+# Save the new Image element to disk.
+sdata.write_element("power_of_two")
+```
+
+
 ### Supported versions
 
 Vitessce currently supports up to OME-NGFF spec v0.4.
@@ -233,21 +253,18 @@ writer.write_image(
 
 ## Points
 
-As of October 2025, the SpatialData format stores points using multi-part Parquet files [on-disk](https://spatialdata.scverse.org/en/stable/design_doc.html#points).
-Note: the SpatialData design document mentions that the point format is subject to change.
-
-
-One idea for an alternative point storage approach is to [reuse OME-NGFF](https://github.com/scverse/spatialdata/issues/789).
+As of October 2025, the SpatialData format stores points using [multi-part Parquet files](https://spatialdata.scverse.org/en/stable/design_doc.html#points).
 
 
 ### Tiled points via SpatialData
 
-We have developed an [approach](https://github.com/scverse/spatialdata/issues/974) to load points from the current SpatialData Points Parquet-based format in a tiled manner.
-To use this approach, there are a few requirements and constraints on how the Parquet files are organized:
+We have developed an [approach](https://github.com/scverse/spatialdata/issues/974) to load points from the current SpatialData Points (parquet-based) format in a tiled manner.
+To use this approach, there are a few requirements and constraints.
+Most importantly, this approach relies on the points being sorted along a [Z-order curve](https://en.wikipedia.org/wiki/Z-order_curve) and stored in row groups of a limited size (e.g., 50,000 rows per row group) with metadata about the bounding box of the points (i.e., min and max X/Y coordinates).
 
 #### Sorting Points dataframe rows along a Z-order curve (Morton order)
 
-We provide a utility function to sort the rows of the Points dataframe along a Z-order curve.
+The `vitessce.data_utils` module of the Vitessce Python package provides a utility function to sort the rows of the Points dataframe along a Z-order curve.
 This function is efficient as it leverages Dask for computing Morton codes and sorting the dataframe.
 
 
@@ -286,7 +303,7 @@ Note: This is due to a current limitation of our [individual row-group reading i
 
 #### Sorting Points dataframe columns
 
-Dictionary-encoded columns (i.e., categorical and string) must be stored as the rightmost columns of the dataframe when written to the Parquet file.
+Dictionary-encoded columns (i.e., categorical and string) must be stored as the rightmost columns of the dataframe.
 
 <!-- TODO: define utility function in vitessce.data_utils for this. -->
 
