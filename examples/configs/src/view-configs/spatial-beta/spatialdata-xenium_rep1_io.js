@@ -53,7 +53,7 @@ function generateXeniumConfig() {
         url: sdataUrl,
         options: {
           obsFeatureMatrix: {
-              path: 'tables/dense_table/X',
+            path: 'tables/dense_table/X',
           },
           obsSegmentations: {
             path: 'shapes/cell_boundaries',
@@ -82,9 +82,10 @@ function generateXeniumConfig() {
     }
 
 
-  const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 12 });
-  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 6 });
-  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 6, w: 4, h: 6 });
+  const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 });
+  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 });
+  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 });
+ //const heatmap = vc.addView(dataset, 'heatmap', { x: 0, y: 8, w: 12, h: 4 }).setProps({ transpose: true });
 
   if(withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
@@ -138,7 +139,7 @@ function generateXeniumConfig() {
               spatialChannelColor: [200, 200, 200],
               obsColorEncoding: 'spatialChannelColor',
               spatialSegmentationFilled: false,
-              spatialSegmentationStrokeWidth: 10,
+              spatialSegmentationStrokeWidth: 5,
             },
           ]),
         },

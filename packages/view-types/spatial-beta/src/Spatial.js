@@ -447,17 +447,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
-    
-
-    // Get current bounds. use tileLayer/composite layer to load tiled points via loader.loadPointsInRect(bounds)
-    
+    // Use TileLayer to load tiled points via loader.loadPointsInRect(bounds)
     const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
 
     return new deck.TileLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
       modelMatrix,
       pickable: true,
+      autoHighlight: true,
+      //onHover: info => delegateHover(info, 'point', layerScope),
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
       // Since points are tiled but not multi-resolution,
@@ -474,35 +474,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
 
-        // TODO: within loadPointsInRect, always subdivide large tiles into tiles of a fixed size.
-
         const pointsInTile = await loadPointsInRect(bbox, signal);
-        //console.log(pointsInTile);
+
+        // On signal abort, print a message.
+        signal.addEventListener('abort', () => {
+          console.log(`Tile ${z}/${x}/${y} aborted`);
+        });
 
         return {
           src: pointsInTile.data,
           length: pointsInTile.shape?.[1] || 0,
         };
-
-        return [
-          // TODO: get from loader.loadPointsInRect(bounds)
-          // Make up fake data:
-          [left, top],
-          [right, bottom],
-          [(left + right) / 4, (top + bottom) / 4],
-          [(left + right) / 2, (top + bottom) / 2],
-          [(left + right) * 3 / 4, (top + bottom) * 3 / 4],
-        ];
       },
       renderSubLayers: (subLayerProps) => {
         const { bbox, content: tileData } = subLayerProps.tile;
         const { left, top, right, bottom } = bbox;
-
-        console.log('rendered tile sublayer', bbox);
-
-        //console.log('TileLayer: renderSubLayers', bbox, subLayerProps);
-        
-        // TODO: invalidate tiles, or at least their filterExtension-related props, when featureSelection changes.
 
         return new deck.ScatterplotLayer(subLayerProps, {
           bounds: [left, top, right, bottom],
@@ -533,6 +519,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[2] = color[2];
             return target;
           },
+          // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
+          pickable: true,
+          autoHighlight: true,
+          //onHover: info => delegateHover(info, 'point', layerScope),
           // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
           ...(featureIndices && featureIndices.length === 1 ? {
             filterRange: [[left, right], [top, bottom], [featureIndices[0], featureIndices[0]]],
@@ -554,6 +544,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       },
       onTileError: (error) => {
 
+      },
+      onViewportLoad: (loadedTiles) => {
+        // Called when all tiles in the current viewport are loaded.
+        // An array of loaded Tile instances are passed as argument to this function.
+        console.log('onViewportLoad', loadedTiles);
       },
     });
 
