@@ -16,7 +16,7 @@ To cite Vitessce in your work, please use:
 
 ```bibtex
 @article{keller2024vitessce,
-  title = {{Vitessce: integrative visualization of multimodal and spatially resolved single-cell data.}},
+  title = {{Vitessce: integrative visualization of multimodal and spatially resolved single-cell data}},
   author = {Keller, Mark S. and Gold, Ilan and McCallum, Chuck and Manz, Trevor and Kharchenko, Peter V. and Gehlenborg, Nils},
   journal = {Nature Methods},
   year = {2024},
