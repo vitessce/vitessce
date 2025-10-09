@@ -2716,7 +2716,7 @@ importers:
         version: 9.0.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.4.0
+        version: 0.5.4
       zustand:
         specifier: 'catalog:'
         version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
@@ -7581,9 +7581,6 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
-
-  '@zarrita/storage@0.1.2':
-    resolution: {integrity: sha512-zUi3CqeEU6avbE104qm5y4MGZbyxmqxXBIh3jyAJgQ4eQRG7KJ6cCmoD7wS7y/uCTl6nUiG7QU6k8QbyfrFjyg==}
 
   '@zarrita/storage@0.1.3':
     resolution: {integrity: sha512-ZyCMYN3LuCNtKxro9876r/KyHyXV+ie2Bhk1qYsJR4Jp+sAjoVRRNNSJPsJxk64ZgFFezayO5S2hCu88/1Odwg==}
@@ -23520,11 +23517,6 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zarrita/storage@0.1.2':
-    dependencies:
-      reference-spec-reader: 0.2.0
-      unzipit: 1.4.3
-
   '@zarrita/storage@0.1.3':
     dependencies:
       reference-spec-reader: 0.2.0
@@ -34303,7 +34295,7 @@ snapshots:
 
   zarrita@0.5.2:
     dependencies:
-      '@zarrita/storage': 0.1.2
+      '@zarrita/storage': 0.1.3
       numcodecs: 0.3.2
 
   zarrita@0.5.4:

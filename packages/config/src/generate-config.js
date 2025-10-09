@@ -1,6 +1,7 @@
 // TODO: ts-check
 import { FileType } from '@vitessce/constants-internal';
-import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { withConsolidated, FetchStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
+import ZipFileStore from '@zarrita/storage/zip';
 import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects

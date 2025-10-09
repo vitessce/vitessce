@@ -107,5 +107,10 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
   // eslint-disable-next-line class-methods-use-this
   addViews(vc, layoutOption) {
     // TODO
+
+    // Add spatialBeta/layerControllerBeta views.
+    // If obsSets are present, add obsSets view.
+    // If obsFeatureMatrix is present, add featureList view.
+    
   }
 }

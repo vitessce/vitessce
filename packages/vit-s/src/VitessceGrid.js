@@ -29,6 +29,7 @@ import { getAltText } from './generate-alt-text.js';
 import { getFilesFromDataTransferItems } from "@placemarkio/flat-drop-files";
 import { root as zarrRoot, open as zarrOpen } from 'zarrita';
 import { Sidebar } from './Sidebar.js';
+import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 
 
 const SIDEBAR_WIDTH = 30;
@@ -48,6 +49,8 @@ class FileSystemStore {
     if (!file) return undefined;
     return file.arrayBuffer();
   }
+
+  // TODO: implement getRange
 }
 
 /**
@@ -141,6 +144,8 @@ export default function VitessceGrid(props) {
   useEffect(() => {
     const zone = containerRef.current;
 
+    // TODO: support drag-and-drop only when the parent has passed an onDrop handler?
+
     const onDragEnter = (e) => {
       if(!enableDropzone) return;
       console.log('onDragEnter');
@@ -158,12 +163,18 @@ export default function VitessceGrid(props) {
     const onDrop = async (e) => {
       if(!enableDropzone) return;
       e.preventDefault();
+
       setIsDragging(false);
       setIsDragProcessing(true);
 
+      // TODO: here, call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
+
       const topLevelEntries = Object.values(e.dataTransfer.items)
         .map(item => item.webkitGetAsEntry());
-      
+
+      // TODO: implement an alternative approach that does not first flatten the file tree,
+      // since it can be very large.
+      // See https://github.com/manzt/zarrita.js/pull/161/files
       const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
 
       const stores = topLevelEntries.map(entry => {
@@ -211,8 +222,32 @@ export default function VitessceGrid(props) {
       setIsDragProcessing(false);
 
       
-
       console.log(stores);
+
+      const parsedUrls = stores.map(([name, store]) => {
+        return {
+          ...parseUrls(name)[0],
+          store,
+        };
+      })
+      const { config, stores: storesForConfig } = await generateConfig(parsedUrls);
+      const newConfig = config.toJSON();
+      console.log(newConfig, storesForConfig);
+
+      // NOTE: this approach doesn't work, because generateConfig returns a config with joint file types,
+      // while setViewConfig expects a config with only atomic file types (e.g., after initialization).
+      // This is why the parent needs to do the onDrop handling.
+
+      // // Update the view config and loaders in the global state.
+      // const newLoaders = createLoaders(
+      //   newConfig.datasets,
+      //   newConfig.description,
+      //   fileTypes,
+      //   coordinationTypes,
+      //   storesForConfig,
+      // );
+      // setViewConfig(newConfig);
+      // setLoaders(newLoaders);
     };
 
 
@@ -229,7 +264,7 @@ export default function VitessceGrid(props) {
       zone.removeEventListener("dragover", onDragOver);
       zone.removeEventListener("drop", onDrop);
     };
-  }, [containerRef, enableDropzone]);
+  }, [containerRef, enableDropzone, fileTypes, coordinationTypes]);
 
   return (
     <div
