@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { hconcat, vconcat } from './VitessceConfig.js';
 import { AbstractAutoConfig } from './generate-config-helpers.js';
 
 export class SpatialDataAutoConfig extends AbstractAutoConfig {
@@ -108,15 +109,27 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
   // eslint-disable-next-line class-methods-use-this
   addViews(vc, dataset, layoutOption) {
-    // TODO
+    const options = this.getOptions();
 
     // Add spatialBeta/layerControllerBeta views.
-    vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 12 });
-    vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 12 });
+    const spatialView = vc.addView(dataset, 'spatialBeta');
+    const lcView = vc.addView(dataset, 'layerControllerBeta');
 
+    const controlViews = [lcView];
     // If obsSets are present, add obsSets view.
+    if(options.obsSets) {
+      const obsSets = vc.addView(dataset, 'obsSets');
+      controlViews.push(obsSets);
+    }
     // If obsFeatureMatrix is present, add featureList view.
-
+    if(options.obsFeatureMatrix) {
+      const featureList = vc.addView(dataset, 'featureList');
+      controlViews.push(featureList);
+    }
+    
     // TODO: set up coordination stuff here?
+
+    // Layout.
+    vc.layout(hconcat(spatialView, vconcat(...controlViews)));
   }
 }

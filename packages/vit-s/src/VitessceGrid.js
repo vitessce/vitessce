@@ -126,6 +126,8 @@ export default function VitessceGrid(props) {
     const enableDropzone = (onDropHandler && typeof onDropHandler === 'function');
     if(!enableDropzone) {
       return () => {};
+    } else {
+      zone.style.border = '2px dashed grey';
     }
 
     const onDragEnter = (e) => {

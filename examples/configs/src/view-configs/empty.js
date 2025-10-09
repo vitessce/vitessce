@@ -1,5 +1,5 @@
 export const emptyConfig = {
-  name: '',
+  name: 'Drag and drop files to get started',
   description: '',
   version: '1.0.17',
   initStrategy: 'auto',
