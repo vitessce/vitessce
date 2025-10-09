@@ -42,6 +42,7 @@ import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
+import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -130,6 +131,7 @@ export function SpatialSubscriber(props) {
     title = 'Spatial',
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
+    accelerated: acceleratedFor3d = false,
   } = props;
 
   const loaders = useLoaders();
@@ -292,6 +294,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_CHANNEL_WINDOW,
+      CoordinationType.SPATIAL_MAX_RESOLUTION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -812,178 +815,172 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       errors={errors}
     >
-      {shouldUseThree ? (
-        <SpatialThreeAdapter
-          ref={threeRef}
-          uuid={uuid}
-          width={width}
-          height={height}
-          theme={theme}
-          hideTools={!isSelectable}
-
-          rotation={[rotationX, rotationY, rotationZ]}
-          setRotationX={setRotationX}
-          setRotationY={setRotationY}
-          setRotationZ={setRotationZ}
-
-          // Global view state
-          targetT={targetT}
-          targetZ={targetZ}
-          viewState={isValidViewState ? ({
-            zoom,
-            target: [targetX, targetY, targetZ],
-            rotationX,
-            rotationOrbit,
-          }) : DEFAULT_VIEW_STATE}
-          orbitAxis={orbitAxis}
-          spatialAxisFixed={spatialAxisFixed}
-          setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
-          originalViewState={originalViewState}
-          spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-          updateViewInfo={setComponentViewInfo}
-
-          delegateHover={delegateHover}
-          onEntitySelected={onEntitySelected}
-
-          // Points
-          obsPoints={obsPointsData}
-          pointLayerScopes={pointLayerScopes}
-          pointLayerCoordination={pointLayerCoordination}
-
-          pointMultiObsLabels={pointMultiObsLabelsData}
-
-          // Spots
-          obsSpots={obsSpotsData}
-          spotLayerScopes={spotLayerScopes}
-          spotLayerCoordination={spotLayerCoordination}
-          obsSpotsSets={obsSpotsSetsData}
-
-          spotMatrixIndices={spotMultiIndicesData}
-          spotMultiExpressionData={spotMultiExpressionNormData}
-
-          // Segmentations
-          segmentationLayerScopes={segmentationLayerScopes}
-          segmentationLayerCoordination={segmentationLayerCoordination}
-          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segmentationChannelCoordination={segmentationChannelCoordination}
-
-          obsSegmentations={obsSegmentationsData}
-          obsSegmentationsLocations={obsSegmentationsLocationsData}
-          obsSegmentationsSets={obsSegmentationsSetsData}
-          segmentationMatrixIndices={segmentationMultiIndicesData}
-          segmentationMultiExpressionData={segmentationMultiExpressionNormData}
-
-          bitmaskValueIsIndex={bitmaskValueIsIndex}
-
-          // Images
-          images={imageData}
-          imageLayerScopes={imageLayerScopes}
-          imageLayerCoordination={imageLayerCoordination}
-
-          imageChannelScopesByLayer={imageChannelScopesByLayer}
-          imageChannelCoordination={imageChannelCoordination}
-
-          // TODO: useFullResolutionImage={useFullResolutionImage}
-        />
-      ) : (
-        <Spatial
-          ref={deckRef}
-          uuid={uuid}
-          width={width}
-          height={height}
-          theme={theme}
-          hideTools={!isSelectable}
-          // Global view state
-          targetT={targetT}
-          targetZ={targetZ}
-          viewState={isValidViewState ? ({
-            zoom,
-            target: [targetX, targetY, targetZ],
-            rotationX,
-            rotationOrbit,
-          }) : DEFAULT_VIEW_STATE}
-          orbitAxis={orbitAxis}
-          spatialAxisFixed={spatialAxisFixed}
-          setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
-          originalViewState={originalViewState}
-          spatialRenderingMode={spatialRenderingMode} // 2D vs. 3D
-          updateViewInfo={setComponentViewInfo}
-
-          delegateHover={delegateHover}
-
-          // Points
-          obsPoints={obsPointsData}
-          pointLayerScopes={pointLayerScopes}
-          pointLayerCoordination={pointLayerCoordination}
-
-          pointMultiObsLabels={pointMultiObsLabelsData}
-
-          // Spots
-          obsSpots={obsSpotsData}
-          spotLayerScopes={spotLayerScopes}
-          spotLayerCoordination={spotLayerCoordination}
-          obsSpotsSets={obsSpotsSetsData}
-
-          spotMatrixIndices={spotMultiIndicesData}
-          spotMultiExpressionData={spotMultiExpressionNormData}
-
-          // Segmentations
-          segmentationLayerScopes={segmentationLayerScopes}
-          segmentationLayerCoordination={segmentationLayerCoordination}
-          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segmentationChannelCoordination={segmentationChannelCoordination}
-
-          obsSegmentations={obsSegmentationsData}
-          obsSegmentationsLocations={obsSegmentationsLocationsData}
-          obsSegmentationsSets={obsSegmentationsSetsData}
-          segmentationMatrixIndices={segmentationMultiIndicesData}
-          segmentationMultiExpressionData={segmentationMultiExpressionNormData}
-
-          bitmaskValueIsIndex={bitmaskValueIsIndex}
-
-          // Images
-          images={imageData}
-          imageLayerScopes={imageLayerScopes}
-          imageLayerCoordination={imageLayerCoordination}
-
-          imageChannelScopesByLayer={imageChannelScopesByLayer}
-          imageChannelCoordination={imageChannelCoordination}
-
-          // TODO: useFullResolutionImage={useFullResolutionImage}
-        />
-      )}
-      {!disableTooltip && (
-        <SpatialTooltipSubscriber
-          parentUuid={uuid}
-          width={width}
-          height={height}
-          hoverCoord={hoverCoord}
-
-          // Points
-          obsPoints={obsPointsData}
-          pointLayerScopes={pointLayerScopes}
-          pointLayerCoordination={pointLayerCoordination}
-
-          // Spots
-          obsSpots={obsSpotsData}
-          spotLayerScopes={spotLayerScopes}
-          spotLayerCoordination={spotLayerCoordination}
-
-          // Segmentations
-          obsSegmentationsLocations={obsSegmentationsLocationsData}
-          segmentationLayerScopes={segmentationLayerScopes}
-          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segmentationChannelCoordination={segmentationChannelCoordination}
-          obsSegmentationsSetsData={obsSegmentationsSetsData}
-
-          // Images
-          imageLayerScopes={imageLayerScopes}
-          imageLayerCoordination={imageLayerCoordination}
-        />
-      )}
+      {
+        shouldUseThree ? (
+          acceleratedFor3d ? (
+            <SpatialAcceleratedAdapter
+              ref={threeRef}
+              uuid={uuid}
+              width={width}
+              height={height}
+              theme={theme}
+              hideTools={!isSelectable}
+              rotation={[rotationX, rotationY, rotationZ]}
+              setRotationX={setRotationX}
+              setRotationY={setRotationY}
+              setRotationZ={setRotationZ}
+              targetT={targetT}
+              targetZ={targetZ}
+              viewState={isValidViewState ? ({
+                zoom,
+                target: [targetX, targetY, targetZ],
+                rotationX,
+                rotationOrbit,
+              }) : DEFAULT_VIEW_STATE}
+              orbitAxis={orbitAxis}
+              spatialAxisFixed={spatialAxisFixed}
+              setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+              originalViewState={originalViewState}
+              spatialRenderingMode={spatialRenderingMode}
+              updateViewInfo={setComponentViewInfo}
+              delegateHover={delegateHover}
+              onEntitySelected={onEntitySelected}
+              obsPoints={obsPointsData}
+              pointLayerScopes={pointLayerScopes}
+              pointLayerCoordination={pointLayerCoordination}
+              pointMultiObsLabels={pointMultiObsLabelsData}
+              obsSpots={obsSpotsData}
+              spotLayerScopes={spotLayerScopes}
+              spotLayerCoordination={spotLayerCoordination}
+              obsSpotsSets={obsSpotsSetsData}
+              spotMatrixIndices={spotMultiIndicesData}
+              spotMultiExpressionData={spotMultiExpressionNormData}
+              segmentationLayerScopes={segmentationLayerScopes}
+              segmentationLayerCoordination={segmentationLayerCoordination}
+              segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+              segmentationChannelCoordination={segmentationChannelCoordination}
+              obsSegmentations={obsSegmentationsData}
+              obsSegmentationsLocations={obsSegmentationsLocationsData}
+              obsSegmentationsSets={obsSegmentationsSetsData}
+              segmentationMatrixIndices={segmentationMultiIndicesData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              bitmaskValueIsIndex={bitmaskValueIsIndex}
+              images={imageData}
+              imageLayerScopes={imageLayerScopes}
+              imageLayerCoordination={imageLayerCoordination}
+              imageChannelScopesByLayer={imageChannelScopesByLayer}
+              imageChannelCoordination={imageChannelCoordination}
+            />
+          ) : (
+            <SpatialThreeAdapter
+              ref={threeRef}
+              uuid={uuid}
+              width={width}
+              height={height}
+              theme={theme}
+              hideTools={!isSelectable}
+              rotation={[rotationX, rotationY, rotationZ]}
+              setRotationX={setRotationX}
+              setRotationY={setRotationY}
+              setRotationZ={setRotationZ}
+              targetT={targetT}
+              targetZ={targetZ}
+              viewState={isValidViewState ? ({
+                zoom,
+                target: [targetX, targetY, targetZ],
+                rotationX,
+                rotationOrbit,
+              }) : DEFAULT_VIEW_STATE}
+              orbitAxis={orbitAxis}
+              spatialAxisFixed={spatialAxisFixed}
+              setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+              originalViewState={originalViewState}
+              spatialRenderingMode={spatialRenderingMode}
+              updateViewInfo={setComponentViewInfo}
+              delegateHover={delegateHover}
+              onEntitySelected={onEntitySelected}
+              obsPoints={obsPointsData}
+              pointLayerScopes={pointLayerScopes}
+              pointLayerCoordination={pointLayerCoordination}
+              pointMultiObsLabels={pointMultiObsLabelsData}
+              obsSpots={obsSpotsData}
+              spotLayerScopes={spotLayerScopes}
+              spotLayerCoordination={spotLayerCoordination}
+              obsSpotsSets={obsSpotsSetsData}
+              spotMatrixIndices={spotMultiIndicesData}
+              spotMultiExpressionData={spotMultiExpressionNormData}
+              segmentationLayerScopes={segmentationLayerScopes}
+              segmentationLayerCoordination={segmentationLayerCoordination}
+              segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+              segmentationChannelCoordination={segmentationChannelCoordination}
+              obsSegmentations={obsSegmentationsData}
+              obsSegmentationsLocations={obsSegmentationsLocationsData}
+              obsSegmentationsSets={obsSegmentationsSetsData}
+              segmentationMatrixIndices={segmentationMultiIndicesData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              bitmaskValueIsIndex={bitmaskValueIsIndex}
+              images={imageData}
+              imageLayerScopes={imageLayerScopes}
+              imageLayerCoordination={imageLayerCoordination}
+              imageChannelScopesByLayer={imageChannelScopesByLayer}
+              imageChannelCoordination={imageChannelCoordination}
+            />
+          )
+        ) : (
+          <Spatial
+            ref={deckRef}
+            uuid={uuid}
+            width={width}
+            height={height}
+            theme={theme}
+            hideTools={!isSelectable}
+            targetT={targetT}
+            targetZ={targetZ}
+            viewState={isValidViewState ? ({
+              zoom,
+              target: [targetX, targetY, targetZ],
+              rotationX,
+              rotationOrbit,
+            }) : DEFAULT_VIEW_STATE}
+            orbitAxis={orbitAxis}
+            spatialAxisFixed={spatialAxisFixed}
+            setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
+            originalViewState={originalViewState}
+            spatialRenderingMode={spatialRenderingMode}
+            updateViewInfo={setComponentViewInfo}
+            delegateHover={delegateHover}
+            obsPoints={obsPointsData}
+            pointLayerScopes={pointLayerScopes}
+            pointLayerCoordination={pointLayerCoordination}
+            pointMultiObsLabels={pointMultiObsLabelsData}
+            obsSpots={obsSpotsData}
+            spotLayerScopes={spotLayerScopes}
+            spotLayerCoordination={spotLayerCoordination}
+            obsSpotsSets={obsSpotsSetsData}
+            spotMatrixIndices={spotMultiIndicesData}
+            spotMultiExpressionData={spotMultiExpressionNormData}
+            segmentationLayerScopes={segmentationLayerScopes}
+            segmentationLayerCoordination={segmentationLayerCoordination}
+            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+            segmentationChannelCoordination={segmentationChannelCoordination}
+            obsSegmentations={obsSegmentationsData}
+            obsSegmentationsLocations={obsSegmentationsLocationsData}
+            obsSegmentationsSets={obsSegmentationsSetsData}
+            segmentationMatrixIndices={segmentationMultiIndicesData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            bitmaskValueIsIndex={bitmaskValueIsIndex}
+            images={imageData}
+            imageLayerScopes={imageLayerScopes}
+            imageLayerCoordination={imageLayerCoordination}
+            imageChannelScopesByLayer={imageChannelScopesByLayer}
+            imageChannelCoordination={imageChannelCoordination}
+          />
+        )
+      }
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
+        maxHeight={height}
 
         // Segmentations
         segmentationLayerScopes={segmentationLayerScopes}

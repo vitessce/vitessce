@@ -11,6 +11,7 @@ import {
   useObsSetsData,
   useSampleEdgesData,
   useSampleSetsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { treeToSelectedSetMap, treeToSetSizesBySetNames, mergeObsSets } from '@vitessce/sets-utils';
@@ -25,7 +26,7 @@ const DEFAULT_HIERARCHY_LEVELS = ['obsSet', 'sampleSet'];
 
 export function TreemapSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.TREEMAP,
@@ -33,6 +34,7 @@ export function TreemapSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

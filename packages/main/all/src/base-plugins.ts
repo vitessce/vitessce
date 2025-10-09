@@ -73,6 +73,7 @@ import {
   neighborhoodsLayerObj,
   moleculesLayerObj,
   meshGlbSchema,
+  ngSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -180,6 +181,9 @@ import {
   SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
   SpatialDataObsEmbeddingLoader,
+  // NG precomputed
+  NgPrecomputedMeshSource,
+  NgPrecomputedMeshLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -339,6 +343,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPrecomputedMeshSource, ngSchema),
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -575,6 +580,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_RESOLUTION, 0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_MAX_RESOLUTION, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_X, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Y, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Z, null, z.array(z.number()).length(2).nullable()),

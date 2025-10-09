@@ -9,6 +9,7 @@ import {
   useObsSetStatsData,
   useMatchingLoader,
   useColumnNameMapping,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -24,7 +25,7 @@ import { useRawSetPaths } from './utils.js';
 
 export function CellSetCompositionBarPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.OBS_SET_COMPOSITION_BAR_PLOT,
@@ -32,6 +33,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

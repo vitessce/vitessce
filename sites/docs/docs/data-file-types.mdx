@@ -1642,6 +1642,44 @@ options={`{
 }`}
 />
 
+## `obsSegmentations.ng-precomputed`
+
+The URL should point to "precomputed" **multi-resolution chunked meshes**.
+See the Neuroglancer documentation to learn about the [precomputed multi-resolution mesh format](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/meshes.md#multi-resolution-mesh-format).
+This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer).
+
+The fileType `options` value is used to construct the internal `viewerState` for the Neuroglancer view.
+The complete `viewerState` schema is available in the [Neuroglancer documentation](https://neuroglancer-docs.web.app/json/api/index.html).
+
+Note: Neuroglancer expects coordinates in the precomputed mesh format to be in **nanometers** (XYZ).
+See [discussion on GitHub](https://github.com/google/neuroglancer/issues/442#issuecomment-1440550158) for more details.
+
+<FileDefTabs
+  fileName="my_meshes"
+  fileType="obsSegmentations.ng-precomputed"
+  fileConst="OBS_SEGMENTATIONS_NG_PRECOMPUTED"
+  options={`{
+    // Dimensions map voxel steps to physical units along each axis.
+    // Precomputed format expects nanometer (nm) units.
+    // If your data are in meters, convert (e.g., 1e-9 m = 1 nm) before setting these.
+    "dimensionX": 1,      // 1 nm
+    "dimensionY": 1,      // 1 nm
+    "dimensionZ": 1,      // 1 nm
+    "dimensionUnit": 'nm',
+
+    // Optional camera settings; defaults are used if omitted.
+    "position": [49.5, 1000.5, 5209.5],
+    "projectionScale": 1024,
+    "projectionOrientation": [
+      -0.636204183101654,
+      -0.5028395652770996,
+      0.5443811416625977,
+      0.2145828753709793
+    ],
+  }`}
+/>
+
+
 ## `image.raster.json`
 
 Points to one or more images in OME-TIFF or Bioformats-Zarr format.

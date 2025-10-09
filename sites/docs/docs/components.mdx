@@ -96,3 +96,11 @@ The observation set feature value distribution view displays a violin plot with 
 The feature value histogram view displays the distribution of values (e.g., expression) for the selected feature (e.g., gene), implemented with [Vega-Lite](https://vega.github.io/vega-lite/).
 
 <ComponentImage filename="expressionHistogram.png" alt="Screenshot of Expression Histogram View" />
+
+### `neuroglancer`
+
+This view wraps [Neuroglancer](https://github.com/google/neuroglancer), a high-performance WebGL2-based viewer developed by Google for huge multi-resolution volumes and segmentations.
+
+<ComponentImage filename="neuroglancer.png" alt="Screenshot of Neuroglancer view" />
+
+This view is intended to be used with meshes provided via the `obsSegmentations.ng-precomputed` [file type](../data-file-types/#obssegmentationsng-precomputed).

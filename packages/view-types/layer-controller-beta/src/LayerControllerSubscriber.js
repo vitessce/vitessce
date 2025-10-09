@@ -176,6 +176,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_CHANNEL_WINDOW,
+      CoordinationType.SPATIAL_MAX_RESOLUTION,
     ],
     coordinationScopes,
     coordinationScopesBy,

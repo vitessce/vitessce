@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import {
   useCoordination,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { makeStyles } from '@vitessce/styles';
@@ -38,8 +39,10 @@ const useStyles = makeStyles()(theme => ({
 
 export function ComparativeHeadingSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
   } = props;
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{
     sampleSetSelection,

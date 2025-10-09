@@ -420,3 +420,9 @@
 .demoGridItem .demoGridItemPill.spatialdata {
   background-color: rgb(99, 215, 177);
 }
+.demoGridItem .demoGridItemPill.xr {
+  background-color: rgb(161, 185, 84);
+}
+.demoGridItem .demoGridItemPill.meshes {
+  background-color: rgb(161, 185, 84);
+}

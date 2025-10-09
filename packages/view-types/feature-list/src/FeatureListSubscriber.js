@@ -6,6 +6,7 @@ import {
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { makeStyles } from '@vitessce/styles';
@@ -47,7 +48,7 @@ const useStyles = makeStyles()(theme => ({
  */
 export function FeatureListSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     variablesLabelOverride,
     theme,
@@ -62,6 +63,7 @@ export function FeatureListSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const [width, height, containerRef] = useGridItemSize();
   const { classes } = useStyles();
 

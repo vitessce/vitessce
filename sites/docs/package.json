@@ -1,12 +1,12 @@
 {
   "name": "docs",
-  "version": "3.3.56",
+  "version": "3.3.65",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start --port 3001 --no-open",
     "build-root": "docusaurus build --out-dir dist-root",
-    "build-versioned": "docusaurus build --out-dir dist-versioned",
+    "build-versioned": "docusaurus build --out-dir dist-versioned --dev --no-minify",
     "swizzle": "docusaurus swizzle --danger",
     "serve": "docusaurus serve --port 3002 --dir dist-root",
     "clear": "docusaurus clear"

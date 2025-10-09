@@ -1,4 +1,89 @@
 
+## 3.8.3
+
+### Patch Changes
+
+- Use --dev and --no-minify options when building the "versioned" docs site that will live at legacy.vitessce.io/docs/{date}/{commit}/ (`docs`) ([#2284](https://github.com/vitessce/vitessce/pull/2284))
+
+
+## 3.8.2
+
+### Patch Changes
+
+- Add note about sparse matrices. (`docs`) ([#2278](https://github.com/vitessce/vitessce/pull/2278))
+
+- Fix behavior of three/accelerated flags in props of spatialBeta view. Bump zarrita dependency to pull in URL decoding fix. (`@vitessce/spatial-beta`, `@vitessce/zarr`) ([#2279](https://github.com/vitessce/vitessce/pull/2279))
+
+- Neuroglancer viewerState via dataset.addFile (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`, `@vitessce/schemas`, `@vitessce/vit-s`) ([#2273](https://github.com/vitessce/vitessce/pull/2273))
+
+
+## 3.8.1
+
+### Patch Changes
+
+- Fix coordination type docs and add test to ensure every viewType is mapped to an array of coordinationTypes. (`@vitessce/constants-internal`) ([#2270](https://github.com/vitessce/vitessce/pull/2270))
+
+- Fix gating scatterplot view. Bugs during MUI upgrade were preventing multi-selection of genes; for now, have split into two single select inputs. Also needed to specify `embeddingPointsVisible: true` (prop of `Scatterplot` component). (`@vitessce/scatterplot-gating`, `@vitessce/scatterplot`) ([#2271](https://github.com/vitessce/vitessce/pull/2271))
+
+
+## 3.8.0
+
+### Minor Changes
+
+- Adds the spatialAccelerated view for rendering of large image volumes. (`@vitessce/spatial-accelerated`) ([#2264](https://github.com/vitessce/vitessce/pull/2264))
+
+### Patch Changes
+
+- Assume Parquet geometry column is WKB-encoded if it lacks encoding metadata. (`@vitessce/spatial-zarr`) ([#2268](https://github.com/vitessce/vitessce/pull/2268))
+
+
+## 3.7.1
+
+### Patch Changes
+
+- Refined coordination between Neuroglancer and Spatial views (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2148](https://github.com/vitessce/vitessce/pull/2148))
+
+- Adds error messages for non-pyramidal images and missing offsets file (`@vitessce/ome-tiff`, `demo`) ([#2262](https://github.com/vitessce/vitessce/pull/2262))
+
+
+## 3.7.0
+
+### Minor Changes
+
+- Upgraded vite to version7 (`@vitessce/layer-controller-beta`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/layer-controller`, `@vitessce/obs-sets-manager`, `@vitessce/link-controller`, `@vitessce/spatial-three`, `@vitessce/spatial-zarr`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/spatial-beta`, `@vitessce/description`, `@vitessce/scatterplot`, `@vitessce/neuroglancer-workers`, `@vitessce/abstract`, `@vitessce/ome-tiff`, `@vitessce/spatial-utils`, `@vitessce/constants-internal`, `@vitessce/export-utils`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/image-utils`, `@vitessce/utils`, `@vitessce/status`, `@vitessce/sets-utils`, `@vitessce/zarr-utils`, `@vitessce/json`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/glb`, `@vitessce/json-schema`, `@vitessce/constants`, `vitessce`, `@vitessce/all`, `@vitessce/dev`, `@vitessce/globals`, `@vitessce/plugins`, `@vitessce/schemas`, `@vitessce/tooltip`, `@vitessce/workers`, `@vitessce/config`, `@vitessce/legend`, `@vitessce/styles`, `@vitessce/error`, `@vitessce/types`, `@vitessce/vit-s`, `@vitessce/vega`, `@vitessce/gl`, `demo`, `docs`) ([#2251](https://github.com/vitessce/vitessce/pull/2251))
+
+### Patch Changes
+
+- Add dropdown for selection of quantitative colormap to layerControllerBeta. Update bitmask layer shader to support a per-bitmask colormap function. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-zarr`, `@vitessce/gl`) ([#2259](https://github.com/vitessce/vitessce/pull/2259))
+
+- Added fix for overflowing legends outside the parent grid container. (`@vitessce/legend`) ([#2248](https://github.com/vitessce/vitessce/pull/2248))
+
+- Added examples from Vitessce Link site (`docs`) ([#2247](https://github.com/vitessce/vitessce/pull/2247))
+
+
+## 3.6.18
+
+### Patch Changes
+
+- Implement meta-coordination in all views. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/statistical-plots`, `@vitessce/biomarker-select`, `@vitessce/genomic-profiles`, `@vitessce/obs-sets-manager`, `@vitessce/feature-list`, `@vitessce/neuroglancer`, `@vitessce/description`, `@vitessce/heatmap`, `@vitessce/status`) ([#2245](https://github.com/vitessce/vitessce/pull/2245))
+
+- Fix bug overwriting config-based initialization of obsSetExpansion in obsSets view. Ensure initialization of segmentationChannel coordination values in SpatialDataObsSegmentations (polygon) loader. (`@vitessce/obs-sets-manager`, `@vitessce/spatial-zarr`) ([#2243](https://github.com/vitessce/vitessce/pull/2243))
+
+
+## 3.6.17
+
+### Patch Changes
+
+- Hide image layer completely on `spatialLayerVisible: false` (`@vitessce/spatial-beta`) ([#2241](https://github.com/vitessce/vitessce/pull/2241))
+
+
+## 3.6.16
+
+### Patch Changes
+
+- Fixes linkController bug. (`@vitessce/link-controller`) ([#2239](https://github.com/vitessce/vitessce/pull/2239))
+
+
 ## 3.6.15
 
 ### Patch Changes

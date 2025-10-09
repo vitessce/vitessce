@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-beta",
-  "version": "3.6.15",
+  "version": "3.8.3",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,7 +26,7 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
@@ -42,6 +42,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
+    "@vitessce/spatial-accelerated": "workspace:*",
     "d3-array": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

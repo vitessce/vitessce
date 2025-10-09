@@ -9,6 +9,7 @@ import {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection } from '@vitessce/sets-utils';
@@ -18,7 +19,7 @@ import { useStyles } from './styles.js';
 
 export function FeatureBarPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     yMin = 0,
@@ -28,6 +29,7 @@ export function FeatureBarPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

@@ -14,6 +14,7 @@ const useStyles = makeStyles()(() => ({
 export default function MultiLegend(props) {
   const {
     theme,
+    maxHeight,
     // Segmentations
     segmentationLayerScopes,
     segmentationLayerCoordination,
@@ -64,6 +65,7 @@ export default function MultiLegend(props) {
         return spatialLayerVisible && legendVisible ? (
           <Legend
             key={layerScope}
+            maxHeight={maxHeight}
             positionRelative
             highContrast
             showObsLabel
@@ -116,6 +118,7 @@ export default function MultiLegend(props) {
         return spatialLayerVisible && legendVisible ? (
           <Legend
             key={layerScope}
+            maxHeight={maxHeight}
             positionRelative
             highContrast
             showObsLabel
@@ -176,6 +179,7 @@ export default function MultiLegend(props) {
           return spatialLayerVisible && spatialChannelVisible && legendVisible ? (
             <Legend
               key={`${layerScope}-${cScope}`}
+              maxHeight={maxHeight}
               positionRelative
               highContrast
               showObsLabel

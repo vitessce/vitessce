@@ -114,7 +114,7 @@ export default function FeatureList(props) {
     ];
   }, [showFeatureTable, primaryColumnName, hasFeatureLabels]);
 
-  return (
+  return (width > 0 && height > 0) ? (
     <>
       <input
         className={classes.searchBar}
@@ -138,5 +138,5 @@ export default function FeatureList(props) {
         height={height - 34}
       />
     </>
-  );
+  ) : null;
 }

@@ -75,8 +75,10 @@ import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
+import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
+import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
@@ -191,7 +193,15 @@ export const configs = {
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
+  // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
+  'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
+  // Spatial Accelerated
+  's-a-lsp1': saLsp1,
+  's-a-lsp2': saLsp2,
+  's-a-lsp3': saLsp3,
+  's-a-kingsnake': saKingsnake,
+  's-a-gloria': saGloria,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

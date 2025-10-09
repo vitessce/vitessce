@@ -8,6 +8,7 @@ import {
   useFeatureLabelsData,
   useSampleSetsData,
   useSampleEdgesData,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { VALUE_TRANSFORM_OPTIONS } from '@vitessce/utils';
@@ -27,7 +28,7 @@ import { useExpressionSummaries } from './dot-plot-hook.js';
  */
 export function DotPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     title = 'Dot Plot',
@@ -37,6 +38,7 @@ export function DotPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{
