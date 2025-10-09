@@ -39,6 +39,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Handle shapes elements.
+      /*
       if (relPath.match(/^(shapes)\/([^/]*)$/)) {
         // TODO: check if shapes are circles or polygons
         // to determine which Vitessce data type to use.
@@ -59,6 +60,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
         // TODO: check which table annotates these shapes.
       }
+      */
 
       // Handle table elements.
       if (relPath.match(/^(tables|table)\/([^/]*)$/)) {
@@ -105,12 +107,16 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  addViews(vc, layoutOption) {
+  addViews(vc, dataset, layoutOption) {
     // TODO
 
     // Add spatialBeta/layerControllerBeta views.
+    vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 12 });
+    vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 12 });
+
     // If obsSets are present, add obsSets view.
     // If obsFeatureMatrix is present, add featureList view.
-    
+
+    // TODO: set up coordination stuff here?
   }
 }

@@ -26,32 +26,13 @@ import {
 } from './shared-mui/container.js';
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
-import { getFilesFromDataTransferItems } from "@placemarkio/flat-drop-files";
-import { root as zarrRoot, open as zarrOpen } from 'zarrita';
 import { Sidebar } from './Sidebar.js';
-import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 
 
 const SIDEBAR_WIDTH = 30;
 
 const padding = 10;
 const margin = 5;
-
-class FileSystemStore {
-  constructor(files) {
-    this.files = files;
-  }
-
-  async get(key) {
-    console.log('key', key);
-    // The list of files does not prefix its paths with slashes.
-    const file = this.files.find(f => `/${f.relpath}` === key);
-    if (!file) return undefined;
-    return file.arrayBuffer();
-  }
-
-  // TODO: implement getRange
-}
 
 /**
  * The wrapper for the VitessceGrid and LoadingIndicator components.
@@ -81,17 +62,13 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
-    enableSidebar,
-    enableDropzone,
-    configEditable,
-    themeEditable,
-    setTheme,
+    onDrop: onDropHandler,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
-  const [componentWidth] = useClosestVitessceContainerSize(containerRef, enableSidebar ? SIDEBAR_WIDTH : 0);
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef, 0);
 
   const { classes } = useVitessceContainerStyles();
   const { classes: titleClasses } = useTitleStyles();
@@ -141,113 +118,38 @@ export default function VitessceGrid(props) {
   const [isDragging, setIsDragging] = useState(false);
   const [isDragProcessing, setIsDragProcessing] = useState(false);
 
+  // Effect for setting up drag-and-drop event listeners.
   useEffect(() => {
     const zone = containerRef.current;
 
-    // TODO: support drag-and-drop only when the parent has passed an onDrop handler?
+     // Support drag-and-drop only when the parent has passed an onDrop handler.
+    const enableDropzone = (onDropHandler && typeof onDropHandler === 'function');
+    if(!enableDropzone) {
+      return () => {};
+    }
 
     const onDragEnter = (e) => {
-      if(!enableDropzone) return;
       console.log('onDragEnter');
       e.preventDefault();
       setIsDragging(true);
     };
     const onDragLeave = (e) => {
-      if(!enableDropzone) return;
       setIsDragging(false);
     };
     const onDragOver = (e) => {
-      if(!enableDropzone) return;
       e.preventDefault();
     };
     const onDrop = async (e) => {
-      if(!enableDropzone) return;
       e.preventDefault();
 
       setIsDragging(false);
       setIsDragProcessing(true);
 
-      // TODO: here, call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
-
-      const topLevelEntries = Object.values(e.dataTransfer.items)
-        .map(item => item.webkitGetAsEntry());
-
-      // TODO: implement an alternative approach that does not first flatten the file tree,
-      // since it can be very large.
-      // See https://github.com/manzt/zarrita.js/pull/161/files
-      const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
-
-      const stores = topLevelEntries.map(entry => {
-        if (entry.isDirectory) {
-          // TODO: optimize by using a single loop for filter+map,
-          // and by using .substring (rather than split+slice+join).
-          const dirFiles = files
-            .filter(f => f.path.split('/')?.[0] === entry.name)
-            .map(f => {
-              f.relpath = f.path.split('/')?.slice(1).join('/');
-              return f;
-          });
-          console.log(dirFiles);
-          // Create a store for each top-level item of e.dataTransfer.items.
-          const store = new FileSystemStore(dirFiles);
-          
-          // TODO: remove the zarrRoot+zarrOpen lines
-          const storeRoot = zarrRoot(store);
-          zarrOpen(storeRoot).then(group => console.log(group.attrs))
-          
-          return [entry.name, store];
-        } else {
-          // This is a single file. Check extension to determine how to create a store.
-          if (entry.name.endsWith('.zip')) {
-            // Create a zip store.
-            
-            // TODO
-          } else if(entry.name.endsWith('.tif') || entry.name.endsWith('.tiff')) {
-            // Create an OME-TIFF-as-NGFF store?
-
-            // TODO
-          } else if(entry.name.endsWith('.csv')) {
-            // Create a CSV store?
-
-            // TODO
-          } else {
-            // Throw?
-
-            // TODO
-          }
-          return [entry.name, null];
-        }
-      })
+      // Here, call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
+      console.log('onDrop');
+      await onDropHandler(e);
 
       setIsDragProcessing(false);
-
-      
-      console.log(stores);
-
-      const parsedUrls = stores.map(([name, store]) => {
-        return {
-          ...parseUrls(name)[0],
-          store,
-        };
-      })
-      const { config, stores: storesForConfig } = await generateConfig(parsedUrls);
-      const newConfig = config.toJSON();
-      console.log(newConfig, storesForConfig);
-
-      // NOTE: this approach doesn't work, because generateConfig returns a config with joint file types,
-      // while setViewConfig expects a config with only atomic file types (e.g., after initialization).
-      // This is why the parent needs to do the onDrop handling.
-
-      // // Update the view config and loaders in the global state.
-      // const newLoaders = createLoaders(
-      //   newConfig.datasets,
-      //   newConfig.description,
-      //   fileTypes,
-      //   coordinationTypes,
-      //   storesForConfig,
-      // );
-      // setViewConfig(newConfig);
-      // setLoaders(newLoaders);
     };
 
 
@@ -264,7 +166,7 @@ export default function VitessceGrid(props) {
       zone.removeEventListener("dragover", onDragOver);
       zone.removeEventListener("drop", onDrop);
     };
-  }, [containerRef, enableDropzone, fileTypes, coordinationTypes]);
+  }, [containerRef, onDropHandler]);
 
   return (
     <div
@@ -273,41 +175,31 @@ export default function VitessceGrid(props) {
       role="group"
       aria-label={altText}
     >
-      <GridLayoutGlobalStyles classes={classes} />
-      {!pageMode && enableSidebar ? (
-        <Sidebar
+    <GridLayoutGlobalStyles classes={classes} />
+      {layout ? (
+        <VitessceGridLayout
+          pageMode={pageMode}
+          role="group"
+          layout={layout}
+          height={height}
+          rowHeight={rowHeight}
           theme={theme}
-          setTheme={setTheme}
-          configEditable={configEditable}
-          themeEditable={themeEditable}
-        />
+          viewTypes={viewTypes}
+          fileTypes={fileTypes}
+          coordinationTypes={coordinationTypes}
+          stores={stores}
+          draggableHandle={titleClasses.titleLeft}
+          margin={margin}
+          padding={padding}
+          onRemoveComponent={removeComponent}
+          onLayoutChange={changeLayoutPostMount}
+          isBounded={isBounded}
+          onResize={onResize}
+          onResizeStop={onResize}
+        >
+          {children}
+        </VitessceGridLayout>
       ) : null}
-      <div style={{ width: `calc(100% - ${enableSidebar ? SIDEBAR_WIDTH : 0}px)`, position: 'relative' }}>
-        {layout ? (
-          <VitessceGridLayout
-            pageMode={pageMode}
-            role="group"
-            layout={layout}
-            height={height}
-            rowHeight={rowHeight}
-            theme={theme}
-            viewTypes={viewTypes}
-            fileTypes={fileTypes}
-            coordinationTypes={coordinationTypes}
-            stores={stores}
-            draggableHandle={titleClasses.titleLeft}
-            margin={margin}
-            padding={padding}
-            onRemoveComponent={removeComponent}
-            onLayoutChange={changeLayoutPostMount}
-            isBounded={isBounded}
-            onResize={onResize}
-            onResizeStop={onResize}
-          >
-            {children}
-          </VitessceGridLayout>
-        ) : null}
-      </div>
     </div>
   );
 }

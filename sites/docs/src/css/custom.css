@@ -114,11 +114,13 @@
 .vitessce-app {
   flex: 1;
   position: relative;
+  display: flex;
+  height: calc(100% - var(--ifm-vitessce-toolbar-height));
 }
 
 .vitessce-app .vitessce-container {
   width: 80%;
-  left: 10%
+  left: 10%;
 }
 
 .vitessce-app.vitessce-expanded .vitessce-container, .vitessce-app.vitessce-page .vitessce-container {

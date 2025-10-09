@@ -120,7 +120,6 @@ export function VitessceDemo() {
     const pageMode = urlParams.get('pageMode') === 'true';
     const debugMode = urlParams.get('debugMode')?.toLowerCase() === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
-    const enableSidebar = urlParams.get('sidebar') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -154,10 +153,6 @@ export function VitessceDemo() {
             pageMode={pageMode}
             debugMode={debugMode}
             logLevel={logLevel}
-            enableSidebar={enableSidebar}
-            enableDropzone={enableSidebar}
-            configEditable={enableSidebar}
-            themeEditable={enableSidebar}
           >
             {pageMode ? <PageComponent /> : null}
           </Vitessce>

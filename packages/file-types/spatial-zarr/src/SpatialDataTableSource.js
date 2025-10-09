@@ -305,6 +305,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
       // Step 4: Return the footer bytes
       return footerBytes;
+    } else {
+      throw new Error('Store does not support getRange');
     }
     // Store does not support getRange.
     return null;

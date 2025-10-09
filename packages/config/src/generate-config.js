@@ -248,7 +248,7 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
 
     autoConfig.addFiles(vc, dataset);
     // TODO: add all files, then add all views (in two separate loops)?
-    autoConfig.addViews(vc, layoutOption);
+    autoConfig.addViews(vc, dataset, layoutOption);
   });
 
   const stores = Object.fromEntries(

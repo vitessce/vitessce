@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-console */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
@@ -13,6 +13,7 @@ import DemoHeader from './_DemoHeader.js';
 import ThemedVitessce from './_ThemedVitessce.js';
 import ViewConfigEditor from './_ViewConfigEditor.js';
 import { baseJs, baseJson } from './_live-editor-examples.js';
+import { createOnDrop } from '@vitessce/all';
 
 // TODO: remove this when ThreeJS-based XR spatial view is on main branch.
 const betaXrKeys = [
@@ -92,6 +93,7 @@ function IndexWithHashParams() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validConfig, setValidConfig] = useState(null);
+  const [stores, setStores] = useState(null);
 
   const [pendingJson, setPendingJson] = useState(baseJson);
   const [pendingJs, setPendingJs] = useState(baseJs);
@@ -231,6 +233,10 @@ function IndexWithHashParams() {
   // PageMode
   const PageComponent = isDemo ? configPages?.[demo] : null;
 
+  const onDropHandler = useMemo(() => {
+    return createOnDrop({ setViewConfig: setValidConfig, setStores });
+  }, [setValidConfig, setStores]);
+
   return (edit ? (
     <>
       <AppStyles />
@@ -302,6 +308,8 @@ function IndexWithHashParams() {
             handleEdit={handleEdit}
             height={isExpanded ? undefined : 800}
             pageMode={pageMode}
+            stores={stores}
+            onDrop={onDropHandler}
           >
             {pageMode && PageComponent ? (<PageComponent />) : null}
           </ThemedVitessce>

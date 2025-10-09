@@ -15,7 +15,7 @@ export class OmeAutoConfig extends AbstractAutoConfig {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  addViews(vc, layoutOption) {
+  addViews(vc, dataset, layoutOption) {
     // TODO
   }
 }
