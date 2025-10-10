@@ -81,7 +81,7 @@ export default {
           position: 'right',
         },
         {
-          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          href: 'https://ipa-reader.com/?text=v%C9%AAt-%C9%9Bs',
           position: 'right',
           className: 'header-pronunciation-link',
           'aria-label': 'Pronunciation',
