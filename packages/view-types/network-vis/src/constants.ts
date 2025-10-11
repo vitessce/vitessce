@@ -2,13 +2,20 @@
  * Dataset-agnostic configuration for network visualization.
  * 
  * To adapt this view for a new dataset:
- * 1. Update NODE_TYPE_CONFIG to define your node types and their visual properties
- * 2. Update COMPOSITE_NODE_CONFIG if your dataset has merged/composite nodes
- * 3. Update EDGE_TYPES if your dataset has different edge semantics
- * 4. Adjust visual constants (colors, opacity, sizes) as needed
+ * 1. Update NETWORK_DATA_URL to point to your network JSON file
+ * 2. Update NODE_TYPE_CONFIG to define your node types and their visual properties
+ * 3. Update COMPOSITE_NODE_CONFIG if your dataset has merged/composite nodes
+ * 4. Update EDGE_TYPES if your dataset has different edge semantics
+ * 5. Adjust visual constants (colors, opacity, sizes) as needed
  * 
  * All other view logic remains unchanged.
  */
+
+/**
+ * URL to fetch the network data from.
+ * The data should be in JSON format with structure: { nodes: [...], links: [...] }
+ */
+export const NETWORK_DATA_URL = 'https://network-hidive.s3.eu-central-1.amazonaws.com/modified_network_kidney_20_10.json';
 
 /**
  * Configuration for each node type in the network.

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import CytoscapeWrapper from './components/CytoscapeWrapper';
 import MotifSketch from './components/MotifSketch';
 import Graph from 'graphology';
-import { isCompositeNode, EDGE_TYPES, NODE_TYPE_CONFIG, getNodeColor, VISUAL_CONSTANTS } from './constants';
+import { isCompositeNode, EDGE_TYPES, NODE_TYPE_CONFIG, getNodeColor, VISUAL_CONSTANTS, NETWORK_DATA_URL } from './constants';
 
 interface Node {
   id: string;
@@ -358,7 +358,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://network-hidive.s3.eu-central-1.amazonaws.com/modified_network_kidney_20_10.json');
+        const response = await fetch(NETWORK_DATA_URL);
         if (!response.ok) throw new Error('Failed to fetch network data');
         const data = await response.json();
         setState({ data, infoText: '' });
