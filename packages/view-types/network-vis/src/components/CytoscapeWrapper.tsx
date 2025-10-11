@@ -5,6 +5,7 @@ import cytoscapeLasso from 'cytoscape-lasso';
 import cytoscapeContextMenus from 'cytoscape-context-menus';
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import Graph from 'graphology';
+import { getNodeColor, isCompositeNode, VISUAL_CONSTANTS, COMPOSITE_NODE_CONFIG } from '../constants';
 
 // Register the plugins
 (cytoscape as any).use(cytoscapeLasso);
@@ -39,9 +40,9 @@ const createElements = (
   cellColors: Map<string, [number, number, number]>
 ) => [
   ...nodes.map(node => {
-    let borderColor = '#999';
+    let borderColor = VISUAL_CONSTANTS.defaultBorderColor;
     let hasCellColor = false;
-    if (node.ftuName === 'nerves' && node.id.startsWith('merged_') && node.subComponents) {
+    if (isCompositeNode(node.ftuName, node.id) && node.subComponents) {
       const coloredSubComponent = node.subComponents.find(subId => cellColors.has(subId));
       if (coloredSubComponent) {
         borderColor = `rgb(${cellColors.get(coloredSubComponent)?.join(',')})`;
@@ -60,7 +61,7 @@ const createElements = (
         size: nodeSize,
         ftuName: node.ftuName,
         subComponents: node.subComponents,
-        opacity: cellColors.has(node.id) ? 1 : 0.3,
+        opacity: cellColors.has(node.id) ? VISUAL_CONSTANTS.emphasizedOpacity : VISUAL_CONSTANTS.deemphasizedOpacity,
         cellColors: hasCellColor
       }
     };
@@ -79,50 +80,50 @@ const stylesheet = [
     style: {
       'background-color': 'data(color)',
       'border-color': 'data(borderColor)',
-      'border-width': '4px',
-      'width': '15',
-      'height': '15',
+      'border-width': String(VISUAL_CONSTANTS.borderWidth),
+      'width': String(VISUAL_CONSTANTS.nodeSize),
+      'height': String(VISUAL_CONSTANTS.nodeSize),
       'opacity': 'data(opacity)'
     }
   },
   {
     selector: 'node:selected',
     style: {
-      'width': '25',
-      'height': '25',
-      'border-width': '6px',
-      'opacity': '1'
+      'width': String(VISUAL_CONSTANTS.selectedNodeSize),
+      'height': String(VISUAL_CONSTANTS.selectedNodeSize),
+      'border-width': String(VISUAL_CONSTANTS.selectedBorderWidth),
+      'opacity': String(VISUAL_CONSTANTS.emphasizedOpacity)
     }
   },
   {
     selector: 'node.hovered',
     style: {
-      'border-width': '8px',
-      'border-color': '#ffffff',
+      'border-width': String(VISUAL_CONSTANTS.hoverBorderWidth),
+      'border-color': VISUAL_CONSTANTS.hoverBorderColor,
       'border-style': 'solid',
-      'width': '25',
-      'height': '25',
-      'opacity': '1'
+      'width': String(VISUAL_CONSTANTS.selectedNodeSize),
+      'height': String(VISUAL_CONSTANTS.selectedNodeSize),
+      'opacity': String(VISUAL_CONSTANTS.emphasizedOpacity)
     }
   },
   {
     selector: 'node[?cellColors]',
     style: {
-      'border-width': '6px',
-      'opacity': '1'
+      'border-width': String(VISUAL_CONSTANTS.selectedBorderWidth),
+      'opacity': String(VISUAL_CONSTANTS.emphasizedOpacity)
     }
   },
   {
     selector: 'edge',
     style: {
       'width': '1',
-      'line-color': '#999',
+      'line-color': VISUAL_CONSTANTS.edgeColor,
       'curve-style': 'straight'
     }
   }
 ];
 
-const nodeColor = (n: Node) => n.ftuName === 'glomeruli' ? 'red' : 'yellow';
+const nodeColor = (n: Node) => getNodeColor(n.ftuName);
 
 const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
   nodes,
@@ -196,7 +197,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
 
           const nodeData = node.data();
           const selectedNodeIds: string[] = [];
-          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+          if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
             nodeData.subComponents.forEach((subId: string) => {
               selectedNodeIds.push(subId);
             });
@@ -218,7 +219,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
                 const node = cyRef.current.getElementById(id);
                 if (node.length > 0) {
                   const nodeData = node.data();
-                  if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+                  if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
                     nodeData.subComponents.forEach((subId: string) => {
                       hopNodeIds.push(subId);
                     });
@@ -275,7 +276,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
 
           const nodeData = node.data();
           const selectedNodeIds: string[] = [];
-          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+          if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
             nodeData.subComponents.forEach((subId: string) => {
               selectedNodeIds.push(subId);
             });
@@ -297,7 +298,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
                 const node = cyRef.current.getElementById(id);
                 if (node.length > 0) {
                   const nodeData = node.data();
-                  if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+                  if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
                     nodeData.subComponents.forEach((subId: string) => {
                       hopNodeIds.push(subId);
                     });
@@ -362,13 +363,13 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
       const nodeId = node.id();
       const nodeData = node.data();
 
-      if (nodeData.ftuName === 'nerves' && nodeId.startsWith('merged_')) {
+      if (isCompositeNode(nodeData.ftuName, nodeId)) {
         const hasHighlightedSubComponent = nodeData.subComponents?.some(
           (subId: string) => cellColors.has(subId)
         );
-        node.style('opacity', hasHighlightedSubComponent ? 1 : 0.3);
+        node.style('opacity', hasHighlightedSubComponent ? VISUAL_CONSTANTS.emphasizedOpacity : VISUAL_CONSTANTS.deemphasizedOpacity);
       } else {
-        const opacity = cellColors.has(nodeId) ? 1 : 0.3;
+        const opacity = cellColors.has(nodeId) ? VISUAL_CONSTANTS.emphasizedOpacity : VISUAL_CONSTANTS.deemphasizedOpacity;
         node.style('opacity', opacity);
       }
     });
@@ -386,7 +387,7 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
     cy.nodes().forEach((node: any) => {
       const { id, ftuName, subComponents } = node.data();
 
-      if (ftuName === 'nerves' && id.startsWith('merged_')) {
+      if (isCompositeNode(ftuName, id)) {
         if (subComponents?.includes(obsHighlight)) {
           node.addClass('hovered');
         }
@@ -422,14 +423,10 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
 
       selectedNodes.forEach((node: any) => {
         const nodeData = node.data();
-        if (nodeData.ftuName === 'nerves') {
-          if (nodeData.id.startsWith('merged_')) {
-            nodeData.subComponents.forEach((subId: string) => {
-              selectedNodeIds.push(subId);
-            });
-          } else {
-            selectedNodeIds.push(nodeData.id);
-          }
+        if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
+          nodeData.subComponents.forEach((subId: string) => {
+            selectedNodeIds.push(subId);
+          });
         } else {
           selectedNodeIds.push(nodeData.id);
         }
@@ -491,12 +488,10 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
             const nodeData = node.data();
             let nodeId = nodeData.id;
 
-            if (nodeData.ftuName === 'nerves') {
-              if (nodeData.id.startsWith('merged_')) {
-                nodeId = `${nodeData.subComponents[0]}000`;
-              } else {
-                nodeId = `${nodeData.id}000`;
-              }
+            if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
+              nodeId = `${nodeData.subComponents[0]}000`;
+            } else if (nodeData.ftuName === COMPOSITE_NODE_CONFIG.compositeNodeType) {
+              nodeId = `${nodeData.id}000`;
             }
 
             node.addClass('hovered');

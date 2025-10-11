@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import paper from 'paper';
+import { getNodeColor, EDGE_TYPES, NODE_TYPE_CONFIG } from '../constants';
 
 interface SketchNode {
   id: string;
@@ -67,10 +68,12 @@ const MotifSketch: React.FC<MotifSketchProps> = ({
       const sourceNode = nodes.find(n => n.id === edge.source)!;
       const targetNode = nodes.find(n => n.id === edge.target)!;
       
+      // Use the first node type in NODE_TYPE_CONFIG as the primary type
+      const primaryNodeType = Object.keys(NODE_TYPE_CONFIG)[0];
       return {
         source: edge.source,
         target: edge.target,
-        type: sourceNode.type === 'glomeruli' ? 'glomeruli_to_nerve' : 'nerve_to_glomeruli'
+        type: sourceNode.type === primaryNodeType ? EDGE_TYPES.forwardEdge : EDGE_TYPES.reverseEdge
       };
     });
 
@@ -93,9 +96,7 @@ const MotifSketch: React.FC<MotifSketchProps> = ({
     if (nodes.length > 0) {
       nodes.forEach(node => {
         const circle = new paper.Path.Circle(node.position, 8);
-        circle.fillColor = node.type === 'glomeruli' ? 
-          new paper.Color('#ff4444') : 
-          new paper.Color('#ffd700');
+        circle.fillColor = new paper.Color(getNodeColor(node.type));
         circle.strokeColor = new paper.Color('#333');
         circle.strokeWidth = 1;
         circle.shadowColor = new paper.Color('#000');
@@ -193,9 +194,7 @@ const MotifSketch: React.FC<MotifSketchProps> = ({
     } else {
       // Create new node
       const circle = new paper.Path.Circle(point, 8);
-      circle.fillColor = currentNodeType === 'glomeruli' ? 
-        new paper.Color('#ff4444') : 
-        new paper.Color('#ffd700');
+      circle.fillColor = new paper.Color(getNodeColor(currentNodeType));
       circle.strokeColor = new paper.Color('#333');
       circle.strokeWidth = 1;
       circle.shadowColor = new paper.Color('#000');
@@ -268,7 +267,7 @@ const MotifSketch: React.FC<MotifSketchProps> = ({
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            backgroundColor: currentNodeType === 'glomeruli' ? '#ff4444' : '#ffd700',
+            backgroundColor: getNodeColor(currentNodeType),
             display: 'inline-block'
           }} />
           <select

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import CytoscapeWrapper from './components/CytoscapeWrapper';
 import MotifSketch from './components/MotifSketch';
 import Graph from 'graphology';
+import { isCompositeNode, EDGE_TYPES, NODE_TYPE_CONFIG, getNodeColor, VISUAL_CONSTANTS } from './constants';
 
 interface Node {
   id: string;
@@ -147,7 +148,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     const selectedNodeIds = allNodes.map(id => {
       const node = cyRef.current.getElementById(id);
       const nodeData = node.data();
-      if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+      if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
         return nodeData.subComponents;
       }
       return [id];
@@ -193,8 +194,8 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
       graph.addNode(node.id, { type: node.ftuName });
     });
     links.forEach(link => {
-      graph.addEdge(link.source, link.target, { type: 'glomeruli_to_nerve' });
-      graph.addEdge(link.target, link.source, { type: 'nerve_to_glomeruli' });
+      graph.addEdge(link.source, link.target, { type: EDGE_TYPES.forwardEdge });
+      graph.addEdge(link.target, link.source, { type: EDGE_TYPES.reverseEdge });
     });
     const isSubgraphMatch = (nodeMapping: Map<string, string>): boolean => {
       if (nodeMapping.size !== motifPattern.nodes.length) return false;
@@ -211,11 +212,13 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
     };
     const findSubgraphIsomorphisms = () => {
       const results: Set<string>[] = [];
-      const glomeruliNodes = nodes.filter(n => n.ftuName === 'glomeruli');
+      // Use the first node type defined in NODE_TYPE_CONFIG as the starting point
+      const primaryNodeType = Object.keys(NODE_TYPE_CONFIG)[0];
+      const glomeruliNodes = nodes.filter(n => n.ftuName === primaryNodeType);
       for (const startNode of glomeruliNodes) {
         const visited = new Set<string>();
         const nodeMapping = new Map<string, string>();
-        const firstPatternNode = motifPattern.nodes.find(n => n.type === 'glomeruli');
+        const firstPatternNode = motifPattern.nodes.find(n => n.type === primaryNodeType);
         if (!firstPatternNode) continue;
         nodeMapping.set(firstPatternNode.id, startNode.id);
         visited.add(startNode.id);
@@ -324,7 +327,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
         const node = cyRef.current.getElementById(nodeId);
         if (node.length > 0) {
           const nodeData = node.data();
-          if (nodeData.ftuName === 'nerves' && nodeData.id.startsWith('merged_')) {
+          if (isCompositeNode(nodeData.ftuName, nodeData.id)) {
             nodeData.subComponents.forEach((subId: string) => {
               matchNodeIds.push(subId);
             });
@@ -432,19 +435,19 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
       const nodeAttributes = [
         ['Node', 'ftuName', 'color', 'borderColor', 'size', 'opacity', 'subComponents'].join('\t'),
         ...state.data.nodes.map(node => {
-          const nodeColor = node.ftuName === 'glomeruli' ? 'red' : 'yellow';
-          let borderColor = '#999';
-          let opacity = '0.3';
+          const nodeColor = getNodeColor(node.ftuName);
+          let borderColor = VISUAL_CONSTANTS.defaultBorderColor;
+          let opacity = String(VISUAL_CONSTANTS.deemphasizedOpacity);
           
-          if (node.ftuName === 'nerves' && node.id.startsWith('merged_') && node.subComponents) {
+          if (isCompositeNode(node.ftuName, node.id) && node.subComponents) {
             const coloredSubComponent = node.subComponents.find(subId => cellColors.has(subId));
             if (coloredSubComponent) {
               borderColor = `rgb(${cellColors.get(coloredSubComponent)?.join(',')})`;
-              opacity = '1';
+              opacity = String(VISUAL_CONSTANTS.emphasizedOpacity);
             }
           } else if (cellColors.has(node.id)) {
             borderColor = `rgb(${cellColors.get(node.id)?.join(',')})`;
-            opacity = '1';
+            opacity = String(VISUAL_CONSTANTS.emphasizedOpacity);
           }
           
           return [
@@ -475,7 +478,7 @@ const NetworkVis: React.FC<NetworkVisProps> = ({
           link.source,
           link.target,
           '1',
-          '#999',
+          VISUAL_CONSTANTS.edgeColor,
           'solid'
         ].join('\t'))
       ].join('\n');
