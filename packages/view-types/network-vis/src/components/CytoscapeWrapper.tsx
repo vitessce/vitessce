@@ -15,6 +15,8 @@ interface Node {
   id: string;
   ftuName: string;
   subComponents?: string[];
+  x?: number;
+  y?: number;
 }
 
 interface Link {
@@ -53,7 +55,7 @@ const createElements = (
       hasCellColor = true;
     }
 
-    return {
+    const element: any = {
       data: {
         id: node.id,
         color: nodeColor(node),
@@ -65,6 +67,13 @@ const createElements = (
         cellColors: hasCellColor
       }
     };
+
+    // Include position if x,y coordinates are provided
+    if (node.x !== undefined && node.y !== undefined) {
+      element.position = { x: node.x, y: node.y };
+    }
+
+    return element;
   }),
   ...links.map(link => ({
     data: {
@@ -124,6 +133,15 @@ const stylesheet = [
 ];
 
 const nodeColor = (n: Node) => getNodeColor(n.ftuName);
+
+/**
+ * Check if nodes have x,y coordinates defined
+ */
+const hasNodePositions = (nodes: Node[]): boolean => {
+  return nodes.length > 0 && nodes.some(node => 
+    node.x !== undefined && node.y !== undefined
+  );
+};
 
 const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
   nodes,
@@ -469,11 +487,14 @@ const CytoscapeWrapper: React.FC<CytoscapeWrapperProps> = ({
     }
   }, [obsSetSelection, obsHighlight]);
 
+  // Determine layout: use 'preset' if nodes have positions, otherwise use 'cose'
+  const layoutName = hasNodePositions(nodes) ? 'preset' : 'cose';
+
   return (
     <CytoscapeComponent
       elements={createElements(nodes, links, nodeColor, 10, cellColors)}
       style={{ width: '100%', height: '100%' }}
-      layout={{ name: 'cose', fit: true, padding: 30 }}
+      layout={{ name: layoutName, fit: true, padding: 30 }}
       stylesheet={stylesheet}
       cy={(cy: any) => {
         cyRef.current = cy;

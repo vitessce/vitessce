@@ -8,6 +8,8 @@ interface Node {
   id: string;
   ftuName: string;
   subComponents?: string[];
+  x?: number;
+  y?: number;
 }
 
 interface Link {

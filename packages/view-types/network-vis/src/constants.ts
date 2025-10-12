@@ -16,6 +16,7 @@
  * The data should be in JSON format with structure: { nodes: [...], links: [...] }
  */
 export const NETWORK_DATA_URL = 'https://network-hidive.s3.eu-central-1.amazonaws.com/modified_network_kidney_20_10.json';
+// export const NETWORK_DATA_URL = 'https://network-hidive.s3.eu-central-1.amazonaws.com/network_11k_cells.json';
 
 /**
  * Configuration for each node type in the network.
