@@ -15,6 +15,7 @@ Vitessce is being used in the following projects:
   * [Azimuth References](https://azimuth.hubmapconsortium.org/references/) ([code](https://github.com/satijalab/azimuth_website)) ([paper](https://doi.org/10.1016/j.cell.2021.04.048))
   * [Human In Situ Single-cell Transcriptome Atlas](https://kbds.re.kr/hissta/) ([paper](https://doi.org/10.1093/bioinformatics/btaf142))
   * [BRain tUmor heterogeneity deCiphEred by high dimensional multiomic analysis](https://www.bruce.parkerici.org/pages/visualization.html) ([preprint](https://doi.org/10.1101/2025.03.12.642624))
+  * [PsychSCREEN](https://psychscreen.vercel.app) ([code](https://github.com/weng-lab/psychscreen))
 * Integration into open-source tools/pipelines
   * OHSU Galaxy ([code](https://github.com/ohsu-comp-bio/scimap_phenotyping)) ([preprint](https://www.biorxiv.org/content/10.1101/2022.08.18.504436v2.full))  
   * OMERO \+ Vitessce ([code](https://github.com/NFDI4BIOIMAGE/omero-vitessce))  
@@ -28,6 +29,7 @@ Vitessce is being used in the following projects:
 * Industry/commercial products  
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
+  * [Pluto Bio](https://pluto.bio/) ([linkedin post](https://www.linkedin.com/posts/rani-powers_bioinformatics-dataanalysis-activity-7381402826389958656-CqBa/))
 * Publication-associated interactive figures
   * [De Jong et al. 2025 bioRxiv](https://www.gbmspace.org/) ([preprint](https://www.biorxiv.org/content/10.1101/2025.05.13.653495v1))
   * [Qian et al. 2025 Nature](https://walshlab.org/research/cortexdevelopment/) ([paper](https://doi.org/10.1038/s41586-025-09010-1))
