@@ -15,13 +15,13 @@ View code contributors on [GitHub](https://github.com/vitessce/vitessce/graphs/c
 To cite Vitessce in your work, please use:
 
 ```bibtex
-@article{keller2021vitessce,
-  title = {{Vitessce: a framework for integrative visualization of multi-modal and spatially-resolved single-cell data}},
+@article{keller2024vitessce,
+  title = {{Vitessce: integrative visualization of multimodal and spatially resolved single-cell data}},
   author = {Keller, Mark S. and Gold, Ilan and McCallum, Chuck and Manz, Trevor and Kharchenko, Peter V. and Gehlenborg, Nils},
-  journal = {OSF Preprints},
-  year = {2021},
-  month = oct,
-  doi = {10.31219/osf.io/y8thv}
+  journal = {Nature Methods},
+  year = {2024},
+  month = sep,
+  doi = {10.1038/s41592-024-02436-x}
 }
 ```
 
