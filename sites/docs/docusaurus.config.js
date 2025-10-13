@@ -53,12 +53,12 @@ export default {
           label: 'Docs',
           position: 'left',
         },
-        {
+        /*{
           type: 'doc',
           docId: 'tutorials',
           label: 'Tutorials',
           position: 'left',
-        },
+        },*/
         {
           href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
@@ -67,6 +67,11 @@ export default {
         {
           href: 'https://r-docs.vitessce.io/',
           label: 'For R',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/vitessce/easy_vitessce',
+          label: 'EasyVitessce',
           position: 'left',
         },
         {
