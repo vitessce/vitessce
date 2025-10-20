@@ -325,7 +325,33 @@ async function _bisectRowGroupsLeft({ queryClient, store }, parquetPath, columnN
 }
 */
 
-function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
+function getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi) {
+  // The assumption here is that it is very cheap to check the cached
+  // row group indices (and their min/max values), while loading a row group is expensive.
+  const queryCache = queryClient.getQueryCache();
+  const prevQueries = queryCache.findAll({
+    // Note: Must (manually) keep in sync with queryKey used in _loadParquetRowGroupColumnExtent.
+    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName /* wildcard for rowGroupIndex */],
+    exact: false,
+  });
+
+  const cachedRowGroupInfo = prevQueries.map(q => {
+    if(!(q.state.status === 'success' && !q.state.isInvalidated)) {
+      return null;
+    }
+    return {
+      queryKey: q.queryKey,
+      index: q.queryKey[4],
+      status: q.state.status,
+      min: q.state.data?.min,
+      max: q.state.data?.max,
+    };
+  }).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
+
+  return cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
+}
+
+async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
   // The assumption here is that it is very cheap to check the cached
   // row group indices (and their min/max values), while loading a row group is expensive.
   const queryCache = queryClient.getQueryCache();
@@ -335,17 +361,31 @@ function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
     exact: false,
   });
   const cachedRowGroupInfo = prevQueries.map(q => {
-    if(!(q.state.status === 'success' && !q.state.isInvalidated)) {
-      return null;
-    }
     return {
+      queryKey: q.queryKey,
       index: q.queryKey[4],
-      min: q.state.data.min,
-      max: q.state.data.max,
+      status: q.state.status,
+      min: q.state.data?.min,
+      max: q.state.data?.max,
     };
   }).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
 
-  return cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
+  const cachedInRange = cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
+  // We want to await any pending queries here before returning, to avoid accumulating many pending queries.
+  // One of the pending queries may contain an answer that allows us to skip other queries.
+  const pendingQueries = cachedInRange.filter(c => c.status !== 'success');
+  if (pendingQueries.length === 0) {
+    return cachedInRange;
+  }
+  const pendingPromises = pendingQueries.map(c => {
+    return queryClient.ensureQueryData({
+      queryKey: c.queryKey,
+    });
+  });
+  // console.log('Awaiting', pendingPromises.length, 'pending cached row group extent queries', pendingQueries);
+  await Promise.all(pendingPromises);
+
+  return getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi);
 }
 
 async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, columnName, targetValue) {
@@ -369,7 +409,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
 
         // Check getQueryCache every iteration, in case it has changed while the loop was executing.
         // (Is this even possible though? E.g., due to the usage of Promise.all?)
-        const cachedInRange = getCachedInRange(queryClient, parquetPath, columnName, lo, hi);
+        const cachedInRange = await getCachedInRange(queryClient, parquetPath, columnName, lo, hi);
         // We want to find the first interval (from right) where targetValue >= c.max.
         const betterLo = cachedInRange.slice().reverse().find(c => c.index > lo && targetValue >= c.max);
         if (betterLo) {
@@ -1015,6 +1055,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     rowGroupTables.forEach((table) => {
       const xColumn = table.getChild('x');
       const yColumn = table.getChild('y');
+      // TODO: get the feature index column name from the zattrs metadata
       const featureIndexColumn = table.getChild('feature_index');
       if(!xColumn || !yColumn || !featureIndexColumn) {
         throw new Error(`Missing required column in parquet table at ${parquetPath}. Required columns: x, y, feature_index`);

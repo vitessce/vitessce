@@ -132,12 +132,17 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
 
     return new LoaderResult(
       {
+        // TODO: Return 'tiled' if the morton_code_2d column and bounding_box metadata are present,
+        // and the row group size is small enough.
+        obsPointsType: 'tiled',
+        
         obsIndex: ["1"], // TEMP
         obsPoints: { // TEMP
           shape: [2, 1],
           data: [[0], [0]],
         },
         obsPointsModelMatrix: modelMatrix,
+        
         // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
         // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
         // May need another function such as loader.supportsPointInRect() true/false.
