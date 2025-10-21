@@ -76,6 +76,22 @@ export const eng2019 = {
   ],
   initStrategy: 'auto',
   coordinationSpace: {
+    obsSetColor: {
+      'myCustomColors': [
+        {
+          path: ['Leiden Clustering', 'Cluster 1'],
+          color: [255, 0, 0],
+        },
+        {
+          path: ['Leiden Clustering', 'Cluster 2'],
+          color: [0, 255, 0],
+        },
+        {
+          path: ['Leiden Clustering', 'Cluster 3'],
+          color: [0, 99, 255],
+        }
+      ]
+    },
     embeddingType: {
       TSNE: 't-SNE',
       UMAP: 'UMAP',
@@ -135,6 +151,9 @@ export const eng2019 = {
     },
     {
       component: 'obsSets',
+      coordinationScopes: {
+        obsSetColor: 'myCustomColors',
+      },
       x: 9,
       y: 4,
       w: 3,
@@ -142,6 +161,9 @@ export const eng2019 = {
     },
     {
       component: 'obsSetSizes',
+      coordinationScopes: {
+        obsSetColor: 'myCustomColors',
+      },
       x: 5,
       y: 4,
       w: 4,
@@ -150,6 +172,7 @@ export const eng2019 = {
     {
       component: 'scatterplot',
       coordinationScopes: {
+        obsSetColor: 'myCustomColors',
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',
         embeddingObsSetLabelsVisible: 'A',
@@ -169,6 +192,7 @@ export const eng2019 = {
         cellRadius: 50,
       },
       coordinationScopes: {
+        obsSetColor: 'myCustomColors',
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
@@ -182,6 +206,7 @@ export const eng2019 = {
     {
       component: 'scatterplot',
       coordinationScopes: {
+        obsSetColor: 'myCustomColors',
         embeddingType: 'UMAP',
         embeddingZoom: 'UMAP',
         embeddingObsSetLabelsVisible: 'A',
