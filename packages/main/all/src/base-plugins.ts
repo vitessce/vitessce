@@ -181,6 +181,7 @@ import {
   SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
   SpatialDataObsEmbeddingLoader,
+  SpatialDataFeatureLabelsLoader,
   // NG precomputed
   NgPrecomputedMeshSource,
   NgPrecomputedMeshLoader,
@@ -340,7 +341,7 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
   ...makeZarrFileTypes(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
   ...makeZarrFileTypes(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR, DataType.OBS_EMBEDDING, SpatialDataObsEmbeddingLoader, SpatialDataTableSource, obsEmbeddingSpatialdataSchema),
-  ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, SpatialDataFeatureLabelsLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPrecomputedMeshSource, ngSchema),

@@ -419,8 +419,14 @@ export const spatialdataZarrSchema = z.object({
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
   obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
-  // TODO: obsLabels
-  // TODO: featureLabels
+  obsLabels: z.union([
+    annDataObsLabels,
+    z.array(annDataConvenienceObsLabelsItem),
+  ]),
+  featureLabels: z.union([
+    annDataFeatureLabels,
+    z.array(annDataConvenienceFeatureLabelsItem),
+  ]),
 
   // TODO: allow specifying tablePath and region at the top-level here.
   coordinateSystem: z.string()
