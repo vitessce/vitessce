@@ -419,10 +419,7 @@ export const spatialdataZarrSchema = z.object({
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
   obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
-  obsLabels: z.union([
-    annDataObsLabels,
-    z.array(annDataConvenienceObsLabelsItem),
-  ]),
+  // TODO: obsLabels
   featureLabels: z.union([
     annDataFeatureLabels,
     z.array(annDataConvenienceFeatureLabelsItem),
