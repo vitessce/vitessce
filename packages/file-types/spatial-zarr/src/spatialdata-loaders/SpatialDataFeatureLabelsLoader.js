@@ -5,7 +5,6 @@ import { FeatureLabelsAnndataLoader } from '@vitessce/zarr';
  */
 export default class SpatialDataFeatureLabelsLoader extends FeatureLabelsAnndataLoader {
   constructor(dataSource, params) {
-    console.log({ dataSource, params });
     super(dataSource, params);
     this.region = this.options.region;
     this.tablePath = this.options.tablePath;
