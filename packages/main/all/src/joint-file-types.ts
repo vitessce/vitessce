@@ -322,7 +322,20 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: obsPoints?
     // TODO: obsLocations?
     // TODO: obsLabels
-    // TODO: featureLabels
+    // featureLabels
+    ...(options.featureLabels ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR),
+      options: {
+        ...options.featureLabels,
+        tablePath: options.tablePath,
+        region: options.region,
+      },
+      coordinationValues: {
+        ...extraCoordinationValues,
+        featureType: baseFileDef.coordinationValues.featureType,
+      },
+    }] : []),
     // obsEmbedding
     // eslint-disable-next-line no-nested-ternary
     ...(options.obsEmbedding ? (
