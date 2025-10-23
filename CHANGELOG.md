@@ -1,4 +1,13 @@
 
+## 3.8.4
+
+### Patch Changes
+
+- Add EasyVitessce to docs. Update showcase. Minor updates to docs navbar. (`docs`) ([#2290](https://github.com/vitessce/vitessce/pull/2290))
+
+- Added support for featureLabels in spatialdata files (`@vitessce/spatial-zarr`, `@vitessce/all`, `@vitessce/schemas`) ([#2302](https://github.com/vitessce/vitessce/pull/2302))
+
+
 ## 3.8.3
 
 ### Patch Changes
