@@ -1,5 +1,6 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo, useRef, useEffect } from 'react';
 import { Handler } from 'vega-tooltip';
+import { useVegaEmbed } from "react-vega";
 import * as vegaImport from 'vega';
 import { useTooltipStyles } from '@vitessce/tooltip';
 import { getInterpolateFunction } from '@vitessce/legend';
@@ -10,12 +11,6 @@ import { VegaGlobalStyles } from './styles.js';
 // Register additional colormaps using vega.scheme().
 // Reference: https://vega.github.io/vega/docs/schemes/
 vegaImport.scheme('jet', getInterpolateFunction('jet'));
-
-// TODO: React.lazy is not working with Vitessce in the portal-ui.
-// For now, we can work around this by not using React.lazy,
-// but for performance benefits that come with lazy-loading
-// we should eventually try to resolve this issue.
-// const ReactVega = React.lazy(() => import('./ReactVega'));
 
 function isVega(spec) {
   return spec.$schema === 'https://vega.github.io/schema/vega/v5.json';
@@ -94,38 +89,64 @@ export function VegaPlot(props) {
     data: (isVega(partialSpec)
       ? [
         { name: DATASET_NAME },
-        ...partialSpec.data,
+        //...partialSpec.data,
       ]
       : { name: DATASET_NAME }
     ),
   }), [partialSpec]);
 
-  const vegaComponent = useMemo(() => (
-    <>
-      <VegaGlobalStyles />
-      <ReactVega
-        spec={spec}
-        data={{
-          [DATASET_NAME]: data,
-        }}
-        signalListeners={signalListeners}
-        tooltip={tooltipHandler}
-        renderer={renderer}
-        scaleFactor={3}
-        // We need to force a re-render when the spec
-        // is the same except for changed width/height
-        // (to support responsive plots).
-        key={JSON.stringify({ width: spec.width, height: spec.height })}
-        onNewView={onNewView}
-      />
-    </>
-  ), [spec, data, signalListeners, tooltipHandler, renderer, onNewView]);
+  const ref = useRef();
+  const embed = useVegaEmbed({
+    ref,
+    spec,
+    options: {
+      mode: "vega-lite",
+      renderer,
+      scaleFactor: 3,
+      width: spec?.width,
+      height: spec?.height,
+      tooltip: tooltipHandler,
+    },
+    onEmbed: onNewView,
+  });
+
+  // Dynamic data.
+  useEffect(() => {
+    if(ref && embed && spec && data) {
+      embed.view.data(DATASET_NAME, data).runAsync();
+    }
+  }, [ref, embed, data, spec]);
+
+  // Dynamic width/height.
+  useEffect(() => {
+    if (ref && embed && spec?.width && spec?.height) {
+      embed.view.width(spec.width).height(spec.height).runAsync();
+    }
+  }, [ref, embed, spec?.width, spec?.height]);
+
+  // Set up signal listeners to listen for interactions.
+  useEffect(() => {
+    const signalListenersToCleanup = new Map();
+    if (ref && embed && signalListeners) {
+      Object.entries(signalListeners).forEach(([signalName, callback]) => {
+        embed?.view.addSignalListener(signalName, callback);
+        signalListenersToCleanup.set(signalName, callback);
+      });
+    }
+
+    return () => {
+      signalListenersToCleanup.forEach((callback, signalName) => {
+        embed?.view.removeSignalListener(signalName, callback);
+      });
+    };
+  }, [ref, embed, signalListeners]);
 
   return (
-    spec && data && data.length > 0 ? (
-      <Suspense fallback={<div>Loading...</div>}>
-        {vegaComponent}
-      </Suspense>
-    ) : null
+    <>
+      <VegaGlobalStyles />
+      {spec && data && data.length > 0 ? (
+        <div ref={ref} />
+      ) : null}
+    </>
   );
 }
