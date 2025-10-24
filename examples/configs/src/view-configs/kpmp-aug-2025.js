@@ -162,20 +162,20 @@ function generateKpmpAug2025Config() {
       },
     });
 
-  //const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  // const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
-  //const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
+  // const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
   const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
-  //const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
-  //const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
+  // const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
+  // const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
