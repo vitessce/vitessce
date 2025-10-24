@@ -36,7 +36,7 @@ catalog:
   "d3-interpolate": ^3.0.1
   "d3-shape": ^3.2.0
   "d3-selection": ^3.0.0
-  "vega-scale": ^8.0.0
+  "vega-scale": ^8.1.0
   "pluralize": ^8.0.0
   "math.gl": ^3.5.6
   "@math.gl/core": ^3.5.6
