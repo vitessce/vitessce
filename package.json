@@ -84,7 +84,8 @@
   "pnpm": {
     "overrides": {
       "zarr": "0.5.1",
-      "jest-canvas-mock": "2.5.0"
+      "jest-canvas-mock": "2.5.0",
+      "vega-util": "1.17.3"
     },
     "peerDependencyRules": {
       "allowedVersions": {
