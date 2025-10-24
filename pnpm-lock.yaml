@@ -285,7 +285,6 @@ catalogs:
 overrides:
   zarr: 0.5.1
   jest-canvas-mock: 2.5.0
-  vega-util: 1.17.3
 
 patchedDependencies:
   '@janelia-flyem/neuroglancer@2.37.5':
@@ -15643,6 +15642,9 @@ packages:
 
   vega-util@1.17.3:
     resolution: {integrity: sha512-nSNpZLUrRvFo46M5OK4O6x6f08WD1yOcEzHNlqivF+sDLSsVpstaF6fdJYwrbf/debFi2L9Tkp4gZQtssup9iQ==}
+
+  vega-util@2.1.0:
+    resolution: {integrity: sha512-PGfp0m0QCufDmcxKJCWQy4Ov23FoF8DSXmoJwSezi3itQaa2hbxK0+xwsTMP2vy4PR16Pu25HMzgMwXVW1+33w==}
 
   vega-view-transforms@4.5.8:
     resolution: {integrity: sha512-966m7zbzvItBL8rwmF2nKG14rBp7q+3sLCKWeMSUrxoG+M15Smg5gWEGgwTG3A/RwzrZ7rDX5M1sRaAngRH25g==}
@@ -33447,7 +33449,7 @@ snapshots:
       d3-scale: 4.0.2
       d3-scale-chromatic: 3.1.0
       vega-time: 3.0.0
-      vega-util: 1.17.3
+      vega-util: 2.1.0
 
   vega-scenegraph@4.10.1:
     dependencies:
@@ -33487,7 +33489,7 @@ snapshots:
     dependencies:
       d3-array: 3.2.4
       d3-time: 3.1.0
-      vega-util: 1.17.3
+      vega-util: 2.1.0
 
   vega-tooltip@0.27.0:
     dependencies:
@@ -33514,6 +33516,8 @@ snapshots:
       vega-util: 1.17.3
 
   vega-util@1.17.3: {}
+
+  vega-util@2.1.0: {}
 
   vega-view-transforms@4.5.8:
     dependencies:
