@@ -102,7 +102,7 @@ export default function FeatureStatsTable(props) {
     const featureIds = Array.from(rowIds.ids).map(rowId => rowId.split(ROW_ID_DELIMITER)[0]);
     // We want to clear this value upon selection, in case it was previously set.
     setFeatureAggregationStrategy(null);
-    
+
     setFeatureSelection(featureIds);
   }, []);
 

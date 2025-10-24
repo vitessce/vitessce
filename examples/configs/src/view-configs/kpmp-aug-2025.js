@@ -113,10 +113,10 @@ function generateKpmpAug2025Config() {
             name: 'Subclass L3',
             path: 'obs/subclass_l3',
           },
-          /*{
+          /* {
             name: 'Donor ID',
             path: 'obs/patient',
-          },*/
+          }, */
           /* {
             name: 'Disease',
             path: 'obs/disease',
@@ -162,20 +162,20 @@ function generateKpmpAug2025Config() {
       },
     });
 
-  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  //const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
-  const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
+  //const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
   const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
-  const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
-  const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
+  //const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
+  //const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
@@ -200,12 +200,12 @@ function generateKpmpAug2025Config() {
   }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
+  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
-  vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
+  vc.linkViewsByObject([dualScatterplot, featureList, dotPlot], {
     // featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
     obsColorEncoding: 'geneSelection',
     featureValueColormap: 'greys',
@@ -221,8 +221,8 @@ function generateKpmpAug2025Config() {
   */
 
   vc.layout(hconcat(
-    vconcat(dualScatterplot, biomarkerSelect, comparativeHeading, obsSets, obsSetSizes, featureList),
-    vconcat(treemap, featureSetEnrichmentBarPlot, violinPlots, dotPlot, obsSetCompositionBarPlot, sampleSets),
+    vconcat(dualScatterplot, comparativeHeading, obsSets, obsSetSizes),
+    vconcat(treemap, dotPlot, sampleSets, featureList),
     volcanoPlotTable,
   ));
   const configJSON = vc.toJSON();
@@ -230,18 +230,14 @@ function generateKpmpAug2025Config() {
 }
 
 function PageComponent() {
-  const BiomarkerSelect = usePageModeView('biomarker-select');
   const ComparativeHeading = usePageModeView('comparative-heading');
   const CellSets = usePageModeView('cell-sets');
   const SampleSets = usePageModeView('sample-sets');
   const DualScatterplot = usePageModeView('scatterplot');
-  const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
   const VolcanoPlot = usePageModeView('volcano-plot');
   const VolcanoPlotTable = usePageModeView('volcano-plot-table');
-  const SccodaPlot = usePageModeView('sccoda-plot');
-  const PathwaysPlot = usePageModeView('pathways-plot');
 
   return (
     <>
