@@ -113,10 +113,10 @@ function generateKpmpAug2025Config() {
             name: 'Subclass L3',
             path: 'obs/subclass_l3',
           },
-          {
+          /*{
             name: 'Donor ID',
             path: 'obs/patient',
-          },
+          },*/
           /* {
             name: 'Disease',
             path: 'obs/disease',
@@ -181,14 +181,14 @@ function generateKpmpAug2025Config() {
     {
       cType: 'sampleSetSelection',
       cScope: '__comparison__',
-      cValue: [['Enrollment Category', 'CKD'], ['Enrollment Category', 'Healthy Reference']],
+      cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
     },
   );
   const [featureSelectionScope] = vc.addCoordination(
     {
       cType: 'featureSelection',
       cScope: '__comparison__',
-      cValue: ['FKBP5', 'UMOD', 'NPHS2'],
+      cValue: null,
     },
   );
 
@@ -297,7 +297,6 @@ function PageComponent() {
       <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <h1>Comparative visualization of single-cell atlas data</h1>
-          <BiomarkerSelect />
         </div>
       </div>
 
@@ -318,10 +317,10 @@ function PageComponent() {
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
-              <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021). Cell types with significantly different composition between the selected sample groups are displayed opaque while not-signficant results are displayed with transparent bars. The single outlined bar denotes the automatically-selected reference cell type.</p>
+              <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction (Narayan et al. 2021). Contour opacities correspond to the shown percentile thresholds.</p>
             </div>
             <div className="view-row-center">
-              <SccodaPlot />
+              <DualScatterplot />
             </div>
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
@@ -340,22 +339,6 @@ function PageComponent() {
               <VolcanoPlotTable />
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')} style={{ height: '700px' }}>
-            <div className="view-row-left">
-              <p>This view displays gene set enrichment test results based on the differential expression results. Gene set enrichment tests have been performed using Reactome 2022 pathway gene sets from BlitzGSEA (Lachmann et al. 2022) via the hypergeometric function of Pertpy (Heumos et al. 2024).</p>
-            </div>
-            <div className="view-row-center">
-              <PathwaysPlot />
-            </div>
-          </div>
-          <div className={clsx('view-row', 'view-row-tall')}>
-            <div className="view-row-left">
-              <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction (Narayan et al. 2021). Contour opacities correspond to the shown percentile thresholds.</p>
-            </div>
-            <div className="view-row-center">
-              <DualScatterplot />
-            </div>
-          </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This dot plot view displays gene expression values per cell type and sample group for the selected biomarkers.</p>
@@ -364,22 +347,6 @@ function PageComponent() {
               <DotPlot />
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')}>
-            <div className="view-row-left">
-              <p>This violin plot view displays gene expression values per cell type and sample group for the selected biomarker.</p>
-            </div>
-            <div className="view-row-center">
-              <ViolinPlot />
-            </div>
-          </div>
-          {/* <h3>Neighborhood-level representations</h3>
-          <h1>TODO</h1>
-          <h3>Segmented instance-level representations</h3>
-          <h1>TODO</h1>
-          <h3>Image-level representations</h3>
-          <h1>TODO</h1>
-          <h3>Participant-level representations</h3>
-          <h1>TODO</h1> */}
         </div>
         <div style={{ width: '14%', marginTop: '114px', marginBottom: '100px' }}>
           <Sticky>
