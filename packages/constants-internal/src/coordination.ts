@@ -595,6 +595,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.FEATURE_VALUE_COLORMAP,
     CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    CoordinationType.FEATURE_AGGREGATION_STRATEGY,
     // TODO: CoordinationType.FEATURE_COLOR_ENCODING,
     // TODO: CoordinationType.ADDITIONAL_FEATURE_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,

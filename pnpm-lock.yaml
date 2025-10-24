@@ -15640,11 +15640,11 @@ packages:
   vega-typings@0.22.3:
     resolution: {integrity: sha512-PREcya3nXT9Tk7xU0IhEpOLVTlqizNtKXV55NhI6ApBjJtqVYbJL7IBh2ckKxGBy3YeUQ37BQZl56UqqiYVWBw==}
 
-  vega-util@1.17.0:
-    resolution: {integrity: sha512-HTaydZd9De3yf+8jH66zL4dXJ1d1p5OIFyoBzFiOli4IJbwkL1jrefCKz6AHDm1kYBzDJ0X4bN+CzZSCTvNk1w==}
+  vega-util@1.17.3:
+    resolution: {integrity: sha512-nSNpZLUrRvFo46M5OK4O6x6f08WD1yOcEzHNlqivF+sDLSsVpstaF6fdJYwrbf/debFi2L9Tkp4gZQtssup9iQ==}
 
-  vega-util@2.0.0:
-    resolution: {integrity: sha512-/ayLYX3VVqfkKJB1mG+xkOKiBVlfFZ9BfUB5vf7eVyIRork24sABXdeH4x+XeWuqDKnLBTDedotA+1a5MxlV2Q==}
+  vega-util@2.1.0:
+    resolution: {integrity: sha512-PGfp0m0QCufDmcxKJCWQy4Ov23FoF8DSXmoJwSezi3itQaa2hbxK0+xwsTMP2vy4PR16Pu25HMzgMwXVW1+33w==}
 
   vega-view-transforms@4.5.8:
     resolution: {integrity: sha512-966m7zbzvItBL8rwmF2nKG14rBp7q+3sLCKWeMSUrxoG+M15Smg5gWEGgwTG3A/RwzrZ7rDX5M1sRaAngRH25g==}
@@ -33272,7 +33272,7 @@ snapshots:
     dependencies:
       d3-array: 3.2.0
       vega-dataflow: 5.7.4
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33280,7 +33280,7 @@ snapshots:
     dependencies:
       vega-format: 1.1.0
       vega-loader: 4.5.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33303,7 +33303,7 @@ snapshots:
       d3-interpolate: 3.0.1
       vega-dataflow: 5.7.4
       vega-scale: 7.2.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33312,13 +33312,13 @@ snapshots:
   vega-expression@5.0.0:
     dependencies:
       '@types/estree': 0.0.50
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-force@4.1.0:
     dependencies:
       d3-force: 3.0.0
       vega-dataflow: 5.7.4
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33328,7 +33328,7 @@ snapshots:
       d3-format: 3.1.0
       d3-time-format: 4.1.0
       vega-time: 2.1.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-functions@5.13.0:
     dependencies:
@@ -33342,7 +33342,7 @@ snapshots:
       vega-selections: 5.4.0
       vega-statistics: 1.8.0
       vega-time: 2.1.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33355,7 +33355,7 @@ snapshots:
       vega-dataflow: 5.7.4
       vega-projection: 1.5.0
       vega-statistics: 1.8.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33363,7 +33363,7 @@ snapshots:
     dependencies:
       d3-hierarchy: 3.1.2
       vega-dataflow: 5.7.4
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33374,7 +33374,7 @@ snapshots:
       vega-canvas: 1.2.6
       vega-dataflow: 5.7.4
       vega-scenegraph: 4.10.1
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33390,7 +33390,7 @@ snapshots:
       vega: 5.22.1
       vega-event-selector: 3.0.0
       vega-expression: 5.0.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
       yargs: 17.5.1
 
   vega-loader@4.5.0:
@@ -33399,7 +33399,7 @@ snapshots:
       node-fetch: 2.6.7
       topojson-client: 3.1.0
       vega-format: 1.1.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33409,7 +33409,7 @@ snapshots:
       vega-event-selector: 3.0.0
       vega-functions: 5.13.0
       vega-scale: 7.2.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33423,14 +33423,14 @@ snapshots:
       d3-array: 3.2.0
       vega-dataflow: 5.7.4
       vega-statistics: 1.8.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
   vega-runtime@6.1.3:
     dependencies:
       vega-dataflow: 5.7.4
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33440,7 +33440,7 @@ snapshots:
       d3-interpolate: 3.0.1
       d3-scale: 4.0.2
       vega-time: 2.1.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-scale@8.0.0:
     dependencies:
@@ -33449,7 +33449,7 @@ snapshots:
       d3-scale: 4.0.2
       d3-scale-chromatic: 3.1.0
       vega-time: 3.0.0
-      vega-util: 2.0.0
+      vega-util: 2.1.0
 
   vega-scenegraph@4.10.1:
     dependencies:
@@ -33458,7 +33458,7 @@ snapshots:
       vega-canvas: 1.2.6
       vega-loader: 4.5.0
       vega-scale: 7.2.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33468,7 +33468,7 @@ snapshots:
     dependencies:
       d3-array: 3.1.1
       vega-expression: 5.0.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-statistics@1.8.0:
     dependencies:
@@ -33483,21 +33483,21 @@ snapshots:
     dependencies:
       d3-array: 3.2.0
       d3-time: 3.0.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-time@3.0.0:
     dependencies:
       d3-array: 3.2.4
       d3-time: 3.1.0
-      vega-util: 2.0.0
+      vega-util: 2.1.0
 
   vega-tooltip@0.27.0:
     dependencies:
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-tooltip@0.28.0:
     dependencies:
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
   vega-transforms@4.10.0:
     dependencies:
@@ -33505,7 +33505,7 @@ snapshots:
       vega-dataflow: 5.7.4
       vega-statistics: 1.8.0
       vega-time: 2.1.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33513,17 +33513,17 @@ snapshots:
     dependencies:
       vega-event-selector: 3.0.0
       vega-expression: 5.0.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
 
-  vega-util@1.17.0: {}
+  vega-util@1.17.3: {}
 
-  vega-util@2.0.0: {}
+  vega-util@2.1.0: {}
 
   vega-view-transforms@4.5.8:
     dependencies:
       vega-dataflow: 5.7.4
       vega-scenegraph: 4.10.1
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33536,7 +33536,7 @@ snapshots:
       vega-functions: 5.13.0
       vega-runtime: 6.1.3
       vega-scenegraph: 4.10.1
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33544,7 +33544,7 @@ snapshots:
     dependencies:
       d3-delaunay: 6.0.2
       vega-dataflow: 5.7.4
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33554,7 +33554,7 @@ snapshots:
       vega-dataflow: 5.7.4
       vega-scale: 7.2.0
       vega-statistics: 1.8.0
-      vega-util: 1.17.0
+      vega-util: 1.17.3
     transitivePeerDependencies:
       - encoding
 
@@ -33582,7 +33582,7 @@ snapshots:
       vega-time: 2.1.0
       vega-transforms: 4.10.0
       vega-typings: 0.22.3
-      vega-util: 1.17.0
+      vega-util: 1.17.3
       vega-view: 5.11.0
       vega-view-transforms: 4.5.8
       vega-voronoi: 4.2.0
