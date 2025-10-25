@@ -1,4 +1,11 @@
 
+## 3.8.5
+
+### Patch Changes
+
+- Ensure featureAggregationStrategy is cleared upon new selection in FeatureStatsTable. Remove views from kpmp-aug-2025 pageMode config for simpler UI. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#2300](https://github.com/vitessce/vitessce/pull/2300))
+
+
 ## 3.8.4
 
 ### Patch Changes
