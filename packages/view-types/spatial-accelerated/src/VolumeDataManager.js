@@ -351,6 +351,8 @@ export class VolumeDataManager {
     logWithColor('CLASS INITIALIZING');
     // this.store = new zarrita.FetchStore(url); // TODO: use this.images instead
 
+    log.debug('VolumeDataManager constructor', { glParam, glParamContext: glParam.getContext?.() });
+
     const gl = glParam.getContext?.() || glParam;
     const renderer = glParam;
 
@@ -389,11 +391,23 @@ export class VolumeDataManager {
           };
           return defaults[param] || 0;
         },
+        isContextLost: () => false,
         MAX_TEXTURE_SIZE: 'MAX_TEXTURE_SIZE',
         MAX_3D_TEXTURE_SIZE: 'MAX_3D_TEXTURE_SIZE',
         MAX_RENDERBUFFER_SIZE: 'MAX_RENDERBUFFER_SIZE',
         MAX_UNIFORM_BUFFER_BINDINGS: 'MAX_UNIFORM_BUFFER_BINDINGS',
       };
+    }
+
+    // Store references for context loss handling
+    this._originalGlParam = glParam;
+    this._isContextLost = false;
+    this._contextRestoredCallbacks = [];
+
+    // Add context loss event listeners if we have a real WebGL context
+    if (this.gl && this.gl.canvas) {
+      this.gl.canvas.addEventListener('webglcontextlost', this._handleContextLost.bind(this));
+      this.gl.canvas.addEventListener('webglcontextrestored', this._handleContextRestored.bind(this));
     }
 
     log.debug('GL CONSTANTS');
@@ -499,7 +513,93 @@ export class VolumeDataManager {
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
     this.initError = null;
+
+    // Store the last known configuration for context restoration
+    this._lastChannelConfig = null;
+
     logWithColor('VolumeDataManager constructor complete');
+  }
+
+  /**
+   * Handle WebGL context loss
+   */
+  _handleContextLost(event) {
+    logWithColor('CONTEXT LOST');
+    log.warn('WebGL context lost, preventing default and setting flag');
+    event.preventDefault();
+    this._isContextLost = true;
+
+    // Store current channel configuration for restoration
+    if (this.channels && this.channels.zarrMappings) {
+      this._lastChannelConfig = {
+        zarrMappings: [...this.channels.zarrMappings],
+        colorMappings: [...this.channels.colorMappings],
+        downsampleMin: [...this.channels.downsampleMin],
+        downsampleMax: [...this.channels.downsampleMax],
+      };
+    }
+  }
+
+  /**
+   * Handle WebGL context restoration
+   */
+  _handleContextRestored(event) {
+    logWithColor('CONTEXT RESTORED');
+    log.warn('WebGL context restored, reinitializing textures');
+    this._isContextLost = false;
+
+    // Reinitialize WebGL context reference
+    if (this._originalGlParam && this._originalGlParam.getContext) {
+      this.gl = this._originalGlParam.getContext();
+    }
+
+    // Restore channel configuration if available
+    if (this._lastChannelConfig) {
+      this.channels.zarrMappings = [...this._lastChannelConfig.zarrMappings];
+      this.channels.colorMappings = [...this._lastChannelConfig.colorMappings];
+      this.channels.downsampleMin = [...this._lastChannelConfig.downsampleMin];
+      this.channels.downsampleMax = [...this._lastChannelConfig.downsampleMax];
+      log.debug('Restored channel configuration after context loss');
+    }
+
+    // Reinitialize textures if they were previously created
+    if (this.PT && this.zarrStore && this.zarrStore.brickLayout) {
+      try {
+        this.initMRMCPT();
+        log.debug('Successfully reinitialized MRMCPT after context restoration');
+      } catch (error) {
+        log.error('Failed to reinitialize MRMCPT after context restoration:', error);
+      }
+    }
+
+    // Call any registered restoration callbacks
+    this._contextRestoredCallbacks.forEach((callback) => {
+      try {
+        callback();
+      } catch (error) {
+        log.error('Error in context restored callback:', error);
+      }
+    });
+  }
+
+  /**
+   * Check if WebGL context is lost
+   */
+  isContextLost() {
+    if (this._isContextLost) return true;
+    if (this.gl && typeof this.gl.isContextLost === 'function') {
+      return this.gl.isContextLost();
+    }
+    return false;
+  }
+
+  /**
+   * Register a callback to be called when context is restored
+   */
+  onContextRestored(callback) {
+    if (typeof callback === 'function') {
+      this._contextRestoredCallbacks.push(callback);
+    }
   }
 
   initImages(images, imageLayerScopes) {
@@ -971,6 +1071,14 @@ export class VolumeDataManager {
     this.channels.colorMappings = newColorMappings;
 
     log.debug('updatedChannels', this.channels);
+
+    // Store the updated configuration for context restoration
+    this._lastChannelConfig = {
+      zarrMappings: [...this.channels.zarrMappings],
+      colorMappings: [...this.channels.colorMappings],
+      downsampleMin: [...this.channels.downsampleMin],
+      downsampleMax: [...this.channels.downsampleMax],
+    };
   }
 
   /**
@@ -1107,6 +1215,13 @@ export class VolumeDataManager {
       log.debug('processRequestData: already busy, skipping');
       return;
     }
+
+    // Check for context loss
+    if (this.isContextLost()) {
+      log.debug('processRequestData: WebGL context is lost, skipping');
+      return;
+    }
+
     this.isBusy = true;
     this.triggerRequest = false;
 
@@ -1130,6 +1245,13 @@ export class VolumeDataManager {
       this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
       return;
     }
+
+    // Check for context loss
+    if (this.isContextLost()) {
+      log.debug('processUsageData: WebGL context is lost, skipping');
+      return;
+    }
+
     this.isBusy = true;
     this.triggerUsage = false;
 
@@ -1203,6 +1325,12 @@ export class VolumeDataManager {
       return;
     }
 
+    // Check for context loss before proceeding
+    if (this.isContextLost()) {
+      log.warn('WebGL context is lost, skipping channel purge');
+      return;
+    }
+
     this.channels.downsampleMin[ptChannelIndex] = undefined;
     this.channels.downsampleMax[ptChannelIndex] = undefined;
     this.channels.zarrMappings[ptChannelIndex] = undefined;
@@ -1244,6 +1372,12 @@ export class VolumeDataManager {
   // Update a PT entry
   _updatePTEntry(ptX, ptY, ptZ, ptVal) {
     if (!this.ptTHREE) return;
+
+    // Check for context loss before proceeding
+    if (this.isContextLost()) {
+      log.warn('WebGL context is lost, skipping PT entry update');
+      return;
+    }
 
     const { gl } = this;
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
@@ -1312,7 +1446,13 @@ export class VolumeDataManager {
  * 4. Upload one brick + PT entry                                *
  * ------------------------------------------------------------- */
   async _uploadBrick(ptCoord, bcSlot) {
-    // log.debug('uploading brick', ptCoord, bcSlot);
+    log.debug('uploading brick', ptCoord, bcSlot);
+
+    // Check for context loss before proceeding
+    if (this.isContextLost()) {
+      log.warn('WebGL context is lost, skipping brick upload');
+      return;
+    }
 
     if (ptCoord.x >= this.PT.xExtent
       || ptCoord.y >= this.PT.yExtent
@@ -1336,11 +1476,48 @@ export class VolumeDataManager {
       { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors },
     );
 
+    // Check if channel mappings are valid
+    if (!this.channels || !this.channels.zarrMappings || this.channels.zarrMappings.length === 0) {
+      log.error('Channel mappings not initialized, skipping brick upload');
+      return;
+    }
+
+    if (channel < 0 || channel >= this.channels.zarrMappings.length) {
+      log.error('Channel index out of bounds', { channel, mappingsLength: this.channels.zarrMappings.length });
+      return;
+    }
+
     const zarrChannel = this.channels.zarrMappings[channel];
 
     if (zarrChannel === undefined || zarrChannel === -1) {
-      log.error('zarrChannel is undefined or -1', zarrChannel);
-      return;
+      log.warn('zarrChannel is undefined or -1', {
+        zarrChannel,
+        channel,
+        ptCoord,
+        channelMappings: this.channels.zarrMappings,
+        contextLost: this.isContextLost(),
+      });
+
+      // If this happens due to context loss, try to restore from last known config
+      if (this._lastChannelConfig && this._lastChannelConfig.zarrMappings[channel] !== undefined) {
+        log.warn('Attempting to use last known channel config');
+        this.channels.zarrMappings = [...this._lastChannelConfig.zarrMappings];
+        this.channels.colorMappings = [...this._lastChannelConfig.colorMappings];
+        this.channels.downsampleMin = [...this._lastChannelConfig.downsampleMin];
+        this.channels.downsampleMax = [...this._lastChannelConfig.downsampleMax];
+
+        // Retry with restored config
+        const restoredZarrChannel = this.channels.zarrMappings[channel];
+        if (restoredZarrChannel !== undefined && restoredZarrChannel !== -1) {
+          log.debug('Successfully restored channel mapping, continuing with upload');
+        } else {
+          log.error('Could not restore valid channel mapping, aborting brick upload');
+          return;
+        }
+      } else {
+        log.error('No fallback channel config available, aborting brick upload');
+        return;
+      }
     }
 
     log.debug('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
@@ -1466,6 +1643,8 @@ export class VolumeDataManager {
     /* <= k requests, allocate same number of bricks */
     const slots = this._allocateBCSlots(ptRequests.length);
     // log.debug('slots', slots);
+
+    log.debug('Handling brick requests:', { requestCount: ptRequests.length, slotCount: slots.length });
 
     /* upload each (sequentially or Promise.all if you prefer IO overlap) */
     log.debug('handleBrickRequests: starting for loop');
