@@ -495,6 +495,10 @@ export function VolumeView(props) {
     // Reference: https://r3f.docs.pmnd.rs/advanced/pitfalls#%E2%9D%8C-setstate-in-useframe-is-bad
     if (!mrtRef.current || !dataManager || !renderManager) return;
 
+    // Don't render to MRT if shader is not ready - this prevents WebGL warnings
+    // about missing fragment shader outputs for multiple render targets
+    if (!renderState.shader) return;
+
     // Receive the same state as the useThree hook.
     const {
       gl: frameGl,
