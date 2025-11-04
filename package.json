@@ -8,8 +8,9 @@
   "repository": "https://github.com/vitessce/vitessce/",
   "scripts": {
     "start": "pnpm -r --parallel start",
-    "start-demo": "pnpm -r --parallel --filter=!docs start",
-    "start-docs": "pnpm -r --parallel --filter=!demo start",
+    "start-demo": "pnpm -r --parallel --filter=!docs --filter=!app start",
+    "start-docs": "pnpm -r --parallel --filter=!demo --filter=!app start",
+    "start-app": "pnpm -r --parallel --filter=!demo --filter=!docs start",
     "start-html": "pnpm -r start-html",
     "clean-start": "pnpm install && pnpm run clean && pnpm run build && pnpm run start-demo",
     "build:ci": "pnpm -r --workspace-concurrency 1 build",

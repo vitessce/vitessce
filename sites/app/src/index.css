@@ -1,0 +1,34 @@
+html, body {
+  height: 100%;
+  font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+#root {
+  flex: 1;
+}
+#root .welcome-container {
+  height: max(100%, 100vh);
+  width: 100%;
+  overflow: scroll;
+  background-color: #333333;
+}
+
+.navbar {
+  width: 100%;
+  & ul {
+    width: 100%;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    & li {
+      display: inline-block;
+      flex-grow: 1;
+      color: blue;
+    }
+  }
+}

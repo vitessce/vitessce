@@ -126,7 +126,7 @@ export default function VitessceGrid(props) {
     if (!enableDropzone) {
       return () => {};
     }
-    // zone.style.border = '2px dashed grey';
+    zone.style.border = '2px dashed grey';
 
 
     const onDragEnter = (e) => {
