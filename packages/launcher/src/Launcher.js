@@ -25,6 +25,7 @@ const useStyles = makeStyles()(() => ({
     borderRadius: '10px',
     margin: '5px',
     padding: '5px',
+    flexGrow: 1,
   },
   cardTitle: {
     marginTop: 0,
@@ -103,6 +104,7 @@ export function Launcher(props) {
           <div className={clsx(classes.card, classes.cardDashed)} ref={localDataCardRef}>
             <h3>Local data <br/> (Drag and drop)</h3>
             <p>Drag-and-drop local files to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. Files remain local; no upload required.</p>
+            <button>Select files</button>
           </div>
           <div className={classes.card}>
             <h3>Remote data <br/> (Load from URL)</h3>

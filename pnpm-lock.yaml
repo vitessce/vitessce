@@ -1035,6 +1035,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
+      react-dropzone:
+        specifier: ^14.3.8
+        version: 14.3.8(react@18.3.1)
       use-query-params:
         specifier: ^1.1.9
         version: 1.2.3(query-string@6.14.1)(react-dom@19.1.0(react@18.3.1))(react@18.3.1)
@@ -7983,6 +7986,10 @@ packages:
     resolution: {integrity: sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==}
     engines: {node: '>=4'}
 
+  attr-accept@2.2.5:
+    resolution: {integrity: sha512-0bDNnY/u6pPwHDMoF0FieU354oBi0a8rD9FcsLwzcGWbc8KS8KPIi7y+s13OlVY+gMWc/9xEMUgNE6Qm8ZllYQ==}
+    engines: {node: '>=4'}
+
   autoprefixer@10.4.21:
     resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -10119,6 +10126,10 @@ packages:
   file-selector@0.4.0:
     resolution: {integrity: sha512-iACCiXeMYOvZqlF1kTiYINzgepRBymz1wwjiuup9u9nayhb6g4fSwiyJ/6adli+EPwrWtpgQAh2PoS7HukEGEg==}
     engines: {node: '>= 10'}
+
+  file-selector@2.1.2:
+    resolution: {integrity: sha512-QgXo+mXTe8ljeqUFaX3QVHc5osSItJ/Km+xpocx0aSqWGMSCf6qYs/VnzZgS864Pjn5iceMRFigeAV7AfTlaig==}
+    engines: {node: '>= 12'}
 
   file-system-cache@2.0.0:
     resolution: {integrity: sha512-QlYut2ZtxRgdW/dboSmiKZWM8FsnpLaLI549hN/RWgwn3FawSil7Jc2n7nFHheclvYxa4LJqwEOvNUYv9VsCXg==}
@@ -13740,6 +13751,12 @@ packages:
     engines: {node: '>= 10.13'}
     peerDependencies:
       react: '>= 16.8'
+
+  react-dropzone@14.3.8:
+    resolution: {integrity: sha512-sBgODnq+lcA4P296DY4wacOZz3JFpD99fp+hb//iBO2HHnyeZU3FwWyXJ6salNpqQdsZrgMrotuko/BdJMV8Ug==}
+    engines: {node: '>= 10.13'}
+    peerDependencies:
+      react: '>= 16.8 || 18.0.0'
 
   react-error-boundary@5.0.0:
     resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
@@ -23341,6 +23358,8 @@ snapshots:
 
   attr-accept@2.2.2: {}
 
+  attr-accept@2.2.5: {}
+
   autoprefixer@10.4.21(postcss@8.5.6):
     dependencies:
       browserslist: 4.25.0
@@ -26118,6 +26137,10 @@ snapshots:
       webpack: 5.99.9
 
   file-selector@0.4.0:
+    dependencies:
+      tslib: 2.8.1
+
+  file-selector@2.1.2:
     dependencies:
       tslib: 2.8.1
 
@@ -30516,6 +30539,13 @@ snapshots:
     dependencies:
       attr-accept: 2.2.2
       file-selector: 0.4.0
+      prop-types: 15.8.1
+      react: 18.3.1
+
+  react-dropzone@14.3.8(react@18.3.1):
+    dependencies:
+      attr-accept: 2.2.5
+      file-selector: 2.1.2
       prop-types: 15.8.1
       react: 18.3.1
 
