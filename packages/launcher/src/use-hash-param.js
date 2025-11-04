@@ -15,7 +15,16 @@ const getHashParam = (key, location = window.location) => {
   return searchParams.get(key);
 };
 
+const getAllHashParams = (key, location = window.location) => {
+  // eslint-disable-next-line no-unused-vars
+  const [_, searchParams] = getHashSearchParams(location);
+  return searchParams.getAll(key);
+};
+
 const getTypedHashParam = (key, varType) => {
+  if (varType === 'string-array') {
+    return getAllHashParams(key);
+  }
   const val = getHashParam(key);
   let typedVal = val;
   if (varType === 'boolean') {

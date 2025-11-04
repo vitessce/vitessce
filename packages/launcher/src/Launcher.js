@@ -3,7 +3,7 @@ import { makeStyles } from '@vitessce/styles';
 import { createOnDrop } from '@vitessce/all';
 import clsx from 'clsx';
 import {
-  QueryParamProvider, useQueryParam, StringParam,
+  QueryParamProvider, useQueryParam, StringParam as StringQueryParam, ArrayParam as StringArrayQueryParam,
 } from 'use-query-params';
 import { useHashParam, useSetHashParams } from './use-hash-param.js';
 
@@ -16,16 +16,14 @@ const useStyles = makeStyles()(() => ({
     marginBottom: 0,
   },
   cardRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexBasis: 1,
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px',
   },
   card: {
     border: '2px solid grey',
     borderRadius: '10px',
-    margin: '5px',
     padding: '5px',
-    flexGrow: 1,
   },
   cardTitle: {
     marginTop: 0,
@@ -36,7 +34,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 
-export function Launcher(props) {
+export function LauncherStart(props) {
   const { classes } = useStyles();
 
   // eslint-disable-next-line no-unused-vars
@@ -104,18 +102,18 @@ export function Launcher(props) {
           <div className={clsx(classes.card, classes.cardDashed)} ref={localDataCardRef}>
             <h3>Local data <br/> (Drag and drop)</h3>
             <p>Drag-and-drop local files to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. Files remain local; no upload required.</p>
-            <button>Select files</button>
+            <button>Select data files or folders</button>
           </div>
           <div className={classes.card}>
             <h3>Remote data <br/> (Load from URL)</h3>
             <p>
               Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for more details.&nbsp;
-              <span className="select-examples">
+              {/*<span className="select-examples">
                 <label>Try an example:&nbsp;</label>
                 <select>
                   <option>TODO</option>
                 </select>
-              </span>
+              </span>*/}
             </p>
             <div className="url-input">
               <textarea placeholder="One or more file URLs (semicolon-separated)"></textarea>
@@ -136,17 +134,18 @@ export function Launcher(props) {
           <div className={clsx(classes.card, classes.cardDashed)}>
             <h3>Local config file <br/> (Drag and drop)</h3>
             <p>View a Vitessce configuration that has been saved to a JSON file.</p>
+            <button>Select JSON file</button>
           </div>
           <div className={classes.card}>
             <h3>Remote config file <br/> (Load from URL)</h3>
             <p>
               View a Vitessce configuration that has been saved to a JSON file.&nbsp;
-              <span className="select-examples">
+              {/*<span className="select-examples">
                 <label>Try an example:&nbsp;</label>
                 <select>
                   <option>TODO</option>
                 </select>
-              </span>
+              </span>*/}
             </p>
             <div className="url-input">
               <textarea placeholder="Enter a URL"></textarea>
@@ -155,5 +154,60 @@ export function Launcher(props) {
         </div>
       </div>
     </div>
+  );
+}
+
+const DtypeToParamType = {
+  string: StringQueryParam,
+  'string-array': StringArrayQueryParam,
+}
+
+function useHashOrQueryParam(paramName, defaultValue, dtype) {
+  const [valueQ] = useQueryParam(paramName, DtypeToParamType[dtype]);
+  const [valueH] = useHashParam(paramName, undefined, dtype);
+
+  if (valueQ && valueH) {
+    throw new Error(`Both query and hash parameters provided for "${paramName}". Please provide only one.`);
+  }
+
+  return valueH ? valueH : valueQ;
+}
+
+function LauncherWrapper(props) {
+  // Logic for managing state and query/hash params.
+  const setHashParams = useSetHashParams();
+
+  const exampleIdValue = useHashOrQueryParam('example', undefined, 'string');
+  // TODO: support vitessce-link code param
+  //const wsCodeValue = useHashOrQueryParam('session', undefined, 'string');
+  const configUrlValue = useHashOrQueryParam('config', undefined, 'string');
+  const sourceUrlArr = useHashOrQueryParam('source', undefined, 'string-array');
+
+  // TODO: based on above values, load config or metadata as needed.
+  console.log(exampleIdValue, configUrlValue, sourceUrlArr);
+
+  const needsStart = !exampleIdValue && !configUrlValue && (!sourceUrlArr || sourceUrlArr.length === 0);
+
+  const config = null; // TODO: pending config vs. valid config vs ...
+
+  return (needsStart ? (
+    <LauncherStart />
+  ) : (
+    <pre>{config}</pre>
+  ));
+}
+
+export function Launcher(props) {
+  const {
+    // TODO: do we need the parent app to provide this in order to update URL state?
+    baseUrl = null,
+    // TODO: Optional mapping from example IDs to their full JSON config, and potentially more values such as PageComponent, Plugins, etc.
+    // See https://github.com/vitessce/vitessce/blob/main/sites/demo/src/api.js
+    exampleConfigs = null,
+  } = props;
+  return (
+    <QueryParamProvider>
+      <LauncherWrapper />
+    </QueryParamProvider>
   );
 }
