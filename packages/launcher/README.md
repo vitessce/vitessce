@@ -7,9 +7,11 @@ It allows users to load local files via drag-and-drop or file selection, as well
 
 ## Goals
 
-- Support both query parameter routing (`vitessce.io/?config={something}`) and hash-based routing (`vitessce.io/#?config={something}`).
+- Support both query parameter routing (`/?config={something}`) and hash-based routing (`/#?config={something}`).
 - Make it easy to embed as a React component into vitessce.io, dev.vitessce.io, and a future app.vitessce.io.
+  - Uncontrolled component variant should manage state via the URL.
 - Un-spaghetti code equivalent of https://github.com/vitessce/vitessce/blob/53455b86b8fe6fa6444dee2f38a707f40aa0beb0/sites/docs/src/pages/_Index.js#L318
+- Should be modular enough so that it can potentially be used within Vitessce in the future (i.e., rather than the Launcher wrapping Vitessce, Vitessce could display the (controlled) launcher UI when no config is provided).
 
 ## Non-goals
 

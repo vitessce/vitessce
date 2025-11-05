@@ -22,10 +22,14 @@ function logConfigUpgrade(prevConfig, nextConfig) {
 export function LauncherStart(props) {
   const {
     setIsEditing,
+    setIsUsingLocalFiles,
     configUrl,
     setConfigUrl,
     sourceUrlArr,
     setSourceUrlArr,
+    setValidConfigFromDroppedData,
+    setStoresFromDroppedData,
+    setViewConfigFromDroppedConfig,
   } = props;
   const { classes } = useStyles();
 
@@ -38,12 +42,9 @@ export function LauncherStart(props) {
 
   const localDataCardRef = useRef(null);
 
-  const [viewConfig, setViewConfig] = useState(null);
-  const [stores, setStores] = useState(null);
-
   const onDropHandler = useMemo(() => createOnDrop(
-    { setViewConfig, setStores },
-  ), [setViewConfig, setStores]);
+    { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
+  ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
 
   // Effect for setting up drag-and-drop event listeners.
   useEffect(() => {
@@ -52,9 +53,11 @@ export function LauncherStart(props) {
     const onDragEnter = (e) => {
       e.preventDefault();
       setIsDragging(true);
+      setSpotlightCard('data-local');
     };
     const onDragLeave = () => {
       setIsDragging(false);
+      setSpotlightCard(null);
     };
     const onDragOver = (e) => {
       e.preventDefault();
@@ -62,6 +65,8 @@ export function LauncherStart(props) {
     const onDrop = async (e) => {
       e.preventDefault();
 
+      setIsEditing(false);
+      setIsUsingLocalFiles(true);
       setIsDragging(false);
       setIsDragProcessing(true);
 
@@ -69,6 +74,7 @@ export function LauncherStart(props) {
       await onDropHandler(e);
 
       setIsDragProcessing(false);
+      setSpotlightCard(null);
     };
 
     // The dragenter event happens at the moment you drag something in to the target element,
@@ -85,7 +91,7 @@ export function LauncherStart(props) {
       zone.removeEventListener('dragover', onDragOver);
       zone.removeEventListener('drop', onDrop);
     };
-  }, [localDataCardRef, onDropHandler]);
+  }, [localDataCardRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
 
 
   return (
@@ -94,10 +100,13 @@ export function LauncherStart(props) {
         <h2>Begin with data</h2>
         <p>TODO: add link to docs regarding file extensions.</p>
         <div className={classes.cardRow}>
-          <div className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })} ref={localDataCardRef}>
-            <h3>Local data <br/> (Drag and drop)</h3>
+          <div
+            className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}
+            ref={localDataCardRef}
+          >
+            <h3>Local data <br/>(Drag and drop)</h3>
             <p>Drag-and-drop local files to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. Files remain local; no upload required.</p>
-            <button>Select data files or folders</button>
+            {/*<button>Select data files or folders</button>*/}
           </div>
           <div className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
             <h3>Remote data <br/> (Load from URL)</h3>
@@ -154,7 +163,7 @@ export function LauncherStart(props) {
           <div className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
             <h3>Local config file <br/> (Drag and drop)</h3>
             <p>View a Vitessce configuration that has been saved to a JSON file.</p>
-            <button>Select JSON file</button>
+            {/*<button>Select JSON file</button>*/}
           </div>
           <div className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
             <h3>Remote config file <br/> (Load from URL)</h3>
@@ -206,6 +215,8 @@ export function ControlledLauncherInner(props) {
   const {
     isEditing = true,
     setIsEditing,
+    isUsingLocalFiles,
+    setIsUsingLocalFiles,
     configUrl,
     setConfigUrl,
     sourceUrlArr,
@@ -213,6 +224,13 @@ export function ControlledLauncherInner(props) {
   } = props;
 
   const { classes } = useStyles();
+
+  const [validConfigFromDroppedData, setValidConfigFromDroppedData] = useState(null);
+  const [storesFromDroppedData, setStoresFromDroppedData] = useState(null);
+
+  // Not necessarily valid since coming from user-provided file.
+  // JSON may not conform to schema, or may not even be valid JSON.
+  const [viewConfigFromDroppedConfig, setViewConfigFromDroppedConfig] = useState(null);
 
   const configUrlQueryEnabled = !!configUrl;
   const configUrlResult = useQuery({
@@ -253,6 +271,12 @@ export function ControlledLauncherInner(props) {
       validConfig = sourceUrlResult.data.config.toJSON();
       stores = sourceUrlResult.data.stores;
     }
+  } else if (viewConfigFromDroppedConfig) {
+    // Let validation happen within Vitessce component.
+    validConfig = viewConfigFromDroppedConfig;
+  } else if (validConfigFromDroppedData) {
+    validConfig = validConfigFromDroppedData;
+    stores = storesFromDroppedData;
   }
 
   // TODO: handle error states from react-query results.
@@ -286,10 +310,15 @@ export function ControlledLauncherInner(props) {
   return (isEditing ? (
     <LauncherStart
       setIsEditing={setIsEditing}
+      setIsUsingLocalFiles={setIsUsingLocalFiles}
       configUrl={configUrl}
       setConfigUrl={setConfigUrl}
       sourceUrlArr={sourceUrlArr}
       setSourceUrlArr={setSourceUrlArr}
+
+      setValidConfigFromDroppedData={setValidConfigFromDroppedData}
+      setStoresFromDroppedData={setStoresFromDroppedData}
+      setViewConfigFromDroppedConfig={setViewConfigFromDroppedConfig}
     />
   ) : (validConfig ? (
     <>
@@ -381,6 +410,11 @@ function UncontrolledLauncherInner(props) {
   const [sourceUrlArr, setSourceUrlArr, sourceUrlArrParamError] = useHashOrQueryParam('source', undefined, 'string-array');
   const [isEditingParam, setIsEditing, isEditingParamError] = useHashOrQueryParam('edit', undefined, 'boolean');
 
+  // We need this here since the URL param will not indicate whether local data was dropped.
+  // TODO: Store in a cookie/localStorage? Store in a URL param?
+  // However if the page changes, we will lose the dropped data anyway...
+  const [isUsingLocalFiles, setIsUsingLocalFiles] = useState(false);
+
   // Check for parameter errors (e.g., both hash+query for same value) and conflicting parameters.
   const hasNoParamError = !exampleIdParamError && !configUrlParamError && !sourceUrlArrParamError && !isEditingParamError;
   const hasNoConflictingParams = (
@@ -390,13 +424,14 @@ function UncontrolledLauncherInner(props) {
   ) <= 1;
   const needsStart = !exampleId && !configUrl && (!sourceUrlArr || (Array.isArray(sourceUrlArr) && sourceUrlArr.length === 0));
 
-  const isEditing = isEditingParam === true || needsStart;
-  console.log(isEditingParam);
+  const isEditing = !isUsingLocalFiles && (isEditingParam === true || needsStart);
 
   return (
     <ControlledLauncher
       isEditing={isEditing}
       setIsEditing={setIsEditing}
+      isUsingLocalFiles={isUsingLocalFiles}
+      setIsUsingLocalFiles={setIsUsingLocalFiles}
       configUrl={configUrl}
       setConfigUrl={setConfigUrl}
       sourceUrlArr={sourceUrlArr}
@@ -405,7 +440,7 @@ function UncontrolledLauncherInner(props) {
   )
 }
 
-export function Launcher(props) {
+export function UncontrolledLauncher(props) {
   const {
     // TODO: do we need the parent app to provide this in order to update URL state?
     baseUrl = null,

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { Launcher } from '@vitessce/launcher';
+import { UncontrolledLauncher } from '@vitessce/launcher';
 
 import './index.css';
 
@@ -21,7 +21,7 @@ export function VitessceApp() {
   return (
     <>
       <Navbar />
-      <Launcher />
+      <UncontrolledLauncher />
     </>
   );
 }

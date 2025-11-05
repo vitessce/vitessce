@@ -1,1 +1,2 @@
-export { Launcher } from './Launcher.js';
+export { UncontrolledLauncher } from './Launcher.js';
+export { ControlledLauncher } from './Launcher.js';
