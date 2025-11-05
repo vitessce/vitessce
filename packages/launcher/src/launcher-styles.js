@@ -18,12 +18,16 @@ export const useStyles = makeStyles()(() => ({
     border: '2px solid grey',
     borderRadius: '10px',
     padding: '5px',
+    transition: 'opacity 0.3s',
   },
   cardTitle: {
     marginTop: 0,
   },
   cardDashed: {
     border: '2px dashed grey',
+  },
+  cardDim: {
+    opacity: 0.2,
   },
   vitessceApp: {
     position: 'relative',
