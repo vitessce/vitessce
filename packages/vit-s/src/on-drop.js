@@ -1,5 +1,5 @@
 import { getFilesFromDataTransferItems } from '@placemarkio/flat-drop-files';
-import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
+import { generateConfigAlt as generateConfig, parseUrlsFromString } from '@vitessce/config';
 
 
 // Stores
@@ -113,7 +113,7 @@ export function createOnDrop({ setViewConfig, setStores }) {
     });
 
     const parsedUrls = stores.map(([name, store]) => ({
-      ...parseUrls(name)[0],
+      ...parseUrlsFromString(name)[0],
       store,
     }));
     const { config, stores: storesForConfig } = await generateConfig(parsedUrls);

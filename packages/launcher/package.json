@@ -37,9 +37,11 @@
     "@vitessce/globals": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/config": "workspace:*",
     "clsx": "catalog:",
     "use-query-params": "^1.1.9",
-    "react-dropzone": "^14.3.8"
+    "react-dropzone": "^14.3.8",
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "react": "catalog:",

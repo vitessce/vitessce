@@ -38,6 +38,7 @@ https://app.vitessce.io/#?source=https://example.com/path/to/datafile1&source=ht
 - Loading config or data/metadata from URL.
 - Loaded config but was invalid.
 - Could not identify a valid/supported data format from data file extension(s).
+  - Suggest to append `$supportedFileType` to source URL(s) to specify the data format if file extension is non-standard.
 - Failed to load config or data/metadata from URL.
 - Error if BOTH config and source parameters are provided.
 - Error if BOTH hash and query parameters are provided.

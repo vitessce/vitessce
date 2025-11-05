@@ -6,4 +6,4 @@ export {
   getInitialCoordinationScopeName,
 } from '@vitessce/utils';
 
-export { generateConfig as generateConfigAlt, parseUrls } from './generate-config.js';
+export { generateConfig as generateConfigAlt, parseUrls, parseUrlsFromString } from './generate-config.js';

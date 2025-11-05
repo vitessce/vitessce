@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { withConsolidated } from 'zarrita';
-import { parseUrls, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
+import { parseUrlsFromString, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
 import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
 import imageOmeZarrMouseLiverFixture from './json-fixtures/mouse_liver.ome.json';
@@ -10,23 +10,23 @@ import obsSegmentationsOmeZarrMouseLiverFixture from './json-fixtures/mouse_live
 describe('generateConfig', () => {
   it('parses URLs', () => {
     const s1 = 'https://example.com/my_image.ome.tif';
-    expect(parseUrls(s1)).toEqual([
+    expect(parseUrlsFromString(s1)).toEqual([
       {
         url: 'https://example.com/my_image.ome.tif',
         fileType: 'image.ome-tiff',
       },
     ]);
 
-    const s2 = 'https://example.com/my_image.ome.tif#obsSegmentations.ome-tiff';
-    expect(parseUrls(s2)).toEqual([
+    const s2 = 'https://example.com/my_image.ome.tif$obsSegmentations.ome-tiff';
+    expect(parseUrlsFromString(s2)).toEqual([
       {
         url: 'https://example.com/my_image.ome.tif',
         fileType: 'obsSegmentations.ome-tiff',
       },
     ]);
 
-    const s3 = 'https://example.com/my_image.ome.tif#obsSegmentations.ome-tiff;http://another.com/obj.zarr#anndata.zarr';
-    expect(parseUrls(s3)).toEqual([
+    const s3 = 'https://example.com/my_image.ome.tif$obsSegmentations.ome-tiff;http://another.com/obj.zarr$anndata.zarr';
+    expect(parseUrlsFromString(s3)).toEqual([
       {
         url: 'https://example.com/my_image.ome.tif',
         fileType: 'obsSegmentations.ome-tiff',

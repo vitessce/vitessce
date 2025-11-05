@@ -11,6 +11,9 @@ import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
 import { OmeAutoConfig } from './generate-config-ome.js';
 
+// TODO: make this a function parameter?
+const FILE_TYPE_DELIM = '$';
+
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
   [FileType.IMAGE_OME_ZARR]: ['.ome.zarr'],
@@ -101,16 +104,13 @@ function ensureStores(parsedUrls) {
 }
 
 /**
- *
- * @param {string} s A single string, like this
- * `http://example.com/my_zarr.zarr#anndata.zarr;
- * http://example.com/my_tiff.ome.tif`
- * @returns {{ url: string, fileType: string}[]} The URLs with file types.
+ * 
+ * @param {string[]} arr
+ * @returns {{ url: string, fileType: string }[]} The URLs with file types.
  */
-export function parseUrls(s) {
-  const urlsWithHashes = s.split(';');
-  return urlsWithHashes.map((urlWithHash) => {
-    const parts = urlWithHash.split('#');
+export function parseUrls(arr) {
+  return arr.map((urlWithHash) => {
+    const parts = urlWithHash.split(FILE_TYPE_DELIM);
     if (parts.length === 1) {
       const [url] = parts;
       return {
@@ -124,9 +124,23 @@ export function parseUrls(s) {
         fileType,
       };
     }
-    throw new Error('Only expected zero or one # character per URL, but received more.');
+    throw new Error(`Only expected zero or one ${FILE_TYPE_DELIM} character per URL, but received more.`);
   });
 }
+
+/**
+ *
+ * @param {string} s A single string, like this
+ * `http://example.com/my_zarr.zarr#anndata.zarr;
+ * http://example.com/my_tiff.ome.tif`
+ * @returns {{ url: string, fileType: string}[]} The URLs with file types.
+ */
+export function parseUrlsFromString(s) {
+  const urlsWithHashes = s.split(';');
+  return parseUrls(urlsWithHashes);
+}
+
+
 
 
 export async function parsedUrlToZmetadata(parsedUrl) {

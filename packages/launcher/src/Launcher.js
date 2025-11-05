@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { makeStyles } from '@vitessce/styles';
 import { createOnDrop } from '@vitessce/all';
+import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 import clsx from 'clsx';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query';
 import {
   QueryParamProvider, useQueryParam, StringParam as StringQueryParam, ArrayParam as StringArrayQueryParam,
 } from 'use-query-params';
@@ -166,6 +172,22 @@ function useHashOrQueryParam(paramName, defaultValue, dtype) {
   const [valueQ] = useQueryParam(paramName, DtypeToParamType[dtype]);
   const [valueH] = useHashParam(paramName, undefined, dtype);
 
+  console.log(valueQ, valueH);
+
+  if (dtype === 'string-array') {
+    if(Array.isArray(valueH) && valueH.length > 0 && (!Array.isArray(valueQ) || valueQ.length === 0)) {
+      return valueH;
+    } else if (Array.isArray(valueQ) && valueQ.length > 0 && (!Array.isArray(valueH) || valueH.length === 0)) {
+      return valueQ;
+    } else {
+      return null;
+    }
+  } else {
+    if (Array.isArray(valueQ) || Array.isArray(valueH)) {
+      throw new Error(`Expected non-array values for "${paramName}".`);
+    }
+  }
+
   if (valueQ && valueH) {
     throw new Error(`Both query and hash parameters provided for "${paramName}". Please provide only one.`);
   }
@@ -188,12 +210,20 @@ function LauncherWrapper(props) {
 
   const needsStart = !exampleIdValue && !configUrlValue && (!sourceUrlArr || sourceUrlArr.length === 0);
 
-  const config = null; // TODO: pending config vs. valid config vs ...
+  // TODO: state machine-like thing for determining which URL param values to use (if any).
+
+  // TODO: pending config vs. valid config vs ...
+  // TODO: async loading via react-query.
+  useEffect(async () => {
+    console.log('Generating config from source URLs:', sourceUrlArr);
+    const { config, stores } = await generateConfig(parseUrls(sourceUrlArr));
+    console.log(config.toJSON(), stores);
+  }, [sourceUrlArr]);
 
   return (needsStart ? (
     <LauncherStart />
   ) : (
-    <pre>{config}</pre>
+    <pre>{null}</pre>
   ));
 }
 
@@ -205,9 +235,24 @@ export function Launcher(props) {
     // See https://github.com/vitessce/vitessce/blob/main/sites/demo/src/api.js
     exampleConfigs = null,
   } = props;
+
+  const queryClient = useMemo(() => new QueryClient({
+    // Reference: https://tanstack.com/query/latest/docs/react/guides/window-focus-refetching
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 2,
+      },
+    },
+  }), []);
+
   return (
-    <QueryParamProvider>
-      <LauncherWrapper />
-    </QueryParamProvider>
+    <QueryClientProvider client={queryClient}>
+      <QueryParamProvider>
+        <LauncherWrapper />
+        <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>
+        <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
+      </QueryParamProvider>
+    </QueryClientProvider>
   );
 }
