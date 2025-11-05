@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { createOnDrop, Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
+import { TextField, Button } from '@vitessce/styles';
 import clsx from 'clsx';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { QueryParamProvider } from 'use-query-params';
@@ -82,6 +83,7 @@ export function LauncherStart(props) {
     <div className={classes.launcher}>
       <div className={classes.launcherRow}>
         <h2>Begin with data</h2>
+        <p>TODO: add link to docs regarding file extensions.</p>
         <div className={classes.cardRow}>
           <div className={clsx(classes.card, classes.cardDashed)} ref={localDataCardRef}>
             <h3>Local data <br/> (Drag and drop)</h3>
@@ -99,8 +101,15 @@ export function LauncherStart(props) {
                 </select>
               </span>*/}
             </p>
-            <div className="url-input">
-              <textarea placeholder="One or more file URLs (semicolon-separated)"></textarea>
+            <div className={classes.textareaAndButton}>
+              <TextField
+                multiline
+                label="Data URL(s)"
+                placeholder="One or more file URLs (semicolon-separated)"
+                minRows={2}
+                className={classes.dataUrlTextarea}
+              />
+              <Button variant="outlined">Visualize</Button>
             </div>
           </div>
         </div>
@@ -147,6 +156,12 @@ function LauncherWrapper(props) {
   const { classes } = useStyles();
   // Logic for managing state and query/hash params.
   const setHashParams = useSetHashParams();
+
+  // TODO: make this a fully "controlled" component.
+  // Handle URL param getting/setting in a parent component.
+  // Set and get URL parameters via the parent.
+  // Use an edit=true flag to indicate whether to still show the launcher component despite having non-empty param values.
+  // TODO: style the launcher so that the one relevant card is "spotlighted" when there is a non-empty param value.
 
   const [exampleIdValue, exampleIdParamError] = useHashOrQueryParam('example', undefined, 'string');
   // TODO: support vitessce-link code param
@@ -196,18 +211,23 @@ function LauncherWrapper(props) {
     },
   });
 
+  let isLoading = false;
   let validConfig = null;
   let stores = null;
   if(configUrlQueryEnabled) {
+    isLoading = configUrlResult.isLoading;
     if (configUrlResult.isSuccess) {
       validConfig = configUrlResult.data;
     }
   } else if (sourceUrlQueryEnabled) {
+    isLoading = sourceUrlResult.isLoading;
     if (sourceUrlResult.isSuccess) {
       validConfig = sourceUrlResult.data.config.toJSON();
       stores = sourceUrlResult.data.stores;
     }
   }
+
+  // TODO: handle error states from react-query results.
 
 
 
@@ -279,7 +299,11 @@ function LauncherWrapper(props) {
       </main>
     </>
   ) : (
-    null
+    isLoading ? (
+      <h2>Loading...</h2>
+    ) : (
+      <div>Error loading configuration or data from URL parameters.</div>
+    )
   )));
 }
 
@@ -302,6 +326,7 @@ export function Launcher(props) {
     },
   }), []);
 
+  // TODO: wrap in MUI themeProvider?
   return (
     <QueryClientProvider client={queryClient}>
       <QueryParamProvider>

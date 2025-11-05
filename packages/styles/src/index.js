@@ -64,6 +64,7 @@ export { default as Tabs } from '@mui/material/Tabs';
 export { default as TextField } from '@mui/material/TextField';
 export { default as Tooltip } from '@mui/material/Tooltip';
 export { default as Typography } from '@mui/material/Typography';
+export { default as TextareaAutosize } from '@mui/material/TextareaAutosize';
 
 // Icons
 export { default as Add } from '@mui/icons-material/Add';

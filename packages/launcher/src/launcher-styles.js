@@ -31,4 +31,13 @@ export const useStyles = makeStyles()(() => ({
     width: '100%',
     height: 'calc(100% - 0px)',
   },
+  dataUrlTextarea: {
+    width: '100%',
+    boxSizing: 'border-box',
+  },
+  textareaAndButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '5px',
+  }
 }));
