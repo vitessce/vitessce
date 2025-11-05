@@ -144,6 +144,7 @@ export function LauncherStart(props) {
 
 
 function LauncherWrapper(props) {
+  const { classes } = useStyles();
   // Logic for managing state and query/hash params.
   const setHashParams = useSetHashParams();
 
@@ -239,20 +240,29 @@ function LauncherWrapper(props) {
   ) : (validConfig ? (
     <>
       {/*<pre>{JSON.stringify(validConfig, null, 2)}</pre>*/}
-      <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
+      <main className={clsx(classes.vitessceApp, { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
         {pageMode ? (
           <style>{`
-            #root .vitessce-container {
+            .vitessce-container {
               height: max(100%,100vh);
               width: 100%;
               overflow: hidden;
+              position: relative;
+              left: 0;
             }
-              .navbar--fixed-top {
-                position: relative;
-              }
-            `}
+          `}
           </style>
-        ) : null}
+        ) : (
+          <style>{`
+            .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+              position: relative;
+              left: 0;
+            }
+          `}</style>
+        )}
         <Vitessce
           theme={theme}
           validateOnConfigChange={debug}
@@ -295,13 +305,13 @@ export function Launcher(props) {
   return (
     <QueryClientProvider client={queryClient}>
       <QueryParamProvider>
-        <LauncherWrapper />
         <>
           {/* TEMP: links for quick testing */}
           <a href="/">Reset</a>&nbsp;
           <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>&nbsp;
           <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
         </>
+        <LauncherWrapper />
       </QueryParamProvider>
     </QueryClientProvider>
   );

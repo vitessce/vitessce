@@ -25,4 +25,10 @@ export const useStyles = makeStyles()(() => ({
   cardDashed: {
     border: '2px dashed grey',
   },
+  vitessceApp: {
+    position: 'relative',
+    display: 'flex',
+    width: '100%',
+    height: 'calc(100% - 0px)',
+  },
 }));

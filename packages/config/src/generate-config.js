@@ -57,6 +57,9 @@ const ZARR_FILETYPES = [
 ];
 
 function urlToFileType(url) {
+  // TODO: for plain .zarr, we could open the root .attrs and try to guess a fileType
+  // (we can probably infer at least whether OME-Zarr vs. AnnData vs. SpatialData).
+
   const match = Object.entries(fileTypeToExtensions).find(
     // eslint-disable-next-line no-unused-vars
     ([fileType, extensions]) => extensions.some(ext => url.endsWith(ext)),
