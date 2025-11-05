@@ -41,14 +41,20 @@ export function LauncherStart(props) {
   const [isDragProcessing, setIsDragProcessing] = useState(false);
 
   const localDataCardRef = useRef(null);
+  const localDataInputRef = useRef(null);
 
   const onDropHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
+  ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
+  const onFileInputHandler = useMemo(() => createOnDrop(
+    { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
+    true,
   ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
 
   // Effect for setting up drag-and-drop event listeners.
   useEffect(() => {
     const zone = localDataCardRef.current;
+    const zoneInput = localDataInputRef.current;
 
     const onDragEnter = (e) => {
       e.preventDefault();
@@ -76,7 +82,19 @@ export function LauncherStart(props) {
       setIsDragProcessing(false);
       setSpotlightCard(null);
     };
+    
+    const onFileInputChange = async (e) => {
+      // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+      e.preventDefault();
+      
+      setIsEditing(false);
+      setIsUsingLocalFiles(true);
+      setSpotlightCard('data-local');
 
+      await onFileInputHandler(e);
+
+      setSpotlightCard(null);
+    };
     // The dragenter event happens at the moment you drag something in to the target element,
     // and then it stops.
     // The dragover event happens during the time you are dragging something until you drop it.
@@ -84,14 +102,16 @@ export function LauncherStart(props) {
     zone.addEventListener('dragleave', onDragLeave);
     zone.addEventListener('dragover', onDragOver);
     zone.addEventListener('drop', onDrop);
+    zoneInput.addEventListener('change', onFileInputChange);
 
     return () => {
       zone.removeEventListener('dragenter', onDragEnter);
       zone.removeEventListener('dragleave', onDragLeave);
       zone.removeEventListener('dragover', onDragOver);
       zone.removeEventListener('drop', onDrop);
+      zoneInput.removeEventListener('change', onFileInputChange);
     };
-  }, [localDataCardRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
+  }, [localDataCardRef, localDataInputRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
 
 
   return (
@@ -100,14 +120,21 @@ export function LauncherStart(props) {
         <h2>Begin with data</h2>
         <p>TODO: add link to docs regarding file extensions.</p>
         <div className={classes.cardRow}>
-          <div
+          <label
             className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}
             ref={localDataCardRef}
           >
             <h3>Local data <br/>(Drag and drop)</h3>
             <p>Drag-and-drop local files to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. Files remain local; no upload required.</p>
-            {/*<button>Select data files or folders</button>*/}
-          </div>
+            <input
+              type="file"
+              ref={localDataInputRef}
+              className={classes.hiddenFileInput}
+              directory="true"
+              webkitdirectory="true"
+              mozdirectory="true"
+            />
+          </label>
           <div className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
             <h3>Remote data <br/> (Load from URL)</h3>
             <p>
@@ -177,6 +204,7 @@ export function LauncherStart(props) {
               </span>*/}
             </p>
             <div className={classes.textareaAndButton}>
+              {/* TODO: add another textField in case the user wants to paste JSON and view it via a data URI? */}
               <TextField
                 multiline
                 label="Config URL"

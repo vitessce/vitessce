@@ -25,6 +25,7 @@ export const useStyles = makeStyles()(() => ({
   },
   cardDashed: {
     border: '2px dashed grey',
+    cursor: 'pointer',
   },
   cardDim: {
     opacity: 0.2,
@@ -43,5 +44,9 @@ export const useStyles = makeStyles()(() => ({
     display: 'flex',
     flexDirection: 'row',
     gap: '5px',
+  },
+  hiddenFileInput: {
+    // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+    display: 'none',
   }
 }));

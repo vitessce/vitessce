@@ -66,15 +66,60 @@ class HierarchicalFileSystemStore {
 */
 
 
-export function createOnDrop({ setViewConfig, setStores }) {
+export function createOnDrop({ setViewConfig, setStores }, isFileInput = false) {
   return async (e) => {
-    const topLevelEntries = Object.values(e.dataTransfer.items)
-      .map(item => item.webkitGetAsEntry());
+    
+    let topLevelEntries;
+    let files;
+    if (isFileInput) {
+      // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
 
+      // Note: e.target.files is a FileList, not an array.
+      // If we use the spread operator, the methods like file.arrayBuffer() get lost.
+      files = Array.from(e.target.files);
+      // Here, we use files.forEach rather than files = files.map
+      // so that we can modify the original array in place.
+      files.forEach((f, i) => {
+        if(!f.path) {
+          // eslint-disable-next-line no-param-reassign
+          files[i].path = files[i].webkitRelativePath;
+        }
+      });
+      // When a user selects a directory via a file picker dialog,
+      // we get only a flat list of files.
+      // In order to match e.dataTransfer.items behavior,
+      // we create fake top-level entries for each unique directory/file name.
+      const dirNames = new Set();
+      topLevelEntries = [];
+      Array.from(files).forEach((file) => {
+        const dirName = file.path.split('/')[0];
+        if (dirName) {
+          dirNames.add(dirName);
+        }
+        // If the file is at the top level (no directory),
+        // we need to add a top-level entry for it.
+        if (dirName === file.name) {
+          topLevelEntries.push({
+            isDirectory: false,
+            name: file.name,
+          });
+        }
+      });
+      topLevelEntries = topLevelEntries.concat(Array.from(dirNames).map((name) => ({
+        isDirectory: true,
+        name,
+      })));
+    } else {
+      topLevelEntries = Object.values(e.dataTransfer.items)
+        .map(item => item.webkitGetAsEntry());
+      files = await getFilesFromDataTransferItems(e.dataTransfer.items);
+    }
+
+    console.log(topLevelEntries, files);
+    
     // TODO: implement an alternative approach that does not first flatten the file tree,
     // since it can be very large.
     // See https://github.com/manzt/zarrita.js/pull/161/files
-    const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
 
     const stores = topLevelEntries.map((entry) => {
       if (entry.isDirectory) {
