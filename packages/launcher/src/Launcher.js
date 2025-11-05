@@ -1,43 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { makeStyles } from '@vitessce/styles';
-import { createOnDrop } from '@vitessce/all';
+import { createOnDrop, Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 import clsx from 'clsx';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
-import {
-  QueryParamProvider, useQueryParam, StringParam as StringQueryParam, ArrayParam as StringArrayQueryParam,
-} from 'use-query-params';
-import { useHashParam, useSetHashParams } from './use-hash-param.js';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryParamProvider } from 'use-query-params';
+import { useSetHashParams } from './use-hash-param.js';
+import { useHashOrQueryParam } from './use-query-or-hash-param.js';
+import { useStyles } from './launcher-styles.js';
 
-const useStyles = makeStyles()(() => ({
-  launcher: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  launcherRowTitle: {
-    marginBottom: 0,
-  },
-  cardRow: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
-  },
-  card: {
-    border: '2px solid grey',
-    borderRadius: '10px',
-    padding: '5px',
-  },
-  cardTitle: {
-    marginTop: 0,
-  },
-  cardDashed: {
-    border: '2px dashed grey',
-  },
-}));
+function logConfigUpgrade(prevConfig, nextConfig) {
+  // eslint-disable-next-line no-console
+  console.log(`Upgrade view config schema from ${prevConfig.version} to ${nextConfig.version}`);
+  // eslint-disable-next-line no-console
+  console.log(prevConfig);
+  // eslint-disable-next-line no-console
+  console.log(nextConfig);
+}
 
 
 export function LauncherStart(props) {
@@ -163,68 +141,136 @@ export function LauncherStart(props) {
   );
 }
 
-const DtypeToParamType = {
-  string: StringQueryParam,
-  'string-array': StringArrayQueryParam,
-}
 
-function useHashOrQueryParam(paramName, defaultValue, dtype) {
-  const [valueQ] = useQueryParam(paramName, DtypeToParamType[dtype]);
-  const [valueH] = useHashParam(paramName, undefined, dtype);
-
-  console.log(valueQ, valueH);
-
-  if (dtype === 'string-array') {
-    if(Array.isArray(valueH) && valueH.length > 0 && (!Array.isArray(valueQ) || valueQ.length === 0)) {
-      return valueH;
-    } else if (Array.isArray(valueQ) && valueQ.length > 0 && (!Array.isArray(valueH) || valueH.length === 0)) {
-      return valueQ;
-    } else {
-      return null;
-    }
-  } else {
-    if (Array.isArray(valueQ) || Array.isArray(valueH)) {
-      throw new Error(`Expected non-array values for "${paramName}".`);
-    }
-  }
-
-  if (valueQ && valueH) {
-    throw new Error(`Both query and hash parameters provided for "${paramName}". Please provide only one.`);
-  }
-
-  return valueH ? valueH : valueQ;
-}
 
 function LauncherWrapper(props) {
   // Logic for managing state and query/hash params.
   const setHashParams = useSetHashParams();
 
-  const exampleIdValue = useHashOrQueryParam('example', undefined, 'string');
+  const [exampleIdValue, exampleIdParamError] = useHashOrQueryParam('example', undefined, 'string');
   // TODO: support vitessce-link code param
-  //const wsCodeValue = useHashOrQueryParam('session', undefined, 'string');
-  const configUrlValue = useHashOrQueryParam('config', undefined, 'string');
-  const sourceUrlArr = useHashOrQueryParam('source', undefined, 'string-array');
+  // const wsCodeValue = useHashOrQueryParam('session', undefined, 'string');
+  const [configUrlValue, configUrlParamError] = useHashOrQueryParam('config', undefined, 'string');
+  const [sourceUrlArr, sourceUrlArrParamError] = useHashOrQueryParam('source', undefined, 'string-array');
 
-  // TODO: based on above values, load config or metadata as needed.
-  console.log(exampleIdValue, configUrlValue, sourceUrlArr);
+  // Check for parameter errors (e.g., both hash+query for same value) and conflicting parameters.
+  const hasNoParamError = !exampleIdParamError && !configUrlParamError && !sourceUrlArrParamError;
+  const hasNoConflictingParams = (
+    (exampleIdValue ? 1 : 0) +
+    (configUrlValue ? 1 : 0) +
+    (sourceUrlArr && sourceUrlArr.length > 0 ? 1 : 0)
+  ) <= 1;
+  const needsStart = !exampleIdValue && !configUrlValue && (!sourceUrlArr || (Array.isArray(sourceUrlArr) && sourceUrlArr.length === 0));
+  
 
-  const needsStart = !exampleIdValue && !configUrlValue && (!sourceUrlArr || sourceUrlArr.length === 0);
+  // Support pending equivalents of URL params so that using the form
+  // elements does not require a full page navigation to do validation/etc.
+  const [pendingExampleId, setPendingExampleId] = useState(null);
+  const [pendingConfigUrl, setPendingConfigUrl] = useState(null);
+  const [pendingSourceStr, setPendingSourceStr] = useState(null);
 
-  // TODO: state machine-like thing for determining which URL param values to use (if any).
 
-  // TODO: pending config vs. valid config vs ...
-  // TODO: async loading via react-query.
-  useEffect(async () => {
-    console.log('Generating config from source URLs:', sourceUrlArr);
-    const { config, stores } = await generateConfig(parseUrls(sourceUrlArr));
-    console.log(config.toJSON(), stores);
-  }, [sourceUrlArr]);
+  const configUrlQueryEnabled = hasNoParamError && hasNoConflictingParams && !!configUrlValue;
+  const configUrlResult = useQuery({
+    enabled: configUrlQueryEnabled,
+    queryKey: ['config-from-url', configUrlValue],
+    queryFn: async () => {
+      const resp = await fetch(configUrlValue);
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch config from URL: ${resp.status} ${resp.statusText}`);
+      }
+      const configJson = await resp.json();
+      return configJson;
+    },
+  });
+
+  const sourceUrlQueryEnabled = hasNoParamError && hasNoConflictingParams && Array.isArray(sourceUrlArr) && sourceUrlArr.length > 0;
+  const sourceUrlResult = useQuery({
+    enabled: sourceUrlQueryEnabled,
+    queryKey: ['data-metadata-from-urls', sourceUrlArr],
+    queryFn: async () => {
+      console.log('Generating config from source URLs:', sourceUrlArr);
+      const { config, stores } = await generateConfig(parseUrls(sourceUrlArr));
+      return { config, stores };
+    },
+  });
+
+  let validConfig = null;
+  let stores = null;
+  if(configUrlQueryEnabled) {
+    if (configUrlResult.isSuccess) {
+      validConfig = configUrlResult.data;
+    }
+  } else if (sourceUrlQueryEnabled) {
+    if (sourceUrlResult.isSuccess) {
+      validConfig = sourceUrlResult.data.config.toJSON();
+      stores = sourceUrlResult.data.stores;
+    }
+  }
+
+
+
+  // Possible states:
+  // - needsStart: No URL parameters; Show the launcher UI.
+  // - Awaiting URL parameter parsing.
+  // - Invalid/unrecognized example ID
+  // - Loading config or data/metadata from URL.
+  // - Loaded config but was invalid.
+  // - Could not identify a valid/supported data format from data file extension(s).
+  //   - Suggest to append `$supportedFileType` to source URL(s) to specify the data format if file extension is non-standard.
+  // - Failed to load config or data/metadata from URL.
+  // - Error if BOTH config and source parameters are provided.
+  // - Error if BOTH hash and query parameters are provided.
+
+  console.log(configUrlResult);
+  console.log(sourceUrlResult);
+  const pageMode = false; // TODO
+  const PageComponent = null; // TODO
+  const isExpanded = false; // TODO
+
+  const onDropHandler = null; // TODO
+  const debug = false; // TODO
+  const theme = 'dark'; // TODO
+
+  console.log(validConfig, stores);
 
   return (needsStart ? (
     <LauncherStart />
+  ) : (validConfig ? (
+    <>
+      {/*<pre>{JSON.stringify(validConfig, null, 2)}</pre>*/}
+      <main className={clsx('vitessce-app', { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
+        {pageMode ? (
+          <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+              .navbar--fixed-top {
+                position: relative;
+              }
+            `}
+          </style>
+        ) : null}
+        <Vitessce
+          theme={theme}
+          validateOnConfigChange={debug}
+          onConfigChange={debug ? console.log : undefined}
+          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+          config={validConfig}
+          height={isExpanded ? undefined : 800}
+          pageMode={pageMode}
+          stores={stores}
+          onDrop={onDropHandler}
+        >
+          {pageMode && PageComponent ? (<PageComponent />) : null}
+        </Vitessce>
+      </main>
+    </>
   ) : (
-    <pre>{null}</pre>
-  ));
+    null
+  )));
 }
 
 export function Launcher(props) {
@@ -250,8 +296,12 @@ export function Launcher(props) {
     <QueryClientProvider client={queryClient}>
       <QueryParamProvider>
         <LauncherWrapper />
-        <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>
-        <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
+        <>
+          {/* TEMP: links for quick testing */}
+          <a href="/">Reset</a>&nbsp;
+          <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>&nbsp;
+          <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
+        </>
       </QueryParamProvider>
     </QueryClientProvider>
   );

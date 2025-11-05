@@ -79,18 +79,20 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
         // Check if the table contains an obs dataframe.
         const hasObs = tableEls.find(el => el.path === `${path}/obs`);
-        if (hasObs) {
+        /*if (hasObs) {
           const columnOrder = hasObs.attrs?.['column-order'];
           // Use the columns of this dataframe to configure the obsSets.
           options.obsSets = {
             // region: null,
             tablePath: relPath,
             obsSets: columnOrder.map(c => ({
+              // TODO: determine whether this column is string/categorical.
+              // TODO: determine whether this column contains too many categories to make sense to consider a cell set.
               path: `${hasObs.path.substring(1)}/${c}`,
               name: c,
             })),
           };
-        }
+        }*/
       }
     });
 
