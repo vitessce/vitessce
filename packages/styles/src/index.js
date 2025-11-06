@@ -65,6 +65,8 @@ export { default as TextField } from '@mui/material/TextField';
 export { default as Tooltip } from '@mui/material/Tooltip';
 export { default as Typography } from '@mui/material/Typography';
 export { default as TextareaAutosize } from '@mui/material/TextareaAutosize';
+export { default as Card } from '@mui/material/Card';
+export { default as CardContent } from '@mui/material/CardContent';
 
 // Icons
 export { default as Add } from '@mui/icons-material/Add';

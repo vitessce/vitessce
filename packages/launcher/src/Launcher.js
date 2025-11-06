@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { createOnDrop, Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
-import { TextField, Button } from '@vitessce/styles';
+import { TextField, Button, Typography, Card, CardContent } from '@vitessce/styles';
 import clsx from 'clsx';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { QueryParamProvider } from 'use-query-params';
@@ -42,6 +42,9 @@ export function LauncherStart(props) {
 
   const localDataCardRef = useRef(null);
   const localDataInputRef = useRef(null);
+
+  const localConfigCardRef = useRef(null);
+  const localConfigInputRef = useRef(null);
 
   const onDropHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
@@ -117,68 +120,81 @@ export function LauncherStart(props) {
   return (
     <div className={classes.launcher}>
       <div className={classes.launcherRow}>
-        <h2>Begin with data</h2>
-        <p>TODO: add link to docs regarding file extensions.</p>
+        <div className={clsx({ [classes.cardDim]: spotlightCard && (spotlightCard === 'config-local' || spotlightCard === 'config-remote') })}>
+          <Typography variant="h5">Begin with data</Typography>
+          {/* TODO: generalize to support both "begin with data" and "add data" flows? */}
+          <p>Let Vitessce <a href="https://vitessce.io/docs/default-config-json/">infer an initial configuration</a> based on the contents of your <a href="https://vitessce.io/docs/data-types-file-types/">data files.</a></p>
+        </div>
         <div className={classes.cardRow}>
-          <label
-            className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}
-            ref={localDataCardRef}
-          >
-            <h3>Local data <br/>(Drag and drop)</h3>
-            <p>Drag-and-drop local files to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. Files remain local; no upload required.</p>
-            <input
-              type="file"
-              ref={localDataInputRef}
-              className={classes.hiddenFileInput}
-              directory="true"
-              webkitdirectory="true"
-              mozdirectory="true"
-            />
-          </label>
-          <div className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
-            <h3>Remote data <br/> (Load from URL)</h3>
-            <p>
-              Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for more details.&nbsp;
-              {/*<span className="select-examples">
-                <label>Try an example:&nbsp;</label>
-                <select>
-                  <option>TODO</option>
-                </select>
-              </span>*/}
-            </p>
-            <div className={classes.textareaAndButton}>
-              <TextField
-                multiline
-                label="Data URL(s)"
-                placeholder="One or more file URLs (semicolon-separated)"
-                minRows={2}
-                className={classes.dataUrlTextarea}
-                value={sourceUrlArr ? sourceUrlArr.join(';') : ''}
-                onChange={(e) => {
-                  // Clear existing state.
-                  setConfigUrl(undefined);
-                  setSourceUrlArr(e.target.value);
-                }}
-                onBlur={() => setSpotlightCard(null)}
-                onFocus={() => {
-                  setSpotlightCard('data-remote');
-                  // We need to set isEditing, otherwise the launcher UI will disappear
-                  // as soon as there is a non-empty sourceUrlArr value.
-                  setIsEditing(true);
-                }}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setIsEditing(false);
-                }}
-              >Visualize</Button>
-            </div>
-          </div>
+          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
+            <label
+              className={classes.cardDashed}
+              ref={localDataCardRef}
+            >
+              <CardContent>
+                <Typography variant="h6">Local data <br/>(Drag and drop)</Typography>
+                <p>Select or drop local files (or folders) to view them in Vitessce. Vitessce launches with a default configuration (based on file extensions and contents). Files remain local; no upload occurs.</p>
+                <input
+                  type="file"
+                  ref={localDataInputRef}
+                  className={classes.hiddenFileInput}
+                  multiple
+                  directory="true"
+                  webkitdirectory="true"
+                  mozdirectory="true"
+                />
+              </CardContent>
+            </label>
+          </Card>
+          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
+            <CardContent>
+              <Typography variant="h6">Remote data <br/> (Load from URL)</Typography>
+              <p>
+                Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for more details.&nbsp;
+                {/*<span className="select-examples">
+                  <label>Try an example:&nbsp;</label>
+                  <select>
+                    <option>TODO</option>
+                  </select>
+                </span>*/}
+              </p>
+              <div className={classes.textareaAndButton}>
+                <TextField
+                  multiline
+                  label="Data URL(s)"
+                  placeholder="One or more file URLs (semicolon-separated)"
+                  minRows={2}
+                  className={classes.dataUrlTextarea}
+                  value={sourceUrlArr ? sourceUrlArr.join(';') : ''}
+                  onChange={(e) => {
+                    // Clear existing state.
+                    setConfigUrl(undefined);
+                    setSourceUrlArr(e.target.value);
+                  }}
+                  onBlur={() => setSpotlightCard(null)}
+                  onFocus={() => {
+                    setSpotlightCard('data-remote');
+                    // We need to set isEditing, otherwise the launcher UI will disappear
+                    // as soon as there is a non-empty sourceUrlArr value.
+                    setIsEditing(true);
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setIsEditing(false);
+                  }}
+                >Visualize</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <div className={classes.launcherRow}>
-        <h2>Begin with configuration</h2>
+        <div className={clsx({ [classes.cardDim]: spotlightCard && (spotlightCard === 'data-local' || spotlightCard === 'data-remote') })}>
+          <Typography variant="h5">Begin with configuration</Typography>
+          <p>Use the options below to supply a Vitessce <a href="https://vitessce.io/docs/view-config-json/">configuration in JSON format.</a></p>
+        </div>
         <div className={classes.cardRow}>
           {/*<div className={classes.card}>
             <h3>Config Editor</h3>
@@ -187,53 +203,72 @@ export function LauncherStart(props) {
             <button>Launch JS editor</button>&nbsp;
             <button>Launch Python editor</button>
           </div>*/}
-          <div className={clsx(classes.card, classes.cardDashed, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
-            <h3>Local config file <br/> (Drag and drop)</h3>
-            <p>View a Vitessce configuration that has been saved to a JSON file.</p>
-            {/*<button>Select JSON file</button>*/}
-          </div>
-          <div className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
-            <h3>Remote config file <br/> (Load from URL)</h3>
-            <p>
-              View a Vitessce configuration that has been saved to a JSON file.&nbsp;
-              {/*<span className="select-examples">
-                <label>Try an example:&nbsp;</label>
-                <select>
-                  <option>TODO</option>
-                </select>
-              </span>*/}
-            </p>
-            <div className={classes.textareaAndButton}>
-              {/* TODO: add another textField in case the user wants to paste JSON and view it via a data URI? */}
-              <TextField
-                multiline
-                label="Config URL"
-                placeholder="Enter a URL"
-                minRows={2}
-                className={classes.dataUrlTextarea}
-                value={configUrl ? configUrl : ''}
-                onChange={(e) => {
-                  // Clear existing state.
-                  setSourceUrlArr(undefined);
-                  setConfigUrl(e.target.value);
-                }}
-                onBlur={() => setSpotlightCard(null)}
-                onFocus={() => {
-                  setSpotlightCard('config-remote');
-                  // We need to set isEditing, otherwise the launcher UI will disappear
-                  // as soon as there is a non-empty configUrl value.
-                  setIsEditing(true);
-                }}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setIsEditing(false);
-                }}
-              >Visualize</Button>
-            </div>
-          </div>
+          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
+            <label
+              ref={localConfigCardRef}
+              className={classes.cardDashed}
+            >
+              <CardContent>
+                <Typography variant="h6">Local config file <br/> (Drag and drop)</Typography>
+                <p>View a configured Vitessce visualization by selecting or dropping a local JSON file.</p>
+                <input
+                  type="file"
+                  ref={localConfigInputRef}
+                  className={classes.hiddenFileInput}
+                  accept=".json,application/json"
+                />
+              </CardContent>
+            </label>
+          </Card>
+          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
+            <CardContent>
+              <Typography variant="h6">Remote config file <br/> (Load from URL)</Typography>
+              <p>
+                View a Vitessce configuration that has been saved to a JSON file.&nbsp;
+                {/*<span className="select-examples">
+                  <label>Try an example:&nbsp;</label>
+                  <select>
+                    <option>TODO</option>
+                  </select>
+                </span>*/}
+              </p>
+              <div className={classes.textareaAndButton}>
+                {/* TODO: add another textField in case the user wants to paste JSON and view it via a data URI? */}
+                <TextField
+                  multiline
+                  label="Config URL"
+                  placeholder="Enter a URL"
+                  minRows={2}
+                  className={classes.dataUrlTextarea}
+                  value={configUrl ? configUrl : ''}
+                  onChange={(e) => {
+                    // Clear existing state.
+                    setSourceUrlArr(undefined);
+                    setConfigUrl(e.target.value);
+                  }}
+                  onBlur={() => setSpotlightCard(null)}
+                  onFocus={() => {
+                    setSpotlightCard('config-remote');
+                    // We need to set isEditing, otherwise the launcher UI will disappear
+                    // as soon as there is a non-empty configUrl value.
+                    setIsEditing(true);
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setIsEditing(false);
+                  }}
+                >Visualize</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+        {/* TODO: finish implementing the below row once a sidebar is available that allows for adding data post-launching */}
+        {/*<div className={classes.launcherRow}>
+          <Typography variant="h5">Begin with a view type</Typography>
+          <p>Select a view type to get started with configuring a new visualization.</p>
+        </div>*/}
       </div>
     </div>
   );
@@ -480,12 +515,12 @@ export function UncontrolledLauncher(props) {
   // TODO: wrap in MUI themeProvider?
   return (
     <QueryParamProvider>
-      <>
+      <div style={{ display: 'none'}}>
         {/* TEMP: links for quick testing */}
         <a href="/">Reset</a>&nbsp;
         <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>&nbsp;
         <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
-      </>
+      </div>
       <UncontrolledLauncherInner />
     </QueryParamProvider>
   );

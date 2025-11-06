@@ -8,10 +8,9 @@ function Navbar() {
   return (
     <div className="navbar">
       <ul>
-        <li>Vitessce</li>
-        <li>App</li>
-        <li>Examples</li>
-        <li>Docs</li>
+        <li><a href="https://vitessce.io/">Vitessce</a></li>
+        <li><a href="https://vitessce.io/docs/">Docs</a></li>
+        <li><a href="https://vitessce.io/examples/">Examples</a></li>
       </ul>
     </div>
   )
