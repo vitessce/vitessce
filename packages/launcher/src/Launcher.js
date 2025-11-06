@@ -147,6 +147,7 @@ export function LauncherStart(props) {
           <Typography variant="h5">Begin with data</Typography>
           {/* TODO: generalize to support both "begin with data" and "add data" flows? */}
           <p>Let Vitessce <a href="https://vitessce.io/docs/default-config-json/">infer an initial configuration</a> based on the contents of your <a href="https://vitessce.io/docs/data-types-file-types/">data files.</a></p>
+          {/* TODO: eventually, link to tutorials/videos showing how to use each of the Begin with... options */}
         </div>
         <div className={classes.cardRow}>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
@@ -178,6 +179,7 @@ export function LauncherStart(props) {
                     multiple
                   />
                 </Button>
+                <p>TODO: make file buttons bigger and align to bottom of cards</p>
               </CardContent>
             </span>
           </Card>
@@ -185,7 +187,7 @@ export function LauncherStart(props) {
             <CardContent>
               <Typography variant="h6">Remote data <br/> (Load from URL)</Typography>
               <p>
-                Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents) which can be edited. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for more details.&nbsp;
+                Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents). See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your data accessible to Vitessce.&nbsp;
                 {/*<span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>
@@ -221,6 +223,7 @@ export function LauncherStart(props) {
                   }}
                 >Visualize</Button>
               </div>
+              <p>TODO: accordion with information about how to specify fileTypes when extensions do not match exactly</p>
             </CardContent>
           </Card>
         </div>
@@ -259,7 +262,7 @@ export function LauncherStart(props) {
             <CardContent>
               <Typography variant="h6">Remote config file <br/> (Load from URL)</Typography>
               <p>
-                View a Vitessce configuration that has been saved to a JSON file.&nbsp;
+                View a Vitessce configuration that has been saved to a JSON file that is accessible via URL. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your configuration file accessible to Vitessce.&nbsp;
                 {/*<span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>

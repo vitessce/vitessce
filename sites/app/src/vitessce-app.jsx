@@ -39,7 +39,7 @@ function Footer() {
         </div>
         <div>
           <span>
-            This deployment:  branch=<pre>changeset-release/main</pre>,  hash=<pre>492a271a</pre>,  date=<pre>2025-10-24</pre>
+            This deployment: branch=<pre>changeset-release/main</pre>, hash=<pre>492a271a</pre>, date=<pre>2025-10-24</pre>
           </span>
         </div>
       </div>
