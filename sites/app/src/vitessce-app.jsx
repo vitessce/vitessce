@@ -49,11 +49,11 @@ function Footer() {
 
 export function VitessceApp() {
   return (
-    <>
+    <div className="app-container">
       <Navbar />
       <UncontrolledLauncher />
       <div className="spacer" />
       <Footer />
-    </>
+    </div>
   );
 }

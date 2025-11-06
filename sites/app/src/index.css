@@ -56,6 +56,11 @@ body {
   background-color: #333333;
 }
 
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .navbar {
   width: 100%;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
@@ -87,8 +92,11 @@ body {
   }
 }
 
+.spacer {
+  flex-grow: 1;
+}
+
 .footer {
-  background-color: var(--ifm-footer-background-color);
   & .footer-content {
     max-width: 960px;
     margin: 0 auto;
