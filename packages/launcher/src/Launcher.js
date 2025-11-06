@@ -40,7 +40,7 @@ export function LauncherStart(props) {
   // eslint-disable-next-line no-unused-vars
   const [isDragProcessing, setIsDragProcessing] = useState(false);
 
-  const localDataCardRef = useRef(null);
+  const dropzoneRef = useRef(null);
   const localDataInputRef = useRef(null);
 
   const localConfigCardRef = useRef(null);
@@ -48,16 +48,24 @@ export function LauncherStart(props) {
 
   const onDropHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
+    false, // isFileInput
+    true,  // isConfigInput
   ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
   const onFileInputHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
-    true,
+    true, // isFileInput
+    true, // isConfigInput
   ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
 
-  // Effect for setting up drag-and-drop event listeners.
+  // Effect for setting up drag-and-drop event listeners for data file/folder input.
   useEffect(() => {
-    const zone = localDataCardRef.current;
-    const zoneInput = localDataInputRef.current;
+    // TODO: just make the entire Launcher a dropzone,
+    // and then determine whether the dropped file(s) are config or data files
+    // (e.g., if a single .json file, assume config; else data).
+    
+    const zone = dropzoneRef.current;
+    const zoneDataInput = localDataInputRef.current;
+    const zoneConfigInput = localConfigInputRef.current;
 
     const onDragEnter = (e) => {
       e.preventDefault();
@@ -75,29 +83,43 @@ export function LauncherStart(props) {
       e.preventDefault();
 
       setIsEditing(false);
-      setIsUsingLocalFiles(true);
       setIsDragging(false);
       setIsDragProcessing(true);
 
       // Call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
       await onDropHandler(e);
+      setIsUsingLocalFiles(true);
 
       setIsDragProcessing(false);
       setSpotlightCard(null);
     };
     
-    const onFileInputChange = async (e) => {
+    const onDataInputChange = async (e) => {
       // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
       e.preventDefault();
       
       setIsEditing(false);
-      setIsUsingLocalFiles(true);
       setSpotlightCard('data-local');
 
       await onFileInputHandler(e);
 
+      setIsUsingLocalFiles(true);
       setSpotlightCard(null);
     };
+
+    const onConfigInputChange = async (e) => {
+      // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+      e.preventDefault();
+      
+      setIsEditing(false);
+      setSpotlightCard('config-local');
+
+      await onFileInputHandler(e);
+
+      setIsUsingLocalFiles(true);
+      setSpotlightCard(null);
+    };
+
     // The dragenter event happens at the moment you drag something in to the target element,
     // and then it stops.
     // The dragover event happens during the time you are dragging something until you drop it.
@@ -105,20 +127,21 @@ export function LauncherStart(props) {
     zone.addEventListener('dragleave', onDragLeave);
     zone.addEventListener('dragover', onDragOver);
     zone.addEventListener('drop', onDrop);
-    zoneInput.addEventListener('change', onFileInputChange);
+    zoneDataInput.addEventListener('change', onDataInputChange);
+    zoneConfigInput.addEventListener('change', onConfigInputChange);
 
     return () => {
       zone.removeEventListener('dragenter', onDragEnter);
       zone.removeEventListener('dragleave', onDragLeave);
       zone.removeEventListener('dragover', onDragOver);
       zone.removeEventListener('drop', onDrop);
-      zoneInput.removeEventListener('change', onFileInputChange);
+      zoneDataInput.removeEventListener('change', onDataInputChange);
+      zoneConfigInput.removeEventListener('change', onConfigInputChange);
     };
-  }, [localDataCardRef, localDataInputRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
-
+  }, [dropzoneRef, localDataInputRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
 
   return (
-    <div className={classes.launcher}>
+    <div className={classes.launcher} ref={dropzoneRef}>
       <div className={classes.launcherRow}>
         <div className={clsx({ [classes.cardDim]: spotlightCard && (spotlightCard === 'config-local' || spotlightCard === 'config-remote') })}>
           <Typography variant="h5">Begin with data</Typography>
@@ -127,24 +150,36 @@ export function LauncherStart(props) {
         </div>
         <div className={classes.cardRow}>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
-            <label
-              className={classes.cardDashed}
-              ref={localDataCardRef}
-            >
+            <span className={classes.cardDashed}>
               <CardContent>
                 <Typography variant="h6">Local data <br/>(Drag and drop)</Typography>
                 <p>Select or drop local files (or folders) to view them in Vitessce. Vitessce launches with a default configuration (based on file extensions and contents). Files remain local; no upload occurs.</p>
-                <input
-                  type="file"
-                  ref={localDataInputRef}
-                  className={classes.hiddenFileInput}
-                  multiple
-                  directory="true"
-                  webkitdirectory="true"
-                  mozdirectory="true"
-                />
+                <Button component="label" for="data-local-input-directory" variant="outlined">
+                  <span>Select folder(s)</span>
+                  <input
+                    id="data-local-input-directory"
+                    type="file"
+                    ref={localDataInputRef}
+                    className={classes.hiddenFileInput}
+                    multiple
+                    directory="true"
+                    webkitdirectory="true"
+                    mozdirectory="true"
+                  />
+                </Button>
+                &nbsp;
+                <Button component="label" for="data-local-input-files" variant="outlined">
+                  <span>Select file(s)</span>
+                  <input
+                    id="data-local-input-files"
+                    type="file"
+                    ref={localDataInputRef}
+                    className={classes.hiddenFileInput}
+                    multiple
+                  />
+                </Button>
               </CardContent>
-            </label>
+            </span>
           </Card>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
             <CardContent>
@@ -204,21 +239,21 @@ export function LauncherStart(props) {
             <button>Launch Python editor</button>
           </div>*/}
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
-            <label
-              ref={localConfigCardRef}
-              className={classes.cardDashed}
-            >
+            <span className={classes.cardDashed}>
               <CardContent>
                 <Typography variant="h6">Local config file <br/> (Drag and drop)</Typography>
                 <p>View a configured Vitessce visualization by selecting or dropping a local JSON file.</p>
-                <input
-                  type="file"
-                  ref={localConfigInputRef}
-                  className={classes.hiddenFileInput}
-                  accept=".json,application/json"
-                />
+                <Button component="label" variant="outlined">
+                  <span>Select file</span>
+                  <input
+                    type="file"
+                    ref={localConfigInputRef}
+                    className={classes.hiddenFileInput}
+                    accept=".json,application/json"
+                  />
+                </Button>
               </CardContent>
-            </label>
+            </span>
           </Card>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
             <CardContent>

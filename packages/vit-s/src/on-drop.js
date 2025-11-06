@@ -66,7 +66,7 @@ class HierarchicalFileSystemStore {
 */
 
 
-export function createOnDrop({ setViewConfig, setStores }, isFileInput = false) {
+export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, isConfigInput = false) {
   return async (e) => {
     
     let topLevelEntries;
@@ -116,6 +116,20 @@ export function createOnDrop({ setViewConfig, setStores }, isFileInput = false) 
     }
 
     console.log(topLevelEntries, files);
+
+    if (isConfigInput) {
+      // We expect a single file which contains the config JSON.
+      if (files.length === 1) {
+        const file = files[0];
+        if (file.name.endsWith('.json')) {
+          const content = await file.arrayBuffer();
+          // Alternatively, use the FileReader API.
+          const json = JSON.parse(new TextDecoder().decode(content));
+          setViewConfig(json);
+          return;
+        }
+      }
+    }
     
     // TODO: implement an alternative approach that does not first flatten the file tree,
     // since it can be very large.

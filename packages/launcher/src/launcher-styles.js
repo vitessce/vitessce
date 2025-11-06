@@ -37,7 +37,6 @@ export const useStyles = makeStyles()(() => ({
     width: '100%',
     borderRadius: '4px',
     border: '2px dashed rgba(128, 128, 128, 0.2)',
-    cursor: 'pointer',
   },
   cardDim: {
     opacity: 0.2,
