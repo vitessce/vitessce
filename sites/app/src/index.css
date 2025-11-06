@@ -23,6 +23,8 @@
   font-family: 'Inter', sans-serif;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
+  --ifm-footer-background-color: #f5f6f7;
+
 }
 
 :root[data-theme='dark'] {
@@ -82,5 +84,37 @@ body {
       font-weight: 500;
       color: var(--ifm-color-primary);
     }
+  }
+}
+
+.footer {
+  background-color: var(--ifm-footer-background-color);
+  & .footer-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem;
+
+    & > div {
+      margin-bottom: 20px;
+    }
+
+    & pre {
+      display: inline;
+    }
+    & .section-title {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    & .copyright {
+      text-align: center;
+    }
+
+    & ul {
+      margin: 0;
+    }
+
   }
 }
