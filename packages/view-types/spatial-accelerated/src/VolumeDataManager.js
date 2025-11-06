@@ -45,7 +45,7 @@ const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 // const manualChannelSelection = 0;
 
 // Add a constant for initialization status
-const INIT_STATUS = {
+export const INIT_STATUS = {
   NOT_STARTED: 'not_started',
   IN_PROGRESS: 'in_progress',
   COMPLETE: 'complete',
@@ -507,6 +507,7 @@ export class VolumeDataManager {
     this.timeStamp = 0;
     this.k = 40;
     this.noNewRequests = false;
+    this.manuallyStopped = false; // Flag to track if user manually stopped loading
 
     this.needsBailout = false; // Flag to indicate if we need to bail out of processing requests
 
@@ -517,7 +518,59 @@ export class VolumeDataManager {
     // Store the last known configuration for context restoration
     this._lastChannelConfig = null;
 
+    // Track loading progress
+    this.currentRequestCount = 0; // Number of requests currently being processed
+    this.totalBricksRequested = 0; // Total number of bricks requested in current batch
+
     logWithColor('VolumeDataManager constructor complete');
+  }
+
+  /**
+   * Get loading progress information
+   * @returns {Object} Loading progress with bricksLoaded, totalBricks, isLoading, and percentage
+   */
+  getLoadingProgress() {
+    const bricksLoaded = this.bricksEverLoaded.size;
+    const isLoading = !this.noNewRequests && this.currentRequestCount > 0;
+    const percentage = this.totalBricksRequested > 0
+      ? ((this.totalBricksRequested - this.currentRequestCount) / this.totalBricksRequested) * 100
+      : 0;
+
+    return {
+      bricksLoaded,
+      currentRequestCount: this.currentRequestCount,
+      totalBricksRequested: this.totalBricksRequested,
+      isLoading,
+      percentage,
+      noNewRequests: this.noNewRequests,
+    };
+  }
+
+  /**
+   * Manually stop loading and render at highest resolution
+   */
+  stopLoading() {
+    log.debug('Manually stopping data loading');
+    this.noNewRequests = true;
+    this.manuallyStopped = true;
+    this.needsBailout = true;
+    // Reset progress counters to reflect stopped state
+    this.currentRequestCount = 0;
+    this.totalBricksRequested = 0;
+  }
+
+  /**
+   * Manually restart loading
+   */
+  restartLoading() {
+    log.debug('Manually restarting data loading');
+    this.noNewRequests = false;
+    this.manuallyStopped = false;
+    this.needsBailout = false;
+    this.triggerUsage = true;
+    // Reset progress counters
+    this.currentRequestCount = 0;
+    this.totalBricksRequested = 0;
   }
 
   /**
@@ -942,23 +995,15 @@ export class VolumeDataManager {
     this.ptTHREE = ptTHREE;
     this.bcTHREE = bcTHREE;
 
-    // log.debug('gl', this.gl);
-    // log.debug('renderer', this.renderer);
-
     logWithColor('initMRMCPT() COMPLETE');
   }
 
-  /*
-  testTexture() {
-    log.debug('testTexture pt', this.ptTHREE);
-    log.debug('testTexture bc', this.bcTHREE);
-  }
-  */
 
   async initTexture() {
     const requests = [
       { x: 0, y: 0, z: 1 },
     ];
+    logWithColor('initTexture - loading first brick');
     await this.handleBrickRequests(requests);
   }
 
@@ -1182,10 +1227,10 @@ export class VolumeDataManager {
     if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
       throw new Error('Zarr store or resolution not initialized');
     }
-
-    // log.debug('loadZarrChunk', t, c, z, y, x, resolution);
+    log.debug('loadZarrChunk', { t, c, z, y, x, resolution });
 
     const array = this.zarrStore.arrays[resolution];
+
 
     // TODO: Use zarrita's get(arr, slice) method (rather than arr.getChunk),
     // which will enable reading from arrays with other chunk shapes
@@ -1194,9 +1239,10 @@ export class VolumeDataManager {
     // to each "assumed 32x32x32 chunk key".
     // Reference: https://zarrita.dev/slicing.html
 
+    console.time('array.getChunk');
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
+    console.timeEnd('array.getChunk');
 
-    // log.debug('chunkEntry', chunkEntry);
 
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
@@ -1213,6 +1259,12 @@ export class VolumeDataManager {
   async processRequestData(buffer) {
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
+      return;
+    }
+
+    // Check if loading has been manually stopped
+    if (this.noNewRequests) {
+      log.debug('processRequestData: loading stopped by user, skipping');
       return;
     }
 
@@ -1522,7 +1574,7 @@ export class VolumeDataManager {
 
     log.debug('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
     let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
-    // log.debug('chunk', chunk);
+    log.debug('chunk', chunk);
 
     // TODO(mark): is there a better way than iterating over all of the chunk values?
     if (chunk instanceof Uint16Array) {
@@ -1538,12 +1590,20 @@ export class VolumeDataManager {
         log.debug('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
         log.debug('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
       }
-      // TODO(mark): to reduce memory usage, create the Uint8Array as a view of the Uint16Array
-      // and use bitwise operations. Then scale the values.
+      // Use TypedArray view and bitwise operations to reduce memory allocations
+      // Shift right by 8 to convert uint16 to uint8 range
+      const uint16View = new Uint16Array(chunk.buffer);
       const uint8Chunk = new Uint8Array(chunk.length);
-      for (let i = 0; i < chunk.length; i++) {
-        // Scale from 0-65535 to 0-255
-        uint8Chunk[i] = Math.floor((chunk[i] - this.channels.downsampleMin[channel]) / (this.channels.downsampleMax[channel] - this.channels.downsampleMin[channel]) * 255);
+
+      const minVal = this.channels.downsampleMin[channel];
+      const maxVal = this.channels.downsampleMax[channel];
+      const range = maxVal - minVal;
+
+      for (let i = 0; i < uint16View.length; i++) {
+        // Clamp to min/max range, then scale to 0-255
+        const val = uint16View[i];
+        const clamped = Math.max(minVal, Math.min(maxVal, val));
+        uint8Chunk[i] = ((clamped - minVal) * 255 / range) | 0; // Use bitwise OR for fast floor
       }
       chunk = uint8Chunk;
     }
@@ -1634,6 +1694,11 @@ export class VolumeDataManager {
   async handleBrickRequests(ptRequests) {
     // log.debug('handleBrickRequests');
     if (ptRequests.length === 0) return;
+
+    // Track loading progress
+    this.totalBricksRequested = ptRequests.length;
+    this.currentRequestCount = ptRequests.length;
+
     // log.debug('ptRequests', ptRequests);
     // log.debug('this.BCFull', this.BCFull);
     // log.debug('this.BCUnusedIndex', this.BCUnusedIndex);
@@ -1649,9 +1714,12 @@ export class VolumeDataManager {
     /* upload each (sequentially or Promise.all if you prefer IO overlap) */
     log.debug('handleBrickRequests: starting for loop');
     for (let i = 0; i < ptRequests.length; ++i) {
-      log.debug('uploading brick', ptRequests[i], slots[i]);
       // eslint-disable-next-line no-await-in-loop
       await this._uploadBrick(ptRequests[i], slots[i]);
+
+      // Update progress
+      this.currentRequestCount = ptRequests.length - i - 1;
+
       // this.bricksAllocated++;
       const rlength = this.bricksEverLoaded.size;
       this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
@@ -1662,11 +1730,16 @@ export class VolumeDataManager {
       if (this.needsBailout) {
         log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
         this.needsBailout = false; // Reset the flag
+        this.currentRequestCount = 0; // Reset progress
         break; // Exit the loop early
 
         // TODO(mark): do something with the allocated slots that were not used?
       }
     }
+
+    // Reset progress when complete
+    this.currentRequestCount = 0;
+
     // log.debug('this.bricksAllocated', this.bricksAllocated);
     log.debug('this.bricksEverLoaded', this.bricksEverLoaded);
     // log.debug('uploaded bricks');

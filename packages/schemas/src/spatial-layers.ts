@@ -49,6 +49,9 @@ export const imageLayerObj = z.array(
     resolution: z.number()
       .describe('Resolution of 3D volumetric rendering')
       .optional(),
+    lodFactor: z.number()
+      .describe('Level of detail factor for 3D volumetric rendering')
+      .optional(),
     xSlice: z.array(z.any())
       .length(2)
       .describe('Slice bounds')
