@@ -533,6 +533,10 @@ function UncontrolledLauncherInner(props) {
   const {
     marginTop = 0,
     setIsFooterVisible,
+    configUrlParamName = 'config',
+    sourceUrlParamName = 'source',
+    exampleIdParamName = 'example',
+    isEditingParamName = 'edit',
   } = props;
   // Logic for managing state and query/hash params.
   const setHashParams = useSetHashParams();
@@ -545,12 +549,12 @@ function UncontrolledLauncherInner(props) {
 
   // That way, the launcher could eventually be contained within the <Vitessce /> component, e.g., if there is an empty config.
 
-  const [exampleId, setExampleId, exampleIdParamError] = useHashOrQueryParam('example', undefined, 'string');
+  const [exampleId, setExampleId, exampleIdParamError] = useHashOrQueryParam(exampleIdParamName, undefined, 'string');
   // TODO: support vitessce-link code param
   // const wsCodeValue = useHashOrQueryParam('session', undefined, 'string');
-  const [configUrl, setConfigUrl, configUrlParamError] = useHashOrQueryParam('config', undefined, 'string');
-  const [sourceUrlArr, setSourceUrlArr, sourceUrlArrParamError] = useHashOrQueryParam('source', undefined, 'string-array');
-  const [isEditingParam, setIsEditing, isEditingParamError] = useHashOrQueryParam('edit', undefined, 'boolean');
+  const [configUrl, setConfigUrl, configUrlParamError] = useHashOrQueryParam(configUrlParamName, undefined, 'string');
+  const [sourceUrlArr, setSourceUrlArr, sourceUrlArrParamError] = useHashOrQueryParam(sourceUrlParamName, undefined, 'string-array');
+  const [isEditingParam, setIsEditing, isEditingParamError] = useHashOrQueryParam(isEditingParamName, undefined, 'boolean');
 
   // We need this here since the URL param will not indicate whether local data was dropped.
   // TODO: Store in a cookie/localStorage? Store in a URL param?
@@ -600,13 +604,15 @@ function UncontrolledLauncherInner(props) {
  */
 export function UncontrolledLauncher(props) {
   const {
-    // TODO: do we need the parent app to provide this in order to update URL state?
-    baseUrl = null,
+    marginTop = 0,
+    setIsFooterVisible = null,
+    configUrlParamName = 'config',
+    sourceUrlParamName = 'source',
+    exampleIdParamName = 'example',
+    isEditingParamName = 'edit',
     // TODO: Optional mapping from example IDs to their full JSON config, and potentially more values such as PageComponent, Plugins, etc.
     // See https://github.com/vitessce/vitessce/blob/main/sites/demo/src/api.js
     exampleConfigs = null,
-    marginTop = 0,
-    setIsFooterVisible = null,
   } = props;
 
   // TODO: wrap in MUI themeProvider?
@@ -621,6 +627,11 @@ export function UncontrolledLauncher(props) {
       <UncontrolledLauncherInner
         marginTop={marginTop}
         setIsFooterVisible={setIsFooterVisible}
+
+        isEditingParamName={isEditingParamName}
+        exampleIdParamName={exampleIdParamName}
+        configUrlParamName={configUrlParamName}
+        sourceUrlParamName={sourceUrlParamName}
       />
     </QueryParamProvider>
   );
