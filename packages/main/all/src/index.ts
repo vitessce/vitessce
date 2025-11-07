@@ -20,5 +20,4 @@ export {
   useComplexCoordinationSecondary,
   useCoordinationScopes,
   useCoordinationScopesBy,
-  createOnDrop,
 } from '@vitessce/vit-s';

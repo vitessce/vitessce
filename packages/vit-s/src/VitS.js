@@ -100,7 +100,6 @@ export function VitS(props) {
     children,
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
-    onDrop,
   } = props;
 
   /*
@@ -310,7 +309,6 @@ export function VitS(props) {
                   theme={theme}
                   isBounded={isBounded}
                   stores={stores}
-                  onDrop={onDrop}
                 >
                   {children}
                 </VitessceGrid>

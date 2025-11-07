@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { createOnDrop, Vitessce } from '@vitessce/all';
+import { Vitessce } from '@vitessce/all';
+import { createOnDrop } from '@vitessce/vit-s';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 import {
   TextField,

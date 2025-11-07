@@ -4,7 +4,6 @@ import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
 export const useVitessceContainerStyles = makeStyles()(theme => ({
   vitessceContainer: {
-    display: 'flex',
     position: 'relative',
     margin: '0',
     textAlign: 'left',

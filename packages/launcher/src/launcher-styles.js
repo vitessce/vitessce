@@ -20,12 +20,7 @@ export const useStyles = makeStyles()(() => ({
     gap: '10px',
   },
   card: {
-    //border: '2px solid grey',
-    //borderRadius: '4px',
-    //padding: '5px',
     transition: 'opacity 0.3s',
-    //boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
-    //backgroundImage: 'linear-gradient(rgba(255 255 255 / 0.051), rgba(255 255 255 / 0.051))',
   },
   cardTitle: {
     marginTop: 0,
@@ -71,7 +66,6 @@ export const useStyles = makeStyles()(() => ({
     gap: '5px',
   },
   hiddenFileInput: {
-    // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
     display: 'none',
   },
 }));

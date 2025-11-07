@@ -4,4 +4,4 @@
 "docs": patch
 ---
 
-Add onDrop parameter to <Vitessce/> component.
+Implement a `<Launcher />` component to modularize the Vitessce launcher UI and make the data-centric options more prominent.

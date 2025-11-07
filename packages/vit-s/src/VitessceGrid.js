@@ -27,7 +27,6 @@ import {
 import { useTitleStyles } from './title-styles.js';
 import { getAltText } from './generate-alt-text.js';
 
-
 const padding = 10;
 const margin = 5;
 
@@ -59,7 +58,6 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
-    onDrop: onDropHandler,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -111,61 +109,6 @@ export default function VitessceGrid(props) {
     setLoaders(newLoaders);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
-
-  // eslint-disable-next-line no-unused-vars
-  const [isDragging, setIsDragging] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [isDragProcessing, setIsDragProcessing] = useState(false);
-
-  // Effect for setting up drag-and-drop event listeners.
-  useEffect(() => {
-    const zone = containerRef.current;
-
-    // Support drag-and-drop only when the parent has passed an onDrop handler.
-    const enableDropzone = (onDropHandler && typeof onDropHandler === 'function');
-    if (!enableDropzone) {
-      return () => {};
-    }
-    zone.style.border = '2px dashed grey';
-
-
-    const onDragEnter = (e) => {
-      e.preventDefault();
-      setIsDragging(true);
-    };
-    const onDragLeave = () => {
-      setIsDragging(false);
-    };
-    const onDragOver = (e) => {
-      e.preventDefault();
-    };
-    const onDrop = async (e) => {
-      e.preventDefault();
-
-      setIsDragging(false);
-      setIsDragProcessing(true);
-
-      // Call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
-      await onDropHandler(e);
-
-      setIsDragProcessing(false);
-    };
-
-    // The dragenter event happens at the moment you drag something in to the target element,
-    // and then it stops.
-    // The dragover event happens during the time you are dragging something until you drop it.
-    zone.addEventListener('dragenter', onDragEnter);
-    zone.addEventListener('dragleave', onDragLeave);
-    zone.addEventListener('dragover', onDragOver);
-    zone.addEventListener('drop', onDrop);
-
-    return () => {
-      zone.removeEventListener('dragenter', onDragEnter);
-      zone.removeEventListener('dragleave', onDragLeave);
-      zone.removeEventListener('dragover', onDragOver);
-      zone.removeEventListener('drop', onDrop);
-    };
-  }, [containerRef, onDropHandler]);
 
   return (
     <div
