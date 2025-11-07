@@ -42,11 +42,6 @@ export function LauncherStart(props) {
 
   const [spotlightCard, setSpotlightCard] = useState(null);
 
-  // eslint-disable-next-line no-unused-vars
-  const [isDragging, setIsDragging] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [isDragProcessing, setIsDragProcessing] = useState(false);
-
   // Single dropzone for both data files/folders and config files.
   const dropzoneRef = useRef(null);
   const localDataInputFoldersRef = useRef(null);
@@ -77,11 +72,9 @@ export function LauncherStart(props) {
 
     const onDragEnter = (e) => {
       e.preventDefault();
-      setIsDragging(true);
       setSpotlightCard('data-local');
     };
     const onDragLeave = () => {
-      setIsDragging(false);
       setSpotlightCard(null);
     };
     const onDragOver = (e) => {
@@ -91,14 +84,14 @@ export function LauncherStart(props) {
       e.preventDefault();
 
       setIsEditing(false);
-      setIsDragging(false);
-      setIsDragProcessing(true);
+      // Clear the other field values.
+      setConfigUrl(undefined);
+      setSourceUrlArr(undefined);
 
       // Call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
       await onDropHandler(e);
       setIsUsingLocalFiles(true);
 
-      setIsDragProcessing(false);
       setSpotlightCard(null);
     };
     
@@ -108,6 +101,9 @@ export function LauncherStart(props) {
       
       setIsEditing(false);
       setSpotlightCard('data-local');
+      // Clear the other field values.
+      setConfigUrl(undefined);
+      setSourceUrlArr(undefined);
 
       await onFileInputHandler(e);
 
@@ -121,6 +117,9 @@ export function LauncherStart(props) {
       
       setIsEditing(false);
       setSpotlightCard('config-local');
+      // Clear the other field values.
+      setConfigUrl(undefined);
+      setSourceUrlArr(undefined);
 
       await onFileInputHandler(e);
 
@@ -238,7 +237,7 @@ export function LauncherStart(props) {
                   }}
                 >Visualize</Button>
               </div>
-              <Accordion disableGutters>
+              <Accordion disableGutters style={{ marginTop: '5px' }}>
                 <AccordionSummary
                   expandIcon={<ExpandMore />}
                   aria-controls="panel1-content"
@@ -347,12 +346,12 @@ export function ControlledLauncherInner(props) {
   const {
     isEditing = true,
     setIsEditing,
-    isUsingLocalFiles,
     setIsUsingLocalFiles,
     configUrl,
     setConfigUrl,
     sourceUrlArr,
     setSourceUrlArr,
+    marginTop = 0,
   } = props;
 
   const { classes } = useStyles();
@@ -427,17 +426,13 @@ export function ControlledLauncherInner(props) {
   // - Error if BOTH config and source parameters are provided.
   // - Error if BOTH hash and query parameters are provided.
 
-  console.log(configUrlResult);
-  console.log(sourceUrlResult);
   const pageMode = false; // TODO
   const PageComponent = null; // TODO
-  const isExpanded = false; // TODO
+  const isExpanded = true; // TODO
 
   const onDropHandler = null; // TODO
   const debug = false; // TODO
   const theme = 'dark'; // TODO
-
-  console.log(validConfig, stores);
 
   return (isEditing ? (
     <LauncherStart
@@ -453,46 +448,48 @@ export function ControlledLauncherInner(props) {
       setViewConfigFromDroppedConfig={setViewConfigFromDroppedConfig}
     />
   ) : (validConfig ? (
-    <>
-      {/*<pre>{JSON.stringify(validConfig, null, 2)}</pre>*/}
-      <main className={clsx(classes.vitessceApp, { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}>
-        {pageMode ? (
-          <style>{`
-            .vitessce-container {
-              height: max(100%,100vh);
-              width: 100%;
-              overflow: hidden;
-              position: relative;
-              left: 0;
-            }
-          `}
-          </style>
-        ) : (
-          <style>{`
-            .vitessce-container {
-              min-height: 100vh;
-              width: 100%;
-              overflow: hidden;
-              position: relative;
-              left: 0;
-            }
-          `}</style>
-        )}
-        <Vitessce
-          theme={theme}
-          validateOnConfigChange={debug}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          config={validConfig}
-          height={isExpanded ? undefined : 800}
-          pageMode={pageMode}
-          stores={stores}
-          onDrop={onDropHandler}
-        >
-          {pageMode && PageComponent ? (<PageComponent />) : null}
-        </Vitessce>
-      </main>
-    </>
+    <main
+      className={clsx(classes.vitessceApp, { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}
+      style={{
+        height: `calc(100vh - ${marginTop}px)`,
+      }}
+    >
+      {pageMode ? (
+        <style>{`
+          .vitessce-container {
+            height: max(100%,100vh);
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            left: 0;
+          }
+        `}
+        </style>
+      ) : (
+        <style>{`
+          .vitessce-container {
+            min-height: calc(100vh - ${marginTop}px);
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            left: 0;
+          }
+        `}</style>
+      )}
+      <Vitessce
+        theme={theme}
+        validateOnConfigChange={debug}
+        onConfigChange={debug ? console.log : undefined}
+        onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+        config={validConfig}
+        height={isExpanded ? undefined : 800}
+        pageMode={pageMode}
+        stores={stores}
+        onDrop={onDropHandler}
+      >
+        {pageMode && PageComponent ? (<PageComponent />) : null}
+      </Vitessce>
+    </main>
   ) : (
     isLoading ? (
       <h2>Loading...</h2>
@@ -524,6 +521,10 @@ export function ControlledLauncher(props) {
 
 
 function UncontrolledLauncherInner(props) {
+  const {
+    marginTop = 0,
+    setIsFooterVisible,
+  } = props;
   // Logic for managing state and query/hash params.
   const setHashParams = useSetHashParams();
 
@@ -558,6 +559,12 @@ function UncontrolledLauncherInner(props) {
 
   const isEditing = !isUsingLocalFiles && (isEditingParam === true || needsStart);
 
+  useEffect(() => {
+    if(typeof setIsFooterVisible === 'function') {
+      setIsFooterVisible(isEditing);
+    }
+  }, [isEditing])
+
   return (
     <ControlledLauncher
       isEditing={isEditing}
@@ -568,10 +575,20 @@ function UncontrolledLauncherInner(props) {
       setConfigUrl={setConfigUrl}
       sourceUrlArr={sourceUrlArr}
       setSourceUrlArr={setSourceUrlArr}
+      marginTop={marginTop}
     />
   )
 }
 
+/**
+ * 
+ * @param {object} props 
+ * @param {number} [props.marginTop=0] The distance in pixels from the top of the window.
+ * This is used to calculate the height of the Vitessce component (100vh minus marginTop).
+ * @param {function} [props.setIsFooterVisible] Callback to set whether the footer is visible.
+ * Used to hide the footer when Vitessce component is visible.
+ * @returns 
+ */
 export function UncontrolledLauncher(props) {
   const {
     // TODO: do we need the parent app to provide this in order to update URL state?
@@ -579,6 +596,8 @@ export function UncontrolledLauncher(props) {
     // TODO: Optional mapping from example IDs to their full JSON config, and potentially more values such as PageComponent, Plugins, etc.
     // See https://github.com/vitessce/vitessce/blob/main/sites/demo/src/api.js
     exampleConfigs = null,
+    marginTop = 0,
+    setIsFooterVisible = null,
   } = props;
 
   // TODO: wrap in MUI themeProvider?
@@ -590,7 +609,10 @@ export function UncontrolledLauncher(props) {
         <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>&nbsp;
         <a href="/#?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr$image.ome-zarr">OME-Zarr Example</a>
       </div>
-      <UncontrolledLauncherInner />
+      <UncontrolledLauncherInner
+        marginTop={marginTop}
+        setIsFooterVisible={setIsFooterVisible}
+      />
     </QueryParamProvider>
   );
 }

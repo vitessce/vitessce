@@ -106,9 +106,6 @@ body {
       margin-bottom: 20px;
     }
 
-    & pre {
-      display: inline;
-    }
     & .section-title {
       font-weight: bold;
       display: block;
@@ -123,6 +120,5 @@ body {
     & ul {
       margin: 0;
     }
-
   }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, { useState } from 'react';
 import { UncontrolledLauncher } from '@vitessce/launcher';
 
 import './index.css';
@@ -40,7 +40,7 @@ function Footer() {
         </div>
         <div>
           <span>
-            This deployment: branch=<pre>changeset-release/main</pre>, hash=<pre>492a271a</pre>, date=<pre>2025-10-24</pre>
+            This deployment: branch=<code>changeset-release/main</code>, hash=<code>492a271a</code>, date=<code>2025-10-24</code>
           </span>
         </div>
       </div>
@@ -49,12 +49,16 @@ function Footer() {
 }
 
 export function VitessceApp() {
+  const [isFooterVisible, setIsFooterVisible] = useState(true);
   return (
     <div className="app-container">
       <Navbar />
-      <UncontrolledLauncher />
+      <UncontrolledLauncher
+        marginTop={30}
+        setIsFooterVisible={setIsFooterVisible}
+      />
       <div className="spacer" />
-      <Footer />
+      {isFooterVisible ? <Footer />  : null}
     </div>
   );
 }

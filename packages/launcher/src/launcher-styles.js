@@ -60,8 +60,6 @@ export const useStyles = makeStyles()(() => ({
     position: 'relative',
     display: 'flex',
     width: '100%',
-    height: 'calc(100% - 0px)',
-    minHeight: '100vh',
   },
   dataUrlTextarea: {
     width: '100%',
