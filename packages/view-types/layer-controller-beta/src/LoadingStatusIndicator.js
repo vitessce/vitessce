@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  makeStyles,
   Grid,
   Typography,
   LinearProgress,
@@ -12,48 +11,7 @@ import {
 } from '@vitessce/styles';
 
 
-const useStyles = makeStyles()(() => ({
-  statusChip: {
-    marginTop: '8px',
-  },
-  loadingBar: {
-    marginTop: '8px',
-    marginBottom: '8px',
-  },
-  statusText: {
-    marginTop: '12px',
-    marginBottom: '0 !important',
-  },
-}));
-
-export default function LoadingStatusIndicator(props) {
-  const {
-    loadingProgress,
-    onStopLoading,
-    onRestartLoading,
-    stillRef,
-    spatialRenderingMode,
-  } = props;
-
-
-  const { classes } = useStyles();
-
-  // Only show in 3D mode
-  const is3dMode = spatialRenderingMode === '3D';
-
-  if (!is3dMode || !loadingProgress) {
-    return null;
-  }
-
-  const {
-    bricksLoaded = 0,
-    currentRequestCount = 0,
-    totalBricksRequested = 0,
-    isLoading = false,
-    percentage = 0,
-    noNewRequests = false,
-  } = loadingProgress || {};
-
+function useStatusChipProps(isLoading, stillRef, noNewRequests) {
   // Determine status
   let statusColor = 'default';
   let statusLabel = 'Idle';
@@ -71,60 +29,115 @@ export default function LoadingStatusIndicator(props) {
     statusColor = 'success';
     statusLabel = 'Ready';
   }
+  return { statusColor, statusLabel };
+}
+
+function StatusChip({ label, color }) {
+  return (
+    <Chip
+      label={label}
+      color={color}
+      size="small"
+    />
+  );
+}
+
+function LoadingControlButton({ startIcon, onClick, disabled, ariaLabel, children }) {
+  return (
+    <Button
+      size="small"
+      variant="outlined"
+      startIcon={startIcon}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      fullWidth
+    >
+      {children}
+    </Button>
+  );
+}
+
+function LoadingText({ bricksLoaded, currentRequestCount, totalBricksRequested, isLoading }) {
+  return (
+    <Typography variant="body2">
+      Bricks loaded: {bricksLoaded}
+      {isLoading && totalBricksRequested > 0 && ` (${totalBricksRequested - currentRequestCount}/${totalBricksRequested})`}
+    </Typography>
+  );
+}
+
+export default function LoadingStatusIndicator(props) {
+  const {
+    loadingProgress,
+    onStopLoading,
+    onRestartLoading,
+    stillRef,
+    spatialRenderingMode,
+  } = props;
+
+  const {
+    bricksLoaded = 0,
+    currentRequestCount = 0,
+    totalBricksRequested = 0,
+    isLoading = false,
+    percentage = 0,
+    noNewRequests = false,
+  } = loadingProgress || {};
+
+  const { statusColor, statusLabel } = useStatusChipProps(isLoading, stillRef, noNewRequests);
+
+  // Only show in 3D mode
+  const is3dMode = spatialRenderingMode === '3D';
+
+  if (!is3dMode || !loadingProgress) {
+    return null;
+  }
+
 
   return (
-    <Grid container direction="column" justifyContent="space-between" alignItems="stretch">
-      <Grid container direction="row" alignItems="center">
-        <Grid size={1}>
-          <CloudDownload />
-        </Grid>
-        <Grid size={5}>
-          <Chip
-            label={statusLabel}
-            color={statusColor}
-            size="small"
-            className={classes.statusChip}
-          />
-        </Grid>
-        <Grid size={6}>
-          <Typography variant="body2" className={classes.statusText}>
-            Bricks loaded: {bricksLoaded}
-            {isLoading && totalBricksRequested > 0 && (
-            <span> ({totalBricksRequested - currentRequestCount}/{totalBricksRequested})</span>
-            )}
-          </Typography>
-        </Grid>
+    <Grid container px={0.5}>
+      <Grid size={6} alignItems="start" display="flex" direction="row" gap={1}>
+        <CloudDownload />
+        <StatusChip
+          label={statusLabel}
+          color={statusColor}
+          size="small"
+        />
+      </Grid>
+      <Grid size={6} px={1} my={0.25}>
+        <LoadingText
+          bricksLoaded={bricksLoaded}
+          currentRequestCount={currentRequestCount}
+          totalBricksRequested={totalBricksRequested}
+          isLoading={isLoading}
+        />
       </Grid>
       <Grid size={12}>
-        <LinearProgress
-          variant="determinate"
-          value={percentage}
-          sx={{ visibility: isLoading ? 'visible' : 'hidden', '& > button': { flexGrow: 1 } }}
-        />
-        <Grid container direction="row" spacing={2} alignItems="center" className={classes.buttonGroup}>
-          <Button
-            size="small"
-            variant="outlined"
+        <Grid container direction="row" spacing={2} alignItems="center" wrap="none">
+          <LoadingControlButton
             startIcon={<Stop />}
             onClick={onStopLoading}
             disabled={noNewRequests}
-            aria-label="Stop loading data and render at highest resolution"
-            fullWidth
+            ariaLabel="Stop loading data and render at highest resolution"
           >
-            Stop Loading
-          </Button>
-          <Button
-            size="small"
-            variant="outlined"
+            Stop&nbsp;Loading
+          </LoadingControlButton>
+          <LoadingControlButton
             startIcon={<Replay />}
             onClick={onRestartLoading}
             disabled={!noNewRequests && !isLoading}
-            aria-label="Restart data loading"
-            fullWidth
+            ariaLabel="Restart data loading"
           >
-            Restart Loading
-          </Button>
+            Restart&nbsp;Loading
+          </LoadingControlButton>
         </Grid>
+      </Grid>
+      <Grid size={12} visibility={isLoading ? 'visible' : 'hidden'} mt={1} mb={0.5}>
+        <LinearProgress
+          variant="determinate"
+          value={percentage}
+        />
       </Grid>
     </Grid>
   );
