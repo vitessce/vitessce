@@ -18,9 +18,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
-    "sass": "1.55.0",
-    "vite": "catalog:",
-    "@vitejs/plugin-basic-ssl": "^1.0.2"
+    "vite": "catalog:"
   },
   "license": "MIT"
 }

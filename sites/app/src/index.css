@@ -2,39 +2,6 @@
 
 :root {
   --ifm-color-primary: #49a5b7;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
-  --ifm-code-font-size: 95%;
-
-  --ifm-navbar-height: 3.0rem;
-  --ifm-vitessce-toolbar-height: 28px;
-
-  --vit-input-foreground: #0451a5;
-  --vit-input-background: #ffffff;
-  --dropzone: #989898;
-  --code-block-background: rgb(246, 248, 250);
-
-  --hero-banner-background: #49a5b7;
-
-  font-family: 'Inter', sans-serif;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-
-  --ifm-footer-background-color: #f5f6f7;
-
-}
-
-:root[data-theme='dark'] {
-  --ifm-navbar-background-color: #333;
-  --ifm-footer-background-color: rgb(73, 73, 73);
-  --vit-input-background: #202124;
-  --vit-input-foreground: #9cdcfe;
-  --dropzone: #5f5f60;
-  --code-block-background: rgb(40, 42, 54);
-  --docusaurus-highlighted-code-line-bg: rgba(66, 66, 66, 0.35);
 }
 
 html, body {
@@ -64,6 +31,7 @@ body {
 .navbar {
   width: 100%;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+  z-index: 1;
 
   & .logo {
     margin-right: 10px;

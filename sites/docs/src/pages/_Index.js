@@ -1,13 +1,12 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-console */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs, configPages } from '@vitessce/example-configs';
-import { createOnDrop } from '@vitessce/all';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
@@ -93,7 +92,6 @@ function IndexWithHashParams() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validConfig, setValidConfig] = useState(null);
-  const [stores, setStores] = useState(null);
 
   const [pendingJson, setPendingJson] = useState(baseJson);
   const [pendingJs, setPendingJs] = useState(baseJs);
@@ -233,10 +231,6 @@ function IndexWithHashParams() {
   // PageMode
   const PageComponent = isDemo ? configPages?.[demo] : null;
 
-  const onDropHandler = useMemo(() => createOnDrop(
-    { setViewConfig: setValidConfig, setStores },
-  ), [setValidConfig, setStores]);
-
   return (edit ? (
     <>
       <AppStyles />
@@ -308,8 +302,6 @@ function IndexWithHashParams() {
             handleEdit={handleEdit}
             height={isExpanded ? undefined : 800}
             pageMode={pageMode}
-            stores={stores}
-            onDrop={onDropHandler}
           >
             {pageMode && PageComponent ? (<PageComponent />) : null}
           </ThemedVitessce>

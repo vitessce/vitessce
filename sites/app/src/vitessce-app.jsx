@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
 import { UncontrolledLauncher } from '@vitessce/launcher';
 import { META_VERSION } from '@vitessce/constants-internal';

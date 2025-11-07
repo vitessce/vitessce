@@ -201,7 +201,7 @@ export function LauncherStart(props) {
             <CardContent>
               <Typography variant="h6">Remote data <br/> (Load from URL)</Typography>
               <p>
-                Enter file URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents). See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your data accessible to Vitessce.&nbsp;
+                Enter file (or folder) URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents). See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your data accessible to Vitessce.&nbsp;
                 {/*<span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>
@@ -292,7 +292,7 @@ export function LauncherStart(props) {
             <CardContent>
               <Typography variant="h6">Remote config file <br/> (Load from URL)</Typography>
               <p>
-                View a Vitessce configuration that has been saved to a JSON file that is accessible via URL. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your configuration file accessible to Vitessce.&nbsp;
+                View a configured Vitessce visualization by specifying a URL to a JSON config file. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your config file accessible to Vitessce.&nbsp;
                 {/*<span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>
@@ -432,7 +432,7 @@ export function ControlledLauncherInner(props) {
 
   const onDropHandler = null; // TODO
   const debug = false; // TODO
-  const theme = 'dark'; // TODO
+  const theme = 'light2'; // TODO
 
   return (isEditing ? (
     <LauncherStart
