@@ -11,6 +11,7 @@ function Navbar() {
         <li><a href="https://vitessce.io/">Vitessce</a></li>
         <li><a href="https://vitessce.io/docs/">Docs</a></li>
         <li><a href="https://vitessce.io/examples/">Examples</a></li>
+        <li><a href="https://vitessce.io/docs/feedback/">Feedback</a></li>
       </ul>
     </div>
   )

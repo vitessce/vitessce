@@ -41,11 +41,27 @@ export const useStyles = makeStyles()(() => ({
   cardDim: {
     opacity: 0.2,
   },
+  cardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    boxSizing: 'border-box',
+  },
+  buttonSpacer: {
+    flexGrow: 1,
+  },
+  dataButtonGroup: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '5px',
+  },
   vitessceApp: {
     position: 'relative',
     display: 'flex',
     width: '100%',
     height: 'calc(100% - 0px)',
+    minHeight: '100vh',
   },
   dataUrlTextarea: {
     width: '100%',
@@ -59,5 +75,5 @@ export const useStyles = makeStyles()(() => ({
   hiddenFileInput: {
     // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
     display: 'none',
-  }
+  },
 }));

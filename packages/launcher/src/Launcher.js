@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { createOnDrop, Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
-import { TextField, Button, Typography, Card, CardContent } from '@vitessce/styles';
+import {
+  TextField,
+  Button,
+  Typography,
+  Card, CardContent,
+  Accordion, AccordionSummary, AccordionDetails,
+  ExpandMore,
+} from '@vitessce/styles';
 import clsx from 'clsx';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { QueryParamProvider } from 'use-query-params';
@@ -40,10 +47,10 @@ export function LauncherStart(props) {
   // eslint-disable-next-line no-unused-vars
   const [isDragProcessing, setIsDragProcessing] = useState(false);
 
+  // Single dropzone for both data files/folders and config files.
   const dropzoneRef = useRef(null);
-  const localDataInputRef = useRef(null);
-
-  const localConfigCardRef = useRef(null);
+  const localDataInputFoldersRef = useRef(null);
+  const localDataInputFilesRef = useRef(null);
   const localConfigInputRef = useRef(null);
 
   const onDropHandler = useMemo(() => createOnDrop(
@@ -64,7 +71,8 @@ export function LauncherStart(props) {
     // (e.g., if a single .json file, assume config; else data).
     
     const zone = dropzoneRef.current;
-    const zoneDataInput = localDataInputRef.current;
+    const zoneDataInput1 = localDataInputFoldersRef.current;
+    const zoneDataInput2 = localDataInputFilesRef.current;
     const zoneConfigInput = localConfigInputRef.current;
 
     const onDragEnter = (e) => {
@@ -127,7 +135,8 @@ export function LauncherStart(props) {
     zone.addEventListener('dragleave', onDragLeave);
     zone.addEventListener('dragover', onDragOver);
     zone.addEventListener('drop', onDrop);
-    zoneDataInput.addEventListener('change', onDataInputChange);
+    zoneDataInput1.addEventListener('change', onDataInputChange);
+    zoneDataInput2.addEventListener('change', onDataInputChange);
     zoneConfigInput.addEventListener('change', onConfigInputChange);
 
     return () => {
@@ -135,10 +144,13 @@ export function LauncherStart(props) {
       zone.removeEventListener('dragleave', onDragLeave);
       zone.removeEventListener('dragover', onDragOver);
       zone.removeEventListener('drop', onDrop);
-      zoneDataInput.removeEventListener('change', onDataInputChange);
+      zoneDataInput1.removeEventListener('change', onDataInputChange);
+      zoneDataInput2.removeEventListener('change', onDataInputChange);
       zoneConfigInput.removeEventListener('change', onConfigInputChange);
     };
-  }, [dropzoneRef, localDataInputRef, onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard]);
+  }, [dropzoneRef, localDataInputFoldersRef, localDataInputFilesRef,
+    onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard
+  ]);
 
   return (
     <div className={classes.launcher} ref={dropzoneRef}>
@@ -152,34 +164,37 @@ export function LauncherStart(props) {
         <div className={classes.cardRow}>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
             <span className={classes.cardDashed}>
-              <CardContent>
+              <CardContent className={classes.cardContent}>
                 <Typography variant="h6">Local data <br/>(Drag and drop)</Typography>
                 <p>Select or drop local files (or folders) to view them in Vitessce. Vitessce launches with a default configuration (based on file extensions and contents). Files remain local; no upload occurs.</p>
-                <Button component="label" for="data-local-input-directory" variant="outlined">
-                  <span>Select folder(s)</span>
-                  <input
-                    id="data-local-input-directory"
-                    type="file"
-                    ref={localDataInputRef}
-                    className={classes.hiddenFileInput}
-                    multiple
-                    directory="true"
-                    webkitdirectory="true"
-                    mozdirectory="true"
-                  />
-                </Button>
-                &nbsp;
-                <Button component="label" for="data-local-input-files" variant="outlined">
-                  <span>Select file(s)</span>
-                  <input
-                    id="data-local-input-files"
-                    type="file"
-                    ref={localDataInputRef}
-                    className={classes.hiddenFileInput}
-                    multiple
-                  />
-                </Button>
-                <p>TODO: make file buttons bigger and align to bottom of cards</p>
+                <div className={classes.buttonSpacer} />
+                <div className={classes.dataButtonGroup}>
+                  <Button component="label" for="data-local-input-directory" variant="outlined" fullWidth>
+                    <span>Select folder(s)</span>
+                    <input
+                      id="data-local-input-directory"
+                      type="file"
+                      ref={localDataInputFoldersRef}
+                      className={classes.hiddenFileInput}
+                      multiple
+                      directory="true"
+                      webkitdirectory="true"
+                      mozdirectory="true"
+                    />
+                  </Button>
+                  &nbsp;
+                  <Button component="label" for="data-local-input-files" variant="outlined" fullWidth>
+                    <span>Select file(s)</span>
+                    <input
+                      id="data-local-input-files"
+                      type="file"
+                      ref={localDataInputFilesRef}
+                      className={classes.hiddenFileInput}
+                      multiple
+                    />
+                  </Button>
+                </div>
+                <div className={classes.buttonSpacer} />
               </CardContent>
             </span>
           </Card>
@@ -223,7 +238,21 @@ export function LauncherStart(props) {
                   }}
                 >Visualize</Button>
               </div>
-              <p>TODO: accordion with information about how to specify fileTypes when extensions do not match exactly</p>
+              <Accordion disableGutters>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                >Specifying file extensions</AccordionSummary>
+                <AccordionDetails>
+                  <Typography variant="body2">
+                    Vitessce automatically tries to infer the file type based on the file extension.
+                    For URLs with non-standard extensions, the file type can be specified by appending <code><b>$</b>FILE_TYPE</code> to the URL.
+                    For example, to specify that a folder at <code>https://example.com/my_data.zarr</code> is in SpatialData format, use the URL <code>https://example.com/my_data.zarr<b>$</b>spatialdata.zarr</code>.
+                    See our <a href="https://vitessce.io/docs/data-types-file-types/">data types and file types documentation</a> for a list of supported file types.
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
             </CardContent>
           </Card>
         </div>
@@ -243,10 +272,11 @@ export function LauncherStart(props) {
           </div>*/}
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
             <span className={classes.cardDashed}>
-              <CardContent>
+              <CardContent className={classes.cardContent}>
                 <Typography variant="h6">Local config file <br/> (Drag and drop)</Typography>
                 <p>View a configured Vitessce visualization by selecting or dropping a local JSON file.</p>
-                <Button component="label" variant="outlined">
+                <div className={classes.buttonSpacer} />
+                <Button component="label" variant="outlined" fullWidth>
                   <span>Select file</span>
                   <input
                     type="file"
@@ -255,6 +285,7 @@ export function LauncherStart(props) {
                     accept=".json,application/json"
                   />
                 </Button>
+                <div className={classes.buttonSpacer} />
               </CardContent>
             </span>
           </Card>
@@ -439,7 +470,7 @@ export function ControlledLauncherInner(props) {
         ) : (
           <style>{`
             .vitessce-container {
-              height: max(100%,100vh);
+              min-height: 100vh;
               width: 100%;
               overflow: hidden;
               position: relative;
