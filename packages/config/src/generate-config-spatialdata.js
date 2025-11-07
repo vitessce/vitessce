@@ -40,7 +40,6 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Handle shapes elements.
-      /*
       if (relPath.match(/^(shapes)\/([^/]*)$/)) {
         // TODO: check if shapes are circles or polygons
         // to determine which Vitessce data type to use.
@@ -61,7 +60,6 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
         // TODO: check which table annotates these shapes.
       }
-      */
 
       // Handle table elements.
       if (relPath.match(/^(tables|table)\/([^/]*)$/)) {
