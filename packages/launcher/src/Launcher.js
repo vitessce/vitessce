@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unknown-property */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable max-len */
+/* eslint-disable no-console */
+/* eslint-disable prefer-destructuring */
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Vitessce } from '@vitessce/all';
 import { createOnDrop } from '@vitessce/vit-s';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
@@ -52,7 +58,7 @@ export function LauncherStart(props) {
   const onDropHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
     false, // isFileInput
-    true,  // isConfigInput
+    true, // isConfigInput
   ), [setValidConfigFromDroppedData, setStoresFromDroppedData]);
   const onFileInputHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
@@ -65,7 +71,7 @@ export function LauncherStart(props) {
     // TODO: just make the entire Launcher a dropzone,
     // and then determine whether the dropped file(s) are config or data files
     // (e.g., if a single .json file, assume config; else data).
-    
+
     const zone = dropzoneRef.current;
     const zoneDataInput1 = localDataInputFoldersRef.current;
     const zoneDataInput2 = localDataInputFilesRef.current;
@@ -95,11 +101,11 @@ export function LauncherStart(props) {
 
       setSpotlightCard(null);
     };
-    
+
     const onDataInputChange = async (e) => {
       // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
       e.preventDefault();
-      
+
       setIsEditing(false);
       setSpotlightCard('data-local');
       // Clear the other field values.
@@ -115,7 +121,7 @@ export function LauncherStart(props) {
     const onConfigInputChange = async (e) => {
       // Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
       e.preventDefault();
-      
+
       setIsEditing(false);
       setSpotlightCard('config-local');
       // Clear the other field values.
@@ -149,7 +155,8 @@ export function LauncherStart(props) {
       zoneConfigInput.removeEventListener('change', onConfigInputChange);
     };
   }, [dropzoneRef, localDataInputFoldersRef, localDataInputFilesRef,
-    onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard
+    onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard,
+    onFileInputHandler, setConfigUrl, setSourceUrlArr,
   ]);
 
   return (
@@ -165,7 +172,7 @@ export function LauncherStart(props) {
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
             <span className={classes.cardDashed}>
               <CardContent className={classes.cardContent}>
-                <Typography variant="h6">Local data <br/>(Drag and drop)</Typography>
+                <Typography variant="h6">Local data <br />(Drag and drop)</Typography>
                 <p>Select or drop local files (or folders) to view them in Vitessce. Vitessce launches with a default configuration (based on file extensions and contents). Files remain local; no upload occurs.</p>
                 <div className={classes.buttonSpacer} />
                 <div className={classes.dataButtonGroup}>
@@ -200,15 +207,15 @@ export function LauncherStart(props) {
           </Card>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
             <CardContent>
-              <Typography variant="h6">Remote data <br/> (Load from URL)</Typography>
+              <Typography variant="h6">Remote data <br /> (Load from URL)</Typography>
               <p>
                 Enter file (or folder) URLs to view them in Vitessce. Vitessce launches with a default configuration (based on file types and contents). See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your data accessible to Vitessce.&nbsp;
-                {/*<span className="select-examples">
+                {/* <span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>
                     <option>TODO</option>
                   </select>
-                </span>*/}
+                </span> */}
               </p>
               <div className={classes.textareaAndButton}>
                 <TextField
@@ -236,14 +243,16 @@ export function LauncherStart(props) {
                   onClick={() => {
                     setIsEditing(false);
                   }}
-                >Visualize</Button>
+                >Visualize
+                </Button>
               </div>
               <Accordion disableGutters style={{ marginTop: '5px' }}>
                 <AccordionSummary
                   expandIcon={<ExpandMore />}
                   aria-controls="panel1-content"
                   id="panel1-header"
-                >Specifying file extensions</AccordionSummary>
+                >Specifying file extensions
+                </AccordionSummary>
                 <AccordionDetails>
                   <Typography variant="body2">
                     Vitessce automatically tries to infer the file type based on the file extension.
@@ -263,17 +272,17 @@ export function LauncherStart(props) {
           <p>Use the options below to supply a Vitessce <a href="https://vitessce.io/docs/view-config-json/">configuration in JSON format.</a></p>
         </div>
         <div className={classes.cardRow}>
-          {/*<div className={classes.card}>
+          {/* <div className={classes.card}>
             <h3>Config Editor</h3>
             <p>Use the online configuration editor to paste, create, or edit a Vitessce configuration using JSON or JS API syntax.</p>
             <button>Launch JSON editor</button>&nbsp;
             <button>Launch JS editor</button>&nbsp;
             <button>Launch Python editor</button>
-          </div>*/}
+          </div> */}
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
             <span className={classes.cardDashed}>
               <CardContent className={classes.cardContent}>
-                <Typography variant="h6">Local config file <br/> (Drag and drop)</Typography>
+                <Typography variant="h6">Local config file <br /> (Drag and drop)</Typography>
                 <p>View a configured Vitessce visualization by selecting or dropping a local JSON file.</p>
                 <div className={classes.buttonSpacer} />
                 <Button component="label" variant="outlined" fullWidth>
@@ -291,15 +300,15 @@ export function LauncherStart(props) {
           </Card>
           <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
             <CardContent>
-              <Typography variant="h6">Remote config file <br/> (Load from URL)</Typography>
+              <Typography variant="h6">Remote config file <br /> (Load from URL)</Typography>
               <p>
                 View a configured Vitessce visualization by specifying a URL to a JSON config file. See our <a href="https://vitessce.io/docs/data-hosting/">data hosting</a> documentation for assistance in making your config file accessible to Vitessce.&nbsp;
-                {/*<span className="select-examples">
+                {/* <span className="select-examples">
                   <label>Try an example:&nbsp;</label>
                   <select>
                     <option>TODO</option>
                   </select>
-                </span>*/}
+                </span> */}
               </p>
               <div className={classes.textareaAndButton}>
                 {/* TODO: add another textField in case the user wants to paste JSON and view it via a data URI? */}
@@ -309,7 +318,7 @@ export function LauncherStart(props) {
                   placeholder="Enter a URL"
                   minRows={2}
                   className={classes.dataUrlTextarea}
-                  value={configUrl ? configUrl : ''}
+                  value={configUrl || ''}
                   onChange={(e) => {
                     // Clear existing state.
                     setSourceUrlArr(undefined);
@@ -328,16 +337,17 @@ export function LauncherStart(props) {
                   onClick={() => {
                     setIsEditing(false);
                   }}
-                >Visualize</Button>
+                >Visualize
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
         {/* TODO: finish implementing the below row once a sidebar is available that allows for adding data post-launching */}
-        {/*<div className={classes.launcherRow}>
+        {/* <div className={classes.launcherRow}>
           <Typography variant="h5">Begin with a view type</Typography>
           <p>Select a view type to get started with configuring a new visualization.</p>
-        </div>*/}
+        </div> */}
       </div>
     </div>
   );
@@ -383,7 +393,6 @@ export function ControlledLauncherInner(props) {
     enabled: sourceUrlQueryEnabled,
     queryKey: ['data-metadata-from-urls', sourceUrlArr],
     queryFn: async () => {
-      console.log('Generating config from source URLs:', sourceUrlArr);
       const { config, stores } = await generateConfig(parseUrls(sourceUrlArr));
       return { config, stores };
     },
@@ -392,7 +401,7 @@ export function ControlledLauncherInner(props) {
   let isLoading = false;
   let validConfig = null;
   let stores = null;
-  if(configUrlQueryEnabled) {
+  if (configUrlQueryEnabled) {
     isLoading = configUrlResult.isLoading;
     if (configUrlResult.isSuccess) {
       validConfig = configUrlResult.data;
@@ -412,7 +421,6 @@ export function ControlledLauncherInner(props) {
   }
 
   // TODO: handle error states from react-query results.
-
 
 
   // Possible states:
@@ -475,7 +483,8 @@ export function ControlledLauncherInner(props) {
             position: relative;
             left: 0;
           }
-        `}</style>
+        `}
+        </style>
       )}
       <Vitessce
         theme={theme}
@@ -517,7 +526,6 @@ export function ControlledLauncher(props) {
       <ControlledLauncherInner {...props} />
     </QueryClientProvider>
   );
-
 }
 
 
@@ -552,19 +560,19 @@ function UncontrolledLauncherInner(props) {
   // Check for parameter errors (e.g., both hash+query for same value) and conflicting parameters.
   const hasNoParamError = !exampleIdParamError && !configUrlParamError && !sourceUrlArrParamError && !isEditingParamError;
   const hasNoConflictingParams = (
-    (exampleId ? 1 : 0) +
-    (configUrl ? 1 : 0) +
-    (sourceUrlArr && sourceUrlArr.length > 0 ? 1 : 0)
+    (exampleId ? 1 : 0)
+    + (configUrl ? 1 : 0)
+    + (sourceUrlArr && sourceUrlArr.length > 0 ? 1 : 0)
   ) <= 1;
   const needsStart = !exampleId && !configUrl && (!sourceUrlArr || (Array.isArray(sourceUrlArr) && sourceUrlArr.length === 0));
 
   const isEditing = !isUsingLocalFiles && (isEditingParam === true || needsStart);
 
   useEffect(() => {
-    if(typeof setIsFooterVisible === 'function') {
+    if (typeof setIsFooterVisible === 'function') {
       setIsFooterVisible(isEditing);
     }
-  }, [isEditing])
+  }, [isEditing, setIsFooterVisible]);
 
   return (
     <ControlledLauncher
@@ -578,17 +586,17 @@ function UncontrolledLauncherInner(props) {
       setSourceUrlArr={setSourceUrlArr}
       marginTop={marginTop}
     />
-  )
+  );
 }
 
 /**
- * 
- * @param {object} props 
+ *
+ * @param {object} props
  * @param {number} [props.marginTop=0] The distance in pixels from the top of the window.
  * This is used to calculate the height of the Vitessce component (100vh minus marginTop).
  * @param {function} [props.setIsFooterVisible] Callback to set whether the footer is visible.
  * Used to hide the footer when Vitessce component is visible.
- * @returns 
+ * @returns
  */
 export function UncontrolledLauncher(props) {
   const {
@@ -604,7 +612,7 @@ export function UncontrolledLauncher(props) {
   // TODO: wrap in MUI themeProvider?
   return (
     <QueryParamProvider>
-      <div style={{ display: 'none'}}>
+      <div style={{ display: 'none' }}>
         {/* TEMP: links for quick testing */}
         <a href="/">Reset</a>&nbsp;
         <a href="/?source=https://storage.googleapis.com/vitessce-demo-data/maynard-2021/151673.sdata.zarr">SpatialData Example</a>&nbsp;

@@ -16,7 +16,7 @@ function Navbar() {
         <li><a href="https://vitessce.io/docs/feedback/">Feedback</a></li>
       </ul>
     </div>
-  )
+  );
 }
 
 function Footer() {
@@ -25,7 +25,7 @@ function Footer() {
       <div className="footer-content">
         <div className="copyright">
           Copyright © 2025 <a href="http://hidivelab.org/">HIDIVE Lab</a>.
-          <br/>
+          <br />
           Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.
         </div>
         <div>
@@ -35,14 +35,26 @@ function Footer() {
         <div>
           <span className="section-title">Funding</span>
           <ul>
-            <li>NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg)</li>
-            <li>NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)</li>
-            <li>Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)</li>
+            <li>
+              NIH/OD Human BioMolecular Atlas Program (HuBMAP)&nbsp;
+              (OT2OD026677, PI: Nils Gehlenborg)
+            </li>
+            <li>
+              NIH/NLM Biomedical Informatics and Data Science Research Training Program&nbsp;
+              (T15LM007092, PI: Nils Gehlenborg)
+            </li>
+            <li>
+              Harvard Stem Cell Institute&nbsp;
+              (CF-0014-17-03, PI: Nils Gehlenborg)
+            </li>
           </ul>
         </div>
         <div>
           <span>
-            This deployment: branch=<code>{META_VERSION.branch}</code>, hash=<code>{META_VERSION.hash}</code>, date=<code>{META_VERSION.date}</code>
+            This deployment:&nbsp;
+            branch=<code>{META_VERSION.branch}</code>,&nbsp;
+            hash=<code>{META_VERSION.hash}</code>,&nbsp;
+            date=<code>{META_VERSION.date}</code>
           </span>
         </div>
       </div>
@@ -60,7 +72,7 @@ export function VitessceApp() {
         setIsFooterVisible={setIsFooterVisible}
       />
       <div className="spacer" />
-      {isFooterVisible ? <Footer />  : null}
+      {isFooterVisible ? <Footer /> : null}
     </div>
   );
 }

@@ -107,7 +107,7 @@ function ensureStores(parsedUrls) {
 }
 
 /**
- * 
+ *
  * @param {string[]} arr
  * @returns {{ url: string, fileType: string }[]} The URLs with file types.
  */
@@ -142,8 +142,6 @@ export function parseUrlsFromString(s) {
   const urlsWithHashes = s.split(';');
   return parseUrls(urlsWithHashes);
 }
-
-
 
 
 export async function parsedUrlToZmetadata(parsedUrl) {

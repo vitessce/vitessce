@@ -66,9 +66,23 @@ class HierarchicalFileSystemStore {
 */
 
 
-export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, isConfigInput = false) {
+/**
+ * Create an event handler for either dropzone or input type="file" elements.
+ * @param {object} param0 - The parameters for the drop event handler.
+ * @param {function} param0.setViewConfig - A function to set the view config.
+ * @param {function} param0.setStores - A function to set the stores.
+ * @param {boolean} isFileInput - Whether the drop zone is for file input.
+ * By default, false.
+ * @param {boolean} isConfigInput - Whether the drop zone is for config input.
+ * By default, false.
+ * @returns A drop event handler async function.
+ */
+export function createOnDrop(
+  { setViewConfig, setStores },
+  isFileInput = false,
+  isConfigInput = false,
+) {
   return async (e) => {
-    
     let topLevelEntries;
     let files;
     if (isFileInput) {
@@ -80,7 +94,7 @@ export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, 
       // Here, we use files.forEach rather than files = files.map
       // so that we can modify the original array in place.
       files.forEach((f, i) => {
-        if(!f.path) {
+        if (!f.path) {
           // eslint-disable-next-line no-param-reassign
           files[i].path = files[i].webkitRelativePath;
         }
@@ -105,7 +119,7 @@ export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, 
           });
         }
       });
-      topLevelEntries = topLevelEntries.concat(Array.from(dirNames).map((name) => ({
+      topLevelEntries = topLevelEntries.concat(Array.from(dirNames).map(name => ({
         isDirectory: true,
         name,
       })));
@@ -114,8 +128,6 @@ export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, 
         .map(item => item.webkitGetAsEntry());
       files = await getFilesFromDataTransferItems(e.dataTransfer.items);
     }
-
-    console.log(topLevelEntries, files);
 
     if (isConfigInput) {
       // We expect a single file which contains the config JSON.
@@ -130,7 +142,7 @@ export function createOnDrop({ setViewConfig, setStores }, isFileInput = false, 
         }
       }
     }
-    
+
     // TODO: implement an alternative approach that does not first flatten the file tree,
     // since it can be very large.
     // See https://github.com/manzt/zarrita.js/pull/161/files

@@ -1,14 +1,16 @@
 import {
-  useQueryParam, StringParam as StringQueryParam, ArrayParam as StringArrayQueryParam,
-  BooleanParam as BooleanQueryParam,
+  useQueryParam,
+  StringParam as StringQueryParam,
+  ArrayParam as StringArrayQueryParam,
 } from 'use-query-params';
-import { useHashParam, useSetHashParams } from './use-hash-param.js';
+import { useHashParam } from './use-hash-param.js';
 
 const DtypeToParamType = {
   string: StringQueryParam,
   'string-array': StringArrayQueryParam,
-  boolean: StringQueryParam, // Use string param for boolean since use-query-params only supports 0/1.
-}
+  // Use string param for boolean since use-query-params only supports 0/1.
+  boolean: StringQueryParam,
+};
 
 function isTruthyString(v) {
   return ['1', 'true'].includes(String(v).toLowerCase());
@@ -24,24 +26,25 @@ function useHashOrQueryParamAux(paramName, defaultValue, dtype) {
 
     return valueQ ? [boolValueQ, setValueQ] : [boolValueH, setValueH];
   }
-  
+
   if (dtype === 'string-array') {
-    if(Array.isArray(valueH) && valueH.length > 0 && (!Array.isArray(valueQ) || valueQ.length === 0)) {
+    // eslint-disable-next-line max-len
+    if (Array.isArray(valueH) && valueH.length > 0 && (!Array.isArray(valueQ) || valueQ.length === 0)) {
       // Check for ; delimiter in individual array values, and split if necessary.
       const splitValues = valueH.map(item => item.split(';')).flat();
       return [splitValues, setValueH];
-    } else if (Array.isArray(valueQ) && valueQ.length > 0 && (!Array.isArray(valueH) || valueH.length === 0)) {
+      // eslint-disable-next-line max-len
+    } if (Array.isArray(valueQ) && valueQ.length > 0 && (!Array.isArray(valueH) || valueH.length === 0)) {
       // Check for ; delimiter in individual array values, and split if necessary.
       const splitValues = valueQ.map(item => item.split(';')).flat();
       return [splitValues, setValueQ];
-    } else {
-      return [null, setValueH];
     }
-  } else {
-    if (Array.isArray(valueQ) || Array.isArray(valueH)) {
-      throw new Error(`Expected non-array values for "${paramName}".`);
-    }
+    return [null, setValueH];
   }
+  if (Array.isArray(valueQ) || Array.isArray(valueH)) {
+    throw new Error(`Expected non-array values for "${paramName}".`);
+  }
+
 
   if (valueQ && valueH) {
     throw new Error(`Both query and hash parameters provided for "${paramName}". Please provide only one.`);
