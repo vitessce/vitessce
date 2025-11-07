@@ -153,7 +153,7 @@ export function LauncherStart(props) {
     };
   }, [dropzoneRef, localDataInputFoldersRef, localDataInputFilesRef,
     onDropHandler, setIsUsingLocalFiles, setIsEditing, setSpotlightCard,
-    onFileInputHandler, setConfigUrl, setSourceUrlArr,
+    onFileInputHandler, setConfigUrl, setSourceUrlArr, setLauncherError,
   ]);
 
   return (

@@ -72,8 +72,8 @@ function ControlledLauncherInner(props) {
     isLoading = configUrlResult.isLoading;
     if (configUrlResult.isSuccess) {
       validConfig = configUrlResult.data;
-      setLauncherError(null)
-    } else if(configUrlResult.isError) {
+      setLauncherError(null);
+    } else if (configUrlResult.isError) {
       setIsEditing(true);
       setLauncherError(`Error loading config from URL: ${configUrlResult.error.message}`);
     }
@@ -83,7 +83,7 @@ function ControlledLauncherInner(props) {
       validConfig = sourceUrlResult.data.config.toJSON();
       stores = sourceUrlResult.data.stores;
       setLauncherError(null);
-    } else if(sourceUrlResult.isError) {
+    } else if (sourceUrlResult.isError) {
       setIsEditing(true);
       setLauncherError(`Error loading data/metadata from source URL(s): ${sourceUrlResult.error.message}`);
     }
@@ -117,23 +117,23 @@ function ControlledLauncherInner(props) {
 
   return (isEditing ? (
     <>
-    {launcherError ? (
-      <Alert severity="error" onClose={() => setLauncherError(null)}>
-        {launcherError}
-      </Alert>
-    ) : null}
-    <LauncherStart
-      setIsEditing={setIsEditing}
-      setIsUsingLocalFiles={setIsUsingLocalFiles}
-      configUrl={configUrl}
-      setConfigUrl={setConfigUrl}
-      sourceUrlArr={sourceUrlArr}
-      setSourceUrlArr={setSourceUrlArr}
-      setValidConfigFromDroppedData={setValidConfigFromDroppedData}
-      setStoresFromDroppedData={setStoresFromDroppedData}
-      launcherError={launcherError}
-      setLauncherError={setLauncherError}
-    />
+      {launcherError ? (
+        <Alert severity="error" onClose={() => setLauncherError(null)}>
+          {launcherError}
+        </Alert>
+      ) : null}
+      <LauncherStart
+        setIsEditing={setIsEditing}
+        setIsUsingLocalFiles={setIsUsingLocalFiles}
+        configUrl={configUrl}
+        setConfigUrl={setConfigUrl}
+        sourceUrlArr={sourceUrlArr}
+        setSourceUrlArr={setSourceUrlArr}
+        setValidConfigFromDroppedData={setValidConfigFromDroppedData}
+        setStoresFromDroppedData={setStoresFromDroppedData}
+        launcherError={launcherError}
+        setLauncherError={setLauncherError}
+      />
     </>
   ) : (validConfig ? (
     <main
