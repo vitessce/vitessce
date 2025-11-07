@@ -68,9 +68,9 @@ class HierarchicalFileSystemStore {
 
 /**
  * Create an event handler for either dropzone or input type="file" elements.
- * @param {object} param0 - The parameters for the drop event handler.
- * @param {function} param0.setViewConfig - A function to set the view config.
- * @param {function} param0.setStores - A function to set the stores.
+ * @param {object} setters - The parameters for the drop event handler.
+ * @param {function} setters.setViewConfig - A function to set the view config.
+ * @param {function} setters.setStores - A function to set the stores.
  * @param {boolean} isFileInput - Whether the drop zone is for file input.
  * By default, false.
  * @param {boolean} isConfigInput - Whether the drop zone is for config input.
@@ -78,11 +78,12 @@ class HierarchicalFileSystemStore {
  * @returns A drop event handler async function.
  */
 export function createOnDrop(
-  { setViewConfig, setStores },
+  setters,
   isFileInput = false,
   isConfigInput = false,
 ) {
   return async (e) => {
+    const { setViewConfig, setStores } = setters;
     let topLevelEntries;
     let files;
     if (isFileInput) {

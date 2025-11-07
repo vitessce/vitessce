@@ -28,7 +28,7 @@ export function LauncherStart(props) {
     setSourceUrlArr,
     setValidConfigFromDroppedData,
     setStoresFromDroppedData,
-    setViewConfigFromDroppedConfig,
+    setLauncherError,
   } = props;
   const { classes } = useStyles();
 
@@ -40,6 +40,7 @@ export function LauncherStart(props) {
   const localDataInputFilesRef = useRef(null);
   const localConfigInputRef = useRef(null);
 
+  // Handlers for drag-and-drop and file input changes.
   const onDropHandler = useMemo(() => createOnDrop(
     { setViewConfig: setValidConfigFromDroppedData, setStores: setStoresFromDroppedData },
     false, // isFileInput
@@ -53,10 +54,9 @@ export function LauncherStart(props) {
 
   // Effect for setting up drag-and-drop event listeners for data file/folder input.
   useEffect(() => {
-    // TODO: just make the entire Launcher a dropzone,
+    // Make the entire Launcher a dropzone,
     // and then determine whether the dropped file(s) are config or data files
     // (e.g., if a single .json file, assume config; else data).
-
     const zone = dropzoneRef.current;
     const zoneDataInput1 = localDataInputFoldersRef.current;
     const zoneDataInput2 = localDataInputFilesRef.current;
@@ -81,9 +81,13 @@ export function LauncherStart(props) {
       setSourceUrlArr(undefined);
 
       // Call onDrop handler passed in from parent of <VitS/Vitessce/> via prop.
-      await onDropHandler(e);
-      setIsUsingLocalFiles(true);
-
+      try {
+        await onDropHandler(e);
+        setIsUsingLocalFiles(true);
+      } catch (err) {
+        setLauncherError(`Error processing dropped files: ${err.message}`);
+        setIsEditing(true);
+      }
       setSpotlightCard(null);
     };
 
@@ -97,9 +101,13 @@ export function LauncherStart(props) {
       setConfigUrl(undefined);
       setSourceUrlArr(undefined);
 
-      await onFileInputHandler(e);
-
-      setIsUsingLocalFiles(true);
+      try {
+        await onFileInputHandler(e);
+        setIsUsingLocalFiles(true);
+      } catch (err) {
+        setLauncherError(`Error processing selected files: ${err.message}`);
+        setIsEditing(true);
+      }
       setSpotlightCard(null);
     };
 
@@ -113,9 +121,13 @@ export function LauncherStart(props) {
       setConfigUrl(undefined);
       setSourceUrlArr(undefined);
 
-      await onFileInputHandler(e);
-
-      setIsUsingLocalFiles(true);
+      try {
+        await onFileInputHandler(e);
+        setIsUsingLocalFiles(true);
+      } catch (err) {
+        setLauncherError(`Error processing selected file: ${err.message}`);
+        setIsEditing(true);
+      }
       setSpotlightCard(null);
     };
 
@@ -161,7 +173,7 @@ export function LauncherStart(props) {
                 <p>Select or drop local files (or folders) to view them in Vitessce. Vitessce launches with a default configuration (based on file extensions and contents). Files remain local; no upload occurs.</p>
                 <div className={classes.buttonSpacer} />
                 <div className={classes.dataButtonGroup}>
-                  <Button component="label" for="data-local-input-directory" variant="outlined" fullWidth>
+                  <Button component="label" htmlFor="data-local-input-directory" variant="outlined" fullWidth>
                     <span>Select folder(s)</span>
                     <input
                       id="data-local-input-directory"
@@ -175,7 +187,7 @@ export function LauncherStart(props) {
                     />
                   </Button>
                   &nbsp;
-                  <Button component="label" for="data-local-input-files" variant="outlined" fullWidth>
+                  <Button component="label" htmlFor="data-local-input-files" variant="outlined" fullWidth>
                     <span>Select file(s)</span>
                     <input
                       id="data-local-input-files"

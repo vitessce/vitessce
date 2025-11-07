@@ -15,16 +15,10 @@ function UncontrolledLauncherInner(props) {
     exampleIdParamName = 'example',
     isEditingParamName = 'edit',
   } = props;
+
+  const [launcherError, setLauncherError] = useState(null);
+
   // Logic for managing state and query/hash params.
-
-  // TODO: make this a fully "controlled" component.
-  // Handle URL param getting/setting in a parent component.
-  // Set and get URL parameters via the parent.
-  // Use an edit=true flag to indicate whether to still show the launcher component despite having non-empty param values.
-  // TODO: style the launcher so that the one relevant card is "spotlighted" when there is a non-empty param value.
-
-  // That way, the launcher could eventually be contained within the <Vitessce /> component, e.g., if there is an empty config.
-
   const [exampleId, setExampleId, exampleIdParamError] = useHashOrQueryParam(exampleIdParamName, undefined, 'string');
   // TODO: support vitessce-link code param
   // const wsCodeValue = useHashOrQueryParam('session', undefined, 'string');
@@ -65,6 +59,8 @@ function UncontrolledLauncherInner(props) {
       sourceUrlArr={sourceUrlArr}
       setSourceUrlArr={setSourceUrlArr}
       marginTop={marginTop}
+      launcherError={launcherError}
+      setLauncherError={setLauncherError}
     />
   );
 }

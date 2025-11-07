@@ -3,9 +3,10 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable prefer-destructuring */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
+import { Alert } from '@vitessce/styles';
 import clsx from 'clsx';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { useStyles } from './launcher-styles.js';
@@ -23,7 +24,7 @@ function logConfigUpgrade(prevConfig, nextConfig) {
 
 function ControlledLauncherInner(props) {
   const {
-    isEditing = true,
+    isEditing,
     setIsEditing,
     setIsUsingLocalFiles,
     configUrl,
@@ -31,6 +32,8 @@ function ControlledLauncherInner(props) {
     sourceUrlArr,
     setSourceUrlArr,
     marginTop = 0,
+    launcherError,
+    setLauncherError,
   } = props;
 
   const { classes } = useStyles();
@@ -38,11 +41,7 @@ function ControlledLauncherInner(props) {
   const [validConfigFromDroppedData, setValidConfigFromDroppedData] = useState(null);
   const [storesFromDroppedData, setStoresFromDroppedData] = useState(null);
 
-  // Not necessarily valid since coming from user-provided file.
-  // JSON may not conform to schema, or may not even be valid JSON.
-  const [viewConfigFromDroppedConfig, setViewConfigFromDroppedConfig] = useState(null);
-
-  const configUrlQueryEnabled = !!configUrl;
+  const configUrlQueryEnabled = !isEditing && !!configUrl;
   const configUrlResult = useQuery({
     enabled: configUrlQueryEnabled,
     queryKey: ['config-from-url', configUrl],
@@ -56,7 +55,7 @@ function ControlledLauncherInner(props) {
     },
   });
 
-  const sourceUrlQueryEnabled = Array.isArray(sourceUrlArr) && sourceUrlArr.length > 0;
+  const sourceUrlQueryEnabled = !isEditing && Array.isArray(sourceUrlArr) && sourceUrlArr.length > 0;
   const sourceUrlResult = useQuery({
     enabled: sourceUrlQueryEnabled,
     queryKey: ['data-metadata-from-urls', sourceUrlArr],
@@ -73,22 +72,26 @@ function ControlledLauncherInner(props) {
     isLoading = configUrlResult.isLoading;
     if (configUrlResult.isSuccess) {
       validConfig = configUrlResult.data;
+      setLauncherError(null)
+    } else if(configUrlResult.isError) {
+      setIsEditing(true);
+      setLauncherError(`Error loading config from URL: ${configUrlResult.error.message}`);
     }
   } else if (sourceUrlQueryEnabled) {
     isLoading = sourceUrlResult.isLoading;
     if (sourceUrlResult.isSuccess) {
       validConfig = sourceUrlResult.data.config.toJSON();
       stores = sourceUrlResult.data.stores;
+      setLauncherError(null);
+    } else if(sourceUrlResult.isError) {
+      setIsEditing(true);
+      setLauncherError(`Error loading data/metadata from source URL(s): ${sourceUrlResult.error.message}`);
     }
-  } else if (viewConfigFromDroppedConfig) {
-    // Let validation happen within Vitessce component.
-    validConfig = viewConfigFromDroppedConfig;
   } else if (validConfigFromDroppedData) {
     validConfig = validConfigFromDroppedData;
     stores = storesFromDroppedData;
+    setLauncherError(null);
   }
-
-  // TODO: handle error states from react-query results.
 
 
   // Possible states:
@@ -111,7 +114,14 @@ function ControlledLauncherInner(props) {
   const debug = false; // TODO
   const theme = 'light2'; // TODO
 
+
   return (isEditing ? (
+    <>
+    {launcherError ? (
+      <Alert severity="error" onClose={() => setLauncherError(null)}>
+        {launcherError}
+      </Alert>
+    ) : null}
     <LauncherStart
       setIsEditing={setIsEditing}
       setIsUsingLocalFiles={setIsUsingLocalFiles}
@@ -119,11 +129,12 @@ function ControlledLauncherInner(props) {
       setConfigUrl={setConfigUrl}
       sourceUrlArr={sourceUrlArr}
       setSourceUrlArr={setSourceUrlArr}
-
       setValidConfigFromDroppedData={setValidConfigFromDroppedData}
       setStoresFromDroppedData={setStoresFromDroppedData}
-      setViewConfigFromDroppedConfig={setViewConfigFromDroppedConfig}
+      launcherError={launcherError}
+      setLauncherError={setLauncherError}
     />
+    </>
   ) : (validConfig ? (
     <main
       className={clsx(classes.vitessceApp, { 'vitessce-expanded': isExpanded, 'vitessce-page': pageMode })}
@@ -172,7 +183,7 @@ function ControlledLauncherInner(props) {
     isLoading ? (
       <h2>Loading...</h2>
     ) : (
-      <div>Error loading configuration or data from URL parameters.</div>
+      <p>Error: undefined state</p>
     )
   )));
 }
