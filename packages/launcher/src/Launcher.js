@@ -168,8 +168,8 @@ export function LauncherStart(props) {
           <p>Let Vitessce <a href="https://vitessce.io/docs/default-config-json/">infer an initial configuration</a> based on the contents of your <a href="https://vitessce.io/docs/data-types-file-types/">data files.</a></p>
           {/* TODO: eventually, link to tutorials/videos showing how to use each of the Begin with... options */}
         </div>
-        <div className={classes.cardRow}>
-          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
+        <div className={classes.launcherCardRow}>
+          <Card className={clsx(classes.launcherCard, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-local' })}>
             <span className={classes.cardDashed}>
               <CardContent className={classes.cardContent}>
                 <Typography variant="h6">Local data <br />(Drag and drop)</Typography>
@@ -205,7 +205,7 @@ export function LauncherStart(props) {
               </CardContent>
             </span>
           </Card>
-          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
+          <Card className={clsx(classes.launcherCard, { [classes.cardDim]: spotlightCard && spotlightCard !== 'data-remote' })}>
             <CardContent>
               <Typography variant="h6">Remote data <br /> (Load from URL)</Typography>
               <p>
@@ -271,15 +271,15 @@ export function LauncherStart(props) {
           <Typography variant="h5">Begin with configuration</Typography>
           <p>Use the options below to supply a Vitessce <a href="https://vitessce.io/docs/view-config-json/">configuration in JSON format.</a></p>
         </div>
-        <div className={classes.cardRow}>
-          {/* <div className={classes.card}>
+        <div className={classes.launcherCardRow}>
+          {/* <div className={classes.launcherCard}>
             <h3>Config Editor</h3>
             <p>Use the online configuration editor to paste, create, or edit a Vitessce configuration using JSON or JS API syntax.</p>
             <button>Launch JSON editor</button>&nbsp;
             <button>Launch JS editor</button>&nbsp;
             <button>Launch Python editor</button>
           </div> */}
-          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
+          <Card className={clsx(classes.launcherCard, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-local' })}>
             <span className={classes.cardDashed}>
               <CardContent className={classes.cardContent}>
                 <Typography variant="h6">Local config file <br /> (Drag and drop)</Typography>
@@ -298,7 +298,7 @@ export function LauncherStart(props) {
               </CardContent>
             </span>
           </Card>
-          <Card className={clsx(classes.card, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
+          <Card className={clsx(classes.launcherCard, { [classes.cardDim]: spotlightCard && spotlightCard !== 'config-remote' })}>
             <CardContent>
               <Typography variant="h6">Remote config file <br /> (Load from URL)</Typography>
               <p>

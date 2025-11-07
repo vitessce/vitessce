@@ -14,12 +14,12 @@ export const useStyles = makeStyles()(() => ({
   launcherRowTitle: {
     marginBottom: 0,
   },
-  cardRow: {
+  launcherCardRow: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '10px',
   },
-  card: {
+  launcherCard: {
     transition: 'opacity 0.3s',
   },
   cardTitle: {
