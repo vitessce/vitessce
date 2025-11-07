@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import React, { useState } from 'react';
 import { UncontrolledLauncher } from '@vitessce/launcher';
+import { META_VERSION } from '@vitessce/constants-internal';
+import { Logo } from './logo.jsx';
 
 import './index.css';
 
@@ -8,9 +10,10 @@ function Navbar() {
   return (
     <div className="navbar">
       <ul>
-        <li><a href="https://vitessce.io/">Vitessce</a></li>
-        <li><a href="https://vitessce.io/docs/">Docs</a></li>
+        <li><span className="logo"><Logo /></span><a href="https://vitessce.io/">Vitessce</a></li>
+        <li><a href="/" className="active">App</a></li>
         <li><a href="https://vitessce.io/examples/">Examples</a></li>
+        <li><a href="https://vitessce.io/docs/">Docs</a></li>
         <li><a href="https://vitessce.io/docs/feedback/">Feedback</a></li>
       </ul>
     </div>
@@ -40,7 +43,7 @@ function Footer() {
         </div>
         <div>
           <span>
-            This deployment: branch=<code>changeset-release/main</code>, hash=<code>492a271a</code>, date=<code>2025-10-24</code>
+            This deployment: branch=<code>{META_VERSION.branch}</code>, hash=<code>{META_VERSION.hash}</code>, date=<code>{META_VERSION.date}</code>
           </span>
         </div>
       </div>
@@ -54,7 +57,7 @@ export function VitessceApp() {
     <div className="app-container">
       <Navbar />
       <UncontrolledLauncher
-        marginTop={30}
+        marginTop={33}
         setIsFooterVisible={setIsFooterVisible}
       />
       <div className="spacer" />

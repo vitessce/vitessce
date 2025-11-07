@@ -64,6 +64,15 @@ body {
 .navbar {
   width: 100%;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+
+  & .logo {
+    margin-right: 10px;
+    & svg {
+      height: 18px;
+      width: auto;
+      vertical-align: middle;
+    }
+  }
   & ul {
     width: 100%;
     list-style-type: none;
@@ -74,12 +83,15 @@ body {
     & li {
       display: inline-block;
       flex-grow: 1;
-      padding: 5px 10px;
+      padding: 6px 10px;
       & a {
         text-decoration: none;
-        color: var(--ifm-color-primary);
+        color: black;
         font-size: 16px;
         font-weight: 200;
+      }
+      & a.active {
+        color: var(--ifm-color-primary);
       }
       & a:hover {
         text-decoration: underline;
@@ -87,7 +99,7 @@ body {
     }
     & li:first-of-type a {
       font-weight: 500;
-      color: var(--ifm-color-primary);
+      color: black;
     }
   }
 }
@@ -119,6 +131,10 @@ body {
 
     & ul {
       margin: 0;
+    }
+
+    & a {
+      color: black;
     }
   }
 }
