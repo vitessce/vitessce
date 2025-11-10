@@ -73,6 +73,7 @@ export { default as TextField } from '@mui/material/TextField';
 export { default as Tooltip } from '@mui/material/Tooltip';
 export { default as Typography } from '@mui/material/Typography';
 export { default as Input } from '@mui/material/Input';
+export { default as InputAdornment } from '@mui/material/InputAdornment';
 export { default as TextareaAutosize } from '@mui/material/TextareaAutosize';
 export { default as Card } from '@mui/material/Card';
 export { default as CardContent } from '@mui/material/CardContent';
