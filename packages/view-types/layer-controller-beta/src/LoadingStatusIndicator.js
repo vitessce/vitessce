@@ -97,13 +97,15 @@ export default function LoadingStatusIndicator(props) {
 
   return (
     <Grid container px={0.5}>
-      <Grid size={6} alignItems="start" display="flex" direction="row" gap={1}>
-        <CloudDownload />
-        <StatusChip
-          label={statusLabel}
-          color={statusColor}
-          size="small"
-        />
+      <Grid size={6} alignItems="start">
+        <Grid container alignItems="center" gap={1}>
+          <CloudDownload />
+          <StatusChip
+            label={statusLabel}
+            color={statusColor}
+            size="small"
+          />
+        </Grid>
       </Grid>
       <Grid size={6} px={1} my={0.25}>
         <LoadingText
@@ -114,7 +116,7 @@ export default function LoadingStatusIndicator(props) {
         />
       </Grid>
       <Grid size={12}>
-        <Grid container direction="row" spacing={2} alignItems="center" wrap="none">
+        <Grid container direction="row" spacing={2} alignItems="center" wrap="nowrap">
           <LoadingControlButton
             startIcon={<Stop />}
             onClick={onStopLoading}

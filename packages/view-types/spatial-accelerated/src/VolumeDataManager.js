@@ -1239,10 +1239,7 @@ export class VolumeDataManager {
     // to each "assumed 32x32x32 chunk key".
     // Reference: https://zarrita.dev/slicing.html
 
-    console.time('array.getChunk');
     const chunkEntry = await array.getChunk([t, c, z, y, x]);
-    console.timeEnd('array.getChunk');
-
 
     if (!chunkEntry) {
       throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
