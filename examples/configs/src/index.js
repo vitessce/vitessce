@@ -53,6 +53,7 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata-visium-hd.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
+import { emptyConfig } from './view-configs/empty.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -158,6 +159,7 @@ export const configs = {
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
+  empty: emptyConfig,
   'sdata-merfish': sdataMerfishConfig,
 
   // Multi-level coordination with spatialBeta view:

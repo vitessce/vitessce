@@ -1,0 +1,24 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "3.3.66",
+  "scripts": {
+    "start": "vite --port 3002",
+    "build-app": "vite build",
+    "preview": "pnpm exec vite preview --port 3002 --host"
+  },
+  "dependencies": {
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/example-configs": "workspace:*",
+    "@vitessce/example-plugins": "workspace:*",
+    "@vitessce/globals": "workspace:*",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "@vitessce/launcher": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "catalog:",
+    "vite": "catalog:"
+  },
+  "license": "MIT"
+}

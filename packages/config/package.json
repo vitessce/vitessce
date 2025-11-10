@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/config",
-  "version": "3.8.5",
+  "version": "3.8.6",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,6 +34,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
-    "zarrita": "catalog:"
+    "zarrita": "catalog:",
+    "@zarrita/storage": "catalog:"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vit-s",
-  "version": "3.8.5",
+  "version": "3.8.6",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -51,7 +51,9 @@
     "uuid": "catalog:",
     "zustand": "catalog:",
     "react-aria": "catalog:",
-    "react-error-boundary": "catalog:"
+    "react-error-boundary": "catalog:",
+    "@placemarkio/flat-drop-files": "^1.0.2",
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",

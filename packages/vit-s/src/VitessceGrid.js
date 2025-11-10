@@ -62,7 +62,7 @@ export default function VitessceGrid(props) {
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
-  const [componentWidth] = useClosestVitessceContainerSize(containerRef);
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef, 0);
 
   const { classes } = useVitessceContainerStyles();
   const { classes: titleClasses } = useTitleStyles();

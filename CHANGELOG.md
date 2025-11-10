@@ -1,4 +1,13 @@
 
+## 3.8.6
+
+### Patch Changes
+
+- Implement a `<Launcher />` component to modularize the Vitessce launcher UI and make the data-centric options more prominent. (`@vitessce/config`, `@vitessce/vit-s`, `docs`) ([#2151](https://github.com/vitessce/vitessce/pull/2151))
+
+- Guard against WebGL context loss while loading volume data. (`@vitessce/spatial-accelerated`) ([#2313](https://github.com/vitessce/vitessce/pull/2313))
+
+
 ## 3.8.5
 
 ### Patch Changes
