@@ -2,7 +2,7 @@
 // - https://github.com/gosling-lang/gosling.js/blob/master/scripts/setup-vitest.js
 // - https://github.com/vitest-dev/vitest/issues/1377#issuecomment-1141411249
 import { afterAll, vi, beforeAll } from 'vitest';
-import { randomFillSync } from 'crypto';
+//import { randomFillSync } from 'crypto';
 import intersection from 'set.prototype.intersection';
 
 import 'vitest-canvas-mock';
@@ -12,11 +12,14 @@ import '@testing-library/jest-dom/vitest';
 
 beforeAll(() => {
     // jsdom doesn't come with a WebCrypto implementation (required for uuid)
+    // Update: no longer needed since upgrading to Node 20+?
+    /*
     global.crypto = {
         getRandomValues: function (buffer) {
             return randomFillSync(buffer);
         }
     };
+    */
     // jsdom doesn't come with a `URL.createObjectURL` implementation
     global.URL.createObjectURL = () => { return ''; };
 

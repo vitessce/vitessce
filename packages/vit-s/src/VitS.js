@@ -102,6 +102,15 @@ export function VitS(props) {
     logLevel = DEFAULT_LOG_LEVEL,
   } = props;
 
+  /*
+  const prefersDark = (
+    window.matchMedia
+    && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+  const defaultTheme = prefersDark ? 'dark' : 'light';
+  const [theme, setTheme] = useState(themeProp ?? defaultTheme);
+  */
+
   // eslint-disable-next-line no-unused-vars
   const [debugErrors, setDebugErrors] = useState([]);
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);

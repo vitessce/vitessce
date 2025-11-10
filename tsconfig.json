@@ -69,6 +69,7 @@
     { "path": "packages/view-types/biomarker-select" },
     { "path": "packages/view-types/neuroglancer" },
     { "path": "packages/main/all" },
+    { "path": "packages/launcher" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" }
   ],

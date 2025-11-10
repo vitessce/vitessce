@@ -69,7 +69,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.get-tag.outputs.tag }}
           body_path: RELEASE_NOTES.md
-      - name: Build demo site and docs site (twice)
+      - name: Build demo site, app site, and docs site (twice)
         if: steps.changesets.outputs.should-release == 'true'
         run: ./scripts/build-sites.sh --action
         env:
@@ -91,16 +91,20 @@ jobs:
           aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/docs/$DATE/$HASH/
           aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/docs-root/$DATE/$HASH/
           aws s3 cp --recursive sites/demo/dist s3://legacy.vitessce.io/demos/$DATE/$HASH/
+          aws s3 cp --recursive sites/app/dist s3://legacy.vitessce.io/app/$DATE/$HASH/
           aws s3 rm --recursive s3://vitessce-docs/
           aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
           aws s3 rm --recursive s3://vitessce-dev/
           aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
+          aws s3 rm --recursive s3://app.vitessce.io/
+          aws s3 cp --recursive sites/app/dist s3://app.vitessce.io/
           aws s3 sync ./cdn s3://cdn.vitessce.io/
       - name: Invalidate CloudFront caches
         if: steps.changesets.outputs.should-release == 'true'
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DOCS_CF_DISTRIBUTION_ID }} --paths "/*"
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DEMO_CF_DISTRIBUTION_ID }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.APP_CF_DISTRIBUTION_ID }} --paths "/*"
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_CF_DISTRIBUTION_ID }} --paths "/*"
             
             

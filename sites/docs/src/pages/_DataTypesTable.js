@@ -16,7 +16,7 @@ export default function DataTypesTable() {
   return (
     <table className={styles.dataTypesTable}>
       <thead>
-        <tr><th>Data Type</th><th>File Types</th><th>Convert from...</th></tr>
+        <tr><th>Data Type</th><th>File Types</th></tr>
       </thead>
       <tbody>
         <tr>
@@ -33,12 +33,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingmudatazarr')}><code>obsEmbedding.mudata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obsembeddingspatialdatazarr')}><code>obsEmbedding.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
             </ul>
           </td>
         </tr>
@@ -60,12 +54,6 @@ export default function DataTypesTable() {
               {spatialdataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -82,12 +70,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obsspotsspatialdatazarr')}><code>obsSpots.spatialdata.zarr</code></a></li>
               {anndataConvenienceFileType}
               {spatialdataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
             </ul>
           </td>
         </tr>
@@ -110,12 +92,6 @@ export default function DataTypesTable() {
               {spatialdataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -131,12 +107,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsanndatazarr')}><code>obsLocations.anndata.zarr</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#obslocationsmudatazarr')}><code>obsLocations.mudata.zarr</code></a></li>
               {anndataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
             </ul>
           </td>
         </tr>
@@ -157,12 +127,6 @@ export default function DataTypesTable() {
               {spatialdataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -178,12 +142,6 @@ export default function DataTypesTable() {
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -197,12 +155,6 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#imageome-tiff')}><code>image.ome-tiff</code></a></li>
               <li><a href={useBaseUrl('/docs/data-file-types/#imagespatialdatazarr')}><code>image.spatialdata.zarr</code></a></li>
               {spatialdataConvenienceFileType}
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#tiff-and-proprietary-image-formats')}>TIFF</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#tiff-and-proprietary-image-formats')}>Proprietary Formats</a></li>
             </ul>
           </td>
         </tr>
@@ -222,12 +174,6 @@ export default function DataTypesTable() {
               {spatialdataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -243,21 +189,10 @@ export default function DataTypesTable() {
               {anndataConvenienceFileType}
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-              <li><a href={useBaseUrl('/docs/data-file-types/#loom')}>Loom</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td><code>genomic-profiles</code><br /> Genomic profiles, such as ATAC-seq profiles.</td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#genomic-profileszarr')}><code>genomic-profiles.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#snapatac')}>SnapATAC</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -266,11 +201,6 @@ export default function DataTypesTable() {
             Tuples of (observationId, sampleId) to map observations to samples.
           </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#sampleedgesanndatazarr')}><code>sampleEdges.anndata.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td><code>sampleSets</code><br /> Lists or hierarchies of sets of samples.</td>
@@ -280,20 +210,10 @@ export default function DataTypesTable() {
               <li><a href={useBaseUrl('/docs/data-file-types/#samplesetsanndatazarr')}><code>sampleSets.anndata.zarr</code></a></li>
             </ul>
           </td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td><code>comparisonMetadata</code><br /> Comparison metadata.</td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparisonmetadataanndatazarr')}><code>comparisonMetadata.anndata.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -302,11 +222,6 @@ export default function DataTypesTable() {
             Per-feature statistics. For example, differential expression test results.
           </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturestatsanndatazarr')}><code>comparativeFeatureStats.anndata.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -315,11 +230,6 @@ export default function DataTypesTable() {
             Per-feature-set statistics. For example, gene set enrichment test results.
           </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativefeaturesetstatsanndatazarr')}><code>comparativeFeatureSetStats.anndata.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
         <tr>
           <td>
@@ -328,11 +238,6 @@ export default function DataTypesTable() {
             Per-observation-set statistics. For example, cell type composition analysis results.
           </td>
           <td><ul><li><a href={useBaseUrl('/docs/data-file-types/#comparativeobssetstatsanndatazarr')}><code>comparativeObsSetStats.anndata.zarr</code></a></li></ul></td>
-          <td>
-            <ul>
-              <li><a href={useBaseUrl('/docs/data-file-types/#anndata-as-h5ad')}>AnnData</a></li>
-            </ul>
-          </td>
         </tr>
       </tbody>
     </table>
