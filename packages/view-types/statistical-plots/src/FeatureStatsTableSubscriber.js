@@ -48,6 +48,7 @@ export function FeatureStatsTableSubscriber(props) {
     featurePointFoldChangeThreshold,
     featureValueTransform,
     featureValueTransformCoefficient,
+    featureAggregationStrategy,
     gatingFeatureSelectionX,
     gatingFeatureSelectionY,
     featureSelection,
@@ -64,6 +65,7 @@ export function FeatureStatsTableSubscriber(props) {
     setFeaturePointFoldChangeThreshold,
     setFeatureValueTransform,
     setFeatureValueTransformCoefficient,
+    setFeatureAggregationStrategy,
     setGatingFeatureSelectionX,
     setGatingFeatureSelectionY,
     setFeatureSelection,
@@ -131,6 +133,7 @@ export function FeatureStatsTableSubscriber(props) {
           data={featureStats}
           featureSelection={featureSelection}
           setFeatureSelection={setFeatureSelection}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
           featurePointSignificanceThreshold={featurePointSignificanceThreshold}
           featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
         />

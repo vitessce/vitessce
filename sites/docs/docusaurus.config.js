@@ -53,12 +53,12 @@ export default {
           label: 'Docs',
           position: 'left',
         },
-        {
+        /*{
           type: 'doc',
           docId: 'tutorials',
           label: 'Tutorials',
           position: 'left',
-        },
+        },*/
         {
           href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
@@ -67,6 +67,11 @@ export default {
         {
           href: 'https://r-docs.vitessce.io/',
           label: 'For R',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/vitessce/easy_vitessce',
+          label: 'EasyVitessce',
           position: 'left',
         },
         {
@@ -81,7 +86,7 @@ export default {
           position: 'right',
         },
         {
-          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          href: 'https://ipa-reader.com/?text=v%C9%AAt-%C9%9Bs',
           position: 'right',
           className: 'header-pronunciation-link',
           'aria-label': 'Pronunciation',

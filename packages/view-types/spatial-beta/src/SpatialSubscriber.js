@@ -33,7 +33,6 @@ import {
   useCoordinationScopesBy,
   useSpotMultiFeatureLabels,
   useGridItemSize,
-  useQueryClient,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';

@@ -105,4 +105,4 @@ export {
 export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
-export { useQueryClient } from '@tanstack/react-query';
+export { createOnDrop } from './on-drop.js';

@@ -69,9 +69,10 @@ export function EmbeddingScatterplotSubscriber(props) {
     helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
-
     // For the dual scatterplot:
     sampleSetSelection: sampleSetSelectionFromProps,
+    // Circle scale factor:
+    circleScaleFactor = 0.8,
   } = props;
 
   const loaders = useLoaders();
@@ -434,7 +435,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     const size = Math.max(xRange, yRange);
     // TODO: figure out a better solution than
     // scaling the radius by the arbitrary 0.8?
-    const radius = ((size * Math.sqrt(2)) / 2) * 0.8;
+    const radius = ((size * Math.sqrt(2)) / 2) * circleScaleFactor;
     const numPoints = 96;
     const options = { steps: numPoints, units: 'degrees' };
     const circlePolygon = circle(center, radius, options);
@@ -444,7 +445,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       polygon: circlePolygon,
       steps: numPoints,
     };
-  }, [originalViewState, width, height, xRange, yRange]);
+  }, [originalViewState, width, height, xRange, yRange, circleScaleFactor]);
 
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding

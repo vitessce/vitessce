@@ -1,4 +1,36 @@
 
+## 3.8.6
+
+### Patch Changes
+
+- Implement a `<Launcher />` component to modularize the Vitessce launcher UI and make the data-centric options more prominent. (`@vitessce/config`, `@vitessce/vit-s`, `docs`) ([#2151](https://github.com/vitessce/vitessce/pull/2151))
+
+- Guard against WebGL context loss while loading volume data. (`@vitessce/spatial-accelerated`) ([#2313](https://github.com/vitessce/vitessce/pull/2313))
+
+
+## 3.8.5
+
+### Patch Changes
+
+- Ensure featureAggregationStrategy is cleared upon new selection in FeatureStatsTable. Remove views from kpmp-aug-2025 pageMode config for simpler UI. (`@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`, `@vitessce/example-configs`) ([#2300](https://github.com/vitessce/vitessce/pull/2300))
+
+
+## 3.8.4
+
+### Patch Changes
+
+- Add EasyVitessce to docs. Update showcase. Minor updates to docs navbar. (`docs`) ([#2290](https://github.com/vitessce/vitessce/pull/2290))
+
+- Added support for featureLabels in spatialdata files (`@vitessce/spatial-zarr`, `@vitessce/all`, `@vitessce/schemas`) ([#2302](https://github.com/vitessce/vitessce/pull/2302))
+
+
+## 3.8.3
+
+### Patch Changes
+
+- Use --dev and --no-minify options when building the "versioned" docs site that will live at legacy.vitessce.io/docs/{date}/{commit}/ (`docs`) ([#2284](https://github.com/vitessce/vitessce/pull/2284))
+
+
 ## 3.8.2
 
 ### Patch Changes

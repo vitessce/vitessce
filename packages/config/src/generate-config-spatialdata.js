@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { hconcat, vconcat } from './VitessceConfig.js';
 import { AbstractAutoConfig } from './generate-config-helpers.js';
 
 export class SpatialDataAutoConfig extends AbstractAutoConfig {
@@ -83,6 +84,9 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
             // region: null,
             tablePath: relPath,
             obsSets: columnOrder.map(c => ({
+              // TODO: determine whether this column is string/categorical.
+              // TODO: determine whether this column contains too many
+              // categories to make sense to consider a cell set.
               path: `${hasObs.path.substring(1)}/${c}`,
               name: c,
             })),
@@ -105,7 +109,28 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  addViews(vc, layoutOption) {
-    // TODO
+  addViews(vc, dataset, layoutOption) {
+    const options = this.getOptions();
+
+    // Add spatialBeta/layerControllerBeta views.
+    const spatialView = vc.addView(dataset, 'spatialBeta');
+    const lcView = vc.addView(dataset, 'layerControllerBeta');
+
+    const controlViews = [lcView];
+    // If obsSets are present, add obsSets view.
+    if (options.obsSets) {
+      const obsSets = vc.addView(dataset, 'obsSets');
+      controlViews.push(obsSets);
+    }
+    // If obsFeatureMatrix is present, add featureList view.
+    if (options.obsFeatureMatrix) {
+      const featureList = vc.addView(dataset, 'featureList');
+      controlViews.push(featureList);
+    }
+
+    // TODO: set up coordination stuff here?
+
+    // Layout.
+    vc.layout(hconcat(spatialView, vconcat(...controlViews)));
   }
 }

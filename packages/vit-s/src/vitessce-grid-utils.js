@@ -124,7 +124,14 @@ function withDefaults(
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores, queryClient) {
+export function createLoaders(
+  datasets,
+  configDescription,
+  fileTypes,
+  coordinationTypes,
+  stores,
+  queryClient,
+) {
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = Object.fromEntries(

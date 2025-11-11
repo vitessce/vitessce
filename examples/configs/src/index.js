@@ -53,6 +53,7 @@ import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spat
 import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata-visium-hd.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
+import { emptyConfig } from './view-configs/empty.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -96,6 +97,7 @@ import { visium } from './view-configs/paper-figures/visium.js';
 // pageMode
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
+import { kpmpAug2025, kpmpAug2025Component } from './view-configs/kpmp-aug-2025.js';
 import { hubmapHeart, hubmapHeartComponent } from './view-configs/hubmap-heart.js';
 
 export const coordinationTypeConfigs = {
@@ -153,10 +155,12 @@ export const configs = {
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'kpmp-premiere': kpmpPremiere,
+  'kpmp-aug-2025': kpmpAug2025,
   'hubmap-heart': hubmapHeart,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
+  empty: emptyConfig,
   'sdata-merfish': sdataMerfishConfig,
   'sdata-xenium_rep1_io': sdataXeniumConfig,
 
@@ -243,5 +247,6 @@ export const configStores = {
 export const configPages = {
   'lake-2023': lake2023component,
   'kpmp-premiere': kpmpPremiereComponent,
+  'kpmp-aug-2025': kpmpAug2025Component,
   'hubmap-heart': hubmapHeartComponent,
 };
