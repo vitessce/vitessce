@@ -57,12 +57,13 @@ export default function VitessceGrid(props) {
     stores,
     pageMode,
     children,
+    queryClient,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
   const onResize = useEmitGridResize();
 
-  const [componentWidth] = useClosestVitessceContainerSize(containerRef, 0);
+  const [componentWidth] = useClosestVitessceContainerSize(containerRef);
 
   const { classes } = useVitessceContainerStyles();
   const { classes: titleClasses } = useTitleStyles();
@@ -101,6 +102,7 @@ export default function VitessceGrid(props) {
         fileTypes,
         coordinationTypes,
         stores,
+        queryClient,
       );
       newConfig = config;
     }
