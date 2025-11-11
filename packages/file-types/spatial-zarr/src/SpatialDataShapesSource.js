@@ -3,8 +3,8 @@
 /* eslint-disable no-undef */
 import WKB from 'ol/format/WKB.js';
 import { basename } from '@vitessce/zarr';
-import { log } from '@vitessce/globals';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
+import { toFloat32Array } from './utils.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
@@ -54,37 +54,6 @@ function getParquetPath(arrPath) {
     return `${elementPrefix}/shapes.parquet`;
   }
   throw new Error(`Cannot determine parquet path for shapes array path: ${arrPath}`);
-}
-
-/**
- * Converts BigInt64Array or Float64Array to Float32Array if needed.
- * TODO: remove this and support BigInts/Float64s in downstream code.
- * @param {Array<number>} input - The typed array to convert.
- * @returns {any} - The converted or original Float32Array.
- */
-function toFloat32Array(input) {
-  if (input instanceof Float32Array) {
-    return input; // Already a Float32Array
-  }
-
-  if (input instanceof BigInt64Array) {
-    const floats = new Float32Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      floats[i] = Number(input[i]); // May lose precision
-    }
-    return floats;
-  }
-
-  if (input instanceof Float64Array) {
-    return new Float32Array(input); // Converts with reduced precision
-  }
-
-  if (input instanceof Array) {
-    return new Float32Array(input);
-  }
-
-  log.warn('toFloat32Array expected Float32Array, Float64Array, BigInt64Array, or Array input');
-  return new Float32Array(input);
 }
 
 export default class SpatialDataShapesSource extends SpatialDataTableSource {
@@ -196,9 +165,13 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
     const wkb = new WKB();
     const arr = geometryColumn.toArray();
     return arr.map(
-      (/** @type {ArrayBuffer} */ geom) => /** @type {[number, number]} */ (
-        (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates()
-      ),
+      (/** @type {ArrayBuffer} */ geom) => {
+        const coords = (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates();
+        // Downcast coords if they are BigInts.
+        const downcastedCoords = (/** @type {[number, number]} */ (coords))
+          .map((coord) => Number(coord));
+        return  downcastedCoords;
+      },
     );
   }
 
@@ -222,7 +195,13 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
           (/** @type {any} */ (wkb.readGeometry(geom))).getCoordinates()
         );
         // Take first polygon (if multipolygon)
-        return coords[0];
+        const firstPolygon = coords[0];
+        // Downcast coords of vertices if they are BigInts.
+        for (let i = 0; i < firstPolygon.length; i++) {
+          firstPolygon[i] = (/** @type {[number, number]} */ (firstPolygon[i]))
+            .map((coord) => Number(coord));
+        }
+        return firstPolygon;
       },
     );
   }
