@@ -169,8 +169,8 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
         const coords = (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates();
         // Downcast coords if they are BigInts.
         const downcastedCoords = (/** @type {[number, number]} */ (coords))
-          .map((coord) => Number(coord));
-        return  downcastedCoords;
+          .map(coord => Number(coord));
+        return downcastedCoords;
       },
     );
   }
@@ -199,7 +199,7 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
         // Downcast coords of vertices if they are BigInts.
         for (let i = 0; i < firstPolygon.length; i++) {
           firstPolygon[i] = (/** @type {[number, number]} */ (firstPolygon[i]))
-            .map((coord) => Number(coord));
+            .map(coord => Number(coord));
         }
         return firstPolygon;
       },

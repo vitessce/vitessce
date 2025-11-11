@@ -11,6 +11,7 @@ export function toFloat32Array(input) {
     return input; // Already a Float32Array
   }
 
+  // eslint-disable-next-line no-undef
   if (input instanceof BigInt64Array) {
     const floats = new Float32Array(input.length);
     for (let i = 0; i < input.length; i++) {
@@ -37,6 +38,7 @@ export function toFloat32Array(input) {
  * @returns {any} The downcasted Int32Array or original input.
  */
 export function downcastIfBigIntArray(input) {
+  // eslint-disable-next-line no-undef
   if (input instanceof BigInt64Array) {
     const downcasted = new Int32Array(input.length);
     for (let i = 0; i < input.length; i++) {
