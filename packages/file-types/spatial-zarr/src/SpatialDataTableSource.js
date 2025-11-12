@@ -58,11 +58,12 @@ function tableToIndexColumnName(arrowTable) {
       && pandasMetadataJson.index_columns.length === 1
     ) {
       const result = pandasMetadataJson.index_columns?.[0];
+      if (typeof result === 'string') {
+        return result;
+      }
       if (result?.kind === 'range') {
         // TODO: handle range indices downstream.
         return null;
-      } if (typeof result === 'string') {
-        return result;
       }
       throw new Error('Unexpected type in the pandas metadata index_columns array.');
     }

@@ -25,7 +25,8 @@ class FlatFileSystemStore {
     if ('suffixLength' in range) {
       const { suffixLength } = range;
       return new Uint8Array(buffer, buffer.byteLength - suffixLength, suffixLength);
-    } if ('offset' in range && 'length' in range) {
+    }
+    if ('offset' in range && 'length' in range) {
       const { offset, length } = range;
       return new Uint8Array(buffer, offset, length);
     }
