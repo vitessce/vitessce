@@ -17,7 +17,21 @@ class FlatFileSystemStore {
     return new Uint8Array(buffer);
   }
 
-  // TODO: implement getRange
+  async getRange(key, range) {
+    // The list of files does not prefix its paths with slashes.
+    const file = this.files.find(f => `/${f.relpath}` === key);
+    if (!file) return undefined;
+    const buffer = await file.arrayBuffer();
+    if ('suffixLength' in range) {
+      const { suffixLength } = range;
+      return new Uint8Array(buffer, buffer.byteLength - suffixLength, suffixLength);
+    } else if ('offset' in range && 'length' in range) {
+      const { offset, length } = range;
+      return new Uint8Array(buffer, offset, length);
+    } else {
+      throw new Error('Invalid rangeQuery value.');
+    }
+  }
 }
 
 /*
