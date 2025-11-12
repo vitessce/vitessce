@@ -1,4 +1,11 @@
 
+## 3.8.8
+
+### Patch Changes
+
+- Fix parquet-reading bug involving range-type table indices. Implement FlatFileSystemStore.getRange for dropped files. (`@vitessce/spatial-zarr`) ([#2326](https://github.com/vitessce/vitessce/pull/2326))
+
+
 ## 3.8.7
 
 ### Patch Changes
