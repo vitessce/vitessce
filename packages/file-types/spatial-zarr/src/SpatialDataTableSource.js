@@ -61,7 +61,7 @@ function tableToIndexColumnName(arrowTable) {
       if (result?.kind === 'range') {
         // TODO: handle range indices downstream.
         return null;
-      } else if (typeof result === 'string') {
+      } if (typeof result === 'string') {
         return result;
       }
       throw new Error('Unexpected type in the pandas metadata index_columns array.');
