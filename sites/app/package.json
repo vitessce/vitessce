@@ -1,7 +1,7 @@
 {
   "name": "app",
   "private": true,
-  "version": "3.3.67",
+  "version": "3.3.68",
   "scripts": {
     "start": "vite --port 3002",
     "build-app": "vite build",
