@@ -6,14 +6,15 @@
  * VolumeView.js
  */
 
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { WebGLMultipleRenderTargets } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
+import { useEventCallback } from '@vitessce/styles';
 
-import { VolumeDataManager } from './VolumeDataManager.js';
+import { VolumeDataManager, INIT_STATUS } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
@@ -35,14 +36,14 @@ function logWithColor(msg) {
 
 // Functions called with useFrame
 function performGeometryPass(_gl, _camera, _scene, { mrtRef }) {
-  // logWithColor('performGeometryPass');
+  // logWithColor('performGeometryPass', 'blue');
   _gl.setRenderTarget(mrtRef.current);
   _gl.clear(true, true, true);
   _gl.render(_scene, _camera);
 }
 
 function performBlitPass(_gl, { screenSceneRef, screenCameraRef }) {
-  // logWithColor('performBlitPass');
+  // logWithColor('performBlitPass', 'red');
   _gl.setRenderTarget(null);
   _gl.clear(true, true, true);
   _gl.render(screenSceneRef.current, screenCameraRef.current);
@@ -54,7 +55,8 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
   const ctx = _gl.getContext();
   const f = frameRef.current;
 
-  if (dataManager.noNewRequests === true && f % 100 === 0 && f < 500) {
+  // Only allow automatic restart if not manually stopped by user
+  if (dataManager.noNewRequests === true && !dataManager.manuallyStopped && f % 100 === 0 && f < 500) {
     // Every 100th frame of the first 500 frames.
     // eslint-disable-next-line no-param-reassign
     dataManager.noNewRequests = false;
@@ -114,8 +116,11 @@ function handleAdaptiveQuality(clock, params) {
     // While the user is interacting, we want to ensure that the next frame's handleRequests call
     // will trigger the processUsageData call, and subsequently the processRequestData call
     // (since processUsageData will set triggerRequest to true its conclusion).
-    dataManager.noNewRequests = false;
-    dataManager.triggerUsage = true;
+    // But only if not manually stopped by the user
+    if (!dataManager.manuallyStopped) {
+      dataManager.noNewRequests = false;
+      dataManager.triggerUsage = true;
+    }
     return;
   }
   if (spatialRenderingModeChanging) return;
@@ -186,6 +191,7 @@ export function VolumeView(props) {
     // onInitComplete,
     spatialRenderingMode,
     spatialRenderingModeChanging,
+    onVolumeLoadingUpdate,
   } = props;
   const {
     gl,
@@ -211,7 +217,7 @@ export function VolumeView(props) {
   });
   // const [lastRes, setLastRes] = useState(null);
   // const [lastChannels, setLastChannels] = useState([]);
-  const [is3D, setIs3D] = useState(false);
+  const is3D = spatialRenderingMode === '3D';
   // const [loading, setLoading] = useState(false);
 
   // Add new refs for screen quad setup
@@ -219,8 +225,9 @@ export function VolumeView(props) {
   const screenCameraRef = useRef(null);
   const screenQuadRef = useRef(null);
 
-  const [isInteracting, setIsInteracting] = useState(false);
+  const [isInteracting, _setIsInteracting] = useState(false);
   const interactionTimeoutRef = useRef(null);
+
 
   // Track interaction-triggering props
   // const prevInteractionChannels = useRef();
@@ -311,8 +318,10 @@ export function VolumeView(props) {
   const firstImageChannelScope = imageChannelScopesByLayer?.[firstImageLayerScope];
   const firstImageLayerChannelCoordination = imageChannelCoordination?.[0]?.[firstImageLayerScope];
 
+
   useEffect(() => {
     logWithColor('useEffect INIT');
+    let hasRerun = false;
 
     if (!dataManager || !renderManager) {
       log.debug('dataManager or renderManager not initialized yet');
@@ -329,12 +338,20 @@ export function VolumeView(props) {
       return;
     }
 
-    // TODO(mark): prevent dataManager.init from being called more than once.
-    (async () => {
+    const initializeDataManager = async () => {
+      if (dataManager.initStatus === INIT_STATUS.COMPLETE) {
+        log.debug('dataManager already initialized, skipping');
+        return;
+      }
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
       dataManager.initImages(images, imageLayerScopes);
       // TODO: generalize to more than one image layer.
       await dataManager.init(firstImageLayerChannelCoordination); // device limits, zarr meta
+      if (hasRerun) {
+        log.debug('Initialization useEffect has rerun, aborting remaining initialization');
+        return;
+      }
+      log.debug('dataManager initialized');
 
       // log.debug('dm.physicalScale', dataManager.physicalScale);
 
@@ -347,7 +364,16 @@ export function VolumeView(props) {
       // if (onInitComplete) {
       //   onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       // }
-    })();
+
+      invalidate();
+    };
+    initializeDataManager();
+
+    // avoid setting state on unmounted component
+    // eslint-disable-next-line consistent-return
+    return () => {
+      hasRerun = true;
+    };
 
     // The data manager does not have a clearCache method, should it?
     // return () => {
@@ -355,9 +381,7 @@ export function VolumeView(props) {
     //   dataManager?.clearCache?.();
     // };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataManager, renderManager,
-    images, imageLayerScopes,
-  ]);
+  }, [dataManager, renderManager, images, imageLayerScopes]);
 
   /*
   useEffect(() => {
@@ -396,11 +420,10 @@ export function VolumeView(props) {
 
   // TODO(mark): convert to a useMemo?
   useEffect(() => {
-    logWithColor('useEffect spatialRenderingMode');
     const on3D = spatialRenderingMode === '3D';
-    setIs3D(on3D);
 
     if (on3D && dataManager && renderManager) {
+      logWithColor('useEffect spatialRenderingMode');
       // Direct call, no callbacks needed
       const propsForRenderManager = {
         images,
@@ -444,44 +467,8 @@ export function VolumeView(props) {
         }
       }
     }
-  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination,
-    imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
+  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
 
-  // TODO(mark): can this logic be moved into useFrame?
-  /*
-  useEffect(() => {
-    logWithColor('useEffect stillRef');
-    // log.debug('useEffect stillRef');
-    // log.debug('stillRef', stillRef.current);
-    if (!screenQuadRef.current) {
-      log.debug('no screen quad yet');
-      return;
-    }
-    if (!stillRef.current) {
-      // log.debug('stillRef is false');
-      screenQuadRef.current.material.uniforms.gaussian.value = 7;
-    } else {
-      //log.debug('stillRef is true');
-      screenQuadRef.current.material.uniforms.gaussian.value = 0;
-    }
-  }, [stillRef.current]);
-  */
-
-  // TODO(mark): can this logic be moved into useFrame?
-  // But need to be careful, since currently, it only runs upon change of isInteracting,
-  // and we do not want to execute more `invalidate` calls than necessary/currently.
-  useEffect(() => {
-    logWithColor('useEffect isInteracting');
-    if (isInteracting) {
-      const meshRefUniforms = meshRef.current?.material?.uniforms;
-      if (meshRefUniforms) {
-        meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
-      }
-      // setRenderSpeed(dataManager.PT.lowestDataRes);
-      stillRef.current = false;
-      invalidate();
-    }
-  }, [invalidate, isInteracting]);
 
   // Execute code on every rendered frame.
   // A numerical renderPriority value will cause React Three Fiber
@@ -493,11 +480,15 @@ export function VolumeView(props) {
   useFrame((state, delta, xrFrame) => {
     // NOTE: Do not update React state inside useFrame.
     // Reference: https://r3f.docs.pmnd.rs/advanced/pitfalls#%E2%9D%8C-setstate-in-useframe-is-bad
-    if (!mrtRef.current || !dataManager || !renderManager) return;
+    if (!mrtRef.current || !dataManager || !renderManager) {
+      return;
+    }
 
     // Don't render to MRT if shader is not ready - this prevents WebGL warnings
     // about missing fragment shader outputs for multiple render targets
-    if (!renderState.shader) return;
+    if (!renderState.shader) {
+      return;
+    }
 
     // Receive the same state as the useThree hook.
     const {
@@ -510,6 +501,17 @@ export function VolumeView(props) {
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
     }
+
+    // if (screenQuadRef.current) {
+    //   if (!stillRef.current) {
+    //     // log.debug('stillRef is false');
+    //     screenQuadRef.current.material.uniforms.gaussian.value = 7;
+    //   } else {
+    //     // log.debug('stillRef is true');
+    //     screenQuadRef.current.material.uniforms.gaussian.value = 0;
+    //   }
+    // }
+
     performBlitPass(frameGl, { screenSceneRef, screenCameraRef });
     handleRequests(frameGl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage });
     handleAdaptiveQuality(clock, {
@@ -587,17 +589,37 @@ export function VolumeView(props) {
   }, [mainOrbitControlsRef.current, setIsInteracting]);
   */
 
-  const onOrbitControlsStart = useCallback((e) => {
+
+  /**
+   * Handle interaction state changes in event callbacks.
+   * This avoids the need for a useEffect hook which
+   * would run on every render frame.
+   */
+  const setIsInteracting = useEventCallback((interacting) => {
+    logWithColor('invalidateOnInteraction callback');
+    _setIsInteracting(interacting);
+    if (interacting) {
+      const meshRefUniforms = meshRef.current?.material?.uniforms;
+      if (meshRefUniforms) {
+        meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
+      }
+      // setRenderSpeed(dataManager.PT.lowestDataRes);
+      stillRef.current = false;
+      invalidate();
+    }
+  });
+
+  const onOrbitControlsStart = useEventCallback((e) => {
     setIsInteracting(true);
-  }, []);
+  });
 
 
-  const onOrbitControlsEnd = useCallback((e) => {
+  const onOrbitControlsEnd = useEventCallback((e) => {
     clearTimeout(interactionTimeoutRef.current);
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-  }, []);
+  });
 
   // Set isInteracting while the user is sliding the channel slider
   // for smooth updates.
@@ -613,7 +635,28 @@ export function VolumeView(props) {
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-  }, [firstImageLayerChannelCoordination]);
+  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting]);
+
+  // Notify parent component about loading updates
+  useEffect(() => {
+    if (!onVolumeLoadingUpdate || !dataManager) return undefined;
+
+    // Create stable callbacks
+    const stopLoading = () => dataManager.stopLoading();
+    const restartLoading = () => dataManager.restartLoading();
+
+    const intervalId = setInterval(() => {
+      const loadingProgress = dataManager.getLoadingProgress();
+      onVolumeLoadingUpdate({
+        loadingProgress,
+        stillRef,
+        onStopLoading: stopLoading,
+        onRestartLoading: restartLoading,
+      });
+    }, 100); // Update every 100ms
+
+    return () => clearInterval(intervalId);
+  }, [onVolumeLoadingUpdate, dataManager, stillRef]);
 
   // Render nothing during initialization.
   if (!is3D || !dataManager || !renderManager) return null;

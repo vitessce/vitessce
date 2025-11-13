@@ -156,6 +156,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
       CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
       CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_LOD_FACTOR,
       CoordinationType.SPATIAL_SLICE_X,
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
@@ -226,6 +227,16 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
+  );
+
+  // Get volume loading status from auxiliary coordination (shared with Spatial view)
+  const [
+    {
+      volumeLoadingProgress: volumeLoadingStatus,
+    },
+  ] = useAuxiliaryCoordination(
+    [ViewType.SPATIAL_BETA],
+    coordinationScopes,
   );
 
   /*
@@ -326,6 +337,8 @@ export function LayerControllerSubscriber(props) {
 
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+
+        volumeLoadingStatus={volumeLoadingStatus}
       />
     </TitleInfo>
   );

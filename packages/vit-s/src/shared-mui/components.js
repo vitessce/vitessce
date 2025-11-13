@@ -14,7 +14,10 @@ import { useVitessceContainer } from '../hooks.js';
 const useStyles = makeStyles()(() => ({
   paper: {
     maxHeight: 200,
-    overflow: 'auto',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    paddingLeft: '0.25rem',
+    paddingRight: '0.25rem',
   },
   container: {
     position: 'relative',
