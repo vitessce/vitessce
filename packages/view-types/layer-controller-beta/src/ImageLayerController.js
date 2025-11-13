@@ -202,7 +202,7 @@ function ImageLayerEllipsisMenu(props) {
       aria-label="Open image layer options menu"
     >
       {is3dMode && (
-        <MenuItem dense disableGutters classes={menuClasses.menuItem}>
+        <MenuItem dense disableGutters className={menuClasses.menuItem}>
           <label id={`${lodFactorId}-label`} className={menuClasses.imageLayerMenuLabel} htmlFor={lodFactorId}>
             LOD Factor:&nbsp;
           </label>

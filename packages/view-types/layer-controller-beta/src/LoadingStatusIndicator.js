@@ -11,12 +11,15 @@ import {
 } from '@vitessce/styles';
 
 
-function useStatusChipProps(isLoading, stillRef, noNewRequests) {
+function useStatusChipProps(isLoading, stillRef, noNewRequests, initializing) {
   // Determine status
   let statusColor = 'default';
   let statusLabel = 'Idle';
 
-  if (isLoading) {
+  if (initializing) {
+    statusColor = 'warning';
+    statusLabel = 'Initializing';
+  } else if (isLoading) {
     statusColor = 'primary';
     statusLabel = 'Loading Data';
   } else if (stillRef) {
@@ -85,7 +88,11 @@ export default function LoadingStatusIndicator(props) {
     noNewRequests = false,
   } = loadingProgress || {};
 
-  const { statusColor, statusLabel } = useStatusChipProps(isLoading, stillRef, noNewRequests);
+  const initializing = !loadingProgress || (bricksLoaded === 0 && totalBricksRequested === 0);
+
+  const { statusColor, statusLabel } = useStatusChipProps(
+    isLoading, stillRef, noNewRequests, initializing,
+  );
 
   // Only show in 3D mode
   const is3dMode = spatialRenderingMode === '3D';
