@@ -502,16 +502,6 @@ export function VolumeView(props) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
     }
 
-    // if (screenQuadRef.current) {
-    //   if (!stillRef.current) {
-    //     // log.debug('stillRef is false');
-    //     screenQuadRef.current.material.uniforms.gaussian.value = 7;
-    //   } else {
-    //     // log.debug('stillRef is true');
-    //     screenQuadRef.current.material.uniforms.gaussian.value = 0;
-    //   }
-    // }
-
     performBlitPass(frameGl, { screenSceneRef, screenCameraRef });
     handleRequests(frameGl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage });
     handleAdaptiveQuality(clock, {
