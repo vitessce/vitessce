@@ -637,16 +637,31 @@ export function VolumeView(props) {
     }, 300);
   }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting]);
 
+  const stopLoading = useEventCallback(() => {
+    if (dataManager) {
+      dataManager.stopLoading();
+    }
+  });
+
+  const restartLoading = useEventCallback(() => {
+    if (dataManager) {
+      dataManager.restartLoading();
+    }
+  });
+
+  const getLoadingProgress = useEventCallback(() => {
+    if (dataManager) {
+      return dataManager.getLoadingProgress();
+    }
+    return null;
+  });
+
   // Notify parent component about loading updates
   useEffect(() => {
-    if (!onVolumeLoadingUpdate || !dataManager) return undefined;
-
-    // Create stable callbacks
-    const stopLoading = () => dataManager.stopLoading();
-    const restartLoading = () => dataManager.restartLoading();
+    if (!onVolumeLoadingUpdate) return undefined;
 
     const intervalId = setInterval(() => {
-      const loadingProgress = dataManager.getLoadingProgress();
+      const loadingProgress = getLoadingProgress();
       onVolumeLoadingUpdate({
         loadingProgress,
         stillRef,
@@ -656,7 +671,8 @@ export function VolumeView(props) {
     }, 100); // Update every 100ms
 
     return () => clearInterval(intervalId);
-  }, [onVolumeLoadingUpdate, dataManager, stillRef]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps - `useEventCallback` ensures stable references
+  }, [onVolumeLoadingUpdate, stillRef]);
 
   // Render nothing during initialization.
   if (!is3D || !dataManager || !renderManager) return null;
