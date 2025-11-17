@@ -9,4 +9,4 @@
 "@vitessce/vit-s": patch
 ---
 
-Add LOD slider and stop/restart loading controls for accelerated spatial view
+Add LOD slider and "stop/restart loading" controls for spatial-accelerated view
