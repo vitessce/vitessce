@@ -1008,6 +1008,35 @@ export function SpatialSubscriber(props) {
           />
         )
       }
+      {!disableTooltip && (
+        <SpatialTooltipSubscriber
+          parentUuid={uuid}
+          width={width}
+          height={height}
+          hoverCoord={hoverCoord}
+
+          // Points
+          obsPoints={obsPointsData}
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
+
+          // Spots
+          obsSpots={obsSpotsData}
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
+
+          // Segmentations
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
+          obsSegmentationsSetsData={obsSegmentationsSetsData}
+
+          // Images
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
+        />
+      )}
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"

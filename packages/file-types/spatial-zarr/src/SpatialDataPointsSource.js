@@ -4,6 +4,7 @@
 import { basename } from '@vitessce/zarr';
 import { normalizeAxes } from '@vitessce/spatial-utils';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
+import { downcastIfBigIntArray } from './utils.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
@@ -151,7 +152,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       if (!column) {
         throw new Error(`Column "${name}" not found in the arrow table.`);
       }
-      return column.toArray();
+      return downcastIfBigIntArray(column.toArray());
     });
 
     return {

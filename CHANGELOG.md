@@ -1,4 +1,20 @@
 
+## 3.8.8
+
+### Patch Changes
+
+- Fix parquet-reading bug involving range-type table indices. Implement FlatFileSystemStore.getRange for dropped files. (`@vitessce/spatial-zarr`) ([#2326](https://github.com/vitessce/vitessce/pull/2326))
+
+
+## 3.8.7
+
+### Patch Changes
+
+- Fixes for BigInt bugs when using SpatialData shapes and points. Pass queryClient to DataSourceClass constructor. (`@vitessce/spatial-zarr`, `@vitessce/vit-s`) ([#2323](https://github.com/vitessce/vitessce/pull/2323))
+
+- Fix tooltip regression in spatialBeta view. (`@vitessce/spatial-beta`) ([#2325](https://github.com/vitessce/vitessce/pull/2325))
+
+
 ## 3.8.6
 
 ### Patch Changes

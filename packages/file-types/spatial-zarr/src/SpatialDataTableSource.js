@@ -57,7 +57,15 @@ function tableToIndexColumnName(arrowTable) {
       Array.isArray(pandasMetadataJson.index_columns)
       && pandasMetadataJson.index_columns.length === 1
     ) {
-      return pandasMetadataJson.index_columns?.[0];
+      const result = pandasMetadataJson.index_columns?.[0];
+      if (typeof result === 'string') {
+        return result;
+      }
+      if (result?.kind === 'range') {
+        // TODO: handle range indices downstream.
+        return null;
+      }
+      throw new Error('Unexpected type in the pandas metadata index_columns array.');
     }
     throw new Error('Expected a single index column in the pandas metadata.');
   }
@@ -288,7 +296,14 @@ export default class SpatialDataTableSource extends AnnDataSource {
       }
       // Step 2: Extract footer length and magic number
       // little-endian
-      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
+      const footerLength = new DataView(
+        tailBytes.buffer,
+        // It is possible that tailBytes is a subarray,
+        // e.g., if the ArrayBuffer was created inside
+        // FlatFileSystemStore.getRange.
+        tailBytes.byteOffset,
+        tailBytes.byteLength,
+      ).getInt32(0, true);
       const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
 
       if (magic !== 'PAR1') {
