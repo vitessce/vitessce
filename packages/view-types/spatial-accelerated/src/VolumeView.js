@@ -671,7 +671,8 @@ export function VolumeView(props) {
     }, 100); // Update every 100ms
 
     return () => clearInterval(intervalId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps - `useEventCallback` ensures stable references
+    // `useEventCallback` ensures stable references
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onVolumeLoadingUpdate, stillRef]);
 
   // Render nothing during initialization.
