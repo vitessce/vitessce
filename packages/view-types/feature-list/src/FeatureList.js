@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { every } from 'lodash-es';
+import React, { useState, useMemo } from 'react';
 import { makeStyles } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
@@ -38,42 +37,40 @@ export default function FeatureList(props) {
   const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState(geneList);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
   // passing to the SelectableTable component.
   const selectableTableSortKey = (featureListSortKey === 'featureIndex' ? 'key' : 'name');
 
-  useEffect(() => {
-    const results = geneList
-      .filter(gene => (
-        gene.toLowerCase().includes(searchTerm.toLowerCase())
+  const searchResults = useMemo(() => geneList
+    .filter(gene => (
+      gene.toLowerCase().includes(searchTerm.toLowerCase())
         || featureLabelsMap?.get(gene)
           ?.toLowerCase().includes(searchTerm.toLowerCase())
         || featureLabelsMap?.get(cleanFeatureId(gene))
           ?.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-    setSearchResults(results);
-  }, [searchTerm, geneList, featureLabelsMap]);
+    )), [geneList, searchTerm, featureLabelsMap]);
 
   function onChange(selection) {
     if (setGeneSelection && selection) {
-      if (Array.isArray(selection)) {
-        if (selection.length > 0 && every(selection, s => s.key)) {
-          // If there is a filter on the gene table, selection does not contain the selected filtered-out genes.
-          // We need to add the hidden selected genes back to the selection.
-          const selectedKeys = selection.map(s => s.key);
-          const selectedHiddenKeys = (geneSelection || []).filter(
-            key => !selectedKeys.includes(key),
-          );
-          const newSelection = [...selectedHiddenKeys, ...selectedKeys];
-          setGeneSelection(newSelection);
-        } else {
-          setGeneSelection(null);
-        }
-      } else if (selection.key) {
-        setGeneSelection([selection.key]);
+      const selectedHiddenKeys = (geneSelection || []).filter(
+        key => !searchResults.includes(key),
+      );
+      // eslint-disable-next-line no-nested-ternary
+      const selectedVisibleKeys = (Array.isArray(selection)
+        ? selection.map(s => s.key)
+        : (selection.key ? [selection.key] : [])
+      ).filter(
+        key => searchResults.includes(key),
+      );
+      const newSelection = [...selectedHiddenKeys, ...selectedVisibleKeys]
+        .filter(Boolean);
+
+      if (newSelection.length > 0) {
+        setGeneSelection(newSelection);
+      } else {
+        setGeneSelection(null);
       }
     }
   }
