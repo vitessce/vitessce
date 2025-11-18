@@ -57,11 +57,10 @@ export default function FeatureList(props) {
       const selectedHiddenKeys = (geneSelection || []).filter(
         key => !searchResults.includes(key),
       );
-	  const selectionArray = Array.isArray(selection)
-		  ? selection
-		  : [selection];
-      const selectedVisibleKeys = selectionArray.map(s => s.key)
-      ).filter(
+      const selectionArray = Array.isArray(selection)
+        ? selection
+        : [selection];
+      const selectedVisibleKeys = selectionArray.map(s => s.key).filter(
         key => searchResults.includes(key),
       );
       const newSelection = [...selectedHiddenKeys, ...selectedVisibleKeys]
