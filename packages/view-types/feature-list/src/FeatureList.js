@@ -61,7 +61,14 @@ export default function FeatureList(props) {
     if (setGeneSelection && selection) {
       if (Array.isArray(selection)) {
         if (selection.length > 0 && every(selection, s => s.key)) {
-          setGeneSelection(selection.map(s => s.key));
+          // If there is a filter on the gene table, selection does not contain the selected filtered-out genes.
+          // We need to add the hidden selected genes back to the selection.
+          const selectedKeys = selection.map(s => s.key);
+          const selectedHiddenKeys = (geneSelection || []).filter(
+            key => !selectedKeys.includes(key),
+          );
+          const newSelection = [...selectedHiddenKeys, ...selectedKeys];
+          setGeneSelection(newSelection);
         } else {
           setGeneSelection(null);
         }
