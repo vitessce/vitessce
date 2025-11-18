@@ -29,7 +29,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyArrays,
+  stratifyArrays, aggregateFeatureArrays
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber } from '@vitessce/utils';
 import {
@@ -381,11 +381,22 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  // Compute aggregated expression data if featureAggregationStrategyToUse is not null
+  // and we have multiple features to aggregate.
+  const aggregatedExpressionData = useMemo(() => {
+    if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
+      const aggregated = aggregateFeatureArrays(expressionData, featureAggregationStrategyToUse);
+      // Return as array with single element to match expressionData structure
+      return [aggregated];
+    }
+    return expressionData;
+  }, [expressionData, featureAggregationStrategyToUse]);
+
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
     missing: expressionMissing,
-  } = useUint8FeatureSelection(expressionData);
+  } = useUint8FeatureSelection(aggregatedExpressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
