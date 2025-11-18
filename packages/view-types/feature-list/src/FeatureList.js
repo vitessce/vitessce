@@ -57,10 +57,8 @@ export default function FeatureList(props) {
       const selectedHiddenKeys = (geneSelection || []).filter(
         key => !searchResults.includes(key),
       );
-      // eslint-disable-next-line no-nested-ternary
-      const selectedVisibleKeys = (Array.isArray(selection)
-        ? selection.map(s => s.key)
-        : (selection.key ? [selection.key] : [])
+			const selectionArray = Array.isArray(selection) ? selection : [selection]
+      const selectedVisibleKeys = selectionArray.map(s => s.key)
       ).filter(
         key => searchResults.includes(key),
       );
