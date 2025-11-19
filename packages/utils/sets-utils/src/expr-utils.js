@@ -53,13 +53,9 @@ export function stratifyArrays(
   }
   if (Object.entries(arraysToStratify).some(([arrKey, arr]) => {
     if (arrKey === 'featureValue') {
-      // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
-      const isAlreadyAggregated = arr && arr.length > 0 && typeof arr[0] === 'number';
-      if (isAlreadyAggregated) {
-        // Single aggregated array: check its length
-        return arr.length !== obsIndex.length;
-      }
-      // Multi-gene arrays: check each sub-array length
+      // The featureValue array is an array of arrays, one per feature,
+      // so we instead expect each sub-array to have a length
+      // equal to the number of observations.
       return arr.some(a => a.length !== obsIndex.length);
     }
     return arr.length !== obsIndex.length;
@@ -112,19 +108,7 @@ export function stratifyArrays(
 
       arrKeys.forEach((arrKey) => {
         // Instantiate a new array of the appropriate size.
-        let arrConstructor;
-        if (arrKey === 'featureValue') {
-          // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
-          const featureValueData = arraysToStratify[arrKey];
-          const isAlreadyAggregated = featureValueData && featureValueData.length > 0
-            && typeof featureValueData[0] === 'number';
-          arrConstructor = isAlreadyAggregated
-            ? featureValueData.constructor
-            : featureValueData[0].constructor;
-        } else {
-          arrConstructor = arraysToStratify[arrKey].constructor;
-        }
-        const newArr = new arrConstructor(arrLen);
+        const newArr = new arraysToStratify[arrKey].constructor(arrLen);
         result.get(cellSetKey).get(sampleSetKey).set(arrKey, newArr);
       });
       result.get(cellSetKey).get(sampleSetKey).set('obsIndex', subObsIndex);
@@ -164,34 +148,18 @@ export function stratifyArrays(
     arrKeys.forEach((arrKey) => {
       let value;
       if (arrKey === 'featureValue') {
-        // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
-        const featureValueData = arraysToStratify[arrKey];
-        // If first element is a number, it's already aggregated (single typed/regular array)
-        // If first element is array-like (has length property), it's multi-gene (array of arrays)
-        const isAlreadyAggregated = featureValueData && featureValueData.length > 0
-          && typeof featureValueData[0] === 'number';
-
-        if (isAlreadyAggregated) {
-          // Already aggregated: just use the single array
-          value = featureValueData[i];
-        } else {
-          // Multi-gene arrays: aggregate according to strategy
-          if (featureAggregationStrategy === 'first') {
-            value = arraysToStratify[arrKey][0][i];
-          } else if (featureAggregationStrategy === 'last') {
-            value = arraysToStratify[arrKey].at(-1)[i];
-          } else if (typeof featureAggregationStrategy === 'number') {
-            const j = featureAggregationStrategy;
-            // TODO: more checks here for array index validity.
-            value = arraysToStratify[arrKey][j][i];
-          } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
-            value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
-            if (featureAggregationStrategy === 'mean') {
-              value /= arraysToStratify[arrKey].length;
-            }
-          } else {
-            // Default fallback: use first feature
-            value = arraysToStratify[arrKey][0][i];
+        if (featureAggregationStrategy === 'first') {
+          value = arraysToStratify[arrKey][0][i];
+        } else if (featureAggregationStrategy === 'last') {
+          value = arraysToStratify[arrKey].at(-1)[i];
+        } else if (typeof featureAggregationStrategy === 'number') {
+          const j = featureAggregationStrategy;
+          // TODO: more checks here for array index validity.
+          value = arraysToStratify[arrKey][j][i];
+        } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+          value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
+          if (featureAggregationStrategy === 'mean') {
+            value /= arraysToStratify[arrKey].length;
           }
         }
       } else {
@@ -281,8 +249,8 @@ export function stratifyExpressionData(
 
 
   if (mergedCellSets && cellSetSelection
-    && geneSelection && geneSelection.length >= 1
-    && expressionData
+      && geneSelection && geneSelection.length >= 1
+      && expressionData
   ) {
     const sampleIdToSetMap = sampleSets && sampleSetSelection
       ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
