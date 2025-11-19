@@ -29,9 +29,9 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyArrays, aggregateFeatureArrays
+  stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
@@ -365,7 +365,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
@@ -514,10 +514,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
-          obsEmbeddingX: alignedEmbeddingData.data[0],
-          obsEmbeddingY: alignedEmbeddingData.data[1],
-          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
-        }, featureAggregationStrategyToUse,
+        obsEmbeddingX: alignedEmbeddingData.data[0],
+        obsEmbeddingY: alignedEmbeddingData.data[1],
+        ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
+      }, featureAggregationStrategyToUse,
       );
       return [result, cellCountResult];
     }
