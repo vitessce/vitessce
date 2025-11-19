@@ -67,7 +67,6 @@ export {
   getCellColors,
 } from './interpolate-colors.js';
 export {
-  aggregateFeatureArrays,
   stratifyArrays,
   stratifyExpressionData,
   aggregateStratifiedExpressionData,

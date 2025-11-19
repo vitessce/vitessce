@@ -9,75 +9,112 @@ import {
 } from './cell-set-utils.js';
 
 /**
- * Apply aggregation strategy to a single array of values.
- * This is the core aggregation logic used by both single-value and element-wise aggregation.
- * @param {Array<number>} values - Array of values to aggregate
- * @param {string|number} strategy - Aggregation strategy: 'first', 'last', numeric index, 'sum', 'mean', or 'difference'
- * @returns {number} - Aggregated value
- * @throws {Error} - If strategy is invalid
+ * Aggregate per-cell expression arrays across multiple features.
+ * @param {Array<Float32Array|Uint8Array>} expressionArrays Array of per-cell expression arrays,
+ *   one per feature. Each array should have the same length (number of cells).
+ * @param {string|number} featureAggregationStrategy Aggregation strategy:
+ *   - 'first': use first feature array
+ *   - 'last': use last feature array
+ *   - number: use feature at that index
+ *   - 'sum': sum all features element-wise
+ *   - 'mean': mean of all features element-wise
+ *   - 'difference': difference between first two features (requires exactly 2 features)
+ * @returns {Float32Array|null} Single aggregated per-cell array, or null if no data
  */
-function applyAggregationStrategy(values, strategy) {
-  if (strategy === 'first') {
-    return values[0];
+export function aggregateExpressionArrays(expressionArrays, featureAggregationStrategy) {
+  const startTime = performance.now();
+
+  if (!expressionArrays || expressionArrays.length === 0 || !expressionArrays[0]) {
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return null;
   }
-  if (strategy === 'last') {
-    return values.at(-1);
+
+  const numFeatures = expressionArrays.length;
+  const base = expressionArrays[0];
+  const length = base.length;
+
+  // Single feature or default: first
+  if (numFeatures === 1 || !featureAggregationStrategy || featureAggregationStrategy === 'first') {
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return base;
   }
-  if (typeof strategy === 'number') {
-    const i = strategy;
-    if (i >= 0 && i < values.length) {
-      return values[i];
+
+  if (featureAggregationStrategy === 'last') {
+    const last = expressionArrays.at(-1);
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return last || null;
+  }
+
+  if (typeof featureAggregationStrategy === 'number') {
+    const i = featureAggregationStrategy;
+    if (i >= 0 && i < numFeatures) {
+      const arr = expressionArrays[i];
+      const endTime = performance.now();
+      console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+      return arr || null;
     }
-    throw new Error(`Feature index ${i} is out of bounds. Array length: ${values.length}`);
+    // Fallback to first feature if index is invalid
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return base;
   }
-  if (strategy === 'sum' || strategy === 'mean') {
-    const sum = values.reduce((a, b) => a + b, 0);
-    return strategy === 'mean' ? sum / values.length : sum;
-  }
-  if (strategy === 'difference') {
-    if (values.length !== 2) {
-      throw new Error('Expected exactly two values when featureAggregationStrategy is difference.');
+
+  if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+    const out = new Float32Array(length);
+    let validFeatures = 0;
+    for (let g = 0; g < numFeatures; g += 1) {
+      const arr = expressionArrays[g];
+      if (!arr) continue; // Skip null/undefined arrays
+      validFeatures += 1;
+      for (let i = 0; i < length; i += 1) {
+        out[i] += arr[i];
+      }
     }
-    return values[0] - values[1];
-  }
-  throw new Error(`Unknown aggregation strategy: ${strategy}`);
-}
-
-/**
- * Aggregate multiple arrays element-wise using the specified strategy.
- * This function can be used to aggregate feature values or gene expression arrays.
- * @param {Array<Array<number>>} arrays - Array of arrays to aggregate. All arrays must have the same length.
- * @param {string|number} strategy - Aggregation strategy: 'first', 'last', numeric index, 'sum', 'mean', or 'difference'
- * @param {number} [observationIndex] - Optional: if provided, aggregate values at this specific observation index
- *   across all arrays (returns a single number). If not provided, aggregates element-wise (returns an array).
- * @returns {Array<number>|number} - Aggregated array (if observationIndex not provided) or single value (if provided)
- * @throws {Error} - If strategy is invalid or arrays don't meet requirements
- */
-export function aggregateFeatureArrays(arrays, strategy, observationIndex = null) {
-  if (!arrays || arrays.length === 0) {
-    throw new Error('Arrays must be provided and non-empty.');
-  }
-
-  // If observationIndex is provided, extract values at that index and aggregate once
-  if (observationIndex !== null) {
-    if (observationIndex < 0 || arrays.some(arr => observationIndex >= arr.length)) {
-      throw new Error(`Observation index ${observationIndex} is out of bounds for one or more arrays.`);
+    if (validFeatures === 0) {
+      const endTime = performance.now();
+      console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+      return null; // No valid features
     }
-    const valuesAtIndex = arrays.map(arr => arr[observationIndex]);
-    return applyAggregationStrategy(valuesAtIndex, strategy);
+    if (featureAggregationStrategy === 'mean') {
+      for (let i = 0; i < length; i += 1) {
+        out[i] /= validFeatures;
+      }
+    }
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return out;
   }
 
-  // Otherwise, aggregate element-wise by applying the strategy at each index
-  const firstLength = arrays[0].length;
-  if (arrays.some(arr => arr.length !== firstLength)) {
-    throw new Error('All arrays must have the same length for element-wise aggregation.');
+  if (featureAggregationStrategy === 'difference') {
+    if (numFeatures === 2) {
+      const arr0 = expressionArrays[0];
+      const arr1 = expressionArrays[1];
+      if (!arr0 || !arr1) {
+        const endTime = performance.now();
+        console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+        return null; // Can't compute difference if either array is null
+      }
+      const out = new Float32Array(length);
+      for (let i = 0; i < length; i += 1) {
+        out[i] = arr0[i] - arr1[i];
+      }
+      const endTime = performance.now();
+      console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+      return out;
+    }
+    // Fallback if difference is requested but we don't have exactly 2 features
+    const endTime = performance.now();
+    console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+    return base;
   }
 
-  // Apply aggregation strategy at each index
-  return Array.from({ length: firstLength }, (_, idx) => {
-    const valuesAtIndex = arrays.map(arr => arr[idx]);
-    return applyAggregationStrategy(valuesAtIndex, strategy);
-  });
+  // Default fallback: use first feature
+  const endTime = performance.now();
+  console.log(`aggregateExpressionArrays runtime: ${(endTime - startTime).toFixed(3)}ms`);
+  return base;
 }
 
 /**
@@ -125,9 +162,13 @@ export function stratifyArrays(
   }
   if (Object.entries(arraysToStratify).some(([arrKey, arr]) => {
     if (arrKey === 'featureValue') {
-      // The featureValue array is an array of arrays, one per feature,
-      // so we instead expect each sub-array to have a length
-      // equal to the number of observations.
+      // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
+      const isAlreadyAggregated = arr && arr.length > 0 && typeof arr[0] === 'number';
+      if (isAlreadyAggregated) {
+        // Single aggregated array: check its length
+        return arr.length !== obsIndex.length;
+      }
+      // Multi-gene arrays: check each sub-array length
       return arr.some(a => a.length !== obsIndex.length);
     }
     return arr.length !== obsIndex.length;
@@ -180,7 +221,19 @@ export function stratifyArrays(
 
       arrKeys.forEach((arrKey) => {
         // Instantiate a new array of the appropriate size.
-        const newArr = new arraysToStratify[arrKey].constructor(arrLen);
+        let arrConstructor;
+        if (arrKey === 'featureValue') {
+          // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
+          const featureValueData = arraysToStratify[arrKey];
+          const isAlreadyAggregated = featureValueData && featureValueData.length > 0
+            && typeof featureValueData[0] === 'number';
+          arrConstructor = isAlreadyAggregated
+            ? featureValueData.constructor
+            : featureValueData[0].constructor;
+        } else {
+          arrConstructor = arraysToStratify[arrKey].constructor;
+        }
+        const newArr = new arrConstructor(arrLen);
         result.get(cellSetKey).get(sampleSetKey).set(arrKey, newArr);
       });
       result.get(cellSetKey).get(sampleSetKey).set('obsIndex', subObsIndex);
@@ -220,11 +273,36 @@ export function stratifyArrays(
     arrKeys.forEach((arrKey) => {
       let value;
       if (arrKey === 'featureValue') {
-        value = aggregateFeatureArrays(
-          arraysToStratify[arrKey],
-          featureAggregationStrategy,
-          i,
-        );
+        // Check if featureValue is already aggregated (single array) or multi-gene (array of arrays)
+        const featureValueData = arraysToStratify[arrKey];
+        // If first element is a number, it's already aggregated (single typed/regular array)
+        // If first element is array-like (has length property), it's multi-gene (array of arrays)
+        const isAlreadyAggregated = featureValueData && featureValueData.length > 0
+          && typeof featureValueData[0] === 'number';
+
+        if (isAlreadyAggregated) {
+          // Already aggregated: just use the single array
+          value = featureValueData[i];
+        } else {
+          // Multi-gene arrays: aggregate according to strategy
+          if (featureAggregationStrategy === 'first') {
+            value = arraysToStratify[arrKey][0][i];
+          } else if (featureAggregationStrategy === 'last') {
+            value = arraysToStratify[arrKey].at(-1)[i];
+          } else if (typeof featureAggregationStrategy === 'number') {
+            const j = featureAggregationStrategy;
+            // TODO: more checks here for array index validity.
+            value = arraysToStratify[arrKey][j][i];
+          } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+            value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
+            if (featureAggregationStrategy === 'mean') {
+              value /= arraysToStratify[arrKey].length;
+            }
+          } else {
+            // Default fallback: use first feature
+            value = arraysToStratify[arrKey][0][i];
+          }
+        }
       } else {
         value = arraysToStratify[arrKey][i];
       }
@@ -312,8 +390,8 @@ export function stratifyExpressionData(
 
 
   if (mergedCellSets && cellSetSelection
-      && geneSelection && geneSelection.length >= 1
-      && expressionData
+    && geneSelection && geneSelection.length >= 1
+    && expressionData
   ) {
     const sampleIdToSetMap = sampleSets && sampleSetSelection
       ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
@@ -377,14 +455,41 @@ export function aggregateStratifiedExpressionData(
   Array.from(stratifiedResult.entries()).forEach(([cellSetKey, firstLevelInternMap]) => {
     result.set(cellSetKey, new InternMap([], JSON.stringify));
     Array.from(firstLevelInternMap.entries()).forEach(([sampleSetKey, secondLevelInternMap]) => {
-      // Get arrays for all selected genes
-      const geneArrays = geneSelection
-        .map(geneId => secondLevelInternMap.get(geneId));
-      // Aggregate element-wise using the shared function
-      const values = aggregateFeatureArrays(
-        geneArrays,
-        featureAggregationStrategy,
-      );
+      // For now, we just take the first gene.
+      // TODO: support multiple genes via signature score method.
+      let values;
+      if (featureAggregationStrategy === 'first') {
+        values = secondLevelInternMap.get(geneSelection[0]);
+      } else if (featureAggregationStrategy === 'last') {
+        values = secondLevelInternMap.get(geneSelection.at(-1));
+      } else if (typeof featureAggregationStrategy === 'number') {
+        const i = featureAggregationStrategy;
+        if (i >= 0 && i < geneSelection.length) {
+          values = secondLevelInternMap.get(geneSelection[i]);
+        } else {
+          throw new Error('Feature index used for featureAggregationStrategy is invalid.');
+        }
+      } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+        // Array of per-gene arrays.
+        const subarrays = geneSelection
+          .map(geneId => secondLevelInternMap.get(geneId));
+        // Use reduce+map to sum the arrays element-wise.
+        values = subarrays
+          .reduce((acc, curr) => acc.map((val, idx) => val + curr[idx]));
+        if (featureAggregationStrategy === 'mean') {
+          const N = geneSelection.length;
+          values = values.map(val => val / N);
+        }
+      } else if (featureAggregationStrategy === 'difference') {
+        if (geneSelection.length === 2) {
+          const subarrays = geneSelection
+            .map(geneId => secondLevelInternMap.get(geneId));
+          values = subarrays
+            .reduce((acc, curr) => acc.map((val, idx) => val - curr[idx]));
+        } else {
+          throw new Error('Expected exactly two selected features when featureAggregationStrategy is difference.');
+        }
+      }
       result.get(cellSetKey).set(sampleSetKey, values);
     });
   });
