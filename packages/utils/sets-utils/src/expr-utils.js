@@ -60,6 +60,9 @@ export function aggregateFeatureArrays(arrays, strategy, observationIndex = null
 
   // If observationIndex is provided, extract values at that index and aggregate once
   if (observationIndex !== null) {
+    if (observationIndex < 0 || arrays.some(arr => observationIndex >= arr.length)) {
+      throw new Error(`Observation index ${observationIndex} is out of bounds for one or more arrays.`);
+    }
     const valuesAtIndex = arrays.map(arr => arr[observationIndex]);
     return applyAggregationStrategy(valuesAtIndex, strategy);
   }
