@@ -40,3 +40,4 @@ export {
   VALUE_TRANSFORM_OPTIONS,
 } from './gating.js';
 export { default as Pool } from './Pool.js';
+export { aggregateFeatureArrays } from './expr.js';
