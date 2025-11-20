@@ -2,15 +2,15 @@ import { makeStyles } from '@vitessce/styles';
 
 export const useEllipsisMenuStyles = makeStyles()(() => ({
   imageLayerMenuLabel: {
-    margin: '0 5px',
+    margin: '0 0.25rem',
   },
   imageLayerMenuButton: {
     backgroundColor: 'transparent',
-    padding: '4px 0',
+    padding: '0.25rem 0',
   },
   imageLayerPopperContainer: {
     display: 'flex',
-    marginTop: '5px',
+    marginTop: '0.25rem',
     justifyContent: 'space-around',
   },
   imageLayerVisibleButton: {
@@ -22,17 +22,19 @@ export const useEllipsisMenuStyles = makeStyles()(() => ({
   imageLayerName: {
     padding: 0,
     marginBottom: '0 !important',
-    marginLeft: '4px',
-    marginTop: '12px !important',
+    marginLeft: '0.25rem',
+    marginTop: '0.75rem !important',
   },
   imageLayerOpacitySlider: {
     marginTop: '7px',
   },
+  menuItem: {
+    paddingRight: '0.5rem',
+  },
   menuItemSlider: {
-    width: '100px',
   },
   menuItemCheckbox: {
-    padding: '4px',
+    padding: '0.25rem',
   },
 }));
 
