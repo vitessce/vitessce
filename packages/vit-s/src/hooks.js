@@ -180,7 +180,7 @@ export function useClosestVitessceContainerSize(ref, sidebarWidth) {
         const {
           clientHeight: componentHeight, clientWidth: componentWidth,
         } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
-        setWidth(componentWidth - sidebarWidth);
+        setWidth(componentWidth - (sidebarWidth ?? 0));
         setHeight(componentHeight);
       }
     }
