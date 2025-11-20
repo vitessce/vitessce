@@ -1,9 +1,12 @@
+/* eslint-disable prefer-destructuring */
+
 /**
  * Aggregates multiple arrays of numbers into a single array using a specified strategy.
  *
  * This function aggregates element-wise across all input arrays.
  *
- * @param {Array<Array<number>>} arrays - List of arrays to aggregate (e.g., multiple gene expression arrays).
+ * @param {Array<Array<number>>} arrays - List of arrays to aggregate
+ * (e.g., multiple gene expression arrays).
  * @param {string|number} strategy - Aggregation method:
  * - 'first', 'last', or number: Selects a specific array.
  * - 'sum', 'mean': Mathematical aggregation.
@@ -12,7 +15,7 @@
  */
 export function aggregateFeatureArrays(
   arrays: Array<Array<number>>,
-  strategy: string | number
+  strategy: string | number,
 ) {
   if (!arrays || arrays.length === 0) return null;
 
@@ -24,7 +27,11 @@ export function aggregateFeatureArrays(
   } else if (strategy === 'last') {
     targetArray = arrays[arrays.length - 1];
   } else if (typeof strategy === 'number') {
-    targetArray = arrays[strategy] || arrays[0];
+    if (strategy >= 0 && strategy < arrays.length) {
+      targetArray = arrays[strategy];
+    } else {
+      throw new Error(`Array index out of bounds: ${strategy}`);
+    }
   }
 
   // If a selection strategy was matched, return the array immediately
@@ -33,34 +40,33 @@ export function aggregateFeatureArrays(
   }
 
   const numArrays = arrays.length;
-  const length = arrays[0].length;
+  const firstArrayLength = arrays[0].length;
 
   // Validate lengths match for element-wise operations
-  if (arrays.some(arr => arr.length !== length)) {
-    console.error('All arrays must have the same length for aggregation.');
-    return null;
+  if (arrays.some(arr => arr.length !== firstArrayLength)) {
+    throw new Error('All arrays must have the same length for aggregation.');
   }
 
   if (strategy === 'sum' || strategy === 'mean') {
-    const resultArray = new Float64Array(length);
+    const resultArray = new Float64Array(firstArrayLength);
 
     for (let i = 0; i < numArrays; i++) {
       const arr = arrays[i];
-      for (let j = 0; j < length; j++) {
+      for (let j = 0; j < firstArrayLength; j++) {
         resultArray[j] += arr[j];
       }
     }
 
     if (strategy === 'mean') {
-      for (let i = 0; i < length; i++) {
+      for (let i = 0; i < firstArrayLength; i++) {
         resultArray[i] /= numArrays;
       }
     }
 
-    return Array.from(resultArray);
+    return resultArray;
   }
 
-  else if (strategy === 'difference') {
+  if (strategy === 'difference') {
     if (numArrays !== 2) {
       console.warn('Difference strategy requires exactly 2 arrays.');
       return arrays[0];
@@ -68,15 +74,14 @@ export function aggregateFeatureArrays(
 
     const arr0 = arrays[0];
     const arr1 = arrays[1];
-    const resultArray = new Float64Array(length);
+    const resultArray = new Float64Array(firstArrayLength);
 
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < firstArrayLength; i++) {
       resultArray[i] = arr0[i] - arr1[i];
     }
 
-    return Array.from(resultArray);
+    return resultArray;
   }
 
-  console.error(`Unknown aggregation strategy: ${strategy}`);
-  return null;
+  throw new Error(`Unknown aggregation strategy: ${strategy}`);
 }

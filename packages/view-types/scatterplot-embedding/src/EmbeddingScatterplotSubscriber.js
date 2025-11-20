@@ -514,10 +514,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         sampleEdges, sampleIdToObsIdsMap,
         sampleSets, sampleSetSelection,
         alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
-        obsEmbeddingX: alignedEmbeddingData.data[0],
-        obsEmbeddingY: alignedEmbeddingData.data[1],
-        ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
-      }, featureAggregationStrategyToUse,
+          obsEmbeddingX: alignedEmbeddingData.data[0],
+          obsEmbeddingY: alignedEmbeddingData.data[1],
+          ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
+        }, featureAggregationStrategyToUse,
       );
       return [result, cellCountResult];
     }
