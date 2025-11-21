@@ -49,9 +49,18 @@ export default function ExpressionHistogram(props) {
     featureType === 'gene' && featureValueType === 'expression'
   );
   // eslint-disable-next-line no-nested-ternary
-  const xTitle = geneSelection && geneSelection.length >= 1
-    ? (isExpression ? `Expression Value (${geneSelection[0]})` : `${geneSelection[0]}`)
-    : (isExpression ? 'Total Transcript Count' : 'Sum of Feature Values');
+  const xTitle = useMemo(() => {
+    if (!geneSelection || geneSelection.length === 0) {
+      return isExpression ? 'Total Transcript Count' : 'Sum of Feature Values';
+    }
+    if (geneSelection.length > 1) {
+      // For multiple genes, use a generic label since aggregation strategy
+      // is shown in the component title
+      return isExpression ? 'Expression Value (aggregated)' : 'Aggregated Feature Value';
+    }
+    // Single gene selected
+    return isExpression ? `Expression Value (${geneSelection[0]})` : `${geneSelection[0]}`;
+  }, [geneSelection, isExpression]);
 
   const spec = {
     data: { values: data },
