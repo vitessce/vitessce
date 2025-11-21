@@ -79,7 +79,11 @@ function filterValidExpressionArrays(arrays) {
   if (!arrays) {
     return [];
   }
-  return arrays.filter(arr => arr && typeof arr.length === 'number' && arr.length > 0);
+  return arrays.filter(arr => (
+    arr && 
+    (Array.isArray(arr) || ArrayBuffer.isView(arr)) && 
+    arr.length > 0
+  ));
 }
 
 function getHoverData(hoverInfo, layerType) {
