@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
@@ -144,6 +144,8 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
 
+    console.log('arrowTable', arrowTable);
+
     // TODO: this table will also contain the index column, and potentially the featureKey column.
     // Do something with these here, otherwise they will need to be loaded redundantly.
 
@@ -155,9 +157,44 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       return downcastIfBigIntArray(column.toArray());
     });
 
+    console.log('axisColumnArrs', axisColumnArrs);
+
     return {
       shape: [axisColumnArrs.length, arrowTable.numRows],
       data: axisColumnArrs,
     };
+  }
+
+  /**
+   * 
+   * @param {string} elementPath 
+   * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox 
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPointsInRect(elementPath, tileBbox, signal) {
+    // TODO: implement morton code rect querying functionality here.
+    // Reference: https://github.com/vitessce/vitessce-python/pull/476
+
+    // TODO: cache the initial metadata/table schema things.
+    const parquetPath = getParquetPath(elementPath);
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const {
+      axes,
+      spatialdata_attrs: spatialDataAttrs,
+      // The bounding box (extent) of all points.
+      // Required for un-normalization from uints back to floats.
+      // TODO: decide whether these will be stored here or somewhere else.
+      // Reference: https://github.com/vitessce/vitessce-python/pull/476#issuecomment-3362656956
+      bounding_box: allPointsBbox,
+    } = zattrs;
+    const normAxes = normalizeAxes(axes);
+    const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
+    const { feature_key: featureKey } = spatialDataAttrs;
+    const columnNames = [...axisNames, featureKey].filter(Boolean);
+    
+    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal);
   }
 }

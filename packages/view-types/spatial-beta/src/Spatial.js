@@ -387,6 +387,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
       delegateHover,
       targetZ,
+      segmentationMatrixIndices, // TEMP: we need to pass point-specific matrix/indices here.
     } = this.props;
 
     const {
@@ -394,7 +395,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerOpacity,
       obsColorEncoding,
       spatialLayerColor,
+      featureSelection,
     } = layerCoordination;
+
+    // Obtain the numeric indices of the selected features, to use for filtering.
+    // Note: this assumes that the feature names have been mapped to indices,
+    // relative to the corresponding sdata.tables[table].var.index
+    // (of the table that annotates the points).
+    let featureIndices = [];
+    if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
+      // TEMP: we need to use point-specific matrix/indices here.
+      const firstSegmentationLayerKey = Object.keys(segmentationMatrixIndices ?? {})?.[0];
+      const firstSegmentationChannelKey = Object.keys(segmentationMatrixIndices?.[firstSegmentationLayerKey] ?? {})?.[0];
+      const segmentationFeatureIndex = segmentationMatrixIndices?.[firstSegmentationLayerKey]?.[firstSegmentationChannelKey]?.featureIndex;
+      featureIndices = featureSelection.map(geneName => segmentationFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
+    }
+    //console.log('featureSelection', featureSelection, segmentationMatrixIndices, featureIndices);
+
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
@@ -421,9 +438,119 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
-    if (hasZ && typeof targetZ !== 'number') {
+    // TODO: also consider a heuristic based on the number of unique Z values.
+    // (e.g., if many unique values, then not 2.5D, so filtering by a single Z value does not make sense.)
+
+    const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
+
+    if (hasZ && typeof targetZ !== 'number' && considerZ) {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
+
+    // Use TileLayer to load tiled points via loader.loadPointsInRect(bounds)
+    const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
+
+    return new deck.TileLayer({
+      id: `${POINT_LAYER_PREFIX}${layerScope}`,
+      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+      // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
+      modelMatrix,
+      pickable: true,
+      autoHighlight: true,
+      //onHover: info => delegateHover(info, 'point', layerScope),
+      opacity: spatialLayerOpacity,
+      visible: spatialLayerVisible,
+      // Since points are tiled but not multi-resolution,
+      // it provides no benefit to request tiles at different zoom levels.
+      // TODO: Should this value be the same for every dataset, or do we need to
+      // adjust based on the extent/density of the point data (and/or account for modelMatrix, etc)?
+      maxZoom: -1,
+      minZoom: -1,
+      tileSize: 512,
+      //refinementStrategy: 'no-overlap',
+      getTileData: async (tileInfo) => {
+        const { index, signal, bbox, zoom } = tileInfo;
+        const { z, x, y } = index;
+        const { left, top, right, bottom } = bbox;
+        console.log('getTileData', tileInfo);
+
+        const pointsInTile = await loadPointsInRect(bbox, signal);
+
+        // On signal abort, print a message.
+        signal.addEventListener('abort', () => {
+          console.log(`Tile ${z}/${x}/${y} aborted`);
+        });
+
+        return {
+          src: pointsInTile.data,
+          length: pointsInTile.shape?.[1] || 0,
+        };
+      },
+      renderSubLayers: (subLayerProps) => {
+        const { bbox, content: tileData } = subLayerProps.tile;
+        const { left, top, right, bottom } = bbox;
+
+        return new deck.ScatterplotLayer(subLayerProps, {
+          bounds: [left, top, right, bottom],
+          data: tileData,
+          getRadius: 5,
+          radiusMaxPixels: 3,
+          //getPosition: d => d,
+          //getFillColor: [255, 0, 0],
+          getPosition: (object, { data, index, target }) => {
+            // eslint-disable-next-line no-param-reassign
+            target[0] = data.src.x[index];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = data.src.y[index];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = 0; // TODO
+            return target;
+          },
+          getFillColor: (object, { data, index, target }) => {
+            // The index of the gene corresponding to the transcript,
+            // relative to the var dataframe index values.
+            const varIndex = data.src.featureIndices[index];
+            const color = PALETTE[varIndex % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            return target;
+          },
+          // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
+          pickable: true,
+          autoHighlight: true,
+          //onHover: info => delegateHover(info, 'point', layerScope),
+          // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
+          ...(featureIndices && featureIndices.length === 1 ? {
+            filterRange: [[left, right], [top, bottom], [featureIndices[0], featureIndices[0]]],
+            getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 3 }),
+            ],
+          } : {
+            filterRange: [[left, right], [top, bottom]],
+            getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index]]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 2 }),
+            ],
+          }),
+        });
+      },
+      updateTriggers: {
+        getTileData: [...featureIndices],
+      },
+      onTileError: (error) => {
+
+      },
+      onViewportLoad: (loadedTiles) => {
+        // Called when all tiles in the current viewport are loaded.
+        // An array of loaded Tile instances are passed as argument to this function.
+        console.log('onViewportLoad', loadedTiles);
+      },
+    });
 
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
@@ -453,7 +580,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
-      ...(hasZ && typeof targetZ === 'number' ? {
+      ...(hasZ && typeof targetZ === 'number' && considerZ ? {
         // TODO: support targetT filtering as well.
         // TODO: allow filtering by Z coordinate (rather than slice index)
         // Reference: https://github.com/vitessce/vitessce/issues/2194
@@ -1350,6 +1477,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsIndex,
       obsPoints: layerObsPoints,
       obsPointsModelMatrix,
+      loadPointsInRect,
     } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
     if (layerObsPoints) {
@@ -1363,6 +1491,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           obsLabelsMap: null,
           uniqueObsLabels: null,
           PALETTE: null,
+          loadPointsInRect,
         },
         length: layerObsPoints.shape[1],
       };
