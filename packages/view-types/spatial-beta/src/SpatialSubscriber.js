@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { extent } from 'd3-array';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -35,7 +36,7 @@ import {
   useGridItemSize,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, aggregateFeatureArrays } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -53,6 +54,33 @@ const DEFAULT_VIEW_STATE = {
   rotationOrbit: 0,
 };
 const SET_VIEW_STATE_NOOP = () => {};
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+
+function normalizeAggregatedFeatureArray(values) {
+  if (!values || values.length === 0) {
+    return null;
+  }
+  const [min, max] = extent(values);
+  if (min == null || max == null) {
+    return null;
+  }
+  const ratio = max > min ? (255 / (max - min)) : 1;
+  const normData = new Uint8Array(values.length);
+  for (let i = 0; i < values.length; i += 1) {
+    const normalized = max > min ? Math.floor((values[i] - min) * ratio) : 0;
+    normData[i] = Number.isFinite(normalized)
+      ? Math.max(0, Math.min(255, normalized))
+      : 0;
+  }
+  return { normData, extent: [min, max] };
+}
+
+function filterValidExpressionArrays(arrays) {
+  if (!arrays) {
+    return [];
+  }
+  return arrays.filter(arr => arr && typeof arr.length === 'number' && arr.length > 0);
+}
 
 function getHoverData(hoverInfo, layerType) {
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
@@ -442,6 +470,109 @@ export function SpatialSubscriber(props) {
   const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus, segmentationMultiIndicesDataErrors] = useSegmentationMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+
+  const [spotMultiExpressionNormDataAggregated, spotMultiExpressionExtentsAggregated] = useMemo(() => {
+    if (!spotMultiExpressionData || !spotLayerScopes?.length || !spotLayerCoordination?.[0]) {
+      return [null, null];
+    }
+    let hasNormData = false;
+    let hasExtents = false;
+    const normDataByLayer = {};
+    const extentsByLayer = {};
+
+    spotLayerScopes.forEach((layerScope) => {
+      const expressionData = spotMultiExpressionData[layerScope];
+      const validExpressionArrays = filterValidExpressionArrays(expressionData);
+      if (validExpressionArrays.length <= 1) {
+        return;
+      }
+      const strategy = spotLayerCoordination?.[0]?.[layerScope]?.featureAggregationStrategy
+        ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+      if (strategy == null) {
+        return;
+      }
+      const aggregated = aggregateFeatureArrays(validExpressionArrays, strategy);
+      if (!aggregated) {
+        return;
+      }
+      const normalized = normalizeAggregatedFeatureArray(aggregated);
+      if (!normalized) {
+        return;
+      }
+      normDataByLayer[layerScope] = [normalized.normData];
+      extentsByLayer[layerScope] = [normalized.extent];
+      hasNormData = true;
+      hasExtents = true;
+    });
+
+    return [
+      hasNormData ? normDataByLayer : null,
+      hasExtents ? extentsByLayer : null,
+    ];
+  }, [spotMultiExpressionData, spotLayerScopes, spotLayerCoordination]);
+
+  const [
+    segmentationMultiExpressionNormDataAggregated,
+    segmentationMultiExpressionExtentsAggregated,
+  ] = useMemo(() => {
+    if (!segmentationMultiExpressionData
+      || !segmentationLayerScopes?.length
+      || !segmentationChannelScopesByLayer
+      || !segmentationChannelCoordination?.[0]) {
+      return [null, null];
+    }
+    let hasNormData = false;
+    let hasExtents = false;
+    const normDataByLayer = {};
+    const extentsByLayer = {};
+
+    segmentationLayerScopes.forEach((layerScope) => {
+      const channelScopes = segmentationChannelScopesByLayer?.[layerScope];
+      if (!channelScopes?.length) {
+        return;
+      }
+      channelScopes.forEach((channelScope) => {
+        const expressionData = segmentationMultiExpressionData[layerScope]?.[channelScope];
+        const validExpressionArrays = filterValidExpressionArrays(expressionData);
+        if (validExpressionArrays.length <= 1) {
+          return;
+        }
+        const strategy = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]?.featureAggregationStrategy
+          ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+        if (strategy == null) {
+          return;
+        }
+        const aggregated = aggregateFeatureArrays(validExpressionArrays, strategy);
+        if (!aggregated) {
+          return;
+        }
+        const normalized = normalizeAggregatedFeatureArray(aggregated);
+        if (!normalized) {
+          return;
+        }
+        if (!normDataByLayer[layerScope]) {
+          normDataByLayer[layerScope] = {};
+        }
+        if (!extentsByLayer[layerScope]) {
+          extentsByLayer[layerScope] = {};
+        }
+        normDataByLayer[layerScope][channelScope] = [normalized.normData];
+        extentsByLayer[layerScope][channelScope] = [normalized.extent];
+        hasNormData = true;
+        hasExtents = true;
+      });
+    });
+
+    return [
+      hasNormData ? normDataByLayer : null,
+      hasExtents ? extentsByLayer : null,
+    ];
+  }, [
+    segmentationMultiExpressionData,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
+  ]);
 
   // Image data
   const [imageData, imageDataStatus, imageUrls, imageDataErrors] = useMultiImages(
@@ -854,7 +985,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -863,7 +994,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -908,7 +1039,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -917,7 +1048,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -958,7 +1089,7 @@ export function SpatialSubscriber(props) {
             spotLayerCoordination={spotLayerCoordination}
             obsSpotsSets={obsSpotsSetsData}
             spotMatrixIndices={spotMultiIndicesData}
-            spotMultiExpressionData={spotMultiExpressionNormData}
+            spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
             segmentationLayerScopes={segmentationLayerScopes}
             segmentationLayerCoordination={segmentationLayerCoordination}
             segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -967,7 +1098,7 @@ export function SpatialSubscriber(props) {
             obsSegmentationsLocations={obsSegmentationsLocationsData}
             obsSegmentationsSets={obsSegmentationsSetsData}
             segmentationMatrixIndices={segmentationMultiIndicesData}
-            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
             bitmaskValueIsIndex={bitmaskValueIsIndex}
             images={imageData}
             imageLayerScopes={imageLayerScopes}
@@ -1016,12 +1147,12 @@ export function SpatialSubscriber(props) {
         segmentationLayerCoordination={segmentationLayerCoordination}
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
-        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+        segmentationMultiExpressionExtents={segmentationMultiExpressionExtentsAggregated || segmentationMultiExpressionExtents}
 
         // Spots
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
-        spotMultiExpressionExtents={spotMultiExpressionExtents}
+        spotMultiExpressionExtents={spotMultiExpressionExtentsAggregated || spotMultiExpressionExtents}
         spotMultiFeatureLabels={obsSpotsFeatureLabelsData}
 
         // Points
