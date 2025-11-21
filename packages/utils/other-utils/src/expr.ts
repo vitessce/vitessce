@@ -11,12 +11,12 @@
  * - 'first', 'last', or number: Selects a specific array.
  * - 'sum', 'mean': Mathematical aggregation.
  * - 'difference': Subtracts the second array from the first (requires exactly 2 arrays).
- * @returns {Array<number>|null} - The aggregated array or null on error/empty input.
+ * @returns {number[]|null} - The aggregated array or null on error/empty input.
  */
 export function aggregateFeatureArrays(
   arrays: Array<Array<number>>,
   strategy: string | number,
-) {
+): number[] | null {
   if (!arrays || arrays.length === 0) return null;
 
   // Check these first to avoid any setup overhead for simple lookups.
@@ -63,7 +63,7 @@ export function aggregateFeatureArrays(
       }
     }
 
-    return resultArray;
+    return Array.from(resultArray);
   }
 
   if (strategy === 'difference') {
@@ -80,7 +80,7 @@ export function aggregateFeatureArrays(
       resultArray[i] = arr0[i] - arr1[i];
     }
 
-    return resultArray;
+    return Array.from(resultArray);
   }
 
   throw new Error(`Unknown aggregation strategy: ${strategy}`);
