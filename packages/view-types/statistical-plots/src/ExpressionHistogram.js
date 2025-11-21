@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { clamp, debounce } from 'lodash-es';
 import { VegaPlot, VEGA_THEMES } from '@vitessce/vega';
 import { capitalize, pluralize } from '@vitessce/utils';

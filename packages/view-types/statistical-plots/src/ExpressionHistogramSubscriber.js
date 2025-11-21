@@ -128,14 +128,7 @@ export function ExpressionHistogramSubscriber(props) {
   }, [obsIndex, featureIndex, obsFeatureMatrix, expressionData, numGenesSelected, aggregationStrategy]);
 
   const onSelect = useCallback((value) => {
-    let geneName;
-    if (numGenesSelected > 1) {
-      geneName = `${numGenesSelected} genes (${aggregationStrategy})`;
-    } else if (firstGeneSelected) {
-      geneName = [firstGeneSelected, 'values'].join(' ');
-    } else {
-      geneName = 'transcript count';
-    }
+    const geneName = numGenesSelected > 1 ? `${numGenesSelected} genes (${aggregationStrategy})` : numGenesSelected === 1 ? ` ${geneSelection[0]}` : 'transcript count';
 
     const selectedCellIds = getObsInfoFromDataWithinRange(value, data);
     setObsSelection(
@@ -147,7 +140,7 @@ export function ExpressionHistogramSubscriber(props) {
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection, 
-    numGenesSelected, aggregationStrategy,
+    numGenesSelected, aggregationStrategy, geneSelection,
   ]);
 
   return (
