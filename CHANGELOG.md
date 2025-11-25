@@ -1,4 +1,15 @@
 
+## 3.8.9
+
+### Patch Changes
+
+- Support featureAggregationStrategy in scatterplot view. Perform aggregation prior to uint8 normalization. (`@vitessce/scatterplot-embedding`, `@vitessce/utils`) ([#2335](https://github.com/vitessce/vitessce/pull/2335))
+
+- Fix VitessceGrid regression preventing resizing/moving views in the grid, introduced in v3.8.7. (`@vitessce/vit-s`) ([#2337](https://github.com/vitessce/vitessce/pull/2337))
+
+- Preserve hidden selected gene in featureList when enableMultiSelect is true. (`@vitessce/feature-list`) ([#2332](https://github.com/vitessce/vitessce/pull/2332))
+
+
 ## 3.8.8
 
 ### Patch Changes
