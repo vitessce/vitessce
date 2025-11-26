@@ -6,7 +6,7 @@
  * - Brick-based caching system for large datasets
  * - Multi-channel rendering with independent color/opacity
  * - Adaptive sampling based on distance and resolution
- * - Support for different rendering styles (MIP, MinIP, standard)
+ * - Support for different rendering styles (MIP, MinIP, standard, DEBUG)
  *
  * ========================================
  * BRICK CACHE AND PAGE TABLE EXPLANATION
@@ -204,7 +204,7 @@ uniform usampler3D pageTableTex;
 // ========================================
 // RENDERING PARAMETERS/CONSTANTS
 // ========================================
-// Rendering style: 0=MIP, 1=MinIP, 2=standard volume rendering
+// Rendering style: 0=MIP, 1=MinIP, 2=standard volume rendering, 3=DEBUG
 uniform int u_renderstyle;
 // Global opacity multiplier for volume rendering
 uniform float opacity;
@@ -1216,7 +1216,19 @@ void main(void) {
     // TODO: figure out how to hook it up with frontend
     int [] c_res_min = int[7](getRes(0).x, getRes(1).x, getRes(2).x, getRes(3).x, getRes(4).x, getRes(5).x, getRes(6).x);
     int [] c_res_max = int[7](getRes(0).y, getRes(1).y, getRes(2).y, getRes(3).y, getRes(4).y, getRes(5).y, getRes(6).y);
-    
+    vec3 [] res_color = vec3[10](
+        vec3(1.0, 0.0, 0.0), 
+        vec3(0.0, 0.0, 1.0), 
+        vec3(0.0, 1.0, 0.0), 
+        vec3(1.0, 0.0, 1.0), 
+        vec3(0.0, 1.0, 1.0),
+        vec3(1.0, 1.0, 0.0),
+        vec3(1.0, 0.5, 0.5), 
+        vec3(0.5, 0.5, 1.0), 
+        vec3(0.5, 1.0, 0.5), 
+        vec3(0.5, 0.5, 0.5)
+    );
+
     // ========================================
     // PER-CHANNEL STATE ARRAYS
     // ========================================
@@ -1745,7 +1757,13 @@ void main(void) {
             // Accumulate this channel's contribution.
             // sum up the values onto the slice values
             total += c_val_current[c];
-            rgbCombo += c_val_current[c] * c_color[c];
+            if (u_renderstyle == 3) {
+                rgbCombo += c_val_current[c] * res_color[targetRes];
+            } else if (u_renderstyle == 4) {
+                rgbCombo += c_val_current[c] * res_color[c_res_current[c]];
+            } else {
+                rgbCombo += c_val_current[c] * c_color[c];
+            }
 
         }
 
