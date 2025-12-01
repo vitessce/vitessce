@@ -315,6 +315,7 @@ export function HeatmapSubscriber(props) {
         obsSetSelection={cellSetSelection}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         extent={obsFeatureMatrixExtent}
       />
     </TitleInfo>

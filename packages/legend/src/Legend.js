@@ -1,17 +1,20 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, {
+  useRef, useEffect, useMemo, useState, useCallback,
+} from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@vitessce/styles';
+import { makeStyles, Slider } from '@vitessce/styles';
 import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
-import { isEqual } from 'lodash-es';
+import { isEqual, debounce } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
 
 
 const useStyles = makeStyles()(() => ({
   legend: {
+    position: 'relative', // Needed for absolute positioning of slider overlay
     top: '2px',
     right: '2px',
     fontSize: '10px !important',
@@ -43,6 +46,68 @@ const useStyles = makeStyles()(() => ({
   },
   legendInvisible: {
     display: 'none',
+  },
+  sliderContainer: {
+    position: 'absolute',
+    // Position at the colormap location: top offset = titleHeight
+    top: '10px', // titleHeight
+    left: 0,
+    width: '100%',
+    height: '8px', // rectHeight
+    '&:hover $sliderThumb': {
+      opacity: 1,
+    },
+  },
+  sliderRoot: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '8px', // rectHeight
+    padding: 0,
+    '& .MuiSlider-rail': {
+      display: 'none',
+    },
+    '& .MuiSlider-track': {
+      display: 'none',
+    },
+    '& .MuiSlider-valueLabel': {
+      fontSize: '9px',
+      padding: '2px 4px',
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      borderRadius: '2px',
+    },
+  },
+  sliderThumb: {
+    width: '4px',
+    height: '12px',
+    borderRadius: '2px',
+    backgroundColor: 'white',
+    border: '1px solid black',
+    opacity: 0,
+    transition: 'opacity 0.15s ease-in-out',
+    marginTop: '-2px', // Center vertically on the colormap
+    '&:hover, &.Mui-focusVisible': {
+      boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.16)',
+      opacity: 1,
+    },
+    '&.Mui-active': {
+      boxShadow: '0 0 0 6px rgba(0, 0, 0, 0.16)',
+      opacity: 1,
+    },
+  },
+  colormapImage: {
+    position: 'absolute',
+    top: 0,
+    height: '8px', // rectHeight
+    pointerEvents: 'none',
+  },
+  grayTrack: {
+    position: 'absolute',
+    top: 0,
+    height: '8px', // rectHeight
+    backgroundColor: 'rgba(128, 128, 128, 0.5)',
+    pointerEvents: 'none',
   },
 }));
 
@@ -116,6 +181,7 @@ export default function Legend(props) {
     featureLabelsMap,
     featureValueColormap,
     featureValueColormapRange,
+    setFeatureValueColormapRange,
     spatialChannelColor,
     spatialLayerColor,
     obsSetSelection,
@@ -137,6 +203,39 @@ export default function Legend(props) {
 
   const svgRef = useRef();
   const { classes } = useStyles();
+
+  // Local state for slider to provide immediate feedback
+  const [localRange, setLocalRange] = useState(featureValueColormapRange);
+
+  // Update local state when prop changes (e.g., from coordination)
+  useEffect(() => {
+    setLocalRange(featureValueColormapRange);
+  }, [featureValueColormapRange]);
+
+  // Debounced setter for colormap range (5ms trailing)
+  const debouncedSetRange = useMemo(
+    () => (setFeatureValueColormapRange
+      ? debounce((value) => {
+        setFeatureValueColormapRange(value);
+      }, 5, { leading: false, trailing: true })
+      : null),
+    [setFeatureValueColormapRange],
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => () => {
+    if (debouncedSetRange) {
+      debouncedSetRange.cancel();
+    }
+  }, [debouncedSetRange]);
+
+  // Handle slider change
+  const handleSliderChange = useCallback((event, newValue) => {
+    setLocalRange(newValue);
+    if (debouncedSetRange) {
+      debouncedSetRange(newValue);
+    }
+  }, [debouncedSetRange]);
 
   const isDarkTheme = theme === 'dark';
   const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
@@ -205,41 +304,92 @@ export default function Legend(props) {
       .attr('height', dynamicHeight);
 
 
+    // Determine if interactive slider should be shown
+    const showInteractiveSlider = (
+      setFeatureValueColormapRange
+      && obsColorEncoding === 'geneSelection'
+      && pointsVisible
+      && featureValueColormap
+    );
+
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
       const [xMin, xMax] = combineExtents(extent, featureAggregationStrategy) || [0, 1];
 
       if (featureValueColormap && pointsVisible) {
         const xlinkHref = getXlinkHref(featureValueColormap);
-        g.append('image')
-          .attr('x', 0)
-          .attr('y', titleHeight)
-          .attr('width', width)
-          .attr('height', rectHeight)
-          .attr('preserveAspectRatio', 'none')
-          .attr('href', xlinkHref);
+        // Use localRange for positioning when slider is interactive
+        const [rMin, rMax] = showInteractiveSlider ? localRange : featureValueColormapRange;
 
-        const [rMin, rMax] = featureValueColormapRange;
+        if (showInteractiveSlider) {
+          // When slider is active, image is rendered as HTML overlay, skip SVG image
+          // But we still need to reserve space and draw axis ticks
+        } else if (setFeatureValueColormapRange) {
+          g.append('image')
+            .attr('x', rMin * width)
+            .attr('y', titleHeight)
+            .attr('width', (rMax - rMin) * width)
+            .attr('height', rectHeight)
+            .attr('preserveAspectRatio', 'none')
+            .attr('href', xlinkHref);
+        } else {
+          g.append('image')
+            .attr('x', 0)
+            .attr('y', titleHeight)
+            .attr('width', width)
+            .attr('height', rectHeight)
+            .attr('preserveAspectRatio', 'none')
+            .attr('href', xlinkHref);
+        }
+
         // Use colormap range sliders to determine the range
         // to use in the legend ticks.
         const scaledDataExtent = [
           xMin + (xMax - xMin) * rMin,
           xMax - (xMax - xMin) * (1 - rMax),
         ];
-        const x = scaleLinear()
-          .domain(scaledDataExtent)
-          .range([0.5, width - 0.5]);
 
-        // X-axis ticks
-        const axisTicks = g.append('g')
-          .attr('transform', `translate(0,${titleHeight + rectHeight})`)
-          .style('font-size', '10px')
-          .call(axisBottom(x).tickValues(scaledDataExtent));
-        axisTicks.selectAll('line,path')
-          .style('stroke', foregroundColor);
-        axisTicks.selectAll('text')
-          .style('fill', foregroundColor);
-        axisTicks.selectAll('text')
-          .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+        let x;
+        if (setFeatureValueColormapRange || showInteractiveSlider) {
+          x = scaleLinear()
+            .domain(scaledDataExtent)
+            .range([rMin * width + 0.5, rMax * width - 0.5]);
+        } else {
+          x = scaleLinear()
+            .domain(scaledDataExtent)
+            .range([0.5, width - 0.5]);
+        }
+
+        if (showInteractiveSlider) {
+          // When interactive slider is active, always show global min/max at edges
+          // Create a scale spanning the full width for global extent labels
+          const xGlobal = scaleLinear()
+            .domain([xMin, xMax])
+            .range([0.5, width - 0.5]);
+
+          // X-axis ticks for global extent (always visible at edges)
+          const axisTicks = g.append('g')
+            .attr('transform', `translate(0,${titleHeight + rectHeight})`)
+            .style('font-size', '10px')
+            .call(axisBottom(xGlobal).tickValues([xMin, xMax]));
+          axisTicks.selectAll('line,path')
+            .style('stroke', foregroundColor);
+          axisTicks.selectAll('text')
+            .style('fill', foregroundColor);
+          axisTicks.selectAll('text')
+            .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+        } else {
+          // X-axis ticks for non-interactive mode
+          const axisTicks = g.append('g')
+            .attr('transform', `translate(0,${titleHeight + rectHeight})`)
+            .style('font-size', '10px')
+            .call(axisBottom(x).tickValues(scaledDataExtent));
+          axisTicks.selectAll('line,path')
+            .style('stroke', foregroundColor);
+          axisTicks.selectAll('text')
+            .style('fill', foregroundColor);
+          axisTicks.selectAll('text')
+            .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+        }
       } else if (contoursVisible) {
         const tSize = 12;
         const xPercentile = scaleLinear()
@@ -432,13 +582,46 @@ export default function Legend(props) {
           .style('fill', foregroundColor);
       }
     }
-  }, [width, height, featureValueColormap, featureValueColormapRange,
+  }, [width, height, featureValueColormap, featureValueColormapRange, localRange,
     considerSelections, obsType, obsColorEncoding, featureSelection,
     isDarkTheme, featureValueType, extent, featureLabelsMap,
     spatialChannelColor, obsSetColor, obsSetSelection, isSetColor, theme,
     contourPercentiles, contourThresholds, contoursFilled, contoursVisible,
-    pointsVisible, featureAggregationStrategy,
+    pointsVisible, featureAggregationStrategy, setFeatureValueColormapRange,
+    dynamicHeight, highContrast, isStaticColor, missing, showObsLabel, staticColor,
   ]);
+
+  // Determine if interactive slider should be shown
+  const showInteractiveSlider = (
+    setFeatureValueColormapRange
+    && obsColorEncoding === 'geneSelection'
+    && pointsVisible
+    && featureValueColormap
+  );
+
+  // Compute global extent for slider value labels
+  const globalExtent = useMemo(() => {
+    const combined = combineExtents(extent, featureAggregationStrategy);
+    return combined || [0, 1];
+  }, [extent, featureAggregationStrategy]);
+
+  // Format slider value as actual data value
+  const formatSliderValue = useCallback((value) => {
+    const [xMin, xMax] = globalExtent;
+    const dataValue = xMin + (xMax - xMin) * value;
+    // Use appropriate precision based on range
+    const range = xMax - xMin;
+    if (range < 0.01) {
+      return dataValue.toExponential(2);
+    } if (range < 1) {
+      return dataValue.toFixed(3);
+    } if (range < 100) {
+      return dataValue.toFixed(1);
+    }
+    return Math.round(dataValue).toString();
+  }, [globalExtent]);
+
+  const xlinkHref = featureValueColormap ? getXlinkHref(featureValueColormap) : null;
 
   return (
     <div
@@ -453,6 +636,7 @@ export default function Legend(props) {
         ...(needsScroll
           ? { maxHeight: `${Math.floor(availHeight)}px`, overflowY: 'auto' }
           : { maxHeight: undefined, overflowY: 'visible' }),
+        width: `${width}px`,
       }}
     >
       <svg
@@ -462,6 +646,63 @@ export default function Legend(props) {
           height: `${dynamicHeight}px`,
         }}
       />
+      {showInteractiveSlider && xlinkHref && (
+        <div
+          className={classes.sliderContainer}
+          style={{ width: `${width}px` }}
+        >
+          {/* Gray track on left side (outside colormap range) */}
+          {localRange[0] > 0 && (
+            <div
+              className={classes.grayTrack}
+              style={{
+                left: 0,
+                width: `${localRange[0] * width}px`,
+              }}
+            />
+          )}
+          {/* Gray track on right side (outside colormap range) */}
+          {localRange[1] < 1 && (
+            <div
+              className={classes.grayTrack}
+              style={{
+                left: `${localRange[1] * width}px`,
+                width: `${(1 - localRange[1]) * width}px`,
+              }}
+            />
+          )}
+          {/* Colormap image positioned between slider thumbs */}
+          <img
+            src={xlinkHref}
+            alt="Colormap gradient"
+            className={classes.colormapImage}
+            style={{
+              left: `${localRange[0] * width}px`,
+              width: `${(localRange[1] - localRange[0]) * width}px`,
+            }}
+          />
+          {/* Interactive range slider */}
+          <Slider
+            className={classes.sliderRoot}
+            value={localRange}
+            onChange={handleSliderChange}
+            min={0}
+            max={1}
+            step={0.01}
+            disableSwap
+            valueLabelDisplay="auto"
+            valueLabelFormat={formatSliderValue}
+            aria-label="Colormap range"
+            getAriaLabel={index => (index === 0 ? 'Colormap minimum' : 'Colormap maximum')}
+            getAriaValueText={value => formatSliderValue(value)}
+            slotProps={{
+              thumb: {
+                className: classes.sliderThumb,
+              },
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

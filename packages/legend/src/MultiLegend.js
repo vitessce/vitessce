@@ -48,6 +48,7 @@ export default function MultiLegend(props) {
       {/* Points */}
       {pointLayerScopes ? reversedPointLayerScopes.flatMap((layerScope) => {
         const layerCoordination = pointLayerCoordination[0][layerScope];
+        const layerSetters = pointLayerCoordination[1]?.[layerScope];
 
         const {
           spatialLayerVisible,
@@ -55,9 +56,14 @@ export default function MultiLegend(props) {
           obsType,
           featureType,
           featureValueType,
+          featureSelection,
+          featureValueColormap,
+          featureValueColormapRange,
           spatialLayerColor,
           legendVisible,
         } = layerCoordination;
+
+        const { setFeatureValueColormapRange } = layerSetters || {};
 
         const isStaticColor = obsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
@@ -76,10 +82,11 @@ export default function MultiLegend(props) {
             featureValueType={featureValueType}
             obsColorEncoding={obsColorEncoding}
             spatialLayerColor={spatialLayerColor}
-            featureSelection={null}
+            featureSelection={featureSelection}
             // featureLabelsMap={featureLabelsMap} // TODO
-            featureValueColormap="viridis"
-            featureValueColormapRange={[0, 1]}
+            featureValueColormap={featureValueColormap || 'viridis'}
+            featureValueColormapRange={featureValueColormapRange || [0, 1]}
+            setFeatureValueColormapRange={setFeatureValueColormapRange}
             extent={null}
             height={height}
           />
@@ -88,6 +95,7 @@ export default function MultiLegend(props) {
       {/* Spots */}
       {spotLayerScopes ? reversedSpotLayerScopes.flatMap((layerScope) => {
         const layerCoordination = spotLayerCoordination[0][layerScope];
+        const layerSetters = spotLayerCoordination[1]?.[layerScope];
 
         const {
           spatialLayerVisible,
@@ -104,6 +112,8 @@ export default function MultiLegend(props) {
           obsSetSelection,
           obsSetColor,
         } = layerCoordination;
+
+        const { setFeatureValueColormapRange } = layerSetters || {};
 
         const expressionExtents = spotMultiExpressionExtents?.[layerScope];
         // There can potentially be multiple features/genes selected, but we
@@ -134,6 +144,7 @@ export default function MultiLegend(props) {
             featureLabelsMap={featureLabelsMap}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
+            setFeatureValueColormapRange={setFeatureValueColormapRange}
             extent={firstExpressionExtent}
             height={height}
             obsSetSelection={obsSetSelection}
@@ -146,6 +157,7 @@ export default function MultiLegend(props) {
         const layerCoordination = segmentationLayerCoordination[0][layerScope];
         const channelScopes = segmentationChannelScopesByLayer[layerScope];
         const channelCoordination = segmentationChannelCoordination[0][layerScope];
+        const channelSetters = segmentationChannelCoordination[1]?.[layerScope];
 
         const {
           spatialLayerVisible,
@@ -169,6 +181,7 @@ export default function MultiLegend(props) {
             obsSetSelection,
             obsSetColor,
           } = channelCoordination[cScope];
+          const { setFeatureValueColormapRange } = channelSetters?.[cScope] || {};
           const expressionExtents = segmentationMultiExpressionExtents?.[layerScope]?.[cScope];
           // There can potentially be multiple features/genes selected, but we
           // are only using the first one for now here.
@@ -194,6 +207,7 @@ export default function MultiLegend(props) {
               // featureLabelsMap={featureLabelsMap} // TODO
               featureValueColormap={featureValueColormap}
               featureValueColormapRange={featureValueColormapRange}
+              setFeatureValueColormapRange={setFeatureValueColormapRange}
               extent={firstExpressionExtent}
               height={height}
 

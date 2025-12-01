@@ -724,6 +724,7 @@ export function SpatialSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         extent={expressionExtents?.[0]}
       />
     </TitleInfo>
