@@ -2,11 +2,31 @@ import { deck } from '@vitessce/gl';
 import { clamp } from 'lodash-es';
 
 
-const LARGE_DATASET_POINT_SIZE = 0.0005; // ~500k cells
-const SMALL_DATASET_POINT_SIZE = 0.01; // ~5k cells
-const LARGE_DATASET_CELL_COUNT = 500000;
-const SMALL_DATASET_CELL_COUNT = 5000;
+export const LARGE_DATASET_POINT_SIZE = 0.005;
+export const SMALL_DATASET_POINT_SIZE = 0.010;
+export const LARGE_DATASET_CELL_COUNT = 100000;
+export const SMALL_DATASET_CELL_COUNT = 1000;
+const LOG_LARGE_CELL_COUNT = Math.log10(LARGE_DATASET_CELL_COUNT);
+const LOG_SMALL_CELL_COUNT = Math.log10(SMALL_DATASET_CELL_COUNT);
 
+
+/**
+ * Calculates initial point size based on dataset size.
+ * @param {number} numCells
+ * @returns {number} Initial point size.
+ */
+export function getInitialPointSize(numCells) {
+  let pointSize = LARGE_DATASET_POINT_SIZE;
+  if (numCells && numCells > 0) {
+    const logCells = Math.log10(numCells);
+    // Interpolate logarithmically between small and large dataset sizes
+    const t = clamp((logCells - LOG_SMALL_CELL_COUNT)
+                  / (LOG_LARGE_CELL_COUNT - LOG_SMALL_CELL_COUNT), 0, 1);
+    const datasetSizeFactor = (LARGE_DATASET_POINT_SIZE - SMALL_DATASET_POINT_SIZE) * t;
+    pointSize = SMALL_DATASET_POINT_SIZE + datasetSizeFactor;
+  }
+  return pointSize;
+}
 
 /**
  * Calculates point size in device pixels based on dataset size and view parameters.
@@ -29,16 +49,7 @@ export function getPointSizeDevicePixels(
 ) {
   // Calculate point size using reverse logarithmic scaling
   // Smaller datasets get larger point sizes
-  let pointSize = LARGE_DATASET_POINT_SIZE;
-  if (numCells && numCells > 0) {
-    const logCells = Math.log10(numCells);
-    const logSmall = Math.log10(SMALL_DATASET_CELL_COUNT);
-    const logLarge = Math.log10(LARGE_DATASET_CELL_COUNT);
-    // Interpolate logarithmically between small and large dataset sizes
-    const t = clamp((logCells - logSmall) / (logLarge - logSmall), 0, 1);
-    const datasetSizeFactor = (LARGE_DATASET_POINT_SIZE - SMALL_DATASET_POINT_SIZE) * t;
-    pointSize = SMALL_DATASET_POINT_SIZE + datasetSizeFactor;
-  }
+  const pointSize = getInitialPointSize(numCells);
 
   // Point size maximum, in screen pixels.
   const pointScreenSizeMax = 10;
