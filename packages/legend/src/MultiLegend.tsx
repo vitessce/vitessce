@@ -11,7 +11,96 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-export default function MultiLegend(props) {
+type SetPath = string[];
+type ObsSetColorEntry = { path: SetPath; color: number[] };
+type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
+type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
+  | 'spatialLayerColor' | string;
+
+interface PointLayerCoordinationValues {
+  spatialLayerVisible: boolean;
+  obsColorEncoding: ObsColorEncoding;
+  obsType: string;
+  featureType: string;
+  featureValueType: string;
+  featureSelection: string[];
+  featureValueColormap: string;
+  featureValueColormapRange: [number, number];
+  spatialLayerColor: number[];
+  legendVisible: boolean;
+}
+
+interface PointLayerSetters {
+  setFeatureValueColormapRange?: (range: [number, number]) => void;
+}
+
+interface SpotLayerCoordinationValues extends PointLayerCoordinationValues {
+  featureAggregationStrategy: FeatureAggregationStrategy;
+  obsSetSelection: SetPath[];
+  obsSetColor: ObsSetColorEntry[];
+}
+
+type SpotLayerSetters = PointLayerSetters;
+
+interface SegmentationLayerCoordinationValues {
+  spatialLayerVisible: boolean;
+}
+
+interface SegmentationChannelCoordinationValues {
+  spatialChannelVisible: boolean;
+  spatialChannelColor: number[];
+  obsColorEncoding: ObsColorEncoding;
+  featureValueColormap: string;
+  featureValueColormapRange: [number, number];
+  obsType: string;
+  featureType: string;
+  featureValueType: string;
+  featureSelection: string[];
+  featureAggregationStrategy: FeatureAggregationStrategy;
+  legendVisible: boolean;
+  obsSetSelection: SetPath[];
+  obsSetColor: ObsSetColorEntry[];
+}
+
+interface SegmentationChannelSetters {
+  setFeatureValueColormapRange?: (range: [number, number]) => void;
+}
+
+interface FeatureLabelsData {
+  featureLabelsMap?: Map<string, string>;
+}
+
+type ThemeType = 'light' | 'dark' | 'light2';
+
+interface MultiLegendProps {
+  theme?: ThemeType;
+  maxHeight?: number;
+  // Segmentations
+  segmentationLayerScopes?: string[];
+  segmentationLayerCoordination?: [Record<string, SegmentationLayerCoordinationValues>];
+  segmentationChannelScopesByLayer?: Record<string, string[]>;
+  segmentationChannelCoordination?: [
+    Record<string, Record<string, SegmentationChannelCoordinationValues>>,
+    Record<string, Record<string, SegmentationChannelSetters>>?,
+  ];
+  segmentationMultiExpressionExtents?: Record<string, Record<string, [number, number][]>>;
+  // Spots
+  spotLayerScopes?: string[];
+  spotLayerCoordination?: [
+    Record<string, SpotLayerCoordinationValues>,
+    Record<string, SpotLayerSetters>?,
+  ];
+  spotMultiExpressionExtents?: Record<string, [number, number][]>;
+  spotMultiFeatureLabels?: Record<string, FeatureLabelsData>;
+  // Points
+  pointLayerScopes?: string[];
+  pointLayerCoordination?: [
+    Record<string, PointLayerCoordinationValues>,
+    Record<string, PointLayerSetters>?,
+  ];
+}
+
+export default function MultiLegend(props: MultiLegendProps) {
   const {
     theme,
     maxHeight,
@@ -47,8 +136,10 @@ export default function MultiLegend(props) {
     <div className={classes.multiLegend}>
       {/* Points */}
       {pointLayerScopes ? reversedPointLayerScopes.flatMap((layerScope) => {
-        const layerCoordination = pointLayerCoordination[0][layerScope];
-        const layerSetters = pointLayerCoordination[1]?.[layerScope];
+        const layerCoordination = pointLayerCoordination?.[0][layerScope];
+        const layerSetters = pointLayerCoordination?.[1]?.[layerScope];
+
+        if (!layerCoordination) return null;
 
         const {
           spatialLayerVisible,
@@ -94,8 +185,10 @@ export default function MultiLegend(props) {
       }) : null}
       {/* Spots */}
       {spotLayerScopes ? reversedSpotLayerScopes.flatMap((layerScope) => {
-        const layerCoordination = spotLayerCoordination[0][layerScope];
-        const layerSetters = spotLayerCoordination[1]?.[layerScope];
+        const layerCoordination = spotLayerCoordination?.[0][layerScope];
+        const layerSetters = spotLayerCoordination?.[1]?.[layerScope];
+
+        if (!layerCoordination) return null;
 
         const {
           spatialLayerVisible,
@@ -154,10 +247,12 @@ export default function MultiLegend(props) {
       }) : null}
       {/* Segmentations */}
       {segmentationLayerScopes ? reversedSegmentationLayerScopes.flatMap((layerScope) => {
-        const layerCoordination = segmentationLayerCoordination[0][layerScope];
-        const channelScopes = segmentationChannelScopesByLayer[layerScope];
-        const channelCoordination = segmentationChannelCoordination[0][layerScope];
-        const channelSetters = segmentationChannelCoordination[1]?.[layerScope];
+        const layerCoordination = segmentationLayerCoordination?.[0][layerScope];
+        const channelScopes = segmentationChannelScopesByLayer?.[layerScope];
+        const channelCoordination = segmentationChannelCoordination?.[0][layerScope];
+        const channelSetters = segmentationChannelCoordination?.[1]?.[layerScope];
+
+        if (!layerCoordination) return null;
 
         const {
           spatialLayerVisible,

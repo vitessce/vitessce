@@ -116,36 +116,51 @@ const rectHeight = 8;
 const rectMarginY = 2;
 const rectMarginX = 2;
 
-function combineExtents(extents, featureAggregationStrategy) {
+type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
+type Extent = [number, number] | [number, number][] | null;
+type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
+  | 'spatialLayerColor' | string;
+type SetPath = string[];
+type ObsSetColorEntry = { path: SetPath; color: number[] };
+
+function combineExtents(
+  extents: Extent,
+  featureAggregationStrategy: FeatureAggregationStrategy,
+): [number, number] | null {
   if (Array.isArray(extents)) {
     if (Array.isArray(extents?.[0])) {
       // Extents is an array of [min, max] tuples.
+      const extentsArray = extents as [number, number][];
       if (featureAggregationStrategy === 'first') {
-        return extents[0];
+        return extentsArray[0];
       } if (featureAggregationStrategy === 'last') {
-        return extents.at(-1);
+        return extentsArray.at(-1) || null;
       } if (typeof featureAggregationStrategy === 'number') {
         const i = featureAggregationStrategy;
-        return extents[i];
+        return extentsArray[i];
       } if (featureAggregationStrategy === 'sum') {
-        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+        return extentsArray.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
       } if (featureAggregationStrategy === 'mean') {
-        return extents.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]).map(v => v / extents.length);
+        const sum = extentsArray.reduce((a, h) => [a[0] + h[0], a[1] + h[1]]);
+        return [sum[0] / extentsArray.length, sum[1] / extentsArray.length];
       }
     } else {
       // Extents is a single [min, max] tuple.
-      return extents;
+      return extents as [number, number];
     }
   }
   return null;
 }
 
-function combineMissings(missings, featureAggregationStrategy) {
+function combineMissings(
+  missings: number[] | null,
+  featureAggregationStrategy: FeatureAggregationStrategy,
+): number | null {
   if (Array.isArray(missings)) {
     if (featureAggregationStrategy === 'first') {
       return missings[0];
     } if (featureAggregationStrategy === 'last') {
-      return missings.at(-1);
+      return missings.at(-1) || null;
     } if (typeof featureAggregationStrategy === 'number') {
       const i = featureAggregationStrategy;
       return missings[i];
@@ -158,22 +173,80 @@ function combineMissings(missings, featureAggregationStrategy) {
   return null;
 }
 
+interface LegendProps {
+  /** Whether the legend is visible. */
+  visible: boolean;
+  /** Whether the legend should be positioned relative to its parent. */
+  positionRelative?: boolean;
+  /** Whether to use high contrast styling. */
+  highContrast?: boolean;
+  /** The observation type (e.g., 'cell', 'spot'). */
+  obsType?: string;
+  /** The feature type (e.g., 'gene'). */
+  featureType?: string;
+  /** The feature value type (e.g., 'expression'). */
+  featureValueType?: string;
+  /** Whether to consider selections for display. */
+  considerSelections?: boolean;
+  /** The current color encoding mode. */
+  obsColorEncoding?: ObsColorEncoding;
+  /** The selected features. */
+  featureSelection?: string[];
+  /** A map from feature IDs to labels. */
+  featureLabelsMap?: Map<string, string>;
+  /** The colormap name. */
+  featureValueColormap?: string;
+  /** The colormap range [min, max] as normalized values [0, 1]. */
+  featureValueColormapRange?: [number, number];
+  /** Setter for the colormap range. */
+  setFeatureValueColormapRange?: (range: [number, number]) => void;
+  /** The channel color as RGB array. */
+  spatialChannelColor?: number[];
+  /** The layer color as RGB array. */
+  spatialLayerColor?: number[];
+  /** The selected observation sets. */
+  obsSetSelection?: SetPath[];
+  /** The observation set colors. */
+  obsSetColor?: ObsSetColorEntry[];
+  /** The feature aggregation strategy. */
+  featureAggregationStrategy?: FeatureAggregationStrategy;
+  /** The extent of the data in tuple [min, max] or array of tuples. */
+  extent?: Extent | null;
+  /** The fraction of missing values. */
+  missing?: number[] | null;
+  /** The width of the legend. */
+  width?: number;
+  /** The height of the legend. */
+  height?: number;
+  /** The maximum height of the legend. */
+  maxHeight?: number | null;
+  /** The theme ('light' or 'dark'). */
+  theme?: 'light' | 'dark' | 'light2';
+  /** Whether to show the observation label. */
+  showObsLabel?: boolean;
+  /** Whether points are visible. */
+  pointsVisible?: boolean;
+  /** Whether contours are visible. */
+  contoursVisible?: boolean;
+  /** Whether contours are filled. */
+  contoursFilled?: boolean;
+  /** The contour percentiles. */
+  contourPercentiles?: number[];
+  /** The contour thresholds. */
+  contourThresholds?: number[];
+}
+
 /**
  * A component for displaying a legend.
- *
- * @param {object} props The props for the Legend component.
- * @param {boolean} props.visible Whether the legend is visible.
- * @param {[number, number] | null} props.extent The extent of the
- * data in tuple [min, max].
- * @param {number | null} props.missing The fraction of missing values.
- * @returns {ReactElement}
  */
-export default function Legend(props) {
+export default function Legend(props: LegendProps) {
   const {
     visible: visibleProp,
     positionRelative = false,
     highContrast = false,
     obsType,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    featureType: _featureType = undefined, // Unused but accepted for API compatibility
     featureValueType,
     considerSelections = true,
     obsColorEncoding,
@@ -201,7 +274,7 @@ export default function Legend(props) {
     contourThresholds,
   } = props;
 
-  const svgRef = useRef();
+  const svgRef = useRef<SVGSVGElement>(null);
   const { classes } = useStyles();
 
   // Local state for slider to provide immediate feedback
@@ -215,7 +288,7 @@ export default function Legend(props) {
   // Debounced setter for colormap range (5ms trailing)
   const debouncedSetRange = useMemo(
     () => (setFeatureValueColormapRange
-      ? debounce((value) => {
+      ? debounce((value: [number, number]) => {
         setFeatureValueColormapRange(value);
       }, 5, { leading: false, trailing: true })
       : null),
@@ -230,22 +303,27 @@ export default function Legend(props) {
   }, [debouncedSetRange]);
 
   // Handle slider change
-  const handleSliderChange = useCallback((event, newValue) => {
-    setLocalRange(newValue);
+  const handleSliderChange = useCallback((
+    _event: Event,
+    newValue: number | number[],
+  ) => {
+    const rangeValue = newValue as [number, number];
+    setLocalRange(rangeValue);
     if (debouncedSetRange) {
-      debouncedSetRange(newValue);
+      debouncedSetRange(rangeValue);
     }
   }, [debouncedSetRange]);
 
   const isDarkTheme = theme === 'dark';
-  const isStaticColor = obsColorEncoding === 'spatialChannelColor' || obsColorEncoding === 'spatialLayerColor';
+  const isStaticColor = obsColorEncoding === 'spatialChannelColor'
+    || obsColorEncoding === 'spatialLayerColor';
   const isSetColor = obsColorEncoding === 'cellSetSelection';
   const layerColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
     ? spatialLayerColor
-    : getDefaultColor(theme);
+    : getDefaultColor(theme ?? 'light');
   const channelColor = Array.isArray(spatialChannelColor) && spatialChannelColor.length === 3
     ? spatialChannelColor
-    : getDefaultColor(theme);
+    : getDefaultColor(theme ?? 'light');
   const staticColor = obsColorEncoding === 'spatialChannelColor' ? channelColor : layerColor;
 
   const visible = (visibleProp && (
@@ -259,8 +337,8 @@ export default function Legend(props) {
     )
     || (
       isSetColor
-      && obsSetSelection?.length > 0
-      && obsSetColor?.length > 0
+      && (obsSetSelection?.length ?? 0) > 0
+      && (obsSetColor?.length ?? 0) > 0
     )
     || isStaticColor
 
@@ -275,7 +353,8 @@ export default function Legend(props) {
   // Determine the height of the legend when in isSetColor mode.
   // TODO: for nested sets, account for the height of the intermediate nodes?
   const dynamicHeight = isSetColor && obsSetSelection
-    ? levelZeroNames.length * titleHeight + obsSetSelection?.length * (rectHeight + rectMarginY)
+    ? levelZeroNames.length * titleHeight
+      + (obsSetSelection?.length ?? 0) * (rectHeight + rectMarginY)
     : (height + (!pointsVisible && contoursVisible ? 25 : 0));
 
   // Note: availHeight does not account for multiple stacked legends.
@@ -286,6 +365,7 @@ export default function Legend(props) {
 
   useEffect(() => {
     const domElement = svgRef.current;
+    if (!domElement) return;
 
     // eslint-disable-next-line no-nested-ternary
     const foregroundColor = highContrast ? 'black' : (
@@ -313,12 +393,19 @@ export default function Legend(props) {
     );
 
     if (!considerSelections || obsColorEncoding === 'geneSelection') {
-      const [xMin, xMax] = combineExtents(extent, featureAggregationStrategy) || [0, 1];
+      const combinedExtent = combineExtents(
+        extent ?? null,
+        featureAggregationStrategy ?? null,
+      ) || [0, 1];
+      const [xMin, xMax] = combinedExtent;
 
       if (featureValueColormap && pointsVisible) {
         const xlinkHref = getXlinkHref(featureValueColormap);
         // Use localRange for positioning when slider is interactive
-        const [rMin, rMax] = showInteractiveSlider ? localRange : featureValueColormapRange;
+        const currentRange = showInteractiveSlider
+          ? localRange
+          : featureValueColormapRange;
+        const [rMin, rMax] = currentRange || [0, 1];
 
         if (showInteractiveSlider) {
           // When slider is active, image is rendered as HTML overlay, skip SVG image
@@ -343,7 +430,7 @@ export default function Legend(props) {
 
         // Use colormap range sliders to determine the range
         // to use in the legend ticks.
-        const scaledDataExtent = [
+        const scaledDataExtent: [number, number] = [
           xMin + (xMax - xMin) * rMin,
           xMax - (xMax - xMin) * (1 - rMax),
         ];
@@ -376,7 +463,7 @@ export default function Legend(props) {
           axisTicks.selectAll('text')
             .style('fill', foregroundColor);
           axisTicks.selectAll('text')
-            .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+            .attr('text-anchor', (_d: unknown, i: number) => (i === 0 ? 'start' : 'end'));
         } else {
           // X-axis ticks for non-interactive mode
           const axisTicks = g.append('g')
@@ -388,9 +475,9 @@ export default function Legend(props) {
           axisTicks.selectAll('text')
             .style('fill', foregroundColor);
           axisTicks.selectAll('text')
-            .attr('text-anchor', (d, i) => (i === 0 ? 'start' : 'end'));
+            .attr('text-anchor', (_d: unknown, i: number) => (i === 0 ? 'start' : 'end'));
         }
-      } else if (contoursVisible) {
+      } else if (contoursVisible && contourPercentiles) {
         const tSize = 12;
         const xPercentile = scaleLinear()
           .domain([0, 1])
@@ -399,7 +486,12 @@ export default function Legend(props) {
         const axisTicks = g.append('g')
           .attr('transform', `translate(0,${titleHeight + rectHeight + 15})`)
           .style('font-size', '9px')
-          .call(axisBottom(xPercentile).tickValues(contourPercentiles).tickFormat(format('.0%')).tickSizeOuter(0));
+          .call(
+            axisBottom(xPercentile)
+              .tickValues(contourPercentiles)
+              .tickFormat((d: number | { valueOf(): number }) => format('.0%')(d as number))
+              .tickSizeOuter(0),
+          );
         axisTicks.selectAll('line,path')
           .style('stroke', foregroundColor);
         axisTicks.selectAll('text')
@@ -411,7 +503,7 @@ export default function Legend(props) {
         // then we shift the middle tick text down to a second line.
         const NEIGHBOR_THRESHOLD = 18;
 
-        const contourPercentages = contourPercentiles.map(x => x * 100);
+        const contourPercentages = contourPercentiles.map(p => p * 100);
         if (
           (contourPercentages?.[1] - contourPercentages?.[0] <= NEIGHBOR_THRESHOLD)
           || (contourPercentages?.[2] - contourPercentages?.[1] <= NEIGHBOR_THRESHOLD)
@@ -420,7 +512,10 @@ export default function Legend(props) {
           // to the middle tick text, then shift down the middle tick text
           // element vertically so the texts do not overlap/collide.
           axisTicks.selectAll('text')
-            .attr('transform', (d, i) => `translate(0,${(i === 0 || i === contourPercentiles.length - 1 ? 0 : 10)})`);
+            .attr('transform', (
+              _d: unknown,
+              i: number,
+            ) => `translate(0,${(i === 0 || i === contourPercentiles.length - 1 ? 0 : 10)})`);
         }
 
         // Create triangles for each percentile to display opacity.
@@ -442,7 +537,8 @@ export default function Legend(props) {
 
         const thresholdFormatter = format('.0f');
         contourPercentiles.forEach((p, i) => {
-          const contourThreshold = xMin + (xMax - xMin) * (contourThresholds?.[i] / 255);
+          const contourThreshold = xMin
+            + (xMax - xMin) * ((contourThresholds?.[i] ?? 0) / 255);
 
           const thresholdG = thresholdGroupG.append('g')
             .attr('transform', `translate(${xPercentile(p)},0)`)
@@ -465,7 +561,7 @@ export default function Legend(props) {
         .attr('fill', `rgb(${staticColor[0]},${staticColor[1]},${staticColor[2]})`);
     }
     if (isSetColor && obsSetSelection && obsSetColor) {
-      const obsSetSelectionByLevelZero = {};
+      const obsSetSelectionByLevelZero: Record<string, SetPath[]> = {};
       obsSetSelection.forEach((setPath) => {
         const levelZeroName = setPath[0];
         if (!obsSetSelectionByLevelZero[levelZeroName]) {
@@ -489,7 +585,7 @@ export default function Legend(props) {
         setPaths.forEach((setPath) => {
           const setColor = obsSetColor
             ?.find(d => isEqual(d.path, setPath))
-            ?.color || getDefaultColor(theme);
+            ?.color || getDefaultColor(theme ?? 'light');
 
           // TODO: for nested sets, render the intermediate nodes in the legend?
 
@@ -504,7 +600,7 @@ export default function Legend(props) {
             .attr('dominant-baseline', 'hanging')
             .attr('x', rectHeight + rectMarginX)
             .attr('y', y)
-            .text(setPath.at(-1))
+            .text(setPath.at(-1) ?? '')
             .style('font-size', '9px')
             .style('fill', foregroundColor);
 
@@ -525,7 +621,7 @@ export default function Legend(props) {
       )
       : null;
     // if there are missing values, mention them in the label
-    let featureSelectionLabelRawStr = '';
+    let featureSelectionLabelRawStr: string | undefined = '';
     if (featureAggregationStrategy === 'first') {
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     } else if (featureAggregationStrategy === 'last') {
@@ -542,18 +638,20 @@ export default function Legend(props) {
       // featureAggregationStrategy was null.
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
     }
-    const combinedMissing = combineMissings(missing, featureAggregationStrategy);
-    const featureSelectionLabel = combinedMissing ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)` : featureSelectionLabelRawStr;
+    const combinedMissing = combineMissings(missing ?? null, featureAggregationStrategy ?? null);
+    const featureSelectionLabel = combinedMissing
+      ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)`
+      : featureSelectionLabelRawStr;
 
     // Include obsType in the label text (perhaps only when multi-obsType).
-    const obsLabel = capitalize(obsType);
+    const obsLabel = capitalize(obsType ?? null);
 
     // If the parent component wants to consider selections, then
     // use the selected feature for the label. Otherwise,
     // show the feature type.
     const featureLabel = considerSelections
-      ? (featureSelectionLabel || capitalize(featureValueType))
-      : capitalize(featureValueType);
+      ? (featureSelectionLabel || capitalize(featureValueType ?? null))
+      : capitalize(featureValueType ?? null);
 
     const mainLabel = showObsLabel ? obsLabel : featureLabel;
     const subLabel = showObsLabel ? featureLabel : null;
@@ -566,7 +664,7 @@ export default function Legend(props) {
         .attr('dominant-baseline', 'hanging')
         .attr('x', hasSubLabel ? 0 : width)
         .attr('y', 0)
-        .text(mainLabel)
+        .text(mainLabel ?? '')
         .style('font-size', '10px')
         .style('fill', foregroundColor);
 
@@ -577,7 +675,7 @@ export default function Legend(props) {
           .attr('dominant-baseline', 'hanging')
           .attr('x', width)
           .attr('y', titleHeight)
-          .text(subLabel)
+          .text(subLabel ?? '')
           .style('font-size', '9px')
           .style('fill', foregroundColor);
       }
@@ -601,12 +699,12 @@ export default function Legend(props) {
 
   // Compute global extent for slider value labels
   const globalExtent = useMemo(() => {
-    const combined = combineExtents(extent, featureAggregationStrategy);
-    return combined || [0, 1];
+    const combined = combineExtents(extent ?? null, featureAggregationStrategy ?? null);
+    return combined || [0, 1] as [number, number];
   }, [extent, featureAggregationStrategy]);
 
   // Format slider value as actual data value
-  const formatSliderValue = useCallback((value) => {
+  const formatSliderValue = useCallback((value: number) => {
     const [xMin, xMax] = globalExtent;
     const dataValue = xMin + (xMax - xMin) * value;
     // Use appropriate precision based on range
@@ -622,6 +720,7 @@ export default function Legend(props) {
   }, [globalExtent]);
 
   const xlinkHref = featureValueColormap ? getXlinkHref(featureValueColormap) : null;
+  const currentLocalRange = localRange || [0, 1];
 
   return (
     <div
@@ -652,22 +751,22 @@ export default function Legend(props) {
           style={{ width: `${width}px` }}
         >
           {/* Gray track on left side (outside colormap range) */}
-          {localRange[0] > 0 && (
+          {currentLocalRange[0] > 0 && (
             <div
               className={classes.grayTrack}
               style={{
                 left: 0,
-                width: `${localRange[0] * width}px`,
+                width: `${currentLocalRange[0] * width}px`,
               }}
             />
           )}
           {/* Gray track on right side (outside colormap range) */}
-          {localRange[1] < 1 && (
+          {currentLocalRange[1] < 1 && (
             <div
               className={classes.grayTrack}
               style={{
-                left: `${localRange[1] * width}px`,
-                width: `${(1 - localRange[1]) * width}px`,
+                left: `${currentLocalRange[1] * width}px`,
+                width: `${(1 - currentLocalRange[1]) * width}px`,
               }}
             />
           )}
@@ -677,14 +776,14 @@ export default function Legend(props) {
             alt="Colormap gradient"
             className={classes.colormapImage}
             style={{
-              left: `${localRange[0] * width}px`,
-              width: `${(localRange[1] - localRange[0]) * width}px`,
+              left: `${currentLocalRange[0] * width}px`,
+              width: `${(currentLocalRange[1] - currentLocalRange[0]) * width}px`,
             }}
           />
           {/* Interactive range slider */}
           <Slider
             className={classes.sliderRoot}
-            value={localRange}
+            value={currentLocalRange}
             onChange={handleSliderChange}
             min={0}
             max={1}

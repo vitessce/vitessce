@@ -25,7 +25,41 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-export default function ChannelNamesLegend(props) {
+interface ImageWrapperInstance {
+  getChannelNames: () => string[] | undefined;
+  getChannelIndex: (targetC: number | string) => number | undefined;
+}
+
+interface ImageLayerData {
+  image?: {
+    instance?: ImageWrapperInstance;
+  };
+}
+
+interface ImageLayerCoordinationValues {
+  spatialLayerVisible: boolean;
+  photometricInterpretation: string;
+  spatialChannelLabelsVisible: boolean;
+  spatialChannelLabelsOrientation: 'horizontal' | 'vertical';
+  spatialChannelLabelSize: number;
+  spatialLayerColormap: string | null;
+}
+
+interface ImageChannelCoordinationValues {
+  spatialTargetC: number | string;
+  spatialChannelVisible: boolean;
+  spatialChannelColor: number[];
+}
+
+interface ChannelNamesLegendProps {
+  images: Record<string, ImageLayerData>;
+  imageLayerScopes: string[];
+  imageLayerCoordination: [Record<string, ImageLayerCoordinationValues>];
+  imageChannelScopesByLayer: Record<string, string[]>;
+  imageChannelCoordination: [Record<string, Record<string, ImageChannelCoordinationValues>>];
+}
+
+export default function ChannelNamesLegend(props: ChannelNamesLegendProps) {
   const {
     images,
     imageLayerScopes,
@@ -88,7 +122,9 @@ export default function ChannelNamesLegend(props) {
               const imageWrapperInstance = images?.[layerScope]?.image?.instance;
               const channelNames = imageWrapperInstance?.getChannelNames();
               const channelIndex = imageWrapperInstance?.getChannelIndex(spatialTargetC);
-              const channelName = channelNames?.[channelIndex];
+              const channelName = channelIndex !== undefined
+                ? channelNames?.[channelIndex]
+                : undefined;
 
               return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
                 <Typography
