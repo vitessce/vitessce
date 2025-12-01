@@ -1,11 +1,45 @@
 import { deck } from '@vitessce/gl';
 import { clamp } from 'lodash-es';
 
-// Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
-// Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
-export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange, width, height) {
-  // Size of a point, in units of the diagonal axis.
-  const pointSize = 0.01;
+
+const LARGE_DATASET_POINT_SIZE = 0.0005; // ~500k cells
+const SMALL_DATASET_POINT_SIZE = 0.01; // ~5k cells
+const LARGE_DATASET_CELL_COUNT = 500000;
+const SMALL_DATASET_CELL_COUNT = 5000;
+
+
+/**
+ * Calculates point size in device pixels based on dataset size and view parameters.
+ * Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
+ * Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
+ *
+ *
+ * @param {number} devicePixelRatio The device pixel ratio.
+ * @param {number} zoom The current zoom level.
+ * @param {number} xRange The range of the x-axis.
+ * @param {number} yRange The range of the y-axis.
+ * @param {number} width The width of the viewport.
+ * @param {number} height The height of the viewport.
+ * @param {number} numCells The number of cells in the dataset.
+ * @returns {number} Point size in device pixels.
+ *
+ */
+export function getPointSizeDevicePixels(
+  devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
+) {
+  // Calculate point size using reverse logarithmic scaling
+  // Smaller datasets get larger point sizes
+  let pointSize = LARGE_DATASET_POINT_SIZE;
+  if (numCells && numCells > 0) {
+    const logCells = Math.log10(numCells);
+    const logSmall = Math.log10(SMALL_DATASET_CELL_COUNT);
+    const logLarge = Math.log10(LARGE_DATASET_CELL_COUNT);
+    // Interpolate logarithmically between small and large dataset sizes
+    const t = clamp((logCells - logSmall) / (logLarge - logSmall), 0, 1);
+    const datasetSizeFactor = (LARGE_DATASET_POINT_SIZE - SMALL_DATASET_POINT_SIZE) * t;
+    pointSize = SMALL_DATASET_POINT_SIZE + datasetSizeFactor;
+  }
+
   // Point size maximum, in screen pixels.
   const pointScreenSizeMax = 10;
 
@@ -31,7 +65,20 @@ export function getPointSizeDevicePixels(devicePixelRatio, zoom, xRange, yRange,
   return pointSizeDevicePixels;
 }
 
-// Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
+/**
+ * Calculates point opacity based on dataset size and view parameters.
+ * Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
+ *
+ * @param {*} zoom The current zoom level.
+ * @param {number} zoom The current zoom level.
+ * @param {number} xRange The range of the x-axis.
+ * @param {number} yRange The range of the y-axis.
+ * @param {number} width The width of the viewport.
+ * @param {number} height The height of the viewport.
+ * @param {number} numCells The number of cells in the dataset.
+ * @param {number} avgFillDensity Optional average fill density to use instead of calculating one.
+ * @returns {number} The calculated point opacity.
+ */
 export function getPointOpacity(zoom, xRange, yRange, width, height, numCells, avgFillDensity) {
   const N = numCells;
   let minX; let minY; let maxX; let
