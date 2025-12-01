@@ -329,7 +329,7 @@ export default function Legend(props: LegendProps) {
   const visible = (visibleProp && (
     (
       !considerSelections || (
-        obsColorEncoding === 'geneSelection'
+        ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
         && featureSelection
         && Array.isArray(featureSelection)
         && featureSelection.length >= 1
@@ -387,12 +387,12 @@ export default function Legend(props: LegendProps) {
     // Determine if interactive slider should be shown
     const showInteractiveSlider = (
       setFeatureValueColormapRange
-      && obsColorEncoding === 'geneSelection'
+      && ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
       && pointsVisible
       && featureValueColormap
     );
 
-    if (!considerSelections || obsColorEncoding === 'geneSelection') {
+    if (!considerSelections || ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')) {
       const combinedExtent = combineExtents(
         extent ?? null,
         featureAggregationStrategy ?? null,
@@ -692,7 +692,7 @@ export default function Legend(props: LegendProps) {
   // Determine if interactive slider should be shown
   const showInteractiveSlider = (
     setFeatureValueColormapRange
-    && obsColorEncoding === 'geneSelection'
+    && ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
     && pointsVisible
     && featureValueColormap
   );
