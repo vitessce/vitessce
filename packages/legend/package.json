@@ -53,7 +53,8 @@
     "@types/d3-interpolate": "catalog:",
     "@types/d3-scale": "catalog:",
     "@types/d3-selection": "catalog:",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "@types/lodash-es": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"

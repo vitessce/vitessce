@@ -11,7 +11,7 @@ packages:
 catalog:
   "zustand": ^5.0.4
   "lodash-es": ^4.17.21
-  "@types/lodash-es": ^4.17.7
+  "@types/lodash-es": ^4.17.12
   "internmap": ^2.0.3
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
