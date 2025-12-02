@@ -3,7 +3,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable prefer-destructuring */
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Vitessce } from '@vitessce/all';
 import { generateConfigAlt as generateConfig, parseUrls } from '@vitessce/config';
 import { Alert } from '@vitessce/styles';
@@ -75,6 +75,7 @@ function ControlledLauncherInner(props) {
       setLauncherError(null);
     } else if (configUrlResult.isError) {
       setIsEditing(true);
+      console.log(configUrlResult.error);
       setLauncherError(`Error loading config from URL: ${configUrlResult.error.message}`);
     }
   } else if (sourceUrlQueryEnabled) {
@@ -85,6 +86,7 @@ function ControlledLauncherInner(props) {
       setLauncherError(null);
     } else if (sourceUrlResult.isError) {
       setIsEditing(true);
+      console.log(sourceUrlResult.error);
       setLauncherError(`Error loading data/metadata from source URL(s): ${sourceUrlResult.error.message}`);
     }
   } else if (validConfigFromDroppedData) {
