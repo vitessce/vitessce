@@ -52,7 +52,7 @@ jobs:
         # but only generate a coverage report once per matrix.
         # (Here, we just pick ubuntu and node 18, a bit arbitrarily).
         if: ${{ matrix.os == 'ubuntu-latest' && always() }}
-        uses: davelosert/vitest-coverage-report-action@v2.8.3
+        uses: davelosert/vitest-coverage-report-action@v2
 
   
   test-e2e-demo:
