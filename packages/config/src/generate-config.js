@@ -165,7 +165,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     // Is consolidated.
     const contents = store.contents();
     // Open all entries to get their attributes.
-    const consolidatedRoot = await zarrOpen(store, { kind: "group" });
+    const consolidatedRoot = await zarrOpen(store, { kind: 'group' });
     promises = contents.map(async (value) => {
       let item;
       try {
@@ -219,7 +219,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
       // Note: For spatialData, we assume the store is always consolidated.
       // TODO: throw error if spatialdata + not consolidated?
     ];
-    const storeRoot = await zarrOpen(store, { kind: "group" });
+    const storeRoot = await zarrOpen(store, { kind: 'group' });
     promises = keysToTry.map(async (k) => {
       try {
         const item = await zarrOpen(storeRoot.resolve(k));
