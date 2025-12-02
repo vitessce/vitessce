@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getPointSizeDevicePixels, getPointOpacity, getInitialPointSize,
-  LARGE_DATASET_CELL_COUNT, SMALL_DATASET_CELL_COUNT, LARGE_DATASET_POINT_SIZE, SMALL_DATASET_POINT_SIZE } from './dynamic-opacity.js';
+  LARGE_DATASET_CELL_COUNT, SMALL_DATASET_CELL_COUNT,
+  LARGE_DATASET_POINT_SIZE, SMALL_DATASET_POINT_SIZE } from './dynamic-opacity.js';
 
 describe('dynamic-opacity.js', () => {
   describe('getInitialPointSize', () => {
@@ -17,7 +18,7 @@ describe('dynamic-opacity.js', () => {
     });
 
     it('returns intermediate point size for medium datasets', () => {
-      const numCells = 50000;
+      const numCells = (SMALL_DATASET_CELL_COUNT + LARGE_DATASET_CELL_COUNT) / 2;
       const pointSize = getInitialPointSize(numCells);
       expect(pointSize).toBeLessThan(SMALL_DATASET_POINT_SIZE);
       expect(pointSize).toBeGreaterThan(LARGE_DATASET_POINT_SIZE);

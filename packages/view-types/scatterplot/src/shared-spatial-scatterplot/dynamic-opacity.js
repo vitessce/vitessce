@@ -2,37 +2,34 @@ import { deck } from '@vitessce/gl';
 import { clamp } from 'lodash-es';
 
 
-export const LARGE_DATASET_POINT_SIZE = 0.005;
-export const SMALL_DATASET_POINT_SIZE = 0.010;
-export const LARGE_DATASET_CELL_COUNT = 100000;
-export const SMALL_DATASET_CELL_COUNT = 1000;
-const LOG_LARGE_CELL_COUNT = Math.log10(LARGE_DATASET_CELL_COUNT);
-const LOG_SMALL_CELL_COUNT = Math.log10(SMALL_DATASET_CELL_COUNT);
+const BASE_POINT_SIZE = 5;
+export const LARGE_DATASET_CELL_COUNT = 10000;
+export const SMALL_DATASET_CELL_COUNT = 100;
+
+export const LARGE_DATASET_POINT_SIZE = BASE_POINT_SIZE / LARGE_DATASET_CELL_COUNT;
+export const SMALL_DATASET_POINT_SIZE = BASE_POINT_SIZE / SMALL_DATASET_CELL_COUNT;
 
 
 /**
  * Calculates initial point size based on dataset size.
+ * The point size decreases as the number of cells increases to avoid overplotting.
+ * The maximum point size is 0.05, for small datasets.
+ * The minimum point size is 0.0005, for large datasets.
  * @param {number} numCells
  * @returns {number} Initial point size.
  */
-export function getInitialPointSize(numCells) {
-  let pointSize = LARGE_DATASET_POINT_SIZE;
-  if (numCells && numCells > 0) {
-    const logCells = Math.log10(numCells);
-    // Interpolate logarithmically between small and large dataset sizes
-    const t = clamp((logCells - LOG_SMALL_CELL_COUNT)
-                  / (LOG_LARGE_CELL_COUNT - LOG_SMALL_CELL_COUNT), 0, 1);
-    const datasetSizeFactor = (LARGE_DATASET_POINT_SIZE - SMALL_DATASET_POINT_SIZE) * t;
-    pointSize = SMALL_DATASET_POINT_SIZE + datasetSizeFactor;
-  }
-  return pointSize;
+export function getInitialPointSize(numCells = LARGE_DATASET_CELL_COUNT) {
+  return BASE_POINT_SIZE / clamp(
+    numCells,
+    SMALL_DATASET_CELL_COUNT,
+    LARGE_DATASET_CELL_COUNT,
+  );
 }
 
 /**
  * Calculates point size in device pixels based on dataset size and view parameters.
  * Reference: https://observablehq.com/@rreusser/selecting-the-right-opacity-for-2d-point-clouds
  * Reference: https://observablehq.com/@bmschmidt/dot-density-election-maps-with-webgl
- *
  *
  * @param {number} devicePixelRatio The device pixel ratio.
  * @param {number} zoom The current zoom level.
@@ -47,7 +44,6 @@ export function getInitialPointSize(numCells) {
 export function getPointSizeDevicePixels(
   devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
 ) {
-  // Calculate point size using reverse logarithmic scaling
   // Smaller datasets get larger point sizes
   const pointSize = getInitialPointSize(numCells);
 
