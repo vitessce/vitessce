@@ -51,8 +51,8 @@ const useStyles = makeStyles()(() => ({
     position: 'absolute',
     // Position at the colormap location: top offset = titleHeight
     top: '10px', // titleHeight
-    left: 0,
-    width: '100%',
+    left: '2px', // Account for parent padding
+    width: 'calc(100% - 4px)', // Account for left and right padding
     height: '8px', // rectHeight
     '&:hover $sliderThumb': {
       opacity: 1,
@@ -74,7 +74,7 @@ const useStyles = makeStyles()(() => ({
     '& .MuiSlider-valueLabel': {
       fontSize: '9px',
       padding: '2px 4px',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      backgroundColor: 'rgb(0, 0, 0)',
       borderRadius: '2px',
     },
   },
@@ -86,7 +86,6 @@ const useStyles = makeStyles()(() => ({
     border: '1px solid black',
     opacity: 0,
     transition: 'opacity 0.15s ease-in-out',
-    marginTop: '-2px', // Center vertically on the colormap
     '&:hover, &.Mui-focusVisible': {
       boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.16)',
       opacity: 1,
@@ -98,14 +97,14 @@ const useStyles = makeStyles()(() => ({
   },
   colormapImage: {
     position: 'absolute',
-    top: 0,
-    height: '8px', // rectHeight
+    top: '2px',
+    height: '6px', // rectHeight
     pointerEvents: 'none',
   },
   grayTrack: {
     position: 'absolute',
-    top: 0,
-    height: '8px', // rectHeight
+    top: '2px',
+    height: '6px', // rectHeight
     backgroundColor: 'rgba(128, 128, 128, 0.5)',
     pointerEvents: 'none',
   },
@@ -439,11 +438,11 @@ export default function Legend(props: LegendProps) {
         if (setFeatureValueColormapRange || showInteractiveSlider) {
           x = scaleLinear()
             .domain(scaledDataExtent)
-            .range([rMin * width + 0.5, rMax * width - 0.5]);
+            .range([rMin * width, rMax * width]);
         } else {
           x = scaleLinear()
             .domain(scaledDataExtent)
-            .range([0.5, width - 0.5]);
+            .range([0, width]);
         }
 
         if (showInteractiveSlider) {
@@ -451,7 +450,7 @@ export default function Legend(props: LegendProps) {
           // Create a scale spanning the full width for global extent labels
           const xGlobal = scaleLinear()
             .domain([xMin, xMax])
-            .range([0.5, width - 0.5]);
+            .range([0, width - 4]);
 
           // X-axis ticks for global extent (always visible at edges)
           const axisTicks = g.append('g')
@@ -662,7 +661,7 @@ export default function Legend(props: LegendProps) {
         .append('text')
         .attr('text-anchor', hasSubLabel ? 'start' : 'end')
         .attr('dominant-baseline', 'hanging')
-        .attr('x', hasSubLabel ? 0 : width)
+        .attr('x', hasSubLabel ? 0 : width - 4)
         .attr('y', 0)
         .text(mainLabel ?? '')
         .style('font-size', '10px')
@@ -748,7 +747,6 @@ export default function Legend(props: LegendProps) {
       {showInteractiveSlider && xlinkHref && (
         <div
           className={classes.sliderContainer}
-          style={{ width: `${width}px` }}
         >
           {/* Gray track on left side (outside colormap range) */}
           {currentLocalRange[0] > 0 && (
@@ -756,7 +754,7 @@ export default function Legend(props: LegendProps) {
               className={classes.grayTrack}
               style={{
                 left: 0,
-                width: `${currentLocalRange[0] * width}px`,
+                width: `${currentLocalRange[0] * 100}%`,
               }}
             />
           )}
@@ -765,8 +763,8 @@ export default function Legend(props: LegendProps) {
             <div
               className={classes.grayTrack}
               style={{
-                left: `${currentLocalRange[1] * width}px`,
-                width: `${(1 - currentLocalRange[1]) * width}px`,
+                left: `${currentLocalRange[1] * 100}%`,
+                width: `${(1 - currentLocalRange[1]) * 100}%`,
               }}
             />
           )}
@@ -776,8 +774,8 @@ export default function Legend(props: LegendProps) {
             alt="Colormap gradient"
             className={classes.colormapImage}
             style={{
-              left: `${currentLocalRange[0] * width}px`,
-              width: `${(currentLocalRange[1] - currentLocalRange[0]) * width}px`,
+              left: `${currentLocalRange[0] * 100}%`,
+              width: `${(currentLocalRange[1] - currentLocalRange[0]) * 100}%`,
             }}
           />
           {/* Interactive range slider */}
