@@ -1,17 +1,17 @@
 packages:
-  - 'packages/*'
-  - 'packages/view-types/*'
-  - 'packages/file-types/*'
-  - 'packages/utils/*'
-  - 'packages/main/*'
-  - 'sites/*'
-  - 'examples/*'
-  - '!consumer'
+  - "packages/*"
+  - "packages/view-types/*"
+  - "packages/file-types/*"
+  - "packages/utils/*"
+  - "packages/main/*"
+  - "sites/*"
+  - "examples/*"
+  - "!consumer"
 
 catalog:
   "zustand": ^5.0.4
   "lodash-es": ^4.17.21
-  "@types/lodash-es": ^4.17.7
+  "@types/lodash-es": ^4.17.12
   "internmap": ^2.0.3
   "uuid": ^9.0.0
   "@types/uuid": ^9.0.1
@@ -29,13 +29,25 @@ catalog:
   "d3-format": ^3.1.0
   "d3-quadtree": ^1.0.7
   "d3-hierarchy": ^3.1.2
-  # note - packages/legend was on d3-scale ^3.2.3
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0
   "d3-color": ^3.1.0
   "d3-interpolate": ^3.0.1
   "d3-shape": ^3.2.0
   "d3-selection": ^3.0.0
+  "@types/d3-array": ^3.2.0
+  "@types/d3-dsv": ^3.0.0
+  "@types/d3-force": ^3.0.0
+  "@types/d3-format": ^3.0.0
+  "@types/d3-quadtree": ^3.0.0
+  "@types/d3-hierarchy": ^3.1.0
+  "@types/d3-scale": ^4.0.0
+  "@types/d3-axis": ^3.0.0
+  "@types/d3-color": ^3.0.6
+  "@types/d3-interpolate": ^3.0.4
+  "@types/d3-shape": ^3.1.0
+  "@types/d3-selection": ^3.0.0
+
   "vega-scale": ^8.0.0
   "pluralize": ^8.0.0
   "math.gl": ^3.5.6

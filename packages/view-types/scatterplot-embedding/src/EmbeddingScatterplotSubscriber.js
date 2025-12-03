@@ -662,6 +662,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
         extent={expressionExtents}
         missing={expressionMissing}

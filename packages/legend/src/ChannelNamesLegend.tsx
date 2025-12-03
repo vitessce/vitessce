@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles, Typography } from '@vitessce/styles';
 import { colorArrayToString } from '@vitessce/sets-utils';
+import type { ImageLayerData, ImageLayerCoordinationValues, ImageChannelCoordinationValues } from './types.js';
 
 const useStyles = makeStyles()(() => ({
   channelNamesLegendContainer: {
@@ -25,7 +26,15 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-export default function ChannelNamesLegend(props) {
+interface ChannelNamesLegendProps {
+  images: Record<string, ImageLayerData>;
+  imageLayerScopes: string[];
+  imageLayerCoordination: [Record<string, ImageLayerCoordinationValues>];
+  imageChannelScopesByLayer: Record<string, string[]>;
+  imageChannelCoordination: [Record<string, Record<string, ImageChannelCoordinationValues>>];
+}
+
+export default function ChannelNamesLegend(props: ChannelNamesLegendProps) {
   const {
     images,
     imageLayerScopes,
@@ -88,7 +97,9 @@ export default function ChannelNamesLegend(props) {
               const imageWrapperInstance = images?.[layerScope]?.image?.instance;
               const channelNames = imageWrapperInstance?.getChannelNames();
               const channelIndex = imageWrapperInstance?.getChannelIndex(spatialTargetC);
-              const channelName = channelNames?.[channelIndex];
+              const channelName = channelIndex !== undefined
+                ? channelNames?.[channelIndex]
+                : undefined;
 
               return spatialLayerVisible && spatialChannelVisible && spatialChannelLabelsVisible ? (
                 <Typography
