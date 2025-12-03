@@ -1,4 +1,15 @@
 
+## 3.8.10
+
+### Patch Changes
+
+- Enable min/max slider controls for legend. (`@vitessce/scatterplot-embedding`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/legend`) ([#2365](https://github.com/vitessce/vitessce/pull/2365))
+
+- Increase automatic scatterplot point size (`@vitessce/scatterplot`) ([#2363](https://github.com/vitessce/vitessce/pull/2363))
+
+- Improvements to generateConfig to support Zarr stores containing recarrays (will skip rather than error) and to reduce network requests by passing the `kind` parameter to zarr.open. (`@vitessce/launcher`, `@vitessce/config`) ([#2366](https://github.com/vitessce/vitessce/pull/2366))
+
+
 ## 3.8.9
 
 ### Patch Changes
