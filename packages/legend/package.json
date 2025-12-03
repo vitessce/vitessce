@@ -33,6 +33,7 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "clsx": "catalog:",
     "colormap": "^2.3.2",
     "d3-axis": "catalog:",

@@ -1078,6 +1078,9 @@ importers:
 
   packages/legend:
     dependencies:
+      '@vitessce/image-utils':
+        specifier: workspace:*
+        version: link:../utils/image-utils
       '@vitessce/sets-utils':
         specifier: workspace:*
         version: link:../utils/sets-utils

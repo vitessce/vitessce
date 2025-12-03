@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles, Typography } from '@vitessce/styles';
 import { colorArrayToString } from '@vitessce/sets-utils';
+import type { ImageLayerData, ImageLayerCoordinationValues, ImageChannelCoordinationValues } from './types.js';
 
 const useStyles = makeStyles()(() => ({
   channelNamesLegendContainer: {
@@ -24,32 +25,6 @@ const useStyles = makeStyles()(() => ({
     marginRight: '10px',
   },
 }));
-
-interface ImageWrapperInstance {
-  getChannelNames: () => string[] | undefined;
-  getChannelIndex: (targetC: number | string) => number | undefined;
-}
-
-interface ImageLayerData {
-  image?: {
-    instance?: ImageWrapperInstance;
-  };
-}
-
-interface ImageLayerCoordinationValues {
-  spatialLayerVisible: boolean;
-  photometricInterpretation: string;
-  spatialChannelLabelsVisible: boolean;
-  spatialChannelLabelsOrientation: 'horizontal' | 'vertical';
-  spatialChannelLabelSize: number;
-  spatialLayerColormap: string | null;
-}
-
-interface ImageChannelCoordinationValues {
-  spatialTargetC: number | string;
-  spatialChannelVisible: boolean;
-  spatialChannelColor: number[];
-}
 
 interface ChannelNamesLegendProps {
   images: Record<string, ImageLayerData>;

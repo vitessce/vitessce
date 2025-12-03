@@ -10,6 +10,7 @@ import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
 import { isEqual, debounce } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
+import { Extent, FeatureAggregationStrategy, ObsColorEncoding, SetPath, ObsSetColorEntry } from './types.js';
 
 
 const useStyles = makeStyles()(() => ({
@@ -115,12 +116,6 @@ const rectHeight = 8;
 const rectMarginY = 2;
 const rectMarginX = 2;
 
-type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
-type Extent = [number, number] | [number, number][] | null;
-type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
-  | 'spatialLayerColor' | string;
-type SetPath = string[];
-type ObsSetColorEntry = { path: SetPath; color: number[] };
 
 function combineExtents(
   extents: Extent,
@@ -673,7 +668,7 @@ export default function Legend(props: LegendProps) {
           .attr('text-anchor', 'end')
           .attr('dominant-baseline', 'hanging')
           .attr('x', width)
-          .attr('y', titleHeight)
+          .attr('y', titleHeight + rectHeight)
           .text(subLabel ?? '')
           .style('font-size', '9px')
           .style('fill', foregroundColor);
@@ -691,6 +686,7 @@ export default function Legend(props: LegendProps) {
   // Determine if interactive slider should be shown
   const showInteractiveSlider = (
     setFeatureValueColormapRange
+    // We don't accept `geneExpression` from the conf, but the HeatmapSubscriber uses it as a prop
     && ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
     && pointsVisible
     && featureValueColormap

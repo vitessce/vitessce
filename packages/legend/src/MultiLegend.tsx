@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { makeStyles } from '@vitessce/styles';
 import Legend from './Legend.js';
+import type { ThemeType, SegmentationLayerCoordinationValues,
+  SegmentationChannelCoordinationValues, SegmentationChannelSetters,
+  SpotLayerCoordinationValues, SpotLayerSetters, FeatureLabelsData,
+  PointLayerCoordinationValues, PointLayerSetters } from './types.js';
 
 
 const useStyles = makeStyles()(() => ({
@@ -11,66 +15,6 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-type SetPath = string[];
-type ObsSetColorEntry = { path: SetPath; color: number[] };
-type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
-type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
-  | 'spatialLayerColor' | string;
-
-interface PointLayerCoordinationValues {
-  spatialLayerVisible: boolean;
-  obsColorEncoding: ObsColorEncoding;
-  obsType: string;
-  featureType: string;
-  featureValueType: string;
-  featureSelection: string[];
-  featureValueColormap: string;
-  featureValueColormapRange: [number, number];
-  spatialLayerColor: number[];
-  legendVisible: boolean;
-}
-
-interface PointLayerSetters {
-  setFeatureValueColormapRange?: (range: [number, number]) => void;
-}
-
-interface SpotLayerCoordinationValues extends PointLayerCoordinationValues {
-  featureAggregationStrategy: FeatureAggregationStrategy;
-  obsSetSelection: SetPath[];
-  obsSetColor: ObsSetColorEntry[];
-}
-
-type SpotLayerSetters = PointLayerSetters;
-
-interface SegmentationLayerCoordinationValues {
-  spatialLayerVisible: boolean;
-}
-
-interface SegmentationChannelCoordinationValues {
-  spatialChannelVisible: boolean;
-  spatialChannelColor: number[];
-  obsColorEncoding: ObsColorEncoding;
-  featureValueColormap: string;
-  featureValueColormapRange: [number, number];
-  obsType: string;
-  featureType: string;
-  featureValueType: string;
-  featureSelection: string[];
-  featureAggregationStrategy: FeatureAggregationStrategy;
-  legendVisible: boolean;
-  obsSetSelection: SetPath[];
-  obsSetColor: ObsSetColorEntry[];
-}
-
-interface SegmentationChannelSetters {
-  setFeatureValueColormapRange?: (range: [number, number]) => void;
-}
-
-interface FeatureLabelsData {
-  featureLabelsMap?: Map<string, string>;
-}
-
-type ThemeType = 'light' | 'dark' | 'light2';
 
 interface MultiLegendProps {
   theme?: ThemeType;
@@ -136,7 +80,7 @@ export default function MultiLegend(props: MultiLegendProps) {
     <div className={classes.multiLegend}>
       {/* Points */}
       {pointLayerScopes ? reversedPointLayerScopes.flatMap((layerScope) => {
-        const layerCoordination = pointLayerCoordination?.[0][layerScope];
+        const layerCoordination = pointLayerCoordination?.[0]?.[layerScope];
         const layerSetters = pointLayerCoordination?.[1]?.[layerScope];
 
         if (!layerCoordination) return null;
