@@ -34,6 +34,8 @@ export default function LayerController(props) {
 
     pointLayerScopes,
     pointLayerCoordination,
+
+    volumeLoadingStatus,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -130,6 +132,10 @@ export default function LayerController(props) {
           targetT={targetT}
           targetZ={targetZ}
           spatialRenderingMode={spatialRenderingMode}
+          volumeLoadingProgress={volumeLoadingStatus?.loadingProgress}
+          onStopVolumeLoading={volumeLoadingStatus?.onStopLoading}
+          onRestartVolumeLoading={volumeLoadingStatus?.onRestartLoading}
+          volumeStillRef={volumeLoadingStatus?.stillRef}
         />
       ))}
     </div>
