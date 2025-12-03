@@ -1,4 +1,11 @@
 
+## 3.8.11
+
+### Patch Changes
+
+- Update showcase page. (`docs`) ([#2351](https://github.com/vitessce/vitessce/pull/2351))
+
+
 ## 3.8.10
 
 ### Patch Changes
