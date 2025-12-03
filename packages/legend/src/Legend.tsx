@@ -10,7 +10,7 @@ import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
 import { isEqual, debounce } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
-import { Extent, FeatureAggregationStrategy, ObsColorEncoding, SetPath, ObsSetColorEntry } from './types.js';
+import type { Extent, FeatureAggregationStrategy, ObsColorEncoding, SetPath, ObsSetColorEntry } from './types.js';
 
 
 const useStyles = makeStyles()(() => ({
