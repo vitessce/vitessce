@@ -724,7 +724,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // There is no onHover here,
       // see the onHover method of AbstractSpatialOrScatterplot.
       pickable: true,
-      onHover: info => delegateHover(info, 'segmentation-bitmask', layerScope),
+      onHover: info => delegateHover(info, 'segmentation-bitmask', layerScope, layerDefModelMatrix),
     });
   }
 
@@ -860,7 +860,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // having transparent / zero-valued pixels.
       // Instead, we can get the hover info from the layer:
       pickable: true,
-      onHover: info => delegateHover(info, 'image', layerScope),
+      onHover: info => delegateHover(info, 'image', layerScope, layerDefModelMatrix),
       ...rgbInterleavedProps,
     });
   }
