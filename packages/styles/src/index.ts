@@ -107,3 +107,4 @@ export { DataGrid } from '@mui/x-data-grid/DataGrid';
 // Local exports
 export { Popper as PopperV4 } from './Popper.js';
 export { ScopedGlobalStyles } from './ScopedGlobalStyles.js';
+export { InfoOverlay } from './InfoOverlay.js';
