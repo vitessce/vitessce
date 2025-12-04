@@ -73,6 +73,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelection: sampleSetSelectionFromProps,
     // Circle scale factor:
     circleScaleFactor = 0.8,
+    infoPlacement,
   } = props;
 
   const loaders = useLoaders();
@@ -551,6 +552,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      infoPlacement={infoPlacement}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}

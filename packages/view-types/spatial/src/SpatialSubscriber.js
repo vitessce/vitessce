@@ -67,6 +67,7 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
+    infoPlacement,
   } = props;
 
   const loaders = useLoaders();
@@ -615,9 +616,9 @@ export function SpatialSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
-      options={options}
-      helpText={helpText}
       errors={errors}
+      helpText={helpText}
+      infoPlacement={infoPlacement}
     >
       <div style={{
         position: 'absolute',

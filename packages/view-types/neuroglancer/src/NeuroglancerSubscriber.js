@@ -57,6 +57,7 @@ export function NeuroglancerSubscriber(props) {
     theme,
     title = 'Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    infoPlacement,
   } = props;
 
   const loaders = useLoaders();
@@ -517,6 +518,7 @@ export function NeuroglancerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady
       withPadding={false}
+      infoPlacement={infoPlacement}
     >
       <NeuroglancerComp
         classes={classes}
