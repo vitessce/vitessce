@@ -10,7 +10,14 @@ import { useStyles as useTheme } from 'tss-react/mui';
 import { Portal } from '@mui/material';
 import { createChainedFunction, setRef, useForkRef } from './utils.js';
 
-function flipPlacement(placement, theme) {
+interface Theme {
+  direction?: 'ltr' | 'rtl';
+}
+
+function flipPlacement(
+  placement: PopperJs.Placement,
+  theme: Theme | undefined,
+): PopperJs.Placement {
   const direction = (theme && theme.direction) || 'ltr';
 
   if (direction === 'ltr') {
@@ -31,18 +38,45 @@ function flipPlacement(placement, theme) {
   }
 }
 
-function getAnchorEl(anchorEl) {
+function getAnchorEl(anchorEl: HTMLElement | (() => HTMLElement) | null): HTMLElement | null {
   return typeof anchorEl === 'function' ? anchorEl() : anchorEl;
 }
 
 const useEnhancedEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
-const defaultPopperOptions = {};
+const defaultPopperOptions: PopperJs.PopperOptions = {};
+
+interface TransitionProps {
+  in?: boolean;
+  onEnter?: () => void;
+  onExited?: () => void;
+}
+
+interface ChildProps {
+  placement: PopperJs.Placement;
+  TransitionProps?: TransitionProps;
+}
+
+interface PopperProps {
+  anchorEl?: HTMLElement | (() => HTMLElement) | null;
+  children: React.ReactNode | ((props: ChildProps) => React.ReactNode);
+  container?: HTMLElement | (() => HTMLElement | null) | null;
+  disablePortal?: boolean;
+  keepMounted?: boolean;
+  modifiers?: PopperJs.Modifiers;
+  open: boolean;
+  placement?: PopperJs.Placement;
+  popperOptions?: PopperJs.PopperOptions;
+  popperRef?: React.Ref<PopperJs>;
+  style?: React.CSSProperties;
+  transition?: boolean;
+  [key: string]: unknown;
+}
 
 /**
  * Poppers rely on the 3rd party library [Popper.js](https://popper.js.org/docs/v1/) for positioning.
  */
-export const Popper = React.forwardRef((props, ref) => {
+export const Popper = React.forwardRef<HTMLDivElement, PopperProps>((props, ref) => {
   const {
     anchorEl,
     children,
@@ -58,16 +92,16 @@ export const Popper = React.forwardRef((props, ref) => {
     transition = false,
     ...other
   } = props;
-  const tooltipRef = React.useRef(null);
-  const ownRef = useForkRef(tooltipRef, ref);
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const ownRef = useForkRef<HTMLDivElement>(tooltipRef, ref);
 
-  const popperRef = React.useRef(null);
-  const handlePopperRef = useForkRef(popperRef, popperRefProp);
+  const popperRef = React.useRef<PopperJs | null>(null);
+  const handlePopperRef = useForkRef<PopperJs>(popperRef, popperRefProp);
   const handlePopperRefRef = React.useRef(handlePopperRef);
   useEnhancedEffect(() => {
     handlePopperRefRef.current = handlePopperRef;
   }, [handlePopperRef]);
-  React.useImperativeHandle(popperRefProp, () => popperRef.current, []);
+  React.useImperativeHandle(popperRefProp, () => popperRef.current as PopperJs, []);
 
   const [exited, setExited] = React.useState(true);
 
@@ -92,10 +126,12 @@ export const Popper = React.forwardRef((props, ref) => {
 
     if (popperRef.current) {
       popperRef.current.destroy();
-      handlePopperRefRef.current(null);
+      if (handlePopperRefRef.current) {
+        handlePopperRefRef.current(null);
+      }
     }
 
-    const handlePopperUpdate = (data) => {
+    const handlePopperUpdate = (data: PopperJs.Data) => {
       setPlacement(data.placement);
     };
 
@@ -123,7 +159,12 @@ export const Popper = React.forwardRef((props, ref) => {
       }
     }
 
-    const popper = new PopperJs(getAnchorEl(anchorEl), tooltipRef.current, {
+    const anchorElement = getAnchorEl(anchorEl);
+    if (!anchorElement || !tooltipRef.current) {
+      return;
+    }
+
+    const popper = new PopperJs(anchorElement, tooltipRef.current, {
       placement: rtlPlacement,
       ...popperOptions,
       modifiers: {
@@ -144,11 +185,13 @@ export const Popper = React.forwardRef((props, ref) => {
       onUpdate: createChainedFunction(handlePopperUpdate, popperOptions.onUpdate),
     });
 
-    handlePopperRefRef.current(popper);
+    if (handlePopperRefRef.current) {
+      handlePopperRefRef.current(popper);
+    }
   }, [anchorEl, disablePortal, modifiers, open, rtlPlacement, popperOptions]);
 
   const handleRef = React.useCallback(
-    (node) => {
+    (node: HTMLDivElement | null) => {
       setRef(ownRef, node);
       handleOpen();
     },
@@ -165,7 +208,9 @@ export const Popper = React.forwardRef((props, ref) => {
     }
 
     popperRef.current.destroy();
-    handlePopperRefRef.current(null);
+    if (handlePopperRefRef.current) {
+      handlePopperRefRef.current(null);
+    }
   };
 
   const handleExited = () => {
@@ -188,7 +233,7 @@ export const Popper = React.forwardRef((props, ref) => {
     return null;
   }
 
-  const childProps = { placement };
+  const childProps: ChildProps = { placement };
 
   if (transition) {
     childProps.TransitionProps = {
@@ -198,24 +243,39 @@ export const Popper = React.forwardRef((props, ref) => {
     };
   }
 
+  const content = (
+    <div
+      ref={handleRef}
+      role="tooltip"
+      {...other}
+      style={{
+        // Prevents scroll issue, waiting for Popper.js to add this style once initiated.
+        position: 'fixed',
+        // Fix Popper.js display issue
+        top: 0,
+        left: 0,
+        display: !open && keepMounted && !transition ? 'none' : undefined,
+        ...style,
+      }}
+    >
+      {typeof children === 'function' ? children(childProps) : children}
+    </div>
+  );
+
+  type PortalProps = {
+    disablePortal?: boolean;
+    container?: HTMLElement | (() => HTMLElement | null) | null;
+    children?: React.ReactNode;
+  };
+
   return (
-    <Portal disablePortal={disablePortal} container={container}>
-      <div
-        ref={handleRef}
-        role="tooltip"
-        {...other}
-        style={{
-          // Prevents scroll issue, waiting for Popper.js to add this style once initiated.
-          position: 'fixed',
-          // Fix Popper.js display issue
-          top: 0,
-          left: 0,
-          display: !open && keepMounted && !transition ? 'none' : null,
-          ...style,
-        }}
-      >
-        {typeof children === 'function' ? children(childProps) : children}
-      </div>
-    </Portal>
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    <>
+      {React.createElement(
+        Portal as React.ComponentType<PortalProps>,
+        { disablePortal, container },
+        content,
+      )}
+    </>
   );
 });

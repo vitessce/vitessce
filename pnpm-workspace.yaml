@@ -91,11 +91,15 @@ catalog:
   "react": 18.3.1
   "react-dom": 18.3.1
   "@types/react": ^18.0.28
+  "@types/react-dom": ^18.0.11
   # Testing library
   "@testing-library/jest-dom": ^6.6.3
   "@testing-library/dom": ^10.4.0
   "@testing-library/react": ^16.3.0
   "@testing-library/user-event": ^14.6.1
+
+  # node
+  "@types/node": ^24.10.1
 
 # We are using named catalogs for groups of packages
 # that are versioned together

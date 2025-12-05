@@ -1,5 +1,5 @@
 // Reference: https://github.com/mui/material-ui/tree/v4.x/packages/material-ui/src/utils
-import { useMemo } from 'react';
+import { useMemo, MutableRefObject } from 'react';
 
 /**
  * Safe chained function
@@ -10,7 +10,9 @@ import { useMemo } from 'react';
  * @param {function} functions to chain
  * @returns {function|null}
  */
-export function createChainedFunction(...funcs) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, space-before-function-paren
+export function createChainedFunction<T extends (...args: any[]) => void>(
+  ...funcs: (T | null | undefined)[]) {
   return funcs.reduce(
     (acc, func) => {
       if (func == null) {
@@ -25,16 +27,21 @@ export function createChainedFunction(...funcs) {
         }
       }
 
-      return function chainedFunction(...args) {
+      // eslint-disable-next-line func-names
+      return function chainedFunction(this: unknown, ...args: Parameters<T>) {
         acc.apply(this, args);
         func.apply(this, args);
       };
     },
-    () => {},
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    (() => {}) as (...args: Parameters<T>) => void,
   );
 }
 
-export function setRef(ref, value) {
+export function setRef<T>(
+  ref: ((instance: T | null) => void) | MutableRefObject<T | null> | null | undefined,
+  value: T | null,
+): void {
   if (typeof ref === 'function') {
     ref(value);
   } else if (ref) {
@@ -43,7 +50,10 @@ export function setRef(ref, value) {
   }
 }
 
-export function useForkRef(refA, refB) {
+export function useForkRef<T>(
+  refA: ((instance: T | null) => void) | MutableRefObject<T | null> | null | undefined,
+  refB: ((instance: T | null) => void) | MutableRefObject<T | null> | null | undefined,
+): ((instance: T | null) => void) | null {
   /**
    * This will create a new function if the ref props change and are defined.
    * This means react will call the old forkRef with `null` and the new forkRef
@@ -53,7 +63,7 @@ export function useForkRef(refA, refB) {
     if (refA == null && refB == null) {
       return null;
     }
-    return (refValue) => {
+    return (refValue: T | null) => {
       setRef(refA, refValue);
       setRef(refB, refValue);
     };

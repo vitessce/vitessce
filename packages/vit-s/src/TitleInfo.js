@@ -16,10 +16,12 @@ import {
   Warning as WarningIcon,
 } from '@vitessce/styles';
 
+import { InfoPlacementTypes } from '@vitessce/utils';
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
 import { useTitleStyles } from './title-styles.js';
+import InfoOverlay from './InfoOverlay.js';
 
 const useStyles = makeStyles()(theme => ({
   iconButton: {
@@ -213,12 +215,16 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors: errorsProp,
+    helpText, withPadding = true, errors: errorsProp, infoPlacement = InfoPlacementTypes.BOTTOM_END,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
 
   const { classes } = useTitleStyles();
+
+  // Determine if info should be shown in title bar or as overlay
+  const showInfoInTitle = infoPlacement === InfoPlacementTypes.TITLE;
+  const infoToDisplay = showInfoInTitle ? info : null;
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
@@ -228,7 +234,7 @@ export function TitleInfo(props) {
           {title}
         </div>
         <div className={classes.titleInfo} title={info} role="note">
-          {info}
+          {infoToDisplay}
         </div>
         <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
@@ -273,6 +279,7 @@ export function TitleInfo(props) {
       >
         { !isReady ? <LoadingIndicator /> : null }
         {children}
+        {!showInfoInTitle && info && <InfoOverlay info={info} placement={infoPlacement} />}
       </div>
     </>
     // "pl-2" only matters when the window is very narrow.
