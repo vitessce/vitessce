@@ -132,6 +132,7 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    infoPlacement,
   } = props;
 
   const loaders = useLoaders();
@@ -802,6 +803,10 @@ export function SpatialSubscriber(props) {
     }
   };
 
+  // In order to avoid placing the info text over the scale bar in 2D mode,
+  // we change the default placement based on whether we are in 2D or 3D mode.
+  const defaultInfoPlacement = is3dMode ? 'bottom-end' : 'bottom-start';
+
   return (
     <TitleInfo
       title={title}
@@ -814,6 +819,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       errors={errors}
+      infoPlacement={infoPlacement || defaultInfoPlacement}
     >
       {
         shouldUseThree ? (
