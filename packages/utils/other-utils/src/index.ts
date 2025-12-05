@@ -41,3 +41,4 @@ export {
 } from './gating.js';
 export { default as Pool } from './Pool.js';
 export { aggregateFeatureArrays } from './expr.js';
+export { InfoPlacementTypes, type InfoPlacementType } from './info-placement-types.js';

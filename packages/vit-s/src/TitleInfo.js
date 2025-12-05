@@ -16,6 +16,7 @@ import {
   Warning as WarningIcon,
 } from '@vitessce/styles';
 
+import { InfoPlacementTypes } from '@vitessce/utils';
 import { TOOLTIP_ANCESTOR } from './classNames.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { PopperMenu } from './shared-mui/components.js';
@@ -214,7 +215,7 @@ export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors: errorsProp, infoPlacement = 'bottom-end',
+    helpText, withPadding = true, errors: errorsProp, infoPlacement = InfoPlacementTypes.BOTTOM_END,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
@@ -222,7 +223,7 @@ export function TitleInfo(props) {
   const { classes } = useTitleStyles();
 
   // Determine if info should be shown in title bar or as overlay
-  const showInfoInTitle = infoPlacement === 'title';
+  const showInfoInTitle = infoPlacement === InfoPlacementTypes.TITLE;
   const infoToDisplay = showInfoInTitle ? info : null;
 
   return (

@@ -43,6 +43,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+import { useInfoPlacementForSpatialView } from './useInfoPlacement.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -803,9 +804,14 @@ export function SpatialSubscriber(props) {
     }
   };
 
-  // In order to avoid placing the info text over the scale bar in 2D mode,
-  // we change the default placement based on whether we are in 2D or 3D mode.
-  const defaultInfoPlacement = is3dMode ? 'bottom-end' : 'bottom-start';
+  // Check if any channel names will be displayed
+  const defaultInfoPlacement = useInfoPlacementForSpatialView({
+    imageLayerScopes,
+    imageLayerCoordination,
+    imageChannelScopesByLayer,
+    imageChannelCoordination,
+    is3dMode,
+  });
 
   return (
     <TitleInfo

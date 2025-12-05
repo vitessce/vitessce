@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@vitessce/styles';
+import { InfoPlacementTypes } from '@vitessce/utils';
 
 
 const useStyles = makeStyles()((theme) => {
@@ -26,55 +27,55 @@ const useStyles = makeStyles()((theme) => {
       boxShadow: theme.shadows[2],
     },
     // Position styles based on placement
-    'top-start': {
+    [InfoPlacementTypes.TOP_START]: {
       top: theme.spacing(0.5),
       left: theme.spacing(0.5),
     },
-    top: {
+    [InfoPlacementTypes.TOP]: {
       top: theme.spacing(0.5),
       left: '50%',
       transform: 'translateX(-50%)',
     },
-    'top-end': {
+    [InfoPlacementTypes.TOP_END]: {
       top: theme.spacing(0.5),
       right: theme.spacing(0.5),
     },
-    'right-start': {
+    [InfoPlacementTypes.RIGHT_START]: {
       top: theme.spacing(0.5),
       right: theme.spacing(0.5),
     },
-    right: {
+    [InfoPlacementTypes.RIGHT]: {
       right: theme.spacing(0.5),
       top: '50%',
       transform: 'translateY(-50%)',
     },
-    'right-end': {
+    [InfoPlacementTypes.RIGHT_END]: {
       bottom: theme.spacing(0.5),
       right: theme.spacing(0.5),
     },
-    'bottom-start': {
+    [InfoPlacementTypes.BOTTOM_START]: {
       bottom: theme.spacing(0.5),
       left: theme.spacing(0.5),
     },
-    bottom: {
+    [InfoPlacementTypes.BOTTOM]: {
       bottom: theme.spacing(0.5),
       left: '50%',
       transform: 'translateX(-50%)',
     },
-    'bottom-end': {
+    [InfoPlacementTypes.BOTTOM_END]: {
       bottom: theme.spacing(0.5),
       right: theme.spacing(0.5),
     },
-    'left-start': {
+    [InfoPlacementTypes.LEFT_START]: {
       top: theme.spacing(0.5),
       left: theme.spacing(0.5),
     },
-    left: {
+    [InfoPlacementTypes.LEFT]: {
       left: theme.spacing(0.5),
       top: '50%',
       transform: 'translateY(-50%)',
     },
-    'left-end': {
+    [InfoPlacementTypes.LEFT_END]: {
       bottom: theme.spacing(0.5),
       left: theme.spacing(0.5),
     },
@@ -88,7 +89,7 @@ const useStyles = makeStyles()((theme) => {
  * @param {string} props.placement - The placement of the overlay within its container.
  * @returns A JSX element representing the info overlay.
  */
-export default function InfoOverlay({ info, placement = 'bottom-end' }) {
+export default function InfoOverlay({ info, placement = InfoPlacementTypes.BOTTOM_END }) {
   const { classes, cx } = useStyles();
 
   if (!info) {
