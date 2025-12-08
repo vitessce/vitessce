@@ -35,9 +35,11 @@ export function BiomarkerSelectAltSubscriber(props) {
     dataset,
     obsType,
     sampleType,
+    sampleSetFilter,
     sampleSetSelection,
     featureSelection,
   }, {
+    setSampleSetFilter,
     setSampleSetSelection,
     setFeatureSelection,
   }] = useCoordination(
@@ -124,6 +126,8 @@ export function BiomarkerSelectAltSubscriber(props) {
       {isSelecting ? (
         <BiomarkerSelectAlt
           setFeatureSelection={setFeatureSelection}
+          setSampleSetFilter={setSampleSetFilter}
+          setSampleSetSelection={setSampleSetSelection}
           mode={mode}
           setMode={setMode}
           step={step}

@@ -9,6 +9,8 @@ import { useStyles } from './styles.js';
 export function BiomarkerSelectAlt(props) {
   const {
     setFeatureSelection,
+    setSampleSetFilter,
+    setSampleSetSelection,
 
     mode: modeProp,
     setMode,
@@ -53,6 +55,9 @@ export function BiomarkerSelectAlt(props) {
         <Grid container size={5} justifyContent="flex-start" flexDirection="column">
           <BiomarkerSelectAltSampleGroups
             setFeatureSelection={setFeatureSelection}
+            setSampleSetFilter={setSampleSetFilter}
+            setSampleSetSelection={setSampleSetSelection}
+
             autocompleteNode={autocompleteNode}
 
             currentModalityAgnosticSelection={currentModalityAgnosticSelection}

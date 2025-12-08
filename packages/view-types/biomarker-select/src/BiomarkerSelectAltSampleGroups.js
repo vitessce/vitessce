@@ -8,7 +8,8 @@ import { isEqual } from 'lodash-es';
 
 export function BiomarkerSelectAltSampleGroups(props) {
   const {
-    setFeatureSelection,
+    setSampleSetFilter,
+    setSampleSetSelection,
 
     mode: modeProp,
     setMode,
@@ -49,15 +50,6 @@ export function BiomarkerSelectAltSampleGroups(props) {
   const hasSampleSetOptions = sampleSetOptions && sampleSetOptions.length > 0;
   const hasStructuralRegionOptions = structuralRegionOptions && structuralRegionOptions.length > 0;
 
-
-  function handleFirstGroupChange(event) {
-    setLhsSelectedGroup(event.target.value);
-  }
-
-  function handleSecondGroupChange(event) {
-    setRhsSelectedGroup(event.target.value);
-  }
-
   const lhsOptions = useMemo(() => {
     if (sampleSetOptions) {
       let result = [];
@@ -74,6 +66,7 @@ export function BiomarkerSelectAltSampleGroups(props) {
                 name: `${otherPath[0]}: ${otherPath[1]}`,
                 path: otherPath,
                 sampleSets: o.sampleSets,
+                stratificationId: o.stratificationId,
               });
             } else if(isEqual(pathPair[1], setPath)) {
               const otherPath = pathPair[0];
@@ -81,6 +74,7 @@ export function BiomarkerSelectAltSampleGroups(props) {
                 name: `${otherPath[0]}: ${otherPath[1]}`,
                 path: otherPath,
                 sampleSets: o.sampleSets,
+                stratificationId: o.stratificationId,
               });
             }
           });
@@ -104,6 +98,42 @@ export function BiomarkerSelectAltSampleGroups(props) {
     }
     return [];
   }, [sampleSetOptions, lhsOptions, lhsSelectedGroup]);
+
+
+  function handleFirstGroupChange(event) {
+    setLhsSelectedGroup(event.target.value);
+
+    // Update the sampleSetFilter and sampleSetSelection.
+    if (event.target.value === '__all__') {
+      setSampleSetFilter(null);
+      setSampleSetSelection(null);
+    } else {
+      const lhsOption = lhsOptions.find(o => o.name === event.target.value);
+      if (lhsOption) {
+        setSampleSetFilter([lhsOption.path]);
+        setSampleSetSelection([lhsOption.path]);
+      }
+    }
+  }
+
+  function handleSecondGroupChange(event) {
+    setRhsSelectedGroup(event.target.value);
+
+    // Update the sampleSetFilter and sampleSetSelection.
+    if (event.target.value === '__none__') {
+      const lhsOption = lhsOptions.find(o => o.name === lhsSelectedGroup);
+      if (lhsOption) {
+        setSampleSetFilter([lhsOption.path]);
+        setSampleSetSelection([lhsOption.path]);
+      }
+    } else {
+      const rhsOption = rhsOptions.find(o => o.name === event.target.value);
+      if (rhsOption) {
+        setSampleSetFilter(rhsOption.sampleSets);
+        setSampleSetSelection(rhsOption.sampleSets);
+      }
+    }
+  }
 
   return (
     <>
