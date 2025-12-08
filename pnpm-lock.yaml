@@ -457,15 +457,15 @@ importers:
 
   examples/configs:
     dependencies:
-      '@vitessce/biomarker-select':
-        specifier: workspace:*
-        version: link:../../packages/view-types/biomarker-select
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@vitessce/constants':
         specifier: workspace:*
         version: link:../../packages/constants
+      '@vitessce/styles':
+        specifier: workspace:*
+        version: link:../../packages/styles
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../packages/vit-s
@@ -1727,6 +1727,9 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
       react-window:
         specifier: ^1.8.10
         version: 1.8.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

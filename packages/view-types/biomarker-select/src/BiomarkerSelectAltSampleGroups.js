@@ -73,7 +73,8 @@ export function BiomarkerSelectAltSampleGroups(props) {
               rhsOptionsForLhs.push({
                 name: `${otherPath[0]}: ${otherPath[1]}`,
                 path: otherPath,
-                sampleSets: o.sampleSets,
+                // Reverse the order.
+                sampleSets: [o.sampleSets[1], o.sampleSets[0]],
                 stratificationId: o.stratificationId,
               });
             }

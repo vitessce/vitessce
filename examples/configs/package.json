@@ -20,7 +20,7 @@
     "@vitessce/constants": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/biomarker-select": "workspace:*",
+    "@vitessce/styles": "workspace:*",
     "react-sticky-el": "^2.1.1",
     "clsx": "catalog:"
   }
