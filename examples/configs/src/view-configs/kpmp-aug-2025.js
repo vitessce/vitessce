@@ -9,7 +9,7 @@ import {
 import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
-import { Tabs, Tab } from '@vitessce/styles';
+import { Tabs, Tab, Link } from '@vitessce/styles';
 
 const baseUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr';
 
@@ -307,19 +307,19 @@ function PageComponent() {
       }
       `}
       </style>
-      <div style={{ width: '100%' }}>
+      {/*<div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
-          <h1>Comparative visualization of single-cell atlas data</h1>
+          <h1>Comparative visualization of single-nucleus data</h1>
         </div>
-      </div>
+      </div>*/}
         
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '85%' }}>
-          <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+          {/*<div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
-          </div>
+          </div>*/}
           <div className={clsx('view-row')}>
             <div className="view-row-left">
               
@@ -341,7 +341,7 @@ function PageComponent() {
               
             </div>
             <div className="view-row-center">
-              <p>Show analysis details</p>
+              <Link component="button" variant="body2">Show analysis details</Link>
             </div>
           </div>
           <div className={clsx('view-row')}>
@@ -373,7 +373,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -393,7 +393,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -413,7 +413,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -433,7 +433,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -453,7 +453,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -487,7 +487,7 @@ function PageComponent() {
                   
                 </div>
                 <div className="view-row-center">
-                  <p>Show analysis details</p>
+                  <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>

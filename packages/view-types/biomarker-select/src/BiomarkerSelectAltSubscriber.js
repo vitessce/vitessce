@@ -121,6 +121,13 @@ export function BiomarkerSelectAltSubscriber(props) {
     return null;
   }, [comparisonMetadata, sampleSetsColumnNameMappingReversed]);
 
+  // TODO: Remove mode/step logic
+  // TODO: remove currentModalityAgnostic/SpecificSelection and use featureSelection + sampleSetSelection as the source of truth.
+  // Get rid of the local state within the children components and pass down the coordination values and setters directly
+  // so that everything stays in sync.
+  // E.g., if a user selects a gene from the volcano plot, the autocomplete input should reflect that selection
+  // and allow the user to view the corresponding gene info / gene card.
+
   return (
     <>
       {isSelecting ? (
