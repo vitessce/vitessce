@@ -617,6 +617,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       errors={errors}
+      options={options}
       helpText={helpText}
       infoPlacement={infoPlacement}
     >
