@@ -162,7 +162,7 @@ function generateKpmpAug2025Config() {
       },
     });
 
-  // const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelectAlt', { uid: 'biomarker-select' });
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
@@ -200,8 +200,8 @@ function generateKpmpAug2025Config() {
   }, { meta: false });
 
 
-  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
@@ -224,6 +224,7 @@ function generateKpmpAug2025Config() {
     vconcat(dualScatterplot, comparativeHeading, obsSets, obsSetSizes),
     vconcat(treemap, dotPlot, sampleSets, featureList),
     volcanoPlotTable,
+    biomarkerSelect,
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -231,6 +232,7 @@ function generateKpmpAug2025Config() {
 
 function PageComponent() {
   const ComparativeHeading = usePageModeView('comparative-heading');
+  const BiomarkerSelect = usePageModeView('biomarker-select');
   const CellSets = usePageModeView('cell-sets');
   const SampleSets = usePageModeView('sample-sets');
   const DualScatterplot = usePageModeView('scatterplot');
@@ -302,6 +304,13 @@ function PageComponent() {
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
+          </div>
+          <div className={clsx('view-row', 'view-row-short')}>
+            <div className="view-row-left">
+            </div>
+            <div className="view-row-center">
+              <BiomarkerSelect />
+            </div>
           </div>
           <div className={clsx('view-row', 'view-row-short')}>
             <div className="view-row-left">

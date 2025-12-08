@@ -645,6 +645,17 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_FILTER,
     // TODO: create coordination types for internal state of the biomarker selection view?
   ],
+  [ViewType.BIOMARKER_SELECT_ALT]: [
+    CoordinationType.DATASET,
+    CoordinationType.OBS_TYPE,
+    CoordinationType.SAMPLE_TYPE,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.SAMPLE_SET_SELECTION,
+    CoordinationType.SAMPLE_SET_FILTER,
+    CoordinationType.OBS_SET_SELECTION,
+    CoordinationType.OBS_SET_FILTER,
+    // TODO: create coordination types for internal state of the biomarker selection view?
+  ],
   [ViewType.COMPARATIVE_HEADING]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
