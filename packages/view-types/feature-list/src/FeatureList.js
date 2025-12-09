@@ -66,7 +66,7 @@ export default function FeatureList(props) {
 
       const newSelection = enableMultiSelect ? (
         [...selectedHiddenKeys, ...selectedVisibleKeys]
-        .filter(Boolean)
+          .filter(Boolean)
       ) : selectionArray.map(s => s.key).filter(Boolean);
 
       if (newSelection.length > 0) {
