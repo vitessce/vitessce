@@ -62,7 +62,7 @@ function generateVisiumConfig() {
   featureSelectionScope.setValue(['Slc25a4']);
   obsColorEncodingScope.setValue('geneSelection');
   featureAggregationStrategyScope.setValue('sum');
-  
+
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       photometricInterpretation: 'RGB',
