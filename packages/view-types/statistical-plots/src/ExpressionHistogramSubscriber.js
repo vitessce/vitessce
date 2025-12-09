@@ -89,9 +89,13 @@ export function ExpressionHistogramSubscriber(props) {
     matrixUrls,
   ]);
 
-  const numGenesSelected = geneSelection ? geneSelection.length : 0
+  const numGenesSelected = geneSelection ? geneSelection.length : 0;
   const aggregationStrategy = featureAggregationStrategy ?? 'first';
-  const titleSuffix = numGenesSelected > 1 ? ` (${numGenesSelected} genes, ${aggregationStrategy})` : numGenesSelected === 1 ? ` (${geneSelection[0]})` : '';
+  const titleSuffix = (
+    // eslint-disable-next-line no-nested-ternary
+    numGenesSelected > 1 ? ` (${numGenesSelected} genes, ${aggregationStrategy})`
+      : (numGenesSelected === 1 ? ` (${geneSelection[0]})` : '')
+  );
 
   // From the expression matrix and the list of selected genes,
   // generate the array of data points for the histogram.
@@ -102,8 +106,7 @@ export function ExpressionHistogramSubscriber(props) {
         const aggregatedData = aggregateFeatureArrays(expressionData, aggregationStrategy);
         if (aggregatedData) {
           expressionDataToUse = [aggregatedData];
-        }
-        else {
+        } else {
           console.error('Error aggregating feature arrays');
         }
       }
@@ -125,10 +128,16 @@ export function ExpressionHistogramSubscriber(props) {
       });
     }
     return null;
-  }, [obsIndex, featureIndex, obsFeatureMatrix, expressionData, numGenesSelected, aggregationStrategy]);
+  }, [obsIndex, featureIndex, obsFeatureMatrix, expressionData,
+    numGenesSelected, aggregationStrategy,
+  ]);
 
   const onSelect = useCallback((value) => {
-    const geneName = numGenesSelected > 1 ? `${numGenesSelected} genes (${aggregationStrategy})` : numGenesSelected === 1 ? ` ${geneSelection[0]}` : 'transcript count';
+    const geneName = (
+      // eslint-disable-next-line no-nested-ternary
+      numGenesSelected > 1 ? `${numGenesSelected} genes (${aggregationStrategy})`
+        : (numGenesSelected === 1 ? ` ${geneSelection[0]}` : 'transcript count')
+    );
 
     const selectedCellIds = getObsInfoFromDataWithinRange(value, data);
     setObsSelection(
@@ -139,7 +148,7 @@ export function ExpressionHistogramSubscriber(props) {
       `: based on ${geneName} in range [${value[0].toFixed(1)}, ${value[1].toFixed(1)}] `,
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
-    setCellColorEncoding, setCellSetColor, setCellSetSelection, 
+    setCellColorEncoding, setCellSetColor, setCellSetSelection,
     numGenesSelected, aggregationStrategy, geneSelection,
   ]);
 

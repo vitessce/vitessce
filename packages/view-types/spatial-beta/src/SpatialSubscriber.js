@@ -80,9 +80,9 @@ function filterValidExpressionArrays(arrays) {
     return [];
   }
   return arrays.filter(arr => (
-    arr && 
-    (Array.isArray(arr) || ArrayBuffer.isView(arr)) && 
-    arr.length > 0
+    arr
+    && (Array.isArray(arr) || ArrayBuffer.isView(arr))
+    && arr.length > 0
   ));
 }
 
