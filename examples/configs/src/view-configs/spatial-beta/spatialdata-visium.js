@@ -62,13 +62,13 @@ function generateVisiumConfig() {
   featureSelectionScope.setValue(['Slc25a4']);
   obsColorEncodingScope.setValue('geneSelection');
   featureAggregationStrategyScope.setValue('sum');
-
-
+  
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
       photometricInterpretation: 'RGB',
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+
   config.linkViewsByObject([spatialView, lcView], {
     spotLayer: CL({
       featureSelection: featureSelectionScope,
@@ -78,16 +78,13 @@ function generateVisiumConfig() {
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
-  featureList.useCoordination(featureSelectionScope);
-  featureList.useCoordination(obsColorEncodingScope);
-  histogram.useCoordination(featureSelectionScope);
-  histogram.useCoordination(featureAggregationStrategyScope);
-
+  config.linkViewsByObject([featureList, heatmap, histogram], {
+    featureSelection: featureSelectionScope,
+    obsColorEncoding: obsColorEncodingScope,
+    featureAggregationStrategy: featureAggregationStrategyScope,
+  }, { meta: false });
 
   config.linkViews([featureList, heatmap, spatialView, lcView, histogram], ['obsType'], ['spot']);
-
-  /* featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope); */
 
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, hconcat(featureList, histogram))));
 

@@ -335,7 +335,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
@@ -662,6 +662,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
         extent={expressionExtents}
         missing={expressionMissing}
