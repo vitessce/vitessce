@@ -54,11 +54,14 @@ function generateVisiumConfig() {
   const lcView = config.addView(dataset1, 'layerControllerBeta');
   const heatmap = config.addView(dataset1, 'heatmap');
   // const obsSets = config.addView(dataset, 'obsSets');
-  const featureList = config.addView(dataset1, 'featureList');
+  const featureList = config.addView(dataset1, 'featureList')
+    .setProps({ enableMultiSelect: true });
+  const histogram = config.addView(dataset1, 'featureValueHistogram');
 
-  const [featureSelectionScope, obsColorEncodingScope] = config.addCoordination('featureSelection', 'obsColorEncoding');
+  const [featureSelectionScope, obsColorEncodingScope, featureAggregationStrategyScope] = config.addCoordination('featureSelection', 'obsColorEncoding', 'featureAggregationStrategy');
   featureSelectionScope.setValue(['Slc25a4']);
   obsColorEncodingScope.setValue('geneSelection');
+  featureAggregationStrategyScope.setValue('sum');
 
 
   config.linkViewsByObject([spatialView, lcView], {
@@ -71,19 +74,22 @@ function generateVisiumConfig() {
       featureSelection: featureSelectionScope,
       obsColorEncoding: obsColorEncodingScope,
       spatialSpotRadius: 100,
+      featureAggregationStrategy: featureAggregationStrategyScope,
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
   featureList.useCoordination(featureSelectionScope);
   featureList.useCoordination(obsColorEncodingScope);
+  histogram.useCoordination(featureSelectionScope);
+  histogram.useCoordination(featureAggregationStrategyScope);
 
 
-  config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
+  config.linkViews([featureList, heatmap, spatialView, lcView, histogram], ['obsType'], ['spot']);
 
   /* featureList.useCoordination(featureSelectionScope);
   heatmap.useCoordination(featureSelectionScope); */
 
-  config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, featureList)));
+  config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, hconcat(featureList, histogram))));
 
   const configJSON = config.toJSON();
   return configJSON;
