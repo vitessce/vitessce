@@ -74,14 +74,13 @@ function generateVisiumConfig() {
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
-  featureList.useCoordination(featureSelectionScope);
-  featureList.useCoordination(obsColorEncodingScope);
+  config.linkViewsByObject([featureList, heatmap], {
+    featureSelection: featureSelectionScope,
+    obsColorEncoding: obsColorEncodingScope,
+  }, { meta: false });
 
 
   config.linkViews([featureList, heatmap, spatialView, lcView], ['obsType'], ['spot']);
-
-  /* featureList.useCoordination(featureSelectionScope);
-  heatmap.useCoordination(featureSelectionScope); */
 
   config.layout(hconcat(vconcat(spatialView, heatmap), vconcat(lcView, featureList)));
 

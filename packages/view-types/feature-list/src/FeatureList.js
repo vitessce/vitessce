@@ -63,8 +63,11 @@ export default function FeatureList(props) {
       const selectedVisibleKeys = selectionArray.map(s => s.key).filter(
         key => searchResults.includes(key),
       );
-      const newSelection = [...selectedHiddenKeys, ...selectedVisibleKeys]
-        .filter(Boolean);
+
+      const newSelection = enableMultiSelect ? (
+        [...selectedHiddenKeys, ...selectedVisibleKeys]
+        .filter(Boolean)
+      ) : selectionArray.map(s => s.key).filter(Boolean);
 
       if (newSelection.length > 0) {
         setGeneSelection(newSelection);
