@@ -94,9 +94,6 @@ catalogs:
     '@types/lodash-es':
       specifier: ^4.17.12
       version: 4.17.12
-    '@types/node':
-      specifier: ^24.10.1
-      version: 24.10.1
     '@types/react':
       specifier: ^18.0.28
       version: 18.2.7
@@ -1467,9 +1464,6 @@ importers:
         specifier: ^4.9.18
         version: 4.9.18(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@mui/material@7.1.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@types/react@18.2.7)(react@18.3.1))(@types/react@18.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.2.7)(react@18.3.1)
     devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.10.1
       '@types/react':
         specifier: 'catalog:'
         version: 18.2.7
@@ -27830,7 +27824,7 @@ snapshots:
 
   jest-worker@29.4.3:
     dependencies:
-      '@types/node': 20.16.10
+      '@types/node': 24.10.1
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1

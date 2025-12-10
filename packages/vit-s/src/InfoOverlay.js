@@ -7,11 +7,11 @@ const useStyles = makeStyles()((theme) => {
   // Get colors based on theme mode
   const isDarkMode = theme.palette.mode === 'dark';
   const backgroundColor = isDarkMode
-    ? 'rgba(0, 0, 0, 0.75)'
-    : 'rgba(255, 255, 255, 0.9)';
+    ? 'rgba(0, 0, 0, 0.5)'
+    : 'rgba(255, 255, 255, 0.5)';
   const textColor = isDarkMode
     ? 'rgba(255, 255, 255, 0.9)'
-    : 'rgba(0, 0, 0, 0.87)';
+    : 'rgba(0, 0, 0, 0.9)';
 
   return {
     overlay: {
@@ -20,11 +20,10 @@ const useStyles = makeStyles()((theme) => {
       backgroundColor,
       padding: theme.spacing(0.25, 0.5),
       borderRadius: theme.shape.borderRadius,
-      fontSize: theme.typography.caption.fontSize,
+      fontSize: '9px',
       pointerEvents: 'none',
       userSelect: 'none',
       zIndex: 1,
-      boxShadow: theme.shadows[2],
     },
     // Position styles based on placement
     [InfoPlacementTypes.TOP_START]: {
