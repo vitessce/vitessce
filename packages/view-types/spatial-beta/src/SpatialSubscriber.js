@@ -43,6 +43,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+import { useInfoPlacementForSpatialView } from './useInfoPlacement.js';
 
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
@@ -132,6 +133,7 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    infoPlacement,
   } = props;
 
   const loaders = useLoaders();
@@ -802,6 +804,15 @@ export function SpatialSubscriber(props) {
     }
   };
 
+  // Check if any channel names will be displayed
+  const defaultInfoPlacement = useInfoPlacementForSpatialView({
+    imageLayerScopes,
+    imageLayerCoordination,
+    imageChannelScopesByLayer,
+    imageChannelCoordination,
+    is3dMode,
+  });
+
   return (
     <TitleInfo
       title={title}
@@ -814,6 +825,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       errors={errors}
+      infoPlacement={infoPlacement || defaultInfoPlacement}
     >
       {
         shouldUseThree ? (
