@@ -1,4 +1,5 @@
 /* eslint-disable prefer-destructuring */
+import { extent } from 'd3-array';
 
 /**
  * Aggregates multiple arrays of numbers into a single array using a specified strategy.
@@ -84,4 +85,38 @@ export function aggregateFeatureArrays(
   }
 
   throw new Error(`Unknown aggregation strategy: ${strategy}`);
+}
+
+export function normalizeAggregatedFeatureArray(
+  values: null | number[] | Float32Array | Float64Array,
+) {
+  if (!values || values.length === 0) {
+    return null;
+  }
+  const [min, max] = extent(values);
+  if (min == null || max == null) {
+    return null;
+  }
+  const ratio = max > min ? (255 / (max - min)) : 1;
+  const normData = new Uint8Array(values.length);
+  for (let i = 0; i < values.length; i += 1) {
+    const normalized = max > min ? Math.floor((values[i] - min) * ratio) : 0;
+    normData[i] = Number.isFinite(normalized)
+      ? Math.max(0, Math.min(255, normalized))
+      : 0;
+  }
+  return { normData, extent: [min, max] };
+}
+
+export function filterValidExpressionArrays(
+  arrays: null | Array<null | Array<number> | Float32Array | Float64Array>,
+) {
+  if (!arrays) {
+    return [];
+  }
+  return arrays.filter(arr => (
+    arr
+    && (Array.isArray(arr) || ArrayBuffer.isView(arr))
+    && arr.length > 0
+  ));
 }
