@@ -43,7 +43,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       if (relPath.match(/^(shapes)\/([^/]*)$/)) {
         // TODO: check if shapes are circles or polygons
         // to determine which Vitessce data type to use.
-        options.obsSpots = {
+        options.obsSegmentations = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
         };
@@ -52,6 +52,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
 
       // Handle point elements.
+      /* TODO: uncomment once points are more scalable
       if (relPath.match(/^(points)\/([^/]*)$/)) {
         options.obsPoints = {
           path: relPath,
@@ -60,6 +61,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
 
         // TODO: check which table annotates these shapes.
       }
+      */
 
       // Handle table elements.
       if (relPath.match(/^(tables|table)\/([^/]*)$/)) {
@@ -76,6 +78,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
         }
 
         // Check if the table contains an obs dataframe.
+        /* TODO: uncomment once logic for checking num. unique categories
         const hasObs = tableEls.find(el => el.path === `${path}/obs`);
         if (hasObs) {
           const columnOrder = hasObs.attrs?.['column-order'];
@@ -92,6 +95,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
             })),
           };
         }
+        */
       }
     });
 

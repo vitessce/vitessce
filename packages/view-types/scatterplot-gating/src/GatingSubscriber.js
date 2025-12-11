@@ -325,7 +325,7 @@ export function GatingSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 

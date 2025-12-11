@@ -31,7 +31,7 @@ import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
   stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
@@ -335,7 +335,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
@@ -365,7 +365,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
@@ -381,11 +381,22 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  // Compute aggregated expression data if featureAggregationStrategyToUse is not null
+  // and we have multiple features to aggregate.
+  const aggregatedExpressionData = useMemo(() => {
+    if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
+      const aggregated = aggregateFeatureArrays(expressionData, featureAggregationStrategyToUse);
+      // Return as array with single element to match expressionData structure
+      return [aggregated];
+    }
+    return expressionData;
+  }, [expressionData, featureAggregationStrategyToUse]);
+
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
     missing: expressionMissing,
-  } = useUint8FeatureSelection(expressionData);
+  } = useUint8FeatureSelection(aggregatedExpressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -651,6 +662,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
         extent={expressionExtents}
         missing={expressionMissing}

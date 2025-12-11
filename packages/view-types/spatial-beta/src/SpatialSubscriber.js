@@ -43,7 +43,10 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
-
+import {
+  useAggregatedNormalizedExpressionDataForLayers,
+  useAggregatedNormalizedExpressionDataForChannels,
+} from './expr-agg-hooks.js';
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
 const DEFAULT_VIEW_STATE = {
@@ -53,6 +56,7 @@ const DEFAULT_VIEW_STATE = {
   rotationOrbit: 0,
 };
 const SET_VIEW_STATE_NOOP = () => {};
+
 
 function getHoverData(hoverInfo, layerType) {
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
@@ -442,6 +446,27 @@ export function SpatialSubscriber(props) {
   const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus, segmentationMultiIndicesDataErrors] = useSegmentationMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
+
+  // Hooks that aggregate and normalize expression data for spot layers and segmentation channels.
+  const [
+    spotMultiExpressionNormDataAggregated,
+    spotMultiExpressionExtentsAggregated,
+  ] = useAggregatedNormalizedExpressionDataForLayers({
+    multiExpressionData: spotMultiExpressionNormData,
+    layerScopes: spotLayerScopes,
+    layerCoordination: spotLayerCoordination,
+  });
+
+  const [
+    segmentationMultiExpressionNormDataAggregated,
+    segmentationMultiExpressionExtentsAggregated,
+  ] = useAggregatedNormalizedExpressionDataForChannels({
+    multiExpressionData: segmentationMultiExpressionNormData,
+    layerScopes: segmentationLayerScopes,
+    layerCoordination: segmentationLayerCoordination,
+    channelScopesByLayer: segmentationChannelScopesByLayer,
+    channelCoordination: segmentationChannelCoordination,
+  });
 
   // Image data
   const [imageData, imageDataStatus, imageUrls, imageDataErrors] = useMultiImages(
@@ -854,7 +879,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -863,7 +888,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -908,7 +933,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -917,7 +942,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -958,7 +983,7 @@ export function SpatialSubscriber(props) {
             spotLayerCoordination={spotLayerCoordination}
             obsSpotsSets={obsSpotsSetsData}
             spotMatrixIndices={spotMultiIndicesData}
-            spotMultiExpressionData={spotMultiExpressionNormData}
+            spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
             segmentationLayerScopes={segmentationLayerScopes}
             segmentationLayerCoordination={segmentationLayerCoordination}
             segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -967,7 +992,7 @@ export function SpatialSubscriber(props) {
             obsSegmentationsLocations={obsSegmentationsLocationsData}
             obsSegmentationsSets={obsSegmentationsSetsData}
             segmentationMatrixIndices={segmentationMultiIndicesData}
-            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
             bitmaskValueIsIndex={bitmaskValueIsIndex}
             images={imageData}
             imageLayerScopes={imageLayerScopes}
@@ -977,6 +1002,35 @@ export function SpatialSubscriber(props) {
           />
         )
       }
+      {!disableTooltip && (
+        <SpatialTooltipSubscriber
+          parentUuid={uuid}
+          width={width}
+          height={height}
+          hoverCoord={hoverCoord}
+
+          // Points
+          obsPoints={obsPointsData}
+          pointLayerScopes={pointLayerScopes}
+          pointLayerCoordination={pointLayerCoordination}
+
+          // Spots
+          obsSpots={obsSpotsData}
+          spotLayerScopes={spotLayerScopes}
+          spotLayerCoordination={spotLayerCoordination}
+
+          // Segmentations
+          obsSegmentationsLocations={obsSegmentationsLocationsData}
+          segmentationLayerScopes={segmentationLayerScopes}
+          segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segmentationChannelCoordination={segmentationChannelCoordination}
+          obsSegmentationsSetsData={obsSegmentationsSetsData}
+
+          // Images
+          imageLayerScopes={imageLayerScopes}
+          imageLayerCoordination={imageLayerCoordination}
+        />
+      )}
       <MultiLegend
         // Fix to dark theme due to black background of spatial plot.
         theme="dark"
@@ -987,12 +1041,12 @@ export function SpatialSubscriber(props) {
         segmentationLayerCoordination={segmentationLayerCoordination}
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
-        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+        segmentationMultiExpressionExtents={segmentationMultiExpressionExtentsAggregated || segmentationMultiExpressionExtents}
 
         // Spots
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
-        spotMultiExpressionExtents={spotMultiExpressionExtents}
+        spotMultiExpressionExtents={spotMultiExpressionExtentsAggregated || spotMultiExpressionExtents}
         spotMultiFeatureLabels={obsSpotsFeatureLabelsData}
 
         // Points

@@ -1,4 +1,42 @@
 
+## 3.8.10
+
+### Patch Changes
+
+- Enable min/max slider controls for legend. (`@vitessce/scatterplot-embedding`, `@vitessce/heatmap`, `@vitessce/spatial`, `@vitessce/legend`) ([#2365](https://github.com/vitessce/vitessce/pull/2365))
+
+- Increase automatic scatterplot point size (`@vitessce/scatterplot`) ([#2363](https://github.com/vitessce/vitessce/pull/2363))
+
+- Improvements to generateConfig to support Zarr stores containing recarrays (will skip rather than error) and to reduce network requests by passing the `kind` parameter to zarr.open. (`@vitessce/launcher`, `@vitessce/config`) ([#2366](https://github.com/vitessce/vitessce/pull/2366))
+
+
+## 3.8.9
+
+### Patch Changes
+
+- Support featureAggregationStrategy in scatterplot view. Perform aggregation prior to uint8 normalization. (`@vitessce/scatterplot-embedding`, `@vitessce/utils`) ([#2335](https://github.com/vitessce/vitessce/pull/2335))
+
+- Fix VitessceGrid regression preventing resizing/moving views in the grid, introduced in v3.8.7. (`@vitessce/vit-s`) ([#2337](https://github.com/vitessce/vitessce/pull/2337))
+
+- Preserve hidden selected gene in featureList when enableMultiSelect is true. (`@vitessce/feature-list`) ([#2332](https://github.com/vitessce/vitessce/pull/2332))
+
+
+## 3.8.8
+
+### Patch Changes
+
+- Fix parquet-reading bug involving range-type table indices. Implement FlatFileSystemStore.getRange for dropped files. (`@vitessce/spatial-zarr`) ([#2326](https://github.com/vitessce/vitessce/pull/2326))
+
+
+## 3.8.7
+
+### Patch Changes
+
+- Fixes for BigInt bugs when using SpatialData shapes and points. Pass queryClient to DataSourceClass constructor. (`@vitessce/spatial-zarr`, `@vitessce/vit-s`) ([#2323](https://github.com/vitessce/vitessce/pull/2323))
+
+- Fix tooltip regression in spatialBeta view. (`@vitessce/spatial-beta`) ([#2325](https://github.com/vitessce/vitessce/pull/2325))
+
+
 ## 3.8.6
 
 ### Patch Changes

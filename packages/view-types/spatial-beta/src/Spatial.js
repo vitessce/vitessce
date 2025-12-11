@@ -434,7 +434,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return target;
     };
 
-    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData[layerScope].src || {};
+    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData?.[layerScope]?.src ?? {};
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/legend",
-  "version": "3.8.6",
+  "version": "3.8.10",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -30,23 +30,32 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@vitessce/sets-utils": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
     "clsx": "catalog:",
-    "lodash-es": "catalog:",
     "colormap": "^2.3.2",
     "d3-axis": "catalog:",
-    "d3-format": "catalog:",
     "d3-color": "catalog:",
+    "d3-format": "catalog:",
     "d3-interpolate": "catalog:",
     "d3-scale": "catalog:",
-    "d3-selection": "catalog:"
+    "d3-selection": "catalog:",
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "react": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@types/d3-axis": "catalog:",
+    "@types/d3-color": "catalog:",
+    "@types/d3-format": "catalog:",
+    "@types/d3-interpolate": "catalog:",
+    "@types/d3-scale": "catalog:",
+    "@types/d3-selection": "catalog:",
+    "@types/react": "catalog:",
+    "@types/lodash-es": "catalog:"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
