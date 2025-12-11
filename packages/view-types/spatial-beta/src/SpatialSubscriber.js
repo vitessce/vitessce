@@ -35,10 +35,7 @@ import {
   useGridItemSize,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
-import {
-  commaNumber,
-  pluralize,
-} from '@vitessce/utils';
+import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
