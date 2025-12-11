@@ -18,6 +18,7 @@ export const VolumeShader = {
     zClip: { value: new Vector2(0, 1000000.0) },
     u_window_size: { value: new Vector2(1, 1) },
     u_vol_scale: { value: new Vector3(1, 1, 1) },
+    // Set renderstyle to 3 or 4 for debugging modes
     u_renderstyle: { value: 2 },
     brickCacheTex: { type: 'sampler3D', value: null },
     pageTableTex: { type: 'usampler3D', value: null },

@@ -15,6 +15,12 @@ export {
 } from '@mui/material/styles';
 export { grey } from '@mui/material/colors';
 
+// This hook provides the same functionality as react 19's useEffectEvent,
+// but is compatible with react 18.
+// Once backwards compatibility with react 18 is no longer needed,
+// or if there is a better way to polyfill useEffectEvent, this can be removed.
+export { useEventCallback } from '@mui/material/utils';
+
 // Components
 export { default as Accordion } from '@mui/material/Accordion';
 export { default as AccordionDetails } from '@mui/material/AccordionDetails';
@@ -25,6 +31,7 @@ export { default as Box } from '@mui/material/Box';
 export { default as Button } from '@mui/material/Button';
 export { default as ButtonGroup } from '@mui/material/ButtonGroup';
 export { default as Checkbox } from '@mui/material/Checkbox';
+export { default as Chip } from '@mui/material/Chip';
 export { default as CircularProgress } from '@mui/material/CircularProgress';
 export { default as ClickAwayListener } from '@mui/material/ClickAwayListener';
 export { default as Fade } from '@mui/material/Fade';
@@ -36,6 +43,7 @@ export { default as FormLabel } from '@mui/material/FormLabel';
 export { default as Grid } from '@mui/material/Grid';
 export { default as IconButton } from '@mui/material/IconButton';
 export { default as InputLabel } from '@mui/material/InputLabel';
+export { default as LinearProgress } from '@mui/material/LinearProgress';
 export { default as Link } from '@mui/material/Link';
 export { default as List } from '@mui/material/List';
 export { default as ListSubheader } from '@mui/material/ListSubheader';
@@ -64,6 +72,8 @@ export { default as Tabs } from '@mui/material/Tabs';
 export { default as TextField } from '@mui/material/TextField';
 export { default as Tooltip } from '@mui/material/Tooltip';
 export { default as Typography } from '@mui/material/Typography';
+export { default as Input } from '@mui/material/Input';
+export { default as InputAdornment } from '@mui/material/InputAdornment';
 export { default as TextareaAutosize } from '@mui/material/TextareaAutosize';
 export { default as Card } from '@mui/material/Card';
 export { default as CardContent } from '@mui/material/CardContent';
@@ -85,7 +95,9 @@ export { default as Info } from '@mui/icons-material/Info';
 export { default as Lens } from '@mui/icons-material/Lens';
 export { default as MoreVert } from '@mui/icons-material/MoreVert';
 export { default as RemoveCircle } from '@mui/icons-material/RemoveCircle';
+export { default as Replay } from '@mui/icons-material/Replay';
 export { default as Settings } from '@mui/icons-material/Settings';
+export { default as Stop } from '@mui/icons-material/Stop';
 export { default as Visibility } from '@mui/icons-material/Visibility';
 export { default as VisibilityOff } from '@mui/icons-material/VisibilityOff';
 export { default as Edit } from '@mui/icons-material/Edit';

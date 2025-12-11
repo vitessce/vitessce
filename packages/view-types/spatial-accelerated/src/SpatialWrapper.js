@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 // Note: need to be careful about versions of RTF, Three, React, and React DOM in package.json
 // to avoid multiple copies of RTF, since the Canvas depends on a React Context.
 // Otherwise you may see errors such as "useThree can only be used inside the Canvas component!".
@@ -50,11 +50,11 @@ export function SpatialWrapper(props) {
         autoClear: false,
       }}
     >
-      <VolumeView
-        {...props}
-        // forwardRef={volumeViewRef}
-        // onInitComplete={handleInitComplete}
-      />
+      <Suspense fallback="Initializing Volume View...">
+        <VolumeView
+          {...props}
+        />
+      </Suspense>
     </Canvas>
   );
 }
