@@ -33,6 +33,7 @@ import {
   useCoordinationScopesBy,
   useSpotMultiFeatureLabels,
   useGridItemSize,
+  useAuxiliaryCoordination,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -276,6 +277,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
       CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
       CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_LOD_FACTOR,
       CoordinationType.SPATIAL_SLICE_X,
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
@@ -354,6 +356,34 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
   );
+
+  // State for volume loading status (shared with LayerController via auxiliary coordination)
+  const [volumeLoadingStatus, setVolumeLoadingStatus] = useState(null);
+
+  // Set up auxiliary coordination to share volume loading status with LayerController
+  const [
+    {
+      volumeLoadingProgress,
+    },
+    {
+      setVolumeLoadingProgress,
+    },
+  ] = useAuxiliaryCoordination(
+    ['spatialAcceleratedVolumeLoadingProgress'],
+    coordinationScopes,
+  );
+
+  // Update auxiliary coordination when local state changes
+  useEffect(() => {
+    if (volumeLoadingStatus && volumeLoadingStatus.loadingProgress) {
+      setVolumeLoadingProgress(volumeLoadingStatus);
+    }
+  }, [volumeLoadingStatus, setVolumeLoadingProgress]);
+
+  // Callback to receive volume loading updates from VolumeView
+  const handleVolumeLoadingUpdate = useCallback((status) => {
+    setVolumeLoadingStatus(status);
+  }, []);
 
   /*
   const [
@@ -870,6 +900,7 @@ export function SpatialSubscriber(props) {
               updateViewInfo={setComponentViewInfo}
               delegateHover={delegateHover}
               onEntitySelected={onEntitySelected}
+              onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}

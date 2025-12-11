@@ -81,9 +81,6 @@ export class VolumeRenderManager {
    * @returns {Object} Extracted rendering settings
    */
   extractRenderingSettingsFromProps(props) {
-    logWithColor('Extracting rendering settings from props');
-    // log.debug('props', props);
-    // log.debug('props.imageChannelCoordination', props.imageChannelCoordination[0]['A']);
     const {
       images = {},
       imageLayerScopes = [],
@@ -95,6 +92,7 @@ export class VolumeRenderManager {
 
     const layerScope = imageLayerScopes[0];
     if (!layerScope) {
+      logWithColor('Extracting rendering settings from props - no layer scope');
       return {
         valid: false,
       };
@@ -106,6 +104,7 @@ export class VolumeRenderManager {
 
     const data = images[layerScope]?.image?.instance?.getData();
     if (!data) {
+      logWithColor('Extracting rendering settings from props - no image data');
       return {
         valid: false,
       };
@@ -121,6 +120,7 @@ export class VolumeRenderManager {
       // TODO(mark): the defaults should be set based on the image dtype.
       // TODO(mark): wait for all channel IQR ranges to be computed before initializing,
       // as we do not want this.maxRange to be incorrect.
+      logWithColor('Extracting rendering settings from props - no channel window set');
       return {
         valid: false,
       };
@@ -185,16 +185,20 @@ export class VolumeRenderManager {
       channelCoordination[cScope][CoordinationType.SPATIAL_MAX_RESOLUTION]
     ));
 
+
     // Get slice planes
     let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X];
     let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
     let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
+    const lodFactor = layerCoordination[CoordinationType.SPATIAL_LOD_FACTOR] ?? 1.0;
 
     xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
     ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
     zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
 
     const allChannels = images[layerScope].image.loaders[0].channels;
+
+    logWithColor('Extracting rendering settings from props - success');
 
     return {
       valid: true,
@@ -210,6 +214,7 @@ export class VolumeRenderManager {
       xSlice,
       ySlice,
       zSlice,
+      lodFactor,
     };
   }
 
@@ -219,9 +224,10 @@ export class VolumeRenderManager {
    * @returns {boolean} True if settings were successfully updated
    */
   updateFromProps(props) {
-    logWithColor('Updating from props');
     const settings = this.extractRenderingSettingsFromProps(props);
     if (!settings.valid) {
+      logWithColor('Updating from props - invalid settings');
+
       return false;
     }
 
@@ -236,7 +242,13 @@ export class VolumeRenderManager {
     this.xSlice = settings.xSlice;
     this.ySlice = settings.ySlice;
     this.zSlice = settings.zSlice;
+    this.uniforms.lodFactor.value = settings.lodFactor;
 
+    logWithColor(`lodFactor ${settings.lodFactor}`);
+
+    this.shader.uniforms.lodFactor.value = settings.lodFactor;
+
+    logWithColor('Updating from props - success');
     return true;
   }
 
@@ -531,7 +543,6 @@ export class VolumeRenderManager {
     log.debug('channelMapping', channelMapping);
     this.uniforms.channelMapping.value = channelMapping;
   }
-
 
   // Only called on initialization of the
   // VolumeDataManager and VolumeRenderManager for a particular image.
