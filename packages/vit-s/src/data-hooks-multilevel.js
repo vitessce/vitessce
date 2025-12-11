@@ -118,8 +118,8 @@ export function useSpotMultiFeatureSelection(
   ),
   // Need to execute this more frequently, whenever the featureSelections update.
   [coordinationScopes, coordinationScopesBy,
-    ...Object.values(featureSelectionCoordination[0] || {})
-      .flatMap(layerVal => layerVal.featureSelection),
+    JSON.stringify(Object.values(featureSelectionCoordination[0] || {})
+      .flatMap(layerVal => layerVal.featureSelection)),
   ]);
   const [
     featureData, loadedSelections, extents, normData, featureStatus, errors,

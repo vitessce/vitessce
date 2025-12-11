@@ -624,9 +624,17 @@ export default function Legend(props: LegendProps) {
       const i = featureAggregationStrategy;
       featureSelectionLabelRawStr = featureSelectionLabelRaw?.[i];
     } else if (featureAggregationStrategy === 'sum') {
-      featureSelectionLabelRawStr = 'Sum of features';
+      if (Array.isArray(featureSelection) && featureSelection.length === 1) {
+        featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
+      } else {
+        featureSelectionLabelRawStr = 'Sum of features';
+      }
     } else if (featureAggregationStrategy === 'mean') {
-      featureSelectionLabelRawStr = 'Mean of features';
+      if (Array.isArray(featureSelection) && featureSelection.length === 1) {
+        featureSelectionLabelRawStr = featureSelectionLabelRaw?.[0];
+      } else {
+        featureSelectionLabelRawStr = 'Mean of features';
+      }
     } else {
       // Default to the first feature.
       // featureAggregationStrategy was null.
