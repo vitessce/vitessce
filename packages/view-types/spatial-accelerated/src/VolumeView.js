@@ -225,6 +225,10 @@ export function VolumeView(props) {
   const screenCameraRef = useRef(null);
   const screenQuadRef = useRef(null);
 
+  // The `_setIsInteracting` function is wrapped by the `setIsInteracting` useEventCallback below
+  // This allows us to apply the effects related to interaction state synchronously,
+  // rather than relying waiting for a React state update with `useEffect`.
+  // Updates to `isInteracting` should be done via `setIsInteracting`.
   const [isInteracting, _setIsInteracting] = useState(false);
   const interactionTimeoutRef = useRef(null);
 
