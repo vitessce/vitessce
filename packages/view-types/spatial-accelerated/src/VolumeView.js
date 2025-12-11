@@ -658,7 +658,7 @@ export function VolumeView(props) {
         onStopLoading: stopLoading,
         onRestartLoading: restartLoading,
       });
-    }, 100); // Update every 100ms
+    }, 1000); // Update every 1000ms (1s)
 
     return () => clearInterval(intervalId);
     // `useEventCallback` ensures stable references

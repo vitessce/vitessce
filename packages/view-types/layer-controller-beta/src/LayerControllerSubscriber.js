@@ -235,7 +235,7 @@ export function LayerControllerSubscriber(props) {
       volumeLoadingProgress: volumeLoadingStatus,
     },
   ] = useAuxiliaryCoordination(
-    [ViewType.SPATIAL_BETA],
+    ['spatialAcceleratedVolumeLoadingProgress'],
     coordinationScopes,
   );
 

@@ -16,8 +16,8 @@ const useStyles = makeStyles()(() => ({
     maxHeight: 200,
     overflowX: 'hidden',
     overflowY: 'auto',
-    paddingLeft: '0.25rem',
-    paddingRight: '0.25rem',
+    paddingLeft: '4px',
+    paddingRight: '4px',
   },
   container: {
     position: 'relative',

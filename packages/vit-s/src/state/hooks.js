@@ -982,7 +982,7 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes, coor
 const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
   spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels'],
-  spatialBeta: ['volumeLoadingProgress'],
+  spatialAcceleratedVolumeLoadingProgress: ['volumeLoadingProgress'],
   layerControllerBeta: ['volumeLoadingProgress'],
 };
 

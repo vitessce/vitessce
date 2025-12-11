@@ -106,13 +106,13 @@ export default function LoadingStatusIndicator(props) {
     <Grid container px={0.5}>
       <Grid size={6} alignItems="start">
         <Grid container alignItems="center" gap={1}>
-          <CloudDownload />
-          <StatusChip
-            label={statusLabel}
-            color={statusColor}
-            size="small"
-          />
-        </Grid>
+          {statusColor !== 'success' ? (
+            <StatusChip
+              label={statusLabel}
+              color={statusColor}
+              size="small"
+            />
+          ) : null}
       </Grid>
       <Grid size={6} px={1} my={0.25}>
         <LoadingText

@@ -365,7 +365,7 @@ export function SpatialSubscriber(props) {
       setVolumeLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    [ViewType.SPATIAL_BETA],
+    ['spatialAcceleratedVolumeLoadingProgress'],
     coordinationScopes,
   );
 
