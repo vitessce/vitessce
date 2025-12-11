@@ -5,7 +5,6 @@ import {
   LinearProgress,
   Button,
   Chip,
-  CloudDownload,
   Stop,
   Replay,
 } from '@vitessce/styles';
@@ -113,6 +112,7 @@ export default function LoadingStatusIndicator(props) {
               size="small"
             />
           ) : null}
+        </Grid>
       </Grid>
       <Grid size={6} px={1} my={0.25}>
         <LoadingText
