@@ -404,13 +404,20 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Note: this assumes that the feature names have been mapped to indices,
     // relative to the corresponding sdata.tables[table].var.index
     // (of the table that annotates the points).
+    const pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
+
     let featureIndices = [];
     if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
-      const pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
       if(pointFeatureIndex) {
         featureIndices = featureSelection.map(geneName => pointFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
       }
     }
+
+
+    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+      ? spatialLayerColor
+      : getDefaultColor(theme);
+    const defaultColor = getDefaultColor(theme);
 
     // Coloring cases:
     // - spatialLayerColor: one color for all points. consider all as selected when featureSelection is null.
@@ -431,10 +438,135 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // - random with featureSelection: random color for selected points, default color for unselected points
     // - random with featureSelection and featureFilterMode 'featureSelection': random color for selected points, do not show unselected points
 
+    let getFillColor = null;
+    const hasFeatureSelection = Array.isArray(featureSelection) && featureSelection.length > 0;
+    const showUnselected = featureFilterMode !== 'featureSelection';
+
+    if(obsColorEncoding === 'spatialLayerColor') {
+      // Case 1: spatialLayerColor.
+      getFillColor = (object, { index, data, target }) => {
+        // TODO: is the index still correct when using the filter extension? or are they shifted?
+        if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+          target[0] = staticColor[0];
+          target[1] = staticColor[1];
+          target[2] = staticColor[2];
+          return target;
+        }
+        // if (!showUnselected) {
+        //   // Bail out early.
+        //   return target;
+        // }
+        // This is not the selected feature,
+        // but we are showing unselected points.
+        target[0] = defaultColor[0];
+        target[1] = defaultColor[1];
+        target[2] = defaultColor[2];
+        return target;
+      };
+    } else if(obsColorEncoding === 'geneSelection') {
+      // Case 2: geneSelection.
+      getFillColor = (object, { index, data, target }) => {
+        if(!hasFeatureSelection) {
+          // No feature selection: use static color for all points.
+          target[0] = staticColor[0];
+          target[1] = staticColor[1];
+          target[2] = staticColor[2];
+          return target;
+        }
+        // There is a featureSelection.
+        const isSelected = featureIndices.includes(data.src.featureIndices[index]);
+        if (isSelected) {
+          // Find the color for this feature.
+          const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+          const featureColorMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)?.color
+            : null;
+          if (featureColorMatch) {
+            target[0] = featureColorMatch[0];
+            target[1] = featureColorMatch[1];
+            target[2] = featureColorMatch[2];
+          }
+        }
+        if (!showUnselected) {
+          // Bail out early.
+          return target;
+        }
+        // This is not the selected feature,
+        // but we are showing unselected points.
+        target[0] = defaultColor[0];
+        target[1] = defaultColor[1];
+        target[2] = defaultColor[2];
+        return target;
+      };
+    } else if(obsColorEncoding === 'randomByFeature') {
+      // Case 3: randomByFeature.
+      const preferFeatureColor = false;
+      if(preferFeatureColor) {
+        // TODO: implement this case
+      } else {
+        getFillColor = (object, { index, data, target }) => {
+          if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+            // No feature selection: use random color by feature for all points.
+
+            // The index of the gene corresponding to the transcript,
+            // relative to the var dataframe index values.
+            const varIndex = data.src.featureIndices[index];
+            const color = PALETTE[varIndex % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            return target;
+          }
+          if (!showUnselected) {
+            // Bail out early.
+            return target;
+          }
+          // This is not the selected feature,
+          // but we are showing unselected points.
+          target[0] = defaultColor[0];
+          target[1] = defaultColor[1];
+          target[2] = defaultColor[2];
+          return target;
+        };
+      }
+    } else if(obsColorEncoding === 'random') {
+      // Case 4: random (for each point).
+      const preferFeatureColor = false;
+      if(preferFeatureColor) {
+        // TODO: implement this case
+      } else {
+        getFillColor = (object, { index, data, target }) => {
+          if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+            // No feature selection: use random color by feature for all points.
+
+            // The index of transcript.
+            const color = PALETTE[index % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            return target;
+          }
+          if (!showUnselected) {
+            // Bail out early.
+            return target;
+          }
+          // This is not the selected feature,
+          // but we are showing unselected points.
+          target[0] = defaultColor[0];
+          target[1] = defaultColor[1];
+          target[2] = defaultColor[2];
+          return target;
+        };
+      }
+    }
+
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
-    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-      ? spatialLayerColor
-      : getDefaultColor(theme);
 
     const getMoleculeColor = (object, { data, index, target }) => {
       const obsId = data.src.obsIndex[index];
@@ -526,41 +658,38 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[2] = 0; // TODO
             return target;
           },
-          getFillColor: (object, { data, index, target }) => {
-            // The index of the gene corresponding to the transcript,
-            // relative to the var dataframe index values.
-            const varIndex = data.src.featureIndices[index];
-            const color = PALETTE[varIndex % PALETTE.length];
-            // eslint-disable-next-line no-param-reassign
-            target[0] = color[0];
-            // eslint-disable-next-line no-param-reassign
-            target[1] = color[1];
-            // eslint-disable-next-line no-param-reassign
-            target[2] = color[2];
-            return target;
-          },
+          getFillColor: getFillColor,
           // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
           pickable: true,
           autoHighlight: true,
           //onHover: info => delegateHover(info, 'point', layerScope),
           // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
-          ...(featureFilterMode === 'featureSelection' && featureIndices && featureIndices.length === 1 ? {
+          ...(!showUnselected && featureIndices && featureIndices.length === 1 ? {
             filterRange: [[left, right], [top, bottom], [featureIndices[0], featureIndices[0]]],
             getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]]),
             extensions: [
               new deck.DataFilterExtension({ filterSize: 3 }),
             ],
           } : {
+            // No feature selection filtering.
             filterRange: [[left, right], [top, bottom]],
             getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index]]),
             extensions: [
               new deck.DataFilterExtension({ filterSize: 2 }),
             ],
           }),
+          updateTriggers: {
+            getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, ...featureIndices],
+            getFilterValue: [showUnselected, ...featureIndices],
+            filterRange: [showUnselected, ...featureIndices],
+          },
         });
       },
       updateTriggers: {
-        getTileData: [...featureIndices, featureFilterMode],
+        //getFillColor: [featureFilterMode, featureColor, obsColorEncoding, spatialLayerColor, ...featureIndices],
+        getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, ...featureIndices],
+        //getFilterValue: [featureFilterMode, ...featureIndices],
+        //filterRange: [featureFilterMode, ...featureIndices],
       },
       onTileError: (error) => {
 
