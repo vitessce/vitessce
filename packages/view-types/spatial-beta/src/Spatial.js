@@ -387,7 +387,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
       delegateHover,
       targetZ,
-      segmentationMatrixIndices, // TEMP: we need to pass point-specific matrix/indices here.
+      pointMatrixIndices,
     } = this.props;
 
     const {
@@ -396,6 +396,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsColorEncoding,
       spatialLayerColor,
       featureSelection,
+      featureFilterMode,
+      featureColor,
     } = layerCoordination;
 
     // Obtain the numeric indices of the selected features, to use for filtering.
@@ -404,14 +406,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // (of the table that annotates the points).
     let featureIndices = [];
     if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
-      // TEMP: we need to use point-specific matrix/indices here.
-      const firstSegmentationLayerKey = Object.keys(segmentationMatrixIndices ?? {})?.[0];
-      const firstSegmentationChannelKey = Object.keys(segmentationMatrixIndices?.[firstSegmentationLayerKey] ?? {})?.[0];
-      const segmentationFeatureIndex = segmentationMatrixIndices?.[firstSegmentationLayerKey]?.[firstSegmentationChannelKey]?.featureIndex;
-      featureIndices = featureSelection.map(geneName => segmentationFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
+      const pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
+      if(pointFeatureIndex) {
+        featureIndices = featureSelection.map(geneName => pointFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
+      }
     }
-    //console.log('featureSelection', featureSelection, segmentationMatrixIndices, featureIndices);
-
 
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
@@ -1809,6 +1808,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // Data props.
         'obsPoints',
         'pointMultiObsLabels',
+        'pointMatrixIndices',
         // Coordination props.
         'pointLayerScopes',
         'pointLayerCoordination',

@@ -86,6 +86,7 @@ export {
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,

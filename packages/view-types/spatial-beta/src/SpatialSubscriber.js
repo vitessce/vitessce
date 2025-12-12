@@ -13,6 +13,7 @@ import {
   useMultiObsSegmentations,
   useMultiImages,
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -426,6 +427,10 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   // Spots data
   const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
@@ -522,6 +527,7 @@ export function SpatialSubscriber(props) {
     ...spotMultiFeatureSelectionErrors,
     ...spotMultiIndicesDataErrors,
     ...pointMultiObsLabelsErrors,
+    ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
@@ -559,6 +565,7 @@ export function SpatialSubscriber(props) {
     // Points
     obsPointsDataStatus,
     pointMultiObsLabelsDataStatus,
+    pointMultiIndicesDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
@@ -1016,6 +1023,7 @@ export function SpatialSubscriber(props) {
             pointLayerScopes={pointLayerScopes}
             pointLayerCoordination={pointLayerCoordination}
             pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMatrixIndices={pointMultiIndicesData}
             obsSpots={obsSpotsData}
             spotLayerScopes={spotLayerScopes}
             spotLayerCoordination={spotLayerCoordination}

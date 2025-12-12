@@ -21,66 +21,70 @@ function generateXeniumConfig() {
   
   if(withImages) {
     dataset = dataset.addFile({
-        fileType: 'spatialdata.zarr',
-        url: sdataUrl,
-        options: {
-          image: {
-            path: 'images/morphology_focus',
-          },
-          coordinateSystem: 'global',
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        image: {
+          path: 'images/morphology_focus',
         },
-        coordinationValues: {
-          fileUid: 'morphology_focus',
+        coordinateSystem: 'global',
+      },
+      coordinationValues: {
+        fileUid: 'morphology_focus',
+      },
+    }).addFile({
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        image: {
+          path: 'images/morphology_mip',
         },
-      }).addFile({
-        fileType: 'spatialdata.zarr',
-        url: sdataUrl,
-        options: {
-          image: {
-            path: 'images/morphology_mip',
-          },
-          coordinateSystem: 'global',
+        coordinateSystem: 'global',
+      },
+      coordinationValues: {
+        fileUid: 'morphology_mip',
+      },
+    });
+  }
+  
+  if(withPolygons) {
+    dataset = dataset.addFile({
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        obsFeatureMatrix: {
+          path: 'tables/dense_table/X',
         },
-        coordinationValues: {
-          fileUid: 'morphology_mip',
+        obsSegmentations: {
+          path: 'shapes/cell_boundaries',
         },
-      });
-    }
-    
-    if(withPolygons) {
-      dataset = dataset.addFile({
-        fileType: 'spatialdata.zarr',
-        url: sdataUrl,
-        options: {
-          obsFeatureMatrix: {
-            path: 'tables/dense_table/X',
-          },
-          obsSegmentations: {
-            path: 'shapes/cell_boundaries',
-          },
-          coordinateSystem: 'global',
-        },
-        coordinationValues: {
-          obsType: 'cell',
-        },
-      });
-    }
-    if(withPoints) {
-      dataset = dataset.addFile({
-        fileType: 'spatialdata.zarr',
-        url: sdataUrl,
-        options: {
-          obsPoints: {
-            path: 'points/transcripts_with_morton_codes',
-          },
-          coordinateSystem: 'global',
-        },
-        coordinationValues: {
-          obsType: 'point',
-        },
-      });
-    }
+        coordinateSystem: 'global',
+      },
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene',
+      },
+    });
+  }
 
+  if(withPoints) {
+    dataset = dataset.addFile({
+      fileType: 'spatialdata.zarr',
+      url: sdataUrl,
+      options: {
+        obsPoints: {
+          path: 'points/transcripts_with_morton_codes',
+        },
+        coordinateSystem: 'global',
+      },
+      coordinationValues: {
+        obsType: 'point',
+        // This will be used to load the obsFeatureMatrix var index
+        // corresponding to featureType: 'gene'.
+        featureType: 'gene',
+      },
+    });
+  }
 
   const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 });
   const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 });
