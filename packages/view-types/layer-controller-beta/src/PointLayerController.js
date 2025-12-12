@@ -9,14 +9,21 @@ import {
   Paper,
   Typography,
   Slider,
-  MenuItem,
   Button,
   NativeSelect,
   Checkbox,
-
-  MoreVert as MoreVertIcon,
+  MenuItem,
+  Add as AddIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
+  ExpandMore,
+  ExpandLess,
+  MoreVert as MoreVertIcon,
+  Input,
+  Box,
+  InputAdornment,
+  Tabs,
+  Tab,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
@@ -29,19 +36,39 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles()(() => ({
+  pointLayerButton: {
+    borderStyle: 'dashed',
+    marginTop: '10px',
+    marginBottom: '10px',
+    fontWeight: 400,
+  },
+  pointFeatureControllerGrid: {
+    padding: '0',
+    flexWrap: 'nowrap',
+  },
+  pointFeatureExpansionButton: {
+    display: 'inline-block',
+    margin: 0,
+    padding: 0,
+    minWidth: 0,
+    lineHeight: 1,
+    width: '50%',
+  },
   layerTypePointIcon: {
     height: '100%',
-    marginLeft: '1px',
+    paddingLeft: '2px',
     fill: 'currentColor',
-    fontSize: '20px',
+    fontSize: '14px',
     width: '50%',
-    maxWidth: '20px',
+    maxWidth: '16px',
   },
 }));
 
 function PointLayerEllipsisMenu(props) {
   const {
     featureSelection,
+    featureFilterMode,
+    setFeatureFilterMode,
     obsColorEncoding,
     setObsColorEncoding,
     featureValueColormapRange,
@@ -62,6 +89,7 @@ function PointLayerEllipsisMenu(props) {
   const tooltipsVisibleId = useId();
   const crosshairsVisibleId = useId();
   const legendVisibleId = useId();
+  const featureFilterModeId = useId();
 
   return (
     <PopperMenu
@@ -84,8 +112,22 @@ function PointLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
-          <option value="obsLabels">Label Value</option>
+          <option value="geneSelection">Feature Color</option>
+          <option value="randomByFeature">Random Color per Feature</option>
+          <option value="random">Random Color per Point</option>
         </NativeSelect>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={featureFilterModeId}>
+          Filter to Feature Selection:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          className={menuClasses.menuItemCheckbox}
+          checked={featureFilterMode === 'featureSelection'}
+          onChange={(e, v) => setFeatureFilterMode(v ? 'featureSelection' : null)}
+          slotProps={{ input: { id: featureFilterModeId, 'aria-label': 'Toggle feature filter mode' } }}
+        />
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -153,11 +195,15 @@ export default function PointLayerController(props) {
     palette = null,
   } = props;
 
+  const [open, setOpen] = useState(true); // TODO: make false after development
+
   const {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
     obsColorEncoding,
+    featureColor,
+    featureFilterMode,
     featureSelection,
     featureValueColormap,
     featureValueColormapRange,
@@ -170,6 +216,8 @@ export default function PointLayerController(props) {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
     setObsColorEncoding,
+    setFeatureColor,
+    setFeatureFilterMode,
     setFeatureSelection,
     setFeatureValueColormap,
     setFeatureValueColormapRange,
@@ -201,7 +249,15 @@ export default function PointLayerController(props) {
   }, [visible, setVisible]);
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
+  const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
+  const enableFeaturesAndSetsDropdown = true;
+
+  const [coloringTabIndex, setColoringTabIndex] = useState(0);
+
+  const handleColoringTabChange = (event, newValue) => {
+    setColoringTabIndex(newValue);
+  };
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>
@@ -258,12 +314,40 @@ export default function PointLayerController(props) {
               setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
               legendVisible={legendVisible}
               setLegendVisible={setLegendVisible}
+              featureFilterMode={featureFilterMode}
+              setFeatureFilterMode={setFeatureFilterMode}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} container direction="row">
             <PointsIconSVG className={classes.layerTypePointIcon} />
+            {enableFeaturesAndSetsDropdown ? (
+              <Button
+                onClick={handleOpenChange}
+                className={classes.pointFeatureExpansionButton}
+                aria-label="Expand or collapse coloring controls"
+              >
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </Button>
+            ) : null}
           </Grid>
         </Grid>
+        {enableFeaturesAndSetsDropdown && open ? (
+          <Grid
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.pointFeatureControllerGrid}
+          >
+            <Tabs value={coloringTabIndex} onChange={handleColoringTabChange} aria-label="basic tabs example">
+              <Tab label="Feature List" />
+            </Tabs>
+            {coloringTabIndex === 0 && (
+              <Grid size={12} container direction="column">
+                <Typography>Feature selection and coloring controls go here.</Typography>
+              </Grid>
+            )}
+          </Grid>
+        ) : null}
       </Paper>
     </Grid>
   );

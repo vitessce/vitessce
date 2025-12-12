@@ -216,6 +216,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -233,9 +235,13 @@ export function LayerControllerSubscriber(props) {
   const [
     {
       volumeLoadingProgress: volumeLoadingStatus,
+      tiledPointsLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    ['spatialAcceleratedVolumeLoadingProgress'],
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
     coordinationScopes,
   );
 

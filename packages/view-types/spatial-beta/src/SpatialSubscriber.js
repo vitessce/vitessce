@@ -343,6 +343,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -364,12 +366,17 @@ export function SpatialSubscriber(props) {
   const [
     {
       volumeLoadingProgress,
+      tiledPointsLoadingProgress,
     },
     {
       setVolumeLoadingProgress,
+      setTiledPointsLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    ['spatialAcceleratedVolumeLoadingProgress'],
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
     coordinationScopes,
   );
 
