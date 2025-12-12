@@ -13,6 +13,7 @@ import {
   useMultiObsSegmentations,
   useMultiImages,
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -343,6 +344,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -364,12 +367,17 @@ export function SpatialSubscriber(props) {
   const [
     {
       volumeLoadingProgress,
+      tiledPointsLoadingProgress,
     },
     {
       setVolumeLoadingProgress,
+      setTiledPointsLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    ['spatialAcceleratedVolumeLoadingProgress'],
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
     coordinationScopes,
   );
 
@@ -416,6 +424,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus, pointMultiObsLabelsErrors] = usePointMultiObsLabels(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -515,6 +527,7 @@ export function SpatialSubscriber(props) {
     ...spotMultiFeatureSelectionErrors,
     ...spotMultiIndicesDataErrors,
     ...pointMultiObsLabelsErrors,
+    ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
@@ -552,6 +565,7 @@ export function SpatialSubscriber(props) {
     // Points
     obsPointsDataStatus,
     pointMultiObsLabelsDataStatus,
+    pointMultiIndicesDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
@@ -1009,6 +1023,7 @@ export function SpatialSubscriber(props) {
             pointLayerScopes={pointLayerScopes}
             pointLayerCoordination={pointLayerCoordination}
             pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMatrixIndices={pointMultiIndicesData}
             obsSpots={obsSpotsData}
             spotLayerScopes={spotLayerScopes}
             spotLayerCoordination={spotLayerCoordination}

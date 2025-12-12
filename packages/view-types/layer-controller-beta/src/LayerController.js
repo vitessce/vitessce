@@ -34,6 +34,7 @@ export default function LayerController(props) {
 
     pointLayerScopes,
     pointLayerCoordination,
+    pointMultiIndicesData,
 
     volumeLoadingStatus,
   } = props;
@@ -90,6 +91,7 @@ export default function LayerController(props) {
           layerScope={layerScope}
           layerCoordination={pointLayerCoordination[0][layerScope]}
           setLayerCoordination={pointLayerCoordination[1][layerScope]}
+          pointMatrixIndicesData={pointMultiIndicesData?.[layerScope]}
         />
       ))}
       {/* Spot layers: */}
