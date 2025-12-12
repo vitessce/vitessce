@@ -412,6 +412,25 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
     }
 
+    // Coloring cases:
+    // - spatialLayerColor: one color for all points. consider all as selected when featureSelection is null.
+    // - spatialLayerColor with featureSelection: one color for all selected points, default color for unselected points
+    // - spatialLayerColor with featureSelection and featureFilterMode 'featureSelection': one color for selected points, do not show unselected points
+
+    // - geneSelection: use colors from "featureColor". consider all as selected when featureSelection is null.
+    // - geneSelection with featureSelection: use colors from "featureColor" (array of { name, color: [r, g, b] }) for selected features, default color for unselected points
+    // - geneSelection with featureFilterMode 'featureSelection': use colors from "featureColor" for selected features, do not show unselected points
+
+    // - randomByFeature: random color for each feature (deterministic based on feature index). consider all as selected when featureSelection is null.
+    // - randomByFeature with preferFeatureColor: use colors from "featureColor" (array of { name, color: [r, g, b] }) where available, and random colors otherwise.
+    // - randomByFeature with featureSelection: random color for selected features, default color for unselected points
+    // - randomByFeature with featureSelection and featureFilterMode 'featureSelection': random color for selected features, do not show unselected points
+
+    // - random: random color for each point (deterministic based on point index). consider all as selected when featureSelection is null.
+    // - random with preferFeatureColor: use colors from "featureColor" (array of { name, color: [r, g, b] }) where available, and random colors otherwise.
+    // - random with featureSelection: random color for selected points, default color for unselected points
+    // - random with featureSelection and featureFilterMode 'featureSelection': random color for selected points, do not show unselected points
+
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
       ? spatialLayerColor
@@ -448,6 +467,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     // Use TileLayer to load tiled points via loader.loadPointsInRect(bounds)
     const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
+
+    console.log('Creating point layer with featureIndices:', featureIndices, 'and featureFilterMode:', featureFilterMode, featureSelection, obsColorEncoding);
 
     return new deck.TileLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
@@ -523,7 +544,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           autoHighlight: true,
           //onHover: info => delegateHover(info, 'point', layerScope),
           // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
-          ...(featureIndices && featureIndices.length === 1 ? {
+          ...(featureFilterMode === 'featureSelection' && featureIndices && featureIndices.length === 1 ? {
             filterRange: [[left, right], [top, bottom], [featureIndices[0], featureIndices[0]]],
             getFilterValue: (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]]),
             extensions: [
@@ -539,7 +560,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         });
       },
       updateTriggers: {
-        getTileData: [...featureIndices],
+        getTileData: [...featureIndices, featureFilterMode],
       },
       onTileError: (error) => {
 

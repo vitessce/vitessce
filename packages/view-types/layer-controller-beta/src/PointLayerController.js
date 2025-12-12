@@ -24,6 +24,10 @@ import {
   InputAdornment,
   Tabs,
   Tab,
+  MenuList,
+  ListItemText,
+  ListItemIcon,
+  Palette as PaletteIcon,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
@@ -350,7 +354,19 @@ export default function PointLayerController(props) {
             </Tabs>
             {coloringTabIndex === 0 && (
               <Grid size={12} container direction="column">
-                <Typography>Feature selection and coloring controls go here.</Typography>
+                <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
+                  {featureIndex && featureIndex.length > 0 ? featureIndex.map((featureName) => (
+                    <MenuItem
+                      key={featureName}
+                    >
+                      <ListItemIcon>
+                        {/* TODO: deterministically assign colors based on feature index using same method here as in Spatial view implementation */}
+                        <PaletteIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>{featureName}</ListItemText>
+                    </MenuItem>
+                  )) : null}
+                </MenuList>
               </Grid>
             )}
           </Grid>
