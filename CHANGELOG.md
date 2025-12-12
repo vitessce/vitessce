@@ -1,4 +1,19 @@
 
+## 3.8.11
+
+### Patch Changes
+
+- Support featureAggregationStrategy in spatial-beta and expression-histogram views. (`@vitessce/statistical-plots`, `@vitessce/spatial-beta`, `@vitessce/utils`) ([#2341](https://github.com/vitessce/vitessce/pull/2341))
+
+- Fix bug in featureList view preventing single-select mode. (`@vitessce/feature-list`) ([#2373](https://github.com/vitessce/vitessce/pull/2373))
+
+- Update widths and x-positioning of legend color bar and subtitle text. (`@vitessce/legend`) ([#2379](https://github.com/vitessce/vitessce/pull/2379))
+
+- Update showcase page. (`docs`) ([#2351](https://github.com/vitessce/vitessce/pull/2351))
+
+- Add LOD slider and "stop/restart loading" controls for spatial-accelerated view (`@vitessce/layer-controller-beta`, `@vitessce/spatial-accelerated`, `@vitessce/spatial-beta`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/schemas`, `@vitessce/styles`, `@vitessce/vit-s`) ([#2322](https://github.com/vitessce/vitessce/pull/2322))
+
+
 ## 3.8.10
 
 ### Patch Changes
