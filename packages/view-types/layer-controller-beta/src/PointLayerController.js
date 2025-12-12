@@ -193,6 +193,7 @@ export default function PointLayerController(props) {
     layerCoordination,
     setLayerCoordination,
     palette = null,
+    pointMatrixIndicesData,
   } = props;
 
   const [open, setOpen] = useState(true); // TODO: make false after development
@@ -258,6 +259,12 @@ export default function PointLayerController(props) {
   const handleColoringTabChange = (event, newValue) => {
     setColoringTabIndex(newValue);
   };
+
+  // We only match on FEATURE_TYPE, so only the featureIndex
+  // will be relevant/correct here.
+  const { featureIndex } = pointMatrixIndicesData || {};
+
+  console.log(featureIndex);
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>

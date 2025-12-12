@@ -15,6 +15,7 @@ import {
   useMultiObsPoints,
   useMultiObsSegmentations,
   useMultiImages,
+  usePointMultiObsFeatureMatrixIndices,
   useMergeCoordination,
   useComplexCoordination,
   useMultiCoordinationScopesNonNull,
@@ -289,12 +290,17 @@ export function LayerControllerSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   // Consolidate error values from data hooks.
   const errors = [
     ...obsSegmentationsErrors,
     ...imageErrors,
     ...obsSpotsErrors,
     ...obsPointsErrors,
+    ...pointMultiIndicesDataErrors,
   ];
 
   const isReady = useReady([
@@ -302,6 +308,7 @@ export function LayerControllerSubscriber(props) {
     obsPointsDataStatus,
     obsSegmentationsDataStatus,
     imageDataStatus,
+    pointMultiIndicesDataStatus,
   ]);
 
   return (
@@ -343,6 +350,7 @@ export function LayerControllerSubscriber(props) {
 
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
 
         volumeLoadingStatus={volumeLoadingStatus}
       />

@@ -1,0 +1,61 @@
+---
+slug: spatial-elements
+title: Vitessce supports all five SpatialData elements
+authors: mark
+tags: [spatial]
+---
+
+Vitessce now supports all five Spatial Elements defined by [SpatialData](https://doi.org/10.1038/s41592-024-02212-x): tables, points, shapes, labels, and images.
+
+
+We can map these elements onto the Vitessce [data model](../../docs/data-types-file-types/) as follows:
+- **Tables** correspond to a combination of `obsFeatureMatrix`, `obsSets`, `obsEmbedding`, and so on (the same combination of data types that can be represented by an AnnData object).
+- **Points** correspond to `obsPoints`.
+- **Labels** correspond to `obsSegmentations` (i.e., bitmask-type segmentations).
+- **Images** correspond to the `image` data type.
+- **Shapes** correspond to `obsSegmentations` (i.e., polygon-type segmentations) when the shapes are polygons, or `obsSpots` when the shapes are circles.
+
+## Configuration
+
+Visualizations of SpatialData objects can be configured using either the `spatialdata.zarr` or `spatialdata.zarr.zip` file types ([docs](../../docs/data-file-types/#spatialdatazarr)) when using the Vitessce JSON or JavaScript configuration APIs.
+
+See [Easy Vitessce](https://github.com/vitessce/easy_vitessce) and our [example notebooks](https://github.com/vitessce/easy_vitessce/tree/main/docs/notebooks) for instructions on reusing the existing SpatialData-Plot functions and plotting syntax to visualize SpatialData objects from Python.
+
+Also see our example notebooks in the [vitessce-python repo](https://github.com/vitessce/vitessce-python/tree/main/docs/notebooks) (look for notebooks prefixed with `spatial_data`) for more complex configuration options.
+
+
+## Examples
+
+### 10x Visium
+
+- https://vitessce.io/#?dataset=spatialdata-visium
+- https://vitessce.io/#?dataset=spatialdata-visium_io
+- https://vitessce.io/#?dataset=maynard-2021
+
+### 10x Visium HD
+
+- https://vitessce.io/#?dataset=spatialdata-visium_hd
+
+Note: There are multiple ways to store Visium HD data in a SpatialData object.
+For visualization of Visium HD data in Vitessce, we recommend using the `rasterize_bins` and `rasterize_bins_link_table_to_labels` functions provided by the `spatialdata` Python package.
+See our [example notebook](https://github.com/vitessce/vitessce-python/blob/main/docs/notebooks/spatial_data_visium_hd.ipynb).
+
+### 10x Xenium
+
+- https://vitessce.io/#?dataset=sdata-xenium_rep1_io
+
+Note: Xenium datasets typically contain tens of millions of points (individual transcripts with spatial coordinates).
+Vitessce cannot load and render all of these points at once due to browser memory limitations.
+To visualize this many points (i.e., tens of millions) in Vitessce, we must use a tiling approach so that only a subset of the points are loaded and rendered at any given time (e.g., only loading the points within the current viewport).
+
+
+To enable tiling, Vitessce can load subsets of points when the SpatialData Points dataframe has been sorted in Morton order (along a Z-order curve).
+The Vitessce python package provides [functions](https://github.com/vitessce/vitessce-python/blob/main/src/vitessce/data_utils/spatialdata_points_zorder.py) to sort the points dataframe within a SpatialData object and make the points compatible with Vitessce.
+For more information, see our [data troubleshooting](../../docs/data-troubleshooting/) documentation and our [example notebook](https://github.com/vitessce/vitessce-python/blob/main/docs/notebooks/spatial_data_xenium_morton.ipynb).
+
+### Other Examples
+
+- https://vitessce.io/#?dataset=spatialdata-mcmicro_io
+- https://vitessce.io/#?dataset=sdata-kpmp-2023 [Python notebook](https://github.com/vitessce/vitessce-python/blob/main/docs/notebooks/spatial_data_kpmp_vis.ipynb)
+- https://github.com/vitessce/vitessce-python/blob/main/docs/notebooks/spatial_data_mouseliver.ipynb
+- https://github.com/vitessce/vitessce-python/blob/main/docs/notebooks/spatial_data_mouseliver_remote.ipynb
