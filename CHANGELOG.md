@@ -1,4 +1,11 @@
 
+## 3.8.12
+
+### Patch Changes
+
+- Update GitHub Actions workflow permissions to support OIDC trusted publishing. (`@vitessce/all`) ([#2380](https://github.com/vitessce/vitessce/pull/2380))
+
+
 ## 3.8.11
 
 ### Patch Changes
