@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 20.10.0
+          node-version: 20.17.0
           registry-url: https://registry.npmjs.org/
       # npm 11.5.1 or later is required for OIDC publishingso update to latest to be sure
       - run: npm install -g npm@latest
