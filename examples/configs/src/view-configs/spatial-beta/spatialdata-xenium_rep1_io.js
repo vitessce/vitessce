@@ -88,7 +88,7 @@ function generateXeniumConfig() {
 
   const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 });
   const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 });
-  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 });
+  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 }).setProps({ enableMultiSelect: true });
   const heatmap = vc.addView(dataset, 'heatmap', { x: 0, y: 8, w: 12, h: 4 }).setProps({ transpose: true });
 
   if(withImages) {
@@ -158,6 +158,9 @@ function generateXeniumConfig() {
         {
           obsType: 'point',
           obsHighlight: null,
+          featureColor: [
+            { name: 'ERBB2', color: [255, 0, 0] },
+          ],
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

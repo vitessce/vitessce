@@ -442,6 +442,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasFeatureSelection = Array.isArray(featureSelection) && featureSelection.length > 0;
     const showUnselected = featureFilterMode !== 'featureSelection';
 
+    // If multiple features are selected, we cannot depend on the filterExtension
+    // until we have a deck.gl version that supports filtering by multiple categories.
+    // So we handle the filtering logic in getFillColor by providing an alpha value.
+    const hasMultipleFeaturesSelected = Array.isArray(featureIndices) && featureIndices.length > 1;
+
     if(obsColorEncoding === 'spatialLayerColor') {
       // Case 1: spatialLayerColor.
       getFillColor = (object, { index, data, target }) => {
@@ -450,17 +455,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[0] = staticColor[0];
           target[1] = staticColor[1];
           target[2] = staticColor[2];
+          target[3] = 255;
           return target;
         }
-        // if (!showUnselected) {
-        //   // Bail out early.
-        //   return target;
-        // }
+        if (!showUnselected) {
+          if(hasMultipleFeaturesSelected) {
+            target[3] = 0; // Hide the point by setting alpha to 0.
+          }
+          // Bail out early.
+          return target;
+        }
         // This is not the selected feature,
         // but we are showing unselected points.
         target[0] = defaultColor[0];
         target[1] = defaultColor[1];
         target[2] = defaultColor[2];
+        target[3] = 255;
         return target;
       };
     } else if(obsColorEncoding === 'geneSelection') {
@@ -471,6 +481,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[0] = staticColor[0];
           target[1] = staticColor[1];
           target[2] = staticColor[2];
+          target[3] = 255;
           return target;
         }
         // There is a featureSelection.
@@ -485,9 +496,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[0] = featureColorMatch[0];
             target[1] = featureColorMatch[1];
             target[2] = featureColorMatch[2];
+            target[3] = 255;
+            return target;
+          } else {
+            // No color found for this feature: use static color.
+            target[0] = staticColor[0];
+            target[1] = staticColor[1];
+            target[2] = staticColor[2];
+            target[3] = 255;
+            return target;
           }
         }
         if (!showUnselected) {
+          if(hasMultipleFeaturesSelected) {
+            target[3] = 0; // Hide the point by setting alpha to 0.
+          }
           // Bail out early.
           return target;
         }
@@ -496,6 +519,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[0] = defaultColor[0];
         target[1] = defaultColor[1];
         target[2] = defaultColor[2];
+        target[3] = 255;
         return target;
       };
     } else if(obsColorEncoding === 'randomByFeature') {
@@ -518,9 +542,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+            target[3] = 255;
             return target;
           }
           if (!showUnselected) {
+            if(hasMultipleFeaturesSelected) {
+              target[3] = 0; // Hide the point by setting alpha to 0.
+            }
             // Bail out early.
             return target;
           }
@@ -529,6 +557,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[0] = defaultColor[0];
           target[1] = defaultColor[1];
           target[2] = defaultColor[2];
+          target[3] = 255;
           return target;
         };
       }
@@ -550,9 +579,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+            target[3] = 255;
             return target;
           }
           if (!showUnselected) {
+            if (hasMultipleFeaturesSelected) {
+              target[3] = 0; // Hide the point by setting alpha to 0.
+            }
             // Bail out early.
             return target;
           }
@@ -561,6 +594,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[0] = defaultColor[0];
           target[1] = defaultColor[1];
           target[2] = defaultColor[2];
+          target[3] = 255;
           return target;
         };
       }
@@ -686,14 +720,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
           //onHover: info => delegateHover(info, 'point', layerScope),
           // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
           updateTriggers: {
-            getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection],
+            getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
             getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
             filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
           },
         });
       },
       updateTriggers: {
-        getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection],
+        getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
       },
       onTileError: (error) => {
 
