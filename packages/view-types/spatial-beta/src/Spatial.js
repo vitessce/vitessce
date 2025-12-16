@@ -442,8 +442,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasFeatureSelection = Array.isArray(featureSelection) && featureSelection.length > 0;
     const showUnselected = featureFilterMode !== 'featureSelection';
 
-    console.log(hasFeatureSelection, obsColorEncoding, featureFilterMode, showUnselected, featureIndices);
-
     if(obsColorEncoding === 'spatialLayerColor') {
       // Case 1: spatialLayerColor.
       getFillColor = (object, { index, data, target }) => {
@@ -602,8 +600,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // Use TileLayer to load tiled points via loader.loadPointsInRect(bounds)
     const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
 
-    console.log('Creating point layer with featureIndices:', featureIndices, 'and featureFilterMode:', featureFilterMode, featureSelection, obsColorEncoding);
-
     return new deck.TileLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
@@ -644,11 +640,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { bbox, content: tileData } = subLayerProps.tile;
         const { left, top, right, bottom } = bbox;
 
-        console.log('filterEnabled', !showUnselected && Array.isArray(featureIndices))
+        const hasFeatureIndicesMinMax = (
+          !showUnselected
+          && Array.isArray(featureIndices)
+          && featureIndices.length === 1
+        );
 
-        const hasFeatureIndicesMinMax = !showUnselected && Array.isArray(featureIndices) && featureIndices.length === 1;
-
-        // TODO: we need a newer deckgl/extensions version that supports filterCategories.
+        // TODO: can be improved using newer deckgl/extensions version
+        // that supports filterCategories.
         const featureIndicesMinMax = (
           hasFeatureIndicesMinMax
           ? [featureIndices[0], featureIndices[0]]
@@ -675,6 +674,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
           pickable: true,
           autoHighlight: true,
+          // Note: this can be improved using filterCategories,
+          // but it is not available until post-v9 deck.gl/extensions.
           filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
           getFilterValue: hasFeatureIndicesMinMax
             ? (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]])
@@ -682,36 +683,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
           extensions: [
             new deck.DataFilterExtension({ filterSize: 3 }),
           ],
-          /*filterCategories: (showUnselected ? [0] : featureIndices),
-          getFilterCategory: showUnselected ? 0 : (object, { data, index }) => {
-            console.log('getFilterCategory', index, data.src.featureIndices[index]);
-            return data.src.featureIndices[index];
-          },
-          extensions: [
-            new deck.DataFilterExtension({
-              filterSize: 2,
-              categorySize: 1
-            }),
-          ],
-          */
           //onHover: info => delegateHover(info, 'point', layerScope),
           // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
           updateTriggers: {
             getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection],
             getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
             filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
-            //getFilterCategory: [showUnselected, featureSelection],
-            //filterCategories: [showUnselected, featureSelection],
-            //extensions: [showUnselected],
           },
         });
       },
       updateTriggers: {
-        //getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection],
         getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection],
-        //getFilterCategory: [showUnselected, featureSelection],
-        //filterCategories: [showUnselected, featureSelection],
-        //extensions: [showUnselected],
       },
       onTileError: (error) => {
 
