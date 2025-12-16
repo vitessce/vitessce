@@ -364,6 +364,7 @@ export function SpatialSubscriber(props) {
   const [volumeLoadingStatus, setVolumeLoadingStatus] = useState(null);
 
   // Set up auxiliary coordination to share volume loading status with LayerController
+  // TODO: Use alternative approach https://github.com/vitessce/vitessce/issues/1233#issuecomment-3564729507
   const [
     {
       volumeLoadingProgress,
@@ -1045,6 +1046,7 @@ export function SpatialSubscriber(props) {
             imageLayerCoordination={imageLayerCoordination}
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
+            setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
           />
         )
       }

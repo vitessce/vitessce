@@ -353,6 +353,7 @@ export function LayerControllerSubscriber(props) {
         pointMultiIndicesData={pointMultiIndicesData}
 
         volumeLoadingStatus={volumeLoadingStatus}
+        tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />
     </TitleInfo>
   );

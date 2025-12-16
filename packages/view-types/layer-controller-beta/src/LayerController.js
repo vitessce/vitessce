@@ -37,6 +37,7 @@ export default function LayerController(props) {
     pointMultiIndicesData,
 
     volumeLoadingStatus,
+    tiledPointsLoadingProgress,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -92,6 +93,7 @@ export default function LayerController(props) {
           layerCoordination={pointLayerCoordination[0][layerScope]}
           setLayerCoordination={pointLayerCoordination[1][layerScope]}
           pointMatrixIndicesData={pointMultiIndicesData?.[layerScope]}
+          tiledPointsLoadingProgress={tiledPointsLoadingProgress}
         />
       ))}
       {/* Spot layers: */}

@@ -139,6 +139,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
     this.obsPointsData = {}; // Keys: pointLayer scopes
     this.obsPointsQuadTree = {}; // Keys: pointLayer scopes
+    this.obsPointsLoadingStatus = {}; // Keys: tile indices
 
     this.imageLayers = [];
     this.obsSegmentationsLayers = [];
@@ -388,6 +389,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       delegateHover,
       targetZ,
       pointMatrixIndices,
+      setTiledPointsLoadingProgress,
     } = this.props;
 
     const {
@@ -412,7 +414,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         featureIndices = featureSelection.map(geneName => pointFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
       }
     }
-
 
     const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
       ? spatialLayerColor
@@ -658,12 +659,30 @@ class Spatial extends AbstractSpatialOrScatterplot {
         const { left, top, right, bottom } = bbox;
         console.log('getTileData', tileInfo);
 
-        const pointsInTile = await loadPointsInRect(bbox, signal);
+        this.obsPointsLoadingStatus = {
+          ...this.obsPointsLoadingStatus,
+          [`${layerScope}-${z}-${x}-${y}`]: 'loading',
+        };
+        setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
 
         // On signal abort, print a message.
         signal.addEventListener('abort', () => {
           console.log(`Tile ${z}/${x}/${y} aborted`);
+          
+          this.obsPointsLoadingStatus = {
+            ...this.obsPointsLoadingStatus,
+            [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
+          };
+          setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
         });
+
+        const pointsInTile = await loadPointsInRect(bbox, signal);
+
+        this.obsPointsLoadingStatus = {
+          ...this.obsPointsLoadingStatus,
+          [`${layerScope}-${z}-${x}-${y}`]: 'success',
+        };
+        setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
 
         return {
           src: pointsInTile.data,

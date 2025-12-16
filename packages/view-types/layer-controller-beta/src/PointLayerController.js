@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useId } from 'react-aria';
 import {
   makeStyles,
@@ -198,9 +198,20 @@ export default function PointLayerController(props) {
     setLayerCoordination,
     palette = null,
     pointMatrixIndicesData,
+    tiledPointsLoadingProgress,
   } = props;
 
   const [open, setOpen] = useState(true); // TODO: make false after development
+
+  const loadingDoneFraction = useMemo(() => {
+    if (tiledPointsLoadingProgress && typeof tiledPointsLoadingProgress === 'object') {
+      return 1.0 - (
+        Object.values(tiledPointsLoadingProgress).filter(status => status === 'loading').length
+        / Object.values(tiledPointsLoadingProgress).length
+      );
+    }
+    return 1.0;
+  }, [tiledPointsLoadingProgress]);
 
   const {
     obsType,
@@ -297,7 +308,7 @@ export default function PointLayerController(props) {
           </Grid>
           <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
-              {label}
+              {label}{loadingDoneFraction < 1.0 ? ` (Loading: ${(loadingDoneFraction * 100).toFixed(0)}%)` : null}
             </Typography>
           </Grid>
           <Grid size={2}>
