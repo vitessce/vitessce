@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
   makeStyles,
@@ -223,7 +223,7 @@ export default function PointLayerController(props) {
     featureSelection,
     featureValueColormap,
     featureValueColormapRange,
-    spatialLayerColor: color,
+    spatialLayerColor,
     tooltipsVisible,
     tooltipCrosshairsVisible,
     legendVisible,
@@ -237,7 +237,7 @@ export default function PointLayerController(props) {
     setFeatureSelection,
     setFeatureValueColormap,
     setFeatureValueColormapRange,
-    setSpatialLayerColor: setColor,
+    setSpatialLayerColor,
     setTooltipsVisible,
     setTooltipCrosshairsVisible,
     setLegendVisible,
@@ -252,8 +252,77 @@ export default function PointLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const isStaticColor = obsColorEncoding === 'spatialLayerColor';
-  const isColormap = obsColorEncoding === 'geneSelection';
+  const hasUnspecifiedFeatureColors = useMemo(() => {
+    if (Array.isArray(featureSelection)) {
+      if (Array.isArray(featureColor)) {
+        // Check that each selected feature has a specified color.
+        // When we find one that does not, we can return true.
+        return featureSelection.some((featureName) => {
+          const colorForFeature = featureColor.find(fc => fc.name === featureName);
+          return !colorForFeature;
+        });
+      } else {
+        // There are features selected, but featureColor is not an array,
+        // so we can assume all features lack specified colors.
+        return featureSelection.length > 0;
+      }
+    }
+    return false;
+  }, [featureColor, featureSelection]);
+
+  const isStaticColor = (
+    obsColorEncoding === 'spatialLayerColor'
+    || obsColorEncoding === 'geneSelection'
+  );
+  const showStaticColor = (
+    obsColorEncoding === 'spatialLayerColor'
+    || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
+  )
+  const isColormap = false; // We do not yet support quantitative colormaps for points.
+
+  // If the feature color encoding is "geneSelection" and there is only one feature selected,
+  // we can use the first feature's color as the static color, and hook up the featureColor setter
+  // for that feature in the featureColor array.
+  const hasSingleSelectedFeature = (
+    obsColorEncoding === 'geneSelection'
+    && Array.isArray(featureSelection)
+    && featureSelection.length === 1
+  );
+  const color = useMemo(() => {
+    if(showStaticColor) {
+      return spatialLayerColor;
+    }
+    if(hasSingleSelectedFeature) {
+      const selectedFeatureColor = featureColor?.find(fc => fc.name === featureSelection[0])?.color;
+      if(selectedFeatureColor) {
+        return selectedFeatureColor;
+      }
+    }
+  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor, featureSelection, showStaticColor]);
+  const setColor = useCallback((newColor) => {
+    if(showStaticColor) {
+      setSpatialLayerColor(newColor);
+    } else {
+      if (hasSingleSelectedFeature) {
+        const featureColorIndex = featureColor?.findIndex(fc => fc.name === featureSelection[0]);
+        if (featureColorIndex !== undefined && featureColorIndex >= 0) {
+          // Update existing feature color.
+          const newFeatureColor = [...featureColor];
+          newFeatureColor[featureColorIndex] = {
+            name: featureSelection[0],
+            color: newColor,
+          };
+          setFeatureColor(newFeatureColor);
+        } else {
+          // Add new feature color.
+          setFeatureColor([
+            ...featureColor,
+            { name: featureSelection[0], color: newColor },
+          ]);
+        }
+      }
+    }
+  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor, setFeatureColor, featureSelection, showStaticColor]);
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -278,8 +347,6 @@ export default function PointLayerController(props) {
   // We only match on FEATURE_TYPE, so only the featureIndex
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
-
-  console.log(featureIndex);
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>
