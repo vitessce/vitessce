@@ -550,7 +550,7 @@ export default function Legend(props: LegendProps) {
       g.append('rect')
         .attr('x', 0)
         .attr('y', titleHeight)
-        .attr('width', width)
+        .attr('width', width - 4)
         .attr('height', rectHeight)
         .attr('fill', `rgb(${staticColor[0]},${staticColor[1]},${staticColor[2]})`);
     }
@@ -675,7 +675,7 @@ export default function Legend(props: LegendProps) {
           .append('text')
           .attr('text-anchor', 'end')
           .attr('dominant-baseline', 'hanging')
-          .attr('x', width)
+          .attr('x', width - 5)
           .attr('y', titleHeight + rectHeight)
           .text(subLabel ?? '')
           .style('font-size', '9px')
