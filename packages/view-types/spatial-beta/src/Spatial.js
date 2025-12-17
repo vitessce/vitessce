@@ -640,13 +640,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if(obsPointsTilingType === 'tiled') {
       // Tiled; use TileLayer.
       return new deck.TileLayer({
-        id: `${POINT_LAYER_PREFIX}${layerScope}-tiled`,
+        id: `Tiled-${POINT_LAYER_PREFIX}${layerScope}`,
         coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
         // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
         modelMatrix,
         pickable: true,
         autoHighlight: true,
-        //onHover: info => delegateHover(info, 'point', layerScope),
+        onHover: info => delegateHover(info, 'point', layerScope),
         opacity: spatialLayerOpacity,
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
@@ -732,6 +732,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
             pickable: true,
             autoHighlight: true,
+            onHover: info => delegateHover(info, 'point', layerScope),
             // Note: this can be improved using filterCategories,
             // but it is not available until post-v9 deck.gl/extensions.
             filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
@@ -741,7 +742,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
             extensions: [
               new deck.DataFilterExtension({ filterSize: 3 }),
             ],
-            //onHover: info => delegateHover(info, 'point', layerScope),
             // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
             updateTriggers: {
               getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
@@ -753,14 +753,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         updateTriggers: {
           getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
         },
+        /*
         onTileError: (error) => {
 
         },
         onViewportLoad: (loadedTiles) => {
           // Called when all tiles in the current viewport are loaded.
           // An array of loaded Tile instances are passed as argument to this function.
-          console.log('onViewportLoad', loadedTiles);
         },
+        */
       });
     }
 
