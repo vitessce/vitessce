@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable prefer-destructuring */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
@@ -411,56 +412,95 @@ class Spatial extends AbstractSpatialOrScatterplot {
     let featureIndices = [];
     if (Array.isArray(featureSelection) && featureSelection.length >= 1) {
       if (pointFeatureIndex) {
-        featureIndices = featureSelection.map(geneName => pointFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
+        featureIndices = featureSelection
+          .map(geneName => pointFeatureIndex.indexOf(geneName))
+          .filter(i => i >= 0);
       }
     }
 
-    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-      ? spatialLayerColor
-      : getDefaultColor(theme);
+    const staticColor = (
+      Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+        ? spatialLayerColor
+        : getDefaultColor(theme)
+    );
     const defaultColor = getDefaultColor(theme);
 
     // Coloring cases:
-    // - spatialLayerColor: one color for all points. consider all as selected when featureSelection is null.
-    // - spatialLayerColor with featureSelection: one color for all selected points, default color for unselected points
-    // - spatialLayerColor with featureSelection and featureFilterMode 'featureSelection': one color for selected points, do not show unselected points
+    // - spatialLayerColor: one color for all points.
+    //   consider all as selected when featureSelection is null.
+    // - spatialLayerColor with featureSelection: one color for
+    //   all selected points, default color for unselected points
+    // - spatialLayerColor with featureSelection and
+    //   featureFilterMode 'featureSelection': one color for selected points,
+    //   do not show unselected points
 
-    // - geneSelection: use colors from "featureColor". consider all as selected when featureSelection is null.
-    // - geneSelection with featureSelection: use colors from "featureColor" (array of { name, color: [r, g, b] }) for selected features, default color for unselected points
-    // - geneSelection with featureFilterMode 'featureSelection': use colors from "featureColor" for selected features, do not show unselected points
+    // - geneSelection: use colors from "featureColor".
+    //   consider all as selected when featureSelection is null.
+    // - geneSelection with featureSelection: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) for
+    //   selected features, default color for unselected points
+    // - geneSelection with featureFilterMode 'featureSelection': use colors
+    //   from "featureColor" for selected features,
+    //   do not show unselected points
 
-    // - randomByFeature: random color for each feature (deterministic based on feature index). consider all as selected when featureSelection is null.
-    // - randomByFeature with preferFeatureColor: use colors from "featureColor" (array of { name, color: [r, g, b] }) where available, and random colors otherwise.
-    // - randomByFeature with featureSelection: random color for selected features, default color for unselected points
-    // - randomByFeature with featureSelection and featureFilterMode 'featureSelection': random color for selected features, do not show unselected points
+    // - randomByFeature: random color for each feature
+    //   (deterministic based on feature index).
+    //   consider all as selected when featureSelection is null.
+    // - randomByFeature with preferFeatureColor: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) where
+    //   available, and random colors otherwise.
+    // - randomByFeature with featureSelection: random color for
+    //   selected features, default color for unselected points
+    // - randomByFeature with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for
+    //   selected features, do not show unselected points
 
-    // - random: random color for each point (deterministic based on point index). consider all as selected when featureSelection is null.
-    // - random with preferFeatureColor: use colors from "featureColor" (array of { name, color: [r, g, b] }) where available, and random colors otherwise.
-    // - random with featureSelection: random color for selected points, default color for unselected points
-    // - random with featureSelection and featureFilterMode 'featureSelection': random color for selected points, do not show unselected points
+    // - random: random color for each point
+    //   (deterministic based on point index).
+    //   consider all as selected when featureSelection is null.
+    // - random with preferFeatureColor: use colors from "featureColor"
+    //   (array of { name, color: [r, g, b] }) where available,
+    //   and random colors otherwise.
+    // - random with featureSelection: random color for selected points,
+    //   default color for unselected points
+    // - random with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for selected
+    //   points, do not show unselected points
 
     let getFillColor = null;
-    const hasFeatureSelection = Array.isArray(featureSelection) && featureSelection.length > 0;
+    const hasFeatureSelection = (
+      Array.isArray(featureSelection) && featureSelection.length > 0
+    );
     const showUnselected = featureFilterMode !== 'featureSelection';
 
     // If multiple features are selected, we cannot depend on the filterExtension
     // until we have a deck.gl version that supports filtering by multiple categories.
     // So we handle the filtering logic in getFillColor by providing an alpha value.
-    const hasMultipleFeaturesSelected = Array.isArray(featureIndices) && featureIndices.length > 1;
+    const hasMultipleFeaturesSelected = (
+      Array.isArray(featureIndices) && featureIndices.length > 1
+    );
 
     if (obsColorEncoding === 'spatialLayerColor') {
       // Case 1: spatialLayerColor.
       getFillColor = (object, { index, data, target }) => {
         // TODO: is the index still correct when using the filter extension? or are they shifted?
-        if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+        if (
+          !hasFeatureSelection
+          || featureIndices.includes(data.src.featureIndices[index])
+        ) {
+          // eslint-disable-next-line no-param-reassign
           target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
           target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
           target[3] = 255;
           return target;
         }
         if (!showUnselected) {
           if (hasMultipleFeaturesSelected) {
+            // eslint-disable-next-line no-param-reassign
             target[3] = 0; // Hide the point by setting alpha to 0.
           }
           // Bail out early.
@@ -468,9 +508,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
         }
         // This is not the selected feature,
         // but we are showing unselected points.
+        // eslint-disable-next-line no-param-reassign
         target[0] = defaultColor[0];
+        // eslint-disable-next-line no-param-reassign
         target[1] = defaultColor[1];
+        // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
+        // eslint-disable-next-line no-param-reassign
         target[3] = 255;
         return target;
       };
@@ -479,9 +523,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getFillColor = (object, { index, data, target }) => {
         if (!hasFeatureSelection) {
           // No feature selection: use static color for all points.
+          // eslint-disable-next-line no-param-reassign
           target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
           target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
           target[3] = 255;
           return target;
         }
@@ -494,21 +542,30 @@ class Spatial extends AbstractSpatialOrScatterplot {
             ? featureColor.find(fc => fc.name === featureName)?.color
             : null;
           if (featureColorMatch) {
+            // eslint-disable-next-line no-param-reassign
             target[0] = featureColorMatch[0];
+            // eslint-disable-next-line no-param-reassign
             target[1] = featureColorMatch[1];
+            // eslint-disable-next-line no-param-reassign
             target[2] = featureColorMatch[2];
+            // eslint-disable-next-line no-param-reassign
             target[3] = 255;
             return target;
           }
           // No color found for this feature: use static color.
+          // eslint-disable-next-line no-param-reassign
           target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
           target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
           target[3] = 255;
           return target;
         }
         if (!showUnselected) {
           if (hasMultipleFeaturesSelected) {
+            // eslint-disable-next-line no-param-reassign
             target[3] = 0; // Hide the point by setting alpha to 0.
           }
           // Bail out early.
@@ -516,9 +573,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
         }
         // This is not the selected feature,
         // but we are showing unselected points.
+        // eslint-disable-next-line no-param-reassign
         target[0] = defaultColor[0];
+        // eslint-disable-next-line no-param-reassign
         target[1] = defaultColor[1];
+        // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
+        // eslint-disable-next-line no-param-reassign
         target[3] = 255;
         return target;
       };
@@ -529,7 +590,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // TODO: implement this case
       } else {
         getFillColor = (object, { index, data, target }) => {
-          if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+          if (
+            !hasFeatureSelection
+            || featureIndices.includes(data.src.featureIndices[index])
+          ) {
             // No feature selection: use random color by feature for all points.
 
             // The index of the gene corresponding to the transcript,
@@ -542,11 +606,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+            // eslint-disable-next-line no-param-reassign
             target[3] = 255;
             return target;
           }
           if (!showUnselected) {
             if (hasMultipleFeaturesSelected) {
+              // eslint-disable-next-line no-param-reassign
               target[3] = 0; // Hide the point by setting alpha to 0.
             }
             // Bail out early.
@@ -554,9 +620,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
           }
           // This is not the selected feature,
           // but we are showing unselected points.
+          // eslint-disable-next-line no-param-reassign
           target[0] = defaultColor[0];
+          // eslint-disable-next-line no-param-reassign
           target[1] = defaultColor[1];
+          // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
+          // eslint-disable-next-line no-param-reassign
           target[3] = 255;
           return target;
         };
@@ -568,7 +638,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // TODO: implement this case
       } else {
         getFillColor = (object, { index, data, target }) => {
-          if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+          if (
+            !hasFeatureSelection
+            || featureIndices.includes(data.src.featureIndices[index])
+          ) {
             // No feature selection: use random color by feature for all points.
 
             // The index of transcript.
@@ -579,11 +652,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+            // eslint-disable-next-line no-param-reassign
             target[3] = 255;
             return target;
           }
           if (!showUnselected) {
             if (hasMultipleFeaturesSelected) {
+              // eslint-disable-next-line no-param-reassign
               target[3] = 0; // Hide the point by setting alpha to 0.
             }
             // Bail out early.
@@ -591,9 +666,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
           }
           // This is not the selected feature,
           // but we are showing unselected points.
+          // eslint-disable-next-line no-param-reassign
           target[0] = defaultColor[0];
+          // eslint-disable-next-line no-param-reassign
           target[1] = defaultColor[1];
+          // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
+          // eslint-disable-next-line no-param-reassign
           target[3] = 255;
           return target;
         };
@@ -627,8 +706,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
-    // TODO: also consider a heuristic based on the number of unique Z values.
-    // (e.g., if many unique values, then not 2.5D, so filtering by a single Z value does not make sense.)
+    // TODO: also consider a heuristic based on
+    // the number of unique Z values.
+    // (e.g., if many unique values, then not 2.5D,
+    // so filtering by a single Z value does not make sense.)
 
     const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
 
@@ -650,8 +731,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
         // it provides no benefit to request tiles at different zoom levels.
-        // TODO: Should this value be the same for every dataset, or do we need to
-        // adjust based on the extent/density of the point data (and/or account for modelMatrix, etc)?
+        // TODO: Should this value be the same for
+        // every dataset, or do we need to
+        // adjust based on the extent/density of the
+        // point data (and/or account for modelMatrix, etc)?
         maxZoom: -1,
         minZoom: -1,
         tileSize: 512,
@@ -659,8 +742,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getTileData: async (tileInfo) => {
           const { index, signal, bbox, zoom } = tileInfo;
           const { z, x, y } = index;
-          const { left, top, right, bottom } = bbox;
-          console.log('getTileData', tileInfo);
+          // const { left, top, right, bottom } = bbox;
 
           this.obsPointsLoadingStatus = {
             ...this.obsPointsLoadingStatus,
@@ -668,10 +750,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
           };
           setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
 
-          // On signal abort, print a message.
+          // Listen for abort signal.
           signal.addEventListener('abort', () => {
-            console.log(`Tile ${z}/${x}/${y} aborted`);
-
             this.obsPointsLoadingStatus = {
               ...this.obsPointsLoadingStatus,
               [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
@@ -702,12 +782,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
             && featureIndices.length === 1
           );
 
+          const FILTER_PLACEHOLDER = 0;
+
           // TODO: can be improved using newer deckgl/extensions version
           // that supports filterCategories.
           const featureIndicesMinMax = (
             hasFeatureIndicesMinMax
               ? [featureIndices[0], featureIndices[0]]
-              : [0, 0]
+              : [FILTER_PLACEHOLDER, FILTER_PLACEHOLDER]
           );
 
           // Render scatterplot layer as sublayer of the TileLayer.
@@ -732,25 +814,40 @@ class Spatial extends AbstractSpatialOrScatterplot {
             pickable: true,
             autoHighlight: true,
             onHover: info => delegateHover(info, 'point', layerScope),
+            // Use GPU filtering to filter to only the points in the tile bounding box,
+            // since the row groups may contain points from other tiles.
             // Note: this can be improved using filterCategories,
             // but it is not available until post-v9 deck.gl/extensions.
             filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
             getFilterValue: hasFeatureIndicesMinMax
-              ? (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]])
-              : (object, { data, index }) => ([data.src.x[index], data.src.y[index], 0]),
+              ? (object, { data, index }) => ([
+                data.src.x[index],
+                data.src.y[index],
+                data.src.featureIndices[index],
+              ])
+              : (object, { data, index }) => ([
+                data.src.x[index],
+                data.src.y[index],
+                FILTER_PLACEHOLDER,
+              ]),
             extensions: [
               new deck.DataFilterExtension({ filterSize: 3 }),
             ],
-            // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
             updateTriggers: {
-              getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
+              getFillColor: [
+                showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
+                featureSelection, hasMultipleFeaturesSelected,
+              ],
               getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
               filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
             },
           });
         },
         updateTriggers: {
-          getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
+          getTileData: [
+            showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
+            featureSelection, hasMultipleFeaturesSelected,
+          ],
         },
         /*
         onTileError: (error) => {
@@ -1711,6 +1808,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       };
     } else {
       // Not tiled.
+      // eslint-disable-next-line no-lonely-if
       if (layerObsPoints) {
         const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
         this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
