@@ -27,6 +27,7 @@ import {
   MenuList,
   ListItemText,
   ListItemIcon,
+  LinearProgress,
   Palette as PaletteIcon,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
@@ -201,7 +202,7 @@ export default function PointLayerController(props) {
     tiledPointsLoadingProgress,
   } = props;
 
-  const [open, setOpen] = useState(true); // TODO: make false after development
+  const [open, setOpen] = useState(false); // TODO: make false after development
 
   const loadingDoneFraction = useMemo(() => {
     if (tiledPointsLoadingProgress && typeof tiledPointsLoadingProgress === 'object') {
@@ -277,7 +278,7 @@ export default function PointLayerController(props) {
   const showStaticColor = (
     obsColorEncoding === 'spatialLayerColor'
     || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
-  )
+  );
   const isColormap = false; // We do not yet support quantitative colormaps for points.
 
   // If the feature color encoding is "geneSelection" and there is only one feature selected,
@@ -336,7 +337,7 @@ export default function PointLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
-  const enableFeaturesAndSetsDropdown = true;
+  const enableFeaturesAndSetsDropdown = false;
 
   const [coloringTabIndex, setColoringTabIndex] = useState(0);
 
@@ -375,7 +376,7 @@ export default function PointLayerController(props) {
           </Grid>
           <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
-              {label}{loadingDoneFraction < 1.0 ? ` (Loading: ${(loadingDoneFraction * 100).toFixed(0)}%)` : null}
+              {label}
             </Typography>
           </Grid>
           <Grid size={2}>
@@ -420,6 +421,20 @@ export default function PointLayerController(props) {
             ) : null}
           </Grid>
         </Grid>
+        {loadingDoneFraction < 1.0 ? (
+          <Grid
+            size={12}
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.pointFeatureControllerGrid}
+          >
+            <LinearProgress
+              variant={loadingDoneFraction === 0.0 ? "indeterminate" : "determinate"}
+              value={loadingDoneFraction * 100.0}
+            />
+          </Grid>
+        ) : null}
         {enableFeaturesAndSetsDropdown && open ? (
           <Grid
             container
