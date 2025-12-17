@@ -998,7 +998,30 @@ export default class SpatialDataTableSource extends AnnDataSource {
     return this.varAliases[varPath];
   }
 
+  async _supportsTiledPoints(parquetPath) {
+    const { queryClient } = this;
+    const { store } = this.storeRoot;
+    
+    const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
 
+    // Now we can load the row groups and concatenate them into typed arrays.
+    // We already know the size of the final arrays based on the number of rows in each row group.
+    const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    if (numRowsPerGroup >= 100_000) {
+      // Heuristic: if there are more than 100,000 rows per row group,
+      // then tiled loading is probably difficult.
+      return false;
+    }
+
+    // Check if the required columns exist.
+    const requiredColumns = ['x', 'y', 'feature_index', 'morton_code_2d'];
+    const hasColumns = allMetadata?.schema?.fields?.map(f => f.name);
+    if (!hasColumns) {
+      return false;
+    }
+
+    return requiredColumns.every(col => hasColumns.includes(col));
+  }
 
   /**
    * Load point data using a tiled approach.

@@ -106,14 +106,42 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return null;
   }
 
+  async supportsTiling() {
+    const { path } = this.options;
+
+    const [formatVersion, zattrs, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
+      // Check the points format version.
+      this.dataSource.getPointsFormatVersion(path),
+      // Check for the presence of bounding_box metadata.
+      this.dataSource.loadSpatialDataElementAttrs(path),
+      // Check the size of parquet row groups,
+    // and for the presence of morton_code_2d and feature_index columns.
+      this.dataSource.supportsLoadPointsInRect(path),
+    ]);
+
+    const isSupportedVersion = formatVersion === '0.1';
+    const boundingBox = zattrs?.['bounding_box'];
+    const hasBoundingBox2D = (
+      typeof boundingBox?.['x_max'] === 'number'
+      && typeof boundingBox?.['x_min'] === 'number'
+      && typeof boundingBox?.['y_max'] === 'number'
+      && typeof boundingBox?.['y_min'] === 'number'
+    );
+
+    return (
+      isSupportedVersion
+      && hasBoundingBox2D
+      && hasRequiredColumnsAndRowGroupSize
+    );
+  }
+
   async load() {
-    
-    const [/*obsIndex, obsPoints, */modelMatrix] = await Promise.all([
+    const [/*obsIndex, obsPoints, */modelMatrix, supportsTiling] = await Promise.all([
       /*this.loadObsIndex(), // TEMP
       this.loadPoints(),*/
       this.loadModelMatrix(),
+      this.supportsTiling(),
     ]);
-    // May require changing the obsPoints format (breaking change?)
 
     const coordinationValues = {
       pointLayer: CL({
@@ -132,16 +160,19 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
 
     return new LoaderResult(
       {
-        // TODO: Return 'tiled' if the morton_code_2d column and bounding_box metadata are present,
-        // and the row group size is small enough.
-        obsPointsType: 'tiled',
-        
+ 
         obsIndex: ["1"], // TEMP
         obsPoints: { // TEMP
           shape: [2, 1],
           data: [[0], [0]],
         },
         obsPointsModelMatrix: modelMatrix,
+
+        // Return 'tiled' if the morton_code_2d column
+        // and bounding_box metadata are present,
+        // and the row group size is small enough.
+        // Otherwise, return 'full'.
+        obsPointsType: (supportsTiling ? 'tiled' : 'full'),
         
         // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
         // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
