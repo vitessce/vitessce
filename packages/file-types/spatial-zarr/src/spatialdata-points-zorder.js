@@ -1,8 +1,11 @@
+/* eslint-disable no-bitwise */
 
+// JavaScript equivalents of Python implementation.
+// Reference: https://github.com/vitessce/vitessce-python/blob/main/src/vitessce/data_utils/spatialdata_points_zorder.py
 
 const MORTON_CODE_NUM_BITS = 32; // Resulting morton codes will be stored as uint32.
-const MORTON_CODE_VALUE_MIN = 0;
-const MORTON_CODE_VALUE_MAX = 2**(MORTON_CODE_NUM_BITS/2) - 1;
+// const MORTON_CODE_VALUE_MIN = 0;
+const MORTON_CODE_VALUE_MAX = (2 ** (MORTON_CODE_NUM_BITS / 2)) - 1;
 
 
 /**
@@ -45,7 +48,6 @@ export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, or
 }
 
 
-
 /**
  * Axis-aligned box intersection (inclusive integer bounds).
  */
@@ -86,7 +88,7 @@ function cellRange(prefix, level, bits) {
 
 /**
  * Merge overlapping or directly adjacent intervals.
- * @param {Array<[number, number]>} intervals 
+ * @param {Array<[number, number]>} intervals
  * @returns {Array<[number, number]>}
  */
 export function mergeAdjacent(intervals) {
@@ -114,14 +116,14 @@ export function mergeAdjacent(intervals) {
  * - If stopLevel is null: exact cover (descend to exact containment).
  * - If stopLevel is set (0..bits): stop descending at that level, adding
  *   partially-overlapping cells as whole ranges (superset cover).
- * 
- * @param {number} rx0 
- * @param {number} ry0 
- * @param {number} rx1 
- * @param {number} ry1 
- * @param {number} bits 
- * @param {number|null} stopLevel 
- * @param {boolean} merge 
+ *
+ * @param {number} rx0
+ * @param {number} ry0
+ * @param {number} rx1
+ * @param {number} ry1
+ * @param {number} bits
+ * @param {number|null} stopLevel
+ * @param {boolean} merge
  * @returns {Array<[number, number]>}
  */
 export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merge = true) {
@@ -129,8 +131,8 @@ export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merg
 
   // TODO: clamp to [0, maxCoord] here instead of throwing. Revert clamping in origCoordToNormCoord.
 
-  if (!(0 <= rx0 && rx0 <= rx1 && rx1 <= maxCoord && 0 <= ry0 && ry0 <= ry1 && ry1 <= maxCoord)) {
-    throw new Error("Rectangle out of bounds for given bits.");
+  if (!(rx0 >= 0 && rx0 <= rx1 && rx1 <= maxCoord && ry0 >= 0 && ry0 <= ry1 && ry1 <= maxCoord)) {
+    throw new Error('Rectangle out of bounds for given bits.');
   }
 
   const intervals = [];
@@ -142,18 +144,21 @@ export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merg
     const [prefix, level, xmin, ymin, xmax, ymax] = stack.pop();
 
     if (!intersects(xmin, ymin, xmax, ymax, rx0, ry0, rx1, ry1)) {
+      // eslint-disable-next-line no-continue
       continue;
     }
 
     // If we stop at this level for a loose cover, add full cell range.
     if (stopLevel !== null && level === stopLevel) {
       intervals.push(cellRange(prefix, level, bits));
+      // eslint-disable-next-line no-continue
       continue;
     }
 
     // Fully contained: add full cell range.
     if (contained(xmin, ymin, xmax, ymax, rx0, ry0, rx1, ry1)) {
       intervals.push(cellRange(prefix, level, bits));
+      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -162,6 +167,7 @@ export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merg
       if (pointInside(xmin, ymin, rx0, ry0, rx1, ry1)) {
         intervals.push(cellRange(prefix, level, bits));
       }
+      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -200,9 +206,9 @@ export function sdataMortonQueryRectAux(boundingBox, origRect) {
     origCoordToNormCoord(origRect[1], xMin, xMax, yMin, yMax),
   ];
 
-  //console.log('boundingBox', boundingBox);
-  //console.log('origRect', origRect);
-  //console.log('normRect', normRect);
+  // console.log('boundingBox', boundingBox);
+  // console.log('origRect', origRect);
+  // console.log('normRect', normRect);
 
   // Get a list of morton code intervals that cover this rectangle region
   // [ [morton_start, morton_end], ... ]
@@ -211,7 +217,7 @@ export function sdataMortonQueryRectAux(boundingBox, origRect) {
     normRect[1][0], normRect[1][1],
     16,
     null,
-    true
+    true,
   );
 
   return mortonIntervals;

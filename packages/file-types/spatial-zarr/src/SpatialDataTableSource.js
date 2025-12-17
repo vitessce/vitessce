@@ -5,8 +5,8 @@
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
-import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 import { range } from 'lodash-es';
+import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { QueryClient } from '@tanstack/react-query' */
@@ -68,21 +68,21 @@ async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery
       const rangeQuery = ctx.queryKey[3];
       const { offset, length, suffixLength } = rangeQuery || {};
 
-      let getter = (path) => store.get(path);
+      let getter = path => store.get(path);
       if (rangeQuery !== undefined && store.getRange) {
-        if(suffixLength !== undefined) {
-          getter = (path) => store.getRange(path, {
-            suffixLength
+        if (suffixLength !== undefined) {
+          getter = path => store.getRange(path, {
+            suffixLength,
           });
         } else {
-          getter = (path) => store.getRange(path, {
+          getter = path => store.getRange(path, {
             offset,
-            length
+            length,
           });
         }
       }
 
-      let parquetBytes = undefined;
+      let parquetBytes;
       if (partIndex === undefined) {
         // Part index is necessarily undefined for single-file queries.
         parquetBytes = await getter(`/${parquetPath}`);
@@ -96,7 +96,6 @@ async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery
     },
     meta: { store },
   });
-
 }
 
 async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, partIndex = undefined) {
@@ -166,7 +165,7 @@ async function _loadParquetMetadataByPart({ queryClient, store }, parquetPath) {
       const { readSchema, readMetadata } = await _getParquetModule({ queryClient });
 
       let partIndex = 0;
-      let numParts = undefined;
+      let numParts;
       const allMetadata = [];
       do {
         try {
@@ -180,7 +179,7 @@ async function _loadParquetMetadataByPart({ queryClient, store }, parquetPath) {
             const partInfo = {
               schema: arrowTableForSchema,
               schemaBytes,
-              metadata: partMetadata
+              metadata: partMetadata,
             };
             allMetadata.push(partInfo);
             partIndex += 1;
@@ -191,16 +190,16 @@ async function _loadParquetMetadataByPart({ queryClient, store }, parquetPath) {
             numParts = partIndex;
           }
         }
-      } while(numParts === undefined);
+      } while (numParts === undefined);
 
       // Accumulate metadata across all parts.
       const metadata = {
         numRows: 0,
         numRowGroups: 0,
         numRowsPerGroup: 0,
-        schema: null
+        schema: null,
       };
-      if(allMetadata.length > 0) {
+      if (allMetadata.length > 0) {
         const firstPart = allMetadata[0];
         metadata.numRows = allMetadata.reduce((sum, part) => sum + part.metadata.fileMetadata().numRows(), 0);
         metadata.numRowGroups = allMetadata.reduce((sum, part) => sum + part.metadata.numRowGroups(), 0);
@@ -231,29 +230,29 @@ async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetP
       const { readParquetRowGroup } = await _getParquetModule({ queryClient });
 
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-      if(rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
+      if (rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
         throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.numRowGroups} row groups.`);
       }
 
       // Find the part index that contains this row group.
       // TODO: extract logic into utility functions for easier testing.
-      let partIndex = undefined;
+      let partIndex;
       let cumulativeRowGroups = 0;
-      for(let i = 0; i < allMetadata.parts.length; i++) {
+      for (let i = 0; i < allMetadata.parts.length; i++) {
         const part = allMetadata.parts[i];
         const numRowGroupsInPart = part.metadata.numRowGroups();
-        if(rowGroupIndex < cumulativeRowGroups + numRowGroupsInPart) {
+        if (rowGroupIndex < cumulativeRowGroups + numRowGroupsInPart) {
           partIndex = i;
           break;
         }
         cumulativeRowGroups += numRowGroupsInPart;
       }
-      if(partIndex === undefined) {
+      if (partIndex === undefined) {
         throw new Error(`Failed to find part containing row group index ${rowGroupIndex}.`);
       }
       const partMetadata = allMetadata.parts[partIndex].metadata;
-      const schemaBytes = allMetadata.parts[partIndex].schemaBytes;
-      
+      const { schemaBytes } = allMetadata.parts[partIndex];
+
       const rowGroupIndexRelativeToPart = rowGroupIndex - cumulativeRowGroups;
       const rowGroupMetadata = partMetadata.rowGroup(rowGroupIndexRelativeToPart);
       const rowGroupFileOffset = rowGroupMetadata.fileOffset();
@@ -269,7 +268,6 @@ async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetP
     },
     meta: { queryClient, store },
   });
-
 }
 
 async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetPath, columnName, rowGroupIndex) {
@@ -283,10 +281,10 @@ async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetP
       // Load the min/max extent (via first/last row) for a specific column in a specific row group.
       const rowGroupTable = await _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex);
       const column = rowGroupTable.getChild(columnName);
-      if(!column) {
+      if (!column) {
         throw new Error(`Column ${columnName} not found in row group ${rowGroupIndex} of parquet table at ${parquetPath}.`);
       }
-      if(column.length === 0) {
+      if (column.length === 0) {
         return { min: null, max: null };
       }
 
@@ -331,12 +329,12 @@ function getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi) {
   const queryCache = queryClient.getQueryCache();
   const prevQueries = queryCache.findAll({
     // Note: Must (manually) keep in sync with queryKey used in _loadParquetRowGroupColumnExtent.
-    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName /* wildcard for rowGroupIndex */],
+    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName],
     exact: false,
   });
 
-  const cachedRowGroupInfo = prevQueries.map(q => {
-    if(!(q.state.status === 'success' && !q.state.isInvalidated)) {
+  const cachedRowGroupInfo = prevQueries.map((q) => {
+    if (!(q.state.status === 'success' && !q.state.isInvalidated)) {
       return null;
     }
     return {
@@ -357,18 +355,16 @@ async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
   const queryCache = queryClient.getQueryCache();
   const prevQueries = queryCache.findAll({
     // Note: Must (manually) keep in sync with queryKey used in _loadParquetRowGroupColumnExtent.
-    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName /* wildcard for rowGroupIndex */],
+    queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName],
     exact: false,
   });
-  const cachedRowGroupInfo = prevQueries.map(q => {
-    return {
-      queryKey: q.queryKey,
-      index: q.queryKey[4],
-      status: q.state.status,
-      min: q.state.data?.min,
-      max: q.state.data?.max,
-    };
-  }).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
+  const cachedRowGroupInfo = prevQueries.map(q => ({
+    queryKey: q.queryKey,
+    index: q.queryKey[4],
+    status: q.state.status,
+    min: q.state.data?.min,
+    max: q.state.data?.max,
+  })).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
 
   const cachedInRange = cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
   // We want to await any pending queries here before returning, to avoid accumulating many pending queries.
@@ -377,11 +373,9 @@ async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
   if (pendingQueries.length === 0) {
     return cachedInRange;
   }
-  const pendingPromises = pendingQueries.map(c => {
-    return queryClient.ensureQueryData({
-      queryKey: c.queryKey,
-    });
-  });
+  const pendingPromises = pendingQueries.map(c => queryClient.ensureQueryData({
+    queryKey: c.queryKey,
+  }));
   // console.log('Awaiting', pendingPromises.length, 'pending cached row group extent queries', pendingQueries);
   await Promise.all(pendingPromises);
 
@@ -397,7 +391,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-      const numRowGroups = allMetadata.numRowGroups;
+      const { numRowGroups } = allMetadata;
 
       let lo = 0;
       let hi = numRowGroups;
@@ -413,13 +407,13 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
         // We want to find the first interval (from right) where targetValue >= c.max.
         const betterLo = cachedInRange.slice().reverse().find(c => c.index > lo && targetValue >= c.max);
         if (betterLo) {
-          //console.log('Found a better lo', lo, betterLo.index + 1, 'for', targetValue, 'from', cachedInRange);
+          // console.log('Found a better lo', lo, betterLo.index + 1, 'for', targetValue, 'from', cachedInRange);
           lo = Math.min(hi, betterLo.index + 1);
         }
         // We want to find the first interval (from left) where targetValue < c.min.
         const betterHi = cachedInRange.find(c => targetValue < c.min);
         if (betterHi) {
-          //console.log('Found a better hi', hi, betterHi.index - 1, 'for', targetValue, 'from', cachedInRange);
+          // console.log('Found a better hi', hi, betterHi.index - 1, 'for', targetValue, 'from', cachedInRange);
           hi = Math.max(lo, betterHi.index - 1);
         }
 
@@ -456,12 +450,12 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
         [tileBbox.right, tileBbox.bottom],
       ]);
 
-      //if(mortonIntervals.length >= 10_000) {
+      // if(mortonIntervals.length >= 10_000) {
       //  // Heuristic. This is too large.
       //  throw new Error('More than 10 thousand morton intervals. Skipping.');
-      //}
+      // }
 
-      //console.log(mortonIntervals);
+      // console.log(mortonIntervals);
 
 
       // We need to convert morton intervals to a set of row groups.
@@ -484,12 +478,12 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
           _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
           _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax),
         ]);
-        //console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
-        if(rowGroupIndexMin === rowGroupIndexMax) {
+        // console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
+        if (rowGroupIndexMin === rowGroupIndexMax) {
           // The intervals are contained within a single row group.
           return [false, [rowGroupIndexMin]];
         }
-        if(rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin - 1 === rowGroupIndexMax) {
+        if (rowGroupIndexMin + 1 === rowGroupIndexMax || rowGroupIndexMin - 1 === rowGroupIndexMax) {
           // The intervals span two contiguous row groups.
           return [false, [rowGroupIndexMin, rowGroupIndexMax]];
         }
@@ -497,10 +491,10 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
       };
 
       // Begin dividing the intervals in half until we find all of the row groups they span.
-      let intervalIndicesToCheck = [[0, mortonIntervals.length - 1]];
+      const intervalIndicesToCheck = [[0, mortonIntervals.length - 1]];
       while (intervalIndicesToCheck.length > 0) {
         const [startIndex, endIndex] = intervalIndicesToCheck.pop();
-        //console.log('Checking between ', startIndex, endIndex);
+        // console.log('Checking between ', startIndex, endIndex);
         const [spansMultipleRowGroups, rowGroupIndices] = await intervalsSpanMultipleRowGroups(startIndex, endIndex);
         if (!spansMultipleRowGroups) {
           if (rowGroupIndices !== null) {
@@ -512,11 +506,11 @@ async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileB
             // We have narrowed down to a single interval that spans multiple row groups.
             // We need to find the row groups that this interval spans.
             const [intervalMin, intervalMax] = mortonIntervals[startIndex];
-            const[rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
+            const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
               _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin),
               _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax),
             ]);
-            if(rowGroupIndexMin <= rowGroupIndexMax) {
+            if (rowGroupIndexMin <= rowGroupIndexMax) {
               coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
             } else {
               coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMax, rowGroupIndexMin + 1));
@@ -744,16 +738,16 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadParquetBytes(parquetPath, offset = undefined, length = undefined, partIndex = undefined) {
     const { store } = this.storeRoot;
 
-    let getter = (path) => store.get(path);
+    let getter = path => store.get(path);
     if (offset !== undefined && length !== undefined && store.getRange) {
-      getter = (path) => store.getRange(path, {
+      getter = path => store.getRange(path, {
         offset,
-        length
+        length,
       });
     }
 
     let parquetBytes = await getter(`/${parquetPath}`);
-    if(!parquetBytes) {
+    if (!parquetBytes) {
       // We have not yet determined if this is a directory or a single file.
 
       // This may be a directory with multiple parts.
@@ -997,16 +991,16 @@ export default class SpatialDataTableSource extends AnnDataSource {
     );
     return this.varAliases[varPath];
   }
-  
+
   async _supportsTiledPoints(parquetPath) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
-    
+
     const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
 
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
-    const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    const { numRowsPerGroup } = allMetadata;
     const numRowsTotal = allMetadata.numRows;
     if (numRowsPerGroup >= 100_000) {
       // Heuristic: if there are more than 100,000 rows per row group,
@@ -1029,7 +1023,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the required columns are missing. Required columns: ${requiredColumns.join(', ')}. Found columns: ${hasColumns.join(', ')}. See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
     }
 
-    return hasRequiredColumns
+    return hasRequiredColumns;
   }
 
   /**
@@ -1048,7 +1042,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     // Subdivide tileBbox into rectangles of a fixed size.
     const TILE_SIZE = 256; // 512 x 512.
-    
+
     // If tileBbox is larger than TILE_SIZE, we need to subdivide it.
     let tileBboxes = [];
     if (tileBbox.right - tileBbox.left > TILE_SIZE || tileBbox.bottom - tileBbox.top > TILE_SIZE) {
@@ -1075,9 +1069,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     // TODO: pass signal to react-query functions to allow aborting requests.
 
-    const rowGroupIndicesPerTile = await Promise.all(tileBboxes.map(async (subTileBbox) => {
-      return _rectToRowGroupIndices({ queryClient, store }, parquetPath, subTileBbox, allPointsBbox);
-    }));
+    const rowGroupIndicesPerTile = await Promise.all(tileBboxes.map(async subTileBbox => _rectToRowGroupIndices({ queryClient, store }, parquetPath, subTileBbox, allPointsBbox)));
     // Combine the row group indices from all tiles, and remove duplicates.
     const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat())).toSorted((a, b) => a - b);
     console.log('Unique covered row group indices:', uniqueCoveredRowGroupIndices);
@@ -1086,25 +1078,23 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
-    const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    const { numRowsPerGroup } = allMetadata;
     const numRowGroups = uniqueCoveredRowGroupIndices.length;
     const totalNumRows = numRowsPerGroup * numRowGroups;
 
     const xArr = new Float32Array(totalNumRows);
     const yArr = new Float32Array(totalNumRows);
     const featureIndexArr = new Uint32Array(totalNumRows);
-    
-    const rowGroupTables = await Promise.all(uniqueCoveredRowGroupIndices.map(async (rowGroupIndex) => {
-      return _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex);
-    }));
-    
+
+    const rowGroupTables = await Promise.all(uniqueCoveredRowGroupIndices.map(async rowGroupIndex => _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex)));
+
     let rowOffset = 0;
     rowGroupTables.forEach((table) => {
       const xColumn = table.getChild('x');
       const yColumn = table.getChild('y');
       // TODO: get the feature index column name from the zattrs metadata
       const featureIndexColumn = table.getChild('feature_index');
-      if(!xColumn || !yColumn || !featureIndexColumn) {
+      if (!xColumn || !yColumn || !featureIndexColumn) {
         throw new Error(`Missing required column in parquet table at ${parquetPath}. Required columns: x, y, feature_index`);
       }
       // Set the values in the typed arrays.
@@ -1113,7 +1103,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       featureIndexArr.set(featureIndexColumn.toArray(), rowOffset);
       rowOffset += numRowsPerGroup;
     });
-    
+
     return {
       data: {
         x: xArr,

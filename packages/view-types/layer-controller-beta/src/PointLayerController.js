@@ -262,11 +262,10 @@ export default function PointLayerController(props) {
           const colorForFeature = featureColor.find(fc => fc.name === featureName);
           return !colorForFeature;
         });
-      } else {
-        // There are features selected, but featureColor is not an array,
-        // so we can assume all features lack specified colors.
-        return featureSelection.length > 0;
       }
+      // There are features selected, but featureColor is not an array,
+      // so we can assume all features lack specified colors.
+      return featureSelection.length > 0;
     }
     return false;
   }, [featureColor, featureSelection]);
@@ -290,40 +289,45 @@ export default function PointLayerController(props) {
     && featureSelection.length === 1
   );
   const color = useMemo(() => {
-    if(showStaticColor) {
+    if (showStaticColor) {
       return spatialLayerColor;
     }
-    if(hasSingleSelectedFeature) {
-      const selectedFeatureColor = featureColor?.find(fc => fc.name === featureSelection[0])?.color;
-      if(selectedFeatureColor) {
+    if (hasSingleSelectedFeature) {
+      const selectedFeatureColor = featureColor
+        ?.find(fc => fc.name === featureSelection[0])?.color;
+      if (selectedFeatureColor) {
         return selectedFeatureColor;
       }
     }
-  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor, featureSelection, showStaticColor]);
+    return null;
+  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor,
+    featureSelection, showStaticColor,
+  ]);
   const setColor = useCallback((newColor) => {
-    if(showStaticColor) {
+    if (showStaticColor) {
       setSpatialLayerColor(newColor);
-    } else {
-      if (hasSingleSelectedFeature) {
-        const featureColorIndex = featureColor?.findIndex(fc => fc.name === featureSelection[0]);
-        if (featureColorIndex !== undefined && featureColorIndex >= 0) {
-          // Update existing feature color.
-          const newFeatureColor = [...featureColor];
-          newFeatureColor[featureColorIndex] = {
-            name: featureSelection[0],
-            color: newColor,
-          };
-          setFeatureColor(newFeatureColor);
-        } else {
-          // Add new feature color.
-          setFeatureColor([
-            ...featureColor,
-            { name: featureSelection[0], color: newColor },
-          ]);
-        }
+    } else if (hasSingleSelectedFeature) {
+      const featureColorIndex = featureColor
+        ?.findIndex(fc => fc.name === featureSelection[0]);
+      if (featureColorIndex !== undefined && featureColorIndex >= 0) {
+        // Update existing feature color.
+        const newFeatureColor = [...featureColor];
+        newFeatureColor[featureColorIndex] = {
+          name: featureSelection[0],
+          color: newColor,
+        };
+        setFeatureColor(newFeatureColor);
+      } else {
+        // Add new feature color.
+        setFeatureColor([
+          ...featureColor,
+          { name: featureSelection[0], color: newColor },
+        ]);
       }
     }
-  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor, setFeatureColor, featureSelection, showStaticColor]);
+  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor,
+    setFeatureColor, featureSelection, showStaticColor,
+  ]);
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -430,7 +434,7 @@ export default function PointLayerController(props) {
             className={classes.pointFeatureControllerGrid}
           >
             <LinearProgress
-              variant={loadingDoneFraction === 0.0 ? "indeterminate" : "determinate"}
+              variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
               value={loadingDoneFraction * 100.0}
             />
           </Grid>
@@ -442,18 +446,25 @@ export default function PointLayerController(props) {
             justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
           >
-            <Tabs value={coloringTabIndex} onChange={handleColoringTabChange} aria-label="basic tabs example">
+            <Tabs
+              value={coloringTabIndex}
+              onChange={handleColoringTabChange}
+              aria-label="Tabs for coloring by feature or set"
+            >
               <Tab label="Feature List" />
             </Tabs>
             {coloringTabIndex === 0 && (
               <Grid size={12} container direction="column">
                 <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
-                  {featureIndex && featureIndex.length > 0 ? featureIndex.map((featureName) => (
+                  {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
                     <MenuItem
                       key={featureName}
                     >
                       <ListItemIcon>
-                        {/* TODO: deterministically assign colors based on feature index using same method here as in Spatial view implementation */}
+                        {/*
+                        TODO: deterministically assign colors based on feature index
+                        using same method here as in Spatial view implementation
+                        */}
                         <PaletteIcon fontSize="small" />
                       </ListItemIcon>
                       <ListItemText>{featureName}</ListItemText>

@@ -409,8 +409,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
 
     let featureIndices = [];
-    if(Array.isArray(featureSelection) && featureSelection.length >= 1) {
-      if(pointFeatureIndex) {
+    if (Array.isArray(featureSelection) && featureSelection.length >= 1) {
+      if (pointFeatureIndex) {
         featureIndices = featureSelection.map(geneName => pointFeatureIndex.indexOf(geneName)).filter(i => i >= 0);
       }
     }
@@ -448,11 +448,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // So we handle the filtering logic in getFillColor by providing an alpha value.
     const hasMultipleFeaturesSelected = Array.isArray(featureIndices) && featureIndices.length > 1;
 
-    if(obsColorEncoding === 'spatialLayerColor') {
+    if (obsColorEncoding === 'spatialLayerColor') {
       // Case 1: spatialLayerColor.
       getFillColor = (object, { index, data, target }) => {
         // TODO: is the index still correct when using the filter extension? or are they shifted?
-        if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+        if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
           target[0] = staticColor[0];
           target[1] = staticColor[1];
           target[2] = staticColor[2];
@@ -460,7 +460,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           return target;
         }
         if (!showUnselected) {
-          if(hasMultipleFeaturesSelected) {
+          if (hasMultipleFeaturesSelected) {
             target[3] = 0; // Hide the point by setting alpha to 0.
           }
           // Bail out early.
@@ -474,10 +474,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[3] = 255;
         return target;
       };
-    } else if(obsColorEncoding === 'geneSelection') {
+    } else if (obsColorEncoding === 'geneSelection') {
       // Case 2: geneSelection.
       getFillColor = (object, { index, data, target }) => {
-        if(!hasFeatureSelection) {
+        if (!hasFeatureSelection) {
           // No feature selection: use static color for all points.
           target[0] = staticColor[0];
           target[1] = staticColor[1];
@@ -499,17 +499,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[2] = featureColorMatch[2];
             target[3] = 255;
             return target;
-          } else {
-            // No color found for this feature: use static color.
-            target[0] = staticColor[0];
-            target[1] = staticColor[1];
-            target[2] = staticColor[2];
-            target[3] = 255;
-            return target;
           }
+          // No color found for this feature: use static color.
+          target[0] = staticColor[0];
+          target[1] = staticColor[1];
+          target[2] = staticColor[2];
+          target[3] = 255;
+          return target;
         }
         if (!showUnselected) {
-          if(hasMultipleFeaturesSelected) {
+          if (hasMultipleFeaturesSelected) {
             target[3] = 0; // Hide the point by setting alpha to 0.
           }
           // Bail out early.
@@ -523,14 +522,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[3] = 255;
         return target;
       };
-    } else if(obsColorEncoding === 'randomByFeature') {
+    } else if (obsColorEncoding === 'randomByFeature') {
       // Case 3: randomByFeature.
       const preferFeatureColor = false;
-      if(preferFeatureColor) {
+      if (preferFeatureColor) {
         // TODO: implement this case
       } else {
         getFillColor = (object, { index, data, target }) => {
-          if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+          if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
             // No feature selection: use random color by feature for all points.
 
             // The index of the gene corresponding to the transcript,
@@ -547,7 +546,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             return target;
           }
           if (!showUnselected) {
-            if(hasMultipleFeaturesSelected) {
+            if (hasMultipleFeaturesSelected) {
               target[3] = 0; // Hide the point by setting alpha to 0.
             }
             // Bail out early.
@@ -562,14 +561,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
           return target;
         };
       }
-    } else if(obsColorEncoding === 'random') {
+    } else if (obsColorEncoding === 'random') {
       // Case 4: random (for each point).
       const preferFeatureColor = false;
-      if(preferFeatureColor) {
+      if (preferFeatureColor) {
         // TODO: implement this case
       } else {
         getFillColor = (object, { index, data, target }) => {
-          if(!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
+          if (!hasFeatureSelection || featureIndices.includes(data.src.featureIndices[index])) {
             // No feature selection: use random color by feature for all points.
 
             // The index of transcript.
@@ -637,7 +636,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
-    if(obsPointsTilingType === 'tiled') {
+    if (obsPointsTilingType === 'tiled') {
       // Tiled; use TileLayer.
       return new deck.TileLayer({
         id: `Tiled-${POINT_LAYER_PREFIX}${layerScope}`,
@@ -656,7 +655,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         maxZoom: -1,
         minZoom: -1,
         tileSize: 512,
-        //refinementStrategy: 'no-overlap',
+        // refinementStrategy: 'no-overlap',
         getTileData: async (tileInfo) => {
           const { index, signal, bbox, zoom } = tileInfo;
           const { z, x, y } = index;
@@ -672,7 +671,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // On signal abort, print a message.
           signal.addEventListener('abort', () => {
             console.log(`Tile ${z}/${x}/${y} aborted`);
-            
+
             this.obsPointsLoadingStatus = {
               ...this.obsPointsLoadingStatus,
               [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
@@ -707,18 +706,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // that supports filterCategories.
           const featureIndicesMinMax = (
             hasFeatureIndicesMinMax
-            ? [featureIndices[0], featureIndices[0]]
-            : [0, 0]
+              ? [featureIndices[0], featureIndices[0]]
+              : [0, 0]
           );
-          
+
           // Render scatterplot layer as sublayer of the TileLayer.
           return new deck.ScatterplotLayer(subLayerProps, {
             bounds: [left, top, right, bottom],
             data: tileData,
             getRadius: 5,
             radiusMaxPixels: 3,
-            //getPosition: d => d,
-            //getFillColor: [255, 0, 0],
+            // getPosition: d => d,
+            // getFillColor: [255, 0, 0],
             getPosition: (object, { data, index, target }) => {
               // eslint-disable-next-line no-param-reassign
               target[0] = data.src.x[index];
@@ -728,7 +727,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
               target[2] = 0; // TODO
               return target;
             },
-            getFillColor: getFillColor,
+            getFillColor,
             // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
             pickable: true,
             autoHighlight: true,
@@ -1698,18 +1697,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (obsPointsTilingType === 'tiled') {
       // Tiled.
       this.obsPointsData[layerScope] = {
-          src: {
-            obsPointsTilingType,
-            obsIndex: null,
-            obsPoints: null,
-            obsPointsModelMatrix,
-            obsLabelsMap: null,
-            uniqueObsLabels: null,
-            PALETTE: null,
-            loadPointsInRect,
-          },
-          length: null,
-        };
+        src: {
+          obsPointsTilingType,
+          obsIndex: null,
+          obsPoints: null,
+          obsPointsModelMatrix,
+          obsLabelsMap: null,
+          uniqueObsLabels: null,
+          PALETTE: null,
+          loadPointsInRect,
+        },
+        length: null,
+      };
     } else {
       // Not tiled.
       if (layerObsPoints) {

@@ -115,17 +115,17 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       // Check for the presence of bounding_box metadata.
       this.dataSource.loadSpatialDataElementAttrs(path),
       // Check the size of parquet row groups,
-    // and for the presence of morton_code_2d and feature_index columns.
+      // and for the presence of morton_code_2d and feature_index columns.
       this.dataSource.supportsLoadPointsInRect(path),
     ]);
 
     const isSupportedVersion = formatVersion === '0.1';
-    const boundingBox = zattrs?.['bounding_box'];
+    const boundingBox = zattrs?.bounding_box;
     const hasBoundingBox2D = (
-      typeof boundingBox?.['x_max'] === 'number'
-      && typeof boundingBox?.['x_min'] === 'number'
-      && typeof boundingBox?.['y_max'] === 'number'
-      && typeof boundingBox?.['y_min'] === 'number'
+      typeof boundingBox?.x_max === 'number'
+      && typeof boundingBox?.x_min === 'number'
+      && typeof boundingBox?.y_max === 'number'
+      && typeof boundingBox?.y_min === 'number'
     );
 
     return (
@@ -161,7 +161,8 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // and the feature_index (or feature_type) column.
     let obsIndex = null;
     let obsPoints = null;
-    let featureIndices = null; // TODO: implement loading feature indices (derive from feature_type if needed)
+    // TODO: implement loading feature indices (derive from feature_type if needed)
+    const featureIndices = null; // TODO
     if (!supportsTiling) {
       // We need to load points in full.
       [obsIndex, obsPoints] = await Promise.all([
@@ -172,11 +173,11 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
 
     return new LoaderResult(
       {
-        /*obsIndex: ["1"], // TEMP
+        /* obsIndex: ["1"], // TEMP
         obsPoints: { // TEMP
           shape: [2, 1],
           data: [[0], [0]],
-        },*/
+        }, */
         // These will be null if tiling is supported.
         obsIndex,
         obsPoints,
@@ -188,11 +189,11 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         // and the row group size is small enough.
         // Otherwise, return 'full'.
         obsPointsTilingType: (supportsTiling ? 'tiled' : 'full'),
-        
+
         // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
         // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
         // May need another function such as loader.supportsPointInRect() true/false.
-        loadPointsInRect: this.loadPointsInRect.bind(this)
+        loadPointsInRect: this.loadPointsInRect.bind(this),
       },
       null,
       coordinationValues,

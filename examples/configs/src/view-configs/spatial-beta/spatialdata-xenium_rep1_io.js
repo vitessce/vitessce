@@ -1,6 +1,5 @@
 import {
   VitessceConfig,
-  hconcat,
   CoordinationLevel as CL,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
@@ -17,9 +16,9 @@ function generateXeniumConfig() {
   const withImages = true;
   const withPolygons = true;
 
-  let dataset = vc.addDataset('My dataset')
-  
-  if(withImages) {
+  let dataset = vc.addDataset('My dataset');
+
+  if (withImages) {
     dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -46,8 +45,8 @@ function generateXeniumConfig() {
       },
     });
   }
-  
-  if(withPolygons) {
+
+  if (withPolygons) {
     dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -67,7 +66,7 @@ function generateXeniumConfig() {
     });
   }
 
-  if(withPoints) {
+  if (withPoints) {
     dataset = dataset.addFile({
       fileType: 'spatialdata.zarr',
       url: sdataUrl,
@@ -88,10 +87,10 @@ function generateXeniumConfig() {
 
   const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 });
   const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 });
-  const geneList = vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 }).setProps({ enableMultiSelect: true });
-  const heatmap = vc.addView(dataset, 'heatmap', { x: 0, y: 8, w: 12, h: 4 }).setProps({ transpose: true });
+  vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 }).setProps({ enableMultiSelect: true });
+  vc.addView(dataset, 'heatmap', { x: 0, y: 8, w: 12, h: 4 }).setProps({ transpose: true });
 
-  if(withImages) {
+  if (withImages) {
     vc.linkViewsByObject([spatialView, lcView], {
       imageLayer: CL([
         {
@@ -128,7 +127,7 @@ function generateXeniumConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
   }
 
-  if(withPolygons) {
+  if (withPolygons) {
     vc.linkViewsByObject([spatialView, lcView], {
       segmentationLayer: CL([
         {
@@ -151,7 +150,7 @@ function generateXeniumConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
   }
 
-  if(withPoints) {
+  if (withPoints) {
     vc.linkViewsByObject([spatialView, lcView], {
       spatialTargetZ: null,
       pointLayer: CL([
@@ -166,7 +165,7 @@ function generateXeniumConfig() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
-  //vc.layout(hconcat(spatialView, lcView));
+  // vc.layout(hconcat(spatialView, lcView));
   const configJSON = vc.toJSON();
   return configJSON;
 }
