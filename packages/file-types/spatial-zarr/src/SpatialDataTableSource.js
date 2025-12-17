@@ -997,7 +997,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     );
     return this.varAliases[varPath];
   }
-
+  
   async _supportsTiledPoints(parquetPath) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
@@ -1007,9 +1007,13 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
     const numRowsPerGroup = allMetadata.numRowsPerGroup;
+    const numRowsTotal = allMetadata.numRows;
     if (numRowsPerGroup >= 100_000) {
       // Heuristic: if there are more than 100,000 rows per row group,
       // then tiled loading is probably difficult.
+      if (numRowsTotal > 5_000_000) {
+        throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the row group size is too large (${numRowsPerGroup}). See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
+      }
       return false;
     }
 
@@ -1020,7 +1024,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
       return false;
     }
 
-    return requiredColumns.every(col => hasColumns.includes(col));
+    const hasRequiredColumns = requiredColumns.every(col => hasColumns.includes(col));
+    if (!hasRequiredColumns && numRowsTotal > 5_000_000) {
+      throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the required columns are missing. Required columns: ${requiredColumns.join(', ')}. Found columns: ${hasColumns.join(', ')}. See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
+    }
+
+    return hasRequiredColumns
   }
 
   /**

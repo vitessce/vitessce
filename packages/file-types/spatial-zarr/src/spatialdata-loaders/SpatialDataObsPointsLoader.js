@@ -136,9 +136,8 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const [/*obsIndex, obsPoints, */modelMatrix, supportsTiling] = await Promise.all([
-      /*this.loadObsIndex(), // TEMP
-      this.loadPoints(),*/
+    // We need these things regardless of tiling support.
+    const [modelMatrix, supportsTiling] = await Promise.all([
       this.loadModelMatrix(),
       this.supportsTiling(),
     ]);
@@ -158,21 +157,37 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       }),
     };
 
+    // If tiling is not supported, we need to load all points and the obs index,
+    // and the feature_index (or feature_type) column.
+    let obsIndex = null;
+    let obsPoints = null;
+    let featureIndices = null; // TODO: implement loading feature indices (derive from feature_type if needed)
+    if (!supportsTiling) {
+      // We need to load points in full.
+      [obsIndex, obsPoints] = await Promise.all([
+        this.loadObsIndex(),
+        this.loadPoints(),
+      ]);
+    }
+
     return new LoaderResult(
       {
- 
-        obsIndex: ["1"], // TEMP
+        /*obsIndex: ["1"], // TEMP
         obsPoints: { // TEMP
           shape: [2, 1],
           data: [[0], [0]],
-        },
+        },*/
+        // These will be null if tiling is supported.
+        obsIndex,
+        obsPoints,
+        featureIndices,
         obsPointsModelMatrix: modelMatrix,
 
         // Return 'tiled' if the morton_code_2d column
         // and bounding_box metadata are present,
         // and the row group size is small enough.
         // Otherwise, return 'full'.
-        obsPointsType: (supportsTiling ? 'tiled' : 'full'),
+        obsPointsTilingType: (supportsTiling ? 'tiled' : 'full'),
         
         // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
         // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.

@@ -619,7 +619,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return target;
     };
 
-    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData?.[layerScope]?.src ?? {};
+    const {
+      obsPointsModelMatrix,
+      obsPoints,
+      obsPointsTilingType,
+      loadPointsInRect,
+    } = this.obsPointsData?.[layerScope]?.src ?? {};
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
@@ -632,132 +637,134 @@ class Spatial extends AbstractSpatialOrScatterplot {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
-    // Use TileLayer to load tiled points via loader.loadPointsInRect(bounds)
-    const { loadPointsInRect } = this.obsPointsData[layerScope].src || {};
+    if(obsPointsTilingType === 'tiled') {
+      // Tiled; use TileLayer.
+      return new deck.TileLayer({
+        id: `${POINT_LAYER_PREFIX}${layerScope}-tiled`,
+        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+        // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
+        modelMatrix,
+        pickable: true,
+        autoHighlight: true,
+        //onHover: info => delegateHover(info, 'point', layerScope),
+        opacity: spatialLayerOpacity,
+        visible: spatialLayerVisible,
+        // Since points are tiled but not multi-resolution,
+        // it provides no benefit to request tiles at different zoom levels.
+        // TODO: Should this value be the same for every dataset, or do we need to
+        // adjust based on the extent/density of the point data (and/or account for modelMatrix, etc)?
+        maxZoom: -1,
+        minZoom: -1,
+        tileSize: 512,
+        //refinementStrategy: 'no-overlap',
+        getTileData: async (tileInfo) => {
+          const { index, signal, bbox, zoom } = tileInfo;
+          const { z, x, y } = index;
+          const { left, top, right, bottom } = bbox;
+          console.log('getTileData', tileInfo);
 
-    return new deck.TileLayer({
-      id: `${POINT_LAYER_PREFIX}${layerScope}`,
-      coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
-      // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
-      modelMatrix,
-      pickable: true,
-      autoHighlight: true,
-      //onHover: info => delegateHover(info, 'point', layerScope),
-      opacity: spatialLayerOpacity,
-      visible: spatialLayerVisible,
-      // Since points are tiled but not multi-resolution,
-      // it provides no benefit to request tiles at different zoom levels.
-      // TODO: Should this value be the same for every dataset, or do we need to
-      // adjust based on the extent/density of the point data (and/or account for modelMatrix, etc)?
-      maxZoom: -1,
-      minZoom: -1,
-      tileSize: 512,
-      //refinementStrategy: 'no-overlap',
-      getTileData: async (tileInfo) => {
-        const { index, signal, bbox, zoom } = tileInfo;
-        const { z, x, y } = index;
-        const { left, top, right, bottom } = bbox;
-        console.log('getTileData', tileInfo);
-
-        this.obsPointsLoadingStatus = {
-          ...this.obsPointsLoadingStatus,
-          [`${layerScope}-${z}-${x}-${y}`]: 'loading',
-        };
-        setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
-
-        // On signal abort, print a message.
-        signal.addEventListener('abort', () => {
-          console.log(`Tile ${z}/${x}/${y} aborted`);
-          
           this.obsPointsLoadingStatus = {
             ...this.obsPointsLoadingStatus,
-            [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
+            [`${layerScope}-${z}-${x}-${y}`]: 'loading',
           };
           setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
-        });
 
-        const pointsInTile = await loadPointsInRect(bbox, signal);
+          // On signal abort, print a message.
+          signal.addEventListener('abort', () => {
+            console.log(`Tile ${z}/${x}/${y} aborted`);
+            
+            this.obsPointsLoadingStatus = {
+              ...this.obsPointsLoadingStatus,
+              [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
+            };
+            setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
+          });
 
-        this.obsPointsLoadingStatus = {
-          ...this.obsPointsLoadingStatus,
-          [`${layerScope}-${z}-${x}-${y}`]: 'success',
-        };
-        setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
+          const pointsInTile = await loadPointsInRect(bbox, signal);
 
-        return {
-          src: pointsInTile.data,
-          length: pointsInTile.shape?.[1] || 0,
-        };
-      },
-      renderSubLayers: (subLayerProps) => {
-        const { bbox, content: tileData } = subLayerProps.tile;
-        const { left, top, right, bottom } = bbox;
+          this.obsPointsLoadingStatus = {
+            ...this.obsPointsLoadingStatus,
+            [`${layerScope}-${z}-${x}-${y}`]: 'success',
+          };
+          setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
 
-        const hasFeatureIndicesMinMax = (
-          !showUnselected
-          && Array.isArray(featureIndices)
-          && featureIndices.length === 1
-        );
+          return {
+            src: pointsInTile.data,
+            length: pointsInTile.shape?.[1] || 0,
+          };
+        },
+        renderSubLayers: (subLayerProps) => {
+          const { bbox, content: tileData } = subLayerProps.tile;
+          const { left, top, right, bottom } = bbox;
 
-        // TODO: can be improved using newer deckgl/extensions version
-        // that supports filterCategories.
-        const featureIndicesMinMax = (
-          hasFeatureIndicesMinMax
-          ? [featureIndices[0], featureIndices[0]]
-          : [0, 0]
-        );
+          const hasFeatureIndicesMinMax = (
+            !showUnselected
+            && Array.isArray(featureIndices)
+            && featureIndices.length === 1
+          );
 
-        return new deck.ScatterplotLayer(subLayerProps, {
-          bounds: [left, top, right, bottom],
-          data: tileData,
-          getRadius: 5,
-          radiusMaxPixels: 3,
-          //getPosition: d => d,
-          //getFillColor: [255, 0, 0],
-          getPosition: (object, { data, index, target }) => {
-            // eslint-disable-next-line no-param-reassign
-            target[0] = data.src.x[index];
-            // eslint-disable-next-line no-param-reassign
-            target[1] = data.src.y[index];
-            // eslint-disable-next-line no-param-reassign
-            target[2] = 0; // TODO
-            return target;
-          },
-          getFillColor: getFillColor,
-          // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
-          pickable: true,
-          autoHighlight: true,
-          // Note: this can be improved using filterCategories,
-          // but it is not available until post-v9 deck.gl/extensions.
-          filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
-          getFilterValue: hasFeatureIndicesMinMax
-            ? (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]])
-            : (object, { data, index }) => ([data.src.x[index], data.src.y[index], 0]),
-          extensions: [
-            new deck.DataFilterExtension({ filterSize: 3 }),
-          ],
-          //onHover: info => delegateHover(info, 'point', layerScope),
-          // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
-          updateTriggers: {
-            getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
-            getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
-            filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
-          },
-        });
-      },
-      updateTriggers: {
-        getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
-      },
-      onTileError: (error) => {
+          // TODO: can be improved using newer deckgl/extensions version
+          // that supports filterCategories.
+          const featureIndicesMinMax = (
+            hasFeatureIndicesMinMax
+            ? [featureIndices[0], featureIndices[0]]
+            : [0, 0]
+          );
+          
+          // Render scatterplot layer as sublayer of the TileLayer.
+          return new deck.ScatterplotLayer(subLayerProps, {
+            bounds: [left, top, right, bottom],
+            data: tileData,
+            getRadius: 5,
+            radiusMaxPixels: 3,
+            //getPosition: d => d,
+            //getFillColor: [255, 0, 0],
+            getPosition: (object, { data, index, target }) => {
+              // eslint-disable-next-line no-param-reassign
+              target[0] = data.src.x[index];
+              // eslint-disable-next-line no-param-reassign
+              target[1] = data.src.y[index];
+              // eslint-disable-next-line no-param-reassign
+              target[2] = 0; // TODO
+              return target;
+            },
+            getFillColor: getFillColor,
+            // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
+            pickable: true,
+            autoHighlight: true,
+            // Note: this can be improved using filterCategories,
+            // but it is not available until post-v9 deck.gl/extensions.
+            filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
+            getFilterValue: hasFeatureIndicesMinMax
+              ? (object, { data, index }) => ([data.src.x[index], data.src.y[index], data.src.featureIndices[index]])
+              : (object, { data, index }) => ([data.src.x[index], data.src.y[index], 0]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 3 }),
+            ],
+            //onHover: info => delegateHover(info, 'point', layerScope),
+            // Use GPU filtering to filter to only the points in the tile bounding box, since the row groups may contain points from other tiles.
+            updateTriggers: {
+              getFillColor: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
+              getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+              filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+            },
+          });
+        },
+        updateTriggers: {
+          getTileData: [showUnselected, featureColor, obsColorEncoding, spatialLayerColor, featureSelection, hasMultipleFeaturesSelected],
+        },
+        onTileError: (error) => {
 
-      },
-      onViewportLoad: (loadedTiles) => {
-        // Called when all tiles in the current viewport are loaded.
-        // An array of loaded Tile instances are passed as argument to this function.
-        console.log('onViewportLoad', loadedTiles);
-      },
-    });
+        },
+        onViewportLoad: (loadedTiles) => {
+          // Called when all tiles in the current viewport are loaded.
+          // An array of loaded Tile instances are passed as argument to this function.
+          console.log('onViewportLoad', loadedTiles);
+        },
+      });
+    }
 
+    // Not tiled; Use ScatterplotLayer directly.
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -1684,30 +1691,49 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsPoints: layerObsPoints,
       obsPointsModelMatrix,
       loadPointsInRect,
+      obsPointsTilingType,
     } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
-    if (layerObsPoints) {
-      const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
-      this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+    if (obsPointsTilingType === 'tiled') {
+      // Tiled.
       this.obsPointsData[layerScope] = {
-        src: {
-          obsIndex,
-          obsPoints: layerObsPoints,
-          obsPointsModelMatrix,
-          obsLabelsMap: null,
-          uniqueObsLabels: null,
-          PALETTE: null,
-          loadPointsInRect,
-        },
-        length: layerObsPoints.shape[1],
-      };
+          src: {
+            obsPointsTilingType,
+            obsIndex: null,
+            obsPoints: null,
+            obsPointsModelMatrix,
+            obsLabelsMap: null,
+            uniqueObsLabels: null,
+            PALETTE: null,
+            loadPointsInRect,
+          },
+          length: null,
+        };
+    } else {
+      // Not tiled.
+      if (layerObsPoints) {
+        const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
+        this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+        this.obsPointsData[layerScope] = {
+          src: {
+            obsPointsTilingType,
+            obsIndex,
+            obsPoints: layerObsPoints,
+            obsPointsModelMatrix,
+            obsLabelsMap: null,
+            uniqueObsLabels: null,
+            PALETTE: null,
+          },
+          length: layerObsPoints.shape[1],
+        };
 
-      if (obsLabels) {
-        const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
-        const uniqueObsLabels = Array.from(new Set(obsLabels));
-        this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
-        this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
-        this.obsPointsData[layerScope].src.PALETTE = PALETTE;
+        if (obsLabels) {
+          const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
+          const uniqueObsLabels = Array.from(new Set(obsLabels));
+          this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
+          this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
+          this.obsPointsData[layerScope].src.PALETTE = PALETTE;
+        }
       }
     }
   }
