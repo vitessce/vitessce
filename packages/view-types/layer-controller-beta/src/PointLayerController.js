@@ -267,7 +267,7 @@ export default function PointLayerController(props) {
       // so we can assume all features lack specified colors.
       return featureSelection.length > 0;
     }
-    return false;
+    return true;
   }, [featureColor, featureSelection]);
 
   const isStaticColor = (
