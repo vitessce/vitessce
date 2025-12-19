@@ -481,9 +481,21 @@ export const baseCoordinationTypes = [
     })).nullable(),
   ),
   new PluginCoordinationType(
+    CoordinationType.FEATURE_COLOR,
+    null,
+    z.array(z.object({
+      name: z.string(),
+      color: rgbArray,
+    })).nullable(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.OBS_COLOR_ENCODING,
     'cellSetSelection',
-    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels']),
+    z.enum([
+      'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
+      // For point coloring.
+      'random', 'randomByFeature',
+    ]),
   ),
   new PluginCoordinationType(CoordinationType.FEATURE_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_HIGHLIGHT, null, z.string().nullable()),
@@ -510,7 +522,7 @@ export const baseCoordinationTypes = [
     null,
     z.array(obsSetPath).nullable(),
   ),
-  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter']).nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter', 'featureSelection']).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     null,

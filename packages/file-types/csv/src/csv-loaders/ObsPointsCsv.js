@@ -15,7 +15,7 @@ export default class ObsPointsCsvLoader extends CsvLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    this.cachedResult = { obsIndex, obsPoints };
+    this.cachedResult = { obsIndex, obsPoints, obsPointsTilingType: 'full' };
     return this.cachedResult;
   }
 

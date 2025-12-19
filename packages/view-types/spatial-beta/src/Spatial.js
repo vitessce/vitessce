@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable prefer-destructuring */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
@@ -139,6 +140,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSpotsQuadTree = {}; // Keys: spotLayer scopes
     this.obsPointsData = {}; // Keys: pointLayer scopes
     this.obsPointsQuadTree = {}; // Keys: pointLayer scopes
+    this.obsPointsLoadingStatus = {}; // Keys: tile indices
 
     this.imageLayers = [];
     this.obsSegmentationsLayers = [];
@@ -387,6 +389,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       theme,
       delegateHover,
       targetZ,
+      pointMatrixIndices,
+      setTiledPointsLoadingProgress,
     } = this.props;
 
     const {
@@ -394,12 +398,288 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerOpacity,
       obsColorEncoding,
       spatialLayerColor,
+      featureSelection,
+      featureFilterMode,
+      featureColor,
     } = layerCoordination;
 
+    // Obtain the numeric indices of the selected features, to use for filtering.
+    // Note: this assumes that the feature names have been mapped to indices,
+    // relative to the corresponding sdata.tables[table].var.index
+    // (of the table that annotates the points).
+    const pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
+
+    let featureIndices = [];
+    if (Array.isArray(featureSelection) && featureSelection.length >= 1) {
+      if (pointFeatureIndex) {
+        featureIndices = featureSelection
+          .map(geneName => pointFeatureIndex.indexOf(geneName))
+          .filter(i => i >= 0);
+      }
+    }
+
+    const staticColor = (
+      Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+        ? spatialLayerColor
+        : getDefaultColor(theme)
+    );
+    const defaultColor = getDefaultColor(theme);
+
+    // Coloring cases:
+    // - spatialLayerColor: one color for all points.
+    //   consider all as selected when featureSelection is null.
+    // - spatialLayerColor with featureSelection: one color for
+    //   all selected points, default color for unselected points
+    // - spatialLayerColor with featureSelection and
+    //   featureFilterMode 'featureSelection': one color for selected points,
+    //   do not show unselected points
+
+    // - geneSelection: use colors from "featureColor".
+    //   consider all as selected when featureSelection is null.
+    // - geneSelection with featureSelection: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) for
+    //   selected features, default color for unselected points
+    // - geneSelection with featureFilterMode 'featureSelection': use colors
+    //   from "featureColor" for selected features,
+    //   do not show unselected points
+
+    // - randomByFeature: random color for each feature
+    //   (deterministic based on feature index).
+    //   consider all as selected when featureSelection is null.
+    // - randomByFeature with preferFeatureColor: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) where
+    //   available, and random colors otherwise.
+    // - randomByFeature with featureSelection: random color for
+    //   selected features, default color for unselected points
+    // - randomByFeature with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for
+    //   selected features, do not show unselected points
+
+    // - random: random color for each point
+    //   (deterministic based on point index).
+    //   consider all as selected when featureSelection is null.
+    // - random with preferFeatureColor: use colors from "featureColor"
+    //   (array of { name, color: [r, g, b] }) where available,
+    //   and random colors otherwise.
+    // - random with featureSelection: random color for selected points,
+    //   default color for unselected points
+    // - random with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for selected
+    //   points, do not show unselected points
+
+    let getFillColor = null;
+    const hasFeatureSelection = (
+      Array.isArray(featureSelection) && featureSelection.length > 0
+    );
+    const showUnselected = featureFilterMode !== 'featureSelection';
+
+    // If multiple features are selected, we cannot depend on the filterExtension
+    // until we have a deck.gl version that supports filtering by multiple categories.
+    // So we handle the filtering logic in getFillColor by providing an alpha value.
+    const hasMultipleFeaturesSelected = (
+      Array.isArray(featureIndices) && featureIndices.length > 1
+    );
+
+    if (obsColorEncoding === 'spatialLayerColor') {
+      // Case 1: spatialLayerColor.
+      getFillColor = (object, { index, data, target }) => {
+        // TODO: is the index still correct when using the filter extension? or are they shifted?
+        if (
+          !hasFeatureSelection
+          || featureIndices.includes(data.src.featureIndices[index])
+        ) {
+          // eslint-disable-next-line no-param-reassign
+          target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
+          target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
+          target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
+          target[3] = 255;
+          return target;
+        }
+        if (!showUnselected) {
+          if (hasMultipleFeaturesSelected) {
+            // eslint-disable-next-line no-param-reassign
+            target[3] = 0; // Hide the point by setting alpha to 0.
+          }
+          // Bail out early.
+          return target;
+        }
+        // This is not the selected feature,
+        // but we are showing unselected points.
+        // eslint-disable-next-line no-param-reassign
+        target[0] = defaultColor[0];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = defaultColor[1];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = defaultColor[2];
+        // eslint-disable-next-line no-param-reassign
+        target[3] = 255;
+        return target;
+      };
+    } else if (obsColorEncoding === 'geneSelection') {
+      // Case 2: geneSelection.
+      getFillColor = (object, { index, data, target }) => {
+        if (!hasFeatureSelection) {
+          // No feature selection: use static color for all points.
+          // eslint-disable-next-line no-param-reassign
+          target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
+          target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
+          target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
+          target[3] = 255;
+          return target;
+        }
+        // There is a featureSelection.
+        const isSelected = featureIndices.includes(data.src.featureIndices[index]);
+        if (isSelected) {
+          // Find the color for this feature.
+          const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+          const featureColorMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)?.color
+            : null;
+          if (featureColorMatch) {
+            // eslint-disable-next-line no-param-reassign
+            target[0] = featureColorMatch[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = featureColorMatch[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = featureColorMatch[2];
+            // eslint-disable-next-line no-param-reassign
+            target[3] = 255;
+            return target;
+          }
+          // No color found for this feature: use static color.
+          // eslint-disable-next-line no-param-reassign
+          target[0] = staticColor[0];
+          // eslint-disable-next-line no-param-reassign
+          target[1] = staticColor[1];
+          // eslint-disable-next-line no-param-reassign
+          target[2] = staticColor[2];
+          // eslint-disable-next-line no-param-reassign
+          target[3] = 255;
+          return target;
+        }
+        if (!showUnselected) {
+          if (hasMultipleFeaturesSelected) {
+            // eslint-disable-next-line no-param-reassign
+            target[3] = 0; // Hide the point by setting alpha to 0.
+          }
+          // Bail out early.
+          return target;
+        }
+        // This is not the selected feature,
+        // but we are showing unselected points.
+        // eslint-disable-next-line no-param-reassign
+        target[0] = defaultColor[0];
+        // eslint-disable-next-line no-param-reassign
+        target[1] = defaultColor[1];
+        // eslint-disable-next-line no-param-reassign
+        target[2] = defaultColor[2];
+        // eslint-disable-next-line no-param-reassign
+        target[3] = 255;
+        return target;
+      };
+    } else if (obsColorEncoding === 'randomByFeature') {
+      // Case 3: randomByFeature.
+      const preferFeatureColor = false;
+      if (preferFeatureColor) {
+        // TODO: implement this case
+      } else {
+        getFillColor = (object, { index, data, target }) => {
+          if (
+            !hasFeatureSelection
+            || featureIndices.includes(data.src.featureIndices[index])
+          ) {
+            // No feature selection: use random color by feature for all points.
+
+            // The index of the gene corresponding to the transcript,
+            // relative to the var dataframe index values.
+            const varIndex = data.src.featureIndices[index];
+            const color = PALETTE[varIndex % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            // eslint-disable-next-line no-param-reassign
+            target[3] = 255;
+            return target;
+          }
+          if (!showUnselected) {
+            if (hasMultipleFeaturesSelected) {
+              // eslint-disable-next-line no-param-reassign
+              target[3] = 0; // Hide the point by setting alpha to 0.
+            }
+            // Bail out early.
+            return target;
+          }
+          // This is not the selected feature,
+          // but we are showing unselected points.
+          // eslint-disable-next-line no-param-reassign
+          target[0] = defaultColor[0];
+          // eslint-disable-next-line no-param-reassign
+          target[1] = defaultColor[1];
+          // eslint-disable-next-line no-param-reassign
+          target[2] = defaultColor[2];
+          // eslint-disable-next-line no-param-reassign
+          target[3] = 255;
+          return target;
+        };
+      }
+    } else if (obsColorEncoding === 'random') {
+      // Case 4: random (for each point).
+      const preferFeatureColor = false;
+      if (preferFeatureColor) {
+        // TODO: implement this case
+      } else {
+        getFillColor = (object, { index, data, target }) => {
+          if (
+            !hasFeatureSelection
+            || featureIndices.includes(data.src.featureIndices[index])
+          ) {
+            // No feature selection: use random color by feature for all points.
+
+            // The index of transcript.
+            const color = PALETTE[index % PALETTE.length];
+            // eslint-disable-next-line no-param-reassign
+            target[0] = color[0];
+            // eslint-disable-next-line no-param-reassign
+            target[1] = color[1];
+            // eslint-disable-next-line no-param-reassign
+            target[2] = color[2];
+            // eslint-disable-next-line no-param-reassign
+            target[3] = 255;
+            return target;
+          }
+          if (!showUnselected) {
+            if (hasMultipleFeaturesSelected) {
+              // eslint-disable-next-line no-param-reassign
+              target[3] = 0; // Hide the point by setting alpha to 0.
+            }
+            // Bail out early.
+            return target;
+          }
+          // This is not the selected feature,
+          // but we are showing unselected points.
+          // eslint-disable-next-line no-param-reassign
+          target[0] = defaultColor[0];
+          // eslint-disable-next-line no-param-reassign
+          target[1] = defaultColor[1];
+          // eslint-disable-next-line no-param-reassign
+          target[2] = defaultColor[2];
+          // eslint-disable-next-line no-param-reassign
+          target[3] = 255;
+          return target;
+        };
+      }
+    }
+
     const isStaticColor = obsColorEncoding === 'spatialLayerColor';
-    const staticColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-      ? spatialLayerColor
-      : getDefaultColor(theme);
 
     const getMoleculeColor = (object, { data, index, target }) => {
       const obsId = data.src.obsIndex[index];
@@ -417,14 +697,171 @@ class Spatial extends AbstractSpatialOrScatterplot {
       return target;
     };
 
-    const { obsPointsModelMatrix, obsPoints } = this.obsPointsData?.[layerScope]?.src ?? {};
+    const {
+      obsPointsModelMatrix,
+      obsPoints,
+      obsPointsTilingType,
+      loadPointsInRect,
+    } = this.obsPointsData?.[layerScope]?.src ?? {};
     const hasZ = obsPoints?.shape?.[0] === 3;
     const modelMatrix = obsPointsModelMatrix?.clone();
 
-    if (hasZ && typeof targetZ !== 'number') {
+    // TODO: also consider a heuristic based on
+    // the number of unique Z values.
+    // (e.g., if many unique values, then not 2.5D,
+    // so filtering by a single Z value does not make sense.)
+
+    const considerZ = false; // TEMPORARY, for development. Figure out better long-term solution.
+
+    if (hasZ && typeof targetZ !== 'number' && considerZ) {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
 
+    if (obsPointsTilingType === 'tiled') {
+      // Tiled; use TileLayer.
+      return new deck.TileLayer({
+        id: `Tiled-${POINT_LAYER_PREFIX}${layerScope}`,
+        coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+        // NOTE: picking is not working due to https://github.com/vitessce/vitessce/issues/2039
+        modelMatrix,
+        pickable: true,
+        autoHighlight: true,
+        onHover: info => delegateHover(info, 'point', layerScope),
+        opacity: spatialLayerOpacity,
+        visible: spatialLayerVisible,
+        // Since points are tiled but not multi-resolution,
+        // it provides no benefit to request tiles at different zoom levels.
+        // TODO: Should this value be the same for
+        // every dataset, or do we need to
+        // adjust based on the extent/density of the
+        // point data (and/or account for modelMatrix, etc)?
+        maxZoom: -1,
+        minZoom: -1,
+        tileSize: 512,
+        // refinementStrategy: 'no-overlap',
+        getTileData: async (tileInfo) => {
+          const { index, signal, bbox, zoom } = tileInfo;
+          const { z, x, y } = index;
+          // const { left, top, right, bottom } = bbox;
+
+          this.obsPointsLoadingStatus = {
+            ...this.obsPointsLoadingStatus,
+            [`${layerScope}-${z}-${x}-${y}`]: 'loading',
+          };
+          setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
+
+          // Listen for abort signal.
+          signal.addEventListener('abort', () => {
+            this.obsPointsLoadingStatus = {
+              ...this.obsPointsLoadingStatus,
+              [`${layerScope}-${z}-${x}-${y}`]: 'aborted',
+            };
+            setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
+          });
+
+          const pointsInTile = await loadPointsInRect(bbox, signal);
+
+          this.obsPointsLoadingStatus = {
+            ...this.obsPointsLoadingStatus,
+            [`${layerScope}-${z}-${x}-${y}`]: 'success',
+          };
+          setTiledPointsLoadingProgress(this.obsPointsLoadingStatus);
+
+          return {
+            src: pointsInTile.data,
+            length: pointsInTile.shape?.[1] || 0,
+          };
+        },
+        renderSubLayers: (subLayerProps) => {
+          const { bbox, content: tileData } = subLayerProps.tile;
+          const { left, top, right, bottom } = bbox;
+
+          const hasFeatureIndicesMinMax = (
+            !showUnselected
+            && Array.isArray(featureIndices)
+            && featureIndices.length === 1
+          );
+
+          const FILTER_PLACEHOLDER = 0;
+
+          // TODO: can be improved using newer deckgl/extensions version
+          // that supports filterCategories.
+          const featureIndicesMinMax = (
+            hasFeatureIndicesMinMax
+              ? [featureIndices[0], featureIndices[0]]
+              : [FILTER_PLACEHOLDER, FILTER_PLACEHOLDER]
+          );
+
+          // Render scatterplot layer as sublayer of the TileLayer.
+          return new deck.ScatterplotLayer(subLayerProps, {
+            bounds: [left, top, right, bottom],
+            data: tileData,
+            getRadius: 5,
+            radiusMaxPixels: 3,
+            // getPosition: d => d,
+            // getFillColor: [255, 0, 0],
+            getPosition: (object, { data, index, target }) => {
+              // eslint-disable-next-line no-param-reassign
+              target[0] = data.src.x[index];
+              // eslint-disable-next-line no-param-reassign
+              target[1] = data.src.y[index];
+              // eslint-disable-next-line no-param-reassign
+              target[2] = 0; // TODO
+              return target;
+            },
+            getFillColor,
+            // TODO: Is the picking stuff needed here in the Sublayer, or in the parent TileLayer?
+            pickable: true,
+            autoHighlight: true,
+            onHover: info => delegateHover(info, 'point', layerScope),
+            // Use GPU filtering to filter to only the points in the tile bounding box,
+            // since the row groups may contain points from other tiles.
+            // Note: this can be improved using filterCategories,
+            // but it is not available until post-v9 deck.gl/extensions.
+            filterRange: [[left, right], [top, bottom], featureIndicesMinMax],
+            getFilterValue: hasFeatureIndicesMinMax
+              ? (object, { data, index }) => ([
+                data.src.x[index],
+                data.src.y[index],
+                data.src.featureIndices[index],
+              ])
+              : (object, { data, index }) => ([
+                data.src.x[index],
+                data.src.y[index],
+                FILTER_PLACEHOLDER,
+              ]),
+            extensions: [
+              new deck.DataFilterExtension({ filterSize: 3 }),
+            ],
+            updateTriggers: {
+              getFillColor: [
+                showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
+                featureSelection, hasMultipleFeaturesSelected,
+              ],
+              getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+              filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+            },
+          });
+        },
+        updateTriggers: {
+          getTileData: [
+            showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
+            featureSelection, hasMultipleFeaturesSelected,
+          ],
+        },
+        /*
+        onTileError: (error) => {
+
+        },
+        onViewportLoad: (loadedTiles) => {
+          // Called when all tiles in the current viewport are loaded.
+          // An array of loaded Tile instances are passed as argument to this function.
+        },
+        */
+      });
+    }
+
+    // Not tiled; Use ScatterplotLayer directly.
     return new deck.ScatterplotLayer({
       id: `${POINT_LAYER_PREFIX}${layerScope}`,
       data: this.obsPointsData[layerScope],
@@ -453,7 +890,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFillColor: [obsColorEncoding, staticColor],
         getLineColor: [obsColorEncoding, staticColor],
       },
-      ...(hasZ && typeof targetZ === 'number' ? {
+      ...(hasZ && typeof targetZ === 'number' && considerZ ? {
         // TODO: support targetT filtering as well.
         // TODO: allow filtering by Z coordinate (rather than slice index)
         // Reference: https://github.com/vitessce/vitessce/issues/2194
@@ -1350,29 +1787,51 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsIndex,
       obsPoints: layerObsPoints,
       obsPointsModelMatrix,
+      loadPointsInRect,
+      obsPointsTilingType,
     } = obsPoints?.[layerScope] || {};
     const { obsIndex: obsLabelsIndex, obsLabels } = pointMultiObsLabels?.[layerScope] || {};
-    if (layerObsPoints) {
-      const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
-      this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+    if (obsPointsTilingType === 'tiled') {
+      // Tiled.
       this.obsPointsData[layerScope] = {
         src: {
-          obsIndex,
-          obsPoints: layerObsPoints,
+          obsPointsTilingType,
+          obsIndex: null,
+          obsPoints: null,
           obsPointsModelMatrix,
           obsLabelsMap: null,
           uniqueObsLabels: null,
           PALETTE: null,
+          loadPointsInRect,
         },
-        length: layerObsPoints.shape[1],
+        length: null,
       };
+    } else {
+      // Not tiled.
+      // eslint-disable-next-line no-lonely-if
+      if (layerObsPoints) {
+        const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
+        this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+        this.obsPointsData[layerScope] = {
+          src: {
+            obsPointsTilingType,
+            obsIndex,
+            obsPoints: layerObsPoints,
+            obsPointsModelMatrix,
+            obsLabelsMap: null,
+            uniqueObsLabels: null,
+            PALETTE: null,
+          },
+          length: layerObsPoints.shape[1],
+        };
 
-      if (obsLabels) {
-        const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
-        const uniqueObsLabels = Array.from(new Set(obsLabels));
-        this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
-        this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
-        this.obsPointsData[layerScope].src.PALETTE = PALETTE;
+        if (obsLabels) {
+          const obsLabelsMap = new Map(obsLabelsIndex.map((key, i) => ([key, obsLabels[i]])));
+          const uniqueObsLabels = Array.from(new Set(obsLabels));
+          this.obsPointsData[layerScope].src.obsLabelsMap = obsLabelsMap;
+          this.obsPointsData[layerScope].src.uniqueObsLabels = uniqueObsLabels;
+          this.obsPointsData[layerScope].src.PALETTE = PALETTE;
+        }
       }
     }
   }
@@ -1680,6 +2139,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // Data props.
         'obsPoints',
         'pointMultiObsLabels',
+        'pointMatrixIndices',
         // Coordination props.
         'pointLayerScopes',
         'pointLayerCoordination',

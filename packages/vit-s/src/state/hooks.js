@@ -983,7 +983,7 @@ const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
   spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels'],
   spatialAcceleratedVolumeLoadingProgress: ['volumeLoadingProgress'],
-  layerControllerBeta: ['volumeLoadingProgress'],
+  spatialTiledPointsLoadingProgress: ['tiledPointsLoadingProgress'],
 };
 
 /**
