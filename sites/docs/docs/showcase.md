@@ -27,6 +27,7 @@ Vitessce is being used in the following projects:
   * Cbioportal ([blog post](https://www.thehyve.nl/articles/single-cell-data-visualisation-in-cbioportal))
   * [Lamin](https://docs.lamin.ai/vitessce)
   * SEAL ([code](https://github.com/simonwarchol/seal)) ([preprint](https://doi.org/10.1101/2025.07.19.665696))
+  * SPEX ([docs](https://genentech.github.io/spex_frontend/integrations/vitessce/)) ([code](https://github.com/Genentech/spex_frontend)) ([paper](https://doi.org/10.1093/gigascience/giaf090))
 * Industry/commercial products  
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
