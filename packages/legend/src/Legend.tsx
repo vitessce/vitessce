@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, {
   useRef, useEffect, useMemo, useState, useCallback,
 } from 'react';
@@ -420,14 +421,14 @@ export default function Legend(props: LegendProps) {
         // We will simply list out the same "staticColor"
         // multiple times (once per feature)
         const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
-        limitedFeatureSelection.forEach(featureName => {
+        limitedFeatureSelection.forEach((featureName) => {
           pointsLegendElements.push({
             name: featureName,
             color: staticColor,
           });
         });
       }
-    } else if(obsColorEncoding === 'geneSelection') {
+    } else if (obsColorEncoding === 'geneSelection') {
       // Case 2: geneSelection.
       if (!hasFeatureSelection) {
         pointsLegendElements.push({
@@ -437,7 +438,7 @@ export default function Legend(props: LegendProps) {
       } else {
         // There is a feature selection.
         const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
-        limitedFeatureSelection.forEach(featureName => {
+        limitedFeatureSelection.forEach((featureName) => {
           // Find the color for this feature from featureColor array.
           const featureColorMatch = Array.isArray(featureColor)
             ? featureColor.find(fc => fc.name === featureName)?.color
@@ -465,7 +466,7 @@ export default function Legend(props: LegendProps) {
       } else {
         // There is a feature selection.
         const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
-        limitedFeatureSelection.forEach(featureName => {
+        limitedFeatureSelection.forEach((featureName) => {
           // Use the same indexing logic as in Spatial.js to look up the color.
           const varIndex = (featureIndex ?? []).indexOf(featureName);
           const featureColorMatch = varIndex >= 0
@@ -478,7 +479,6 @@ export default function Legend(props: LegendProps) {
           });
         });
       }
-
     } else if (obsColorEncoding === 'random') {
       // Case 4: random (for each point).
       pointsLegendElements.push({
@@ -511,9 +511,9 @@ export default function Legend(props: LegendProps) {
   ) : (
     // Height logic for non-points layers.
     isSetColor && obsSetSelection
-    ? levelZeroNames.length * titleHeight
+      ? levelZeroNames.length * titleHeight
       + (obsSetSelection?.length ?? 0) * (rectHeight + rectMarginY)
-    : (height + (!pointsVisible && contoursVisible ? 25 : 0))
+      : (height + (!pointsVisible && contoursVisible ? 25 : 0))
   );
 
   // Note: availHeight does not account for multiple stacked legends.
@@ -770,7 +770,7 @@ export default function Legend(props: LegendProps) {
     }
     if (isPointsLayer) {
       let y = 0;
-     
+
       g.append('text')
         .attr('text-anchor', 'start')
         .attr('dominant-baseline', 'hanging')
