@@ -1119,6 +1119,7 @@ export function SpatialSubscriber(props) {
         // Points
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
       />
       <ChannelNamesLegend
         // Images
