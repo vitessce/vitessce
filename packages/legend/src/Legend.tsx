@@ -1,16 +1,17 @@
+/* eslint-disable no-nested-ternary */
 import React, {
   useRef, useEffect, useMemo, useState, useCallback,
 } from 'react';
 import clsx from 'clsx';
 import { makeStyles, Slider } from '@vitessce/styles';
-import { capitalize, getDefaultColor, cleanFeatureId } from '@vitessce/utils';
+import { capitalize, getDefaultColor, cleanFeatureId, PALETTE } from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
 import { isEqual, debounce } from 'lodash-es';
 import { getXlinkHref } from './legend-utils.js';
-import type { Extent, FeatureAggregationStrategy, ObsColorEncoding, SetPath, ObsSetColorEntry } from './types.js';
+import type { Extent, FeatureAggregationStrategy, ObsColorEncoding, SetPath, ObsSetColorEntry, FeatureColorEntry } from './types.js';
 
 
 const useStyles = makeStyles()(() => ({
@@ -174,6 +175,8 @@ interface LegendProps {
   positionRelative?: boolean;
   /** Whether to use high contrast styling. */
   highContrast?: boolean;
+  /** Whether this is a legend for the points layer. */
+  isPointsLayer?: boolean;
   /** The observation type (e.g., 'cell', 'spot'). */
   obsType?: string;
   /** The feature type (e.g., 'gene'). */
@@ -186,6 +189,12 @@ interface LegendProps {
   obsColorEncoding?: ObsColorEncoding;
   /** The selected features. */
   featureSelection?: string[];
+  /** The feature filter mode. */
+  featureFilterMode?: null | 'featureSelection';
+  /** The feature colors. */
+  featureColor?: FeatureColorEntry[];
+  /** The feature index (list of genes; AnnData.var.index). */
+  featureIndex?: string[];
   /** A map from feature IDs to labels. */
   featureLabelsMap?: Map<string, string>;
   /** The colormap name. */
@@ -239,12 +248,16 @@ export default function Legend(props: LegendProps) {
     positionRelative = false,
     highContrast = false,
     obsType,
+    isPointsLayer = false,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     featureType: _featureType = undefined, // Unused but accepted for API compatibility
     featureValueType,
     considerSelections = true,
     obsColorEncoding,
     featureSelection,
+    featureFilterMode,
+    featureColor,
+    featureIndex,
     featureLabelsMap,
     featureValueColormap,
     featureValueColormapRange,
@@ -308,10 +321,17 @@ export default function Legend(props: LegendProps) {
     }
   }, [debouncedSetRange]);
 
+  // Include obsType in the label text (perhaps only when multi-obsType).
+  const obsLabel = capitalize(obsType ?? null);
+
   const isDarkTheme = theme === 'dark';
-  const isStaticColor = obsColorEncoding === 'spatialChannelColor'
-    || obsColorEncoding === 'spatialLayerColor';
-  const isSetColor = obsColorEncoding === 'cellSetSelection';
+
+  // Logic for non-points layers.
+  const isStaticColor = !isPointsLayer && (
+    obsColorEncoding === 'spatialChannelColor'
+    || obsColorEncoding === 'spatialLayerColor'
+  );
+  const isSetColor = !isPointsLayer && (obsColorEncoding === 'cellSetSelection');
   const layerColor = Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
     ? spatialLayerColor
     : getDefaultColor(theme ?? 'light');
@@ -335,8 +355,150 @@ export default function Legend(props: LegendProps) {
       && (obsSetColor?.length ?? 0) > 0
     )
     || isStaticColor
-
+    || isPointsLayer // Always show a legend for points.
   ));
+
+  // Logic specific to points layers.
+  const pointsLegendElements: { color: number[]; name: string }[] = [];
+  if (isPointsLayer) {
+    // Note: in certain cases, there will be too many colors to show in the legend.
+    const MAX_NUM_COLORS = 10; // Arbitrary limit.
+    const hasFeatureSelection = (
+      Array.isArray(featureSelection) && featureSelection.length > 0
+    );
+    const showUnselected = featureFilterMode !== 'featureSelection';
+
+    // Coloring cases for points:
+    // - spatialLayerColor: one color for all points.
+    //   consider all as selected when featureSelection is null.
+    // - spatialLayerColor with featureSelection: one color for
+    //   all selected points, default color for unselected points
+    // - spatialLayerColor with featureSelection and
+    //   featureFilterMode 'featureSelection': one color for selected points,
+    //   do not show unselected points
+
+    // - geneSelection: use colors from "featureColor".
+    //   consider all as selected when featureSelection is null.
+    // - geneSelection with featureSelection: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) for
+    //   selected features, default color for unselected points
+    // - geneSelection with featureFilterMode 'featureSelection': use colors
+    //   from "featureColor" for selected features,
+    //   do not show unselected points
+
+    // - randomByFeature: random color for each feature
+    //   (deterministic based on feature index).
+    //   consider all as selected when featureSelection is null.
+    // - randomByFeature with preferFeatureColor: use colors from
+    //   "featureColor" (array of { name, color: [r, g, b] }) where
+    //   available, and random colors otherwise.
+    // - randomByFeature with featureSelection: random color for
+    //   selected features, default color for unselected points
+    // - randomByFeature with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for
+    //   selected features, do not show unselected points
+
+    // - random: random color for each point
+    //   (deterministic based on point index).
+    //   consider all as selected when featureSelection is null.
+    // - random with preferFeatureColor: use colors from "featureColor"
+    //   (array of { name, color: [r, g, b] }) where available,
+    //   and random colors otherwise.
+    // - random with featureSelection: random color for selected points,
+    //   default color for unselected points
+    // - random with featureSelection and
+    //   featureFilterMode 'featureSelection': random color for selected
+    //   points, do not show unselected points
+
+
+    if (obsColorEncoding === 'spatialLayerColor') {
+      // Case 1: spatialLayerColor.
+
+      if (!hasFeatureSelection) {
+        pointsLegendElements.push({
+          name: obsLabel,
+          color: staticColor,
+        });
+      } else {
+        // There is a feature selection.
+        // We will simply list out the same "staticColor"
+        // multiple times (once per feature)
+        const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
+        limitedFeatureSelection.forEach((featureName) => {
+          pointsLegendElements.push({
+            name: featureName,
+            color: staticColor,
+          });
+        });
+      }
+    } else if (obsColorEncoding === 'geneSelection') {
+      // Case 2: geneSelection.
+      if (!hasFeatureSelection) {
+        pointsLegendElements.push({
+          name: obsLabel,
+          color: staticColor,
+        });
+      } else {
+        // There is a feature selection.
+        const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
+        limitedFeatureSelection.forEach((featureName) => {
+          // Find the color for this feature from featureColor array.
+          const featureColorMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)?.color
+            : null;
+          pointsLegendElements.push({
+            name: featureName,
+            // If no color is specified for this feature, use staticColor.
+            color: featureColorMatch ?? staticColor,
+          });
+        });
+      }
+    } else if (obsColorEncoding === 'randomByFeature') {
+      // Case 3: randomByFeature.
+      if (!hasFeatureSelection) {
+        // TODO: we can still show feature colors here.
+        // If featureIndex.length > MAX_NUM_COLORS,
+        // then we can either limit to the first MAX_NUM_COLORS features,
+        // or only show per-feature colors if featureIndex.length <= MAX_NUM_COLORS.
+        pointsLegendElements.push({
+          name: obsLabel,
+          // For now, using black and white for this.
+          // (It should not match any color in PALETTE)
+          color: isDarkTheme ? [255, 255, 255] : [0, 0, 0],
+        });
+      } else {
+        // There is a feature selection.
+        const limitedFeatureSelection = featureSelection.slice(0, MAX_NUM_COLORS);
+        limitedFeatureSelection.forEach((featureName) => {
+          // Use the same indexing logic as in Spatial.js to look up the color.
+          const varIndex = (featureIndex ?? []).indexOf(featureName);
+          const featureColorMatch = varIndex >= 0
+            ? PALETTE[varIndex % PALETTE.length]
+            : null;
+          pointsLegendElements.push({
+            name: featureName,
+            // If no color is specified for this feature, use staticColor.
+            color: featureColorMatch ?? staticColor,
+          });
+        });
+      }
+    } else if (obsColorEncoding === 'random') {
+      // Case 4: random (for each point).
+      pointsLegendElements.push({
+        name: obsLabel,
+        // For now, using black and white for this.
+        // (It should not match any color in PALETTE)
+        color: isDarkTheme ? [255, 255, 255] : [0, 0, 0],
+      });
+    }
+
+    if (showUnselected) {
+      pointsLegendElements.push({
+        name: 'Unselected',
+        color: getDefaultColor(theme ?? 'light'),
+      });
+    }
+  }
 
   // Get the list of set group names which can be used to
   // compute the height of the legend in isSetColor mode.
@@ -346,10 +508,16 @@ export default function Legend(props: LegendProps) {
 
   // Determine the height of the legend when in isSetColor mode.
   // TODO: for nested sets, account for the height of the intermediate nodes?
-  const dynamicHeight = isSetColor && obsSetSelection
-    ? levelZeroNames.length * titleHeight
+  const dynamicHeight = isPointsLayer ? (
+    // Height logic for points layers.
+    pointsLegendElements.length * (rectHeight + rectMarginY) + titleHeight
+  ) : (
+    // Height logic for non-points layers.
+    isSetColor && obsSetSelection
+      ? levelZeroNames.length * titleHeight
       + (obsSetSelection?.length ?? 0) * (rectHeight + rectMarginY)
-    : (height + (!pointsVisible && contoursVisible ? 25 : 0));
+      : (height + (!pointsVisible && contoursVisible ? 25 : 0))
+  );
 
   // Note: availHeight does not account for multiple stacked legends.
   // The needsScroll determination is made based on only
@@ -380,13 +548,14 @@ export default function Legend(props: LegendProps) {
 
     // Determine if interactive slider should be shown
     const showInteractiveSlider = (
-      setFeatureValueColormapRange
+      !isPointsLayer
+      && setFeatureValueColormapRange
       && ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
       && pointsVisible
       && featureValueColormap
     );
 
-    if (!considerSelections || ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')) {
+    if (!isPointsLayer && (!considerSelections || ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? ''))) {
       const combinedExtent = combineExtents(
         extent ?? null,
         featureAggregationStrategy ?? null,
@@ -546,7 +715,7 @@ export default function Legend(props: LegendProps) {
         });
       }
     }
-    if (isStaticColor) {
+    if (!isPointsLayer && isStaticColor) {
       g.append('rect')
         .attr('x', 0)
         .attr('y', titleHeight)
@@ -554,7 +723,7 @@ export default function Legend(props: LegendProps) {
         .attr('height', rectHeight)
         .attr('fill', `rgb(${staticColor[0]},${staticColor[1]},${staticColor[2]})`);
     }
-    if (isSetColor && obsSetSelection && obsSetColor) {
+    if (!isPointsLayer && isSetColor && obsSetSelection && obsSetColor) {
       const obsSetSelectionByLevelZero: Record<string, SetPath[]> = {};
       obsSetSelection.forEach((setPath) => {
         const levelZeroName = setPath[0];
@@ -602,6 +771,38 @@ export default function Legend(props: LegendProps) {
         });
       });
     }
+    if (isPointsLayer) {
+      let y = 0;
+
+      g.append('text')
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'hanging')
+        .attr('x', 0)
+        .attr('y', y)
+        .text('Points')
+        .style('font-size', '9px')
+        .style('fill', foregroundColor);
+      y += titleHeight;
+
+      pointsLegendElements.forEach(({ name, color }) => {
+        g.append('rect')
+          .attr('x', 0)
+          .attr('y', y)
+          .attr('width', rectHeight)
+          .attr('height', rectHeight)
+          .attr('fill', `rgb(${color[0]},${color[1]},${color[2]})`);
+        g.append('text')
+          .attr('text-anchor', 'start')
+          .attr('dominant-baseline', 'hanging')
+          .attr('x', rectHeight + rectMarginX)
+          .attr('y', y)
+          .text(name)
+          .style('font-size', '9px')
+          .style('fill', foregroundColor);
+
+        y += (rectHeight + rectMarginY);
+      });
+    }
 
     const featureSelectionLabelRaw = (
       featureSelection
@@ -645,9 +846,6 @@ export default function Legend(props: LegendProps) {
       ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)`
       : featureSelectionLabelRawStr;
 
-    // Include obsType in the label text (perhaps only when multi-obsType).
-    const obsLabel = capitalize(obsType ?? null);
-
     // If the parent component wants to consider selections, then
     // use the selected feature for the label. Otherwise,
     // show the feature type.
@@ -659,7 +857,7 @@ export default function Legend(props: LegendProps) {
     const subLabel = showObsLabel ? featureLabel : null;
     const hasSubLabel = subLabel !== null;
 
-    if (!isSetColor) {
+    if (!isPointsLayer && !isSetColor) {
       g
         .append('text')
         .attr('text-anchor', hasSubLabel ? 'start' : 'end')
@@ -693,7 +891,8 @@ export default function Legend(props: LegendProps) {
 
   // Determine if interactive slider should be shown
   const showInteractiveSlider = (
-    setFeatureValueColormapRange
+    !isPointsLayer
+    && setFeatureValueColormapRange
     // We don't accept `geneExpression` from the conf, but the HeatmapSubscriber uses it as a prop
     && ['geneSelection', 'geneExpression'].includes(obsColorEncoding ?? '')
     && pointsVisible

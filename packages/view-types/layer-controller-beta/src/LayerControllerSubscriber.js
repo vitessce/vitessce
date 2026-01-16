@@ -15,6 +15,7 @@ import {
   useMultiObsPoints,
   useMultiObsSegmentations,
   useMultiImages,
+  usePointMultiObsFeatureMatrixIndices,
   useMergeCoordination,
   useComplexCoordination,
   useMultiCoordinationScopesNonNull,
@@ -216,6 +217,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -233,9 +236,13 @@ export function LayerControllerSubscriber(props) {
   const [
     {
       volumeLoadingProgress: volumeLoadingStatus,
+      tiledPointsLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    ['spatialAcceleratedVolumeLoadingProgress'],
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
     coordinationScopes,
   );
 
@@ -283,12 +290,17 @@ export function LayerControllerSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   // Consolidate error values from data hooks.
   const errors = [
     ...obsSegmentationsErrors,
     ...imageErrors,
     ...obsSpotsErrors,
     ...obsPointsErrors,
+    ...pointMultiIndicesDataErrors,
   ];
 
   const isReady = useReady([
@@ -296,6 +308,7 @@ export function LayerControllerSubscriber(props) {
     obsPointsDataStatus,
     obsSegmentationsDataStatus,
     imageDataStatus,
+    pointMultiIndicesDataStatus,
   ]);
 
   return (
@@ -337,8 +350,10 @@ export function LayerControllerSubscriber(props) {
 
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
 
         volumeLoadingStatus={volumeLoadingStatus}
+        tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />
     </TitleInfo>
   );

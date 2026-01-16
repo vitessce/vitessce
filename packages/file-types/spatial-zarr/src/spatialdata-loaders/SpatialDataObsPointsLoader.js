@@ -70,6 +70,26 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return this.locations;
   }
 
+  async loadPointsInRect(bounds, signal) {
+    const { path } = this.options;
+
+    // TODO: if points are XYZ, and in 2D rendering mode,
+    // pass in the current Z index and filter
+    // (after coordinate transformation?)
+
+    let locations;
+    // TODO: cache the format version associated with this path.
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1') {
+      locations = await this.dataSource.loadPointsInRect(path, bounds, signal);
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
+    }
+    // TODO: cacheing?
+
+    return locations;
+  }
+
   async loadObsIndex() {
     const { tablePath, path } = this.options;
     if (tablePath) {
@@ -86,13 +106,41 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return null;
   }
 
-  async load() {
-    const [obsIndex, obsPoints, modelMatrix] = await Promise.all([
-      this.loadObsIndex(),
-      this.loadPoints(),
-      this.loadModelMatrix(),
+  async supportsTiling() {
+    const { path } = this.options;
+
+    const [formatVersion, zattrs, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
+      // Check the points format version.
+      this.dataSource.getPointsFormatVersion(path),
+      // Check for the presence of bounding_box metadata.
+      this.dataSource.loadSpatialDataElementAttrs(path),
+      // Check the size of parquet row groups,
+      // and for the presence of morton_code_2d and feature_index columns.
+      this.dataSource.supportsLoadPointsInRect(path),
     ]);
-    // May require changing the obsPoints format (breaking change?)
+
+    const isSupportedVersion = formatVersion === '0.1';
+    const boundingBox = zattrs?.bounding_box;
+    const hasBoundingBox2D = (
+      typeof boundingBox?.x_max === 'number'
+      && typeof boundingBox?.x_min === 'number'
+      && typeof boundingBox?.y_max === 'number'
+      && typeof boundingBox?.y_min === 'number'
+    );
+
+    return (
+      isSupportedVersion
+      && hasBoundingBox2D
+      && hasRequiredColumnsAndRowGroupSize
+    );
+  }
+
+  async load() {
+    // We need these things regardless of tiling support.
+    const [modelMatrix, supportsTiling] = await Promise.all([
+      this.loadModelMatrix(),
+      this.supportsTiling(),
+    ]);
 
     const coordinationValues = {
       pointLayer: CL({
@@ -109,8 +157,44 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       }),
     };
 
+    // If tiling is not supported, we need to load all points and the obs index,
+    // and the feature_index (or feature_type) column.
+    let obsIndex = null;
+    let obsPoints = null;
+    // TODO: implement loading feature indices (derive from feature_type if needed)
+    const featureIndices = null; // TODO
+    if (!supportsTiling) {
+      // We need to load points in full.
+      [obsIndex, obsPoints] = await Promise.all([
+        this.loadObsIndex(),
+        this.loadPoints(),
+      ]);
+    }
+
     return new LoaderResult(
-      { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
+      {
+        /* obsIndex: ["1"], // TEMP
+        obsPoints: { // TEMP
+          shape: [2, 1],
+          data: [[0], [0]],
+        }, */
+        // These will be null if tiling is supported.
+        obsIndex,
+        obsPoints,
+        featureIndices,
+        obsPointsModelMatrix: modelMatrix,
+
+        // Return 'tiled' if the morton_code_2d column
+        // and bounding_box metadata are present,
+        // and the row group size is small enough.
+        // Otherwise, return 'full'.
+        obsPointsTilingType: (supportsTiling ? 'tiled' : 'full'),
+
+        // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
+        // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
+        // May need another function such as loader.supportsPointInRect() true/false.
+        loadPointsInRect: this.loadPointsInRect.bind(this),
+      },
       null,
       coordinationValues,
     );

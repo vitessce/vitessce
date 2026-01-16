@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useId } from 'react-aria';
 import {
   makeStyles,
@@ -68,7 +68,6 @@ const useStyles = makeStyles()(() => ({
   },
   clippingSliders: {
     padding: '0 8px',
-
   },
 }));
 
@@ -134,7 +133,7 @@ function ImageLayerEllipsisMenu(props) {
   );
 
   // Sync local slider value when spatialLodFactor changes externally
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalLodSliderValue(convertLodFactorToLogarithmicSliderValue(spatialLodFactor || 1.0));
   }, [spatialLodFactor]);
 

@@ -49,6 +49,7 @@ export { default as List } from '@mui/material/List';
 export { default as ListSubheader } from '@mui/material/ListSubheader';
 export { default as ListItem } from '@mui/material/ListItem';
 export { default as ListItemText } from '@mui/material/ListItemText';
+export { default as ListItemIcon } from '@mui/material/ListItemIcon';
 export { default as MenuList } from '@mui/material/MenuList';
 export { default as MenuItem } from '@mui/material/MenuItem';
 export { default as NativeSelect } from '@mui/material/NativeSelect';
@@ -112,6 +113,7 @@ export { default as Storage } from '@mui/icons-material/Storage';
 export { default as ViewCompact } from '@mui/icons-material/ViewCompact';
 export { default as LeakAdd } from '@mui/icons-material/LeakAdd';
 export { default as Warning } from '@mui/icons-material/Warning';
+export { default as Palette } from '@mui/icons-material/Palette';
 
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';

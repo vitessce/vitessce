@@ -13,6 +13,7 @@ import {
   useMultiObsSegmentations,
   useMultiImages,
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -60,8 +61,8 @@ const SET_VIEW_STATE_NOOP = () => {};
 
 
 function getHoverData(hoverInfo, layerType) {
-  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
-  if (layerType === 'segmentation-bitmask' || layerType === 'image') {
+  const { coordinate, sourceLayer: layer, tile, index: pointIndex } = hoverInfo;
+  if (layerType === 'segmentation-bitmask' || layerType === 'image' || layerType === 'point') {
     if (coordinate && layer) {
       if (layer.id.startsWith('Tiled') && tile) {
         // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
@@ -71,6 +72,16 @@ function getHoverData(hoverInfo, layerType) {
           index: { z },
         } = tile;
         if (content) {
+          if (layerType === 'point' && pointIndex >= 0) {
+            const { src } = content || {};
+            const { x, y, featureIndices } = src || {};
+            return {
+              pointIndex,
+              x: x?.[pointIndex],
+              y: y?.[pointIndex],
+              featureIndex: featureIndices?.[pointIndex],
+            };
+          }
           const { data, width, height } = content;
           const {
             left, right, top, bottom,
@@ -343,6 +354,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -361,15 +374,21 @@ export function SpatialSubscriber(props) {
   const [volumeLoadingStatus, setVolumeLoadingStatus] = useState(null);
 
   // Set up auxiliary coordination to share volume loading status with LayerController
+  // TODO: Use alternative approach https://github.com/vitessce/vitessce/issues/1233#issuecomment-3564729507
   const [
     {
       volumeLoadingProgress,
+      tiledPointsLoadingProgress,
     },
     {
       setVolumeLoadingProgress,
+      setTiledPointsLoadingProgress,
     },
   ] = useAuxiliaryCoordination(
-    ['spatialAcceleratedVolumeLoadingProgress'],
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
     coordinationScopes,
   );
 
@@ -416,6 +435,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus, pointMultiObsLabelsErrors] = usePointMultiObsLabels(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -515,6 +538,7 @@ export function SpatialSubscriber(props) {
     ...spotMultiFeatureSelectionErrors,
     ...spotMultiIndicesDataErrors,
     ...pointMultiObsLabelsErrors,
+    ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
@@ -552,6 +576,7 @@ export function SpatialSubscriber(props) {
     // Points
     obsPointsDataStatus,
     pointMultiObsLabelsDataStatus,
+    pointMultiIndicesDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
@@ -794,14 +819,23 @@ export function SpatialSubscriber(props) {
     pointLayerScopes?.forEach((pointLayerScope) => {
       const { setObsHighlight } = pointLayerCoordination?.[1]?.[pointLayerScope] || {};
       if (hoverData && layerType === 'point' && layerScope === pointLayerScope) {
-        const obsI = hoverData;
-        const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
-        const obsId = obsIndex?.[obsI];
-        if (obsIndex && obsId) {
+        if (typeof hoverData === 'object' && hoverData?.pointIndex) {
+          // When using Tiled layers, hoverData is an object with x, y, featureIndex, pointIndex.
+          // Note: the hoverData only seems to be correct for the first tile.
+          // This may be fixed in DeckGL v9.
           showAnyTooltip = true;
-          setObsHighlight(obsId);
+          setObsHighlight(hoverData.pointIndex);
         } else {
-          setObsHighlight(null);
+          // Not tiled.
+          const obsI = hoverData;
+          const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
+          const obsId = obsIndex?.[obsI];
+          if (obsIndex && obsId) {
+            showAnyTooltip = true;
+            setObsHighlight(obsId);
+          } else {
+            setObsHighlight(null);
+          }
         }
       } else {
         setObsHighlight(null);
@@ -1009,6 +1043,7 @@ export function SpatialSubscriber(props) {
             pointLayerScopes={pointLayerScopes}
             pointLayerCoordination={pointLayerCoordination}
             pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMatrixIndices={pointMultiIndicesData}
             obsSpots={obsSpotsData}
             spotLayerScopes={spotLayerScopes}
             spotLayerCoordination={spotLayerCoordination}
@@ -1030,6 +1065,7 @@ export function SpatialSubscriber(props) {
             imageLayerCoordination={imageLayerCoordination}
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
+            setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
           />
         )
       }
@@ -1083,6 +1119,7 @@ export function SpatialSubscriber(props) {
         // Points
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
       />
       <ChannelNamesLegend
         // Images
