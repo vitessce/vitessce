@@ -321,6 +321,9 @@ export default function Legend(props: LegendProps) {
     }
   }, [debouncedSetRange]);
 
+  // Include obsType in the label text (perhaps only when multi-obsType).
+  const obsLabel = capitalize(obsType ?? null);
+
   const isDarkTheme = theme === 'dark';
 
   // Logic for non-points layers.
@@ -413,7 +416,7 @@ export default function Legend(props: LegendProps) {
 
       if (!hasFeatureSelection) {
         pointsLegendElements.push({
-          name: 'Points', // TODO: use obsType here?
+          name: obsLabel,
           color: staticColor,
         });
       } else {
@@ -432,7 +435,7 @@ export default function Legend(props: LegendProps) {
       // Case 2: geneSelection.
       if (!hasFeatureSelection) {
         pointsLegendElements.push({
-          name: 'Points', // TODO: use obsType here?
+          name: obsLabel,
           color: staticColor,
         });
       } else {
@@ -458,7 +461,7 @@ export default function Legend(props: LegendProps) {
         // then we can either limit to the first MAX_NUM_COLORS features,
         // or only show per-feature colors if featureIndex.length <= MAX_NUM_COLORS.
         pointsLegendElements.push({
-          name: 'Points', // TODO: use obsType here?
+          name: obsLabel,
           // For now, using black and white for this.
           // (It should not match any color in PALETTE)
           color: isDarkTheme ? [255, 255, 255] : [0, 0, 0],
@@ -482,7 +485,7 @@ export default function Legend(props: LegendProps) {
     } else if (obsColorEncoding === 'random') {
       // Case 4: random (for each point).
       pointsLegendElements.push({
-        name: 'Points', // TODO: use obsType here?
+        name: obsLabel,
         // For now, using black and white for this.
         // (It should not match any color in PALETTE)
         color: isDarkTheme ? [255, 255, 255] : [0, 0, 0],
@@ -842,9 +845,6 @@ export default function Legend(props: LegendProps) {
     const featureSelectionLabel = combinedMissing
       ? `${featureSelectionLabelRawStr} (${Math.round(combinedMissing * 100)}% NaN)`
       : featureSelectionLabelRawStr;
-
-    // Include obsType in the label text (perhaps only when multi-obsType).
-    const obsLabel = capitalize(obsType ?? null);
 
     // If the parent component wants to consider selections, then
     // use the selected feature for the label. Otherwise,
