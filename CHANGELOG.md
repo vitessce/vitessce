@@ -1,4 +1,11 @@
 
+## 3.9.0
+
+### Minor Changes
+
+- Support loading SpatialData Points in a tiled manner, with features for filtering and coloring. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-zarr`, `@vitessce/spatial-beta`) ([#2286](https://github.com/vitessce/vitessce/pull/2286))
+
+
 ## 3.8.13
 
 ### Patch Changes
