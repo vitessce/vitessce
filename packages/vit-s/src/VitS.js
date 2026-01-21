@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect, useRef } from 'react';
 import {
   ThemeProvider,
   CacheProvider,
   createCache,
 } from '@vitessce/styles';
+import ZipFileStore from '@zarrita/storage/zip';
+import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
 import {
   QueryCache,
   QueryClient,
@@ -104,6 +106,10 @@ export function VitS(props) {
 
   // eslint-disable-next-line no-unused-vars
   const [debugErrors, setDebugErrors] = useState([]);
+
+  // Cache for zip stores to persist across config changes
+  const zipStoresRef = useRef({});
+
   const viewTypes = useMemo(() => (viewTypesProp || []), [viewTypesProp]);
   const fileTypes = useMemo(() => (fileTypesProp || []), [fileTypesProp]);
   const jointFileTypes = useMemo(
@@ -142,6 +148,24 @@ export function VitS(props) {
     coordinationTypes,
     viewTypes,
   ), [viewTypes, fileTypes, jointFileTypes, coordinationTypes]);
+
+  // Collect unique zip URLs and their requestInit from the config
+  // Maps URL -> requestInit for store creation with authentication headers
+  const zipUrlsWithRequestInit = useMemo(() => {
+    if (!config?.datasets) return new Map();
+    const urlMap = new Map();
+    config.datasets.forEach((dataset) => {
+      dataset.files?.forEach((file) => {
+        if (file.fileType?.endsWith('.zip') && file.url) {
+          // Use the first requestInit encountered for each URL
+          if (!urlMap.has(file.url)) {
+            urlMap.set(file.url, file.requestInit);
+          }
+        }
+      });
+    });
+    return urlMap;
+  }, [config]);
 
   // Process the view config and memoize the result:
   // - Validate.
@@ -233,6 +257,30 @@ export function VitS(props) {
     [asyncFunctionsProp, queryClient],
   );
 
+  // Pre-create and cache ZipFileStore instances for all zip URLs
+  // This ensures that multiple loaders pointing to the same zip URL
+  // share the same zip store, preserving HTTP2 multiplexing
+  useEffect(() => {
+    // Remove stores that are no longer needed
+    const currentUrls = Array.from(zipUrlsWithRequestInit.keys());
+    const cachedUrls = Object.keys(zipStoresRef.current);
+    cachedUrls.forEach((url) => {
+      if (!currentUrls.includes(url)) {
+        delete zipStoresRef.current[url];
+      }
+    });
+
+    // Create stores for new zip URLs with their requestInit
+    zipUrlsWithRequestInit.forEach((requestInit, url) => {
+      if (!zipStoresRef.current[url]) {
+        zipStoresRef.current[url] = ZipFileStore.fromUrl(url, {
+          overrides: requestInit,
+          transformEntries: transformEntriesForZipFileStore,
+        });
+      }
+    });
+  }, [zipUrlsWithRequestInit]);
+
   const muiCache = useMemo(() => createCache({
     key: uid || 'vit',
     prepend: true,
@@ -251,12 +299,18 @@ export function VitS(props) {
   // Initialize the view config and loaders in the global state.
   const createViewConfigStoreClosure = useCallback(() => {
     if (success) {
+      // Merge external stores prop with cached zip stores
+      // External stores take precedence to allow override if needed
+      const mergedStores = {
+        ...zipStoresRef.current,
+        ...stores,
+      };
       const loaders = createLoaders(
         configOrWarning.datasets,
         configOrWarning.description,
         fileTypes,
         coordinationTypes,
-        stores,
+        mergedStores,
         queryClient,
       );
       return createViewConfigStore(loaders, configOrWarning);
