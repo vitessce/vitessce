@@ -264,6 +264,26 @@ Use the `scale_factors` parameter of the `Image2DModel.parse` and `Labels2DModel
 Note that Vitessce does not yet support multi-resolution OME-NGFF images with a scaling factor other than `2`.
 As SpatialData Image and Labels elements are stored in OME-NGFF format, this point applies to both OME-NGFFs contained within SpatialData objects and standalone OME-NGFF Zarr stores.
 
+If you have an image with non-power-of-two scaling factors, you can use [Image2DModel](https://spatialdata.scverse.org/en/latest/api/models.html#spatialdata.models.Image2DModel.parse) to create a new image element with power-of-two scaling factors.
+
+```py
+from spatialdata.models import Image2DModel
+
+# Get highest-resolution image data as a NumPy array.
+img_arr = sdata.images['non_power_of_two'].scale0.image.to_numpy()
+
+# Use Image2DModel.parse to create a new Image element with power-of-two scaling factors.
+sdata['power_of_two'] = Image2DModel.parse(
+    data=img_arr,
+    dims=['c', 'y', 'x'],
+    scale_factors=[2, 2],
+)
+
+# Save the new Image element to disk.
+sdata.write_element("power_of_two")
+```
+
+
 ### Supported versions
 
 Vitessce currently supports up to OME-NGFF spec v0.4.
@@ -343,5 +363,91 @@ writer.write_image(
     },
     chunks = (1, 1, 256, 256),
 )
+```
+
+## Points
+
+As of October 2025, the SpatialData format stores points using [multi-part Parquet files](https://spatialdata.scverse.org/en/stable/design_doc.html#points).
+
+
+### Tiled points via SpatialData
+
+We have developed an [approach](https://github.com/scverse/spatialdata/issues/974) to load points from the current SpatialData Points (parquet-based) format in a tiled manner.
+To use this approach, there are a few requirements and constraints.
+Most importantly, this approach relies on the points being sorted along a [Z-order curve](https://en.wikipedia.org/wiki/Z-order_curve) and stored in row groups of a limited size (e.g., 50,000 rows per row group) with metadata about the bounding box of the points (i.e., min and max X/Y coordinates).
+
+#### Sorting Points dataframe rows along a Z-order curve (Morton order)
+
+The `vitessce.data_utils` module of the Vitessce Python package provides a utility function to sort the rows of the Points dataframe along a Z-order curve.
+This function is efficient as it leverages Dask for computing Morton codes and sorting the dataframe.
+
+
+```py
+from vitessce.data_utils import sdata_morton_sort_points
+
+sdata = sdata_morton_sort_points(sdata, "transcripts")
+```
+
+Note: this sorts `sdata.points["transcripts"]`, but does not update the on-disk data.
+
+#### Handling of categorical/string columns
+
+Note: This is due to a current limitation of our [individual row-group reading implementation](https://github.com/kylebarron/parquet-wasm/issues/804#issuecomment-3367485956) (bug reading dictionary-encoded column data) and likely to be relaxed in the future.
+
+
+##### Appending codes for dictionary-encoded columns
+
+
+If a `feature_key` column is present (i.e., containing the gene names corresponding to each transcript point), then the integer indices (relative to the annotating Table Element's `var` dataframe index) of each gene name must be appended to the dataframe as an additional column (e.g., `feature_index`).
+
+```py
+from vitessce.data_utils import sdata_points_process_columns
+
+ddf = sdata_points_process_columns(sdata, "transcripts", var_name_col="feature_name")
+```
+
+##### Sorting Points dataframe columns
+
+Dictionary-encoded columns (i.e., categorical and string) must be stored as the rightmost columns of the dataframe.
+The above `sdata_points_process_columns` function performs this sorting.
+
+
+
+#### Writing output to new Points element
+
+Here, we associate the sorted Dask dataframe with a new Points element called `transcripts_with_morton_codes`.
+Then, we save this new element to disk using [write_element](https://spatialdata.scverse.org/en/stable/api/SpatialData.html#spatialdata.SpatialData.write_element).
+
+```py
+sdata["transcripts_with_morton_codes"] = ddf
+sdata.write_element("transcripts_with_morton_codes")
+```
+
+For more information about writing and overwriting Spatial Elements, see this [spatialdata discussion](https://github.com/scverse/spatialdata/discussions/520).
+
+#### Saving bounding box to Point element metadata (Zarr attrs)
+
+Running `sdata_morton_sort_points` will save the bounding box of the points to the `bounding_box` attribute of the Points element.
+However, this attribute will not be written to disk, as only [recognized attributes are preserved](https://github.com/scverse/spatialdata/blob/aeef0cc3ebd7c10a7ed17b84415213bb259a5f4b/src/spatialdata/_io/format.py#L116) during writing.
+
+
+```py
+from vitessce.data_utils import sdata_points_write_bounding_box_attrs
+
+sdata_points_write_bounding_box_attrs(sdata, "transcripts_with_morton_codes")
+```
+
+#### Row group size
+
+The size of each Parquet row group must be limited in order to achieve performance benefits.
+This must be done after writing the sorted Points dataframe to disk, as the SpatialData API does not yet support configuration of the row group size [during writing](https://github.com/scverse/spatialdata/blob/aeef0cc3ebd7c10a7ed17b84415213bb259a5f4b/src/spatialdata/_io/io_points.py#L83C12-L83C22).
+
+Since SpatialData uses Dask to write the dataframe to Parquet, and Dask write multi-part Parquet files, we need to iterate over all of the `part.*.parquet` files to update all of their row group sizes.
+
+
+```py
+from vitessce.data_utils import sdata_points_modify_row_group_size
+
+sdata_points_modify_row_group_size(sdata, "transcripts_with_morton_codes", row_group_size=50_000)
 ```
 

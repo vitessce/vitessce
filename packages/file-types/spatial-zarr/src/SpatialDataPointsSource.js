@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
@@ -159,5 +159,41 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       shape: [axisColumnArrs.length, arrowTable.numRows],
       data: axisColumnArrs,
     };
+  }
+
+  /**
+   *
+   * @param {string} elementPath
+   * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPointsInRect(elementPath, tileBbox, signal) {
+    // Morton code rect querying functionality.
+    // Reference: https://github.com/vitessce/vitessce-python/pull/476
+    const parquetPath = getParquetPath(elementPath);
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const {
+      // axes,
+      // spatialdata_attrs: spatialDataAttrs,
+      // The bounding box (extent) of all points.
+      // Required for un-normalization from uints back to floats.
+      // TODO: decide whether these will be stored here or somewhere else.
+      // Reference: https://github.com/vitessce/vitessce-python/pull/476#issuecomment-3362656956
+      bounding_box: allPointsBbox,
+    } = zattrs;
+    // const normAxes = normalizeAxes(axes);
+    // const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
+    // const { feature_key: featureKey } = spatialDataAttrs;
+    // const columnNames = [...axisNames, featureKey].filter(Boolean);
+
+    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal);
+  }
+
+  async supportsLoadPointsInRect(elementPath) {
+    const parquetPath = getParquetPath(elementPath);
+    return this._supportsTiledPoints(parquetPath);
   }
 }

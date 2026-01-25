@@ -982,6 +982,8 @@ export function useMultiDatasetCoordination(parameters, coordinationScopes, coor
 const AUXILIARY_COORDINATION_TYPES_MAP = {
   spatialImageLayer: ['imageLayerCallbacks', 'areLoadingImageChannels'],
   spatialSegmentationLayer: ['segmentationLayerCallbacks', 'areLoadingSegmentationChannels'],
+  spatialAcceleratedVolumeLoadingProgress: ['volumeLoadingProgress'],
+  spatialTiledPointsLoadingProgress: ['tiledPointsLoadingProgress'],
 };
 
 /**
@@ -1046,6 +1048,7 @@ export function useAuxiliaryCoordination(parameters, coordinationScopes) {
     return [setterName, setterFunc];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [parameters, coordinationScopes]);
+
 
   return [values, setters];
 }

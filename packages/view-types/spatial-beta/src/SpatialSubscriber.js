@@ -13,6 +13,7 @@ import {
   useMultiObsSegmentations,
   useMultiImages,
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -33,6 +34,7 @@ import {
   useCoordinationScopesBy,
   useSpotMultiFeatureLabels,
   useGridItemSize,
+  useAuxiliaryCoordination,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -43,7 +45,10 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
-
+import {
+  useAggregatedNormalizedExpressionDataForLayers,
+  useAggregatedNormalizedExpressionDataForChannels,
+} from './expr-agg-hooks.js';
 
 // Reference: https://deck.gl/docs/api-reference/core/orbit-view#view-state
 const DEFAULT_VIEW_STATE = {
@@ -54,9 +59,10 @@ const DEFAULT_VIEW_STATE = {
 };
 const SET_VIEW_STATE_NOOP = () => {};
 
+
 function getHoverData(hoverInfo, layerType) {
-  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
-  if (layerType === 'segmentation-bitmask' || layerType === 'image') {
+  const { coordinate, sourceLayer: layer, tile, index: pointIndex } = hoverInfo;
+  if (layerType === 'segmentation-bitmask' || layerType === 'image' || layerType === 'point') {
     if (coordinate && layer) {
       if (layer.id.startsWith('Tiled') && tile) {
         // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
@@ -66,6 +72,16 @@ function getHoverData(hoverInfo, layerType) {
           index: { z },
         } = tile;
         if (content) {
+          if (layerType === 'point' && pointIndex >= 0) {
+            const { src } = content || {};
+            const { x, y, featureIndices } = src || {};
+            return {
+              pointIndex,
+              x: x?.[pointIndex],
+              y: y?.[pointIndex],
+              featureIndex: featureIndices?.[pointIndex],
+            };
+          }
           const { data, width, height } = content;
           const {
             left, right, top, bottom,
@@ -272,6 +288,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_MODEL_MATRIX,
       CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
       CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_LOD_FACTOR,
       CoordinationType.SPATIAL_SLICE_X,
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
@@ -337,6 +354,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -350,6 +369,40 @@ export function SpatialSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
   );
+
+  // State for volume loading status (shared with LayerController via auxiliary coordination)
+  const [volumeLoadingStatus, setVolumeLoadingStatus] = useState(null);
+
+  // Set up auxiliary coordination to share volume loading status with LayerController
+  // TODO: Use alternative approach https://github.com/vitessce/vitessce/issues/1233#issuecomment-3564729507
+  const [
+    {
+      volumeLoadingProgress,
+      tiledPointsLoadingProgress,
+    },
+    {
+      setVolumeLoadingProgress,
+      setTiledPointsLoadingProgress,
+    },
+  ] = useAuxiliaryCoordination(
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
+    coordinationScopes,
+  );
+
+  // Update auxiliary coordination when local state changes
+  useEffect(() => {
+    if (volumeLoadingStatus && volumeLoadingStatus.loadingProgress) {
+      setVolumeLoadingProgress(volumeLoadingStatus);
+    }
+  }, [volumeLoadingStatus, setVolumeLoadingProgress]);
+
+  // Callback to receive volume loading updates from VolumeView
+  const handleVolumeLoadingUpdate = useCallback((status) => {
+    setVolumeLoadingStatus(status);
+  }, []);
 
   /*
   const [
@@ -382,6 +435,10 @@ export function SpatialSubscriber(props) {
   );
 
   const [pointMultiObsLabelsData, pointMultiObsLabelsDataStatus, pointMultiObsLabelsErrors] = usePointMultiObsLabels(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
@@ -443,6 +500,27 @@ export function SpatialSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Hooks that aggregate and normalize expression data for spot layers and segmentation channels.
+  const [
+    spotMultiExpressionNormDataAggregated,
+    spotMultiExpressionExtentsAggregated,
+  ] = useAggregatedNormalizedExpressionDataForLayers({
+    multiExpressionData: spotMultiExpressionNormData,
+    layerScopes: spotLayerScopes,
+    layerCoordination: spotLayerCoordination,
+  });
+
+  const [
+    segmentationMultiExpressionNormDataAggregated,
+    segmentationMultiExpressionExtentsAggregated,
+  ] = useAggregatedNormalizedExpressionDataForChannels({
+    multiExpressionData: segmentationMultiExpressionNormData,
+    layerScopes: segmentationLayerScopes,
+    layerCoordination: segmentationLayerCoordination,
+    channelScopesByLayer: segmentationChannelScopesByLayer,
+    channelCoordination: segmentationChannelCoordination,
+  });
+
   // Image data
   const [imageData, imageDataStatus, imageUrls, imageDataErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
@@ -460,6 +538,7 @@ export function SpatialSubscriber(props) {
     ...spotMultiFeatureSelectionErrors,
     ...spotMultiIndicesDataErrors,
     ...pointMultiObsLabelsErrors,
+    ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
@@ -497,6 +576,7 @@ export function SpatialSubscriber(props) {
     // Points
     obsPointsDataStatus,
     pointMultiObsLabelsDataStatus,
+    pointMultiIndicesDataStatus,
     // Segmentations
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
@@ -739,14 +819,23 @@ export function SpatialSubscriber(props) {
     pointLayerScopes?.forEach((pointLayerScope) => {
       const { setObsHighlight } = pointLayerCoordination?.[1]?.[pointLayerScope] || {};
       if (hoverData && layerType === 'point' && layerScope === pointLayerScope) {
-        const obsI = hoverData;
-        const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
-        const obsId = obsIndex?.[obsI];
-        if (obsIndex && obsId) {
+        if (typeof hoverData === 'object' && hoverData?.pointIndex) {
+          // When using Tiled layers, hoverData is an object with x, y, featureIndex, pointIndex.
+          // Note: the hoverData only seems to be correct for the first tile.
+          // This may be fixed in DeckGL v9.
           showAnyTooltip = true;
-          setObsHighlight(obsId);
+          setObsHighlight(hoverData.pointIndex);
         } else {
-          setObsHighlight(null);
+          // Not tiled.
+          const obsI = hoverData;
+          const { obsIndex } = obsPointsData?.[pointLayerScope] || {};
+          const obsId = obsIndex?.[obsI];
+          if (obsIndex && obsId) {
+            showAnyTooltip = true;
+            setObsHighlight(obsId);
+          } else {
+            setObsHighlight(null);
+          }
         }
       } else {
         setObsHighlight(null);
@@ -845,6 +934,7 @@ export function SpatialSubscriber(props) {
               updateViewInfo={setComponentViewInfo}
               delegateHover={delegateHover}
               onEntitySelected={onEntitySelected}
+              onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}
@@ -854,7 +944,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -863,7 +953,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -908,7 +998,7 @@ export function SpatialSubscriber(props) {
               spotLayerCoordination={spotLayerCoordination}
               obsSpotsSets={obsSpotsSetsData}
               spotMatrixIndices={spotMultiIndicesData}
-              spotMultiExpressionData={spotMultiExpressionNormData}
+              spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -917,7 +1007,7 @@ export function SpatialSubscriber(props) {
               obsSegmentationsLocations={obsSegmentationsLocationsData}
               obsSegmentationsSets={obsSegmentationsSetsData}
               segmentationMatrixIndices={segmentationMultiIndicesData}
-              segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+              segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
               bitmaskValueIsIndex={bitmaskValueIsIndex}
               images={imageData}
               imageLayerScopes={imageLayerScopes}
@@ -953,12 +1043,13 @@ export function SpatialSubscriber(props) {
             pointLayerScopes={pointLayerScopes}
             pointLayerCoordination={pointLayerCoordination}
             pointMultiObsLabels={pointMultiObsLabelsData}
+            pointMatrixIndices={pointMultiIndicesData}
             obsSpots={obsSpotsData}
             spotLayerScopes={spotLayerScopes}
             spotLayerCoordination={spotLayerCoordination}
             obsSpotsSets={obsSpotsSetsData}
             spotMatrixIndices={spotMultiIndicesData}
-            spotMultiExpressionData={spotMultiExpressionNormData}
+            spotMultiExpressionData={spotMultiExpressionNormDataAggregated || spotMultiExpressionNormData}
             segmentationLayerScopes={segmentationLayerScopes}
             segmentationLayerCoordination={segmentationLayerCoordination}
             segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
@@ -967,13 +1058,14 @@ export function SpatialSubscriber(props) {
             obsSegmentationsLocations={obsSegmentationsLocationsData}
             obsSegmentationsSets={obsSegmentationsSetsData}
             segmentationMatrixIndices={segmentationMultiIndicesData}
-            segmentationMultiExpressionData={segmentationMultiExpressionNormData}
+            segmentationMultiExpressionData={segmentationMultiExpressionNormDataAggregated || segmentationMultiExpressionNormData}
             bitmaskValueIsIndex={bitmaskValueIsIndex}
             images={imageData}
             imageLayerScopes={imageLayerScopes}
             imageLayerCoordination={imageLayerCoordination}
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
+            setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
           />
         )
       }
@@ -1016,17 +1108,18 @@ export function SpatialSubscriber(props) {
         segmentationLayerCoordination={segmentationLayerCoordination}
         segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
         segmentationChannelCoordination={segmentationChannelCoordination}
-        segmentationMultiExpressionExtents={segmentationMultiExpressionExtents}
+        segmentationMultiExpressionExtents={segmentationMultiExpressionExtentsAggregated || segmentationMultiExpressionExtents}
 
         // Spots
         spotLayerScopes={spotLayerScopes}
         spotLayerCoordination={spotLayerCoordination}
-        spotMultiExpressionExtents={spotMultiExpressionExtents}
+        spotMultiExpressionExtents={spotMultiExpressionExtentsAggregated || spotMultiExpressionExtents}
         spotMultiFeatureLabels={obsSpotsFeatureLabelsData}
 
         // Points
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
       />
       <ChannelNamesLegend
         // Images

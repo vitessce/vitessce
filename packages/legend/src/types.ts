@@ -2,9 +2,10 @@ import type { ImageWrapper } from '@vitessce/image-utils';
 
 export type SetPath = string[];
 export type ObsSetColorEntry = { path: SetPath; color: number[] };
+export type FeatureColorEntry = { name: string; color: number[] };
 export type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
 export type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
-  | 'spatialLayerColor' | string;
+  | 'spatialLayerColor' | 'random' | 'randomByFeature' | string;
 
 export interface PointLayerCoordinationValues {
   spatialLayerVisible: boolean;
@@ -13,6 +14,8 @@ export interface PointLayerCoordinationValues {
   featureType: string;
   featureValueType: string;
   featureSelection: string[];
+  featureFilterMode: null | 'featureSelection';
+  featureColor: FeatureColorEntry[];
   featureValueColormap: string;
   featureValueColormapRange: [number, number];
   spatialLayerColor: number[];

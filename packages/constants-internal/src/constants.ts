@@ -284,6 +284,7 @@ export const CoordinationType = {
   OBS_SET_HIGHLIGHT: 'obsSetHighlight',
   OBS_SET_EXPANSION: 'obsSetExpansion',
   OBS_SET_COLOR: 'obsSetColor',
+  FEATURE_COLOR: 'featureColor',
   FEATURE_HIGHLIGHT: 'featureHighlight',
   FEATURE_SELECTION: 'featureSelection',
   FEATURE_SET_SELECTION: 'featureSetSelection',
@@ -335,6 +336,7 @@ export const CoordinationType = {
   VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
   SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
+  SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',

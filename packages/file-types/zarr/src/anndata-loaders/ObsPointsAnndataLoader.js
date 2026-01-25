@@ -45,7 +45,7 @@ export default class ObsPointsAnndataLoader extends AbstractTwoStepLoader {
       this.loadPoints(),
     ]);
     return new LoaderResult(
-      { obsIndex, obsPoints },
+      { obsIndex, obsPoints, obsPointsTilingType: 'full' },
       null,
       coordinationValues,
     );
