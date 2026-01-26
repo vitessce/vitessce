@@ -487,7 +487,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     return this.varAliases[varPath];
   }
 
-  async _supportsTiledPoints(parquetPath) {
+  async _supportsTiledPoints(parquetPath, featureIndexColumnName) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
 
@@ -507,7 +507,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
 
     // Check if the required columns exist.
-    const requiredColumns = ['x', 'y', 'feature_index', 'morton_code_2d'];
+    const requiredColumns = ['x', 'y', featureIndexColumnName, 'morton_code_2d'];
     const hasColumns = allMetadata?.schema?.fields?.map(f => f.name);
     if (!hasColumns) {
       return false;

@@ -204,8 +204,8 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal, featureIndexColumnName);
   }
 
-  async supportsLoadPointsInRect(elementPath) {
+  async supportsLoadPointsInRect(elementPath, featureIndexColumnName) {
     const parquetPath = getParquetPath(elementPath);
-    return this._supportsTiledPoints(parquetPath);
+    return this._supportsTiledPoints(parquetPath, featureIndexColumnName);
   }
 }

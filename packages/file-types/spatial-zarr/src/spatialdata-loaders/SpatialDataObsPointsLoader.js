@@ -107,16 +107,26 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async supportsTiling() {
-    const { path } = this.options;
+    const { path, featureIndexColumn: featureIndexColumnNameFromOptions } = this.options;
 
-    const [formatVersion, zattrs, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
+    // Check for the presence of bounding_box metadata.
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
+    const { spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const { feature_key: featureKey } = spatialDataAttrs;
+    
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+        ?? `${featureKey}_codes`
+    );
+
+    const [formatVersion, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
       // Check the points format version.
       this.dataSource.getPointsFormatVersion(path),
-      // Check for the presence of bounding_box metadata.
-      this.dataSource.loadSpatialDataElementAttrs(path),
+      
       // Check the size of parquet row groups,
       // and for the presence of morton_code_2d and feature_index columns.
-      this.dataSource.supportsLoadPointsInRect(path),
+      this.dataSource.supportsLoadPointsInRect(path, featureIndexColumnName),
     ]);
 
     const isSupportedVersion = formatVersion === '0.1';
