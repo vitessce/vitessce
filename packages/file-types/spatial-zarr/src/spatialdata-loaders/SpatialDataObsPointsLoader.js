@@ -50,7 +50,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
      * @returns {Promise} A promise for an array of columns.
      */
   async loadPoints() {
-    const { path } = this.options;
+    const { path, featureIndexColumn } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -62,7 +62,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPoints(path);
+      locations = await this.dataSource.loadPoints(path, featureIndexColumn);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
@@ -71,7 +71,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async loadPointsInRect(bounds, signal) {
-    const { path } = this.options;
+    const { path, featureIndexColumn } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -81,7 +81,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPointsInRect(path, bounds, signal);
+      locations = await this.dataSource.loadPointsInRect(path, bounds, signal, featureIndexColumn);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }

@@ -535,6 +535,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     allPointsBbox,
     // eslint-disable-next-line no-unused-vars
     signal,
+    featureIndexColumnName,
   ) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
@@ -613,7 +614,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       const xColumn = table.getChild('x');
       const yColumn = table.getChild('y');
       // TODO: get the feature index column name from the zattrs metadata
-      const featureIndexColumn = table.getChild('feature_index');
+      const featureIndexColumn = table.getChild(featureIndexColumnName);
       if (!xColumn || !yColumn || !featureIndexColumn) {
         throw new Error(`Missing required column in parquet table at ${parquetPath}. Required columns: x, y, feature_index`);
       }

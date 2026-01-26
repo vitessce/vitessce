@@ -214,6 +214,9 @@ export const obsPointsSpatialdataSchema = z.object({
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+  featureIndexColumn: z.string()
+    .optional()
+    .describe('The name of the column in the table which contains the feature (e.g., gene) indices associated with each point (aligned with the table var.index dataframe column).'),
 });
 export const obsLocationsSpatialdataSchema = z.object({
   path: z.string(),
