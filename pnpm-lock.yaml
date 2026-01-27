@@ -2784,6 +2784,12 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../utils/other-utils
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../utils/zarr-utils
+      '@zarrita/storage':
+        specifier: 'catalog:'
+        version: 0.1.3
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
