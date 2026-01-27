@@ -81,7 +81,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPointsInRect(path, bounds, signal, featureIndexColumn, mortonCodeColumn);
+      locations = await this.dataSource.loadPointsInRect(
+        path, bounds, signal, featureIndexColumn, mortonCodeColumn,
+      );
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
@@ -117,7 +119,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
     const { spatialdata_attrs: spatialDataAttrs } = zattrs;
     const { feature_key: featureKey } = spatialDataAttrs;
-    
+
     const featureIndexColumnName = (
       featureIndexColumnNameFromOptions
       // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
@@ -127,7 +129,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     const [formatVersion, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
       // Check the points format version.
       this.dataSource.getPointsFormatVersion(path),
-      
+
       // Check the size of parquet row groups,
       // and for the presence of morton_code_2d and feature_index columns.
       this.dataSource.supportsLoadPointsInRect(

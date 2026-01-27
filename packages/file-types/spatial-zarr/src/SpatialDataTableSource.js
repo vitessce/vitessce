@@ -505,7 +505,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       }
       return false;
     }
-    
+
     const mortonCodeColumnName = mortonCodeColumn ?? 'morton_code_2d';
     // Check if the required columns exist.
     const requiredColumns = ['x', 'y', featureIndexColumnName, mortonCodeColumnName];
