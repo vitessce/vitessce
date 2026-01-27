@@ -25,7 +25,7 @@ describe('Inclusion of Vitessce in plain HTML pages', () => {
     cy.visit('/sites/html/src/higlass.html');
     cy.contains('Demo of Vitessce');
     cy.contains('HiGlass');
-    cy.get('.higlass .tiled-plot-div', { timeout: 5000 });
+    cy.get('.higlass .higlass-scroll-container', { timeout: 5000 });
   });
   it('Works when loaded in same page as CCF UI components', () => {
     // Tests for vitessce display

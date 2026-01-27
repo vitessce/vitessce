@@ -38,7 +38,7 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
-    "@rc-component/tooltip": "^1.2.0",
+    "@rc-component/tooltip": "1.2.0",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5"
   },
