@@ -11,7 +11,15 @@ import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
 import { Tabs, Tab, Link } from '@vitessce/styles';
 
-export function generateComparativeConfig(baseUrl) {
+/**
+ * Generate a Vitessce config for comparative visualization.
+ * If isBiomarkerSelectOnly is true, only the biomarkerSelect view is included.
+ * Otherwise, a config without the biomarkerSelect view is generated.
+ * @param {string} baseUrl 
+ * @param {boolean} isBiomarkerSelectOnly 
+ * @returns 
+ */
+export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
   const dataset = vc.addDataset('lake_et_al').addFile({
     fileType: 'comparisonMetadata.anndata.zarr',
@@ -161,22 +169,7 @@ export function generateComparativeConfig(baseUrl) {
         sampleType: 'sample',
       },
     });
-
-  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelectAlt', { uid: 'biomarker-select' });
-  const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
-  const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
-  const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
-  const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
-  const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
-  const featureList = vc.addView(dataset, 'featureList');
-  const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
-  const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
-  const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
-  const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
-  const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
-  const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
-  const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
-
+  
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
       cType: 'sampleSetSelection',
@@ -193,50 +186,129 @@ export function generateComparativeConfig(baseUrl) {
       cValue: null,
     },
   );
+  
+  if (isBiomarkerSelectOnly) {
+    const biomarkerSelect = vc.addView(dataset, 'biomarkerSelectAlt', { uid: 'biomarker-select' });
 
-  vc.linkViewsByObject([dualScatterplot], {
-    embeddingType: 'densMAP',
-    embeddingContoursVisible: true,
-    embeddingPointsVisible: false,
-    embeddingObsSetLabelsVisible: true,
-  }, { meta: false });
+    vc.linkViews([biomarkerSelect], ['sampleType'], ['sample']);
+    vc.linkViewsByObject([biomarkerSelect], {
+      sampleSetSelection: sampleSetScope_caseControl,
+      featureSelection: featureSelectionScope,
+    }, { meta: false });
+
+    vc.layout(biomarkerSelect);
+
+  } else {
+    const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
+    const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
+    const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
+    const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
+    const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
+    const featureList = vc.addView(dataset, 'featureList');
+    const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
+    const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
+    const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
+    const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
+    const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
+    const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
+    const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
+
+    vc.linkViewsByObject([dualScatterplot], {
+      embeddingType: 'densMAP',
+      embeddingContoursVisible: true,
+      embeddingPointsVisible: false,
+      embeddingObsSetLabelsVisible: true,
+    }, { meta: false });
 
 
-  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
-    sampleSetSelection: sampleSetScope_caseControl,
-    featureSelection: featureSelectionScope,
-  }, { meta: false });
-  vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
-    obsColorEncoding: 'geneSelection',
-    featureValueColormap: 'greys',
-    featureValueColormapRange: [0, 0.25],
-    featureAggregationStrategy: null,
-  }, { meta: false });
-  vc.linkViewsByObject([obsSets], {
-    obsSetExpansion: [['Subclass L1']],
-  }, { meta: false });
+    vc.linkViews([/*biomarkerSelect,*/ dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
+    vc.linkViewsByObject([/*biomarkerSelect,*/ dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
+      sampleSetSelection: sampleSetScope_caseControl,
+      featureSelection: featureSelectionScope,
+    }, { meta: false });
+    vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
+      obsColorEncoding: 'geneSelection',
+      featureValueColormap: 'greys',
+      featureValueColormapRange: [0, 0.25],
+      featureAggregationStrategy: null,
+    }, { meta: false });
+    vc.linkViewsByObject([obsSets], {
+      obsSetExpansion: [['Subclass L1']],
+    }, { meta: false });
 
-  /*
-  const [donorSelectionScope, cellTypeSelectionScope] = vc.addCoordination(
-    { cType: 'obsSetSelection', cScope: 'donor', cValue: [['Donor ID', '3593'], ['Donor ID', '3535']] },
-    { cType: 'obsSetSelection', cScope: 'cellType', cValue: [['Cell Type', 'leukocyte'], ['Cell Type', 'kidney collecting duct intercalated cell']] },
-  );
-  */
+    /*
+    const [donorSelectionScope, cellTypeSelectionScope] = vc.addCoordination(
+      { cType: 'obsSetSelection', cScope: 'donor', cValue: [['Donor ID', '3593'], ['Donor ID', '3535']] },
+      { cType: 'obsSetSelection', cScope: 'cellType', cValue: [['Cell Type', 'leukocyte'], ['Cell Type', 'kidney collecting duct intercalated cell']] },
+    );
+    */
 
-  vc.layout(hconcat(
-    vconcat(dualScatterplot, comparativeHeading, obsSets, obsSetSizes),
-    vconcat(treemap, dotPlot, obsSetCompositionBarPlot, sampleSets),
-    vconcat(volcanoPlotTable, featureList, featureSetEnrichmentBarPlot, violinPlots),
-    biomarkerSelect,
-  ));
+    vc.layout(hconcat(
+      vconcat(dualScatterplot, comparativeHeading, obsSets, obsSetSizes),
+      vconcat(treemap, dotPlot, obsSetCompositionBarPlot, sampleSets),
+      vconcat(volcanoPlotTable, featureList, featureSetEnrichmentBarPlot, violinPlots),
+    ));
+  }
   const configJSON = vc.toJSON();
   return configJSON;
 }
 
+export function BiomarkerSelectPageComponent() {
+  const BiomarkerSelect = usePageModeView('biomarker-select');
+
+  return (
+    <>
+      <style>{`
+      .view-row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+      .view-row-left {
+        width: ${(15 / 85) * 100}%;
+        padding: 10px;
+      }
+      .view-row-left p {
+        font-size: 12px;
+        margin-top: 20px;
+      }
+      .view-row-left p.tabs-description {
+        margin-top: 0px;
+      }
+      .view-row-center {
+        width: ${(70 / 85) * 100}%;
+      }
+      `}
+      </style>
+      {/*<div style={{ width: '100%' }}>
+        <div style={{ width: '70%', marginLeft: '15%' }}>
+          <h1>Comparative visualization of single-nucleus data</h1>
+        </div>
+      </div>*/}
+        
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+        <div style={{ width: '85%' }}>
+          {/*<div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+            <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
+              <ComparativeHeading />
+            </Sticky>
+          </div>*/}
+          <div className={clsx('view-row')}>
+            <div className="view-row-left">
+              
+            </div>
+            <div className="view-row-center">
+              <BiomarkerSelect />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function ComparativePageComponent() {
   const ComparativeHeading = usePageModeView('comparative-heading');
-  const BiomarkerSelect = usePageModeView('biomarker-select');
   const CellSets = usePageModeView('cell-sets');
   const SampleSets = usePageModeView('sample-sets');
   const DualScatterplot = usePageModeView('scatterplot');
@@ -318,14 +390,6 @@ export function ComparativePageComponent() {
               <ComparativeHeading />
             </Sticky>
           </div>*/}
-          <div className={clsx('view-row')}>
-            <div className="view-row-left">
-              
-            </div>
-            <div className="view-row-center">
-              <BiomarkerSelect />
-            </div>
-          </div>
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction (Narayan et al. 2021). Contour opacities correspond to the shown percentile thresholds.</p>

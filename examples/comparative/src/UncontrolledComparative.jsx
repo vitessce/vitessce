@@ -30,6 +30,7 @@ function UncontrolledComparativeInner(props) {
   return (
     <div>
       <BiomarkerSelect
+        datasetUrl={datasetUrl}
         geneSelection={geneSelection}
         setGeneSelection={setGeneSelection}
         sampleSetSelection={sampleSetSelection}

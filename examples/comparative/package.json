@@ -41,8 +41,10 @@
     "@vitessce/export-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/styles": "workspace:*",
+    "@vitessce/zarr": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
+    "internmap": "catalog:",
     "react-sticky-el": "^2.1.1",
     "react-window": "^1.8.10",
     "nuqs": "^2.6.0"
