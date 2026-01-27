@@ -50,7 +50,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
      * @returns {Promise} A promise for an array of columns.
      */
   async loadPoints() {
-    const { path } = this.options;
+    const { path, featureIndexColumn } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -62,7 +62,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPoints(path);
+      locations = await this.dataSource.loadPoints(path, featureIndexColumn);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
@@ -71,7 +71,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async loadPointsInRect(bounds, signal) {
-    const { path } = this.options;
+    const { path, featureIndexColumn, mortonCodeColumn } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -81,7 +81,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPointsInRect(path, bounds, signal);
+      locations = await this.dataSource.loadPointsInRect(
+        path, bounds, signal, featureIndexColumn, mortonCodeColumn,
+      );
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
@@ -107,16 +109,32 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async supportsTiling() {
-    const { path } = this.options;
+    const {
+      path,
+      featureIndexColumn: featureIndexColumnNameFromOptions,
+      mortonCodeColumn,
+    } = this.options;
 
-    const [formatVersion, zattrs, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
+    // Check for the presence of bounding_box metadata.
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
+    const { spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+        ?? `${featureKey}_codes`
+    );
+
+    const [formatVersion, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
       // Check the points format version.
       this.dataSource.getPointsFormatVersion(path),
-      // Check for the presence of bounding_box metadata.
-      this.dataSource.loadSpatialDataElementAttrs(path),
+
       // Check the size of parquet row groups,
       // and for the presence of morton_code_2d and feature_index columns.
-      this.dataSource.supportsLoadPointsInRect(path),
+      this.dataSource.supportsLoadPointsInRect(
+        path, featureIndexColumnName, mortonCodeColumn,
+      ),
     ]);
 
     const isSupportedVersion = formatVersion === '0.1';

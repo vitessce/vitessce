@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/obs-sets-manager",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,7 +38,7 @@
     "@vitessce/vit-s": "workspace:*",
     "clsx": "catalog:",
     "lodash-es": "catalog:",
-    "@rc-component/tooltip": "^1.2.0",
+    "@rc-component/tooltip": "1.2.0",
     "rc-tree": "2.1.0",
     "react-color-with-lodash": "^2.19.5"
   },

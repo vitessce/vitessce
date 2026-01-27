@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vit-s",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -39,8 +39,10 @@
     "@vitessce/schemas": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
+    "@zarrita/storage": "catalog:",
     "clsx": "catalog:",
     "d3-array": "catalog:",
     "fast-deep-equal": "^3.1.3",
