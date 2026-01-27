@@ -1,4 +1,13 @@
 
+## 3.9.1
+
+### Patch Changes
+
+- Pre-initialize zipped zarr stores to improve loading performance and avoid losing JS context for multiplexing. (`@vitessce/vit-s`) ([#2392](https://github.com/vitessce/vitessce/pull/2392))
+
+- Add spatialdata.zarr options for obsPoints to specify featureIndexColumn and mortonCodeColumn names. (`@vitessce/spatial-zarr`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2394](https://github.com/vitessce/vitessce/pull/2394))
+
+
 ## 3.9.0
 
 ### Minor Changes
