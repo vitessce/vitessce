@@ -795,6 +795,9 @@ importers:
         specifier: 'catalog:'
         version: 0.5.4
     devDependencies:
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.80.2(react@19.1.0)
       '@vitessce/types':
         specifier: workspace:*
         version: link:../../types
@@ -21935,6 +21938,11 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.80.2
       react: 18.3.1
+
+  '@tanstack/react-query@5.80.2(react@19.1.0)':
+    dependencies:
+      '@tanstack/query-core': 5.80.2
+      react: 19.1.0
 
   '@testing-library/dom@10.4.0':
     dependencies:

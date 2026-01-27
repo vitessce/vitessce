@@ -9,14 +9,26 @@ import {
   Paper,
   Typography,
   Slider,
-  MenuItem,
   Button,
   NativeSelect,
   Checkbox,
-
-  MoreVert as MoreVertIcon,
+  MenuItem,
+  Add as AddIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
+  ExpandMore,
+  ExpandLess,
+  MoreVert as MoreVertIcon,
+  Input,
+  Box,
+  InputAdornment,
+  Tabs,
+  Tab,
+  MenuList,
+  ListItemText,
+  ListItemIcon,
+  LinearProgress,
+  Palette as PaletteIcon,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
@@ -29,19 +41,39 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles()(() => ({
+  pointLayerButton: {
+    borderStyle: 'dashed',
+    marginTop: '10px',
+    marginBottom: '10px',
+    fontWeight: 400,
+  },
+  pointFeatureControllerGrid: {
+    padding: '0',
+    flexWrap: 'nowrap',
+  },
+  pointFeatureExpansionButton: {
+    display: 'inline-block',
+    margin: 0,
+    padding: 0,
+    minWidth: 0,
+    lineHeight: 1,
+    width: '50%',
+  },
   layerTypePointIcon: {
     height: '100%',
-    marginLeft: '1px',
+    paddingLeft: '2px',
     fill: 'currentColor',
-    fontSize: '20px',
+    fontSize: '14px',
     width: '50%',
-    maxWidth: '20px',
+    maxWidth: '16px',
   },
 }));
 
 function PointLayerEllipsisMenu(props) {
   const {
     featureSelection,
+    featureFilterMode,
+    setFeatureFilterMode,
     obsColorEncoding,
     setObsColorEncoding,
     featureValueColormapRange,
@@ -62,6 +94,7 @@ function PointLayerEllipsisMenu(props) {
   const tooltipsVisibleId = useId();
   const crosshairsVisibleId = useId();
   const legendVisibleId = useId();
+  const featureFilterModeId = useId();
 
   return (
     <PopperMenu
@@ -84,8 +117,22 @@ function PointLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
-          <option value="obsLabels">Label Value</option>
+          <option value="geneSelection">Feature Color</option>
+          <option value="randomByFeature">Random Color per Feature</option>
+          <option value="random">Random Color per Point</option>
         </NativeSelect>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={featureFilterModeId}>
+          Filter to Feature Selection:&nbsp;
+        </label>
+        <Checkbox
+          color="primary"
+          className={menuClasses.menuItemCheckbox}
+          checked={featureFilterMode === 'featureSelection'}
+          onChange={(e, v) => setFeatureFilterMode(v ? 'featureSelection' : null)}
+          slotProps={{ input: { id: featureFilterModeId, 'aria-label': 'Toggle feature filter mode' } }}
+        />
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
@@ -151,17 +198,33 @@ export default function PointLayerController(props) {
     layerCoordination,
     setLayerCoordination,
     palette = null,
+    pointMatrixIndicesData,
+    tiledPointsLoadingProgress,
   } = props;
+
+  const [open, setOpen] = useState(false); // TODO: make false after development
+
+  const loadingDoneFraction = useMemo(() => {
+    if (tiledPointsLoadingProgress && typeof tiledPointsLoadingProgress === 'object') {
+      return 1.0 - (
+        Object.values(tiledPointsLoadingProgress).filter(status => status === 'loading').length
+        / Object.values(tiledPointsLoadingProgress).length
+      );
+    }
+    return 1.0;
+  }, [tiledPointsLoadingProgress]);
 
   const {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
     obsColorEncoding,
+    featureColor,
+    featureFilterMode,
     featureSelection,
     featureValueColormap,
     featureValueColormapRange,
-    spatialLayerColor: color,
+    spatialLayerColor,
     tooltipsVisible,
     tooltipCrosshairsVisible,
     legendVisible,
@@ -170,10 +233,12 @@ export default function PointLayerController(props) {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
     setObsColorEncoding,
+    setFeatureColor,
+    setFeatureFilterMode,
     setFeatureSelection,
     setFeatureValueColormap,
     setFeatureValueColormapRange,
-    setSpatialLayerColor: setColor,
+    setSpatialLayerColor,
     setTooltipsVisible,
     setTooltipCrosshairsVisible,
     setLegendVisible,
@@ -188,8 +253,81 @@ export default function PointLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const isStaticColor = obsColorEncoding === 'spatialLayerColor';
-  const isColormap = obsColorEncoding === 'geneSelection';
+  const hasUnspecifiedFeatureColors = useMemo(() => {
+    if (Array.isArray(featureSelection)) {
+      if (Array.isArray(featureColor)) {
+        // Check that each selected feature has a specified color.
+        // When we find one that does not, we can return true.
+        return featureSelection.some((featureName) => {
+          const colorForFeature = featureColor.find(fc => fc.name === featureName);
+          return !colorForFeature;
+        });
+      }
+      // There are features selected, but featureColor is not an array,
+      // so we can assume all features lack specified colors.
+      return featureSelection.length > 0;
+    }
+    return true;
+  }, [featureColor, featureSelection]);
+
+  const isStaticColor = (
+    obsColorEncoding === 'spatialLayerColor'
+    || obsColorEncoding === 'geneSelection'
+  );
+  const showStaticColor = (
+    obsColorEncoding === 'spatialLayerColor'
+    || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
+  );
+  const isColormap = false; // We do not yet support quantitative colormaps for points.
+
+  // If the feature color encoding is "geneSelection" and there is only one feature selected,
+  // we can use the first feature's color as the static color, and hook up the featureColor setter
+  // for that feature in the featureColor array.
+  const hasSingleSelectedFeature = (
+    obsColorEncoding === 'geneSelection'
+    && Array.isArray(featureSelection)
+    && featureSelection.length === 1
+  );
+  const color = useMemo(() => {
+    if (showStaticColor) {
+      return spatialLayerColor;
+    }
+    if (hasSingleSelectedFeature) {
+      const selectedFeatureColor = featureColor
+        ?.find(fc => fc.name === featureSelection[0])?.color;
+      if (selectedFeatureColor) {
+        return selectedFeatureColor;
+      }
+    }
+    return null;
+  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor,
+    featureSelection, showStaticColor,
+  ]);
+  const setColor = useCallback((newColor) => {
+    if (showStaticColor) {
+      setSpatialLayerColor(newColor);
+    } else if (hasSingleSelectedFeature) {
+      const featureColorIndex = featureColor
+        ?.findIndex(fc => fc.name === featureSelection[0]);
+      if (featureColorIndex !== undefined && featureColorIndex >= 0) {
+        // Update existing feature color.
+        const newFeatureColor = [...featureColor];
+        newFeatureColor[featureColorIndex] = {
+          name: featureSelection[0],
+          color: newColor,
+        };
+        setFeatureColor(newFeatureColor);
+      } else {
+        // Add new feature color.
+        setFeatureColor([
+          ...featureColor,
+          { name: featureSelection[0], color: newColor },
+        ]);
+      }
+    }
+  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor,
+    setFeatureColor, featureSelection, showStaticColor,
+  ]);
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -201,7 +339,19 @@ export default function PointLayerController(props) {
   }, [visible, setVisible]);
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
+  const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
+  const enableFeaturesAndSetsDropdown = false;
+
+  const [coloringTabIndex, setColoringTabIndex] = useState(0);
+
+  const handleColoringTabChange = (event, newValue) => {
+    setColoringTabIndex(newValue);
+  };
+
+  // We only match on FEATURE_TYPE, so only the featureIndex
+  // will be relevant/correct here.
+  const { featureIndex } = pointMatrixIndicesData || {};
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>
@@ -258,12 +408,73 @@ export default function PointLayerController(props) {
               setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
               legendVisible={legendVisible}
               setLegendVisible={setLegendVisible}
+              featureFilterMode={featureFilterMode}
+              setFeatureFilterMode={setFeatureFilterMode}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} container direction="row">
             <PointsIconSVG className={classes.layerTypePointIcon} />
+            {enableFeaturesAndSetsDropdown ? (
+              <Button
+                onClick={handleOpenChange}
+                className={classes.pointFeatureExpansionButton}
+                aria-label="Expand or collapse coloring controls"
+              >
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </Button>
+            ) : null}
           </Grid>
         </Grid>
+        {loadingDoneFraction < 1.0 ? (
+          <Grid
+            size={12}
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.pointFeatureControllerGrid}
+          >
+            <LinearProgress
+              variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
+              value={loadingDoneFraction * 100.0}
+            />
+          </Grid>
+        ) : null}
+        {enableFeaturesAndSetsDropdown && open ? (
+          <Grid
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.pointFeatureControllerGrid}
+          >
+            <Tabs
+              value={coloringTabIndex}
+              onChange={handleColoringTabChange}
+              aria-label="Tabs for coloring by feature or set"
+            >
+              <Tab label="Feature List" />
+            </Tabs>
+            {coloringTabIndex === 0 && (
+              <Grid size={12} container direction="column">
+                <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
+                  {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
+                    <MenuItem
+                      key={featureName}
+                    >
+                      <ListItemIcon>
+                        {/*
+                        TODO: deterministically assign colors based on feature index
+                        using same method here as in Spatial view implementation
+                        */}
+                        <PaletteIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>{featureName}</ListItemText>
+                    </MenuItem>
+                  )) : null}
+                </MenuList>
+              </Grid>
+            )}
+          </Grid>
+        ) : null}
       </Paper>
     </Grid>
   );

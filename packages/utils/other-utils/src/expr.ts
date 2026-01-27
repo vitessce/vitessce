@@ -1,4 +1,5 @@
 /* eslint-disable prefer-destructuring */
+import { extent } from 'd3-array';
 
 /**
  * Aggregates multiple arrays of numbers into a single array using a specified strategy.
@@ -11,12 +12,12 @@
  * - 'first', 'last', or number: Selects a specific array.
  * - 'sum', 'mean': Mathematical aggregation.
  * - 'difference': Subtracts the second array from the first (requires exactly 2 arrays).
- * @returns {Array<number>|null} - The aggregated array or null on error/empty input.
+ * @returns {number[]|null} - The aggregated array or null on error/empty input.
  */
 export function aggregateFeatureArrays(
   arrays: Array<Array<number>>,
   strategy: string | number,
-) {
+): number[] | null {
   if (!arrays || arrays.length === 0) return null;
 
   // Check these first to avoid any setup overhead for simple lookups.
@@ -63,7 +64,7 @@ export function aggregateFeatureArrays(
       }
     }
 
-    return resultArray;
+    return Array.from(resultArray);
   }
 
   if (strategy === 'difference') {
@@ -80,8 +81,42 @@ export function aggregateFeatureArrays(
       resultArray[i] = arr0[i] - arr1[i];
     }
 
-    return resultArray;
+    return Array.from(resultArray);
   }
 
   throw new Error(`Unknown aggregation strategy: ${strategy}`);
+}
+
+export function normalizeAggregatedFeatureArray(
+  values: null | number[] | Float32Array | Float64Array,
+) {
+  if (!values || values.length === 0) {
+    return null;
+  }
+  const [min, max] = extent(values);
+  if (min == null || max == null) {
+    return null;
+  }
+  const ratio = max > min ? (255 / (max - min)) : 1;
+  const normData = new Uint8Array(values.length);
+  for (let i = 0; i < values.length; i += 1) {
+    const normalized = max > min ? Math.floor((values[i] - min) * ratio) : 0;
+    normData[i] = Number.isFinite(normalized)
+      ? Math.max(0, Math.min(255, normalized))
+      : 0;
+  }
+  return { normData, extent: [min, max] };
+}
+
+export function filterValidExpressionArrays(
+  arrays: null | Array<null | Array<number> | Float32Array | Float64Array>,
+) {
+  if (!arrays) {
+    return [];
+  }
+  return arrays.filter(arr => (
+    arr
+    && (Array.isArray(arr) || ArrayBuffer.isView(arr))
+    && arr.length > 0
+  ));
 }

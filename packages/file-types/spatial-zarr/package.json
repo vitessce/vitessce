@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-zarr",
-  "version": "3.8.10",
+  "version": "3.9.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@zarrita/storage": "catalog:"
+    "@zarrita/storage": "catalog:",
+    "@tanstack/react-query": "catalog:"
   }
 }

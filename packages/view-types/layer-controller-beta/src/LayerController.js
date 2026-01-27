@@ -34,6 +34,10 @@ export default function LayerController(props) {
 
     pointLayerScopes,
     pointLayerCoordination,
+    pointMultiIndicesData,
+
+    volumeLoadingStatus,
+    tiledPointsLoadingProgress,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -88,6 +92,8 @@ export default function LayerController(props) {
           layerScope={layerScope}
           layerCoordination={pointLayerCoordination[0][layerScope]}
           setLayerCoordination={pointLayerCoordination[1][layerScope]}
+          pointMatrixIndicesData={pointMultiIndicesData?.[layerScope]}
+          tiledPointsLoadingProgress={tiledPointsLoadingProgress}
         />
       ))}
       {/* Spot layers: */}
@@ -130,6 +136,10 @@ export default function LayerController(props) {
           targetT={targetT}
           targetZ={targetZ}
           spatialRenderingMode={spatialRenderingMode}
+          volumeLoadingProgress={volumeLoadingStatus?.loadingProgress}
+          onStopVolumeLoading={volumeLoadingStatus?.onStopLoading}
+          onRestartVolumeLoading={volumeLoadingStatus?.onRestartLoading}
+          volumeStillRef={volumeLoadingStatus?.stillRef}
         />
       ))}
     </div>

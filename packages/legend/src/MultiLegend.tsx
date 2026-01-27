@@ -42,6 +42,10 @@ interface MultiLegendProps {
     Record<string, PointLayerCoordinationValues>,
     Record<string, PointLayerSetters>?,
   ];
+  pointMultiIndicesData?: Record<string, {
+    featureIndex?: string[];
+    obsIndex?: string[];
+  }>;
 }
 
 export default function MultiLegend(props: MultiLegendProps) {
@@ -62,6 +66,7 @@ export default function MultiLegend(props: MultiLegendProps) {
     // Points
     pointLayerScopes,
     pointLayerCoordination,
+    pointMultiIndicesData,
   } = props;
 
   const { classes } = useStyles();
@@ -92,11 +97,15 @@ export default function MultiLegend(props: MultiLegendProps) {
           featureType,
           featureValueType,
           featureSelection,
+          featureColor,
+          featureFilterMode,
           featureValueColormap,
           featureValueColormapRange,
           spatialLayerColor,
           legendVisible,
         } = layerCoordination;
+
+        const pointIndicesData = pointMultiIndicesData?.[layerScope];
 
         const { setFeatureValueColormapRange } = layerSetters || {};
 
@@ -118,6 +127,10 @@ export default function MultiLegend(props: MultiLegendProps) {
             obsColorEncoding={obsColorEncoding}
             spatialLayerColor={spatialLayerColor}
             featureSelection={featureSelection}
+            featureFilterMode={featureFilterMode}
+            featureColor={featureColor}
+            featureIndex={pointIndicesData?.featureIndex}
+            isPointsLayer
             // featureLabelsMap={featureLabelsMap} // TODO
             featureValueColormap={featureValueColormap || 'viridis'}
             featureValueColormapRange={featureValueColormapRange || [0, 1]}
