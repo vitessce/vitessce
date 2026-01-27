@@ -131,7 +131,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPoints(elementPath) {
+  async loadPoints(elementPath, featureIndexColumnNameFromOptions) {
     const parquetPath = getParquetPath(elementPath);
 
     const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
@@ -140,6 +140,13 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
 
     const { feature_key: featureKey } = spatialDataAttrs;
+
+    // eslint-disable-next-line no-unused-vars
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+        ?? `${featureKey}_codes`
+    );
 
     const columnNames = [...axisNames, featureKey].filter(Boolean);
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
@@ -170,14 +177,17 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPointsInRect(elementPath, tileBbox, signal) {
+  async loadPointsInRect(
+    elementPath, tileBbox, signal,
+    featureIndexColumnNameFromOptions, mortonCodeColumn,
+  ) {
     // Morton code rect querying functionality.
     // Reference: https://github.com/vitessce/vitessce-python/pull/476
     const parquetPath = getParquetPath(elementPath);
     const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
     const {
       // axes,
-      // spatialdata_attrs: spatialDataAttrs,
+      spatialdata_attrs: spatialDataAttrs,
       // The bounding box (extent) of all points.
       // Required for un-normalization from uints back to floats.
       // TODO: decide whether these will be stored here or somewhere else.
@@ -189,11 +199,22 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     // const { feature_key: featureKey } = spatialDataAttrs;
     // const columnNames = [...axisNames, featureKey].filter(Boolean);
 
-    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal);
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      ?? `${featureKey}_codes`
+    );
+
+    return this.loadParquetTableInRect(
+      parquetPath, tileBbox, allPointsBbox, signal,
+      featureIndexColumnName, mortonCodeColumn,
+    );
   }
 
-  async supportsLoadPointsInRect(elementPath) {
+  async supportsLoadPointsInRect(elementPath, featureIndexColumnName, mortonCodeColumn) {
     const parquetPath = getParquetPath(elementPath);
-    return this._supportsTiledPoints(parquetPath);
+    return this._supportsTiledPoints(parquetPath, featureIndexColumnName, mortonCodeColumn);
   }
 }
