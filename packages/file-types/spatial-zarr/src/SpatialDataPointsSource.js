@@ -177,7 +177,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPointsInRect(elementPath, tileBbox, signal, featureIndexColumnNameFromOptions) {
+  async loadPointsInRect(elementPath, tileBbox, signal, featureIndexColumnNameFromOptions, mortonCodeColumn) {
     // Morton code rect querying functionality.
     // Reference: https://github.com/vitessce/vitessce-python/pull/476
     const parquetPath = getParquetPath(elementPath);
@@ -201,11 +201,11 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
     const featureIndexColumnName = featureIndexColumnNameFromOptions ?? `${featureKey}_codes`;
 
-    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal, featureIndexColumnName);
+    return this.loadParquetTableInRect(parquetPath, tileBbox, allPointsBbox, signal, featureIndexColumnName, mortonCodeColumn);
   }
 
-  async supportsLoadPointsInRect(elementPath, featureIndexColumnName) {
+  async supportsLoadPointsInRect(elementPath, featureIndexColumnName, mortonCodeColumn) {
     const parquetPath = getParquetPath(elementPath);
-    return this._supportsTiledPoints(parquetPath, featureIndexColumnName);
+    return this._supportsTiledPoints(parquetPath, featureIndexColumnName, mortonCodeColumn);
   }
 }

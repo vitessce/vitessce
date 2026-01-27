@@ -429,7 +429,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
   });
 }
 
-export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileBbox, allPointsBbox) {
+export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileBbox, allPointsBbox, mortonCodeColumnName) {
   return queryClient.fetchQuery({
     queryKey: ['SpatialDataTableSource', '_rectToRowGroupIndices', parquetPath, tileBbox, allPointsBbox],
     staleTime: Infinity,
@@ -469,8 +469,8 @@ export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath
         const [endMin, endMax] = mortonIntervals[endIndex];
         // Check if the start and end intervals span multiple row groups.
         const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-          _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', startMin),
-          _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', endMax),
+          _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, startMin),
+          _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, endMax),
         ]);
         // console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
         if (rowGroupIndexMin === rowGroupIndexMax) {
@@ -502,8 +502,8 @@ export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath
             const [intervalMin, intervalMax] = mortonIntervals[startIndex];
             // eslint-disable-next-line no-await-in-loop
             const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-              _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMin),
-              _bisectRowGroupsRight({ queryClient, store }, parquetPath, 'morton_code_2d', intervalMax),
+              _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, intervalMin),
+              _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, intervalMax),
             ]);
             if (rowGroupIndexMin <= rowGroupIndexMax) {
               coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));

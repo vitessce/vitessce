@@ -74,6 +74,7 @@ function generateXeniumConfig() {
         obsPoints: {
           path: 'points/transcripts_with_morton_codes',
           featureIndexColumn: 'feature_index',
+          mortonCodeColumn: 'morton_code_2d',
         },
         coordinateSystem: 'global',
       },

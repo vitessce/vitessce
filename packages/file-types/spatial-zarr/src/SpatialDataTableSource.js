@@ -487,7 +487,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     return this.varAliases[varPath];
   }
 
-  async _supportsTiledPoints(parquetPath, featureIndexColumnName) {
+  async _supportsTiledPoints(parquetPath, featureIndexColumnName, mortonCodeColumn) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
 
@@ -505,9 +505,10 @@ export default class SpatialDataTableSource extends AnnDataSource {
       }
       return false;
     }
-
+    
+    const mortonCodeColumnName = mortonCodeColumn ?? 'morton_code_2d';
     // Check if the required columns exist.
-    const requiredColumns = ['x', 'y', featureIndexColumnName, 'morton_code_2d'];
+    const requiredColumns = ['x', 'y', featureIndexColumnName, mortonCodeColumnName];
     const hasColumns = allMetadata?.schema?.fields?.map(f => f.name);
     if (!hasColumns) {
       return false;
@@ -536,9 +537,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
     // eslint-disable-next-line no-unused-vars
     signal,
     featureIndexColumnName,
+    mortonCodeColumn,
   ) {
     const { queryClient } = this;
     const { store } = this.storeRoot;
+
+    const mortonCodeColumnName = mortonCodeColumn ?? 'morton_code_2d';
 
     // TODO: load only the columns we need (x, y, feature_index) rather than the full table.
 
@@ -579,6 +583,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
           parquetPath,
           subTileBbox,
           allPointsBbox,
+          mortonCodeColumnName,
         )),
     );
     // Combine the row group indices from all tiles, and remove duplicates.

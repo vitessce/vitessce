@@ -71,7 +71,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async loadPointsInRect(bounds, signal) {
-    const { path, featureIndexColumn } = this.options;
+    const { path, featureIndexColumn, mortonCodeColumn } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -81,7 +81,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPointsInRect(path, bounds, signal, featureIndexColumn);
+      locations = await this.dataSource.loadPointsInRect(path, bounds, signal, featureIndexColumn, mortonCodeColumn);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
@@ -107,7 +107,11 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
   }
 
   async supportsTiling() {
-    const { path, featureIndexColumn: featureIndexColumnNameFromOptions } = this.options;
+    const {
+      path,
+      featureIndexColumn: featureIndexColumnNameFromOptions,
+      mortonCodeColumn,
+    } = this.options;
 
     // Check for the presence of bounding_box metadata.
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
@@ -126,7 +130,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       
       // Check the size of parquet row groups,
       // and for the presence of morton_code_2d and feature_index columns.
-      this.dataSource.supportsLoadPointsInRect(path, featureIndexColumnName),
+      this.dataSource.supportsLoadPointsInRect(
+        path, featureIndexColumnName, mortonCodeColumn,
+      ),
     ]);
 
     const isSupportedVersion = formatVersion === '0.1';
