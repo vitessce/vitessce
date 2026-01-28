@@ -1,0 +1,63 @@
+{
+  "name": "@vitessce/comparative",
+  "version": "3.9.0",
+  "author": "HIDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "publishConfig": {
+    "main": "dist/index.min.js",
+    "module": "dist/index.min.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.min.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "build": "rimraf ./dist/ && pnpm run build-lib",
+    "build-lib": "pnpm run build-lib:prod",
+    "build-lib:prod": "cross-env APP_ENV=production vite build --mode lib",
+    "build-lib:dev": "cross-env APP_ENV=development vite build --mode lib"
+  },
+  "dependencies": {
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
+    "@vitessce/all": "workspace:*",
+    "@vitessce/config": "workspace:*",
+    "@vitessce/constants": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/export-utils": "workspace:*",
+    "@vitessce/vit-s": "workspace:*",
+    "@vitessce/styles": "workspace:*",
+    "@vitessce/zarr": "workspace:*",
+    "clsx": "catalog:",
+    "lodash-es": "catalog:",
+    "internmap": "catalog:",
+    "react-sticky-el": "^2.1.1",
+    "react-window": "^1.8.10",
+    "nuqs": "^2.6.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "catalog:",
+    "cross-env": "^7.0.0",
+    "rimraf": "^3.0.2",
+    "rollup-plugin-visualizer": "^5.8.3",
+    "vite": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  }
+}

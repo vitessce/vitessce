@@ -200,6 +200,7 @@ import {
 // Joint file types
 import {
   BiomarkerSelectSubscriber,
+  BiomarkerSelectAltSubscriber,
   ComparativeHeadingSubscriber,
   SampleSetPairManagerSubscriber,
   autocompleteFeature,
@@ -276,6 +277,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT_ALT, BiomarkerSelectAltSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
