@@ -39,7 +39,9 @@ function UncontrolledComparativeInner(props) {
       <ControlledComparative
         datasetUrl={datasetUrl}
         geneSelection={geneSelection}
+        setGeneSelection={setGeneSelection}
         sampleSetSelection={sampleSetSelection}
+        setSampleSetSelection={setSampleSetSelection}
       />
     </div>
   );

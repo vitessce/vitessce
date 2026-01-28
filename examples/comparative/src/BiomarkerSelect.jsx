@@ -1,118 +1,100 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import {
-  useAsyncFunction,
-  useViewConfigStoreApi,
-  useSetViewConfig,
-  useViewConfig,
-  useCoordination,
-  useLoaders,
-  useComparisonMetadata,
-  useMatchingLoader,
-  useColumnNameMapping,
-  useCoordinationScopes,
-} from '@vitessce/vit-s';
-import { AsyncFunctionType, ViewType, COMPONENT_COORDINATION_TYPES, DataType } from '@vitessce/constants-internal';
-import {
-  Button, ButtonGroup, Tooltip, NativeSelect, Grid, TextField,
-  Typography, Add as AddIcon, Info as InfoIcon, Autocomplete,
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-} from '@vitessce/styles';
-import { AnnDataSource, ComparisonMetadataAnndataLoader } from '@vitessce/zarr';
-import { VariableSizeList } from 'react-window';
+import React, { useMemo, useState, useCallback } from 'react';
+import { Vitessce } from '@vitessce/all';
+import { BiomarkerSelectPageComponent, generateComparativeConfig } from './ComparativeConfig.jsx';
 import { isEqual } from 'lodash-es';
 
-
 export function BiomarkerSelect(props) {
-  const {
-    datasetUrl,
-    geneSelection,
-    setGeneSelection,
-    sampleSetSelection,
-    setSampleSetSelection,
-  } = props;
+    const {
+        datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
+        geneSelection,
+        sampleSetSelection,
+        setGeneSelection,
+        setSampleSetSelection,
+        theme = 'light2',
+        debugMode = false,
+        logLevel = undefined,
+    } = props;
 
-  const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
-  const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
+    const initialConfig = useMemo(() => generateComparativeConfig(datasetUrl, true), [datasetUrl]);
+    const [currentConfig, setCurrentConfig] = useState(null);
 
-  const autocompleteNode = useCallback(
-    async inputValue => autocompleteFeature(inputValue),
-    [autocompleteFeature],
-  );
-  const getEdges = useCallback(
-    async (node, targetModality) => transformFeature(node, targetModality),
-    [transformFeature],
-  );
-
-  const [loaders, dataset, obsType, sampleType] = useMemo(() => {
-    const datasetResult = "__DATASET__";
-    const loadersInternMap = new InternMap([], JSON.stringify);
-    const dataSource = new AnnDataSource({
-          url: datasetUrl,
-          fileType: 'comparisonMetadata.anndata.zarr',
-          requestInit: undefined,
-          refSpecUrl: null,
-          store: null,
-          queryClient: null, // Unused by AnnDataSource.
-        });
-    const loader = new ComparisonMetadataAnndataLoader(dataSource, {
-        url: datasetUrl,
-        options: {
-          path: 'uns/comparison_metadata',
-        },
-        requestInit: undefined,
-        fileType: 'comparisonMetadata.anndata.zarr',
-        coordinationValues: {
-          obsType: 'cell',
-          sampleType: 'sample',
-        },
-      });
-    loadersInternMap.set({ obsType: "cell", sampleType: "sample" }, loader);
-    const loadersResult = {
-      [datasetResult]: {
-        loaders: loadersInternMap
-      },
-    };
-    return [loadersResult, datasetResult, "cell", "sample"];
-  }, []);
-
-  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
-    loaders, dataset, false, {}, {}, { obsType, sampleType },
-  );
-  const stratificationOptions = useMemo(() => {
-    /*
-      return array of objects like {
-        stratificationId: 'aki-vs-hr',
-        name: 'Acute kidney injury (AKI) vs. Healthy reference',
-        stratificationType: 'sampleSet', // key changed from 'groupType'. value changed from 'clinical'
-        sampleSets: [
-          ['Disease Type', 'AKI'],
-          ['Disease Type', 'Reference'],
-        ],
-      },
-    */
-    if (comparisonMetadata?.sample_group_pairs) {
-      return comparisonMetadata.sample_group_pairs.map((sampleGroupPair) => {
-        const [sampleGroupCol, sampleGroupValues] = sampleGroupPair;
-        const [sampleGroupCtrl, sampleGroupCase] = sampleGroupValues;
-        const groupName = sampleSetsColumnNameMappingReversed?.[sampleGroupCol];
-        return {
-          stratificationId: `${sampleGroupCol}_${sampleGroupCtrl}-vs-${sampleGroupCase}`,
-          name: `${groupName}: ${sampleGroupCtrl} vs. ${sampleGroupCase}`,
-          stratificationType: 'sampleSet',
-          sampleSets: [
-            // With sampleSets coming from the comparison_metadata,
-            // need to use loader options from obsSets and sampleSets to get mapping
-            // from column name to group name.
-            [groupName, sampleGroupCtrl],
-            [groupName, sampleGroupCase],
-          ],
+    // Merge currentConfig with geneSelection and sampleSetSelection,
+    // which may have been updated from outside Vitessce (e.g., from URL params).
+    const mergedConfig = useMemo(() => {
+        if (!currentConfig) {
+            return initialConfig;
+        }
+        // Merge currentConfig with geneSelection and sampleSetSelection.
+        const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
+        const isValidSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string'));
+        
+        const newConfig = {
+            ...currentConfig,
+            coordinationSpace: {
+                ...currentConfig.coordinationSpace,
+                featureSelection: {
+                    ...currentConfig.coordinationSpace?.featureSelection,
+                    '__comparison__': (isValidGeneSelection
+                        ? geneSelection
+                        : currentConfig.coordinationSpace?.featureSelection?.['__comparison__']
+                    ),
+                },
+                sampleSetSelection: {
+                    ...currentConfig.coordinationSpace?.sampleSetSelection,
+                    '__comparison__': (
+                        isValidSampleSetSelection
+                            ? sampleSetSelection
+                            : currentConfig.coordinationSpace?.sampleSetSelection?.['__comparison__']
+                    ),
+                },
+            },
         };
-      });
-    }
-    return null;
-  }, [comparisonMetadata, sampleSetsColumnNameMappingReversed]);
+        return newConfig;
+    }, [initialConfig, currentConfig, geneSelection, sampleSetSelection]);
 
-  return (
-    <p>Biomarker select UI here</p>
-  );
+    const onConfigChange = useCallback((newConfig) => {
+      // Listen for changes to the config from inside vITESSCE
+      setCurrentConfig(newConfig);
+
+      // Listen for changes to featureSelection and sampleSetSelection in the coordination space.
+      const newFeatureSelection = newConfig.coordinationSpace?.featureSelection?.['__comparison__'];
+      const newSampleSetSelection = newConfig.coordinationSpace?.sampleSetSelection?.['__comparison__'];
+
+      // Was there a new selection made from inside Vitessce?
+      // Note: this will prevent from CLEARING the selections from inside Vitessce
+      // (any clearing will need to be done from the BiomarkerSelect UI).
+      const hasNewGeneSelection = (
+          Array.isArray(newFeatureSelection)
+              && newFeatureSelection.length > 0
+              && !isEqual(newFeatureSelection, geneSelection)
+      );
+      const hasNewSampleSetSelection = (
+          Array.isArray(newSampleSetSelection)
+          && newSampleSetSelection.length > 0
+          && !isEqual(newSampleSetSelection, sampleSetSelection)
+      );
+
+      if(hasNewGeneSelection) {
+          setGeneSelection(newFeatureSelection);
+      }
+      if(hasNewSampleSetSelection) {
+          setSampleSetSelection(newSampleSetSelection);
+      }
+  }, [geneSelection, sampleSetSelection]);
+
+    return (
+        <div>
+            <Vitessce
+                config={mergedConfig}
+                onConfigChange={onConfigChange}
+                rowHeight={null}
+                theme={theme}
+                pageMode={true}
+                debugMode={debugMode}
+                logLevel={logLevel}
+            >
+                <BiomarkerSelectPageComponent />
+            </Vitessce>
+        </div>
+    );
 }
