@@ -227,9 +227,6 @@ export function TitleInfo(props) {
         <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
         </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
-        </div>
         <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
             options={options}
@@ -273,6 +270,9 @@ export function TitleInfo(props) {
       >
         { !isReady ? <LoadingIndicator /> : null }
         {children}
+      </div>
+      <div className={classes.infoText} title={info} role="note">
+        {info}
       </div>
     </>
     // "pl-2" only matters when the window is very narrow.
