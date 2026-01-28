@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { makeStyles } from '@vitessce/styles';
+import { makeStyles, Chip } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
@@ -13,6 +13,16 @@ const useStyles = makeStyles()(() => ({
     border: '0',
     padding: '2px',
     borderRadius: '2px',
+  },
+  chipsContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '4px',
+    marginLeft: '10px',
+    marginRight: '10px',
+    marginBottom: '8px',
+    maxHeight: '100px',
+    overflowY: 'auto',
   },
 }));
 
@@ -120,6 +130,15 @@ export default function FeatureList(props) {
     ];
   }, [showFeatureTable, primaryColumnName, hasFeatureLabels]);
 
+  const handleChipDelete = (geneKey) => {
+    if (setGeneSelection) {
+      const newSelection = (geneSelection || []).filter(key => key !== geneKey);
+      setGeneSelection(newSelection.length > 0 ? newSelection : null);
+    }
+  };
+
+  const chipsHeight = enableMultiSelect && geneSelection && geneSelection.length > 0 ? 108 : 0;
+
   return (width > 0 && height > 0) ? (
     <>
       <input
@@ -129,6 +148,22 @@ export default function FeatureList(props) {
         value={searchTerm}
         onChange={handleChange}
       />
+      {enableMultiSelect && geneSelection && geneSelection.length > 0 && (
+        <div className={classes.chipsContainer}>
+          {geneSelection.map(geneKey => (
+            <Chip
+              key={geneKey}
+              label={
+                featureLabelsMap?.get(geneKey)
+                || featureLabelsMap?.get(cleanFeatureId(geneKey))
+                || geneKey
+              }
+              onDelete={() => handleChipDelete(geneKey)}
+              size="small"
+            />
+          ))}
+        </div>
+      )}
       <SelectableTable
         columns={columns}
         columnLabels={columnLabels}
@@ -141,7 +176,7 @@ export default function FeatureList(props) {
         allowUncheck={enableMultiSelect}
         showTableHead={columnLabels.length > 1}
         width={width}
-        height={height - 34}
+        height={height - 34 - chipsHeight}
       />
     </>
   ) : null;
