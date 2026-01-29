@@ -5,6 +5,9 @@ import { makeStyles, GlobalStyles, ScopedGlobalStyles } from '@vitessce/styles';
 export const useStyles = makeStyles()(() => ({
   neuroglancerWrapper: {
     position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     height: '100%',
   },
 }));
