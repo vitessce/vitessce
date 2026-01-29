@@ -250,9 +250,7 @@ export const Popper = React.forwardRef<HTMLDivElement, PopperProps>(
     }
 
     return (
-      // @ts-expect-error - MUI Portal has incompatible return type with React 19
       <Portal disablePortal={disablePortal} container={container}>
-        {/* @ts-expect-error - MUI Portal child type incompatibility */}
         <div
           ref={handleRef}
           role="tooltip"
