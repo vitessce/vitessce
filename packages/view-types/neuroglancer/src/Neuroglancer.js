@@ -88,7 +88,7 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping } = this.props;
+    const { classes, viewerState, cellColorMapping, onLayerLoadingChange } = this.props;
 
     return (
       <>
@@ -99,6 +99,7 @@ export class NeuroglancerComp extends PureComponent {
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
+              onLayerLoadingChange={onLayerLoadingChange}
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
