@@ -20,14 +20,6 @@ export function createChainedFunction(...funcs: (Func | null | undefined)[]): Fu
         return acc;
       }
 
-      if (process.env.NODE_ENV !== 'production') {
-        if (typeof func !== 'function') {
-          console.error(
-            'Material-UI: Invalid Argument Type, must only provide functions, undefined, or null.',
-          );
-        }
-      }
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return function chainedFunction(this: any, ...args: any[]) {
         acc.apply(this, args);
