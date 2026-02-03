@@ -196,7 +196,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     // Just return the column of feature indices directly.
     return axisColumnArrs[0];
   }
-  
+
   /**
    *
    * @param {string} elementPath

@@ -865,7 +865,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[2] = 0; // TODO
         return target;
       },
-      getFillColor: getFillColor,
+      getFillColor,
       onHover: info => delegateHover(info, 'point', layerScope),
       // Use GPU filtering to filter to only the points in the tile bounding box,
       // since the row groups may contain points from other tiles.
@@ -890,7 +890,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
         filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
       },
-      
+
     });
   }
 

@@ -83,7 +83,9 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locationsFeatureIndex;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIndex(path, featureIndexColumn);
+      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIndex(
+        path, featureIndexColumn,
+      );
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
