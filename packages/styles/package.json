@@ -43,6 +43,7 @@
   "devDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
+    "@types/react": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
