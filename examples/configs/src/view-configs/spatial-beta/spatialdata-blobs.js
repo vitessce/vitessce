@@ -38,7 +38,7 @@ export const spatialdataBlobsConfig = {
             "obsPoints": {
               "path": "points/blobs_points",
               "tablePath": "tables/table_points",
-              //"featureIndexColumn": "genes_codes", // Should be automatically used.
+              "featureIndexColumn": "genes_codes", // Should be automatically used.
             },
             "obsFeatureMatrix": {
               "path": "tables/table_points/X"
@@ -69,7 +69,8 @@ export const spatialdataBlobsConfig = {
     "featureSelection": {
       "A": [
         "channel_0_sum"
-      ]
+      ],
+      "gene": null,
     },
     "featureValueColormap": {
       "A": "viridis"
@@ -164,7 +165,10 @@ export const spatialdataBlobsConfig = {
           },
           "fileUid": {
             "init_A_obsPoints_0": "init_A_obsPoints_0"
-          }
+          },
+          "featureSelection": {
+            "init_A_obsPoints_0": "gene"
+          },
         }
       }
     },
@@ -230,7 +234,7 @@ export const spatialdataBlobsConfig = {
         "dataset": "A",
         "obsType": "init_A_obsPoints_0",
         "featureType": "A",
-        "featureSelection": "A",
+        "featureSelection": "gene",
         "featureValueColormap": "A"
       },
       "x": 8,

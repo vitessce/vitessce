@@ -50,7 +50,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
      * @returns {Promise} A promise for an array of columns.
      */
   async loadPoints() {
-    const { path, featureIndexColumn } = this.options;
+    const { path } = this.options;
 
     // TODO: if points are XYZ, and in 2D rendering mode,
     // pass in the current Z index and filter
@@ -62,12 +62,33 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locations = await this.dataSource.loadPoints(path, featureIndexColumn);
+      locations = await this.dataSource.loadPoints(path);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
     this.locations = locations;
     return this.locations;
+  }
+
+  /**
+     * Class method for loading the feature index column for points.
+     * @returns {Promise} A promise for a column array of integers.
+     */
+  async loadPointsFeatureIndex() {
+    const { path, featureIndexColumn } = this.options;
+
+    if (this.locationsFeatureIndex) {
+      return this.locationsFeatureIndex;
+    }
+    let locationsFeatureIndex;
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1') {
+      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIndex(path, featureIndexColumn);
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
+    }
+    this.locationsFeatureIndex = locationsFeatureIndex;
+    return this.locationsFeatureIndex;
   }
 
   async loadPointsInRect(bounds, signal) {
@@ -179,23 +200,18 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // and the feature_index (or feature_type) column.
     let obsIndex = null;
     let obsPoints = null;
-    // TODO: implement loading feature indices (derive from feature_type if needed)
-    const featureIndices = null; // TODO
+    let featureIndices = null;
     if (!supportsTiling) {
       // We need to load points in full.
-      [obsIndex, obsPoints] = await Promise.all([
+      [obsIndex, obsPoints, featureIndices] = await Promise.all([
         this.loadObsIndex(),
         this.loadPoints(),
+        this.loadPointsFeatureIndex(),
       ]);
     }
 
     return new LoaderResult(
       {
-        /* obsIndex: ["1"], // TEMP
-        obsPoints: { // TEMP
-          shape: [2, 1],
-          data: [[0], [0]],
-        }, */
         // These will be null if tiling is supported.
         obsIndex,
         obsPoints,

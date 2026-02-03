@@ -679,27 +679,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
     }
 
-    const isStaticColor = obsColorEncoding === 'spatialLayerColor';
-
-    const getMoleculeColor = (object, { data, index, target }) => {
-      const obsId = data.src.obsIndex[index];
-      if (data.src.obsLabelsMap && data.src.uniqueObsLabels && data.src.PALETTE) {
-        const obsLabel = data.src.obsLabelsMap.get(obsId);
-        const labelIndex = data.src.uniqueObsLabels.indexOf(obsLabel);
-
-        // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[0] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[0];
-        // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[1] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[1];
-        // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        target[2] = data.src.PALETTE[labelIndex % data.src.PALETTE.length]?.[2];
-      }
-      return target;
-    };
-
     const {
       obsPointsModelMatrix,
       obsPoints,
+      // featureIndices: obsPointsFeatureIndices,
       obsPointsTilingType,
       loadPointsInRect,
     } = this.obsPointsData?.[layerScope]?.src ?? {};
@@ -716,6 +699,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if (hasZ && typeof targetZ !== 'number' && considerZ) {
       log.warn('Spatial: targetZ is not a number, so the point layer will not be filtered by Z.');
     }
+
+    const hasFeatureIndicesMinMax = (
+      !showUnselected
+      && Array.isArray(featureIndices)
+      && featureIndices.length === 1
+    );
+
+    const FILTER_PLACEHOLDER = 0;
+
+    // TODO: can be improved using newer deckgl/extensions version
+    // that supports filterCategories.
+    const featureIndicesMinMax = (
+      hasFeatureIndicesMinMax
+        ? [featureIndices[0], featureIndices[0]]
+        : [FILTER_PLACEHOLDER, FILTER_PLACEHOLDER]
+    );
 
     if (obsPointsTilingType === 'tiled') {
       // Tiled; use TileLayer.
@@ -775,22 +774,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: (subLayerProps) => {
           const { bbox, content: tileData } = subLayerProps.tile;
           const { left, top, right, bottom } = bbox;
-
-          const hasFeatureIndicesMinMax = (
-            !showUnselected
-            && Array.isArray(featureIndices)
-            && featureIndices.length === 1
-          );
-
-          const FILTER_PLACEHOLDER = 0;
-
-          // TODO: can be improved using newer deckgl/extensions version
-          // that supports filterCategories.
-          const featureIndicesMinMax = (
-            hasFeatureIndicesMinMax
-              ? [featureIndices[0], featureIndices[0]]
-              : [FILTER_PLACEHOLDER, FILTER_PLACEHOLDER]
-          );
 
           // Render scatterplot layer as sublayer of the TileLayer.
           return new deck.ScatterplotLayer(subLayerProps, {
@@ -868,11 +851,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
       pickable: true,
       autoHighlight: AUTO_HIGHLIGHT,
-      radiusMaxPixels: 3,
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
       modelMatrix,
-      getRadius: 300,
+      getRadius: 5,
+      radiusMaxPixels: 3,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsPoints.data[0][index];
@@ -882,24 +865,32 @@ class Spatial extends AbstractSpatialOrScatterplot {
         target[2] = 0; // TODO
         return target;
       },
-      getLineColor: isStaticColor ? staticColor : getMoleculeColor,
-      getFillColor: isStaticColor ? staticColor : getMoleculeColor,
+      getFillColor: getFillColor,
       onHover: info => delegateHover(info, 'point', layerScope),
+      // Use GPU filtering to filter to only the points in the tile bounding box,
+      // since the row groups may contain points from other tiles.
+      // Note: this can be improved using filterCategories,
+      // but it is not available until post-v9 deck.gl/extensions.
+      filterRange: [featureIndicesMinMax],
+      getFilterValue: hasFeatureIndicesMinMax
+        ? (object, { data, index }) => ([
+          data.src.featureIndices[index],
+        ])
+        : (object, { data, index }) => ([
+          FILTER_PLACEHOLDER,
+        ]),
+      extensions: [
+        new deck.DataFilterExtension({ filterSize: 1 }),
+      ],
       updateTriggers: {
-        getRadius: [],
-        getFillColor: [obsColorEncoding, staticColor],
-        getLineColor: [obsColorEncoding, staticColor],
-      },
-      ...(hasZ && typeof targetZ === 'number' && considerZ ? {
-        // TODO: support targetT filtering as well.
-        // TODO: allow filtering by Z coordinate (rather than slice index)
-        // Reference: https://github.com/vitessce/vitessce/issues/2194
-        filterRange: [targetZ, targetZ],
-        getFilterValue: (object, { data, index }) => data.src.obsPoints.data[2][index],
-        extensions: [
-          new deck.DataFilterExtension({ filterSize: 1 }),
+        getFillColor: [
+          showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
+          featureSelection, hasMultipleFeaturesSelected,
         ],
-      } : {}),
+        getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+        filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
+      },
+      
     });
   }
 
@@ -1786,6 +1777,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       obsIndex,
       obsPoints: layerObsPoints,
+      featureIndices: layerObsPointsFeatureIndices,
       obsPointsModelMatrix,
       loadPointsInRect,
       obsPointsTilingType,
@@ -1798,6 +1790,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           obsPointsTilingType,
           obsIndex: null,
           obsPoints: null,
+          featureIndices: null,
           obsPointsModelMatrix,
           obsLabelsMap: null,
           uniqueObsLabels: null,
@@ -1817,6 +1810,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             obsPointsTilingType,
             obsIndex,
             obsPoints: layerObsPoints,
+            featureIndices: layerObsPointsFeatureIndices,
             obsPointsModelMatrix,
             obsLabelsMap: null,
             uniqueObsLabels: null,
