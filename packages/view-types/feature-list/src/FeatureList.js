@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { makeStyles, Chip } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
@@ -21,7 +21,7 @@ const useStyles = makeStyles()(() => ({
     marginLeft: '10px',
     marginRight: '10px',
     marginBottom: '8px',
-    maxHeight: '100px',
+    maxHeight: '108px',
     overflowY: 'auto',
   },
 }));
@@ -47,6 +47,20 @@ export default function FeatureList(props) {
   const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const chipsContainerRef = useRef(null);
+  const [chipsHeight, setChipsHeight] = useState(0);
+
+  useEffect(() => {
+    if (chipsContainerRef.current && enableMultiSelect
+        && geneSelection && geneSelection.length > 0) {
+      // Use scrollHeight to get the actual content height including overflow
+      const computedHeight = Math.min(chipsContainerRef.current.scrollHeight, 108);
+      // Add marginBottom (8px) to account for spacing
+      setChipsHeight(computedHeight + 8);
+    } else {
+      setChipsHeight(0);
+    }
+  }, [geneSelection, enableMultiSelect, width, height]);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
@@ -137,8 +151,6 @@ export default function FeatureList(props) {
     }
   };
 
-  const chipsHeight = enableMultiSelect && geneSelection && geneSelection.length > 0 ? 108 : 0;
-
   return (width > 0 && height > 0) ? (
     <>
       <input
@@ -149,7 +161,7 @@ export default function FeatureList(props) {
         onChange={handleChange}
       />
       {enableMultiSelect && geneSelection && geneSelection.length > 0 && (
-        <div className={classes.chipsContainer}>
+        <div ref={chipsContainerRef} className={classes.chipsContainer}>
           {geneSelection.map(geneKey => (
             <Chip
               key={geneKey}
