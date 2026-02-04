@@ -74,7 +74,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
      * Class method for loading the feature index column for points.
      * @returns {Promise} A promise for a column array of integers.
      */
-  async loadPointsFeatureIndex() {
+  async loadPointsFeatureIds() {
     const { path, featureIndexColumn } = this.options;
 
     if (this.locationsFeatureIndex) {
@@ -83,8 +83,8 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locationsFeatureIndex;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
     if (formatVersion === '0.1') {
-      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIndex(
-        path, featureIndexColumn,
+      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIds(
+        path,
       );
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
@@ -202,22 +202,24 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     // and the feature_index (or feature_type) column.
     let obsIndex = null;
     let obsPoints = null;
-    let featureIndices = null;
+    let featureIds = null;
     if (!supportsTiling) {
       // We need to load points in full.
-      [obsIndex, obsPoints, featureIndices] = await Promise.all([
+      [obsIndex, obsPoints, featureIds] = await Promise.all([
         this.loadObsIndex(),
         this.loadPoints(),
-        this.loadPointsFeatureIndex(),
+        this.loadPointsFeatureIds(),
       ]);
     }
+
+    console.log(featureIds);
 
     return new LoaderResult(
       {
         // These will be null if tiling is supported.
         obsIndex,
         obsPoints,
-        featureIndices,
+        featureIds,
         obsPointsModelMatrix: modelMatrix,
 
         // Return 'tiled' if the morton_code_2d column

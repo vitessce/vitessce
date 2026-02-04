@@ -1773,11 +1773,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const {
       obsPoints,
       pointMultiObsLabels,
+      pointMatrixIndices,
     } = this.props;
     const {
       obsIndex,
       obsPoints: layerObsPoints,
-      featureIndices: layerObsPointsFeatureIndices,
+      featureIds: layerObsPointsFeatureIds,
       obsPointsModelMatrix,
       loadPointsInRect,
       obsPointsTilingType,
@@ -1805,12 +1806,23 @@ class Spatial extends AbstractSpatialOrScatterplot {
       if (layerObsPoints) {
         const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
         this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+
+        let pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
+        if (!pointFeatureIndex) {
+          // If no featureIndex is available, compute our own based on unique values
+          // in layerObsPointsFeatureIds.
+          pointFeatureIndex = Array.from(new Set(layerObsPointsFeatureIds));
+        }
+        // Map feature IDs to integer indices.
+        const featureIndices = layerObsPointsFeatureIds
+          .map(featureId => pointFeatureIndex?.indexOf(featureId));
+
         this.obsPointsData[layerScope] = {
           src: {
             obsPointsTilingType,
             obsIndex,
             obsPoints: layerObsPoints,
-            featureIndices: layerObsPointsFeatureIndices,
+            featureIndices: featureIndices,
             obsPointsModelMatrix,
             obsLabelsMap: null,
             uniqueObsLabels: null,

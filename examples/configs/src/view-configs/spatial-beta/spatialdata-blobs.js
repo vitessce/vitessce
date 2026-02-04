@@ -38,7 +38,7 @@ export const spatialdataBlobsConfig = {
             obsPoints: {
               path: 'points/blobs_points',
               tablePath: 'tables/table_points',
-              featureIndexColumn: 'genes_codes', // Should be automatically used.
+              // featureIndexColumn: 'genes_codes', // Should be automatically used.
             },
             obsFeatureMatrix: {
               path: 'tables/table_points/X',
