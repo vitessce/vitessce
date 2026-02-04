@@ -2133,6 +2133,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (
           shallowDiffByLayer('obsPoints', layerScope)
           || shallowDiffByLayer('pointMultiObsLabels', layerScope)
+          || shallowDiffByLayer('pointMatrixIndices', layerScope)
         ) {
           this.onUpdatePointsData(layerScope);
           forceUpdate = true;
