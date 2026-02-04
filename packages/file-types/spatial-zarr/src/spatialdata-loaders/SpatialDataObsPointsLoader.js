@@ -75,7 +75,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
      * @returns {Promise} A promise for a column array of integers.
      */
   async loadPointsFeatureIds() {
-    const { path, featureIndexColumn } = this.options;
+    const { path } = this.options;
 
     if (this.locationsFeatureIndex) {
       return this.locationsFeatureIndex;
@@ -211,8 +211,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         this.loadPointsFeatureIds(),
       ]);
     }
-
-    console.log(featureIds);
 
     return new LoaderResult(
       {

@@ -1822,7 +1822,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             obsPointsTilingType,
             obsIndex,
             obsPoints: layerObsPoints,
-            featureIndices: featureIndices,
+            featureIndices,
             obsPointsModelMatrix,
             obsLabelsMap: null,
             uniqueObsLabels: null,
