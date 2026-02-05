@@ -1,4 +1,15 @@
 
+## 3.9.2
+
+### Patch Changes
+
+- Add spatialdata blobs example dataset configuration. Improve support for non-tiled SpatialData points when they have a feature_index column mapping each point to an index in the corresponding SpatialData Table var.index column, e.g. to map points to gene indices. (`@vitessce/spatial-zarr`, `@vitessce/spatial-beta`, `@vitessce/example-configs`) ([#2403](https://github.com/vitessce/vitessce/pull/2403))
+
+- Move informational subtitles below relevant views. (`@vitessce/vit-s`) ([#2396](https://github.com/vitessce/vitessce/pull/2396))
+
+- Convert styles package to TypeScript. (`@vitessce/styles`) ([#2400](https://github.com/vitessce/vitessce/pull/2400))
+
+
 ## 3.9.1
 
 ### Patch Changes
