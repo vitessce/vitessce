@@ -142,7 +142,6 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       }
       // Step 4: Return the footer bytes
       return footerBytes;
-
     },
     meta: { queryClient, store },
   });
