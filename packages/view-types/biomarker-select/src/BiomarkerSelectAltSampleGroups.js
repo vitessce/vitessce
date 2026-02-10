@@ -1,9 +1,6 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useMemo } from 'react';
-import { Button, ButtonGroup, Grid, Tooltip, NativeSelect } from '@vitessce/styles';
+import { Grid, NativeSelect } from '@vitessce/styles';
 import { isEqual } from 'lodash-es';
-import { BiomarkerSelectAltGeneAutocomplete } from './BiomarkerSelectAltGeneAutocomplete.js';
-import { useStyles } from './styles.js';
 
 
 export function BiomarkerSelectAltSampleGroups(props) {
@@ -11,44 +8,14 @@ export function BiomarkerSelectAltSampleGroups(props) {
     setSampleSetFilter,
     setSampleSetSelection,
 
-    mode: modeProp,
-    setMode,
-    step: stepProp,
-    setStep,
-    currentModalityAgnosticSelection,
-    setCurrentModalityAgnosticSelection,
-    currentModalitySpecificSelection,
-    setCurrentModalitySpecificSelection,
-
-    autocompleteNode,
-
-    getEdges,
     stratifications,
-    onFinish,
-
-    currentStratificationSelection: currentStratificationSelectionProp,
-    setCurrentStratificationSelection: setCurrentStratificationSelectionProp,
   } = props;
-  const { classes } = useStyles();
 
   const [lhsSelectedGroup, setLhsSelectedGroup] = useState(null);
   const [rhsSelectedGroup, setRhsSelectedGroup] = useState(null);
 
-  // Convert back and forth from the special value '__all__' to null.
-  const currentStratificationSelection = currentStratificationSelectionProp === null
-    ? '__all__'
-    : currentStratificationSelectionProp.stratificationId;
-  function setCurrentStratificationSelection(event, value) {
-    setCurrentStratificationSelectionProp(
-      stratifications.find(s => s.stratificationId === value) ?? null,
-    );
-  }
-
   const sampleSetOptions = stratifications?.filter(s => s.stratificationType === 'sampleSet');
-  const structuralRegionOptions = stratifications?.filter(s => s.stratificationType === 'structural-region');
-
   const hasSampleSetOptions = sampleSetOptions && sampleSetOptions.length > 0;
-  const hasStructuralRegionOptions = structuralRegionOptions && structuralRegionOptions.length > 0;
 
   const lhsOptions = useMemo(() => {
     if (sampleSetOptions) {

@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-/* eslint-disable no-unused-vars */
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   useAsyncFunction,
@@ -34,9 +33,6 @@ export function BiomarkerSelectAltSubscriber(props) {
     dataset,
     obsType,
     sampleType,
-    sampleSetFilter,
-    sampleSetSelection,
-    featureSelection,
   }, {
     setSampleSetFilter,
     setSampleSetSelection,
@@ -51,28 +47,19 @@ export function BiomarkerSelectAltSubscriber(props) {
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
 
-  // Need obsSets and sampleSets options to obtain mapping between
+  // Need sampleSets options to obtain mapping between
   // group names and column names.
-  const obsSetsLoader = useMatchingLoader(
-    loaders, dataset, DataType.OBS_SETS, { obsType },
-  );
   const sampleSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  // TODO: make isSelecting a coordination type plugin.
-  // TODO: use store hooks from @vitessce/vit-s to update the view config based on the selections.
-  const [isSelecting, setIsSelecting] = useState(true);
-
-  const [mode, setMode] = useState(null);
-  const [step, setStep] = useState(null);
+  const [mode] = useState(null);
   const [currentModalityAgnosticSelection, setCurrentModalityAgnosticSelection] = useState(null);
   const [currentModalitySpecificSelection, setCurrentModalitySpecificSelection] = useState(null);
   const [currentStratificationSelection, setCurrentStratificationSelection] = useState(null);
 
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
-  const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
   const autocompleteNode = useCallback(async inputValue => {
     const results = await autocompleteFeature(inputValue);
@@ -81,12 +68,8 @@ export function BiomarkerSelectAltSubscriber(props) {
       data: item,
     }));
   }, [autocompleteFeature]);
-  const getEdges = useCallback(
-    async (node, targetModality) => transformFeature(node, targetModality),
-    [transformFeature],
-  );
 
-  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
+  const [{ comparisonMetadata }] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
   const stratificationOptions = useMemo(() => {
@@ -132,23 +115,14 @@ export function BiomarkerSelectAltSubscriber(props) {
 
   return (
     <>
-      {isSelecting ? (
-        <BiomarkerSelectAlt
+      <BiomarkerSelectAlt
           setFeatureSelection={setFeatureSelection}
           setSampleSetFilter={setSampleSetFilter}
           setSampleSetSelection={setSampleSetSelection}
-          mode={mode}
-          setMode={setMode}
-          step={step}
-          setStep={setStep}
           currentModalityAgnosticSelection={currentModalityAgnosticSelection}
           setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-          currentModalitySpecificSelection={currentModalitySpecificSelection}
           setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
-          currentStratificationSelection={currentStratificationSelection}
-          setCurrentStratificationSelection={setCurrentStratificationSelection}
           autocompleteNode={autocompleteNode}
-          getEdges={getEdges}
           stratifications={stratificationOptions}
 
           onFinish={() => {
@@ -187,7 +161,6 @@ export function BiomarkerSelectAltSubscriber(props) {
             setViewConfig(newViewConfig);
           }}
         />
-      ) : null}
     </>
   );
 }
