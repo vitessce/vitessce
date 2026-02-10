@@ -36,6 +36,7 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",

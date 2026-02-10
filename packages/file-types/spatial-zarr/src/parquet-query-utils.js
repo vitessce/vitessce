@@ -7,6 +7,7 @@
 /* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
+import { createGetRange } from '@vitessce/zarr-utils';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { QueryClient } from '@tanstack/react-query' */
@@ -99,50 +100,49 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
-      if (store.getRange) {
-        // Step 1: Fetch last 8 bytes to get footer length and magic number
-        const TAIL_LENGTH = 8;
-        // Case 1: single file.
-        let partZeroPath = parquetPath;
+      const getRange = createGetRange(store);
 
-        // TODO: use _loadParquetBytes here and below instead?
-        let tailBytes = await store.getRange(`/${partZeroPath}`, {
+      // Step 1: Fetch last 8 bytes to get footer length and magic number
+      const TAIL_LENGTH = 8;
+      // Case 1: single file.
+      let partZeroPath = parquetPath;
+
+      // TODO: use _loadParquetBytes here and below instead?
+      let tailBytes = await getRange(`/${partZeroPath}`, {
+        suffixLength: TAIL_LENGTH,
+      });
+      if (!tailBytes) {
+        // Case 2: Rather than a single file, this may be a directory with multiple parts.
+        partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+        tailBytes = await getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
         });
-        if (!tailBytes) {
-          // Case 2: Rather than a single file, this may be a directory with multiple parts.
-          partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-          tailBytes = await store.getRange(`/${partZeroPath}`, {
-            suffixLength: TAIL_LENGTH,
-          });
-        }
-
-        if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
-          // TODO: throw custom error type to indicate no part was found to caller?
-          throw new Error(`Failed to load parquet footerLength for ${partZeroPath}`);
-        }
-
-        // Step 2: Extract footer length and magic number
-        // little-endian
-        const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
-        const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
-
-        if (magic !== 'PAR1') {
-          throw new Error('Invalid Parquet file: missing PAR1 magic number');
-        }
-
-        // Step 3. Fetch the full footer bytes
-        const footerBytes = await store.getRange(`/${partZeroPath}`, {
-          suffixLength: footerLength + TAIL_LENGTH,
-        });
-        if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
-          throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
-        }
-        // Step 4: Return the footer bytes
-        return footerBytes;
       }
-      // Store does not support getRange.
-      return null;
+
+      if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
+        // TODO: throw custom error type to indicate no part was found to caller?
+        throw new Error(`Failed to load parquet footerLength for ${partZeroPath}`);
+      }
+
+      // Step 2: Extract footer length and magic number
+      // little-endian
+      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
+      const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
+
+      if (magic !== 'PAR1') {
+        throw new Error('Invalid Parquet file: missing PAR1 magic number');
+      }
+
+      // Step 3. Fetch the full footer bytes
+      const footerBytes = await getRange(`/${partZeroPath}`, {
+        suffixLength: footerLength + TAIL_LENGTH,
+      });
+      if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
+        throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
+      }
+      // Step 4: Return the footer bytes
+      return footerBytes;
+
     },
     meta: { queryClient, store },
   });
