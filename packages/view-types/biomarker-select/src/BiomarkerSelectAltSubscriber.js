@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   useAsyncFunction,
@@ -33,6 +34,9 @@ export function BiomarkerSelectAltSubscriber(props) {
     dataset,
     obsType,
     sampleType,
+    sampleSetFilter,
+    sampleSetSelection,
+    featureSelection,
   }, {
     setSampleSetFilter,
     setSampleSetSelection,
@@ -47,8 +51,11 @@ export function BiomarkerSelectAltSubscriber(props) {
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
 
-  // Need sampleSets options to obtain mapping between
+  // Need obsSets and sampleSets options to obtain mapping between
   // group names and column names.
+  const obsSetsLoader = useMatchingLoader(
+    loaders, dataset, DataType.OBS_SETS, { obsType },
+  );
   const sampleSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
@@ -60,6 +67,7 @@ export function BiomarkerSelectAltSubscriber(props) {
   const [currentStratificationSelection, setCurrentStratificationSelection] = useState(null);
 
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
+  const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
   const autocompleteNode = useCallback(async inputValue => {
     const results = await autocompleteFeature(inputValue);
@@ -68,8 +76,12 @@ export function BiomarkerSelectAltSubscriber(props) {
       data: item,
     }));
   }, [autocompleteFeature]);
+  const getEdges = useCallback(
+    async (node, targetModality) => transformFeature(node, targetModality),
+    [transformFeature],
+  );
 
-  const [{ comparisonMetadata }] = useComparisonMetadata(
+  const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
   );
   const stratificationOptions = useMemo(() => {

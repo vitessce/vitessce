@@ -6,6 +6,7 @@ import {
   Info as InfoIcon,
   SimpleAutocomplete,
 } from '@vitessce/styles';
+import { useStyles } from './styles.js';
 
 
 export function BiomarkerSelectAltGeneAutocomplete(props) {
@@ -16,6 +17,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
     setCurrentModalityAgnosticSelection,
     setCurrentModalitySpecificSelection,
   } = props;
+  const { classes } = useStyles();
 
   const [selectedItem, setSelectedItem] = useState(null);
 
