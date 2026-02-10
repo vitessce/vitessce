@@ -25,7 +25,6 @@ import { BiomarkerSelectAlt } from './BiomarkerSelectAlt.js';
 export function BiomarkerSelectAltSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
-    stratificationOptions: stratificationOptionsProp, // TODO: Remove; Get from comparisonMetadata instead
   } = props;
 
   const loaders = useLoaders();
@@ -75,10 +74,13 @@ export function BiomarkerSelectAltSubscriber(props) {
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
   const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
-  const autocompleteNode = useCallback(
-    async inputValue => autocompleteFeature(inputValue),
-    [autocompleteFeature],
-  );
+  const autocompleteNode = useCallback(async inputValue => {
+    const results = await autocompleteFeature(inputValue);
+    return results.map(item => ({
+      label: item.label,
+      data: item,
+    }));
+  }, [autocompleteFeature]);
   const getEdges = useCallback(
     async (node, targetModality) => transformFeature(node, targetModality),
     [transformFeature],

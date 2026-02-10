@@ -126,3 +126,5 @@ export { DataGrid } from '@mui/x-data-grid/DataGrid';
 // Local exports
 export { Popper as PopperV4 } from './Popper.js';
 export { ScopedGlobalStyles } from './ScopedGlobalStyles.js';
+export { SimpleAutocomplete } from './SimpleAutocomplete.js';
+export type { SimpleAutocompleteProps, AutocompleteItem } from './SimpleAutocomplete.js';

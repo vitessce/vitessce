@@ -1533,6 +1533,9 @@ importers:
       popper.js:
         specifier: ^1.16.1
         version: 1.16.1
+      react-window:
+        specifier: ^1.8.10
+        version: 1.8.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tss-react:
         specifier: ^4.9.18
         version: 4.9.18(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@mui/material@7.1.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.7)(react@18.3.1))(@types/react@18.2.7)(react@18.3.1))(@types/react@18.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.2.7)(react@18.3.1)
@@ -1540,6 +1543,9 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 18.2.7
+      '@types/react-window':
+        specifier: 1.8.5
+        version: 1.8.5
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -7456,6 +7462,9 @@ packages:
     resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
     peerDependencies:
       '@types/react': '*'
+
+  '@types/react-window@1.8.5':
+    resolution: {integrity: sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==}
 
   '@types/react@18.2.7':
     resolution: {integrity: sha512-ojrXpSH2XFCmHm7Jy3q44nXDyN54+EYKP2lBhJ2bqfyPj6cIUW/FZW/Csdia34NQgq7KYcAlHi5184m4X88+yw==}
@@ -22662,6 +22671,10 @@ snapshots:
       '@types/react': 18.2.7
 
   '@types/react-transition-group@4.4.12(@types/react@19.1.6)':
+    dependencies:
+      '@types/react': 19.1.6
+
+  '@types/react-window@1.8.5':
     dependencies:
       '@types/react': 19.1.6
 
