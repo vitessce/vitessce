@@ -14,9 +14,9 @@ export function ControlledComparative(props) {
         debugMode = false,
         logLevel = undefined,
     } = props;
+
     const initialConfig = useMemo(() => generateComparativeConfig(datasetUrl, false), [datasetUrl]);
     const [currentConfig, setCurrentConfig] = useState(null);
-
     // Merge currentConfig with geneSelection and sampleSetSelection,
     // which may have been updated from outside Vitessce (e.g., from URL params).
     const mergedConfig = useMemo(() => {
@@ -95,6 +95,8 @@ export function ControlledComparative(props) {
             setSampleSetSelection(newSampleSetSelection);
         }
     }, [geneSelection, sampleSetSelection]);
+
+    const didFirstValidation = currentConfig !== null;
     
     return (
         <div>
@@ -102,6 +104,7 @@ export function ControlledComparative(props) {
                 config={mergedConfig}
                 onConfigChange={onConfigChange}
                 remountOnUidChange={false}
+                validateConfig={!didFirstValidation}
                 validateOnConfigChange={false}
                 rowHeight={null}
                 theme={theme}

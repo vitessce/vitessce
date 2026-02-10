@@ -82,11 +82,16 @@ export function BiomarkerSelect(props) {
       }
   }, [geneSelection, sampleSetSelection]);
 
+  const didFirstValidation = currentConfig !== null;
+
     return (
         <div>
             <Vitessce
                 config={mergedConfig}
                 onConfigChange={onConfigChange}
+                remountOnUidChange={false}
+                validateConfig={!didFirstValidation}
+                validateOnConfigChange={false}
                 rowHeight={null}
                 theme={theme}
                 pageMode={true}
