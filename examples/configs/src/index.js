@@ -64,6 +64,7 @@ import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygo
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
 import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
 import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xenium_rep1_io.js';
+import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
@@ -150,6 +151,7 @@ export const configs = {
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
   'spatialdata-visium_hd': visiumHdSpatialdata2025,
+  'spatialdata-blobs': spatialdataBlobsConfig,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
