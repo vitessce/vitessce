@@ -139,8 +139,8 @@ export function VitessceDemo() {
             `}
             </style>
           ) : null}
-            <UncontrolledComparative />
-          </ContainerComponent>
+          <UncontrolledComparative />
+        </ContainerComponent>
       );
     }
 

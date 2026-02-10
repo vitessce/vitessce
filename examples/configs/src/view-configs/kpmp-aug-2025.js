@@ -183,7 +183,7 @@ function generateKpmpAug2025Config() {
     {
       cType: 'sampleSetSelection',
       cScope: '__comparison__',
-      //cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
+      // cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
       cValue: null,
     },
   );
@@ -191,7 +191,7 @@ function generateKpmpAug2025Config() {
     {
       cType: 'featureSelection',
       cScope: '__comparison__',
-      //cValue: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
+      // cValue: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
       cValue: null,
     },
   );
@@ -307,23 +307,21 @@ function PageComponent() {
       }
       `}
       </style>
-      {/*<div style={{ width: '100%' }}>
+      {/* <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <h1>Comparative visualization of single-nucleus data</h1>
         </div>
-      </div>*/}
-        
+      </div> */}
+
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '85%' }}>
-          {/*<div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+          {/* <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
-          </div>*/}
+          </div> */}
           <div className={clsx('view-row')}>
-            <div className="view-row-left">
-              
-            </div>
+            <div className="view-row-left" />
             <div className="view-row-center">
               <BiomarkerSelect />
             </div>
@@ -337,9 +335,7 @@ function PageComponent() {
             </div>
           </div>
           <div className={clsx('view-row')}>
-            <div className="view-row-left">
-              
-            </div>
+            <div className="view-row-left" />
             <div className="view-row-center">
               <Link component="button" variant="body2">Show analysis details</Link>
             </div>
@@ -358,7 +354,7 @@ function PageComponent() {
               </Tabs>
             </div>
           </div>
-		      {visTab === 0 ? (
+          {visTab === 0 ? (
             <>
               <div className={clsx('view-row', 'view-row-short')}>
                 <div className="view-row-left">
@@ -369,15 +365,13 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
-          ) : null}
+		      ) : null}
           {visTab === 1 ? (
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
@@ -389,9 +383,7 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -409,9 +401,7 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -429,9 +419,7 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -449,9 +437,7 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -459,7 +445,7 @@ function PageComponent() {
             </>
           ) : null}
           {/* End plots; Begin tables */}
-          
+
           <div className={clsx('view-row')}>
             <div className="view-row-left">
               <p className="tabs-description">Use the tabs to switch the table rendered below.</p>
@@ -483,9 +469,7 @@ function PageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>

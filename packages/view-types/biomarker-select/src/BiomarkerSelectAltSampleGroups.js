@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useMemo } from 'react';
 import { Button, ButtonGroup, Grid, Tooltip, NativeSelect } from '@vitessce/styles';
+import { isEqual } from 'lodash-es';
 import { BiomarkerSelectAltGeneAutocomplete } from './BiomarkerSelectAltGeneAutocomplete.js';
 import { useStyles } from './styles.js';
-import { isEqual } from 'lodash-es';
 
 
 export function BiomarkerSelectAltSampleGroups(props) {
@@ -52,15 +52,14 @@ export function BiomarkerSelectAltSampleGroups(props) {
 
   const lhsOptions = useMemo(() => {
     if (sampleSetOptions) {
-      let result = [];
+      const result = [];
       const withDuplicates = sampleSetOptions.map(o => o.sampleSets).flat();
-      withDuplicates.forEach(setPath => {
-        if(!result.find(r => isEqual(r.path, setPath))) {
-
-          let rhsOptionsForLhs = [];
-          sampleSetOptions.forEach(o => {
-            let pathPair = o.sampleSets;
-            if(isEqual(pathPair[0], setPath)) {
+      withDuplicates.forEach((setPath) => {
+        if (!result.find(r => isEqual(r.path, setPath))) {
+          const rhsOptionsForLhs = [];
+          sampleSetOptions.forEach((o) => {
+            const pathPair = o.sampleSets;
+            if (isEqual(pathPair[0], setPath)) {
               const otherPath = pathPair[1];
               rhsOptionsForLhs.push({
                 name: `${otherPath[0]}: ${otherPath[1]}`,
@@ -68,7 +67,7 @@ export function BiomarkerSelectAltSampleGroups(props) {
                 sampleSets: o.sampleSets,
                 stratificationId: o.stratificationId,
               });
-            } else if(isEqual(pathPair[1], setPath)) {
+            } else if (isEqual(pathPair[1], setPath)) {
               const otherPath = pathPair[0];
               rhsOptionsForLhs.push({
                 name: `${otherPath[0]}: ${otherPath[1]}`,

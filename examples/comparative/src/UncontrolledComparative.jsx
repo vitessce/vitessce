@@ -1,4 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
+// eslint-disable-next-line import/no-unresolved
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useQueryState, parseAsString, parseAsArrayOf } from 'nuqs';
 import { ControlledComparative } from './ControlledComparative.jsx';

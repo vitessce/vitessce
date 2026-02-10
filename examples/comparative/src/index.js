@@ -12,5 +12,7 @@ export {
 } from '@vitessce/export-utils';
 
 // Comparative-specific exports below
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './ControlledComparative.jsx';
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './UncontrolledComparative.jsx';

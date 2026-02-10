@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react';
 import {
   VitessceConfig,
@@ -15,9 +16,9 @@ import { Tabs, Tab, Link } from '@vitessce/styles';
  * Generate a Vitessce config for comparative visualization.
  * If isBiomarkerSelectOnly is true, only the biomarkerSelect view is included.
  * Otherwise, a config without the biomarkerSelect view is generated.
- * @param {string} baseUrl 
- * @param {boolean} isBiomarkerSelectOnly 
- * @returns 
+ * @param {string} baseUrl
+ * @param {boolean} isBiomarkerSelectOnly
+ * @returns
  */
 export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
   const vc = new VitessceConfig({ schemaVersion: '1.0.16', name: 'Lake et al.' });
@@ -169,12 +170,12 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
         sampleType: 'sample',
       },
     });
-  
+
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
       cType: 'sampleSetSelection',
       cScope: '__comparison__',
-      //cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
+      // cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
       cValue: null,
     },
   );
@@ -182,11 +183,11 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     {
       cType: 'featureSelection',
       cScope: '__comparison__',
-      //cValue: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
+      // cValue: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
       cValue: null,
     },
   );
-  
+
   if (isBiomarkerSelectOnly) {
     const biomarkerSelect = vc.addView(dataset, 'biomarkerSelectAlt', { uid: 'biomarker-select' });
 
@@ -197,7 +198,6 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     }, { meta: false });
 
     vc.layout(biomarkerSelect);
-
   } else {
     const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
     const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
@@ -221,8 +221,8 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     }, { meta: false });
 
 
-    vc.linkViews([/*biomarkerSelect,*/ dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
-    vc.linkViewsByObject([/*biomarkerSelect,*/ dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
+    vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
+    vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
       sampleSetSelection: sampleSetScope_caseControl,
       featureSelection: featureSelectionScope,
     }, { meta: false });
@@ -280,23 +280,21 @@ export function BiomarkerSelectPageComponent() {
       }
       `}
       </style>
-      {/*<div style={{ width: '100%' }}>
+      {/* <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <h1>Comparative visualization of single-nucleus data</h1>
         </div>
-      </div>*/}
-        
+      </div> */}
+
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '85%' }}>
-          {/*<div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+          {/* <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
-          </div>*/}
+          </div> */}
           <div className={clsx('view-row')}>
-            <div className="view-row-left">
-              
-            </div>
+            <div className="view-row-left" />
             <div className="view-row-center">
               <BiomarkerSelect />
             </div>
@@ -377,19 +375,19 @@ export function ComparativePageComponent() {
       }
       `}
       </style>
-      {/*<div style={{ width: '100%' }}>
+      {/* <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
           <h1>Comparative visualization of single-nucleus data</h1>
         </div>
-      </div>*/}
-        
+      </div> */}
+
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '85%' }}>
-          {/*<div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+          {/* <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
-          </div>*/}
+          </div> */}
           <div className={clsx('view-row', 'view-row-tall')}>
             <div className="view-row-left">
               <p>This view contains contour scatterplots which display the results of a density-preserving dimensionality reduction (Narayan et al. 2021). Contour opacities correspond to the shown percentile thresholds.</p>
@@ -399,9 +397,7 @@ export function ComparativePageComponent() {
             </div>
           </div>
           <div className={clsx('view-row')}>
-            <div className="view-row-left">
-              
-            </div>
+            <div className="view-row-left" />
             <div className="view-row-center">
               <Link component="button" variant="body2">Show analysis details</Link>
             </div>
@@ -420,7 +416,7 @@ export function ComparativePageComponent() {
               </Tabs>
             </div>
           </div>
-		      {visTab === 0 ? (
+          {visTab === 0 ? (
             <>
               <div className={clsx('view-row', 'view-row-short')}>
                 <div className="view-row-left">
@@ -431,15 +427,13 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
-          ) : null}
+		      ) : null}
           {visTab === 1 ? (
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
@@ -451,9 +445,7 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -471,9 +463,7 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -491,9 +481,7 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -511,9 +499,7 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>
@@ -521,7 +507,7 @@ export function ComparativePageComponent() {
             </>
           ) : null}
           {/* End plots; Begin tables */}
-          
+
           <div className={clsx('view-row')}>
             <div className="view-row-left">
               <p className="tabs-description">Use the tabs to switch the table rendered below.</p>
@@ -545,9 +531,7 @@ export function ComparativePageComponent() {
                 </div>
               </div>
               <div className={clsx('view-row')}>
-                <div className="view-row-left">
-                  
-                </div>
+                <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" variant="body2">Show analysis details</Link>
                 </div>

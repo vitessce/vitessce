@@ -111,7 +111,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
       ]);
       // TODO: directly set featureSelection coordination value here instead?
       console.log('Setting specific selection to:', selectedItem);
-      const nextModalitySpecificSelection =[
+      const nextModalitySpecificSelection = [
         ...(currentModalityAgnosticSelection || []),
         selectedItem,
       ];
@@ -160,33 +160,33 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
               Select
             </Button>
           </Grid>
-          ) : null}
+        ) : null}
       </Grid>
       {selectedItem ? (
         <>
-        <Grid container size={12} flexDirection="row">
-          <Button onClick={() => setBiomarkerInfoOpen(true)}>
-            View {selectedItem.nodeType} info
-          </Button>
-        </Grid>
-        <Dialog open={biomarkerInfoOpen} onClose={() => setBiomarkerInfoOpen(false)} maxWidth="md">
-          <Typography variant="h4" title={selectedItem.term}>
-            {selectedItem.label}
-          </Typography>
-          <Grid container size={12}>
-            <InfoIcon />
-            <Typography variant="h6">About this {selectedItem.nodeType}</Typography>
+          <Grid container size={12} flexDirection="row">
+            <Button onClick={() => setBiomarkerInfoOpen(true)}>
+              View {selectedItem.nodeType} info
+            </Button>
           </Grid>
-          <Grid container size={12} key={selectedItem.term} sx={{ width: '800px' }}>
-            <iframe
-              title={`Embedded metadata page for ontology term ${selectedItem.term}`}
-              src={`https://identifiers.org/${selectedItem.term}`}
-              width="100%"
-              height="500"
-              style={{ border: 0 }}
-            />
-          </Grid>
-        </Dialog>
+          <Dialog open={biomarkerInfoOpen} onClose={() => setBiomarkerInfoOpen(false)} maxWidth="md">
+            <Typography variant="h4" title={selectedItem.term}>
+              {selectedItem.label}
+            </Typography>
+            <Grid container size={12}>
+              <InfoIcon />
+              <Typography variant="h6">About this {selectedItem.nodeType}</Typography>
+            </Grid>
+            <Grid container size={12} key={selectedItem.term} sx={{ width: '800px' }}>
+              <iframe
+                title={`Embedded metadata page for ontology term ${selectedItem.term}`}
+                src={`https://identifiers.org/${selectedItem.term}`}
+                width="100%"
+                height="500"
+                style={{ border: 0 }}
+              />
+            </Grid>
+          </Dialog>
         </>
       ) : null}
     </>
