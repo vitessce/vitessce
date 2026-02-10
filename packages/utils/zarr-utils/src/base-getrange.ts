@@ -1,5 +1,8 @@
 import type { RangeQuery, AsyncReadable, AbsolutePath } from 'zarrita';
 
+// Provides a blanket implementation of getRange that can be used with any AsyncReadable store,
+// even if it doesn't define a getRange method.
+// If the store does have a native getRange method, we use that instead.
 export function createGetRange(store: AsyncReadable) {
   return async (key: AbsolutePath, range: RangeQuery): Promise<Uint8Array | undefined> => {
     if (typeof store.getRange === 'function') {
