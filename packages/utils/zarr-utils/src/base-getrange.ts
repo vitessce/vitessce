@@ -1,4 +1,6 @@
+import { log } from '@vitessce/globals';
 import type { RangeQuery, AsyncReadable, AbsolutePath } from 'zarrita';
+
 
 // Provides a blanket implementation of getRange that can be used with any AsyncReadable store,
 // even if it doesn't define a getRange method.
@@ -8,6 +10,7 @@ export function createGetRange(store: AsyncReadable) {
     if (typeof store.getRange === 'function') {
       return store.getRange(key, range);
     }
+    log.warn('Store does not have a native getRange method; falling back to get. This may be inefficient for large data.');
     const arr = await store.get(key);
     if (!arr) return undefined;
     const { buffer } = arr;
