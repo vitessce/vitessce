@@ -68,7 +68,7 @@
     { "path": "packages/launcher" },
     { "path": "packages/main/dev" },
     { "path": "packages/main/prod" },
-    { "path": "examples/comparative" }
+    { "path": "packages/main/comparative" }
   ],
   "files": []
 }

@@ -455,79 +455,6 @@ importers:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.55.0)(terser@5.40.0))
 
-  examples/comparative:
-    dependencies:
-      '@vitessce/abstract':
-        specifier: workspace:*
-        version: link:../../packages/file-types/abstract
-      '@vitessce/all':
-        specifier: workspace:*
-        version: link:../../packages/main/all
-      '@vitessce/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@vitessce/constants':
-        specifier: workspace:*
-        version: link:../../packages/constants
-      '@vitessce/constants-internal':
-        specifier: workspace:*
-        version: link:../../packages/constants-internal
-      '@vitessce/error':
-        specifier: workspace:*
-        version: link:../../packages/error
-      '@vitessce/export-utils':
-        specifier: workspace:*
-        version: link:../../packages/utils/export-utils
-      '@vitessce/styles':
-        specifier: workspace:*
-        version: link:../../packages/styles
-      '@vitessce/vit-s':
-        specifier: workspace:*
-        version: link:../../packages/vit-s
-      '@vitessce/zarr':
-        specifier: workspace:*
-        version: link:../../packages/file-types/zarr
-      clsx:
-        specifier: 'catalog:'
-        version: 1.2.1
-      internmap:
-        specifier: 'catalog:'
-        version: 2.0.3
-      lodash-es:
-        specifier: 'catalog:'
-        version: 4.17.21
-      nuqs:
-        specifier: ^2.6.0
-        version: 2.8.6(react-router-dom@5.3.4(react@18.3.1))(react-router@5.3.4(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-        version: 18.3.1(react@18.3.1)
-      react-sticky-el:
-        specifier: ^2.1.1
-        version: 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-window:
-        specifier: ^1.8.10
-        version: 1.8.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    devDependencies:
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 4.7.0(vite@7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0))
-      cross-env:
-        specifier: ^7.0.0
-        version: 7.0.3
-      rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
-      rollup-plugin-visualizer:
-        specifier: ^5.8.3
-        version: 5.8.3(rollup@3.23.0)
-      vite:
-        specifier: 'catalog:'
-        version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
-
   examples/configs:
     dependencies:
       '@vitessce/config':
@@ -1342,6 +1269,79 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+
+  packages/main/comparative:
+    dependencies:
+      '@vitessce/abstract':
+        specifier: workspace:*
+        version: link:../../file-types/abstract
+      '@vitessce/all':
+        specifier: workspace:*
+        version: link:../all
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@vitessce/constants':
+        specifier: workspace:*
+        version: link:../../constants
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/error':
+        specifier: workspace:*
+        version: link:../../error
+      '@vitessce/export-utils':
+        specifier: workspace:*
+        version: link:../../utils/export-utils
+      '@vitessce/styles':
+        specifier: workspace:*
+        version: link:../../styles
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      '@vitessce/zarr':
+        specifier: workspace:*
+        version: link:../../file-types/zarr
+      clsx:
+        specifier: 'catalog:'
+        version: 1.2.1
+      internmap:
+        specifier: 'catalog:'
+        version: 2.0.3
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
+      nuqs:
+        specifier: ^2.6.0
+        version: 2.8.6(react-router-dom@5.3.4(react@18.3.1))(react-router@5.3.4(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        version: 18.3.1(react@18.3.1)
+      react-sticky-el:
+        specifier: ^2.1.1
+        version: 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-window:
+        specifier: ^1.8.10
+        version: 1.8.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    devDependencies:
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 4.7.0(vite@7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0))
+      cross-env:
+        specifier: ^7.0.0
+        version: 7.0.3
+      rimraf:
+        specifier: ^3.0.2
+        version: 3.0.2
+      rollup-plugin-visualizer:
+        specifier: ^5.8.3
+        version: 5.8.3(rollup@3.23.0)
+      vite:
+        specifier: 'catalog:'
+        version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
 
   packages/main/dev:
     dependencies:
@@ -2994,7 +2994,7 @@ importers:
     dependencies:
       '@vitessce/comparative':
         specifier: workspace:*
-        version: link:../../examples/comparative
+        version: link:../../packages/main/comparative
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../packages/constants-internal
@@ -3987,10 +3987,6 @@ packages:
 
   '@babel/runtime@7.19.4':
     resolution: {integrity: sha512-EXpLCrk55f+cYqmHsSR+yD/0gAIMxxA9QK9lnQWzhMCvt+YmoBN7Zx94s++Kv0+unHk39vxNO8t+CMA2WSS3wA==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/runtime@7.22.0':
-    resolution: {integrity: sha512-TT6NB0oszYQ4oxLNUdG+FNHIc3MohXVCKA2BeyQ4WeM2VCSC6wBZ6P0Yfkdzxv+87D8Xk0LJyHeCKlWMvpZt0g==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.23.6':
@@ -10585,11 +10581,12 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@8.0.3:
     resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
@@ -17495,10 +17492,6 @@ snapshots:
       core-js-pure: 3.42.0
 
   '@babel/runtime@7.19.4':
-    dependencies:
-      regenerator-runtime: 0.13.11
-
-  '@babel/runtime@7.22.0':
     dependencies:
       regenerator-runtime: 0.13.11
 
@@ -31095,7 +31088,7 @@ snapshots:
 
   react-window@1.8.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.22.0
+      '@babel/runtime': 7.27.4
       memoize-one: 5.2.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -31670,7 +31663,7 @@ snapshots:
 
   rtlcss@4.3.0:
     dependencies:
-      escalade: 3.1.1
+      escalade: 3.2.0
       picocolors: 1.1.1
       postcss: 8.5.6
       strip-json-comments: 3.1.1
