@@ -26,6 +26,7 @@ export const ViewType = {
   OBS_SET_COMPOSITION_BAR_PLOT: 'obsSetCompositionBarPlot',
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'featureSetEnrichmentBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  BIOMARKER_SELECT_ALT: 'biomarkerSelectAlt',
   COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
