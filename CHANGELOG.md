@@ -1,4 +1,11 @@
 
+## 3.9.4
+
+### Patch Changes
+
+- Move @vitessce/comparative subpackage from examples/ to packages/ in monorepo to ensure it is published to NPM. (`@vitessce/comparative`) ([#2411](https://github.com/vitessce/vitessce/pull/2411))
+
+
 ## 3.9.3
 
 ### Patch Changes
