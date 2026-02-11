@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-zarr",
-  "version": "3.9.2",
+  "version": "3.9.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -36,6 +36,7 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",

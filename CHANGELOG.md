@@ -1,4 +1,20 @@
 
+## 3.9.4
+
+### Patch Changes
+
+- Move @vitessce/comparative subpackage from examples/ to packages/ in monorepo to ensure it is published to NPM. (`@vitessce/comparative`) ([#2411](https://github.com/vitessce/vitessce/pull/2411))
+
+
+## 3.9.3
+
+### Patch Changes
+
+- Adds comparative sub-package to export ControlledComparative and UncontrolledComparative components. (`@vitessce/comparative`) ([#2393](https://github.com/vitessce/vitessce/pull/2393))
+
+- Add a default getRange implementation to use when loading SpatialData obsPoints. (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`) ([#2409](https://github.com/vitessce/vitessce/pull/2409))
+
+
 ## 3.9.2
 
 ### Patch Changes

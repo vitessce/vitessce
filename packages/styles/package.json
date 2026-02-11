@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/styles",
-  "version": "3.9.2",
+  "version": "3.9.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,12 +38,14 @@
     "@emotion/styled": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/cache": "^11.14.0",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "react-window": "^1.8.10"
   },
   "devDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-window": "1.8.5",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "private": true,
-  "version": "3.3.78",
+  "version": "3.3.80",
   "scripts": {
     "start": "vite --port 3000",
     "build-demo": "vite build",
@@ -16,7 +16,8 @@
     "@vitessce/globals": "workspace:*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "vitessce": "workspace:*"
+    "vitessce": "workspace:*",
+    "@vitessce/comparative": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",

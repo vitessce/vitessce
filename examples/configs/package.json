@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/example-configs",
   "private": true,
-  "version": "3.9.2",
+  "version": "3.9.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -20,7 +20,7 @@
     "@vitessce/constants": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
-    "@vitessce/biomarker-select": "workspace:*",
+    "@vitessce/styles": "workspace:*",
     "react-sticky-el": "^2.1.1",
     "clsx": "catalog:"
   }

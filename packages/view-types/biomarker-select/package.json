@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/biomarker-select",
-  "version": "3.9.2",
+  "version": "3.9.4",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,7 +38,8 @@
     "@vitessce/types": "workspace:*",
     "fuse.js": "^7.0.0",
     "d3-dsv": "catalog:",
-    "clsx": "catalog:"
+    "clsx": "catalog:",
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
