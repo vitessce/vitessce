@@ -6,21 +6,23 @@ import { isEqual } from 'lodash-es';
 import { ComparativePageComponent, generateComparativeConfig } from './ComparativeConfig.jsx';
 
 /**
- * A controlled Vitessce component for comparative visualization that synchronizes
- * gene selection and sample set selection state with external components.
+ * A controlled component for comparative visualization that synchronizes
+ * gene selection and sample set selection state with its parent.
  * @param {object} props
- * @param {string} props.datasetUrl - URL to the AnnData Zarr store.
+ * @param {string} props.datasetUrl - URL to the comparative AnnData-Zarr
+ * store.
  * @param {string[]} props.geneSelection - Array of selected gene names.
- * @param {Function} props.setGeneSelection - Callback to update gene
- * selection from parent.
+ * @param {Function} props.setGeneSelection - Setter function
+ * called when the gene selection has been updated from inside.
  * @param {string[][]} props.sampleSetSelection - Array of sample set
- * selections, where each element is an array of sample identifiers.
- * @param {Function} props.setSampleSetSelection - Callback to update
- * sample set selection from parent.
+ * selections, where each element is an array of sample identifiers,
+ * like [["Enrollment Category", "CKD"], ["Enrollment Category", "AKI"]].
+ * @param {Function} props.setSampleSetSelection - Setter function
+ * called when the sample set selection has been updated from inside.
  * @param {string} [props.theme='light2'] - Theme name.
  * @param {boolean} [props.debugMode=false] - Enable debug mode.
  * @param {string} props.logLevel - Log level.
- * @returns {React.ReactElement} The controlled comparative visualization component.
+ * @returns {React.ReactElement} The comparative visualization component.
  */
 export function ControlledComparative(props) {
   const {

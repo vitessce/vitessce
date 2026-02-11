@@ -14,9 +14,9 @@ import { BiomarkerSelect } from './BiomarkerSelect.jsx';
  * @param {string} props.datasetUrl URL of the dataset to load,
  * which should point to the root of an anndata-zarr store,
  * containing comparative metadata.
- * @param {boolean} [props.enableQueryParams=true] Whether to
+ * @param {boolean} props.enableQueryParams Whether to
  * sync state to the URL query parameters for gene and
- * sample set selection.
+ * sample set selection. By default, true.
  * @returns {JSX.Element}
  */
 function UncontrolledComparativeInner(props) {
