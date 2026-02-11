@@ -69,7 +69,7 @@ export function BiomarkerSelectAltSubscriber(props) {
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
   const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
-  const autocompleteNode = useCallback(async inputValue => {
+  const autocompleteNode = useCallback(async (inputValue) => {
     const results = await autocompleteFeature(inputValue);
     return results.map(item => ({
       label: item.label,
@@ -128,51 +128,51 @@ export function BiomarkerSelectAltSubscriber(props) {
   return (
     <>
       <BiomarkerSelectAlt
-          setFeatureSelection={setFeatureSelection}
-          setSampleSetFilter={setSampleSetFilter}
-          setSampleSetSelection={setSampleSetSelection}
-          currentModalityAgnosticSelection={currentModalityAgnosticSelection}
-          setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-          setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
-          autocompleteNode={autocompleteNode}
-          stratifications={stratificationOptions}
+        setFeatureSelection={setFeatureSelection}
+        setSampleSetFilter={setSampleSetFilter}
+        setSampleSetSelection={setSampleSetSelection}
+        currentModalityAgnosticSelection={currentModalityAgnosticSelection}
+        setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
+        setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+        autocompleteNode={autocompleteNode}
+        stratifications={stratificationOptions}
 
-          onFinish={() => {
-            if (mode === 'exploratory') {
-              // mode is exploratory, configure accordingly.
+        onFinish={() => {
+          if (mode === 'exploratory') {
+            // mode is exploratory, configure accordingly.
 
-              // TODO
+            // TODO
 
-            } else {
-              // mode is confirmatory, configure accordingly.
+          } else {
+            // mode is confirmatory, configure accordingly.
 
-              // TODO
-            }
+            // TODO
+          }
 
-            const newViewConfig = {
-              ...viewConfig,
-              coordinationSpace: {
-                ...viewConfig.coordinationSpace,
-                sampleSetFilter: {
-                  ...viewConfig.coordinationSpace.sampleSetFilter,
-                  __comparison__: currentStratificationSelection?.sampleSets,
-                },
-                sampleSetSelection: {
-                  ...viewConfig.coordinationSpace.sampleSetSelection,
-                  __comparison__: currentStratificationSelection?.sampleSets,
-                },
-                featureSelection: {
-                  ...viewConfig.coordinationSpace.featureSelection,
-                  __comparison__: currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
-                },
+          const newViewConfig = {
+            ...viewConfig,
+            coordinationSpace: {
+              ...viewConfig.coordinationSpace,
+              sampleSetFilter: {
+                ...viewConfig.coordinationSpace.sampleSetFilter,
+                __comparison__: currentStratificationSelection?.sampleSets,
               },
-            };
+              sampleSetSelection: {
+                ...viewConfig.coordinationSpace.sampleSetSelection,
+                __comparison__: currentStratificationSelection?.sampleSets,
+              },
+              featureSelection: {
+                ...viewConfig.coordinationSpace.featureSelection,
+                __comparison__: currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
+              },
+            },
+          };
 
-            // TODO: can the normal coordination value setters be used instead?
-            // (e.g., setFeatureSelection, setSampleSetSelection)
-            setViewConfig(newViewConfig);
-          }}
-        />
+          // TODO: can the normal coordination value setters be used instead?
+          // (e.g., setFeatureSelection, setSampleSetSelection)
+          setViewConfig(newViewConfig);
+        }}
+      />
     </>
   );
 }

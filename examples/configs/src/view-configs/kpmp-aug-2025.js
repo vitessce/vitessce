@@ -1,5 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable jsx-a11y/anchor-is-valid */ // Remove once the "Show analysis details" dropdowns are implemented.
 import React, { useState } from 'react';
 import {
   VitessceConfig,
@@ -337,7 +340,7 @@ function PageComponent() {
           <div className={clsx('view-row')}>
             <div className="view-row-left" />
             <div className="view-row-center">
-              <Link component="button" variant="body2">Show analysis details</Link>
+              <Link component="button" href="#" variant="body2">Show analysis details</Link>
             </div>
           </div>
           <div className={clsx('view-row')}>
@@ -367,11 +370,11 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
-		      ) : null}
+          ) : null}
           {visTab === 1 ? (
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
@@ -385,7 +388,7 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -403,7 +406,7 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -421,7 +424,7 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -439,7 +442,7 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>
@@ -471,7 +474,7 @@ function PageComponent() {
               <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
-                  <Link component="button" variant="body2">Show analysis details</Link>
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
               </div>
             </>

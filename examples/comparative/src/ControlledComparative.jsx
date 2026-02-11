@@ -5,6 +5,23 @@ import { Vitessce } from '@vitessce/all';
 import { isEqual } from 'lodash-es';
 import { ComparativePageComponent, generateComparativeConfig } from './ComparativeConfig.jsx';
 
+/**
+ * A controlled Vitessce component for comparative visualization that synchronizes
+ * gene selection and sample set selection state with external components.
+ * @param {object} props
+ * @param {string} props.datasetUrl - URL to the AnnData Zarr store.
+ * @param {string[]} props.geneSelection - Array of selected gene names.
+ * @param {Function} props.setGeneSelection - Callback to update gene
+ * selection from parent.
+ * @param {string[][]} props.sampleSetSelection - Array of sample set
+ * selections, where each element is an array of sample identifiers.
+ * @param {Function} props.setSampleSetSelection - Callback to update
+ * sample set selection from parent.
+ * @param {string} [props.theme='light2'] - Theme name.
+ * @param {boolean} [props.debugMode=false] - Enable debug mode.
+ * @param {string} props.logLevel - Log level.
+ * @returns {React.ReactElement} The controlled comparative visualization component.
+ */
 export function ControlledComparative(props) {
   const {
     datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
@@ -81,13 +98,13 @@ export function ControlledComparative(props) {
     // (any clearing will need to be done from the BiomarkerSelect UI).
     const hasNewGeneSelection = (
       Array.isArray(newFeatureSelection)
-                && newFeatureSelection.length > 0
-                && !isEqual(newFeatureSelection, geneSelection)
+        && newFeatureSelection.length > 0
+        && !isEqual(newFeatureSelection, geneSelection)
     );
     const hasNewSampleSetSelection = (
       Array.isArray(newSampleSetSelection)
-            && newSampleSetSelection.length > 0
-            && !isEqual(newSampleSetSelection, sampleSetSelection)
+        && newSampleSetSelection.length > 0
+        && !isEqual(newSampleSetSelection, sampleSetSelection)
     );
 
     if (hasNewGeneSelection) {

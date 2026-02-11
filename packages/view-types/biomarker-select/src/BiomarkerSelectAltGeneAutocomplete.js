@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import {
   Grid, Button,
@@ -32,7 +33,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
         selectedItem,
       ]);
       // TODO: directly set featureSelection coordination value here instead?
-      console.log('Setting specific selection to:', selectedItem);
+      // console.log('Setting specific selection to:', selectedItem);
       const nextModalitySpecificSelection = [
         ...(currentModalityAgnosticSelection || []),
         selectedItem,
@@ -55,7 +56,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
             getMatches={autocompleteNode}
             onChange={item => setSelectedItem(item.data)}
             textInputLabel="Enter a gene"
-            getItemLabel={(item) => `${item.label} (${item.data.nodeType})`}
+            getItemLabel={item => `${item.label} (${item.data.nodeType})`}
           />
         </Grid>
         {selectedItem ? (

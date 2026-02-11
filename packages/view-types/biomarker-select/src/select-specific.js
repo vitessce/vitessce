@@ -83,7 +83,7 @@ export function SelectSpecific(props) {
     const newSelection = Array.from(newRowSelectionModel.ids)
       .map(kgId => data.find(d => d.target.kgId === kgId)?.target)
       .filter(Boolean);
-    console.log('New specific selection:', newSelection);
+    // console.log('New specific selection:', newSelection);
     setCurrentModalitySpecificSelection(newSelection);
   }
 
