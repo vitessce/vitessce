@@ -11,6 +11,11 @@ export class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  componentDidCatch(error) {
+    console.warn('Spatial view failed to load:', error);
+  }
+
   render() {
     const { hasError } = this.state;
     const { children, fallback } = this.props;

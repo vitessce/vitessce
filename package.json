@@ -84,7 +84,6 @@
   },
   "pnpm": {
     "overrides": {
-      "zarr": "0.5.1",
       "jest-canvas-mock": "2.5.0"
     },
     "peerDependencyRules": {
