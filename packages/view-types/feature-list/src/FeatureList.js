@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { makeStyles } from '@vitessce/styles';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { makeStyles, Chip } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
 import { ALT_COLNAME } from './constants.js';
@@ -13,6 +13,16 @@ const useStyles = makeStyles()(() => ({
     border: '0',
     padding: '2px',
     borderRadius: '2px',
+  },
+  chipsContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '4px',
+    marginLeft: '10px',
+    marginRight: '10px',
+    marginBottom: '8px',
+    maxHeight: '108px',
+    overflowY: 'auto',
   },
 }));
 
@@ -37,6 +47,20 @@ export default function FeatureList(props) {
   const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const chipsContainerRef = useRef(null);
+  const [chipsHeight, setChipsHeight] = useState(0);
+
+  useEffect(() => {
+    if (chipsContainerRef.current && enableMultiSelect
+        && geneSelection && geneSelection.length > 0) {
+      // Use scrollHeight to get the actual content height including overflow
+      const computedHeight = Math.min(chipsContainerRef.current.scrollHeight, 108);
+      // Add marginBottom (8px) to account for spacing
+      setChipsHeight(computedHeight + 8);
+    } else {
+      setChipsHeight(0);
+    }
+  }, [geneSelection, enableMultiSelect, width, height]);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
@@ -120,6 +144,13 @@ export default function FeatureList(props) {
     ];
   }, [showFeatureTable, primaryColumnName, hasFeatureLabels]);
 
+  const handleChipDelete = (geneKey) => {
+    if (setGeneSelection) {
+      const newSelection = (geneSelection || []).filter(key => key !== geneKey);
+      setGeneSelection(newSelection.length > 0 ? newSelection : null);
+    }
+  };
+
   return (width > 0 && height > 0) ? (
     <>
       <input
@@ -129,6 +160,22 @@ export default function FeatureList(props) {
         value={searchTerm}
         onChange={handleChange}
       />
+      {enableMultiSelect && geneSelection && geneSelection.length > 0 && (
+        <div ref={chipsContainerRef} className={classes.chipsContainer}>
+          {geneSelection.map(geneKey => (
+            <Chip
+              key={geneKey}
+              label={
+                featureLabelsMap?.get(geneKey)
+                || featureLabelsMap?.get(cleanFeatureId(geneKey))
+                || geneKey
+              }
+              onDelete={() => handleChipDelete(geneKey)}
+              size="small"
+            />
+          ))}
+        </div>
+      )}
       <SelectableTable
         columns={columns}
         columnLabels={columnLabels}
@@ -141,7 +188,7 @@ export default function FeatureList(props) {
         allowUncheck={enableMultiSelect}
         showTableHead={columnLabels.length > 1}
         width={width}
-        height={height - 34}
+        height={height - 34 - chipsHeight}
       />
     </>
   ) : null;
