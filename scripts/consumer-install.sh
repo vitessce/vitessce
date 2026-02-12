@@ -30,41 +30,16 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 # Install packed tgz
 cd consumer
-npm install react@^18.0.0 react-dom@^18.0.0
-# Install @react-three peer deps for 3D views (fiber v8 for React 18)
-npm install @react-three/fiber@^8.0.0 @react-three/drei@^9.0.0 three@">=0.159.0"
-npm install --save-dev vite@3.0.0
+npm install react@^19.0.0 react-dom@^19.0.0
+# Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
+npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
+npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
 npm exec vite build
 
 
 echo "Done vite build. Starting NextJS build."
-npm install next@13
+npm install next@15
 # Run NextJS build to bundle the consumer HTML/JS.
 npm exec next build
-
-# -----------------------------------
-# React 19 consumer install test
-# -----------------------------------
-echo "Testing React 19 consumer install..."
-cd -
-cd consumer
-
-# Clean and re-init for React 19 test
-rm -f package.json
-rm -f package-lock.json
-rm -rf node_modules/
-npm init -y
-contents="$(jq '.private = true' package.json)" && echo -E "${contents}" > package.json
-
-# Install with React 19 + fiber v9 + drei v10 + xr v6
-npm install react@^19.0.0 react-dom@^19.0.0
-npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
-npm install --save-dev vite@7
-npm install $(ls ./vitessce-*.tgz)
-# Run Vite build to verify the bundle works with React 19.
-# Output to a separate directory so as not to overwrite the React 18 dist/
-# that the Cypress test depends on.
-npm exec vite build -- --outDir dist-react19
-echo "React 19 consumer install test passed."
