@@ -31,6 +31,8 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 # Install packed tgz
 cd consumer
 npm install react@^18.0.0 react-dom@^18.0.0
+# Install @react-three peer deps for 3D views (fiber v8 for React 18)
+npm install @react-three/fiber@^8.0.0 @react-three/drei@^9.0.0 three@">=0.159.0"
 npm install --save-dev vite@3.0.0
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
@@ -56,8 +58,9 @@ rm -rf node_modules/
 npm init -y
 contents="$(jq '.private = true' package.json)" && echo -E "${contents}" > package.json
 
-# Install with React 19
+# Install with React 19 + fiber v9 + drei v10 + xr v6
 npm install react@^19.0.0 react-dom@^19.0.0
+npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
 npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to verify the bundle works with React 19.

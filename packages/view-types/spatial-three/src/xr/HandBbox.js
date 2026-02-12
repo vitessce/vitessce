@@ -1,22 +1,45 @@
 /* eslint-disable react/no-unknown-property */
-import { useXR } from '@react-three/xr';
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React, { useRef } from 'react';
+import { useXRInputSourceState } from '@react-three/xr';
+import { useFrame, useThree } from '@react-three/fiber';
 
 export function HandBbox() {
-  const { controllers } = useXR();
+  const rightHand = useXRInputSourceState('hand', 'right');
+  const leftHand = useXRInputSourceState('hand', 'left');
   const rightTipRef = useRef();
   const leftTipRef = useRef();
+  const { gl } = useThree();
 
-  useFrame(() => {
-    if (controllers && controllers[0] && controllers[1]) {
-      if (controllers[0].controller) {
-        const rightTipPosition = controllers[0].hand.joints['index-finger-tip'].position;
-        rightTipRef.current.position.copy(rightTipPosition);
+  useFrame((state, delta, frame) => {
+    if (!frame || !gl.xr.isPresenting) return;
+    const refSpace = gl.xr.getReferenceSpace();
+    if (!refSpace) return;
+
+    if (rightHand?.inputSource?.hand && rightTipRef.current) {
+      const jointSpace = rightHand.inputSource.hand.get('index-finger-tip');
+      if (jointSpace) {
+        const pose = frame.getJointPose(jointSpace, refSpace);
+        if (pose) {
+          rightTipRef.current.position.set(
+            pose.transform.position.x,
+            pose.transform.position.y,
+            pose.transform.position.z,
+          );
+        }
       }
-      if (controllers[1].controller) {
-        const leftTipPosition = controllers[1].hand.joints['index-finger-tip'].position;
-        leftTipRef.current.position.copy(leftTipPosition);
+    }
+
+    if (leftHand?.inputSource?.hand && leftTipRef.current) {
+      const jointSpace = leftHand.inputSource.hand.get('index-finger-tip');
+      if (jointSpace) {
+        const pose = frame.getJointPose(jointSpace, refSpace);
+        if (pose) {
+          leftTipRef.current.position.set(
+            pose.transform.position.x,
+            pose.transform.position.y,
+            pose.transform.position.z,
+          );
+        }
       }
     }
   });

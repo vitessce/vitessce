@@ -69,12 +69,11 @@ catalog:
   # Reference: https://github.com/mui/mui-x/pull/17214
   "@mui/x-data-grid": 8.0.0-beta.3
   # ThreeJS
-  "three": ^0.154.0
-  "@types/three": ^0.154.0
-  "@react-three/fiber": ^8.15.19
-  "@react-three/drei": ^9.99.7
-  # note - packages/file-types/glb was on @react-three/drei ~9.89.0
-  "@react-three/xr": ^5.7.1
+  "three": ^0.159.0
+  "@types/three": ^0.159.0
+  "@react-three/fiber": ^9.0.0
+  "@react-three/drei": ^10.0.0
+  "@react-three/xr": ^6.0.0
   # Vite
   "vite": ^7.0.0
   "@vitejs/plugin-react": ^4.5.0
@@ -82,15 +81,12 @@ catalog:
   "@vitest/coverage-v8": ^3.1.4
   "@vitest/ui": ^3.1.4
   # React
-  # We pin these to avoid issues with different subpackages depending on different versions of react
-  # (e.g., we do not want spatial-three to use 18.2.0 while spatial-accelerated uses 18.3.1)
-  # which can cause PNPM to use multiple versions of @react-three/fiber
-  # and lead to errors like "Canvas must be a parent of useThree" due to multiple copies of RTF.
-  # TODO: alternatively, we can introduce a new subpackage like @vitessce/three that re-exports RTF
-  # analogous to how @vitessce/gl re-exports DeckGL/Viv things to avoid a similar issue.
-  "react": 18.3.1
-  "react-dom": 18.3.1
-  "@types/react": ^18.0.28
+  # We pin these to avoid issues with different subpackages depending on different versions of react.
+  # @react-three/fiber, drei, xr, and three are externalized as optional peer deps
+  # (consumers install the version matching their React version).
+  "react": 19.1.0
+  "react-dom": 19.1.0
+  "@types/react": ^19.0.0
   # Testing library
   "@testing-library/jest-dom": ^6.6.3
   "@testing-library/dom": ^10.4.0

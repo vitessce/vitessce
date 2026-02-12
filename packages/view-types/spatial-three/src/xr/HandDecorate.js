@@ -1,20 +1,23 @@
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 
-// TODO: can this just be a hook (since it does not return any JSX)?
+// Modifies the auto-rendered hand model materials to make fingertips semi-transparent.
+// In xr v6, hands are auto-rendered. We traverse the scene to find hand meshes.
 export function HandDecorate() {
-  const { controllers } = useXR();
+  const session = useXR(state => state.session);
+  const { scene } = useThree();
+
   useFrame(() => {
-    if (controllers?.[0] && controllers?.[1]) {
-      if (controllers[0]?.hand?.children?.[25]?.children?.[0]?.children?.[0]) {
-        controllers[0].hand.children[25].children[0].children[0].material.transparent = true;
-        controllers[0].hand.children[25].children[0].children[0].material.opacity = 0.5;
+    if (!session) return;
+    // Traverse scene to find hand meshes and modify their material
+    scene.traverse((child) => {
+      if (child.isMesh && child.material && child.userData?.xpiHand) {
+        // eslint-disable-next-line no-param-reassign
+        child.material.transparent = true;
+        // eslint-disable-next-line no-param-reassign
+        child.material.opacity = 0.5;
       }
-      if (controllers[1]?.hand?.children?.[25]?.children?.[0]?.children?.[0]) {
-        controllers[1].hand.children[25].children[0].children[0].material.transparent = true;
-        controllers[1].hand.children[25].children[0].children[0].material.opacity = 0.5;
-      }
-    }
+    });
   });
 
   return null;

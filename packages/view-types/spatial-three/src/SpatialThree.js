@@ -2,9 +2,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { OrbitControls, Text } from '@react-three/drei';
-import { Controllers, Hands } from '@react-three/xr';
 import {
   Scene,
   Group,
@@ -14,14 +13,24 @@ import {
   BackSide,
   FrontSide,
 } from 'three';
-import { HandBbox } from './xr/HandBbox.js';
 import { GeometryAndMesh } from './GeometryAndMesh.js';
-import { HandDecorate } from './xr/HandDecorate.js';
 import {
   useVolumeSettings,
   create3DRendering,
   initialDataLoading,
 } from './three-utils.js';
+
+// Lazy-load XR-specific components. These import from @react-three/xr
+// which is an optional peer dependency. If not installed, the catch
+// returns fallback components so non-XR 3D views still work.
+// eslint-disable-next-line implicit-arrow-linebreak, function-paren-newline
+const LazyGeometryAndMeshXR = React.lazy(() => import('./GeometryAndMeshXR.js').catch(() => ({
+  default: GeometryAndMesh,
+})));
+// eslint-disable-next-line implicit-arrow-linebreak, function-paren-newline
+const LazyXRSceneComponents = React.lazy(() => import('./xr/XRSceneComponents.js').catch(() => ({
+  default: () => null,
+})));
 
 
 /**
@@ -524,13 +533,22 @@ export function SpatialThree(props) {
     highlightEntity: onEntitySelected,
     setObsHighlight: setObsHighlightFct,
   };
+
+  const { xrEnabled } = props;
   return (
     <group>
-      <Controllers />
-      <Hands />
-      <HandBbox />
-      <HandDecorate />
-      <GeometryAndMesh {...geometryAndMeshProps} />
+      {xrEnabled ? (
+        <>
+          <Suspense fallback={null}>
+            <LazyXRSceneComponents />
+          </Suspense>
+          <Suspense fallback={<GeometryAndMesh {...geometryAndMeshProps} />}>
+            <LazyGeometryAndMeshXR {...geometryAndMeshProps} />
+          </Suspense>
+        </>
+      ) : (
+        <GeometryAndMesh {...geometryAndMeshProps} />
+      )}
       <OrbitControls
         ref={orbitRef}
         enableDamping={false}
