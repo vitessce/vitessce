@@ -1,3 +1,4 @@
+import type { BufferGeometry, Mesh, MeshStandardMaterial } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 
@@ -11,11 +12,12 @@ export function HandDecorate() {
     if (!session) return;
     // Traverse scene to find hand meshes and modify their material
     scene.traverse((child) => {
-      if (child.isMesh && child.material && child.userData?.xpiHand) {
+      if ((child as Mesh).isMesh && (child as Mesh).material && child.userData?.xpiHand) {
+        const mesh = child as Mesh<BufferGeometry, MeshStandardMaterial>;
         // eslint-disable-next-line no-param-reassign
-        child.material.transparent = true;
+        mesh.material.transparent = true;
         // eslint-disable-next-line no-param-reassign
-        child.material.opacity = 0.5;
+        mesh.material.opacity = 0.5;
       }
     });
   });

@@ -1,22 +1,32 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
+import type { Group, Scene } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
+import type { ThreeEvent } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
 import { useXR, useXRInputSourceState } from '@react-three/xr';
 import { FrontSide, Vector3, Box3 } from 'three';
 import { MeasureLine } from './xr/MeasureLine.js';
+import type { GeometryAndMeshProps, MeasureLineData, ClickEvent, PointerOverEvent } from './types.js';
+import { isValidGeometrySize, stringifyLineData } from './three-utils.js';
+
+// XRHand is typed as Map<number, XRJointSpace> in TS lib, but the WebXR spec
+// and runtime use string joint names. This helper casts for string-keyed access.
+function getHandJoint(hand: XRHand, jointName: string): XRJointSpace | undefined {
+  return (hand as unknown as ReadonlyMap<string, XRJointSpace>).get(jointName);
+}
 
 /**
  * Helper to get a hand joint's world position from an XRFrame.
  * Returns null if position is not available.
  */
-function getJointPosition(hand, jointName, frame, refSpace) {
+function getJointPosition(hand: { inputSource: { hand: XRHand } } | null | undefined, jointName: string, frame: XRFrame, refSpace: XRReferenceSpace): Vector3 | null {
   if (!hand?.inputSource?.hand) return null;
-  const jointSpace = hand.inputSource.hand.get(jointName);
+  const jointSpace = getHandJoint(hand.inputSource.hand, jointName);
   if (!jointSpace) return null;
-  const pose = frame.getJointPose(jointSpace, refSpace);
+  const pose = frame.getJointPose?.(jointSpace, refSpace);
   if (!pose) return null;
   return new Vector3(
     pose.transform.position.x,
@@ -28,7 +38,7 @@ function getJointPosition(hand, jointName, frame, refSpace) {
 /**
  * Detect pinch by measuring distance between thumb-tip and index-finger-tip.
  */
-function isPinching(hand, frame, refSpace, threshold = 0.02) {
+function isPinching(hand: { inputSource: { hand: XRHand } } | null | undefined, frame: XRFrame, refSpace: XRReferenceSpace, threshold = 0.02): boolean {
   const thumbPos = getJointPosition(hand, 'thumb-tip', frame, refSpace);
   const indexPos = getJointPosition(hand, 'index-finger-tip', frame, refSpace);
   if (!thumbPos || !indexPos) return false;
@@ -37,16 +47,16 @@ function isPinching(hand, frame, refSpace, threshold = 0.02) {
 
 // XR-aware version of GeometryAndMesh.
 // Handles both XR and non-XR rendering based on session state.
-export default function GeometryAndMeshXR(props) {
+export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
   const {
     segmentationGroup, segmentationSettings, segmentationSceneScale,
     renderingSettings, materialRef, highlightEntity, setObsHighlight,
   } = props;
-  const model = useRef();
-  const distanceRef = useRef();
-  const rayGrabGroup = useRef();
-  const grabControllerRef = useRef(null);
-  const previousTransform = useRef(null);
+  const model = useRef<Scene>(null);
+  const distanceRef = useRef<Group>(null);
+  const rayGrabGroup = useRef<Group>(null);
+  const grabControllerRef = useRef<number | null>(null);
+  const previousTransform = useRef<unknown>(null);
 
   // XR state via v6 API
   const session = useXR(state => state.session);
@@ -59,18 +69,18 @@ export default function GeometryAndMeshXR(props) {
   const [measureState, setMeasureState] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
   const [showLine, setShowLine] = useState(false);
-  const [currentLine, setCurrentLine] = useState({
+  const [currentLine, setCurrentLine] = useState<MeasureLineData>({
     startPoint: new Vector3(),
     midPoint: new Vector3(),
     endPoint: new Vector3(),
     setStartPoint: false,
     setEndPoint: false,
   });
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState<MeasureLineData[]>([]);
   const [debounce, setDebounce] = useState(0);
 
   // XR per-frame hand interaction logic
-  useFrame((state, delta, frame) => {
+  useFrame((_state, _delta, frame) => {
     if (!isPresenting || !frame) return;
     const refSpace = gl.xr.getReferenceSpace();
     if (!refSpace) return;
@@ -151,9 +161,10 @@ export default function GeometryAndMeshXR(props) {
         setMeasureState(false);
         setDebounce(8);
       }
-    } else if (debounce <= 0 && model?.current && isPresenting) {
-      model.current.children[0].children.forEach((childVal, childID) => {
-        const child = model.current.children[0].children[childID];
+    } else if (debounce <= 0 && model.current && isPresenting) {
+      const modelScene = model.current;
+      modelScene.children[0].children.forEach((_childVal, childID) => {
+        const child = modelScene.children[0].children[childID];
         const currentObjectBB = new Box3().setFromObject(child);
         const intersectsLeftTip = leftTipBB.intersectsBox(currentObjectBB);
         const intersectsRightTip = rightTipBB.intersectsBox(currentObjectBB);
@@ -176,25 +187,25 @@ export default function GeometryAndMeshXR(props) {
         setHighlighted(false);
       }
     }
-  }, [measureState, highlighted, currentLine, lines, showLine, debounce, isPresenting, rightHand, leftHand]);
+  });
 
   // Native v6 grab interaction: track pointer capture on the group
-  const handlePointerDown = (e) => {
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!isPresenting) return;
     e.stopPropagation();
-    e.target.setPointerCapture(e.pointerId);
+    (e.target as Element).setPointerCapture(e.pointerId);
     grabControllerRef.current = e.pointerId;
   };
 
-  const handlePointerUp = (e) => {
+  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (grabControllerRef.current === e.pointerId) {
-      e.target.releasePointerCapture(e.pointerId);
+      (e.target as Element).releasePointerCapture(e.pointerId);
       grabControllerRef.current = null;
       previousTransform.current = null;
     }
   };
 
-  const handlePointerMove = (e) => {
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (grabControllerRef.current !== e.pointerId || !rayGrabGroup.current) return;
     // Move the group to follow the pointer
     if (e.point) {
@@ -214,7 +225,7 @@ export default function GeometryAndMeshXR(props) {
         >
           {segmentationGroup?.visible ? (
             <group>
-              <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
+              <hemisphereLight color={0x808080} groundColor={0x606060} />
               <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
               <primitive
                 ref={model}
@@ -226,7 +237,7 @@ export default function GeometryAndMeshXR(props) {
               />
             </group>
           ) : null}
-          {renderingSettings.uniforms && renderingSettings.shader ? (
+          {renderingSettings.uniforms && renderingSettings.shader && renderingSettings.meshScale ? (
             <group>
               <mesh
                 name="cube"
@@ -237,7 +248,7 @@ export default function GeometryAndMeshXR(props) {
                   0.002 * renderingSettings.meshScale[2]]}
                 ref={materialRef}
               >
-                <boxGeometry args={renderingSettings.geometrySize} />
+                {isValidGeometrySize(renderingSettings.geometrySize) && <boxGeometry args={renderingSettings.geometrySize} />}
                 <shaderMaterial
                   customProgramCacheKey={() => '1'}
                   side={FrontSide}
@@ -257,19 +268,19 @@ export default function GeometryAndMeshXR(props) {
           ) : null}
         </group>
         <group name="lines">
-          {lines.map(object => <MeasureLine currentLine={object} scale={(1 / 0.002) * 0.4} />)}
+          {lines.map(object => <MeasureLine key={stringifyLineData(object)} currentLine={object} scale={(1 / 0.002) * 0.4} />)}
         </group>
       </group>
     );
   }
 
-  // Non-XR path (same as GeometryAndMesh.js)
+  // Non-XR path (same as GeometryAndMesh)
   return (
     <group>
       <group>
         {segmentationGroup?.visible ? (
           <group>
-            <hemisphereLight skyColor={0x808080} groundColor={0x606060} />
+            <hemisphereLight color={0x808080} groundColor={0x606060} />
             <directionalLight color={0xFFFFFF} position={[0, -800, 0]} />
             <directionalLight color={0xFFFFFF} position={[0, 800, 0]} />
             <Bvh firstHitOnly>
@@ -277,20 +288,20 @@ export default function GeometryAndMeshXR(props) {
                 ref={model}
                 object={segmentationGroup}
                 position={[0, 0, 0]}
-                onClick={(e) => {
-                  if (e.object.parent.userData.name === 'finalPass') {
+                onClick={(e: ClickEvent) => {
+                  if (e.object.parent?.userData.name === 'finalPass') {
                     highlightEntity(e.object.name, e.object.userData.layerScope, e.object.userData.channelScope);
                   }
                 }}
-                onPointerOver={(e) => {
+                onPointerOver={(e: PointerOverEvent) => {
                   setObsHighlight(e.object.name);
                 }}
-                onPointerOut={e => setObsHighlight(null)}
+                onPointerOut={() => setObsHighlight(null)}
               />
             </Bvh>
           </group>
         ) : null}
-        {(renderingSettings.uniforms && renderingSettings.shader) ? (
+        {(renderingSettings.uniforms && renderingSettings.shader && renderingSettings.meshScale && renderingSettings.geometrySize) ? (
           <group>
             <mesh scale={renderingSettings.meshScale} ref={materialRef}>
               <boxGeometry args={renderingSettings.geometrySize} />
@@ -308,7 +319,7 @@ export default function GeometryAndMeshXR(props) {
         ) : null}
       </group>
       <group name="lines">
-        {lines.map(object => <MeasureLine currentLine={object} scale={1} />)}
+        {lines.map(object => <MeasureLine key={stringifyLineData(object)} currentLine={object} scale={1} />)}
       </group>
     </group>
   );

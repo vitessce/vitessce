@@ -25,7 +25,7 @@ export default function XREnterButton() {
       const { session } = xrStore.getState();
       if (session) session.end();
     } else {
-      xrStore.enterAR({ optionalFeatures: ['hand-tracking'] });
+      xrStore.enterAR();
     }
   };
 

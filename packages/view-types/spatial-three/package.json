@@ -50,6 +50,7 @@
     "@react-three/fiber": "catalog:",
     "@react-three/drei": "catalog:",
     "@react-three/xr": "catalog:",
+    "@types/react": "catalog:",
     "@types/three": "catalog:",
     "three": "catalog:",
     "react": "catalog:",
