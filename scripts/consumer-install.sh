@@ -61,5 +61,7 @@ npm install react@^19.0.0 react-dom@^19.0.0
 npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to verify the bundle works with React 19.
-npm exec vite build
+# Output to a separate directory so as not to overwrite the React 18 dist/
+# that the Cypress test depends on.
+npm exec vite build -- --outDir dist-react19
 echo "React 19 consumer install test passed."
