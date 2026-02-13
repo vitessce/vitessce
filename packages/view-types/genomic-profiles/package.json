@@ -35,7 +35,7 @@
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "catalog:",
-    "higlass": "^2.0.0",
+    "higlass": "^2.2.0",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "0.6.0",
     "lodash-es": "catalog:"
