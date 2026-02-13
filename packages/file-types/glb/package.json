@@ -39,14 +39,20 @@
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "d3-array": "catalog:",
-    "lodash-es": "catalog:",
-    "three": "catalog:"
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@types/three": "catalog:",
+    "three": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "three": ">=0.159.0"
+  },
+  "peerDependenciesMeta": {
+    "three": { "optional": true }
   }
 }

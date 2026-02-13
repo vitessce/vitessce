@@ -26,7 +26,15 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['react', 'react-dom', ...moreExternals],
+      // Externalize react, react-three, and three (including subpath imports like three/addons/...).
+      external: (id) => (
+        id === 'react'
+        || id === 'react-dom'
+        || id.startsWith('@react-three/')
+        || id === 'three'
+        || id.startsWith('three/')
+        || moreExternals.includes(id)
+      ),
       // output.globals required for UMD builds
       // (e.g., no longer used since only generating ESM build)
       /*

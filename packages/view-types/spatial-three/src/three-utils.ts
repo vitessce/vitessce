@@ -1,11 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
-/* eslint-disable react/no-unknown-property */
 import { CoordinationType } from '@vitessce/constants-internal';
 import { viv } from '@vitessce/gl';
 import {
-  Vector2,
   UniformsUtils,
   Data3DTexture,
   RedFormat,
@@ -14,32 +12,25 @@ import {
 } from 'three';
 import { Volume } from './Volume.js';
 import { VolumeRenderShaderPerspective } from './VolumeShaderPerspective.js';
+import type {
+  SpatialThreeProps, VolumeSettings, TypedArray, MeasureLineData,
+  CoordinationRecord, ImageWrapper, VolumeSource, VolumeConfig, UniformMap,
+} from './types.js';
 
-const renderingModeMap = {
+const renderingModeMap: Record<string, number> = {
   maximumIntensityProjection: 0,
   minimumIntensityProjection: 1,
   additive: 2,
 };
 
-/**
-* Extracting relevant information from the properties for creating the ThreeJS Volume Viewer
-* @param layerScope
-* @param layerCoordination
-* @param channelScopes
-* @param channelCoordination
-* @param image
-* @param props
-* @returns {{data: *, channelTargetC: ((*|boolean)[]|*), ySlice: (*|Vector2), contrastLimits: (number[][]|*),
-  * is3dMode: boolean, zSlice: (*|Vector2), resolution: *, colors: (number[][]|*), allChannels: *, layerTransparency: *,
-  * renderingMode: (number), xSlice: (*|Vector2), channelsVisible: ((*|boolean)[]|*)}|{allChannels: null, data: null,
-  * channelTargetC: null, contrastLimits: null, resolution: null, colors: null, channelsVisible: null}}
-  */
 function extractInformationFromProps(
-  layerScope, layerCoordination,
-  channelScopes, channelCoordination,
-  image, props,
+  layerScope: string,
+  layerCoordination: CoordinationRecord,
+  channelScopes: string[],
+  channelCoordination: Record<string, CoordinationRecord>,
+  image: ImageWrapper | undefined,
+  props: SpatialThreeProps,
 ) {
-  // Getting all the information out of the provided props
   const {
     spatialRenderingMode,
   } = props;
@@ -53,79 +44,85 @@ function extractInformationFromProps(
       contrastLimits: null,
       allChannels: null,
       channelTargetC: null,
+      is3dMode: false,
+      renderingMode: null,
+      layerTransparency: 1.0,
+      xSlice: null,
+      ySlice: null,
+      zSlice: null,
     };
   }
-  const imageWrapperInstance = image.image.instance;
+  const imageWrapperInstance = image!.image.instance;
   const is3dMode = spatialRenderingMode === '3D';
   const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
-  const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
+  const renderingModeStr = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM] as string;
   const renderingMode = renderingModeMap[renderingModeStr];
-  const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE];
-  const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY];
-  const rgbInterleavedProps = {};
+  const visible = layerCoordination[CoordinationType.SPATIAL_LAYER_VISIBLE] as boolean;
+  const layerTransparency = layerCoordination[CoordinationType.SPATIAL_LAYER_OPACITY] as number;
+  const rgbInterleavedProps: Record<string, boolean> = {};
   if (imageWrapperInstance.isInterleaved()) {
     rgbInterleavedProps.visible = visible;
   }
 
   // COLORS TO BE USED
-  const colors = isRgb ? ([
+  const colors: number[][] = isRgb ? ([
     [255, 0, 0],
     [0, 255, 0],
     [0, 0, 255],
   ]) : channelScopes.map(cScope => (
-    channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR]
+    channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_COLOR] as number[]
   ));
 
   // CONTRAST LIMITS
   // TODO: figure out how to initialize the channel windows in the loader.
   // TODO: is [0, 255] the right fallback?
-  const contrastLimits = isRgb ? ([
+  const contrastLimits: number[][] = isRgb ? ([
     [0, 255],
     [0, 255],
     [0, 255],
   ]) : channelScopes.map(cScope => (
-    channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
+    (channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW] as number[])
          || ([0, 255])
   ));
 
   // CHANNEL VISIBILITY
-  const channelsVisible = isRgb ? ([
+  const channelsVisible: boolean[] = isRgb ? ([
     // Layer visible AND channel visible
     visible && true,
     visible && true,
     visible && true,
   ]) : channelScopes.map(cScope => (
     // Layer visible AND channel visible
-    visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
+    visible && (channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE] as boolean)
   ));
 
-  // CHANNEL VISIBILITY
-  const channelTargetC = isRgb ? ([
+  // CHANNEL TARGET
+  const channelTargetC: (number | false)[] = isRgb ? ([
     // Layer visible AND channel visible
     visible && true,
     visible && true,
     visible && true,
-  ]) : channelScopes.map(cScope => (
+  ] as (number | false)[]) : channelScopes.map(cScope => (
     // Layer visible AND channel visible
     visible && imageWrapperInstance.getChannelIndex(
-      channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C],
+      channelCoordination[cScope][CoordinationType.SPATIAL_TARGET_C] as number,
     )
   ));
   const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
-  const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
+  const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION] as number | null;
   const resolution = (targetResolution === null || Number.isNaN(targetResolution))
     ? autoTargetResolution
     : targetResolution;
-  const allChannels = image.image.loaders[0].channels;
+  const allChannels: unknown[] = image!.image.loaders[0].channels ?? [];
 
   // Get the Clipping Planes
-  let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X];
-  let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
-  let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
+  let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X] as [number, number] | null;
+  let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y] as [number, number] | null;
+  let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z] as [number, number] | null;
 
-  xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
-  ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
-  zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
+  xSlice = xSlice !== null ? xSlice : [-1, 100000];
+  ySlice = ySlice !== null ? ySlice : [-1, 100000];
+  zSlice = zSlice !== null ? zSlice : [-1, 100000];
 
   return {
     channelsVisible,
@@ -144,22 +141,13 @@ function extractInformationFromProps(
   };
 }
 
-/**
- * Retrieving the volumetric settings from the props, comparing them to the prior settings
- * @param props
- * @param volumeSettings
- * @param setVolumeSettings
- * @param dataReady
- * @param setDataReady
- * @returns {{images: {}, data: (null|*), imageChannelCoordination,
-* channelTargetC: (null|(*|boolean)[]|*),
-* ySlice: *, contrastLimits: (null|number[][]|*),
-* is3dMode: boolean, zSlice: *, resolution: (null|*), colors: (null|number[][]|*),
-* allChannels: (null|*), layerTransparency: *, renderingMode: *, xSlice: *, layerScope: *,
-* imageChannelScopesByLayer, imageLayerCoordination, imageLayerScopes, channelsVisible: (null|(*|boolean)[]|*)}}
-*/
-export function useVolumeSettings(props, volumeSettings, setVolumeSettings, dataReady, setDataReady) {
-  // Everything that is props based should be useEffect with props as dependent so we can sideload the props
+export function useVolumeSettings(
+  props: SpatialThreeProps,
+  volumeSettings: VolumeSettings,
+  setVolumeSettings: (v: VolumeSettings) => void,
+  dataReady: boolean,
+  setDataReady: (v: boolean) => void,
+) {
   const {
     images = {},
     imageLayerScopes,
@@ -167,12 +155,11 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
     imageChannelScopesByLayer,
     imageChannelCoordination,
   } = props;
-  const layerScope = imageLayerScopes[0];
-  const channelScopes = imageChannelScopesByLayer[layerScope];
-  const layerCoordination = imageLayerCoordination[0][layerScope];
-  const channelCoordination = imageChannelCoordination[0][layerScope];
+  const layerScope = imageLayerScopes![0];
+  const channelScopes = imageChannelScopesByLayer![layerScope];
+  const layerCoordination = imageLayerCoordination![0][layerScope];
+  const channelCoordination = imageChannelCoordination![0][layerScope];
 
-  // Get the relevant information out of the Props
   const {
     channelsVisible,
     allChannels,
@@ -193,24 +180,24 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
   if (channelTargetC !== null) {
     // TODO: stop using string equality for comparisons.
     if (
-      volumeSettings.channelTargetC.length !== 0
+      volumeSettings.channelTargetC?.length !== 0
       && (
-        volumeSettings.channelTargetC.toString() !== channelTargetC.toString()
-        || volumeSettings.resolution.toString() !== resolution.toString()
+        volumeSettings.channelTargetC?.toString() !== channelTargetC.toString()
+        || volumeSettings.resolution?.toString() !== resolution.toString()
       )
     ) {
       if (!dataReady) setDataReady(true);
       // TODO: stop using string equality for comparisons.
     } else if (
-      volumeSettings.channelsVisible.toString() !== channelsVisible.toString()
-      || volumeSettings.colors.toString() !== colors.toString()
+      volumeSettings.channelsVisible?.toString() !== channelsVisible?.toString()
+      || volumeSettings.colors?.toString() !== colors?.toString()
       || volumeSettings.is3dMode !== is3dMode
-      || volumeSettings.contrastLimits.toString() !== contrastLimits.toString()
-      || volumeSettings.renderingMode.toString() !== renderingMode.toString()
+      || volumeSettings.contrastLimits?.toString() !== contrastLimits?.toString()
+      || volumeSettings.renderingMode?.toString() !== renderingMode.toString()
       || volumeSettings.layerTransparency.toString() !== layerTransparency.toString()
-      || volumeSettings.xSlice.toString() !== xSlice.toString()
-      || volumeSettings.ySlice.toString() !== ySlice.toString()
-      || volumeSettings.zSlice.toString() !== zSlice.toString()
+      || volumeSettings.xSlice?.toString() !== xSlice.toString()
+      || volumeSettings.ySlice?.toString() !== ySlice.toString()
+      || volumeSettings.zSlice?.toString() !== zSlice.toString()
     ) {
       setVolumeSettings({
         channelsVisible,
@@ -253,31 +240,25 @@ export function useVolumeSettings(props, volumeSettings, setVolumeSettings, data
   };
 }
 
-function getMinMaxValue(value, minMax) {
+function getMinMaxValue(value: number, minMax: number[]): number {
   const [min, max] = minMax;
   return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
 }
 
-/**
-* Setting the uniform data for the volumetric rendering
-* @param uniforms
-* @param textures
-* @param volume
-* @param volConfig
-* @param renderstyle
-* @param contrastLimits
-* @param colors
-* @param layerTransparency
-* @param xSlice
-* @param ySlice
-* @param zSlice
-* @param meshScale
-* @param originalScale
-*/
 function setUniformsTextures(
-  uniforms, textures, volume, volConfig,
-  renderstyle, contrastLimits, colors, layerTransparency,
-  xSlice, ySlice, zSlice, meshScale, originalScale,
+  uniforms: UniformMap,
+  textures: Data3DTexture[],
+  volume: Volume,
+  volConfig: VolumeConfig,
+  renderstyle: number,
+  contrastLimits: number[][],
+  colors: number[][],
+  layerTransparency: number,
+  xSlice: [number, number],
+  ySlice: [number, number],
+  zSlice: [number, number],
+  meshScale: number[],
+  originalScale: number[],
 ) {
   uniforms.boxSize.value.set(volume.xLength, volume.yLength, volume.zLength);
   // can be done better
@@ -352,24 +333,26 @@ function setUniformsTextures(
     colors.length > 5 ? colors[5][2] : null);
 }
 
-/**
-* Creates the initial volume rendering settings based on the given data
-* @param volumes          ... from Store
-* @param channelTargetC   ... given by UI
-* @param channelsVisible  ... given by UI
-* @param colors           ... given by UI
-* @param textures         ... from Store
-* @param contrastLimits   ... given by UI
-* @param volumeMinMax     ... from Store
-* @param scaleOrUndefined ... from Store
-*/
-export function create3DRendering(volumes, channelTargetC, channelsVisible, colors, textures,
-  contrastLimits, volumeMinMax, scaleOrUndefined, renderstyle, layerTransparency,
-  xSlice, ySlice, zSlice, originalScale) {
-  const texturesList = [];
-  const colorsSave = [];
-  const contrastLimitsList = [];
-  let volume = null;
+export function create3DRendering(
+  volumes: Map<number | false, Volume>,
+  channelTargetC: (number | false)[],
+  channelsVisible: boolean[],
+  colors: number[][],
+  textures: Map<number | false, Data3DTexture>,
+  contrastLimits: number[][],
+  volumeMinMax: Map<number | false, number[]>,
+  scaleOrUndefined: Array<{ size: number }> | null | undefined,
+  renderstyle: number,
+  layerTransparency: number,
+  xSlice: [number, number],
+  ySlice: [number, number],
+  zSlice: [number, number],
+  originalScale: number[],
+): [UniformMap, typeof VolumeRenderShaderPerspective, [number, number, number], [number, number, number], [number, number, number]] | null {
+  const texturesList: Data3DTexture[] = [];
+  const colorsSave: number[][] = [];
+  const contrastLimitsList: number[][] = [];
+  let volume: Volume | null = null;
   let scale = scaleOrUndefined;
   if (scale === undefined || scale === null || !Array.isArray(scale) || scale.length < 3) {
     scale = [
@@ -386,23 +369,25 @@ export function create3DRendering(volumes, channelTargetC, channelsVisible, colo
   }
   channelTargetC.forEach((channel, id) => { // load on demand new channels or load all there are?? - Check VIV for it
     if (channelsVisible[id]) { // check if the channel has been loaded already or if there should be a new load
-      volume = volumes.get(channel);
+      volume = volumes.get(channel)!;
       // set textures, set volume, contrastLimits, colors
-      texturesList.push(textures.get(channel)); // Could be done better but for now we try this
+      texturesList.push(textures.get(channel)!); // Could be done better but for now we try this
       colorsSave.push([colors[id][0] / 255, colors[id][1] / 255, colors[id][2] / 255]);
       if (contrastLimits[id][0] === 0 && contrastLimits[id][1] === 255) { // Initial State TODO change??
-        contrastLimitsList.push([getMinMaxValue(volumeMinMax.get(channel)[0], volumeMinMax.get(channel)),
-          getMinMaxValue(volumeMinMax.get(channel)[1], volumeMinMax.get(channel))]);
+        contrastLimitsList.push([getMinMaxValue(volumeMinMax.get(channel)![0], volumeMinMax.get(channel)!),
+          getMinMaxValue(volumeMinMax.get(channel)![1], volumeMinMax.get(channel)!)]);
       } else {
-        contrastLimitsList.push([getMinMaxValue(contrastLimits[id][0], volumeMinMax.get(channel)),
-          getMinMaxValue(contrastLimits[id][1], volumeMinMax.get(channel))]);
+        contrastLimitsList.push([getMinMaxValue(contrastLimits[id][0], volumeMinMax.get(channel)!),
+          getMinMaxValue(contrastLimits[id][1], volumeMinMax.get(channel)!)]);
       }
     }
   });
   if (volume === null) {
     return null;
   }
-  const volconfig = {
+  // TypeScript can't narrow `volume` after forEach assignment, assert non-null
+  const vol = volume as Volume;
+  const volconfig: VolumeConfig = {
     clim1: 0.01,
     clim2: 0.7,
     isothreshold: 0.15,
@@ -411,18 +396,18 @@ export function create3DRendering(volumes, channelTargetC, channelsVisible, colo
   };
   const shader = VolumeRenderShaderPerspective;
   const uniforms = UniformsUtils.clone(shader.uniforms);
-  setUniformsTextures(uniforms, texturesList, volume, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
-    xSlice, ySlice, zSlice, [scale[0].size, scale[1].size, scale[2] ? scale[2].size : 1.0], originalScale);
+  setUniformsTextures(uniforms, texturesList, vol, volconfig, renderstyle, contrastLimitsList, colorsSave, layerTransparency,
+    xSlice, ySlice, zSlice, [scale![0].size, scale![1].size, scale![2] ? scale![2].size : 1.0], originalScale);
   return [
     uniforms,
     shader,
-    [1, scale[1].size / scale[0].size, scale[2] ? scale[2].size / scale[0].size : 1.0],
-    [volume.xLength, volume.yLength, volume.zLength],
-    [1.0, volume.yLength / volume.xLength, volume.zLength / volume.xLength],
+    [1, scale![1].size / scale![0].size, scale![2] ? scale![2].size / scale![0].size : 1.0] as [number, number, number],
+    [vol.xLength, vol.yLength, vol.zLength] as [number, number, number],
+    [1.0, vol.yLength / vol.xLength, vol.zLength / vol.xLength] as [number, number, number],
   ];
 }
 
-const dtypeToTypedArray = {
+const dtypeToTypedArray: Record<string, new (size: number) => TypedArray> = {
   Uint8: Uint8Array,
   Uint16: Uint16Array,
   Uint32: Uint32Array,
@@ -437,19 +422,27 @@ const dtypeToTypedArray = {
 async function getVolumeIntern({
   source,
   selection,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   onUpdate = () => {},
   downsampleDepth = 1,
   signal,
+}: {
+  source: VolumeSource;
+  selection: Record<string, number>;
+  onUpdate?: (info: { z: number; total: number; progress: number }) => void;
+  downsampleDepth?: number;
+  signal?: AbortSignal;
 }) {
   const { shape, labels, dtype } = source;
-  const { height, width } = viv.getImageSize(source);
+  // VolumeSource is a subset of PixelSource — the loader implements the full interface at runtime.
+  const { height, width } = viv.getImageSize(source as Parameters<typeof viv.getImageSize>[0]);
   const depth = shape[labels.indexOf('z')];
   const depthDownsampled = Math.max(1, Math.floor(depth / downsampleDepth));
   const rasterSize = height * width;
   const TypedArrayClass = dtypeToTypedArray[dtype];
   const volumeData = new TypedArrayClass(rasterSize * depthDownsampled);
   await Promise.all(
-    new Array(depthDownsampled).fill(0).map(async (_, z) => {
+    new Array(depthDownsampled).fill(0).map(async (_: unknown, z: number) => {
       const depthSelection = {
         ...selection,
         z: z * downsampleDepth,
@@ -480,15 +473,15 @@ async function getVolumeIntern({
 }
 
 
-function getVolumeByChannel(channel, resolution, loader) {
+function getVolumeByChannel(channel: number | false, resolution: number, loader: VolumeSource[]) {
   return getVolumeIntern({
     source: loader[resolution],
-    selection: { t: 0, c: channel }, // corresponds to the first channel of the first timepoint
+    selection: { t: 0, c: channel as number }, // corresponds to the first channel of the first timepoint
     downsampleDepth: 2 ** resolution,
   });
 }
 
-function getVolumeFromOrigin(volumeOrigin) {
+function getVolumeFromOrigin(volumeOrigin: { width: number; height: number; depth: number; data: TypedArray }) {
   const volume = new Volume();
   volume.xLength = volumeOrigin.width;
   volume.yLength = volumeOrigin.height;
@@ -497,8 +490,8 @@ function getVolumeFromOrigin(volumeOrigin) {
   return volume;
 }
 
-function getData3DTexture(volume) {
-  const texture = new Data3DTexture(volume.data, volume.xLength, volume.yLength, volume.zLength);
+function getData3DTexture(volume: Volume) {
+  const texture = new Data3DTexture(volume.data as BufferSource, volume.xLength, volume.yLength, volume.zLength);
   texture.format = RedFormat;
   texture.type = FloatType;
   texture.generateMipmaps = false;
@@ -509,17 +502,13 @@ function getData3DTexture(volume) {
   return texture;
 }
 
-/**
-* Get physical size scaling Matrix4
-* @param {Object} loader PixelSource
-*/
-function getPhysicalSizeScalingMatrix(loader) {
+function getPhysicalSizeScalingMatrix(loader: VolumeSource & { meta?: { physicalSizes?: Record<string, number | undefined> } }): Array<{ size: number }> {
   const { x, y, z } = loader?.meta?.physicalSizes ?? {};
-  return [x, y, z];
+  return [{ size: x ?? 1 }, { size: y ?? 1 }, { size: z ?? 1 }];
 }
 
 
-function minMaxVolume(volume) {
+function minMaxVolume(volume: Volume) {
   // get the min and max intensities
   const [min, max] = volume.computeMinMax();
 
@@ -530,20 +519,17 @@ function minMaxVolume(volume) {
   return dataASFloat32;
 }
 
-/**
-* Function to load the volumetric data from the given data source
-* @param channelTargetC
-* @param resolution
-* @param data
-* @param volumes
-* @param textures
-* @param volumeMinMax
-* @param oldResolution
-* @returns {Promise<(*|*[])[]>}
-*/
-export async function initialDataLoading(channelTargetC, resolution, data, volumes, textures, volumeMinMax, oldResolution) {
-  let volume = null;
-  let scale = null;
+export async function initialDataLoading(
+  channelTargetC: (number | false)[],
+  resolution: number,
+  data: VolumeSource[],
+  volumes: Map<number | false, Volume>,
+  textures: Map<number | false, Data3DTexture>,
+  volumeMinMax: Map<number | false, number[]>,
+  oldResolution: number | null,
+): Promise<[Map<number | false, Volume>, Map<number | false, Data3DTexture>, Map<number | false, number[]>, Array<{ size: number }> | null, number[]]> {
+  let volume: Volume | null = null;
+  let scale: Array<{ size: number }> | null = null;
   const { shape, labels } = data[0];
   const channelsToLoad = channelTargetC
     .filter(channel => !volumes.has(channel) || resolution !== oldResolution);
@@ -564,4 +550,18 @@ export async function initialDataLoading(channelTargetC, resolution, data, volum
   });
   return [volumes, textures, volumeMinMax, scale,
     [shape[labels.indexOf('x')], shape[labels.indexOf('y')], shape[labels.indexOf('z')]]];
+}
+
+
+export function stringifyLineData(lineData: MeasureLineData): string {
+  return `${lineData.startPoint.x},${lineData.startPoint.y},${lineData.startPoint.z};${lineData.endPoint.x},${lineData.endPoint.y},${lineData.endPoint.z}`;
+}
+
+type OptionalNumber = number | undefined
+
+export function isValidGeometrySize(size: unknown): size is [OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber] {
+  if (!Array.isArray(size) || size.length !== 6) {
+    return false;
+  }
+  return size.every(s => typeof s === 'number' || s === undefined);
 }

@@ -30,8 +30,6 @@
     "test": "pnpm exec vitest --run -r ../../../ --dir ."
   },
   "dependencies": {
-    "@react-three/fiber": "catalog:",
-    "@react-three/drei": "catalog:",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/gl": "workspace:*",
     "@vitessce/legend": "workspace:*",
@@ -49,17 +47,27 @@
     "mathjs": "catalog:",
     "plur": "^5.1.0",
     "short-number": "^1.0.6",
-    "three": "catalog:",
     "zarrita": "catalog:"
   },
   "devDependencies": {
+    "@react-three/fiber": "catalog:",
+    "@react-three/drei": "catalog:",
     "@types/three": "catalog:",
+    "three": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "@react-three/fiber": "^8.0.0 || ^9.0.0",
+    "@react-three/drei": "^9.0.0 || ^10.0.0",
+    "three": ">=0.159.0"
+  },
+  "peerDependenciesMeta": {
+    "@react-three/fiber": { "optional": true },
+    "@react-three/drei": { "optional": true },
+    "three": { "optional": true }
   }
 }

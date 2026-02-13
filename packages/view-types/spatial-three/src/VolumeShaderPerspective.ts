@@ -1,6 +1,10 @@
 import { Vector2, Vector3 } from 'three';
 
-export const VolumeRenderShaderPerspective = {
+export const VolumeRenderShaderPerspective: {
+  uniforms: Record<string, { value: any }>;
+  vertexShader: string;
+  fragmentShader: string;
+} = {
   uniforms: {
     u_size: { value: new Vector3(1, 1, 1) },
     u_renderstyle: { value: 0 },
@@ -19,7 +23,7 @@ export const VolumeRenderShaderPerspective = {
     u_stop_geom: { value: null },
     u_geo_color: { value: null },
     u_window_size: { value: new Vector2(1, 1) },
-    u_vol_scale: { value: new Vector2(1, 1, 1) },
+    u_vol_scale: { value: new Vector3(1, 1, 1) },
     u_physical_Pixel: { value: 0.5 },
     volumeTex: { value: null },
     volumeTex2: { value: null },
