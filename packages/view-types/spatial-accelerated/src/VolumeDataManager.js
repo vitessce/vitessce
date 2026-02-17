@@ -316,9 +316,18 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   };
 }
 
-export function _requestBufferToRequestObjects(buffer, k) {
+export function _requestBufferToRequestObjects(buffer, k, width = null, height = null, opts = {}) {
   const counts = new Map();
-  for (let i = 0; i < buffer.length; i += 4) {
+  // sigmaNormalized: fraction of half-dimension that determines Gaussian spread
+  const sigmaNormalized = typeof opts.sigmaNormalized === 'number' ? opts.sigmaNormalized : 0.25;
+
+  const useWeighting = Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0;
+
+  // Number of pixels present in buffer
+  const maxPixels = Math.floor(buffer.length / 4);
+
+  for (let pix = 0; pix < maxPixels; pix += 1) {
+    const i = pix * 4;
     const r = buffer[i];
     const g = buffer[i + 1];
     const b = buffer[i + 2];
@@ -328,11 +337,23 @@ export function _requestBufferToRequestObjects(buffer, k) {
       continue;
     }
     const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
-    counts.set(packed, (counts.get(packed) || 0) + 1);
+
+    let weight = 1.0;
+    if (useWeighting) {
+      const x = pix % width;
+      const y = Math.floor(pix / width);
+      const dx = x - (width / 2);
+      const dy = y - (height / 2);
+      // normalized distance relative to full width/height to be resolution-independent
+      const nd = Math.sqrt((dx * dx) / (width * width) + (dy * dy) / (height * height));
+      const norm = nd / sigmaNormalized;
+      weight = Math.exp(-0.5 * norm * norm);
+    }
+
+    counts.set(packed, (counts.get(packed) || 0) + weight);
   }
-  // log.debug('counts', counts);
-  // log.debug('this.k', this.k);
-  // Get the top K (potentially fewer than K) page table requests.
+
+  // Get the top K (potentially fewer than K) page table requests by weighted count.
   const requests = [...counts.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, k)
@@ -341,6 +362,7 @@ export function _requestBufferToRequestObjects(buffer, k) {
       y: (packed >> 12) & 0x3FF,
       z: packed & 0xFFF,
     }));
+
   return { requests, origRequestCount: counts.size };
 }
 
@@ -1253,7 +1275,7 @@ export class VolumeDataManager {
     return chunkEntry.data;
   }
 
-  async processRequestData(buffer) {
+  async processRequestData(buffer, width = null, height = null, opts = {}) {
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
       return;
@@ -1274,7 +1296,26 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
-    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k);
+    let requests = [];
+    let origRequestCount = 0;
+    try {
+      const result = _requestBufferToRequestObjects(buffer, this.k, width, height, opts);
+      requests = result.requests || [];
+      origRequestCount = result.origRequestCount || 0;
+    } catch (err) {
+      log.error('processRequestData: error parsing request buffer', err);
+      // Fallback: try unweighted parse
+      try {
+        const result = _requestBufferToRequestObjects(buffer, this.k);
+        requests = result.requests || [];
+        origRequestCount = result.origRequestCount || 0;
+      } catch (err2) {
+        log.error('processRequestData: fallback unweighted parse failed', err2);
+        this.triggerUsage = true;
+        this.isBusy = false;
+        return;
+      }
+    }
 
     if (requests.length === 0) {
       this.noNewRequests = true;
