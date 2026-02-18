@@ -185,6 +185,7 @@ import {
   // NG precomputed
   NgPrecomputedMeshSource,
   NgPrecomputedMeshLoader,
+  NgPointsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -347,6 +348,7 @@ export const baseFileTypes = [
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPrecomputedMeshSource, ngSchema),
+
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
