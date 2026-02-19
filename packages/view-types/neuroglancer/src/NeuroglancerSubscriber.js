@@ -2,15 +2,28 @@
 import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import {
   TitleInfo,
+  useReady,
+  useUrls,
+  useInitialCoordination,
   useCoordination,
-  useObsSetsData,
-  useLoaders,
-  useObsEmbeddingData,
   useCoordinationScopes,
+  useCoordinationScopesBy,
+  useComplexCoordination,
+  useMultiCoordinationScopesNonNull,
+  useMultiCoordinationScopesSecondaryNonNull,
+  useComplexCoordinationSecondary,
+  useLoaders,
+  useMergeCoordination,
+  useMultiObsPoints,
+  useMultiObsSegmentations,
+   useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsSets,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
   ViewType,
+  CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
@@ -50,7 +63,9 @@ function rgbToHex(rgb) {
 
 export function NeuroglancerSubscriber(props) {
   const {
+    uuid,
     coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -60,7 +75,11 @@ export function NeuroglancerSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const mergeCoordination = useMergeCoordination();
+
+  // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
   const [{
     dataset,
@@ -92,6 +111,135 @@ export function NeuroglancerSubscriber(props) {
     setSpatialZoom: setZoom,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
 
+  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
+    CoordinationType.SEGMENTATION_CHANNEL,
+    CoordinationType.SEGMENTATION_LAYER,
+    coordinationScopes,
+    coordinationScopesBy,
+  );
+
+  const pointLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.POINT_LAYER,
+    coordinationScopes,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationLayer.
+  const segmentationLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+      CoordinationType.SEGMENTATION_CHANNEL,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationChannel.
+  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_OPACITY,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.OBS_HIGHLIGHT,
+      CoordinationType.TOOLTIPS_VISIBLE,
+      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.LEGEND_VISIBLE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
+  );
+
+  // Point layer
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
+      CoordinationType.TOOLTIPS_VISIBLE,
+      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.LEGEND_VISIBLE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+
+  // Points data
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
+  );
+
+  // Segmentations data
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsDataErrors] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
+  );
+
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus, obsSegmentationsSetsDataErrors] = useSegmentationMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [
+    segmentationMultiExpressionData,
+    segmentationMultiLoadedFeatureSelection,
+    segmentationMultiExpressionExtents,
+    segmentationMultiExpressionNormData,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiFeatureSelectionErrors,
+  ] = useSegmentationMultiFeatureSelection(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus, segmentationMultiIndicesDataErrors] = useSegmentationMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const errors = [
+    ...obsPointsErrors,
+    ...obsSegmentationsDataErrors,
+    ...obsSegmentationsSetsDataErrors,
+    ...pointMultiIndicesDataErrors,
+    ...segmentationMultiFeatureSelectionErrors,
+    ...segmentationMultiIndicesDataErrors,
+  ];
+
+  const isReady = useReady([
+    // Points
+    obsPointsDataStatus,
+    pointMultiIndicesDataStatus,
+    // Segmentations
+    obsSegmentationsDataStatus,
+    obsSegmentationsSetsDataStatus,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiIndicesDataStatus,
+  ]);
+
+  console.log("URLs", obsPointsUrls, obsSegmentationsUrls);
 
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 

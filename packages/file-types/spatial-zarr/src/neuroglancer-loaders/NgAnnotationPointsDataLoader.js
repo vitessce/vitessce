@@ -7,6 +7,9 @@ export default class NgAnnotationPointsDataLoader extends AbstractTwoStepLoader 
       {
         obsIndex: null,
         obsPoints: null,
+        featureIds: null,
+        obsPointsModelMatrix: null,
+        obsPointsTilingType: 'neuroglancer',
       },
       url,
     );
