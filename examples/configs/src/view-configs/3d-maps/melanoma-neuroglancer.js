@@ -45,6 +45,17 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanom-meshes',
     },
   });
+
+  dataset.addFile({
+    fileType: 'obsPoints.ng-annotations',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes', // TODO: point to an annotations file
+    coordinationValues: {
+      fileUid: 'melanom-points',
+    },
+  });
+
+  // TODO: move obsEmbedding to an anndata file so that we get the obsFeatureMatrix.obsIndex for free.
+
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
     url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
@@ -115,6 +126,9 @@ function generateNeuroglancerMinimalConfiguration() {
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+
+  // TODO: add coordination stuff for segmentationLayer and pointLayer,
+  // so that their neuroglancer visualizations can be controlled from the layer controller.
 
 
   config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
