@@ -38,13 +38,13 @@ export default {
       },
       items: [
         {
-          href: '/#?edit=true',
-          label: 'App',
+          to: 'examples',
+          label: 'Examples',
           position: 'left',
         },
         {
-          to: 'examples',
-          label: 'Examples',
+          href: '/#?edit=true',
+          label: 'Playground',
           position: 'left',
         },
         {
@@ -135,22 +135,7 @@ export default {
             },
           ],
         },
-        {
-          title: 'Funding',
-          items: [
-            {
-              html: 'NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)',
-            }
-          ],
-        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://hidivelab.org/">HIDIVE Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.`,
     },
   },
   presets: [

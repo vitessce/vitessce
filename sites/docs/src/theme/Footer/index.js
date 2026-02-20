@@ -6,13 +6,13 @@ import Link from '@docusaurus/Link';
 import { useThemeConfig } from '@docusaurus/theme-common';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import isInternalUrl from '@docusaurus/isInternalUrl';
-import ThemedImage from '@theme/ThemedImage';
 import IconExternalLink from '@theme/Icon/ExternalLink';
 import { META_VERSION } from '@vitessce/constants-internal';
 import styles from './styles.module.css';
 
 // This component has been swizzled from docusaurus
-// so that we can include the Vitessce version information.
+// so that we can include the Vitessce version information
+// and a modern custom footer layout.
 
 function FooterLink({
   to, href, label, prependBaseUrlToHref, ...props
@@ -23,7 +23,7 @@ function FooterLink({
   });
   return (
     <Link
-      className="footer__link-item"
+      className={styles.footerLink}
       {...(href
         ? {
           href: prependBaseUrlToHref ? normalizedHref : href,
@@ -45,118 +45,115 @@ function FooterLink({
   );
 }
 
-function FooterLogo({
-  sources, alt, width, height,
-}) {
-  return (
-    <ThemedImage
-      className="footer__logo"
-      alt={alt}
-      sources={sources}
-      width={width}
-      height={height}
-    />
-  );
-}
-
 function Footer() {
   const { footer } = useThemeConfig();
-  const { copyright, links = [], logo = {} } = footer || {};
-  const sources = {
-    light: useBaseUrl(logo.src),
-    dark: useBaseUrl(logo.srcDark || logo.src),
-  };
+  const { links = [] } = footer || {};
 
   if (!footer) {
     return null;
   }
 
+  // Extract Ecosystem and Built with sections from config
+  const ecosystemLinks = links.find((l) => l.title === 'Ecosystem');
+  const builtWithLinks = links.find((l) => l.title === 'Built with');
+
   return (
-    <footer
-      className={clsx('footer', {
-        'footer--dark': footer.style === 'dark',
-      })}
-    >
-      <div className="container">
-        {links && links.length > 0 && (
-          <div className="row footer__links">
-            {links.map((linkItem, i) => (
-              <div key={i} className="col footer__col">
-                {linkItem.title != null ? (
-                  <div className="footer__title">{linkItem.title}</div>
-                ) : null}
-                {linkItem.items != null
-                && Array.isArray(linkItem.items)
-                && linkItem.items.length > 0 ? (
-                  <ul className="footer__items">
-                    {linkItem.items.map((item, key) => (item.html ? (
-                      <li
-                        key={key}
-                        className="footer__item" // Developer provided the HTML, so assume it's safe.
-                          // eslint-disable-next-line react/no-danger
-                        dangerouslySetInnerHTML={{
-                          __html: item.html,
-                        }}
-                      />
-                    ) : (
-                      <li key={item.href || item.to} className="footer__item">
-                        <FooterLink {...item} />
-                      </li>
-                    )))}
-                  </ul>
-                  ) : null}
-              </div>
-            ))}
-          </div>
-        )}
-        {(logo || copyright) && (
-          <div className="footer__bottom text--center">
-            {logo && (logo.src || logo.srcDark) && (
-              <div className="margin-bottom--sm">
-                {logo.href ? (
-                  <Link
-                    href={logo.href}
-                    className={styles.footerLogoLink}
-                    underline="none"
-                    aria-label="Visit Vitessce home page"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <FooterLogo
-                      alt={logo.alt}
-                      sources={sources}
-                      width={logo.width}
-                      height={logo.height}
-                    />
-                  </Link>
-                ) : (
-                  <FooterLogo alt={logo.alt} sources={sources} />
-                )}
+    <footer className={styles.footer}>
+      <div className={styles.footerInner}>
+        {/* Top row: link columns + citation */}
+        <div className={styles.footerTop}>
+          {/* Link columns */}
+          <div className={styles.footerColumns}>
+            {ecosystemLinks && (
+              <div className={styles.footerColumn}>
+                <h4 className={styles.footerColumnTitle}>{ecosystemLinks.title}</h4>
+                <ul className={styles.footerColumnList}>
+                  {ecosystemLinks.items.map((item, i) => (
+                    <li key={i}>
+                      <FooterLink {...item} />
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
-            {copyright ? (
-              <div className="footer__copyright">
-                <div
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{
-                    __html: copyright,
-                  }}
-                />
-                <p className="info-section-text">
-                  This deployment:&nbsp;
-                  branch=<code>{META_VERSION.branch}</code>,&nbsp;
-                  hash=<code>{META_VERSION.hash}</code>,&nbsp;
-                  date={META_VERSION.date}
-
-                  <br />
-                  <span style={{ textAlign: 'left', display: 'inline-block', width: '60%', marginTop: '20px' }}>
-                    Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V., Gehlenborg, N. Vitessce: integrative visualization of multimodal and spatially resolved single-cell data. <i>Nature Methods</i> (2024). https://doi.org/10.1038/s41592-024-02436-x
-                  </span>
-                </p>
+            {builtWithLinks && (
+              <div className={styles.footerColumn}>
+                <h4 className={styles.footerColumnTitle}>{builtWithLinks.title}</h4>
+                <ul className={styles.footerColumnList}>
+                  {builtWithLinks.items.map((item, i) => (
+                    <li key={i}>
+                      <FooterLink {...item} />
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ) : null}
+            )}
           </div>
-        )}
+
+          {/* Info cards: citation + contact */}
+          <div className={styles.footerInfoCards}>
+            <div className={styles.footerInfoCard}>
+              <span className={styles.footerInfoLabel}>How to cite: </span>
+              Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V., Gehlenborg, N.
+              Vitessce: integrative visualization of multimodal and spatially resolved single-cell
+              data. <i>Nature Methods</i> 22, 63&ndash;67 (2025).{' '}
+              <a
+                href="https://doi.org/10.1038/s41592-024-02436-x"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerInfoLink}
+              >
+                https://doi.org/10.1038/s41592-024-02436-x
+              </a>
+            </div>
+            <div className={styles.footerInfoCard}>
+              <span className={styles.footerInfoLabel}>How to contact: </span>
+              Email{' '}
+              <a href="mailto:hidive@hms.harvard.edu?subject=Vitessce%20Inquiry" className={styles.footerInfoLink}>
+                hidive@hms.harvard.edu
+              </a>{' '}
+              or provide feedback via{' '}
+              <a
+                href="https://github.com/vitessce/vitessce/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerInfoLink}
+              >
+                issues
+              </a>{' '}
+              (for bug reports or feature requests) and{' '}
+              <a
+                href="https://github.com/vitessce/vitessce/discussions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerInfoLink}
+              >
+                discussions
+              </a>{' '}
+              on GitHub.
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className={styles.footerDivider} />
+
+        {/* Bottom row: copyright + deployment info */}
+        <div className={styles.footerBottom}>
+          <p className={styles.footerCopyright}>
+            Copyright &copy; 2026{' '}
+            <a href="http://hidivelab.org/" target="_blank" rel="noopener noreferrer">
+              HIDIVE Lab
+            </a>{' '}
+            @ Harvard Medical School. Vitessce is open source and MIT licensed. Vitessce
+            documentation is CC BY 4.0 licensed.
+          </p>
+          <p className={styles.footerDeploy}>
+            branch=<code>{META_VERSION.branch}</code>&ensp;
+            hash=<code>{META_VERSION.hash}</code>&ensp;
+            date={META_VERSION.date}
+          </p>
+        </div>
       </div>
     </footer>
   );

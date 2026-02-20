@@ -7,19 +7,20 @@
 
 /* You can override the default Infima variables here. */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root {
+  /* Primary palette — keep the existing teal as accent */
   --ifm-color-primary: #49a5b7;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  --ifm-color-primary-dark: #3a8fa0;
+  --ifm-color-primary-darker: #2d7a89;
+  --ifm-color-primary-darkest: #1f5d69;
+  --ifm-color-primary-light: #5fb8c9;
+  --ifm-color-primary-lighter: #7ac7d4;
+  --ifm-color-primary-lightest: #a3dce5;
   --ifm-code-font-size: 95%;
 
-  --ifm-navbar-height: 3.0rem;
+  --ifm-navbar-height: 3.25rem;
   --ifm-vitessce-toolbar-height: 28px;
 
   --vit-input-foreground: #0451a5;
@@ -27,22 +28,56 @@
   --dropzone: #989898;
   --code-block-background: rgb(246, 248, 250);
 
-  --hero-banner-background: #49a5b7;
+  /* Scientific palette — neutral warm grays */
+  --vit-bg-primary: #fafbfc;
+  --vit-bg-secondary: #f0f2f5;
+  --vit-bg-card: #ffffff;
+  --vit-text-primary: #1a2332;
+  --vit-text-secondary: #4a5568;
+  --vit-text-muted: #718096;
+  --vit-border-light: #e2e8f0;
+  --vit-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --vit-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --vit-shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.05);
+  --vit-radius-sm: 6px;
+  --vit-radius-md: 10px;
+  --vit-radius-lg: 16px;
 
-  font-family: 'Inter', sans-serif;
+  /* Typography */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ifm-heading-font-weight: 600;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.65;
+
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-
 }
 
 :root[data-theme='dark'] {
-  --ifm-navbar-background-color: #333;
-  --ifm-footer-background-color: rgb(73, 73, 73);
+  --ifm-navbar-background-color: #1a2332;
+  --ifm-footer-background-color: #141c28;
   --vit-input-background: #202124;
   --vit-input-foreground: #9cdcfe;
   --dropzone: #5f5f60;
   --code-block-background: rgb(40, 42, 54);
+
+  --vit-bg-primary: #0f1419;
+  --vit-bg-secondary: #1a2332;
+  --vit-bg-card: #1e2a3a;
+  --vit-text-primary: #e2e8f0;
+  --vit-text-secondary: #a0aec0;
+  --vit-text-muted: #718096;
+  --vit-border-light: #2d3748;
+  --vit-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --vit-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --vit-shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.4);
+
   --docusaurus-highlighted-code-line-bg: rgba(66, 66, 66, 0.35);
 }
+
+/* Heading refinements */
+h1 { letter-spacing: -0.02em; }
+h2 { letter-spacing: -0.01em; }
+h3 { letter-spacing: -0.005em; }
 
 .table-of-contents a code {
   color: var(--ifm-toc-link-color);
@@ -141,12 +176,6 @@
   border: none !important;
 }
 
-/* 
-.vitessce-container table * {
-  border: none;
-}
- */
-
 .vitessce-container table tr:nth-child(2n) {
   background-color: transparent;
 }
@@ -190,6 +219,21 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
   margin-bottom: 15px;
 }
 
+/* Navbar refinements */
+.navbar {
+  border-bottom: 1px solid var(--vit-border-light);
+  box-shadow: none;
+}
+
+.navbar__inner {
+  --ifm-navbar-item-padding-vertical: 0;
+}
+
+.navbar__items .navbar__link {
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
 /* Reference: https://github.com/facebook/docusaurus/blob/275f50/website/src/css/custom.css#L74 */
 .header-github-link:hover {
   opacity: 0.6;
@@ -226,10 +270,6 @@ div[role='tooltip'] table td, div[role='tooltip'] table th {
 [data-theme='dark'] .header-pronunciation-link::before {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="white" d="M157.27 21.22a12 12 0 0 0-12.64 1.31L75.88 76H32a20 20 0 0 0-20 20v64a20 20 0 0 0 20 20h43.88l68.75 53.47A12 12 0 0 0 164 224V32a12 12 0 0 0-6.73-10.78ZM36 100h32v56H36Zm104 99.46l-48-37.33V93.87l48-37.33ZM212 128a44 44 0 0 1-11 29.11a12 12 0 1 1-18-15.88a20 20 0 0 0 0-26.43a12 12 0 0 1 18-15.86A43.94 43.94 0 0 1 212 128Zm40 0a83.87 83.87 0 0 1-21.39 56a12 12 0 0 1-17.89-16a60 60 0 0 0 0-80a12 12 0 1 1 17.88-16a83.87 83.87 0 0 1 21.4 56Z"/></svg>');
   background-repeat: no-repeat;
-}
-
-.navbar__inner {
-  --ifm-navbar-item-padding-vertical: 0;
 }
 
 @media (max-width: 1196px) {
