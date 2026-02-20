@@ -41,6 +41,7 @@ export default {
           to: 'examples',
           label: 'Examples',
           position: 'left',
+          activeBasePath: '/examples',
         },
         {
           href: '/#?edit=true',

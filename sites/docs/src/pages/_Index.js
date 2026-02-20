@@ -46,7 +46,7 @@ function AppStyles(props) {
   } = props;
   return (
     <style>{`
-        .navbar__brand + a.navbar__item.navbar__link {
+        .navbar__brand + a.navbar__item.navbar__link + a.navbar__item.navbar__link {
           color: var(--ifm-navbar-link-hover-color);
           text-decoration: none;
         }
