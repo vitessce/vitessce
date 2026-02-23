@@ -1,7 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/no-array-index-key */
 import React from 'react';
-import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import { useThemeConfig } from '@docusaurus/theme-common';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -56,8 +55,8 @@ function Footer() {
   }
 
   // Extract Ecosystem and Built with sections from config
-  const ecosystemLinks = links.find((l) => l.title === 'Ecosystem');
-  const builtWithLinks = links.find((l) => l.title === 'Built with');
+  const ecosystemLinks = links.find(l => l.title === 'Ecosystem');
+  const builtWithLinks = links.find(l => l.title === 'Built with');
 
   return (
     <footer className={styles.footer}>

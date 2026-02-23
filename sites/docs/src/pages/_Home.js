@@ -278,7 +278,7 @@ export default function Home() {
               <a href={examplesUrl} className={styles.sectionLink}>View all &rarr;</a>
             </div>
             <div className={styles.examplesMosaic}>
-              {featuredExamples.map((e) => (
+              {featuredExamples.map(e => (
                 <ExampleCard key={e.key} configKey={e.key} {...e} isDarkTheme={isDarkTheme} />
               ))}
             </div>
@@ -296,7 +296,7 @@ export default function Home() {
               for Python and R.
             </p>
             <div className={styles.platformsRow}>
-              {platforms.map((p) => (
+              {platforms.map(p => (
                 <PlatformCard key={p.key} {...p} introUrl={introUrl} isDarkTheme={isDarkTheme} />
               ))}
             </div>
@@ -329,20 +329,30 @@ export default function Home() {
                   single-cell data
                 </h3>
                 <p className={styles.publicationAuthors}>
-                  Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V., &amp; Gehlenborg, N.
+                  Keller, M.S., Gold, I., McCallum, C., Manz, T., Kharchenko, P.V.,
+                  &amp; Gehlenborg, N.
                 </p>
                 <p className={styles.publicationMeta}>
-                  <em>Nature Methods</em> 22, 63&ndash;67 (2025) &middot; DOI: 10.1038/s41592-024-02436-x
+                  <em>Nature Methods</em> 22, 63&ndash;67 (2025)
+                  &middot; DOI: 10.1038/s41592-024-02436-x
                 </p>
                 <p className={styles.publicationAbstract}>
-                  Multiomics technologies with single-cell and spatial resolution make it possible
-                  to measure thousands of features across millions of cells. However, visual analysis
-                  of high-dimensional transcriptomic, proteomic, genome-mapped and imaging data types
-                  simultaneously remains a challenge. Here we describe Vitessce, an interactive
-                  web-based visualization framework for exploration of multimodal and spatially
-                  resolved single-cell data. We demonstrate integrative visualization of millions of
-                  data points, including cell-type annotations, gene expression quantities, spatially
-                  resolved transcripts and cell segmentations, across multiple coordinated views.
+                  Multiomics technologies with single-cell
+                  and spatial resolution make it possible
+                  to measure thousands of features across
+                  millions of cells. However, visual analysis
+                  of high-dimensional transcriptomic, proteomic,
+                  genome-mapped and imaging data types
+                  simultaneously remains a challenge.
+                  Here we describe Vitessce, an interactive
+                  web-based visualization framework for
+                  exploration of multimodal and spatially
+                  resolved single-cell data. We demonstrate
+                  integrative visualization of millions of
+                  data points, including cell-type annotations,
+                  gene expression quantities, spatially
+                  resolved transcripts and cell segmentations,
+                  across multiple coordinated views.
                 </p>
                 <a
                   href={PAPER_DOI_URL}

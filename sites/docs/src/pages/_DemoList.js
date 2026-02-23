@@ -119,9 +119,7 @@ function DemoList(props) {
       setActiveTags([]);
       return;
     }
-    setActiveTags((prev) =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag],
-    );
+    setActiveTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]));
   };
 
   // Filter demos by active tags (show only those matching ALL active tags).
@@ -150,7 +148,10 @@ function DemoList(props) {
         <div className={styles.filterBar}>
           <button
             type="button"
-            className={clsx(styles.filterButton, { [styles.filterButtonActive]: activeTags.length === 0 })}
+            className={clsx(
+              styles.filterButton,
+              { [styles.filterButtonActive]: activeTags.length === 0 },
+            )}
             onClick={() => toggleTag(null)}
           >
             All
@@ -159,7 +160,10 @@ function DemoList(props) {
             <button
               key={tag}
               type="button"
-              className={clsx(styles.filterButton, { [styles.filterButtonActive]: activeTags.includes(tag) })}
+              className={clsx(
+                styles.filterButton,
+                { [styles.filterButtonActive]: activeTags.includes(tag) },
+              )}
               onClick={() => toggleTag(tag)}
             >
               {tag}
