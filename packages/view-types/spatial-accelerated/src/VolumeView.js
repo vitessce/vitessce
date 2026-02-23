@@ -70,24 +70,14 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
     // Based on the request buffer contents, process the requests
     // (e.g., start loading the brick data and upload to the brick cache).
     // Pass width/height so the data manager can compute Gaussian weighting.
-    try {
-      const width = mrtRef?.current?.width;
-      const height = mrtRef?.current?.height;
-      if (!Number.isInteger(width) || !Number.isInteger(height)) {
-        log.warn('handleRequests: no width/height available for request buffer; proceeding without weighting');
-        dataManager.processRequestData(bufRequest.current);
-      } else {
-        // Default sigmaNormalized = 0.25; can be tuned
-        dataManager.processRequestData(bufRequest.current, width, height, { sigmaNormalized: 0.25 });
-      }
-    } catch (err) {
-      log.error('handleRequests: error while calling processRequestData', err);
-      try {
-        dataManager.processRequestData(bufRequest.current);
-      } catch (err2) {
-        log.error('handleRequests: fallback processRequestData also failed', err2);
-      }
-    }
+    dataManager.processRequestData(bufRequest.current, {
+      // If width/height are not yet available,
+      // processRequestData will proceed without weighting.
+      width: mrtRef?.current?.width,
+      height: mrtRef?.current?.height,
+      // Default sigmaNormalized = 0.25; can be tuned
+      sigmaNormalized: 0.25,
+    });
   } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
     // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
     ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));

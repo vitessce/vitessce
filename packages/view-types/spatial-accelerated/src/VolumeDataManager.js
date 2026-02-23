@@ -316,10 +316,13 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   };
 }
 
-export function _requestBufferToRequestObjects(buffer, k, width = null, height = null, opts = {}) {
+// sigmaNormalized: fraction of half-dimension that determines Gaussian spread
+export const DEFAULT_SIGMA_NORMALIZED = 0.25;
+
+export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   const counts = new Map();
-  // sigmaNormalized: fraction of half-dimension that determines Gaussian spread
-  const sigmaNormalized = typeof opts.sigmaNormalized === 'number' ? opts.sigmaNormalized : 0.25;
+
+  const { width, height, sigmaNormalized } = optsForWeighting;
 
   const useWeighting = Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0;
 
@@ -1275,7 +1278,19 @@ export class VolumeDataManager {
     return chunkEntry.data;
   }
 
-  async processRequestData(buffer, width = null, height = null, opts = {}) {
+  /**
+   * Process the buffer of brick requests from the shader, turning them into
+   * actual Promises for Zarr chunks on the JS side.
+   * @param {Uint8Array} buffer The bufRequest (of length width*height*4)
+   * containing the brick requests from the shader.
+   * @param {object} optsForWeighting
+   * @param {number} optsForWeighting.width The width of the render target.
+   * @param {number} optsForWeighting.height The height of the render target.
+   * @param {number} optsForWeighting.sigmaNormalized The normalized sigma value
+   * to use for weighting the brick requests based on their distance from
+   * the center of the render target.
+   */
+  async processRequestData(buffer, optsForWeighting) {
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
       return;
@@ -1296,26 +1311,7 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
-    let requests = [];
-    let origRequestCount = 0;
-    try {
-      const result = _requestBufferToRequestObjects(buffer, this.k, width, height, opts);
-      requests = result.requests || [];
-      origRequestCount = result.origRequestCount || 0;
-    } catch (err) {
-      log.error('processRequestData: error parsing request buffer', err);
-      // Fallback: try unweighted parse
-      try {
-        const result = _requestBufferToRequestObjects(buffer, this.k);
-        requests = result.requests || [];
-        origRequestCount = result.origRequestCount || 0;
-      } catch (err2) {
-        log.error('processRequestData: fallback unweighted parse failed', err2);
-        this.triggerUsage = true;
-        this.isBusy = false;
-        return;
-      }
-    }
+    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
     if (requests.length === 0) {
       this.noNewRequests = true;
