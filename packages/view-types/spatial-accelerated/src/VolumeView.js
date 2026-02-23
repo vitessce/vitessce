@@ -14,7 +14,11 @@ import { WebGLMultipleRenderTargets } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 
-import { VolumeDataManager, INIT_STATUS } from './VolumeDataManager.js';
+import {
+  VolumeDataManager,
+  INIT_STATUS,
+  DEFAULT_SIGMA_NORMALIZED,
+} from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
@@ -76,7 +80,7 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
       width: mrtRef?.current?.width,
       height: mrtRef?.current?.height,
       // Default sigmaNormalized = 0.25; can be tuned
-      sigmaNormalized: 0.25,
+      sigmaNormalized: DEFAULT_SIGMA_NORMALIZED,
     });
   } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
     // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.

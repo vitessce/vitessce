@@ -324,7 +324,14 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
 
   const { width, height, sigmaNormalized } = optsForWeighting;
 
-  const useWeighting = Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0;
+  const useWeighting = (
+    Number.isInteger(width) && Number.isInteger(height)
+    && width > 0 && height > 0
+    && typeof sigmaNormalized === 'number'
+  );
+  if (!useWeighting) {
+    log.warn('_requestBufferToRequestObjects: proceeding without weighting');
+  }
 
   // Number of pixels present in buffer
   const maxPixels = Math.floor(buffer.length / 4);
