@@ -37,16 +37,16 @@ export default {
         src: 'img/logo-v.png',
       },
       items: [
+         {
+          href: '/#?edit=true',
+          label: 'App',
+          position: 'left',
+        },
         {
           to: 'examples',
           label: 'Examples',
           position: 'left',
           activeBasePath: '/examples',
-        },
-        {
-          href: '/#?edit=true',
-          label: 'Playground',
-          position: 'left',
         },
         {
           type: 'doc',

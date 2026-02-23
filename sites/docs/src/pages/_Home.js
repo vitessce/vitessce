@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -17,7 +17,7 @@ const features = [
     icon: MultiModalIcon,
     title: 'Multi-Modal',
     description:
-      'Integrate microscopy, transcriptomics, genomics, and proteomics for both dissociated single-cell and spatial biology assays.',
+      'Integrate microscopy, transcriptomics, proteomics, and genome-mapped data from single-cell (dissociated) or spatial biology assays in a single visualization tool.',
   },
   {
     icon: SpatialIcon,
@@ -35,7 +35,7 @@ const features = [
     icon: ServerlessIcon,
     title: 'Serverless',
     description:
-      'Visualize large datasets from cloud stores like AWS S3 and Google Cloud. No servers to manage.',
+      'Visualize large datasets from cloud storage systems like AWS S3 and Google Cloud buckets. No servers to manage.',
   },
 ];
 
@@ -152,15 +152,10 @@ const allExamples = [
 const FEATURED_COUNT = 6;
 
 /**
- * Fisher-Yates shuffle (returns new array).
+ * Shuffle an array by sorting with a random comparator (returns new array).
  */
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+  return [...arr].sort(() => Math.random() - 0.5);
 }
 
 function FeatureCard({ icon: Icon, title, description }) {
@@ -192,24 +187,15 @@ function PlatformCard({ filename, title, description, anchor, introUrl, isDarkTh
 function ExampleCard({ configKey, title, description, isDarkTheme }) {
   const theme = isDarkTheme ? 'dark' : 'light';
   const imgSrc = useBaseUrl(`/img/examples/${theme}/${configKey}.png`);
-  const placeholderSrc = useBaseUrl('/img/examples/placeholder.png');
   const href = useBaseUrl(`/#?dataset=${configKey}`);
-  const [usePlaceholder, setUsePlaceholder] = useState(false);
-
-  const handleError = useCallback(() => setUsePlaceholder(true), []);
-  const handleLoad = useCallback((e) => {
-    if (e.target.naturalWidth === 0) setUsePlaceholder(true);
-  }, []);
 
   return (
     <a href={href} className={styles.exampleCard}>
       <img
-        src={usePlaceholder ? placeholderSrc : imgSrc}
+        src={imgSrc}
         alt={title}
         className={styles.exampleCardImage}
         loading="lazy"
-        onError={handleError}
-        onLoad={handleLoad}
       />
       <div className={styles.exampleCardOverlay}>
         <h3 className={styles.exampleCardTitle}>{title}</h3>
@@ -230,8 +216,6 @@ export default function Home() {
   const logoUrl = useBaseUrl('/img/logo-vitessce-light.png');
   const heroImgSrc = useBaseUrl(`/img/examples/${theme}/hero.png`);
   const examplesUrl = useBaseUrl('/examples/');
-  const [heroLoaded, setHeroLoaded] = useState(false);
-  const [heroError, setHeroError] = useState(false);
 
   // Pick a random subset of examples on mount (stable for the session).
   const featuredExamples = useMemo(() => shuffle(allExamples).slice(0, FEATURED_COUNT), []);
@@ -264,21 +248,13 @@ export default function Home() {
               </a>
             </div>
           </div>
-          {!heroError && (
-            <div className={styles.heroImageWrapper} style={heroLoaded ? undefined : { minHeight: 200 }}>
-              <img
-                src={heroImgSrc}
-                alt="Vitessce spatial biology visualization"
-                loading="eager"
-                onLoad={(e) => {
-                  if (e.target.naturalWidth > 0) setHeroLoaded(true);
-                  else setHeroError(true);
-                }}
-                onError={() => setHeroError(true)}
-                style={heroLoaded ? undefined : { opacity: 0 }}
-              />
-            </div>
-          )}
+          <div className={styles.heroImageWrapper}>
+            <img
+              src={heroImgSrc}
+              alt="Vitessce spatial biology visualization"
+              loading="eager"
+            />
+          </div>
         </div>
       </header>
 

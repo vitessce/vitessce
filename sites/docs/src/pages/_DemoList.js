@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { useColorMode } from '@docusaurus/theme-common';
@@ -41,31 +41,15 @@ function cleanAttr(attrVal) {
 
 function ExampleCard({ configKey, config, baseUrl, theme }) {
   const imgSrc = useBaseUrl(`/img/examples/${theme}/${configKey}.png`);
-  const placeholderSrc = useBaseUrl('/img/examples/placeholder.png');
   const attrs = configAttrs[configKey] || [];
-  const [usePlaceholder, setUsePlaceholder] = useState(false);
-
-  const handleError = useCallback(() => {
-    setUsePlaceholder(true);
-  }, []);
-
-  // Also detect if the response was HTML instead of an image (Docusaurus SPA fallback).
-  const handleLoad = useCallback((e) => {
-    const img = e.target;
-    if (img.naturalWidth === 0 || img.naturalHeight === 0) {
-      setUsePlaceholder(true);
-    }
-  }, []);
 
   return (
     <a href={`${baseUrl}${configKey}`} className={styles.exampleCard}>
       <img
-        src={usePlaceholder ? placeholderSrc : imgSrc}
+        src={imgSrc}
         alt={config.name}
         className={styles.exampleCardImage}
         loading="lazy"
-        onError={handleError}
-        onLoad={handleLoad}
       />
       <div className={styles.exampleCardBody}>
         <h3 className={styles.exampleCardTitle}>{config.name}</h3>

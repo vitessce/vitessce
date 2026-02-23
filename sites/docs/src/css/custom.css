@@ -146,6 +146,13 @@ h3 { letter-spacing: -0.005em; }
   cursor: pointer;
 }
 
+
+/* 
+.vitessce-container table * {
+  border: none;
+}
+ */
+
 .vitessce-app {
   flex: 1;
   position: relative;
