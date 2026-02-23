@@ -316,9 +316,28 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   };
 }
 
-export function _requestBufferToRequestObjects(buffer, k) {
+// sigmaNormalized: fraction of half-dimension that determines Gaussian spread
+export const DEFAULT_SIGMA_NORMALIZED = 0.25;
+
+export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   const counts = new Map();
-  for (let i = 0; i < buffer.length; i += 4) {
+
+  const { width, height, sigmaNormalized } = optsForWeighting;
+
+  const useWeighting = (
+    Number.isInteger(width) && Number.isInteger(height)
+    && width > 0 && height > 0
+    && typeof sigmaNormalized === 'number'
+  );
+  if (!useWeighting) {
+    log.warn('_requestBufferToRequestObjects: proceeding without weighting');
+  }
+
+  // Number of pixels present in buffer
+  const maxPixels = Math.floor(buffer.length / 4);
+
+  for (let pix = 0; pix < maxPixels; pix += 1) {
+    const i = pix * 4;
     const r = buffer[i];
     const g = buffer[i + 1];
     const b = buffer[i + 2];
@@ -328,11 +347,23 @@ export function _requestBufferToRequestObjects(buffer, k) {
       continue;
     }
     const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
-    counts.set(packed, (counts.get(packed) || 0) + 1);
+
+    let weight = 1.0;
+    if (useWeighting) {
+      const x = pix % width;
+      const y = Math.floor(pix / width);
+      const dx = x - (width / 2);
+      const dy = y - (height / 2);
+      // normalized distance relative to full width/height to be resolution-independent
+      const nd = Math.sqrt((dx * dx) / (width * width) + (dy * dy) / (height * height));
+      const norm = nd / sigmaNormalized;
+      weight = Math.exp(-0.5 * norm * norm);
+    }
+
+    counts.set(packed, (counts.get(packed) || 0) + weight);
   }
-  // log.debug('counts', counts);
-  // log.debug('this.k', this.k);
-  // Get the top K (potentially fewer than K) page table requests.
+
+  // Get the top K (potentially fewer than K) page table requests by weighted count.
   const requests = [...counts.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, k)
@@ -341,6 +372,7 @@ export function _requestBufferToRequestObjects(buffer, k) {
       y: (packed >> 12) & 0x3FF,
       z: packed & 0xFFF,
     }));
+
   return { requests, origRequestCount: counts.size };
 }
 
@@ -1253,7 +1285,19 @@ export class VolumeDataManager {
     return chunkEntry.data;
   }
 
-  async processRequestData(buffer) {
+  /**
+   * Process the buffer of brick requests from the shader, turning them into
+   * actual Promises for Zarr chunks on the JS side.
+   * @param {Uint8Array} buffer The bufRequest (of length width*height*4)
+   * containing the brick requests from the shader.
+   * @param {object} optsForWeighting
+   * @param {number} optsForWeighting.width The width of the render target.
+   * @param {number} optsForWeighting.height The height of the render target.
+   * @param {number} optsForWeighting.sigmaNormalized The normalized sigma value
+   * to use for weighting the brick requests based on their distance from
+   * the center of the render target.
+   */
+  async processRequestData(buffer, optsForWeighting) {
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
       return;
@@ -1274,7 +1318,7 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
-    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k);
+    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
     if (requests.length === 0) {
       this.noNewRequests = true;
