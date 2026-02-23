@@ -67,6 +67,10 @@ let viewerNoKey;
  * @property {() => void} onSelectionDetailsStateChanged
  * A function of the form `() => {}` to respond to selection changes in the viewer.
  * @property {() => void} onViewerStateChanged
+ * @property {(isLoaded: boolean) => void} onLayerLoadingChange
+ * A function of the form `(isLoaded) => {}`, called when layer loading state changes.
+ * The `isLoaded` argument will be `true` when all segmentation layers have finished loading
+ * their data sources, or `false` when layers are still loading.
  *
  * @property {Array<Object>} callbacks
  * // ngServer: string,
@@ -411,6 +415,7 @@ export default class Neuroglancer extends React.Component {
     onVisibleChanged: null,
     onSelectionDetailsStateChanged: null,
     onViewerStateChanged: null,
+    onLayerLoadingChange: null,
     key: null,
     callbacks: [],
     ngServer: 'https://neuroglancer-demo.appspot.com/',
@@ -839,6 +844,14 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // Helper function to check if a layer's data source is loaded
+  isLayerDataLoaded = (layer) => {
+    if (!layer.layer) return false;
+    return layer.layer.dataSources?.length > 0
+      /* eslint-disable-next-line no-underscore-dangle */
+      && layer.layer.dataSources[0].loadState_?.dataSource !== undefined;
+  };
+
   layersChanged = () => {
     if (this.handlerRemovers) {
       // If change handlers have been added already, call the function to remove each one,
@@ -847,7 +860,7 @@ export default class Neuroglancer extends React.Component {
     }
 
     if (this.viewer) {
-      const { onSelectedChanged, onVisibleChanged } = this.props;
+      const { onSelectedChanged, onVisibleChanged, onLayerLoadingChange } = this.props;
       if (onSelectedChanged || onVisibleChanged) {
         this.handlerRemovers = [];
 
@@ -874,6 +887,23 @@ export default class Neuroglancer extends React.Component {
               layer.registerDisposer(remover);
             }
           }
+        }
+      }
+
+      // Check if all segmentation layers are loaded
+      if (onLayerLoadingChange) {
+        const segmentationLayers = Array.from(this.viewer.layerManager.managedLayers)
+          .filter(layer => layer.layer instanceof SegmentationUserLayer);
+
+        // If there are no segmentation layers yet, consider it not loaded
+        if (segmentationLayers.length === 0) {
+          onLayerLoadingChange(false);
+        } else {
+          // All segmentation layers must have loaded data sources
+          const allLayersLoaded = segmentationLayers.every(
+            layer => this.isLayerDataLoaded(layer),
+          );
+          onLayerLoadingChange(allLayersLoaded);
         }
       }
     }
