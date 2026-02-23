@@ -15,10 +15,13 @@ import {
   useLoaders,
   useMergeCoordination,
   useMultiObsPoints,
+  usePointMultiObsFeatureMatrixIndices,
   useMultiObsSegmentations,
-   useSegmentationMultiFeatureSelection,
+  useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
+  useObsSetsData,
+  useObsEmbeddingData,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -194,6 +197,10 @@ export function NeuroglancerSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   // Segmentations data
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsDataErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
@@ -245,6 +252,7 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
 
+  // TODO: remove useObsSetsData and useObsEmbeddingData in favor of meta coordination.
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -257,10 +265,15 @@ export function NeuroglancerSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
 
-  const [initalViewerState] = useNeuroglancerViewerState(
-    loaders, dataset, false,
-    undefined, undefined,
-    { obsType: 'cell' },
+  // 
+  const initalViewerState = useNeuroglancerViewerState(
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
   );
 
   const latestViewerStateRef = useRef(initalViewerState);
@@ -663,7 +676,8 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady
+      isReady={isReady}
+      errors={errors}
       withPadding={false}
     >
       <NeuroglancerComp

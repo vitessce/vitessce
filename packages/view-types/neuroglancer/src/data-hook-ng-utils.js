@@ -62,16 +62,8 @@ function normalizeDimensionsToNanometers(opts) {
   };
 }
 
+/*
 export function extractDataTypeEntities(loaders, dataset, dataType) {
-  const datasetEntry = loaders?.[dataset];
-  const internMap = datasetEntry?.loaders?.[dataType];
-  if (!internMap || typeof internMap.entries !== 'function') return [];
-
-  return Array.from(internMap.entries()).map(([key, loader]) => {
-    const url = loader?.url ?? loader?.dataSource?.url ?? undefined;
-    const fileUid = key?.fileUid
-        ?? loader?.coordinationValues?.fileUid
-        ?? undefined;
 
     const { position, projectionOrientation,
       projectionScale, crossSectionScale } = loader?.options ?? {};
@@ -103,34 +95,7 @@ export function extractDataTypeEntities(loaders, dataset, dataType) {
     };
   });
 }
-
-export function useExtractOptionsForNg(loaders, dataset, dataType) {
-  const extractedEntities = useMemo(
-    () => extractDataTypeEntities(loaders, dataset, dataType),
-    [loaders, dataset, dataType],
-  );
-  const layers = useMemo(() => extractedEntities
-    .filter(t => t.source)
-    .map(t => ({
-      type: t.type,
-      source: t.source,
-      segments: [],
-      name: t.name || 'segmentation',
-    })), [extractedEntities]);
-
-  const viewerState = useMemo(() => ({
-    dimensions: extractedEntities[0]?.dimensions,
-    position: extractedEntities[0]?.position,
-    crossSectionScale: extractedEntities[0]?.crossSectionScale,
-    projectionOrientation: extractedEntities[0]?.projectionOrientation,
-    projectionScale: extractedEntities[0]?.projectionScale,
-    layers,
-    layout: extractedEntities[0].layout,
-  }));
-
-  return [viewerState];
-}
-
+*/
 
 /**
  * Get the parameters for NG's viewerstate.
@@ -145,8 +110,53 @@ export function useExtractOptionsForNg(loaders, dataset, dataType) {
  * @returns [viewerState]
  */
 export function useNeuroglancerViewerState(
-  loaders, dataset, isRequired,
-  coordinationSetters, initialCoordinationValues, matchOn,
+  segmentationLayerCoordination,
+  segmentationChannelCoordination,
+  obsSegmentationsUrls,
+  obsSegmentationsData,
+  pointLayerCoordination,
+  obsPointsUrls,
+  obsPointsData,
 ) {
-  return useExtractOptionsForNg(loaders, dataset, DataType.OBS_SEGMENTATIONS, matchOn);
+  /*
+  const extractedEntities = useMemo(
+    () => extractDataTypeEntities(loaders, dataset, dataType),
+    [loaders, dataset, dataType],
+  );
+  const layers = useMemo(() => extractedEntities
+    .filter(t => t.source)
+    .map(t => ({
+      type: t.type,
+      source: t.source,
+      segments: [],
+      name: t.name || 'segmentation',
+    })), [extractedEntities]);
+  */
+  console.log('useNeuroglancerViewerState', {
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+  });
+
+  const viewerState = useMemo(() => {
+    const extractedEntities = [{}];
+    const layers = [];
+    return {
+      dimensions: extractedEntities[0]?.dimensions,
+      position: extractedEntities[0]?.position,
+      crossSectionScale: extractedEntities[0]?.crossSectionScale,
+      projectionOrientation: extractedEntities[0]?.projectionOrientation,
+      projectionScale: extractedEntities[0]?.projectionScale,
+      layers,
+      layout: extractedEntities[0].layout,
+    }
+  }, [segmentationLayerCoordination, segmentationChannelCoordination, obsSegmentationsUrls,
+    pointLayerCoordination, obsPointsUrls,
+  ]);
+
+  return viewerState;
 }
