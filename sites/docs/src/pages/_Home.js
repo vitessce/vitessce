@@ -12,6 +12,8 @@ import {
 } from './_FeatureIcons.js';
 import styles from './styles.module.css';
 
+const PAPER_DOI_URL = 'https://doi.org/10.1038/s41592-024-02436-x';
+
 const features = [
   {
     icon: MultiModalIcon,
@@ -239,7 +241,7 @@ export default function Home() {
                 View Examples
               </a>
               <a
-                href="https://doi.org/10.1038/s41592-024-02436-x"
+                href={PAPER_DOI_URL}
                 className={styles.heroCtaSecondary}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -309,7 +311,7 @@ export default function Home() {
             </div>
             <div className={styles.publicationRow}>
               <a
-                href="https://doi.org/10.1038/s41592-024-02436-x"
+                href={PAPER_DOI_URL}
                 className={styles.publicationImageLink}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -343,7 +345,7 @@ export default function Home() {
                   resolved transcripts and cell segmentations, across multiple coordinated views.
                 </p>
                 <a
-                  href="https://doi.org/10.1038/s41592-024-02436-x"
+                  href={PAPER_DOI_URL}
                   className={styles.heroCtaPrimary}
                   target="_blank"
                   rel="noopener noreferrer"

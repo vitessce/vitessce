@@ -10,6 +10,8 @@ import IconExternalLink from '@theme/Icon/ExternalLink';
 import { META_VERSION } from '@vitessce/constants-internal';
 import styles from './styles.module.css';
 
+const PAPER_DOI_URL = 'https://doi.org/10.1038/s41592-024-02436-x';
+
 // This component has been swizzled from docusaurus
 // so that we can include the Vitessce version information
 // and a modern custom footer layout.
@@ -98,12 +100,12 @@ function Footer() {
               Vitessce: integrative visualization of multimodal and spatially resolved single-cell
               data. <i>Nature Methods</i> 22, 63&ndash;67 (2025).{' '}
               <a
-                href="https://doi.org/10.1038/s41592-024-02436-x"
+                href={PAPER_DOI_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.footerInfoLink}
               >
-                https://doi.org/10.1038/s41592-024-02436-x
+                {PAPER_DOI_URL}
               </a>
             </div>
             <div className={styles.footerInfoCard}>
