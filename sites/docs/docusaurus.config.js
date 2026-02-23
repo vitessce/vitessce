@@ -46,7 +46,6 @@ export default {
           to: 'examples',
           label: 'Examples',
           position: 'left',
-          activeBasePath: '/examples',
         },
         {
           type: 'doc',
