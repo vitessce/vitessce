@@ -172,9 +172,9 @@ describe('spatial-accelerated data utils', () => {
       ]);
       const k = 40;
       const { requests: result } = _requestBufferToRequestObjects(buffer, k, {
-        width: 1,
-        height: 1,
-        sigmaNormalized: 0.25,
+        width: undefined,
+        height: undefined,
+        sigmaNormalized: undefined,
       });
       expect(result).toEqual([
         { x: 2, y: 1, z: 13 },
