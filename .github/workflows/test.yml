@@ -147,6 +147,35 @@ jobs:
       - name: Playwright
         run: pnpm exec playwright test auto-init-coordination/
 
+  test-e2e-playwright-react-19:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          run_install: true
+      - name: Upgrade to React 19
+        run: |
+          sed -i 's/"react": 18.3.1/"react": 19.1.0/' pnpm-workspace.yaml
+          sed -i 's/"react-dom": 18.3.1/"react-dom": 19.1.0/' pnpm-workspace.yaml
+          sed -i 's/"@types\/react": ^18.0.28/"@types\/react": ^19.0.0/' pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - id: get-options
+        run: . ./scripts/set-node-options.sh --action
+        shell: bash
+      - run: |
+          pnpm run build:ci
+          cd ./sites/demo
+          pnpm run build-demo
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - name: Playwright (React 19)
+        run: pnpm exec playwright test react-19/
+
   test-e2e-playwright-for-create-view-cli:
     # because we take the golden screenshots on macOS locally
     runs-on: macos-latest
