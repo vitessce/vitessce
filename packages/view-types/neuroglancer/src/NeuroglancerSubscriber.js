@@ -265,18 +265,28 @@ export function NeuroglancerSubscriber(props) {
     { obsType, embeddingType: mapping },
   );
 
-  // 
+  // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
     segmentationLayerCoordination,
     segmentationChannelCoordination,
     obsSegmentationsUrls,
     obsSegmentationsData,
+    pointLayerScopes,
     pointLayerCoordination,
     obsPointsUrls,
     obsPointsData,
   );
 
   const latestViewerStateRef = useRef(initalViewerState);
+
+  useEffect(() => {
+    if(latestViewerStateRef.current.layers.length <= 0) {
+      latestViewerStateRef.current = initalViewerState;
+    }
+  }, [initalViewerState]);
+
   const initialRotationPushedRef = useRef(false);
 
   const ngRotPushAtRef = useRef(0);
@@ -487,6 +497,10 @@ export function NeuroglancerSubscriber(props) {
 
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
+    if(current.layers.length <= 0) {
+      return current;
+    }
+
     const nextSegments = Object.keys(cellColorMapping);
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
@@ -656,7 +670,7 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY]);
+    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
@@ -666,6 +680,9 @@ export function NeuroglancerSubscriber(props) {
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
   // }
+
+  const hasLayers = derivedViewerState?.layers?.length > 0;
+  console.log(derivedViewerState)
 
   return (
     <TitleInfo
@@ -680,14 +697,14 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
     >
-      <NeuroglancerComp
+      {hasLayers ? <NeuroglancerComp
         classes={classes}
         onSegmentClick={onSegmentClick}
         onSelectHoveredCoords={onSegmentHighlight}
         viewerState={derivedViewerState}
         cellColorMapping={cellColorMapping}
         setViewerState={handleStateUpdate}
-      />
+      /> : null}
     </TitleInfo>
   );
 }

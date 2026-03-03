@@ -127,8 +127,24 @@ function generateNeuroglancerMinimalConfiguration() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
+
+
   // TODO: add coordination stuff for segmentationLayer and pointLayer,
   // so that their neuroglancer visualizations can be controlled from the layer controller.
+  config.linkViewsByObject([neuroglancerView, lcView], {
+    segmentationLayer: CL([
+      {
+        fileUid: 'melanom-meshes',
+        spatialLayerOpacity: 1,
+        spatialTargetResolution: null,
+        segmentationChannel: CL([
+          {
+            obsType: 'cell',
+          },
+        ]),
+      },
+    ]),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
   config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
