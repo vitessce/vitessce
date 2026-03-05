@@ -64,6 +64,7 @@ const shallowDiffByChannelCoordinationWithKeys = (prevDeps, nextDeps, depName, l
 export function customIsEqualForCellColors(prevDeps, nextDeps) {
     let forceUpdate = false;
 
+    // We create curried variants so we don't have to constantly pass prevDeps and nextDeps.
     const curriedShallowDiff = (depName) => shallowDiff(prevDeps, nextDeps, depName);
     const curriedShallowDiffByLayer = (depName, scopeName) => shallowDiffByLayer(prevDeps, nextDeps, depName, scopeName);
     const curriedShallowDiffByChannel = (depName, firstName, secondName) => shallowDiffByChannel(prevDeps, nextDeps, depName, firstName, secondName);

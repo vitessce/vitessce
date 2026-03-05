@@ -32,7 +32,10 @@ import {
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
-import { useMemoCustomComparison, customIsEqualForCellColors } from './use-memo-custom-comparison.js';
+import {
+  useMemoCustomComparison,
+  customIsEqualForCellColors,
+} from './use-memo-custom-comparison.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,
@@ -251,7 +254,7 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
 
-  const obsSetsDataWithColors = useMemoCustomComparison(() => {
+  const segmentationColorMapping = useMemoCustomComparison(() => {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
@@ -273,21 +276,23 @@ export function NeuroglancerSubscriber(props) {
             obsIndex: layerIndex,
             theme,
           });
-          /* // Is this necessary?
+          // Convert the list of colors to an object of hex strings, which NG requires.
+          const ngCellColors = {};
+          cellColors.forEach((color, i) => {
+            ngCellColors[i] = rgbToHex(color);
+          });
+          /* // TODO: Is this necessary?
           const obsColorIndices = treeToCellSetColorIndicesBySetNames(
             mergedLayerSets,
             obsSetSelection,
             obsSetColor,
           );
           */
-          result[layerScope][channelScope] = {
-            mergedCellSets,
-            cellColors,
-          };
+          result[layerScope][channelScope] = ngCellColors;
         }
       });
     });
-    console.log("Recomputed obsSetsDataWithColors");
+    console.log("Recomputed segmentationColorMapping");
     return result;
   }, {
     // The dependencies for the comparison,
@@ -300,14 +305,7 @@ export function NeuroglancerSubscriber(props) {
   }, customIsEqualForCellColors);
 
 
-  // TODO: remove useObsSetsData and useObsEmbeddingData in favor of meta coordination.
-  const [{ obsSets: cellSets }] = useObsSetsData(
-    loaders, dataset, false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { cellSetSelection, obsSetColor: cellSetColor },
-    { obsType },
-  );
-
+  // TODO: remove useObsEmbeddingData in favor of meta coordination.
   const [{ obsIndex }] = useObsEmbeddingData(
     loaders, dataset, true, {}, {},
     { obsType, embeddingType: mapping },
@@ -365,21 +363,6 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
-
-  /*
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
-
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetColor, cellSetSelection, obsIndex]);
-  */
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -519,36 +502,17 @@ export function NeuroglancerSubscriber(props) {
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
   ]);
 
-  const batchedUpdateTimeoutRef = useRef(null);
-  const [batchedCellColors, setBatchedCellColors] = useState([]);
 
-  useEffect(() => {
-    if (batchedUpdateTimeoutRef.current) {
-      clearTimeout(batchedUpdateTimeoutRef.current);
-    }
-    batchedUpdateTimeoutRef.current = setTimeout(() => {
-      // For now, pick the first layer/channel when considering colors.
-      const cellColors = obsSetsDataWithColors?.[segmentationLayerScopes?.[0]]?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]?.cellColors;
-      if(cellColors) {
-        setBatchedCellColors(cellColors);
-      }
-    }, 100);
-
-    // TODO: look into deferredValue from React
-    // startTransition(() => {
-    //   setBatchedCellColors(cellColors);
-    // });
-  }, [obsSetsDataWithColors]);
-  // TODO use a ref if slow - see prev commits
   const cellColorMapping = useMemo(() => {
-    const colorMapping = {};
-    batchedCellColors.forEach((color, cell) => {
-      colorMapping[cell] = rgbToHex(color);
-    });
-    return colorMapping;
-  }, [batchedCellColors]);
+    // For now, we take the first layer and channel for cell colors.
+    return segmentationColorMapping
+      ?.[segmentationLayerScopes?.[0]]
+      ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
+    ?? {};
+  }, [segmentationColorMapping]);
 
 
+  // TODO: try to simplify using useMemoCustomComparison?
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
     if(current.layers.length <= 0) {
