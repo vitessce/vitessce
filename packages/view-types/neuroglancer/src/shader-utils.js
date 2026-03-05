@@ -28,7 +28,7 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
     // lang: glsl
     const shader = `
         void main() {
-            int gene = prop_gene();
+            int geneIndex = prop_gene();
             /*
             // Example of what the shader would look like with 10 genes hardcoded:
             const vec3 tab10[10] = vec3[10](
@@ -45,13 +45,13 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
             );
             
             vec4 color = vec4(0.925, 0.925, 0.925, 0.0); // Default: fully transparent
-            const int gene_ids[10] = int[10](1, 2, 15, 32, 42, 33, 47, 49, 130, 200);
+            const int gene_indices[10] = int[10](1, 2, 15, 32, 42, 33, 47, 49, 130, 200);
             */
             ${colorMapVec}
             ${defaultColorVec}
             ${geneIndexMap}
             for (int i = 0; i < ${numGenes}; ++i) {
-                if (gene == geneIndexMap[i]) {
+                if (geneIndex == geneIndexMap[i]) {
                     color = vec4(colorMap[i], 1.0);
                 }
             }
@@ -68,3 +68,4 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
 
 // TODO: other types of shaders, e.g., for continuous color scales, or for coloring by a random color for every gene.
 // For a comprehensive list of color encoding scenarios, see `createPointLayer` in spatial-beta/Spatial.js.
+
