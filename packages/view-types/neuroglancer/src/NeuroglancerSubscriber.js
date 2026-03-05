@@ -252,6 +252,46 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
 
+  const obsSetsDataWithColors = useMemo(() => {
+    const result = {};
+    segmentationLayerScopes?.forEach((layerScope) => {
+      result[layerScope] = {};
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSetsData
+          ?.[layerScope]?.[channelScope] || {};
+        if (layerSets && layerIndex) {
+          const {
+            obsSetColor,
+            obsColorEncoding,
+            obsSetSelection,
+            additionalObsSets,
+          } = segmentationChannelCoordination[0][layerScope][channelScope];
+          const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+          const cellColors = getCellColors({
+            cellSets: mergedCellSets,
+            cellSetSelection: obsSetSelection,
+            cellSetColor: obsSetColor,
+            obsIndex: layerIndex,
+            theme,
+          });
+          /* // Is this necessary?
+          const obsColorIndices = treeToCellSetColorIndicesBySetNames(
+            mergedLayerSets,
+            obsSetSelection,
+            obsSetColor,
+          );
+          */
+          result[layerScope][channelScope] = {
+            mergedCellSets,
+            cellColors,
+          };
+        }
+      });
+    });
+    return result;
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, obsSegmentationsSetsData, segmentationChannelCoordination]);
+
+
   // TODO: remove useObsSetsData and useObsEmbeddingData in favor of meta coordination.
   const [{ obsSets: cellSets }] = useObsSetsData(
     loaders, dataset, false,
