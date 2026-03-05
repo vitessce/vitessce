@@ -137,9 +137,11 @@ function generateNeuroglancerMinimalConfiguration() {
         fileUid: 'melanom-meshes',
         spatialLayerOpacity: 1,
         spatialTargetResolution: null,
+        spatialLayerVisible: true,
         segmentationChannel: CL([
           {
             obsType: 'cell',
+            spatialChannelVisible: true,
           },
         ]),
       },

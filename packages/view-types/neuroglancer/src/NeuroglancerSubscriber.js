@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
 import {
   TitleInfo,
   useReady,
@@ -328,12 +328,16 @@ export function NeuroglancerSubscriber(props) {
     obsPointsData,
   );
 
+
+  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef(initalViewerState);
 
   useEffect(() => {
-    if(latestViewerStateRef.current.layers.length <= 0) {
-      latestViewerStateRef.current = initalViewerState;
-    }
+    latestViewerStateRef.current = initalViewerState;
+    // Force a re-render by incrementing a piece of state.
+    // This works because we have made latestViewerStateIteration
+    // a dependency for derivedViewerState, triggering the useMemo downstream.
+    incrementLatestViewerStateIteration();
   }, [initalViewerState]);
 
   const initialRotationPushedRef = useRef(false);
@@ -695,7 +699,8 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState]);
+    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
+  latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));

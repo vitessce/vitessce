@@ -121,8 +121,15 @@ export function useNeuroglancerViewerState(
       const layerUrl = obsSegmentationsUrls[layerScope]?.[0]?.url;
       
       if (layerUrl && layerData) {
+        const {
+          spatialLayerVisible,
+        } = layerCoordination || {};
         channelScopes.forEach((channelScope) => {
-          const channelCoordination = segmentationChannelCoordination[0][channelScope];
+          const channelCoordination = segmentationChannelCoordination[0][layerScope][channelScope];
+          const {
+            spatialChannelVisible,
+          } = channelCoordination || {};
+          console.log(spatialLayerVisible, spatialChannelVisible);
           result = {
             ...result,
             layers: [
@@ -132,6 +139,7 @@ export function useNeuroglancerViewerState(
                 source: toPrecomputedSource(layerUrl),
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
+                visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel visibility must be true for the layer to be visible.
               },
             ],
           };

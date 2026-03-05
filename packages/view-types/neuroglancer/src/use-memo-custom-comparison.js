@@ -84,6 +84,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
     const curriedShallowDiffByChannel = (depName, firstName, secondName) => shallowDiffByChannel(prevDeps, nextDeps, depName, firstName, secondName);
     const curriedShallowDiffByChannelWithKeys = (depName, firstName, secondName, keys) => shallowDiffByChannelWithKeys(prevDeps, nextDeps, depName, firstName, secondName, keys);
     const curriedShallowDiffByLayerCoordination = (depName, layerScope) => shallowDiffByLayerCoordination(prevDeps, nextDeps, depName, layerScope);
+    const curriedShallowDiffByLayerCoordinationWithKeys = (depName, layerScope, keys) => shallowDiffByLayerCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, keys);
     const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
     const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
 
@@ -132,6 +133,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
     const curriedShallowDiffByChannel = (depName, firstName, secondName) => shallowDiffByChannel(prevDeps, nextDeps, depName, firstName, secondName);
     const curriedShallowDiffByChannelWithKeys = (depName, firstName, secondName, keys) => shallowDiffByChannelWithKeys(prevDeps, nextDeps, depName, firstName, secondName, keys);
     const curriedShallowDiffByLayerCoordination = (depName, layerScope) => shallowDiffByLayerCoordination(prevDeps, nextDeps, depName, layerScope);
+    const curriedShallowDiffByLayerCoordinationWithKeys = (depName, layerScope, keys) => shallowDiffByLayerCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, keys);
     const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
     const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
 
@@ -142,10 +144,21 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
     } else {
         // Iterate over layers and channels.
       nextDeps.segmentationLayerScopes?.forEach((layerScope) => {
+        if(
+          curriedShallowDiffByLayer('obsSegmentationsData', layerScope)
+          || curriedShallowDiffByLayerCoordinationWithKeys('segmentationLayerCoordination', layerScope, [
+            'spatialLayerVisible',
+          ])
+        ) {
+          forceUpdate = true;
+        }
         nextDeps.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
           if (
-            curriedShallowDiffByChannel('obsSegmentationsData', layerScope, channelScope)
+            curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
+              'spatialChannelVisible',
+            ])
           ) {
+            console.log("Forcing update due to channelVisible change");
             forceUpdate = true;
           }
         });
@@ -167,5 +180,5 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
       });
     }
 
-    return forceUpdate;
+    return !forceUpdate;
 }
