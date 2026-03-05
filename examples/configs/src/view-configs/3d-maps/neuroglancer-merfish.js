@@ -54,10 +54,14 @@ function generateNeuroglancerMerfish() {
       coordinationValues: {
         fileUid: 'merfish-points',
         obsType: 'point',
+        featureType: 'gene', // Important for correspondence with obsFeatureMatrix for the gene list.
       },
     });
   }
 
+  // Include the corresponding spatialdata object for sets, expression matrix, etc.
+  // The geneList relies on obsFeatureMatrix.featureIndex to show the list of genes.
+  // The neuroglancer segmentation colors rely on obsSets to determine set membership and therefore coloring.
   dataset.addFile({
     fileType: 'spatialdata.zarr',
     url: sdataUrl,
@@ -80,13 +84,10 @@ function generateNeuroglancerMerfish() {
         featureType: 'gene'
       },
   });
-
-  // TODO: include anndata or spatialdata object for sets, expression matrix, etc.
-  // The geneList relies on obsFeatureMatrix.featureIndex to show the list of genes.
   
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
   const lcView = config.addView(dataset, 'layerControllerBeta');
-  const geneList = config.addView(dataset, 'featureList');
+  const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
   const obsSets = config.addView(dataset, 'obsSets');
 
   config.linkViewsByObject([neuroglancerView, lcView], {
@@ -101,10 +102,6 @@ function generateNeuroglancerMerfish() {
     spatialRotationZ: 0,
     spatialRotationOrbit: 0,
   }, { meta: false });
-
-    // TODO: add coordination stuff for segmentationLayer and pointLayer,
-    // so that their neuroglancer visualizations can be controlled from the layer controller.
-
 
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
@@ -131,13 +128,16 @@ function generateNeuroglancerMerfish() {
         {
           fileUid: 'merfish-points',
           obsType: 'point',
+          featureType: 'gene',
           spatialLayerOpacity: 1,
           spatialLayerVisible: true,
+          featureColor: [
+            // { name: 'ERBB2', color: [255, 0, 0] },
+          ],
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
-
 
   config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
   const configJSON = config.toJSON();

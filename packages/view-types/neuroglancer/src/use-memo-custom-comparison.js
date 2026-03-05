@@ -158,7 +158,6 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
               'spatialChannelVisible',
             ])
           ) {
-            console.log("Forcing update due to channelVisible change");
             forceUpdate = true;
           }
         });
@@ -174,8 +173,15 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
       nextDeps.pointLayerScopes?.forEach((layerScope) => {
         if (
           curriedShallowDiffByLayer('obsPointsData', layerScope)
+          || curriedShallowDiffByLayer('pointMultiIndicesData', layerScope)
           || curriedShallowDiffByLayerCoordinationWithKeys('pointLayerCoordination', layerScope, [
             'spatialLayerVisible',
+            'spatialLayerOpacity',
+            'obsColorEncoding',
+            'spatialLayerColor',
+            'featureSelection',
+            'featureFilterMode',
+            'featureColor',
           ])
         ) {
           forceUpdate = true;
@@ -183,5 +189,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
       });
     }
 
+    // Return "isEqual" value.
+    // (If forceUpdate is true, then isEqual should be false to trigger a re-render.)
     return !forceUpdate;
 }

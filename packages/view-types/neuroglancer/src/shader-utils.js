@@ -66,6 +66,52 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
     return shader;
 }
 
+export function getStaticColorShader(rgbColor, spatialLayerOpacity) {
+    const normalizedColor = rgbColor.map(c => c / 255);
+    // lang: glsl
+    const shader = `
+        void main() {
+            vec4 color = vec4(${normalizedColor.join(', ')}, ${spatialLayerOpacity ?? 1.0});
+            setColor(color);
+        }
+    `;
+    return shader;
+}
+
 // TODO: other types of shaders, e.g., for continuous color scales, or for coloring by a random color for every gene.
 // For a comprehensive list of color encoding scenarios, see `createPointLayer` in spatial-beta/Spatial.js.
 
+export function getPointsShader(layerCoordination) {
+  const {
+    featureIndex,
+    spatialLayerOpacity,
+    obsColorEncoding,
+    spatialLayerColor,
+    featureSelection,
+    featureFilterMode,
+    featureColor,
+  } = layerCoordination;
+
+  console.log("Generating shader with coordination:", layerCoordination);
+
+  if (obsColorEncoding === "spatialLayerColor") {
+    return getStaticColorShader(spatialLayerColor ?? [255, 255, 255], spatialLayerOpacity);
+  }
+
+  return getCategoricalShader(
+      // Example with 10 genes hardcoded:
+      [1, 2, 15, 32, 42, 33, 47, 49, 130, 200],
+      [
+        [255, 0, 0], // red
+        [0, 255, 0], // green
+        [0, 0, 255], // blue
+        [255, 165, 0], // orange
+        [128, 0, 128], // purple
+        [165, 42, 42], // brown
+        [255, 192, 203], // pink
+        [128, 128, 128], // gray
+        [128, 128, 0], // olive
+        [0, 255, 255] // cyan
+      ],
+  );
+}

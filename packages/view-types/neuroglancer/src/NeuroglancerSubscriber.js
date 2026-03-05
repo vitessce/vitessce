@@ -205,6 +205,7 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+
   // Segmentations data
   const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsDataErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
@@ -326,6 +327,7 @@ export function NeuroglancerSubscriber(props) {
     pointLayerCoordination,
     obsPointsUrls,
     obsPointsData,
+    pointMultiIndicesData,
   );
 
 
@@ -497,6 +499,10 @@ export function NeuroglancerSubscriber(props) {
       if (alreadySelectedId) {
         return;
       }
+      // TODO: update this now that we are using layer/channel-based organization of segmentations.
+      // There is no more "top-level" obsSets coordination; it is only on a per-layer basis.
+      // We should probably just assume the first segmentation layer/channel when updating the logic,
+      // since it is not clear how we would determine which layer/channel to update if there are multiple.
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
