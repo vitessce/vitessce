@@ -5,31 +5,30 @@
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 
 
-
 /**
- * 
+ *
  * @param {number[]} selectedGeneIndices List of gene indices that are selected for coloring.
  * @param {[number, number, number][]} selectedColors RGB color (0, 255) for each selected gene index, in the same order as selectedGeneIndices.
- * @returns 
+ * @returns
  */
 export function getCategoricalShader(selectedGeneIndices, selectedColors) {
-    if(selectedGeneIndices.length !== selectedColors.length) {
-        throw new Error("selectedGeneIndices and selectedColors must have the same length");
-    }
+  if (selectedGeneIndices.length !== selectedColors.length) {
+    throw new Error('selectedGeneIndices and selectedColors must have the same length');
+  }
 
-    // Convert 0-255 RGB values to 0-1 range for GLSL.
-    const normalizedColors = selectedColors.map(color => color.map(c => c / 255));
-    
-    // Create a shader that maps gene indices to the corresponding colors.
-    const numGenes = selectedGeneIndices.length;
-    const defaultColor = [0.925, 0.925, 0.925, 0.0]; // Fully transparent by default.
+  // Convert 0-255 RGB values to 0-1 range for GLSL.
+  const normalizedColors = selectedColors.map(color => color.map(c => c / 255));
 
-    const colorMapVec = `vec3 colorMap[${numGenes}] = vec3[${numGenes}](${normalizedColors.map(c => `vec3(${c.join(', ')})`).join(', ')});`;
-    const colorVec = `vec4 color = vec4(${defaultColor.join(', ')});`;
-    const geneIndexMap = `int geneIndices[${numGenes}] = int[${numGenes}](${selectedGeneIndices.join(', ')});`;
+  // Create a shader that maps gene indices to the corresponding colors.
+  const numGenes = selectedGeneIndices.length;
+  const defaultColor = [0.925, 0.925, 0.925, 0.0]; // Fully transparent by default.
 
-    // lang: glsl
-    const shader = `
+  const colorMapVec = `vec3 colorMap[${numGenes}] = vec3[${numGenes}](${normalizedColors.map(c => `vec3(${c.join(', ')})`).join(', ')});`;
+  const colorVec = `vec4 color = vec4(${defaultColor.join(', ')});`;
+  const geneIndexMap = `int geneIndices[${numGenes}] = int[${numGenes}](${selectedGeneIndices.join(', ')});`;
+
+  // lang: glsl
+  const shader = `
         void main() {
             int geneIndex = prop_gene();
             /*
@@ -66,7 +65,7 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
             setColor(color);
         }
     `;
-    return shader;
+  return shader;
 }
 
 /**
@@ -75,7 +74,7 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
  * @returns {[number, number, number]}
  */
 function normalizeColor(rgbColor) {
-    return rgbColor.map(c => c / 255);
+  return rgbColor.map(c => c / 255);
 }
 
 /**
@@ -84,7 +83,7 @@ function normalizeColor(rgbColor) {
  * @returns {string}
  */
 function toVec3(normalizedColor) {
-    return `vec3(${normalizedColor.join(', ')})`;
+  return `vec3(${normalizedColor.join(', ')})`;
 }
 
 /**
@@ -94,7 +93,7 @@ function toVec3(normalizedColor) {
  * @returns {string}
  */
 function toVec4(normalizedColor, alpha) {
-    return `vec4(${normalizedColor.join(', ')}, ${alpha})`;
+  return `vec4(${normalizedColor.join(', ')}, ${alpha})`;
 }
 
 // ============================================================
@@ -109,9 +108,9 @@ function toVec4(normalizedColor, alpha) {
  * @returns {string} A GLSL shader string.
  */
 export function getSpatialLayerColorShader(staticColor, opacity) {
-    const norm = normalizeColor(staticColor);
-    // lang: glsl
-    return `
+  const norm = normalizeColor(staticColor);
+  // lang: glsl
+  return `
         void main() {
             setColor(${toVec4(norm, opacity)});
         }
@@ -129,15 +128,15 @@ export function getSpatialLayerColorShader(staticColor, opacity) {
  * @returns {string} A GLSL shader string.
  */
 export function getSpatialLayerColorWithSelectionShader(
-    staticColor, opacity, featureIndices, defaultColor,
+  staticColor, opacity, featureIndices, defaultColor,
 ) {
-    const normStatic = normalizeColor(staticColor);
-    const normDefault = normalizeColor(defaultColor);
-    const numFeatures = featureIndices.length;
-    const indicesArr = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const normStatic = normalizeColor(staticColor);
+  const normDefault = normalizeColor(defaultColor);
+  const numFeatures = featureIndices.length;
+  const indicesArr = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${indicesArr}
@@ -166,14 +165,14 @@ export function getSpatialLayerColorWithSelectionShader(
  * @returns {string} A GLSL shader string.
  */
 export function getSpatialLayerColorFilteredShader(
-    staticColor, opacity, featureIndices,
+  staticColor, opacity, featureIndices,
 ) {
-    const normStatic = normalizeColor(staticColor);
-    const numFeatures = featureIndices.length;
-    const indicesArr = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const normStatic = normalizeColor(staticColor);
+  const numFeatures = featureIndices.length;
+  const indicesArr = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${indicesArr}
@@ -204,9 +203,9 @@ export function getSpatialLayerColorFilteredShader(
  * @returns {string} A GLSL shader string.
  */
 export function getGeneSelectionNoSelectionShader(staticColor, opacity) {
-    const norm = normalizeColor(staticColor);
-    // lang: glsl
-    return `
+  const norm = normalizeColor(staticColor);
+  // lang: glsl
+  return `
         void main() {
             setColor(${toVec4(norm, opacity)});
         }
@@ -228,23 +227,23 @@ export function getGeneSelectionNoSelectionShader(staticColor, opacity) {
  * @returns {string} A GLSL shader string.
  */
 export function getGeneSelectionWithSelectionShader(
-    featureIndices, featureColors, staticColor, defaultColor, opacity,
+  featureIndices, featureColors, staticColor, defaultColor, opacity,
 ) {
-    const numFeatures = featureIndices.length;
-    const normDefault = normalizeColor(defaultColor);
-    const normColors = featureColors.map(c => normalizeColor(c));
-    const normStatic = normalizeColor(staticColor);
+  const numFeatures = featureIndices.length;
+  const normDefault = normalizeColor(defaultColor);
+  const normColors = featureColors.map(c => normalizeColor(c));
+  const normStatic = normalizeColor(staticColor);
 
-    // Build per-feature color array: use featureColor if provided,
-    // otherwise fall back to staticColor.
-    const colorArr = normColors.map(
-        c => (c ? toVec3(c) : toVec3(normStatic)),
-    );
+  // Build per-feature color array: use featureColor if provided,
+  // otherwise fall back to staticColor.
+  const colorArr = normColors.map(
+    c => (c ? toVec3(c) : toVec3(normStatic)),
+  );
 
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
-    const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
-    // lang: glsl
-    return `
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${indicesDecl}
@@ -271,21 +270,21 @@ export function getGeneSelectionWithSelectionShader(
  * @returns {string} A GLSL shader string.
  */
 export function getGeneSelectionFilteredShader(
-    featureIndices, featureColors, staticColor, opacity,
+  featureIndices, featureColors, staticColor, opacity,
 ) {
-    const numFeatures = featureIndices.length;
-    const normColors = featureColors.map(c => normalizeColor(c));
-    const normStatic = normalizeColor(staticColor);
+  const numFeatures = featureIndices.length;
+  const normColors = featureColors.map(c => normalizeColor(c));
+  const normStatic = normalizeColor(staticColor);
 
-    const colorArr = normColors.map(
-        c => (c ? toVec3(c) : toVec3(normStatic)),
-    );
+  const colorArr = normColors.map(
+    c => (c ? toVec3(c) : toVec3(normStatic)),
+  );
 
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
-    const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${indicesDecl}
@@ -317,13 +316,13 @@ export function getGeneSelectionFilteredShader(
  * @returns {string} A GLSL shader string.
  */
 export function getRandomByFeatureShader(opacity) {
-    // Embed a subset of the PALETTE into the shader.
-    const paletteSize = PALETTE.length;
-    const normPalette = PALETTE.map(c => normalizeColor(c));
-    const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
+  // Embed a subset of the PALETTE into the shader.
+  const paletteSize = PALETTE.length;
+  const normPalette = PALETTE.map(c => normalizeColor(c));
+  const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${paletteDecl}
@@ -345,18 +344,18 @@ export function getRandomByFeatureShader(opacity) {
  * @returns {string} A GLSL shader string.
  */
 export function getRandomByFeatureWithSelectionShader(
-    featureIndices, defaultColor, opacity,
+  featureIndices, defaultColor, opacity,
 ) {
-    const paletteSize = PALETTE.length;
-    const normPalette = PALETTE.map(c => normalizeColor(c));
-    const normDefault = normalizeColor(defaultColor);
-    const numFeatures = featureIndices.length;
+  const paletteSize = PALETTE.length;
+  const normPalette = PALETTE.map(c => normalizeColor(c));
+  const normDefault = normalizeColor(defaultColor);
+  const numFeatures = featureIndices.length;
 
-    const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${paletteDecl}
@@ -386,15 +385,15 @@ export function getRandomByFeatureWithSelectionShader(
  * @returns {string} A GLSL shader string.
  */
 export function getRandomByFeatureFilteredShader(featureIndices, opacity) {
-    const paletteSize = PALETTE.length;
-    const normPalette = PALETTE.map(c => normalizeColor(c));
-    const numFeatures = featureIndices.length;
+  const paletteSize = PALETTE.length;
+  const normPalette = PALETTE.map(c => normalizeColor(c));
+  const numFeatures = featureIndices.length;
 
-    const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const paletteDecl = `vec3 palette[${paletteSize}] = vec3[${paletteSize}](${normPalette.map(c => toVec3(c)).join(', ')});`;
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         void main() {
             int geneIndex = prop_gene();
             ${paletteDecl}
@@ -426,13 +425,13 @@ export function getRandomByFeatureFilteredShader(featureIndices, opacity) {
  * @returns {string} A GLSL shader string.
  */
 export function getRandomPerPointShader(opacity) {
-    // Use a simple hash function on gl_FragCoord or prop_gene() to
-    // produce a pseudo-random color. Since Neuroglancer annotation shaders
-    // don't have a point index, we use prop_gene() as a seed.
-    // TODO: fix. also see comments in the ng-merfish config and the points loader.
-    
-    // lang: glsl
-    return `
+  // Use a simple hash function on gl_FragCoord or prop_gene() to
+  // produce a pseudo-random color. Since Neuroglancer annotation shaders
+  // don't have a point index, we use prop_gene() as a seed.
+  // TODO: fix. also see comments in the ng-merfish config and the points loader.
+
+  // lang: glsl
+  return `
         float hashToFloat(int v, int seed) {
             int h = v * 374761393 + seed * 668265263;
             h = (h ^ (h >> 13)) * 1274126177;
@@ -460,14 +459,14 @@ export function getRandomPerPointShader(opacity) {
  * @returns {string} A GLSL shader string.
  */
 export function getRandomPerPointWithSelectionShader(
-    featureIndices, defaultColor, opacity,
+  featureIndices, defaultColor, opacity,
 ) {
-    const normDefault = normalizeColor(defaultColor);
-    const numFeatures = featureIndices.length;
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const normDefault = normalizeColor(defaultColor);
+  const numFeatures = featureIndices.length;
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         float hashToFloat(int v, int seed) {
             int h = v * 374761393 + seed * 668265263;
             h = (h ^ (h >> 13)) * 1274126177;
@@ -503,11 +502,11 @@ export function getRandomPerPointWithSelectionShader(
  * @returns {string} A GLSL shader string.
  */
 export function getRandomPerPointFilteredShader(featureIndices, opacity) {
-    const numFeatures = featureIndices.length;
-    const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
+  const numFeatures = featureIndices.length;
+  const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
 
-    // lang: glsl
-    return `
+  // lang: glsl
+  return `
         float hashToFloat(int v, int seed) {
             int h = v * 374761393 + seed * 668265263;
             h = (h ^ (h >> 13)) * 1274126177;
@@ -550,142 +549,142 @@ export function getPointsShader(layerCoordination) {
     featureColor,
   } = layerCoordination;
 
-  console.log("Generating shader with coordination:", layerCoordination);
+  console.log('Generating shader with coordination:', layerCoordination);
 
   const defaultColor = getDefaultColor(theme);
   const opacity = spatialLayerOpacity ?? 1.0;
   const staticColor = (
-      Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
-          ? spatialLayerColor
-          : defaultColor
+    Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
+      ? spatialLayerColor
+      : defaultColor
   );
 
   const hasFeatureSelection = (
-      Array.isArray(featureSelection) && featureSelection.length > 0
+    Array.isArray(featureSelection) && featureSelection.length > 0
   );
   const isFiltered = featureFilterMode === 'featureSelection';
 
   // Resolve selected feature names to numeric indices.
   let featureIndices = [];
   if (hasFeatureSelection && Array.isArray(featureIndex)) {
-      featureIndices = featureSelection
-          .map(name => featureIndex.indexOf(name))
-          .filter(i => i >= 0);
+    featureIndices = featureSelection
+      .map(name => featureIndex.indexOf(name))
+      .filter(i => i >= 0);
   }
   const hasResolvedIndices = featureIndices.length > 0;
 
   // Resolve per-feature colors (in the same order as featureIndices).
   const resolvedFeatureColors = hasResolvedIndices
-      ? featureSelection
-          .filter(name => featureIndex?.indexOf(name) >= 0)
-          .map((name) => {
-              const match = Array.isArray(featureColor)
-                  ? featureColor.find(fc => fc.name === name)?.color
-                  : null;
-              return match || staticColor;
-          })
-      : [];
+    ? featureSelection
+      .filter(name => featureIndex?.indexOf(name) >= 0)
+      .map((name) => {
+        const match = Array.isArray(featureColor)
+          ? featureColor.find(fc => fc.name === name)?.color
+          : null;
+        return match || staticColor;
+      })
+    : [];
 
   // Points coloring cases:
   // (See `createPointLayer` in spatial-beta/Spatial.js for more background.)
 
   // Coloring cases:
-    // - spatialLayerColor: one color for all points.
-    //   consider all as selected when featureSelection is null.
-    // - spatialLayerColor with featureSelection: one color for
-    //   all selected points, default color for unselected points
-    // - spatialLayerColor with featureSelection and
-    //   featureFilterMode 'featureSelection': one color for selected points,
-    //   do not show unselected points
+  // - spatialLayerColor: one color for all points.
+  //   consider all as selected when featureSelection is null.
+  // - spatialLayerColor with featureSelection: one color for
+  //   all selected points, default color for unselected points
+  // - spatialLayerColor with featureSelection and
+  //   featureFilterMode 'featureSelection': one color for selected points,
+  //   do not show unselected points
 
-    // - geneSelection: use colors from "featureColor".
-    //   consider all as selected when featureSelection is null.
-    // - geneSelection with featureSelection: use colors from
-    //   "featureColor" (array of { name, color: [r, g, b] }) for
-    //   selected features, default color for unselected points
-    // - geneSelection with featureFilterMode 'featureSelection': use colors
-    //   from "featureColor" for selected features,
-    //   do not show unselected points
+  // - geneSelection: use colors from "featureColor".
+  //   consider all as selected when featureSelection is null.
+  // - geneSelection with featureSelection: use colors from
+  //   "featureColor" (array of { name, color: [r, g, b] }) for
+  //   selected features, default color for unselected points
+  // - geneSelection with featureFilterMode 'featureSelection': use colors
+  //   from "featureColor" for selected features,
+  //   do not show unselected points
 
-    // - randomByFeature: random color for each feature
-    //   (deterministic based on feature index).
-    //   consider all as selected when featureSelection is null.
-    // - randomByFeature with preferFeatureColor: use colors from
-    //   "featureColor" (array of { name, color: [r, g, b] }) where
-    //   available, and random colors otherwise.
-    // - randomByFeature with featureSelection: random color for
-    //   selected features, default color for unselected points
-    // - randomByFeature with featureSelection and
-    //   featureFilterMode 'featureSelection': random color for
-    //   selected features, do not show unselected points
+  // - randomByFeature: random color for each feature
+  //   (deterministic based on feature index).
+  //   consider all as selected when featureSelection is null.
+  // - randomByFeature with preferFeatureColor: use colors from
+  //   "featureColor" (array of { name, color: [r, g, b] }) where
+  //   available, and random colors otherwise.
+  // - randomByFeature with featureSelection: random color for
+  //   selected features, default color for unselected points
+  // - randomByFeature with featureSelection and
+  //   featureFilterMode 'featureSelection': random color for
+  //   selected features, do not show unselected points
 
-    // - random: random color for each point
-    //   (deterministic based on point index).
-    //   consider all as selected when featureSelection is null.
-    // - random with preferFeatureColor: use colors from "featureColor"
-    //   (array of { name, color: [r, g, b] }) where available,
-    //   and random colors otherwise.
-    // - random with featureSelection: random color for selected points,
-    //   default color for unselected points
-    // - random with featureSelection and
-    //   featureFilterMode 'featureSelection': random color for selected
-    //   points, do not show unselected points
+  // - random: random color for each point
+  //   (deterministic based on point index).
+  //   consider all as selected when featureSelection is null.
+  // - random with preferFeatureColor: use colors from "featureColor"
+  //   (array of { name, color: [r, g, b] }) where available,
+  //   and random colors otherwise.
+  // - random with featureSelection: random color for selected points,
+  //   default color for unselected points
+  // - random with featureSelection and
+  //   featureFilterMode 'featureSelection': random color for selected
+  //   points, do not show unselected points
 
 
   // ---- spatialLayerColor ----
   if (obsColorEncoding === 'spatialLayerColor') {
-      if (!hasFeatureSelection || !hasResolvedIndices) {
-          return getSpatialLayerColorShader(staticColor, opacity);
-      }
-      if (isFiltered) {
-          return getSpatialLayerColorFilteredShader(
-              staticColor, opacity, featureIndices,
-          );
-      }
-      return getSpatialLayerColorWithSelectionShader(
-          staticColor, opacity, featureIndices, defaultColor,
+    if (!hasFeatureSelection || !hasResolvedIndices) {
+      return getSpatialLayerColorShader(staticColor, opacity);
+    }
+    if (isFiltered) {
+      return getSpatialLayerColorFilteredShader(
+        staticColor, opacity, featureIndices,
       );
+    }
+    return getSpatialLayerColorWithSelectionShader(
+      staticColor, opacity, featureIndices, defaultColor,
+    );
   }
 
   // ---- geneSelection ----
   if (obsColorEncoding === 'geneSelection') {
-      if (!hasFeatureSelection || !hasResolvedIndices) {
-          return getGeneSelectionNoSelectionShader(staticColor, opacity);
-      }
-      if (isFiltered) {
-          return getGeneSelectionFilteredShader(
-              featureIndices, resolvedFeatureColors, staticColor, opacity,
-          );
-      }
-      return getGeneSelectionWithSelectionShader(
-          featureIndices, resolvedFeatureColors, staticColor, defaultColor, opacity,
+    if (!hasFeatureSelection || !hasResolvedIndices) {
+      return getGeneSelectionNoSelectionShader(staticColor, opacity);
+    }
+    if (isFiltered) {
+      return getGeneSelectionFilteredShader(
+        featureIndices, resolvedFeatureColors, staticColor, opacity,
       );
+    }
+    return getGeneSelectionWithSelectionShader(
+      featureIndices, resolvedFeatureColors, staticColor, defaultColor, opacity,
+    );
   }
 
   // ---- randomByFeature ----
   if (obsColorEncoding === 'randomByFeature') {
-      if (!hasFeatureSelection || !hasResolvedIndices) {
-          return getRandomByFeatureShader(opacity);
-      }
-      if (isFiltered) {
-          return getRandomByFeatureFilteredShader(featureIndices, opacity);
-      }
-      return getRandomByFeatureWithSelectionShader(
-          featureIndices, defaultColor, opacity,
-      );
+    if (!hasFeatureSelection || !hasResolvedIndices) {
+      return getRandomByFeatureShader(opacity);
+    }
+    if (isFiltered) {
+      return getRandomByFeatureFilteredShader(featureIndices, opacity);
+    }
+    return getRandomByFeatureWithSelectionShader(
+      featureIndices, defaultColor, opacity,
+    );
   }
 
   // ---- random (per point) ----
   if (obsColorEncoding === 'random') {
-      if (!hasFeatureSelection || !hasResolvedIndices) {
-          return getRandomPerPointShader(opacity);
-      }
-      if (isFiltered) {
-          return getRandomPerPointFilteredShader(featureIndices, opacity);
-      }
-      return getRandomPerPointWithSelectionShader(
-          featureIndices, defaultColor, opacity,
-      );
+    if (!hasFeatureSelection || !hasResolvedIndices) {
+      return getRandomPerPointShader(opacity);
+    }
+    if (isFiltered) {
+      return getRandomPerPointFilteredShader(featureIndices, opacity);
+    }
+    return getRandomPerPointWithSelectionShader(
+      featureIndices, defaultColor, opacity,
+    );
   }
 
   // Fallback: static color.

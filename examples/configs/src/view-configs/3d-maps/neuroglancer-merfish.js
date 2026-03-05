@@ -22,7 +22,7 @@ function generateNeuroglancerMerfish() {
   // This means that we will need to read the parquet metadata of the corresponding Points element to determine which annotation properties are available.
   // For the featureKey specifically, we can just use the spatialdata_attrs (we do not need to look in the parquet file for this).
   // This is relevant to the shader generation code in shader-utils.js,
-  // e.g., we cannot just assume that 
+  // e.g., we cannot just assume that
   // Reference: https://github.com/hms-dbmi/tissue-map-tools/blob/6a904241436e946ffbadef24b780a33321754991/src/tissue_map_tools/converters.py#L295
 
   // https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr/points/molecule_baysor/points.parquet/part.0.parquet
@@ -40,14 +40,14 @@ function generateNeuroglancerMerfish() {
       position: [
         3630.5,
         4469.5,
-        7.5
+        7.5,
       ],
       projectionScale: 14247.862632462655,
       projectionOrientation: [
         0.011544201523065567,
-​        0.018694978207349777,
+        0.018694978207349777,
         0.01379409246146679,
-        0.9996634721755981
+        0.9996634721755981,
       ],
     },
     coordinationValues: {
@@ -55,8 +55,8 @@ function generateNeuroglancerMerfish() {
       obsType: 'cell',
     },
   });
-  
-  if(withPoints) {
+
+  if (withPoints) {
     dataset.addFile({
       fileType: 'obsPoints.ng-annotations',
       url: pointsUrl,
@@ -74,26 +74,26 @@ function generateNeuroglancerMerfish() {
   dataset.addFile({
     fileType: 'spatialdata.zarr',
     url: sdataUrl,
-      options: {
-        obsFeatureMatrix: {
-          path: 'tables/gene_expression_baysor/X'
-        },
-        obsSets: {
-          tablePath: 'tables/gene_expression_baysor',
-          obsSets: [
-            {
-              name: 'Region',
-              path: 'tables/gene_expression_baysor/obs/region',
-            },
-          ],
-        }
+    options: {
+      obsFeatureMatrix: {
+        path: 'tables/gene_expression_baysor/X',
       },
-      coordinationValues: {
-        obsType: 'cell',
-        featureType: 'gene'
+      obsSets: {
+        tablePath: 'tables/gene_expression_baysor',
+        obsSets: [
+          {
+            name: 'Region',
+            path: 'tables/gene_expression_baysor/obs/region',
+          },
+        ],
       },
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'gene',
+    },
   });
-  
+
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
@@ -131,7 +131,7 @@ function generateNeuroglancerMerfish() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  if(withPoints) {
+  if (withPoints) {
     config.linkViewsByObject([neuroglancerView, lcView], {
       pointLayer: CL([
         {

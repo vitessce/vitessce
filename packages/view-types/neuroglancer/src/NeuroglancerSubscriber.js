@@ -296,7 +296,7 @@ export function NeuroglancerSubscriber(props) {
         }
       });
     });
-    console.log("Recomputed segmentationColorMapping");
+    console.log('Recomputed segmentationColorMapping');
     return result;
   }, {
     // The dependencies for the comparison,
@@ -517,13 +517,13 @@ export function NeuroglancerSubscriber(props) {
   ]);
 
   // Get the ultimate cellColorMapping to pass to NeuroglancerComp as a prop.
-  const cellColorMapping = useMemo(() => {
+  const cellColorMapping = useMemo(() =>
     // For now, we take the first layer and channel for cell colors.
-    return segmentationColorMapping
+    segmentationColorMapping
       ?.[segmentationLayerScopes?.[0]]
       ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
-    ?? {};
-  }, [segmentationColorMapping]);
+    ?? {},
+  [segmentationColorMapping]);
 
 
   // TODO: try to simplify using useMemoCustomComparison?
@@ -533,7 +533,7 @@ export function NeuroglancerSubscriber(props) {
   // by relying on the memoization to prevent unnecessary updates.
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
-    if(current.layers.length <= 0) {
+    if (current.layers.length <= 0) {
       return current;
     }
 
@@ -707,7 +707,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-  latestViewerStateIteration]);
+    latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));

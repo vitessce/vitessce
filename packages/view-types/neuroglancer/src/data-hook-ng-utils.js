@@ -73,7 +73,7 @@ function normalizeDimensionsToNanometers(opts) {
       z: zNm ? [dimensionZ, dimensionUnit] : [1, 'nm'],
     },
     // The non-dimension-related options can be passed through without modification.
-    ...otherOptions
+    ...otherOptions,
   };
 }
 
@@ -117,14 +117,14 @@ export function useNeuroglancerViewerState(
     let result = cloneDeep(DEFAULT_NG_PROPS);
 
     // ======= SEGMENTATIONS =======
-    
+
     // Iterate over segmentation layers and channels.
     segmentationLayerScopes.forEach((layerScope) => {
       const layerCoordination = segmentationLayerCoordination[0][layerScope];
       const channelScopes = segmentationChannelScopesByLayer[layerScope] || [];
       const layerData = obsSegmentationsData[layerScope];
       const layerUrl = obsSegmentationsUrls[layerScope]?.[0]?.url;
-      
+
       if (layerUrl && layerData) {
         const {
           spatialLayerVisible,
@@ -170,7 +170,7 @@ export function useNeuroglancerViewerState(
       const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
 
       const featureIndex = pointMultiIndicesData[layerScope]?.featureIndex;
-      
+
       if (layerUrl && layerData) {
         const {
           spatialLayerVisible,
@@ -199,18 +199,18 @@ export function useNeuroglancerViewerState(
           layers: [
             ...result.layers,
             {
-              type: "annotation",
+              type: 'annotation',
               source: {
                 url: toPrecomputedSource(layerUrl),
                 subsources: {
-                  default: true
+                  default: true,
                 },
-                enableDefaultSubsources: false
+                enableDefaultSubsources: false,
               },
-              tab: "annotations",
+              tab: 'annotations',
               projectionAnnotationSpacing: 2.4544585683772735, // TODO: pass via fileDef.options or coordination space?
               shader,
-              name:  toNgLayerName(DataType.OBS_POINTS, layerScope),
+              name: toNgLayerName(DataType.OBS_POINTS, layerScope),
               visible: spatialLayerVisible,
             },
           ],
@@ -224,7 +224,7 @@ export function useNeuroglancerViewerState(
         };
       }
     });
-    console.log("Recomputed initialViewerState");
+    console.log('Recomputed initialViewerState');
     return result;
   }, {
     theme,
