@@ -18,6 +18,15 @@ function generateNeuroglancerMerfish() {
 
   const withPoints = true;
 
+  // Note: tissue-map-tools creates an AnnotationProperty for every column in the sdata Points element dask dataframe.
+  // This means that we will need to read the parquet metadata of the corresponding Points element to determine which annotation properties are available.
+  // For the featureKey specifically, we can just use the spatialdata_attrs (we do not need to look in the parquet file for this).
+  // This is relevant to the shader generation code in shader-utils.js,
+  // e.g., we cannot just assume that 
+  // Reference: https://github.com/hms-dbmi/tissue-map-tools/blob/6a904241436e946ffbadef24b780a33321754991/src/tissue_map_tools/converters.py#L295
+
+  // https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr/points/molecule_baysor/points.parquet/part.0.parquet
+
   const dataset = config.addDataset('My dataset');
 
   dataset.addFile({
@@ -131,8 +140,9 @@ function generateNeuroglancerMerfish() {
           featureType: 'gene',
           spatialLayerOpacity: 1,
           spatialLayerVisible: true,
+          obsColorEncoding: 'geneSelection',
           featureColor: [
-            // { name: 'ERBB2', color: [255, 0, 0] },
+            { name: 'Ada', color: [255, 0, 0] },
           ],
         },
       ]),

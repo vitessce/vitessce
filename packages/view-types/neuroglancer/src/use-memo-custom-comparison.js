@@ -176,13 +176,17 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
           || curriedShallowDiffByLayer('pointMultiIndicesData', layerScope)
           || curriedShallowDiffByLayerCoordinationWithKeys('pointLayerCoordination', layerScope, [
             'spatialLayerVisible',
-            'spatialLayerOpacity',
             'obsColorEncoding',
             'spatialLayerColor',
             'featureSelection',
             'featureFilterMode',
             'featureColor',
           ])
+          // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
+          || (
+            Math.abs(prevDeps?.pointLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacity - nextDeps?.pointLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacity)
+            >= 0.05
+          )
         ) {
           forceUpdate = true;
         }

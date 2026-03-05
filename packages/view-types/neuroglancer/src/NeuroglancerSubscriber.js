@@ -317,6 +317,7 @@ export function NeuroglancerSubscriber(props) {
 
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
+    theme,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,

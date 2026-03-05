@@ -100,6 +100,7 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
  * @returns [viewerState]
  */
 export function useNeuroglancerViewerState(
+  theme,
   segmentationLayerScopes,
   segmentationChannelScopesByLayer,
   segmentationLayerCoordination,
@@ -183,6 +184,7 @@ export function useNeuroglancerViewerState(
 
         // Dynamically construct the shader based on the color encoding and other coordination values.
         const shader = getPointsShader({
+          theme,
           featureIndex,
           spatialLayerOpacity,
           obsColorEncoding,
@@ -225,6 +227,7 @@ export function useNeuroglancerViewerState(
     console.log("Recomputed initialViewerState");
     return result;
   }, {
+    theme,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,
