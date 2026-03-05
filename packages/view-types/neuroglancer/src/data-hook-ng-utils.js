@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep } from 'lodash-es';
+import { useMemoCustomComparison, customIsEqualForInitialViewerState } from './use-memo-custom-comparison.js';
 
 
 export const DEFAULT_NG_PROPS = {
@@ -109,7 +110,7 @@ export function useNeuroglancerViewerState(
   obsPointsUrls,
   obsPointsData,
 ) {
-  const viewerState = useMemo(() => {
+  const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
     
     // Iterate over segmentation layers and channels.
@@ -182,13 +183,20 @@ export function useNeuroglancerViewerState(
         };
       }
     });
-
+    console.log("Recomputed initialViewerState");
     return result;
-  }, [segmentationLayerScopes, segmentationChannelScopesByLayer,
-    segmentationLayerCoordination, segmentationChannelCoordination,
-    obsSegmentationsUrls, obsSegmentationsData,
-    pointLayerScopes, pointLayerCoordination, obsPointsUrls, obsPointsData,
-  ]);
+  }, {
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerScopes,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+  }, customIsEqualForInitialViewerState);
 
   return viewerState;
 }

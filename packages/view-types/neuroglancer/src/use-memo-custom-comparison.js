@@ -26,6 +26,13 @@ const shallowDiff = (prevDeps, nextDeps, depName) => prevDeps[depName] !== nextD
 const shallowDiffByLayer = (prevDeps, nextDeps, depName, scopeName) => (
     prevDeps?.[depName]?.[scopeName] !== nextDeps?.[depName]?.[scopeName]
 );
+const shallowDiffByLayerWithKeys = (prevDeps, nextDeps, depName, scopeName, keys) => {
+    // Rather than checking equality of the entire object,
+    // here, we only shallowly compare the specific properties that are relevant.
+    return keys.some(k =>
+        prevDeps?.[depName]?.[scopeName]?.[k] !== nextDeps?.[depName]?.[scopeName]?.[k]
+    );
+};
 const shallowDiffByChannel = (prevDeps, nextDeps, depName, firstName, secondName) => (
     prevDeps?.[depName]?.[firstName]?.[secondName]
     !== nextDeps?.[depName]?.[firstName]?.[secondName]
@@ -42,6 +49,14 @@ const shallowDiffByLayerCoordination = (prevDeps, nextDeps, depName, layerScope)
     prevDeps?.[depName]?.[0]?.[layerScope]
     !== nextDeps?.[depName]?.[0]?.[layerScope]
 );
+const shallowDiffByLayerCoordinationWithKeys = (prevDeps, nextDeps, depName, layerScope, keys) => {
+    // Rather than checking equality of the entire object,
+    // here, we only shallowly compare the specific properties that are relevant.
+    return keys.some(k =>
+        prevDeps?.[depName]?.[0]?.[layerScope]?.[k]
+        !== nextDeps?.[depName]?.[0]?.[layerScope]?.[k]
+    );
+};
 const shallowDiffByChannelCoordination = (prevDeps, nextDeps, depName, layerScope, channelScope) => (
     prevDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]
     !== nextDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]
@@ -54,7 +69,6 @@ const shallowDiffByChannelCoordinationWithKeys = (prevDeps, nextDeps, depName, l
         !== nextDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]?.[k]
     );
 };
-// TODO: create additional withKeys variants as needed.
 
 // We need a custom equality function, to handle the nested nature of the dependencies.
 // We only want to trigger a re-render if the list of layers/channels themselves changed,
@@ -106,4 +120,52 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
     // Return "isEqual" value.
     // (If forceUpdate is true, then isEqual should be false to trigger a re-render.)
     return !forceUpdate;
+}
+
+export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
+    let forceUpdate = false;
+
+    // We create curried variants so we don't have to constantly pass prevDeps and nextDeps.
+    const curriedShallowDiff = (depName) => shallowDiff(prevDeps, nextDeps, depName);
+    const curriedShallowDiffByLayer = (depName, scopeName) => shallowDiffByLayer(prevDeps, nextDeps, depName, scopeName);
+    const curriedShallowDiffByLayerWithKeys = (depName, scopeName, keys) => shallowDiffByLayerWithKeys(prevDeps, nextDeps, depName, scopeName, keys);
+    const curriedShallowDiffByChannel = (depName, firstName, secondName) => shallowDiffByChannel(prevDeps, nextDeps, depName, firstName, secondName);
+    const curriedShallowDiffByChannelWithKeys = (depName, firstName, secondName, keys) => shallowDiffByChannelWithKeys(prevDeps, nextDeps, depName, firstName, secondName, keys);
+    const curriedShallowDiffByLayerCoordination = (depName, layerScope) => shallowDiffByLayerCoordination(prevDeps, nextDeps, depName, layerScope);
+    const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
+    const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
+
+    // Segmentation layers/channels.
+    if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
+      // Force update for all layers since the layerScopes array changed.
+      forceUpdate = true;
+    } else {
+        // Iterate over layers and channels.
+      nextDeps.segmentationLayerScopes?.forEach((layerScope) => {
+        nextDeps.segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+          if (
+            curriedShallowDiffByChannel('obsSegmentationsData', layerScope, channelScope)
+          ) {
+            forceUpdate = true;
+          }
+        });
+      });
+    }
+    
+    // Point layers.
+    if (curriedShallowDiff('pointLayerScopes')) {
+      // Force update for all layers since the layerScopes array changed.
+      forceUpdate = true;
+    } else {
+        // Iterate over layers and channels.
+      nextDeps.pointLayerScopes?.forEach((layerScope) => {
+        if (
+          curriedShallowDiffByLayer('obsPointsData', layerScope)
+        ) {
+          forceUpdate = true;
+        }
+      });
+    }
+
+    return forceUpdate;
 }

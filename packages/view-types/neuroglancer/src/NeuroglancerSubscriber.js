@@ -255,6 +255,9 @@ export function NeuroglancerSubscriber(props) {
   const { classes } = useStyles();
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
+    // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
+    // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
+    // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
@@ -502,7 +505,7 @@ export function NeuroglancerSubscriber(props) {
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
   ]);
 
-
+  // Get the ultimate cellColorMapping to pass to NeuroglancerComp as a prop.
   const cellColorMapping = useMemo(() => {
     // For now, we take the first layer and channel for cell colors.
     return segmentationColorMapping
@@ -513,6 +516,10 @@ export function NeuroglancerSubscriber(props) {
 
 
   // TODO: try to simplify using useMemoCustomComparison?
+  // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
+  // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
+  // and would allow us to potentially remove usage of some refs (e.g., latestViewerStateRef)
+  // by relying on the memoization to prevent unnecessary updates.
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
     if(current.layers.length <= 0) {
@@ -700,7 +707,7 @@ export function NeuroglancerSubscriber(props) {
   // }
 
   const hasLayers = derivedViewerState?.layers?.length > 0;
-  console.log(derivedViewerState)
+  console.log(derivedViewerState);
 
   return (
     <TitleInfo
