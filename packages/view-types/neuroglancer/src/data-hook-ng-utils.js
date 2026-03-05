@@ -112,6 +112,8 @@ export function useNeuroglancerViewerState(
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
+
+    // ======= SEGMENTATIONS =======
     
     // Iterate over segmentation layers and channels.
     segmentationLayerScopes.forEach((layerScope) => {
@@ -154,6 +156,8 @@ export function useNeuroglancerViewerState(
       }
     });
 
+    // ======= POINTS =======
+
     // Iterate over point layers.
     pointLayerScopes.forEach((layerScope) => {
       const layerCoordination = pointLayerCoordination[0][layerScope];
@@ -161,6 +165,9 @@ export function useNeuroglancerViewerState(
       const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
       
       if (layerUrl && layerData) {
+        const {
+          spatialLayerVisible,
+        } = layerCoordination || {};
         result = {
           ...result,
           layers: [
@@ -179,6 +186,7 @@ export function useNeuroglancerViewerState(
               // TODO: dynamically construct the shader.
               shader: "void main() {\n    int gene = prop_gene();\n    const vec3 tab10[10] = vec3[10](\n        vec3(0.121, 0.466, 0.705), // blue\n        vec3(1.000, 0.498, 0.054), // orange\n        vec3(0.172, 0.627, 0.172), // green\n        vec3(0.839, 0.153, 0.157), // red\n        vec3(0.580, 0.404, 0.741), // purple\n        vec3(0.549, 0.337, 0.294), // brown\n        vec3(0.890, 0.467, 0.761), // pink\n        vec3(0.498, 0.498, 0.498), // gray\n        vec3(0.737, 0.741, 0.133), // olive\n        vec3(0.090, 0.745, 0.811)  // cyan\n    );\n    vec4 color = vec4(0.925, 0.925, 0.925, 0.0); // Default: fully transparent\n\tconst int gene_ids[10] = int[10](1, 2, 15, 32, 42, 33, 47, 49, 130, 200);\n    for (int i = 0; i < 10; ++i) {\n        if (gene == gene_ids[i]) {\n            color = vec4(tab10[i], 1.0);\n        }\n    }\n\n    if (color.a < 0.01) {\n        discard; // Don't render this fragment at all\n    }\n\n    setColor(color);\n}",
               name:  toNgLayerName(DataType.OBS_POINTS, layerScope),
+              visible: spatialLayerVisible,
             },
           ],
 
@@ -186,7 +194,7 @@ export function useNeuroglancerViewerState(
           // The selected layer here will overwrite anything that was previously specified.
           selectedLayer: {
             // size: ? // TODO:  is this needed?
-            layer: `obsPoints-${layerScope}`,
+            layer: toNgLayerName(DataType.OBS_POINTS, layerScope),
           },
         };
       }

@@ -14,6 +14,7 @@ function generateNeuroglancerMerfish() {
 
   const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
   const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
+  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
 
   const withPoints = true;
 
@@ -23,21 +24,21 @@ function generateNeuroglancerMerfish() {
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
     options: {
-      dimensionX: 0.000001,
-      dimensionY: 0.000001,
-      dimensionZ: 0.000013768,
-      dimensionUnit: 'm',
+      dimensionX: 1,
+      dimensionY: 1,
+      dimensionZ: 1,
+      dimensionUnit: 'nm',
       position: [
         3630.5,
         4469.5,
-        0.5
+        7.5
       ],
       projectionScale: 14247.862632462655,
       projectionOrientation: [
-        0.011592172086238861,
-        -0.011224723421037197,
-        0.00132170005235821,
-        -0.9998689293861389,
+        0.011544201523065567,
+​        0.018694978207349777,
+        0.01379409246146679,
+        0.9996634721755981
       ],
     },
     coordinationValues: {
@@ -57,10 +58,36 @@ function generateNeuroglancerMerfish() {
     });
   }
 
+  dataset.addFile({
+    fileType: 'spatialdata.zarr',
+    url: sdataUrl,
+      options: {
+        obsFeatureMatrix: {
+          path: 'tables/gene_expression_baysor/X'
+        },
+        obsSets: {
+          tablePath: 'tables/gene_expression_baysor',
+          obsSets: [
+            {
+              name: 'Region',
+              path: 'tables/gene_expression_baysor/obs/region',
+            },
+          ],
+        }
+      },
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene'
+      },
+  });
+
   // TODO: include anndata or spatialdata object for sets, expression matrix, etc.
+  // The geneList relies on obsFeatureMatrix.featureIndex to show the list of genes.
   
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
   const lcView = config.addView(dataset, 'layerControllerBeta');
+  const geneList = config.addView(dataset, 'featureList');
+  const obsSets = config.addView(dataset, 'obsSets');
 
   config.linkViewsByObject([neuroglancerView, lcView], {
     spatialRenderingMode: '3D',
@@ -91,7 +118,7 @@ function generateNeuroglancerMerfish() {
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            obsColorEncoding: 'spatialChannelColor',
+            obsColorEncoding: 'cellSetSelection',
           },
         ]),
       },
@@ -105,13 +132,14 @@ function generateNeuroglancerMerfish() {
           fileUid: 'merfish-points',
           obsType: 'point',
           spatialLayerOpacity: 1,
+          spatialLayerVisible: true,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
 
-  config.layout(hconcat(neuroglancerView, lcView));
+  config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
   const configJSON = config.toJSON();
   return configJSON;
 }

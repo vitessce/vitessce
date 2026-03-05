@@ -174,6 +174,9 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
       nextDeps.pointLayerScopes?.forEach((layerScope) => {
         if (
           curriedShallowDiffByLayer('obsPointsData', layerScope)
+          || curriedShallowDiffByLayerCoordinationWithKeys('pointLayerCoordination', layerScope, [
+            'spatialLayerVisible',
+          ])
         ) {
           forceUpdate = true;
         }
