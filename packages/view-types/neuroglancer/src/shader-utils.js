@@ -19,11 +19,11 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
     
     // Create a shader that maps gene indices to the corresponding colors.
     const numGenes = selectedGeneIndices.length;
-    const defaultColor = [0.925, 0.925, 0.925]; // Light gray for unselected genes.
+    const defaultColor = [0.925, 0.925, 0.925, 0.0]; // Fully transparent by default.
 
     const colorMapVec = `vec3 colorMap[${numGenes}] = vec3[${numGenes}](${normalizedColors.map(c => `vec3(${c.join(', ')})`).join(', ')});`;
-    const defaultColorVec = `vec3 defaultColor = vec3(${defaultColor.join(', ')});`;
-    const geneIndexMap = `int geneIndexMap[${numGenes}] = int[${numGenes}](${selectedGeneIndices.join(', ')});`;
+    const colorVec = `vec4 color = vec4(${defaultColor.join(', ')});`;
+    const geneIndexMap = `int geneIndices[${numGenes}] = int[${numGenes}](${selectedGeneIndices.join(', ')});`;
 
     // lang: glsl
     const shader = `
@@ -48,10 +48,10 @@ export function getCategoricalShader(selectedGeneIndices, selectedColors) {
             const int gene_indices[10] = int[10](1, 2, 15, 32, 42, 33, 47, 49, 130, 200);
             */
             ${colorMapVec}
-            ${defaultColorVec}
+            ${colorVec}
             ${geneIndexMap}
             for (int i = 0; i < ${numGenes}; ++i) {
-                if (geneIndex == geneIndexMap[i]) {
+                if (geneIndex == geneIndices[i]) {
                     color = vec4(colorMap[i], 1.0);
                 }
             }
