@@ -32,6 +32,7 @@ import {
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
+import { useMemoCustomComparison, customIsEqualForCellColors } from './use-memo-custom-comparison.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,
@@ -246,13 +247,11 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiIndicesDataStatus,
   ]);
 
-  console.log("URLs", obsPointsUrls, obsSegmentationsUrls);
-
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
   const { classes } = useStyles();
 
-  const obsSetsDataWithColors = useMemo(() => {
+  const obsSetsDataWithColors = useMemoCustomComparison(() => {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
@@ -288,8 +287,17 @@ export function NeuroglancerSubscriber(props) {
         }
       });
     });
+    console.log("Recomputed obsSetsDataWithColors");
     return result;
-  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, obsSegmentationsSetsData, segmentationChannelCoordination]);
+  }, {
+    // The dependencies for the comparison,
+    // used by the custom equality function.
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    obsSegmentationsSetsData,
+    segmentationChannelCoordination,
+    theme,
+  }, customIsEqualForCellColors);
 
 
   // TODO: remove useObsSetsData and useObsEmbeddingData in favor of meta coordination.
@@ -358,6 +366,7 @@ export function NeuroglancerSubscriber(props) {
     ty: spatialTargetY,
   });
 
+  /*
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
@@ -370,6 +379,7 @@ export function NeuroglancerSubscriber(props) {
     theme,
   }), [mergedCellSets, theme,
     cellSetColor, cellSetSelection, obsIndex]);
+  */
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -510,21 +520,25 @@ export function NeuroglancerSubscriber(props) {
   ]);
 
   const batchedUpdateTimeoutRef = useRef(null);
-  const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
+  const [batchedCellColors, setBatchedCellColors] = useState([]);
 
   useEffect(() => {
     if (batchedUpdateTimeoutRef.current) {
       clearTimeout(batchedUpdateTimeoutRef.current);
     }
     batchedUpdateTimeoutRef.current = setTimeout(() => {
-      setBatchedCellColors(cellColors);
+      // For now, pick the first layer/channel when considering colors.
+      const cellColors = obsSetsDataWithColors?.[segmentationLayerScopes?.[0]]?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]?.cellColors;
+      if(cellColors) {
+        setBatchedCellColors(cellColors);
+      }
     }, 100);
 
     // TODO: look into deferredValue from React
     // startTransition(() => {
     //   setBatchedCellColors(cellColors);
     // });
-  }, [cellColors]);
+  }, [obsSetsDataWithColors]);
   // TODO use a ref if slow - see prev commits
   const cellColorMapping = useMemo(() => {
     const colorMapping = {};
@@ -737,14 +751,16 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
     >
-      {hasLayers ? <NeuroglancerComp
-        classes={classes}
-        onSegmentClick={onSegmentClick}
-        onSelectHoveredCoords={onSegmentHighlight}
-        viewerState={derivedViewerState}
-        cellColorMapping={cellColorMapping}
-        setViewerState={handleStateUpdate}
-      /> : null}
+      {hasLayers ? (
+        <NeuroglancerComp
+          classes={classes}
+          onSegmentClick={onSegmentClick}
+          onSelectHoveredCoords={onSegmentHighlight}
+          viewerState={derivedViewerState}
+          cellColorMapping={cellColorMapping}
+          setViewerState={handleStateUpdate}
+        />
+      ) : null}
     </TitleInfo>
   );
 }

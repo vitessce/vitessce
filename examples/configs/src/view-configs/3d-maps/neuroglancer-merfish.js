@@ -15,6 +15,8 @@ function generateNeuroglancerMerfish() {
   const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
   const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
 
+  const withPoints = true;
+
   const dataset = config.addDataset('My dataset');
 
   dataset.addFile({
@@ -43,15 +45,17 @@ function generateNeuroglancerMerfish() {
       obsType: 'cell',
     },
   });
-
-  dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
-    url: pointsUrl,
-    coordinationValues: {
-      fileUid: 'merfish-points',
-      obsType: 'point',
-    },
-  });
+  
+  if(withPoints) {
+    dataset.addFile({
+      fileType: 'obsPoints.ng-annotations',
+      url: pointsUrl,
+      coordinationValues: {
+        fileUid: 'merfish-points',
+        obsType: 'point',
+      },
+    });
+  }
 
   // TODO: include anndata or spatialdata object for sets, expression matrix, etc.
   
@@ -94,15 +98,17 @@ function generateNeuroglancerMerfish() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  config.linkViewsByObject([neuroglancerView, lcView], {
-    pointLayer: CL([
-      {
-        fileUid: 'merfish-points',
-        obsType: 'point',
-        spatialLayerOpacity: 1,
-      },
-    ]),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
+  if(withPoints) {
+    config.linkViewsByObject([neuroglancerView, lcView], {
+      pointLayer: CL([
+        {
+          fileUid: 'merfish-points',
+          obsType: 'point',
+          spatialLayerOpacity: 1,
+        },
+      ]),
+    }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
+  }
 
 
   config.layout(hconcat(neuroglancerView, lcView));
