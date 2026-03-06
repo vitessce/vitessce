@@ -78,6 +78,12 @@ export function NeuroglancerSubscriber(props) {
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    // Note: this is a temporary mechanism
+    // to pass an initial NG camera state.
+    // Ideally, all camera state should be passed via
+    // the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
+    // and then NeuroglancerSubscriber should internally convert
+    // to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState,
   } = props;
 
