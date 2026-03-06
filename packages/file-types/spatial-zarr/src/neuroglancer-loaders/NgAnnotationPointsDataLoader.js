@@ -2,7 +2,7 @@ import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 
 export default class NgAnnotationPointsDataLoader extends AbstractTwoStepLoader {
   async load() {
-    const { url } = this;
+    const { url, options } = this;
 
     // Note: tissue-map-tools creates an AnnotationProperty for every column in the sdata Points element dask dataframe.
     // This means that we will need to read the parquet metadata of the corresponding Points element to determine which annotation properties are available.
@@ -24,6 +24,10 @@ export default class NgAnnotationPointsDataLoader extends AbstractTwoStepLoader 
         featureIds: null,
         obsPointsModelMatrix: null,
         obsPointsTilingType: 'neuroglancer',
+        // TODO: the "Right way" to do this would be to pass these options via the coordination space,
+        // but that would require defining new coordination types or aligning with existing ones,
+        // and we need to think carefully about that.
+        neuroglancerOptions: options,
       },
       url,
     );

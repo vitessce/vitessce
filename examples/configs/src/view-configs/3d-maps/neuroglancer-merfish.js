@@ -32,24 +32,6 @@ function generateNeuroglancerMerfish() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
-    options: {
-      dimensionX: 1,
-      dimensionY: 1,
-      dimensionZ: 1,
-      dimensionUnit: 'nm',
-      position: [
-        3630.5,
-        4469.5,
-        7.5,
-      ],
-      projectionScale: 14247.862632462655,
-      projectionOrientation: [
-        0.011544201523065567,
-        0.018694978207349777,
-        0.01379409246146679,
-        0.9996634721755981,
-      ],
-    },
     coordinationValues: {
       fileUid: 'merfish-meshes',
       obsType: 'cell',
@@ -60,6 +42,9 @@ function generateNeuroglancerMerfish() {
     dataset.addFile({
       fileType: 'obsPoints.ng-annotations',
       url: pointsUrl,
+      options: {
+        projectionAnnotationSpacing: 2.4544585683772735,
+      },
       coordinationValues: {
         fileUid: 'merfish-points',
         obsType: 'point',
@@ -94,7 +79,25 @@ function generateNeuroglancerMerfish() {
     },
   });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer');
+  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
+    // Note: this is a temporary mechanism to pass an initial NG camera state.
+    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
+    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
+    initialNgCameraState: {
+      position: [
+        3630.5,
+        4469.5,
+        7.5,
+      ],
+      projectionScale: 11521.115426462216,
+      projectionOrientation: [
+        -0.0017234950792044401,
+        -0.031710099428892136,
+        0.02632056176662445,
+        0.999148964881897,
+      ],
+    }
+  });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
   const obsSets = config.addView(dataset, 'obsSets');

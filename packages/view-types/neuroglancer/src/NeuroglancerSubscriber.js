@@ -77,8 +77,10 @@ export function NeuroglancerSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
-    title = 'Neuroglancer',
+    title = 'Spatial',
+    subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    initialNgCameraState,
   } = props;
 
   const loaders = useLoaders();
@@ -333,10 +335,21 @@ export function NeuroglancerSubscriber(props) {
 
 
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
-  const latestViewerStateRef = useRef(initalViewerState);
+  const latestViewerStateRef = useRef({
+    ...initalViewerState,
+    ...(initialNgCameraState ?? {}),
+  });
 
   useEffect(() => {
-    latestViewerStateRef.current = initalViewerState;
+    const prevNgCameraState = {
+      position: latestViewerStateRef.current.position,
+      projectionOrientation: latestViewerStateRef.current.projectionOrientation,
+      projectionScale: latestViewerStateRef.current.projectionScale,
+    };
+    latestViewerStateRef.current = {
+      ...initalViewerState,
+      ...prevNgCameraState,
+    };
     // Force a re-render by incrementing a piece of state.
     // This works because we have made latestViewerStateIteration
     // a dependency for derivedViewerState, triggering the useMemo downstream.
@@ -724,6 +737,7 @@ export function NeuroglancerSubscriber(props) {
   return (
     <TitleInfo
       title={title}
+      info={subtitle}
       helpText={helpText}
       isSpatial
       theme={theme}

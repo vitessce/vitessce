@@ -25,32 +25,8 @@ function generateNeuroglancerMinimalConfiguration() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
-    options: {
-      dimensionX: 1e-9,
-      dimensionY: 1e-9,
-      dimensionZ: 1e-9,
-      dimensionUnit: 'm',
-      position: [-342.5,
-        1358.5,
-        2506.5],
-      projectionScale: 1024,
-      projectionOrientation: [
-        -0.636204183101654,
-        -0.5028395652770996,
-        0.5443811416625977,
-        0.2145828753709793,
-      ],
-    },
     coordinationValues: {
       fileUid: 'melanom-meshes',
-    },
-  });
-
-  dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes', // TODO: point to an annotations file
-    coordinationValues: {
-      fileUid: 'melanom-points',
     },
   });
 
@@ -91,7 +67,25 @@ function generateNeuroglancerMinimalConfiguration() {
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer');
+  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
+    // Note: this is a temporary mechanism to pass an initial NG camera state.
+    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
+    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
+    initialNgCameraState: {
+      position: [
+        -342.5,
+        1358.5,
+        2506.5
+      ],
+      projectionScale: 1024,
+      projectionOrientation: [
+        -0.636204183101654,
+        -0.5028395652770996,
+        0.5443811416625977,
+        0.2145828753709793,
+      ],
+    }
+  });
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 

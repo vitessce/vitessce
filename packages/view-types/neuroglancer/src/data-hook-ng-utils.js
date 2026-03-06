@@ -145,11 +145,14 @@ export function useNeuroglancerViewerState(
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
                 visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel visibility must be true for the layer to be visible.
+                // TODO: update this to extract specific properties from neuroglancerOptions as needed.
+                ...(layerData.neuroglancerOptions ?? {}),
               },
             ],
           };
         });
 
+        /*
         result = {
           ...result,
           // The coordinate system options (e.g., position, projectionScale)
@@ -158,6 +161,7 @@ export function useNeuroglancerViewerState(
           // Otherwise, derivedViewerState does not know which values were initial vs. from user interactions.
           ...normalizeDimensionsToNanometers(layerData.neuroglancerOptions),
         };
+        */
       }
     });
 
@@ -192,6 +196,9 @@ export function useNeuroglancerViewerState(
           featureSelection,
           featureFilterMode,
           featureColor,
+
+          featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
+          pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
         });
 
         result = {
@@ -208,10 +215,11 @@ export function useNeuroglancerViewerState(
                 enableDefaultSubsources: false,
               },
               tab: 'annotations',
-              projectionAnnotationSpacing: 2.4544585683772735, // TODO: pass via fileDef.options or coordination space?
               shader,
               name: toNgLayerName(DataType.OBS_POINTS, layerScope),
               visible: spatialLayerVisible,
+              // Options from layerData.neuroglancerOptions like projectionAnnotationSpacing:
+              projectionAnnotationSpacing: layerData.neuroglancerOptions?.projectionAnnotationSpacing ?? 1.0,
             },
           ],
 
