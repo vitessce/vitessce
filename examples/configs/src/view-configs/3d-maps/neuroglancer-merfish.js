@@ -44,6 +44,8 @@ function generateNeuroglancerMerfish() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
+        featureIndexProp: 'gene', // This corresponds to the prop_gene() in the Neuroglancer shader code.
+        pointIndexProp: 'molecule_id', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
       },
       coordinationValues: {
         fileUid: 'merfish-points',

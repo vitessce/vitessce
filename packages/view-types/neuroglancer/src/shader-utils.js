@@ -547,6 +547,9 @@ export function getPointsShader(layerCoordination) {
     featureSelection,
     featureFilterMode,
     featureColor,
+
+    featureIndexProp,
+    pointIndexProp,
   } = layerCoordination;
 
   console.log('Generating shader with coordination:', layerCoordination);
@@ -648,6 +651,9 @@ export function getPointsShader(layerCoordination) {
 
   // ---- geneSelection ----
   if (obsColorEncoding === 'geneSelection') {
+    if(!featureIndexProp) {
+      throw new Error('In order to use gene-based color encoding for Neuroglancer Points, options.featureIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
+    }
     if (!hasFeatureSelection || !hasResolvedIndices) {
       return getGeneSelectionNoSelectionShader(staticColor, opacity);
     }
@@ -663,6 +669,9 @@ export function getPointsShader(layerCoordination) {
 
   // ---- randomByFeature ----
   if (obsColorEncoding === 'randomByFeature') {
+    if(!featureIndexProp) {
+      throw new Error('In order to use gene-based color encoding for Neuroglancer Points, options.featureIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
+    }
     if (!hasFeatureSelection || !hasResolvedIndices) {
       return getRandomByFeatureShader(opacity);
     }
@@ -676,6 +685,9 @@ export function getPointsShader(layerCoordination) {
 
   // ---- random (per point) ----
   if (obsColorEncoding === 'random') {
+    if(!pointIndexProp) {
+      throw new Error('In order to use per-point color encoding for Neuroglancer Points, options.pointIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
+    }
     if (!hasFeatureSelection || !hasResolvedIndices) {
       return getRandomPerPointShader(opacity);
     }

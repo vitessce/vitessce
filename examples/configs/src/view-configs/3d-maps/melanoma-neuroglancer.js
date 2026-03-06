@@ -120,10 +120,7 @@ function generateNeuroglancerMinimalConfiguration() {
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
-
-
-  // TODO: add coordination stuff for segmentationLayer and pointLayer,
-  // so that their neuroglancer visualizations can be controlled from the layer controller.
+  
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
