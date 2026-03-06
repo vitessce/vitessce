@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
@@ -46,8 +47,12 @@ function generateNeuroglancerMerfish() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
+
+        // Note: tissue-map-tools creates an AnnotationProperty
+        // for every column in the sdata Points element dask dataframe.
+        // Reference: https://github.com/hms-dbmi/tissue-map-tools/blob/6a904241436e946ffbadef24b780a33321754991/src/tissue_map_tools/converters.py#L295
         featureIndexProp: 'gene', // This corresponds to the prop_gene() in the Neuroglancer shader code.
-        // TODO: update pointIndexProp to not be 'gene'. Need to find what other prop_s are available.
+        // TODO: update pointIndexProp to not be 'gene'. Need to find what other "prop"s are available in this file.
         pointIndexProp: 'gene', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
       },
       coordinationValues: {
@@ -101,7 +106,7 @@ function generateNeuroglancerMerfish() {
         0.02632056176662445,
         0.999148964881897,
       ],
-    }
+    },
   });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });

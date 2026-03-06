@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
@@ -84,7 +85,7 @@ function generateNeuroglancerMinimalConfiguration() {
       position: [
         -342.5,
         1358.5,
-        2506.5
+        2506.5,
       ],
       projectionScale: 1024,
       projectionOrientation: [
@@ -93,7 +94,7 @@ function generateNeuroglancerMinimalConfiguration() {
         0.5443811416625977,
         0.2145828753709793,
       ],
-    }
+    },
   });
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);

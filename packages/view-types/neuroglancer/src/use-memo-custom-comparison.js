@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable max-len */
 import { useRef } from 'react';
 
 /**
@@ -26,38 +28,37 @@ const shallowDiff = (prevDeps, nextDeps, depName) => prevDeps[depName] !== nextD
 const shallowDiffByLayer = (prevDeps, nextDeps, depName, scopeName) => (
   prevDeps?.[depName]?.[scopeName] !== nextDeps?.[depName]?.[scopeName]
 );
-const shallowDiffByLayerWithKeys = (prevDeps, nextDeps, depName, scopeName, keys) =>
 // Rather than checking equality of the entire object,
 // here, we only shallowly compare the specific properties that are relevant.
-  keys.some(k => prevDeps?.[depName]?.[scopeName]?.[k] !== nextDeps?.[depName]?.[scopeName]?.[k]);
+const shallowDiffByLayerWithKeys = (prevDeps, nextDeps, depName, scopeName, keys) => keys.some(
+  k => (prevDeps?.[depName]?.[scopeName]?.[k] !== nextDeps?.[depName]?.[scopeName]?.[k]),
+);
 const shallowDiffByChannel = (prevDeps, nextDeps, depName, firstName, secondName) => (
   prevDeps?.[depName]?.[firstName]?.[secondName]
     !== nextDeps?.[depName]?.[firstName]?.[secondName]
 );
-const shallowDiffByChannelWithKeys = (prevDeps, nextDeps, depName, firstName, secondName, keys) =>
-// Rather than checking equality of the entire object,
-// here, we only shallowly compare the specific properties that are relevant.
-  keys.some(k => prevDeps?.[depName]?.[firstName]?.[secondName]?.[k]
-        !== nextDeps?.[depName]?.[firstName]?.[secondName]?.[k]);
+const shallowDiffByChannelWithKeys = (prevDeps, nextDeps, depName, firstName, secondName, keys) => keys.some(
+  k => (
+    prevDeps?.[depName]?.[firstName]?.[secondName]?.[k]
+        !== nextDeps?.[depName]?.[firstName]?.[secondName]?.[k]
+  ),
+);
 const shallowDiffByLayerCoordination = (prevDeps, nextDeps, depName, layerScope) => (
   prevDeps?.[depName]?.[0]?.[layerScope]
     !== nextDeps?.[depName]?.[0]?.[layerScope]
 );
-const shallowDiffByLayerCoordinationWithKeys = (prevDeps, nextDeps, depName, layerScope, keys) =>
-// Rather than checking equality of the entire object,
-// here, we only shallowly compare the specific properties that are relevant.
-  keys.some(k => prevDeps?.[depName]?.[0]?.[layerScope]?.[k]
-        !== nextDeps?.[depName]?.[0]?.[layerScope]?.[k]);
+const shallowDiffByLayerCoordinationWithKeys = (prevDeps, nextDeps, depName, layerScope, keys) => keys.some(
+  k => prevDeps?.[depName]?.[0]?.[layerScope]?.[k]
+        !== nextDeps?.[depName]?.[0]?.[layerScope]?.[k],
+);
 const shallowDiffByChannelCoordination = (prevDeps, nextDeps, depName, layerScope, channelScope) => (
   prevDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]
     !== nextDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]
 );
-const shallowDiffByChannelCoordinationWithKeys = (prevDeps, nextDeps, depName, layerScope, channelScope, keys) =>
-// Rather than checking equality of the entire object,
-// here, we only shallowly compare the specific properties that are relevant.
-  keys.some(k => prevDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]?.[k]
-        !== nextDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]?.[k])
-;
+const shallowDiffByChannelCoordinationWithKeys = (prevDeps, nextDeps, depName, layerScope, channelScope, keys) => keys.some(
+  k => prevDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]?.[k]
+        !== nextDeps?.[depName]?.[0]?.[layerScope]?.[channelScope]?.[k],
+);
 
 // We need a custom equality function, to handle the nested nature of the dependencies.
 // We only want to trigger a re-render if the list of layers/channels themselves changed,

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
 import {
@@ -115,9 +116,15 @@ export function NeuroglancerSubscriber(props) {
     // setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialZoom: setZoom,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
+    coordinationScopes,
+  );
 
-  const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
+  const [
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+  ] = useMultiCoordinationScopesSecondaryNonNull(
     CoordinationType.SEGMENTATION_CHANNEL,
     CoordinationType.SEGMENTATION_LAYER,
     coordinationScopes,
@@ -295,7 +302,6 @@ export function NeuroglancerSubscriber(props) {
         }
       });
     });
-    console.log('Recomputed segmentationColorMapping');
     return result;
   }, {
     // The dependencies for the comparison,
@@ -521,13 +527,12 @@ export function NeuroglancerSubscriber(props) {
   ]);
 
   // Get the ultimate cellColorMapping to pass to NeuroglancerComp as a prop.
-  const cellColorMapping = useMemo(() =>
-    // For now, we take the first layer and channel for cell colors.
-    segmentationColorMapping
-      ?.[segmentationLayerScopes?.[0]]
-      ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
-    ?? {},
-  [segmentationColorMapping]);
+  // For now, we take the first layer and channel for cell colors.
+  const cellColorMapping = useMemo(() => (segmentationColorMapping
+    ?.[segmentationLayerScopes?.[0]]
+    ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
+    ?? {}
+  ), [segmentationColorMapping]);
 
 
   // TODO: try to simplify using useMemoCustomComparison?
@@ -723,7 +728,7 @@ export function NeuroglancerSubscriber(props) {
   // }
 
   const hasLayers = derivedViewerState?.layers?.length > 0;
-  console.log(derivedViewerState);
+  // console.log(derivedViewerState);
 
   return (
     <TitleInfo

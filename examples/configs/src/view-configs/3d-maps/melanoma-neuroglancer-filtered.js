@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
@@ -80,7 +81,7 @@ function generateNeuroglancerMinimalConfiguration() {
         0.5443811416625977,
         0.2145828753709793,
       ],
-    }
+    },
   });
 
 

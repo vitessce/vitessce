@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep } from 'lodash-es';
 import { useMemoCustomComparison, customIsEqualForInitialViewerState } from './use-memo-custom-comparison.js';
@@ -52,8 +51,14 @@ function isInNanometerRange(value, unit, minNm = 1, maxNm = 100) {
    * @param {object} opts
    * @returns {{ x:[number,'nm'], y:[number,'nm'], z:[number,'nm'] }}
    */
-function normalizeDimensionsToNanometers(opts) {
-  const { dimensionUnit, dimensionX, dimensionY, dimensionZ, ...otherOptions } = opts;
+export function normalizeDimensionsToNanometers(opts) {
+  const {
+    dimensionUnit,
+    dimensionX,
+    dimensionY,
+    dimensionZ,
+    ...otherOptions
+  } = opts;
 
   if (!dimensionUnit || !dimensionX || !dimensionY || !dimensionZ) {
     console.warn('Missing dimension info');
@@ -130,11 +135,11 @@ export function useNeuroglancerViewerState(
           spatialLayerVisible,
         } = layerCoordination || {};
         channelScopes.forEach((channelScope) => {
-          const channelCoordination = segmentationChannelCoordination[0][layerScope][channelScope];
+          const channelCoordination = segmentationChannelCoordination[0]
+            ?.[layerScope]?.[channelScope];
           const {
             spatialChannelVisible,
           } = channelCoordination || {};
-          console.log(spatialLayerVisible, spatialChannelVisible);
           result = {
             ...result,
             layers: [
@@ -144,24 +149,15 @@ export function useNeuroglancerViewerState(
                 source: toPrecomputedSource(layerUrl),
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
-                visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel visibility must be true for the layer to be visible.
-                // TODO: update this to extract specific properties from neuroglancerOptions as needed.
+                visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel
+                // visibility must be true for the layer to be visible.
+                // TODO: update this to extract specific properties from
+                // neuroglancerOptions as needed.
                 ...(layerData.neuroglancerOptions ?? {}),
               },
             ],
           };
         });
-
-        /*
-        result = {
-          ...result,
-          // The coordinate system options (e.g., position, projectionScale)
-          // provided for this layer will take precedence over whatever is currently in result.
-          // TODO: do not do any position/coordinate system logic here. Do it all via derivedViewerState.
-          // Otherwise, derivedViewerState does not know which values were initial vs. from user interactions.
-          ...normalizeDimensionsToNanometers(layerData.neuroglancerOptions),
-        };
-        */
       }
     });
 
@@ -186,7 +182,8 @@ export function useNeuroglancerViewerState(
           featureColor,
         } = layerCoordination || {};
 
-        // Dynamically construct the shader based on the color encoding and other coordination values.
+        // Dynamically construct the shader based on the color encoding
+        // and other coordination values.
         const shader = getPointsShader({
           theme,
           featureIndex,
@@ -218,13 +215,16 @@ export function useNeuroglancerViewerState(
               shader,
               name: toNgLayerName(DataType.OBS_POINTS, layerScope),
               visible: spatialLayerVisible,
-              // Options from layerData.neuroglancerOptions like projectionAnnotationSpacing:
-              projectionAnnotationSpacing: layerData.neuroglancerOptions?.projectionAnnotationSpacing ?? 1.0,
+              // Options from layerData.neuroglancerOptions
+              // like projectionAnnotationSpacing:
+              projectionAnnotationSpacing: layerData.neuroglancerOptions
+                ?.projectionAnnotationSpacing ?? 1.0,
             },
           ],
 
           // TODO: is this needed?
-          // The selected layer here will overwrite anything that was previously specified.
+          // The selected layer here will overwrite anything
+          // that was previously specified.
           selectedLayer: {
             // size: ? // TODO:  is this needed?
             layer: toNgLayerName(DataType.OBS_POINTS, layerScope),
@@ -232,7 +232,6 @@ export function useNeuroglancerViewerState(
         };
       }
     });
-    console.log('Recomputed initialViewerState');
     return result;
   }, {
     theme,
