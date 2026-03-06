@@ -27,10 +27,19 @@ function generateNeuroglancerMinimalConfiguration() {
     url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
     coordinationValues: {
       fileUid: 'melanom-meshes',
+      obsType: 'cell',
     },
   });
 
-  // TODO: move obsEmbedding to an anndata file so that we get the obsFeatureMatrix.obsIndex for free.
+  dataset.addFile({
+    fileType: 'obsFeatureMatrix.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'feature',
+      featureValueType: 'value',
+    },
+  });
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
@@ -120,7 +129,7 @@ function generateNeuroglancerMinimalConfiguration() {
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
-  
+
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
@@ -131,6 +140,8 @@ function generateNeuroglancerMinimalConfiguration() {
         segmentationChannel: CL([
           {
             obsType: 'cell',
+            featureType: 'feature',
+            featureValueType: 'value',
             spatialChannelVisible: true,
           },
         ]),

@@ -12,9 +12,11 @@ function generateNeuroglancerMerfish() {
     name: 'MERFISH mouse ileum dataset',
   });
 
-  const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
-  const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
   const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
+  const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
+
+  // TODO: check if these meshes are sharded or not (sharded may not be compatible with NG version that we are currently using).
+  const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
 
   const withPoints = true;
 
@@ -45,7 +47,8 @@ function generateNeuroglancerMerfish() {
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
         featureIndexProp: 'gene', // This corresponds to the prop_gene() in the Neuroglancer shader code.
-        pointIndexProp: 'molecule_id', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
+        // TODO: update pointIndexProp to not be 'gene'. Need to find what other prop_s are available.
+        pointIndexProp: 'gene', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
       },
       coordinationValues: {
         fileUid: 'merfish-points',

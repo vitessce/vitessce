@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } 
 import {
   TitleInfo,
   useReady,
-  useUrls,
   useInitialCoordination,
   useCoordination,
   useCoordinationScopes,
@@ -20,8 +19,6 @@ import {
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
-  useObsSetsData,
-  useObsEmbeddingData,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -310,12 +307,6 @@ export function NeuroglancerSubscriber(props) {
     theme,
   }, customIsEqualForCellColors);
 
-
-  // TODO: remove useObsEmbeddingData in favor of meta coordination.
-  const [{ obsIndex }] = useObsEmbeddingData(
-    loaders, dataset, true, {}, {},
-    { obsType, embeddingType: mapping },
-  );
 
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
@@ -724,7 +715,7 @@ export function NeuroglancerSubscriber(props) {
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
-  }, [obsIndex, setCellHighlight]);
+  }, [setCellHighlight]);
 
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
