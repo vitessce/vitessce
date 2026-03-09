@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "3.3.80",
+  "version": "3.3.81",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -9,7 +9,8 @@
     "build-versioned": "docusaurus build --out-dir dist-versioned --dev --no-minify",
     "swizzle": "docusaurus swizzle --danger",
     "serve": "docusaurus serve --port 3002 --dir dist-root",
-    "clear": "docusaurus clear"
+    "clear": "docusaurus clear",
+    "generate-screenshots": "node scripts/generate-screenshots.mjs"
   },
   "dependencies": {
     "@babel/preset-env": "^7.27.2",
@@ -61,7 +62,8 @@
     "eslint-plugin-import": "2.20.0",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-react": "7.18.0",
-    "eslint-plugin-react-hooks": "^1.6.1"
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "playwright": "^1.40.0"
   },
   "license": "MIT"
 }
