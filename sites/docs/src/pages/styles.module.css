@@ -5,24 +5,615 @@
  * and scoped locally.
  */
 
+/* ================================================================
+   HERO SECTION — split layout, dark bg
+   ================================================================ */
+
 .heroBanner {
-  padding: 0.75rem 1rem 0rem 1rem;
-  text-align: left;
+  background: linear-gradient(135deg, #0f1923 0%, #162232 50%, #1a2d42 100%);
+  padding: 3rem 0 2rem;
   position: relative;
   overflow: hidden;
-
-  background-color: var(--hero-banner-background);
 }
 
-.heroContainer {
-  margin: 1rem !important;
+.heroSplit {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 3rem;
+  align-items: center;
 }
 
-@media screen and (max-width: 966px) {
+.heroText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.heroLogo {
+  max-width: 280px;
+  width: 80%;
+  margin-bottom: 1rem;
+}
+
+.heroTagline {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.heroSub {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.heroCta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.heroCtaPrimary {
+  display: inline-block;
+  background: var(--ifm-color-primary);
+  color: #fff !important;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--vit-radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none !important;
+}
+
+.heroCtaPrimary:hover {
+  background: var(--ifm-color-primary-dark);
+  transform: translateY(-1px);
+  color: #fff !important;
+}
+
+.heroCtaSecondary {
+  display: inline-block;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  padding: calc(0.6rem - 1.5px) calc(1.5rem - 1.5px);
+  border-radius: var(--vit-radius-sm);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  text-decoration: none !important;
+}
+
+.heroCtaSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff !important;
+}
+
+.heroImageWrapper {
+  border-radius: var(--vit-radius-md);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.heroImageWrapper img {
+  width: 100%;
+  display: block;
+}
+
+@media screen and (max-width: 860px) {
+  .heroSplit {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .heroText {
+    align-items: center;
+    text-align: center;
+  }
+  .heroCta {
+    justify-content: center;
+  }
   .heroBanner {
-    padding: 0.5rem 0.5rem 0rem 0.5rem;
+    padding: 2rem 0 1.5rem;
   }
 }
+
+/* ================================================================
+   FEATURES STRIP — compact horizontal row
+   ================================================================ */
+
+.featuresStrip {
+  border-bottom: 1px solid var(--vit-border-light);
+  background: var(--vit-bg-primary);
+}
+
+.featuresStripInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.75rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.featureCard {
+  padding: 0;
+}
+
+.featureCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.featureIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--ifm-color-primary);
+}
+
+.featureTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--vit-text-primary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.featureDescription {
+  color: var(--vit-text-muted);
+  line-height: 1.5;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+@media screen and (max-width: 860px) {
+  .featuresStripInner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .featuresStripInner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ================================================================
+   SECTION LAYOUT — full-width, inner constraint
+   ================================================================ */
+
+.sectionFull {
+  padding: 3rem 0;
+}
+
+.sectionAlt {
+  background: var(--vit-bg-secondary);
+}
+
+.sectionInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeading {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--vit-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sectionLink {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sectionLink:hover {
+  text-decoration: underline;
+}
+
+.sectionSub {
+  font-size: 0.95rem;
+  color: var(--vit-text-muted);
+  margin: -0.75rem 0 1.5rem;
+  line-height: 1.5;
+}
+
+/* ================================================================
+   EXAMPLES MOSAIC — 3x2 image-dominant cards with hover overlay
+   ================================================================ */
+
+.examplesMosaic {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.exampleCard {
+  position: relative;
+  display: block;
+  border-radius: var(--vit-radius-md);
+  overflow: hidden;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: var(--vit-bg-secondary);
+  transition: transform 0.2s;
+}
+
+.exampleCard:hover {
+  transform: scale(1.015);
+}
+
+/* On homepage mosaic: overlay visible by default, hidden on hover */
+.examplesMosaic .exampleCardOverlay {
+  opacity: 1;
+}
+
+.examplesMosaic .exampleCard:hover .exampleCardOverlay {
+  opacity: 0;
+}
+
+.exampleCardImage {
+  width: 100%;
+  aspect-ratio: 1920 / 800;
+  object-fit: cover;
+  display: block;
+}
+
+.exampleCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.exampleCardTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.15rem;
+}
+
+.exampleCardDescription {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* On the examples page, card text sits in exampleCardBody (not overlay) */
+.exampleCardBody .exampleCardTitle {
+  color: var(--vit-text-primary);
+}
+
+.exampleCardBody .exampleCardDescription {
+  color: var(--vit-text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  flex: 1;
+}
+
+@media screen and (max-width: 860px) {
+  .examplesMosaic {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .examplesMosaic {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   PLATFORM CARDS — compact row
+   ================================================================ */
+
+.platformsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.platformCard {
+  background: var(--vit-bg-card);
+  border: 1px solid var(--vit-border-light);
+  border-radius: var(--vit-radius-md);
+  overflow: hidden;
+  box-shadow: var(--vit-shadow-sm);
+  transition: box-shadow 0.25s, transform 0.25s;
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+.platformCard:hover {
+  box-shadow: var(--vit-shadow-md);
+  transform: translateY(-2px);
+}
+
+.platformCardImage {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-bottom: 1px solid var(--vit-border-light);
+  display: block;
+}
+
+.platformCardBody {
+  padding: 0.75rem 1rem;
+}
+
+.platformCardTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vit-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.platformCardDescription {
+  font-size: 0.8rem;
+  color: var(--vit-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+@media screen and (max-width: 860px) {
+  .platformsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .platformsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   PUBLICATION SECTION — paper showcase
+   ================================================================ */
+
+.publicationRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.publicationText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.publicationAbstract {
+  font-size: 0.9rem;
+  color: var(--vit-text-secondary);
+  margin: 0 0 1.5rem;
+  line-height: 1.65;
+}
+
+.publicationTitle {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--vit-text-primary);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.publicationAuthors {
+  font-size: 0.9rem;
+  color: var(--vit-text-secondary);
+  margin: 0 0 0.25rem;
+  line-height: 1.5;
+}
+
+.publicationMeta {
+  font-size: 0.85rem;
+  color: var(--vit-text-muted);
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.publicationMeta em {
+  font-style: italic;
+}
+
+.publicationImageLink {
+  display: block;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.publicationImageLink:hover {
+  transform: scale(1.02);
+}
+
+.publicationImage {
+  width: 280px;
+  border-radius: var(--vit-radius-md);
+  box-shadow: var(--vit-shadow-lg);
+  border: 1px solid var(--vit-border-light);
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .publicationRow {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .publicationImage {
+    width: 200px;
+  }
+}
+
+/* ================================================================
+   EXAMPLES PAGE — card grid (used by _DemoList.js)
+   ================================================================ */
+
+.examplesPageContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.examplesPageHeader {
+  margin-bottom: 1.5rem;
+}
+
+.examplesPageHeader h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--vit-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.examplesPageHeader p {
+  font-size: 1rem;
+  color: var(--vit-text-muted);
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+/* Filter bar */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filterButton {
+  background: var(--vit-bg-card);
+  border: 1px solid var(--vit-border-light);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--vit-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filterButton:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.filterButtonActive {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.filterButtonActive:hover {
+  background: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  color: #fff;
+}
+
+/* Example card grid on Examples page */
+.examplesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1rem;
+}
+
+/* Cards on examples page have a different look — visible title below */
+.examplesGrid .exampleCard {
+  border: 1px solid var(--vit-border-light);
+  background: var(--vit-bg-card);
+  box-shadow: var(--vit-shadow-sm);
+}
+
+.examplesGrid .exampleCard:hover {
+  box-shadow: var(--vit-shadow-md);
+}
+
+.examplesGrid .exampleCardImage {
+  border-bottom: 1px solid var(--vit-border-light);
+}
+
+/* On the examples page, no overlay is used — text is in exampleCardBody */
+
+.exampleCardBody {
+  padding: 1rem 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.exampleCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.exampleCardPill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* Tag pill colors */
+.exampleCardPill.spatial { background-color: #b8a036; }
+.exampleCardPill.imaging { background-color: #b8a036; }
+.exampleCardPill.csv { background-color: #8585d0; }
+.exampleCardPill.anndata { background-color: #54b576; }
+.exampleCardPill.omengff { background-color: #54b576; }
+.exampleCardPill.ometiff { background-color: #54b576; }
+.exampleCardPill.zarr { background-color: #c07abc; }
+.exampleCardPill.scalability { background-color: #d49040; }
+.exampleCardPill.multimodal { background-color: #d06888; }
+.exampleCardPill.diagonal { background-color: #52acd4; }
+.exampleCardPill.mosaic { background-color: #4aa0c4; }
+.exampleCardPill._3d { background-color: #8aac3e; }
+.exampleCardPill.spatialdata { background-color: #40c4a0; }
+.exampleCardPill.xr { background-color: #8aac3e; }
+.exampleCardPill.meshes { background-color: #8aac3e; }
+
+/* Small variant for blog demo list */
+.examplesGridSmall {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+/* ================================================================
+   LEGACY STYLES — kept for editor, viewer, and other pages
+   ================================================================ */
 
 .buttons {
   display: flex;
@@ -87,7 +678,7 @@
   height: 40px;
   left: calc(50% - 85px);
   top: calc(50% - 20px);
-  
+
   border: 2px solid var(--ifm-color-primary);
   background-color: var(--ifm-color-primary);
   text-decoration: none !important;
@@ -349,7 +940,7 @@
   text-decoration: none;
 }
 
-/* Demo list */
+/* Legacy demo list */
 
 .demoDescriptionSmall {
   display: none;

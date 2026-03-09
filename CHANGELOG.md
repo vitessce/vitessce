@@ -1,4 +1,13 @@
 
+## 3.9.5
+
+### Patch Changes
+
+- Update docs site, primarily home page and examples page" (`docs`) ([#2421](https://github.com/vitessce/vitessce/pull/2421))
+
+- Prioritize loading center bricks (before outer bricks) in the spatialAccelerated view. (`@vitessce/spatial-accelerated`) ([#2417](https://github.com/vitessce/vitessce/pull/2417))
+
+
 ## 3.9.4
 
 ### Patch Changes
