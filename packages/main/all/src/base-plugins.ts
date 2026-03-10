@@ -73,7 +73,8 @@ import {
   neighborhoodsLayerObj,
   moleculesLayerObj,
   meshGlbSchema,
-  ngSchema,
+  ngPrecomputedMeshSchema,
+  ngPointAnnotationSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -183,8 +184,9 @@ import {
   SpatialDataObsEmbeddingLoader,
   SpatialDataFeatureLabelsLoader,
   // NG precomputed
-  NgPrecomputedMeshSource,
+  NgPassthroughSource,
   NgPrecomputedMeshLoader,
+  NgAnnotationPointsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -346,7 +348,9 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, SpatialDataFeatureLabelsLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPrecomputedMeshSource, ngSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
+  makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),

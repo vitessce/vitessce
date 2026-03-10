@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
 import { DataType } from '@vitessce/constants-internal';
+import { cloneDeep } from 'lodash-es';
+import { useMemoCustomComparison, customIsEqualForInitialViewerState } from './use-memo-custom-comparison.js';
+import { getPointsShader } from './shader-utils.js';
 
 
 export const DEFAULT_NG_PROPS = {
@@ -8,11 +10,17 @@ export const DEFAULT_NG_PROPS = {
   projectionOrientation: [0, 0, 0, 1],
   projectionScale: 1024,
   crossSectionScale: 1,
+  dimensions: {
+    x: [1, 'nm'],
+    y: [1, 'nm'],
+    z: [1, 'nm'],
+  },
+  layers: [],
 };
 
 function toPrecomputedSource(url) {
   if (!url) {
-    return undefined;
+    throw new Error('toPrecomputedSource: URL is required');
   }
   return `precomputed://${url}`;
 }
@@ -43,8 +51,14 @@ function isInNanometerRange(value, unit, minNm = 1, maxNm = 100) {
    * @param {object} opts
    * @returns {{ x:[number,'nm'], y:[number,'nm'], z:[number,'nm'] }}
    */
-function normalizeDimensionsToNanometers(opts) {
-  const { dimensionUnit, dimensionX, dimensionY, dimensionZ } = opts;
+export function normalizeDimensionsToNanometers(opts) {
+  const {
+    dimensionUnit,
+    dimensionX,
+    dimensionY,
+    dimensionZ,
+    ...otherOptions
+  } = opts;
 
   if (!dimensionUnit || !dimensionX || !dimensionY || !dimensionZ) {
     console.warn('Missing dimension info');
@@ -56,81 +70,27 @@ function normalizeDimensionsToNanometers(opts) {
     console.warn('Dimension was converted to nm units');
   }
   return {
-    x: xNm ? [dimensionX, dimensionUnit] : [1, 'nm'],
-    y: yNm ? [dimensionY, dimensionUnit] : [1, 'nm'],
-    z: zNm ? [dimensionZ, dimensionUnit] : [1, 'nm'],
+    // The dimension-related fields are formatted differently in the fileDef.options
+    // vs. what the viewerState expects.
+    dimensions: {
+      x: xNm ? [dimensionX, dimensionUnit] : [1, 'nm'],
+      y: yNm ? [dimensionY, dimensionUnit] : [1, 'nm'],
+      z: zNm ? [dimensionZ, dimensionUnit] : [1, 'nm'],
+    },
+    // The non-dimension-related options can be passed through without modification.
+    ...otherOptions,
   };
 }
 
-export function extractDataTypeEntities(loaders, dataset, dataType) {
-  const datasetEntry = loaders?.[dataset];
-  const internMap = datasetEntry?.loaders?.[dataType];
-  if (!internMap || typeof internMap.entries !== 'function') return [];
-
-  return Array.from(internMap.entries()).map(([key, loader]) => {
-    const url = loader?.url ?? loader?.dataSource?.url ?? undefined;
-    const fileUid = key?.fileUid
-        ?? loader?.coordinationValues?.fileUid
-        ?? undefined;
-
-    const { position, projectionOrientation,
-      projectionScale, crossSectionScale } = loader?.options ?? {};
-    const isPrecomputed = loader?.fileType.includes('precomputed');
-    if (!isPrecomputed) {
-      console.warn('Filetype needs to be precomputed');
-    }
-    return {
-      key,
-      type: 'segmentation',
-      fileUid,
-      layout: DEFAULT_NG_PROPS.layout,
-      url,
-      source: toPrecomputedSource(url),
-      name: fileUid ?? key?.name ?? 'segmentation',
-      // For precomputed: nm is the unit used
-      dimensions: normalizeDimensionsToNanometers(loader?.options),
-      // If not provided, no error, but difficult to see the data
-      position: Array.isArray(position) && position.length === 3
-        ? position : DEFAULT_NG_PROPS.position,
-      // If not provided, will have a default orientation
-      projectionOrientation: Array.isArray(projectionOrientation)
-          && projectionOrientation.length === 4
-        ? projectionOrientation : DEFAULT_NG_PROPS.projectionOrientation,
-      projectionScale: Number.isFinite(projectionScale)
-        ? projectionScale : DEFAULT_NG_PROPS.projectionScale,
-      crossSectionScale: Number.isFinite(crossSectionScale)
-        ? crossSectionScale : DEFAULT_NG_PROPS.crossSectionScale,
-    };
-  });
+export function toNgLayerName(dataType, layerScope, channelScope = null) {
+  if (dataType === DataType.OBS_SEGMENTATIONS) {
+    return `obsSegmentations-${layerScope}-${channelScope}`;
+  }
+  if (dataType === DataType.OBS_POINTS) {
+    return `obsPoints-${layerScope}`;
+  }
+  throw new Error(`Unsupported data type: ${dataType}`);
 }
-
-export function useExtractOptionsForNg(loaders, dataset, dataType) {
-  const extractedEntities = useMemo(
-    () => extractDataTypeEntities(loaders, dataset, dataType),
-    [loaders, dataset, dataType],
-  );
-  const layers = useMemo(() => extractedEntities
-    .filter(t => t.source)
-    .map(t => ({
-      type: t.type,
-      source: t.source,
-      segments: [],
-      name: t.name || 'segmentation',
-    })), [extractedEntities]);
-
-  const viewerState = useMemo(() => ({
-    dimensions: extractedEntities[0]?.dimensions,
-    position: extractedEntities[0]?.position,
-    crossSectionScale: extractedEntities[0]?.crossSectionScale,
-    projectionOrientation: extractedEntities[0]?.projectionOrientation,
-    projectionScale: extractedEntities[0]?.projectionScale,
-    layers,
-    layout: extractedEntities[0].layout,
-  }));
-
-  return [viewerState];
-}
-
 
 /**
  * Get the parameters for NG's viewerstate.
@@ -145,8 +105,148 @@ export function useExtractOptionsForNg(loaders, dataset, dataType) {
  * @returns [viewerState]
  */
 export function useNeuroglancerViewerState(
-  loaders, dataset, isRequired,
-  coordinationSetters, initialCoordinationValues, matchOn,
+  theme,
+  segmentationLayerScopes,
+  segmentationChannelScopesByLayer,
+  segmentationLayerCoordination,
+  segmentationChannelCoordination,
+  obsSegmentationsUrls,
+  obsSegmentationsData,
+  pointLayerScopes,
+  pointLayerCoordination,
+  obsPointsUrls,
+  obsPointsData,
+  pointMultiIndicesData,
 ) {
-  return useExtractOptionsForNg(loaders, dataset, DataType.OBS_SEGMENTATIONS, matchOn);
+  const viewerState = useMemoCustomComparison(() => {
+    let result = cloneDeep(DEFAULT_NG_PROPS);
+
+    // ======= SEGMENTATIONS =======
+
+    // Iterate over segmentation layers and channels.
+    segmentationLayerScopes.forEach((layerScope) => {
+      const layerCoordination = segmentationLayerCoordination[0][layerScope];
+      const channelScopes = segmentationChannelScopesByLayer[layerScope] || [];
+      const layerData = obsSegmentationsData[layerScope];
+      const layerUrl = obsSegmentationsUrls[layerScope]?.[0]?.url;
+
+      if (layerUrl && layerData) {
+        const {
+          spatialLayerVisible,
+        } = layerCoordination || {};
+        channelScopes.forEach((channelScope) => {
+          const channelCoordination = segmentationChannelCoordination[0]
+            ?.[layerScope]?.[channelScope];
+          const {
+            spatialChannelVisible,
+          } = channelCoordination || {};
+          result = {
+            ...result,
+            layers: [
+              ...result.layers,
+              {
+                type: 'segmentation',
+                source: toPrecomputedSource(layerUrl),
+                segments: [],
+                name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
+                visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel
+                // visibility must be true for the layer to be visible.
+                // TODO: update this to extract specific properties from
+                // neuroglancerOptions as needed.
+                ...(layerData.neuroglancerOptions ?? {}),
+              },
+            ],
+          };
+        });
+      }
+    });
+
+    // ======= POINTS =======
+
+    // Iterate over point layers.
+    pointLayerScopes.forEach((layerScope) => {
+      const layerCoordination = pointLayerCoordination[0][layerScope];
+      const layerData = obsPointsData[layerScope];
+      const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
+
+      const featureIndex = pointMultiIndicesData[layerScope]?.featureIndex;
+
+      if (layerUrl && layerData) {
+        const {
+          spatialLayerVisible,
+          spatialLayerOpacity,
+          obsColorEncoding,
+          spatialLayerColor,
+          featureSelection,
+          featureFilterMode,
+          featureColor,
+        } = layerCoordination || {};
+
+        // Dynamically construct the shader based on the color encoding
+        // and other coordination values.
+        const shader = getPointsShader({
+          theme,
+          featureIndex,
+          spatialLayerOpacity,
+          obsColorEncoding,
+          spatialLayerColor,
+          featureSelection,
+          featureFilterMode,
+          featureColor,
+
+          featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
+          pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
+        });
+
+        result = {
+          ...result,
+          layers: [
+            ...result.layers,
+            {
+              type: 'annotation',
+              source: {
+                url: toPrecomputedSource(layerUrl),
+                subsources: {
+                  default: true,
+                },
+                enableDefaultSubsources: false,
+              },
+              tab: 'annotations',
+              shader,
+              name: toNgLayerName(DataType.OBS_POINTS, layerScope),
+              visible: spatialLayerVisible,
+              // Options from layerData.neuroglancerOptions
+              // like projectionAnnotationSpacing:
+              projectionAnnotationSpacing: layerData.neuroglancerOptions
+                ?.projectionAnnotationSpacing ?? 1.0,
+            },
+          ],
+
+          // TODO: is this needed?
+          // The selected layer here will overwrite anything
+          // that was previously specified.
+          selectedLayer: {
+            // size: ? // TODO:  is this needed?
+            layer: toNgLayerName(DataType.OBS_POINTS, layerScope),
+          },
+        };
+      }
+    });
+    return result;
+  }, {
+    theme,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerScopes,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+    pointMultiIndicesData,
+  }, customIsEqualForInitialViewerState);
+
+  return viewerState;
 }

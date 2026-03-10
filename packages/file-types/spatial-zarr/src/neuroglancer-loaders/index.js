@@ -1,2 +1,3 @@
-export { default as NgPrecomputedMeshSource } from './PrecomputedMeshSource.js';
-export { default as NgPrecomputedMeshLoader } from './PrecomputedMeshDataLoader.js';
+export { default as NgPassthroughSource } from './NgPassthroughSource.js';
+export { default as NgPrecomputedMeshLoader } from './NgPrecomputedMeshDataLoader.js';
+export { default as NgAnnotationPointsLoader } from './NgAnnotationPointsDataLoader.js';
