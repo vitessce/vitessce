@@ -191,6 +191,22 @@ function PointLayerEllipsisMenu(props) {
   );
 }
 
+function LayerPerFeatureController(props) {
+  const {
+    featureSelection,
+  } = props;
+  
+  return (
+    <>
+      {Array.isArray(featureSelection) ? (
+        featureSelection.map(featureName => (
+          <p key={featureName}>{featureName}</p>
+        ))
+      ) : null}
+    </>
+  );
+}
+
 export default function PointLayerController(props) {
   const {
     theme,
@@ -200,6 +216,7 @@ export default function PointLayerController(props) {
     palette = null,
     pointMatrixIndicesData,
     tiledPointsLoadingProgress,
+    layerPerFeatureForPoints,
   } = props;
 
   const [open, setOpen] = useState(false); // TODO: make false after development
@@ -353,7 +370,11 @@ export default function PointLayerController(props) {
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
 
-  return (
+  return (layerPerFeatureForPoints ? (
+    <LayerPerFeatureController
+      featureSelection={featureSelection}
+    />
+  ) : (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
@@ -477,5 +498,5 @@ export default function PointLayerController(props) {
         ) : null}
       </Paper>
     </Grid>
-  );
+  ));
 }

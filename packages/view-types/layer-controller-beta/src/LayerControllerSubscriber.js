@@ -51,6 +51,7 @@ export function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     uuid,
+    layerPerFeatureForPoints = false,
   } = props;
 
   const loaders = useLoaders();
@@ -354,6 +355,7 @@ export function LayerControllerSubscriber(props) {
 
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
+        layerPerFeatureForPoints={layerPerFeatureForPoints}
       />
     </TitleInfo>
   );
