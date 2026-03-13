@@ -39,7 +39,7 @@ import {
   useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
-import LayerPerFeatureController from './LayerPerFeatureController.js';
+import FeatureLayerController from './LayerPerFeatureController.js';
 
 const useStyles = makeStyles()(() => ({
   pointLayerButton: {
@@ -70,13 +70,19 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-function PointLayerEllipsisMenu(props) {
+function LayerPerFeatureEllipsisMenu(props) {
   const {
     featureSelection,
-    featureFilterMode,
-    setFeatureFilterMode,
-    obsColorEncoding,
+    visible,
+    opacity,
+    setVisible,
+    setOpacity,
+    setFeatureColor,
     setObsColorEncoding,
+    featureColor,
+    setSpatialLayerColor,
+    featureValueColormap,
+    spatialLayerColor,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     tooltipsVisible,
@@ -85,6 +91,9 @@ function PointLayerEllipsisMenu(props) {
     setTooltipCrosshairsVisible,
     legendVisible,
     setLegendVisible,
+    featureFilterMode,
+    setFeatureFilterMode,
+    obsColorEncoding,
   } = props;
   const [open, setOpen] = useState(false);
   const { classes: selectClasses } = useSelectStyles();
@@ -192,16 +201,34 @@ function PointLayerEllipsisMenu(props) {
   );
 }
 
-export default function PointLayerController(props) {
+export default function LayerPerFeatureController(props) {
   const {
     theme,
-    layerScope,
-    layerCoordination,
-    setLayerCoordination,
     palette = null,
     pointMatrixIndicesData,
     tiledPointsLoadingProgress,
-    layerPerFeatureForPoints,
+    featureSelection,
+    visible,
+    opacity,
+    setVisible,
+    setOpacity,
+    obsColorEncoding,
+    setFeatureColor,
+    setObsColorEncoding,
+    featureColor,
+    setSpatialLayerColor,
+    featureValueColormap,
+    spatialLayerColor,
+    featureValueColormapRange,
+    setFeatureValueColormapRange,
+    tooltipsVisible,
+    setTooltipsVisible,
+    tooltipCrosshairsVisible,
+    setTooltipCrosshairsVisible,
+    legendVisible,
+    setLegendVisible,
+    featureFilterMode,
+    setFeatureFilterMode,
   } = props;
 
   const [open, setOpen] = useState(false); // TODO: make false after development
@@ -216,37 +243,6 @@ export default function PointLayerController(props) {
     return 1.0;
   }, [tiledPointsLoadingProgress]);
 
-  const {
-    obsType,
-    spatialLayerVisible: visible,
-    spatialLayerOpacity: opacity,
-    obsColorEncoding,
-    featureColor,
-    featureFilterMode,
-    featureSelection,
-    featureValueColormap,
-    featureValueColormapRange,
-    spatialLayerColor,
-    tooltipsVisible,
-    tooltipCrosshairsVisible,
-    legendVisible,
-  } = layerCoordination;
-  const {
-    setSpatialLayerVisible: setVisible,
-    setSpatialLayerOpacity: setOpacity,
-    setObsColorEncoding,
-    setFeatureColor,
-    setFeatureFilterMode,
-    setFeatureSelection,
-    setFeatureValueColormap,
-    setFeatureValueColormapRange,
-    setSpatialLayerColor,
-    setTooltipsVisible,
-    setTooltipCrosshairsVisible,
-    setLegendVisible,
-  } = setLayerCoordination;
-
-  const label = capitalize(obsType);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = useMemo(() => (
@@ -357,155 +353,133 @@ export default function PointLayerController(props) {
 
   return (
     <>
-     {layerPerFeatureForPoints && featureSelection?.length > 0 ? (
-    <LayerPerFeatureController
-      featureSelection={featureSelection}
-      visible={visible}
-      opacity={opacity}
-      setVisible={setVisible}
-      setOpacity={setOpacity}
-      setFeatureColor={setFeatureColor}
-      setObsColorEncoding={setObsColorEncoding}
-      featureColor={featureColor}
-      setSpatialLayerColor={setSpatialLayerColor}
-      featureValueColormap={featureValueColormap}
-      spatialLayerColor={spatialLayerColor}
-      featureValueColormapRange={featureValueColormapRange}
-      setFeatureValueColormapRange={setFeatureValueColormapRange}
-      tooltipsVisible={tooltipsVisible}
-      setTooltipsVisible={setTooltipsVisible}
-      tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-      setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-      legendVisible={legendVisible}
-      setLegendVisible={setLegendVisible}
-      featureFilterMode={featureFilterMode}
-      setFeatureFilterMode={setFeatureFilterMode}
-
-    />
-  ) : null }
-    <Grid className={lcClasses.layerControllerGrid}>
-      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
-            <Button
-              onClick={handleVisibleChange}
-              className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle layer visibility"
-            >
-              <Visibility />
-            </Button>
-          </Grid>
-          <Grid size={1}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={setColor}
-              palette={palette}
-              isStaticColor={isStaticColor}
-              isColormap={isColormap}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
-          </Grid>
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
-              {label}
-            </Typography>
-          </Grid>
-          <Grid size={2}>
-            <Slider
-              value={opacity}
-              min={0}
-              max={1}
-              step={0.001}
-              onChange={handleOpacityChange}
-              className={menuClasses.imageLayerOpacitySlider}
-              orientation="horizontal"
-              aria-label={`Adjust opacity for layer ${label}`}
-            />
-          </Grid>
-          <Grid size={1}>
-            <PointLayerEllipsisMenu
-              featureSelection={featureSelection}
-              obsColorEncoding={obsColorEncoding}
-              setObsColorEncoding={setObsColorEncoding}
-              featureValueColormapRange={featureValueColormapRange}
-              setFeatureValueColormapRange={setFeatureValueColormapRange}
-              tooltipsVisible={tooltipsVisible}
-              setTooltipsVisible={setTooltipsVisible}
-              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-              legendVisible={legendVisible}
-              setLegendVisible={setLegendVisible}
-              featureFilterMode={featureFilterMode}
-              setFeatureFilterMode={setFeatureFilterMode}
-            />
-          </Grid>
-          <Grid size={1} container direction="row">
-            <PointsIconSVG className={classes.layerTypePointIcon} />
-            {enableFeaturesAndSetsDropdown ? (
+      {Array.isArray(featureSelection) ? (
+        featureSelection.map(featureName => (
+      <Grid className={lcClasses.layerControllerGrid}>
+        <Paper elevation={4} className={lcClasses.layerControllerRoot}>
+          <Grid container direction="row" justifyContent="space-between">
+            <Grid size={1}>
               <Button
-                onClick={handleOpenChange}
-                className={classes.pointFeatureExpansionButton}
-                aria-label="Expand or collapse coloring controls"
+                onClick={handleVisibleChange}
+                className={menuClasses.imageLayerVisibleButton}
+                aria-label="Toggle layer visibility"
               >
-                {open ? <ExpandLess /> : <ExpandMore />}
+                <Visibility />
               </Button>
-            ) : null}
+            </Grid>
+            <Grid size={1}>
+              <ChannelColorPickerMenu
+                theme={theme}
+                color={color}
+                setColor={setColor}
+                palette={palette}
+                isStaticColor={isStaticColor}
+                isColormap={isColormap}
+                featureValueColormap={featureValueColormap}
+                visible={visible}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography className={menuClasses.imageLayerName}>
+                {featureName}
+              </Typography>
+            </Grid>
+            <Grid size={2}>
+              <Slider
+                value={opacity}
+                min={0}
+                max={1}
+                step={0.001}
+                onChange={handleOpacityChange}
+                className={menuClasses.imageLayerOpacitySlider}
+                orientation="horizontal"
+                aria-label={`Adjust opacity for layer ${featureName}`}
+              />
+            </Grid>
+            <Grid size={1}>
+              <LayerPerFeatureEllipsisMenu
+                featureSelection={featureSelection}
+                obsColorEncoding={obsColorEncoding}
+                setObsColorEncoding={setObsColorEncoding}
+                featureValueColormapRange={featureValueColormapRange}
+                setFeatureValueColormapRange={setFeatureValueColormapRange}
+                tooltipsVisible={tooltipsVisible}
+                setTooltipsVisible={setTooltipsVisible}
+                tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+                setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+                legendVisible={legendVisible}
+                setLegendVisible={setLegendVisible}
+                featureFilterMode={featureFilterMode}
+                setFeatureFilterMode={setFeatureFilterMode}
+              />
+            </Grid>
+            <Grid size={1} container direction="row">
+              <PointsIconSVG className={classes.layerTypePointIcon} />
+              {enableFeaturesAndSetsDropdown ? (
+                <Button
+                  onClick={handleOpenChange}
+                  className={classes.pointFeatureExpansionButton}
+                  aria-label="Expand or collapse coloring controls"
+                >
+                  {open ? <ExpandLess /> : <ExpandMore />}
+                </Button>
+              ) : null}
+            </Grid>
           </Grid>
-        </Grid>
-        {loadingDoneFraction < 1.0 ? (
-          <Grid
-            size={12}
-            container
-            direction="column"
-            justifyContent="space-between"
-            className={classes.pointFeatureControllerGrid}
-          >
-            <LinearProgress
-              variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
-              value={loadingDoneFraction * 100.0}
-            />
-          </Grid>
-        ) : null}
-        {enableFeaturesAndSetsDropdown && open ? (
-          <Grid
-            container
-            direction="column"
-            justifyContent="space-between"
-            className={classes.pointFeatureControllerGrid}
-          >
-            <Tabs
-              value={coloringTabIndex}
-              onChange={handleColoringTabChange}
-              aria-label="Tabs for coloring by feature or set"
+          {loadingDoneFraction < 1.0 ? (
+            <Grid
+              size={12}
+              container
+              direction="column"
+              justifyContent="space-between"
+              className={classes.pointFeatureControllerGrid}
             >
-              <Tab label="Feature List" />
-            </Tabs>
-            {coloringTabIndex === 0 && (
-              <Grid size={12} container direction="column">
-                <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
-                  {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
-                    <MenuItem
-                      key={`${featureName}-${feature_index}`}
-                    >
-                      <ListItemIcon>
-                        {/*
-                        TODO: deterministically assign colors based on feature index
-                        using same method here as in Spatial view implementation
-                        */}
-                        <PaletteIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>{featureName}</ListItemText>
-                    </MenuItem>
-                  )) : null}
-                </MenuList>
-              </Grid>
-            )}
-          </Grid>
-        ) : null}
-      </Paper>
-    </Grid>
-  </>)
-
+              <LinearProgress
+                variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
+                value={loadingDoneFraction * 100.0}
+              />
+            </Grid>
+          ) : null}
+          {enableFeaturesAndSetsDropdown && open ? (
+            <Grid
+              container
+              direction="column"
+              justifyContent="space-between"
+              className={classes.pointFeatureControllerGrid}
+            >
+              <Tabs
+                value={coloringTabIndex}
+                onChange={handleColoringTabChange}
+                aria-label="Tabs for coloring by feature or set"
+              >
+                <Tab label="Feature List" />
+              </Tabs>
+              {coloringTabIndex === 0 && (
+                <Grid size={12} container direction="column">
+                  <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
+                    {featureIndex && featureIndex.length > 0 ? featureIndex.map(feature => (
+                      <MenuItem
+                        key={feature}
+                      >
+                        <ListItemIcon>
+                          {/*
+                          TODO: deterministically assign colors based on feature index
+                          using same method here as in Spatial view implementation
+                          */}
+                          <PaletteIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>{feature}</ListItemText>
+                      </MenuItem>
+                    )) : null}
+                  </MenuList>
+                </Grid>
+              )}
+            </Grid>
+          ) : null}
+        </Paper>
+      </Grid>
+              ))
+            ) : null}
+          </>
+  );
 }
