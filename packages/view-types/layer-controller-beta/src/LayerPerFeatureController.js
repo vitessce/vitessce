@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
-// eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
 import {
@@ -19,35 +18,19 @@ import {
   ExpandMore,
   ExpandLess,
   MoreVert as MoreVertIcon,
-  Input,
-  Box,
-  InputAdornment,
-  Tabs,
-  Tab,
-  MenuList,
-  ListItemText,
-  ListItemIcon,
   LinearProgress,
   Palette as PaletteIcon,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
-import { PointsIconSVG } from '@vitessce/icons';
-import { capitalize } from '@vitessce/utils';
+import { GeneIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
-import FeatureLayerController from './LayerPerFeatureController.js';
 
 const useStyles = makeStyles()(() => ({
-  pointLayerButton: {
-    borderStyle: 'dashed',
-    marginTop: '10px',
-    marginBottom: '10px',
-    fontWeight: 400,
-  },
   pointFeatureControllerGrid: {
     padding: '0',
     flexWrap: 'nowrap',
@@ -68,21 +51,15 @@ const useStyles = makeStyles()(() => ({
     width: '50%',
     maxWidth: '16px',
   },
+  featureSubRow: {
+    paddingLeft: '20px',
+    marginTop: '2px',
+  },
 }));
 
 function LayerPerFeatureEllipsisMenu(props) {
   const {
-    featureSelection,
-    visible,
-    opacity,
-    setVisible,
-    setOpacity,
-    setFeatureColor,
     setObsColorEncoding,
-    featureColor,
-    setSpatialLayerColor,
-    featureValueColormap,
-    spatialLayerColor,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     tooltipsVisible,
@@ -205,22 +182,13 @@ export default function LayerPerFeatureController(props) {
   const {
     theme,
     palette = null,
-    pointMatrixIndicesData,
-    tiledPointsLoadingProgress,
-    featureSelection,
-    visible,
-    opacity,
-    setVisible,
-    setOpacity,
-    obsColorEncoding,
-    setFeatureColor,
-    setObsColorEncoding,
+    featureName,
     featureColor,
-    setSpatialLayerColor,
+    setFeatureColor,
     featureValueColormap,
-    spatialLayerColor,
     featureValueColormapRange,
     setFeatureValueColormapRange,
+    obsColorEncoding,
     tooltipsVisible,
     setTooltipsVisible,
     tooltipCrosshairsVisible,
@@ -229,257 +197,140 @@ export default function LayerPerFeatureController(props) {
     setLegendVisible,
     featureFilterMode,
     setFeatureFilterMode,
+    tiledPointsLoadingProgress,
+    pointMatrixIndicesData,
   } = props;
 
-  const [open, setOpen] = useState(false); // TODO: make false after development
 
   const loadingDoneFraction = useMemo(() => {
     if (tiledPointsLoadingProgress && typeof tiledPointsLoadingProgress === 'object') {
       return 1.0 - (
-        Object.values(tiledPointsLoadingProgress).filter(status => status === 'loading').length
+        Object.values(tiledPointsLoadingProgress).filter(s => s === 'loading').length
         / Object.values(tiledPointsLoadingProgress).length
       );
     }
     return 1.0;
   }, [tiledPointsLoadingProgress]);
 
+  const featureEntry = useMemo(() => (
+    featureColor?.find(fc => fc.name === featureName)
+  ), [featureColor, featureName]);
 
-  const visibleSetting = typeof visible === 'boolean' ? visible : true;
-  const Visibility = useMemo(() => (
-    visibleSetting
-      ? VisibilityIcon
-      : VisibilityOffIcon
-  ), [visibleSetting]);
+  const color = featureEntry?.color ?? [255, 255, 255];
+  const visible = featureEntry?.visible ?? true;
+  const opacity = featureEntry?.opacity ?? 1.0;
 
-  const hasUnspecifiedFeatureColors = useMemo(() => {
-    if (Array.isArray(featureSelection)) {
-      if (Array.isArray(featureColor)) {
-        // Check that each selected feature has a specified color.
-        // When we find one that does not, we can return true.
-        return featureSelection.some((featureName) => {
-          const colorForFeature = featureColor.find(fc => fc.name === featureName);
-          return !colorForFeature;
-        });
-      }
-      // There are features selected, but featureColor is not an array,
-      // so we can assume all features lack specified colors.
-      return featureSelection.length > 0;
-    }
-    return true;
-  }, [featureColor, featureSelection]);
 
-  const isStaticColor = (
-    obsColorEncoding === 'spatialLayerColor'
-    || obsColorEncoding === 'geneSelection'
-  );
-  const showStaticColor = (
-    obsColorEncoding === 'spatialLayerColor'
-    || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
-  );
-  const isColormap = false; // We do not yet support quantitative colormaps for points.
+  const updateFeatureEntry = useCallback((patch) => {
+    const idx = featureColor?.findIndex(fc => fc.name === featureName) ?? -1;
+    if (idx >= 0) {
+      const updated = [...featureColor];
+      updated[idx] = { ...updated[idx], ...patch };
+      setFeatureColor(updated);
+    } else {
+      setFeatureColor([
+        ...(featureColor ?? []),
+        { name: featureName, color: [255, 255, 255], visible: true, opacity: 1.0, ...patch },
+      ]);
+    }
+  }, [featureName, featureColor, setFeatureColor]);
 
-  // If the feature color encoding is "geneSelection" and there is only one feature selected,
-  // we can use the first feature's color as the static color, and hook up the featureColor setter
-  // for that feature in the featureColor array.
-  const hasSingleSelectedFeature = (
-    obsColorEncoding === 'geneSelection'
-    && Array.isArray(featureSelection)
-    && featureSelection.length === 1
-  );
-  const color = useMemo(() => {
-    if (showStaticColor) {
-      return spatialLayerColor;
-    }
-    if (hasSingleSelectedFeature) {
-      const selectedFeatureColor = featureColor
-        ?.find(fc => fc.name === featureSelection[0])?.color;
-      if (selectedFeatureColor) {
-        return selectedFeatureColor;
-      }
-    }
-    return null;
-  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor,
-    featureSelection, showStaticColor,
-  ]);
-  const setColor = useCallback((newColor) => {
-    if (showStaticColor) {
-      setSpatialLayerColor(newColor);
-    } else if (hasSingleSelectedFeature) {
-      const featureColorIndex = featureColor
-        ?.findIndex(fc => fc.name === featureSelection[0]);
-      if (featureColorIndex !== undefined && featureColorIndex >= 0) {
-        // Update existing feature color.
-        const newFeatureColor = [...featureColor];
-        newFeatureColor[featureColorIndex] = {
-          name: featureSelection[0],
-          color: newColor,
-        };
-        setFeatureColor(newFeatureColor);
-      } else {
-        // Add new feature color.
-        setFeatureColor([
-          ...featureColor,
-          { name: featureSelection[0], color: newColor },
-        ]);
-      }
-    }
-  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor,
-    setFeatureColor, featureSelection, showStaticColor,
-  ]);
+  const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
   const { classes: menuClasses } = useEllipsisMenuStyles();
 
-  const handleVisibleChange = useCallback(() => {
-    const nextVisible = typeof visible === 'boolean' ? !visible : false;
-    setVisible(nextVisible);
-  }, [visible, setVisible]);
-
-  const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
-  const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const enableFeaturesAndSetsDropdown = false;
+  const [open, setOpen] = useState(false);
 
-  const [coloringTabIndex, setColoringTabIndex] = useState(0);
-
-  const handleColoringTabChange = (event, newValue) => {
-    setColoringTabIndex(newValue);
-  };
-
-  // We only match on FEATURE_TYPE, so only the featureIndex
-  // will be relevant/correct here.
-  const { featureIndex } = pointMatrixIndicesData || {};
 
   return (
-    <>
-      {Array.isArray(featureSelection) ? (
-        featureSelection.map(featureName => (
-      <Grid className={lcClasses.layerControllerGrid}>
-        <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-          <Grid container direction="row" justifyContent="space-between">
-            <Grid size={1}>
-              <Button
-                onClick={handleVisibleChange}
-                className={menuClasses.imageLayerVisibleButton}
-                aria-label="Toggle layer visibility"
-              >
-                <Visibility />
-              </Button>
-            </Grid>
-            <Grid size={1}>
-              <ChannelColorPickerMenu
-                theme={theme}
-                color={color}
-                setColor={setColor}
-                palette={palette}
-                isStaticColor={isStaticColor}
-                isColormap={isColormap}
-                featureValueColormap={featureValueColormap}
-                visible={visible}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Typography className={menuClasses.imageLayerName}>
-                {featureName}
-              </Typography>
-            </Grid>
-            <Grid size={2}>
-              <Slider
-                value={opacity}
-                min={0}
-                max={1}
-                step={0.001}
-                onChange={handleOpacityChange}
-                className={menuClasses.imageLayerOpacitySlider}
-                orientation="horizontal"
-                aria-label={`Adjust opacity for layer ${featureName}`}
-              />
-            </Grid>
-            <Grid size={1}>
-              <LayerPerFeatureEllipsisMenu
-                featureSelection={featureSelection}
-                obsColorEncoding={obsColorEncoding}
-                setObsColorEncoding={setObsColorEncoding}
-                featureValueColormapRange={featureValueColormapRange}
-                setFeatureValueColormapRange={setFeatureValueColormapRange}
-                tooltipsVisible={tooltipsVisible}
-                setTooltipsVisible={setTooltipsVisible}
-                tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-                setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-                legendVisible={legendVisible}
-                setLegendVisible={setLegendVisible}
-                featureFilterMode={featureFilterMode}
-                setFeatureFilterMode={setFeatureFilterMode}
-              />
-            </Grid>
-            <Grid size={1} container direction="row">
-              <PointsIconSVG className={classes.layerTypePointIcon} />
-              {enableFeaturesAndSetsDropdown ? (
-                <Button
-                  onClick={handleOpenChange}
-                  className={classes.pointFeatureExpansionButton}
-                  aria-label="Expand or collapse coloring controls"
-                >
-                  {open ? <ExpandLess /> : <ExpandMore />}
-                </Button>
-              ) : null}
-            </Grid>
+    <Grid key={featureName} className={lcClasses.featureSubRow}>
+      <Paper elevation={2} className={lcClasses.layerControllerRoot} style={{ marginTop: '5px', marginLeft: '30px', width: 'calc(100% - 30px)' }}>
+        <Grid container direction="row" justifyContent="space-between">
+          <Grid size={1}>
+            <Button
+              onClick={() => updateFeatureEntry({ visible: !visible })}
+              className={menuClasses.imageLayerVisibleButton}
+              aria-label="Toggle layer visibility"
+            >
+              <Visibility />
+            </Button>
           </Grid>
-          {loadingDoneFraction < 1.0 ? (
-            <Grid
-              size={12}
-              container
-              direction="column"
-              justifyContent="space-between"
-              className={classes.pointFeatureControllerGrid}
-            >
-              <LinearProgress
-                variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
-                value={loadingDoneFraction * 100.0}
-              />
-            </Grid>
-          ) : null}
-          {enableFeaturesAndSetsDropdown && open ? (
-            <Grid
-              container
-              direction="column"
-              justifyContent="space-between"
-              className={classes.pointFeatureControllerGrid}
-            >
-              <Tabs
-                value={coloringTabIndex}
-                onChange={handleColoringTabChange}
-                aria-label="Tabs for coloring by feature or set"
+          <Grid size={1}>
+            <ChannelColorPickerMenu
+              theme={theme}
+              color={color}
+              setColor={newColor => updateFeatureEntry({ color: newColor })}
+              palette={palette}
+              isStaticColor
+              isColormap={false}
+              featureValueColormap={featureValueColormap}
+              visible={visible}
+            />
+          </Grid>
+          <Grid size={6}>
+            <Typography className={menuClasses.imageLayerName}>
+              {featureName}
+            </Typography>
+          </Grid>
+          <Grid size={2}>
+            <Slider
+              value={opacity}
+              min={0}
+              max={1}
+              step={0.001}
+              onChange={(e, v) => updateFeatureEntry({ opacity: v })}
+              className={menuClasses.imageLayerOpacitySlider}
+              orientation="horizontal"
+              aria-label={`Adjust opacity for layer ${featureName}`}
+            />
+          </Grid>
+          <Grid size={1}>
+            <LayerPerFeatureEllipsisMenu
+              obsColorEncoding={obsColorEncoding}
+              featureValueColormapRange={featureValueColormapRange}
+              setFeatureValueColormapRange={setFeatureValueColormapRange}
+              tooltipsVisible={tooltipsVisible}
+              setTooltipsVisible={setTooltipsVisible}
+              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+              legendVisible={legendVisible}
+              setLegendVisible={setLegendVisible}
+              featureFilterMode={featureFilterMode}
+              setFeatureFilterMode={setFeatureFilterMode}
+            />
+          </Grid>
+          <Grid size={1} container direction="row">
+            <GeneIconSVG className={classes.layerTypePointIcon} />
+            {enableFeaturesAndSetsDropdown ? (
+              <Button
+                onClick={() => setOpen(prev => !prev)}
+                className={classes.pointFeatureExpansionButton}
+                aria-label="Expand or collapse coloring controls"
               >
-                <Tab label="Feature List" />
-              </Tabs>
-              {coloringTabIndex === 0 && (
-                <Grid size={12} container direction="column">
-                  <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
-                    {featureIndex && featureIndex.length > 0 ? featureIndex.map(feature => (
-                      <MenuItem
-                        key={feature}
-                      >
-                        <ListItemIcon>
-                          {/*
-                          TODO: deterministically assign colors based on feature index
-                          using same method here as in Spatial view implementation
-                          */}
-                          <PaletteIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>{feature}</ListItemText>
-                      </MenuItem>
-                    )) : null}
-                  </MenuList>
-                </Grid>
-              )}
-            </Grid>
-          ) : null}
-        </Paper>
-      </Grid>
-              ))
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </Button>
             ) : null}
-          </>
+          </Grid>
+        </Grid>
+        {loadingDoneFraction < 1.0 ? (
+          <Grid
+            size={12}
+            container
+            direction="column"
+            justifyContent="space-between"
+            className={classes.pointFeatureControllerGrid}
+          >
+            <LinearProgress
+              variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
+              value={loadingDoneFraction * 100.0}
+            />
+          </Grid>
+        ) : null}
+      </Paper>
+    </Grid>
   );
 }

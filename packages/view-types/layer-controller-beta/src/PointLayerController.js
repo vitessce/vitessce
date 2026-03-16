@@ -355,34 +355,13 @@ export default function PointLayerController(props) {
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
 
-  return (
-    <>
-     {layerPerFeatureForPoints && featureSelection?.length > 0 ? (
-    <LayerPerFeatureController
-      featureSelection={featureSelection}
-      visible={visible}
-      opacity={opacity}
-      setVisible={setVisible}
-      setOpacity={setOpacity}
-      setFeatureColor={setFeatureColor}
-      setObsColorEncoding={setObsColorEncoding}
-      featureColor={featureColor}
-      setSpatialLayerColor={setSpatialLayerColor}
-      featureValueColormap={featureValueColormap}
-      spatialLayerColor={spatialLayerColor}
-      featureValueColormapRange={featureValueColormapRange}
-      setFeatureValueColormapRange={setFeatureValueColormapRange}
-      tooltipsVisible={tooltipsVisible}
-      setTooltipsVisible={setTooltipsVisible}
-      tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-      setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-      legendVisible={legendVisible}
-      setLegendVisible={setLegendVisible}
-      featureFilterMode={featureFilterMode}
-      setFeatureFilterMode={setFeatureFilterMode}
+  const showPerFeatureRows = (
+    layerPerFeatureForPoints
+    && Array.isArray(featureSelection)
+    && featureSelection.length > 0
+  );
 
-    />
-  ) : null }
+  return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
@@ -505,7 +484,30 @@ export default function PointLayerController(props) {
           </Grid>
         ) : null}
       </Paper>
-    </Grid>
-  </>)
 
+      {showPerFeatureRows && featureSelection.map(featureName => (
+        <LayerPerFeatureController
+          key={featureName}
+          theme={theme}
+          featureName={featureName}
+          featureColor={featureColor}
+          setFeatureColor={setFeatureColor}
+          featureValueColormap={featureValueColormap}
+          featureValueColormapRange={featureValueColormapRange}
+          setFeatureValueColormapRange={setFeatureValueColormapRange}
+          obsColorEncoding={obsColorEncoding}
+          tooltipsVisible={tooltipsVisible}
+          setTooltipsVisible={setTooltipsVisible}
+          tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+          setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+          legendVisible={legendVisible}
+          setLegendVisible={setLegendVisible}
+          featureFilterMode={featureFilterMode}
+          setFeatureFilterMode={setFeatureFilterMode}
+          tiledPointsLoadingProgress={tiledPointsLoadingProgress}
+          pointMatrixIndicesData={pointMatrixIndicesData}
+        />
+      ))}
+    </Grid>
+  );
 }

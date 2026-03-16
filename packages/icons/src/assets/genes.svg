@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" x="0px" y="0px">
+      <path d="M4 4c0 0 4 2 8 2s8-2 8-2" />
+      <path d="M4 20c0 0 4-2 8-2s8 2 8 2" />
+      <path d="M4 4c0 8 16 8 16 16" />
+      <path d="M20 4c0 8-16 8-16 16" />
+      <line x1="6.5" y1="8.5" x2="17.5" y2="9.5" />
+      <line x1="6.5" y1="14.5" x2="17.5" y2="13.5" />
+</svg>
