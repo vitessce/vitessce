@@ -466,7 +466,7 @@ export default function PointLayerController(props) {
                 <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
                   {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
                     <MenuItem
-                      key={`${featureName}-${feature_index}`}
+                      key={featureName}
                     >
                       <ListItemIcon>
                         {/*
