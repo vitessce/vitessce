@@ -1,21 +1,39 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
 import {
   TitleInfo,
+  useReady,
+  useInitialCoordination,
   useCoordination,
-  useObsSetsData,
-  useLoaders,
-  useObsEmbeddingData,
   useCoordinationScopes,
+  useCoordinationScopesBy,
+  useComplexCoordination,
+  useMultiCoordinationScopesNonNull,
+  useMultiCoordinationScopesSecondaryNonNull,
+  useComplexCoordinationSecondary,
+  useLoaders,
+  useMergeCoordination,
+  useMultiObsPoints,
+  usePointMultiObsFeatureMatrixIndices,
+  useMultiObsSegmentations,
+  useSegmentationMultiFeatureSelection,
+  useSegmentationMultiObsFeatureMatrixIndices,
+  useSegmentationMultiObsSets,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
   ViewType,
+  CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
+import {
+  useMemoCustomComparison,
+  customIsEqualForCellColors,
+} from './use-memo-custom-comparison.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,
@@ -50,17 +68,31 @@ function rgbToHex(rgb) {
 
 export function NeuroglancerSubscriber(props) {
   const {
+    uuid,
     coordinationScopes: coordinationScopesRaw,
+    coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
     theme,
-    title = 'Neuroglancer',
+    title = 'Spatial',
+    subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    // Note: this is a temporary mechanism
+    // to pass an initial NG camera state.
+    // Ideally, all camera state should be passed via
+    // the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
+    // and then NeuroglancerSubscriber should internally convert
+    // to NG-compatible values, which would eliminate the need for this.
+    initialNgCameraState,
   } = props;
 
   const loaders = useLoaders();
+  const mergeCoordination = useMergeCoordination();
+
+  // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
   const [{
     dataset,
@@ -90,32 +122,243 @@ export function NeuroglancerSubscriber(props) {
     // setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialZoom: setZoom,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER], coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
+    coordinationScopes,
+  );
 
+  const [
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+  ] = useMultiCoordinationScopesSecondaryNonNull(
+    CoordinationType.SEGMENTATION_CHANNEL,
+    CoordinationType.SEGMENTATION_LAYER,
+    coordinationScopes,
+    coordinationScopesBy,
+  );
+
+  const pointLayerScopes = useMultiCoordinationScopesNonNull(
+    CoordinationType.POINT_LAYER,
+    coordinationScopes,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationLayer.
+  const segmentationLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.FILE_UID,
+      CoordinationType.SEGMENTATION_CHANNEL,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+  );
+
+  // Object keys are coordination scope names for spatialSegmentationChannel.
+  const segmentationChannelCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_TARGET_C,
+      CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+      CoordinationType.SPATIAL_CHANNEL_OPACITY,
+      CoordinationType.SPATIAL_CHANNEL_COLOR,
+      CoordinationType.SPATIAL_SEGMENTATION_FILLED,
+      CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
+      CoordinationType.OBS_HIGHLIGHT,
+      CoordinationType.TOOLTIPS_VISIBLE,
+      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.LEGEND_VISIBLE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
+  );
+
+  // Point layer
+  const pointLayerCoordination = useComplexCoordination(
+    [
+      CoordinationType.OBS_TYPE,
+      CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
+      CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_VALUE_COLORMAP,
+      CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+      CoordinationType.SPATIAL_LAYER_COLOR,
+      CoordinationType.OBS_HIGHLIGHT,
+      CoordinationType.TOOLTIPS_VISIBLE,
+      CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.LEGEND_VISIBLE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+
+  // Points data
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
+  );
+
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+
+  // Segmentations data
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsDataErrors] = useMultiObsSegmentations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+    mergeCoordination, uuid,
+  );
+
+  const [obsSegmentationsSetsData, obsSegmentationsSetsDataStatus, obsSegmentationsSetsDataErrors] = useSegmentationMultiObsSets(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [
+    segmentationMultiExpressionData,
+    segmentationMultiLoadedFeatureSelection,
+    segmentationMultiExpressionExtents,
+    segmentationMultiExpressionNormData,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiFeatureSelectionErrors,
+  ] = useSegmentationMultiFeatureSelection(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const [segmentationMultiIndicesData, segmentationMultiIndicesDataStatus, segmentationMultiIndicesDataErrors] = useSegmentationMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  const errors = [
+    ...obsPointsErrors,
+    ...obsSegmentationsDataErrors,
+    ...obsSegmentationsSetsDataErrors,
+    ...pointMultiIndicesDataErrors,
+    ...segmentationMultiFeatureSelectionErrors,
+    ...segmentationMultiIndicesDataErrors,
+  ];
+
+  const isReady = useReady([
+    // Points
+    obsPointsDataStatus,
+    pointMultiIndicesDataStatus,
+    // Segmentations
+    obsSegmentationsDataStatus,
+    obsSegmentationsSetsDataStatus,
+    segmentationMultiFeatureSelectionStatus,
+    segmentationMultiIndicesDataStatus,
+  ]);
 
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
   const { classes } = useStyles();
 
-  const [{ obsSets: cellSets }] = useObsSetsData(
-    loaders, dataset, false,
-    { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
-    { cellSetSelection, obsSetColor: cellSetColor },
-    { obsType },
+  const segmentationColorMapping = useMemoCustomComparison(() => {
+    // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
+    // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
+    // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
+    const result = {};
+    segmentationLayerScopes?.forEach((layerScope) => {
+      result[layerScope] = {};
+      segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSetsData
+          ?.[layerScope]?.[channelScope] || {};
+        if (layerSets && layerIndex) {
+          const {
+            obsSetColor,
+            obsColorEncoding,
+            obsSetSelection,
+            additionalObsSets,
+          } = segmentationChannelCoordination[0][layerScope][channelScope];
+          const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+          const cellColors = getCellColors({
+            cellSets: mergedCellSets,
+            cellSetSelection: obsSetSelection,
+            cellSetColor: obsSetColor,
+            obsIndex: layerIndex,
+            theme,
+          });
+          // Convert the list of colors to an object of hex strings, which NG requires.
+          const ngCellColors = {};
+          cellColors.forEach((color, i) => {
+            ngCellColors[i] = rgbToHex(color);
+          });
+          /* // TODO: Is this necessary?
+          const obsColorIndices = treeToCellSetColorIndicesBySetNames(
+            mergedLayerSets,
+            obsSetSelection,
+            obsSetColor,
+          );
+          */
+          result[layerScope][channelScope] = ngCellColors;
+        }
+      });
+    });
+    return result;
+  }, {
+    // The dependencies for the comparison,
+    // used by the custom equality function.
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    obsSegmentationsSetsData,
+    segmentationChannelCoordination,
+    theme,
+  }, customIsEqualForCellColors);
+
+
+  // Obtain the Neuroglancer viewerState object.
+  const initalViewerState = useNeuroglancerViewerState(
+    theme,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerScopes,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+    pointMultiIndicesData,
   );
 
-  const [{ obsIndex }] = useObsEmbeddingData(
-    loaders, dataset, true, {}, {},
-    { obsType, embeddingType: mapping },
-  );
 
-  const [initalViewerState] = useNeuroglancerViewerState(
-    loaders, dataset, false,
-    undefined, undefined,
-    { obsType: 'cell' },
-  );
+  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
+  const latestViewerStateRef = useRef({
+    ...initalViewerState,
+    ...(initialNgCameraState ?? {}),
+  });
 
-  const latestViewerStateRef = useRef(initalViewerState);
+  useEffect(() => {
+    const prevNgCameraState = {
+      position: latestViewerStateRef.current.position,
+      projectionOrientation: latestViewerStateRef.current.projectionOrientation,
+      projectionScale: latestViewerStateRef.current.projectionScale,
+    };
+    latestViewerStateRef.current = {
+      ...initalViewerState,
+      ...prevNgCameraState,
+    };
+    // Force a re-render by incrementing a piece of state.
+    // This works because we have made latestViewerStateIteration
+    // a dependency for derivedViewerState, triggering the useMemo downstream.
+    incrementLatestViewerStateIteration();
+  }, [initalViewerState]);
+
   const initialRotationPushedRef = useRef(false);
 
   const ngRotPushAtRef = useRef(0);
@@ -146,19 +389,6 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
-
-  const mergedCellSets = useMemo(() => mergeObsSets(
-    cellSets, additionalCellSets,
-  ), [cellSets, additionalCellSets]);
-
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetColor, cellSetSelection, obsIndex]);
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -286,6 +516,10 @@ export function NeuroglancerSubscriber(props) {
       if (alreadySelectedId) {
         return;
       }
+      // TODO: update this now that we are using layer/channel-based organization of segmentations.
+      // There is no more "top-level" obsSets coordination; it is only on a per-layer basis.
+      // We should probably just assume the first segmentation layer/channel when updating the logic,
+      // since it is not clear how we would determine which layer/channel to update if there are multiple.
       setObsSelection(
         selectedCellIds, additionalCellSets, cellSetColor,
         setCellSetSelection, setAdditionalCellSets, setCellSetColor,
@@ -298,34 +532,26 @@ export function NeuroglancerSubscriber(props) {
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
   ]);
 
-  const batchedUpdateTimeoutRef = useRef(null);
-  const [batchedCellColors, setBatchedCellColors] = useState(cellColors);
-
-  useEffect(() => {
-    if (batchedUpdateTimeoutRef.current) {
-      clearTimeout(batchedUpdateTimeoutRef.current);
-    }
-    batchedUpdateTimeoutRef.current = setTimeout(() => {
-      setBatchedCellColors(cellColors);
-    }, 100);
-
-    // TODO: look into deferredValue from React
-    // startTransition(() => {
-    //   setBatchedCellColors(cellColors);
-    // });
-  }, [cellColors]);
-  // TODO use a ref if slow - see prev commits
-  const cellColorMapping = useMemo(() => {
-    const colorMapping = {};
-    batchedCellColors.forEach((color, cell) => {
-      colorMapping[cell] = rgbToHex(color);
-    });
-    return colorMapping;
-  }, [batchedCellColors]);
+  // Get the ultimate cellColorMapping to pass to NeuroglancerComp as a prop.
+  // For now, we take the first layer and channel for cell colors.
+  const cellColorMapping = useMemo(() => (segmentationColorMapping
+    ?.[segmentationLayerScopes?.[0]]
+    ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
+    ?? {}
+  ), [segmentationColorMapping]);
 
 
+  // TODO: try to simplify using useMemoCustomComparison?
+  // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
+  // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
+  // and would allow us to potentially remove usage of some refs (e.g., latestViewerStateRef)
+  // by relying on the memoization to prevent unnecessary updates.
   const derivedViewerState = useMemo(() => {
     const { current } = latestViewerStateRef;
+    if (current.layers.length <= 0) {
+      return current;
+    }
+
     const nextSegments = Object.keys(cellColorMapping);
     const prevLayer = current?.layers?.[0] || {};
     const prevSegments = prevLayer.segments || [];
@@ -495,37 +721,45 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY]);
+    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
+    latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
-  }, [obsIndex, setCellHighlight]);
+  }, [setCellHighlight]);
 
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
   // }
 
+  const hasLayers = derivedViewerState?.layers?.length > 0;
+  // console.log(derivedViewerState);
+
   return (
     <TitleInfo
       title={title}
+      info={subtitle}
       helpText={helpText}
       isSpatial
       theme={theme}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady
+      isReady={isReady}
+      errors={errors}
       withPadding={false}
     >
-      <NeuroglancerComp
-        classes={classes}
-        onSegmentClick={onSegmentClick}
-        onSelectHoveredCoords={onSegmentHighlight}
-        viewerState={derivedViewerState}
-        cellColorMapping={cellColorMapping}
-        setViewerState={handleStateUpdate}
-      />
+      {hasLayers ? (
+        <NeuroglancerComp
+          classes={classes}
+          onSegmentClick={onSegmentClick}
+          onSelectHoveredCoords={onSegmentHighlight}
+          viewerState={derivedViewerState}
+          cellColorMapping={cellColorMapping}
+          setViewerState={handleStateUpdate}
+        />
+      ) : null}
     </TitleInfo>
   );
 }
