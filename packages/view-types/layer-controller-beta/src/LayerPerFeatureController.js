@@ -51,10 +51,6 @@ const useStyles = makeStyles()(() => ({
     width: '50%',
     maxWidth: '16px',
   },
-  featureSubRow: {
-    paddingLeft: '20px',
-    marginTop: '2px',
-  },
 }));
 
 function LayerPerFeatureEllipsisMenu(props) {
@@ -198,7 +194,6 @@ export default function LayerPerFeatureController(props) {
     featureFilterMode,
     setFeatureFilterMode,
     tiledPointsLoadingProgress,
-    pointMatrixIndicesData,
   } = props;
 
 
@@ -247,8 +242,8 @@ export default function LayerPerFeatureController(props) {
 
 
   return (
-    <Grid key={featureName} className={lcClasses.featureSubRow}>
-      <Paper elevation={2} className={lcClasses.layerControllerRoot} style={{ marginTop: '5px', marginLeft: '30px', width: 'calc(100% - 30px)' }}>
+    <Grid key={featureName} className={lcClasses.layerControllerGrid}>
+      <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid size={1}>
             <Button
