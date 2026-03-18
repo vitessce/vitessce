@@ -31,11 +31,11 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles()(() => ({
-  pointFeatureControllerGrid: {
+  LayerFeatureControllerGrid: {
     padding: '0',
     flexWrap: 'nowrap',
   },
-  pointFeatureExpansionButton: {
+  LayerFeatureExpansionButton: {
     display: 'inline-block',
     margin: 0,
     padding: 0,
@@ -43,7 +43,7 @@ const useStyles = makeStyles()(() => ({
     lineHeight: 1,
     width: '50%',
   },
-  layerTypePointIcon: {
+  layerTypeFeatureIcon: {
     height: '100%',
     paddingLeft: '2px',
     fill: 'currentColor',
@@ -299,11 +299,11 @@ export default function LayerPerFeatureController(props) {
             />
           </Grid>
           <Grid size={1} container direction="row">
-            <GeneIconSVG className={classes.layerTypePointIcon} />
+            <GeneIconSVG className={classes.layerTypeFeatureIcon} />
             {enableFeaturesAndSetsDropdown ? (
               <Button
                 onClick={() => setOpen(prev => !prev)}
-                className={classes.pointFeatureExpansionButton}
+                className={classes.layerFeatureExpansionButton}
                 aria-label="Expand or collapse coloring controls"
               >
                 {open ? <ExpandLess /> : <ExpandMore />}
@@ -317,7 +317,7 @@ export default function LayerPerFeatureController(props) {
             container
             direction="column"
             justifyContent="space-between"
-            className={classes.pointFeatureControllerGrid}
+            className={classes.layerFeatureControllerGrid}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
