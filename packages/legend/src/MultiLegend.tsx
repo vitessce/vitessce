@@ -117,8 +117,8 @@ export default function MultiLegend(props: MultiLegendProps) {
         );
 
         const geneOrObsColorEncoding = hasFeatureColors
-        ? 'geneSelection'
-        : obsColorEncoding;
+          ? 'geneSelection'
+          : obsColorEncoding;
 
         const isStaticColor = geneOrObsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
