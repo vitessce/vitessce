@@ -33,11 +33,10 @@ cd consumer
 npm install react@^19.0.0 react-dom@^19.0.0
 # Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
 npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
-npm install --save-dev vite@8 @vitejs/plugin-react
+npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
-# Explicitly set NODE_ENV=production to ensure React's production build is used.
-NODE_ENV=production npm exec vite build
+npm exec vite build
 
 
 echo "Done vite build. Starting NextJS build."
