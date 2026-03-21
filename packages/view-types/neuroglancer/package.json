@@ -38,6 +38,7 @@
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
+    "@vitessce/legend": "workspace:*",
     "lodash-es": "catalog:",
     "three": "catalog:",
     "react": "catalog:"
