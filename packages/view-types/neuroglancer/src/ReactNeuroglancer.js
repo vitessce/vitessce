@@ -624,6 +624,20 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
+    const { visibleChunksChanged } = this.viewer.chunkQueueManager;
+    let loadingTimer = null;
+
+    this.disposers.push(visibleChunksChanged.add(() => {
+      this.props.onLayerLoadingChange?.(false);
+      if (loadingTimer) clearTimeout(loadingTimer);
+      loadingTimer = setTimeout(() => {
+        this.props.onLayerLoadingChange?.(true);
+      }, 500);
+    }));
+    this.disposers.push(() => {
+      if (loadingTimer) clearTimeout(loadingTimer);
+    });
+
     // TODO: This is purely for debugging and we need to remove it.
     // window.viewer = this.viewer;
   }
@@ -860,7 +874,7 @@ export default class Neuroglancer extends React.Component {
     }
 
     if (this.viewer) {
-      const { onSelectedChanged, onVisibleChanged, onLayerLoadingChange } = this.props;
+      const { onSelectedChanged, onVisibleChanged } = this.props;
       if (onSelectedChanged || onVisibleChanged) {
         this.handlerRemovers = [];
 
@@ -887,23 +901,6 @@ export default class Neuroglancer extends React.Component {
               layer.registerDisposer(remover);
             }
           }
-        }
-      }
-
-      // Check if all segmentation layers are loaded
-      if (onLayerLoadingChange) {
-        const segmentationLayers = Array.from(this.viewer.layerManager.managedLayers)
-          .filter(layer => layer.layer instanceof SegmentationUserLayer);
-
-        // If there are no segmentation layers yet, consider it not loaded
-        if (segmentationLayers.length === 0) {
-          onLayerLoadingChange(false);
-        } else {
-          // All segmentation layers must have loaded data sources
-          const allLayersLoaded = segmentationLayers.every(
-            layer => this.isLayerDataLoaded(layer),
-          );
-          onLayerLoadingChange(allLayersLoaded);
         }
       }
     }
