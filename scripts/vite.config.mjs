@@ -26,10 +26,13 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      // Externalize react, react-three, and three (including subpath imports like three/addons/...).
+      // Externalize react (including subpath imports like react/jsx-runtime),
+      // react-three, and three (including subpath imports like three/addons/...).
       external: (id) => (
         id === 'react'
         || id === 'react-dom'
+        || id.startsWith('react/')
+        || id.startsWith('react-dom/')
         || id.startsWith('@react-three/')
         || id === 'three'
         || id.startsWith('three/')
