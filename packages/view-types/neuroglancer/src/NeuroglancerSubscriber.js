@@ -532,14 +532,16 @@ export function NeuroglancerSubscriber(props) {
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
   ]);
 
-  // Get the ultimate cellColorMapping to pass to NeuroglancerComp as a prop.
-  // For now, we take the first layer and channel for cell colors.
-  const cellColorMapping = useMemo(() => (segmentationColorMapping
-    ?.[segmentationLayerScopes?.[0]]
-    ?.[segmentationChannelScopesByLayer?.[segmentationLayerScopes?.[0]]?.[0]]
-    ?? {}
-  ), [segmentationColorMapping]);
+  // Get the ultimate cellColorMapping for each layer to pass to NeuroglancerComp as a prop.
 
+
+  const cellColorMappingByLayer = useMemo(() => (
+    segmentationLayerScopes?.reduce((acc, layerScope) => {
+      const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+      acc[layerScope] = segmentationColorMapping?.[layerScope]?.[channelScope] ?? {};
+      return acc;
+    }, {})
+  ), [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
@@ -552,9 +554,6 @@ export function NeuroglancerSubscriber(props) {
       return current;
     }
 
-    const nextSegments = Object.keys(cellColorMapping);
-    const prevLayer = current?.layers?.[0] || {};
-    const prevSegments = prevLayer.segments || [];
     const { projectionScale, projectionOrientation, position } = current;
 
     // Did Vitessce coords change vs the *previous* render?
@@ -691,20 +690,24 @@ export function NeuroglancerSubscriber(props) {
       lastInteractionSource.current = null;
     }
 
-    const newLayer0 = {
-      ...prevLayer,
-      segments: nextSegments,
-      segmentColors: cellColorMapping,
-    };
 
+    const updatedLayers = current?.layers?.map((layer, idx) => {
+      const layerScope = segmentationLayerScopes?.[idx];
+      const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
+      const layerSegments = Object.keys(layerColorMapping);
+      return {
+        ...layer,
+        segments: layerSegments,
+        segmentColors: layerColorMapping,
+      };
+    }) ?? [];
 
     const updated = {
       ...current,
       projectionScale: nextProjectionScale,
       projectionOrientation: nextOrientation,
       position: nextPosition,
-      layers: prevSegments.length === 0 ? [newLayer0, ...(current?.layers?.slice(1)
-        || [])] : current?.layers,
+      layers: updatedLayers,
     };
 
     latestViewerStateRef.current = updated;
@@ -720,7 +723,7 @@ export function NeuroglancerSubscriber(props) {
     };
 
     return updated;
-  }, [cellColorMapping, spatialZoom, spatialRotationX, spatialRotationY,
+  }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
     latestViewerStateIteration]);
 
@@ -756,7 +759,7 @@ export function NeuroglancerSubscriber(props) {
           onSegmentClick={onSegmentClick}
           onSelectHoveredCoords={onSegmentHighlight}
           viewerState={derivedViewerState}
-          cellColorMapping={cellColorMapping}
+          cellColorMapping={cellColorMappingByLayer}
           setViewerState={handleStateUpdate}
         />
       ) : null}
