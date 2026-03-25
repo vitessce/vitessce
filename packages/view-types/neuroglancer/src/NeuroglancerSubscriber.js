@@ -20,6 +20,7 @@ import {
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
+  useGridItemSize,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -127,6 +128,8 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
   const [
     segmentationLayerScopes,
@@ -751,11 +754,11 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
     >
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
         <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
           <MultiLegend
             theme="dark"
-            maxHeight={800}
+            maxHeight={ngHeight}
             segmentationLayerScopes={segmentationLayerScopes}
             segmentationLayerCoordination={segmentationLayerCoordination}
             segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
