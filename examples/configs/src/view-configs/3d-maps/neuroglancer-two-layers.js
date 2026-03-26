@@ -15,6 +15,7 @@ function generateNeuroglancerTwoLayerConfig() {
 
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'obsSegmentations.ng-precomputed',
+    // sharded version -- use when support is added
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sanjay/20x/gloms/',
     url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new',
     coordinationValues: {
@@ -25,6 +26,7 @@ function generateNeuroglancerTwoLayerConfig() {
 
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
+    // sharded version -- use when support is added
     // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sanjay/20x/nerves/',
     url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10',
     coordinationValues: {
@@ -35,7 +37,7 @@ function generateNeuroglancerTwoLayerConfig() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'http://localhost:8000/segments.csv',
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/segments.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -44,7 +46,7 @@ function generateNeuroglancerTwoLayerConfig() {
       obsSets: [
         {
           name: 'Layers',
-          column: 'cluster',
+          column: 'layer',
         },
 
       ],
