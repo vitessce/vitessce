@@ -625,18 +625,14 @@ export default class Neuroglancer extends React.Component {
     }
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
-    let loadingTimer = null;
-
+    let firstChunkLoaded = false;
     this.disposers.push(visibleChunksChanged.add(() => {
-      this.props.onLayerLoadingChange?.(false);
-      if (loadingTimer) clearTimeout(loadingTimer);
-      loadingTimer = setTimeout(() => {
-        this.props.onLayerLoadingChange?.(true);
-      }, 500);
+      if (!firstChunkLoaded) {
+        firstChunkLoaded = true;
+        this.props.onLayerLoadingChange?.(true); // first chunk visible — hide loader immediately
+      }
     }));
-    this.disposers.push(() => {
-      if (loadingTimer) clearTimeout(loadingTimer);
-    });
+    this.disposers.push(() => { firstChunkLoaded = false; });
 
     // TODO: This is purely for debugging and we need to remove it.
     // window.viewer = this.viewer;
