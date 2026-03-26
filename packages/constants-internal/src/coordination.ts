@@ -87,6 +87,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_COLOR,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+    CoordinationType.LEGEND_VISIBLE,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,

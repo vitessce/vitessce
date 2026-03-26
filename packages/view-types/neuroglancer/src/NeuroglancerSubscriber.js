@@ -20,6 +20,7 @@ import {
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
+  useGridItemSize,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -28,6 +29,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
+import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
 import {
@@ -126,6 +128,8 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
   const [
     segmentationLayerScopes,
@@ -753,16 +757,29 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
     >
-      {hasLayers ? (
-        <NeuroglancerComp
-          classes={classes}
-          onSegmentClick={onSegmentClick}
-          onSelectHoveredCoords={onSegmentHighlight}
-          viewerState={derivedViewerState}
-          cellColorMapping={cellColorMappingByLayer}
-          setViewerState={handleStateUpdate}
-        />
-      ) : null}
+      <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
+        <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
+          <MultiLegend
+            theme="dark"
+            maxHeight={ngHeight}
+            segmentationLayerScopes={segmentationLayerScopes}
+            segmentationLayerCoordination={segmentationLayerCoordination}
+            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+            segmentationChannelCoordination={segmentationChannelCoordination}
+          />
+        </div>
+
+        {hasLayers ? (
+          <NeuroglancerComp
+            classes={classes}
+            onSegmentClick={onSegmentClick}
+            onSelectHoveredCoords={onSegmentHighlight}
+            viewerState={derivedViewerState}
+            cellColorMapping={cellColorMappingByLayer}
+            setViewerState={handleStateUpdate}
+          />
+        ) : null}
+      </div>
     </TitleInfo>
   );
 }
