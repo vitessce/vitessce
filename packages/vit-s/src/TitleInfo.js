@@ -14,6 +14,7 @@ import {
   Close as CloseIcon,
   Help as HelpIcon,
   Warning as WarningIcon,
+  MenuBook as MenuBookIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -209,11 +210,32 @@ function ClosePaneButton(props) {
   );
 }
 
+
+function GuideButton(props) {
+  const { guideUrl } = props;
+  const { classes } = useStyles();
+  return (
+    <IconButton
+      component="a"
+      href={guideUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      size="small"
+      className={classes.iconButton}
+      title="Open Navigation Guide"
+      aria-label="Open navigation guide"
+    >
+      <MenuBookIcon />
+    </IconButton>
+  );
+}
+
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors: errorsProp,
+    helpText, withPadding = true, errors: errorsProp, guideUrl,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
@@ -245,6 +267,11 @@ export function TitleInfo(props) {
           {helpText ? (
             <HelpButton
               helpText={helpText}
+            />
+          ) : null}
+          {guideUrl ? (
+            <GuideButton
+              guideUrl={guideUrl}
             />
           ) : null}
           {closeButtonVisible && removeGridComponent ? (
