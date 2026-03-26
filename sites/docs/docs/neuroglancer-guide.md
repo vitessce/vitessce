@@ -26,10 +26,10 @@ To reposition the volume within the coordinate system, hold **Shift** and drag
 within the Neuroglancer view. This pans the volume without changing the zoom level
 or rotation.
 
-| Interaction | Control |
+| Interaction | How To |
 |---|---|
 |  Pan the volume | shift + left click & drag |
-|  Rotate the volume | Drag (no modifier) |
+|  Rotate the volume | drag |
 |  Zoom in / out | ctrl + mouse wheel (on trackpads, slide two fingers apart) |
 |  Center a cell/mesh | right click on it |
 
