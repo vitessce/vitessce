@@ -64,6 +64,7 @@ import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygo
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
 import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
 import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xenium_rep1_io.js';
+import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
@@ -77,6 +78,7 @@ import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
 import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
+import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
@@ -150,6 +152,7 @@ export const configs = {
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
   'spatialdata-visium_hd': visiumHdSpatialdata2025,
+  'spatialdata-blobs': spatialdataBlobsConfig,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
@@ -200,6 +203,7 @@ export const configs = {
   // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
   'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
+  'neuroglancer-merfish': neuroglancerMerfish,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,

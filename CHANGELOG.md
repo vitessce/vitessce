@@ -1,4 +1,51 @@
 
+## 3.9.6
+
+### Patch Changes
+
+- Define obsPoints.ng-annotations as a fileType, enabling users to specify Neuroglancer point annotations via the usual datasets part of the Vitessce configuration. Add logic for controlling segmentation and point layers via the existing layerControllerBeta UI, including coloring and filtering points via the featureList. (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2420](https://github.com/vitessce/vitessce/pull/2420))
+
+- Use obsType from coordinationValues for pointLayer and spotLayer when available. (`@vitessce/spatial-zarr`, `@vitessce/zarr`, `@vitessce/csv`) ([#2441](https://github.com/vitessce/vitessce/pull/2441))
+
+- Added legend to Neuroglancer view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`) ([#2435](https://github.com/vitessce/vitessce/pull/2435))
+
+
+## 3.9.5
+
+### Patch Changes
+
+- Update docs site, primarily home page and examples page" (`docs`) ([#2421](https://github.com/vitessce/vitessce/pull/2421))
+
+- Prioritize loading center bricks (before outer bricks) in the spatialAccelerated view. (`@vitessce/spatial-accelerated`) ([#2417](https://github.com/vitessce/vitessce/pull/2417))
+
+
+## 3.9.4
+
+### Patch Changes
+
+- Move @vitessce/comparative subpackage from examples/ to packages/ in monorepo to ensure it is published to NPM. (`@vitessce/comparative`) ([#2411](https://github.com/vitessce/vitessce/pull/2411))
+
+
+## 3.9.3
+
+### Patch Changes
+
+- Adds comparative sub-package to export ControlledComparative and UncontrolledComparative components. (`@vitessce/comparative`) ([#2393](https://github.com/vitessce/vitessce/pull/2393))
+
+- Add a default getRange implementation to use when loading SpatialData obsPoints. (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`) ([#2409](https://github.com/vitessce/vitessce/pull/2409))
+
+
+## 3.9.2
+
+### Patch Changes
+
+- Add spatialdata blobs example dataset configuration. Improve support for non-tiled SpatialData points when they have a feature_index column mapping each point to an index in the corresponding SpatialData Table var.index column, e.g. to map points to gene indices. (`@vitessce/spatial-zarr`, `@vitessce/spatial-beta`, `@vitessce/example-configs`) ([#2403](https://github.com/vitessce/vitessce/pull/2403))
+
+- Move informational subtitles below relevant views. (`@vitessce/vit-s`) ([#2396](https://github.com/vitessce/vitessce/pull/2396))
+
+- Convert styles package to TypeScript. (`@vitessce/styles`) ([#2400](https://github.com/vitessce/vitessce/pull/2400))
+
+
 ## 3.9.1
 
 ### Patch Changes

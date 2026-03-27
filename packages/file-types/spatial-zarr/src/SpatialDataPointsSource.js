@@ -131,24 +131,15 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
    *  shape: [number, number],
    * }>} A promise for a zarr array containing the data.
    */
-  async loadPoints(elementPath, featureIndexColumnNameFromOptions) {
+  async loadPoints(elementPath) {
     const parquetPath = getParquetPath(elementPath);
 
     const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
-    const { axes, spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const { axes } = zattrs;
     const normAxes = normalizeAxes(axes);
     const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
 
-    const { feature_key: featureKey } = spatialDataAttrs;
-
-    // eslint-disable-next-line no-unused-vars
-    const featureIndexColumnName = (
-      featureIndexColumnNameFromOptions
-      // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
-        ?? `${featureKey}_codes`
-    );
-
-    const columnNames = [...axisNames, featureKey].filter(Boolean);
+    const columnNames = axisNames.filter(Boolean);
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
 
     // TODO: this table will also contain the index column, and potentially the featureKey column.
@@ -166,6 +157,42 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       shape: [axisColumnArrs.length, arrowTable.numRows],
       data: axisColumnArrs,
     };
+  }
+
+  /**
+   *
+   * @param {string} elementPath The path to the points element,
+   * like "points/element_name".
+   * @param {string|undefined} featureIndexColumnNameFromOptions The name
+   * of the feature index column specified in the file definition options, if any.
+   * @returns {Promise<number[]>} A promise for a zarr array containing the data.
+   */
+  async loadPointsFeatureIds(elementPath) {
+    const parquetPath = getParquetPath(elementPath);
+
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const { spatialdata_attrs: spatialDataAttrs } = zattrs;
+
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    // In the non-tiled case, we can load the string/categorical feature IDs directly,
+    // since we are not loading an individual row group (using my forked parquet-wasm which
+    // fails to load dictionary columns when loading individual row groups for some reason).
+    const columnNames = [featureKey];
+    const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
+
+    const axisColumnArrs = columnNames.map((/** @type {string} */ name) => {
+      const column = arrowTable.getChild(name);
+      if (!column) {
+        throw new Error(`Column "${name}" not found in the arrow table.`);
+      }
+      // This .toArray should convert a categorical column to an array of
+      // string values if necessary.
+      return column.toArray();
+    });
+
+    // Just return the column of feature indices directly.
+    return axisColumnArrs[0];
   }
 
   /**

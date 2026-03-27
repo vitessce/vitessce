@@ -34,6 +34,11 @@ export { default as Checkbox } from '@mui/material/Checkbox';
 export { default as Chip } from '@mui/material/Chip';
 export { default as CircularProgress } from '@mui/material/CircularProgress';
 export { default as ClickAwayListener } from '@mui/material/ClickAwayListener';
+export { default as Dialog } from '@mui/material/Dialog';
+export { default as DialogActions } from '@mui/material/DialogActions';
+export { default as DialogContent } from '@mui/material/DialogContent';
+export { default as DialogContentText } from '@mui/material/DialogContentText';
+export { default as DialogTitle } from '@mui/material/DialogTitle';
 export { default as Fade } from '@mui/material/Fade';
 export { default as FormControl } from '@mui/material/FormControl';
 export { default as FormControlLabel } from '@mui/material/FormControlLabel';
@@ -121,3 +126,5 @@ export { DataGrid } from '@mui/x-data-grid/DataGrid';
 // Local exports
 export { Popper as PopperV4 } from './Popper.js';
 export { ScopedGlobalStyles } from './ScopedGlobalStyles.js';
+export { SimpleAutocomplete } from './SimpleAutocomplete.js';
+export type { SimpleAutocompleteProps, AutocompleteItem } from './SimpleAutocomplete.js';

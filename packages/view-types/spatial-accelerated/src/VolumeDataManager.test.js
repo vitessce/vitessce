@@ -163,7 +163,7 @@ describe('spatial-accelerated data utils', () => {
     });
   });
   describe('_requestBufferToRequestObjects', () => {
-    it('correctly converts a buffer to request objects', () => {
+    it('correctly converts a buffer to request objects without optsForWeighting', () => {
       const buffer = new Uint8Array([
         0, 0, 0, 0,
         0, 0, 0, 0,
@@ -171,7 +171,28 @@ describe('spatial-accelerated data utils', () => {
         0, 0, 0, 0,
       ]);
       const k = 40;
-      const { requests: result } = _requestBufferToRequestObjects(buffer, k);
+      const { requests: result } = _requestBufferToRequestObjects(buffer, k, {
+        width: undefined,
+        height: undefined,
+        sigmaNormalized: undefined,
+      });
+      expect(result).toEqual([
+        { x: 2, y: 1, z: 13 },
+      ]);
+    });
+    it('correctly converts a buffer to request objects with optsForWeighting', () => {
+      const buffer = new Uint8Array([
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 128, 16, 13,
+        0, 0, 0, 0,
+      ]);
+      const k = 40;
+      const { requests: result } = _requestBufferToRequestObjects(buffer, k, {
+        width: 1,
+        height: 1,
+        sigmaNormalized: 0.25,
+      });
       expect(result).toEqual([
         { x: 2, y: 1, z: 13 },
       ]);

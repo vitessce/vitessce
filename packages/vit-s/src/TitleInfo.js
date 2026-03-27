@@ -219,6 +219,7 @@ export function TitleInfo(props) {
   const errors = errorsProp?.filter(Boolean);
 
   const { classes } = useTitleStyles();
+  const hasInfoText = Boolean(info);
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
@@ -226,9 +227,6 @@ export function TitleInfo(props) {
       <div className={classes.title} role="banner">
         <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
-        </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
         </div>
         <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
@@ -266,6 +264,7 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
             [classes.noPaddingCard]: !withPadding,
             [classes.paddingCard]: withPadding,
+            [classes.cardWithoutInfoText]: !hasInfoText,
           },
         )}
         aria-busy={!isReady}
@@ -274,6 +273,11 @@ export function TitleInfo(props) {
         { !isReady ? <LoadingIndicator /> : null }
         {children}
       </div>
+      {hasInfoText ? (
+        <div className={classes.infoText} title={info} role="note">
+          {info}
+        </div>
+      ) : null}
     </>
     // "pl-2" only matters when the window is very narrow.
   );

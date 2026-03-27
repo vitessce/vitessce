@@ -1,5 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable jsx-a11y/anchor-is-valid */ // Remove once the "Show analysis details" dropdowns are implemented.
+import React, { useState } from 'react';
 import {
   VitessceConfig,
   hconcat,
@@ -8,6 +12,7 @@ import {
 import { usePageModeView } from '@vitessce/vit-s';
 import Sticky from 'react-sticky-el';
 import clsx from 'clsx';
+import { Tabs, Tab, Link } from '@vitessce/styles';
 
 const baseUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr';
 
@@ -162,32 +167,34 @@ function generateKpmpAug2025Config() {
       },
     });
 
-  // const biomarkerSelect = vc.addView(dataset, 'biomarkerSelect', { uid: 'biomarker-select' });
+  const biomarkerSelect = vc.addView(dataset, 'biomarkerSelectAlt', { uid: 'biomarker-select' });
   const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
   const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.5 });
   const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
   const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
   const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
   const featureList = vc.addView(dataset, 'featureList');
-  // const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
+  const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
   const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
   const treemap = vc.addView(dataset, 'treemap', { uid: 'treemap' });
   const volcanoPlot = vc.addView(dataset, 'volcanoPlot', { uid: 'volcano-plot' });
   const volcanoPlotTable = vc.addView(dataset, 'featureStatsTable', { uid: 'volcano-plot-table' });
-  // const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
-  // const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
+  const obsSetCompositionBarPlot = vc.addView(dataset, 'obsSetCompositionBarPlot', { uid: 'sccoda-plot' });
+  const featureSetEnrichmentBarPlot = vc.addView(dataset, 'featureSetEnrichmentBarPlot', { uid: 'pathways-plot' });
 
   const [sampleSetScope_caseControl] = vc.addCoordination(
     {
       cType: 'sampleSetSelection',
       cScope: '__comparison__',
-      cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
+      // cValue: [['Enrollment Category', 'Healthy Reference'], ['Enrollment Category', 'AKI']],
+      cValue: null,
     },
   );
   const [featureSelectionScope] = vc.addCoordination(
     {
       cType: 'featureSelection',
       cScope: '__comparison__',
+      // cValue: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
       cValue: null,
     },
   );
@@ -200,17 +207,19 @@ function generateKpmpAug2025Config() {
   }, { meta: false });
 
 
-  vc.linkViews([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], ['sampleType'], ['sample']);
-  vc.linkViewsByObject([dualScatterplot, obsSets, obsSetSizes, featureList, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, sampleSets], {
+  vc.linkViews([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
+  vc.linkViewsByObject([biomarkerSelect, dualScatterplot, obsSets, obsSetSizes, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], {
     sampleSetSelection: sampleSetScope_caseControl,
     featureSelection: featureSelectionScope,
   }, { meta: false });
-  vc.linkViewsByObject([dualScatterplot, featureList, dotPlot], {
-    // featureSelection: ['UMOD', 'NPHS2'], // , 'ENSG00000074803', 'ENSG00000164825'],
+  vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
     obsColorEncoding: 'geneSelection',
     featureValueColormap: 'greys',
     featureValueColormapRange: [0, 0.25],
     featureAggregationStrategy: null,
+  }, { meta: false });
+  vc.linkViewsByObject([obsSets], {
+    obsSetExpansion: [['Subclass L1']],
   }, { meta: false });
 
   /*
@@ -222,8 +231,9 @@ function generateKpmpAug2025Config() {
 
   vc.layout(hconcat(
     vconcat(dualScatterplot, comparativeHeading, obsSets, obsSetSizes),
-    vconcat(treemap, dotPlot, sampleSets, featureList),
-    volcanoPlotTable,
+    vconcat(treemap, dotPlot, obsSetCompositionBarPlot, sampleSets),
+    vconcat(volcanoPlotTable, featureList, featureSetEnrichmentBarPlot, violinPlots),
+    biomarkerSelect,
   ));
   const configJSON = vc.toJSON();
   return configJSON;
@@ -231,13 +241,20 @@ function generateKpmpAug2025Config() {
 
 function PageComponent() {
   const ComparativeHeading = usePageModeView('comparative-heading');
+  const BiomarkerSelect = usePageModeView('biomarker-select');
   const CellSets = usePageModeView('cell-sets');
   const SampleSets = usePageModeView('sample-sets');
   const DualScatterplot = usePageModeView('scatterplot');
+  const ViolinPlot = usePageModeView('violin-plot');
   const DotPlot = usePageModeView('dot-plot');
   const Treemap = usePageModeView('treemap');
   const VolcanoPlot = usePageModeView('volcano-plot');
   const VolcanoPlotTable = usePageModeView('volcano-plot-table');
+  const SccodaPlot = usePageModeView('sccoda-plot');
+  const PathwaysPlot = usePageModeView('pathways-plot');
+
+  const [visTab, setVisTab] = useState(0);
+  const [tableTab, setTableTab] = useState(0);
 
   return (
     <>
@@ -282,33 +299,34 @@ function PageComponent() {
         font-size: 12px;
         margin-top: 20px;
       }
+      .view-row-left p.tabs-description {
+        margin-top: 0px;
+      }
       .view-row-center {
         width: ${(70 / 85) * 100}%;
       }
       .view-row-right > div {
-        max-height: 50vh;
+        max-height: 100vh;
       }
       `}
       </style>
-      <div style={{ width: '100%' }}>
+      {/* <div style={{ width: '100%' }}>
         <div style={{ width: '70%', marginLeft: '15%' }}>
-          <h1>Comparative visualization of single-cell atlas data</h1>
+          <h1>Comparative visualization of single-nucleus data</h1>
         </div>
-      </div>
+      </div> */}
 
       <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
         <div style={{ width: '85%' }}>
-          <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
+          {/* <div style={{ width: `${(70 / 85) * 100}%`, marginLeft: `${(15 / 85) * 100}%` }}>
             <Sticky stickyStyle={{ zIndex: 1 }} stickyClassName="stuck-comparative-heading">
               <ComparativeHeading />
             </Sticky>
-          </div>
-          <div className={clsx('view-row', 'view-row-short')}>
-            <div className="view-row-left">
-              <p>This view contains a treemap visualization to communicate cell type composition in each of the selected sample groups.</p>
-            </div>
+          </div> */}
+          <div className={clsx('view-row')}>
+            <div className="view-row-left" />
             <div className="view-row-center">
-              <Treemap />
+              <BiomarkerSelect />
             </div>
           </div>
           <div className={clsx('view-row', 'view-row-tall')}>
@@ -319,39 +337,160 @@ function PageComponent() {
               <DualScatterplot />
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')}>
-            <div className="view-row-left">
-              <p>This view displays differential expression test results, performed using the rank_genes_groups function from Scanpy (Wolf et al. 2018) with method &quot;wilcoxon&quot;. <br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
-            </div>
+          <div className={clsx('view-row')}>
+            <div className="view-row-left" />
             <div className="view-row-center">
-              <VolcanoPlot />
+              <Link component="button" href="#" variant="body2">Show analysis details</Link>
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')}>
+          <div className={clsx('view-row')}>
             <div className="view-row-left">
-              <p>This view displays differential expression test results in tabular form. Click a row in the table to select the corresponding gene.</p>
+              <p className="tabs-description">Use the tabs to switch the visualization rendered below.</p>
             </div>
             <div className="view-row-center">
-              <VolcanoPlotTable />
+              <Tabs value={visTab} onChange={(event, newValue) => setVisTab(newValue)} aria-label="Switch visualization tabs">
+                <Tab label="Treemap Plot" />
+                <Tab label="Volcano Plot" />
+                <Tab label="Dot Plot" />
+                <Tab label="Violin Plot" />
+                <Tab label="Cell Type Composition Bar Plot" />
+              </Tabs>
             </div>
           </div>
-          <div className={clsx('view-row', 'view-row-tall')}>
+          {visTab === 0 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-short')}>
+                <div className="view-row-left">
+                  <p>This view contains a treemap visualization to communicate cell type composition in each of the selected sample groups.</p>
+                </div>
+                <div className="view-row-center">
+                  <Treemap />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {visTab === 1 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-tall')}>
+                <div className="view-row-left">
+                  <p>This view displays differential expression test results, performed using the rank_genes_groups function from Scanpy (Wolf et al. 2018) with method &quot;wilcoxon&quot;. <br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
+                </div>
+                <div className="view-row-center">
+                  <VolcanoPlot />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {visTab === 2 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-tall')}>
+                <div className="view-row-left">
+                  <p>This dot plot view displays gene expression values per cell type and sample group for the selected biomarkers.</p>
+                </div>
+                <div className="view-row-center">
+                  <DotPlot />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {visTab === 3 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-tall')}>
+                <div className="view-row-left">
+                  <p>This violin plot view displays gene expression values per cell type and sample group for the selected biomarker.</p>
+                </div>
+                <div className="view-row-center">
+                  <ViolinPlot />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {visTab === 4 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-tall')}>
+                <div className="view-row-left">
+                  <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021). Cell types with significantly different composition between the selected sample groups are displayed opaque while not-signficant results are displayed with transparent bars. The single outlined bar denotes the automatically-selected reference cell type.</p>
+                </div>
+                <div className="view-row-center">
+                  <SccodaPlot />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {/* End plots; Begin tables */}
+
+          <div className={clsx('view-row')}>
             <div className="view-row-left">
-              <p>This dot plot view displays gene expression values per cell type and sample group for the selected biomarkers.</p>
+              <p className="tabs-description">Use the tabs to switch the table rendered below.</p>
             </div>
             <div className="view-row-center">
-              <DotPlot />
+              <Tabs value={tableTab} onChange={(event, newValue) => setTableTab(newValue)} aria-label="Switch table tabs">
+                <Tab label="Differential Expression Results for Selected Gene" />
+                <Tab label="Differential Expression Results for All Genes" />
+                <Tab label="Gene Set Enrichment Analysis Results" />
+              </Tabs>
             </div>
           </div>
+          {tableTab === 0 ? (
+            <>
+              <div className={clsx('view-row', 'view-row-tall')}>
+                <div className="view-row-left">
+                  <p>This view displays differential expression test results in tabular form. Click a row in the table to select the corresponding gene.</p>
+                </div>
+                <div className="view-row-center">
+                  <VolcanoPlotTable />
+                </div>
+              </div>
+              <div className={clsx('view-row')}>
+                <div className="view-row-left" />
+                <div className="view-row-center">
+                  <Link component="button" href="#" variant="body2">Show analysis details</Link>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {/* Add more tables once implemented (all gene DE results, GSEA results) */}
         </div>
         <div style={{ width: '14%', marginTop: '114px', marginBottom: '100px' }}>
           <Sticky>
             <div className="view-row-right">
               <CellSets />
             </div>
+            {/*
             <div className="view-row-right">
               <SampleSets />
             </div>
+            */}
           </Sticky>
         </div>
 

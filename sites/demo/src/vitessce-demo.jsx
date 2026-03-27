@@ -3,6 +3,7 @@ import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
 import { Vitessce } from 'vitessce';
+import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
@@ -111,6 +112,7 @@ export function VitessceDemo() {
     const { rowHeight = null } = {};
     const urlParams = new URLSearchParams(window.location.search);
     const datasetId = urlParams.get('dataset');
+    const isComparative = urlParams.get('comparative') === 'true';
     const debug = urlParams.get('debug') === 'true';
     const datasetUrl = urlParams.get('url');
     const showAll = urlParams.get('show') === 'all';
@@ -122,6 +124,25 @@ export function VitessceDemo() {
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
+
+    if (isComparative) {
+      // TODO: props here to pass a comparative anndata.zarr url?
+      return (
+        <ContainerComponent>
+          {!pageMode ? (
+            <style>{`
+            #root .vitessce-container {
+              height: max(100%,100vh);
+              width: 100%;
+              overflow: hidden;
+            }
+            `}
+            </style>
+          ) : null}
+          <UncontrolledComparative />
+        </ContainerComponent>
+      );
+    }
 
     if (datasetId) {
       const config = getConfig(datasetId);

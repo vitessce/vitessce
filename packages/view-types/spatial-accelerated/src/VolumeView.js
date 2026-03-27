@@ -14,7 +14,11 @@ import { WebGLMultipleRenderTargets } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 
-import { VolumeDataManager, INIT_STATUS } from './VolumeDataManager.js';
+import {
+  VolumeDataManager,
+  INIT_STATUS,
+  DEFAULT_SIGMA_NORMALIZED,
+} from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
@@ -69,8 +73,15 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
       ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
     // Based on the request buffer contents, process the requests
     // (e.g., start loading the brick data and upload to the brick cache).
-    // Finally, it will set triggerUsage to true.
-    dataManager.processRequestData(bufRequest.current);
+    // Pass width/height so the data manager can compute Gaussian weighting.
+    dataManager.processRequestData(bufRequest.current, {
+      // If width/height are not yet available,
+      // processRequestData will proceed without weighting.
+      width: mrtRef?.current?.width,
+      height: mrtRef?.current?.height,
+      // Default sigmaNormalized = 0.25; can be tuned
+      sigmaNormalized: DEFAULT_SIGMA_NORMALIZED,
+    });
   } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
     // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
     ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
