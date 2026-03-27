@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
 import { ChunkWorker } from '@vitessce/neuroglancer-workers';
-import { CircularProgress } from '@vitessce/styles';
 import { NeuroglancerGlobalStyles } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
@@ -94,7 +93,7 @@ export class NeuroglancerComp extends PureComponent {
       <>
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
-        <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>Loading...</div>}>
             <LazyReactNeuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
