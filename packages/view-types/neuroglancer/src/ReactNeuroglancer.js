@@ -628,8 +628,32 @@ export default class Neuroglancer extends React.Component {
     let firstChunkLoaded = false;
     this.disposers.push(visibleChunksChanged.add(() => {
       if (!firstChunkLoaded) {
-        firstChunkLoaded = true;
-        this.props.onLayerLoadingChange?.(true); // first chunk visible — hide loader immediately
+        for (const layer of this.viewer.layerManager.managedLayers) {
+          if (layer.layer instanceof SegmentationUserLayer) {
+            const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+              const {
+                numVisibleChunksAvailable,
+                numVisibleChunksNeeded,
+              } = rl.layerChunkProgressInfo || {};
+              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+              // Neuroglancer only shows chunks when a certain % is loaded.
+              // The 0.25 is from testing different values, can be reduced to 0.2 to shorten loader time
+              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+            });
+            if (hasVisibleChunk) {
+              firstChunkLoaded = true;
+              // Two frames to avoid flash while the following two happens
+              // Neuroglancer issues WebGL draw calls
+              requestAnimationFrame(() => {
+              // GPU has painted, pixels visible on screen
+                requestAnimationFrame(() => {
+                  this.props.onLayerLoadingChange?.(true);
+                });
+              });
+              return;
+            }
+          }
+        }
       }
     }));
     this.disposers.push(() => { firstChunkLoaded = false; });

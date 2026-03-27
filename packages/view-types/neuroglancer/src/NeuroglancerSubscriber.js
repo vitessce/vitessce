@@ -757,7 +757,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isLayersLoaded}
+      isReady={isReady && isLayersLoaded}
       errors={errors}
       withPadding={false}
     >

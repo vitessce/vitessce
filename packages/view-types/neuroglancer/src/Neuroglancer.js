@@ -94,7 +94,7 @@ export class NeuroglancerComp extends PureComponent {
       <>
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
-          <Suspense fallback={<CircularProgress sx={{ display: 'block', margin: 'auto' }} />}>
+        <Suspense fallback={<div>Loading...</div>}>
             <LazyReactNeuroglancer
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
