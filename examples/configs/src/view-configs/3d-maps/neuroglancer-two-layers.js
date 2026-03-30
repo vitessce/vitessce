@@ -16,8 +16,8 @@ function generateNeuroglancerTwoLayerConfig() {
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     // sharded version -- use when support is added
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sanjay/20x/gloms/',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10_new',
+    // url: 'https://data-2.vitessce.io/data/sanjay/20x/gloms/',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/20_10_new',
     coordinationValues: {
       fileUid: 'gloms',
       obsType: 'cell',
@@ -27,8 +27,8 @@ function generateNeuroglancerTwoLayerConfig() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     // sharded version -- use when support is added
-    // url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sanjay/20x/nerves/',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/20_10',
+    // url: 'https://data-2.vitessce.io/data/sanjay/20x/nerves/',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/20_10',
     coordinationValues: {
       fileUid: 'nerves',
       obsType: 'cell',
@@ -37,7 +37,7 @@ function generateNeuroglancerTwoLayerConfig() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/washu-kidney/ng-meshes/segments.csv',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/segments.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -55,6 +55,7 @@ function generateNeuroglancerTwoLayerConfig() {
 
 
   const obsSets = config.addView(dataset, 'obsSets');
+  const layerController = config.addView(dataset, 'layerControllerBeta');
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
@@ -74,7 +75,7 @@ function generateNeuroglancerTwoLayerConfig() {
   });
 
 
-  config.linkViewsByObject([neuroglancerView], {
+  config.linkViewsByObject([neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
     spatialTargetT: 0,
@@ -87,7 +88,7 @@ function generateNeuroglancerTwoLayerConfig() {
     spatialRotationOrbit: 0,
   }, { meta: false });
 
-  config.linkViewsByObject([neuroglancerView], {
+  config.linkViewsByObject([neuroglancerView, layerController], {
     segmentationLayer: CL([
       {
         fileUid: 'gloms',
@@ -117,7 +118,7 @@ function generateNeuroglancerTwoLayerConfig() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
-  config.layout(hconcat(neuroglancerView, vconcat(obsSets)));
+  config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets)));
 
   const configJSON = config.toJSON();
   return configJSON;

@@ -3,4 +3,4 @@
 "@vitessce/example-configs": patch
 ---
 
-Added support for multiple layers on Neuroglancer View
+Added support for multiple segmentation (i.e., mesh) layers in the Neuroglancer view.
