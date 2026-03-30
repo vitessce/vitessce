@@ -93,6 +93,7 @@ export { default as ArrowLeft } from '@mui/icons-material/ArrowLeft';
 export { default as CenterFocusStrong } from '@mui/icons-material/CenterFocusStrong';
 export { default as Close } from '@mui/icons-material/Close';
 export { default as CloudDownload } from '@mui/icons-material/CloudDownload';
+export { default as MenuBook } from '@mui/icons-material/MenuBook';
 export { default as ExpandLess } from '@mui/icons-material/ExpandLess';
 export { default as ExpandMore } from '@mui/icons-material/ExpandMore';
 export { default as Help } from '@mui/icons-material/Help';

@@ -57,6 +57,8 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 
+const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
+
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
   neuroglancer: 'neuroglancer',
@@ -753,6 +755,7 @@ export function NeuroglancerSubscriber(props) {
       isReady={isReady}
       errors={errors}
       withPadding={false}
+      guideUrl={GUIDE_URL}
     >
       <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
         <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
