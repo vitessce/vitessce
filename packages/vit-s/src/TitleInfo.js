@@ -142,7 +142,7 @@ function DownloadOptions(props) {
 }
 
 function HelpButton(props) {
-  const { helpText } = props;
+  const { helpText, guideUrl } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -156,7 +156,23 @@ function HelpButton(props) {
       aria-label="Open help info"
       withPaper={false}
     >
-      <span className={classes.helpTextSpan}>{helpText}</span>
+      <span className={classes.helpTextSpan}>
+        {helpText}
+        {guideUrl ? (
+          <IconButton
+            component="a"
+            href={guideUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            className={classes.iconButton}
+            title="Open Navigation Guide"
+            aria-label="Open navigation guide"
+          >
+            <MenuBookIcon />
+          </IconButton>
+        ) : null}
+      </span>
     </PopperMenu>
   );
 }
@@ -211,26 +227,6 @@ function ClosePaneButton(props) {
 }
 
 
-function GuideButton(props) {
-  const { guideUrl } = props;
-  const { classes } = useStyles();
-  return (
-    <IconButton
-      component="a"
-      href={guideUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      size="small"
-      className={classes.iconButton}
-      title="Open Navigation Guide"
-      aria-label="Open navigation guide"
-    >
-      <MenuBookIcon />
-    </IconButton>
-  );
-}
-
-
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
@@ -267,10 +263,6 @@ export function TitleInfo(props) {
           {helpText ? (
             <HelpButton
               helpText={helpText}
-            />
-          ) : null}
-          {guideUrl ? (
-            <GuideButton
               guideUrl={guideUrl}
             />
           ) : null}

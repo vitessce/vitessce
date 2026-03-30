@@ -57,7 +57,7 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 
-const GUIDE_URL = 'docs/ng-guide';
+const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',

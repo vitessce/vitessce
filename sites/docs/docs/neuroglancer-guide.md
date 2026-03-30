@@ -9,40 +9,33 @@ slug: /ng-guide
 
 This guide covers the key interactions available in the Neuroglancer view.
 
----
 
-## Coloring Cells by Cell Set
+## Controlling the Camera
 
-The cell colors in Neuroglancer view represents the color by their cell set grouping. Selecting/unselecting the group in the cell set panel will update the selection in the  Neuroglancer view. Similarly, lasso selection on the Scatter plot view updates the cells.
+| Interaction | How To |
+|---|---|
+|  Rotate the camera | click & drag |
+|  Zoom in / out | <kbd>CTRL</kbd> + scroll (with mouse wheel or trackpad gesture) |
+|  Center on a specific cell/mesh | right-click on the item of interest |
 
-:::info
-If no cell set is selected, cells will appear in their default grey color.
-:::
----
+
 
 ## Repositioning the Volume
 
-To reposition the volume within the coordinate system, hold **Shift** and drag
+To reposition the volume within the coordinate system, hold <kbd>SHIFT</kbd> and drag
 within the Neuroglancer view. This pans the volume without changing the zoom level
 or rotation.
 
 | Interaction | How To |
 |---|---|
-|  Pan the volume | shift + left click & drag |
-|  Rotate the volume | drag |
-|  Zoom in / out | ctrl + mouse wheel (on trackpads, slide two fingers apart) |
-|  Center a cell/mesh | right click on it |
-
----
+|  Pan the volume | <kbd>SHIFT</kbd> + click & drag |
 
 
 
-## Zooming in on a Specific Cell
+## Coloring Cells by Cell Set
 
-Right-clicking anywhere in the Neuroglancer view repositions the viewstate so that
-the clicked coordinate becomes the new center. This makes it easy to zoom in on a
-particular cell:
+The cell colors in Neuroglancer view correspond to their cell set grouping. Selecting/unselecting the group in the cell set manager view will update the selection in the  Neuroglancer view. Similarly, lasso selection on the scatterplot view will create a new cell set, and subsequently color the selected cells.
 
-**Right-click** on a cell of interest — the view recenters on that coordinate.
-
-
+:::info
+If no cell set is selected, cells will appear in their default grey color.
+:::
