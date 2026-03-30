@@ -512,6 +512,8 @@ export function NeuroglancerSubscriber(props) {
   }, []);
 
   const onSegmentClick = useCallback((value) => {
+    // Note: this callback is no longer called by the child component.
+    // Reference: https://github.com/vitessce/vitessce/pull/2439
     if (value) {
       const id = String(value);
       const selectedCellIds = [id];
