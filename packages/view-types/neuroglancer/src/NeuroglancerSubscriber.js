@@ -748,6 +748,7 @@ export function NeuroglancerSubscriber(props) {
   // console.log(derivedViewerState);
 
   return (
+
     <TitleInfo
       title={title}
       info={subtitle}
@@ -762,19 +763,19 @@ export function NeuroglancerSubscriber(props) {
       withPadding={false}
       guideUrl={GUIDE_URL}
     >
-      <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
-        <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
-          <MultiLegend
-            theme="dark"
-            maxHeight={ngHeight}
-            segmentationLayerScopes={segmentationLayerScopes}
-            segmentationLayerCoordination={segmentationLayerCoordination}
-            segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
-            segmentationChannelCoordination={segmentationChannelCoordination}
-          />
-        </div>
+      {hasLayers ? (
+        <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
+          <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
+            <MultiLegend
+              theme="dark"
+              maxHeight={ngHeight}
+              segmentationLayerScopes={segmentationLayerScopes?.slice(0, 1) ?? []}
+              segmentationLayerCoordination={segmentationLayerCoordination}
+              segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+              segmentationChannelCoordination={segmentationChannelCoordination}
+            />
+          </div>
 
-        {hasLayers ? (
           <NeuroglancerComp
             classes={classes}
             onSegmentClick={onSegmentClick}
@@ -783,8 +784,9 @@ export function NeuroglancerSubscriber(props) {
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </TitleInfo>
+
   );
 }
