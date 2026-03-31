@@ -1,4 +1,15 @@
 
+## 3.9.6
+
+### Patch Changes
+
+- Define obsPoints.ng-annotations as a fileType, enabling users to specify Neuroglancer point annotations via the usual datasets part of the Vitessce configuration. Add logic for controlling segmentation and point layers via the existing layerControllerBeta UI, including coloring and filtering points via the featureList. (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2420](https://github.com/vitessce/vitessce/pull/2420))
+
+- Use obsType from coordinationValues for pointLayer and spotLayer when available. (`@vitessce/spatial-zarr`, `@vitessce/zarr`, `@vitessce/csv`) ([#2441](https://github.com/vitessce/vitessce/pull/2441))
+
+- Added legend to Neuroglancer view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`) ([#2435](https://github.com/vitessce/vitessce/pull/2435))
+
+
 ## 3.9.5
 
 ### Patch Changes
