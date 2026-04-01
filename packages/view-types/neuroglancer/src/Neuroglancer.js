@@ -37,7 +37,6 @@ export class NeuroglancerComp extends PureComponent {
       // To disable space interaction causing 4panels layout
       viewer.inputEventBindings.sliceView.set('at:space', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:space', () => {});
-      viewer.inputEventBindings.global.set('at:space', () => {});
 
       this.prevHoverHandler = () => {
         if (viewer.mouseState.pickedValue !== undefined) {
