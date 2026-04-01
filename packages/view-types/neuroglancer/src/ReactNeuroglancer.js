@@ -486,10 +486,8 @@ export default class Neuroglancer extends React.Component {
       // Match layerScope by checking if the NG layer name contains the scope key.
       // NG layer names are of the form:
       // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
-      const layerScope = Object.keys(cellColorMappingByLayer).find(scope =>
-        layer.name?.includes(scope),
-      );
-  
+      const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
+
       const selected = { ...(cellColorMappingByLayer[layerScope] || {}) };
 
       // Track all known IDs for this layer scope
