@@ -482,23 +482,28 @@ export default class Neuroglancer extends React.Component {
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
 
-    const newLayers = baseLayers.map((layer, idx) => {
-      // Get the color mapping for this specific layer by index
-      // TODO: need to access layer name from config
-      const layerScope = Object.keys(cellColorMappingByLayer)[idx];
+    const newLayers = baseLayers.map((layer) => {
+      // Match layerScope by checking if the NG layer name contains the scope key.
+      // NG layer names are of the form:
+      // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
+      const layerScope = Object.keys(cellColorMappingByLayer).find(scope =>
+        layer.name?.includes(scope),
+      );
+  
       const selected = { ...(cellColorMappingByLayer[layerScope] || {}) };
 
-      // Track all known IDs for this layer
+      // Track all known IDs for this layer scope
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
-      if (!this.allKnownIdsByLayer[layerScope]) this.allKnownIdsByLayer[layerScope] = new Set();
-
+      if (!this.allKnownIdsByLayer[layerScope]) {
+        this.allKnownIdsByLayer[layerScope] = new Set();
+      }
       for (const id of Object.keys(selected)) {
         this.allKnownIdsByLayer[layerScope].add(id);
       }
 
       // Build a full color table: selected keep their hex, others grey
       const fullSegmentColors = {};
-      for (const id of this.allKnownIdsByLayer[layerScope]) {
+      for (const id of this.allKnownIdsByLayer[layerScope] || []) {
         fullSegmentColors[id] = selected[id] || GREY_HEX;
       }
 

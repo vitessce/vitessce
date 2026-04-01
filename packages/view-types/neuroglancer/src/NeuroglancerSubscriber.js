@@ -161,6 +161,15 @@ export function NeuroglancerSubscriber(props) {
     CoordinationType.SEGMENTATION_LAYER,
   );
 
+  const fileUidToLayerScope = useMemo(() => {
+    const result = {};
+    segmentationLayerScopes?.forEach((layerScope) => {
+      const { fileUid } = segmentationLayerCoordination?.[0]?.[layerScope] || {};
+      if (fileUid) result[fileUid] = layerScope;
+    });
+    return result;
+  }, [segmentationLayerScopes, segmentationLayerCoordination]);
+
   // Object keys are coordination scope names for spatialSegmentationChannel.
   const segmentationChannelCoordination = useComplexCoordinationSecondary(
     [
@@ -542,14 +551,14 @@ export function NeuroglancerSubscriber(props) {
 
   // Get the ultimate cellColorMapping for each layer to pass to NeuroglancerComp as a prop.
 
-
-  const cellColorMappingByLayer = useMemo(() => (
-    segmentationLayerScopes?.reduce((acc, layerScope) => {
+  const cellColorMappingByLayer = useMemo(() => {
+    const result = {};
+    segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
-      acc[layerScope] = segmentationColorMapping?.[layerScope]?.[channelScope] ?? {};
-      return acc;
-    }, {})
-  ), [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
+      result[layerScope] = segmentationColorMapping?.[layerScope]?.[channelScope] ?? {};
+    });
+    return result;
+  }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
@@ -783,6 +792,7 @@ export function NeuroglancerSubscriber(props) {
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
+            fileUidToLayerScope={fileUidToLayerScope}
           />
         </div>
       ) : null}

@@ -98,6 +98,7 @@ function generateNeuroglancerTwoLayerConfig() {
           {
             obsType: 'cell',
             spatialChannelVisible: true,
+            obsHighlight: null,
             obsColorEncoding: 'cellSetSelection',
           },
         ]),
@@ -108,8 +109,9 @@ function generateNeuroglancerTwoLayerConfig() {
         spatialLayerVisible: true,
         segmentationChannel: CL([
           {
-            obsType: 'nerve',
+            obsType: 'cell',
             spatialChannelVisible: true,
+            obsHighlight: null,
             obsColorEncoding: 'cellSetSelection',
           },
         ]),
