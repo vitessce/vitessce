@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import {
   TitleInfo,
   useReady,
@@ -51,6 +51,7 @@ export function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     uuid,
+    cameraPresets,
   } = props;
 
   const loaders = useLoaders();
@@ -81,6 +82,41 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
     coordinationScopes,
   );
+
+
+  // Apply a camera preset by calling the coordination setters
+  const applyPreset = useCallback((preset) => {
+    if (!preset) return;
+    if (preset.spatialZoom !== undefined) setZoom(preset.spatialZoom);
+    if (preset.spatialTargetX !== undefined) setTargetX(preset.spatialTargetX);
+    if (preset.spatialTargetY !== undefined) setTargetY(preset.spatialTargetY);
+    if (preset.spatialTargetZ !== undefined) setTargetZ(preset.spatialTargetZ);
+    if (preset.spatialTargetT !== undefined) setTargetT(preset.spatialTargetT);
+    if (preset.spatialRotationX !== undefined) setRotationX(preset.spatialRotationX);
+    if (preset.spatialRotationOrbit !== undefined) setRotationOrbit(preset.spatialRotationOrbit);
+  }, [setZoom, setTargetX, setTargetY, setTargetZ, setTargetT, setRotationX, setRotationOrbit]);
+
+  // Listen for CMD/CTRL + digit keypresses to apply camera presets
+  useEffect(() => {
+    if (!cameraPresets?.length) return;
+
+    const handleKeyDown = (e) => {
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+      if (!isCmdOrCtrl) return;
+      const digitMatch = e.code.match(/^Digit(\d)$/);
+      if (!digitMatch) return;
+
+      const index = parseInt(digitMatch[1], 10);
+      const preset = cameraPresets[index];
+      if (preset) {
+        e.preventDefault();
+        applyPreset(preset);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cameraPresets, applyPreset]);
 
   // Normalize arrays and non-arrays to always be arrays.
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
