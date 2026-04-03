@@ -87,18 +87,18 @@ export function LayerControllerSubscriber(props) {
   // Apply a camera preset by calling the coordination setters
   const applyPreset = useCallback((preset) => {
     if (!preset) return;
-    if (preset.spatialZoom !== undefined) setZoom(preset.spatialZoom);
-    if (preset.spatialTargetX !== undefined) setTargetX(preset.spatialTargetX);
-    if (preset.spatialTargetY !== undefined) setTargetY(preset.spatialTargetY);
-    if (preset.spatialTargetZ !== undefined) setTargetZ(preset.spatialTargetZ);
-    if (preset.spatialTargetT !== undefined) setTargetT(preset.spatialTargetT);
-    if (preset.spatialRotationX !== undefined) setRotationX(preset.spatialRotationX);
-    if (preset.spatialRotationOrbit !== undefined) setRotationOrbit(preset.spatialRotationOrbit);
+    if (preset?.spatialZoom) setZoom(preset.spatialZoom);
+    if (preset?.spatialTargetX) setTargetX(preset.spatialTargetX);
+    if (preset?.spatialTargetY) setTargetY(preset.spatialTargetY);
+    if (preset?.spatialTargetZ) setTargetZ(preset.spatialTargetZ);
+    if (preset?.spatialTargetT) setTargetT(preset.spatialTargetT);
+    if (preset?.spatialRotationX) setRotationX(preset.spatialRotationX);
+    if (preset.spatialRotationOrbit) setRotationOrbit(preset.spatialRotationOrbit);
   }, [setZoom, setTargetX, setTargetY, setTargetZ, setTargetT, setRotationX, setRotationOrbit]);
 
   // Listen for CMD/CTRL + digit keypresses to apply camera presets
   useEffect(() => {
-    if (!cameraPresets?.length) return;
+    if (!cameraPresets?.length) return undefined;
 
     const handleKeyDown = (e) => {
       const isCmdOrCtrl = e.metaKey || e.ctrlKey;
