@@ -34,6 +34,10 @@ export class NeuroglancerComp extends PureComponent {
       viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:dblclick0', () => {});
 
+      // To disable space interaction causing 4panels layout
+      viewer.inputEventBindings.sliceView.set('at:space', () => {});
+      viewer.inputEventBindings.perspectiveView.set('at:space', () => {});
+
       this.prevHoverHandler = () => {
         if (viewer.mouseState.pickedValue !== undefined) {
           const pickedSegment = viewer.mouseState.pickedValue;
