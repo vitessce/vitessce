@@ -64,7 +64,26 @@ function generateNeuroglancerMinimalConfiguration() {
   });
 
   const spatialThreeView = config.addView(dataset, 'spatialBeta');
-  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({
+    cameraPresets: [
+      // CMD+0
+      {
+        spatialZoom: -3.6,
+        spatialTargetX: 666,
+        spatialTargetY: 542,
+        spatialRotationX: 0,
+        spatialRotationOrbit: 0,
+      },
+      // CMD+1
+      {
+        spatialZoom: -2,
+        spatialTargetX: 400,
+        spatialTargetY: 300,
+        spatialRotationX: 45,
+        spatialRotationOrbit: 90,
+      },
+    ],
+  });
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
