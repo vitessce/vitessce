@@ -34,9 +34,13 @@ export class NeuroglancerComp extends PureComponent {
       // For now, can omit the sliceView bindings, as we only use perspectiveView
       // viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:dblclick0', () => {});
+      
+      // Disable space interaction to prevent triggering 4panels layout.
+      viewer.inputEventBindings.sliceView.set('at:space', () => {});
+      viewer.inputEventBindings.perspectiveView.set('at:space', () => {});
 
       // Remap plain wheel to  ctrl+wheel (zoom) action
-      // by traversing the parent binding maps
+      // by traversing the parent binding maps.
       const remapWheelToZoom = (map) => {
         if (map.bindings) {
           const ctrlWheelAction = map.bindings.get('at:control+wheel');
