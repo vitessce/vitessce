@@ -6,9 +6,14 @@ export default function XREnterButton() {
   const [entered, setEntered] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     if (navigator.xr) {
-      navigator.xr.isSessionSupported('immersive-ar').then(setSupported);
+      navigator.xr.isSessionSupported('immersive-ar')
+        .then((result) => { if (!cancelled) setSupported(result); })
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        .catch(() => {});
     }
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

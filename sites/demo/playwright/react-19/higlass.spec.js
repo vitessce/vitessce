@@ -4,7 +4,8 @@ const { test, expect } = require('@playwright/test');
 test('higlass demo renders with React 19', async ({ page }) => {
   await page.goto('http://localhost:3000/?dataset=just-higlass');
   await expect(page).toHaveTitle('Vitessce');
-  await expect(page.getByRole('heading', { name: 'Vitessce', exact: true })).toBeVisible();
+  // Wait for the Vitessce container to mount (dataset pages don't have the welcome heading).
+  await expect(page.locator('.vitessce-container')).toBeVisible({ timeout: 30000 });
 
   await expect(page.getByRole('heading', { name: 'HiGlass', exact: true })).toBeVisible();
 

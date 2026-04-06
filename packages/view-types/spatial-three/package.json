@@ -66,9 +66,6 @@
     "@react-three/xr": "^6.0.0"
   },
   "peerDependenciesMeta": {
-    "@react-three/fiber": { "optional": true },
-    "@react-three/drei": { "optional": true },
-    "@react-three/xr": { "optional": true },
-    "three": { "optional": true }
+    "@react-three/xr": { "optional": true }
   }
 }

@@ -1,13 +1,13 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { Group, Scene } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
 import { useXR, useXRInputSourceState } from '@react-three/xr';
-import { FrontSide, Vector3, Box3 } from 'three';
+import { FrontSide, Vector3, Box3, Matrix4 } from 'three';
 import { MeasureLine } from './xr/MeasureLine.js';
 import type { GeometryAndMeshProps, MeasureLineData, ClickEvent, PointerOverEvent } from './types.js';
 import { isValidGeometrySize, stringifyLineData } from './three-utils.js';
@@ -56,11 +56,22 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
   const distanceRef = useRef<Group>(null);
   const rayGrabGroup = useRef<Group>(null);
   const grabControllerRef = useRef<number | null>(null);
-  const previousTransform = useRef<unknown>(null);
+  const previousTransform = useRef<Matrix4>(new Matrix4());
+  const initialScale = useRef<Vector3 | null>(null);
+  const secondPointerId = useRef<number | null>(null);
+  const initialDistance = useRef(0);
+  const lastPointerPositions = useRef<Map<number, Vector3>>(new Map());
 
   // XR state via v6 API
   const session = useXR(state => state.session);
   const isPresenting = session != null;
+
+  // Adjust fragment depth uniform for XR vs non-XR rendering
+  useEffect(() => {
+    if (materialRef?.current?.material?.uniforms?.u_physical_Pixel) {
+      materialRef.current.material.uniforms.u_physical_Pixel.value = isPresenting ? 0.2 : 2.5;
+    }
+  }, [isPresenting, materialRef]);
 
   const { scene, gl } = useThree();
   const rightHand = useXRInputSourceState('hand', 'right');
@@ -79,6 +90,19 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
   const [lines, setLines] = useState<MeasureLineData[]>([]);
   const [debounce, setDebounce] = useState(0);
 
+  // Refs that mirror state so the useFrame callback always reads current values.
+  // useFrame runs every animation frame but closes over stale state otherwise.
+  const measureStateRef = useRef(measureState);
+  measureStateRef.current = measureState;
+  const highlightedRef = useRef(highlighted);
+  highlightedRef.current = highlighted;
+  const currentLineRef = useRef(currentLine);
+  currentLineRef.current = currentLine;
+  const linesRef = useRef(lines);
+  linesRef.current = lines;
+  const debounceRef = useRef(debounce);
+  debounceRef.current = debounce;
+
   // XR per-frame hand interaction logic
   useFrame((_state, _delta, frame) => {
     if (!isPresenting || !frame) return;
@@ -92,7 +116,7 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
     const leftTipBB = new Box3().setFromObject(leftTipBbox);
     const rightTipBB = new Box3().setFromObject(rightTipBbox);
     let intersected = false;
-    setDebounce(debounce - 1.0);
+    setDebounce(prev => prev - 1.0);
 
     if (leftTipBB.intersectsBox(rightTipBB) && leftTipBB.max.x !== -rightTipBB.min.x) {
       setMeasureState(true);
@@ -106,7 +130,10 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
       });
     }
 
-    if (measureState) {
+    const curMeasureState = measureStateRef.current;
+    const curLine = currentLineRef.current;
+
+    if (curMeasureState) {
       let leftFingerPosition = getJointPosition(leftHand, 'index-finger-tip', frame, refSpace);
       let rightFingerPosition = getJointPosition(rightHand, 'index-finger-tip', frame, refSpace);
       if (!leftFingerPosition || !rightFingerPosition) return;
@@ -118,50 +145,43 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
 
       let currentStart = leftFingerPosition.clone();
       let currentEnd = rightFingerPosition.clone();
-      if (currentLine.setStartPoint) {
-        currentStart = currentLine.startPoint;
+      if (curLine.setStartPoint) {
+        currentStart = curLine.startPoint;
       }
-      if (currentLine.setEndPoint) {
-        currentEnd = currentLine.endPoint;
+      if (curLine.setEndPoint) {
+        currentEnd = curLine.endPoint;
       }
 
       setCurrentLine({
         startPoint: currentStart,
         midPoint: new Vector3().addVectors(currentStart, currentEnd).multiplyScalar(0.5),
         endPoint: currentEnd,
-        setStartPoint: currentLine.setStartPoint,
-        setEndPoint: currentLine.setEndPoint,
+        setStartPoint: curLine.setStartPoint,
+        setEndPoint: curLine.setEndPoint,
       });
 
       // Right hand pinch sets end point
       if (isPinching(rightHand, frame, refSpace)) {
-        setCurrentLine({
-          startPoint: currentLine.startPoint,
-          midPoint: currentLine.midPoint,
-          endPoint: currentLine.endPoint,
-          setStartPoint: currentLine.setStartPoint,
+        setCurrentLine(prev => ({
+          ...prev,
           setEndPoint: true,
-        });
+        }));
       }
       // Left hand pinch sets start point
       if (isPinching(leftHand, frame, refSpace)) {
-        setCurrentLine({
-          startPoint: currentLine.startPoint,
-          midPoint: currentLine.midPoint,
-          endPoint: currentLine.endPoint,
+        setCurrentLine(prev => ({
+          ...prev,
           setStartPoint: true,
-          setEndPoint: currentLine.setEndPoint,
-        });
+        }));
       }
 
-      if (currentLine.setStartPoint && currentLine.setEndPoint) {
-        lines.push(currentLine);
-        setLines(lines);
+      if (curLine.setStartPoint && curLine.setEndPoint) {
+        setLines(prev => [...prev, curLine]);
         setShowLine(false);
         setMeasureState(false);
         setDebounce(8);
       }
-    } else if (debounce <= 0 && model.current && isPresenting) {
+    } else if (debounceRef.current <= 0 && model.current && isPresenting) {
       const modelScene = model.current;
       modelScene.children[0].children.forEach((_childVal, childID) => {
         const child = modelScene.children[0].children[childID];
@@ -182,34 +202,76 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
           }
         }
       });
-      if (!intersected && highlighted) {
+      if (!intersected && highlightedRef.current) {
         setObsHighlight(null);
         setHighlighted(false);
       }
     }
   });
 
-  // Native v6 grab interaction: track pointer capture on the group
+  // Native v6 grab interaction: single pointer = translate, two pointers = scale
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!isPresenting) return;
     e.stopPropagation();
     (e.target as Element).setPointerCapture(e.pointerId);
-    grabControllerRef.current = e.pointerId;
+
+    if (grabControllerRef.current === null) {
+      // First pointer: start translate
+      grabControllerRef.current = e.pointerId;
+      lastPointerPositions.current.set(e.pointerId, e.point.clone());
+      if (rayGrabGroup.current) {
+        initialScale.current = rayGrabGroup.current.scale.clone();
+      }
+    } else if (secondPointerId.current === null && e.pointerId !== grabControllerRef.current) {
+      // Second pointer: switch to scale mode
+      secondPointerId.current = e.pointerId;
+      lastPointerPositions.current.set(e.pointerId, e.point.clone());
+      const p1 = lastPointerPositions.current.get(grabControllerRef.current);
+      const p2 = e.point;
+      if (p1) {
+        initialDistance.current = p1.distanceTo(p2);
+      }
+      if (rayGrabGroup.current) {
+        initialScale.current = rayGrabGroup.current.scale.clone();
+      }
+    }
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
+    (e.target as Element).releasePointerCapture(e.pointerId);
+    lastPointerPositions.current.delete(e.pointerId);
     if (grabControllerRef.current === e.pointerId) {
-      (e.target as Element).releasePointerCapture(e.pointerId);
       grabControllerRef.current = null;
-      previousTransform.current = null;
+      initialScale.current = null;
+    }
+    if (secondPointerId.current === e.pointerId) {
+      secondPointerId.current = null;
+      initialDistance.current = 0;
     }
   };
 
   const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (grabControllerRef.current !== e.pointerId || !rayGrabGroup.current) return;
-    // Move the group to follow the pointer
-    if (e.point) {
-      rayGrabGroup.current.position.copy(e.point);
+    if (!rayGrabGroup.current || !e.point) return;
+    const isFirstPointer = grabControllerRef.current === e.pointerId;
+    const isSecondPointer = secondPointerId.current === e.pointerId;
+    if (!isFirstPointer && !isSecondPointer) return;
+
+    const prevPos = lastPointerPositions.current.get(e.pointerId);
+    lastPointerPositions.current.set(e.pointerId, e.point.clone());
+
+    if (secondPointerId.current !== null && initialDistance.current > 0 && initialScale.current) {
+      // Two-pointer mode: scale based on distance ratio
+      const p1 = lastPointerPositions.current.get(grabControllerRef.current!);
+      const p2 = lastPointerPositions.current.get(secondPointerId.current);
+      if (p1 && p2) {
+        const currentDistance = p1.distanceTo(p2);
+        const scaleFactor = currentDistance / initialDistance.current;
+        rayGrabGroup.current.scale.copy(initialScale.current).multiplyScalar(scaleFactor);
+      }
+    } else if (isFirstPointer && prevPos) {
+      // Single-pointer mode: translate incrementally
+      const delta = e.point.clone().sub(prevPos);
+      rayGrabGroup.current.position.add(delta);
     }
   };
 
