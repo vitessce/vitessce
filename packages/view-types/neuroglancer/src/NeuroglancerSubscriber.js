@@ -292,13 +292,25 @@ export function NeuroglancerSubscriber(props) {
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
         const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSetsData
           ?.[layerScope]?.[channelScope] || {};
-        if (layerSets && layerIndex) {
-          const {
-            obsSetColor,
-            obsColorEncoding,
-            obsSetSelection,
-            additionalObsSets,
-          } = segmentationChannelCoordination[0][layerScope][channelScope];
+        const {
+          obsSetColor,
+          obsColorEncoding,
+          obsSetSelection,
+          additionalObsSets,
+          spatialChannelColor,
+        } = segmentationChannelCoordination[0][layerScope][channelScope];
+
+        if (obsColorEncoding === 'spatialChannelColor') {
+          // All segments get the same static channel color
+          if (layerIndex && spatialChannelColor) {
+            const hex = rgbToHex(spatialChannelColor);
+            const ngCellColors = {};
+            layerIndex.forEach((id) => {
+              ngCellColors[id] = hex;
+            });
+            result[layerScope][channelScope] = ngCellColors;
+          }
+        } else if (layerSets && layerIndex) {
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
           const cellColors = getCellColors({
             cellSets: mergedCellSets,
@@ -707,7 +719,6 @@ export function NeuroglancerSubscriber(props) {
       lastInteractionSource.current = null;
     }
 
-
     const updatedLayers = current?.layers?.map((layer, idx) => {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
@@ -778,7 +789,7 @@ export function NeuroglancerSubscriber(props) {
             <MultiLegend
               theme="dark"
               maxHeight={ngHeight}
-              segmentationLayerScopes={segmentationLayerScopes?.slice(0, 1) ?? []}
+              segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
               segmentationChannelCoordination={segmentationChannelCoordination}

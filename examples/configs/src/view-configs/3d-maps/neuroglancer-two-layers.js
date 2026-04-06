@@ -20,7 +20,7 @@ function generateNeuroglancerTwoLayerConfig() {
     url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/20_10_new',
     coordinationValues: {
       fileUid: 'gloms',
-      obsType: 'cell',
+      obsType: 'glom',
     },
   });
 
@@ -31,21 +31,39 @@ function generateNeuroglancerTwoLayerConfig() {
     url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/20_10',
     coordinationValues: {
       fileUid: 'nerves',
-      obsType: 'cell',
+      obsType: 'nerve',
     },
   });
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/segments.csv',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/gloms_layer.csv',
     coordinationValues: {
-      obsType: 'cell',
+      obsType: 'glom',
     },
     options: {
       obsIndex: 'id',
       obsSets: [
         {
-          name: 'Layers',
+          name: 'Glom',
+          column: 'layer',
+        },
+
+      ],
+    },
+  });
+
+  dataset.addFile({
+    fileType: 'obsSets.csv',
+    url: 'https://data-2.vitessce.io/data/washu-kidney/ng-meshes/nerves.csv',
+    coordinationValues: {
+      obsType: 'nerve',
+    },
+    options: {
+      obsIndex: 'id',
+      obsSets: [
+        {
+          name: 'Nerve',
           column: 'layer',
         },
 
@@ -54,7 +72,6 @@ function generateNeuroglancerTwoLayerConfig() {
   });
 
 
-  const obsSets = config.addView(dataset, 'obsSets');
   const layerController = config.addView(dataset, 'layerControllerBeta');
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
@@ -96,10 +113,11 @@ function generateNeuroglancerTwoLayerConfig() {
         spatialLayerVisible: true,
         segmentationChannel: CL([
           {
-            obsType: 'cell',
+            obsType: 'glom',
             spatialChannelVisible: true,
             obsHighlight: null,
-            obsColorEncoding: 'cellSetSelection',
+            spatialChannelColor: [136, 204, 238],
+            obsColorEncoding: 'spatialChannelColor',
           },
         ]),
       },
@@ -109,10 +127,11 @@ function generateNeuroglancerTwoLayerConfig() {
         spatialLayerVisible: true,
         segmentationChannel: CL([
           {
-            obsType: 'cell',
+            obsType: 'nerve',
             spatialChannelVisible: true,
             obsHighlight: null,
-            obsColorEncoding: 'cellSetSelection',
+            spatialChannelColor: [136, 204, 238],
+            obsColorEncoding: 'spatialChannelColor',
           },
         ]),
       },
@@ -120,7 +139,7 @@ function generateNeuroglancerTwoLayerConfig() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
-  config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets)));
+  config.layout(hconcat(neuroglancerView, vconcat(layerController)));
 
   const configJSON = config.toJSON();
   return configJSON;

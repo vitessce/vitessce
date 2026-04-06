@@ -100,6 +100,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'obsColorEncoding',
               'obsSetSelection',
               'additionalObsSets',
+              'spatialChannelColor',
             ])
         ) {
           forceUpdate = true;
