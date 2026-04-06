@@ -196,6 +196,7 @@ export const FileType = {
   // Neuroglancer
   // Precomputed (mesh) format
   OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
+  OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -410,7 +411,7 @@ export const ViewHelpMapping = {
   FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
-  NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
+  NEUROGLANCER: 'This view displays 3D meshes and points using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
   OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',

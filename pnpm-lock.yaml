@@ -1953,8 +1953,8 @@ importers:
         specifier: 'catalog:'
         version: 2.12.1
       higlass:
-        specifier: ^2.3.0
-        version: 2.3.0(pixi.js@5.3.12)(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
+        specifier: ^2.0.0
+        version: 2.0.0(pixi.js@5.3.12)(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
       higlass-register:
         specifier: ^0.3.0
         version: 0.3.0
@@ -1966,7 +1966,7 @@ importers:
         version: 4.17.21
       react-dom:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-        version: 18.3.1(react@19.1.0)
+        version: 18.2.0(react@18.3.1)
     devDependencies:
       react:
         specifier: 'catalog:'
@@ -2191,6 +2191,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/legend':
+        specifier: workspace:*
+        version: link:../../legend
       '@vitessce/neuroglancer-workers':
         specifier: workspace:*
         version: link:../../neuroglancer-workers
@@ -10565,8 +10568,8 @@ packages:
   higlass-zarr-datafetchers@0.6.0:
     resolution: {integrity: sha512-qPdkR7BA4lEp4LAVXBdJekz64NUHltStgRpghf6ReWsGw5L+ZlWir3eAr7DN3Dl2xjbYid7DIyFF8IzTlyGuYw==}
 
-  higlass@2.3.0:
-    resolution: {integrity: sha512-zv3lLUj3XukZb6mF4AY9CGkuIqndSV7EjAPaNLnD7Aq/RNbTggU57SGw5lk/MOSwLwUM4NTNMoOtcNec+Jwv9A==}
+  higlass@2.0.0:
+    resolution: {integrity: sha512-vY6NRtMQuRz03xmN+GpP5OXpE/SnJR/l0ZyEVf0M+K1YvthmkGUlFLmUP51kpFxJAABxgdPvywkZw3gCUKu2Vw==}
     engines: {node: '>=0.12.0'}
     peerDependencies:
       pixi.js: ^5.0.3 || ^6.5.2
@@ -13549,6 +13552,12 @@ packages:
       react: '>= 16.3.0'
       react-dom: '>= 16.3.0'
 
+  react-draggable@4.5.0:
+    resolution: {integrity: sha512-VC+HBLEZ0XJxnOxVAZsdRi8rD04Iz3SiiKOoYzamjylUcju/hP9np/aZdLHf/7WOD268WMoNJMvYfB5yAK45cw==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
+
   react-dropzone@11.7.1:
     resolution: {integrity: sha512-zxCMwhfPy1olUEbw3FLNPLhAm/HnaYH5aELIEglRbqabizKAdHs0h+WuyOpmA+v1JXn0++fpQDdNfUagWt5hJQ==}
     engines: {node: '>= 10.13'}
@@ -13578,8 +13587,8 @@ packages:
       react: '>= 16.3.0'
       react-dom: '>= 16.3.0'
 
-  react-grid-layout@2.2.2:
-    resolution: {integrity: sha512-yNo9pxQWoxHWRAwHGSVT4DEGELYPyQ7+q9lFclb5jcqeFzva63/2F72CryS/jiTIr/SBIlTaDdyjqH+ODg8oBw==}
+  react-grid-layout@1.3.4:
+    resolution: {integrity: sha512-sB3rNhorW77HUdOjB4JkelZTdJGQKuXLl3gNg+BI8gJkTScspL1myfZzW/EM0dLEn+1eH+xW+wNqk0oIM9o7cw==}
     peerDependencies:
       react: '>= 16.3.0'
       react-dom: '>= 16.3.0'
@@ -13643,6 +13652,12 @@ packages:
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
+
+  react-resizable@3.1.3:
+    resolution: {integrity: sha512-liJBNayhX7qA4tBJiBD321FDhJxgGTJ07uzH5zSORXoE8h7PyEZ8mLqmosST7ppf6C4zUsbd2gzDMmBCfFp9Lw==}
+    peerDependencies:
+      react: '>= 16.3'
+      react-dom: '>= 16.3'
 
   react-resizable@3.1.3:
     resolution: {integrity: sha512-liJBNayhX7qA4tBJiBD321FDhJxgGTJ07uzH5zSORXoE8h7PyEZ8mLqmosST7ppf6C4zUsbd2gzDMmBCfFp9Lw==}
@@ -17627,6 +17642,31 @@ snapshots:
       react: 19.1.0
       tslib: 2.8.1
 
+  '@dnd-kit/accessibility@3.1.1(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+
+  '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
+
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
+      tslib: 2.8.1
+
+  '@dnd-kit/utilities@3.2.2(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+
   '@docsearch/css@3.9.0': {}
 
   '@docsearch/react@3.9.0(@algolia/client-search@5.25.0)(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(search-insights@2.17.3)':
@@ -19343,8 +19383,37 @@ snapshots:
   '@mui/system@7.1.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@19.1.0))(@types/react@19.1.6)(react@19.1.0))(@types/react@19.1.6)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.4
-      '@mui/private-theming': 7.1.0(@types/react@19.1.6)(react@19.1.0)
-      '@mui/styled-engine': 7.1.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@19.1.0))(@types/react@19.1.6)(react@19.1.0))(react@19.1.0)
+      '@emotion/cache': 11.14.0
+      '@emotion/serialize': 1.3.3
+      '@emotion/sheet': 1.4.0
+      csstype: 3.1.3
+      prop-types: 15.8.1
+      react: 18.3.1
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@19.1.6)(react@18.3.1)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@18.3.1))(@types/react@19.1.6)(react@18.3.1)
+
+  '@mui/system@7.1.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.27.4
+      '@mui/private-theming': 7.1.0(@types/react@18.3.28)(react@18.3.1)
+      '@mui/styled-engine': 7.1.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)
+      '@mui/types': 7.4.2(@types/react@18.3.28)
+      '@mui/utils': 7.1.0(@types/react@18.3.28)(react@18.3.1)
+      clsx: 2.1.1
+      csstype: 3.1.3
+      prop-types: 15.8.1
+      react: 18.3.1
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@18.3.28)(react@18.3.1)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@types/react': 18.3.28
+
+  '@mui/system@7.1.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@18.3.1))(@types/react@19.1.6)(react@18.3.1))(@types/react@19.1.6)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.27.4
+      '@mui/private-theming': 7.1.0(@types/react@19.1.6)(react@18.3.1)
+      '@mui/styled-engine': 7.1.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.6)(react@18.3.1))(@types/react@19.1.6)(react@18.3.1))(react@18.3.1)
       '@mui/types': 7.4.2(@types/react@19.1.6)
       '@mui/utils': 7.1.0(@types/react@19.1.6)(react@19.1.0)
       clsx: 2.1.1
@@ -22008,11 +22077,15 @@ snapshots:
 
   '@types/react-window@1.8.5':
     dependencies:
-      '@types/react': 19.1.6
+      '@types/react': 18.3.28
 
   '@types/react@19.1.6':
     dependencies:
       csstype: 3.2.3
+
+  '@types/react@19.1.6':
+    dependencies:
+      csstype: 3.1.3
 
   '@types/resolve@1.20.2': {}
 
@@ -26207,11 +26280,8 @@ snapshots:
       slugid: 3.2.0
       zarrita: 0.5.2
 
-  higlass@2.3.0(pixi.js@5.3.12)(react-dom@18.3.1(react@19.1.0))(react@19.1.0):
+  higlass@2.0.0(pixi.js@5.3.12)(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
-      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@19.1.0))(react@19.1.0))(react@19.1.0)
-      '@dnd-kit/utilities': 3.2.2(react@19.1.0)
       ajv: 6.12.6
       area-polygon: 1.0.1
       box-intersect: 1.0.2
@@ -26239,13 +26309,14 @@ snapshots:
       prismjs: 1.29.0
       prop-types: 15.8.1
       pub-sub-es: 2.0.1
-      react: 19.1.0
-      react-checkbox-tree: 1.8.0(react@19.1.0)
-      react-color: 2.19.3(react@19.1.0)
-      react-dom: 18.3.1(react@19.1.0)
-      react-grid-layout: 2.2.2(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
-      react-simple-code-editor: 0.13.1(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
-      reactcss: 1.2.3(react@19.1.0)
+      react: 18.3.1
+      react-checkbox-tree: 1.8.0(react@18.3.1)
+      react-color: 2.19.3(react@18.3.1)
+      react-dom: 18.2.0(react@18.3.1)
+      react-grid-layout: 1.3.4(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
+      react-simple-code-editor: 0.13.1(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
+      react-sortable-hoc: 2.0.0(prop-types@15.8.1)(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
+      reactcss: 1.2.3(react@18.3.1)
       robust-point-in-polygon: 1.0.3
       slugid: 3.2.0
       vkbeautify: 0.99.3
@@ -29762,13 +29833,24 @@ snapshots:
       reactcss: 1.2.3(react@19.1.0)
       tinycolor2: 1.4.2
 
-  react-dom@18.3.1(react@18.3.1):
+  react-composer@5.0.3(react@18.3.1):
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.3.1
+
+  react-dom@18.2.0(react@18.2.0):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.2.0
+      scheduler: 0.23.2
+
+  react-dom@18.2.0(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-dom@18.3.1(react@19.1.0):
+  react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
       react: 19.1.0
@@ -29779,14 +29861,14 @@ snapshots:
       react: 19.1.0
       scheduler: 0.26.0
 
-  react-draggable@4.5.0(react-dom@18.3.1(react@19.1.0))(react@19.1.0):
+  react-draggable@4.4.5(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
       prop-types: 15.8.1
-      react: 19.1.0
-      react-dom: 18.3.1(react@19.1.0)
+      react: 18.3.1
+      react-dom: 18.2.0(react@18.3.1)
 
-  react-draggable@4.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  react-draggable@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
       prop-types: 15.8.1
@@ -29826,16 +29908,15 @@ snapshots:
       react-draggable: 4.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-resizable: 3.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
-  react-grid-layout@2.2.2(react-dom@18.3.1(react@19.1.0))(react@19.1.0):
+  react-grid-layout@1.3.4(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
       fast-equals: 4.0.3
       prop-types: 15.8.1
-      react: 19.1.0
-      react-dom: 18.3.1(react@19.1.0)
-      react-draggable: 4.5.0(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
-      react-resizable: 3.1.3(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
-      resize-observer-polyfill: 1.5.1
+      react: 18.3.1
+      react-dom: 18.2.0(react@18.3.1)
+      react-draggable: 4.4.5(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
+      react-resizable: 3.0.4(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
 
   react-is@16.13.1: {}
 
@@ -29898,19 +29979,21 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-resizable@3.1.3(react-dom@18.3.1(react@19.1.0))(react@19.1.0):
+  react-resizable@3.0.4(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
     dependencies:
       prop-types: 15.8.1
-      react: 19.1.0
-      react-dom: 18.3.1(react@19.1.0)
-      react-draggable: 4.5.0(react-dom@18.3.1(react@19.1.0))(react@19.1.0)
+      react: 18.3.1
+      react-draggable: 4.4.5(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - react-dom
 
-  react-resizable@3.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  react-resizable@3.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       prop-types: 15.8.1
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      react-draggable: 4.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 18.3.1
+      react-draggable: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - react-dom
 
   react-router-config@5.1.1(react-router@5.3.4(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -29953,25 +30036,19 @@ snapshots:
       react-is: 16.13.1
       tiny-invariant: 1.3.1
       tiny-warning: 1.0.3
-    optional: true
 
-  react-router@5.3.4(react@19.1.0):
+  react-simple-code-editor@0.13.1(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.2.0(react@18.3.1)
+
+  react-sortable-hoc@2.0.0(prop-types@15.8.1)(react-dom@18.2.0(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.27.4
-      history: 4.10.1
-      hoist-non-react-statics: 3.3.2
-      loose-envify: 1.4.0
-      path-to-regexp: 1.8.0
+      invariant: 2.2.4
       prop-types: 15.8.1
-      react: 19.1.0
-      react-is: 16.13.1
-      tiny-invariant: 1.3.1
-      tiny-warning: 1.0.3
-
-  react-simple-code-editor@0.13.1(react-dom@18.3.1(react@19.1.0))(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      react-dom: 18.3.1(react@19.1.0)
+      react: 18.3.1
+      react-dom: 18.2.0(react@18.3.1)
 
   react-sticky-el@2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

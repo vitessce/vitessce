@@ -45,6 +45,8 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
    */
 export const COMPONENT_COORDINATION_TYPES = {
   [ViewType.NEUROGLANCER]: [
+    CoordinationType.META_COORDINATION_SCOPES,
+    CoordinationType.META_COORDINATION_SCOPES_BY,
     CoordinationType.DATASET,
     CoordinationType.SPATIAL_TARGET_X,
     CoordinationType.SPATIAL_TARGET_Y,
@@ -67,7 +69,25 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.EMBEDDING_TYPE,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,
-
+    CoordinationType.FILE_UID,
+    CoordinationType.IMAGE_LAYER,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.IMAGE_CHANNEL,
+    CoordinationType.SEGMENTATION_CHANNEL,
+    CoordinationType.POINT_LAYER,
+    CoordinationType.FEATURE_COLOR,
+    CoordinationType.FEATURE_FILTER_MODE,
+    CoordinationType.FEATURE_HIGHLIGHT,
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.FEATURE_VALUE_COLORMAP,
+    CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
+    CoordinationType.SPATIAL_LAYER_COLOR,
+    CoordinationType.SPATIAL_LAYER_OPACITY,
+    CoordinationType.SPATIAL_LAYER_VISIBLE,
+    CoordinationType.SPATIAL_CHANNEL_COLOR,
+    CoordinationType.SPATIAL_CHANNEL_OPACITY,
+    CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+    CoordinationType.LEGEND_VISIBLE,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
