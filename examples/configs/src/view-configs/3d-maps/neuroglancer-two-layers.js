@@ -72,6 +72,8 @@ function generateNeuroglancerTwoLayerConfig() {
   });
 
 
+  const nerveSets = config.addView(dataset, 'obsSets');
+  const glomSets = config.addView(dataset, 'obsSets');
   const layerController = config.addView(dataset, 'layerControllerBeta');
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
@@ -91,6 +93,17 @@ function generateNeuroglancerTwoLayerConfig() {
     },
   });
 
+  const [
+    nerveSetSelectionScope,
+    glomSetSelectionScope,
+    nerveSetColor,
+    glomSetColor,
+  ] = config.addCoordination(
+    'obsSetSelection',
+    'obsSetSelection',
+    'obsSetColor',
+    'obsSetColor',
+  );
 
   config.linkViewsByObject([neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
@@ -118,6 +131,8 @@ function generateNeuroglancerTwoLayerConfig() {
             obsHighlight: null,
             spatialChannelColor: [136, 204, 238],
             obsColorEncoding: 'spatialChannelColor',
+            obsSetSelection: glomSetSelectionScope,
+            obsSetColor: glomSetColor,
           },
         ]),
       },
@@ -130,16 +145,30 @@ function generateNeuroglancerTwoLayerConfig() {
             obsType: 'nerve',
             spatialChannelVisible: true,
             obsHighlight: null,
-            spatialChannelColor: [136, 204, 238],
+            spatialChannelColor: [255, 255, 238],
             obsColorEncoding: 'spatialChannelColor',
+            obsSetSelection: nerveSetSelectionScope,
+            obsSetColor: nerveSetColor,
           },
         ]),
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
+  config.linkViewsByObject([glomSets], {
+    obsType: 'glom',
+    obsSetSelection: glomSetSelectionScope,
+    obsSetColor: glomSetColor,
+  }, { meta: false });
 
-  config.layout(hconcat(neuroglancerView, vconcat(layerController)));
+  config.linkViewsByObject([nerveSets], {
+    obsType: 'nerve',
+    obsSetSelection: nerveSetSelectionScope,
+    obsSetColor: nerveSetColor,
+  }, { meta: false });
+
+
+  config.layout(hconcat(neuroglancerView, vconcat(layerController, glomSets, nerveSets)));
 
   const configJSON = config.toJSON();
   return configJSON;

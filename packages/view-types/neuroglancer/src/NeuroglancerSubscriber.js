@@ -161,15 +161,6 @@ export function NeuroglancerSubscriber(props) {
     CoordinationType.SEGMENTATION_LAYER,
   );
 
-  const fileUidToLayerScope = useMemo(() => {
-    const result = {};
-    segmentationLayerScopes?.forEach((layerScope) => {
-      const { fileUid } = segmentationLayerCoordination?.[0]?.[layerScope] || {};
-      if (fileUid) result[fileUid] = layerScope;
-    });
-    return result;
-  }, [segmentationLayerScopes, segmentationLayerCoordination]);
-
   // Object keys are coordination scope names for spatialSegmentationChannel.
   const segmentationChannelCoordination = useComplexCoordinationSecondary(
     [
@@ -803,7 +794,6 @@ export function NeuroglancerSubscriber(props) {
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
-            fileUidToLayerScope={fileUidToLayerScope}
           />
         </div>
       ) : null}
