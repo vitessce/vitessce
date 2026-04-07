@@ -306,7 +306,7 @@ overrides:
 
 patchedDependencies:
   '@janelia-flyem/neuroglancer@2.37.5':
-    hash: uab3cyeavcsc46wsi5ptukamoa
+    hash: twrabssgwl5bsvbgsel66ou44a
     path: patches/@janelia-flyem__neuroglancer@2.37.5.patch
   rc-tree@2.1.0:
     hash: hn6ocsle7tvl24ochfytc7eqjy
@@ -1424,7 +1424,7 @@ importers:
     dependencies:
       '@janelia-flyem/neuroglancer':
         specifier: 2.37.5
-        version: 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
+        version: 2.37.5(patch_hash=twrabssgwl5bsvbgsel66ou44a)
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^23.0.0
@@ -2179,7 +2179,7 @@ importers:
     dependencies:
       '@janelia-flyem/neuroglancer':
         specifier: 2.37.5
-        version: 2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)
+        version: 2.37.5(patch_hash=twrabssgwl5bsvbgsel66ou44a)
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
@@ -19530,7 +19530,7 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@janelia-flyem/neuroglancer@2.37.5(patch_hash=uab3cyeavcsc46wsi5ptukamoa)':
+  '@janelia-flyem/neuroglancer@2.37.5(patch_hash=twrabssgwl5bsvbgsel66ou44a)':
     dependencies:
       '@types/codemirror': 5.60.0
       '@types/gl-matrix': 2.4.5
