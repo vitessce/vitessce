@@ -40,6 +40,11 @@ import LayerController from './LayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
+ * @param {object[]} props.cameraPresets An array of camera preset objects,
+ * which can be applied by the user by pressing CTRL+[0-9].
+ * Each preset object can have the following coordination properties:
+ * spatialTargetX, spatialTargetY, spatialTargetZ, spatialTargetT,
+ * spatialRotationX, spatialRotationOrbit, and spatialZoom.
  */
 export function LayerControllerSubscriber(props) {
   const {
@@ -84,33 +89,36 @@ export function LayerControllerSubscriber(props) {
   );
 
 
-  // Apply a camera preset by calling the coordination setters
+  // Apply a camera preset by calling the coordination setters.
   const applyPreset = useCallback((preset) => {
     if (!preset) return;
-    if (preset?.spatialZoom) setZoom(preset.spatialZoom);
-    if (preset?.spatialTargetX) setTargetX(preset.spatialTargetX);
-    if (preset?.spatialTargetY) setTargetY(preset.spatialTargetY);
-    if (preset?.spatialTargetZ) setTargetZ(preset.spatialTargetZ);
-    if (preset?.spatialTargetT) setTargetT(preset.spatialTargetT);
-    if (preset?.spatialRotationX) setRotationX(preset.spatialRotationX);
-    if (preset.spatialRotationOrbit) setRotationOrbit(preset.spatialRotationOrbit);
+    if (typeof preset?.spatialZoom === 'number') setZoom(preset.spatialZoom);
+    if (typeof preset?.spatialTargetX === 'number') setTargetX(preset.spatialTargetX);
+    if (typeof preset?.spatialTargetY === 'number') setTargetY(preset.spatialTargetY);
+    if (typeof preset?.spatialTargetZ === 'number') setTargetZ(preset.spatialTargetZ);
+    if (typeof preset?.spatialTargetT === 'number') setTargetT(preset.spatialTargetT);
+    if (typeof preset?.spatialRotationX === 'number') setRotationX(preset.spatialRotationX);
+    if (typeof preset?.spatialRotationOrbit === 'number') setRotationOrbit(preset.spatialRotationOrbit);
   }, [setZoom, setTargetX, setTargetY, setTargetZ, setTargetT, setRotationX, setRotationOrbit]);
 
-  // Listen for CMD/CTRL + digit keypresses to apply camera presets
+  // Listen for CTRL + digit keypresses to apply camera presets
   useEffect(() => {
-    if (!cameraPresets?.length) return undefined;
+    // Do not set up any listeners if no camera presets were passed.
+    if (!Array.isArray(cameraPresets)) return undefined;
 
     const handleKeyDown = (e) => {
-      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
-      if (!isCmdOrCtrl) return;
+      const isCtrl = e.ctrlKey;
+      if (!isCtrl) return;
       const digitMatch = e.code.match(/^Digit(\d)$/);
-      if (!digitMatch) return;
+      if (!digitMatch || !Array.isArray(digitMatch) || digitMatch.length < 2) return;
 
+      // If we get to this point, digitMatch is an array like ['Digit1', '1'],
+      // so the digit is at index 1 as a string.
       const index = parseInt(digitMatch[1], 10);
-      const preset = cameraPresets[index];
-      if (preset) {
-        e.preventDefault();
+      if (index >= 0 && index <= 9 && index < cameraPresets.length) {
+        const preset = cameraPresets[index];
         applyPreset(preset);
+        e.preventDefault();
       }
     };
 

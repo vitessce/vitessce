@@ -66,7 +66,7 @@ function generateNeuroglancerMinimalConfiguration() {
   const spatialThreeView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta').setProps({
     cameraPresets: [
-      // CMD+0
+      // CTRL+0
       {
         spatialZoom: -3.6,
         spatialTargetX: 666,
@@ -74,7 +74,7 @@ function generateNeuroglancerMinimalConfiguration() {
         spatialRotationX: 0,
         spatialRotationOrbit: 0,
       },
-      // CMD+1
+      // CTRL+1
       {
         spatialZoom: -2,
         spatialTargetX: 400,
