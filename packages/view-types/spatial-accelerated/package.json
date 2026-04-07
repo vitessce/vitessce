@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-accelerated",
-  "version": "3.9.6",
+  "version": "4.0.0-test.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -66,8 +66,14 @@
     "three": ">=0.159.0"
   },
   "peerDependenciesMeta": {
-    "@react-three/fiber": { "optional": true },
-    "@react-three/drei": { "optional": true },
-    "three": { "optional": true }
+    "@react-three/fiber": {
+      "optional": true
+    },
+    "@react-three/drei": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    }
   }
 }
