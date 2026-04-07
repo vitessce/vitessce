@@ -878,14 +878,6 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
-  // Helper function to check if a layer's data source is loaded
-  isLayerDataLoaded = (layer) => {
-    if (!layer.layer) return false;
-    return layer.layer.dataSources?.length > 0
-      /* eslint-disable-next-line no-underscore-dangle */
-      && layer.layer.dataSources[0].loadState_?.dataSource !== undefined;
-  };
-
   layersChanged = () => {
     if (this.handlerRemovers) {
       // If change handlers have been added already, call the function to remove each one,
