@@ -8,4 +8,3 @@ export { ReactComponent as DimensionsSVG } from './assets/dimensions.svg';
 export { ReactComponent as VectorIconSVG } from './assets/vector.svg';
 export { ReactComponent as SpotsIconSVG } from './assets/spots.svg';
 export { ReactComponent as PointsIconSVG } from './assets/points.svg';
-export { ReactComponent as GeneIconSVG } from './assets/genes.svg';

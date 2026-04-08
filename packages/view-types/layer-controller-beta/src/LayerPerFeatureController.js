@@ -13,8 +13,9 @@ import {
   Checkbox,
   MenuItem,
   Add as AddIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
+  // Visibility as VisibilityIcon,
+  // VisibilityOff as VisibilityOffIcon,
+  ClearIcon,
   ExpandMore,
   ExpandLess,
   MoreVert as MoreVertIcon,
@@ -22,7 +23,7 @@ import {
   Palette as PaletteIcon,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
-import { GeneIconSVG } from '@vitessce/icons';
+import { PointsIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -53,126 +54,6 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-function LayerPerFeatureEllipsisMenu(props) {
-  const {
-    setObsColorEncoding,
-    featureValueColormapRange,
-    setFeatureValueColormapRange,
-    tooltipsVisible,
-    setTooltipsVisible,
-    tooltipCrosshairsVisible,
-    setTooltipCrosshairsVisible,
-    legendVisible,
-    setLegendVisible,
-    featureFilterMode,
-    setFeatureFilterMode,
-    obsColorEncoding,
-  } = props;
-  const [open, setOpen] = useState(false);
-  const { classes: selectClasses } = useSelectStyles();
-  const { classes: menuClasses } = useEllipsisMenuStyles();
-
-  const quantitativeColormapId = useId();
-  const colormapRangeId = useId();
-  const tooltipsVisibleId = useId();
-  const crosshairsVisibleId = useId();
-  const legendVisibleId = useId();
-  const featureFilterModeId = useId();
-
-  return (
-    <PopperMenu
-      open={open}
-      setOpen={setOpen}
-      buttonIcon={<MoreVertIcon />}
-      buttonClassName={menuClasses.imageLayerMenuButton}
-      containerClassName={menuClasses.imageLayerPopperContainer}
-      withPaper
-      aria-label="Open point layer options menu"
-    >
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
-          Color Encoding:&nbsp;
-        </label>
-        <NativeSelect
-          onChange={e => setObsColorEncoding(e.target.value)}
-          value={obsColorEncoding}
-          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
-          classes={{ root: selectClasses.selectRoot }}
-        >
-          <option value="spatialLayerColor">Static Color</option>
-          <option value="geneSelection">Feature Color</option>
-          <option value="randomByFeature">Random Color per Feature</option>
-          <option value="random">Random Color per Point</option>
-        </NativeSelect>
-      </MenuItem>
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={featureFilterModeId}>
-          Filter to Feature Selection:&nbsp;
-        </label>
-        <Checkbox
-          color="primary"
-          className={menuClasses.menuItemCheckbox}
-          checked={featureFilterMode === 'featureSelection'}
-          onChange={(e, v) => setFeatureFilterMode(v ? 'featureSelection' : null)}
-          slotProps={{ input: { id: featureFilterModeId, 'aria-label': 'Toggle feature filter mode' } }}
-        />
-      </MenuItem>
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>
-          Colormap Range:&nbsp;
-        </label>
-        <Slider
-          disabled={obsColorEncoding !== 'geneSelection'}
-          value={featureValueColormapRange}
-          min={0.0}
-          max={1.0}
-          step={0.01}
-          onChange={(e, v) => setFeatureValueColormapRange(v)}
-          className={menuClasses.menuItemSlider}
-          orientation="horizontal"
-          id={colormapRangeId}
-          getAriaLabel={index => (index === 0 ? 'Low value colormap range slider' : 'High value colormap range slider')}
-        />
-      </MenuItem>
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
-          Tooltips Visible:&nbsp;
-        </label>
-        <Checkbox
-          color="primary"
-          className={menuClasses.menuItemCheckbox}
-          checked={tooltipsVisible}
-          onChange={(e, v) => setTooltipsVisible(v)}
-          slotProps={{ input: { id: tooltipsVisibleId, 'aria-label': 'Toggle tooltip visibility' } }}
-        />
-      </MenuItem>
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={crosshairsVisibleId}>
-          Tooltip Crosshairs Visible:&nbsp;
-        </label>
-        <Checkbox
-          color="primary"
-          className={menuClasses.menuItemCheckbox}
-          checked={tooltipCrosshairsVisible}
-          onChange={(e, v) => setTooltipCrosshairsVisible(v)}
-          slotProps={{ input: { id: crosshairsVisibleId, 'aria-label': 'Toggle tooltip crosshair visibility' } }}
-        />
-      </MenuItem>
-      <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={legendVisibleId}>
-          Legend Visible:&nbsp;
-        </label>
-        <Checkbox
-          color="primary"
-          className={menuClasses.menuItemCheckbox}
-          checked={legendVisible}
-          onChange={(e, v) => setLegendVisible(v)}
-          slotProps={{ input: { id: legendVisibleId, 'aria-label': 'Toggle legend visibility' } }}
-        />
-      </MenuItem>
-    </PopperMenu>
-  );
-}
 
 export default function LayerPerFeatureController(props) {
   const {
@@ -182,6 +63,8 @@ export default function LayerPerFeatureController(props) {
     featureColor,
     setFeatureColor,
     featureValueColormap,
+    featureSelection,
+    setFeatureSelection,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     obsColorEncoding,
@@ -230,7 +113,7 @@ export default function LayerPerFeatureController(props) {
     }
   }, [featureName, featureColor, setFeatureColor]);
 
-  const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
+  // const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -240,18 +123,20 @@ export default function LayerPerFeatureController(props) {
   const enableFeaturesAndSetsDropdown = false;
   const [open, setOpen] = useState(false);
 
-
   return (
     <Grid key={featureName} className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid size={1}>
             <Button
-              onClick={() => updateFeatureEntry({ visible: !visible })}
+                onClick={() => {
+                  setFeatureSelection(featureSelection.filter(f => f !== featureName));
+                  setFeatureColor(featureColor?.filter(fc => fc.name !== featureName) ?? []);
+                }}
               className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle layer visibility"
+              aria-label="Remove feature"
             >
-              <Visibility />
+              <ClearIcon />
             </Button>
           </Grid>
           <Grid size={1}>
@@ -271,7 +156,7 @@ export default function LayerPerFeatureController(props) {
               {featureName}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
             <Slider
               value={opacity}
               min={0}
@@ -283,23 +168,8 @@ export default function LayerPerFeatureController(props) {
               aria-label={`Adjust opacity for layer ${featureName}`}
             />
           </Grid>
-          <Grid size={1}>
-            <LayerPerFeatureEllipsisMenu
-              obsColorEncoding={obsColorEncoding}
-              featureValueColormapRange={featureValueColormapRange}
-              setFeatureValueColormapRange={setFeatureValueColormapRange}
-              tooltipsVisible={tooltipsVisible}
-              setTooltipsVisible={setTooltipsVisible}
-              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-              legendVisible={legendVisible}
-              setLegendVisible={setLegendVisible}
-              featureFilterMode={featureFilterMode}
-              setFeatureFilterMode={setFeatureFilterMode}
-            />
-          </Grid>
           <Grid size={1} container direction="row">
-            <GeneIconSVG className={classes.layerTypeFeatureIcon} />
+            <PointsIconSVG className={classes.layerTypeFeatureIcon} />
             {enableFeaturesAndSetsDropdown ? (
               <Button
                 onClick={() => setOpen(prev => !prev)}
