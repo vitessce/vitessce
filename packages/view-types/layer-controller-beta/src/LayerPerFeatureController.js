@@ -151,17 +151,16 @@ export default function LayerPerFeatureController(props) {
   }, [obsColorEncoding, color, spatialLayerColor, featureName]);
 
 
-
   return (
     <Grid key={featureName} className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
         <Grid container direction="row" justifyContent="space-between">
           <Grid size={1}>
             <Button
-                onClick={() => {
-                  setFeatureSelection(featureSelection.filter(f => f !== featureName));
-                  setFeatureColor(featureColor?.filter(fc => fc.name !== featureName) ?? []);
-                }}
+              onClick={() => {
+                setFeatureSelection(featureSelection.filter(f => f !== featureName));
+                setFeatureColor(featureColor?.filter(fc => fc.name !== featureName) ?? []);
+              }}
               className={menuClasses.imageLayerVisibleButton}
               aria-label="Remove feature"
             >
@@ -178,7 +177,8 @@ export default function LayerPerFeatureController(props) {
                 <ChannelColorPickerMenu
                   theme={theme}
                   color={colorPickerColor}
-                  setColor={colorPickerDisabled ? () => {} : newColor => updateFeatureEntry({ color: newColor })}
+                  setColor={colorPickerDisabled
+                    ? () => {} : newColor => updateFeatureEntry({ color: newColor })}
                   palette={palette}
                   isStaticColor={!colorPickerDisabled}
                   isColormap={false}

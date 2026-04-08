@@ -519,7 +519,7 @@ export default function PointLayerController(props) {
               <Grid size={1}>
                 <Button
                   onClick={() => setFeatureFilterMode(
-                    featureFilterMode === 'featureSelection' ? null : 'featureSelection',ß
+                    featureFilterMode === 'featureSelection' ? null : 'featureSelection',
                   )}
                   className={menuClasses.imageLayerVisibleButton}
                   aria-label="Toggle visibility of unselected points"
