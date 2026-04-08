@@ -492,6 +492,8 @@ export default function PointLayerController(props) {
           featureName={featureName}
           featureColor={featureColor}
           setFeatureColor={setFeatureColor}
+          spatialLayerColor={spatialLayerColor}
+          featureIndex={featureIndex}
           featureValueColormap={featureValueColormap}
           featureSelection={featureSelection}
           setFeatureSelection={setFeatureSelection}

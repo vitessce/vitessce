@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
-import React, { useState, useMemo, useCallback } from 'react';
-import { useId } from 'react-aria';
+import { useState, useMemo, useCallback } from 'react';
+import { PALETTE } from '@vitessce/utils';
 import {
   makeStyles,
   Grid,
@@ -13,21 +13,19 @@ import {
   Checkbox,
   MenuItem,
   Add as AddIcon,
-  // Visibility as VisibilityIcon,
-  // VisibilityOff as VisibilityOffIcon,
   ClearIcon,
   ExpandMore,
   ExpandLess,
   MoreVert as MoreVertIcon,
   LinearProgress,
   Palette as PaletteIcon,
+  Tooltip,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
-  useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
@@ -65,17 +63,9 @@ export default function LayerPerFeatureController(props) {
     featureValueColormap,
     featureSelection,
     setFeatureSelection,
-    featureValueColormapRange,
-    setFeatureValueColormapRange,
+    spatialLayerColor,
+    featureIndex,
     obsColorEncoding,
-    tooltipsVisible,
-    setTooltipsVisible,
-    tooltipCrosshairsVisible,
-    setTooltipCrosshairsVisible,
-    legendVisible,
-    setLegendVisible,
-    featureFilterMode,
-    setFeatureFilterMode,
     tiledPointsLoadingProgress,
   } = props;
 
@@ -123,6 +113,45 @@ export default function LayerPerFeatureController(props) {
   const enableFeaturesAndSetsDropdown = false;
   const [open, setOpen] = useState(false);
 
+
+  const { colorPickerColor, colorPickerDisabled, colorPickerTooltip } = useMemo(() => {
+    if (obsColorEncoding === 'geneSelection') {
+      return {
+        colorPickerColor: color,
+        colorPickerDisabled: false,
+        colorPickerTooltip: null,
+      };
+    }
+    if (obsColorEncoding === 'spatialLayerColor') {
+      return {
+        colorPickerColor: spatialLayerColor,
+        colorPickerDisabled: true,
+        colorPickerTooltip: 'Currently using the static color value from the parent (Point) layer. Per-feature colors can be modified when the Color Encoding mode is "Feature Color" in the parent layer.',
+      };
+    }
+    if (obsColorEncoding === 'randomByFeature') {
+      const varIndex = featureIndex?.indexOf(featureName) ?? -1;
+      const randomColor = varIndex >= 0
+        ? PALETTE[varIndex % PALETTE.length]
+        : [128, 128, 128];
+      return {
+        colorPickerColor: randomColor,
+        colorPickerDisabled: true,
+        colorPickerTooltip: 'Currently using the assigned random color. Per-feature colors can be modified when the Color Encoding mode is "Feature Color".',
+      };
+    }
+    if (obsColorEncoding === 'random') {
+      return {
+        colorPickerColor: null,
+        colorPickerDisabled: true,
+        colorPickerTooltip: 'Currently using a random color per point. Per-feature colors can be modified when the Color Encoding mode is "Feature Color".',
+      };
+    }
+    return { colorPickerColor: color, colorPickerDisabled: false, colorPickerTooltip: null };
+  }, [obsColorEncoding, color, spatialLayerColor, featureName]);
+
+
+
   return (
     <Grid key={featureName} className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
@@ -140,16 +169,24 @@ export default function LayerPerFeatureController(props) {
             </Button>
           </Grid>
           <Grid size={1}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={newColor => updateFeatureEntry({ color: newColor })}
-              palette={palette}
-              isStaticColor
-              isColormap={false}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
+            <Tooltip
+              title={colorPickerTooltip ?? ''}
+              disableHoverListener={!colorPickerTooltip}
+              placement="top"
+            >
+              <span>
+                <ChannelColorPickerMenu
+                  theme={theme}
+                  color={colorPickerColor}
+                  setColor={colorPickerDisabled ? () => {} : newColor => updateFeatureEntry({ color: newColor })}
+                  palette={palette}
+                  isStaticColor={!colorPickerDisabled}
+                  isColormap={false}
+                  featureValueColormap={featureValueColormap}
+                  visible={visible}
+                />
+              </span>
+            </Tooltip>
           </Grid>
           <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
