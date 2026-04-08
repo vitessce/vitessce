@@ -493,6 +493,8 @@ export default function PointLayerController(props) {
           featureColor={featureColor}
           setFeatureColor={setFeatureColor}
           featureValueColormap={featureValueColormap}
+          featureSelection={featureSelection}
+          setFeatureSelection={setFeatureSelection}
           featureValueColormapRange={featureValueColormapRange}
           setFeatureValueColormapRange={setFeatureValueColormapRange}
           obsColorEncoding={obsColorEncoding}
@@ -508,6 +510,48 @@ export default function PointLayerController(props) {
           pointMatrixIndicesData={pointMatrixIndicesData}
         />
       ))}
+      {showPerFeatureRows && (
+        <Grid className={lcClasses.layerControllerGrid}>
+          <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
+            <Grid container direction="row" justifyContent="space-between">
+              <Grid size={1}>
+                <Button
+                  onClick={() => setFeatureFilterMode(
+                    featureFilterMode === 'featureSelection' ? null : 'featureSelection',ß
+                  )}
+                  className={menuClasses.imageLayerVisibleButton}
+                  aria-label="Toggle visibility of unselected points"
+                >
+                  {featureFilterMode === 'featureSelection'
+                    ? <VisibilityOffIcon />
+                    : <VisibilityIcon />
+                  }
+                </Button>
+              </Grid>
+              <Grid size={1}>
+                <ChannelColorPickerMenu
+                  theme={theme}
+                  color={[128, 128, 128]}
+                  setColor={() => {}}
+                  isStaticColor
+                  isColormap={false}
+                  visible
+                  disabled
+                />
+              </Grid>
+              <Grid size={6}>
+                <Typography className={menuClasses.imageLayerName}>
+                  Unselected
+                </Typography>
+              </Grid>
+              <Grid size={2} />
+              <Grid size={1}>
+                <PointsIconSVG className={classes.layerTypePointIcon} />
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      )}
     </Grid>
   );
 }
