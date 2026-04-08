@@ -14,17 +14,17 @@
     "@vitessce/example-configs": "workspace:*",
     "@vitessce/example-plugins": "workspace:*",
     "@vitessce/globals": "workspace:*",
-    "react": "^18.3.0",
-    "react-dom": "^18.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "vitessce": "workspace:*",
     "@vitessce/comparative": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
     "cypress": "^13.14.1",
-    "sass": "1.55.0",
+    "sass": "^1.71.0",
     "vite": "catalog:",
-    "@vitejs/plugin-basic-ssl": "^1.0.2"
+    "@vitejs/plugin-basic-ssl": "^2.0.0"
   },
   "license": "MIT"
 }

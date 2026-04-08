@@ -147,6 +147,9 @@ jobs:
       - name: Playwright
         run: pnpm exec playwright test auto-init-coordination/
 
+  # React 19 is now the default dev environment.
+  # This job runs Playwright tests that specifically validate React 19 functionality
+  # (non-3D views, 3D spatial views, graceful degradation).
   test-e2e-playwright-react-19:
     runs-on: ubuntu-latest
     steps:
@@ -156,12 +159,6 @@ jobs:
         id: pnpm-install
         with:
           run_install: true
-      - name: Upgrade to React 19
-        run: |
-          sed -i 's/"react": 18.3.1/"react": 19.1.0/' pnpm-workspace.yaml
-          sed -i 's/"react-dom": 18.3.1/"react-dom": 19.1.0/' pnpm-workspace.yaml
-          sed -i 's/"@types\/react": ^18.0.28/"@types\/react": ^19.0.0/' pnpm-workspace.yaml
-          pnpm install --no-frozen-lockfile
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - id: get-options

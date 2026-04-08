@@ -2,9 +2,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { OrbitControls, Text } from '@react-three/drei';
-import { Controllers, Hands } from '@react-three/xr';
 import {
   Scene,
   Group,
@@ -14,52 +13,45 @@ import {
   BackSide,
   FrontSide,
 } from 'three';
-import { HandBbox } from './xr/HandBbox.js';
+import type { Mesh, BufferGeometry, ShaderMaterial } from 'three';
 import { GeometryAndMesh } from './GeometryAndMesh.js';
-import { HandDecorate } from './xr/HandDecorate.js';
 import {
   useVolumeSettings,
   create3DRendering,
   initialDataLoading,
 } from './three-utils.js';
+import type {
+  SpatialThreeProps,
+  RenderingSettings,
+  VolumeData,
+  VolumeSettings,
+  SegmentationSettings,
+  SegmentationChannelValues,
+  SegmentationChannelSetters,
+} from './types.js';
+
+// Lazy-load XR-specific components. These import from @react-three/xr
+// which is an optional peer dependency. If not installed, the catch
+// returns fallback components so non-XR 3D views still work.
+// eslint-disable-next-line implicit-arrow-linebreak, function-paren-newline
+const LazyGeometryAndMeshXR = React.lazy(
+  (): Promise<{ default: typeof GeometryAndMesh }> => import('./GeometryAndMeshXR.js').catch(() => ({ default: GeometryAndMesh })),
+);
+// eslint-disable-next-line implicit-arrow-linebreak, function-paren-newline
+const LazyXRSceneComponents = React.lazy(
+  (): Promise<{ default: React.ComponentType }> => import('./xr/XRSceneComponents.js').catch(() => ({ default: () => null })),
+);
 
 
-/**
- * React component which expresses the spatial relationships between cells and molecules using ThreeJS
- * @param {object} props
- * @param {string} props.uuid A unique identifier for this component,
- * used to determine when to show tooltips vs. crosshairs.
- * @param {number} props.height Height of the canvas, used when
- * rendering the scale bar layer.
- * @param {number} props.width Width of the canvas, used when
- * rendering the scale bar layer.
- * @param {object} props.molecules Molecules data.
- * @param {object} props.cells Cells data.
- * @param {object} props.neighborhoods Neighborhoods data.
- * @param {number} props.lineWidthScale Width of cell border in view space (deck.gl).
- * @param {number} props.lineWidthMaxPixels Max width of the cell border in pixels (deck.gl).
- * @param {object} props.cellColors Map from cell IDs to colors [r, g, b].
- * @param {function} props.getCellCoords Getter function for cell coordinates
- * (used by the selection layer).
- * @param {function} props.getCellColor Getter function for cell color as [r, g, b] array.
- * @param {function} props.getCellPolygon Getter function for cell polygons.
- * @param {function} props.getCellIsSelected Getter function for cell layer isSelected.
- * @param {function} props.getMoleculeColor
- * @param {function} props.getMoleculePosition
- * @param {function} props.getNeighborhoodPolygon
- * @param {function} props.updateViewInfo Handler for viewport updates, used when rendering tooltips and crosshairs.
- * @param {function} props.onCellClick Getter function for cell layer onClick.
- * @param {string} props.theme "light" or "dark" for the vitessce theme
- */
-export function SpatialThree(props) {
-  const materialRef = useRef(null);
-  const orbitRef = useRef(null);
+export function SpatialThree(props: SpatialThreeProps) {
+  const materialRef = useRef<Mesh<BufferGeometry, ShaderMaterial>>(null);
+  const orbitRef = useRef<React.ComponentRef<typeof OrbitControls>>(null);
   const [initialStartup, setInitialStartup] = useState(false);
   const [dataReady, setDataReady] = useState(false);
-  const [segmentationGroup, setSegmentationGroup] = useState(null);
+  const [segmentationGroup, setSegmentationGroup] = useState<Scene | null>(null);
   const [segmentationSceneScale, setSegmentationSceneScale] = useState([1.0, 1.0, 1.0]);
   // Storing rendering settings
-  const [renderingSettings, setRenderingSettings] = useState({
+  const [renderingSettings, setRenderingSettings] = useState<RenderingSettings>({
     uniforms: null,
     shader: null,
     meshScale: null,
@@ -67,7 +59,7 @@ export function SpatialThree(props) {
     boxSize: null,
   });
     // Capturing the volumetric data to reuse when only settings are changing
-  const [volumeData, setVolumeData] = useState({
+  const [volumeData, setVolumeData] = useState<VolumeData>({
     volumes: new Map(),
     textures: new Map(),
     volumeMinMax: new Map(),
@@ -76,7 +68,7 @@ export function SpatialThree(props) {
     originalScale: null,
   });
     // Storing Volume Settings to compare them to a settings state change
-  const [volumeSettings, setVolumeSettings] = useState({
+  const [volumeSettings, setVolumeSettings] = useState<VolumeSettings>({
     channelsVisible: [],
     allChannels: [],
     channelTargetC: [],
@@ -89,7 +81,7 @@ export function SpatialThree(props) {
     layerTransparency: 1.0,
   });
     // Storing Segmentation Settings to compare them to a settings state change
-  const [segmentationSettings, setSegmentationSettings] = useState({
+  const [segmentationSettings, setSegmentationSettings] = useState<SegmentationSettings>({
     visible: true,
     color: [1, 1, 1],
     opacity: 1,
@@ -125,14 +117,15 @@ export function SpatialThree(props) {
     segmentationChannelCoordination,
     segmentationChannelScopesByLayer,
   } = props;
-  let setObsHighlightFct = () => {}; // no-op
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  let setObsHighlightFct: (id: string | null) => void = () => {};
   // TODO: use a more descriptive name.
-  const setsSave = [];
-  if (segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationObsSetLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
-    const { setObsHighlight } = segmentationChannelCoordination[1][layerScope][layerScope];
-    setObsHighlightFct = setObsHighlight;
-    const sets = segmentationChannelCoordination[0][layerScope][layerScope].additionalObsSets;
+  const setsSave: Array<{ name: string; id: string; color: number[] }> = [];
+  if (segmentationChannelCoordination![0][layerScope] !== undefined) {
+    const segmentationObsSetLayerProps = segmentationChannelCoordination![0][layerScope][layerScope] as unknown as SegmentationChannelValues;
+    const setters = segmentationChannelCoordination![1][layerScope][layerScope] as unknown as SegmentationChannelSetters;
+    setObsHighlightFct = setters.setObsHighlight;
+    const { additionalObsSets: sets } = segmentationObsSetLayerProps;
     if (sets !== null) {
       segmentationObsSetLayerProps.obsSetSelection.forEach((obsSetPath) => {
         // TODO: this is not considering the full obsSetPath.
@@ -167,19 +160,18 @@ export function SpatialThree(props) {
       const newScene = new Scene();
       const finalPass = new Group();
       finalPass.userData.name = 'finalPass';
-      scene.children.forEach((child) => {
-        let childElement = child;
-        if (childElement.material === undefined) {
-          // eslint-disable-next-line prefer-destructuring
-          childElement = child.children[0];
-        }
+      scene.children.forEach((sceneChild) => {
+        // Scene children may be Groups containing a Mesh or direct Mesh nodes.
+        const childElement = ('material' in sceneChild
+          ? sceneChild : sceneChild.children[0]) as Mesh;
         if (
           childElement.material instanceof MeshPhysicalMaterial
           || childElement.material instanceof MeshBasicMaterial
         ) {
           childElement.material = new MeshStandardMaterial();
         }
-        let name = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
+        const mat = childElement.material as MeshStandardMaterial;
+        let name: string = childElement.name.replace('mesh_', '').replace('mesh', '').replace('glb', '').replace('_dec', '')
           .replace('_Decobj', '')
           .replace('obj', '')
           .replace('_DEc', '')
@@ -192,12 +184,11 @@ export function SpatialThree(props) {
         childElement.name = name;
         childElement.userData.name = name;
         childElement.userData.layerScope = layerScope;
-        childElement.material.transparent = true;
-        childElement.material.writeDepthTexture = true;
-        childElement.material.depthTest = true;
-        childElement.material.depthWrite = true;
-        childElement.material.needsUpdate = true;
-        childElement.material.side = sceneOptions?.materialSide === 'back'
+        mat.transparent = true;
+        mat.depthTest = true;
+        mat.depthWrite = true;
+        mat.needsUpdate = true;
+        mat.side = sceneOptions?.materialSide === 'back'
           ? BackSide : FrontSide;
 
         const simplified = childElement.clone();
@@ -217,7 +208,7 @@ export function SpatialThree(props) {
         simplified.geometry.rotateZ(sceneOptions?.rotationZ ?? 0);
 
         const finalPassChild = childElement.clone();
-        finalPassChild.material = childElement.material.clone();
+        finalPassChild.material = mat.clone();
         finalPassChild.geometry = simplified.geometry.clone();
         finalPass.add(finalPassChild);
       });
@@ -239,8 +230,8 @@ export function SpatialThree(props) {
       setSegmentationGroup(newScene);
     }
   }
-  if (segmentationChannelCoordination[0] !== undefined && segmentationChannelCoordination[0][layerScope] !== undefined) {
-    const segmentationLayerProps = segmentationChannelCoordination[0][layerScope][layerScope];
+  if (segmentationChannelCoordination![0] !== undefined && segmentationChannelCoordination![0][layerScope] !== undefined) {
+    const segmentationLayerProps = segmentationChannelCoordination![0][layerScope][layerScope] as unknown as SegmentationChannelValues;
     // TODO: stop using string equality for comparisons.
     let setsSaveString = '';
     setsSave.forEach((child) => {
@@ -253,20 +244,20 @@ export function SpatialThree(props) {
     });
 
     // Check the MultiChannel Setting - combine all channels and see if something changed
-    if (segmentationChannelScopesByLayer[layerScope].length > 1) {
+    if (segmentationChannelScopesByLayer![layerScope].length > 1) {
       let color = '';
       let opacity = '';
       let visible = '';
       let visibleCombined = false;
       let opacityCombined = 0.0;
 
-      segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
-        const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+      segmentationChannelScopesByLayer![layerScope].forEach((channelScope) => {
+        const channelSet = segmentationChannelCoordination![0][layerScope][channelScope] as unknown as SegmentationChannelValues;
         // TODO: stop using string equality for comparisons.
         color += `${channelSet.spatialChannelColor.toString()};`;
         opacity += `${channelSet.spatialChannelOpacity};`;
         visible += `${channelSet.spatialChannelVisible};`;
-        visibleCombined |= channelSet.spatialChannelVisible;
+        visibleCombined = visibleCombined || channelSet.spatialChannelVisible;
         opacityCombined += channelSet.spatialChannelOpacity;
       });
       if (
@@ -281,7 +272,7 @@ export function SpatialThree(props) {
           multiColor: color,
           multiVisible: visible,
           multiOpacity: opacity,
-          data: obsSegmentations,
+          data: obsSegmentations ?? null,
           obsSets: setsSave,
         });
       }
@@ -299,7 +290,7 @@ export function SpatialThree(props) {
         multiColor: '',
         multiVisible: '',
         multiOpacity: '',
-        data: obsSegmentations,
+        data: obsSegmentations ?? null,
         obsSets: setsSave,
       });
     }
@@ -318,7 +309,8 @@ export function SpatialThree(props) {
       }
 
       // TODO: Adapt so it can also work with union sets
-      segmentationGroup.children[finalGroupIndex].children.forEach((child, childIndex) => {
+      segmentationGroup.children[finalGroupIndex].children.forEach((sceneChild, childIndex) => {
+        const child = sceneChild as Mesh<BufferGeometry, MeshStandardMaterial>;
         let { color } = segmentationSettings;
         const id = child.userData.name;
 
@@ -330,9 +322,9 @@ export function SpatialThree(props) {
           }
         });
         // CHECK IF Multiple Scopes:
-        if (segmentationChannelScopesByLayer[layerScope].length > 1) {
-          segmentationChannelScopesByLayer[layerScope].forEach((channelScope) => {
-            const channelSet = segmentationChannelCoordination[0][layerScope][channelScope];
+        if (segmentationChannelScopesByLayer![layerScope].length > 1) {
+          segmentationChannelScopesByLayer![layerScope].forEach((channelScope) => {
+            const channelSet = segmentationChannelCoordination![0][layerScope][channelScope] as unknown as SegmentationChannelValues;
             if (channelSet.spatialTargetC === id) {
               // eslint-disable-next-line no-param-reassign
               child.material.color.r = channelSet.spatialChannelColor[0] / 255;
@@ -350,7 +342,8 @@ export function SpatialThree(props) {
               child.userData.layerScope = layerScope;
               // eslint-disable-next-line no-param-reassign
               child.userData.channelScope = channelScope;
-              segmentationGroup.children[firstGroupIndex].children[childIndex].material.needsUpdate = true;
+              const firstChild = segmentationGroup.children[firstGroupIndex].children[childIndex] as Mesh<BufferGeometry, MeshStandardMaterial>;
+              firstChild.material.needsUpdate = true;
             }
           });
         } else {
@@ -371,7 +364,7 @@ export function SpatialThree(props) {
           child.material.needsUpdate = true;
           // eslint-disable-next-line no-param-reassign
           child.userData.layerScope = layerScope;
-          const firstChannelScope = Object.keys(segmentationChannelCoordination[0][layerScope])?.[0];
+          const firstChannelScope = Object.keys(segmentationChannelCoordination![0][layerScope])?.[0];
           // eslint-disable-next-line no-param-reassign
           child.userData.channelScope = firstChannelScope;
         }
@@ -393,7 +386,7 @@ export function SpatialThree(props) {
   // Only reload the mesh if the imageLayer changes (new data / new resolution, ...)
   useEffect(() => {
     const fetchRendering = async () => {
-      const loadingResult = await initialDataLoading(channelTargetC, resolution, data,
+      const loadingResult = await initialDataLoading(channelTargetC!, resolution!, data!,
         volumeData.volumes, volumeData.textures, volumeData.volumeMinMax, volumeData.resolution);
       if (loadingResult[0] !== null) { // New Data has been loaded
         setVolumeData({
@@ -406,9 +399,9 @@ export function SpatialThree(props) {
         });
         if (!renderingSettings.uniforms || !renderingSettings.shader) {
           // JUST FOR THE INITIAL RENDERING
-          const rendering = create3DRendering(loadingResult[0], channelTargetC, channelsVisible, colors,
-            loadingResult[1], contrastLimits, loadingResult[2], loadingResult[3], renderingMode,
-            layerTransparency, xSlice, ySlice, zSlice, loadingResult[4]);
+          const rendering = create3DRendering(loadingResult[0], channelTargetC!, channelsVisible!, colors!,
+            loadingResult[1], contrastLimits!, loadingResult[2], loadingResult[3], renderingMode!,
+            layerTransparency, xSlice!, ySlice!, zSlice!, loadingResult[4]);
           if (rendering !== null) {
             setRenderingSettings({
               uniforms: rendering[0],
@@ -451,15 +444,15 @@ export function SpatialThree(props) {
   // 2nd Rendering Pass Check if the Props Changed (except the resolution)
   useEffect(() => {
     if (renderingSettings.uniforms && renderingSettings.shader) {
-      const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC,
-        volumeSettings.channelsVisible, volumeSettings.colors, volumeData.textures,
-        volumeSettings.contrastLimits, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode,
-        volumeSettings.layerTransparency, volumeSettings.xSlice, volumeSettings.ySlice, volumeSettings.zSlice,
-        volumeData.originalScale);
+      const rendering = create3DRendering(volumeData.volumes, volumeSettings.channelTargetC!,
+        volumeSettings.channelsVisible!, volumeSettings.colors!, volumeData.textures,
+        volumeSettings.contrastLimits!, volumeData.volumeMinMax, volumeData.scale, volumeSettings.renderingMode!,
+        volumeSettings.layerTransparency, volumeSettings.xSlice!, volumeSettings.ySlice!, volumeSettings.zSlice!,
+        volumeData.originalScale!);
       if (rendering !== null) {
         let volumeCount = 0;
         // TODO: change to reducer?
-        volumeSettings.channelsVisible.forEach((channelVisible) => {
+        volumeSettings.channelsVisible?.forEach((channelVisible) => {
           if (channelVisible) volumeCount++;
         });
         setDataReady(false);
@@ -521,22 +514,29 @@ export function SpatialThree(props) {
     segmentationSceneScale,
     renderingSettings,
     materialRef,
-    highlightEntity: onEntitySelected,
+    highlightEntity: onEntitySelected!,
     setObsHighlight: setObsHighlightFct,
   };
+
+  const { xrEnabled } = props;
   return (
     <group>
-      <Controllers />
-      <Hands />
-      <HandBbox />
-      <HandDecorate />
-      <GeometryAndMesh {...geometryAndMeshProps} />
+      {xrEnabled ? (
+        <>
+          <Suspense fallback={null}>
+            <LazyXRSceneComponents />
+          </Suspense>
+          <Suspense fallback={<GeometryAndMesh {...geometryAndMeshProps} />}>
+            <LazyGeometryAndMeshXR {...geometryAndMeshProps} />
+          </Suspense>
+        </>
+      ) : (
+        <GeometryAndMesh {...geometryAndMeshProps} />
+      )}
       <OrbitControls
         ref={orbitRef}
         enableDamping={false}
         dampingFactor={0.0}
-        zoomDampingFactor={0.0}
-        smoothZoom={false}
       />
     </group>
   );

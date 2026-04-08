@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
