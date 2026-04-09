@@ -296,9 +296,24 @@ export function NeuroglancerSubscriber(props) {
           if (layerIndex && spatialChannelColor) {
             const hex = rgbToHex(spatialChannelColor);
             const ngCellColors = {};
-            layerIndex.forEach((id) => {
-              ngCellColors[id] = hex;
-            });
+
+            if (obsSetSelection?.length > 0) {
+              // Only color the segments belonging to selected sets.
+              const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+              const selectedIds = new Set();
+              obsSetSelection.forEach((setPath) => {
+                const rootNode = mergedCellSets?.tree?.find(n => n.name === setPath[0]);
+                const leafNode = setPath.length > 1
+                  ? rootNode?.children?.find(n => n.name === setPath[1])
+                  : rootNode;
+                leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
+              });
+              layerIndex.forEach((id) => {
+                if (selectedIds.has(String(id))) {
+                  ngCellColors[id] = hex;
+                }
+              });
+            }
             result[layerScope][channelScope] = ngCellColors;
           }
         } else if (layerSets && layerIndex) {
@@ -315,13 +330,6 @@ export function NeuroglancerSubscriber(props) {
           cellColors.forEach((color, i) => {
             ngCellColors[i] = rgbToHex(color);
           });
-          /* // TODO: Is this necessary?
-          const obsColorIndices = treeToCellSetColorIndicesBySetNames(
-            mergedLayerSets,
-            obsSetSelection,
-            obsSetColor,
-          );
-          */
           result[layerScope][channelScope] = ngCellColors;
         }
       });
