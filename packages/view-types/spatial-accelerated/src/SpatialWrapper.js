@@ -6,6 +6,7 @@ import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
 
 export function SpatialWrapper(props) {
+  const { theme, ...restProps } = props;
   // const [renderingStats, setRenderingStats] = useState({ fps: 0 });
   // const [zarrStoreInfo, setZarrStoreInfo] = useState(null);
   // const [deviceLimits, setDeviceLimits] = useState(null);
@@ -34,7 +35,7 @@ export function SpatialWrapper(props) {
         height: '100%',
         padding: 0,
         margin: 0,
-        // backgroundColor: 'white',
+        backgroundColor: theme === 'dark' ? 'black' : 'white',
       }}
       camera={{
         fov: 50,
