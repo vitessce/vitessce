@@ -497,19 +497,8 @@ export default function PointLayerController(props) {
           featureValueColormap={featureValueColormap}
           featureSelection={featureSelection}
           setFeatureSelection={setFeatureSelection}
-          featureValueColormapRange={featureValueColormapRange}
-          setFeatureValueColormapRange={setFeatureValueColormapRange}
           obsColorEncoding={obsColorEncoding}
-          tooltipsVisible={tooltipsVisible}
-          setTooltipsVisible={setTooltipsVisible}
-          tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-          setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-          legendVisible={legendVisible}
-          setLegendVisible={setLegendVisible}
-          featureFilterMode={featureFilterMode}
-          setFeatureFilterMode={setFeatureFilterMode}
           tiledPointsLoadingProgress={tiledPointsLoadingProgress}
-          pointMatrixIndicesData={pointMatrixIndicesData}
         />
       ))}
       {showPerFeatureRows && (

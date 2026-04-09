@@ -9,19 +9,12 @@ import {
   Typography,
   Slider,
   Button,
-  NativeSelect,
-  Checkbox,
-  MenuItem,
-  Add as AddIcon,
   ClearIcon,
   ExpandMore,
   ExpandLess,
-  MoreVert as MoreVertIcon,
   LinearProgress,
-  Palette as PaletteIcon,
   Tooltip,
 } from '@vitessce/styles';
-import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
 import {
   useControllerSectionStyles,
@@ -103,7 +96,6 @@ export default function LayerPerFeatureController(props) {
     }
   }, [featureName, featureColor, setFeatureColor]);
 
-  // const Visibility = visible ? VisibilityIcon : VisibilityOffIcon;
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
