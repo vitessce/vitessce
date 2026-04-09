@@ -1,12 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
-import { ChunkWorker } from '@vitessce/neuroglancer-workers';
+import { ChunkWorker, AsyncComputationWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
 function createWorker() {
-  return new ChunkWorker();
+  const worker = new ChunkWorker();
+  worker.AsyncComputationWorker = AsyncComputationWorker;
+  return worker;
 }
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
