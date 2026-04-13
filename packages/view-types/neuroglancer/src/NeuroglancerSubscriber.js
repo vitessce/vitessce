@@ -281,8 +281,9 @@ export function NeuroglancerSubscriber(props) {
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-        const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSetsData
+        const { obsSets: layerSets, obsIndex: layerIndexFromSets } = obsSegmentationsSetsData
           ?.[layerScope]?.[channelScope] || {};
+        const layerIndex = layerIndexFromSets ?? null;
         const {
           obsSetColor,
           obsColorEncoding,
@@ -312,6 +313,11 @@ export function NeuroglancerSubscriber(props) {
                 if (selectedIds.has(String(id))) {
                   ngCellColors[id] = hex;
                 }
+              });
+            } else {
+              // null or empty selection → show ALL segments
+              layerIndex.forEach((id) => {
+                ngCellColors[id] = hex;
               });
             }
             result[layerScope][channelScope] = ngCellColors;
@@ -344,6 +350,14 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination,
     theme,
   }, customIsEqualForCellColors);
+
+  console.log('segmentationColorMapping', JSON.stringify(
+    Object.keys(segmentationColorMapping).map(k => ({
+      scope: k,
+      channelCount: Object.keys(segmentationColorMapping[k]).length,
+      firstChannelSegCount: Object.keys(Object.values(segmentationColorMapping[k])[0] || {}).length,
+    }))
+  ));
 
 
   // Obtain the Neuroglancer viewerState object.
@@ -533,6 +547,10 @@ export function NeuroglancerSubscriber(props) {
     };
   }, []);
 
+//   console.log('obsSegmentationsUrls', obsSegmentationsUrls);
+// console.log('obsSegmentationsData', obsSegmentationsData);
+// console.log('obsSegmentationsSetsData', obsSegmentationsSetsData);
+
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
     // Reference: https://github.com/vitessce/vitessce/pull/2439
@@ -571,6 +589,12 @@ export function NeuroglancerSubscriber(props) {
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
+  console.log('cellColorMappingByLayer', JSON.stringify(
+    Object.keys(cellColorMappingByLayer).map(k => ({
+      scope: k,
+      segCount: Object.keys(cellColorMappingByLayer[k]).length,
+    }))
+  ));
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -722,6 +746,7 @@ export function NeuroglancerSubscriber(props) {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
       const layerSegments = Object.keys(layerColorMapping);
+      console.log('layer', layer.name, 'segments count', layerSegments.length);
       return {
         ...layer,
         segments: layerSegments,
