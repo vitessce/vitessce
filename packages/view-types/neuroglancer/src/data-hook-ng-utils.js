@@ -147,15 +147,7 @@ export function useNeuroglancerViewerState(
               ...result.layers,
               {
                 type: 'segmentation',
-                // source: toPrecomputedSource(layerUrl),
-                source: {
-                  url: toPrecomputedSource(layerUrl),
-                  subsources: { default: true },
-                  enableDefaultSubsources: false,
-                  ...(layerData.neuroglancerOptions?.transform
-                    ? { transform: layerData.neuroglancerOptions.transform }
-                    : {}),
-                },
+                source: toPrecomputedSource(layerUrl),
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
                 visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel
@@ -219,6 +211,9 @@ export function useNeuroglancerViewerState(
                   default: true,
                 },
                 enableDefaultSubsources: false,
+                ...(layerData.neuroglancerOptions?.options.transform
+                  ? { transform: layerData.neuroglancerOptions.options.transform }
+                  : {}),
               },
               tab: 'annotations',
               shader,
