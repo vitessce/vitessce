@@ -316,7 +316,13 @@ export const ngPointAnnotationSchema = z.object({
   pointIndexProp: z.string()
     .optional()
     .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
-}).partial().nullable();
+    transform: z.object({
+      matrix: z.array(z.array(z.number())),
+      outputDimensions: z.record(z.tuple([z.number(), z.string()])),
+    }).optional()
+    .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.'),
+// passthrough as the schema validation was stripping the transform option
+}).partial().passthrough().nullable();
 
 /**
  * Options schemas for atomic file types.

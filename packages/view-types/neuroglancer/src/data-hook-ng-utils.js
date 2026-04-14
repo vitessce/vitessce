@@ -142,11 +142,20 @@ export function useNeuroglancerViewerState(
           } = channelCoordination || {};
           result = {
             ...result,
+            showDefaultAnnotations: false,
             layers: [
               ...result.layers,
               {
                 type: 'segmentation',
-                source: toPrecomputedSource(layerUrl),
+                // source: toPrecomputedSource(layerUrl),
+                source: {
+                  url: toPrecomputedSource(layerUrl),
+                  subsources: { default: true },
+                  enableDefaultSubsources: false,
+                  ...(layerData.neuroglancerOptions?.transform
+                    ? { transform: layerData.neuroglancerOptions.transform }
+                    : {}),
+                },
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
                 visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel
