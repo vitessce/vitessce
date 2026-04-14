@@ -120,6 +120,14 @@ export function useNeuroglancerViewerState(
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
+    result = {
+      ...result,
+      dimensions: {
+        x: [0.000001, 'm'],
+        y: [0.000001, 'm'],
+        z: [0.000001, 'm'],
+      },
+    };
 
     // ======= SEGMENTATIONS =======
 
@@ -198,7 +206,7 @@ export function useNeuroglancerViewerState(
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
         });
-
+        const ngOptions = layerData.neuroglancerOptions?.options;
         result = {
           ...result,
           layers: [
@@ -210,9 +218,13 @@ export function useNeuroglancerViewerState(
                 subsources: {
                   default: true,
                 },
-                enableDefaultSubsources: false,
-                ...(layerData.neuroglancerOptions?.options?.transform
-                  ? { transform: layerData.neuroglancerOptions.options.transform }
+                ...(ngOptions?.matrix
+                  ? {
+                      transform: {
+                        matrix: ngOptions.matrix,
+                        outputDimensions: ngOptions.outputDimensions ?? result.dimensions,
+                      },
+                    }
                   : {}),
               },
               tab: 'annotations',
@@ -221,8 +233,7 @@ export function useNeuroglancerViewerState(
               visible: spatialLayerVisible,
               // Options from layerData.neuroglancerOptions
               // like projectionAnnotationSpacing:
-              projectionAnnotationSpacing: layerData.neuroglancerOptions
-                ?.projectionAnnotationSpacing ?? 1.0,
+              projectionAnnotationSpacing: ngOptions?.projectionAnnotationSpacing ?? 1.0,
             },
           ],
 
