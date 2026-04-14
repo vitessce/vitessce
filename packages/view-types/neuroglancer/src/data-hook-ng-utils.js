@@ -211,7 +211,7 @@ export function useNeuroglancerViewerState(
                   default: true,
                 },
                 enableDefaultSubsources: false,
-                ...(layerData.neuroglancerOptions?.options.transform
+                ...(layerData.neuroglancerOptions?.options?.transform
                   ? { transform: layerData.neuroglancerOptions.options.transform }
                   : {}),
               },

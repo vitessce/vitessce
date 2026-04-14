@@ -30,25 +30,36 @@ function generateNeuroglancerProgressiveLoadingConfig() {
     fileType: 'obsPoints.ng-annotations',
     url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/sorger_mis/cells',
     options: {
-      projectionAnnotationSpacing: 1.0,
-      transform: {
-        matrix: [
-          [7148.09960682, 0, 0, 0],
-          [0, 7148.09960682, 0, 0],
-          [0, 0, 3803.92156863, 0],
-        ],
-        outputDimensions: {
-          x: [0.000001, 'm'],
-          y: [0.000001, 'm'],
-          z: [0.000001, 'm'],
-        },
+      options: {
+        projectionAnnotationSpacing: 1,
+        // transform: {
+        //   matrix: [
+        //     [7148099.60682, 0, 0, 0],
+        //     [0, 7148099.60682, 0, 0],
+        //     [0, 0, 3803921.56863, 0],
+        //   ],
+        //   outputDimensions: {
+        //     x: [1, 'nm'],
+        //     y: [1, 'nm'],
+        //     z: [1, 'nm'],
+        //   },
+     matrix: [
+    [7148.09960682, 0, 0, 0],   // µm-scaled to match viewer dimensions
+    [0, 7148.09960682, 0, 0],
+    [0, 0, 3803.92156863, 0],
+  ],
+  outputDimensions: {
+    x: [0.000001, 'm'],   // must match viewer dimensions
+    y: [0.000001, 'm'],
+    z: [0.000001, 'm'],
+  },
       },
-    },
     coordinationValues: {
       fileUid: 'sorger-cells',
       obsType: 'cell',
       featureType: 'gene',
     },
+  }
   });
 
   // Cell centroids (2D — x and y only, z ignored by loader)
@@ -90,23 +101,21 @@ function generateNeuroglancerProgressiveLoadingConfig() {
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
-      position: [
-        2634.276123046875,
-        1507.4732666015625,
-        117.2542724609375,
-      ],
-      projectionScale: 2228.862938458342,
+      // This config uses um instead of nm, so converting to nm by x 1000
+      // position: [
+      //   2634276.123046875,
+      //   1507473.2666015625,
+      //   117254.2724609375,
+      // ],
+      // projectionScale: 2228862.938458342,
+      position: [2870.94, 929.11, 117.25],
+      projectionScale: 1331.4,
       projectionOrientation: [
         -0.6668370366096497,
         0.5911841988563538,
         -0.1955600529909134,
         0.4093725383281708,
       ],
-      dimensions: {
-        x: [0.000001, 'm'],
-        y: [0.000001, 'm'],
-        z: [0.000001, 'm'],
-      },
     },
   });
 
