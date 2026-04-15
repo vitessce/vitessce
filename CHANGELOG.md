@@ -1,4 +1,23 @@
 
+## 3.9.7
+
+### Patch Changes
+
+- Dsiabled space interaction causing Neuroglancer view to switch to 4Panels layout (`@vitessce/neuroglancer`) ([#2445](https://github.com/vitessce/vitessce/pull/2445))
+
+- Added support for multiple segmentation (i.e., mesh) layers in the Neuroglancer view. (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2438](https://github.com/vitessce/vitessce/pull/2438))
+
+- Added navigation guide for the Neuroglancer View (`@vitessce/neuroglancer`, `@vitessce/styles`, `@vitessce/vit-s`, `docs`) ([#2442](https://github.com/vitessce/vitessce/pull/2442))
+
+- Map the zoom interaction in the `neuroglancer` view to plain mouse wheel events (i.e., do not require any extra key modifiers). (`@vitessce/neuroglancer`) ([#2446](https://github.com/vitessce/vitessce/pull/2446))
+
+- Added async_computation worker to handle sharded data format (`@vitessce/neuroglancer`, `@vitessce/neuroglancer-workers`) ([#2449](https://github.com/vitessce/vitessce/pull/2449))
+
+- Supports hotkeys to switch between multiple camera setting presets by passing the `layerControllerBeta` view a `cameraPresets` prop an array of objects like `{ spatialZoom, spatialX }`. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`) ([#2448](https://github.com/vitessce/vitessce/pull/2448))
+
+- No longer call onSegmentClick in Neuroglancer.js, for consistency with the 2D views and to resolve a bug causing accidental selections. (`@vitessce/neuroglancer`) ([#2439](https://github.com/vitessce/vitessce/pull/2439))
+
+
 ## 3.9.6
 
 ### Patch Changes
