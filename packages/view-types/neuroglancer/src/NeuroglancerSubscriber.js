@@ -21,6 +21,7 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
   useGridItemSize,
+  useSegmentationMultiObsLocations,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -129,6 +130,10 @@ export function NeuroglancerSubscriber(props) {
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
+  );
+
+  const [obsLocationsData, obsLocationsDataStatus, obsLocationsDataErrors] = useSegmentationMultiObsLocations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
@@ -256,6 +261,7 @@ export function NeuroglancerSubscriber(props) {
     ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
+    ...obsLocationsDataErrors,
   ];
 
   const isReady = useReady([
@@ -267,6 +273,7 @@ export function NeuroglancerSubscriber(props) {
     obsSegmentationsSetsDataStatus,
     segmentationMultiFeatureSelectionStatus,
     segmentationMultiIndicesDataStatus,
+    obsLocationsDataStatus,
   ]);
 
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
@@ -351,14 +358,26 @@ export function NeuroglancerSubscriber(props) {
     theme,
   }, customIsEqualForCellColors);
 
-  console.log('segmentationColorMapping', JSON.stringify(
-    Object.keys(segmentationColorMapping).map(k => ({
-      scope: k,
-      channelCount: Object.keys(segmentationColorMapping[k]).length,
-      firstChannelSegCount: Object.keys(Object.values(segmentationColorMapping[k])[0] || {}).length,
-    }))
-  ));
-
+  const centroidsByLayer = useMemo(() => {
+    const result = {};
+    segmentationLayerScopes?.forEach((layerScope) => {
+      const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+      const locationData = obsLocationsData?.[layerScope]?.[channelScope];
+      if (locationData?.obsIndex && locationData?.obsLocations) {
+        const { obsIndex, obsLocations } = locationData;
+        const [xs, ys] = obsLocations.data;
+        // Scale from annotation units to nm using the same transform as the annotation layer
+        // transform matrix x scale = 7148099.60682 nm per annotation unit
+        const ANNOTATION_TO_NM =  4573.4;
+        result[layerScope] = obsIndex.map((id, i) => [
+          id,
+          xs[i] * ANNOTATION_TO_NM,
+          ys[i] * ANNOTATION_TO_NM,
+        ]);
+      }
+    });
+    return result;
+  }, [obsLocationsData, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
@@ -547,10 +566,6 @@ export function NeuroglancerSubscriber(props) {
     };
   }, []);
 
-//   console.log('obsSegmentationsUrls', obsSegmentationsUrls);
-// console.log('obsSegmentationsData', obsSegmentationsData);
-// console.log('obsSegmentationsSetsData', obsSegmentationsSetsData);
-
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
     // Reference: https://github.com/vitessce/vitessce/pull/2439
@@ -589,12 +604,6 @@ export function NeuroglancerSubscriber(props) {
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
-  console.log('cellColorMappingByLayer', JSON.stringify(
-    Object.keys(cellColorMappingByLayer).map(k => ({
-      scope: k,
-      segCount: Object.keys(cellColorMappingByLayer[k]).length,
-    }))
-  ));
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -746,7 +755,6 @@ export function NeuroglancerSubscriber(props) {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
       const layerSegments = Object.keys(layerColorMapping);
-      console.log('layer', layer.name, 'segments count', layerSegments.length);
       return {
         ...layer,
         segments: layerSegments,
@@ -789,7 +797,6 @@ export function NeuroglancerSubscriber(props) {
   // }
 
   const hasLayers = derivedViewerState?.layers?.length > 0;
-  // console.log(derivedViewerState);
 
   return (
 
@@ -827,6 +834,7 @@ export function NeuroglancerSubscriber(props) {
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
+            centroidsByLayer={centroidsByLayer}
           />
         </div>
       ) : null}

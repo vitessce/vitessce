@@ -27,7 +27,8 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 import { diffCameraState } from './utils.js';
 // TODO: Grey color used by Vitessce - maybe set globally
 const GREY_HEX = '#323232';
-
+const MESH_THRESHOLD = 100;   // max segments to load as meshes
+const SCALE_FACTOR = 0.5;     // tune: fraction of projectionScale as radius
 const viewersKeyed = {};
 let viewerNoKey;
 
@@ -428,7 +429,96 @@ export default class Neuroglancer extends React.Component {
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
     this.allKnownIdsByLayer = {};
+    this.centroidsRef = React.createRef();
+    this.progressiveLoadingRafRef = null; // RAF handle for debouncing
   }
+
+  evaluateProgressiveLoading = () => {
+    if (!this.viewer) return;
+    const { centroidsByLayer } = this.props;
+    if (!centroidsByLayer || Object.keys(centroidsByLayer).length === 0) return;
+  
+    const scale = this.viewer.projectionScale.value;
+    const pos = this.viewer.position.value;
+    if (!pos || !scale) return;
+    // Camera is in voxel units (1000nm resolution), centroids are in µm
+// sorger resolution is 1000nm = 1µm, so divide camera by 1
+// But actual scale factor = camera[0] / centroid[0] ≈ 2634/576 ≈ 4.57
+// From the NG config transform matrix: 7148.09960682 nm per unit
+// So camera is in nm/1000 = µm, centroids are in raw annotation units
+
+    const cx = pos[0];
+    const cy = pos[1];
+  
+//     const [cx, cy] = pos;
+// console.log('[progressive] camera pos:', cx, cy);  // add here
+// console.log('[progressive] first centroid:', centroidsByLayer[Object.keys(centroidsByLayer)[0]]?.[0]);  // add here
+  
+    // When scale is large = zoomed out = hide meshes
+    // When scale is small = zoomed in = show nearby meshes
+    const MAX_SCALE_FOR_MESHES = 50000000;  // to match nm
+    // const VIEWPORT_RADIUS = scale * 0.3; // world-space radius to search for nearby segments
+    const VIEWPORT_RADIUS = scale *  0.3;
+    const baseLayers = this.props.viewerState?.layers ?? [];
+    const newSegmentsByLayer = {};
+  
+    const newLayers = baseLayers.map((layer) => {
+      if (layer.type !== 'segmentation') return layer;
+  
+      const layerScope = Object.keys(centroidsByLayer).find(
+        scope => layer.name?.includes(scope)
+      );
+      const centroids = centroidsByLayer[layerScope];
+      if (!centroids || centroids.length === 0) return layer;
+  
+      let segmentsToLoad = [];
+  
+      if (scale <= MAX_SCALE_FOR_MESHES) {
+        // Zoomed in enough — find segments near camera
+        const nearbyIds = centroids
+          .filter(([, x, y]) => {
+            const dx = x - cx;
+            const dy = y - cy;
+            return Math.sqrt(dx * dx + dy * dy) < VIEWPORT_RADIUS;
+          })
+          .map(([id]) => id);
+  
+        segmentsToLoad = nearbyIds.length < MESH_THRESHOLD ? nearbyIds : [];
+        console.log('[progressive] segmentsToLoad sample:', segmentsToLoad.slice(0, 5));
+  
+        // console.log(
+        //   `[progressive] layer=${layer.name}`,
+        //   `scale=${scale.toFixed(0)}`,
+        //   `radius=${VIEWPORT_RADIUS.toFixed(0)}`,
+        //   `nearby=${nearbyIds.length}`,
+        //   `loading=${segmentsToLoad.length}`,
+        // );
+      } else {
+        // Zoomed out too far — hide all meshes
+        console.log(
+          `[progressive] layer=${layer.name}`,
+          `scale=${scale.toFixed(0)} > MAX(${MAX_SCALE_FOR_MESHES}) → hiding all meshes`,
+        );
+      }
+  
+      newSegmentsByLayer[layer.name] = segmentsToLoad;
+      return { ...layer, segments: segmentsToLoad };
+    });
+  
+    // Only update if segments actually changed
+    const key = JSON.stringify(newSegmentsByLayer);
+    if (key === this.lastProgressiveKey) return;
+    this.lastProgressiveKey = key;
+    console.log('[progressive] calling restoreState with segments:', 
+      newLayers
+        .filter(l => l.type === 'segmentation')
+        .map(l => ({ name: l.name, segCount: l.segments?.length, sample: l.segments?.slice(0,3) }))
+    );
+  
+    this.withoutEmitting(() => {
+      this.viewer.state.restoreState({ layers: newLayers });
+    });
+  };
 
   minimalPoseSnapshot = () => {
     const v = this.viewer;
@@ -473,6 +563,21 @@ export default class Neuroglancer extends React.Component {
     const prevLayers = stripColors(prevVS?.layers);
     const nextLayers = stripColors(nextVS?.layers);
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
+  };
+
+  didSourcesChange = (prevLayers, nextLayers) => {
+    const strip = layers => (layers || []).map((l) => {
+      if (!l) return l;
+      const { segmentColors, segments, visible, tab,
+              ...rest } = l;
+      return rest;
+    });
+    return JSON.stringify(strip(prevLayers)) !== JSON.stringify(strip(nextLayers));
+  };
+
+  didVisibilityChange = (prevLayers, nextLayers) => {
+    if ((prevLayers || []).length !== (nextLayers || []).length) return false;
+    return (prevLayers || []).some((prev, i) => prev?.visible !== nextLayers[i]?.visible);
   };
 
   /* To add colors to the segments, turning unselected to grey  */
@@ -570,6 +675,24 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
+
+
+    const debouncedProgressiveLoad = () => {
+      if (this.progressiveLoadingRafRef) {
+        cancelAnimationFrame(this.progressiveLoadingRafRef);
+      }
+      this.progressiveLoadingRafRef = requestAnimationFrame(() => {
+        this.evaluateProgressiveLoading();
+        this.progressiveLoadingRafRef = null;
+      });
+    };
+
+    this.disposers.push(
+      this.viewer.projectionScale.changed.add(debouncedProgressiveLoad)
+    );
+    this.disposers.push(
+      this.viewer.position.changed.add(debouncedProgressiveLoad)
+    );
 
     // Initial restore ONLY if provided
     if (viewerState) {
@@ -687,6 +810,9 @@ export default class Neuroglancer extends React.Component {
     if (!viewerState) return;
     // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
     const prevVS = prevProps.viewerState;
+    const prevLayers = prevVS?.layers ?? [];
+    const nextLayers = viewerState?.layers ?? [];
+
     const camState = diffCameraState(prevVS, viewerState);
     // Restore pose ONLY if it actually changed
     if (camState.changed) {
@@ -703,11 +829,44 @@ export default class Neuroglancer extends React.Component {
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
+
+    // If structural source changes (URL, layer type) — full rebuild
+    const sourcesChanged = this.didSourcesChange(prevLayers, nextLayers);
+    if (sourcesChanged) {
+      this.withoutEmitting(() => {
+        this.viewer.state.restoreState({ layers: nextLayers });
+      });
+      this.evaluateProgressiveLoading();
+      return;
+    }
+
+    // If visibility-only change — restore layers but CARRY OVER live segments
+    //    so the loaded meshes are not wiped
+    const visibilityChanged = this.didVisibilityChange(prevLayers, nextLayers);
+    if (visibilityChanged) {
+      const liveState = this.viewer.state.toJSON();
+      const liveLayersByName = {};
+      (liveState.layers || []).forEach((l) => { liveLayersByName[l.name] = l; });
+  
+      const mergedLayers = nextLayers.map((layer) => {
+        const live = liveLayersByName[layer.name];
+        return {
+          ...layer,
+          // carry over currently loaded segments from the live viewer — don't wipe them
+          segments: live?.segments ?? layer.segments,
+        };
+      });
+  
+      this.withoutEmitting(() => {
+        this.viewer.state.restoreState({ layers: mergedLayers });
+      });
+      return;
+    }
+  
+    // If layers changed (segment list  etc.): restore ONLY layers, then colors
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        this.viewer.state.restoreState({ layers });
+        this.viewer.state.restoreState({ layers: nextLayers });
         if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
           this.applyColorsAndVisibility(cellColorMappingByLayer);
         }
@@ -716,13 +875,10 @@ export default class Neuroglancer extends React.Component {
 
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
-    const prevSize = prevProps.cellColorMapping
-      ? Object.keys(prevProps.cellColorMapping).length : 0;
-    const currSize = cellColorMappingByLayer
-      ? Object.keys(cellColorMappingByLayer).length : 0;
+    const prevSize = prevProps.cellColorMapping ? Object.keys(prevProps.cellColorMapping).length : 0;
+    const currSize = cellColorMappingByLayer ? Object.keys(cellColorMappingByLayer).length : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
-    if (!this.didLayersChange(prevVS, viewerState)
-      && (mappingRefChanged || prevSize !== currSize)) {
+    if (!this.didLayersChange(prevVS, viewerState) && (mappingRefChanged || prevSize !== currSize)) {
       this.withoutEmitting(() => {
         this.applyColorsAndVisibility(cellColorMappingByLayer);
       });
@@ -735,23 +891,15 @@ export default class Neuroglancer extends React.Component {
       const { segments, segmentColors, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
     });
-
-    const prevLayers = prevProps.viewerState?.layers;
-    const nextLayers = viewerState?.layers;
-
-    const prevCore = JSON.stringify(stripSegFields(prevLayers));
-    const nextCore = JSON.stringify(stripSegFields(nextLayers));
-    const sourcesChanged = prevCore !== nextCore; // real structural change?
-
-    const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
+    const prevSegCount = (prevLayers[0] && Array.isArray(prevLayers[0].segments))
       ? prevLayers[0].segments.length : 0;
-    const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
+    const nextSegCount = (nextLayers[0] && Array.isArray(nextLayers[0].segments))
       ? nextLayers[0].segments.length : 0;
 
     // first-time seeding – from 0 segments → N segments
     const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
 
-    if (sourcesChanged || initialSegmentsAdded) {
+    if (initialSegmentsAdded) {
       this.withoutEmitting(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
@@ -770,6 +918,9 @@ export default class Neuroglancer extends React.Component {
     } else {
       viewerNoKey = undefined;
     }
+    // if (this.progressiveLoadingRafRef) {
+    //   cancelAnimationFrame(this.progressiveLoadingRafRef);
+    // }
   }
 
   /* setCallbacks allows us to set a callback on a neuroglancer event
@@ -785,6 +936,7 @@ export default class Neuroglancer extends React.Component {
    *
    */
   setCallbacks(callbacks) {
+    if (!callbacks) return;
     callbacks.forEach((callback) => {
       this.viewer.bindCallback(callback.name, callback.function);
       this.viewer.inputEventBindings.sliceView.set(

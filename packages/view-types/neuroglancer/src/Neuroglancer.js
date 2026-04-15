@@ -92,7 +92,7 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping } = this.props;
+    const { classes, viewerState, cellColorMapping, centroidsByLayer } = this.props;
 
     return (
       <>
@@ -106,6 +106,7 @@ export class NeuroglancerComp extends PureComponent {
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
+              centroidsByLayer={centroidsByLayer}
             />
           </Suspense>
         </div>
