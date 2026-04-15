@@ -360,24 +360,30 @@ export function NeuroglancerSubscriber(props) {
 
   const centroidsByLayer = useMemo(() => {
     const result = {};
+  
+    // Get scale from the first available points layer transform matrix
+    const firstPointScope = pointLayerScopes?.[0];
+    const ngOptions = obsPointsData?.[firstPointScope]?.neuroglancerOptions?.options;
+    // const scaleX = ngOptions?.matrix?.[0]?.[0] ?? 7148.09960682;
+    // const scaleY = ngOptions?.matrix?.[1]?.[1] ?? 7148.09960682;
+  
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
       const locationData = obsLocationsData?.[layerScope]?.[channelScope];
+  
       if (locationData?.obsIndex && locationData?.obsLocations) {
         const { obsIndex, obsLocations } = locationData;
         const [xs, ys] = obsLocations.data;
-        // Scale from annotation units to nm using the same transform as the annotation layer
-        // transform matrix x scale = 7148099.60682 nm per annotation unit
-        const ANNOTATION_TO_NM =  4573.4;
+
         result[layerScope] = obsIndex.map((id, i) => [
           id,
-          xs[i] * ANNOTATION_TO_NM,
-          ys[i] * ANNOTATION_TO_NM,
+          xs[i],// * scaleX,
+          ys[i],// * scaleY,
         ]);
       }
     });
     return result;
-  }, [obsLocationsData, segmentationLayerScopes, segmentationChannelScopesByLayer]);
+  }, [obsLocationsData, obsPointsData, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(

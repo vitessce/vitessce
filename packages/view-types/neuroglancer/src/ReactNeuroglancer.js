@@ -27,8 +27,8 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 import { diffCameraState } from './utils.js';
 // TODO: Grey color used by Vitessce - maybe set globally
 const GREY_HEX = '#323232';
-const MESH_THRESHOLD = 100;   // max segments to load as meshes
-const SCALE_FACTOR = 0.5;     // tune: fraction of projectionScale as radius
+const MESH_THRESHOLD = 100; // max segments to load as meshes
+
 const viewersKeyed = {};
 let viewerNoKey;
 
@@ -437,28 +437,25 @@ export default class Neuroglancer extends React.Component {
     if (!this.viewer) return;
     const { centroidsByLayer } = this.props;
     if (!centroidsByLayer || Object.keys(centroidsByLayer).length === 0) return;
-  
+    console.log('[progressive] triggered by:', new Error().stack.split('\n')[2].trim());
     const scale = this.viewer.projectionScale.value;
     const pos = this.viewer.position.value;
     if (!pos || !scale) return;
     // Camera is in voxel units (1000nm resolution), centroids are in µm
-// sorger resolution is 1000nm = 1µm, so divide camera by 1
-// But actual scale factor = camera[0] / centroid[0] ≈ 2634/576 ≈ 4.57
-// From the NG config transform matrix: 7148.09960682 nm per unit
-// So camera is in nm/1000 = µm, centroids are in raw annotation units
+    // sorger resolution is 1000nm = 1µm, so divide camera by 1
+    // But actual scale factor = camera[0] / centroid[0] ≈ 2634/576 ≈ 4.57
+    // From the NG config transform matrix: 7148.09960682 nm per unit
+    // So camera is in nm/1000 = µm, centroids are in raw annotation units
 
-    const cx = pos[0];
-    const cy = pos[1];
   
-//     const [cx, cy] = pos;
-// console.log('[progressive] camera pos:', cx, cy);  // add here
-// console.log('[progressive] first centroid:', centroidsByLayer[Object.keys(centroidsByLayer)[0]]?.[0]);  // add here
+    const [cx, cy] = pos;
+    // console.log('[progressive] camera:', { cx, cy, scale });
+    // console.log('[progressive] VIEWPORT_RADIUS:', scale * 0.3);
   
     // When scale is large = zoomed out = hide meshes
     // When scale is small = zoomed in = show nearby meshes
-    const MAX_SCALE_FOR_MESHES = 50000000;  // to match nm
-    // const VIEWPORT_RADIUS = scale * 0.3; // world-space radius to search for nearby segments
-    const VIEWPORT_RADIUS = scale *  0.3;
+    const MAX_SCALE_FOR_MESHES = 10000;//0000;  // to match nm
+    const VIEWPORT_RADIUS = scale * 2;
     const baseLayers = this.props.viewerState?.layers ?? [];
     const newSegmentsByLayer = {};
   
@@ -470,20 +467,48 @@ export default class Neuroglancer extends React.Component {
       );
       const centroids = centroidsByLayer[layerScope];
       if (!centroids || centroids.length === 0) return layer;
+
+      let logCount = 0;
+      const nearbyIds = centroids
+        .filter(([, x, y]) => {
+          const dx = x - cx;
+          const dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (logCount < 5) {
+            console.log('[progressive] dist:', dist, 'vs radius:', VIEWPORT_RADIUS, '| x:', x, 'y:', y);
+            logCount++;
+          }
+          return dist < VIEWPORT_RADIUS;
+        })
+        .map(([id]) => id);
+      
+      console.log('[progressive] nearbyIds count:', nearbyIds.length);
   
       let segmentsToLoad = [];
   
       if (scale <= MAX_SCALE_FOR_MESHES) {
         // Zoomed in enough — find segments near camera
-        const nearbyIds = centroids
-          .filter(([, x, y]) => {
-            const dx = x - cx;
-            const dy = y - cy;
-            return Math.sqrt(dx * dx + dy * dy) < VIEWPORT_RADIUS;
-          })
-          .map(([id]) => id);
+        // const nearbyIds = centroids
+        //   .filter(([, x, y]) => {
+        //     const dx = x - cx;
+        //     const dy = y - cy;
+        //     return Math.sqrt(dx * dx + dy * dy) < VIEWPORT_RADIUS;
+        //   })
+        //   .map(([id]) => id);
   
-        segmentsToLoad = nearbyIds.length < MESH_THRESHOLD ? nearbyIds : [];
+        // segmentsToLoad = nearbyIds.length < MESH_THRESHOLD ? nearbyIds : [];
+        const nearbyWithDist = centroids
+              .map(([id, x, y]) => {
+                const dx = x - cx;
+                const dy = y - cy;
+                return { id, dist: Math.sqrt(dx * dx + dy * dy) };
+              })
+              .filter(({ dist }) => dist < VIEWPORT_RADIUS)
+              .sort((a, b) => a.dist - b.dist)
+              .slice(0, MESH_THRESHOLD)
+              .map(({ id }) => id);
+
+            segmentsToLoad = nearbyWithDist;
         console.log('[progressive] segmentsToLoad sample:', segmentsToLoad.slice(0, 5));
   
         // console.log(
@@ -514,6 +539,22 @@ export default class Neuroglancer extends React.Component {
         .filter(l => l.type === 'segmentation')
         .map(l => ({ name: l.name, segCount: l.segments?.length, sample: l.segments?.slice(0,3) }))
     );
+
+    console.log('[progressive] calling restoreState with:', 
+      newLayers.map(l => ({ name: l.name, segCount: l.segments?.length }))
+    );
+    
+    this.withoutEmitting(() => {
+      this.viewer.state.restoreState({ layers: newLayers });
+    });
+  
+    // Check live state 1 second after
+    setTimeout(() => {
+      const live = this.viewer.state.toJSON();
+      console.log('[progressive] live layers 1s later:', 
+        live.layers?.map(l => ({ name: l.name, segCount: l.segments?.length }))
+      );
+    }, 1000);
   
     this.withoutEmitting(() => {
       this.viewer.state.restoreState({ layers: newLayers });
@@ -563,6 +604,52 @@ export default class Neuroglancer extends React.Component {
     const prevLayers = stripColors(prevVS?.layers);
     const nextLayers = stripColors(nextVS?.layers);
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
+  };
+
+  // The camera should be within the center of the centroids
+  autoCenterOnCentroids = (prevCentroids, nextCentroids) => {
+    const prevHasCentroids = prevCentroids && Object.keys(prevCentroids).length > 0
+      && Object.values(prevCentroids).some(c => c?.length > 0);
+    const nextHasCentroids = nextCentroids && Object.keys(nextCentroids).length > 0
+      && Object.values(nextCentroids).some(c => c?.length > 0);
+  
+    if (prevHasCentroids || !nextHasCentroids) return;
+  
+    const allCentroids = Object.values(nextCentroids).flat();
+    const xs = allCentroids.map(([, x]) => x);
+    const ys = allCentroids.map(([, , y]) => y);
+  
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+  
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const spread = Math.max(maxX - minX, maxY - minY);
+    const autoScale = spread * 0.6;
+  
+    console.log('[auto-center] centering on:', { centerX, centerY, spread, autoScale });
+  
+    this.withoutEmitting(() => {
+      this.viewer.state.restoreState({
+        position: [centerX, centerY, this.viewer.position.value[2]],
+        projectionScale: autoScale,
+      });
+    });
+  
+    requestAnimationFrame(() => this.evaluateProgressiveLoading());
+  };
+
+  // Helper to merge live segments into next layers
+  mergeLiveSegments = (nextLayers) => {
+    const liveState = this.viewer.state.toJSON();
+    const liveByName = {};
+    (liveState.layers || []).forEach(l => { liveByName[l.name] = l; });
+    return nextLayers.map(layer => ({
+      ...layer,
+      segments: liveByName[layer.name]?.segments ?? layer.segments,
+    }));
   };
 
   didSourcesChange = (prevLayers, nextLayers) => {
@@ -688,10 +775,10 @@ export default class Neuroglancer extends React.Component {
     };
 
     this.disposers.push(
-      this.viewer.projectionScale.changed.add(debouncedProgressiveLoad)
+      this.viewer.projectionScale.changed.add(debouncedProgressiveLoad),
     );
     this.disposers.push(
-      this.viewer.position.changed.add(debouncedProgressiveLoad)
+      this.viewer.position.changed.add(debouncedProgressiveLoad),
     );
 
     // Initial restore ONLY if provided
@@ -813,6 +900,8 @@ export default class Neuroglancer extends React.Component {
     const prevLayers = prevVS?.layers ?? [];
     const nextLayers = viewerState?.layers ?? [];
 
+    this.autoCenterOnCentroids(prevProps.centroidsByLayer, this.props.centroidsByLayer);
+
     const camState = diffCameraState(prevVS, viewerState);
     // Restore pose ONLY if it actually changed
     if (camState.changed) {
@@ -834,7 +923,7 @@ export default class Neuroglancer extends React.Component {
     const sourcesChanged = this.didSourcesChange(prevLayers, nextLayers);
     if (sourcesChanged) {
       this.withoutEmitting(() => {
-        this.viewer.state.restoreState({ layers: nextLayers });
+        this.viewer.state.restoreState({ layers: this.mergeLiveSegments(nextLayers) });
       });
       this.evaluateProgressiveLoading();
       return;
@@ -858,7 +947,7 @@ export default class Neuroglancer extends React.Component {
       });
   
       this.withoutEmitting(() => {
-        this.viewer.state.restoreState({ layers: mergedLayers });
+        this.viewer.state.restoreState({ layers: this.mergeLiveSegments(nextLayers) });
       });
       return;
     }
@@ -866,7 +955,7 @@ export default class Neuroglancer extends React.Component {
     // If layers changed (segment list  etc.): restore ONLY layers, then colors
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        this.viewer.state.restoreState({ layers: nextLayers });
+        this.viewer.state.restoreState({ layers: this.mergeLiveSegments(nextLayers) });
         if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
           this.applyColorsAndVisibility(cellColorMappingByLayer);
         }
@@ -902,7 +991,7 @@ export default class Neuroglancer extends React.Component {
     if (initialSegmentsAdded) {
       this.withoutEmitting(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
-        this.viewer.state.restoreState({ layers: nextLayers });
+        this.viewer.state.restoreState({ layers: this.mergeLiveSegments(nextLayers) });
       });
     }
     /* ** Vitessce Integration update end ** */
