@@ -95,11 +95,10 @@ export default function LayerPerFeatureController(props) {
     } else {
       setFeatureColor([
         ...(featureColor ?? []),
-        { name: featureName, color: [255, 255, 255], visible: true, opacity: 1.0, ...patch },
+        { name: featureName, color: paletteColor, visible: true, opacity: 1.0, ...patch },
       ]);
     }
-  }, [featureName, featureColor, setFeatureColor]);
-
+  }, [featureName, featureColor, setFeatureColor, paletteColor]);
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
