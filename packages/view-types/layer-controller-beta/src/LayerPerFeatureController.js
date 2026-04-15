@@ -77,10 +77,14 @@ export default function LayerPerFeatureController(props) {
     featureColor?.find(fc => fc.name === featureName)
   ), [featureColor, featureName]);
 
-  const color = featureEntry?.color ?? [255, 255, 255];
+  const paletteColor = useMemo(() => {
+    const varIndex = featureIndex?.indexOf(featureName) ?? -1;
+    return varIndex >= 0 ? PALETTE[varIndex % PALETTE.length] : [255, 255, 255];
+  }, [featureIndex, featureName]);
+
+  const color = featureEntry?.color ?? paletteColor;
   const visible = featureEntry?.visible ?? true;
   const opacity = featureEntry?.opacity ?? 1.0;
-
 
   const updateFeatureEntry = useCallback((patch) => {
     const idx = featureColor?.findIndex(fc => fc.name === featureName) ?? -1;

@@ -535,7 +535,18 @@ export default function PointLayerController(props) {
                   Unselected
                 </Typography>
               </Grid>
-              <Grid size={2} />
+              <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
+                <Slider
+                  value={opacity}
+                  min={0}
+                  max={1}
+                  step={0.001}
+                  onChange={handleOpacityChange}
+                  className={menuClasses.imageLayerOpacitySlider}
+                  orientation="horizontal"
+                  aria-label="Adjust opacity for unselected layer"
+                />
+              </Grid>
               <Grid size={1}>
                 <PointsIconSVG className={classes.layerTypePointIcon} />
               </Grid>
