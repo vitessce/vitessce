@@ -289,8 +289,8 @@ export function NeuroglancerSubscriber(props) {
           obsSetSelection,
           additionalObsSets,
           spatialChannelColor,
+          spatialChannelOpacity,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
-
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
           if (layerIndex && spatialChannelColor) {
@@ -315,6 +315,7 @@ export function NeuroglancerSubscriber(props) {
               });
             }
             result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
           }
         } else if (layerSets && layerIndex) {
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
@@ -331,6 +332,7 @@ export function NeuroglancerSubscriber(props) {
             ngCellColors[i] = rgbToHex(color);
           });
           result[layerScope][channelScope] = ngCellColors;
+          result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
     });
@@ -566,7 +568,10 @@ export function NeuroglancerSubscriber(props) {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
-      result[layerScope] = segmentationColorMapping?.[layerScope]?.[channelScope] ?? {};
+      result[layerScope] = {
+        colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
+        opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
+      };
     });
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
@@ -720,17 +725,13 @@ export function NeuroglancerSubscriber(props) {
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
       const layerScope = segmentationLayerScopes?.[idx];
-      const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
+      const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const layerSegments = Object.keys(layerColorMapping);
-      const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
-      // TODO: Fix assumption for one segmentation layer in the future
-      const layerOpacity = segmentationChannelCoordination[0]
-        ?.[layerScope]?.[channelScope]?.spatialChannelOpacity ?? 1.0;
       return {
         ...layer,
         segments: layerSegments,
         segmentColors: layerColorMapping,
-        objectAlpha: layerOpacity,
+        objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];
 
@@ -757,7 +758,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-    latestViewerStateIteration, segmentationChannelCoordination, segmentationChannelScopesByLayer]);
+    latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
