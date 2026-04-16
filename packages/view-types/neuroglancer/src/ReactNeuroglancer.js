@@ -707,7 +707,6 @@ export default class Neuroglancer extends React.Component {
     // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
     const prevVS = prevProps.viewerState;
     const camState = diffCameraState(prevVS, viewerState);
-    console.log('shader changed', prevVS?.layers?.[0]?.shader !== viewerState?.layers?.[0]?.shader);
     // Restore pose ONLY if it actually changed
     if (camState.changed) {
       const patch = {};
@@ -737,11 +736,11 @@ export default class Neuroglancer extends React.Component {
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
     const prevSize = prevProps.cellColorMapping
-    ? Object.values(prevProps.cellColorMapping)
+      ? Object.values(prevProps.cellColorMapping)
         .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const currSize = cellColorMappingByLayer
       ? Object.values(cellColorMappingByLayer)
-          .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
     if (!this.didLayersChange(prevVS, viewerState)
       && (mappingRefChanged || prevSize !== currSize)) {
