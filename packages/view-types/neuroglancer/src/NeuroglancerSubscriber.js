@@ -722,10 +722,15 @@ export function NeuroglancerSubscriber(props) {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
       const layerSegments = Object.keys(layerColorMapping);
+      const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+      // TODO: Fix assumption for one segmentation layer in the future
+      const layerOpacity = segmentationChannelCoordination[0]
+        ?.[layerScope]?.[channelScope]?.spatialChannelOpacity ?? 1.0;
       return {
         ...layer,
         segments: layerSegments,
         segmentColors: layerColorMapping,
+        objectAlpha: layerOpacity,
       };
     }) ?? [];
 
@@ -752,7 +757,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-    latestViewerStateIteration]);
+    latestViewerStateIteration, segmentationChannelCoordination, segmentationChannelScopesByLayer]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
