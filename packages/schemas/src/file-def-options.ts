@@ -307,6 +307,8 @@ export const ngPrecomputedMeshSchema = z.object({
   // projectionScale: z.number(),
   // position: z.array(z.number()).length(3),
   // projectionOrientation: z.array(z.number()).length(4),
+  subsources: z.record(z.boolean()).optional(),
+  enableDefaultSubsources: z.boolean().optional(),
 }).partial().nullable();
 export const ngPointAnnotationSchema = z.object({
   projectionAnnotationSpacing: z.number(),
