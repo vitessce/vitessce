@@ -2,4 +2,4 @@
 "@vitessce/neuroglancer": patch
 ---
 
-Enable opacity change in Neuroglancer segmentation layer using the opacity slider in layerController
+Enable opacity change in Neuroglancer segmentation and annotation layers using their respective opacity sliders in layerController.
