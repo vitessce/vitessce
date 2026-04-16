@@ -641,13 +641,6 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
-        const layerScope = Object.keys(cellColorMappingByLayer).find(
-          scope => layer.name?.includes(scope),
-        );
-        if (layerScope) {
-          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
-          layer.layer.displayState.objectAlpha.value = opacity;
-        }
       }
     }
     // if (viewerState) {
@@ -674,6 +667,25 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         segmentSelectionState.set(selectedSegments[layer.name]);
+        const layerScope = Object.keys(cellColorMappingByLayer).find(
+          scope => layer.name?.includes(scope),
+        );
+        if (layerScope) {
+          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
+          layer.layer.displayState.objectAlpha.value = opacity;
+        }
+      }
+      if (layer.layer instanceof AnnotationUserLayer) {
+        const matchingLayer = (viewerState?.layers || []).find(
+          l => l.name === layer.name,
+        );
+        if (matchingLayer?.shader) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const currentShader = layer.layer.annotationDisplayState.shader.value_;
+          if (currentShader !== matchingLayer.shader) {
+            layer.layer.annotationDisplayState.shader.value = matchingLayer.shader;
+          }
+        }
       }
     }
 
@@ -695,6 +707,7 @@ export default class Neuroglancer extends React.Component {
     // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
     const prevVS = prevProps.viewerState;
     const camState = diffCameraState(prevVS, viewerState);
+    console.log('shader changed', prevVS?.layers?.[0]?.shader !== viewerState?.layers?.[0]?.shader);
     // Restore pose ONLY if it actually changed
     if (camState.changed) {
       const patch = {};
