@@ -472,7 +472,7 @@ export function ComparativePageComponent() {
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
                 <div className="view-row-left">
-                  <p>This view displays differential expression test results, performed using the rank_genes_groups function from Scanpy (Wolf et al. 2018) with method &quot;wilcoxon&quot;. <br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
+                  <p>This view displays differential expression test results, performed using PyDESeq2 (Muzellec et al. 2023). <br /><br />Tests have only been run when each group contains at least 25 cells and at least three participants.<br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
                 </div>
                 <div className="view-row-center">
                   <VolcanoPlot />
