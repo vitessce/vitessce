@@ -691,14 +691,14 @@ export function getPointsShader(layerCoordination) {
         featureIndices, opacity, featureIndexProp, pointIndexProp, pointMarkerBorderWidth,
       );
     }
-    if (!hasFeatureSelection || !hasResolvedIndices) {
-      return getRandomPerPointShader(
-        opacity,
-        featureIndexProp,
-        pointIndexProp,
-        pointMarkerBorderWidth,
-      );
-    }
+    return getRandomPerPointWithSelectionShader(
+      featureIndices,
+      defaultColor,
+      opacity,
+      featureIndexProp,
+      pointIndexProp,
+      pointMarkerBorderWidth,
+    );
   }
 
   // Fallback: static color.
