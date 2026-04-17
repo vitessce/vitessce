@@ -22,7 +22,8 @@ function normalizeColor(rgbColor) {
  * @returns {string}
  */
 function borderWidthGlsl(borderWidth = 0.0) {
-  return `setPointMarkerBorderWidth(${borderWidth});`;
+  // must be decimal/float value
+  return `setPointMarkerBorderWidth(${borderWidth.toFixed(1)});`;
 }
 
 
@@ -61,8 +62,8 @@ export function getSpatialLayerColorShader(staticColor, opacity, borderWidth = 0
   // lang: glsl
   return `
         void main() {
-            ${borderWidthGlsl(borderWidth)}
             setColor(${toVec4(norm, opacity)});
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -98,11 +99,11 @@ export function getSpatialLayerColorWithSelectionShader(
                 }
             }
             if (isSelected) {
-                ${borderWidthGlsl(borderWidth)}
                 setColor(${toVec4(normStatic, opacity)});
-            } else {
                 ${borderWidthGlsl(borderWidth)}
+            } else {
                 setColor(${toVec4(normDefault, opacity)});
+                ${borderWidthGlsl(borderWidth)}
             }
         }
     `;
@@ -139,8 +140,8 @@ export function getSpatialLayerColorFilteredShader(
             if (!isSelected) {
                 discard;
             }
-            ${borderWidthGlsl(borderWidth)}
             setColor(${toVec4(normStatic, opacity)});
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -162,8 +163,8 @@ export function getGeneSelectionNoSelectionShader(staticColor, opacity, borderWi
   // lang: glsl
   return `
         void main() {
-            ${borderWidthGlsl(borderWidth)}
             setColor(${toVec4(norm, opacity)});
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -209,8 +210,8 @@ export function getGeneSelectionWithSelectionShader(
                     color = vec4(featureColors[i], ${opacity});
                 }
             }
-            ${borderWidthGlsl(borderWidth)}
             setColor(color);
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -257,8 +258,8 @@ export function getGeneSelectionFilteredShader(
             if (!isSelected) {
                 discard;
             }
-            ${borderWidthGlsl(borderWidth)}
             setColor(vec4(matchedColor, ${opacity}));
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -287,8 +288,8 @@ export function getRandomByFeatureShader(opacity, featureIndexProp, borderWidth 
             int colorIdx = geneIndex - (geneIndex / ${paletteSize}) * ${paletteSize};
             if (colorIdx < 0) { colorIdx = -colorIdx; }
             vec3 color = palette[colorIdx];
-            ${borderWidthGlsl(borderWidth)}
             setColor(vec4(color, ${opacity}));
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -329,11 +330,11 @@ export function getRandomByFeatureWithSelectionShader(
             if (isSelected) {
                 int colorIdx = geneIndex - (geneIndex / ${paletteSize}) * ${paletteSize};
                 if (colorIdx < 0) { colorIdx = -colorIdx; }
-                ${borderWidthGlsl(borderWidth)}
                 setColor(vec4(palette[colorIdx], ${opacity}));
-            } else {
                 ${borderWidthGlsl(borderWidth)}
+            } else {
                 setColor(${toVec4(normDefault, opacity)});
+                ${borderWidthGlsl(borderWidth)}
             }
         }
     `;
@@ -372,8 +373,8 @@ export function getRandomByFeatureFilteredShader(featureIndices, opacity, featur
             }
             int colorIdx = geneIndex - (geneIndex / ${paletteSize}) * ${paletteSize};
             if (colorIdx < 0) { colorIdx = -colorIdx; }
-            ${borderWidthGlsl(borderWidth)}
             setColor(vec4(palette[colorIdx], ${opacity}));
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -417,8 +418,8 @@ export function getRandomPerPointShader(opacity, featureIndexProp, pointIndexPro
             float r = hashToFloat(pointIndex, 0);
             float g = hashToFloat(pointIndex, 1);
             float b = hashToFloat(pointIndex, 2);
-            ${borderWidthGlsl(borderWidth)}
             setColor(vec4(r, g, b, ${opacity}));
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
@@ -457,11 +458,11 @@ export function getRandomPerPointWithSelectionShader(
                 float r = hashToFloat(pointIndex, 0);
                 float g = hashToFloat(pointIndex, 1);
                 float b = hashToFloat(pointIndex, 2);
-                ${borderWidthGlsl(borderWidth)}
                 setColor(vec4(r, g, b, ${opacity}));
-            } else {
                 ${borderWidthGlsl(borderWidth)}
+            } else {
                 setColor(${toVec4(normDefault, opacity)});
+                ${borderWidthGlsl(borderWidth)}
             }
         }
     `;
@@ -501,8 +502,8 @@ export function getRandomPerPointFilteredShader(
             float r = hashToFloat(pointIndex, 0);
             float g = hashToFloat(pointIndex, 1);
             float b = hashToFloat(pointIndex, 2);
-            ${borderWidthGlsl(borderWidth)}
             setColor(vec4(r, g, b, ${opacity}));
+            ${borderWidthGlsl(borderWidth)}
         }
     `;
 }
