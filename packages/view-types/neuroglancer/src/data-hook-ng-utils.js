@@ -211,6 +211,7 @@ export function useNeuroglancerViewerState(
 
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
+          pointMarkerBorderWidth: layerData.neuroglancerOptions?.pointMarkerBorderWidth ?? 0.0,
         });
 
         result = {

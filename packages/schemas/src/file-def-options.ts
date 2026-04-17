@@ -290,7 +290,7 @@ export const meshGlbSchema = z.object({
   materialSide: z.enum(['front', 'back']),
 }).partial().nullable();
 
-// NG
+// NG SegmentationLayer
 export const ngPrecomputedMeshSchema = z.object({
   // TODO: Should this explicitly specify sharded vs. unsharded?
   // Or can/should that be inferred from the data?
@@ -310,6 +310,8 @@ export const ngPrecomputedMeshSchema = z.object({
   subsources: z.record(z.boolean()).optional(),
   enableDefaultSubsources: z.boolean().optional(),
 }).partial().nullable();
+
+// Annotation Layer
 export const ngPointAnnotationSchema = z.object({
   projectionAnnotationSpacing: z.number(),
   featureIndexProp: z.string()
@@ -318,6 +320,9 @@ export const ngPointAnnotationSchema = z.object({
   pointIndexProp: z.string()
     .optional()
     .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
+  pointMarkerBorderWidth: z.number()
+    .optional()
+    .describe('A decimal/float number >= 0.0 to adjust the border width of the points on the Annotation layer'),
 }).partial().nullable();
 
 /**

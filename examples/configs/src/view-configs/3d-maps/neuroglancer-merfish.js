@@ -55,6 +55,7 @@ function generateNeuroglancerMerfish() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
+        pointMarkerBorderWidth: 0.0, // controls border width of the points
 
         // Note: tissue-map-tools creates an AnnotationProperty
         // for every column in the sdata Points element dask dataframe.
@@ -107,7 +108,6 @@ function generateNeuroglancerMerfish() {
         4469.5,
         7.5,
       ],
-      showAxisLines: false,
       projectionScale: 11521.115426462216,
       projectionOrientation: [
         -0.0017234950792044401,
@@ -116,6 +116,7 @@ function generateNeuroglancerMerfish() {
         0.999148964881897,
       ],
     },
+    showAxisLines: true,
   });
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
