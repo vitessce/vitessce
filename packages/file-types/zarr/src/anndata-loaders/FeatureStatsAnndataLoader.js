@@ -58,20 +58,29 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async loadDataFrame(dfPath) {
-    const [
-      featureId,
-      featureFoldChange,
-      featureSignificance,
-    ] = await Promise.all([
-      this.loadFeatureNames(dfPath),
-      this.loadFoldChanges(dfPath),
-      this.loadSignificances(dfPath),
-    ]);
-    return {
-      featureId,
-      featureFoldChange,
-      featureSignificance,
-    };
+    try {
+      const [
+        featureId,
+        featureFoldChange,
+        featureSignificance,
+      ] = await Promise.all([
+        this.loadFeatureNames(dfPath),
+        this.loadFoldChanges(dfPath),
+        this.loadSignificances(dfPath),
+      ]);
+      return {
+        featureId,
+        featureFoldChange,
+        featureSignificance,
+      };
+    } catch(e) {
+      console.log("Dataframe not found at", dfPath);
+      return {
+        featureId: [],
+        featureFoldChange: [],
+        featureSignificance: [], 
+      };
+    }
   }
 
   /**
@@ -85,6 +94,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     }
     if (!this.metadata) {
       this.metadata = await loadComparisonMetadata(this.dataSource, metadataPath);
+      console.log(this.metadata)
       return this.metadata;
     }
     return this.metadata;
@@ -101,7 +111,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<LoaderResult<FeatureStatsData>>}
    */
   async loadMulti(volcanoOptions) {
-    const { analysisType: targetAnalysisType = 'rank_genes_groups' } = this.options;
+    const { analysisType: targetAnalysisType = 'pydeseq2' } = this.options;
     const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
 
     // We expect these set paths to have already been transformed

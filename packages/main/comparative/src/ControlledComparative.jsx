@@ -26,7 +26,7 @@ import { ComparativePageComponent, generateComparativeConfig } from './Comparati
  */
 export function ControlledComparative(props) {
   const {
-    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
+    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-apr-2026.adata.zarr',
     geneSelection,
     setGeneSelection,
     sampleSetSelection,

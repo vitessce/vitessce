@@ -40,7 +40,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     url: baseUrl,
     options: {
       metadataPath: 'uns/comparison_metadata',
-      indexColumn: 'names',
+      indexColumn: 'variable',
       pValueColumn: 'pvals_adj',
       foldChangeColumn: 'logfoldchanges',
       // pValueTransformation: 'minuslog10',
@@ -111,6 +111,40 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             embeddingType: 'densMAP',
           },
         ],
+        /*
+        obsSets: [
+          {
+            name: 'Subclass L1',
+            path: 'obs/subclass_l1',
+          },
+          {
+            name: 'Subclass L2',
+            path: 'obs/subclass_l2',
+          },
+          {
+            name: 'Subclass L3',
+            path: 'obs/subclass_l3',
+          },
+        ],*/
+        /* featureLabels: {
+        path: 'var/features',
+      }, */
+        sampleEdges: {
+          path: 'obs/specimen',
+        },
+      },
+    })
+    .addFile({
+      fileType: 'anndata.zarr',
+      // TODO: fix obs/subclass_l1 column
+      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene',
+        featureValueType: 'expression',
+        sampleType: 'sample',
+      },
+      options: {
         obsSets: [
           {
             name: 'Subclass L1',
@@ -145,12 +179,6 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             path: 'obs/EnrollmentCategory',
           }, */
         ],
-        /* featureLabels: {
-        path: 'var/features',
-      }, */
-        sampleEdges: {
-          path: 'obs/specimen',
-        },
       },
     })
     .addFile({
@@ -161,6 +189,10 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
           {
             name: 'Adjudicated Category',
             path: 'AdjudicatedCategory',
+          },
+          {
+            name: 'Merged Adjudicated Category',
+            path: 'MergedAdjudicatedCategory',
           },
           {
             name: 'Enrollment Category',
