@@ -625,7 +625,7 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
-    // TODO: This is purely for debugging and we need to remove it.
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via xonsole
     // window.viewer = this.viewer;
   }
 
