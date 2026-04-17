@@ -106,6 +106,7 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
  */
 export function useNeuroglancerViewerState(
   theme,
+  showAxisLines,
   segmentationLayerScopes,
   segmentationChannelScopesByLayer,
   segmentationLayerCoordination,
@@ -119,7 +120,7 @@ export function useNeuroglancerViewerState(
   pointMultiIndicesData,
 ) {
   const viewerState = useMemoCustomComparison(() => {
-    let result = cloneDeep(DEFAULT_NG_PROPS);
+    let result = { ...cloneDeep(DEFAULT_NG_PROPS), showAxisLines };
 
     // ======= SEGMENTATIONS =======
 

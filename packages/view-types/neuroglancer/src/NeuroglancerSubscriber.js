@@ -79,6 +79,7 @@ export function NeuroglancerSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    showAxisLines = false,
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
@@ -351,6 +352,7 @@ export function NeuroglancerSubscriber(props) {
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
     theme,
+    showAxisLines,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,
