@@ -158,7 +158,7 @@ export function getSpatialLayerColorFilteredShader(
  * @param {number} opacity Opacity (0-1).
  * @returns {string} A GLSL shader string.
  */
-export function getGeneSelectionNoSelectionShader(staticColor, opacity, borderWidth = 0.0,) {
+export function getGeneSelectionNoSelectionShader(staticColor, opacity, borderWidth = 0.0) {
   const norm = normalizeColor(staticColor);
   // lang: glsl
   return `
@@ -185,7 +185,13 @@ export function getGeneSelectionNoSelectionShader(staticColor, opacity, borderWi
  * @returns {string} A GLSL shader string.
  */
 export function getGeneSelectionWithSelectionShader(
-  featureIndices, featureColors, staticColor, defaultColor, opacity, featureIndexProp, borderWidth=0.0,
+  featureIndices,
+  featureColors,
+  staticColor,
+  defaultColor,
+  opacity,
+  featureIndexProp,
+  borderWidth = 0.0,
 ) {
   const numFeatures = featureIndices.length;
   const normDefault = normalizeColor(defaultColor);
@@ -348,7 +354,12 @@ export function getRandomByFeatureWithSelectionShader(
  * @param {string} featureIndexProp The property name for the feature index in the shader.
  * @returns {string} A GLSL shader string.
  */
-export function getRandomByFeatureFilteredShader(featureIndices, opacity, featureIndexProp, borderWidth = 0.0,) {
+export function getRandomByFeatureFilteredShader(
+  featureIndices,
+  opacity,
+  featureIndexProp,
+  borderWidth = 0.0,
+) {
   const paletteSize = PALETTE.length;
   const normPalette = PALETTE.map(c => normalizeColor(c));
   const numFeatures = featureIndices.length;
@@ -408,7 +419,12 @@ function hashToFloatGlsl() {
  * @param {string} pointIndexProp The property name for the point index in the shader.
  * @returns {string} A GLSL shader string.
  */
-export function getRandomPerPointShader(opacity, featureIndexProp, pointIndexProp, borderWidth = 0.0) {
+export function getRandomPerPointShader(
+  opacity,
+  featureIndexProp,
+  pointIndexProp,
+  borderWidth = 0.0,
+) {
   // lang: glsl
   return `
         ${hashToFloatGlsl()}
@@ -524,8 +540,6 @@ export function getPointsShader(layerCoordination) {
     pointIndexProp,
   } = layerCoordination;
 
-  console.log('getPointsShader', obsColorEncoding, spatialLayerColor, spatialLayerOpacity);
-
   const defaultColor = getDefaultColor(theme);
   const opacity = spatialLayerOpacity ?? 1.0;
   const staticColor = (
@@ -627,7 +641,7 @@ export function getPointsShader(layerCoordination) {
       throw new Error('In order to use gene-based color encoding for Neuroglancer Points, options.featureIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
     }
     if (!hasFeatureSelection || !hasResolvedIndices) {
-      return getGeneSelectionNoSelectionShader(staticColor, opacity, pointMarkerBorderWidth,);
+      return getGeneSelectionNoSelectionShader(staticColor, opacity, pointMarkerBorderWidth);
     }
     if (isFiltered) {
       return getGeneSelectionFilteredShader(
@@ -665,16 +679,26 @@ export function getPointsShader(layerCoordination) {
       throw new Error('In order to use per-point color encoding for Neuroglancer Points, options.pointIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
     }
     if (!hasFeatureSelection || !hasResolvedIndices) {
-      return getRandomPerPointShader(opacity, featureIndexProp, pointIndexProp, pointMarkerBorderWidth,);
+      return getRandomPerPointShader(
+        opacity,
+        featureIndexProp,
+        pointIndexProp,
+        pointMarkerBorderWidth,
+      );
     }
     if (isFiltered) {
       return getRandomPerPointFilteredShader(
         featureIndices, opacity, featureIndexProp, pointIndexProp, pointMarkerBorderWidth,
       );
     }
-    return getRandomPerPointWithSelectionShader(
-      featureIndices, defaultColor, opacity, featureIndexProp, pointIndexProp, pointMarkerBorderWidth,
-    );
+    if (!hasFeatureSelection || !hasResolvedIndices) {
+      return getRandomPerPointShader(
+        opacity,
+        featureIndexProp,
+        pointIndexProp,
+        pointMarkerBorderWidth,
+      );
+    }
   }
 
   // Fallback: static color.

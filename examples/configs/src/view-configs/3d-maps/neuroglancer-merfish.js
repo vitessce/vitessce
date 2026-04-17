@@ -36,12 +36,12 @@ function generateNeuroglancerMerfish() {
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
     options: {
-        subsources: {
-          default: true,
-          bounds: false,
-          mesh: true,
-        },
-        enableDefaultSubsources: false,
+      subsources: {
+        default: true,
+        bounds: false,
+        mesh: true,
+      },
+      enableDefaultSubsources: false,
     },
     coordinationValues: {
       fileUid: 'merfish-meshes',
@@ -174,7 +174,6 @@ function generateNeuroglancerMerfish() {
 
   config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
   const configJSON = config.toJSON();
-  console.log(JSON.stringify(configJSON.datasets[0].files[0], null, 2));
   return configJSON;
 }
 

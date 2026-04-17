@@ -149,11 +149,11 @@ export function useNeuroglancerViewerState(
 
           const source = hasNgSourceOptions
             ? {
-                url: toPrecomputedSource(layerUrl),
-                subsources: layerData.neuroglancerOptions.subsources,
-                enableDefaultSubsources: layerData.neuroglancerOptions.enableDefaultSubsources
+              url: toPrecomputedSource(layerUrl),
+              subsources: layerData.neuroglancerOptions.subsources,
+              enableDefaultSubsources: layerData.neuroglancerOptions.enableDefaultSubsources
                   ?? false,
-              }
+            }
             : toPrecomputedSource(layerUrl);
 
           result = {
