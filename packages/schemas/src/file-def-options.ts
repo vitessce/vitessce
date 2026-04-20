@@ -307,10 +307,13 @@ export const ngPrecomputedMeshSchema = z.object({
   // projectionScale: z.number(),
   // position: z.array(z.number()).length(3),
   // projectionOrientation: z.array(z.number()).length(4),
-  subsources: z.record(z.boolean()).optional(),
-  enableDefaultSubsources: z.boolean().optional(),
+  subsources: z.record(z.boolean())
+    .describe('Subsources are the individual data components of a source (e.g. meshes, skeletons, etc.). Each entry explicitly enables or disables a subsource.')
+    .optional(),
+  enableDefaultSubsources: z.boolean()
+    .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
+    .optional(),
 }).partial().nullable();
-
 // Annotation Layer
 export const ngPointAnnotationSchema = z.object({
   projectionAnnotationSpacing: z.number(),

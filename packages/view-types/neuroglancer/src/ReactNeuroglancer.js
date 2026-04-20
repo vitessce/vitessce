@@ -675,6 +675,8 @@ export default class Neuroglancer extends React.Component {
           layer.layer.displayState.objectAlpha.value = opacity;
         }
       }
+      // Update annotation layer shaders from viewerState config,
+      // skipping update if shader is unchanged to avoid costly re-renders
       if (layer.layer instanceof AnnotationUserLayer) {
         const matchingLayer = (viewerState?.layers || []).find(
           l => l.name === layer.name,
