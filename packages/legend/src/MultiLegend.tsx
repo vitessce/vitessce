@@ -109,18 +109,7 @@ export default function MultiLegend(props: MultiLegendProps) {
 
         const { setFeatureValueColormapRange } = layerSetters || {};
 
-        const hasFeatureColors = (
-          Array.isArray(featureSelection)
-          && featureSelection.length > 0
-          && Array.isArray(featureColor)
-          && featureSelection.some(name => featureColor.find(fc => fc.name === name))
-        );
-
-        const geneOrObsColorEncoding = hasFeatureColors
-          ? 'geneSelection'
-          : obsColorEncoding;
-
-        const isStaticColor = geneOrObsColorEncoding === 'spatialLayerColor';
+        const isStaticColor = obsColorEncoding === 'spatialLayerColor';
         const height = isStaticColor ? 20 : 36;
 
         return spatialLayerVisible && legendVisible ? (
@@ -135,7 +124,7 @@ export default function MultiLegend(props: MultiLegendProps) {
             obsType={obsType}
             featureType={featureType}
             featureValueType={featureValueType}
-            obsColorEncoding={geneOrObsColorEncoding}
+            obsColorEncoding={obsColorEncoding}
             spatialLayerColor={spatialLayerColor}
             featureSelection={featureSelection}
             featureFilterMode={featureFilterMode}
