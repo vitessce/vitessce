@@ -108,7 +108,12 @@ export default function LayerPerFeatureController(props) {
   const enableFeaturesAndSetsDropdown = false;
   const [open, setOpen] = useState(false);
 
-  const { colorPickerColor, colorPickerReadable, colorPickerWritable, colorPickerTooltip } = useMemo(() => {
+  const {
+    colorPickerColor,
+    colorPickerReadable,
+    colorPickerWritable,
+    colorPickerTooltip,
+  } = useMemo(() => {
     if (obsColorEncoding === 'geneSelection') {
       return {
         colorPickerColor: featureColor?.[featureColorIndex]?.color ?? spatialLayerColor,
@@ -147,7 +152,9 @@ export default function LayerPerFeatureController(props) {
       colorPickerWritable: false,
       colorPickerTooltip: null,
     };
-  }, [obsColorEncoding, spatialLayerColor, featureName, featureColor, featureColorIndex, randomByFeatureColor]);
+  }, [obsColorEncoding, spatialLayerColor, featureName, featureColor,
+    featureColorIndex, randomByFeatureColor,
+  ]);
 
 
   return (
