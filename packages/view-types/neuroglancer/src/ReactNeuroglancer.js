@@ -488,7 +488,7 @@ export default class Neuroglancer extends React.Component {
       // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
       const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
 
-      const selected = { ...(cellColorMappingByLayer[layerScope] || {}) };
+      const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
 
       // Track all known IDs for this layer scope
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
@@ -625,7 +625,7 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
-    // TODO: This is purely for debugging and we need to remove it.
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via xonsole
     // window.viewer = this.viewer;
   }
 
@@ -667,6 +667,27 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         segmentSelectionState.set(selectedSegments[layer.name]);
+        const layerScope = Object.keys(cellColorMappingByLayer).find(
+          scope => layer.name?.includes(scope),
+        );
+        if (layerScope) {
+          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
+          layer.layer.displayState.objectAlpha.value = opacity;
+        }
+      }
+      // Update annotation layer shaders from viewerState config,
+      // skipping update if shader is unchanged to avoid costly re-renders
+      if (layer.layer instanceof AnnotationUserLayer) {
+        const matchingLayer = (viewerState?.layers || []).find(
+          l => l.name === layer.name,
+        );
+        if (matchingLayer?.shader) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const currentShader = layer.layer.annotationDisplayState.shader.value_;
+          if (currentShader !== matchingLayer.shader) {
+            layer.layer.annotationDisplayState.shader.value = matchingLayer.shader;
+          }
+        }
       }
     }
 
@@ -717,9 +738,11 @@ export default class Neuroglancer extends React.Component {
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
     const prevSize = prevProps.cellColorMapping
-      ? Object.keys(prevProps.cellColorMapping).length : 0;
+      ? Object.values(prevProps.cellColorMapping)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const currSize = cellColorMappingByLayer
-      ? Object.keys(cellColorMappingByLayer).length : 0;
+      ? Object.values(cellColorMappingByLayer)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
     if (!this.didLayersChange(prevVS, viewerState)
       && (mappingRefChanged || prevSize !== currSize)) {
@@ -732,7 +755,7 @@ export default class Neuroglancer extends React.Component {
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segments, segmentColors, ...rest } = l;
+      const { segments, segmentColors, objectAlpha, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
     });
 
