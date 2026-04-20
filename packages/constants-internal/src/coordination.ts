@@ -88,6 +88,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.LEGEND_VISIBLE,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -471,6 +472,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_COLOR,
     CoordinationType.SPATIAL_SEGMENTATION_FILLED,
     CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,

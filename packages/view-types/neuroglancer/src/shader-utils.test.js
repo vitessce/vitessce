@@ -47,6 +47,7 @@ describe('getSpatialLayerColorShader', () => {
     const expected = `
 void main() {
     setColor(vec4(1, 0.5019607843137255, 0, 0.8));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -57,6 +58,7 @@ void main() {
     const expected = `
 void main() {
     setColor(vec4(0, 0, 0, 0));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -67,6 +69,7 @@ void main() {
     const expected = `
 void main() {
     setColor(vec4(1, 1, 1, 1));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -90,8 +93,10 @@ void main() {
     }
     if (isSelected) {
         setColor(vec4(1, 0, 0, 0.5));
+        setPointMarkerBorderWidth(0.0);
     } else {
         setColor(vec4(0.5019607843137255, 0.5019607843137255, 0.5019607843137255, 0.5));
+        setPointMarkerBorderWidth(0.0);
     }
 }
 `;
@@ -114,8 +119,10 @@ void main() {
     }
     if (isSelected) {
         setColor(vec4(0, 1, 0, 1));
+        setPointMarkerBorderWidth(0.0);
     } else {
         setColor(vec4(0, 0, 0, 1));
+        setPointMarkerBorderWidth(0.0);
     }
 }
 `;
@@ -142,6 +149,7 @@ void main() {
         discard;
     }
     setColor(vec4(0, 0, 1, 0.9));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -158,6 +166,7 @@ describe('getGeneSelectionNoSelectionShader', () => {
     const expected = `
 void main() {
     setColor(vec4(0.39215686274509803, 0.7843137254901961, 0.19607843137254902, 0.7));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -186,6 +195,7 @@ void main() {
         }
     }
     setColor(color);
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -216,6 +226,7 @@ void main() {
         }
     }
     setColor(color);
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -248,6 +259,7 @@ void main() {
         discard;
     }
     setColor(vec4(matchedColor, 0.75));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -269,6 +281,7 @@ void main() {
     if (colorIdx < 0) { colorIdx = -colorIdx; }
     vec3 color = palette[colorIdx];
     setColor(vec4(color, 0.5));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -295,8 +308,10 @@ void main() {
         int colorIdx = geneIndex - (geneIndex / 3) * 3;
         if (colorIdx < 0) { colorIdx = -colorIdx; }
         setColor(vec4(palette[colorIdx], 0.8));
+        setPointMarkerBorderWidth(0.0);
     } else {
         setColor(vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.8));
+        setPointMarkerBorderWidth(0.0);
     }
 }
 `;
@@ -324,6 +339,7 @@ void main() {
     int colorIdx = geneIndex - (geneIndex / 3) * 3;
     if (colorIdx < 0) { colorIdx = -colorIdx; }
     setColor(vec4(palette[colorIdx], 1));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -352,6 +368,7 @@ void main() {
     float g = hashToFloat(pointIndex, 1);
     float b = hashToFloat(pointIndex, 2);
     setColor(vec4(r, g, b, 0.9));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
@@ -386,8 +403,10 @@ void main() {
         float g = hashToFloat(pointIndex, 1);
         float b = hashToFloat(pointIndex, 2);
         setColor(vec4(r, g, b, 0.5));
+        setPointMarkerBorderWidth(0.0);
     } else {
         setColor(vec4(0.39215686274509803, 0.39215686274509803, 0.39215686274509803, 0.5));
+        setPointMarkerBorderWidth(0.0);
     }
 }
 `;
@@ -425,6 +444,7 @@ void main() {
     float g = hashToFloat(pointIndex, 1);
     float b = hashToFloat(pointIndex, 2);
     setColor(vec4(r, g, b, 1));
+    setPointMarkerBorderWidth(0.0);
 }
 `;
     expectShaderEqual(result, expected);
