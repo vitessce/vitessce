@@ -22,12 +22,13 @@ import {
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
+
 const useStyles = makeStyles()(() => ({
-  LayerFeatureControllerGrid: {
+  layerFeatureControllerGrid: {
     padding: '0',
     flexWrap: 'nowrap',
   },
-  LayerFeatureExpansionButton: {
+  layerFeatureExpansionButton: {
     display: 'inline-block',
     margin: 0,
     padding: 0,
@@ -59,91 +60,94 @@ export default function LayerPerFeatureController(props) {
     spatialLayerColor,
     featureIndex,
     obsColorEncoding,
-    tiledPointsLoadingProgress,
+    loadingDoneFraction,
+    opacity,
+    handleOpacityChange,
   } = props;
 
-
-  const loadingDoneFraction = useMemo(() => {
-    if (tiledPointsLoadingProgress && typeof tiledPointsLoadingProgress === 'object') {
-      return 1.0 - (
-        Object.values(tiledPointsLoadingProgress).filter(s => s === 'loading').length
-        / Object.values(tiledPointsLoadingProgress).length
-      );
-    }
-    return 1.0;
-  }, [tiledPointsLoadingProgress]);
-
-  const featureEntry = useMemo(() => (
-    featureColor?.find(fc => fc.name === featureName)
+  const featureColorIndex = useMemo(() => (
+    featureColor?.findIndex(fc => fc.name === featureName) ?? -1
   ), [featureColor, featureName]);
 
-  const paletteColor = useMemo(() => {
-    const varIndex = featureIndex?.indexOf(featureName) ?? -1;
-    return varIndex >= 0 ? PALETTE[varIndex % PALETTE.length] : [255, 255, 255];
-  }, [featureIndex, featureName]);
+  const varIndex = useMemo(() => (
+    featureIndex?.indexOf(featureName) ?? -1
+  ), [featureIndex, featureName]);
 
-  const color = featureEntry?.color ?? paletteColor;
-  const visible = featureEntry?.visible ?? true;
-  const opacity = featureEntry?.opacity ?? 1.0;
+  const randomByFeatureColor = useMemo(() => (
+    varIndex >= 0
+      ? PALETTE[varIndex % PALETTE.length]
+      : [255, 255, 255] // TODO: use getDefaultColor?
+  ), [varIndex]);
 
-  const updateFeatureEntry = useCallback((patch) => {
-    const idx = featureColor?.findIndex(fc => fc.name === featureName) ?? -1;
-    if (idx >= 0) {
-      const updated = [...featureColor];
-      updated[idx] = { ...updated[idx], ...patch };
-      setFeatureColor(updated);
+  const handleRemoveFeature = useCallback(() => {
+    setFeatureSelection(featureSelection.filter(f => f !== featureName));
+  }, [featureName, featureSelection, setFeatureSelection]);
+
+  const handleColorChange = useCallback((newColor) => {
+    if (featureColorIndex >= 0) {
+      const nextFeatureColor = [...featureColor];
+      nextFeatureColor[featureColorIndex] = {
+        ...nextFeatureColor[featureColorIndex],
+        color: newColor,
+      };
+      setFeatureColor(nextFeatureColor);
     } else {
+      // There was not already a feature color entry for this feature,
+      // so we append a new entry.
       setFeatureColor([
         ...(featureColor ?? []),
-        { name: featureName, color: paletteColor, visible: true, opacity: 1.0, ...patch },
+        { name: featureName, color: newColor },
       ]);
     }
-  }, [featureName, featureColor, setFeatureColor, paletteColor]);
+  }, [featureName, featureColor, setFeatureColor, featureColorIndex]);
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
   const { classes: menuClasses } = useEllipsisMenuStyles();
 
-
   const enableFeaturesAndSetsDropdown = false;
   const [open, setOpen] = useState(false);
 
-
-  const { colorPickerColor, colorPickerDisabled, colorPickerTooltip } = useMemo(() => {
+  const { colorPickerColor, colorPickerReadable, colorPickerWritable, colorPickerTooltip } = useMemo(() => {
     if (obsColorEncoding === 'geneSelection') {
       return {
-        colorPickerColor: color,
-        colorPickerDisabled: false,
+        colorPickerColor: featureColor?.[featureColorIndex]?.color ?? spatialLayerColor,
+        colorPickerReadable: true,
+        colorPickerWritable: true,
         colorPickerTooltip: null,
       };
     }
     if (obsColorEncoding === 'spatialLayerColor') {
       return {
         colorPickerColor: spatialLayerColor,
-        colorPickerDisabled: true,
-        colorPickerTooltip: 'Currently using the static color value from the parent (Point) layer. Per-feature colors can be modified when the Color Encoding mode is "Feature Color" in the parent layer.',
+        colorPickerReadable: true,
+        colorPickerWritable: false,
+        colorPickerTooltip: 'Currently using the color value from the parent point layer. Per-feature colors can be modified when the Color Encoding mode of the parent layer is "Feature Color".',
       };
     }
     if (obsColorEncoding === 'randomByFeature') {
-      const varIndex = featureIndex?.indexOf(featureName) ?? -1;
-      const randomColor = varIndex >= 0
-        ? PALETTE[varIndex % PALETTE.length]
-        : [128, 128, 128];
       return {
-        colorPickerColor: randomColor,
-        colorPickerDisabled: true,
-        colorPickerTooltip: 'Currently using the assigned random color. Per-feature colors can be modified when the Color Encoding mode is "Feature Color".',
+        colorPickerColor: randomByFeatureColor,
+        colorPickerReadable: true,
+        colorPickerWritable: false,
+        colorPickerTooltip: 'Currently using the assigned random color. Per-feature colors can be modified when the Color Encoding mode of the parent layer is "Feature Color".',
       };
     }
     if (obsColorEncoding === 'random') {
       return {
         colorPickerColor: null,
-        colorPickerDisabled: true,
-        colorPickerTooltip: 'Currently using a random color per point. Per-feature colors can be modified when the Color Encoding mode is "Feature Color".',
+        colorPickerReadable: false,
+        colorPickerWritable: false,
+        colorPickerTooltip: 'Currently using a random color per point. Per-feature colors can be modified when the Color Encoding mode of the parent layer is "Feature Color".',
       };
     }
-    return { colorPickerColor: color, colorPickerDisabled: false, colorPickerTooltip: null };
-  }, [obsColorEncoding, color, spatialLayerColor, featureName]);
+    return {
+      colorPickerColor: null,
+      colorPickerReadable: false,
+      colorPickerWritable: false,
+      colorPickerTooltip: null,
+    };
+  }, [obsColorEncoding, spatialLayerColor, featureName, featureColor, featureColorIndex, randomByFeatureColor]);
 
 
   return (
@@ -152,10 +156,7 @@ export default function LayerPerFeatureController(props) {
         <Grid container direction="row" justifyContent="space-between">
           <Grid size={1}>
             <Button
-              onClick={() => {
-                setFeatureSelection(featureSelection.filter(f => f !== featureName));
-                setFeatureColor(featureColor?.filter(fc => fc.name !== featureName) ?? []);
-              }}
+              onClick={handleRemoveFeature}
               className={menuClasses.imageLayerVisibleButton}
               aria-label="Remove feature"
             >
@@ -172,13 +173,12 @@ export default function LayerPerFeatureController(props) {
                 <ChannelColorPickerMenu
                   theme={theme}
                   color={colorPickerColor}
-                  setColor={colorPickerDisabled
-                    ? () => {} : newColor => updateFeatureEntry({ color: newColor })}
+                  setColor={colorPickerWritable ? handleColorChange : null}
                   palette={palette}
-                  isStaticColor={!colorPickerDisabled}
+                  isStaticColor={colorPickerReadable}
                   isColormap={false}
                   featureValueColormap={featureValueColormap}
-                  visible={visible}
+                  visible
                 />
               </span>
             </Tooltip>
@@ -194,7 +194,7 @@ export default function LayerPerFeatureController(props) {
               min={0}
               max={1}
               step={0.001}
-              onChange={(e, v) => updateFeatureEntry({ opacity: v })}
+              onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
               aria-label={`Adjust opacity for layer ${featureName}`}

@@ -32,7 +32,7 @@ import {
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -355,9 +355,8 @@ export default function PointLayerController(props) {
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
 
-  const showPerFeatureRows = (
-    layerPerFeatureForPoints
-    && Array.isArray(featureSelection)
+  const hasSelectedFeatures = (
+    Array.isArray(featureSelection)
     && featureSelection.length > 0
   );
 
@@ -485,75 +484,78 @@ export default function PointLayerController(props) {
         ) : null}
       </Paper>
 
-      {showPerFeatureRows && featureSelection.map(featureName => (
-        <LayerPerFeatureController
-          key={featureName}
-          theme={theme}
-          featureName={featureName}
-          featureColor={featureColor}
-          setFeatureColor={setFeatureColor}
-          spatialLayerColor={spatialLayerColor}
-          featureIndex={featureIndex}
-          featureValueColormap={featureValueColormap}
-          featureSelection={featureSelection}
-          setFeatureSelection={setFeatureSelection}
-          obsColorEncoding={obsColorEncoding}
-          tiledPointsLoadingProgress={tiledPointsLoadingProgress}
-        />
-      ))}
-      {showPerFeatureRows && (
-        <Grid className={lcClasses.layerControllerGrid}>
-          <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-            <Grid container direction="row" justifyContent="space-between">
-              <Grid size={1}>
-                <Button
-                  onClick={() => setFeatureFilterMode(
-                    featureFilterMode === 'featureSelection' ? null : 'featureSelection',
-                  )}
-                  className={menuClasses.imageLayerVisibleButton}
-                  aria-label="Toggle visibility of unselected points"
-                >
-                  {featureFilterMode === 'featureSelection'
-                    ? <VisibilityOffIcon />
-                    : <VisibilityIcon />
-                  }
-                </Button>
+      {hasSelectedFeatures ? (
+        <>
+          {featureSelection.map(featureName => (
+            <LayerPerFeatureController
+              key={featureName}
+              theme={theme}
+              featureName={featureName}
+              featureColor={featureColor}
+              setFeatureColor={setFeatureColor}
+              spatialLayerColor={spatialLayerColor}
+              featureIndex={featureIndex}
+              featureValueColormap={featureValueColormap}
+              featureSelection={featureSelection}
+              setFeatureSelection={setFeatureSelection}
+              obsColorEncoding={obsColorEncoding}
+              loadingDoneFraction={loadingDoneFraction}
+              opacity={opacity}
+              handleOpacityChange={handleOpacityChange}
+            />
+          ))}
+          <Grid className={lcClasses.layerControllerGrid}>
+            <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
+              <Grid container direction="row" justifyContent="space-between">
+                <Grid size={1}>
+                  <Button
+                    onClick={() => setFeatureFilterMode(
+                      featureFilterMode === 'featureSelection' ? null : 'featureSelection',
+                    )}
+                    className={menuClasses.imageLayerVisibleButton}
+                    aria-label="Toggle visibility of unselected points"
+                  >
+                    {featureFilterMode === 'featureSelection'
+                      ? <VisibilityOffIcon />
+                      : <VisibilityIcon />
+                    }
+                  </Button>
+                </Grid>
+                <Grid size={1}>
+                  <ChannelColorPickerMenu
+                    theme={theme}
+                    color={getDefaultColor('dark')}
+                    setColor={null}
+                    isStaticColor
+                    isColormap={false}
+                    visible
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <Typography className={menuClasses.imageLayerName}>
+                    Unselected
+                  </Typography>
+                </Grid>
+                <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
+                  <Slider
+                    value={opacity}
+                    min={0}
+                    max={1}
+                    step={0.001}
+                    onChange={handleOpacityChange}
+                    className={menuClasses.imageLayerOpacitySlider}
+                    orientation="horizontal"
+                    aria-label="Adjust opacity for unselected layer"
+                  />
+                </Grid>
+                <Grid size={1}>
+                  <PointsIconSVG className={classes.layerTypePointIcon} />
+                </Grid>
               </Grid>
-              <Grid size={1}>
-                <ChannelColorPickerMenu
-                  theme={theme}
-                  color={[128, 128, 128]}
-                  setColor={() => {}}
-                  isStaticColor
-                  isColormap={false}
-                  visible
-                  disabled
-                />
-              </Grid>
-              <Grid size={6}>
-                <Typography className={menuClasses.imageLayerName}>
-                  Unselected
-                </Typography>
-              </Grid>
-              <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
-                <Slider
-                  value={opacity}
-                  min={0}
-                  max={1}
-                  step={0.001}
-                  onChange={handleOpacityChange}
-                  className={menuClasses.imageLayerOpacitySlider}
-                  orientation="horizontal"
-                  aria-label="Adjust opacity for unselected layer"
-                />
-              </Grid>
-              <Grid size={1}>
-                <PointsIconSVG className={classes.layerTypePointIcon} />
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-      )}
+            </Paper>
+          </Grid>
+        </>
+      ) : null}
     </Grid>
   );
 }
