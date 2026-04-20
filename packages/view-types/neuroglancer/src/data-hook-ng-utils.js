@@ -120,7 +120,7 @@ export function useNeuroglancerViewerState(
   pointMultiIndicesData,
 ) {
   const viewerState = useMemoCustomComparison(() => {
-    let result = { ...cloneDeep(DEFAULT_NG_PROPS), showAxisLines };
+    let result = cloneDeep(DEFAULT_NG_PROPS);
 
     // ======= SEGMENTATIONS =======
 
@@ -196,6 +196,7 @@ export function useNeuroglancerViewerState(
           featureSelection,
           featureFilterMode,
           featureColor,
+          spatialPointStrokeWidth,
         } = layerCoordination || {};
 
         // Dynamically construct the shader based on the color encoding
@@ -212,7 +213,7 @@ export function useNeuroglancerViewerState(
 
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
-          pointMarkerBorderWidth: layerData.neuroglancerOptions?.pointMarkerBorderWidth ?? 0.0,
+          pointMarkerBorderWidth: spatialPointStrokeWidth ?? 0.0,
         });
 
         result = {
@@ -252,6 +253,7 @@ export function useNeuroglancerViewerState(
     return result;
   }, {
     theme,
+    showAxisLines,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,

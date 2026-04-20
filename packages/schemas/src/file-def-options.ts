@@ -320,9 +320,6 @@ export const ngPointAnnotationSchema = z.object({
   pointIndexProp: z.string()
     .optional()
     .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
-  pointMarkerBorderWidth: z.number()
-    .optional()
-    .describe('A decimal/float number >= 0.0 to adjust the border width of the points on the Annotation layer'),
 }).partial().nullable();
 
 /**

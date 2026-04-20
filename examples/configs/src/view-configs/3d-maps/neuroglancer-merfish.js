@@ -55,7 +55,6 @@ function generateNeuroglancerMerfish() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
-        pointMarkerBorderWidth: 0.0, // controls border width of the points
 
         // Note: tissue-map-tools creates an AnnotationProperty
         // for every column in the sdata Points element dask dataframe.
@@ -167,6 +166,7 @@ function generateNeuroglancerMerfish() {
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
+          spatialPointStrokeWidth: 0.0,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
