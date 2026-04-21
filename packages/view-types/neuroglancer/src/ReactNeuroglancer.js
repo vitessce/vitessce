@@ -432,7 +432,7 @@ export default class Neuroglancer extends React.Component {
     this.disposers = [];
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
-    this.allKnownIds = new Set();
+    this.allKnownIdsByLayer = {};
   }
 
   minimalPoseSnapshot = () => {
@@ -481,30 +481,36 @@ export default class Neuroglancer extends React.Component {
   };
 
   /* To add colors to the segments, turning unselected to grey  */
-  applyColorsAndVisibility = (cellColorMapping) => {
+  applyColorsAndVisibility = (cellColorMappingByLayer) => {
     if (!this.viewer) return;
-    // Track all ids we've ever seen so we can grey the ones
-    // that drop out of the current selection.
-    const selected = { ...(cellColorMapping || {}) }; // clone, don't mutate props
-    for (const id of Object.keys(selected)) this.allKnownIds.add(id);
-    // If empty on first call, seed from initial segmentColors (if present)
-    if (this.allKnownIds.size === 0) {
-      const init = this.props.viewerState?.layers?.[0]?.segmentColors || {};
-      for (const id of Object.keys(init)) this.allKnownIds.add(id);
-    }
-
-    // Build a full color table: selected keep their hex, others grey
-    const fullSegmentColors = {};
-    for (const id of this.allKnownIds) {
-      fullSegmentColors[id] = selected[id] || GREY_HEX;
-    }
-    // Patch layers with the new segmentColors (pose untouched)
+    // Build full color table per layer
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
 
-    const newLayers = baseLayers.map((layer, idx) => {
-      // if only one layer, take that or check layer.type === 'segmentation'.
-      if (idx === 0 || layer?.type === 'segmentation') {
+    const newLayers = baseLayers.map((layer) => {
+      // Match layerScope by checking if the NG layer name contains the scope key.
+      // NG layer names are of the form:
+      // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
+      const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
+
+      const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
+
+      // Track all known IDs for this layer scope
+      if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
+      if (!this.allKnownIdsByLayer[layerScope]) {
+        this.allKnownIdsByLayer[layerScope] = new Set();
+      }
+      for (const id of Object.keys(selected)) {
+        this.allKnownIdsByLayer[layerScope].add(id);
+      }
+
+      // Build a full color table: selected keep their hex, others grey
+      const fullSegmentColors = {};
+      for (const id of this.allKnownIdsByLayer[layerScope] || []) {
+        fullSegmentColors[id] = selected[id] || GREY_HEX;
+      }
+
+      if (layer.type === 'segmentation') {
         return { ...layer, segmentColors: fullSegmentColors };
       }
       return layer;
@@ -658,12 +664,12 @@ export default class Neuroglancer extends React.Component {
     }));
     this.disposers.push(() => { firstChunkLoaded = false; });
 
-    // TODO: This is purely for debugging and we need to remove it.
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via xonsole
     // window.viewer = this.viewer;
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { viewerState, cellColorMapping } = this.props;
+    const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -700,6 +706,27 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         segmentSelectionState.set(selectedSegments[layer.name]);
+        const layerScope = Object.keys(cellColorMappingByLayer).find(
+          scope => layer.name?.includes(scope),
+        );
+        if (layerScope) {
+          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
+          layer.layer.displayState.objectAlpha.value = opacity;
+        }
+      }
+      // Update annotation layer shaders from viewerState config,
+      // skipping update if shader is unchanged to avoid costly re-renders
+      if (layer.layer instanceof AnnotationUserLayer) {
+        const matchingLayer = (viewerState?.layers || []).find(
+          l => l.name === layer.name,
+        );
+        if (matchingLayer?.shader) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const currentShader = layer.layer.annotationDisplayState.shader.value_;
+          if (currentShader !== matchingLayer.shader) {
+            layer.layer.annotationDisplayState.shader.value = matchingLayer.shader;
+          }
+        }
       }
     }
 
@@ -741,8 +768,8 @@ export default class Neuroglancer extends React.Component {
       this.withoutEmitting(() => {
         const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
         this.viewer.state.restoreState({ layers });
-        if (cellColorMapping && Object.keys(cellColorMapping).length) {
-          this.applyColorsAndVisibility(cellColorMapping);
+        if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
+          this.applyColorsAndVisibility(cellColorMappingByLayer);
         }
       });
     }
@@ -750,13 +777,16 @@ export default class Neuroglancer extends React.Component {
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
     const prevSize = prevProps.cellColorMapping
-      ? Object.keys(prevProps.cellColorMapping).length : 0;
-    const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
-    const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
+      ? Object.values(prevProps.cellColorMapping)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
+    const currSize = cellColorMappingByLayer
+      ? Object.values(cellColorMappingByLayer)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
+    const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
     if (!this.didLayersChange(prevVS, viewerState)
       && (mappingRefChanged || prevSize !== currSize)) {
       this.withoutEmitting(() => {
-        this.applyColorsAndVisibility(cellColorMapping);
+        this.applyColorsAndVisibility(cellColorMappingByLayer);
       });
     }
 
@@ -764,7 +794,7 @@ export default class Neuroglancer extends React.Component {
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segments, segmentColors, ...rest } = l;
+      const { segments, segmentColors, objectAlpha, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
     });
 

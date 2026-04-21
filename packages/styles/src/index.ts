@@ -120,6 +120,7 @@ export { default as ViewCompact } from '@mui/icons-material/ViewCompact';
 export { default as LeakAdd } from '@mui/icons-material/LeakAdd';
 export { default as Warning } from '@mui/icons-material/Warning';
 export { default as Palette } from '@mui/icons-material/Palette';
+export { default as ClearIcon } from '@mui/icons-material/Clear';
 
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';

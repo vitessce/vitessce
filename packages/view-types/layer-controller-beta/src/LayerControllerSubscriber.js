@@ -56,6 +56,7 @@ export function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     uuid,
+    layerPerFeatureForPoints = false,
     cameraPresets,
   } = props;
 
@@ -395,7 +396,7 @@ export function LayerControllerSubscriber(props) {
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
         pointMultiIndicesData={pointMultiIndicesData}
-
+        layerPerFeatureForPoints={layerPerFeatureForPoints}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />
