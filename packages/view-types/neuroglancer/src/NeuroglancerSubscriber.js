@@ -797,10 +797,17 @@ export function NeuroglancerSubscriber(props) {
             <MultiLegend
               theme="dark"
               maxHeight={ngHeight}
+
+              // Segmentations
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
               segmentationChannelCoordination={segmentationChannelCoordination}
+
+              // Points
+              pointLayerScopes={pointLayerScopes}
+              pointLayerCoordination={pointLayerCoordination}
+              pointMultiIndicesData={pointMultiIndicesData}
             />
           </div>
 
