@@ -324,7 +324,7 @@ export default function CellSetExpressionPlot(props) {
         .attr('transform', `translate(0,${innerHeight})`)
         .style('font-size', '14px');
 
-    xTickG.call(axisBottom(xGroup).tickFormat(d => d.at(-1)))
+    xTickG.call(axisBottom(xGroup).tickFormat(d => d?.at(-1) ?? ''))
       .selectAll('text')
         .style('font-size', '11px')
         .attr('dx', '-6px')
