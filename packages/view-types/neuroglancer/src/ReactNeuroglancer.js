@@ -67,6 +67,10 @@ let viewerNoKey;
  * @property {() => void} onSelectionDetailsStateChanged
  * A function of the form `() => {}` to respond to selection changes in the viewer.
  * @property {() => void} onViewerStateChanged
+ * @property {(isLoaded: boolean) => void} onLayerLoadingChange
+ * A function of the form `(isLoaded) => {}`, called when layer loading state changes.
+ * The `isLoaded` argument will be `true` when all segmentation layers have finished loading
+ * their data sources, or `false` when layers are still loading.
  *
  * @property {Array<Object>} callbacks
  * // ngServer: string,
@@ -411,6 +415,7 @@ export default class Neuroglancer extends React.Component {
     onVisibleChanged: null,
     onSelectionDetailsStateChanged: null,
     onViewerStateChanged: null,
+    onLayerLoadingChange: null,
     key: null,
     callbacks: [],
     ngServer: 'https://neuroglancer-demo.appspot.com/',
@@ -625,7 +630,41 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
-    // TODO: This is purely for debugging - exposes the NG viewer to be tested via xonsole
+    const { visibleChunksChanged } = this.viewer.chunkQueueManager;
+    let firstChunkLoaded = false;
+    this.disposers.push(visibleChunksChanged.add(() => {
+      if (!firstChunkLoaded) {
+        for (const layer of this.viewer.layerManager.managedLayers) {
+          if (layer.layer instanceof SegmentationUserLayer) {
+            const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+              const {
+                numVisibleChunksAvailable,
+                numVisibleChunksNeeded,
+              } = rl.layerChunkProgressInfo || {};
+              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+              // Neuroglancer only shows chunks when a certain % is loaded.
+              // The 0.25 is from testing different values, can be reduced to 0.2 to shorten loader time
+              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+            });
+            if (hasVisibleChunk) {
+              firstChunkLoaded = true;
+              // Two frames to avoid flash while the following two happens
+              // Neuroglancer issues WebGL draw calls
+              requestAnimationFrame(() => {
+              // GPU has painted, pixels visible on screen
+                requestAnimationFrame(() => {
+                  this.props.onLayerLoadingChange?.(true);
+                });
+              });
+              return;
+            }
+          }
+        }
+      }
+    }));
+    this.disposers.push(() => { firstChunkLoaded = false; });
+
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     // window.viewer = this.viewer;
   }
 
