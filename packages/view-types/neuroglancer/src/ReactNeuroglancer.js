@@ -664,7 +664,7 @@ export default class Neuroglancer extends React.Component {
     }));
     this.disposers.push(() => { firstChunkLoaded = false; });
 
-    // TODO: This is purely for debugging - exposes the NG viewer to be tested via xonsole
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     // window.viewer = this.viewer;
   }
 
