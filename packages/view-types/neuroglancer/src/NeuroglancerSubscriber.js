@@ -408,6 +408,9 @@ export function NeuroglancerSubscriber(props) {
     orbit: spatialRotationOrbit,
   });
 
+  // Track layer loading state for showing loading indicator
+  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
+
   // Track the last coord values we saw, and only mark "vitessce"
   // when *those* actually change. This prevents cell set renders
   // from spoofing the source.
@@ -767,6 +770,10 @@ export function NeuroglancerSubscriber(props) {
     setCellHighlight(String(obsId));
   }, [setCellHighlight]);
 
+  const handleLayerLoadingChange = useCallback((isLoaded) => {
+    setIsLayersLoaded(isLoaded);
+  }, []);
+
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
@@ -786,7 +793,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && isLayersLoaded}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
@@ -818,6 +825,7 @@ export function NeuroglancerSubscriber(props) {
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
+            onLayerLoadingChange={handleLayerLoadingChange}
           />
         </div>
       ) : null}
