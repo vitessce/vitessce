@@ -69,11 +69,9 @@ export default function CellSetExpressionPlot(props) {
     if (!obsSetSelection) {
       return 0;
     }
-    const cellSetNames = obsSetSelection.map(d => d.at(-1));
-    return cellSetNames.reduce((acc, name) => {
-      // eslint-disable-next-line no-param-reassign
-      acc = acc === undefined || name.length > acc ? name.length : acc;
-      return acc;
+    return obsSetSelection.reduce((acc, path) => {
+      const nameLength = path?.at(-1)?.length ?? 0;
+      return nameLength > acc ? nameLength : acc;
     }, 0);
   }, [obsSetSelection]);
 
