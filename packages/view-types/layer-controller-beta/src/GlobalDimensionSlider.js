@@ -51,6 +51,7 @@ export default function GlobalDimensionSlider(props) {
   const { classes: lcClasses } = useControllerSectionStyles();
   const { classes } = useStyles();
   const isForZ = spatialRenderingMode !== null;
+  const is3dMode = spatialRenderingMode === '3D';
 
   function handleRenderingModeChange(event) {
     setSpatialRenderingMode(event.target.checked ? '3D' : '2D');
@@ -74,6 +75,7 @@ export default function GlobalDimensionSlider(props) {
             </Typography>
           </Grid>
           <Grid size={8}>
+            {!is3dMode && (
             <Slider
               value={targetValue}
               min={min}
@@ -86,6 +88,7 @@ export default function GlobalDimensionSlider(props) {
               disabled={spatialRenderingMode === '3D'}
               aria-label={`${label}-slice slider`}
             />
+            )}
           </Grid>
           <Grid size={2}>
             {isForZ ? (
