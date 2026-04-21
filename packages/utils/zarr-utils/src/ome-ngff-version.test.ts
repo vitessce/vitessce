@@ -11,7 +11,7 @@ describe('flattenOmeAttrs', () => {
       },
       spatialdata_attrs: { version: '0.3' },
     };
-    const flat = flattenOmeAttrs(v05);
+    const flat = flattenOmeAttrs(v05) as Record<string, unknown>;
     expect(flat.omero).toEqual(v05.ome.omero);
     expect(flat.multiscales).toEqual(v05.ome.multiscales);
     expect(flat.version).toBe('0.5-dev-spatialdata');

@@ -1,8 +1,7 @@
 import { viv } from '@vitessce/gl';
 import { open as zarrOpen } from 'zarrita';
-import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { createZarrArrayAdapter, flattenOmeAttrs } from '@vitessce/zarr-utils';
 import { ZarrNodeNotFoundError } from '@vitessce/error';
-import { flattenOmeAttrs } from './ome-ngff-version.js';
 
 function prevPowerOf2(x) {
   return 2 ** Math.floor(Math.log2(x));

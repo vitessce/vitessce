@@ -30,10 +30,6 @@ export {
   ZarritaPixelSource,
 } from './load-ome-zarr.js';
 export {
-  flattenOmeAttrs,
-  getOmeNgffVersion,
-} from './ome-ngff-version.js';
-export {
   toRgbUIString,
   getSingleSelectionStats,
   getMultiSelectionStats,
