@@ -155,3 +155,70 @@ export function makeVitNgZoomCalibrator(initialNgProjectionScale, initialDeckZoo
     },
   };
 }
+
+/**
+ * Apply a quaternion rotation to a 3D vector.
+ * @param {number[]} q Quaternion [x, y, z, w]
+ * @param {number[]} v Vector [x, y, z]
+ * @returns {number[]} Rotated vector [x, y, z]
+ */
+export function applyQuat(q, v) {
+  const [qx, qy, qz, qw] = q;
+  const [vx, vy, vz] = v;
+  // t = 2 * cross(q.xyz, v)
+  const tx = 2 * (qy * vz - qz * vy);
+  const ty = 2 * (qz * vx - qx * vz);
+  const tz = 2 * (qx * vy - qy * vx);
+  // result = v + qw * t + cross(q.xyz, t)
+  return [
+    vx + qw * tx + qy * tz - qz * ty,
+    vy + qw * ty + qz * tx - qx * tz,
+    vz + qw * tz + qx * ty - qy * tx,
+  ];
+}
+
+/**
+ * Compute the world-space axis-aligned bounding box of the current viewport.
+ * @param {number[]} position Camera target [x, y, z]
+ * @param {number} projectionScale World units per pixel
+ * @param {number[]} projectionOrientation Quaternion [x, y, z, w]
+ * @param {number} width Viewport width in pixels
+ * @param {number} height Viewport height in pixels
+ * @returns {{ min: number[], max: number[] }}
+ */
+export function getViewportBoundingBox(
+  position, projectionScale, projectionOrientation, width, height,
+) {
+
+  const halfW = (projectionScale * width) / 2;
+  const halfH = (projectionScale * height) / 2;
+  const depth = projectionScale * 2;
+  const invQuat = conjQuat(projectionOrientation);
+  const right   = applyQuat(invQuat, [1, 0, 0]);
+  const up      = applyQuat(invQuat, [0, 1, 0]);
+  const forward = applyQuat(invQuat, [0, 0, -1]);
+  const corners = [];
+  for (const sx of [-halfW, halfW]) {
+    for (const sy of [-halfH, halfH]) {
+      for (const sz of [-depth, depth]) {
+        corners.push([
+          position[0] + sx * right[0] + sy * up[0] + sz * forward[0],
+          position[1] + sx * right[1] + sy * up[1] + sz * forward[1],
+          position[2] + sx * right[2] + sy * up[2] + sz * forward[2],
+        ]);
+      }
+    }
+  }
+  return {
+    min: [
+      Math.min(...corners.map(c => c[0])),
+      Math.min(...corners.map(c => c[1])),
+      Math.min(...corners.map(c => c[2])),
+    ],
+    max: [
+      Math.max(...corners.map(c => c[0])),
+      Math.max(...corners.map(c => c[1])),
+      Math.max(...corners.map(c => c[2])),
+    ],
+  };
+}
