@@ -92,7 +92,12 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping, centroidsByLayer } = this.props;
+    const { classes,
+      viewerState,
+      cellColorMapping,
+      centroidsByLayer,
+      onAnnotationSourceReady,
+    } = this.props;
 
     return (
       <>
@@ -107,6 +112,7 @@ export class NeuroglancerComp extends PureComponent {
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
               centroidsByLayer={centroidsByLayer}
+              onAnnotationSourceReady={onAnnotationSourceReady}
             />
           </Suspense>
         </div>

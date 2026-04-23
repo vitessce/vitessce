@@ -626,7 +626,7 @@ export default class Neuroglancer extends React.Component {
     }
 
 
-    setTimeout( () => {
+    setTimeout(() => {
       const pointLayer = this.viewer.layerManager.managedLayers
         .find(l => l.name?.includes('obsPoints'));
       if (pointLayer) {
@@ -635,18 +635,15 @@ export default class Neuroglancer extends React.Component {
         const serializer = annotState?.source?.annotationPropertySerializers?.[0];
 
         if (transform && serializer) {
-          window.__ngAnnotationTransform = {
+          this.props.onAnnotationSourceReady?.({
             x: transform[0],
             y: transform[5],
             z: transform[10],
             serializer, // store NG serializer to parse binary annotations
-          };
-          window.__ngPointLayer = pointLayer;
-          console.log('annotation transform stored:', window.__ngAnnotationTransform);
+          });
         }
       }
-
-    }, 3000)
+    }, 3000);
 
     // TODO: This is purely for debugging and we need to remove it.
     window.viewer = this.viewer;

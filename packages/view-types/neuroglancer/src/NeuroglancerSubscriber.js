@@ -608,18 +608,18 @@ export function NeuroglancerSubscriber(props) {
   }, [cellsUrl]);
 
 
-  useEffect(() => {
-    // Poll until transform is available
-    const interval = setInterval(() => {
-      if (window.__ngAnnotationTransform) {
-        annotationTransformRef.current = window.__ngAnnotationTransform;
-        console.log('annotation transform ready:', annotationTransformRef.current);
-        if (annotationInfoRef.current) setAnnotationReady(true);
-        clearInterval(interval);
-      }
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   // Poll until transform is available
+  //   const interval = setInterval(() => {
+  //     if (window.__ngAnnotationTransform) {
+  //       annotationTransformRef.current = window.__ngAnnotationTransform;
+  //       console.log('annotation transform ready:', annotationTransformRef.current);
+  //       if (annotationInfoRef.current) setAnnotationReady(true);
+  //       clearInterval(interval);
+  //     }
+  //   }, 500);
+  //   return () => clearInterval(interval);
+  // }, []);
 
 
   useEffect(() => {
@@ -628,6 +628,10 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [annotationReady]);
 
+  const onAnnotationSourceReady = useCallback((transform) => {
+    annotationTransformRef.current = transform;
+    if (annotationInfoRef.current) setAnnotationReady(true);
+  }, []);
 
 
   /*
@@ -1025,6 +1029,7 @@ export function NeuroglancerSubscriber(props) {
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
             centroidsByLayer={centroidsByLayer}
+            onAnnotationSourceReady={onAnnotationSourceReady}
           />
         </div>
       ) : null}
