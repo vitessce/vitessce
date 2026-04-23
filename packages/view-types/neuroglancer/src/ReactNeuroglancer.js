@@ -641,6 +641,7 @@ export default class Neuroglancer extends React.Component {
             z: transform[10],
             serializer, // store NG serializer to parse binary annotations
           };
+          window.__ngPointLayer = pointLayer;
           console.log('annotation transform stored:', window.__ngAnnotationTransform);
         }
       }
