@@ -243,23 +243,23 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
 
 /**
  * Parse segment IDs from annotation chunk binary data
+ * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
  */
-export function parseAnnotationChunkSegmentIds(buffer, maxCellId = 50000, maxCoord = 800) {
-  const view = new DataView(buffer);
+export function parseAnnotationChunkSegmentIds(buffer, serializer) {
+  const dv = new DataView(buffer);
+  const count = dv.getUint32(0, true);
+  if (count === 0) return [];
+  // Property data starts at offset 8
+  // Each record is numBytes (20) bytes
+  // Use the serializer to read the 'id' property
+  const properties = [null, null];
   const ids = [];
-  for (let i = 8; i <= buffer.byteLength - 20; i += 4) {
-    const cellId = view.getInt32(i, true);
-    const phenotype = view.getInt32(i + 4, true);
-    const x = view.getFloat32(i + 8, true);
-    const y = view.getFloat32(i + 12, true);
-    const z = view.getFloat32(i + 16, true);
-    if (cellId > 0 && cellId < maxCellId
-      && phenotype > -10 && phenotype < 10
-      && x > 0 && x < maxCoord
-      && y > 0 && y < maxCoord
-      && z > 0 && z < maxCoord) {
-      ids.push(String(cellId));
-    }
+
+  for (let i = 0; i < count; i++) {
+    serializer.deserialize(dv, 8, i, count, true, properties);
+    // properties[0] = phenotype
+    // properties[1] = id (mesh segment ID)
+    if (properties[1] > 0) ids.push(String(properties[1]));
   }
   return ids;
 }

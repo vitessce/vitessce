@@ -454,22 +454,24 @@ export function NeuroglancerSubscriber(props) {
     ...initalViewerState,
     ...(initialNgCameraState ?? {}),
   });
-
   const updateVisibleSegments = useCallback(async () => {
-    if (!annotationInfoRef.current || !annotationTransformRef.current) return;
-    if (!segmentationLayerScopes?.length || !pointLayerScopes?.length) return;
+    if (!annotationInfoRef.current || !annotationTransformRef.current) {
+      console.log('annotation info or transform not ready yet');
+      return;
+    }
   
     const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
   
     const orientation = projectionOrientation ?? [0, 0, 0, 1];
     const transform = annotationTransformRef.current;
-    const { x: tx, y: ty, z: tz, serializer } = transform;
     const info = annotationInfoRef.current;
     const spatialLevel = info.spatial[info.spatial.length - 1];
     const lowerBound = info.lower_bound;
     const chunkSize = spatialLevel.chunk_size;
     const gridShape = spatialLevel.grid_shape;
+    const { key } = spatialLevel;
+
   
     // Step 1: compute viewport bbox in layer space
     const bbox = getViewportBoundingBox(
@@ -483,8 +485,16 @@ export function NeuroglancerSubscriber(props) {
 
     // Step 2: convert to annotation coordinate space
     const annotBbox = {
-      min: [bbox.min[0] * tx, bbox.min[1] * ty, bbox.min[2] * tz],
-      max: [bbox.max[0] * tx, bbox.max[1] * ty, bbox.max[2] * tz],
+      min: [
+        bbox.min[0] * transform.x,
+        bbox.min[1] * transform.y,
+        bbox.min[2] * transform.z,
+      ],
+      max: [
+        bbox.max[0] * transform.x,
+        bbox.max[1] * transform.y,
+        bbox.max[2] * transform.z,
+      ],
     };
 
     console.log('annotBbox:', annotBbox);
@@ -495,53 +505,48 @@ export function NeuroglancerSubscriber(props) {
     );
     if (coords.length === 0) return;
     console.log('coords length:', coords.length);
-  
-    // Step 4: read from NG's already-loaded chunks ( to avoid self parsing)
-    // Get the annotation source
-    const pointLayer = window.__ngPointLayer;
-    if (!pointLayer) return;
-  
-    const source = pointLayer.layer?.annotationStates?.states?.[0]?.source;
-    if (!source) return;
-  
-    // Get the spatial source matching our level
-    const sources = [...source.spatiallyIndexedSources._c];
-    const spatialSource = sources[sources.length - 1]; // spatial3
+    
+    // Step 4: fetch chunks (with cache) that intersect with viewport and parse them
+    const cellsUrl = annotationInfoRef.current._url; // setting this below
+    console.log("cellsUrl", cellsUrl)
 
+    const { x, y, z, serializer } = annotationTransformRef.current;
 
-  
-    // Build set of intersecting chunk keys
-    const intersectingKeys = new Set(
-      coords.map(([cx, cy]) => `${cx},${cy},0`)
-    );
-  
-    console.log('NG chunk keys:', [...spatialSource.chunks._c.keys()].slice(0, 5));
-    console.log('our intersecting keys:', [...intersectingKeys].slice(0, 5));
-    // Read IDs only from intersecting chunks
-    const visibleIds = new Set();
-    spatialSource.chunks._c.forEach((chunk, key) => {
-      if (!intersectingKeys.has(key)) return;
-      if (!chunk.data?.serializedAnnotations) return;
-  
-      const sa = chunk.data.serializedAnnotations;
-      const count = sa.typeToIds[0].length;
-      const dv = new DataView(
-        sa.data.buffer, sa.data.byteOffset, sa.data.byteLength
-      );
-      const properties = [null, null];
-      for (let i = 0; i < count; i++) {
-        serializer.deserialize(dv, 0, i, count, true, properties);
-        if (properties[1] > 0) visibleIds.add(String(properties[1]));
+    const fetchChunk = async ([cx, cy]) => {
+      const cacheKey = `${key}/${cx}_${cy}_0`;
+      if (chunkCacheRef.current.has(cacheKey)) {
+        return chunkCacheRef.current.get(cacheKey);
       }
-    });
+      try {
+        const res = await fetch(`${cellsUrl}/${cacheKey}`);
+        if (!res.ok) {
+          chunkCacheRef.current.set(cacheKey, []);
+          return [];
+        }
+        const buffer = await res.arrayBuffer();
+        
+        const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
+        chunkCacheRef.current.set(cacheKey, ids);
+        return ids;
+
+      } catch (e) {
+        console.error('fetchChunk error:', e);
+        chunkCacheRef.current.set(cacheKey, []);
+        return [];
+      }
+    };
   
-    if (visibleIds.size === 0) return;
+    const results = await Promise.all(coords.map(fetchChunk));
+    const visibleIds = [...new Set(results.flat())];
   
-    console.log('visible segment IDs:', visibleIds.size);
-    visibleSegmentIdsRef.current = [...visibleIds];
+    if (visibleIds.length === 0) return;
+  
+    console.log('visible segment IDs:', visibleIds.length);
+    visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
   
-  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
+  }, [ngWidth, ngHeight]);
+
 
 
   const updateVisibleSegmentsThrottled = useMemo(
