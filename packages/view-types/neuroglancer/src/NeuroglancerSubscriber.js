@@ -49,7 +49,12 @@ import {
   rad2deg,
   deg2rad,
   Q_Y_UP,
+  getViewportBoundingBox,
+  getIntersectingChunkCoords,
+  parseAnnotationChunkSegmentIds,
 } from './utils.js';
+
+import { throttle } from 'lodash-es';
 
 const VITESSCE_INTERACTION_DELAY = 50;
 const INIT_VIT_ZOOM = -3.6;
@@ -408,6 +413,125 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
 
+  const updateVisibleSegments = useCallback(async () => {
+
+    // console.log('updateVisibleSegments called');
+    // console.log('annotationInfoRef:', !!annotationInfoRef.current);
+    // console.log('annotationTransformRef:', !!annotationTransformRef.current);
+    // console.log('segmentationLayerScopes:', segmentationLayerScopes?.length);
+    // console.log('pointLayerScopes:', pointLayerScopes?.length);
+    
+    if (!annotationInfoRef.current) { console.log(' no info'); return; }
+    if (!annotationTransformRef.current) { console.log(' no transform'); return; }
+    if (!segmentationLayerScopes?.length) { console.log(' no seg layers'); return; }
+    if (!pointLayerScopes?.length) { console.log(' no point layers'); return; }
+    // if (!annotationInfoxwRef.current) return;
+    // if (!annotationTransformRef.current) return;
+    // if (!segmentationLayerScopes?.length) return;  // no segmentation layers
+    // if (!pointLayerScopes?.length) return;          // no annotation layers
+
+    if (!annotationInfoRef.current || !annotationTransformRef.current) {
+      console.log('annotation info or transform not ready yet');
+      return;
+    }
+  
+    const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
+    if (!position || !projectionScale) return;
+  
+    const orientation = projectionOrientation ?? [0, 0, 0, 1];
+    const transform = annotationTransformRef.current;
+    const info = annotationInfoRef.current;
+    const spatialLevel = info.spatial[info.spatial.length - 1];
+    const lowerBound = info.lower_bound;
+    const chunkSize = spatialLevel.chunk_size;
+    const gridShape = spatialLevel.grid_shape;
+    const key = spatialLevel.key;
+    console.log("info", info);
+    console.log('chunk_size:', chunkSize);
+    console.log('grid_shape:', gridShape);
+    console.log('key:', key);
+    console.log('lower_bound:', lowerBound);
+    console.log('ngWidth:', ngWidth, 'ngHeight:', ngHeight);
+
+  
+    // Step 1: compute viewport bbox in layer space
+    const bbox = getViewportBoundingBox(
+      position,
+      projectionScale * 0.001, // nm  -> um
+      orientation,
+      ngWidth,
+      ngHeight,
+    );
+    console.log('bbox:', bbox);
+
+    // Step 2: convert to annotation coordinate space
+    const annotBbox = {
+      min: [
+        bbox.min[0] * transform.x,
+        bbox.min[1] * transform.y,
+        bbox.min[2] * transform.z,
+      ],
+      max: [
+        bbox.max[0] * transform.x,
+        bbox.max[1] * transform.y,
+        bbox.max[2] * transform.z,
+      ],
+    };
+
+    console.log('annotBbox:', annotBbox);
+  
+    // Step 3: get intersecting chunk coords
+    const coords = getIntersectingChunkCoords(
+      annotBbox, lowerBound, chunkSize, gridShape,
+    );
+  
+    // if (coords.length === 0) return;
+
+    console.log('coords:', coords);
+    console.log('coords length:', coords.length);
+  
+    if (coords.length === 0) { console.log(' no coords'); return; }
+  
+    // Step 4: fetch chunks (with cache)
+    const cellsUrl = annotationInfoRef.current._url; // setting this below
+    console.log("cellsUrl", cellsUrl)
+    const fetchChunk = async ([cx, cy]) => {
+      const cacheKey = `${key}/${cx}_${cy}_0`;
+      if (chunkCacheRef.current.has(cacheKey)) {
+        return chunkCacheRef.current.get(cacheKey);
+      }
+      try {
+        const res = await fetch(`${cellsUrl}/${cacheKey}`);
+        if (!res.ok) {
+          chunkCacheRef.current.set(cacheKey, []);
+          return [];
+        }
+        const buffer = await res.arrayBuffer();
+        const ids = parseAnnotationChunkSegmentIds(buffer);
+        chunkCacheRef.current.set(cacheKey, ids);
+        return ids;
+      } catch {
+        chunkCacheRef.current.set(cacheKey, []);
+        return [];
+      }
+    };
+  
+    const results = await Promise.all(coords.map(fetchChunk));
+    const visibleIds = [...new Set(results.flat())];
+  
+    if (visibleIds.length === 0) return;
+  
+    console.log('visible segment IDs:', visibleIds.length);
+    visibleSegmentIdsRef.current = visibleIds;
+    incrementLatestViewerStateIteration();
+  
+  }, [ngWidth, ngHeight]);
+
+  const updateVisibleSegmentsThrottled = useMemo(
+    () => throttle(updateVisibleSegments, 500),
+    [updateVisibleSegments],
+  );
+
   useEffect(() => {
     const prevNgCameraState = {
       position: latestViewerStateRef.current.position,
@@ -422,6 +546,7 @@ export function NeuroglancerSubscriber(props) {
     // This works because we have made latestViewerStateIteration
     // a dependency for derivedViewerState, triggering the useMemo downstream.
     incrementLatestViewerStateIteration();
+    updateVisibleSegments();
   }, [initalViewerState]);
 
   const initialRotationPushedRef = useRef(false);
@@ -435,6 +560,11 @@ export function NeuroglancerSubscriber(props) {
   const zoomRafRef = useRef(null);
   const lastNgQuatRef = useRef([0, 0, 0, 1]);
   const lastNgScaleRef = useRef(null);
+  const annotationInfoRef = useRef(null);
+  const annotationTransformRef = useRef(null);
+  const visibleSegmentIdsRef = useRef(null);
+  const chunkCacheRef = useRef(new Map());
+
   const lastVitessceRotationRef = useRef({
     x: spatialRotationX,
     y: spatialRotationY,
@@ -454,6 +584,54 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
+
+
+  const [annotationReady, setAnnotationReady] = useState(false);
+
+  // Get cells URL from obsPointsUrls
+  const cellsUrl = useMemo(() => {
+    const firstScope = pointLayerScopes?.[0];
+    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [pointLayerScopes, obsPointsUrls]);
+
+  useEffect(() => {
+    console.log("useEffect running")
+    if (!cellsUrl) return;
+    
+    // Fetch annotation info
+    fetch(`${cellsUrl}/info`)
+      .then(r => r.json())
+      .then(info => {
+        info._url = cellsUrl; // store URL on the info object
+        annotationInfoRef.current = info;
+        console.log('annotation info loaded, spatial levels:', info.spatial.length);
+         if (annotationTransformRef.current) setAnnotationReady(true);
+      })
+      .catch(err => console.error('failed to fetch annotation info:', err));
+  }, [cellsUrl]);
+
+
+  useEffect(() => {
+    // Poll until transform is available
+    const interval = setInterval(() => {
+      if (window.__ngAnnotationTransform) {
+        annotationTransformRef.current = window.__ngAnnotationTransform;
+        console.log('annotation transform ready:', annotationTransformRef.current);
+        if (annotationInfoRef.current) setAnnotationReady(true);
+        clearInterval(interval);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+
+  useEffect(() => {
+    if (annotationReady) {
+      updateVisibleSegments();
+    }
+  }, [annotationReady]);
+
+
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -570,7 +748,8 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
       position,
     };
-  }, []);
+    updateVisibleSegmentsThrottled();
+  }, [updateVisibleSegmentsThrottled]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -761,9 +940,17 @@ export function NeuroglancerSubscriber(props) {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
       const layerSegments = Object.keys(layerColorMapping);
+       // Use viewport-culled IDs if available, otherwise fall back to all IDs
+      const segments = visibleSegmentIdsRef.current?.length > 0
+      && annotationInfoRef.current
+      ? visibleSegmentIdsRef.current
+      : layerSegments;
+      console.log('using segments:', segments.length, 
+        'visible ref:', visibleSegmentIdsRef.current?.length);
+
       return {
         ...layer,
-        segments: layerSegments,
+        segments,
         segmentColors: layerColorMapping,
       };
     }) ?? [];

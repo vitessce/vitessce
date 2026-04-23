@@ -626,118 +626,19 @@ export default class Neuroglancer extends React.Component {
     }
 
 
-    setTimeout(async () => {
-      // Hardcoded for testing
-      const cellsUrl = 'https://data-2.vitessce.io/data/sorger/sorger_mis/cells';
-      
-      // fetch info
-      const info = await fetch(`${cellsUrl}/info`).then(r => r.json());
-      const spatialLevel = info.spatial[info.spatial.length - 1]; // spatial3
-      console.log('spatial level:', spatialLevel);
-      console.log('lower_bound:', info.lower_bound);
-      
-      // compute viewport bbox
-      const state = this.viewer.state.toJSON();
-      const canvas = this.viewer.display.canvas;
-      const SCALE_FACTOR = 1 / 1000; // nm → um
-      const NM_TO_UM = 0.001; // 1nm = 0.001um
-
-
-      const bbox = getViewportBoundingBox(
-        state.position, //.map(p => p * NM_TO_UM),                           // already in µm
-        state.projectionScale * NM_TO_UM,    // nm - um
-        state.projectionOrientation,
-        canvas.clientWidth,
-        canvas.clientHeight,
-      );
-
-      console.log('viewport bbox:', bbox);
-      console.log('bbox min:', bbox.min);
-       console.log('bbox max:', bbox.max);
-      
-      // compute intersecting chunks
-      const { lower_bound, upper_bound } = info;
-      const { chunk_size, grid_shape, key } = spatialLevel;
-      
-      const cxMin = Math.max(0, Math.floor((bbox.min[0] - lower_bound[0]) / chunk_size[0]));
-      const cxMax = Math.min(grid_shape[0] - 1, Math.floor((bbox.max[0] - lower_bound[0]) / chunk_size[0]));
-      const cyMin = Math.max(0, Math.floor((bbox.min[1] - lower_bound[1]) / chunk_size[1]));
-      const cyMax = Math.min(grid_shape[1] - 1, Math.floor((bbox.max[1] - lower_bound[1]) / chunk_size[1]));
-      const czMin = Math.max(0, Math.floor((bbox.min[2] - lower_bound[2]) / chunk_size[2]));
-      const czMax = Math.min(grid_shape[2] - 1, Math.floor((bbox.max[2] - lower_bound[2]) / chunk_size[2]));
-      
-
-      console.log('raw position:', state.position);
-      console.log('raw projectionScale:', state.projectionScale);
-      console.log('annotation lower_bound:', info.lower_bound);
-      console.log('annotation upper_bound:', info.upper_bound);
-      console.log('canvas size:', canvas.clientWidth, canvas.clientHeight);
-
-      //  computing halfW manually:
-      const halfW = (state.projectionScale * NM_TO_UM * canvas.clientWidth) / 2;
-      const halfH = (state.projectionScale * NM_TO_UM * canvas.clientHeight) / 2;
-      console.log('halfW in µm:', halfW);
-      console.log('halfH in µm:', halfH);
-      console.log('position in µm:', state.position.map(p => p * NM_TO_UM));
-      const coords = [];
-      for (let cx = cxMin; cx <= cxMax; cx++) {
-        for (let cy = cyMin; cy <= cyMax; cy++) {
-          for (let cz = czMin; cz <= czMax; cz++) {
-            coords.push([cx, cy, cz]);
-          }
+    setTimeout( () => {
+      const pointLayer = this.viewer.layerManager.managedLayers
+  .find(l => l.name?.includes('obsPoints'));
+      if (pointLayer) {
+        const annotState = pointLayer.layer.annotationStates.states[0];
+        const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+        if (t) {
+          window.__ngAnnotationTransform = { x: t[0], y: t[5], z: t[10] };
+          console.log('annotation transform stored:', window.__ngAnnotationTransform);
         }
       }
-      console.log('intersecting chunk coords:', coords);
-      console.log('chunk count:', coords.length);
-      
-      // fetch and parse chunks
-      const chunkCache = new Map();
-      
-      const fetchChunk = async (cx, cy, cz) => {
-        const cacheKey = `${key}/${cx}_${cy}_${cz}`;
-        if (chunkCache.has(cacheKey)) return chunkCache.get(cacheKey);
-        
-        const url = `${cellsUrl}/${cacheKey}`;
-        const res = await fetch(url);
-        if (!res.ok) {
-          chunkCache.set(cacheKey, []);
-          return [];
-        }
-        
-        const buffer = await res.arrayBuffer();
-        const view = new DataView(buffer);
-        const ids = [];
-        
-        for (let i = 8; i <= buffer.byteLength - 20; i += 4) {
-          const cellId = view.getInt32(i, true);
-          const phenotype = view.getInt32(i + 4, true);
-          const x = view.getFloat32(i + 8, true);
-          const y = view.getFloat32(i + 12, true);
-          const z = view.getFloat32(i + 16, true);
-          
-          if (cellId > 0 && cellId < 50000
-            && phenotype > -10 && phenotype < 10
-            && x > 0 && x < 800
-            && y > 0 && y < 800
-            && z > 0 && z < 800) {
-            ids.push(String(cellId));
-          }
-        }
-        
-        chunkCache.set(cacheKey, ids);
-        return ids;
-      };
-      
-      // Fetch all intersecting chunks in parallel
-      const results = await Promise.all(
-        coords.map(([cx, cy, cz]) => fetchChunk(cx, cy, cz))
-      );
-      
-      const visibleIds = [...new Set(results.flat())];
-      console.log('visible segment IDs count:', visibleIds.length);
-      console.log('sample IDs:', visibleIds.slice(0, 5));
-      
-    }, 3000);
+
+    }, 3000)
 
     // TODO: This is purely for debugging and we need to remove it.
     window.viewer = this.viewer;
