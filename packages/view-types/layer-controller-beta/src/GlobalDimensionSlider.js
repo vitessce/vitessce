@@ -75,20 +75,20 @@ export default function GlobalDimensionSlider(props) {
             </Typography>
           </Grid>
           <Grid size={8}>
-            {!is3dMode && (
-            <Slider
-              value={targetValue}
-              min={min}
-              max={max}
-              step={1}
-              onChange={(e, v) => setTargetValue(v)}
-              className={classes.dimensionSlider}
-              valueLabelDisplay="auto"
-              orientation="horizontal"
-              disabled={spatialRenderingMode === '3D'}
-              aria-label={`${label}-slice slider`}
-            />
-            )}
+            {!is3dMode ? (
+              <Slider
+                value={targetValue}
+                min={min}
+                max={max}
+                step={1}
+                onChange={(e, v) => setTargetValue(v)}
+                className={classes.dimensionSlider}
+                valueLabelDisplay="auto"
+                orientation="horizontal"
+                disabled={spatialRenderingMode === '3D'}
+                aria-label={`${label}-slice slider`}
+              />
+            ) : null}
           </Grid>
           <Grid size={2}>
             {isForZ ? (
