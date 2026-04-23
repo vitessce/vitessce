@@ -62,7 +62,7 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
-const MESH_LOAD_THRESHOLD_NM = 500;
+const MESH_LOAD_THRESHOLD_NM = 1000;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
