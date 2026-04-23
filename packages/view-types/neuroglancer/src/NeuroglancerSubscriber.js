@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
+import { throttle } from 'lodash-es';
 import {
   TitleInfo,
   useReady,
@@ -54,7 +55,6 @@ import {
   parseAnnotationChunkSegmentIds,
 } from './utils.js';
 
-import { throttle } from 'lodash-es';
 
 const VITESSCE_INTERACTION_DELAY = 50;
 const INIT_VIT_ZOOM = -3.6;
@@ -99,6 +99,26 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
+
+  const { classes } = useStyles();
+
+  const initialRotationPushedRef = useRef(false);
+
+  const ngRotPushAtRef = useRef(0);
+  const lastInteractionSource = useRef(null);
+  const applyNgUpdateTimeoutRef = useRef(null);
+  const lastNgPushOrientationRef = useRef(null);
+  const initialRenderCalibratorRef = useRef(null);
+  const translationOffsetRef = useRef([0, 0, 0]);
+  const zoomRafRef = useRef(null);
+  const lastNgQuatRef = useRef([0, 0, 0, 1]);
+  const lastNgScaleRef = useRef(null);
+  const annotationInfoRef = useRef(null);
+  const annotationTransformRef = useRef(null);
+  const visibleSegmentIdsRef = useRef(null);
+  const chunkCacheRef = useRef(new Map());
+
+  const [annotationReady, setAnnotationReady] = useState(false);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -281,9 +301,30 @@ export function NeuroglancerSubscriber(props) {
     obsLocationsDataStatus,
   ]);
 
+
+  const lastVitessceRotationRef = useRef({
+    x: spatialRotationX,
+    y: spatialRotationY,
+    z: spatialRotationZ,
+    orbit: spatialRotationOrbit,
+  });
+
+  // Track the last coord values we saw, and only mark "vitessce"
+  // when *those* actually change. This prevents cell set renders
+  // from spoofing the source.
+  const prevCoordsRef = useRef({
+    zoom: spatialZoom,
+    rx: spatialRotationX,
+    ry: spatialRotationY,
+    rz: spatialRotationZ,
+    orbit: spatialRotationOrbit,
+    tx: spatialTargetX,
+    ty: spatialTargetY,
+  });
+
+
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
-  const { classes } = useStyles();
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -495,6 +536,9 @@ export function NeuroglancerSubscriber(props) {
     // Step 4: fetch chunks (with cache)
     const cellsUrl = annotationInfoRef.current._url; // setting this below
     console.log("cellsUrl", cellsUrl)
+
+    const { x, y, z, serializer } = annotationTransformRef.current;
+
     const fetchChunk = async ([cx, cy]) => {
       const cacheKey = `${key}/${cx}_${cy}_0`;
       if (chunkCacheRef.current.has(cacheKey)) {
@@ -507,10 +551,22 @@ export function NeuroglancerSubscriber(props) {
           return [];
         }
         const buffer = await res.arrayBuffer();
-        const ids = parseAnnotationChunkSegmentIds(buffer);
+        
+        // Use NG's deserializer instead of manual parsing
+        const view = new DataView(buffer);
+        const count = view.getUint32(0, true); // record count
+        const properties = [null, null];
+        const ids = [];
+        
+        for (let i = 0; i < count; i++) {
+          serializer.deserialize(view, 0, i, count, true, properties);
+          if (properties[1] > 0) ids.push(String(properties[1]));
+        }
+        
         chunkCacheRef.current.set(cacheKey, ids);
         return ids;
-      } catch {
+      } catch (e) {
+        console.error('fetchChunk error:', e);
         chunkCacheRef.current.set(cacheKey, []);
         return [];
       }
@@ -548,45 +604,6 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
     updateVisibleSegments();
   }, [initalViewerState]);
-
-  const initialRotationPushedRef = useRef(false);
-
-  const ngRotPushAtRef = useRef(0);
-  const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
-  const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
-  const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgQuatRef = useRef([0, 0, 0, 1]);
-  const lastNgScaleRef = useRef(null);
-  const annotationInfoRef = useRef(null);
-  const annotationTransformRef = useRef(null);
-  const visibleSegmentIdsRef = useRef(null);
-  const chunkCacheRef = useRef(new Map());
-
-  const lastVitessceRotationRef = useRef({
-    x: spatialRotationX,
-    y: spatialRotationY,
-    z: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-  });
-
-  // Track the last coord values we saw, and only mark "vitessce"
-  // when *those* actually change. This prevents cell set renders
-  // from spoofing the source.
-  const prevCoordsRef = useRef({
-    zoom: spatialZoom,
-    rx: spatialRotationX,
-    ry: spatialRotationY,
-    rz: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-    tx: spatialTargetX,
-    ty: spatialTargetY,
-  });
-
-
-  const [annotationReady, setAnnotationReady] = useState(false);
 
   // Get cells URL from obsPointsUrls
   const cellsUrl = useMemo(() => {

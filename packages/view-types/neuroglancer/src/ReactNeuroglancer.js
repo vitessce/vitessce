@@ -628,12 +628,19 @@ export default class Neuroglancer extends React.Component {
 
     setTimeout( () => {
       const pointLayer = this.viewer.layerManager.managedLayers
-  .find(l => l.name?.includes('obsPoints'));
+        .find(l => l.name?.includes('obsPoints'));
       if (pointLayer) {
         const annotState = pointLayer.layer.annotationStates.states[0];
-        const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
-        if (t) {
-          window.__ngAnnotationTransform = { x: t[0], y: t[5], z: t[10] };
+        const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
+        const serializer = annotState?.source?.annotationPropertySerializers?.[0];
+
+        if (transform && serializer) {
+          window.__ngAnnotationTransform = {
+            x: transform[0],
+            y: transform[5],
+            z: transform[10],
+            serializer, // store NG serializer to parse binary annotations
+          };
           console.log('annotation transform stored:', window.__ngAnnotationTransform);
         }
       }
