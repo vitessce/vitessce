@@ -65,6 +65,7 @@ const NG_ROT_COOLDOWN_MS = 120;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
+const ANNOTATION_HEADER_OFFSET = 8;
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
   neuroglancer: 'neuroglancer',
@@ -555,11 +556,12 @@ export function NeuroglancerSubscriber(props) {
         // Use NG's deserializer instead of manual parsing
         const view = new DataView(buffer);
         const count = view.getUint32(0, true); // record count
+        console.log('count:', count, 'buffer:', buffer.byteLength, 'expected:', 8 + count * 20);
         const properties = [null, null];
         const ids = [];
         
         for (let i = 0; i < count; i++) {
-          serializer.deserialize(view, 0, i, count, true, properties);
+          serializer.deserialize(view, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
           if (properties[1] > 0) ids.push(String(properties[1]));
         }
         
