@@ -62,6 +62,7 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
+const MESH_LOAD_THRESHOLD_NM = 500;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
@@ -455,13 +456,26 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
   const updateVisibleSegments = useCallback(async () => {
-    if (!annotationInfoRef.current || !annotationTransformRef.current) {
-      console.log('annotation info or transform not ready yet');
-      return;
-    }
+    if (!annotationInfoRef.current) return;
+    if (!annotationTransformRef.current) return;
+    if (!segmentationLayerScopes?.length) return;
+    if (!pointLayerScopes?.length) return;
   
     const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
+
+    // Only load meshes when zoomed in past threshold
+    // projectionScale is in nm/pixel — smaller = more zoomed in
+
+    if (projectionScale > MESH_LOAD_THRESHOLD_NM) {
+      // Zoomed out — clear meshes
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      console.log("ZOOMED OUT", projectionScale)
+      return;
+    }
   
     const orientation = projectionOrientation ?? [0, 0, 0, 1];
     const transform = annotationTransformRef.current;
@@ -545,7 +559,7 @@ export function NeuroglancerSubscriber(props) {
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
   
-  }, [ngWidth, ngHeight]);
+  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
 
 
 
@@ -924,10 +938,10 @@ export function NeuroglancerSubscriber(props) {
       const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
       const layerSegments = Object.keys(layerColorMapping);
        // Use viewport-culled IDs if available, otherwise fall back to all IDs
-      const segments = visibleSegmentIdsRef.current?.length > 0
-      && annotationInfoRef.current
-      ? visibleSegmentIdsRef.current
-      : layerSegments;
+      const segments =  annotationInfoRef.current 
+      ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
+      : layerSegments; // if no annotation source then all IDs.
+
       console.log('using segments:', segments.length, 
         'visible ref:', visibleSegmentIdsRef.current?.length);
 
