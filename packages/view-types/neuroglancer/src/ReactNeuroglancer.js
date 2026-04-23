@@ -67,6 +67,10 @@ let viewerNoKey;
  * @property {() => void} onSelectionDetailsStateChanged
  * A function of the form `() => {}` to respond to selection changes in the viewer.
  * @property {() => void} onViewerStateChanged
+ * @property {(isLoaded: boolean) => void} onLayerLoadingChange
+ * A function of the form `(isLoaded) => {}`, called when layer loading state changes.
+ * The `isLoaded` argument will be `true` when all segmentation layers have finished loading
+ * their data sources, or `false` when layers are still loading.
  *
  * @property {Array<Object>} callbacks
  * // ngServer: string,
@@ -411,6 +415,7 @@ export default class Neuroglancer extends React.Component {
     onVisibleChanged: null,
     onSelectionDetailsStateChanged: null,
     onViewerStateChanged: null,
+    onLayerLoadingChange: null,
     key: null,
     callbacks: [],
     ngServer: 'https://neuroglancer-demo.appspot.com/',
@@ -488,7 +493,7 @@ export default class Neuroglancer extends React.Component {
       // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
       const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
 
-      const selected = { ...(cellColorMappingByLayer[layerScope] || {}) };
+      const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
 
       // Track all known IDs for this layer scope
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
@@ -645,7 +650,41 @@ export default class Neuroglancer extends React.Component {
       }
     }, 3000);
 
-    // TODO: This is purely for debugging and we need to remove it.
+    const { visibleChunksChanged } = this.viewer.chunkQueueManager;
+    let firstChunkLoaded = false;
+    this.disposers.push(visibleChunksChanged.add(() => {
+      if (!firstChunkLoaded) {
+        for (const layer of this.viewer.layerManager.managedLayers) {
+          if (layer.layer instanceof SegmentationUserLayer) {
+            const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+              const {
+                numVisibleChunksAvailable,
+                numVisibleChunksNeeded,
+              } = rl.layerChunkProgressInfo || {};
+              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+              // Neuroglancer only shows chunks when a certain % is loaded.
+              // The 0.25 is from testing different values, can be reduced to 0.2 to shorten loader time
+              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+            });
+            if (hasVisibleChunk) {
+              firstChunkLoaded = true;
+              // Two frames to avoid flash while the following two happens
+              // Neuroglancer issues WebGL draw calls
+              requestAnimationFrame(() => {
+              // GPU has painted, pixels visible on screen
+                requestAnimationFrame(() => {
+                  this.props.onLayerLoadingChange?.(true);
+                });
+              });
+              return;
+            }
+          }
+        }
+      }
+    }));
+    this.disposers.push(() => { firstChunkLoaded = false; });
+
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
     window.getViewportBoundingBox = getViewportBoundingBox;
   }
@@ -688,6 +727,27 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         segmentSelectionState.set(selectedSegments[layer.name]);
+        const layerScope = Object.keys(cellColorMappingByLayer).find(
+          scope => layer.name?.includes(scope),
+        );
+        if (layerScope) {
+          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
+          layer.layer.displayState.objectAlpha.value = opacity;
+        }
+      }
+      // Update annotation layer shaders from viewerState config,
+      // skipping update if shader is unchanged to avoid costly re-renders
+      if (layer.layer instanceof AnnotationUserLayer) {
+        const matchingLayer = (viewerState?.layers || []).find(
+          l => l.name === layer.name,
+        );
+        if (matchingLayer?.shader) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const currentShader = layer.layer.annotationDisplayState.shader.value_;
+          if (currentShader !== matchingLayer.shader) {
+            layer.layer.annotationDisplayState.shader.value = matchingLayer.shader;
+          }
+        }
       }
     }
 
@@ -738,9 +798,11 @@ export default class Neuroglancer extends React.Component {
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
     const prevSize = prevProps.cellColorMapping
-      ? Object.keys(prevProps.cellColorMapping).length : 0;
+      ? Object.values(prevProps.cellColorMapping)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const currSize = cellColorMappingByLayer
-      ? Object.keys(cellColorMappingByLayer).length : 0;
+      ? Object.values(cellColorMappingByLayer)
+        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
     if (!this.didLayersChange(prevVS, viewerState)
       && (mappingRefChanged || prevSize !== currSize)) {
@@ -753,7 +815,7 @@ export default class Neuroglancer extends React.Component {
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segments, segmentColors, ...rest } = l;
+      const { segments, segmentColors, objectAlpha, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
     });
 

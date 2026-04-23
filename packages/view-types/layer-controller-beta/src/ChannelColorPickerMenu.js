@@ -93,9 +93,12 @@ export default function ChannelColorPickerMenu(props) {
     ? colorArrayToString(color)
     : colorArrayToString(getDefaultColor(theme));
 
+  const isWritable = typeof setColor === 'function';
+  const derivedOpen = isWritable ? (isStaticColor && visible ? open : false) : false;
+
   return (
     <PopperMenu
-      open={isStaticColor && visible ? open : false}
+      open={derivedOpen}
       setOpen={setOpen}
       buttonIcon={
         isStaticColor && visible ? (

@@ -327,6 +327,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_MODEL_MATRIX: 'spatialLayerModelMatrix',
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
+  SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',

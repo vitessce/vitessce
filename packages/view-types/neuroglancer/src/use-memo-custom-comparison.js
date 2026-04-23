@@ -101,6 +101,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'obsSetSelection',
               'additionalObsSets',
               'spatialChannelColor',
+              'spatialChannelOpacity',
             ])
         ) {
           forceUpdate = true;
@@ -127,6 +128,10 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   const curriedShallowDiffByLayerCoordinationWithKeys = (depName, layerScope, keys) => shallowDiffByLayerCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, keys);
   const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
   const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
+
+  if (['theme', 'showAxisLines'].some(curriedShallowDiff)) {
+    forceUpdate = true;
+  }
 
   // Segmentation layers/channels.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -172,6 +177,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'featureSelection',
             'featureFilterMode',
             'featureColor',
+            'spatialPointStrokeWidth',
           ])
           // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
           || (

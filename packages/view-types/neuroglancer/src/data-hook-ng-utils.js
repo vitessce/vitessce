@@ -106,6 +106,7 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
  */
 export function useNeuroglancerViewerState(
   theme,
+  showAxisLines,
   segmentationLayerScopes,
   segmentationChannelScopesByLayer,
   segmentationLayerCoordination,
@@ -148,6 +149,21 @@ export function useNeuroglancerViewerState(
           const {
             spatialChannelVisible,
           } = channelCoordination || {};
+          const { source: ngSource, ...otherNgOptions } = layerData.neuroglancerOptions ?? {};
+
+          // Build source: if neuroglancerOptions has subsources
+          const hasNgSourceOptions = layerData.neuroglancerOptions?.subsources
+            || layerData.neuroglancerOptions?.enableDefaultSubsources !== undefined;
+
+          const source = hasNgSourceOptions
+            ? {
+              url: toPrecomputedSource(layerUrl),
+              subsources: layerData.neuroglancerOptions.subsources,
+              enableDefaultSubsources: layerData.neuroglancerOptions.enableDefaultSubsources
+                  ?? false,
+            }
+            : toPrecomputedSource(layerUrl);
+
           result = {
             ...result,
             showDefaultAnnotations: false,
@@ -155,14 +171,14 @@ export function useNeuroglancerViewerState(
               ...result.layers,
               {
                 type: 'segmentation',
-                source: toPrecomputedSource(layerUrl),
+                source,
                 segments: [],
                 name: toNgLayerName(DataType.OBS_SEGMENTATIONS, layerScope, channelScope),
                 visible: spatialLayerVisible && spatialChannelVisible, // Both layer and channel
                 // visibility must be true for the layer to be visible.
                 // TODO: update this to extract specific properties from
                 // neuroglancerOptions as needed.
-                ...(layerData.neuroglancerOptions ?? {}),
+                ...otherNgOptions,
               },
             ],
           };
@@ -189,6 +205,7 @@ export function useNeuroglancerViewerState(
           featureSelection,
           featureFilterMode,
           featureColor,
+          spatialPointStrokeWidth,
         } = layerCoordination || {};
 
         // Dynamically construct the shader based on the color encoding
@@ -205,6 +222,7 @@ export function useNeuroglancerViewerState(
 
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
+          pointMarkerBorderWidth: spatialPointStrokeWidth ?? 0.0,
         });
         const ngOptions = layerData.neuroglancerOptions?.options;
         result = {
@@ -250,6 +268,7 @@ export function useNeuroglancerViewerState(
     return result;
   }, {
     theme,
+    showAxisLines,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,
