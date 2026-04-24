@@ -22,7 +22,6 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
   useGridItemSize,
-  useSegmentationMultiObsLocations,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -160,10 +159,6 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes,
   );
 
-  const [obsLocationsData, obsLocationsDataStatus, obsLocationsDataErrors] = useSegmentationMultiObsLocations(
-    coordinationScopes, coordinationScopesBy, loaders, dataset,
-  );
-
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
   const [
@@ -290,7 +285,6 @@ export function NeuroglancerSubscriber(props) {
     ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
-    ...obsLocationsDataErrors,
   ];
 
   const isReady = useReady([
@@ -302,7 +296,6 @@ export function NeuroglancerSubscriber(props) {
     obsSegmentationsSetsDataStatus,
     segmentationMultiFeatureSelectionStatus,
     segmentationMultiIndicesDataStatus,
-    obsLocationsDataStatus,
   ]);
 
 
@@ -335,6 +328,9 @@ export function NeuroglancerSubscriber(props) {
     // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
     // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
     const result = {};
+
+
+
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
@@ -349,6 +345,26 @@ export function NeuroglancerSubscriber(props) {
           spatialChannelColor,
           spatialChannelOpacity,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
+
+
+//         console.log('obsSegmentationsSetsData:', obsSegmentationsSetsData);
+// console.log('layerScope:', layerScope);
+// console.log('channelScope:', channelScope);
+// console.log('raw data:', obsSegmentationsSetsData?.[layerScope]?.[channelScope]);
+
+// console.log('obsColorEncoding:', obsColorEncoding);
+// console.log('spatialChannelColor:', spatialChannelColor);
+// console.log('layerSets:', !!layerSets);
+// console.log('layerIndex:', layerIndex);
+
+// console.log('layerIndex contains 99?', layerIndexFromSets?.includes('99'));
+// console.log('layerIndex contains 3000?', layerIndexFromSets?.includes('3000'));
+// console.log('layerIndex type of first element:', typeof layerIndexFromSets?.[0]);
+
+      // console.log('layerIndex length:', layerIndexFromSets?.length);
+      // console.log('layerIndex sample:', layerIndexFromSets?.slice(0, 10));
+      // console.log('does layerIndex contain 99?', layerIndexFromSets?.includes(99) || layerIndexFromSets?.includes('99'));
+      // console.log('does layerIndex contain 3000?', layerIndexFromSets?.includes(3000) || layerIndexFromSets?.includes('3000'));
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
           if (layerIndex && spatialChannelColor) {
@@ -371,6 +387,15 @@ export function NeuroglancerSubscriber(props) {
                   ngCellColors[id] = hex;
                 }
               });
+              console.log('obsIndex length:', layerIndexFromSets?.length); // 5809
+              // What's the max ID in obsIndex?
+              console.log('max obsIndex ID:', Math.max(...layerIndexFromSets?.map(Number)));
+              // Does obsIndex contain 99?
+              console.log('obsIndex as set contains 99:', new Set(layerIndexFromSets).has('99'));
+
+              // console.log('ngCellColors size:', Object.keys(ngCellColors).length);
+              // console.log('99 in ngCellColors:', '99' in ngCellColors);
+              // console.log('3000 in ngCellColors:', '3000' in ngCellColors);
             } else {
               // null or empty selection → show ALL segments
               layerIndex.forEach((id) => {
@@ -392,7 +417,7 @@ export function NeuroglancerSubscriber(props) {
           // Convert the list of colors to an object of hex strings, which NG requires.
           const ngCellColors = {};
           cellColors.forEach((color, i) => {
-            ngCellColors[i] = rgbToHex(color);
+            ngCellColors[layerIndex[i]] = rgbToHex(color);
           });
           result[layerScope][channelScope] = ngCellColors;
           result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
@@ -409,33 +434,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination,
     theme,
   }, customIsEqualForCellColors);
-
-  const centroidsByLayer = useMemo(() => {
-    const result = {};
-
-    // Get scale from the first available points layer transform matrix
-    const firstPointScope = pointLayerScopes?.[0];
-    const ngOptions = obsPointsData?.[firstPointScope]?.neuroglancerOptions?.options;
-    // const scaleX = ngOptions?.matrix?.[0]?.[0] ?? 7148.09960682;
-    // const scaleY = ngOptions?.matrix?.[1]?.[1] ?? 7148.09960682;
-
-    segmentationLayerScopes?.forEach((layerScope) => {
-      const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
-      const locationData = obsLocationsData?.[layerScope]?.[channelScope];
-
-      if (locationData?.obsIndex && locationData?.obsLocations) {
-        const { obsIndex, obsLocations } = locationData;
-        const [xs, ys] = obsLocations.data;
-
-        result[layerScope] = obsIndex.map((id, i) => [
-          id,
-          xs[i], // * scaleX,
-          ys[i], // * scaleY,
-        ]);
-      }
-    });
-    return result;
-  }, [obsLocationsData, obsPointsData, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
@@ -500,7 +498,7 @@ export function NeuroglancerSubscriber(props) {
       ngWidth,
       ngHeight,
     );
-    console.log('bbox:', bbox);
+    // console.log('bbox:', bbox);
 
     // Step 2: convert to annotation coordinate space
     const annotBbox = {
@@ -516,18 +514,18 @@ export function NeuroglancerSubscriber(props) {
       ],
     };
 
-    console.log('annotBbox:', annotBbox);
+    // console.log('annotBbox:', annotBbox);
 
     // Step 3: get intersecting chunk coords
     const coords = getIntersectingChunkCoords(
       annotBbox, lowerBound, chunkSize, gridShape,
     );
     if (coords.length === 0) return;
-    console.log('coords length:', coords.length);
+    // console.log('coords length:', coords.length);
 
     // Step 4: fetch chunks (with cache) that intersect with viewport and parse them
-    const cellsUrl = annotationInfoRef.current.url; // setting this below
-    console.log('cellsUrl', cellsUrl);
+    const cellsUrl = annotationInfoRef.current.url;
+    // console.log('cellsUrl', cellsUrl);
 
     const { x, y, z, serializer } = annotationTransformRef.current;
 
@@ -543,9 +541,18 @@ export function NeuroglancerSubscriber(props) {
           return [];
         }
         const buffer = await res.arrayBuffer();
+        const view = new DataView(buffer);
+        const count = view.getUint32(0, true);
+        const properties = info.properties;
+        // console.log("count", count, properties)
 
         const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
         chunkCacheRef.current.set(cacheKey, ids);
+        // for (let i = 0; i < Math.min(5, count); i++) {
+        //   serializer.deserialize(view, 8, i, count, true, properties);
+        //   console.log(`record ${i}: phenotype=${properties[0]} id=${properties[1]}`);
+        // }
+
         return ids;
       } catch (e) {
         console.error('fetchChunk error:', e);
@@ -559,7 +566,7 @@ export function NeuroglancerSubscriber(props) {
 
     if (visibleIds.length === 0) return;
 
-    console.log('visible segment IDs:', visibleIds.length);
+    // console.log('visible segment IDs:', visibleIds.length);
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
   }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
@@ -603,28 +610,14 @@ export function NeuroglancerSubscriber(props) {
     fetch(`${cellsUrl}/info`)
       .then(r => r.json())
       .then((info) => {
-        info.url = cellsUrl; // store URL on the info object
+        // store URL on the info object
+        info.url = cellsUrl;
         annotationInfoRef.current = info;
         console.log('annotation info loaded, spatial levels:', info.spatial.length);
         if (annotationTransformRef.current) setAnnotationReady(true);
       })
       .catch(err => console.error('failed to fetch annotation info:', err));
   }, [cellsUrl]);
-
-
-  // useEffect(() => {
-  //   // Poll until transform is available
-  //   const interval = setInterval(() => {
-  //     if (window.__ngAnnotationTransform) {
-  //       annotationTransformRef.current = window.__ngAnnotationTransform;
-  //       console.log('annotation transform ready:', annotationTransformRef.current);
-  //       if (annotationInfoRef.current) setAnnotationReady(true);
-  //       clearInterval(interval);
-  //     }
-  //   }, 500);
-  //   return () => clearInterval(interval);
-  // }, []);
-
 
   useEffect(() => {
     if (annotationReady) {
@@ -945,16 +938,29 @@ export function NeuroglancerSubscriber(props) {
     }
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
-      const layerScope = segmentationLayerScopes?.[idx];
+      if (layer.type !== 'segmentation') return layer;
+
+      const layerScope = segmentationLayerScopes?.find(
+        scope => layer.name?.includes(scope)
+      );
+      if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const layerSegments = Object.keys(layerColorMapping);
       // Use viewport-culled IDs if available, otherwise fall back to all IDs
       const segments = annotationInfoRef.current
         ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
         : layerSegments; // if no annotation source then all IDs.
+        // console.log('first 5 visible IDs:', visibleSegmentIdsRef.current?.slice(0, 5));
+        // console.log('first 5 segmentColors keys:', Object.keys(layerColorMapping).slice(0, 5));
 
-      console.log('using segments:', segments.length,
-        'visible ref:', visibleSegmentIdsRef.current?.length);
+        // console.log('all segmentColors keys sample:', Object.keys(layerColorMapping).slice(0, 10));
+        // console.log('type of first key:', typeof Object.keys(layerColorMapping)[0]);
+        // // Also check what index '99' maps to in the obsIndex
+        // console.log('does key 99 exist?', '99' in layerColorMapping);
+        // console.log('does key 3000 exist?', '3000' in layerColorMapping);
+        // // Check numeric versions
+        // console.log('numeric 99:', layerColorMapping[99]);
+        // console.log('numeric 3000:', layerColorMapping[3000]);
 
       return {
         ...layer,
@@ -1048,7 +1054,6 @@ export function NeuroglancerSubscriber(props) {
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
             onLayerLoadingChange={handleLayerLoadingChange}
-            centroidsByLayer={centroidsByLayer}
             onAnnotationSourceReady={onAnnotationSourceReady}
           />
         </div>

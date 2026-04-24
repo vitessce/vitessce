@@ -62,42 +62,42 @@ function generateNeuroglancerProgressiveLoadingConfig() {
     },
   });
 
-  // Cell centroids (2D — x and y only, z ignored by loader)
-  dataset.addFile({
-    fileType: 'obsLocations.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/sorger_centroids.csv',
-    // url: 'https://data-2.vitessce.io/data/sorger/sorger_centroids.csv',
-    options: {
-      obsIndex: 'cell_id',
-      obsLocations: ['x', 'y'],
-    },
-    coordinationValues: {
-      obsType: 'cell',
-    },
-  });
+  // // Cell centroids (2D — x and y only, z ignored by loader)
+  // dataset.addFile({
+  //   fileType: 'obsLocations.csv',
+  //   url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/sorger/sorger_centroids.csv',
+  //   // url: 'https://data-2.vitessce.io/data/sorger/sorger_centroids.csv',
+  //   options: {
+  //     obsIndex: 'cell_id',
+  //     obsLocations: ['x', 'y'],
+  //   },
+  //   coordinationValues: {
+  //     obsType: 'cell',
+  //   },
+  // });
 
   // ObsSets — provides cell IDs and groupings for the obsSets view
-  dataset.addFile({
-    fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/sorger_obs_sets.csv',
-    options: {
-      obsIndex: 'cell_id',
-      obsSets: [
-        {
-          name: 'Cell Type',
-          column: 'cell_type',
-        },
-      ],
-    },
-    coordinationValues: {
-      obsType: 'cell',
-    },
-  });
-
-  const [cellSetSelectionScope, cellSetColorScope] = config.addCoordination(
-    'obsSetSelection',
-    'obsSetColor',
-  );
+  // dataset.addFile({
+  //   fileType: 'obsSets.csv',
+  //   url: 'https://data-2.vitessce.io/data/sorger/sorger_obs_sets.csv',
+  //   options: {
+  //     obsIndex: 'cell_id',
+  //     obsSets: [
+  //       {
+  //         name: 'Cell Type',
+  //         column: 'cell_type',
+  //       },
+  //     ],
+  //   },
+  //   coordinationValues: {
+  //     obsType: 'cell',
+  //   },
+  // });
+// 
+  // const [cellSetSelectionScope, cellSetColorScope] = config.addCoordination(
+  //   'obsSetSelection',
+  //   'obsSetColor',
+  // );
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
@@ -120,13 +120,13 @@ function generateNeuroglancerProgressiveLoadingConfig() {
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
-  const obsSets = config.addView(dataset, 'obsSets');
+  // const obsSets = config.addView(dataset, 'obsSets');
 
-  config.linkViewsByObject([obsSets], {
-    obsType: 'cell',
-    obsSetSelection: cellSetSelectionScope,
-    obsSetColor: cellSetColorScope,
-  }, { meta: false });
+  // config.linkViewsByObject([obsSets], {
+  //   obsType: 'cell',
+  //   obsSetSelection: cellSetSelectionScope,
+  //   obsSetColor: cellSetColorScope,
+  // }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
@@ -139,6 +139,7 @@ function generateNeuroglancerProgressiveLoadingConfig() {
     spatialRotationY: 0,
     spatialRotationZ: 0,
     spatialRotationOrbit: 0,
+
   }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
@@ -154,8 +155,8 @@ function generateNeuroglancerProgressiveLoadingConfig() {
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'spatialChannelColor',
-            obsSetSelection: cellSetSelectionScope,
-            obsSetColor: cellSetColorScope,
+            // obsSetSelection: cellSetSelectionScope,
+            // obsSetColor: cellSetColorScope,
           },
         ]),
       },
@@ -171,11 +172,13 @@ function generateNeuroglancerProgressiveLoadingConfig() {
         spatialLayerVisible: true,
         obsColorEncoding: 'spatialLayerColor',
         spatialLayerColor: [0, 255, 0],
+        spatialPointStrokeWidth: 0.2,
       },
+      
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
 
-  config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets)));
+  config.layout(hconcat(neuroglancerView, vconcat(layerController)));
   const configJSON = config.toJSON();
   return configJSON;
 }
