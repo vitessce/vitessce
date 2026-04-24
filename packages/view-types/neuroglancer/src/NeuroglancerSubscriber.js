@@ -412,25 +412,25 @@ export function NeuroglancerSubscriber(props) {
 
   const centroidsByLayer = useMemo(() => {
     const result = {};
-  
+
     // Get scale from the first available points layer transform matrix
     const firstPointScope = pointLayerScopes?.[0];
     const ngOptions = obsPointsData?.[firstPointScope]?.neuroglancerOptions?.options;
     // const scaleX = ngOptions?.matrix?.[0]?.[0] ?? 7148.09960682;
     // const scaleY = ngOptions?.matrix?.[1]?.[1] ?? 7148.09960682;
-  
+
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
       const locationData = obsLocationsData?.[layerScope]?.[channelScope];
-  
+
       if (locationData?.obsIndex && locationData?.obsLocations) {
         const { obsIndex, obsLocations } = locationData;
         const [xs, ys] = obsLocations.data;
 
         result[layerScope] = obsIndex.map((id, i) => [
           id,
-          xs[i],// * scaleX,
-          ys[i],// * scaleY,
+          xs[i], // * scaleX,
+          ys[i], // * scaleY,
         ]);
       }
     });
@@ -465,7 +465,7 @@ export function NeuroglancerSubscriber(props) {
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
     if (!pointLayerScopes?.length) return;
-  
+
     const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
 
@@ -478,10 +478,10 @@ export function NeuroglancerSubscriber(props) {
         visibleSegmentIdsRef.current = [];
         incrementLatestViewerStateIteration();
       }
-      console.log("ZOOMED OUT", projectionScale)
+      console.log('ZOOMED OUT', projectionScale);
       return;
     }
-  
+
     const orientation = projectionOrientation ?? [0, 0, 0, 1];
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
@@ -491,7 +491,7 @@ export function NeuroglancerSubscriber(props) {
     const gridShape = spatialLevel.grid_shape;
     const { key } = spatialLevel;
 
-  
+
     // Step 1: compute viewport bbox in layer space
     const bbox = getViewportBoundingBox(
       position,
@@ -517,17 +517,17 @@ export function NeuroglancerSubscriber(props) {
     };
 
     console.log('annotBbox:', annotBbox);
-  
+
     // Step 3: get intersecting chunk coords
     const coords = getIntersectingChunkCoords(
       annotBbox, lowerBound, chunkSize, gridShape,
     );
     if (coords.length === 0) return;
     console.log('coords length:', coords.length);
-    
+
     // Step 4: fetch chunks (with cache) that intersect with viewport and parse them
-    const cellsUrl = annotationInfoRef.current._url; // setting this below
-    console.log("cellsUrl", cellsUrl)
+    const cellsUrl = annotationInfoRef.current.url; // setting this below
+    console.log('cellsUrl', cellsUrl);
 
     const { x, y, z, serializer } = annotationTransformRef.current;
 
@@ -543,29 +543,26 @@ export function NeuroglancerSubscriber(props) {
           return [];
         }
         const buffer = await res.arrayBuffer();
-        
+
         const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
         chunkCacheRef.current.set(cacheKey, ids);
         return ids;
-
       } catch (e) {
         console.error('fetchChunk error:', e);
         chunkCacheRef.current.set(cacheKey, []);
         return [];
       }
     };
-  
+
     const results = await Promise.all(coords.map(fetchChunk));
     const visibleIds = [...new Set(results.flat())];
-  
+
     if (visibleIds.length === 0) return;
-  
+
     console.log('visible segment IDs:', visibleIds.length);
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
-  
   }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
-
 
 
   const updateVisibleSegmentsThrottled = useMemo(
@@ -590,39 +587,9 @@ export function NeuroglancerSubscriber(props) {
     updateVisibleSegments();
   }, [initalViewerState]);
 
-  const initialRotationPushedRef = useRef(false);
-
-  const ngRotPushAtRef = useRef(0);
-  const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
-  const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
-  const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgQuatRef = useRef([0, 0, 0, 1]);
-  const lastNgScaleRef = useRef(null);
-  const lastVitessceRotationRef = useRef({
-    x: spatialRotationX,
-    y: spatialRotationY,
-    z: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-  });
-
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
 
-  // Track the last coord values we saw, and only mark "vitessce"
-  // when *those* actually change. This prevents cell set renders
-  // from spoofing the source.
-  const prevCoordsRef = useRef({
-    zoom: spatialZoom,
-    rx: spatialRotationX,
-    ry: spatialRotationY,
-    rz: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-    tx: spatialTargetX,
-    ty: spatialTargetY,
-  });
   // Get cells URL from obsPointsUrls
   const cellsUrl = useMemo(() => {
     const firstScope = pointLayerScopes?.[0];
@@ -630,17 +597,16 @@ export function NeuroglancerSubscriber(props) {
   }, [pointLayerScopes, obsPointsUrls]);
 
   useEffect(() => {
-    console.log("useEffect running")
     if (!cellsUrl) return;
-    
+
     // Fetch annotation info
     fetch(`${cellsUrl}/info`)
       .then(r => r.json())
-      .then(info => {
-        info._url = cellsUrl; // store URL on the info object
+      .then((info) => {
+        info.url = cellsUrl; // store URL on the info object
         annotationInfoRef.current = info;
         console.log('annotation info loaded, spatial levels:', info.spatial.length);
-         if (annotationTransformRef.current) setAnnotationReady(true);
+        if (annotationTransformRef.current) setAnnotationReady(true);
       })
       .catch(err => console.error('failed to fetch annotation info:', err));
   }, [cellsUrl]);
@@ -982,12 +948,12 @@ export function NeuroglancerSubscriber(props) {
       const layerScope = segmentationLayerScopes?.[idx];
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const layerSegments = Object.keys(layerColorMapping);
-       // Use viewport-culled IDs if available, otherwise fall back to all IDs
-      const segments =  annotationInfoRef.current 
-      ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
-      : layerSegments; // if no annotation source then all IDs.
+      // Use viewport-culled IDs if available, otherwise fall back to all IDs
+      const segments = annotationInfoRef.current
+        ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
+        : layerSegments; // if no annotation source then all IDs.
 
-      console.log('using segments:', segments.length, 
+      console.log('using segments:', segments.length,
         'visible ref:', visibleSegmentIdsRef.current?.length);
 
       return {

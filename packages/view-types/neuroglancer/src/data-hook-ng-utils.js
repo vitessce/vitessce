@@ -238,11 +238,11 @@ export function useNeuroglancerViewerState(
                 },
                 ...(ngOptions?.matrix
                   ? {
-                      transform: {
-                        matrix: ngOptions.matrix,
-                        outputDimensions: ngOptions.outputDimensions ?? result.dimensions,
-                      },
-                    }
+                    transform: {
+                      matrix: ngOptions.matrix,
+                      outputDimensions: ngOptions.outputDimensions ?? result.dimensions,
+                    },
+                  }
                   : {}),
               },
               tab: 'annotations',

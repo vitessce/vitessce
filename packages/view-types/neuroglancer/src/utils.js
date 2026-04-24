@@ -192,19 +192,15 @@ export function getViewportBoundingBox(
   const depth = projectionScale * Math.min(width, height) * 0.5;
 
   const invQuat = conjQuat(projectionOrientation);
-  const right   = applyQuat(invQuat, [1, 0, 0]);
-  const up      = applyQuat(invQuat, [0, 1, 0]);
-  const forward = applyQuat(invQuat, [0, 0,  - 1]);
+  const right = applyQuat(invQuat, [1, 0, 0]);
+  const up = applyQuat(invQuat, [0, 1, 0]);
+  const forward = applyQuat(invQuat, [0, 0, -1]);
 
-  const corners = [-halfW, halfW].flatMap(sx =>
-    [-halfH, halfH].flatMap(sy =>
-      [-depth, depth].map(sz => ([
-        position[0] + sx * right[0] + sy * up[0] + sz * forward[0],
-        position[1] + sx * right[1] + sy * up[1] + sz * forward[1],
-        position[2] + sx * right[2] + sy * up[2] + sz * forward[2],
-      ])),
-    ),
-  );
+  const corners = [-halfW, halfW].flatMap(sx => [-halfH, halfH].flatMap(sy => [-depth, depth].map(sz => ([
+    position[0] + sx * right[0] + sy * up[0] + sz * forward[0],
+    position[1] + sx * right[1] + sy * up[1] + sz * forward[1],
+    position[2] + sx * right[2] + sy * up[2] + sz * forward[2],
+  ]))));
 
   return {
     min: [
@@ -235,9 +231,7 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
       Math.floor((annotBbox.max[1] - lowerBound[1]) / chunkSize[1])) + 1));
 
   const coords = [];
-  for (let cx = cxMin; cx <= cxMax; cx++)
-    for (let cy = cyMin; cy <= cyMax; cy++)
-      coords.push([cx, cy, 0]);
+  for (let cx = cxMin; cx <= cxMax; cx++) for (let cy = cyMin; cy <= cyMax; cy++) coords.push([cx, cy, 0]);
   return coords;
 }
 

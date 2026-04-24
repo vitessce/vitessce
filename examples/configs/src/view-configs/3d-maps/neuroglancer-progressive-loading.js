@@ -43,23 +43,23 @@ function generateNeuroglancerProgressiveLoadingConfig() {
         //     y: [1, 'nm'],
         //     z: [1, 'nm'],
         //   },
-     matrix: [
-    [7148.09960682, 0, 0, 0],   // µm-scaled to match viewer dimensions
-    [0, 7148.09960682, 0, 0],
-    [0, 0, 3803.92156863, 0],
-  ],
-  outputDimensions: {
-    x: [0.000001, 'm'],   // must match viewer dimensions
-    y: [0.000001, 'm'],
-    z: [0.000001, 'm'],
-  },
+        matrix: [
+          [7148.09960682, 0, 0, 0], // µm-scaled to match viewer dimensions
+          [0, 7148.09960682, 0, 0],
+          [0, 0, 3803.92156863, 0],
+        ],
+        outputDimensions: {
+          x: [0.000001, 'm'], // must match viewer dimensions
+          y: [0.000001, 'm'],
+          z: [0.000001, 'm'],
+        },
       },
-    coordinationValues: {
-      fileUid: 'sorger-cells',
-      obsType: 'cell',
-      featureType: 'gene',
+      coordinationValues: {
+        fileUid: 'sorger-cells',
+        obsType: 'cell',
+        featureType: 'gene',
+      },
     },
-  }
   });
 
   // Cell centroids (2D — x and y only, z ignored by loader)
