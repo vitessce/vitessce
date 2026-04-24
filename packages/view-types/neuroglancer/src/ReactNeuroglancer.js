@@ -630,55 +630,62 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
-
-    setTimeout(() => {
-      const pointLayer = this.viewer.layerManager.managedLayers
-        .find(l => l.name?.includes('obsPoints'));
-      if (pointLayer) {
-        const annotState = pointLayer.layer.annotationStates.states[0];
-        const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
-        const serializer = annotState?.source?.annotationPropertySerializers?.[0];
-
-        if (transform && serializer) {
-          this.props.onAnnotationSourceReady?.({
-            x: transform[0],
-            y: transform[5],
-            z: transform[10],
-            serializer, // store NG serializer to parse binary annotations
-          });
-        }
-      }
-    }, 3000);
-
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
     this.disposers.push(visibleChunksChanged.add(() => {
       if (!firstChunkLoaded) {
+        let hasVisibleChunk = false;
+    
         for (const layer of this.viewer.layerManager.managedLayers) {
+          // Check segmentation layers
           if (layer.layer instanceof SegmentationUserLayer) {
-            const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
               const {
                 numVisibleChunksAvailable,
                 numVisibleChunksNeeded,
               } = rl.layerChunkProgressInfo || {};
               if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-              // Neuroglancer only shows chunks when a certain % is loaded.
-              // The 0.25 is from testing different values, can be reduced to 0.2 to shorten loader time
               return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
             });
-            if (hasVisibleChunk) {
-              firstChunkLoaded = true;
-              // Two frames to avoid flash while the following two happens
-              // Neuroglancer issues WebGL draw calls
-              requestAnimationFrame(() => {
-              // GPU has painted, pixels visible on screen
-                requestAnimationFrame(() => {
-                  this.props.onLayerLoadingChange?.(true);
-                });
+          }
+    
+          // Check annotation layers (points)
+          if (layer.layer instanceof AnnotationUserLayer) {
+            hasVisibleChunk = hasVisibleChunk || layer.layer.renderLayers?.some((rl) => {
+              const {
+                numVisibleChunksAvailable,
+                numVisibleChunksNeeded,
+              } = rl.layerChunkProgressInfo || {};
+              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+            });
+          }
+    
+          if (hasVisibleChunk) break;
+        }
+    
+        if (hasVisibleChunk) {
+          firstChunkLoaded = true;
+    
+          // Read annotation transform
+          const pointLayer = this.viewer.layerManager.managedLayers
+            .find(l => l.name?.includes('obsPoints'));
+          if (pointLayer) {
+            const annotState = pointLayer.layer.annotationStates.states[0];
+            const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
+            const serializer = annotState?.source?.annotationPropertySerializers?.[0];
+            if (transform && serializer) {
+              this.props.onAnnotationSourceReady?.({
+                x: transform[0], y: transform[5], z: transform[10], serializer,
               });
-              return;
             }
           }
+    
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            });
+          });
         }
       }
     }));
