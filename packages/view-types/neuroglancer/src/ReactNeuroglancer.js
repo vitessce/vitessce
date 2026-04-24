@@ -632,64 +632,84 @@ export default class Neuroglancer extends React.Component {
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
-    this.disposers.push(visibleChunksChanged.add(() => {
-      if (!firstChunkLoaded) {
-        let hasVisibleChunk = false;
-    
-        for (const layer of this.viewer.layerManager.managedLayers) {
+    let rafId = null;
+
+    const checkChunksLoaded = () => {
+      if (firstChunkLoaded) return;
+      
+      let hasVisibleChunk = false;
+
+      for (const layer of this.viewer.layerManager.managedLayers) {
           // Check segmentation layers
-          if (layer.layer instanceof SegmentationUserLayer) {
-            hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-              const {
-                numVisibleChunksAvailable,
-                numVisibleChunksNeeded,
-              } = rl.layerChunkProgressInfo || {};
-              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
-            });
-          }
-    
-          // Check annotation layers (points)
-          if (layer.layer instanceof AnnotationUserLayer) {
-            hasVisibleChunk = hasVisibleChunk || layer.layer.renderLayers?.some((rl) => {
-              const {
-                numVisibleChunksAvailable,
-                numVisibleChunksNeeded,
-              } = rl.layerChunkProgressInfo || {};
-              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
-            });
-          }
-    
-          if (hasVisibleChunk) break;
+        if (layer.layer instanceof SegmentationUserLayer) {
+          hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
+              rl.layerChunkProgressInfo || {};
+            if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+          }) ?? false;
         }
-    
-        if (hasVisibleChunk) {
-          firstChunkLoaded = true;
-    
-          // Read annotation transform
-          const pointLayer = this.viewer.layerManager.managedLayers
-            .find(l => l.name?.includes('obsPoints'));
-          if (pointLayer) {
-            const annotState = pointLayer.layer.annotationStates.states[0];
-            const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
-            const serializer = annotState?.source?.annotationPropertySerializers?.[0];
-            if (transform && serializer) {
-              this.props.onAnnotationSourceReady?.({
-                x: transform[0], y: transform[5], z: transform[10], serializer,
-              });
-            }
+        // Check annotation layers (points)
+        if (layer.layer instanceof AnnotationUserLayer) {
+          hasVisibleChunk = hasVisibleChunk || (layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
+              rl.layerChunkProgressInfo || {};
+            if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.1; //points load fast
+          }) ?? false);
+        }
+
+        if (hasVisibleChunk) break;
+      }
+
+      if (hasVisibleChunk) {
+        firstChunkLoaded = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        // Read annotation transform
+        const pointLayer = this.viewer.layerManager.managedLayers
+          .find(l => l.name?.includes('obsPoints'));
+        if (pointLayer) {
+          const annotState = pointLayer.layer.annotationStates.states[0];
+          const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
+          const serializer = annotState?.source?.annotationPropertySerializers?.[0];
+          if (transform && serializer) {
+            this.props.onAnnotationSourceReady?.({
+              x: transform[0], y: transform[5], z: transform[10], serializer,
+            });
           }
-    
+        }
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              this.props.onLayerLoadingChange?.(true);
-            });
+            this.props.onLayerLoadingChange?.(true);
           });
-        }
+        });
+        return;
+      }
+
+      // Keep polling every frame until chunks are available
+      rafId = requestAnimationFrame(checkChunksLoaded);
+    };
+
+    // Start polling when chunks change
+    this.disposers.push(visibleChunksChanged.add(() => {
+      if (!firstChunkLoaded && !rafId) {
+        rafId = requestAnimationFrame(checkChunksLoaded);
       }
     }));
-    this.disposers.push(() => { firstChunkLoaded = false; });
+
+    // Also start polling after a short delay as fallback
+    setTimeout(() => {
+      if (!firstChunkLoaded && !rafId) {
+        rafId = requestAnimationFrame(checkChunksLoaded);
+      }
+    }, 1000);
+
+    this.disposers.push(() => {
+      firstChunkLoaded = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    });
+
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
