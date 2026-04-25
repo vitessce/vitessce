@@ -381,6 +381,23 @@ export function NeuroglancerSubscriber(props) {
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = hex; // store default color
           }
+        } else if (layerSets && layerIndex) {
+          // cellSetSelection encoding — color by obs set membership
+          const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+          const cellColors = getCellColors({
+            cellSets: mergedCellSets,
+            cellSetSelection: obsSetSelection,
+            cellSetColor: obsSetColor,
+            obsIndex: layerIndex,
+            theme,
+          });
+          const ngCellColors = {};
+          // cellColors is a Map keyed by segment ID
+          cellColors.forEach((color, id) => {
+            ngCellColors[id] = rgbToHex(color);
+          });
+          result[layerScope][channelScope] = ngCellColors;
+          result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
     });
@@ -567,7 +584,7 @@ export function NeuroglancerSubscriber(props) {
         // store URL on the info object
         info.url = cellsUrl;
         annotationInfoRef.current = info;
-        console.log('annotation info loaded, spatial levels:', info.spatial.length);
+        // console.log('annotation info loaded, spatial levels:', info.spatial.length);
         if (annotationTransformRef.current) setAnnotationReady(true);
       })
       .catch(err => console.error('failed to fetch annotation info:', err));
@@ -575,11 +592,10 @@ export function NeuroglancerSubscriber(props) {
 
   useEffect(() => {
     if (annotationReady) {
-        // Points are loaded and showing — mark as loaded
+      // Points are loaded and showing — mark as loaded
       // Meshes will load on demand when zoomed in
       setIsLayersLoaded(true);
       updateVisibleSegments();
-
     }
   }, [annotationReady]);
 
@@ -747,12 +763,25 @@ export function NeuroglancerSubscriber(props) {
         opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
         defaultColor: segmentationColorMapping?.[layerScope]?.defaultColor ?? null,
       };
-      // console.log('cellColorMappingByLayer recomputing');
-      // ...
-      // console.log('defaultColor:', segmentationColorMapping?.[layerScope]?.defaultColor);
     });
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
+
+
+  useEffect(() => {
+    if (!hasAnnotationSource && isReady) {
+      // Check if obs sets data has loaded with actual IDs
+      const hasData = segmentationLayerScopes?.some(layerScope =>
+        segmentationChannelScopesByLayer?.[layerScope]?.some(channelScope =>
+          obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex?.length > 0
+        )
+      );
+      if (hasData) {
+        setIsLayersLoaded(true);
+      }
+    }
+  }, [hasAnnotationSource, isReady, obsSegmentationsSetsData, 
+      segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
