@@ -345,26 +345,6 @@ export function NeuroglancerSubscriber(props) {
           spatialChannelColor,
           spatialChannelOpacity,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
-
-
-//         console.log('obsSegmentationsSetsData:', obsSegmentationsSetsData);
-// console.log('layerScope:', layerScope);
-// console.log('channelScope:', channelScope);
-// console.log('raw data:', obsSegmentationsSetsData?.[layerScope]?.[channelScope]);
-
-// console.log('obsColorEncoding:', obsColorEncoding);
-// console.log('spatialChannelColor:', spatialChannelColor);
-// console.log('layerSets:', !!layerSets);
-// console.log('layerIndex:', layerIndex);
-
-// console.log('layerIndex contains 99?', layerIndexFromSets?.includes('99'));
-// console.log('layerIndex contains 3000?', layerIndexFromSets?.includes('3000'));
-// console.log('layerIndex type of first element:', typeof layerIndexFromSets?.[0]);
-
-      // console.log('layerIndex length:', layerIndexFromSets?.length);
-      // console.log('layerIndex sample:', layerIndexFromSets?.slice(0, 10));
-      // console.log('does layerIndex contain 99?', layerIndexFromSets?.includes(99) || layerIndexFromSets?.includes('99'));
-      // console.log('does layerIndex contain 3000?', layerIndexFromSets?.includes(3000) || layerIndexFromSets?.includes('3000'));
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
           if (layerIndex && spatialChannelColor) {
@@ -387,15 +367,6 @@ export function NeuroglancerSubscriber(props) {
                   ngCellColors[id] = hex;
                 }
               });
-              console.log('obsIndex length:', layerIndexFromSets?.length); // 5809
-              // What's the max ID in obsIndex?
-              console.log('max obsIndex ID:', Math.max(...layerIndexFromSets?.map(Number)));
-              // Does obsIndex contain 99?
-              console.log('obsIndex as set contains 99:', new Set(layerIndexFromSets).has('99'));
-
-              // console.log('ngCellColors size:', Object.keys(ngCellColors).length);
-              // console.log('99 in ngCellColors:', '99' in ngCellColors);
-              // console.log('3000 in ngCellColors:', '3000' in ngCellColors);
             } else {
               // null or empty selection → show ALL segments
               layerIndex.forEach((id) => {
@@ -476,7 +447,7 @@ export function NeuroglancerSubscriber(props) {
         visibleSegmentIdsRef.current = [];
         incrementLatestViewerStateIteration();
       }
-      console.log('ZOOMED OUT', projectionScale);
+      console.log("ZOOMED OUT", projectionScale)
       return;
     }
 
@@ -541,19 +512,11 @@ export function NeuroglancerSubscriber(props) {
           return [];
         }
         const buffer = await res.arrayBuffer();
-        const view = new DataView(buffer);
-        const count = view.getUint32(0, true);
-        const properties = info.properties;
-        // console.log("count", count, properties)
-
+        
         const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
         chunkCacheRef.current.set(cacheKey, ids);
-        // for (let i = 0; i < Math.min(5, count); i++) {
-        //   serializer.deserialize(view, 8, i, count, true, properties);
-        //   console.log(`record ${i}: phenotype=${properties[0]} id=${properties[1]}`);
-        // }
-
         return ids;
+
       } catch (e) {
         console.error('fetchChunk error:', e);
         chunkCacheRef.current.set(cacheKey, []);
@@ -621,9 +584,14 @@ export function NeuroglancerSubscriber(props) {
 
   useEffect(() => {
     if (annotationReady) {
+        // Points are loaded and showing — mark as loaded
+      // Meshes will load on demand when zoomed in
+      setIsLayersLoaded(true);
       updateVisibleSegments();
+
     }
   }, [annotationReady]);
+
 
   const onAnnotationSourceReady = useCallback((transform) => {
     annotationTransformRef.current = transform;
@@ -946,21 +914,13 @@ export function NeuroglancerSubscriber(props) {
       if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const layerSegments = Object.keys(layerColorMapping);
-      // Use viewport-culled IDs if available, otherwise fall back to all IDs
+       // Use viewport-culled IDs if available, otherwise fall back to all IDs
       const segments = annotationInfoRef.current
-        ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
-        : layerSegments; // if no annotation source then all IDs.
-        // console.log('first 5 visible IDs:', visibleSegmentIdsRef.current?.slice(0, 5));
-        // console.log('first 5 segmentColors keys:', Object.keys(layerColorMapping).slice(0, 5));
+      ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
+      : layerSegments; // if no annotation source then all IDs.
 
-        // console.log('all segmentColors keys sample:', Object.keys(layerColorMapping).slice(0, 10));
-        // console.log('type of first key:', typeof Object.keys(layerColorMapping)[0]);
-        // // Also check what index '99' maps to in the obsIndex
-        // console.log('does key 99 exist?', '99' in layerColorMapping);
-        // console.log('does key 3000 exist?', '3000' in layerColorMapping);
-        // // Check numeric versions
-        // console.log('numeric 99:', layerColorMapping[99]);
-        // console.log('numeric 3000:', layerColorMapping[3000]);
+      console.log('using segments:', segments.length, 
+        'visible ref:', visibleSegmentIdsRef.current?.length);
 
       return {
         ...layer,

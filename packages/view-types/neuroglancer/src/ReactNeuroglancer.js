@@ -632,84 +632,70 @@ export default class Neuroglancer extends React.Component {
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
-    let rafId = null;
 
-    const checkChunksLoaded = () => {
-      if (firstChunkLoaded) return;
+
+    const checkAndMarkLoaded = () => {
+      if (firstChunkLoaded) return false;
       
-      let hasVisibleChunk = false;
-
       for (const layer of this.viewer.layerManager.managedLayers) {
-          // Check segmentation layers
+         // Check segmentation layers
         if (layer.layer instanceof SegmentationUserLayer) {
-          hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
             const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
               rl.layerChunkProgressInfo || {};
             if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
             return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
-          }) ?? false;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+            return true;
+          }
         }
-        // Check annotation layers (points)
         if (layer.layer instanceof AnnotationUserLayer) {
-          hasVisibleChunk = hasVisibleChunk || (layer.layer.renderLayers?.some((rl) => {
+           // Check Annotation layers
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
             const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
               rl.layerChunkProgressInfo || {};
             if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.1; //points load fast
-          }) ?? false);
-        }
-
-        if (hasVisibleChunk) break;
-      }
-
-      if (hasVisibleChunk) {
-        firstChunkLoaded = true;
-        if (rafId) cancelAnimationFrame(rafId);
-        // Read annotation transform
-        const pointLayer = this.viewer.layerManager.managedLayers
-          .find(l => l.name?.includes('obsPoints'));
-        if (pointLayer) {
-          const annotState = pointLayer.layer.annotationStates.states[0];
-          const transform = annotState?.chunkTransform?.value?.layerToChunkTransform;
-          const serializer = annotState?.source?.annotationPropertySerializers?.[0];
-          if (transform && serializer) {
-            this.props.onAnnotationSourceReady?.({
-              x: transform[0], y: transform[5], z: transform[10], serializer,
-            });
+            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            const annotState = layer.layer.annotationStates?.states[0];
+            const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+            const serializer = annotState?.source?.annotationPropertySerializers?.[0];
+            if (t && serializer) {
+              this.props.onAnnotationSourceReady?.({ x: t[0], y: t[5], z: t[10], serializer });
+            }
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+            return true;
           }
         }
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            this.props.onLayerLoadingChange?.(true);
-          });
-        });
-        return;
       }
-
-      // Keep polling every frame until chunks are available
-      rafId = requestAnimationFrame(checkChunksLoaded);
+      return false;
     };
 
-    // Start polling when chunks change
-    this.disposers.push(visibleChunksChanged.add(() => {
-      if (!firstChunkLoaded && !rafId) {
-        rafId = requestAnimationFrame(checkChunksLoaded);
-      }
-    }));
+    // Subscribe to future changes
+    this.disposers.push(visibleChunksChanged.add(checkAndMarkLoaded));
 
-    // Also start polling after a short delay as fallback
+    // To fix infinite loading loop on subsequent page refresh due to cache
+
+    // Also check immediately in case chunks already loaded (cached)
     setTimeout(() => {
-      if (!firstChunkLoaded && !rafId) {
-        rafId = requestAnimationFrame(checkChunksLoaded);
-      }
+      if (!firstChunkLoaded) checkAndMarkLoaded();
+    }, 100);
+
+    // And check after a short delay as fallback
+    setTimeout(() => {
+      if (!firstChunkLoaded) checkAndMarkLoaded();
     }, 1000);
 
-    this.disposers.push(() => {
-      firstChunkLoaded = false;
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = null;
-    });
-
+    this.disposers.push(() => { firstChunkLoaded = false; });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
