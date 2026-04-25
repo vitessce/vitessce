@@ -347,51 +347,40 @@ export function NeuroglancerSubscriber(props) {
         } = segmentationChannelCoordination[0][layerScope][channelScope];
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
-          if (layerIndex && spatialChannelColor) {
+          if (spatialChannelColor) {
             const hex = rgbToHex(spatialChannelColor);
             const ngCellColors = {};
-
-            if (obsSetSelection?.length > 0) {
-              // Only color the segments belonging to selected sets.
-              const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
-              const selectedIds = new Set();
-              obsSetSelection.forEach((setPath) => {
-                const rootNode = mergedCellSets?.tree?.find(n => n.name === setPath[0]);
-                const leafNode = setPath.length > 1
-                  ? rootNode?.children?.find(n => n.name === setPath[1])
-                  : rootNode;
-                leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
-              });
-              layerIndex.forEach((id) => {
-                if (selectedIds.has(String(id))) {
+            if (layerIndex) {
+              // Has obs sets — use layerIndex for IDs
+              if (obsSetSelection?.length > 0) {
+                const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+                const selectedIds = new Set();
+                obsSetSelection.forEach((setPath) => {
+                  const rootNode = mergedCellSets?.tree?.find(n => n.name === setPath[0]);
+                  const leafNode = setPath.length > 1
+                    ? rootNode?.children?.find(n => n.name === setPath[1])
+                    : rootNode;
+                  leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
+                });
+                layerIndex.forEach((id) => {
+                  if (selectedIds.has(String(id))) {
+                    ngCellColors[id] = hex;
+                  }
+                });
+              } else { 
+                // null or empty selection - show ALL segments
+                layerIndex.forEach((id) => {
                   ngCellColors[id] = hex;
-                }
-              });
-            } else {
-              // null or empty selection → show ALL segments
-              layerIndex.forEach((id) => {
-                ngCellColors[id] = hex;
-              });
+                });
+              }
             }
+            
+            // Store hex as default even if no layerIndex
+            // so applyColorsAndVisibility knows the intended color
             result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = hex; // store default color
           }
-        } else if (layerSets && layerIndex) {
-          const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
-          const cellColors = getCellColors({
-            cellSets: mergedCellSets,
-            cellSetSelection: obsSetSelection,
-            cellSetColor: obsSetColor,
-            obsIndex: layerIndex,
-            theme,
-          });
-          // Convert the list of colors to an object of hex strings, which NG requires.
-          const ngCellColors = {};
-          cellColors.forEach((color, i) => {
-            ngCellColors[layerIndex[i]] = rgbToHex(color);
-          });
-          result[layerScope][channelScope] = ngCellColors;
-          result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
     });
@@ -565,6 +554,8 @@ export function NeuroglancerSubscriber(props) {
     const firstScope = pointLayerScopes?.[0];
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
+
+  const hasAnnotationSource = !!cellsUrl;
 
   useEffect(() => {
     if (!cellsUrl) return;
@@ -750,10 +741,15 @@ export function NeuroglancerSubscriber(props) {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+
       result[layerScope] = {
         colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
         opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
+        defaultColor: segmentationColorMapping?.[layerScope]?.defaultColor ?? null,
       };
+      // console.log('cellColorMappingByLayer recomputing');
+      // ...
+      // console.log('defaultColor:', segmentationColorMapping?.[layerScope]?.defaultColor);
     });
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
@@ -913,19 +909,36 @@ export function NeuroglancerSubscriber(props) {
       );
       if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
-      const layerSegments = Object.keys(layerColorMapping);
-       // Use viewport-culled IDs if available, otherwise fall back to all IDs
-      const segments = annotationInfoRef.current
-      ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
-      : layerSegments; // if no annotation source then all IDs.
+      const defaultColor = cellColorMappingByLayer?.[layerScope]?.defaultColor;
+ // Use viewport-culled IDs if available, otherwise fall back to all IDs
+      const segments = hasAnnotationSource
+        ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
+        : Object.keys(layerColorMapping).length > 0 
+          ? Object.keys(layerColorMapping)
+          : []; // meshes-only fallback handled below
 
-      console.log('using segments:', segments.length, 
-        'visible ref:', visibleSegmentIdsRef.current?.length);
+            // If no color mapping, build one from spatialChannelColor for visible segments
+      let derivedSegmentColors = layerColorMapping;
+      if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
+        derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
+      }
+     
+//       console.log('defaultColor in updatedLayers:', defaultColor);
+// console.log('segmentColors sample:', Object.entries(derivedSegmentColors).slice(0, 3));
 
+
+
+
+  // console.log('segments set:', new Set(segments));
+  // console.log('segmentColors keys set:', new Set(Object.keys(derivedSegmentColors)));
+  // const missingColors = segments.filter(id => !(id in derivedSegmentColors));
+  // console.log('segments missing colors:', missingColors.length, missingColors.slice(0, 10));
+  // const extraColors = Object.keys(derivedSegmentColors).filter(id => !segments.includes(id));
+  // console.log('colors for non-segments:', extraColors.length, extraColors.slice(0, 10));
       return {
         ...layer,
         segments,
-        segmentColors: layerColorMapping,
+        segmentColors: derivedSegmentColors,
         objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];

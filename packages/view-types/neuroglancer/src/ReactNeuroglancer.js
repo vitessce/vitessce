@@ -494,6 +494,7 @@ export default class Neuroglancer extends React.Component {
       const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
 
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
+      const defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
 
       // Track all known IDs for this layer scope
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
@@ -507,7 +508,7 @@ export default class Neuroglancer extends React.Component {
       // Build a full color table: selected keep their hex, others grey
       const fullSegmentColors = {};
       for (const id of this.allKnownIdsByLayer[layerScope] || []) {
-        fullSegmentColors[id] = selected[id] || GREY_HEX;
+        fullSegmentColors[id] = selected[id] || defaultColor; //  use defaultColor
       }
 
       if (layer.type === 'segmentation') {
@@ -817,11 +818,47 @@ export default class Neuroglancer extends React.Component {
       ? Object.values(cellColorMappingByLayer)
         .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
     const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
+
+
+    const hasObsSetColors = Object.values(cellColorMappingByLayer)
+    .some(v => Object.keys(v?.colors || {}).length > 0);
+
+    // Only run applyColorsAndVisibility when we have obs set colors
+    // Otherwise segmentColors from viewerState are already correct
+    if (this.didLayersChange(prevVS, viewerState)) {
+      this.withoutEmitting(() => {
+        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
+        this.viewer.state.restoreState({ layers });
+        if (hasObsSetColors) {
+          this.applyColorsAndVisibility(cellColorMappingByLayer);
+        }
+      });
+    }
+
     if (!this.didLayersChange(prevVS, viewerState)
+      && hasObsSetColors
       && (mappingRefChanged || prevSize !== currSize)) {
       this.withoutEmitting(() => {
         this.applyColorsAndVisibility(cellColorMappingByLayer);
       });
+    }
+
+
+    // When no obs set colors, handle color-only changes directly
+    // (applyColorsAndVisibility is skipped in this case)
+    if (!hasObsSetColors && !this.didLayersChange(prevVS, viewerState)) {
+      const prevSegColors = JSON.stringify(
+        (prevVS?.layers || []).map(l => l?.segmentColors)
+      );
+      const nextSegColors = JSON.stringify(
+        (viewerState?.layers || []).map(l => l?.segmentColors)
+      );
+      if (prevSegColors !== nextSegColors) {
+        this.withoutEmitting(() => {
+          const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
+          this.viewer.state.restoreState({ layers });
+        });
+      }
     }
 
     // Treat "real" layer source/type changes differently from segment list changes.
