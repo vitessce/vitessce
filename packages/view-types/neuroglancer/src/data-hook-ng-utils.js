@@ -4,26 +4,11 @@ import { useMemoCustomComparison, customIsEqualForInitialViewerState } from './u
 import { getPointsShader } from './shader-utils.js';
 
 
-export const DEFAULT_NG_PROPS = {
-  layout: '3d',
-  position: [0, 0, 0],
-  projectionOrientation: [0, 0, 0, 1],
-  projectionScale: 1024,
-  crossSectionScale: 1,
-  dimensions: {
-    x: [1, 'nm'],
-    y: [1, 'nm'],
-    z: [1, 'nm'],
-  },
-  layers: [],
+const DEFAULT_NG_DIMENSIONS = {
+  x: [1, 'nm'],
+  y: [1, 'nm'],
+  z: [1, 'nm'],
 };
-
-function toPrecomputedSource(url) {
-  if (!url) {
-    throw new Error('toPrecomputedSource: URL is required');
-  }
-  return `precomputed://${url}`;
-}
 
 const UNIT_TO_NM = {
   nm: 1,
@@ -34,6 +19,22 @@ const UNIT_TO_NM = {
   m: 1e9,
 };
 
+export const DEFAULT_NG_PROPS = {
+  layout: '3d',
+  position: [0, 0, 0],
+  projectionOrientation: [0, 0, 0, 1],
+  projectionScale: 1024,
+  crossSectionScale: 1,
+  dimensions: DEFAULT_NG_DIMENSIONS,
+  layers: [],
+};
+
+function toPrecomputedSource(url) {
+  if (!url) {
+    throw new Error('toPrecomputedSource: URL is required');
+  }
+  return `precomputed://${url}`;
+}
 
 function isInNanometerRange(value, unit, minNm = 1, maxNm = 100) {
   const n = typeof value === 'number' ? value : Number(value);
@@ -121,13 +122,15 @@ export function useNeuroglancerViewerState(
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
+    // Get dimensions from the pointLayer
+    // falls back to nm if no points layer or no outputDimensions defined
+    const firstPointScope = pointLayerScopes?.[0];
+    const firstPointData = obsPointsData?.[firstPointScope];
+    const outputDimensions = firstPointData?.neuroglancerOptions?.options?.outputDimensions;
+
     result = {
       ...result,
-      dimensions: {
-        x: [0.000001, 'm'],
-        y: [0.000001, 'm'],
-        z: [0.000001, 'm'],
-      },
+      dimensions: outputDimensions ?? DEFAULT_NG_DIMENSIONS,
     };
 
     // ======= SEGMENTATIONS =======
