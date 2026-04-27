@@ -7,6 +7,9 @@ import {
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
 
+// Used by NG source code for decoding annotation chunks
+export const ANNOTATION_HEADER_OFFSET = 8;
+
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 100,
   projectionOrientation: 2e-2,
@@ -231,7 +234,9 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
       Math.floor((annotBbox.max[1] - lowerBound[1]) / chunkSize[1])) + 1));
 
   const coords = [];
-  for (let cx = cxMin; cx <= cxMax; cx++) for (let cy = cyMin; cy <= cyMax; cy++) coords.push([cx, cy, 0]);
+  for (let cx = cxMin; cx <= cxMax; cx++)
+    for (let cy = cyMin; cy <= cyMax; cy++)
+      coords.push([cx, cy, 0]);
   return coords;
 }
 
@@ -250,7 +255,7 @@ export function parseAnnotationChunkSegmentIds(buffer, serializer) {
   const ids = [];
 
   for (let i = 0; i < count; i++) {
-    serializer.deserialize(dv, 8, i, count, true, properties);
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
     // properties[0] = phenotype
     // properties[1] = id (mesh segment ID)
     if (properties[1] > 0) ids.push(String(properties[1]));

@@ -798,16 +798,6 @@ export default class Neuroglancer extends React.Component {
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
-    if (this.didLayersChange(prevVS, viewerState)) {
-      this.withoutEmitting(() => {
-        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        this.viewer.state.restoreState({ layers });
-        if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
-          this.applyColorsAndVisibility(cellColorMappingByLayer);
-        }
-      });
-    }
 
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them

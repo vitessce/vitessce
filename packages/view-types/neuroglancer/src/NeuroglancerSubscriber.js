@@ -61,16 +61,13 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
-// Allow up to 25 chunks per update — empirically optimal for typical datasets.
-// Chunk sizes are inversely proportional to grid density (tissue-map-tools convention),
-// so 25 chunks covers a consistent ~500µm² physical area regardless of dataset size,
-// while staying well within browser fetch limits.
-const MAX_CHUNKS_TO_LOAD = 25;
-const DATASET_SPATIAL_EXTENT = 0.3;
+
+const MAX_CHUNKS_TO_LOAD = 36;
+const DATASET_SPATIAL_EXTENT = 0.4;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
-const ANNOTATION_HEADER_OFFSET = 8;
+
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
   neuroglancer: 'neuroglancer',
@@ -95,7 +92,7 @@ export function NeuroglancerSubscriber(props) {
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
-    meshLoadThresholdUm = 1000,
+    meshLoadThresholdUm,
     meshMaxChunks,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
@@ -471,8 +468,12 @@ export function NeuroglancerSubscriber(props) {
     const annotDimScale = info.dimensions?.x?.[0] ?? 1;
     const UNIT_TO_NM = { nm: 1, um: 1e3, µm: 1e3, mm: 1e6, m: 1e9 };
     const annotNmPerUnit = annotDimScale * (UNIT_TO_NM[annotDimUnit] ?? 1);
-    const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
-  
+    // const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
+    // Allow chunks covering up to half the grid in each dimension
+    const maxChunks = meshMaxChunks ?? Math.min(
+      Math.ceil(gridShape[0] / 2) * Math.ceil(gridShape[1] / 2),
+      MAX_CHUNKS_TO_LOAD, // hard cap for large grids
+    );
     // transform.x = annotUnit / viewerUnit
     //  1 viewerUnit = (1/transform.x) annotUnits
     // 1 viewerUnit in nm = annotNmPerUnit / transform.x
@@ -603,7 +604,6 @@ export function NeuroglancerSubscriber(props) {
     return !!(firstPointData?.neuroglancerOptions?.useForSegmentationCulling);
   }, [cellsUrl, pointLayerScopes, obsPointsData]);
 
-  // console.log('hasMatchingAnnotationSource:', hasMatchingAnnotationSource);
 
   useEffect(() => {
     if (!cellsUrl) return;
@@ -807,7 +807,7 @@ export function NeuroglancerSubscriber(props) {
           obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex?.length > 0
         )
       );
-      if (hasData) {
+      if (hasData || !segmentationLayerScopes?.length) {
         setIsLayersLoaded(true);
       }
     }
@@ -1014,7 +1014,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-    latestViewerStateIteration]);
+    latestViewerStateIteration, hasMatchingAnnotationSource]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
