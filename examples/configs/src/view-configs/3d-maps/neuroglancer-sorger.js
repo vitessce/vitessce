@@ -69,7 +69,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       ],
     },
     // maximum number of annotation spatial chunks fetched per viewport update
-    meshMaxChunks: 36,
+    meshMaxChunks: 64,
     // projectionScale threshold (in µm/pixel) below which meshes load
     meshLoadThresholdUm: 10,
   });

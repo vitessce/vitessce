@@ -654,24 +654,24 @@ export default class Neuroglancer extends React.Component {
             return true;
           }
         }
+        // Check Annotation layers
         if (layer.layer instanceof AnnotationUserLayer) {
-          // Check Annotation layers
           const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
-            if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
-          });
+          const { numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+          return numVisibleChunksNeeded > 0;
+        });
           if (hasVisibleChunk) {
             firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+
             const annotState = layer.layer.annotationStates?.states[0];
             const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
             const serializer = annotState?.source?.annotationPropertySerializers?.[0];
             if (t && serializer) {
               this.props.onAnnotationSourceReady?.({ x: t[0], y: t[5], z: t[10], serializer });
             }
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-              this.props.onLayerLoadingChange?.(true);
-            }));
             return true;
           }
         }
