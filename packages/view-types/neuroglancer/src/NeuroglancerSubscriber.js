@@ -62,8 +62,18 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 
+// Maximum number of annotation spatial chunks fetched per viewport update.
+// Acts as a safety valve against fetch storms on large grids (e.g. 64×64 = 4096 chunks).
+// Chunk sizes scale inversely with grid density (tissue-map-tools convention), so 25 chunks
+// consistently covers a ~500µm² viewport area regardless of dataset grid size,
+// while staying within browser concurrent fetch limits.
 const MAX_CHUNKS_TO_LOAD = 36;
-const DATASET_SPATIAL_EXTENT = 0.4;
+
+// Fraction of dataset spatial extent used as the default mesh-load threshold.
+// Meshes are shown only when projectionScale (µm/pixel) is below this fraction
+// of the dataset's largest dimension — i.e. when the user is zoomed in enough
+// to benefit from mesh detail.
+const DATASET_SPATIAL_EXTENT = 0.3;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
@@ -123,7 +133,6 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
-  // const viewerDimensionsRef = useRef(DEFAULT_NG_DIMENSIONS);
 
 
   const [annotationReady, setAnnotationReady] = useState(false);
@@ -432,19 +441,16 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
-  // // Update when initalViewerState changes
-  // useEffect(() => {
-  //   if (initalViewerState?.dimensions) {
-  //     viewerDimensionsRef.current = initalViewerState.dimensions;
-  //   }
-  // }, [initalViewerState]);
-
-
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
     ...initalViewerState,
     ...(initialNgCameraState ?? {}),
   });
+
+
+  // Core viewport culling function — determines which mesh segments are visible
+  // in the current camera view and updates visibleSegmentIdsRef accordingly.
+
   const updateVisibleSegments = useCallback(async () => {
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
@@ -532,7 +538,7 @@ export function NeuroglancerSubscriber(props) {
       }
       return;
     }
-    // Step 4: fetch chunks with cache
+    // Step 4: fetch chunks with cache, parse segment IDs via NG serializer
     const cellsUrl = info.url;
     const { serializer } = annotationTransformRef.current;
 
@@ -597,6 +603,9 @@ export function NeuroglancerSubscriber(props) {
   }, [pointLayerScopes, obsPointsUrls]);
 
 
+  // Whether the points layer has opted in to viewport-based mesh culling (useForSegmentationCulling: true).
+  // To avoid datasets like MERFISH (where points are molecules, not cells)
+  // from incorrectly driving mesh culling.
   const hasMatchingAnnotationSource = useMemo(() => {
     if (!cellsUrl) return false;
     const firstPointScope = pointLayerScopes?.[0];
@@ -605,6 +614,8 @@ export function NeuroglancerSubscriber(props) {
   }, [cellsUrl, pointLayerScopes, obsPointsData]);
 
 
+  // URL of the annotation source for the points layer.
+  // To fetch cells/info and spatial chunk files for viewport culling.
   useEffect(() => {
     if (!cellsUrl) return;
     // Fetch annotation info
@@ -621,6 +632,9 @@ export function NeuroglancerSubscriber(props) {
       .catch(err => console.error('failed to fetch annotation info:', err));
   }, [cellsUrl]);
 
+
+  // Once both annotation info and transform are available, trigger the initial
+  // mesh visibility update and mark the layer as loaded.
   useEffect(() => {
     if (annotationReady) {
       // Points are loaded and showing — mark as loaded
@@ -631,6 +645,9 @@ export function NeuroglancerSubscriber(props) {
   }, [annotationReady]);
 
 
+  // Callback passed to ReactNeuroglancer when the annotation layer's first chunk loads.
+  // Receives the layerToChunkTransform (for coordinate space conversion) and
+  // the NG property serializer (for binary chunk parsing). Sets annotationReady to trigger initial culling.
   const onAnnotationSourceReady = useCallback((transform) => {
     annotationTransformRef.current = transform;
     if (annotationInfoRef.current) setAnnotationReady(true);
@@ -966,8 +983,8 @@ export function NeuroglancerSubscriber(props) {
       if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const defaultColor = cellColorMappingByLayer?.[layerScope]?.defaultColor;
-      // Use viewport-culled IDs if available, otherwise fall back to all IDs
 
+      // Determine which segment IDs to pass to NG:
       let segments = [];
       if (hasMatchingAnnotationSource) {
         // Viewport culling active — use only visible segment IDs

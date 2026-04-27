@@ -10,12 +10,6 @@ export const DEFAULT_NG_DIMENSIONS = {
   z: [1, 'nm'],
 };
 
-// export const DEFAULT_NG_DIMENSIONS = {
-//   x: [0.000001, 'm'],
-//   y: [0.000001, 'm'],
-//   z: [0.000001, 'm'],
-// };
-
 const UNIT_TO_NM = {
   nm: 1,
   um: 1e3,
@@ -165,7 +159,7 @@ export function useNeuroglancerViewerState(
 
           result = {
             ...result,
-            showDefaultAnnotations: false,
+            showDefaultAnnotations: false, // this removes the yellow box around pointsLayer
             layers: [
               ...result.layers,
               {
