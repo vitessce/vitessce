@@ -10,7 +10,7 @@ export const DEFAULT_NG_DIMENSIONS = {
   z: [1, 'nm'],
 };
 
-const UNIT_TO_NM = {
+export const UNIT_TO_NM = {
   nm: 1,
   um: 1e3,
   µm: 1e3,

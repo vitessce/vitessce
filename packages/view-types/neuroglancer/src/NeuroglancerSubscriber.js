@@ -32,7 +32,7 @@ import {
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
-import { useNeuroglancerViewerState, DEFAULT_NG_DIMENSIONS } from './data-hook-ng-utils.js';
+import { useNeuroglancerViewerState, UNIT_TO_NM } from './data-hook-ng-utils.js';
 import {
   useMemoCustomComparison,
   customIsEqualForCellColors,
@@ -472,22 +472,21 @@ export function NeuroglancerSubscriber(props) {
     // Derive viewer scale from annotation info + transform
     const annotDimUnit = info.dimensions?.x?.[1] ?? 'nm';
     const annotDimScale = info.dimensions?.x?.[0] ?? 1;
-    const UNIT_TO_NM = { nm: 1, um: 1e3, µm: 1e3, mm: 1e6, m: 1e9 };
     const annotNmPerUnit = annotDimScale * (UNIT_TO_NM[annotDimUnit] ?? 1);
     // const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
     // Allow chunks covering up to half the grid in each dimension
-    const maxChunks = meshMaxChunks ?? Math.min(
-      Math.ceil(gridShape[0] / 2) * Math.ceil(gridShape[1] / 2),
-      MAX_CHUNKS_TO_LOAD, // hard cap for large grids
-    );
+    // const maxChunks = meshMaxChunks ?? Math.min(
+    //   Math.ceil(gridShape[0] / 2) * Math.ceil(gridShape[1] / 2),
+    //   MAX_CHUNKS_TO_LOAD, // hard cap for large grids
+    // );
+    const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
     // transform.x = annotUnit / viewerUnit
     //  1 viewerUnit = (1/transform.x) annotUnits
     // 1 viewerUnit in nm = annotNmPerUnit / transform.x
     const nmPerViewerUnit = annotNmPerUnit / transform.x;
 
     // projectionScale in viewer units/pixel -> µm/pixel
-    const projectionScaleInUm = (projectionScale * nmPerViewerUnit) * 0.001;
-
+    const projectionScaleInAnnotUnits = (projectionScale * nmPerViewerUnit) * 0.001;
     // Dynamic threshold: 30% of dataset extent
     const datasetExtentUm = Math.max(
       info.upper_bound[0] - info.lower_bound[0],
@@ -495,7 +494,7 @@ export function NeuroglancerSubscriber(props) {
     );
     const threshold = meshLoadThresholdUm ?? (datasetExtentUm * DATASET_SPATIAL_EXTENT);
 
-    if (projectionScaleInUm > threshold) {
+    if (projectionScaleInAnnotUnits > threshold) {
       if (visibleSegmentIdsRef.current?.length !== 0) {
         visibleSegmentIdsRef.current = [];
         incrementLatestViewerStateIteration();
@@ -506,7 +505,7 @@ export function NeuroglancerSubscriber(props) {
     // Step 1: compute viewport bbox in viewer/layer space (µm)
     const bbox = getViewportBoundingBox(
       position,
-      projectionScaleInUm,
+      projectionScaleInAnnotUnits,
       orientation,
       ngWidth,
       ngHeight,
