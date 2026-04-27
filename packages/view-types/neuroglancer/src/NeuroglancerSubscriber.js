@@ -370,14 +370,14 @@ export function NeuroglancerSubscriber(props) {
                     ngCellColors[id] = hex;
                   }
                 });
-              } else { 
+              } else {
                 // null or empty selection - show ALL segments
                 layerIndex.forEach((id) => {
                   ngCellColors[id] = hex;
                 });
               }
             }
-            
+
             // Store hex as default even if no layerIndex
             // so applyColorsAndVisibility knows the intended color
             result[layerScope][channelScope] = ngCellColors;
@@ -478,10 +478,10 @@ export function NeuroglancerSubscriber(props) {
     //  1 viewerUnit = (1/transform.x) annotUnits
     // 1 viewerUnit in nm = annotNmPerUnit / transform.x
     const nmPerViewerUnit = annotNmPerUnit / transform.x;
-  
+
     // projectionScale in viewer units/pixel -> µm/pixel
     const projectionScaleInUm = (projectionScale * nmPerViewerUnit) * 0.001;
-  
+
     // Dynamic threshold: 30% of dataset extent
     const datasetExtentUm = Math.max(
       info.upper_bound[0] - info.lower_bound[0],
@@ -802,17 +802,13 @@ export function NeuroglancerSubscriber(props) {
   useEffect(() => {
     if (!hasMatchingAnnotationSource && isReady) {
       // Check if obs sets data has loaded with actual IDs
-      const hasData = segmentationLayerScopes?.some(layerScope =>
-        segmentationChannelScopesByLayer?.[layerScope]?.some(channelScope =>
-          obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex?.length > 0
-        )
-      );
+      const hasData = segmentationLayerScopes?.some(layerScope => segmentationChannelScopesByLayer?.[layerScope]?.some(channelScope => obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex?.length > 0));
       if (hasData || !segmentationLayerScopes?.length) {
         setIsLayersLoaded(true);
       }
     }
   }, [hasMatchingAnnotationSource, isReady, obsSegmentationsSetsData,
-      segmentationLayerScopes, segmentationChannelScopesByLayer]);
+    segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
@@ -965,24 +961,28 @@ export function NeuroglancerSubscriber(props) {
       if (layer.type !== 'segmentation') return layer;
 
       const layerScope = segmentationLayerScopes?.find(
-        scope => layer.name?.includes(scope)
+        scope => layer.name?.includes(scope),
       );
       if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const defaultColor = cellColorMappingByLayer?.[layerScope]?.defaultColor;
- // Use viewport-culled IDs if available, otherwise fall back to all IDs
-      const segments = hasMatchingAnnotationSource
-        ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
-        : Object.keys(layerColorMapping).length > 0 
-          ? Object.keys(layerColorMapping)
-          : []; // meshes-only fallback handled below
+      // Use viewport-culled IDs if available, otherwise fall back to all IDs
 
-            // If no color mapping, build one from spatialChannelColor for visible segments
+      let segments = [];
+      if (hasMatchingAnnotationSource) {
+        // Viewport culling active — use only visible segment IDs
+        segments = visibleSegmentIdsRef.current ?? [];
+      } else if (Object.keys(layerColorMapping).length > 0) {
+        // No culling — show all segments from color mapping
+        segments = Object.keys(layerColorMapping);
+      }
+
+      // If no color mapping, build one from spatialChannelColor for visible segments
       let derivedSegmentColors = layerColorMapping;
       if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
         derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
       }
-     
+
       return {
         ...layer,
         segments,

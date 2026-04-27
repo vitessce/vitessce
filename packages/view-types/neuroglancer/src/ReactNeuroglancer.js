@@ -637,13 +637,12 @@ export default class Neuroglancer extends React.Component {
 
     const checkAndMarkLoaded = () => {
       if (firstChunkLoaded) return false;
-      
+
       for (const layer of this.viewer.layerManager.managedLayers) {
-         // Check segmentation layers
+        // Check segmentation layers
         if (layer.layer instanceof SegmentationUserLayer) {
           const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
-              rl.layerChunkProgressInfo || {};
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
             if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
             return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
           });
@@ -656,10 +655,9 @@ export default class Neuroglancer extends React.Component {
           }
         }
         if (layer.layer instanceof AnnotationUserLayer) {
-           // Check Annotation layers
+          // Check Annotation layers
           const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = 
-              rl.layerChunkProgressInfo || {};
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
             if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
             return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
           });
@@ -811,7 +809,7 @@ export default class Neuroglancer extends React.Component {
 
 
     const hasObsSetColors = Object.values(cellColorMappingByLayer)
-    .some(v => Object.keys(v?.colors || {}).length > 0);
+      .some(v => Object.keys(v?.colors || {}).length > 0);
 
     // Only run applyColorsAndVisibility when we have obs set colors
     // Otherwise segmentColors from viewerState are already correct
@@ -838,10 +836,10 @@ export default class Neuroglancer extends React.Component {
     // (applyColorsAndVisibility is skipped in this case)
     if (!hasObsSetColors && !this.didLayersChange(prevVS, viewerState)) {
       const prevSegColors = JSON.stringify(
-        (prevVS?.layers || []).map(l => l?.segmentColors)
+        (prevVS?.layers || []).map(l => l?.segmentColors),
       );
       const nextSegColors = JSON.stringify(
-        (viewerState?.layers || []).map(l => l?.segmentColors)
+        (viewerState?.layers || []).map(l => l?.segmentColors),
       );
       if (prevSegColors !== nextSegColors) {
         this.withoutEmitting(() => {
