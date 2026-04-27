@@ -6,7 +6,7 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-function generateNeuroglancerProgressiveLoadingConfig() {
+function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
     name: 'Sorger MIS',
@@ -37,24 +37,23 @@ function generateNeuroglancerProgressiveLoadingConfig() {
     fileType: 'obsPoints.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/sorger_mis/cells',
     options: {
-      options: {
-        projectionAnnotationSpacing: 1,
-        matrix: [
-          [7148.09960682, 0, 0, 0],
-          [0, 7148.09960682, 0, 0],
-          [0, 0, 3803.92156863, 0],
-        ],
-        outputDimensions: {
-          x: [0.000001, 'm'],
-          y: [0.000001, 'm'],
-          z: [0.000001, 'm'],
-        },
+      projectionAnnotationSpacing: 1,
+      useForSegmentationCulling: true,
+      matrix: [
+        [7148.09960682, 0, 0, 0],
+        [0, 7148.09960682, 0, 0],
+        [0, 0, 3803.92156863, 0],
+      ],
+      outputDimensions: {
+        x: [0.000001, 'm'],
+        y: [0.000001, 'm'],
+        z: [0.000001, 'm'],
       },
-      coordinationValues: {
-        fileUid: 'sorger-cells',
-        obsType: 'cell',
-        featureType: 'gene',
-      },
+    },
+    coordinationValues: {
+      fileUid: 'sorger-cells',
+      obsType: 'cell',
+      featureType: 'gene',
     },
   });
 
@@ -69,6 +68,10 @@ function generateNeuroglancerProgressiveLoadingConfig() {
         0.4093725383281708,
       ],
     },
+    // maximum number of annotation spatial chunks fetched per viewport update
+    meshMaxChunks: 25,
+    // projectionScale threshold (in µm/pixel) below which meshes load
+    // meshLoadThresholdUm: 1000,
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
@@ -125,4 +128,4 @@ function generateNeuroglancerProgressiveLoadingConfig() {
   return configJSON;
 }
 
-export const neuroglancerProgressiveLoading = generateNeuroglancerProgressiveLoadingConfig();
+export const neuroglancerSorger = generateNeuroglancerSorgerOnDemandLoadingConfig();

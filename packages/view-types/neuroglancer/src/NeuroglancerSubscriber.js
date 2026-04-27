@@ -32,7 +32,7 @@ import {
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
-import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
+import { useNeuroglancerViewerState, DEFAULT_NG_DIMENSIONS } from './data-hook-ng-utils.js';
 import {
   useMemoCustomComparison,
   customIsEqualForCellColors,
@@ -61,7 +61,12 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
-const MESH_LOAD_THRESHOLD_NM = 1000;
+// Allow up to 25 chunks per update — empirically optimal for typical datasets.
+// Chunk sizes are inversely proportional to grid density (tissue-map-tools convention),
+// so 25 chunks covers a consistent ~500µm² physical area regardless of dataset size,
+// while staying well within browser fetch limits.
+const MAX_CHUNKS_TO_LOAD = 25;
+const DATASET_SPATIAL_EXTENT = 0.3;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
@@ -90,6 +95,8 @@ export function NeuroglancerSubscriber(props) {
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    meshLoadThresholdUm = 1000,
+    meshMaxChunks,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -119,6 +126,8 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
+  // const viewerDimensionsRef = useRef(DEFAULT_NG_DIMENSIONS);
+
 
   const [annotationReady, setAnnotationReady] = useState(false);
 
@@ -328,9 +337,6 @@ export function NeuroglancerSubscriber(props) {
     // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
     // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
     const result = {};
-
-
-
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
@@ -429,6 +435,13 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
+  // // Update when initalViewerState changes
+  // useEffect(() => {
+  //   if (initalViewerState?.dimensions) {
+  //     viewerDimensionsRef.current = initalViewerState.dimensions;
+  //   }
+  // }, [initalViewerState]);
+
 
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
@@ -444,19 +457,6 @@ export function NeuroglancerSubscriber(props) {
     const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
 
-    // Only load meshes when zoomed in past threshold
-    // projectionScale is in nm/pixel — smaller = more zoomed in
-
-    if (projectionScale > MESH_LOAD_THRESHOLD_NM) {
-      // Zoomed out — clear meshes
-      if (visibleSegmentIdsRef.current?.length !== 0) {
-        visibleSegmentIdsRef.current = [];
-        incrementLatestViewerStateIteration();
-      }
-      console.log("ZOOMED OUT", projectionScale)
-      return;
-    }
-
     const orientation = projectionOrientation ?? [0, 0, 0, 1];
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
@@ -466,18 +466,45 @@ export function NeuroglancerSubscriber(props) {
     const gridShape = spatialLevel.grid_shape;
     const { key } = spatialLevel;
 
+    // Derive viewer scale from annotation info + transform
+    const annotDimUnit = info.dimensions?.x?.[1] ?? 'nm';
+    const annotDimScale = info.dimensions?.x?.[0] ?? 1;
+    const UNIT_TO_NM = { nm: 1, um: 1e3, µm: 1e3, mm: 1e6, m: 1e9 };
+    const annotNmPerUnit = annotDimScale * (UNIT_TO_NM[annotDimUnit] ?? 1);
+    const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
+  
+    // transform.x = annotUnit / viewerUnit
+    //  1 viewerUnit = (1/transform.x) annotUnits
+    // 1 viewerUnit in nm = annotNmPerUnit / transform.x
+    const nmPerViewerUnit = annotNmPerUnit / transform.x;
+  
+    // projectionScale in viewer units/pixel -> µm/pixel
+    const projectionScaleInUm = (projectionScale * nmPerViewerUnit) * 0.001;
+  
+    // Dynamic threshold: 30% of dataset extent
+    const datasetExtentUm = Math.max(
+      info.upper_bound[0] - info.lower_bound[0],
+      info.upper_bound[1] - info.lower_bound[1],
+    );
+    const threshold = meshLoadThresholdUm ?? (datasetExtentUm * DATASET_SPATIAL_EXTENT);
 
-    // Step 1: compute viewport bbox in layer space
+    if (projectionScaleInUm > threshold) {
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      return;
+    }
+
+    // Step 1: compute viewport bbox in viewer/layer space (µm)
     const bbox = getViewportBoundingBox(
       position,
-      projectionScale * 0.001, // nm  -> um
+      projectionScaleInUm,
       orientation,
       ngWidth,
       ngHeight,
     );
-    // console.log('bbox:', bbox);
-
-    // Step 2: convert to annotation coordinate space
+    // Step 2: convert bbox to annotation coordinate space
     const annotBbox = {
       min: [
         bbox.min[0] * transform.x,
@@ -491,38 +518,38 @@ export function NeuroglancerSubscriber(props) {
       ],
     };
 
-    // console.log('annotBbox:', annotBbox);
-
     // Step 3: get intersecting chunk coords
     const coords = getIntersectingChunkCoords(
       annotBbox, lowerBound, chunkSize, gridShape,
     );
     if (coords.length === 0) return;
-    // console.log('coords length:', coords.length);
-
-    // Step 4: fetch chunks (with cache) that intersect with viewport and parse them
-    const cellsUrl = annotationInfoRef.current.url;
-    // console.log('cellsUrl', cellsUrl);
-
-    const { x, y, z, serializer } = annotationTransformRef.current;
+    // Too many chunks = too zoomed out
+    if (coords.length > maxChunks) {
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      return;
+    }
+    // Step 4: fetch chunks with cache
+    const cellsUrl = info.url;
+    const { serializer } = annotationTransformRef.current;
 
     const fetchChunk = async ([cx, cy]) => {
-      const cacheKey = `${key}/${cx}_${cy}_0`;
+      const cacheKey = `${cellsUrl}/${key}/${cx}_${cy}_0`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
       try {
-        const res = await fetch(`${cellsUrl}/${cacheKey}`);
+        const res = await fetch(`${cacheKey}`);
         if (!res.ok) {
           chunkCacheRef.current.set(cacheKey, []);
           return [];
         }
         const buffer = await res.arrayBuffer();
-        
         const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
         chunkCacheRef.current.set(cacheKey, ids);
         return ids;
-
       } catch (e) {
         console.error('fetchChunk error:', e);
         chunkCacheRef.current.set(cacheKey, []);
@@ -532,15 +559,11 @@ export function NeuroglancerSubscriber(props) {
 
     const results = await Promise.all(coords.map(fetchChunk));
     const visibleIds = [...new Set(results.flat())];
-
     if (visibleIds.length === 0) return;
 
-    // console.log('visible segment IDs:', visibleIds.length);
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
   }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
-
-
   const updateVisibleSegmentsThrottled = useMemo(
     () => throttle(updateVisibleSegments, 500),
     [updateVisibleSegments],
@@ -572,19 +595,27 @@ export function NeuroglancerSubscriber(props) {
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
 
-  const hasAnnotationSource = !!cellsUrl;
+
+  const hasMatchingAnnotationSource = useMemo(() => {
+    if (!cellsUrl) return false;
+    const firstPointScope = pointLayerScopes?.[0];
+    const firstPointData = obsPointsData?.[firstPointScope];
+    return !!(firstPointData?.neuroglancerOptions?.useForSegmentationCulling);
+  }, [cellsUrl, pointLayerScopes, obsPointsData]);
+
+  // console.log('hasMatchingAnnotationSource:', hasMatchingAnnotationSource);
 
   useEffect(() => {
     if (!cellsUrl) return;
-
     // Fetch annotation info
     fetch(`${cellsUrl}/info`)
       .then(r => r.json())
       .then((info) => {
-        // store URL on the info object
-        info.url = cellsUrl;
-        annotationInfoRef.current = info;
-        // console.log('annotation info loaded, spatial levels:', info.spatial.length);
+        const infoWithUrl = {
+          ...info,
+          url: cellsUrl,
+        };
+        annotationInfoRef.current = infoWithUrl;
         if (annotationTransformRef.current) setAnnotationReady(true);
       })
       .catch(err => console.error('failed to fetch annotation info:', err));
@@ -769,7 +800,7 @@ export function NeuroglancerSubscriber(props) {
 
 
   useEffect(() => {
-    if (!hasAnnotationSource && isReady) {
+    if (!hasMatchingAnnotationSource && isReady) {
       // Check if obs sets data has loaded with actual IDs
       const hasData = segmentationLayerScopes?.some(layerScope =>
         segmentationChannelScopesByLayer?.[layerScope]?.some(channelScope =>
@@ -780,7 +811,7 @@ export function NeuroglancerSubscriber(props) {
         setIsLayersLoaded(true);
       }
     }
-  }, [hasAnnotationSource, isReady, obsSegmentationsSetsData, 
+  }, [hasMatchingAnnotationSource, isReady, obsSegmentationsSetsData,
       segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
   // TODO: try to simplify using useMemoCustomComparison?
@@ -940,7 +971,7 @@ export function NeuroglancerSubscriber(props) {
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const defaultColor = cellColorMappingByLayer?.[layerScope]?.defaultColor;
  // Use viewport-culled IDs if available, otherwise fall back to all IDs
-      const segments = hasAnnotationSource
+      const segments = hasMatchingAnnotationSource
         ? (visibleSegmentIdsRef.current ?? []) // when zoomed out []
         : Object.keys(layerColorMapping).length > 0 
           ? Object.keys(layerColorMapping)
@@ -952,18 +983,6 @@ export function NeuroglancerSubscriber(props) {
         derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
       }
      
-//       console.log('defaultColor in updatedLayers:', defaultColor);
-// console.log('segmentColors sample:', Object.entries(derivedSegmentColors).slice(0, 3));
-
-
-
-
-  // console.log('segments set:', new Set(segments));
-  // console.log('segmentColors keys set:', new Set(Object.keys(derivedSegmentColors)));
-  // const missingColors = segments.filter(id => !(id in derivedSegmentColors));
-  // console.log('segments missing colors:', missingColors.length, missingColors.slice(0, 10));
-  // const extraColors = Object.keys(derivedSegmentColors).filter(id => !segments.includes(id));
-  // console.log('colors for non-segments:', extraColors.length, extraColors.slice(0, 10));
       return {
         ...layer,
         segments,
