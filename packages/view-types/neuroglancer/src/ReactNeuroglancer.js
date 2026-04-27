@@ -657,9 +657,9 @@ export default class Neuroglancer extends React.Component {
         // Check Annotation layers
         if (layer.layer instanceof AnnotationUserLayer) {
           const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-          const { numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
-          return numVisibleChunksNeeded > 0;
-        });
+            const { numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+            return numVisibleChunksNeeded > 0;
+          });
           if (hasVisibleChunk) {
             firstChunkLoaded = true;
             requestAnimationFrame(() => requestAnimationFrame(() => {
