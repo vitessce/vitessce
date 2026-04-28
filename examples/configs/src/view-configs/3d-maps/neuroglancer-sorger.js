@@ -32,6 +32,36 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     },
   });
 
+  dataset.addFile({
+    fileType: 'obsSets.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    coordinationValues: {
+      obsType: 'cell',
+    },
+    options: {
+      obsIndex: 'CellID',
+      obsSets: [
+        {
+          name: 'Clusters',
+          column: 'spatial_kmeans',
+        },
+      ],
+    },
+  });
+
+  dataset.addFile({
+    fileType: 'obsEmbedding.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    options: {
+      obsIndex: 'CellID',
+      obsEmbedding: ['tSNE_1', 'tSNE_2'],
+    },
+    coordinationValues: {
+      obsType: 'cell',
+      embeddingType: 'TSNE',
+    },
+  });
+
 
   dataset.addFile({
     fileType: 'obsPoints.ng-annotations',
@@ -71,11 +101,13 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     // maximum number of annotation spatial chunks fetched per viewport update
     meshMaxChunks: 64,
     // projectionScale threshold (in µm/pixel) below which meshes load
-    meshLoadThresholdUm: 10,
+    meshLoadThresholdUm: 100, // Lower = require more zoom before meshes appear.
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
-
+  const obsSets = config.addView(dataset, 'obsSets');
+  const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
+  config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
   config.linkViewsByObject([neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
@@ -123,7 +155,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
 
-  config.layout(hconcat(neuroglancerView, vconcat(layerController)));
+  config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets, scatterView)));
   const configJSON = config.toJSON();
   return configJSON;
 }

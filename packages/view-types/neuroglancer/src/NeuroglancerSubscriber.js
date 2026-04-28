@@ -64,15 +64,16 @@ const NG_ROT_COOLDOWN_MS = 120;
 
 // Maximum number of annotation spatial chunks fetched per viewport update.
 // Acts as a safety valve against fetch storms on large grids (e.g. 64×64 = 4096 chunks).
-// Chunk sizes scale inversely with grid density (tissue-map-tools convention), so 25 chunks
-// consistently covers a ~500µm² viewport area regardless of dataset grid size,
-// while staying within browser concurrent fetch limits.
-const MAX_CHUNKS_TO_LOAD = 36;
+// Chunk sizes scale inversely with grid density — small grids have fewer, larger chunks;
+// large grids have more, smaller chunks — so a fixed chunk count gives consistent
+// viewport coverage across datasets of different sizes.
+// Override via meshMaxChunks prop if the default doesn't suit a specific dataset.
+const MAX_CHUNKS_TO_LOAD = 25;
 
 // Fraction of dataset spatial extent used as the default mesh-load threshold.
 // Meshes are shown only when projectionScale (µm/pixel) is below this fraction
 // of the dataset's largest dimension — i.e. when the user is zoomed in enough
-// to benefit from mesh detail.
+// to benefit from mesh detail
 const DATASET_SPATIAL_EXTENT = 0.3;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
