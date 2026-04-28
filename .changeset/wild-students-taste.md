@@ -4,4 +4,4 @@
 "@vitessce/example-configs": patch
 ---
 
-AxisLines on the NG view configurable and new gene in layerController get palette color
+showAxisLines on the NG view configurable and new gene in layerController gets palette color.
