@@ -79,6 +79,7 @@ export default function LayerPerFeatureController(props) {
       : [255, 255, 255] // TODO: use getDefaultColor?
   ), [varIndex]);
 
+
   const handleRemoveFeature = useCallback(() => {
     setFeatureSelection(featureSelection.filter(f => f !== featureName));
   }, [featureName, featureSelection, setFeatureSelection]);
@@ -116,7 +117,7 @@ export default function LayerPerFeatureController(props) {
   } = useMemo(() => {
     if (obsColorEncoding === 'geneSelection') {
       return {
-        colorPickerColor: featureColor?.[featureColorIndex]?.color ?? spatialLayerColor,
+        colorPickerColor: randomByFeatureColor ?? spatialLayerColor,
         colorPickerReadable: true,
         colorPickerWritable: true,
         colorPickerTooltip: null,

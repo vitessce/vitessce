@@ -158,6 +158,7 @@ export function useNeuroglancerViewerState(
 
           result = {
             ...result,
+            showAxisLines,
             layers: [
               ...result.layers,
               {

@@ -115,7 +115,7 @@ function generateNeuroglancerMerfish() {
         0.999148964881897,
       ],
     },
-    showAxisLines: true,
+    showAxisLines: false,
   });
   const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
