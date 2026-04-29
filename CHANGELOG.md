@@ -1,4 +1,21 @@
 
+## 3.9.8
+
+### Patch Changes
+
+- Display loading indicator for Neuroglancer view while meshes are loading. (`@vitessce/neuroglancer`) ([#2398](https://github.com/vitessce/vitessce/pull/2398))
+
+- Hide zSlider in layerControllerBeta for 3D datasets (`@vitessce/layer-controller-beta`) ([#2469](https://github.com/vitessce/vitessce/pull/2469))
+
+- Add compatibility layer for loading zarr v3/ome 0.5 in spatialdata. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`, `@vitessce/zarr-utils`) ([#2466](https://github.com/vitessce/vitessce/pull/2466))
+
+- Fix cell set expression plot crash on empty obs set selection. (`@vitessce/statistical-plots`) ([#2468](https://github.com/vitessce/vitessce/pull/2468))
+
+- Added per-feature (e.g., gene) controls for selected point features in the layerController. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`, `@vitessce/icons`) ([#2433](https://github.com/vitessce/vitessce/pull/2433))
+
+- Enable opacity change in Neuroglancer segmentation and annotation layers using their respective opacity sliders in layerController. (`@vitessce/neuroglancer`) ([#2461](https://github.com/vitessce/vitessce/pull/2461))
+
+
 ## 3.9.7
 
 ### Patch Changes
