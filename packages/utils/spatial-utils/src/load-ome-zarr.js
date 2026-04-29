@@ -1,6 +1,6 @@
 import { viv } from '@vitessce/gl';
 import { open as zarrOpen } from 'zarrita';
-import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { createZarrArrayAdapter, flattenOmeAttrs } from '@vitessce/zarr-utils';
 import { ZarrNodeNotFoundError } from '@vitessce/error';
 
 function prevPowerOf2(x) {
@@ -41,11 +41,16 @@ async function loadMultiscales(root) {
     throw e;
   }
 
+  // OME-NGFF v0.5 nests OME metadata under an `ome` key.
+  // Hoist it to the root so downstream consumers see the flat v0.4 shape.
+  rootAttrs = flattenOmeAttrs(rootAttrs);
+
   let paths = ['0'];
   // Default axes used for v0.1 and v0.2.
   let labels = ['t', 'c', 'z', 'y', 'x'];
   if ('multiscales' in rootAttrs) {
-    const { datasets, axes } = rootAttrs.multiscales[0];
+    const { multiscales } = rootAttrs;
+    const { datasets, axes } = multiscales[0];
     paths = datasets.map(d => d.path);
     if (axes) {
       if (isAxis(axes)) {
