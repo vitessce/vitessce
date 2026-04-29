@@ -7,6 +7,9 @@ import {
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
 
+// Used by NG source code for decoding annotation chunks
+export const ANNOTATION_HEADER_OFFSET = 8;
+
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 100,
   projectionOrientation: 2e-2,
@@ -154,4 +157,116 @@ export function makeVitNgZoomCalibrator(initialNgProjectionScale, initialDeckZoo
       return Math.log2(base / (sNg));
     },
   };
+}
+
+/**
+ * Apply a quaternion rotation to a 3D vector.
+ * @param {number[]} q Quaternion [x, y, z, w]
+ * @param {number[]} v Vector [x, y, z]
+ * @returns {number[]} Rotated vector [x, y, z]
+ */
+export function applyQuat(q, v) {
+  const [qx, qy, qz, qw] = q;
+  const [vx, vy, vz] = v;
+  const tx = 2 * (qy * vz - qz * vy);
+  const ty = 2 * (qz * vx - qx * vz);
+  const tz = 2 * (qx * vy - qy * vx);
+  return [
+    vx + qw * tx + qy * tz - qz * ty,
+    vy + qw * ty + qz * tx - qx * tz,
+    vz + qw * tz + qx * ty - qy * tx,
+  ];
+}
+
+/**
+ * Compute the world-space axis-aligned bounding box of the current viewport.
+ * @param {number[]} position Camera target [x, y, z] in µm
+ * @param {number} projectionScale World units per pixel (in µm)
+ * @param {number[]} projectionOrientation Quaternion [x, y, z, w]
+ * @param {number} width Viewport width in pixels
+ * @param {number} height Viewport height in pixels
+ * @returns {{ min: number[], max: number[] }}
+ */
+export function getViewportBoundingBox(
+  position, projectionScale, projectionOrientation, width, height,
+) {
+  const halfW = (projectionScale * width) / 2;
+  const halfH = (projectionScale * height) / 2;
+  const depth = projectionScale * Math.min(width, height) * 0.5;
+
+  const invQuat = conjQuat(projectionOrientation);
+  const right = applyQuat(invQuat, [1, 0, 0]);
+  const up = applyQuat(invQuat, [0, 1, 0]);
+  const forward = applyQuat(invQuat, [0, 0, -1]);
+
+  const corners = [-halfW, halfW].flatMap(
+    sx => [-halfH, halfH].flatMap(
+      sy => [-depth, depth].map(
+        sz => ([
+          position[0] + sx * right[0] + sy * up[0] + sz * forward[0],
+          position[1] + sx * right[1] + sy * up[1] + sz * forward[1],
+          position[2] + sx * right[2] + sy * up[2] + sz * forward[2],
+        ]),
+      ),
+    ),
+  );
+
+  return {
+    min: [
+      Math.min(...corners.map(c => c[0])),
+      Math.min(...corners.map(c => c[1])),
+      Math.min(...corners.map(c => c[2])),
+    ],
+    max: [
+      Math.max(...corners.map(c => c[0])),
+      Math.max(...corners.map(c => c[1])),
+      Math.max(...corners.map(c => c[2])),
+    ],
+  };
+}
+/**
+ * Get intersecting chunk coordinates for a viewport bbox
+ */
+export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gridShape) {
+  const cxMin = Math.max(0, Math.min(gridShape[0] - 1,
+    Math.floor((annotBbox.min[0] - lowerBound[0]) / chunkSize[0])) - 1);
+  const cxMax = Math.min(gridShape[0] - 1, Math.max(0,
+    Math.min(gridShape[0] - 1,
+      Math.floor((annotBbox.max[0] - lowerBound[0]) / chunkSize[0])) + 1));
+  const cyMin = Math.max(0, Math.min(gridShape[1] - 1,
+    Math.floor((annotBbox.min[1] - lowerBound[1]) / chunkSize[1])) - 1);
+  const cyMax = Math.min(gridShape[1] - 1, Math.max(0,
+    Math.min(gridShape[1] - 1,
+      Math.floor((annotBbox.max[1] - lowerBound[1]) / chunkSize[1])) + 1));
+
+  const coords = [];
+  for (let cx = cxMin; cx <= cxMax; cx++) {
+    for (let cy = cyMin; cy <= cyMax; cy++) {
+      coords.push([cx, cy, 0]);
+    }
+  }
+  return coords;
+}
+
+/**
+ * Parse segment IDs from annotation chunk binary data
+ * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
+ */
+export function parseAnnotationChunkSegmentIds(buffer, serializer) {
+  const dv = new DataView(buffer);
+  const count = dv.getUint32(0, true);
+  if (count === 0) return [];
+  // Property data starts at offset 8
+  // Each record is numBytes (20) bytes
+  // Use the serializer to read the 'id' property
+  const properties = [null, null];
+  const ids = [];
+
+  for (let i = 0; i < count; i++) {
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
+    // properties[0] = phenotype
+    // properties[1] = id (mesh segment ID)
+    if (properties[1] > 0) ids.push(String(properties[1]));
+  }
+  return ids;
 }
