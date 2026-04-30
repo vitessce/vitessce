@@ -103,7 +103,7 @@ import {
       },
     });
     const lcView = config.addView(dataset, 'layerControllerBeta')//.setProps({ layerPerFeatureForPoints: true });
-    // const obsSets = config.addView(dataset, 'obsSets');
+    const obsSets = config.addView(dataset, 'obsSets');
   
     config.linkViewsByObject([neuroglancerView, lcView], {
       spatialRenderingMode: '3D',
@@ -155,8 +155,7 @@ import {
       }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
     }
   
-    // config.layout(hconcat(neuroglancerView, vconcat(lcView, obsSets)));
-    config.layout(hconcat(neuroglancerView, vconcat(lcView)));
+    config.layout(hconcat(neuroglancerView, vconcat(lcView, obsSets)));
     
     const configJSON = config.toJSON();
     return configJSON;

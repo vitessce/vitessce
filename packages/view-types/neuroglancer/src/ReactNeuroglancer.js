@@ -472,7 +472,7 @@ export default class Neuroglancer extends React.Component {
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segmentColors, visible,shader, objectAlpha,  ...rest } = l;
+      const { segmentColors, visible, shader, objectAlpha, ...rest } = l;
       return rest;
     });
     const prevLayers = stripColors(prevVS?.layers);
@@ -682,6 +682,17 @@ export default class Neuroglancer extends React.Component {
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
       }
     }
+
+        // Handle visibility directly without restoreState
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      const matchingLayer = (viewerState?.layers || [])
+        .find(l => l.name === managedLayer.name);
+      if (matchingLayer && typeof matchingLayer.visible === 'boolean'
+          && managedLayer.visible !== matchingLayer.visible) {
+            console.log("visibleSet", managedLayer)
+        managedLayer.setVisible(matchingLayer.visible);
+      }
+    }
     // if (viewerState) {
     //   let newViewerState = { ...viewerState };
     //   let restoreStates = [
@@ -839,19 +850,19 @@ export default class Neuroglancer extends React.Component {
     const sourcesChanged = prevCore !== nextCore; // real structural change?
 
 
-if (sourcesChanged) {
-  // Find which layer changed and what field
-  stripSegFields(prevLayers)?.forEach((pl, i) => {
-    const nl = stripSegFields(nextLayers)?.[i];
-    if (JSON.stringify(pl) !== JSON.stringify(nl)) {
-      Object.keys({...pl, ...nl}).forEach(key => {
-        if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
-          console.log('[sourcesChanged diff]', { layer: i, key, prev: pl?.[key], next: nl?.[key] });
+    if (sourcesChanged) {
+      // Find which layer changed and what field
+      stripSegFields(prevLayers)?.forEach((pl, i) => {
+        const nl = stripSegFields(nextLayers)?.[i];
+        if (JSON.stringify(pl) !== JSON.stringify(nl)) {
+          Object.keys({...pl, ...nl}).forEach(key => {
+            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
+              console.log('[sourcesChanged diff]', { layer: i, key, prev: pl?.[key], next: nl?.[key] });
+            }
+          });
         }
       });
     }
-  });
-}
 
     const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
       ? prevLayers[0].segments.length : 0;
