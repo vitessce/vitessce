@@ -472,7 +472,7 @@ export default class Neuroglancer extends React.Component {
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segmentColors, ...rest } = l;
+      const { segmentColors, visible,shader, objectAlpha,  ...rest } = l;
       return rest;
     });
     const prevLayers = stripColors(prevVS?.layers);
@@ -765,6 +765,20 @@ export default class Neuroglancer extends React.Component {
     }
     // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
     if (this.didLayersChange(prevVS, viewerState)) {
+      console.log('[FIRING: didLayersChange]');
+      (prevVS?.layers || []).forEach((pl, i) => {
+        const nl = viewerState?.layers?.[i];
+        const stripC = l => { const { segmentColors, visible, ...r } = l; return r; };
+        if (JSON.stringify(stripC(pl)) !== JSON.stringify(stripC(nl || {}))) {
+          Object.keys({...stripC(pl), ...stripC(nl || {})}).forEach(key => {
+            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
+              console.log('[didLayersChange diff]', { layer: i, key });
+            }
+          });
+        }
+      });
+      console.log('[FIRING: didLayersChange]');
+
       this.withoutEmitting(() => {
         const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
         this.viewer.state.restoreState({ layers });
@@ -776,25 +790,44 @@ export default class Neuroglancer extends React.Component {
 
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
-    const prevSize = prevProps.cellColorMapping
-      ? Object.values(prevProps.cellColorMapping)
-        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
-    const currSize = cellColorMappingByLayer
-      ? Object.values(cellColorMappingByLayer)
-        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
-    const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
-    if (!this.didLayersChange(prevVS, viewerState)
-      && (mappingRefChanged || prevSize !== currSize)) {
-      this.withoutEmitting(() => {
-        this.applyColorsAndVisibility(cellColorMappingByLayer);
+    // const prevSize = prevProps.cellColorMapping
+    //   ? Object.values(prevProps.cellColorMapping)
+    //     .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
+    // const currSize = cellColorMappingByLayer
+    //   ? Object.values(cellColorMappingByLayer)
+    //     .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
+    const stripOpacity = mapping => {
+      const result = {};
+      Object.entries(mapping || {}).forEach(([k, v]) => {
+        result[k] = { colors: v?.colors };
       });
-    }
+      return result;
+    };
+    const prevColorsJSON = JSON.stringify(stripOpacity(prevProps.cellColorMapping));
+    const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
+    const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
+      if (colorsActuallyChanged) {
+        console.log('[colors diff]', {
+          prevKeys: Object.keys(prevProps.cellColorMapping || {}),
+          currKeys: Object.keys(cellColorMappingByLayer || {}),
+          prevOpacity: Object.values(prevProps.cellColorMapping || {}).map(v => v?.opacity),
+          currOpacity: Object.values(cellColorMappingByLayer || {}).map(v => v?.opacity),
+          prevColorCount: Object.values(prevProps.cellColorMapping || {}).map(v => Object.keys(v?.colors || {}).length),
+          currColorCount: Object.values(cellColorMappingByLayer || {}).map(v => Object.keys(v?.colors || {}).length),
+        });
+      }
+      if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
+        console.log('[FIRING colorsActuallyChanged]')
+        this.withoutEmitting(() => {
+          this.applyColorsAndVisibility(cellColorMappingByLayer);
+        });
+      }
 
     // Treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segments, segmentColors, objectAlpha, ...rest } = l;
+      const { segments, segmentColors, objectAlpha, shader, visible, ...rest } = l;
       return rest; // ignore segments + segmentColors for comparison
     });
 
@@ -805,6 +838,21 @@ export default class Neuroglancer extends React.Component {
     const nextCore = JSON.stringify(stripSegFields(nextLayers));
     const sourcesChanged = prevCore !== nextCore; // real structural change?
 
+
+if (sourcesChanged) {
+  // Find which layer changed and what field
+  stripSegFields(prevLayers)?.forEach((pl, i) => {
+    const nl = stripSegFields(nextLayers)?.[i];
+    if (JSON.stringify(pl) !== JSON.stringify(nl)) {
+      Object.keys({...pl, ...nl}).forEach(key => {
+        if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
+          console.log('[sourcesChanged diff]', { layer: i, key, prev: pl?.[key], next: nl?.[key] });
+        }
+      });
+    }
+  });
+}
+
     const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
       ? prevLayers[0].segments.length : 0;
     const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
@@ -814,6 +862,7 @@ export default class Neuroglancer extends React.Component {
     const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
 
     if (sourcesChanged || initialSegmentsAdded) {
+      console.log('[FIRING: sourcesChanged]');
       this.withoutEmitting(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
