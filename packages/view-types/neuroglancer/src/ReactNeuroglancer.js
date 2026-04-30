@@ -472,7 +472,7 @@ export default class Neuroglancer extends React.Component {
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segmentColors, visible, shader, objectAlpha, ...rest } = l;
+      const { segmentColors, visible, shader, objectAlpha, segments, ...rest } = l;
       return rest;
     });
     const prevLayers = stripColors(prevVS?.layers);
@@ -486,13 +486,19 @@ export default class Neuroglancer extends React.Component {
     // Build full color table per layer
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
-
-    const newLayers = baseLayers.map((layer) => {
+  
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
       // Match layerScope by checking if the NG layer name contains the scope key.
       // NG layer names are of the form:
       // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
-      const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
-
+      const layerScope = Object.keys(cellColorMappingByLayer)
+        .find(scope => managedLayer.name?.includes(scope));
+      if (!layerScope) continue;
+  
+      // Get the matching layer config
+      const layerConfig = baseLayers.find(l => l.name === managedLayer.name);
+      const segments = layerConfig?.segments || [];
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
 
       // Track all known IDs for this layer scope
@@ -503,22 +509,37 @@ export default class Neuroglancer extends React.Component {
       for (const id of Object.keys(selected)) {
         this.allKnownIdsByLayer[layerScope].add(id);
       }
-
-      // Build a full color table: selected keep their hex, others grey
+  
+      // Update visibleSegments directly
+      const gs = managedLayer.layer.displayState.segmentationGroupState.value;
+      const vs = gs.visibleSegments;
+      
+      // Clear and repopulate visibleSegments
+      vs.clear();
+      for (const id of segments) {
+        vs.add(Uint64.parseString(String(id)));
+      }
+  
+      // Update colors directly
+      const cgs = managedLayer.layer.displayState.segmentationColorGroupState.value;
+      const sc = cgs.segmentStatedColors;
+      const hexToPackedRgb = (hex) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return (r << 16) | (g << 8) | b;
+      };
+      
       const fullSegmentColors = {};
       for (const id of this.allKnownIdsByLayer[layerScope] || []) {
         fullSegmentColors[id] = selected[id] || GREY_HEX;
       }
-
-      if (layer.type === 'segmentation') {
-        return { ...layer, segmentColors: fullSegmentColors };
+      for (const [id, hexColor] of Object.entries(fullSegmentColors)) {
+        sc.set(Uint64.parseString(String(id)), hexToPackedRgb(hexColor));
       }
-      return layer;
-    });
-    this.withoutEmitting(() => {
-      this.viewer.state.restoreState({ layers: newLayers });
-    });
-    /* ** Vitessce integration update end ** */
+      sc.changed.dispatch();
+    }
+   /* ** Vitessce integration update end ** */
   };
 
   componentDidMount() {
@@ -665,7 +686,7 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(() => { firstChunkLoaded = false; });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
-    // window.viewer = this.viewer;
+    window.viewer = this.viewer;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -683,13 +704,12 @@ export default class Neuroglancer extends React.Component {
       }
     }
 
-        // Handle visibility directly without restoreState
+    // Handle visibility directly without restoreState
     for (const managedLayer of this.viewer.layerManager.managedLayers) {
       const matchingLayer = (viewerState?.layers || [])
         .find(l => l.name === managedLayer.name);
       if (matchingLayer && typeof matchingLayer.visible === 'boolean'
           && managedLayer.visible !== matchingLayer.visible) {
-            console.log("visibleSet", managedLayer)
         managedLayer.setVisible(matchingLayer.visible);
       }
     }
@@ -774,31 +794,36 @@ export default class Neuroglancer extends React.Component {
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
+    // If layers changed structurally (not segments/colors/visibility)
     if (this.didLayersChange(prevVS, viewerState)) {
-      console.log('[FIRING: didLayersChange]');
-      (prevVS?.layers || []).forEach((pl, i) => {
-        const nl = viewerState?.layers?.[i];
-        const stripC = l => { const { segmentColors, visible, ...r } = l; return r; };
-        if (JSON.stringify(stripC(pl)) !== JSON.stringify(stripC(nl || {}))) {
-          Object.keys({...stripC(pl), ...stripC(nl || {})}).forEach(key => {
-            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
-              console.log('[didLayersChange diff]', { layer: i, key });
-            }
-          });
-        }
-      });
-      console.log('[FIRING: didLayersChange]');
-
       this.withoutEmitting(() => {
         const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        this.viewer.state.restoreState({ layers });
+        const currentScale = this.viewer.projectionScale?.value;
+        const currentPosition = Array.from(this.viewer.position?.value || []);
+        const currentOrientation = Array.from(
+          this.viewer.projectionOrientation?.orientation || []
+        );
+        // Strip segments/colors — applyColorsAndVisibility handles these directly
+        const strippedLayers = layers.map((l) => {
+          if (!l) return l;
+          const { segments, segmentColors, ...rest } = l;
+          return rest;
+        });
+        this.viewer.state.restoreState({ layers: strippedLayers });
+        if (currentScale && Number.isFinite(currentScale)) {
+          this.viewer.projectionScale.value = currentScale;
+        }
+        if (currentOrientation.length) {
+          this.viewer.projectionOrientation.orientation.set(currentOrientation);
+        }
+        if (currentPosition.length) {
+          this.viewer.position.value = new Float32Array(currentPosition);
+        }
         if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
           this.applyColorsAndVisibility(cellColorMappingByLayer);
         }
       });
     }
-
     // If colors changed (but layers didn’t): re-apply colors
     // this was to avid NG randomly assigning colors to the segments by resetting them
     // const prevSize = prevProps.cellColorMapping
@@ -817,23 +842,12 @@ export default class Neuroglancer extends React.Component {
     const prevColorsJSON = JSON.stringify(stripOpacity(prevProps.cellColorMapping));
     const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
     const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
-      if (colorsActuallyChanged) {
-        console.log('[colors diff]', {
-          prevKeys: Object.keys(prevProps.cellColorMapping || {}),
-          currKeys: Object.keys(cellColorMappingByLayer || {}),
-          prevOpacity: Object.values(prevProps.cellColorMapping || {}).map(v => v?.opacity),
-          currOpacity: Object.values(cellColorMappingByLayer || {}).map(v => v?.opacity),
-          prevColorCount: Object.values(prevProps.cellColorMapping || {}).map(v => Object.keys(v?.colors || {}).length),
-          currColorCount: Object.values(cellColorMappingByLayer || {}).map(v => Object.keys(v?.colors || {}).length),
-        });
-      }
-      if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
-        console.log('[FIRING colorsActuallyChanged]')
-        this.withoutEmitting(() => {
-          this.applyColorsAndVisibility(cellColorMappingByLayer);
-        });
-      }
-
+    // Colors changed but layers didn't
+    if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
+      this.withoutEmitting(() => {
+        this.applyColorsAndVisibility(cellColorMappingByLayer);
+      });
+    }
     // Treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
@@ -850,20 +864,6 @@ export default class Neuroglancer extends React.Component {
     const sourcesChanged = prevCore !== nextCore; // real structural change?
 
 
-    if (sourcesChanged) {
-      // Find which layer changed and what field
-      stripSegFields(prevLayers)?.forEach((pl, i) => {
-        const nl = stripSegFields(nextLayers)?.[i];
-        if (JSON.stringify(pl) !== JSON.stringify(nl)) {
-          Object.keys({...pl, ...nl}).forEach(key => {
-            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
-              console.log('[sourcesChanged diff]', { layer: i, key, prev: pl?.[key], next: nl?.[key] });
-            }
-          });
-        }
-      });
-    }
-
     const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
       ? prevLayers[0].segments.length : 0;
     const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
@@ -872,13 +872,33 @@ export default class Neuroglancer extends React.Component {
     // first-time seeding – from 0 segments → N segments
     const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
 
+    // Real structural source changes only
     if (sourcesChanged || initialSegmentsAdded) {
-      console.log('[FIRING: sourcesChanged]');
       this.withoutEmitting(() => {
-        // restore only the layers to avoid clobbering pose/rotation/zoom.
-        this.viewer.state.restoreState({ layers: nextLayers });
+        const currentScale = this.viewer.projectionScale?.value;
+        const currentPosition = Array.from(this.viewer.position?.value || []);
+        const currentOrientation = Array.from(
+          this.viewer.projectionOrientation?.orientation || []
+        );
+        // Strip segments — handled by applyColorsAndVisibility
+        const strippedLayers = (nextLayers || []).map((l) => {
+          if (!l) return l;
+          const { segments, segmentColors, ...rest } = l;
+          return rest;
+        });
+        this.viewer.state.restoreState({ layers: strippedLayers });
+        if (currentScale && Number.isFinite(currentScale)) {
+          this.viewer.projectionScale.value = currentScale;
+        }
+        if (currentOrientation.length) {
+          this.viewer.projectionOrientation.orientation.set(currentOrientation);
+        }
+        if (currentPosition.length) {
+          this.viewer.position.value = new Float32Array(currentPosition);
+        }
       });
     }
+
     /* ** Vitessce Integration update end ** */
   }
 
