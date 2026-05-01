@@ -433,6 +433,9 @@ export default class Neuroglancer extends React.Component {
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
     this.allKnownIdsByLayer = {};
+    // this._goodProjectionScale = null;
+    // this._goodOrientation = null;
+    // this._goodPosition = null;
   }
 
   minimalPoseSnapshot = () => {
@@ -480,28 +483,46 @@ export default class Neuroglancer extends React.Component {
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
   };
 
+  // Helper to preserve dimensions across restoreState calls
+  preserveDimensionsAndCamera = (restoreFn) => {
+    const currentDimensions = this.viewer.state.toJSON().dimensions;
+    const currentScale = this.viewer.projectionScale?.value;
+    const currentPosition = Array.from(this.viewer.position?.value || []);
+    const currentOrientation = Array.from(
+      this.viewer.projectionOrientation?.orientation || [],
+    );
+
+    restoreFn();
+
+    // Restore dimensions first — this prevents scale recalculation
+    if (currentDimensions) {
+      this.viewer.state.restoreState({ dimensions: currentDimensions });
+    }
+    if (currentScale && Number.isFinite(currentScale)) {
+      this.viewer.projectionScale.value = currentScale;
+    }
+    if (currentOrientation.length) {
+      this.viewer.projectionOrientation.orientation.set(currentOrientation);
+    }
+    if (currentPosition.length) {
+      this.viewer.position.value = new Float32Array(currentPosition);
+    }
+  };
   /* To add colors to the segments, turning unselected to grey  */
   applyColorsAndVisibility = (cellColorMappingByLayer) => {
     if (!this.viewer) return;
-    // Build full color table per layer
+  
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
+      console.log('[applyColors baseLayers segments]',
+        baseLayers.map(l => ({ name: l.name, segmentsCount: l.segments?.length }))
+      );
   
-    for (const managedLayer of this.viewer.layerManager.managedLayers) {
-      if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
-      // Match layerScope by checking if the NG layer name contains the scope key.
-      // NG layer names are of the form:
-      // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
+    const newLayers = baseLayers.map((layer) => {
       const layerScope = Object.keys(cellColorMappingByLayer)
-        .find(scope => managedLayer.name?.includes(scope));
-      if (!layerScope) continue;
-  
-      // Get the matching layer config
-      const layerConfig = baseLayers.find(l => l.name === managedLayer.name);
-      const segments = layerConfig?.segments || [];
+        .find(scope => layer.name?.includes(scope));
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
-
-      // Track all known IDs for this layer scope
+  
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
       if (!this.allKnownIdsByLayer[layerScope]) {
         this.allKnownIdsByLayer[layerScope] = new Set();
@@ -509,38 +530,177 @@ export default class Neuroglancer extends React.Component {
       for (const id of Object.keys(selected)) {
         this.allKnownIdsByLayer[layerScope].add(id);
       }
-  
-      // Update visibleSegments directly
-      const gs = managedLayer.layer.displayState.segmentationGroupState.value;
-      const vs = gs.visibleSegments;
-      
-      // Clear and repopulate visibleSegments
-      vs.clear();
-      for (const id of segments) {
-        vs.add(Uint64.parseString(String(id)));
-      }
-  
-      // Update colors directly
-      const cgs = managedLayer.layer.displayState.segmentationColorGroupState.value;
-      const sc = cgs.segmentStatedColors;
-      const hexToPackedRgb = (hex) => {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return (r << 16) | (g << 8) | b;
-      };
-      
       const fullSegmentColors = {};
       for (const id of this.allKnownIdsByLayer[layerScope] || []) {
         fullSegmentColors[id] = selected[id] || GREY_HEX;
       }
-      for (const [id, hexColor] of Object.entries(fullSegmentColors)) {
-        sc.set(Uint64.parseString(String(id)), hexToPackedRgb(hexColor));
+      if (layer.type === 'segmentation') {
+        return { ...layer, segmentColors: fullSegmentColors };
       }
-      sc.changed.dispatch();
-    }
-   /* ** Vitessce integration update end ** */
+      return layer;
+    });
+  
+    this.withoutEmitting(() => {
+      const currentDimensions = this.viewer.state.toJSON().dimensions;
+      const currentScale = this.viewer.projectionScale?.value;
+      const currentPosition = Array.from(this.viewer.position?.value || []);
+      const currentOrientation = Array.from(
+        this.viewer.projectionOrientation?.orientation || []
+      );
+  
+      this.viewer.state.restoreState({ layers: newLayers });
+  
+      if (currentDimensions) {
+        this.viewer.state.restoreState({ dimensions: currentDimensions });
+      }
+      if (currentScale && Number.isFinite(currentScale)) {
+        this.viewer.projectionScale.value = currentScale;
+      }
+      if (currentOrientation.length) {
+        this.viewer.projectionOrientation.orientation.set(currentOrientation);
+      }
+      if (currentPosition.length) {
+        this.viewer.position.value = new Float32Array(currentPosition);
+      }
+    });
   };
+
+
+//   applyColorsAndVisibility = (cellColorMappingByLayer) => {
+//     if (!this.viewer) return;
+  
+//     const currentScale = this.viewer.projectionScale?.value;
+//     if (currentScale && Number.isFinite(currentScale) && currentScale < 1e10) {
+//       this._goodProjectionScale = currentScale;
+//       this._goodOrientation = Array.from(
+//         this.viewer.projectionOrientation?.orientation || []
+//       );
+//       this._goodPosition = Array.from(this.viewer.position?.value || []);
+//     }
+  
+//     const baseLayers = (this.props.viewerState?.layers)
+//       ?? (this.viewer.state.toJSON().layers || []);
+  
+//     const hexToPackedRgb = (hex) => {
+//       const r = parseInt(hex.slice(1, 3), 16);
+//       const g = parseInt(hex.slice(3, 5), 16);
+//       const b = parseInt(hex.slice(5, 7), 16);
+//       return (r << 16) | (g << 8) | b;
+//     };
+//     console.log('grey packed:', hexToPackedRgb('#323232').toString(16));
+// console.log('red packed:', hexToPackedRgb('#ff0000').toString(16));
+  
+//     for (const managedLayer of this.viewer.layerManager.managedLayers) {
+//       if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
+  
+//       const layerScope = Object.keys(cellColorMappingByLayer)
+//         .find(scope => managedLayer.name?.includes(scope));
+  
+//       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
+  
+//       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
+//       if (!this.allKnownIdsByLayer[layerScope]) {
+//         this.allKnownIdsByLayer[layerScope] = new Set();
+//       }
+//       for (const id of Object.keys(selected)) {
+//         this.allKnownIdsByLayer[layerScope].add(id);
+//       }
+
+//       console.log('first 5 ids:', [...this.allKnownIdsByLayer[layerScope]].slice(0, 5));
+// console.log('first 5 colors:', [...this.allKnownIdsByLayer[layerScope]].slice(0, 5)
+//   .map(id => ({ id, color: selected[id] || GREY_HEX })));
+  
+//       const layerConfig = baseLayers.find(l => l.name === managedLayer.name);
+//       const segments = layerConfig?.segments || [];
+  
+//       const gs = managedLayer.layer.displayState.segmentationGroupState.value;
+//       const vs = gs.visibleSegments;
+//       const cgs = managedLayer.layer.displayState.segmentationColorGroupState.value;
+//       const sc = cgs.segmentStatedColors;
+  
+//       if (segments.length === 0) {
+//         // Keep existing segments visible but color them grey
+//         // to prevent 0→N fit-to-content trigger
+//         for (const id of this.allKnownIdsByLayer[layerScope] || []) {
+//           sc.set(Uint64.parseString(String(id)), hexToPackedRgb(GREY_HEX));
+//         }
+//         sc.changed.dispatch();
+//         continue;
+//       }
+  
+//       // Mute scale changes during segment update to prevent fit-to-content propagation
+//       this.muteViewerChanged = true;
+  
+//       const newSegmentSet = new Set(segments.map(String));
+//       const currentState = managedLayer.layer.toJSON();
+//       const currentSegmentIds = new Set(
+//         (currentState?.segments || []).map(String)
+//       );
+  
+//       // Atomic diff — only add/remove changed segments
+//       for (const id of currentSegmentIds) {
+//         if (!newSegmentSet.has(id)) {
+//           vs.delete(Uint64.parseString(id));
+//         }
+//       }
+//       for (const id of newSegmentSet) {
+//         if (!currentSegmentIds.has(id)) {
+//           vs.add(Uint64.parseString(id));
+//         }
+//       }
+  
+//       // Immediately restore scale after vs operations
+//       const goodScale = this._goodProjectionScale;
+//       if (goodScale && Number.isFinite(goodScale)) {
+//         this.viewer.projectionScale.value = goodScale;
+//         if (this._goodOrientation?.length) {
+//           console.log('[restoring orientation]', {
+//             goodOrientation: this._goodOrientation,
+//             currentOrientation: Array.from(this.viewer.projectionOrientation?.orientation || []),
+//           });
+//           this.viewer.projectionOrientation.orientation.set(this._goodOrientation);
+//           console.log('[after orientation restore]', 
+//             Array.from(this.viewer.projectionOrientation?.orientation || [])
+//           );
+//         }
+//         if (this._goodPosition?.length) {
+//           this.viewer.position.value = new Float32Array(this._goodPosition);
+//         }
+//       }
+  
+//       // Unmute after next frame
+//       requestAnimationFrame(() => { this.muteViewerChanged = false; });
+  
+//       // Apply colors
+//       for (const id of this.allKnownIdsByLayer[layerScope] || []) {
+//         const hexColor = selected[id] || GREY_HEX;
+//         sc.set(Uint64.parseString(String(id)), hexToPackedRgb(hexColor));
+//       }
+//       sc.changed.dispatch();
+//     }
+  
+//     // Final safety restore if scale still corrupted
+//     if (this._goodProjectionScale && this.viewer.projectionScale?.value > 1e10) {
+//       this.viewer.projectionScale.value = this._goodProjectionScale;
+//       if (this._goodOrientation?.length) {
+//         this.viewer.projectionOrientation.orientation.set(this._goodOrientation);
+//       }
+//       if (this._goodPosition?.length) {
+//         this.viewer.position.value = new Float32Array(this._goodPosition);
+//       }
+//       setTimeout(() => {
+//         if (this.viewer && this._goodProjectionScale) {
+//           this.viewer.projectionScale.value = this._goodProjectionScale;
+//           if (this._goodOrientation?.length) {
+//             this.viewer.projectionOrientation.orientation.set(this._goodOrientation);
+//           }
+//           if (this._goodPosition?.length) {
+//             this.viewer.position.value = new Float32Array(this._goodPosition);
+//           }
+//         }
+//       }, 150);
+//     }
+//   };
 
   componentDidMount() {
     const {
@@ -596,9 +756,27 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
+    // this.disposers.push(
+    //   this.viewer.projectionScale.changed.add(() => {
+    //     if (this.muteViewerChanged) return;
+    //     const scale = this.viewer.projectionScale?.value;
+    //     if (scale && scale > 1e10 && this._goodProjectionScale) {
+    //       this.viewer.projectionScale.value = this._goodProjectionScale;
+    //       if (this._goodOrientation?.length) {
+    //         this.viewer.projectionOrientation.orientation.set(this._goodOrientation);
+    //       }
+    //       if (this._goodPosition?.length) {
+    //         this.viewer.position.value = new Float32Array(this._goodPosition);
+    //       }
+    //     }
+    //   })
+    // );
 
     // Initial restore ONLY if provided
     if (viewerState) {
+      // if (viewerState?.projectionOrientation) {
+      //   this._goodOrientation = [...viewerState.projectionOrientation];
+      // }
       // restore state only when all the changes are added -
       // avoids calling .changed() for each change and leads to smooth updates
       this.withoutEmitting(() => {
@@ -654,6 +832,20 @@ export default class Neuroglancer extends React.Component {
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
     this.disposers.push(visibleChunksChanged.add(() => {
+      // for (const layer of this.viewer.layerManager.managedLayers) {
+      //   if (layer.layer instanceof SegmentationUserLayer) {
+      //     console.log('[layer]', layer.name, 'renderLayers:', layer.layer.renderLayers?.length);
+      //     layer.layer.renderLayers?.forEach((rl, i) => {
+      //       const info = rl.layerChunkProgressInfo;
+      //       console.log(`  [rl ${i}]`, {
+      //         available: info?.numVisibleChunksAvailable,
+      //         needed: info?.numVisibleChunksNeeded,
+      //         type: rl?.constructor?.name,
+      //       });
+      //     });
+      //   }
+      // }
+
       if (!firstChunkLoaded) {
         for (const layer of this.viewer.layerManager.managedLayers) {
           if (layer.layer instanceof SegmentationUserLayer) {
@@ -691,6 +883,23 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
+
+//     const currentScale = this.viewer?.projectionScale?.value;
+//     console.log('[componentDidUpdate scale]', currentScale);
+    
+// if (currentScale && Number.isFinite(currentScale) && currentScale < 1e10) {
+//   this._goodProjectionScale = currentScale;
+//   // Use viewerState orientation, not live viewer (which may be stale)
+//   if (viewerState?.projectionOrientation) {
+//     this._goodOrientation = [...viewerState.projectionOrientation];
+//   } else {
+//     this._goodOrientation = Array.from(
+//       this.viewer.projectionOrientation?.orientation || []
+//     );
+//   }
+//   this._goodPosition = Array.from(this.viewer.position?.value || []);
+// }
+
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -796,32 +1005,30 @@ export default class Neuroglancer extends React.Component {
     }
     // If layers changed structurally (not segments/colors/visibility)
     if (this.didLayersChange(prevVS, viewerState)) {
+      (prevVS?.layers || []).forEach((pl, i) => {
+        const nl = viewerState?.layers?.[i];
+        const stripC = l => { 
+          const { segmentColors, visible, ...r } = l || {}; 
+          return r; 
+        };
+        if (JSON.stringify(stripC(pl)) !== JSON.stringify(stripC(nl || {}))) {
+          Object.keys({...stripC(pl), ...stripC(nl || {})}).forEach(key => {
+            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
+              console.log('[didLayersChange diff]', { layer: i, key });
+            }
+          });
+        }
+      });
       this.withoutEmitting(() => {
         const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        const currentScale = this.viewer.projectionScale?.value;
-        const currentPosition = Array.from(this.viewer.position?.value || []);
-        const currentOrientation = Array.from(
-          this.viewer.projectionOrientation?.orientation || []
-        );
-        // Strip segments/colors — applyColorsAndVisibility handles these directly
         const strippedLayers = layers.map((l) => {
           if (!l) return l;
-          const { segments, segmentColors, ...rest } = l;
+          const { segments, ...rest } = l;
           return rest;
         });
-        this.viewer.state.restoreState({ layers: strippedLayers });
-        if (currentScale && Number.isFinite(currentScale)) {
-          this.viewer.projectionScale.value = currentScale;
-        }
-        if (currentOrientation.length) {
-          this.viewer.projectionOrientation.orientation.set(currentOrientation);
-        }
-        if (currentPosition.length) {
-          this.viewer.position.value = new Float32Array(currentPosition);
-        }
-        if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
-          this.applyColorsAndVisibility(cellColorMappingByLayer);
-        }
+        this.preserveDimensionsAndCamera(() => {
+          this.viewer.state.restoreState({ layers: strippedLayers });
+        });
       });
     }
     // If colors changed (but layers didn’t): re-apply colors
@@ -832,7 +1039,7 @@ export default class Neuroglancer extends React.Component {
     // const currSize = cellColorMappingByLayer
     //   ? Object.values(cellColorMappingByLayer)
     //     .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
-    const stripOpacity = mapping => {
+    const stripOpacity = (mapping) => {
       const result = {};
       Object.entries(mapping || {}).forEach(([k, v]) => {
         result[k] = { colors: v?.colors };
@@ -842,12 +1049,23 @@ export default class Neuroglancer extends React.Component {
     const prevColorsJSON = JSON.stringify(stripOpacity(prevProps.cellColorMapping));
     const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
     const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
-    // Colors changed but layers didn't
-    if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
-      this.withoutEmitting(() => {
-        this.applyColorsAndVisibility(cellColorMappingByLayer);
-      });
-    }
+
+    const shouldApplyColors = (this.didLayersChange(prevVS, viewerState) || 
+    (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged));
+  
+      if (shouldApplyColors) {
+        if (this._applyColorsTimer) clearTimeout(this._applyColorsTimer);
+        this._applyColorsTimer = setTimeout(() => {
+          this._applyColorsTimer = null;
+          this.applyColorsAndVisibility(cellColorMappingByLayer);
+        }, 50);
+      }
+    // // Colors changed but layers didn't
+    // if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
+    //   this.withoutEmitting(() => {
+    //     this.applyColorsAndVisibility(cellColorMappingByLayer);
+    //   });
+    // }
     // Treat "real" layer source/type changes differently from segment list changes.
     // We only restore layers (not pose) when sources change OR on the first time segments appear.
     const stripSegFields = layers => (layers || []).map((l) => {
@@ -886,7 +1104,9 @@ export default class Neuroglancer extends React.Component {
           const { segments, segmentColors, ...rest } = l;
           return rest;
         });
-        this.viewer.state.restoreState({ layers: strippedLayers });
+        this.preserveDimensionsAndCamera(() => {
+          this.viewer.state.restoreState({ layers: strippedLayers });
+        });
         if (currentScale && Number.isFinite(currentScale)) {
           this.viewer.projectionScale.value = currentScale;
         }

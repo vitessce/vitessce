@@ -351,7 +351,7 @@ export function NeuroglancerSubscriber(props) {
 
 
   // Obtain the Neuroglancer viewerState object.
-  const initalViewerState = useNeuroglancerViewerState(
+  const initialViewerState = useNeuroglancerViewerState(
     theme,
     showAxisLines,
     segmentationLayerScopes,
@@ -370,7 +370,7 @@ export function NeuroglancerSubscriber(props) {
 
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
-    ...initalViewerState,
+    ...initialViewerState,
     ...(initialNgCameraState ?? {}),
   });
 
@@ -381,14 +381,14 @@ export function NeuroglancerSubscriber(props) {
       projectionScale: latestViewerStateRef.current.projectionScale,
     };
     latestViewerStateRef.current = {
-      ...initalViewerState,
+      ...initialViewerState,
       ...prevNgCameraState,
     };
     // Force a re-render by incrementing a piece of state.
     // This works because we have made latestViewerStateIteration
     // a dependency for derivedViewerState, triggering the useMemo downstream.
     incrementLatestViewerStateIteration();
-  }, [initalViewerState]);
+  }, [initialViewerState]);
 
   const initialRotationPushedRef = useRef(false);
 
@@ -763,7 +763,7 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
+    spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
     latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
