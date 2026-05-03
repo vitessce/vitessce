@@ -506,19 +506,20 @@ export default class Neuroglancer extends React.Component {
       this.viewer.position.value = new Float32Array(currentPosition);
     }
   };
+
   /* To add colors to the segments, turning unselected to grey  */
   applyColorsAndVisibility = (cellColorMappingByLayer) => {
     if (!this.viewer) return;
-  
+
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
 
-  
+
     const newLayers = baseLayers.map((layer) => {
       const layerScope = Object.keys(cellColorMappingByLayer)
         .find(scope => layer.name?.includes(scope));
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
-  
+
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
       if (!this.allKnownIdsByLayer[layerScope]) {
         this.allKnownIdsByLayer[layerScope] = new Set();
@@ -830,20 +831,6 @@ export default class Neuroglancer extends React.Component {
     }
     // If layers changed structurally (not segments/colors/visibility)
     if (this.didLayersChange(prevVS, viewerState)) {
-      (prevVS?.layers || []).forEach((pl, i) => {
-        const nl = viewerState?.layers?.[i];
-        const stripC = l => { 
-          const { segmentColors, visible, ...r } = l || {}; 
-          return r; 
-        };
-        if (JSON.stringify(stripC(pl)) !== JSON.stringify(stripC(nl || {}))) {
-          Object.keys({...stripC(pl), ...stripC(nl || {})}).forEach(key => {
-            if (JSON.stringify(pl?.[key]) !== JSON.stringify(nl?.[key])) {
-              console.log('[didLayersChange diff]', { layer: i, key });
-            }
-          });
-        }
-      });
       this.withoutEmitting(() => {
         const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
         const strippedLayers = layers.map((l) => {
@@ -875,9 +862,9 @@ export default class Neuroglancer extends React.Component {
     const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
     const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
 
-    const shouldApplyColors = (this.didLayersChange(prevVS, viewerState) || 
-    (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged));
-  
+    // const shouldApplyColors = (this.didLayersChange(prevVS, viewerState)
+    // || (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged));
+
     // Colors changed but layers didn't
     if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
       this.withoutEmitting(() => {
@@ -914,7 +901,7 @@ export default class Neuroglancer extends React.Component {
         const currentScale = this.viewer.projectionScale?.value;
         const currentPosition = Array.from(this.viewer.position?.value || []);
         const currentOrientation = Array.from(
-          this.viewer.projectionOrientation?.orientation || []
+          this.viewer.projectionOrientation?.orientation || [],
         );
         // Strip segments — handled by applyColorsAndVisibility
         const strippedLayers = (nextLayers || []).map((l) => {
