@@ -103,11 +103,11 @@ function generateNeuroglancerMerfish() {
     // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState: {
       position: [
-        3630.5,
-        4469.5,
-        7.5,
+        3276962.5,
+        3271567.5,
+        1.72,
       ],
-      projectionScale: 11521.115426462216,
+      projectionScale: 11521,
       projectionOrientation: [
         -0.0017234950792044401,
         -0.031710099428892136,
