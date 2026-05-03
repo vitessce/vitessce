@@ -784,10 +784,13 @@ export default class Neuroglancer extends React.Component {
 
     /* ** Vitessce Integration update start ** */
     if (!viewerState) return;
-    // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
+
     const prevVS = prevProps.viewerState;
+    const prevLayers = prevProps.viewerState?.layers;
+    const nextLayers = viewerState?.layers;
+
+    // Restore camera ONLY if it actually changed
     const camState = diffCameraState(prevVS, viewerState);
-    // Restore pose ONLY if it actually changed
     if (camState.changed) {
       const patch = {};
       if (camState.scale) {
@@ -798,26 +801,23 @@ export default class Neuroglancer extends React.Component {
         patch.position = viewerState.position;
       }
       if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
-
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed structurally (not segments/colors/visibility)
+
+    // Structural layer changes (source URL, layer type, name, subsources etc.)
+    // segments/colors/visibility/opacity/shader are handled separately below
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        const strippedLayers = layers.map((l) => {
-          if (!l) return l;
-          const { segments, ...rest } = l;
-          return rest;
-        });
         this.preserveDimensionsAndCamera(() => {
-          this.viewer.state.restoreState({ layers: strippedLayers });
+          this.viewer.state.restoreState({ layers: nextLayers });
         });
       });
     }
-    // If colors changed (but layers didn’t): re-apply colors
-    // this was to avid NG randomly assigning colors to the segments by resetting them
+
+    // Colors or segments changed — re-apply colors and segment visibility.
+    // Also handles initial segment seeding (0 -> N segments) since cellColorMappingByLayer
+    // is populated at the same time segments first appear.
     const stripOpacity = (mapping) => {
       const result = {};
       Object.entries(mapping || {}).forEach(([k, v]) => {
@@ -829,47 +829,9 @@ export default class Neuroglancer extends React.Component {
     const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
     const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
 
-    // Colors changed but layers didn't
     if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
       this.withoutEmitting(() => {
         this.applyColorsAndVisibility(cellColorMappingByLayer);
-      });
-    }
-    // Treat "real" layer source/type changes differently from segment list changes.
-    // We only restore layers (not pose) when sources change OR on the first time segments appear.
-    const stripSegFields = layers => (layers || []).map((l) => {
-      if (!l) return l;
-      const { segments, segmentColors, objectAlpha, shader, visible, ...rest } = l;
-      return rest; // ignore segments, segmentColors, opacity, visibility for comparison
-    });
-
-    const prevLayers = prevProps.viewerState?.layers;
-    const nextLayers = viewerState?.layers;
-
-    const prevCore = JSON.stringify(stripSegFields(prevLayers));
-    const nextCore = JSON.stringify(stripSegFields(nextLayers));
-    const sourcesChanged = prevCore !== nextCore; // real structural change?
-
-
-    const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
-      ? prevLayers[0].segments.length : 0;
-    const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
-      ? nextLayers[0].segments.length : 0;
-
-    // first-time seeding – from 0 segments → N segments
-    const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
-
-    // Real structural source changes only
-    if (sourcesChanged || initialSegmentsAdded) {
-      this.withoutEmitting(() => {
-        const strippedLayers = (nextLayers || []).map((l) => {
-          if (!l) return l;
-          const { segments, segmentColors, ...rest } = l;
-          return rest;
-        });
-        this.preserveDimensionsAndCamera(() => {
-          this.viewer.state.restoreState({ layers: strippedLayers });
-        });
       });
     }
 
