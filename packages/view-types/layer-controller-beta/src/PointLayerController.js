@@ -3,6 +3,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
+import { GLSL_COLORMAPS } from '@vitessce/gl';
 import {
   makeStyles,
   Grid,
@@ -77,6 +78,8 @@ function PointLayerEllipsisMenu(props) {
     setFeatureFilterMode,
     obsColorEncoding,
     setObsColorEncoding,
+    featureValueColormap,
+    setFeatureValueColormap,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     tooltipsVisible,
@@ -96,6 +99,7 @@ function PointLayerEllipsisMenu(props) {
   const crosshairsVisibleId = useId();
   const legendVisibleId = useId();
   const featureFilterModeId = useId();
+  const colormapSelectorId = useId();
 
   return (
     <PopperMenu
@@ -107,6 +111,21 @@ function PointLayerEllipsisMenu(props) {
       withPaper
       aria-label="Open point layer options menu"
     >
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapSelectorId}>
+          Colormap:&nbsp;
+        </label>
+        <NativeSelect
+          onChange={e => setFeatureValueColormap(e.target.value)}
+          value={featureValueColormap}
+          inputProps={{ id: colormapSelectorId, 'aria-label': 'Colormap selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {GLSL_COLORMAPS.map(cmap => (
+            <option key={cmap} value={cmap}>{cmap}</option>
+          ))}
+        </NativeSelect>
+      </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
@@ -121,6 +140,7 @@ function PointLayerEllipsisMenu(props) {
           <option value="geneSelection">Feature Color</option>
           <option value="randomByFeature">Random Color per Feature</option>
           <option value="random">Random Color per Point</option>
+          <option value="quantitativeColormap">Quantitative Colormap</option> 
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -140,7 +160,7 @@ function PointLayerEllipsisMenu(props) {
           Colormap Range:&nbsp;
         </label>
         <Slider
-          disabled={obsColorEncoding !== 'geneSelection'}
+          disabled={obsColorEncoding !== 'geneSelection' && obsColorEncoding !== 'quantitativeColormap'}
           value={featureValueColormapRange}
           min={0.0}
           max={1.0}
@@ -280,7 +300,7 @@ export default function PointLayerController(props) {
     obsColorEncoding === 'spatialLayerColor'
     || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
   );
-  const isColormap = false; // We do not yet support quantitative colormaps for points.
+  const isColormap = obsColorEncoding === 'quantitativeColormap';
 
   // If the feature color encoding is "geneSelection" and there is only one feature selected,
   // we can use the first feature's color as the static color, and hook up the featureColor setter
@@ -417,6 +437,8 @@ export default function PointLayerController(props) {
               setLegendVisible={setLegendVisible}
               featureFilterMode={featureFilterMode}
               setFeatureFilterMode={setFeatureFilterMode}
+              featureValueColormap={featureValueColormap}
+              setFeatureValueColormap={setFeatureValueColormap}
             />
           </Grid>
           <Grid size={1} container direction="row">

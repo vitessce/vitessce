@@ -79,6 +79,9 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     options: {
       projectionAnnotationSpacing: 1,
       useForSegmentationCulling: true,
+      featureIndexProp: 'phenotype',
+      pointIndexProp: 'id',
+      quantitativeColorProp: 'phenotype',
       matrix: [
         [7148.09960682, 0, 0, 0],
         [0, 7148.09960682, 0, 0],
@@ -162,9 +165,11 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         obsType: 'cell',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
-        obsColorEncoding: 'spatialLayerColor',
         spatialLayerColor: [0, 255, 0],
         spatialPointStrokeWidth: 0.2,
+        obsColorEncoding: 'quantitativeColormap',
+        featureValueColormap: 'viridis',
+        featureValueColormapRange: [0.0, 1.0],
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
