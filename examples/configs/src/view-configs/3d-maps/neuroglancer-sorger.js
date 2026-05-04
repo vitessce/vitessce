@@ -62,6 +62,16 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     },
   });
 
+  dataset.addFile({
+    fileType: 'obsFeatureMatrix.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'gene',
+      featureValueType: 'expression',
+    },
+  });
+
 
   dataset.addFile({
     fileType: 'obsPoints.ng-annotations',
@@ -131,10 +141,14 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         segmentationChannel: CL([
           {
             obsType: 'cell',
+            featureType: 'gene',
+            featureValueType: 'expression',
             spatialChannelVisible: true,
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
-            obsColorEncoding: 'spatialChannelColor',
+            obsColorEncoding: 'geneSelection',
+            featureValueColormap: 'viridis',
+            featureValueColormapRange: [0.0, 1.0],
           },
         ]),
       },
