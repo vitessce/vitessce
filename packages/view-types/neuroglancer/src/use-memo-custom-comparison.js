@@ -102,6 +102,9 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'additionalObsSets',
               'spatialChannelColor',
               'spatialChannelOpacity',
+              'featureValueColormap',
+              'featureValueColormapRange',
+              'featureSelection',
             ])
         ) {
           forceUpdate = true;
@@ -178,6 +181,9 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'featureFilterMode',
             'featureColor',
             'spatialPointStrokeWidth',
+            'featureValueColormap',
+            'featureValueColormapRange',
+            'featureSelection',
           ])
           // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
           || (
