@@ -482,7 +482,7 @@ export default class Neuroglancer extends React.Component {
 
   // Helper to preserve dimensions across restoreState calls to prevent
   // NG from permanently switching to the data source's native coordinate space.
-  preserveDimensionsAndCamera = (restoreFn) => {
+  preserveDimensions = (restoreFn) => {
     const currentDimensions = this.viewer.state.toJSON().dimensions;
     restoreFn();
     if (currentDimensions) {
@@ -526,7 +526,7 @@ export default class Neuroglancer extends React.Component {
       return layer;
     });
     this.withoutEmitting(() => {
-      this.preserveDimensionsAndCamera(() => {
+      this.preserveDimensions(() => {
         this.viewer.state.restoreState({ layers: newLayers });
       });
     });
@@ -792,7 +792,7 @@ export default class Neuroglancer extends React.Component {
     // segments/colors/visibility/opacity/shader are handled separately below
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        this.preserveDimensionsAndCamera(() => {
+        this.preserveDimensions(() => {
           this.viewer.state.restoreState({ layers: nextLayers });
         });
       });
