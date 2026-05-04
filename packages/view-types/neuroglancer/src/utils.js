@@ -71,9 +71,10 @@ export const deg2rad = d => d * Math.PI / 180;
 //   );
 // }
 
-//  
+//  Returns an [r, g, b] color array (0–255) for a normalized value t in [0, 1]
+// using the named colormap.
 export function applyColormap(colormap, t) {
-  t = Math.max(0, Math.min(1, t));
+  const tClamped = Math.max(0, Math.min(1, t));
   const interpolators = {
     plasma: interpolatePlasma,
     viridis: interpolateViridis,
@@ -81,7 +82,7 @@ export function applyColormap(colormap, t) {
     greys: interpolateGreys,
   };
   const fn = interpolators[colormap] ?? interpolateViridis;
-  return fn(t); // [r, g, b] in 0-255
+  return fn(tClamped);
 }
 
 /**

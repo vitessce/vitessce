@@ -140,7 +140,7 @@ function PointLayerEllipsisMenu(props) {
           <option value="geneSelection">Feature Color</option>
           <option value="randomByFeature">Random Color per Feature</option>
           <option value="random">Random Color per Point</option>
-          <option value="quantitativeColormap">Quantitative Colormap</option> 
+          <option value="quantitativeColormap">Quantitative Colormap</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
