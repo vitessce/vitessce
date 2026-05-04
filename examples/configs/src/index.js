@@ -87,6 +87,7 @@ import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
 import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 import { neuroglancerTwoLayers } from './view-configs/3d-maps/neuroglancer-two-layers.js';
+import { neuroglancerMocosko } from './view-configs/3d-maps/neuroglancer-mocosko.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -205,6 +206,7 @@ export const configs = {
   'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
+  'neuroglancer-mocosko': neuroglancerMocosko,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,

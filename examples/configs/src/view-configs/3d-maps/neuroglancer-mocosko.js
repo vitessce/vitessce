@@ -7,17 +7,16 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-function generateNeuroglancerMerfish() {
+function generateNeuroglancerMocosko() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.18',
-    name: 'MERFISH mouse ileum dataset',
+    name: 'MOCOSCO dataset',
   });
 
-  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
-  const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
+  //  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
 
-  // TODO: check if these meshes are sharded or not (sharded may not be compatible with NG version that we are currently using).
-  const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
+  const pointsUrl = 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/pucks';
+  const segmentationsUrl = 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/';
 
   const withPoints = true;
 
@@ -55,12 +54,7 @@ function generateNeuroglancerMerfish() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
-
-        // Note: tissue-map-tools creates an AnnotationProperty
-        // for every column in the sdata Points element dask dataframe.
-        // Reference: https://github.com/hms-dbmi/tissue-map-tools/blob/6a904241436e946ffbadef24b780a33321754991/src/tissue_map_tools/converters.py#L295
         featureIndexProp: 'gene', // This corresponds to the prop_gene() in the Neuroglancer shader code.
-        // TODO: update pointIndexProp to not be 'gene'. Need to find what other "prop"s are available in this file.
         pointIndexProp: 'gene', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
       },
       coordinationValues: {
@@ -71,29 +65,21 @@ function generateNeuroglancerMerfish() {
     });
   }
 
-  // Include the corresponding spatialdata object for sets, expression matrix, etc.
-  // The geneList relies on obsFeatureMatrix.featureIndex to show the list of genes.
-  // The neuroglancer segmentation colors rely on obsSets to determine set membership and therefore coloring.
   dataset.addFile({
-    fileType: 'spatialdata.zarr',
-    url: sdataUrl,
-    options: {
-      obsFeatureMatrix: {
-        path: 'tables/gene_expression_baysor/X',
-      },
-      obsSets: {
-        tablePath: 'tables/gene_expression_baysor',
-        obsSets: [
-          {
-            name: 'Region',
-            path: 'tables/gene_expression_baysor/obs/region',
-          },
-        ],
-      },
-    },
+    fileType: 'obsSets.csv',
+    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/brain_regions.csv',
     coordinationValues: {
       obsType: 'cell',
-      featureType: 'gene',
+    },
+    options: {
+      obsIndex: 'id',
+      obsSets: [
+        {
+          name: 'Region',
+          column: 'layer',
+        },
+
+      ],
     },
   });
 
@@ -103,22 +89,20 @@ function generateNeuroglancerMerfish() {
     // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState: {
       position: [
-        3276962.5,
-        3271567.5,
-        1.72,
+        6853126.5,
+        2365343.75,
+        5609465,
       ],
-      projectionScale: 11521,
+      projectionScale: 2586140.338401254,
       projectionOrientation: [
-        -0.0017234950792044401,
-        -0.031710099428892136,
-        0.02632056176662445,
-        0.999148964881897,
+        0.5222588181495667,
+        0.35620978474617004,
+        -0.7747146487236023,
+        -0.013324383646249771,
       ],
     },
-    showAxisLines: true,
   });
-  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
-  const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta');// .setProps({ layerPerFeatureForPoints: true });
   const obsSets = config.addView(dataset, 'obsSets');
 
   config.linkViewsByObject([neuroglancerView, lcView], {
@@ -166,15 +150,15 @@ function generateNeuroglancerMerfish() {
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
-          spatialPointStrokeWidth: 0.0,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
-  config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
+  config.layout(hconcat(neuroglancerView, vconcat(lcView, obsSets)));
+
   const configJSON = config.toJSON();
   return configJSON;
 }
 
-export const neuroglancerMerfish = generateNeuroglancerMerfish();
+export const neuroglancerMocosko = generateNeuroglancerMocosko();
