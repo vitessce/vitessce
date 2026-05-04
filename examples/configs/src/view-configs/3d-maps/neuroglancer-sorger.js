@@ -78,7 +78,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/sorger_mis/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      // useForSegmentationCulling: true,
+      useForSegmentationCulling: true,
       featureIndexProp: 'phenotype',
       pointIndexProp: 'id',
       quantitativeColorProp: 'phenotype',
@@ -111,10 +111,11 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         0.4093725383281708,
       ],
     },
+    showAxisLines: false,
     // maximum number of annotation spatial chunks fetched per viewport update
     meshMaxChunks: 64,
     // projectionScale threshold (in µm/pixel) below which meshes load
-    meshLoadThresholdUm: 100, // Lower = require more zoom before meshes appear.
+    meshLoadThresholdUm: 30, // Lower = require more zoom before meshes appear.
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
