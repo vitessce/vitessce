@@ -64,7 +64,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/MIS_phenotype_numeric.csv',
     coordinationValues: {
       obsType: 'cell',
       featureType: 'gene',
@@ -150,6 +150,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
+            featureSelection: ['phenotype_numeric'],
             featureValueColormap: 'viridis',
             featureValueColormapRange: [0.0, 1.0],
           },
@@ -169,7 +170,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
-        featureValueColormapRange: [0.0, 1.0],
+        featureValueColormapRange: [0.0, 10.0],
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

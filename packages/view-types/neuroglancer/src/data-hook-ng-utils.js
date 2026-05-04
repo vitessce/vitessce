@@ -222,6 +222,7 @@ export function useNeuroglancerViewerState(
 
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
+          quantitativeColorProp: layerData.neuroglancerOptions?.quantitativeColorProp,
           pointMarkerBorderWidth: spatialPointStrokeWidth ?? 0.0,
         });
         result = {

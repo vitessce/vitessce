@@ -109,7 +109,7 @@ function PointLayerEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
-      aria-label="Open point layer options menu"
+      getAriaLabel={() => 'Open point layer options menu'}
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapSelectorId}>
