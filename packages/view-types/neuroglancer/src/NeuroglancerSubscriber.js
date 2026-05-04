@@ -52,6 +52,7 @@ import {
   getViewportBoundingBox,
   getIntersectingChunkCoords,
   parseAnnotationChunkSegmentIds,
+  applyColormap,
 } from './utils.js';
 
 
@@ -227,6 +228,8 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.FEATURE_TYPE,
+      CoordinationType.FEATURE_VALUE_TYPE,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -357,6 +360,8 @@ export function NeuroglancerSubscriber(props) {
           additionalObsSets,
           spatialChannelColor,
           spatialChannelOpacity,
+          featureValueColormap,
+          featureValueColormapRange,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
@@ -394,6 +399,33 @@ export function NeuroglancerSubscriber(props) {
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = hex; // store default color
           }
+        } else if (obsColorEncoding === 'geneSelection') {
+          // For NG mesh segmentations, obsIndex comes from obsSegmentationsSetsData
+          const instanceObsIndex = obsSegmentationsSetsData
+            ?.[layerScope]?.[channelScope]?.obsIndex;
+          const matrixObsIndex = segmentationMultiIndicesData
+            ?.[layerScope]?.[channelScope]?.obsIndex;
+          const expressionData = segmentationMultiExpressionNormData
+            ?.[layerScope]?.[channelScope];
+          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
+            const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(key));
+            const [low, high] = featureValueColormapRange ?? [0, 1];
+            const ngCellColors = {};
+            instanceObsIndex.forEach((id, i) => {
+              const rowIndex = toMatrixIndex[i];
+              const rawVal = expressionData[0][rowIndex] ?? 0;
+              // Uint8Array values are 0-255, already normalized — convert to 0-1
+              const t = rawVal / 255;
+              // Apply colormapRange scaling
+              const tScaled = (t - low) / Math.max(high - low, 0.0001);
+              const tClamped = Math.max(0, Math.min(1, tScaled));
+              const color = applyColormap(featureValueColormap ?? 'viridis', tClamped);
+              ngCellColors[id] = rgbToHex(color);
+            });
+            result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+          }
         } else if (layerSets && layerIndex) {
           // cellSetSelection encoding — color by obs set membership
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
@@ -423,6 +455,8 @@ export function NeuroglancerSubscriber(props) {
     obsSegmentationsSetsData,
     segmentationChannelCoordination,
     theme,
+    segmentationMultiExpressionNormData,
+    segmentationMultiIndicesData,
   }, customIsEqualForCellColors);
 
   // Obtain the Neuroglancer viewerState object.

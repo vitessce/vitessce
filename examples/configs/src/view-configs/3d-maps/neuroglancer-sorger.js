@@ -78,7 +78,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/sorger_mis/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      useForSegmentationCulling: true,
+      // useForSegmentationCulling: true,
       featureIndexProp: 'phenotype',
       pointIndexProp: 'id',
       quantitativeColorProp: 'phenotype',
@@ -170,7 +170,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
-        featureValueColormapRange: [0.0, 10.0],
+        featureValueColormapRange: [0.0, 12.0], // phenotypes range
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

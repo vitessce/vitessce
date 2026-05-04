@@ -64,6 +64,47 @@ export const deg2rad = d => d * Math.PI / 180;
 //   );
 // }
 
+
+// JS-side colormap matching the GLSL colormaps
+export function applyColormap(colormap, t) {
+  t = Math.max(0, Math.min(1, t));
+  // Viridis approximation matching the GLSL version
+  const viridis = [
+    [0.267, 0.005, 0.329],
+    [0.278, 0.173, 0.478],
+    [0.231, 0.318, 0.545],
+    [0.173, 0.443, 0.557],
+    [0.129, 0.565, 0.553],
+    [0.153, 0.678, 0.506],
+    [0.361, 0.784, 0.388],
+    [0.667, 0.863, 0.196],
+    [0.993, 0.906, 0.145],
+  ];
+  const plasma = [
+    [0.050, 0.030, 0.528],
+    [0.294, 0.012, 0.631],
+    [0.490, 0.012, 0.659],
+    [0.659, 0.133, 0.588],
+    [0.796, 0.275, 0.475],
+    [0.898, 0.420, 0.365],
+    [0.973, 0.580, 0.255],
+    [0.992, 0.765, 0.157],
+    [0.941, 0.976, 0.129],
+  ];
+  const maps = { viridis, plasma };
+  const palette = maps[colormap] ?? viridis;
+  const scaled = t * (palette.length - 1);
+  const i = Math.min(Math.floor(scaled), palette.length - 2);
+  const f = scaled - i;
+  const c0 = palette[i];
+  const c1 = palette[i + 1];
+  return [
+    Math.round((c0[0] + f * (c1[0] - c0[0])) * 255),
+    Math.round((c0[1] + f * (c1[1] - c0[1])) * 255),
+    Math.round((c0[2] + f * (c1[2] - c0[2])) * 255),
+  ];
+}
+
 /**
  * Returns true if the difference is greater than the epsilon for that key.
  * @param {array | number} a Previous viewerState key, i.e., position.
