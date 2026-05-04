@@ -480,30 +480,13 @@ export default class Neuroglancer extends React.Component {
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
   };
 
-  // Helper to preserve dimensions and other pareams across restoreState calls to prevent
+  // Helper to preserve dimensions across restoreState calls to prevent
   // NG from permanently switching to the data source's native coordinate space.
   preserveDimensionsAndCamera = (restoreFn) => {
     const currentDimensions = this.viewer.state.toJSON().dimensions;
-    const currentScale = this.viewer.projectionScale?.value;
-    const currentPosition = Array.from(this.viewer.position?.value || []);
-    const currentOrientation = Array.from(
-      this.viewer.projectionOrientation?.orientation || [],
-    );
-
     restoreFn();
-
-    // Restore dimensions first — this prevents scale recalculation
     if (currentDimensions) {
       this.viewer.state.restoreState({ dimensions: currentDimensions });
-    }
-    if (currentScale && Number.isFinite(currentScale)) {
-      this.viewer.projectionScale.value = currentScale;
-    }
-    if (currentOrientation.length) {
-      this.viewer.projectionOrientation.orientation.set(currentOrientation);
-    }
-    if (currentPosition.length) {
-      this.viewer.position.value = new Float32Array(currentPosition);
     }
   };
 
