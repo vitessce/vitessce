@@ -206,6 +206,8 @@ export function useNeuroglancerViewerState(
           featureFilterMode,
           featureColor,
           spatialPointStrokeWidth,
+          featureValueColormap,
+          featureValueColormapRange,
         } = layerCoordination || {};
 
         // Dynamically construct the shader based on the color encoding
@@ -219,7 +221,8 @@ export function useNeuroglancerViewerState(
           featureSelection,
           featureFilterMode,
           featureColor,
-
+          featureValueColormap,
+          featureValueColormapRange,
           featureIndexProp: layerData.neuroglancerOptions?.featureIndexProp,
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
           quantitativeColorProp: layerData.neuroglancerOptions?.quantitativeColorProp,
