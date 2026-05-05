@@ -38,11 +38,20 @@ const useStyles = makeStyles()(() => ({
   },
   divider: {
     width: '1px',
-    alignSelf: 'stretch',
+    height: '20px',
     background: 'currentColor',
-    opacity: 0.15,
-    margin: '0 4px',
     flexShrink: 0,
+    margin: '0 10px',
+  },
+  inlineLabel: {
+    margin: '0px !important',
+    lineHeight: 1,
+    alignSelf: 'center',
+  },
+  iconCell: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));
 
@@ -90,12 +99,12 @@ function CombinedEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
-      aria-label="Open layer options menu"
+      getAriaLabel={() => 'Open combined centroid and segmentation layer options menu'}
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>Filled:&nbsp;</label>
         <Checkbox
-          color="primary"
+          color='primary'
           className={menuClasses.menuItemCheckbox}
           checked={filled}
           onChange={(e, v) => setFilled(v)}
@@ -112,9 +121,9 @@ function CombinedEllipsisMenu(props) {
           step={0.01}
           onChange={(e, v) => setStrokeWidth(v)}
           className={menuClasses.menuItemSlider}
-          orientation="horizontal"
+          orientation='horizontal'
           id={strokeWidthId}
-          aria-label="Stroke width"
+          getAriaLabel={ () => 'Stroke width' }
         />
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -125,9 +134,9 @@ function CombinedEllipsisMenu(props) {
           inputProps={{ id: colorEncodingId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option value="spatialChannelColor">Static color</option>
-          <option value="geneSelection">Feature value</option>
-          <option value="cellSetSelection">Set selection</option>
+          <option value='spatialChannelColor'>Static color</option>
+          <option value='geneSelection'>Feature value</option>
+          <option value='cellSetSelection'>Set selection</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -153,7 +162,7 @@ function CombinedEllipsisMenu(props) {
           step={0.01}
           onChange={(e, v) => setFeatureValueColormapRange(v)}
           className={menuClasses.menuItemSlider}
-          orientation="horizontal"
+          orientation='horizontal'
           id={colormapRangeId}
           getAriaLabel={i => (i === 0 ? 'Low colormap range' : 'High colormap range')}
         />
@@ -161,7 +170,7 @@ function CombinedEllipsisMenu(props) {
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsId}>Tooltips visible:&nbsp;</label>
         <Checkbox
-          color="primary"
+          color='primary'
           className={menuClasses.menuItemCheckbox}
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
@@ -171,7 +180,7 @@ function CombinedEllipsisMenu(props) {
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={crosshairsId}>Crosshairs visible:&nbsp;</label>
         <Checkbox
-          color="primary"
+          color='primary'
           className={menuClasses.menuItemCheckbox}
           checked={tooltipCrosshairsVisible}
           onChange={(e, v) => setTooltipCrosshairsVisible(v)}
@@ -181,7 +190,7 @@ function CombinedEllipsisMenu(props) {
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={legendId}>Legend visible:&nbsp;</label>
         <Checkbox
-          color="primary"
+          color='primary'
           className={menuClasses.menuItemCheckbox}
           checked={legendVisible}
           onChange={(e, v) => setLegendVisible(v)}
@@ -280,29 +289,29 @@ export default function SegmentationCentroidsController(props) {
     setPointVisible?.(typeof pointVisible === 'boolean' ? !pointVisible : false);
   }, [pointVisible, setPointVisible]);
 
-  const segVisibleSetting = typeof segVisible === 'boolean' ? segVisible   : true;
+  const segVisibleSetting = typeof segVisible === 'boolean' ? segVisible : true;
   const pointVisibleSetting = typeof pointVisible === 'boolean' ? pointVisible : true;
 
-  const SegVisibility = segVisibleSetting   ? VisibilityIcon : VisibilityOffIcon;
+  const SegVisibility = segVisibleSetting ? VisibilityIcon : VisibilityOffIcon;
   const PointVisibility = pointVisibleSetting ? VisibilityIcon : VisibilityOffIcon;
 
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
   const isColormap = obsColorEncoding === 'geneSelection';
 
   const pointIsStaticColor = pointObsColorEncoding === 'spatialChannelColor';
-  const pointIsColormap = pointObsColorEncoding === 'geneSelection';
+  const pointIsColormap = pointObsColorEncoding === 'geneSelection'
+                             || pointObsColorEncoding === 'quantitativeColormap';
+
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
-
-          {/* ── Mesh section: visibility + color picker + label ── */}
-          <Grid size="auto" style={{ display: 'flex', alignItems: 'center' }}>
+          <Grid size="grow" style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
             <Button
               onClick={handleSegVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle mesh visibility"
+              getAriaLabel={() => 'Toggle mesh visibility' }
             >
               <SegVisibility />
             </Button>
@@ -315,22 +324,16 @@ export default function SegmentationCentroidsController(props) {
               featureValueColormap={featureValueColormap}
               visible={segVisibleSetting}
             />
-            <Typography className={menuClasses.imageLayerName}>
-              {obsType ? obsType.charAt(0).toUpperCase() + obsType.slice(1) : 'Cell'}
+
+            <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
+            Cell
             </Typography>
-          </Grid>
-
-          {/* ── Divider ── */}
-          <Grid size="auto">
+ 
             <div className={classes.divider} />
-          </Grid>
-
-          {/* ── Point section: visibility + color picker + label ── */}
-          <Grid size="auto" style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={handlePointVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle centroid visibility"
+              gerAriaLabel={() => 'Toggle centroid visibility'}
             >
               <PointVisibility />
             </Button>
@@ -343,15 +346,11 @@ export default function SegmentationCentroidsController(props) {
               featureValueColormap={pointFeatureValueColormap}
               visible={pointVisibleSetting}
             />
-            <Typography className={menuClasses.imageLayerName}>
+            <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
               Point
             </Typography>
           </Grid>
-
-          {/* ── Spacer ── */}
-          <Grid size="grow" />
-
-          {/* ── Shared opacity slider ── */}
+          {/* Shared opacity slider */}
           <Grid size={2}>
             <Slider
               value={sharedOpacity}
@@ -361,11 +360,11 @@ export default function SegmentationCentroidsController(props) {
               onChange={handleOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
-              aria-label="Adjust shared opacity"
+              getAriaLabel={() => 'Adjust shared opacity'}
             />
           </Grid>
-
-          {/* ── Shared ellipsis menu ── */}
+ 
+          {/* Shared ellipsis menu */}
           <Grid size={1}>
             <CombinedEllipsisMenu
               obsType={obsType}
@@ -389,12 +388,9 @@ export default function SegmentationCentroidsController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-
-          {/* ── Layer type icon ── */}
-          <Grid size={1}>
+          <Grid size={1} className={classes.iconCell}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
-
         </Grid>
       </Paper>
     </Grid>

@@ -100,7 +100,7 @@ export function NeuroglancerSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
-    showAxisLines = false,
+    showAxisLines = true,
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
