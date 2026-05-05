@@ -28,7 +28,7 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 const useStyles = makeStyles()(() => ({
-  layerTypeSegmentationIcon: {
+  layerTypeCentroidSegmentationIcon: {
     height: '100%',
     marginLeft: '1px',
     fill: 'currentColor',
@@ -447,7 +447,7 @@ export default function SegmentationCentroidsController(props) {
             />
           </Grid>
           <Grid size={1} className={classes.iconCell}>
-            <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
+            <VectorIconSVG className={classes.layerTypeCentroidSegmentationIcon} />
           </Grid>
         </Grid>
       </Paper>
