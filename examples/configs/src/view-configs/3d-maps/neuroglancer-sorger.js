@@ -34,7 +34,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    url:'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -51,7 +51,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
     options: {
       obsIndex: 'CellID',
       obsEmbedding: ['tSNE_1', 'tSNE_2'],
@@ -64,7 +64,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/MIS_phenotype_numeric.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
     coordinationValues: {
       obsType: 'cell',
       featureType: 'gene',
@@ -75,13 +75,13 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsPoints.ng-annotations',
-    url: 'https://data-2.vitessce.io/data/sorger/sorger_mis/cells',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/cells',
     options: {
       projectionAnnotationSpacing: 1,
       useForSegmentationCulling: true,
-      featureIndexProp: 'phenotype',
+      featureIndexProp: 'volume_norm',
       pointIndexProp: 'id',
-      quantitativeColorProp: 'phenotype',
+      quantitativeColorProp: 'volume_norm',
       matrix: [
         [7148.09960682, 0, 0, 0],
         [0, 7148.09960682, 0, 0],
@@ -151,7 +151,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
-            featureSelection: ['phenotype_numeric'],
+            featureSelection: ['volume_norm'],
             featureValueColormap: 'viridis',
             featureValueColormapRange: [0.0, 1.0],
           },
@@ -171,7 +171,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
-        featureValueColormapRange: [0.0, 12.0], // phenotypes range
+        featureValueColormapRange: [0.0, 1.0],
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

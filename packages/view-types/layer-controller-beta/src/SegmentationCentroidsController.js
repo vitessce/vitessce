@@ -356,7 +356,7 @@ export default function SegmentationCentroidsController(props) {
             <Button
               onClick={handlePointVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
-              gerAriaLabel={() => 'Toggle centroid visibility'}
+              getAriaLabel={() => 'Toggle centroid visibility'}
             >
               <PointVisibility />
             </Button>
