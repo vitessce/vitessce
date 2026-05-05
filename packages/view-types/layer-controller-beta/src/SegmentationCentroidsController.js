@@ -76,6 +76,10 @@ function CombinedEllipsisMenu(props) {
     setTooltipCrosshairsVisible,
     legendVisible,
     setLegendVisible,
+    setPointObsColorEncoding,
+    setPointFeatureValueColormap,
+    setPointFeatureValueColormapRange,
+    onColorEncodingChange,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -129,20 +133,23 @@ function CombinedEllipsisMenu(props) {
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colorEncodingId}>Color encoding:&nbsp;</label>
         <NativeSelect
-          onChange={e => setObsColorEncoding(e.target.value)}
+          onChange={onColorEncodingChange}
           value={obsColorEncoding}
           inputProps={{ id: colorEncodingId }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option value='spatialChannelColor'>Static color</option>
-          <option value='geneSelection'>Feature value</option>
-          <option value='cellSetSelection'>Set selection</option>
+          <option value="spatialChannelColor">Static Color</option>
+          <option value="geneSelection">Feature Value</option>
+          <option value="cellSetSelection">Set Selection</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>Colormap:&nbsp;</label>
         <NativeSelect
-          onChange={e => setFeatureValueColormap(e.target.value)}
+        onChange={(e) => { 
+          setFeatureValueColormap(e.target.value); 
+          setPointFeatureValueColormap?.(e.target.value); 
+        }}
           value={featureValueColormap}
           inputProps={{ id: colormapId }}
           classes={{ root: selectClasses.selectRoot }}
@@ -160,7 +167,7 @@ function CombinedEllipsisMenu(props) {
           min={0.0}
           max={1.0}
           step={0.01}
-          onChange={(e, v) => setFeatureValueColormapRange(v)}
+          onChange={(e, v) => { setFeatureValueColormapRange(v); setPointFeatureValueColormapRange?.(v); }}
           className={menuClasses.menuItemSlider}
           orientation='horizontal'
           id={colormapRangeId}
@@ -270,8 +277,10 @@ export default function SegmentationCentroidsController(props) {
     setSpatialLayerVisible: setPointVisible,
     setSpatialLayerOpacity: setPointOpacity,
     setSpatialLayerColor: setPointColor,
+    setObsColorEncoding: setPointObsColorEncoding,
+    setFeatureValueColormap: setPointFeatureValueColormap,
+    setFeatureValueColormapRange: setPointFeatureValueColormapRange,
   } = pointSetters;
-
 
   const sharedOpacity = segOpacity ?? 1;
 
@@ -288,6 +297,20 @@ export default function SegmentationCentroidsController(props) {
   const handlePointVisibleChange = useCallback(() => {
     setPointVisible?.(typeof pointVisible === 'boolean' ? !pointVisible : false);
   }, [pointVisible, setPointVisible]);
+
+  const handleColorEncodingChange = useCallback((e) => {
+    const val = e.target.value;
+    setObsColorEncoding(val);
+    // Map seg encoding to the equivalent point encoding
+    if (val === 'geneSelection') {
+      setPointObsColorEncoding?.('quantitativeColormap');
+    } else if (val === 'cellSetSelection') {
+      // TODO: Need to implement this
+      setPointObsColorEncoding?.('cellSetSelection');
+    } else {
+      setPointObsColorEncoding?.('spatialChannelColor');
+    }
+  }, [setObsColorEncoding, setPointObsColorEncoding]);
 
   const segVisibleSetting = typeof segVisible === 'boolean' ? segVisible : true;
   const pointVisibleSetting = typeof pointVisible === 'boolean' ? pointVisible : true;
@@ -386,6 +409,10 @@ export default function SegmentationCentroidsController(props) {
               setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
               legendVisible={legendVisible}
               setLegendVisible={setLegendVisible}
+              setPointObsColorEncoding={setPointObsColorEncoding}
+              setPointFeatureValueColormap={setPointFeatureValueColormap}
+              setPointFeatureValueColormapRange={setPointFeatureValueColormapRange}
+              onColorEncodingChange={handleColorEncodingChange}
             />
           </Grid>
           <Grid size={1} className={classes.iconCell}>
