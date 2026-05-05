@@ -108,7 +108,7 @@ function CombinedEllipsisMenu(props) {
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={filledId}>Filled:&nbsp;</label>
         <Checkbox
-          color='primary'
+          color="primary"
           className={menuClasses.menuItemCheckbox}
           checked={filled}
           onChange={(e, v) => setFilled(v)}
@@ -116,7 +116,11 @@ function CombinedEllipsisMenu(props) {
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={strokeWidthId}>Stroke width:</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={strokeWidthId}
+        >Stroke width:
+        </label>
         <Slider
           disabled={filled}
           value={strokeWidth}
@@ -125,13 +129,17 @@ function CombinedEllipsisMenu(props) {
           step={0.01}
           onChange={(e, v) => setStrokeWidth(v)}
           className={menuClasses.menuItemSlider}
-          orientation='horizontal'
+          orientation="horizontal"
           id={strokeWidthId}
-          getAriaLabel={ () => 'Stroke width' }
+          getAriaLabel={() => 'Stroke width'}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colorEncodingId}>Color encoding:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={colorEncodingId}
+        >Color encoding:&nbsp;
+        </label>
         <NativeSelect
           onChange={onColorEncodingChange}
           value={obsColorEncoding}
@@ -144,12 +152,16 @@ function CombinedEllipsisMenu(props) {
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>Colormap:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={colormapId}
+        >Colormap:&nbsp;
+        </label>
         <NativeSelect
-        onChange={(e) => { 
-          setFeatureValueColormap(e.target.value); 
-          setPointFeatureValueColormap?.(e.target.value); 
-        }}
+          onChange={(e) => {
+            setFeatureValueColormap(e.target.value);
+            setPointFeatureValueColormap?.(e.target.value);
+          }}
           value={featureValueColormap}
           inputProps={{ id: colormapId }}
           classes={{ root: selectClasses.selectRoot }}
@@ -160,24 +172,35 @@ function CombinedEllipsisMenu(props) {
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapRangeId}>Colormap range:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={colormapRangeId}
+        >Colormap range:&nbsp;
+        </label>
         <Slider
           disabled={obsColorEncoding !== 'geneSelection'}
           value={featureValueColormapRange}
           min={0.0}
           max={1.0}
           step={0.01}
-          onChange={(e, v) => { setFeatureValueColormapRange(v); setPointFeatureValueColormapRange?.(v); }}
+          onChange={(e, v) => {
+            setFeatureValueColormapRange(v);
+            setPointFeatureValueColormapRange?.(v);
+          }}
           className={menuClasses.menuItemSlider}
-          orientation='horizontal'
+          orientation="horizontal"
           id={colormapRangeId}
           getAriaLabel={i => (i === 0 ? 'Low colormap range' : 'High colormap range')}
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsId}>Tooltips visible:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={tooltipsId}
+        >Tooltips visible:&nbsp;
+        </label>
         <Checkbox
-          color='primary'
+          color="primary"
           className={menuClasses.menuItemCheckbox}
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
@@ -185,9 +208,13 @@ function CombinedEllipsisMenu(props) {
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={crosshairsId}>Crosshairs visible:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={crosshairsId}
+        >Crosshairs visible:&nbsp;
+        </label>
         <Checkbox
-          color='primary'
+          color="primary"
           className={menuClasses.menuItemCheckbox}
           checked={tooltipCrosshairsVisible}
           onChange={(e, v) => setTooltipCrosshairsVisible(v)}
@@ -195,9 +222,13 @@ function CombinedEllipsisMenu(props) {
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={legendId}>Legend visible:&nbsp;</label>
+        <label
+          className={menuClasses.imageLayerMenuLabel}
+          htmlFor={legendId}
+        >Legend visible:&nbsp;
+        </label>
         <Checkbox
-          color='primary'
+          color="primary"
           className={menuClasses.menuItemCheckbox}
           checked={legendVisible}
           onChange={(e, v) => setLegendVisible(v)}
@@ -334,7 +365,7 @@ export default function SegmentationCentroidsController(props) {
             <Button
               onClick={handleSegVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
-              getAriaLabel={() => 'Toggle mesh visibility' }
+              getAriaLabel={() => 'Toggle mesh visibility'}
             >
               <SegVisibility />
             </Button>
@@ -349,9 +380,9 @@ export default function SegmentationCentroidsController(props) {
             />
 
             <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
-            Cell
+              Cell
             </Typography>
- 
+
             <div className={classes.divider} />
             <Button
               onClick={handlePointVisibleChange}
@@ -386,7 +417,7 @@ export default function SegmentationCentroidsController(props) {
               getAriaLabel={() => 'Adjust shared opacity'}
             />
           </Grid>
- 
+
           {/* Shared ellipsis menu */}
           <Grid size={1}>
             <CombinedEllipsisMenu

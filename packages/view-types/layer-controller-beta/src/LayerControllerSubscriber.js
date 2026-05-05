@@ -283,32 +283,29 @@ export function LayerControllerSubscriber(props) {
     const pairs = [];
     const pairedSegScopes = new Set();
     const pairedPointScopes = new Set();
- 
-    for (const pointScope of pointLayerScopes) {
+
+    pointLayerScopes.forEach((pointScope) => {
       const pointCoord = pointLayerCoordination[0][pointScope];
-      if (!pointCoord) continue;
+      if (!pointCoord) return;
       const pointObsType = pointCoord[CoordinationType.OBS_TYPE];
-      if (!pointObsType) continue;
- 
-      // Find the first unpaired segmentation layer whose ANY channel matches this obsType
-      for (const segScope of segmentationLayerScopes) {
-        if (pairedSegScopes.has(segScope)) continue; // already claimed
- 
+      if (!pointObsType) return;
+
+      const matchingSegScope = segmentationLayerScopes.find((segScope) => {
+        if (pairedSegScopes.has(segScope)) return false;
         const channelScopes = segmentationChannelScopesByLayer[segScope] || [];
-        const hasMatchingChannel = channelScopes.some((chanScope) => {
+        return channelScopes.some((chanScope) => {
           const chanCoord = segmentationChannelCoordination[0]?.[segScope]?.[chanScope];
           return chanCoord?.[CoordinationType.OBS_TYPE] === pointObsType;
         });
- 
-        if (hasMatchingChannel) {
-          pairs.push({ pointScope, segScope });
-          pairedSegScopes.add(segScope);
-          pairedPointScopes.add(pointScope);
-          break; // one seg layer per point layer — stop searching
-        }
+      });
+
+      if (matchingSegScope) {
+        pairs.push({ pointScope, segScope: matchingSegScope });
+        pairedSegScopes.add(matchingSegScope);
+        pairedPointScopes.add(pointScope);
       }
-    }
- 
+    });
+
     return { pairs, pairedSegScopes, pairedPointScopes };
   }, [
     pointLayerScopes,
@@ -317,7 +314,7 @@ export function LayerControllerSubscriber(props) {
     segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
   ]);
- 
+
 
   // Get volume loading status from auxiliary coordination (shared with Spatial view)
   const [

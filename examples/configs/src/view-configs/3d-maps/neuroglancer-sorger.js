@@ -34,7 +34,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url:'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
     coordinationValues: {
       obsType: 'cell',
     },
