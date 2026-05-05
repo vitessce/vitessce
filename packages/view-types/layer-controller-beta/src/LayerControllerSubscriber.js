@@ -277,6 +277,48 @@ export function LayerControllerSubscriber(props) {
     CoordinationType.POINT_LAYER,
   );
 
+  // Pair point layers (centroids) with their matching segmentation layers
+  // by matching obsType between the two coordination objects.
+  const centroidSegmentationPairs = React.useMemo(() => {
+    const pairs = [];
+    const pairedSegScopes = new Set();
+    const pairedPointScopes = new Set();
+ 
+    for (const pointScope of pointLayerScopes) {
+      const pointCoord = pointLayerCoordination[0][pointScope];
+      if (!pointCoord) continue;
+      const pointObsType = pointCoord[CoordinationType.OBS_TYPE];
+      if (!pointObsType) continue;
+ 
+      // Find the first unpaired segmentation layer whose ANY channel matches this obsType
+      for (const segScope of segmentationLayerScopes) {
+        if (pairedSegScopes.has(segScope)) continue; // already claimed
+ 
+        const channelScopes = segmentationChannelScopesByLayer[segScope] || [];
+        const hasMatchingChannel = channelScopes.some((chanScope) => {
+          const chanCoord = segmentationChannelCoordination[0]?.[segScope]?.[chanScope];
+          return chanCoord?.[CoordinationType.OBS_TYPE] === pointObsType;
+        });
+ 
+        if (hasMatchingChannel) {
+          pairs.push({ pointScope, segScope });
+          pairedSegScopes.add(segScope);
+          pairedPointScopes.add(pointScope);
+          break; // one seg layer per point layer — stop searching
+        }
+      }
+    }
+ 
+    return { pairs, pairedSegScopes, pairedPointScopes };
+  }, [
+    pointLayerScopes,
+    pointLayerCoordination,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
+  ]);
+ 
+
   // Get volume loading status from auxiliary coordination (shared with Spatial view)
   const [
     {
@@ -399,6 +441,10 @@ export function LayerControllerSubscriber(props) {
         layerPerFeatureForPoints={layerPerFeatureForPoints}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
+
+        centroidSegmentationPairs={centroidSegmentationPairs.pairs}
+        pairedSegScopes={centroidSegmentationPairs.pairedSegScopes}
+        pairedPointScopes={centroidSegmentationPairs.pairedPointScopes}
       />
     </TitleInfo>
   );
