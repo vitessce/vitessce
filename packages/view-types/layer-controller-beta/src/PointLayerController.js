@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useId } from 'react-aria';
 import { GLSL_COLORMAPS } from '@vitessce/gl';
 import {
@@ -33,7 +33,7 @@ import {
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
-import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { capitalize, getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -379,6 +379,40 @@ export default function PointLayerController(props) {
     Array.isArray(featureSelection)
     && featureSelection.length > 0
   );
+
+  // // Sync featureColor with featureSelection whenever the selection changes.
+  // Removes stale entries for genes that are no longer selected, and seeds
+  // new entries with their assigned palette color so the view reflects the
+  // correct color immediately on add — without requiring manual picker interaction.
+  useEffect(() => {
+    if (obsColorEncoding !== 'geneSelection' || !Array.isArray(featureSelection)) return;
+
+    // Remove stale entries for genes no longer selected
+    const cleanedFeatureColor = (featureColor ?? []).filter(
+      fc => featureSelection.includes(fc.name),
+    );
+
+    // Find genes with no color entry yet
+    const missingEntries = featureSelection
+      .filter(featureName => !cleanedFeatureColor.find(fc => fc.name === featureName))
+      .map((featureName) => {
+        const varIdx = featureIndex?.indexOf(featureName) ?? -1;
+        const fColor = varIdx >= 0
+          ? PALETTE[varIdx % PALETTE.length]
+          : getDefaultColor(theme);
+        return { name: featureName, color: fColor };
+      });
+
+    const nextFeatureColor = [...cleanedFeatureColor, ...missingEntries];
+
+    // Only call setter if something actually changed
+    const changed = nextFeatureColor.length !== featureColor?.length
+      || missingEntries.length > 0;
+
+    if (changed) {
+      setFeatureColor(nextFeatureColor);
+    }
+  }, [featureSelection, obsColorEncoding, featureIndex, featureColor]);
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>

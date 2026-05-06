@@ -115,8 +115,10 @@ export default function LayerPerFeatureController(props) {
     colorPickerTooltip,
   } = useMemo(() => {
     if (obsColorEncoding === 'geneSelection') {
+      // Use the stored featureColor entry if it exists, fall back to palette color
+      const storedColor = featureColor?.find(fc => fc.name === featureName)?.color;
       return {
-        colorPickerColor: randomByFeatureColor ?? spatialLayerColor,
+        colorPickerColor: storedColor ?? randomByFeatureColor ?? spatialLayerColor,
         colorPickerReadable: true,
         colorPickerWritable: true,
         colorPickerTooltip: null,
