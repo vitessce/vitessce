@@ -135,6 +135,8 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
+  // Track layer loading state for showing loading indicator
+  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
 
 
   const [annotationReady, setAnnotationReady] = useState(false);
@@ -626,27 +628,6 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [initialViewerState]);
 
-  const initialRotationPushedRef = useRef(false);
-
-  const ngRotPushAtRef = useRef(0);
-  const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
-  const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
-  const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgQuatRef = useRef([0, 0, 0, 1]);
-  const lastNgScaleRef = useRef(null);
-  const lastVitessceRotationRef = useRef({
-    x: spatialRotationX,
-    y: spatialRotationY,
-    z: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-  });
-
-  // Track layer loading state for showing loading indicator
-  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
-
   // Get cells URL from obsPointsUrls
   const cellsUrl = useMemo(() => {
     const firstScope = pointLayerScopes?.[0];
@@ -1082,7 +1063,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
-    latestViewerStateIteration]);
+    latestViewerStateIteration, hasMatchingAnnotationSource]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
