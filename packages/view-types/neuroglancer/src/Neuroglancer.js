@@ -92,7 +92,12 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping, onLayerLoadingChange } = this.props;
+    const { classes,
+      viewerState,
+      cellColorMapping,
+      onLayerLoadingChange,
+      onAnnotationSourceReady,
+    } = this.props;
 
     return (
       <>
@@ -107,6 +112,7 @@ export class NeuroglancerComp extends PureComponent {
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
+              onAnnotationSourceReady={onAnnotationSourceReady}
             />
           </Suspense>
         </div>

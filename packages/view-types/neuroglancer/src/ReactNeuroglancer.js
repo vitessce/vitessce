@@ -24,7 +24,7 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState } from './utils.js';
+import { diffCameraState, getViewportBoundingBox } from './utils.js';
 // TODO: Grey color used by Vitessce - maybe set globally
 const GREY_HEX = '#323232';
 
@@ -472,12 +472,22 @@ export default class Neuroglancer extends React.Component {
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segmentColors, ...rest } = l;
+      const { segmentColors, visible, shader, objectAlpha, segments, ...rest } = l;
       return rest;
     });
     const prevLayers = stripColors(prevVS?.layers);
     const nextLayers = stripColors(nextVS?.layers);
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
+  };
+
+  // Helper to preserve dimensions across restoreState calls to prevent
+  // NG from permanently switching to the data source's native coordinate space.
+  preserveDimensions = (restoreFn) => {
+    const currentDimensions = this.viewer.state.toJSON().dimensions;
+    restoreFn();
+    if (currentDimensions) {
+      this.viewer.state.restoreState({ dimensions: currentDimensions });
+    }
   };
 
   /* To add colors to the segments, turning unselected to grey  */
@@ -494,6 +504,7 @@ export default class Neuroglancer extends React.Component {
       const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
 
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
+      const defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
 
       // Track all known IDs for this layer scope
       if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
@@ -507,7 +518,7 @@ export default class Neuroglancer extends React.Component {
       // Build a full color table: selected keep their hex, others grey
       const fullSegmentColors = {};
       for (const id of this.allKnownIdsByLayer[layerScope] || []) {
-        fullSegmentColors[id] = selected[id] || GREY_HEX;
+        fullSegmentColors[id] = selected[id] || defaultColor; //  use defaultColor
       }
 
       if (layer.type === 'segmentation') {
@@ -516,7 +527,9 @@ export default class Neuroglancer extends React.Component {
       return layer;
     });
     this.withoutEmitting(() => {
-      this.viewer.state.restoreState({ layers: newLayers });
+      this.preserveDimensions(() => {
+        this.viewer.state.restoreState({ layers: newLayers });
+      });
     });
     /* ** Vitessce integration update end ** */
   };
@@ -632,40 +645,72 @@ export default class Neuroglancer extends React.Component {
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
-    this.disposers.push(visibleChunksChanged.add(() => {
-      if (!firstChunkLoaded) {
-        for (const layer of this.viewer.layerManager.managedLayers) {
-          if (layer.layer instanceof SegmentationUserLayer) {
-            const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
-              const {
-                numVisibleChunksAvailable,
-                numVisibleChunksNeeded,
-              } = rl.layerChunkProgressInfo || {};
-              if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
-              // Neuroglancer only shows chunks when a certain % is loaded.
-              // The 0.25 is from testing different values, can be reduced to 0.2 to shorten loader time
-              return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
-            });
-            if (hasVisibleChunk) {
-              firstChunkLoaded = true;
-              // Two frames to avoid flash while the following two happens
-              // Neuroglancer issues WebGL draw calls
-              requestAnimationFrame(() => {
-              // GPU has painted, pixels visible on screen
-                requestAnimationFrame(() => {
-                  this.props.onLayerLoadingChange?.(true);
-                });
-              });
-              return;
+
+
+    const checkAndMarkLoaded = () => {
+      if (firstChunkLoaded) return false;
+
+      for (const layer of this.viewer.layerManager.managedLayers) {
+        // Check segmentation layers
+        if (layer.layer instanceof SegmentationUserLayer) {
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+            if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+            return true;
+          }
+        }
+        // Check Annotation layers
+        if (layer.layer instanceof AnnotationUserLayer) {
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+            return numVisibleChunksNeeded > 0;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+
+            const annotState = layer.layer.annotationStates?.states[0];
+            const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+            const serializer = annotState?.source?.annotationPropertySerializers?.[0];
+            if (t && serializer) {
+              this.props.onAnnotationSourceReady?.({ x: t[0], y: t[5], z: t[10], serializer });
             }
+            return true;
           }
         }
       }
-    }));
+      return false;
+    };
+
+    // Subscribe to future changes
+    this.disposers.push(visibleChunksChanged.add(checkAndMarkLoaded));
+
+    // To fix infinite loading loop on subsequent page refresh due to cache
+
+    // Also check immediately in case chunks already loaded (cached)
+    setTimeout(() => {
+      if (!firstChunkLoaded) checkAndMarkLoaded();
+    }, 100);
+
+    // And check after a short delay as fallback
+    setTimeout(() => {
+      if (!firstChunkLoaded) checkAndMarkLoaded();
+    }, 1000);
+
     this.disposers.push(() => { firstChunkLoaded = false; });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
-    // window.viewer = this.viewer;
+    window.viewer = this.viewer;
+    window.getViewportBoundingBox = getViewportBoundingBox;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -680,6 +725,16 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
+      }
+    }
+
+    // Handle visibility directly without restoreState
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      const matchingLayer = (viewerState?.layers || [])
+        .find(l => l.name === managedLayer.name);
+      if (matchingLayer && typeof matchingLayer.visible === 'boolean'
+          && managedLayer.visible !== matchingLayer.visible) {
+        managedLayer.setVisible(matchingLayer.visible);
       }
     }
     // if (viewerState) {
@@ -745,10 +800,13 @@ export default class Neuroglancer extends React.Component {
 
     /* ** Vitessce Integration update start ** */
     if (!viewerState) return;
-    // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
+
     const prevVS = prevProps.viewerState;
+    const prevLayers = prevProps.viewerState?.layers;
+    const nextLayers = viewerState?.layers;
+
+    // Restore camera ONLY if it actually changed
     const camState = diffCameraState(prevVS, viewerState);
-    // Restore pose ONLY if it actually changed
     if (camState.changed) {
       const patch = {};
       if (camState.scale) {
@@ -759,51 +817,39 @@ export default class Neuroglancer extends React.Component {
         patch.position = viewerState.position;
       }
       if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
-
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
+
+    // Structural layer changes (source URL, layer type, name, subsources etc.)
+    // segments/colors/visibility/opacity/shader are handled separately below
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        this.viewer.state.restoreState({ layers });
-        if (cellColorMappingByLayer && Object.keys(cellColorMappingByLayer).length) {
-          this.applyColorsAndVisibility(cellColorMappingByLayer);
-        }
+        this.preserveDimensions(() => {
+          this.viewer.state.restoreState({ layers: nextLayers });
+        });
       });
     }
 
-    // If colors changed (but layers didn’t): re-apply colors
-    // this was to avid NG randomly assigning colors to the segments by resetting them
-    const prevSize = prevProps.cellColorMapping
-      ? Object.values(prevProps.cellColorMapping)
-        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
-    const currSize = cellColorMappingByLayer
-      ? Object.values(cellColorMappingByLayer)
-        .reduce((acc, v) => acc + Object.keys(v?.colors || {}).length, 0) : 0;
-    const mappingRefChanged = prevProps.cellColorMapping !== this.props.cellColorMapping;
-    if (!this.didLayersChange(prevVS, viewerState)
-      && (mappingRefChanged || prevSize !== currSize)) {
+    // Colors or segments changed — re-apply colors and segment visibility.
+    // Also handles initial segment seeding (0 -> N segments) since cellColorMappingByLayer
+    // is populated at the same time segments first appear.
+    const stripOpacity = (mapping) => {
+      const result = {};
+      Object.entries(mapping || {}).forEach(([k, v]) => {
+        result[k] = { colors: v?.colors };
+      });
+      return result;
+    };
+    const prevColorsJSON = JSON.stringify(stripOpacity(prevProps.cellColorMapping));
+    const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
+    const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
+
+    if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
       this.withoutEmitting(() => {
         this.applyColorsAndVisibility(cellColorMappingByLayer);
       });
     }
-
-    // Treat "real" layer source/type changes differently from segment list changes.
-    // We only restore layers (not pose) when sources change OR on the first time segments appear.
-    const stripSegFields = layers => (layers || []).map((l) => {
-      if (!l) return l;
-      const { segments, segmentColors, objectAlpha, ...rest } = l;
-      return rest; // ignore segments + segmentColors for comparison
-    });
-
-    const prevLayers = prevProps.viewerState?.layers;
-    const nextLayers = viewerState?.layers;
-
-    const prevCore = JSON.stringify(stripSegFields(prevLayers));
-    const nextCore = JSON.stringify(stripSegFields(nextLayers));
-    const sourcesChanged = prevCore !== nextCore; // real structural change?
 
     const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
       ? prevLayers[0].segments.length : 0;
@@ -813,12 +859,13 @@ export default class Neuroglancer extends React.Component {
     // first-time seeding – from 0 segments → N segments
     const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
 
-    if (sourcesChanged || initialSegmentsAdded) {
-      this.withoutEmitting(() => {
+    if (initialSegmentsAdded) {
+      this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
       });
     }
+
     /* ** Vitessce Integration update end ** */
   }
 

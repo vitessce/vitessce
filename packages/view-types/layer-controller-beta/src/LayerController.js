@@ -4,6 +4,7 @@ import PointLayerController from './PointLayerController.js';
 import SegmentationLayerController from './SegmentationLayerController.js';
 import ImageLayerController from './ImageLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
+import SegmentationCentroidsController from './SegmentationCentroidsController.js';
 
 export default function LayerController(props) {
   const {
@@ -39,6 +40,10 @@ export default function LayerController(props) {
     volumeLoadingStatus,
     tiledPointsLoadingProgress,
     layerPerFeatureForPoints,
+    centroidSegmentationPairs = [],
+    pairedSegScopes = new Set(),
+    pairedPointScopes = new Set(),
+
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
@@ -54,15 +59,24 @@ export default function LayerController(props) {
   const reversedImageLayerScopes = useMemo(() => (
     [...(imageLayerScopes || [])].reverse()
   ), [imageLayerScopes]);
-  const reversedSegmentationLayerScopes = useMemo(() => (
-    [...(segmentationLayerScopes || [])].reverse()
-  ), [segmentationLayerScopes]);
+
   const reversedSpotLayerScopes = useMemo(() => (
     [...(spotLayerScopes || [])].reverse()
   ), [spotLayerScopes]);
+  // Filter out point scopes that are already rendered inside a combined row
   const reversedPointLayerScopes = useMemo(() => (
-    [...(pointLayerScopes || [])].reverse()
-  ), [pointLayerScopes]);
+    [...(pointLayerScopes || [])]
+      .filter(scope => !pairedPointScopes.has(scope))
+      .reverse()
+  ), [pointLayerScopes, pairedPointScopes]);
+
+  // Filter out segmentation scopes that are already rendered inside a combined row
+  const reversedSegmentationLayerScopes = useMemo(() => (
+    [...(segmentationLayerScopes || [])]
+      .filter(scope => !pairedSegScopes.has(scope))
+      .reverse()
+  ), [segmentationLayerScopes, pairedSegScopes]);
+
 
   return (
     <div>
@@ -85,6 +99,20 @@ export default function LayerController(props) {
           max={maxT}
         />
       ) : null}
+      {/* Combined Centroids and Segmentation layers: */}
+      {centroidSegmentationPairs.map(({ pointScope, segScope }) => (
+        <SegmentationCentroidsController
+          key={`combined-${segScope}-${pointScope}`}
+          theme={theme}
+          segScope={segScope}
+          segLayerCoordination={segmentationLayerCoordination}
+          segChannelScopesByLayer={segmentationChannelScopesByLayer}
+          segChannelCoordination={segmentationChannelCoordination}
+          pointScope={pointScope}
+          pointLayerCoordination={pointLayerCoordination}
+        />
+      ))}
+
       {/* Point layers: */}
       {pointLayerScopes && reversedPointLayerScopes.map(layerScope => (
         <PointLayerController

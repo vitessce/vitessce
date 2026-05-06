@@ -4,7 +4,7 @@
 // - https://github.com/vitessce/vitessce/issues/2359#issuecomment-3572906947
 // - https://chanzuckerberg.github.io/cryoet-data-portal/stable/neuroglancer_quickstart.html
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
-
+import { colormaps, GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT } from '@vitessce/gl';
 
 /**
  * Normalize an RGB color array from [0, 255] to [0, 1].
@@ -440,6 +440,43 @@ export function getRandomPerPointShader(
     `;
 }
 
+// ============================================================
+// Case 5: quantitativeColormap (continuous/numeric coloring)
+// ============================================================
+
+/**
+ * Generate a shader for quantitative colormap encoding.
+ * Colors each point by mapping a numeric annotation property through a colormap.
+ * @param {string} quantitativeColorProp - Annotation property name holding the numeric value.
+ * @param {number} opacity
+ * @param {string} colormap - Must be a value from GLSL_COLORMAPS e.g. 'viridis', 'plasma'
+ * @param {[number, number]} colormapRange - [low, high] raw value range to normalize
+ * @param {number} borderWidth
+ */
+export function getQuantitativeColormapShader(
+  quantitativeColorProp,
+  opacity,
+  colormap = GLSL_COLORMAP_DEFAULT,
+  colormapRange = [0.0, 1.0],
+  borderWidth = 0.0,
+) {
+  const [low, high] = colormapRange;
+  const resolvedColormap = GLSL_COLORMAPS.includes(colormap) ? colormap : GLSL_COLORMAP_DEFAULT;
+
+  // lang: glsl
+  return `
+    #define COLORMAP_FUNC ${resolvedColormap}
+    ${colormaps}
+    void main() {
+      float rawVal = float(prop_${quantitativeColorProp}());
+      float t = (rawVal - ${low.toFixed(4)}) / max(${(high - low).toFixed(4)}, 0.0001);
+      t = clamp(t, 0.0, 1.0);
+      vec4 col = COLORMAP_FUNC(t);
+      setColor(vec4(col.rgb, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
+}
 /**
  * Generate a shader for random-per-point encoding with feature selection.
  * Selected points get a pseudo-random color; unselected get the default color.
@@ -538,6 +575,9 @@ export function getPointsShader(layerCoordination) {
     pointMarkerBorderWidth = 0.0,
     featureIndexProp,
     pointIndexProp,
+    quantitativeColorProp,
+    featureValueColormap,
+    featureValueColormapRange,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
@@ -697,6 +737,23 @@ export function getPointsShader(layerCoordination) {
       opacity,
       featureIndexProp,
       pointIndexProp,
+      pointMarkerBorderWidth,
+    );
+  }
+
+  if (obsColorEncoding === 'quantitativeColormap') {
+    if (!quantitativeColorProp) {
+      throw new Error(
+        'In order to use quantitative colormap encoding for Neuroglancer Points, '
+        + 'options.quantitativeColorProp must be specified for the '
+        + 'obsPoints.ng-annotations fileType in the Vitessce configuration.',
+      );
+    }
+    return getQuantitativeColormapShader(
+      quantitativeColorProp,
+      opacity,
+      featureValueColormap,
+      featureValueColormapRange,
       pointMarkerBorderWidth,
     );
   }
