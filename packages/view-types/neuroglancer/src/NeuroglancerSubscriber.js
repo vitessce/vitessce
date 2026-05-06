@@ -460,7 +460,7 @@ export function NeuroglancerSubscriber(props) {
   }, customIsEqualForCellColors);
 
   // Obtain the Neuroglancer viewerState object.
-  const initalViewerState = useNeuroglancerViewerState(
+  const initialViewerState = useNeuroglancerViewerState(
     theme,
     showAxisLines,
     segmentationLayerScopes,
@@ -478,7 +478,7 @@ export function NeuroglancerSubscriber(props) {
 
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
-    ...initalViewerState,
+    ...initialViewerState,
     ...(initialNgCameraState ?? {}),
   });
 
@@ -617,15 +617,32 @@ export function NeuroglancerSubscriber(props) {
       projectionScale: latestViewerStateRef.current.projectionScale,
     };
     latestViewerStateRef.current = {
-      ...initalViewerState,
+      ...initialViewerState,
       ...prevNgCameraState,
     };
     // Force a re-render by incrementing a piece of state.
     // This works because we have made latestViewerStateIteration
     // a dependency for derivedViewerState, triggering the useMemo downstream.
     incrementLatestViewerStateIteration();
-    updateVisibleSegments();
-  }, [initalViewerState]);
+  }, [initialViewerState]);
+
+  const initialRotationPushedRef = useRef(false);
+
+  const ngRotPushAtRef = useRef(0);
+  const lastInteractionSource = useRef(null);
+  const applyNgUpdateTimeoutRef = useRef(null);
+  const lastNgPushOrientationRef = useRef(null);
+  const initialRenderCalibratorRef = useRef(null);
+  const translationOffsetRef = useRef([0, 0, 0]);
+  const zoomRafRef = useRef(null);
+  const lastNgQuatRef = useRef([0, 0, 0, 1]);
+  const lastNgScaleRef = useRef(null);
+  const lastVitessceRotationRef = useRef({
+    x: spatialRotationX,
+    y: spatialRotationY,
+    z: spatialRotationZ,
+    orbit: spatialRotationOrbit,
+  });
 
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
@@ -1064,8 +1081,8 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-    latestViewerStateIteration, hasMatchingAnnotationSource]);
+    spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
+    latestViewerStateIteration]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
