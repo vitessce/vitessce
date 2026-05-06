@@ -106,6 +106,8 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'featureValueColormapRange',
               'featureSelection',
             ])
+            || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
+            || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
         ) {
           forceUpdate = true;
         }
