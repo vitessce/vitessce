@@ -7,10 +7,10 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-function generateNeuroglancerMocosko() {
+function generateNeuroglancerMacosko() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.18',
-    name: 'MOCOSCO dataset',
+    name: 'Macosko dataset',
   });
 
   //  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
@@ -161,4 +161,4 @@ function generateNeuroglancerMocosko() {
   return configJSON;
 }
 
-export const neuroglancerMocosko = generateNeuroglancerMocosko();
+export const neuroglancerMacosko = generateNeuroglancerMacosko();
