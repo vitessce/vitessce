@@ -35,6 +35,14 @@ function generateNeuroglancerMerfish() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
+    options: {
+      subsources: {
+        default: true,
+        bounds: false,
+        mesh: true,
+      },
+      enableDefaultSubsources: false,
+    },
     coordinationValues: {
       fileUid: 'merfish-meshes',
       obsType: 'cell',
@@ -107,8 +115,9 @@ function generateNeuroglancerMerfish() {
         0.999148964881897,
       ],
     },
+    showAxisLines: true,
   });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
   const obsSets = config.addView(dataset, 'obsSets');
 
@@ -157,6 +166,7 @@ function generateNeuroglancerMerfish() {
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
+          spatialPointStrokeWidth: 0.0,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

@@ -887,6 +887,7 @@ export default function Legend(props: LegendProps) {
     contourPercentiles, contourThresholds, contoursFilled, contoursVisible,
     pointsVisible, featureAggregationStrategy, setFeatureValueColormapRange,
     dynamicHeight, highContrast, isStaticColor, missing, showObsLabel, staticColor,
+    featureColor, pointsLegendElements,
   ]);
 
   // Determine if interactive slider should be shown

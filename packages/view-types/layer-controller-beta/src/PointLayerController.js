@@ -32,13 +32,14 @@ import {
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
-import { capitalize } from '@vitessce/utils';
+import { capitalize, getDefaultColor } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+import LayerPerFeatureController from './LayerPerFeatureController.js';
 
 const useStyles = makeStyles()(() => ({
   pointLayerButton: {
@@ -200,6 +201,7 @@ export default function PointLayerController(props) {
     palette = null,
     pointMatrixIndicesData,
     tiledPointsLoadingProgress,
+    layerPerFeatureForPoints,
   } = props;
 
   const [open, setOpen] = useState(false); // TODO: make false after development
@@ -353,6 +355,11 @@ export default function PointLayerController(props) {
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
 
+  const hasSelectedFeatures = (
+    Array.isArray(featureSelection)
+    && featureSelection.length > 0
+  );
+
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
@@ -476,6 +483,79 @@ export default function PointLayerController(props) {
           </Grid>
         ) : null}
       </Paper>
+
+      {hasSelectedFeatures ? (
+        <>
+          {featureSelection.map(featureName => (
+            <LayerPerFeatureController
+              key={featureName}
+              theme={theme}
+              featureName={featureName}
+              featureColor={featureColor}
+              setFeatureColor={setFeatureColor}
+              spatialLayerColor={spatialLayerColor}
+              featureIndex={featureIndex}
+              featureValueColormap={featureValueColormap}
+              featureSelection={featureSelection}
+              setFeatureSelection={setFeatureSelection}
+              obsColorEncoding={obsColorEncoding}
+              loadingDoneFraction={loadingDoneFraction}
+              opacity={opacity}
+              handleOpacityChange={handleOpacityChange}
+            />
+          ))}
+          <Grid className={lcClasses.layerControllerGrid}>
+            <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
+              <Grid container direction="row" justifyContent="space-between">
+                <Grid size={1}>
+                  <Button
+                    onClick={() => setFeatureFilterMode(
+                      featureFilterMode === 'featureSelection' ? null : 'featureSelection',
+                    )}
+                    className={menuClasses.imageLayerVisibleButton}
+                    aria-label="Toggle visibility of unselected points"
+                  >
+                    {featureFilterMode === 'featureSelection'
+                      ? <VisibilityOffIcon />
+                      : <VisibilityIcon />
+                    }
+                  </Button>
+                </Grid>
+                <Grid size={1}>
+                  <ChannelColorPickerMenu
+                    theme={theme}
+                    color={getDefaultColor('dark')}
+                    setColor={null}
+                    isStaticColor
+                    isColormap={false}
+                    visible
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <Typography className={menuClasses.imageLayerName}>
+                    Unselected
+                  </Typography>
+                </Grid>
+                <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
+                  <Slider
+                    value={opacity}
+                    min={0}
+                    max={1}
+                    step={0.001}
+                    onChange={handleOpacityChange}
+                    className={menuClasses.imageLayerOpacitySlider}
+                    orientation="horizontal"
+                    aria-label="Adjust opacity for unselected layer"
+                  />
+                </Grid>
+                <Grid size={1}>
+                  <PointsIconSVG className={classes.layerTypePointIcon} />
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+        </>
+      ) : null}
     </Grid>
   );
 }
