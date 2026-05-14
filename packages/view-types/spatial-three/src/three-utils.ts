@@ -502,9 +502,15 @@ function getData3DTexture(volume: Volume) {
   return texture;
 }
 
-function getPhysicalSizeScalingMatrix(loader: VolumeSource & { meta?: { physicalSizes?: Record<string, number | undefined> } }): Array<{ size: number }> {
+function getPhysicalSizeScalingMatrix(
+  loader: VolumeSource & { meta?: { physicalSizes?: Record<string, { size: number; unit?: string } | undefined> } },
+): Array<{ size: number }> {
   const { x, y, z } = loader?.meta?.physicalSizes ?? {};
-  return [{ size: x ?? 1 }, { size: y ?? 1 }, { size: z ?? 1 }];
+  return [
+    x ?? { size: 1 },
+    y ?? { size: 1 },
+    z ?? { size: 1 },
+  ];
 }
 
 
@@ -557,11 +563,9 @@ export function stringifyLineData(lineData: MeasureLineData): string {
   return `${lineData.startPoint.x},${lineData.startPoint.y},${lineData.startPoint.z};${lineData.endPoint.x},${lineData.endPoint.y},${lineData.endPoint.z}`;
 }
 
-type OptionalNumber = number | undefined
-
-export function isValidGeometrySize(size: unknown): size is [OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber, OptionalNumber] {
-  if (!Array.isArray(size) || size.length !== 6) {
+export function isValidGeometrySize(size: unknown): size is [number, number, number] {
+  if (!Array.isArray(size) || size.length !== 3) {
     return false;
   }
-  return size.every(s => typeof s === 'number' || s === undefined);
+  return size.every(s => typeof s === 'number' && Number.isFinite(s));
 }
