@@ -30,12 +30,12 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
+    "@vitessce/styles": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "d3-array": "catalog:",
-    "higlass": "^2.3.2",
+    "higlass": "^2.3.3",
     "higlass-register": "^0.3.0",
     "higlass-zarr-datafetchers": "0.6.0",
     "lodash-es": "catalog:"
