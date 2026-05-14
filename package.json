@@ -9,6 +9,7 @@
   "scripts": {
     "start": "pnpm -r --parallel start",
     "start-demo": "pnpm -r --parallel --filter=!docs --filter=!app start",
+    "preview-demo": "pnpm -C sites/demo run preview",
     "start-docs": "pnpm -r --parallel --filter=!demo --filter=!app start",
     "start-app": "pnpm -r --parallel --filter=!demo --filter=!docs start",
     "start-html": "pnpm -r start-html",
