@@ -1,12 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
-import { ChunkWorker } from '@vitessce/neuroglancer-workers';
+import { ChunkWorker, AsyncComputationWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
 function createWorker() {
-  return new ChunkWorker();
+  const worker = new ChunkWorker();
+  worker.AsyncComputationWorker = AsyncComputationWorker;
+  return worker;
 }
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
@@ -31,12 +33,34 @@ export class NeuroglancerComp extends PureComponent {
       // Mount
       const { viewer } = viewerRef;
       this.prevMouseStateChanged = viewer.mouseState.changed;
-      viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
+      // For now, can omit the sliceView bindings, as we only use perspectiveView
+      // viewer.inputEventBindings.sliceView.set('at:dblclick0', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:dblclick0', () => {});
 
-      // To disable space interaction causing 4panels layout
+      // Disable space interaction to prevent triggering 4panels layout.
       viewer.inputEventBindings.sliceView.set('at:space', () => {});
       viewer.inputEventBindings.perspectiveView.set('at:space', () => {});
+
+      // Remap plain wheel to  ctrl+wheel (zoom) action
+      // by traversing the parent binding maps.
+      const remapWheelToZoom = (map) => {
+        if (map.bindings) {
+          const ctrlWheelAction = map.bindings.get('at:control+wheel');
+          if (ctrlWheelAction) {
+            // Replace plain wheel with the zoom action
+            map.bindings.set('at:wheel', ctrlWheelAction);
+            const ctrlWheelBubble = map.bindings.get('bubble:control+wheel');
+            if (ctrlWheelBubble) {
+              map.bindings.set('bubble:wheel', ctrlWheelBubble);
+            }
+          }
+        }
+        if (map.parents) {
+          map.parents.forEach(p => remapWheelToZoom(p));
+        }
+      };
+
+      remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
       this.prevHoverHandler = () => {
         if (viewer.mouseState.pickedValue !== undefined) {
@@ -68,7 +92,7 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping } = this.props;
+    const { classes, viewerState, cellColorMapping, onLayerLoadingChange } = this.props;
 
     return (
       <>
@@ -79,6 +103,7 @@ export class NeuroglancerComp extends PureComponent {
               brainMapsClientId="NOT_A_VALID_ID"
               viewerState={viewerState}
               onViewerStateChanged={this.onViewerStateChanged}
+              onLayerLoadingChange={onLayerLoadingChange}
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
