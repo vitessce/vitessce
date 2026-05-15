@@ -71,14 +71,12 @@ module.exports = defineConfig({
 
   /* Run your local dev server before starting the tests.
    * In CI, serve the prebuilt demo bundle via `vite preview` so the browser
-   * doesn't trigger an on-demand compile of heavy chunks (e.g. higlass) that
-   * pushes the first render past the test's per-assertion timeouts.
+   * doesn't trigger an on-demand compile of heavy chunks (e.g. higlass).
    * The CI workflow already runs `pnpm run build-demo` before this. */
   webServer: {
     command: process.env.CI ? 'pnpm run preview-demo' : 'pnpm run start-demo',
     url: 'http://localhost:3000/',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
   },
 });
 
