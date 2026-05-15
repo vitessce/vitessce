@@ -54,7 +54,7 @@ const createMudataLoader = (url, mapContents) => {
 };
 
 describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
-  Object.entries({ 0.7: [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], 0.8: [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], 0.9: [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture], '0.11': [anndata_0_11_DenseFixture, anndata_0_11_CsrFixture, anndata_0_11_CscFixture], '0.12': [anndata_0_12_DenseFixture, anndata_0_12_CsrFixture, anndata_0_12_CscFixture] }).forEach(([version, fixtures]) => {
+  Object.entries({ 0.7: [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], 0.8: [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], 0.9: [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture], 0.11: [anndata_0_11_DenseFixture, anndata_0_11_CsrFixture, anndata_0_11_CscFixture], 0.12: [anndata_0_12_DenseFixture, anndata_0_12_CsrFixture, anndata_0_12_CscFixture] }).forEach(([version, fixtures]) => {
     describe(`AnnData v${version}`, () => {
       const [denseFixture, csrFixture, cscFixture] = fixtures;
       const loaderCsr = createAnndataLoader(

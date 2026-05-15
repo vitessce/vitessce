@@ -11,7 +11,7 @@ import anndata_0_12_DenseFixture from './json-fixtures/anndata-0.12/anndata-dens
 
 
 describe('sources/AnnDataSource', () => {
-  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture, '0.11': anndata_0_11_DenseFixture, '0.12': anndata_0_12_DenseFixture }).forEach(([version, fixture]) => {
+  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture, 0.11: anndata_0_11_DenseFixture, 0.12: anndata_0_12_DenseFixture }).forEach(([version, fixture]) => {
     describe(`AnnData v${version}`, () => {
       it('getJson returns json', async () => {
         const dataSource = new AnnDataSource({
