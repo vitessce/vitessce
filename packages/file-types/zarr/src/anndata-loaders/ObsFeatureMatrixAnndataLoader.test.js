@@ -16,6 +16,12 @@ import anndata_0_9_DenseFixture from '../json-fixtures/anndata-0.9/anndata-dense
 import anndata_0_10_CscFixture from '../json-fixtures/anndata-0.10/anndata-csc.json';
 import anndata_0_10_CsrFixture from '../json-fixtures/anndata-0.10/anndata-csr.adata.json';
 import anndata_0_10_DenseFixture from '../json-fixtures/anndata-0.10/anndata-dense.json';
+import anndata_0_11_CscFixture from '../json-fixtures/anndata-0.11/anndata-csc.json';
+import anndata_0_11_CsrFixture from '../json-fixtures/anndata-0.11/anndata-csr.adata.json';
+import anndata_0_11_DenseFixture from '../json-fixtures/anndata-0.11/anndata-dense.json';
+import anndata_0_12_CscFixture from '../json-fixtures/anndata-0.12/anndata-csc.json';
+import anndata_0_12_CsrFixture from '../json-fixtures/anndata-0.12/anndata-csr.adata.json';
+import anndata_0_12_DenseFixture from '../json-fixtures/anndata-0.12/anndata-dense.json';
 import mudata_0_2_CscFixture from '../json-fixtures/mudata-0.2/mudata-csc.json';
 import mudata_0_2_CsrFixture from '../json-fixtures/mudata-0.2/mudata-csr.json';
 import mudata_0_2_DenseFixture from '../json-fixtures/mudata-0.2/mudata-dense.json';
@@ -48,7 +54,7 @@ const createMudataLoader = (url, mapContents) => {
 };
 
 describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
-  Object.entries({ 0.7: [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], 0.8: [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], 0.9: [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture] }).forEach(([version, fixtures]) => {
+  Object.entries({ 0.7: [anndata_0_7_DenseFixture, anndata_0_7_CsrFixture, anndata_0_7_CscFixture], 0.8: [anndata_0_8_DenseFixture, anndata_0_8_CsrFixture, anndata_0_8_CscFixture], 0.9: [anndata_0_9_DenseFixture, anndata_0_9_CsrFixture, anndata_0_9_CscFixture], '0.10': [anndata_0_10_DenseFixture, anndata_0_10_CsrFixture, anndata_0_10_CscFixture], '0.11': [anndata_0_11_DenseFixture, anndata_0_11_CsrFixture, anndata_0_11_CscFixture], '0.12': [anndata_0_12_DenseFixture, anndata_0_12_CsrFixture, anndata_0_12_CscFixture] }).forEach(([version, fixtures]) => {
     describe(`AnnData v${version}`, () => {
       const [denseFixture, csrFixture, cscFixture] = fixtures;
       const loaderCsr = createAnndataLoader(

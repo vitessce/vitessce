@@ -6,10 +6,12 @@ import anndata_0_7_DenseFixture from './json-fixtures/anndata-0.7/anndata-dense.
 import anndata_0_8_DenseFixture from './json-fixtures/anndata-0.8/anndata-dense.json';
 import anndata_0_9_DenseFixture from './json-fixtures/anndata-0.9/anndata-dense.json';
 import anndata_0_10_DenseFixture from './json-fixtures/anndata-0.10/anndata-dense.json';
+import anndata_0_11_DenseFixture from './json-fixtures/anndata-0.11/anndata-dense.json';
+import anndata_0_12_DenseFixture from './json-fixtures/anndata-0.12/anndata-dense.json';
 
 
 describe('sources/AnnDataSource', () => {
-  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture }).forEach(([version, fixture]) => {
+  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture, '0.11': anndata_0_11_DenseFixture, '0.12': anndata_0_12_DenseFixture }).forEach(([version, fixture]) => {
     describe(`AnnData v${version}`, () => {
       it('getJson returns json', async () => {
         const dataSource = new AnnDataSource({
@@ -17,12 +19,12 @@ describe('sources/AnnDataSource', () => {
           store: createStoreFromMapContents(fixture),
         });
         const zAttrs = await dataSource.getJson('obs/.zattrs');
-        expect(Object.keys(zAttrs)).toEqual([
+        expect(Object.keys(zAttrs).sort()).toEqual([
           '_index',
           'column-order',
           'encoding-type',
           'encoding-version',
-        ]);
+        ].sort());
       });
 
       it('loadObsColumns returns ids for location in store', async () => {
