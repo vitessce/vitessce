@@ -96,24 +96,7 @@ function generateBlobsConfig_0_3() {
       featureType: 'gene',
     }),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
-  /*
-  config.linkViewsByObject([spatialView, lcView], {
-    spotLayer: CL({
-      featureSelection: featureSelectionScope,
-      obsColorEncoding: obsColorEncodingScope,
-      spatialSpotRadius: 100,
-      featureAggregationStrategy: featureAggregationStrategyScope,
-    }),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
-  config.linkViewsByObject([featureList, heatmap, histogram], {
-    featureSelection: featureSelectionScope,
-    obsColorEncoding: obsColorEncodingScope,
-    featureAggregationStrategy: featureAggregationStrategyScope,
-  }, { meta: false });
-
-  config.linkViews([featureList, heatmap, spatialView, lcView, histogram], ['obsType'], ['spot']);
-  */
   config.linkViewsByObject([channelList], {
     obsType: 'blob',
     featureType: 'channel',
