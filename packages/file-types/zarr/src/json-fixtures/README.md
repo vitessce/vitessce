@@ -30,6 +30,12 @@ node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/ann
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.12/anndata-csr.adata.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.12/anndata-csr.adata.json
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/anndata-0.12/anndata-dense.zarr packages/file-types/zarr/src/json-fixtures/anndata-0.12/anndata-dense.json
 
+# spatialdata-0.3
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/spatialdata-0.3/blobs.sdata.zarr packages/file-types/spatial-zarr/src/json-fixtures/spatialdata-0.3/blobs.sdata.json
+
+# spatialdata-0.7
+node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/spatialdata-0.7/blobs.sdata.zarr packages/file-types/spatial-zarr/src/json-fixtures/spatialdata-0.7/blobs.sdata.json
+
 # mudata-0.2
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/mudata-0.2/mudata-csc.zarr packages/file-types/zarr/src/json-fixtures/mudata-0.2/mudata-csc.json
 node scripts/directory-to-memory-store.mjs packages/file-types/zarr/fixtures/mudata-0.2/mudata-csr.zarr packages/file-types/zarr/src/json-fixtures/mudata-0.2/mudata-csr.json
