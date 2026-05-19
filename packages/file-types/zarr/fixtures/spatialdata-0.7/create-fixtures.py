@@ -26,10 +26,16 @@ def create_blobs_spatialdata(output_dir):
     points_table = AnnData(var=points_var_df, obs=None, X=None)
     sdata.tables['table_points'] = points_table
 
-    # Remove blobs_image - keep only the multiscale image
-    del sdata["blobs_image"]
+    # Crop the object so that fixtures are smaller
+    cropped_sdata = sdata.query.bounding_box(
+        axes=["x", "y"],
+        min_coordinate=[0, 0],
+        max_coordinate=[100, 100],
+        target_coordinate_system="global",
+        filter_table=False
+    )
 
-    sdata.write(output_dir / 'blobs.sdata.zarr', overwrite=True)
+    cropped_sdata.write(output_dir / 'blobs.sdata.zarr', overwrite=True)
 
 
 def main(output_dir):

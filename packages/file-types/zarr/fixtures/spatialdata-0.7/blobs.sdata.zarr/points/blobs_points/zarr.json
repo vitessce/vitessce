@@ -41,7 +41,6 @@
       }
     ],
     "spatialdata_attrs": {
-      "instance_key": "instance_id",
       "feature_key": "genes",
       "version": "0.2"
     }
