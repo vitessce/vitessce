@@ -27,10 +27,10 @@ function generateBlobsConfig_0_3() {
         path: 'images/blobs_multiscale_image',
       },
       obsFeatureMatrix: {
-        path: 'tables/table/X'
+        path: 'tables/table/X',
       },
       obsSegmentations: {
-        path: 'labels/blobs_labels'
+        path: 'labels/blobs_labels',
       },
       obsSets: {
         tablePath: 'tables/table',
@@ -40,13 +40,13 @@ function generateBlobsConfig_0_3() {
             path: 'tables/table/obs/region',
           },
         ],
-      }
+      },
     },
     coordinationValues: {
       obsType: 'blob',
       featureType: 'channel',
       fileUid: 'my_unique_id',
-    }
+    },
   }).addFile({
     fileType: 'spatialdata.zarr',
     url: 'blobs.sdata.zarr',
@@ -55,14 +55,14 @@ function generateBlobsConfig_0_3() {
         path: 'points/blobs_points',
       },
       obsFeatureMatrix: {
-        path: 'tables/table_points/X'
+        path: 'tables/table_points/X',
       },
     },
     coordinationValues: {
       obsType: 'point',
       featureType: 'gene',
       fileUid: 'other_unique_id',
-    }
+    },
   });
 
   const spatialView = config.addView(dataset, 'spatialBeta');

@@ -68,7 +68,7 @@ import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xeniu
 import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
 import {
   spatialdataBlobsFixtureConfig_0_3,
-  spatialdataBlobsFixtureConfig_0_7
+  spatialdataBlobsFixtureConfig_0_7,
 } from './view-configs/spatial-beta/sdata-blobs-fixture-configs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
