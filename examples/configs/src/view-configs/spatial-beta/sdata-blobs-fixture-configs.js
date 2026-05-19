@@ -2,7 +2,6 @@
 /* eslint-disable camelcase */
 import {
   VitessceConfig,
-  // eslint-disable-next-line no-unused-vars
   CoordinationLevel as CL,
   hconcat,
   vconcat,
