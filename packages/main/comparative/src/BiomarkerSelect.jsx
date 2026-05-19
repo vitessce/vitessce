@@ -7,7 +7,7 @@ import { BiomarkerSelectPageComponent, generateComparativeConfig } from './Compa
 
 export function BiomarkerSelect(props) {
   const {
-    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
+    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-may-2026.adata.zarr',
     geneSelection,
     sampleSetSelection,
     setGeneSelection,

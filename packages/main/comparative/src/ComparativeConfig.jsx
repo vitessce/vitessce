@@ -137,7 +137,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     .addFile({
       fileType: 'anndata.zarr',
       // TODO: fix obs/subclass_l1 column
-      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-aug-2025.adata.zarr',
+      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-may-2026.adata.zarr',
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',
