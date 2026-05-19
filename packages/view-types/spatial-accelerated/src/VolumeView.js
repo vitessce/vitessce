@@ -229,6 +229,7 @@ export function VolumeView(props) {
   // const [lastRes, setLastRes] = useState(null);
   // const [lastChannels, setLastChannels] = useState([]);
   const is3D = spatialRenderingMode === '3D';
+  const [dmInitComplete, setDmInitComplete] = useState(false);
   // const [loading, setLoading] = useState(false);
 
   // Add new refs for screen quad setup
@@ -356,6 +357,7 @@ export function VolumeView(props) {
     const initializeDataManager = async () => {
       if (dataManager.initStatus === INIT_STATUS.COMPLETE) {
         log.debug('dataManager already initialized, skipping');
+        setDmInitComplete(true);
         return;
       }
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
@@ -380,6 +382,7 @@ export function VolumeView(props) {
       //   onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       // }
 
+      setDmInitComplete(true);
       invalidate();
     };
     initializeDataManager();
@@ -437,7 +440,7 @@ export function VolumeView(props) {
   useEffect(() => {
     const on3D = spatialRenderingMode === '3D';
 
-    if (on3D && dataManager && renderManager) {
+    if (on3D && dataManager && renderManager && dmInitComplete) {
       logWithColor('useEffect spatialRenderingMode');
       // Direct call, no callbacks needed
       const propsForRenderManager = {
@@ -482,7 +485,7 @@ export function VolumeView(props) {
         }
       }
     }
-  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
+  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode, dmInitComplete]);
 
 
   // Execute code on every rendered frame.
@@ -629,6 +632,7 @@ export function VolumeView(props) {
   // Set isInteracting while the user is sliding the channel slider
   // for smooth updates.
   useEffect(() => {
+    if (!dmInitComplete) return;
     logWithColor('useEffect firstImageLayerChannelCoordination');
     setIsInteracting(true);
     log.debug('something about channels changed');
@@ -640,7 +644,7 @@ export function VolumeView(props) {
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting]);
+  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting, dmInitComplete]);
 
   const stopLoading = useEventCallback(() => {
     if (dataManager) {

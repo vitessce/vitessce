@@ -364,8 +364,8 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   }
 
   // Get the top K (potentially fewer than K) page table requests by weighted count.
-  const requests = [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
+  const sorted = Array.from(counts.entries()).toSorted((a, b) => b[1] - a[1]);
+  const requests = sorted
     .slice(0, k)
     .map(([packed]) => ({
       x: (packed >> 22) & 0x3FF,
@@ -1298,6 +1298,11 @@ export class VolumeDataManager {
    * the center of the render target.
    */
   async processRequestData(buffer, optsForWeighting) {
+    if (this.initStatus !== INIT_STATUS.COMPLETE) {
+      log.debug('processRequestData: not yet initialized, skipping');
+      return;
+    }
+
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
       return;
