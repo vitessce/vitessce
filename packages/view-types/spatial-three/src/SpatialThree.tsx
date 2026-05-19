@@ -42,7 +42,9 @@ const LazyXRSceneComponents = React.lazy(
   (): Promise<{ default: React.ComponentType }> => import('./xr/XRSceneComponents.js').catch(() => ({ default: () => null })),
 );
 
-
+/**
+ * React component which expresses the spatial relationships between cells and molecules using ThreeJS
+ */
 export function SpatialThree(props: SpatialThreeProps) {
   const materialRef = useRef<Mesh<BufferGeometry, ShaderMaterial>>(null);
   const orbitRef = useRef<React.ComponentRef<typeof OrbitControls>>(null);

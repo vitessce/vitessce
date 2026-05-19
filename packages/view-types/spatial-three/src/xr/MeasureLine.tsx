@@ -10,6 +10,17 @@ interface MeasureLineProps {
 export function MeasureLine({ currentLine, scale }: MeasureLineProps) {
   const textRef = useRef(null);
   // TODO: let the text always face the player/camera
+  // useFrame((state) => {
+  //     const {gl, scene, camera} = state;
+  //     if(textRef.current !== null){
+  //         if(gl.xr.isPresenting){
+  //             console.log(gl)
+  //             textRef.current.lookAt = gl.xr.getCamera().position;
+  //         }else{
+  //             textRef.current.lookAt = camera.position;
+  //         }
+  //     }
+  // })
   return (
     <group>
       <Center

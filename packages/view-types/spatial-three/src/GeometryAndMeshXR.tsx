@@ -275,6 +275,8 @@ export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
     }
   };
 
+  // TODO: IF we want to have a ZoomGrab than it needs to adapt the 0.002 value
+  // TODO: The measurement from time to time intersects with the rayGrab (maybe "tell it" that we are in measurement mode)
   // XR path
   if (isPresenting) {
     return (

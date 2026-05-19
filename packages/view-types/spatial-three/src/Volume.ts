@@ -21,22 +21,41 @@ interface DirectionVector extends Vector3 {
 export class Volume {
   spacing: [number, number, number] = [1, 1, 1];
 
+  // Offset of the volume in the RAS coordinate system
   offset: [number, number, number] = [0, 0, 0];
 
+  // The IJK to RAS matrix
   matrix: Matrix3 = new Matrix3().identity();
 
+  // The list of all the slices associated to this volume
   sliceList: Array<{ geometryNeedsUpdate: boolean }> = [];
 
+  /**
+   * The voxels with values under this
+   * threshold won't appear in the slices.
+   * If changed, geometryNeedsUpdate is automatically set to true on all
+   * the slices associated to this volume
+   */
   lowerThresholdValue = -Infinity;
 
+  /**
+   * The voxels with values over this
+   * threshold won't appear in the slices.
+   * If changed, geometryNeedsUpdate is automatically set to true on all
+   * the slices associated to this volume
+   */
   upperThresholdValue = Infinity;
 
+  // Width of the volume in the IJK coordinate system
   xLength = 1;
 
+  // Height of the volume in the IJK coordinate system
   yLength = 1;
 
+  // Depth of the volume in the IJK coordinate system
   zLength = 1;
 
+  // Data of the volume
   data!: TypedArray;
 
   RASDimensions?: number[];
@@ -47,6 +66,13 @@ export class Volume {
 
   max?: number;
 
+  /**
+   * @param {number} xLength Width of the volume
+   * @param {number} yLength Length of the volume
+   * @param {number} zLength Depth of the volume
+   * @param {string} type The type of data (uint8, uint16, ...)
+   * @param {ArrayBuffer} arrayBuffer The buffer with volume data
+   */
   constructor(
     xLength?: number,
     yLength?: number,
@@ -161,14 +187,25 @@ export class Volume {
     });
   }
 
+  /**
+   * Shortcut for data[access(i,j,k)]
+   */
   getData(i: number, j: number, k: number): number {
     return this.data[k * this.xLength * this.yLength + j * this.xLength + i];
   }
 
+  /**
+   * Compute the index in the data
+   * array corresponding to the given coordinates in IJK system
+   */
   access(i: number, j: number, k: number): number {
     return k * this.xLength * this.yLength + j * this.xLength + i;
   }
 
+  /**
+   * Retrieve the IJK coordinates of the voxel
+   * corresponding of the given index in the data
+   */
   reverseAccess(index: number): [number, number, number] {
     const z = Math.floor(index / (this.yLength * this.xLength));
     const y = Math.floor(
@@ -179,6 +216,10 @@ export class Volume {
     return [x, y, z];
   }
 
+  /**
+   * Apply a function to all the voxels, be careful,
+   * the value will be replaced
+   */
   // eslint-disable-next-line max-len
   map(functionToMap: (value: number, index: number, data: TypedArray) => number, contextParam?: any): this {
     const { length } = this.data;
@@ -190,6 +231,13 @@ export class Volume {
     return this;
   }
 
+  /**
+   * Compute the orientation
+   * of the slice and returns all the information relative to the
+   * geometry such as sliceAccess,
+   * the plane matrix (orientation and position in RAS coordinate)
+   * and the dimensions of the plane in both coordinate system.
+   */
   extractPerpendicularPlane(axis: string, RASIndex: number) {
     const planeMatrix = (new Matrix4()).identity();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -304,6 +352,11 @@ export class Volume {
     };
   }
 
+  /**
+   * Compute the minimum
+   * and the maximum of the data in the volume
+   * @returns {Array} [min,max]
+   */
   computeMinMax(): [number, number] {
     let min = Infinity;
     let max = -Infinity;

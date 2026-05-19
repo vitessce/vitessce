@@ -23,6 +23,9 @@ const renderingModeMap: Record<string, number> = {
   additive: 2,
 };
 
+/**
+* Extracting relevant information from the properties for creating the ThreeJS Volume Viewer
+*/
 function extractInformationFromProps(
   layerScope: string,
   layerCoordination: CoordinationRecord,
@@ -141,6 +144,9 @@ function extractInformationFromProps(
   };
 }
 
+/**
+ * Retrieving the volumetric settings from the props, comparing them to the prior settings
+ */
 export function useVolumeSettings(
   props: SpatialThreeProps,
   volumeSettings: VolumeSettings,
@@ -245,6 +251,9 @@ function getMinMaxValue(value: number, minMax: number[]): number {
   return (value - min) / Math.sqrt((max ** 2) - (min ** 2));
 }
 
+/**
+* Setting the uniform data for the volumetric rendering
+*/
 function setUniformsTextures(
   uniforms: UniformMap,
   textures: Data3DTexture[],
@@ -333,6 +342,9 @@ function setUniformsTextures(
     colors.length > 5 ? colors[5][2] : null);
 }
 
+/**
+* Creates the initial volume rendering settings based on the given data
+*/
 export function create3DRendering(
   volumes: Map<number | false, Volume>,
   channelTargetC: (number | false)[],
@@ -502,6 +514,9 @@ function getData3DTexture(volume: Volume) {
   return texture;
 }
 
+/**
+* Get physical size scaling Matrix4
+*/
 function getPhysicalSizeScalingMatrix(
   loader: VolumeSource & { meta?: { physicalSizes?: Record<string, { size: number; unit?: string } | undefined> } },
 ): Array<{ size: number }> {
@@ -525,6 +540,9 @@ function minMaxVolume(volume: Volume) {
   return dataASFloat32;
 }
 
+/**
+* Function to load the volumetric data from the given data source
+*/
 export async function initialDataLoading(
   channelTargetC: (number | false)[],
   resolution: number,
