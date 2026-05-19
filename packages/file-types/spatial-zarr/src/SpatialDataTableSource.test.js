@@ -2,16 +2,16 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 
+import SpatialDataTableSource from './SpatialDataTableSource.js';
+import spatialdata_0_3_Fixture from './json-fixtures/spatialdata-0.3/blobs.sdata.json';
+import spatialdata_0_7_Fixture from './json-fixtures/spatialdata-0.7/blobs.sdata.json';
+
 vi.mock('./parquet-query-utils.js', () => ({
   getParquetModule: vi.fn().mockResolvedValue({}),
   _loadParquetMetadataByPart: vi.fn(),
   _loadParquetRowGroupByGroupIndex: vi.fn(),
   _rectToRowGroupIndices: vi.fn(),
 }));
-
-import SpatialDataTableSource from './SpatialDataTableSource.js';
-import spatialdata_0_3_Fixture from './json-fixtures/spatialdata-0.3/blobs.sdata.json';
-import spatialdata_0_7_Fixture from './json-fixtures/spatialdata-0.7/blobs.sdata.json';
 
 describe('sources/SpatialDataTableSource', () => {
   describe('SpatialData v0.3', () => {
