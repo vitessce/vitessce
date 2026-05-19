@@ -66,7 +66,10 @@ import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_202
 import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
 import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xenium_rep1_io.js';
 import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
-import { spatialdataBlobsFixtureConfig_0_3 } from './view-configs/spatial-beta/sdata-blobs-fixture-configs.js';
+import {
+  spatialdataBlobsFixtureConfig_0_3,
+  spatialdataBlobsFixtureConfig_0_7
+} from './view-configs/spatial-beta/sdata-blobs-fixture-configs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
@@ -158,7 +161,7 @@ export const configs = {
   'spatialdata-visium_hd': visiumHdSpatialdata2025,
   'spatialdata-blobs': spatialdataBlobsConfig,
   'sdata-blobs-0_3': spatialdataBlobsFixtureConfig_0_3,
-  // 'sdata-blobs-0_7': spatialdataBlobsFixtureConfig_0_7,
+  'sdata-blobs-0_7': spatialdataBlobsFixtureConfig_0_7,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,

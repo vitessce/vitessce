@@ -68,7 +68,8 @@ function generateBlobsConfig_0_3() {
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
-  const featureList = config.addView(dataset, 'featureList');
+  const channelList = config.addView(dataset, 'featureList');
+  const geneList = config.addView(dataset, 'featureList');
 
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL({
@@ -113,12 +114,19 @@ function generateBlobsConfig_0_3() {
 
   config.linkViews([featureList, heatmap, spatialView, lcView, histogram], ['obsType'], ['spot']);
   */
-  config.linkViewsByObject([featureList, obsSets], {
+  config.linkViewsByObject([channelList], {
     obsType: 'blob',
     featureType: 'channel',
   });
+  config.linkViewsByObject([obsSets], {
+    obsType: 'blob',
+  });
+  config.linkViewsByObject([geneList], {
+    obsType: 'point',
+    featureType: 'gene',
+  });
 
-  config.layout(hconcat(spatialView, vconcat(lcView, featureList, obsSets)));
+  config.layout(hconcat(spatialView, vconcat(lcView, hconcat(channelList, geneList), obsSets)));
 
   const configJSON = config.toJSON();
   return configJSON;
@@ -126,3 +134,4 @@ function generateBlobsConfig_0_3() {
 
 
 export const spatialdataBlobsFixtureConfig_0_3 = generateBlobsConfig_0_3();
+export const spatialdataBlobsFixtureConfig_0_7 = generateBlobsConfig_0_3();
