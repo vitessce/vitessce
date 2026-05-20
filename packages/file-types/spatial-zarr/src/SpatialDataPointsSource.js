@@ -81,7 +81,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
     const formatVersion = zattrs.spatialdata_attrs.version;
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === 'ngff:points' && !(formatVersion === '0.1')) {
+    if (encodingType === 'ngff:points' && !(formatVersion === '0.1' || formatVersion === '0.2')) {
       throw new Error(
         `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
       );

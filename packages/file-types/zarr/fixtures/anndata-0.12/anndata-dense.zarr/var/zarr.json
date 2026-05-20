@@ -1,0 +1,10 @@
+{
+  "attributes": {
+    "column-order": [],
+    "_index": "_index",
+    "encoding-type": "dataframe",
+    "encoding-version": "0.2.0"
+  },
+  "zarr_format": 3,
+  "node_type": "group"
+}

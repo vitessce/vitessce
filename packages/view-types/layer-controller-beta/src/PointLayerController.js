@@ -484,7 +484,7 @@ export default function PointLayerController(props) {
         ) : null}
       </Paper>
 
-      {hasSelectedFeatures ? (
+      {layerPerFeatureForPoints && hasSelectedFeatures ? (
         <>
           {featureSelection.map(featureName => (
             <LayerPerFeatureController

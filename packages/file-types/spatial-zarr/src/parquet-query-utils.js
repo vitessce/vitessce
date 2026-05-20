@@ -126,7 +126,11 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
 
       // Step 2: Extract footer length and magic number
       // little-endian
-      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
+      const footerLength = new DataView(
+        tailBytes.buffer,
+        tailBytes.byteOffset,
+        tailBytes.byteLength,
+      ).getInt32(0, true);
       const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
 
       if (magic !== 'PAR1') {
