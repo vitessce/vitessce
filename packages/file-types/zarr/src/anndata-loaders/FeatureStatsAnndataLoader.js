@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { getDebugMode } from '@vitessce/globals';
+import { getDebugMode, log } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
 import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
@@ -74,7 +74,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
         featureSignificance,
       };
     } catch(e) {
-      console.log("Dataframe not found at", dfPath);
+      log.warn("Dataframe not found at", dfPath);
       return {
         featureId: [],
         featureFoldChange: [],
@@ -94,7 +94,6 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     }
     if (!this.metadata) {
       this.metadata = await loadComparisonMetadata(this.dataSource, metadataPath);
-      console.log(this.metadata)
       return this.metadata;
     }
     return this.metadata;
