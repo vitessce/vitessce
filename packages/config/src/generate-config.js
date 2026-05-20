@@ -24,6 +24,8 @@ const fileTypeToExtensions = {
   // Perhaps just assume one H5AD+one JSON (or .ref.json) file correspond to each other?
   [FileType.SPATIALDATA_ZARR]: ['.sd.zarr', '.sdata.zarr', '.spatialdata.zarr'],
   [FileType.SPATIALDATA_ZARR_ZIP]: ['.sd.zarr.zip', '.sdata.zarr.zip', '.spatialdata.zarr.zip'],
+  [FileType.GENOMIC_PROFILES_ZARR]: ['.multivec.zarr'],
+  [FileType.GENOMIC_PROFILES_ZARR_ZIP]: ['.multivec.zarr.zip'],
 };
 
 const fileTypeToClass = {
@@ -54,6 +56,8 @@ const ZARR_FILETYPES = [
   FileType.IMAGE_OME_ZARR_ZIP,
   FileType.OBS_SEGMENTATIONS_OME_ZARR,
   FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP,
+  FileType.GENOMIC_PROFILES_ZARR,
+  FileType.GENOMIC_PROFILES_ZARR_ZIP,
 ];
 
 function urlToFileType(url) {

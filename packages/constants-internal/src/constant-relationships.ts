@@ -76,6 +76,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_LABELS_MOLECULES_JSON]: DataType.OBS_LABELS,
   // For old file types
   [FileType.GENOMIC_PROFILES_ZARR]: DataType.GENOMIC_PROFILES,
+  [FileType.GENOMIC_PROFILES_ZARR_ZIP]: DataType.GENOMIC_PROFILES,
   [FileType.NEIGHBORHOODS_JSON]: DataType.NEIGHBORHOODS,
 };
 
@@ -252,5 +253,10 @@ export const ALT_ZARR_STORE_TYPES = {
   },
   [FileType.OBS_EMBEDDING_SPATIALDATA_ZARR]: {
     zip: FileType.OBS_EMBEDDING_SPATIALDATA_ZARR_ZIP,
+  },
+
+  // For genomic profiles:
+  [FileType.GENOMIC_PROFILES_ZARR]: {
+    zip: FileType.GENOMIC_PROFILES_ZARR_ZIP,
   },
 };
