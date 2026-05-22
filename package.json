@@ -85,7 +85,13 @@
   },
   "pnpm": {
     "overrides": {
-      "jest-canvas-mock": "2.5.0"
+      "jest-canvas-mock": "2.5.0",
+      "@react-spring/animated": "^10.0.0",
+      "@react-spring/core": "^10.0.0",
+      "@react-spring/rafz": "^10.0.0",
+      "@react-spring/shared": "^10.0.0",
+      "@react-spring/three": "^10.0.0",
+      "@react-spring/types": "^10.0.0"
     },
     "peerDependencyRules": {
       "allowedVersions": {

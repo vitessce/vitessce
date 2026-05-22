@@ -84,8 +84,8 @@ catalog:
   # We pin these to avoid issues with different subpackages depending on different versions of react.
   # @react-three/fiber, drei, xr, and three are externalized as optional peer deps
   # (consumers install the version matching their React version).
-  "react": 19.1.0
-  "react-dom": 19.1.0
+  "react": 19.2.6
+  "react-dom": 19.2.6
   "@types/react": ^19.0.0
   # Testing library
   "@testing-library/jest-dom": ^6.6.3
