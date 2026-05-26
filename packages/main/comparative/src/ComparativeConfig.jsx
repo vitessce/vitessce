@@ -40,7 +40,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     url: baseUrl,
     options: {
       metadataPath: 'uns/comparison_metadata',
-      indexColumn: 'names',
+      indexColumn: 'variable',
       pValueColumn: 'pvals_adj',
       foldChangeColumn: 'logfoldchanges',
       // pValueTransformation: 'minuslog10',
@@ -111,6 +111,40 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             embeddingType: 'densMAP',
           },
         ],
+        /*
+        obsSets: [
+          {
+            name: 'Subclass L1',
+            path: 'obs/subclass_l1',
+          },
+          {
+            name: 'Subclass L2',
+            path: 'obs/subclass_l2',
+          },
+          {
+            name: 'Subclass L3',
+            path: 'obs/subclass_l3',
+          },
+        ], */
+        /* featureLabels: {
+        path: 'var/features',
+      }, */
+        sampleEdges: {
+          path: 'obs/specimen',
+        },
+      },
+    })
+    .addFile({
+      fileType: 'anndata.zarr',
+      // TODO: fix obs/subclass_l1 column
+      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-may-2026.adata.zarr',
+      coordinationValues: {
+        obsType: 'cell',
+        featureType: 'gene',
+        featureValueType: 'expression',
+        sampleType: 'sample',
+      },
+      options: {
         obsSets: [
           {
             name: 'Subclass L1',
@@ -145,12 +179,6 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             path: 'obs/EnrollmentCategory',
           }, */
         ],
-        /* featureLabels: {
-        path: 'var/features',
-      }, */
-        sampleEdges: {
-          path: 'obs/specimen',
-        },
       },
     })
     .addFile({
@@ -161,6 +189,10 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
           {
             name: 'Adjudicated Category',
             path: 'AdjudicatedCategory',
+          },
+          {
+            name: 'Merged Adjudicated Category',
+            path: 'MergedAdjudicatedCategory',
           },
           {
             name: 'Enrollment Category',
@@ -440,7 +472,7 @@ export function ComparativePageComponent() {
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
                 <div className="view-row-left">
-                  <p>This view displays differential expression test results, performed using the rank_genes_groups function from Scanpy (Wolf et al. 2018) with method &quot;wilcoxon&quot;. <br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
+                  <p>This view displays differential expression test results, performed using PyDESeq2 (Muzellec et al. 2023). <br /><br />Tests have only been run when each group contains at least 25 cells and at least three participants. Genes are filtered to those that are expressed above zero counts in at least half of the pseudobulked observations.<br /><br />The arrows on the bottom left and bottom right denote the direction of the effect. Click a point in the plot to select the corresponding gene. <br /><br />Note that differential expression tests have been run for each cell type separately, so the each gene can appear multiple times (once per cell type). If there are too many points on the plot, cell types can be selected to filter the points.</p>
                 </div>
                 <div className="view-row-center">
                   <VolcanoPlot />
