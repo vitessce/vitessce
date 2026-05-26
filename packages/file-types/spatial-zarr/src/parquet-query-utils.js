@@ -8,6 +8,7 @@
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
 import { createGetRange } from '@vitessce/zarr-utils';
+import { log } from '@vitessce/globals';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { QueryClient } from '@tanstack/react-query' */
@@ -187,6 +188,7 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
           if (error.message.includes('Failed to load parquet footerLength')) {
             // No more parts found.
             numParts = partIndex;
+            log.info(`Found ${numParts} parts for parquet path ${parquetPath}; An above "Failed to load parquet footerLength" error is expected for the subsequent part.`);
           }
         }
       } while (numParts === undefined);
