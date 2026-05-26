@@ -6,11 +6,13 @@ import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
 import { createGetRange } from '@vitessce/zarr-utils';
+import { range } from 'lodash-es';
 import {
   getParquetModule,
   _loadParquetMetadataByPart,
   _loadParquetRowGroupByGroupIndex,
   _rectToRowGroupIndices,
+  MORTON_CODE_EXTREME_VALUE_INDICATOR,
 } from './parquet-query-utils.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
@@ -492,13 +494,14 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
-    const { numRowsPerGroup } = allMetadata;
-    const numRowsTotal = allMetadata.numRows;
-    if (numRowsPerGroup >= 100_000) {
+    const { numRowsPerGroupByPart } = allMetadata;
+    const numRowsTotal = allMetadata.totalNumRows;
+    const maxNumRowsPerGroup = Math.max(...numRowsPerGroupByPart);
+    if (maxNumRowsPerGroup >= 100_000) {
       // Heuristic: if there are more than 100,000 rows per row group,
       // then tiled loading is probably difficult.
       if (numRowsTotal > 5_000_000) {
-        throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the row group size is too large (${numRowsPerGroup}). See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
+        throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the row group size is too large (${maxNumRowsPerGroup}). See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
       }
       return false;
     }
@@ -530,7 +533,6 @@ export default class SpatialDataTableSource extends AnnDataSource {
   async loadParquetTableInRect(
     parquetPath,
     tileBbox,
-    allPointsBbox,
     // eslint-disable-next-line no-unused-vars
     signal,
     featureIndexColumnName,
@@ -572,7 +574,38 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
 
     // TODO: pass signal to react-query functions to allow aborting requests.
+    
+    // Load the first four rows to determine the full data extent/bounding box.
+    // To do so, we can load the first row group, which should be small if the parquet file is properly tiled,
+    // and will be cached for subsequent requests if this row group is needed again.
+    const firstRowGroupTable = await _loadParquetRowGroupByGroupIndex(
+      { queryClient, store },
+      parquetPath,
+      0,
+    );
+    const xColumnForBoundingBox = firstRowGroupTable.getChild('x');
+    const yColumnForBoundingBox = firstRowGroupTable.getChild('y');
+    const mortonCodeColumnForBoundingBox = firstRowGroupTable.getChild(mortonCodeColumnName);
+    console.log(firstRowGroupTable);
 
+    const boundingBoxMaxNumRows = Math.min(4, firstRowGroupTable.numRows);
+    const firstMortonCodes = range(boundingBoxMaxNumRows).map(i => mortonCodeColumnForBoundingBox.get(i));
+    const boundingBoxNumRows = firstMortonCodes.filter(code => code === MORTON_CODE_EXTREME_VALUE_INDICATOR).length;
+
+    const boundingBoxXValues = range(boundingBoxNumRows).map(i => xColumnForBoundingBox.get(i));
+    const boundingBoxYValues = range(boundingBoxNumRows).map(i => yColumnForBoundingBox.get(i));
+    const xMin = Math.min(...boundingBoxXValues);
+    const xMax = Math.max(...boundingBoxXValues);
+    const yMin = Math.min(...boundingBoxYValues);
+    const yMax = Math.max(...boundingBoxYValues);
+
+    const allPointsBbox = {
+      x_min: xMin,
+      x_max: xMax,
+      y_min: yMin,
+      y_max: yMax,
+    };
+    
     const rowGroupIndicesPerTile = await Promise.all(
       tileBboxes
         .map(async subTileBbox => _rectToRowGroupIndices(
@@ -594,13 +627,32 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     // Now we can load the row groups and concatenate them into typed arrays.
     // We already know the size of the final arrays based on the number of rows in each row group.
-    const { numRowsPerGroup } = allMetadata;
-    const numRowGroups = uniqueCoveredRowGroupIndices.length;
-    const totalNumRows = numRowsPerGroup * numRowGroups;
+    const { numRowsPerGroupByPart, numRowsByPart, numRowGroupsByPart } = allMetadata;
 
-    const xArr = new Float32Array(totalNumRows);
-    const yArr = new Float32Array(totalNumRows);
-    const featureIndexArr = new Uint32Array(totalNumRows);
+    // Given a row group index, determine how many rows are in that row group by
+    // first determining which part it belongs to,
+    // and then looking up the number of rows per group for that part.
+    const rowGroupIToNumRows = (rowGroupI) => {
+      let currPartIndex = 0;
+      let prevTotalRowGroupCount = 0;
+      for (let partIndex = 0; partIndex < numRowGroupsByPart.length; partIndex++) {
+        const numRowGroupsInPart = numRowGroupsByPart[partIndex];
+        if (prevTotalRowGroupCount <= rowGroupI && rowGroupI < prevTotalRowGroupCount + numRowGroupsInPart) {
+          currPartIndex = partIndex;
+          break;
+        }
+        prevTotalRowGroupCount += numRowGroupsInPart;
+      }
+      return numRowsPerGroupByPart[currPartIndex];
+    };
+
+    const totalNumRowsToLoad = uniqueCoveredRowGroupIndices.reduce((acc, rowGroupI) => {
+      return acc + rowGroupIToNumRows(rowGroupI);
+    }, 0);
+
+    const xArr = new Float32Array(totalNumRowsToLoad);
+    const yArr = new Float32Array(totalNumRowsToLoad);
+    const featureIndexArr = new Uint32Array(totalNumRowsToLoad);
 
     const rowGroupTables = await Promise.all(
       uniqueCoveredRowGroupIndices
@@ -624,7 +676,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       xArr.set(xColumn.toArray(), rowOffset);
       yArr.set(yColumn.toArray(), rowOffset);
       featureIndexArr.set(featureIndexColumn.toArray(), rowOffset);
-      rowOffset += numRowsPerGroup;
+      rowOffset += table.numRows;
     });
 
     return {
@@ -633,7 +685,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         y: yArr,
         featureIndices: featureIndexArr,
       },
-      shape: [3, totalNumRows],
+      shape: [3, totalNumRowsToLoad],
     };
   }
 }
