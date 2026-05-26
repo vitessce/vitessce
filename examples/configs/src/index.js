@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { vapi } from './utils.js';
 import {
@@ -65,10 +66,16 @@ import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_202
 import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
 import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xenium_rep1_io.js';
 import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
+import {
+  spatialdataBlobsFixtureConfig_0_3,
+  spatialdataBlobsFixtureConfig_0_7,
+} from './view-configs/spatial-beta/sdata-blobs-fixture-configs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
 import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
+import blobsCropSdata_0_3 from './json-fixtures/sdata-blobs/blobs.sdata-0.3.json';
+import blobsCropSdata_0_7 from './json-fixtures/sdata-blobs/blobs.sdata-0.7.json';
 
 // 3D Maps
 import { jainkidneyDecimated } from './view-configs/3d-maps/jain-kidney-decimated.js';
@@ -78,6 +85,7 @@ import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
 import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
+import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
@@ -85,7 +93,7 @@ import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
 import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
-
+import { neuroglancerTwoLayers } from './view-configs/3d-maps/neuroglancer-two-layers.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -152,6 +160,8 @@ export const configs = {
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
   'spatialdata-visium_hd': visiumHdSpatialdata2025,
   'spatialdata-blobs': spatialdataBlobsConfig,
+  'sdata-blobs-0_3': spatialdataBlobsFixtureConfig_0_3,
+  'sdata-blobs-0_7': spatialdataBlobsFixtureConfig_0_7,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
@@ -202,6 +212,8 @@ export const configs = {
   // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
   'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
+  'neuroglancer-merfish': neuroglancerMerfish,
+  'neuroglancer-two-layers': neuroglancerTwoLayers,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,
@@ -244,6 +256,12 @@ const exemplarSmallStores = {
 export const configStores = {
   'exemplar-small': exemplarSmallStores,
   'exemplar-small-partial-init': exemplarSmallStores,
+  'sdata-blobs-0_3': {
+    'blobs.sdata.zarr': createStoreFromMapContents(blobsCropSdata_0_3),
+  },
+  'sdata-blobs-0_7': {
+    'blobs.sdata.zarr': createStoreFromMapContents(blobsCropSdata_0_7),
+  },
 };
 
 export const configPages = {

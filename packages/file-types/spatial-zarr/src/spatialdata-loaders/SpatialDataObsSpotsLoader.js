@@ -149,7 +149,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
 
     const coordinationValues = {
       spotLayer: CL({
-        obsType: 'spot',
+        obsType: this.coordinationValues?.obsType ?? 'spot',
         // obsColorEncoding: 'spatialLayerColor',
         // spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,

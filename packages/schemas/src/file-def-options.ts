@@ -290,18 +290,39 @@ export const meshGlbSchema = z.object({
   materialSide: z.enum(['front', 'back']),
 }).partial().nullable();
 
-// NG
-export const ngSchema = z.object({
+// NG SegmentationLayer
+export const ngPrecomputedMeshSchema = z.object({
   // TODO: Should this explicitly specify sharded vs. unsharded?
   // Or can/should that be inferred from the data?
-  dimensionX: z.number(),
-  dimensionY: z.number(),
-  dimensionZ: z.number(),
-  dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
+
+  // Note: None of these make sense to specify at the file level, since they
+  // are global camera settings that would apply to all layers.
+  // Intead, initial values should be set via the usual coordination space mechanism,
+  // and the NeuroglancerSubscriber should handle conversion into values to pass to Neuroglancer.
+  // dimensionX: z.number(),
+  // dimensionY: z.number(),
+  // dimensionZ: z.number(),
+  // dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
   // TODO: should the following be passed via coordination types instead?
-  projectionScale: z.number(),
-  position: z.array(z.number()).length(3),
-  projectionOrientation: z.array(z.number()).length(4),
+  // projectionScale: z.number(),
+  // position: z.array(z.number()).length(3),
+  // projectionOrientation: z.array(z.number()).length(4),
+  subsources: z.record(z.boolean())
+    .describe('Subsources are the individual data components of a source (e.g. meshes, skeletons, etc.). Each entry explicitly enables or disables a subsource.')
+    .optional(),
+  enableDefaultSubsources: z.boolean()
+    .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
+    .optional(),
+}).partial().nullable();
+// Annotation Layer
+export const ngPointAnnotationSchema = z.object({
+  projectionAnnotationSpacing: z.number(),
+  featureIndexProp: z.string()
+    .optional()
+    .describe('The name of the Neuroglancer AnnotationProperty containing feature IDs. For example, specify \'gene\' to use prop_gene() in the Neuroglancer shader code.'),
+  pointIndexProp: z.string()
+    .optional()
+    .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
 }).partial().nullable();
 
 /**

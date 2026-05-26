@@ -7,8 +7,8 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 export default function WrappedDemos() {
   return (
     <Layout
-      title="Demos"
-      description="Demos of Vitessce features"
+      title="Examples"
+      description="Interactive demonstrations of Vitessce across spatial biology, multi-omics, and 3D tissue visualization datasets."
       image="http://beta.vitessce.io/img/logo-card.png"
     >
       <BrowserOnly>

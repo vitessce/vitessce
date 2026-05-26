@@ -14,6 +14,7 @@ import {
   Close as CloseIcon,
   Help as HelpIcon,
   Warning as WarningIcon,
+  MenuBook as MenuBookIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -141,7 +142,7 @@ function DownloadOptions(props) {
 }
 
 function HelpButton(props) {
-  const { helpText } = props;
+  const { helpText, guideUrl } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -155,7 +156,23 @@ function HelpButton(props) {
       aria-label="Open help info"
       withPaper={false}
     >
-      <span className={classes.helpTextSpan}>{helpText}</span>
+      <span className={classes.helpTextSpan}>
+        {helpText}
+        {guideUrl ? (
+          <IconButton
+            component="a"
+            href={guideUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            className={classes.iconButton}
+            title="Open Navigation Guide"
+            aria-label="Open navigation guide"
+          >
+            <MenuBookIcon />
+          </IconButton>
+        ) : null}
+      </span>
     </PopperMenu>
   );
 }
@@ -209,11 +226,12 @@ function ClosePaneButton(props) {
   );
 }
 
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors: errorsProp,
+    helpText, withPadding = true, errors: errorsProp, guideUrl,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
@@ -245,6 +263,7 @@ export function TitleInfo(props) {
           {helpText ? (
             <HelpButton
               helpText={helpText}
+              guideUrl={guideUrl}
             />
           ) : null}
           {closeButtonVisible && removeGridComponent ? (

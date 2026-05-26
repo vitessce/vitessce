@@ -73,7 +73,8 @@ import {
   neighborhoodsLayerObj,
   moleculesLayerObj,
   meshGlbSchema,
-  ngSchema,
+  ngPrecomputedMeshSchema,
+  ngPointAnnotationSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -183,8 +184,9 @@ import {
   SpatialDataObsEmbeddingLoader,
   SpatialDataFeatureLabelsLoader,
   // NG precomputed
-  NgPrecomputedMeshSource,
+  NgPassthroughSource,
   NgPrecomputedMeshLoader,
+  NgAnnotationPointsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -346,7 +348,9 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, SpatialDataFeatureLabelsLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
-  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPrecomputedMeshSource, ngSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
+  makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -590,6 +594,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, [255, 255, 255], z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),

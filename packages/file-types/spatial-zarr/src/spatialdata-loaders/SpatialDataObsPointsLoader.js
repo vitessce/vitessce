@@ -61,7 +61,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locations = await this.dataSource.loadPoints(path);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
@@ -82,7 +82,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     let locationsFeatureIndex;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locationsFeatureIndex = await this.dataSource.loadPointsFeatureIds(
         path,
       );
@@ -103,7 +103,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locations;
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locations = await this.dataSource.loadPointsInRect(
         path, bounds, signal, featureIndexColumn, mortonCodeColumn,
       );
@@ -160,7 +160,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       ),
     ]);
 
-    const isSupportedVersion = formatVersion === '0.1';
+    const isSupportedVersion = formatVersion === '0.1' || formatVersion === '0.2';
     const boundingBox = zattrs?.bounding_box;
     const hasBoundingBox2D = (
       typeof boundingBox?.x_max === 'number'
@@ -185,7 +185,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
 
     const coordinationValues = {
       pointLayer: CL({
-        obsType: 'point',
+        obsType: this.coordinationValues?.obsType ?? 'point',
         obsColorEncoding: 'spatialLayerColor',
         spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,

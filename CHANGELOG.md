@@ -1,4 +1,67 @@
 
+## 3.9.9
+
+### Patch Changes
+
+- Add test fixtures that use anndata Python package versions 0.11 and 0.12 and spatialdata Python package versions 0.3 and 0.7. The anndata 0.12 and spatialdata 0.7 fixtures are written to Zarr v3 format. New unit tests and configurations that use the new fixtures are added. Update the `anndata.zarr` \_loadColumn function to support string-array and nullable-string-array encoding types. Update the `spatialdata.zarr` points format validation to allow points format 0.2. (`@vitessce/zarr`) ([#2479](https://github.com/vitessce/vitessce/pull/2479))
+
+
+## 3.9.8
+
+### Patch Changes
+
+- Display loading indicator for Neuroglancer view while meshes are loading. (`@vitessce/neuroglancer`) ([#2398](https://github.com/vitessce/vitessce/pull/2398))
+
+- Hide zSlider in layerControllerBeta for 3D datasets (`@vitessce/layer-controller-beta`) ([#2469](https://github.com/vitessce/vitessce/pull/2469))
+
+- Add compatibility layer for loading zarr v3/ome 0.5 in spatialdata. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`, `@vitessce/zarr-utils`) ([#2466](https://github.com/vitessce/vitessce/pull/2466))
+
+- Fix cell set expression plot crash on empty obs set selection. (`@vitessce/statistical-plots`) ([#2468](https://github.com/vitessce/vitessce/pull/2468))
+
+- Added per-feature (e.g., gene) controls for selected point features in the layerController. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`, `@vitessce/icons`) ([#2433](https://github.com/vitessce/vitessce/pull/2433))
+
+- Enable opacity change in Neuroglancer segmentation and annotation layers using their respective opacity sliders in layerController. (`@vitessce/neuroglancer`) ([#2461](https://github.com/vitessce/vitessce/pull/2461))
+
+
+## 3.9.7
+
+### Patch Changes
+
+- Dsiabled space interaction causing Neuroglancer view to switch to 4Panels layout (`@vitessce/neuroglancer`) ([#2445](https://github.com/vitessce/vitessce/pull/2445))
+
+- Added support for multiple segmentation (i.e., mesh) layers in the Neuroglancer view. (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2438](https://github.com/vitessce/vitessce/pull/2438))
+
+- Added navigation guide for the Neuroglancer View (`@vitessce/neuroglancer`, `@vitessce/styles`, `@vitessce/vit-s`, `docs`) ([#2442](https://github.com/vitessce/vitessce/pull/2442))
+
+- Map the zoom interaction in the `neuroglancer` view to plain mouse wheel events (i.e., do not require any extra key modifiers). (`@vitessce/neuroglancer`) ([#2446](https://github.com/vitessce/vitessce/pull/2446))
+
+- Added async_computation worker to handle sharded data format (`@vitessce/neuroglancer`, `@vitessce/neuroglancer-workers`) ([#2449](https://github.com/vitessce/vitessce/pull/2449))
+
+- Supports hotkeys to switch between multiple camera setting presets by passing the `layerControllerBeta` view a `cameraPresets` prop an array of objects like `{ spatialZoom, spatialX }`. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`) ([#2448](https://github.com/vitessce/vitessce/pull/2448))
+
+- No longer call onSegmentClick in Neuroglancer.js, for consistency with the 2D views and to resolve a bug causing accidental selections. (`@vitessce/neuroglancer`) ([#2439](https://github.com/vitessce/vitessce/pull/2439))
+
+
+## 3.9.6
+
+### Patch Changes
+
+- Define obsPoints.ng-annotations as a fileType, enabling users to specify Neuroglancer point annotations via the usual datasets part of the Vitessce configuration. Add logic for controlling segmentation and point layers via the existing layerControllerBeta UI, including coloring and filtering points via the featureList. (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2420](https://github.com/vitessce/vitessce/pull/2420))
+
+- Use obsType from coordinationValues for pointLayer and spotLayer when available. (`@vitessce/spatial-zarr`, `@vitessce/zarr`, `@vitessce/csv`) ([#2441](https://github.com/vitessce/vitessce/pull/2441))
+
+- Added legend to Neuroglancer view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`) ([#2435](https://github.com/vitessce/vitessce/pull/2435))
+
+
+## 3.9.5
+
+### Patch Changes
+
+- Update docs site, primarily home page and examples page" (`docs`) ([#2421](https://github.com/vitessce/vitessce/pull/2421))
+
+- Prioritize loading center bricks (before outer bricks) in the spatialAccelerated view. (`@vitessce/spatial-accelerated`) ([#2417](https://github.com/vitessce/vitessce/pull/2417))
+
+
 ## 3.9.4
 
 ### Patch Changes
