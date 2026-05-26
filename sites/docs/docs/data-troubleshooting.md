@@ -419,23 +419,24 @@ Here, we associate the sorted Dask dataframe with a new Points element called `t
 Then, we save this new element to disk using [write_element](https://spatialdata.scverse.org/en/stable/api/SpatialData.html#spatialdata.SpatialData.write_element).
 
 ```py
-sdata["transcripts_with_morton_codes"] = ddf
+from spatialdata.models import PointsModel
+
+# Optionally, if your original points dataset defines a `transform` attribute:
+transformations = sdata['transcripts'].attrs['transform']
+del ddf.attrs['transform']
+# End optional lines.
+
+sdata["transcripts_with_morton_codes"] = PointsModel.parse(
+    ddf,
+    feature_key="feature_name",
+    instance_key="cell_id",
+    transformations=transformations
+)
 sdata.write_element("transcripts_with_morton_codes")
 ```
 
 For more information about writing and overwriting Spatial Elements, see this [spatialdata discussion](https://github.com/scverse/spatialdata/discussions/520).
 
-#### Saving bounding box to Point element metadata (Zarr attrs)
-
-Running `sdata_morton_sort_points` will save the bounding box of the points to the `bounding_box` attribute of the Points element.
-However, this attribute will not be written to disk, as only [recognized attributes are preserved](https://github.com/scverse/spatialdata/blob/aeef0cc3ebd7c10a7ed17b84415213bb259a5f4b/src/spatialdata/_io/format.py#L116) during writing.
-
-
-```py
-from vitessce.data_utils import sdata_points_write_bounding_box_attrs
-
-sdata_points_write_bounding_box_attrs(sdata, "transcripts_with_morton_codes")
-```
 
 #### Row group size
 
