@@ -79,6 +79,7 @@ export function NeuroglancerSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
+    showAxisLines = false,
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
@@ -207,6 +208,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -289,8 +291,8 @@ export function NeuroglancerSubscriber(props) {
           obsSetSelection,
           additionalObsSets,
           spatialChannelColor,
+          spatialChannelOpacity,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
-
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
           if (layerIndex && spatialChannelColor) {
@@ -315,6 +317,7 @@ export function NeuroglancerSubscriber(props) {
               });
             }
             result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
           }
         } else if (layerSets && layerIndex) {
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
@@ -331,6 +334,7 @@ export function NeuroglancerSubscriber(props) {
             ngCellColors[i] = rgbToHex(color);
           });
           result[layerScope][channelScope] = ngCellColors;
+          result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
     });
@@ -349,6 +353,7 @@ export function NeuroglancerSubscriber(props) {
   // Obtain the Neuroglancer viewerState object.
   const initalViewerState = useNeuroglancerViewerState(
     theme,
+    showAxisLines,
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     segmentationLayerCoordination,
@@ -402,6 +407,9 @@ export function NeuroglancerSubscriber(props) {
     z: spatialRotationZ,
     orbit: spatialRotationOrbit,
   });
+
+  // Track layer loading state for showing loading indicator
+  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
 
   // Track the last coord values we saw, and only mark "vitessce"
   // when *those* actually change. This prevents cell set renders
@@ -566,7 +574,10 @@ export function NeuroglancerSubscriber(props) {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
-      result[layerScope] = segmentationColorMapping?.[layerScope]?.[channelScope] ?? {};
+      result[layerScope] = {
+        colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
+        opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
+      };
     });
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
@@ -720,12 +731,13 @@ export function NeuroglancerSubscriber(props) {
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
       const layerScope = segmentationLayerScopes?.[idx];
-      const layerColorMapping = cellColorMappingByLayer?.[layerScope] ?? {};
+      const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
       const layerSegments = Object.keys(layerColorMapping);
       return {
         ...layer,
         segments: layerSegments,
         segmentColors: layerColorMapping,
+        objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];
 
@@ -758,6 +770,10 @@ export function NeuroglancerSubscriber(props) {
     setCellHighlight(String(obsId));
   }, [setCellHighlight]);
 
+  const handleLayerLoadingChange = useCallback((isLoaded) => {
+    setIsLayersLoaded(isLoaded);
+  }, []);
+
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
@@ -777,7 +793,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && isLayersLoaded}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
@@ -788,10 +804,17 @@ export function NeuroglancerSubscriber(props) {
             <MultiLegend
               theme="dark"
               maxHeight={ngHeight}
+
+              // Segmentations
               segmentationLayerScopes={segmentationLayerScopes}
               segmentationLayerCoordination={segmentationLayerCoordination}
               segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
               segmentationChannelCoordination={segmentationChannelCoordination}
+
+              // Points
+              pointLayerScopes={pointLayerScopes}
+              pointLayerCoordination={pointLayerCoordination}
+              pointMultiIndicesData={pointMultiIndicesData}
             />
           </div>
 
@@ -802,6 +825,7 @@ export function NeuroglancerSubscriber(props) {
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
+            onLayerLoadingChange={handleLayerLoadingChange}
           />
         </div>
       ) : null}

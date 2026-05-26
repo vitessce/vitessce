@@ -33,13 +33,25 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
-    const { omero, multiscales, channels_metadata: spatialDataChannels, 'image-label': imageLabel } = metadata;
+    const {
+      omero,
+      multiscales,
+      channels_metadata: spatialDataChannels,
+      'image-label': imageLabel,
+      spatialdata_attrs: spatialDataAttrs,
+    } = metadata;
 
-    // Crude way to check if this is a SpatialData OME-NGFF.
-    const isSpatialData = !!spatialDataChannels || !!imageLabel;
-    const isLabels = !!imageLabel;
+    // `spatialdata_attrs` at the root marks a SpatialData element zarr.
+    const isSpatialDataElement = !!spatialDataChannels
+      || !!imageLabel
+      || !!spatialDataAttrs;
+    // Treat a SpatialData element with no channel metadata of any kind
+    // as a labels element. Newer SpatialData labels (v0.5) omit
+    // `image-label` entirely and carry only `spatialdata_attrs` + `multiscales`.
+    const isLabels = !!imageLabel
+      || (isSpatialDataElement && !omero && !spatialDataChannels);
 
-    if (!isSpatialData && !omero) {
+    if (!isSpatialDataElement && !omero) {
       throw new Error('image.ome-zarr must have omero metadata in attributes.');
     }
 
@@ -94,7 +106,14 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     let channelLabels = [];
     let initialTargetT = 0;
     let initialTargetZ = 0;
-    if (isSpatialData) {
+    if (isLabels) {
+      channelObjects = [{
+        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: 0 }),
+        slider: [0, 255],
+        color: [255, 255, 255],
+      }];
+      channelLabels = ['labels'];
+    } else if (spatialDataChannels) {
       // TODO: Consider removing support for `channels_metadata` once OME-NGFF loosens
       // requirements for channel metadata fields such as `window` and `color`.
       // (Unclear if we will need to keep this around for backwards compatibility with
@@ -102,22 +121,13 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
       // References:
       // - https://github.com/ome/ngff/issues/192
       // - https://github.com/ome/ome-zarr-py/pull/261
-      if (isLabels) {
-        channelObjects = [{
-          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: 0 }),
-          slider: [0, 255],
-          color: [255, 255, 255],
-        }];
-        channelLabels = ['labels'];
-      } else {
-        const { channels } = spatialDataChannels;
-        channelObjects = channels.map((channel, i) => ({
-          selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
-          slider: [0, 255],
-          color: [255, 255, 255],
-        }));
-        channelLabels = channels.map(c => c.label);
-      }
+      const { channels } = spatialDataChannels;
+      channelObjects = channels.map((channel, i) => ({
+        selection: filterSelection({ z: initialTargetZ, t: initialTargetT, c: i }),
+        slider: [0, 255],
+        color: [255, 255, 255],
+      }));
+      channelLabels = channels.map(c => c.label);
     } else {
       const { rdefs = {}, channels } = omero;
       if (typeof rdefs.defaultT === 'number') {

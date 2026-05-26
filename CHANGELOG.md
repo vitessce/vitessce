@@ -1,4 +1,28 @@
 
+## 3.9.9
+
+### Patch Changes
+
+- Add test fixtures that use anndata Python package versions 0.11 and 0.12 and spatialdata Python package versions 0.3 and 0.7. The anndata 0.12 and spatialdata 0.7 fixtures are written to Zarr v3 format. New unit tests and configurations that use the new fixtures are added. Update the `anndata.zarr` \_loadColumn function to support string-array and nullable-string-array encoding types. Update the `spatialdata.zarr` points format validation to allow points format 0.2. (`@vitessce/zarr`) ([#2479](https://github.com/vitessce/vitessce/pull/2479))
+
+
+## 3.9.8
+
+### Patch Changes
+
+- Display loading indicator for Neuroglancer view while meshes are loading. (`@vitessce/neuroglancer`) ([#2398](https://github.com/vitessce/vitessce/pull/2398))
+
+- Hide zSlider in layerControllerBeta for 3D datasets (`@vitessce/layer-controller-beta`) ([#2469](https://github.com/vitessce/vitessce/pull/2469))
+
+- Add compatibility layer for loading zarr v3/ome 0.5 in spatialdata. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`, `@vitessce/zarr-utils`) ([#2466](https://github.com/vitessce/vitessce/pull/2466))
+
+- Fix cell set expression plot crash on empty obs set selection. (`@vitessce/statistical-plots`) ([#2468](https://github.com/vitessce/vitessce/pull/2468))
+
+- Added per-feature (e.g., gene) controls for selected point features in the layerController. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`, `@vitessce/icons`) ([#2433](https://github.com/vitessce/vitessce/pull/2433))
+
+- Enable opacity change in Neuroglancer segmentation and annotation layers using their respective opacity sliders in layerController. (`@vitessce/neuroglancer`) ([#2461](https://github.com/vitessce/vitessce/pull/2461))
+
+
 ## 3.9.7
 
 ### Patch Changes

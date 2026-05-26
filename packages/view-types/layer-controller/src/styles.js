@@ -38,6 +38,12 @@ export const useControllerSectionStyles = makeStyles()(theme => ({
   layerControllerGrid: {
     marginTop: '10px',
   },
+  layerControllerSubRow: {
+    flexDirection: 'column',
+    marginLeft: '40px',
+    padding: '0px 8px',
+    backgroundColor: theme.palette.paperBackground,
+  },
 }));
 
 export const useAccordionStyles = makeStyles()(theme => ({
