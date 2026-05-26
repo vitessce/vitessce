@@ -208,7 +208,7 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
         numRowsByPart: numRows,
         numRowGroupsByPart: numRowGroups,
         numRowsPerGroupByPart: numRowsPerGroup,
-        schema:  allMetadata?.[0]?.schema?.schema,
+        schema: allMetadata?.[0]?.schema?.schema,
       };
 
       const result = {
