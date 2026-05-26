@@ -73,12 +73,12 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
         featureFoldChange,
         featureSignificance,
       };
-    } catch(e) {
-      log.warn("Dataframe not found at", dfPath);
+    } catch (e) {
+      log.warn('Dataframe not found at', dfPath);
       return {
         featureId: [],
         featureFoldChange: [],
-        featureSignificance: [], 
+        featureSignificance: [],
       };
     }
   }

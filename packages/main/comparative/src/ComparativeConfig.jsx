@@ -125,7 +125,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             name: 'Subclass L3',
             path: 'obs/subclass_l3',
           },
-        ],*/
+        ], */
         /* featureLabels: {
         path: 'var/features',
       }, */
