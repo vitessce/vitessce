@@ -187,6 +187,7 @@ export const FileType = {
   OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
   FEATURE_LABELS_MUDATA_ZARR: 'featureLabels.mudata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  GENOMIC_PROFILES_ZARR_ZIP: 'genomic-profiles.zarr.zip',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
