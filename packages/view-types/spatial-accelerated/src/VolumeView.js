@@ -20,6 +20,7 @@ import {
   DEFAULT_SIGMA_NORMALIZED,
 } from './VolumeDataManager.js';
 import { VolumeRenderManager } from './VolumeRenderManager.js';
+import { viewStateToCamera, cameraToViewState } from './camera-utils.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
 import { gaussianFragmentShader } from './shaders/GaussianFragmentShader.js';
@@ -203,11 +204,12 @@ export function VolumeView(props) {
     spatialRenderingMode,
     spatialRenderingModeChanging,
     onVolumeLoadingUpdate,
+    viewState,
+    setViewState,
   } = props;
   const {
     gl,
-    // scene,
-    // camera
+    camera,
   } = useThree();
 
   // Request a new render.
@@ -242,6 +244,11 @@ export function VolumeView(props) {
   // Updates to `isInteracting` should be done via `setIsInteracting`.
   const [isInteracting, _setIsInteracting] = useState(false);
   const interactionTimeoutRef = useRef(null);
+
+  // Guards against feedback loops between inbound viewState sync and
+  // outbound OrbitControls onChange.
+  const isUpdatingFromViewStateRef = useRef(false);
+  const mainOrbitRef = useRef(null);
 
 
   // Track interaction-triggering props
@@ -626,6 +633,38 @@ export function VolumeView(props) {
     }, 300);
   });
 
+  // Outbound: write OrbitControls camera state back to coordination.
+  const onOrbitControlsChange = useEventCallback(() => {
+    if (isUpdatingFromViewStateRef.current || !setViewState) return;
+    const controls = mainOrbitRef.current;
+    if (!controls) return;
+    const nextViewState = cameraToViewState(camera.position, controls.target);
+    logWithColor(`outbound viewState: ${JSON.stringify(nextViewState)}`);
+    setViewState(nextViewState);
+  });
+
+  // Inbound: apply external viewState changes to the Three.js camera/controls.
+  useEffect(() => {
+    if (!viewState || viewState.zoom == null) return;
+    const controls = mainOrbitRef.current;
+    if (!controls) return;
+
+    logWithColor(`inbound viewState: zoom=${viewState.zoom}, target=[${viewState.target}], rotX=${viewState.rotationX}, rotOrbit=${viewState.rotationOrbit}`);
+
+    const { position, target } = viewStateToCamera(viewState);
+
+    isUpdatingFromViewStateRef.current = true;
+    camera.position.set(position[0], position[1], position[2]);
+    controls.target.set(target[0], target[1], target[2]);
+    controls.update();
+    isUpdatingFromViewStateRef.current = false;
+
+    invalidate();
+  // Sync whenever coordination-driven viewState values change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewState?.zoom, viewState?.rotationX, viewState?.rotationOrbit,
+    viewState?.target?.[0], viewState?.target?.[1], viewState?.target?.[2]]);
+
   // Set isInteracting while the user is sliding the channel slider
   // for smooth updates.
   useEffect(() => {
@@ -699,10 +738,11 @@ export function VolumeView(props) {
   return (
     <group>
       <OrbitControls
-        // ref={mainOrbitControlsRef}
+        ref={mainOrbitRef}
         enableDamping={false}
         onStart={onOrbitControlsStart}
         onEnd={onOrbitControlsEnd}
+        onChange={onOrbitControlsChange}
       />
       <mesh ref={meshRef} scale={renderState.meshScale}>
         <boxGeometry args={renderState.geometrySize} />
