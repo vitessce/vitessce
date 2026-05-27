@@ -1,4 +1,15 @@
 
+## 3.9.10
+
+### Patch Changes
+
+- Updated tiled points loading implementation to rely on the first 2-4 rows of the points dataframe to compute the bounding box, rather than relying on non-standard metadata (as the new approach only requires sorting). (`@vitessce/spatial-zarr`) ([#2489](https://github.com/vitessce/vitessce/pull/2489))
+
+- Add support for zipped multivec zarr stores for the genomic profiles view. (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/config`) ([#2484](https://github.com/vitessce/vitessce/pull/2484))
+
+- Update comparative example dataset. (`@vitessce/comparative`) ([#2481](https://github.com/vitessce/vitessce/pull/2481))
+
+
 ## 3.9.9
 
 ### Patch Changes
