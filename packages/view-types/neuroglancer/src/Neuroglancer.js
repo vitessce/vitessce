@@ -63,10 +63,20 @@ export class NeuroglancerComp extends PureComponent {
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
       this.prevHoverHandler = () => {
-        if (viewer.mouseState.pickedValue !== undefined) {
-          const pickedSegment = viewer.mouseState.pickedValue;
-          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+        const ms = viewer.mouseState;
+        // Point annotation hover
+        if (ms.pickedAnnotationId != null) {
+          this.latestOnSelectHoveredCoords?.(ms.pickedAnnotationId);
+          return;
         }
+        // Segment (mesh) hover
+        if (ms.pickedValue !== undefined) {
+          const pickedSegment = ms.pickedValue;
+          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+          return;
+        }
+        // Nothing hovered — clear highlight
+        this.latestOnSelectHoveredCoords?.(null);
       };
 
       viewer.mouseState.changed.add(this.prevHoverHandler);
