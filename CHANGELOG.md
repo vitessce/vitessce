@@ -1,4 +1,11 @@
 
+## 3.9.11
+
+### Patch Changes
+
+- Support for SpatialData shapes format 0.3. (`@vitessce/spatial-zarr`) ([#2495](https://github.com/vitessce/vitessce/pull/2495))
+
+
 ## 3.9.10
 
 ### Patch Changes
