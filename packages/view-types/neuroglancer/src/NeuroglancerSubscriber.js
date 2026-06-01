@@ -53,6 +53,7 @@ import {
   getIntersectingChunkCoords,
   parseAnnotationChunkSegmentIds,
   applyColormap,
+  parseAnnotationChunkSegmentsWithPositions,
 } from './utils.js';
 
 
@@ -137,6 +138,7 @@ export function NeuroglancerSubscriber(props) {
   const chunkCacheRef = useRef(new Map());
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
+  const clearSegmentsTimeoutRef = useRef(null);
 
 
   const [annotationReady, setAnnotationReady] = useState(false);
@@ -493,11 +495,10 @@ export function NeuroglancerSubscriber(props) {
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
     if (!pointLayerScopes?.length) return;
-
+  
     const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
-
-    const orientation = projectionOrientation ?? [0, 0, 0, 1];
+  
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
     const spatialLevel = info.spatial[info.spatial.length - 1];
@@ -505,80 +506,47 @@ export function NeuroglancerSubscriber(props) {
     const chunkSize = spatialLevel.chunk_size;
     const gridShape = spatialLevel.grid_shape;
     const { key } = spatialLevel;
-
-    // Derive viewer scale from annotation info + transform
-    const annotDimUnit = info.dimensions?.x?.[1] ?? 'nm';
-    const annotDimScale = info.dimensions?.x?.[0] ?? 1;
-    const annotNmPerUnit = annotDimScale * (UNIT_TO_NM[annotDimUnit] ?? 1);
-    // const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
-    // Allow chunks covering up to half the grid in each dimension
-    // const maxChunks = meshMaxChunks ?? Math.min(
-    //   Math.ceil(gridShape[0] / 2) * Math.ceil(gridShape[1] / 2),
-    //   MAX_CHUNKS_TO_LOAD, // hard cap for large grids
-    // );
-    const maxChunks = meshMaxChunks ?? MAX_CHUNKS_TO_LOAD;
-    // transform.x = annotUnit / viewerUnit
-    //  1 viewerUnit = (1/transform.x) annotUnits
-    // 1 viewerUnit in nm = annotNmPerUnit / transform.x
-    const nmPerViewerUnit = annotNmPerUnit / transform.x;
-
-    // projectionScale in viewer units/pixel -> µm/pixel
-    const projectionScaleInAnnotUnits = (projectionScale * nmPerViewerUnit) * 0.001;
-    // Dynamic threshold: 30% of dataset extent
-    const datasetExtentUm = Math.max(
-      info.upper_bound[0] - info.lower_bound[0],
-      info.upper_bound[1] - info.lower_bound[1],
-    );
-    const threshold = meshLoadThresholdUm ?? (datasetExtentUm * DATASET_SPATIAL_EXTENT);
-
-    if (projectionScaleInAnnotUnits > threshold) {
-      if (visibleSegmentIdsRef.current?.length !== 0) {
-        visibleSegmentIdsRef.current = [];
-        incrementLatestViewerStateIteration();
-      }
-      return;
-    }
-
-    // Step 1: compute viewport bbox in viewer/layer space (µm)
-    const bbox = getViewportBoundingBox(
-      position,
-      projectionScaleInAnnotUnits,
-      orientation,
-      ngWidth,
-      ngHeight,
-    );
-    // Step 2: convert bbox to annotation coordinate space
-    const annotBbox = {
-      min: [
-        bbox.min[0] * transform.x,
-        bbox.min[1] * transform.y,
-        bbox.min[2] * transform.z,
-      ],
-      max: [
-        bbox.max[0] * transform.x,
-        bbox.max[1] * transform.y,
-        bbox.max[2] * transform.z,
-      ],
-    };
-
-    // Step 3: get intersecting chunk coords
-    const coords = getIntersectingChunkCoords(
-      annotBbox, lowerBound, chunkSize, gridShape,
-    );
-    if (coords.length === 0) return;
-    // Too many chunks = too zoomed out
-    if (coords.length > maxChunks) {
-      if (visibleSegmentIdsRef.current?.length !== 0) {
-        visibleSegmentIdsRef.current = [];
-        incrementLatestViewerStateIteration();
-      }
-      return;
-    }
-    // Step 4: fetch chunks with cache, parse segment IDs via NG serializer
-    const cellsUrl = info.url;
+  
+    // Camera position in annotation space
+    const camAnnotX = position[0] * transform.x;
+    const camAnnotY = position[1] * transform.y;
+  
+    // Screen radius in annotation units
+    const projectionScaleInAnnotUnitsPerPx = projectionScale * transform.x;
+    const screenRadiusAnnot = Math.max(ngWidth, ngHeight) * projectionScaleInAnnotUnitsPerPx * 0.5;
+  
+    // Fetch all chunks (64 total) — cached after first load
+    // Position filtering handles precision, no need to limit chunks
+    const allCoords = getIntersectingChunkCoords(
+      {
+        min: [info.lower_bound[0], info.lower_bound[1], -Infinity],
+        max: [info.upper_bound[0], info.upper_bound[1], Infinity],
+      },
+      lowerBound, chunkSize, gridShape,
+    );  
     const { serializer } = annotationTransformRef.current;
+    const cellsUrl = info.url;
 
-    const fetchChunk = async ([cx, cy]) => {
+
+    if (chunkCacheRef.current.size > 0) {
+      const firstVal = chunkCacheRef.current.values().next().value;
+      if (firstVal?.length > 0 && typeof firstVal[0] === 'string') {
+        console.log('[cache] clearing stale string-format cache');
+        chunkCacheRef.current.clear();
+      }
+    }
+
+    const testLevel = info.spatial[0]; // spatial0
+    const testUrl = `${cellsUrl}/${testLevel.key}/0_0_0`;
+    fetch(testUrl)
+      .then(r => r.arrayBuffer())
+      .then(buf => {
+        const entries = parseAnnotationChunkSegmentsWithPositions(buf);
+        // console.log('[spatial0 test] entries:', entries.length);
+        // console.log('[spatial0 test] sample:', entries.slice(0, 5));
+      });
+  
+    const fetchChunkWithPositions = async ([cx, cy]) => {
       const cacheKey = `${cellsUrl}/${key}/${cx}_${cy}_0`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
@@ -586,27 +554,55 @@ export function NeuroglancerSubscriber(props) {
       try {
         const res = await fetch(`${cacheKey}`);
         if (!res.ok) {
+          console.warn(`[fetch] FAILED ${cacheKey} — status: ${res.status}`);
           chunkCacheRef.current.set(cacheKey, []);
           return [];
         }
         const buffer = await res.arrayBuffer();
-        const ids = parseAnnotationChunkSegmentIds(buffer, serializer);
-        chunkCacheRef.current.set(cacheKey, ids);
-        return ids;
+        const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
+        console.log(`[fetch] OK ${cx},${cy} — ${entries.length} entries, url: ${cacheKey}`);
+        chunkCacheRef.current.set(cacheKey, entries);
+        return entries;
       } catch (e) {
-        console.error('fetchChunk error:', e);
+        console.error(`[fetch] ERROR ${cacheKey}:`, e);
         chunkCacheRef.current.set(cacheKey, []);
         return [];
       }
     };
 
-    const results = await Promise.all(coords.map(fetchChunk));
-    const visibleIds = [...new Set(results.flat())];
-    if (visibleIds.length === 0) return;
-
+  
+    const results = await Promise.all(allCoords.map(fetchChunkWithPositions));
+    const allEntries = results.flat();
+  
+    // Filter to only centroids whose position is inside the viewport bbox
+    const visibleIds = [...new Set(
+      allEntries
+        .filter(({ x, y }) =>
+          x >= camAnnotX - screenRadiusAnnot &&
+          x <= camAnnotX + screenRadiusAnnot &&
+          y >= camAnnotY - screenRadiusAnnot &&
+          y <= camAnnotY + screenRadiusAnnot,
+        )
+        .map(({ id }) => id),
+    )];
+  
+    // console.log('[centroid cull] screenRadiusAnnot:', screenRadiusAnnot.toFixed(2));
+    // console.log('[centroid cull] camAnnot:', camAnnotX.toFixed(2), camAnnotY.toFixed(2));
+    // console.log('[centroid cull] total centroids:', allEntries.length);
+    // console.log('[centroid cull] visible in viewport:', visibleIds.length);
+  
+    // Clear segments if none visible
+    if (visibleIds.length === 0) {
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      return;
+    }
+  
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
-  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes]);
+  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData]);
   const updateVisibleSegmentsThrottled = useMemo(
     () => throttle(updateVisibleSegments, 500),
     [updateVisibleSegments],
@@ -865,6 +861,8 @@ export function NeuroglancerSubscriber(props) {
   // and would allow us to potentially remove usage of some refs (e.g., latestViewerStateRef)
   // by relying on the memoization to prevent unnecessary updates.
   const derivedViewerState = useMemo(() => {
+    // console.log('[derivedViewerState] iteration:', latestViewerStateIteration);
+    // console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
     const { current } = latestViewerStateRef;
     if (current.layers.length <= 0) {
       return current;
@@ -1031,6 +1029,13 @@ export function NeuroglancerSubscriber(props) {
       if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
         derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
       }
+
+      // console.log('[derivedViewerState]');
+      // console.log('  layer:', layer.name);
+      // console.log('  hasMatchingAnnotationSource:', hasMatchingAnnotationSource);
+      // console.log('  visibleSegmentIdsRef.current count:', visibleSegmentIdsRef.current?.length);
+      // console.log('  segments being set:', segments.length);
+      // console.log('  segments sample:', segments.slice(0, 5));
 
       return {
         ...layer,

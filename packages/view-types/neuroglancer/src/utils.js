@@ -9,7 +9,7 @@ import {
   interpolateJet,
   interpolateGreys,
 } from '@vitessce/sets-utils';
-
+import { UNIT_TO_NM } from './data-hook-ng-utils.js';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
@@ -290,4 +290,55 @@ export function parseAnnotationChunkSegmentIds(buffer, serializer) {
     if (properties[1] > 0) ids.push(String(properties[1]));
   }
   return ids;
+}
+
+/**
+ * Parse segment IDs and positions from annotation chunk binary data
+ * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
+*/
+export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
+  const dv = new DataView(buffer);
+  if (buffer.byteLength <= 8) return [];
+
+  const count = dv.getUint32(0, true);
+  // countHigh at bytes 4-7 should be 0
+  if (count === 0) return [];
+
+  const numBytes = serializer.serializedBytes;
+  const expectedBytes = 8 + (numBytes + 8) * count;
+  if (buffer.byteLength !== expectedBytes) {
+    console.warn(`[parseAnnotations] unexpected buffer size: got ${buffer.byteLength}, expected ${expectedBytes}`);
+  }
+  // float32 index in buffer:
+  // [0] x position
+  // [1] y position
+  // [2] z position
+  // [3] padding
+  // [4] phenotype   -> properties[0]
+  // [5] id          -> properties[1]
+  // [6] volume_norm -> properties[2]
+  // [7] random      -> properties[3]
+  // [7] random      -> properties[4]
+  const properties = [null, null, null, null, null];
+  const results = [];
+
+  for (let i = 0; i < count; i++) {
+    // Use serializer to read properties for annotation i
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
+
+    const segId = properties[1]; // 'id' property = mesh segment ID
+    if (segId > 0) {
+      // Position x,y,z are the first 3 float32 in each annotation's property block
+      // at offset: 8 (header) + i * numBytes
+      const propBase = 8 + i * numBytes;
+      const x = dv.getFloat32(propBase + 0, true);
+      const y = dv.getFloat32(propBase + 4, true);
+      const z = dv.getFloat32(propBase + 8, true);
+
+      if (x !== 0 || y !== 0 || z !== 0) {
+        results.push({ id: String(segId), x, y, z });
+      }
+    }
+  }
+  return results;
 }
