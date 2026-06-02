@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { useColorMode } from '@docusaurus/theme-common';
 
 import styles from './styles.module.css';
 
@@ -25,17 +26,52 @@ const configAttrs = {
   'spatialdata-visium_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'spatialdata-mcmicro_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
   'maynard-2021': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'jain-2024': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+  'sorger-2024-2': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+  'sorger-2024-4': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
 };
 
 function cleanAttr(attrVal) {
-  if (attrVal.match(/^\d/)) {
-    // eslint-disable-next-line no-param-reassign
-    attrVal = `_${attrVal}`;
+  let val = attrVal;
+  if (val.match(/^\d/)) {
+    val = `_${val}`;
   }
-  return attrVal.toLowerCase().replace('-', '');
+  return val.toLowerCase().replace('-', '');
+}
+
+function ExampleCard({ configKey, config, baseUrl, theme }) {
+  const imgSrc = useBaseUrl(`/img/examples/${theme}/${configKey}.png`);
+  const attrs = configAttrs[configKey] || [];
+
+  return (
+    <a href={`${baseUrl}${configKey}`} className={styles.exampleCard}>
+      <img
+        src={imgSrc}
+        alt={config.name}
+        className={styles.exampleCardImage}
+        loading="lazy"
+      />
+      <div className={styles.exampleCardBody}>
+        <h3 className={styles.exampleCardTitle}>{config.name}</h3>
+        <p className={styles.exampleCardDescription}>{config.description}</p>
+        <div className={styles.exampleCardTags}>
+          {attrs.map(attrVal => (
+            <span
+              key={`${configKey}-${attrVal}`}
+              className={clsx(styles.exampleCardPill, styles[cleanAttr(attrVal)])}
+            >
+              {attrVal}
+            </span>
+          ))}
+        </div>
+      </div>
+    </a>
+  );
 }
 
 function DemoList(props) {
+  const { colorMode } = useColorMode();
+  const theme = colorMode === 'dark' ? 'dark' : 'light';
   const {
     configs,
     small = false,
@@ -59,31 +95,101 @@ function DemoList(props) {
       'spatialdata-visium_io',
       'spatialdata-mcmicro_io',
       'maynard-2021',
+      'jain-2024',
+      'sorger-2024-2',
+      'sorger-2024-4',
     ],
   } = props;
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
-  const demos = subset.map(key => ([key, configs[key]]));
+  // Collect all unique tags from the subset.
+  const allTags = useMemo(() => {
+    const tagSet = new Set();
+    subset.forEach((key) => {
+      (configAttrs[key] || []).forEach(t => tagSet.add(t));
+    });
+    return Array.from(tagSet).sort();
+  }, [subset]);
+
+  const [activeTags, setActiveTags] = useState([]);
+
+  const toggleTag = (tag) => {
+    if (tag === null) {
+      setActiveTags([]);
+      return;
+    }
+    setActiveTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]));
+  };
+
+  // Filter demos by active tags (show only those matching ALL active tags).
+  const filteredSubset = useMemo(() => {
+    if (activeTags.length === 0) return subset;
+    return subset.filter((key) => {
+      const attrs = configAttrs[key] || [];
+      return activeTags.every(tag => attrs.includes(tag));
+    });
+  }, [subset, activeTags]);
+
   return (
-    <>
-      <p className={clsx(styles.demoDescription, { [styles.demoDescriptionSmall]: small })}>
-        The demos compiled here showcase the core features of Vitessce.
-      </p>
-      <div className={clsx(styles.demoGridContainer, { [styles.demoGridContainerSmall]: small })}>
-        {demos.map(([key, d]) => (
-          <div key={key} className={styles.demoGridItem}>
-            <a href={baseUrl + key} className={styles.demoGridItemLink}>{d.name}</a>
-            <p className={styles.demoGridItemDescription}>{d.description}</p>
-            {configAttrs[key] ? configAttrs[key].map(attrVal => (
-              <span key={`${key}-${attrVal}`} className={clsx(styles.demoGridItemPill, styles[cleanAttr(attrVal)])}>
-                {attrVal}
-              </span>
-            )) : null}
-          </div>
+    <div className={small ? undefined : styles.examplesPageContainer}>
+      {!small && (
+        <div className={styles.examplesPageHeader}>
+          <h1>Example Visualizations</h1>
+          <p>
+            Interactive demonstrations of Vitessce across spatial biology,
+            multi-omics, and 3D tissue visualization datasets.
+          </p>
+        </div>
+      )}
+
+      {/* Tag filter bar — only on the full examples page */}
+      {!small && (
+        <div className={styles.filterBar}>
+          <button
+            type="button"
+            className={clsx(
+              styles.filterButton,
+              { [styles.filterButtonActive]: activeTags.length === 0 },
+            )}
+            onClick={() => toggleTag(null)}
+          >
+            All
+          </button>
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              type="button"
+              className={clsx(
+                styles.filterButton,
+                { [styles.filterButtonActive]: activeTags.includes(tag) },
+              )}
+              onClick={() => toggleTag(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className={clsx(styles.examplesGrid, { [styles.examplesGridSmall]: small })}>
+        {filteredSubset.map(key => (
+          <ExampleCard
+            key={key}
+            configKey={key}
+            config={configs[key]}
+            baseUrl={baseUrl}
+            theme={theme}
+          />
         ))}
       </div>
-    </>
+
+      {filteredSubset.length === 0 && (
+        <p style={{ textAlign: 'center', color: 'var(--vit-text-muted)', padding: '2rem' }}>
+          No examples match the selected filters.
+        </p>
+      )}
+    </div>
   );
 }
 

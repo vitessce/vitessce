@@ -10,6 +10,7 @@ import {
   useMatchingLoader,
   useColumnNameMapping,
   useAsyncFunction,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -26,7 +27,7 @@ import { useRawSetPaths } from './utils.js';
 
 export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.FEATURE_SET_ENRICHMENT_BAR_PLOT,
@@ -34,6 +35,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
 
   const { classes } = useStyles();
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
   // Get "props" from the coordination space.
@@ -98,12 +100,18 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
   const rawSampleSetSelection = useRawSetPaths(sampleSetsColumnNameMapping, sampleSetSelection);
   const rawObsSetSelection = useRawSetPaths(obsSetsColumnNameMapping, obsSetSelection);
 
-  const [{ featureSetStats }, featureSetStatsStatus] = useFeatureSetStatsData(
+  const [
+    { featureSetStats }, featureSetStatsStatus, featureSetStatsUrls, featureSetStatsError,
+  ] = useFeatureSetStatsData(
     loaders, dataset, false,
     { obsType, featureType, sampleType },
     // These volcanoOptions are passed to ObsSetStatsAnndataLoader.loadMulti():
     { sampleSetSelection: rawSampleSetSelection, obsSetSelection: rawObsSetSelection },
   );
+
+  const errors = [
+    featureSetStatsError,
+  ];
 
   const isReady = useReady([
     featureSetStatsStatus,
@@ -139,6 +147,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {featureSetStats ? (

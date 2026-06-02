@@ -21,6 +21,7 @@ import {
 import { PopperMenu } from '@vitessce/vit-s';
 import { SpotsIconSVG } from '@vitessce/icons';
 import { capitalize } from '@vitessce/utils';
+import { GLSL_COLORMAPS } from '@vitessce/gl';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -48,6 +49,8 @@ function SpotLayerEllipsisMenu(props) {
     featureSelection,
     obsColorEncoding,
     setObsColorEncoding,
+    featureValueColormap,
+    setFeatureValueColormap,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     tooltipsVisible,
@@ -64,6 +67,7 @@ function SpotLayerEllipsisMenu(props) {
 
   const filledId = useId();
   const strokeWidthId = useId();
+  const colorEncodingId = useId();
   const quantitativeColormapId = useId();
   const colormapRangeId = useId();
   const tooltipsVisibleId = useId();
@@ -110,18 +114,34 @@ function SpotLayerEllipsisMenu(props) {
         />
       </MenuItem>
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colorEncodingId}>
           Color Encoding:&nbsp;
         </label>
         <NativeSelect
           onChange={e => setObsColorEncoding(e.target.value)}
           value={obsColorEncoding}
-          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Color encoding selector' }}
+          inputProps={{ id: colorEncodingId, 'aria-label': 'Color encoding selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
           <option value="spatialLayerColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
+        </NativeSelect>
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
+          Colormap:&nbsp;
+        </label>
+        {/* TODO: disable the Select when obsColorEncoding is not 'geneSelection'? */}
+        <NativeSelect
+          onChange={e => setFeatureValueColormap(e.target.value)}
+          value={featureValueColormap}
+          inputProps={{ id: quantitativeColormapId, 'aria-label': 'Colormap selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {GLSL_COLORMAPS.map(cmap => (
+            <option key={cmap} value={cmap}>{cmap}</option>
+          ))}
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -297,6 +317,8 @@ export default function SpotLayerController(props) {
               featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
               setObsColorEncoding={setObsColorEncoding}
+              featureValueColormap={featureValueColormap}
+              setFeatureValueColormap={setFeatureValueColormap}
               featureValueColormapRange={featureValueColormapRange}
               setFeatureValueColormapRange={setFeatureValueColormapRange}
               tooltipsVisible={tooltipsVisible}

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/vit-s",
-  "version": "3.6.7",
+  "version": "3.9.11",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,20 +26,23 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
     "@vitessce/styles": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
+    "@zarrita/storage": "catalog:",
     "clsx": "catalog:",
     "d3-array": "catalog:",
     "fast-deep-equal": "^3.1.3",
@@ -50,7 +53,9 @@
     "uuid": "catalog:",
     "zustand": "catalog:",
     "react-aria": "catalog:",
-    "react-error-boundary": "catalog:"
+    "react-error-boundary": "catalog:",
+    "@placemarkio/flat-drop-files": "^1.0.2",
+    "zarrita": "catalog:"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",

@@ -2,11 +2,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",
     "strict": true,
@@ -27,6 +23,7 @@
     { "path": "packages/constants-internal" },
     { "path": "packages/globals" },
     { "path": "packages/constants" },
+    { "path": "packages/error" },
     { "path": "packages/file-types/abstract" },
     { "path": "packages/file-types/csv" },
     { "path": "packages/file-types/glb" },
@@ -34,7 +31,6 @@
     { "path": "packages/file-types/ome-tiff" },
     { "path": "packages/styles" },
     { "path": "packages/gl" },
-    { "path": "packages/legend" },
     { "path": "packages/plugins" },
     { "path": "packages/utils/other-utils" },
     { "path": "packages/schemas" },
@@ -44,6 +40,7 @@
     { "path": "packages/utils/spatial-utils" },
     { "path": "packages/utils/image-utils" },
     { "path": "packages/utils/zarr-utils" },
+    { "path": "packages/legend" },
     { "path": "packages/vit-s" },
     { "path": "packages/file-types/zarr" },
     { "path": "packages/file-types/spatial-zarr" },
@@ -61,14 +58,17 @@
     { "path": "packages/view-types/scatterplot-gating" },
     { "path": "packages/view-types/spatial" },
     { "path": "packages/view-types/spatial-three" },
+    { "path": "packages/view-types/spatial-accelerated" },
     { "path": "packages/view-types/spatial-beta" },
     { "path": "packages/view-types/statistical-plots" },
     { "path": "packages/view-types/status" },
     { "path": "packages/view-types/biomarker-select" },
     { "path": "packages/view-types/neuroglancer" },
     { "path": "packages/main/all" },
+    { "path": "packages/launcher" },
     { "path": "packages/main/dev" },
-    { "path": "packages/main/prod" }
+    { "path": "packages/main/prod" },
+    { "path": "packages/main/comparative" }
   ],
   "files": []
 }

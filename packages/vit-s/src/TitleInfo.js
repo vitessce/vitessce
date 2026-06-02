@@ -1,12 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import clsx from 'clsx';
-import { makeStyles, MenuItem, IconButton, Link,
+import {
+  makeStyles,
+  MenuItem,
+  IconButton,
+  Link,
+  List,
+  Alert,
   CloudDownload as CloudDownloadIcon,
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
   Settings as SettingsIcon,
   Close as CloseIcon,
   Help as HelpIcon,
+  Warning as WarningIcon,
+  MenuBook as MenuBookIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -54,6 +62,18 @@ const useStyles = makeStyles()(theme => ({
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
     border: '10px solid grey',
   },
+  errorList: {
+    width: '100%',
+    maxWidth: 300,
+    padding: '0 4px',
+  },
+  errorListAlert: {
+    marginTop: '2px',
+    marginBottom: '2px',
+  },
+  errorListItemText: {
+    fontSize: '12px',
+  },
 }));
 
 function SettingsIconWithArrow({ open }) {
@@ -78,6 +98,7 @@ function PlotOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Plot Options"
       aria-label="Open plot options menu"
     >
       {options}
@@ -106,6 +127,7 @@ function DownloadOptions(props) {
       buttonIcon={buttonIcon}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Download Options"
       aria-label="Open download options menu"
     >
       {urls.map(({ url, name }) => (
@@ -120,7 +142,7 @@ function DownloadOptions(props) {
 }
 
 function HelpButton(props) {
-  const { helpText } = props;
+  const { helpText, guideUrl } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -130,10 +152,59 @@ function HelpButton(props) {
       buttonIcon={<HelpIcon />}
       buttonClassName={classes.iconButton}
       placement="bottom-end"
+      title="Help Info"
       aria-label="Open help info"
       withPaper={false}
     >
-      <span className={classes.helpTextSpan}>{helpText}</span>
+      <span className={classes.helpTextSpan}>
+        {helpText}
+        {guideUrl ? (
+          <IconButton
+            component="a"
+            href={guideUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            className={classes.iconButton}
+            title="Open Navigation Guide"
+            aria-label="Open navigation guide"
+          >
+            <MenuBookIcon />
+          </IconButton>
+        ) : null}
+      </span>
+    </PopperMenu>
+  );
+}
+
+function ErrorInfo(props) {
+  const { errors } = props;
+  const [open, setOpen] = useState(false);
+  const { classes } = useStyles();
+  return (
+    <PopperMenu
+      open={open}
+      setOpen={setOpen}
+      buttonIcon={<WarningIcon color="error" />}
+      buttonClassName={classes.iconButton}
+      placement="bottom-end"
+      title="View Errors"
+      aria-label="Open error info"
+    >
+      <List className={classes.errorList}>
+        {errors.map((error, index) => (
+          <Alert
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${index}-${error.name}-${error.message}`}
+            severity="error"
+            className={classes.errorListAlert}
+            slots={{ message: 'span' }}
+            slotProps={{ message: { className: classes.errorListItemText } }}
+          >
+            {error.name}: {error.message}
+          </Alert>
+        ))}
+      </List>
     </PopperMenu>
   );
 }
@@ -147,7 +218,7 @@ function ClosePaneButton(props) {
       onClick={removeGridComponent}
       size="small"
       className={classes.iconButton}
-      title="close"
+      title="Close View"
       aria-label="Close panel button"
     >
       <CloseIcon />
@@ -155,14 +226,18 @@ function ClosePaneButton(props) {
   );
 }
 
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true,
+    helpText, withPadding = true, errors: errorsProp, guideUrl,
   } = props;
 
+  const errors = errorsProp?.filter(Boolean);
+
   const { classes } = useTitleStyles();
+  const hasInfoText = Boolean(info);
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
@@ -170,9 +245,6 @@ export function TitleInfo(props) {
       <div className={classes.title} role="banner">
         <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
-        </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
         </div>
         <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
@@ -183,9 +255,15 @@ export function TitleInfo(props) {
               urls={urls}
             />
           ) : null}
+          {Array.isArray(errors) && errors.length > 0 ? (
+            <ErrorInfo
+              errors={errors}
+            />
+          ) : null}
           {helpText ? (
             <HelpButton
               helpText={helpText}
+              guideUrl={guideUrl}
             />
           ) : null}
           {closeButtonVisible && removeGridComponent ? (
@@ -205,6 +283,7 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
             [classes.noPaddingCard]: !withPadding,
             [classes.paddingCard]: withPadding,
+            [classes.cardWithoutInfoText]: !hasInfoText,
           },
         )}
         aria-busy={!isReady}
@@ -213,6 +292,11 @@ export function TitleInfo(props) {
         { !isReady ? <LoadingIndicator /> : null }
         {children}
       </div>
+      {hasInfoText ? (
+        <div className={classes.infoText} title={info} role="note">
+          {info}
+        </div>
+      ) : null}
     </>
     // "pl-2" only matters when the window is very narrow.
   );

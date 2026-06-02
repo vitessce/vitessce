@@ -4,6 +4,8 @@ import { shallow } from 'zustand/shallow';
 import {
   useViewConfigStoreApi,
   createLoaders,
+  useViewConfig,
+  useSetViewConfig,
 } from '@vitessce/vit-s';
 import {
   Checkbox,
@@ -24,6 +26,8 @@ export default function LinkController(props) {
   } = props;
   const viewConfigStoreApi = useViewConfigStoreApi();
 
+  const viewConfig = useViewConfig();
+  const setViewConfig = useSetViewConfig(viewConfigStoreApi);
   const [socketOpen, setSocketOpen] = useState(false);
   const [sync, setSync] = useState(true);
   const connection = useRef(null);
@@ -63,8 +67,7 @@ export default function LinkController(props) {
   useEffect(() => {
     if (linkIDInit != null) {
       setLinkID(linkIDInit);
-    }
-    if (linkID === null) {
+    } else if (linkID === null) {
       fetch(linkEndpoint, {
         method: 'GET',
         headers: {
@@ -72,6 +75,23 @@ export default function LinkController(props) {
         },
       }).then(response => response.json()).then((response) => {
         setLinkID(response.link_id);
+        const newLayout = viewConfig.layout.map((viewDef) => {
+          if (viewDef.component === 'linkController') {
+            return {
+              ...viewDef,
+              props: {
+                ...(viewDef.props || {}),
+                linkID: response.link_id,
+              },
+            };
+          }
+          return viewDef;
+        });
+        const newViewConfig = {
+          ...viewConfig,
+          layout: newLayout,
+        };
+        setViewConfig(newViewConfig);
       }).catch((err) => {
         log.error('Fetch Error :-S', err);
       });
@@ -83,9 +103,9 @@ export default function LinkController(props) {
       viewConfig: state.viewConfig,
       mostRecentConfigSource: state.mostRecentConfigSource,
     }),
-    ({ viewConfig, mostRecentConfigSource }) => {
-      if (onConfigChange && viewConfig && mostRecentConfigSource === 'internal') {
-        onConfigChange(viewConfig);
+    ({ viewConfig: nextViewConfig, mostRecentConfigSource }) => {
+      if (onConfigChange && nextViewConfig && mostRecentConfigSource === 'internal') {
+        onConfigChange(nextViewConfig);
       }
     },
     { equalityFn: shallow },

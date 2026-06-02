@@ -50,6 +50,8 @@ export function SelectSpecific(props) {
 
   const anyLoading = queries.some(q => q.isFetching);
   const anyError = queries.some(q => q.isError);
+  // eslint-disable-next-line no-unused-vars
+  const errors = anyError ? queries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? 'loading' : (anyError ? 'error' : 'success');
 
@@ -81,6 +83,7 @@ export function SelectSpecific(props) {
     const newSelection = Array.from(newRowSelectionModel.ids)
       .map(kgId => data.find(d => d.target.kgId === kgId)?.target)
       .filter(Boolean);
+    // console.log('New specific selection:', newSelection);
     setCurrentModalitySpecificSelection(newSelection);
   }
 

@@ -86,6 +86,7 @@ export {
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
+  usePointMultiObsFeatureMatrixIndices,
   useSpotMultiFeatureSelection,
   useSpotMultiObsFeatureMatrixIndices,
   useSegmentationMultiFeatureSelection,
@@ -105,3 +106,4 @@ export {
 export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
+export { createOnDrop } from './on-drop.js';

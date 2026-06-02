@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write  # Required for OIDC trusted publishing via NPM and GitHub Actions
+  contents: read
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -23,8 +27,10 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 20.10.0
+          node-version: 20.17.0
           registry-url: https://registry.npmjs.org/
+      # npm 11.5.1 or later is required for OIDC publishingso update to latest to be sure
+      - run: npm install -g npm@latest
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -49,7 +55,6 @@ jobs:
           publish: ./scripts/changeset-publish.sh --action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       - id: get-tag
         run: echo "tag=v$(cat ./package.json | jq -r .version)" >> $GITHUB_OUTPUT
       - name: Append versioned URLs to RELEASE_NOTES.md
@@ -69,7 +74,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.get-tag.outputs.tag }}
           body_path: RELEASE_NOTES.md
-      - name: Build demo site and docs site (twice)
+      - name: Build demo site, app site, and docs site (twice)
         if: steps.changesets.outputs.should-release == 'true'
         run: ./scripts/build-sites.sh --action
         env:
@@ -91,16 +96,20 @@ jobs:
           aws s3 cp --recursive sites/docs/dist-versioned s3://legacy.vitessce.io/docs/$DATE/$HASH/
           aws s3 cp --recursive sites/docs/dist-root s3://legacy.vitessce.io/docs-root/$DATE/$HASH/
           aws s3 cp --recursive sites/demo/dist s3://legacy.vitessce.io/demos/$DATE/$HASH/
+          aws s3 cp --recursive sites/app/dist s3://legacy.vitessce.io/app/$DATE/$HASH/
           aws s3 rm --recursive s3://vitessce-docs/
           aws s3 cp --recursive sites/docs/dist-root s3://vitessce-docs/
           aws s3 rm --recursive s3://vitessce-dev/
           aws s3 cp --recursive sites/demo/dist s3://vitessce-dev/
+          aws s3 rm --recursive s3://app.vitessce.io/
+          aws s3 cp --recursive sites/app/dist s3://app.vitessce.io/
           aws s3 sync ./cdn s3://cdn.vitessce.io/
       - name: Invalidate CloudFront caches
         if: steps.changesets.outputs.should-release == 'true'
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DOCS_CF_DISTRIBUTION_ID }} --paths "/*"
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DEMO_CF_DISTRIBUTION_ID }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.APP_CF_DISTRIBUTION_ID }} --paths "/*"
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_CF_DISTRIBUTION_ID }} --paths "/*"
             
             

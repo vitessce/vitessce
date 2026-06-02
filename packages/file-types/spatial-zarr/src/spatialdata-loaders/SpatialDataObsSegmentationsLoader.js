@@ -1,73 +1,19 @@
 import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
+  LoaderResult, AbstractTwoStepLoader,
 } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import {
-  normalizeAxes,
-  normalizeCoordinateTransformations,
-  coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
 } from '@vitessce/spatial-utils';
-import { math } from '@vitessce/gl';
+import { GLSL_COLORMAP_DEFAULT, math } from '@vitessce/gl';
+import {
+  OLD_SHAPES_DEFAULT_AXES,
+  OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS,
+} from './old-defaults.js';
 
 function getGeometryPath(path) {
   return `${path}/geometry`;
 }
-
-function getIndexPath(path) {
-  return `${path}/label`;
-}
-
-function getAttrsPath(path) {
-  return `${path}/.zattrs`;
-}
-
-const DEFAULT_AXES = [
-  {
-    name: 'x',
-    type: 'space',
-    unit: 'unit',
-  },
-  {
-    name: 'y',
-    type: 'space',
-    unit: 'unit',
-  },
-];
-const DEFAULT_COORDINATE_TRANSFORMATIONS = [
-  {
-    input: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'xy',
-    },
-    output: {
-      axes: [
-        {
-          name: 'x',
-          type: 'space',
-          unit: 'unit',
-        },
-        {
-          name: 'y',
-          type: 'space',
-          unit: 'unit',
-        },
-      ],
-      name: 'global',
-    },
-    type: 'identity',
-  },
-];
 
 
 /**
@@ -80,53 +26,24 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       return this.modelMatrix;
     }
     // Load the transformations from the .zattrs for the shapes
-    const zattrs = await this.dataSource.getJson(getAttrsPath(path));
-    const {
-      'encoding-type': encodingType,
-      spatialdata_attrs: {
-        geos = {},
-        version: attrsVersion,
-      },
-    } = zattrs;
-    const hasExpectedAttrs = (
-      encodingType === 'ngff:shapes'
-      && ((geos?.name === 'POINT'
-      && geos?.type === 0
-      && attrsVersion === '0.1') || attrsVersion === '0.2')
-    );
-    if (!hasExpectedAttrs) {
-      throw new AbstractLoaderError(
-        'Unexpected values for encoding-type or spatialdata_attrs for SpatialData shapes',
-      );
-    }
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
+
     // Convert the coordinate transformations to a modelMatrix.
     // For attrsVersion === "0.1", we can assume that there is always a
     // coordinate system which maps from the input "xy" to the specified
     // output coordinate system.
 
-    // TODO: In a future version of the shapes transformation on-disk format,
-    // the SpatialData team plans to relax this so that it will
-    // become necessary to create a full tree
-    // of coordinate transformations, and traverse the tree from
-    // the node corresponding to the output coordinate system of interest
-    // back to the root node, applying each transformation along the way.
-    const coordinateTransformationsFromFile = (
-      zattrs?.coordinateTransformations ?? DEFAULT_COORDINATE_TRANSFORMATIONS
-    ).filter(({ input: { name: inputName }, output: { name: outputName } }) => (
-      inputName === 'xy' && outputName === coordinateSystem
-    ));
-    const axes = zattrs?.axes ?? DEFAULT_AXES;
-    const normAxes = normalizeAxes(axes);
-    // This new spec is very flexible,
-    // so here we will attempt to convert it back to the old spec.
-    // TODO: do the reverse, convert old spec to new spec
-    const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-      coordinateTransformationsFromFile, null,
+    // These should only not-be-present for very old objects
+    // (zattrs.spatialdata_attrs.version == "0.1").
+    const coordinateTransformations = (
+      zattrs?.coordinateTransformations ?? OLD_SHAPES_DEFAULT_COORDINATE_TRANSFORMATIONS
     );
-    const transformMatrixFromFile = coordinateTransformationsToMatrix(
-      normCoordinateTransformationsFromFile, normAxes,
+    const axes = zattrs?.axes ?? OLD_SHAPES_DEFAULT_AXES;
+
+    this.modelMatrix = coordinateTransformationsToMatrixForSpatialData(
+      { axes, coordinateTransformations },
+      coordinateSystem,
     );
-    this.modelMatrix = transformMatrixFromFile;
     return this.modelMatrix;
   }
 
@@ -164,44 +81,67 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
   }
 
   async loadObsIndex() {
-    const { path } = this.options;
-    // TODO: will the label column of the parquet table always be numeric?
-    const arr = await this.dataSource.loadNumeric(getIndexPath(path));
-    const obsIds = arr.data.map(i => String(i));
-    return obsIds;
+    const { tablePath, path } = this.options;
+    if (tablePath) {
+      return this.dataSource.loadObsIndex(tablePath);
+    }
+    const indexColumn = await this.dataSource.loadShapesIndex(path);
+    if (indexColumn) {
+      const obsIds = Array.from(indexColumn).map(i => String(i));
+      return obsIds;
+    }
+    // TODO: if still no index column
+    // (neither from AnnData.obs.index nor from parquet table index),
+    // then create an index based on the row count?
+    return null;
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-
-    return Promise.all([
+    const [obsIndex, obsSegmentations] = await Promise.all([
       this.loadObsIndex(),
       this.loadPolygons(),
-    ]).then(([obsIndex, obsSegmentations]) => {
-      const coordinationValues = {
-        segmentationLayer: CL({
+    ]);
+
+    // This matches the logic in packages/file-types/json/src/json-loaders/ObsSegmentationsJson.js.
+    const channelCoordination = [{
+      // obsType: null,
+      spatialChannelColor: [255, 255, 255],
+      spatialChannelVisible: true,
+      spatialChannelOpacity: 1.0,
+      spatialChannelWindow: null,
+      // featureType: 'feature',
+      // featureValueType: 'value',
+      obsColorEncoding: 'spatialChannelColor',
+      spatialSegmentationFilled: true,
+      spatialSegmentationStrokeWidth: 1.0,
+      obsHighlight: null,
+      featureValueColormap: GLSL_COLORMAP_DEFAULT,
+    }];
+
+    const coordinationValues = {
+      segmentationLayer: CL([
+        {
           // TODO: more coordination values here?
 
           // obsColorEncoding: 'spatialLayerColor',
           // spatialLayerColor: [255, 255, 255],
+          fileUid: this.coordinationValues?.fileUid || null,
           spatialLayerVisible: true,
           spatialLayerOpacity: 1.0,
+          segmentationChannel: CL(channelCoordination),
           // featureValueColormapRange: [0, 1],
           // obsHighlight: null,
           // obsSetColor: null,
           // obsSetSelection: null,
           // additionalObsSets: null,
-        }),
-      };
+        },
+      ]),
+    };
 
-      return Promise.resolve(new LoaderResult(
-        { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
-        null,
-        coordinationValues,
-      ));
-    });
+    return new LoaderResult(
+      { obsIndex, obsSegmentations, obsSegmentationsType: 'polygon' },
+      null,
+      coordinationValues,
+    );
   }
 }

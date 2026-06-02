@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable max-len */
 import React, { useEffect, useCallback, useState } from 'react';
-import { AutoSizer, Table } from 'react-virtualized';
+import { Table } from 'react-virtualized';
 import { v4 as uuidv4 } from 'uuid';
 import { union, difference, isEqual } from 'lodash-es';
 import clsx from 'clsx';
@@ -44,6 +44,8 @@ export default function SelectableTable(props) {
     showTableInputs = false,
     testHeight = undefined,
     testWidth = undefined,
+    width,
+    height,
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
@@ -196,22 +198,18 @@ export default function SelectableTable(props) {
 
   return (
     <div className={classes.selectableTable}>
-      <AutoSizer>
-        {({ width, height }) => (
-          <Table
-            height={testHeight || height}
-            gridStyle={{ outline: 'none' }}
-            rowCount={data.length}
-            // 24 is 1 em + padding in either direction (see _selectable_table.scss).
-            rowHeight={24}
-            headerHeight={showTableHead ? 24 : undefined}
-            rowRenderer={rowRenderer}
-            width={testWidth || width}
-            headerRowRenderer={showTableHead ? headerRowRenderer : undefined}
-            rowGetter={({ index }) => data[index]}
-          />
-        )}
-      </AutoSizer>
+      <Table
+        height={testHeight || height}
+        gridStyle={{ outline: 'none' }}
+        rowCount={data.length}
+        // 24 is 1 em + padding in either direction (see _selectable_table.scss).
+        rowHeight={24}
+        headerHeight={showTableHead ? 24 : undefined}
+        rowRenderer={rowRenderer}
+        width={testWidth || width}
+        headerRowRenderer={showTableHead ? headerRowRenderer : undefined}
+        rowGetter={({ index }) => data[index]}
+      />
     </div>
   );
 }

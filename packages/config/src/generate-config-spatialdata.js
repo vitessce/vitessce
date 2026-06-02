@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+import { flattenOmeAttrs } from '@vitessce/zarr-utils';
+import { hconcat, vconcat } from './VitessceConfig.js';
 import { AbstractAutoConfig } from './generate-config-helpers.js';
 
 export class SpatialDataAutoConfig extends AbstractAutoConfig {
@@ -14,7 +16,8 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
     availableElements.forEach(({ path, attrs }) => {
       const relPath = path.substring(1);
 
-      const firstCoordinateSystem = attrs
+      const omeAttrs = flattenOmeAttrs(attrs);
+      const firstCoordinateSystem = omeAttrs
         ?.multiscales?.[0]
         ?.coordinateTransformations?.[0]
         ?.output?.name;
@@ -29,7 +32,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       }
       // Handle labels elements.
       if (relPath.match(/^(labels)\/([^/]*)$/)) {
-        options.labels = {
+        options.obsSegmentations = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
           // TODO: support a fileUid property in the schema?
@@ -42,13 +45,25 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
       if (relPath.match(/^(shapes)\/([^/]*)$/)) {
         // TODO: check if shapes are circles or polygons
         // to determine which Vitessce data type to use.
-        options.obsSpots = {
+        options.obsSegmentations = {
           path: relPath,
           coordinateSystem: firstCoordinateSystem,
         };
 
         // TODO: check which table annotates these shapes.
       }
+
+      // Handle point elements.
+      /* TODO: uncomment once points are more scalable
+      if (relPath.match(/^(points)\/([^/]*)$/)) {
+        options.obsPoints = {
+          path: relPath,
+          coordinateSystem: firstCoordinateSystem,
+        };
+
+        // TODO: check which table annotates these shapes.
+      }
+      */
 
       // Handle table elements.
       if (relPath.match(/^(tables|table)\/([^/]*)$/)) {
@@ -65,6 +80,7 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
         }
 
         // Check if the table contains an obs dataframe.
+        /* TODO: uncomment once logic for checking num. unique categories
         const hasObs = tableEls.find(el => el.path === `${path}/obs`);
         if (hasObs) {
           const columnOrder = hasObs.attrs?.['column-order'];
@@ -73,11 +89,15 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
             // region: null,
             tablePath: relPath,
             obsSets: columnOrder.map(c => ({
+              // TODO: determine whether this column is string/categorical.
+              // TODO: determine whether this column contains too many
+              // categories to make sense to consider a cell set.
               path: `${hasObs.path.substring(1)}/${c}`,
               name: c,
             })),
           };
         }
+        */
       }
     });
 
@@ -95,7 +115,28 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  addViews(vc, layoutOption) {
-    // TODO
+  addViews(vc, dataset, layoutOption) {
+    const options = this.getOptions();
+
+    // Add spatialBeta/layerControllerBeta views.
+    const spatialView = vc.addView(dataset, 'spatialBeta');
+    const lcView = vc.addView(dataset, 'layerControllerBeta');
+
+    const controlViews = [lcView];
+    // If obsSets are present, add obsSets view.
+    if (options.obsSets) {
+      const obsSets = vc.addView(dataset, 'obsSets');
+      controlViews.push(obsSets);
+    }
+    // If obsFeatureMatrix is present, add featureList view.
+    if (options.obsFeatureMatrix) {
+      const featureList = vc.addView(dataset, 'featureList');
+      controlViews.push(featureList);
+    }
+
+    // TODO: set up coordination stuff here?
+
+    // Layout.
+    vc.layout(hconcat(spatialView, vconcat(...controlViews)));
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import {
   TitleInfo,
   useReady,
@@ -15,6 +15,7 @@ import {
   useMultiObsPoints,
   useMultiObsSegmentations,
   useMultiImages,
+  usePointMultiObsFeatureMatrixIndices,
   useMergeCoordination,
   useComplexCoordination,
   useMultiCoordinationScopesNonNull,
@@ -39,6 +40,11 @@ import LayerController from './LayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
+ * @param {object[]} props.cameraPresets An array of camera preset objects,
+ * which can be applied by the user by pressing CTRL+[0-9].
+ * Each preset object can have the following coordination properties:
+ * spatialTargetX, spatialTargetY, spatialTargetZ, spatialTargetT,
+ * spatialRotationX, spatialRotationOrbit, and spatialZoom.
  */
 export function LayerControllerSubscriber(props) {
   const {
@@ -50,6 +56,8 @@ export function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     uuid,
+    layerPerFeatureForPoints = false,
+    cameraPresets,
   } = props;
 
   const loaders = useLoaders();
@@ -80,6 +88,44 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
     coordinationScopes,
   );
+
+
+  // Apply a camera preset by calling the coordination setters.
+  const applyPreset = useCallback((preset) => {
+    if (!preset) return;
+    if (typeof preset?.spatialZoom === 'number') setZoom(preset.spatialZoom);
+    if (typeof preset?.spatialTargetX === 'number') setTargetX(preset.spatialTargetX);
+    if (typeof preset?.spatialTargetY === 'number') setTargetY(preset.spatialTargetY);
+    if (typeof preset?.spatialTargetZ === 'number') setTargetZ(preset.spatialTargetZ);
+    if (typeof preset?.spatialTargetT === 'number') setTargetT(preset.spatialTargetT);
+    if (typeof preset?.spatialRotationX === 'number') setRotationX(preset.spatialRotationX);
+    if (typeof preset?.spatialRotationOrbit === 'number') setRotationOrbit(preset.spatialRotationOrbit);
+  }, [setZoom, setTargetX, setTargetY, setTargetZ, setTargetT, setRotationX, setRotationOrbit]);
+
+  // Listen for CTRL + digit keypresses to apply camera presets
+  useEffect(() => {
+    // Do not set up any listeners if no camera presets were passed.
+    if (!Array.isArray(cameraPresets)) return undefined;
+
+    const handleKeyDown = (e) => {
+      const isCtrl = e.ctrlKey;
+      if (!isCtrl) return;
+      const digitMatch = e.code.match(/^Digit(\d)$/);
+      if (!digitMatch || !Array.isArray(digitMatch) || digitMatch.length < 2) return;
+
+      // If we get to this point, digitMatch is an array like ['Digit1', '1'],
+      // so the digit is at index 1 as a string.
+      const index = parseInt(digitMatch[1], 10);
+      if (index >= 0 && index <= 9 && index < cameraPresets.length) {
+        const preset = cameraPresets[index];
+        applyPreset(preset);
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cameraPresets, applyPreset]);
 
   // Normalize arrays and non-arrays to always be arrays.
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
@@ -156,6 +202,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.PHOTOMETRIC_INTERPRETATION,
       CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM,
       CoordinationType.SPATIAL_TARGET_RESOLUTION,
+      CoordinationType.SPATIAL_LOD_FACTOR,
       CoordinationType.SPATIAL_SLICE_X,
       CoordinationType.SPATIAL_SLICE_Y,
       CoordinationType.SPATIAL_SLICE_Z,
@@ -176,6 +223,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_COLOR,
       CoordinationType.SPATIAL_CHANNEL_WINDOW,
+      CoordinationType.SPATIAL_MAX_RESOLUTION,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -214,6 +262,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
+      CoordinationType.FEATURE_COLOR,
+      CoordinationType.FEATURE_FILTER_MODE,
       CoordinationType.FEATURE_SELECTION,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
@@ -225,6 +275,20 @@ export function LayerControllerSubscriber(props) {
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
+  );
+
+  // Get volume loading status from auxiliary coordination (shared with Spatial view)
+  const [
+    {
+      volumeLoadingProgress: volumeLoadingStatus,
+      tiledPointsLoadingProgress,
+    },
+  ] = useAuxiliaryCoordination(
+    [
+      'spatialAcceleratedVolumeLoadingProgress',
+      'spatialTiledPointsLoadingProgress',
+    ],
+    coordinationScopes,
   );
 
   /*
@@ -254,28 +318,42 @@ export function LayerControllerSubscriber(props) {
   const [componentWidth, componentHeight] = useClosestVitessceContainerSize(layerControllerRef);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  const [obsSegmentationsData, obsSegmentationsDataStatus] = useMultiObsSegmentations(
+  const [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls, obsSegmentationsErrors] = useMultiObsSegmentations(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [imageData, imageDataStatus] = useMultiImages(
+  const [imageData, imageDataStatus, imageUrls, imageErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsSpotsData, obsSpotsDataStatus] = useMultiObsSpots(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useMultiObsSpots(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
-  const [obsPointsData, obsPointsDataStatus] = useMultiObsPoints(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useMultiObsPoints(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
   );
+
+  const [pointMultiIndicesData, pointMultiIndicesDataStatus, pointMultiIndicesDataErrors] = usePointMultiObsFeatureMatrixIndices(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    ...obsSegmentationsErrors,
+    ...imageErrors,
+    ...obsSpotsErrors,
+    ...obsPointsErrors,
+    ...pointMultiIndicesDataErrors,
+  ];
 
   const isReady = useReady([
     obsSpotsDataStatus,
     obsPointsDataStatus,
     obsSegmentationsDataStatus,
     imageDataStatus,
+    pointMultiIndicesDataStatus,
   ]);
 
   return (
@@ -287,6 +365,7 @@ export function LayerControllerSubscriber(props) {
       removeGridComponent={removeGridComponent}
       theme={theme}
       isReady={isReady}
+      errors={errors}
     >
       <LayerController
         theme={theme}
@@ -316,6 +395,10 @@ export function LayerControllerSubscriber(props) {
 
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
+        pointMultiIndicesData={pointMultiIndicesData}
+        layerPerFeatureForPoints={layerPerFeatureForPoints}
+        volumeLoadingStatus={volumeLoadingStatus}
+        tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />
     </TitleInfo>
   );

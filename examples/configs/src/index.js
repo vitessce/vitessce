@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import { vapi } from './utils.js';
 import {
@@ -50,8 +51,10 @@ import { visiumSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-v
 import { visiumIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-visium_io.js';
 import { mcmicroIoSpatialdata2023 } from './view-configs/spatial-beta/spatialdata-mcmicro_io.js';
 import { alignedVisiumXeniumSpatialdata } from './view-configs/spatial-beta/spatialdata-aligned_visium_xenium.js';
+import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata-visium-hd.js';
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
+import { emptyConfig } from './view-configs/empty.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -60,10 +63,19 @@ import { neumanOop2023, neumannAutoInit } from './view-configs/spatial-beta/neum
 import { lightsheetOop2023 } from './view-configs/spatial-beta/lightsheet-oop.js';
 import { visiumPolygonsOop2023 } from './view-configs/spatial-beta/visium-polygons-oop.js';
 import { maynard2021 } from './view-configs/spatial-beta/spatialdata-maynard_2021.js';
+import { sdataMerfishConfig } from './view-configs/spatial-beta/spatialdata-merfish.js';
+import { sdataXeniumConfig } from './view-configs/spatial-beta/spatialdata-xenium_rep1_io.js';
+import { spatialdataBlobsConfig } from './view-configs/spatial-beta/spatialdata-blobs.js';
+import {
+  spatialdataBlobsFixtureConfig_0_3,
+  spatialdataBlobsFixtureConfig_0_7,
+} from './view-configs/spatial-beta/sdata-blobs-fixture-configs.js';
 
 import exemplarSmallCellsAdata from './json-fixtures/exemplar-small/exemplar-001.crop.cells.adata.json';
 import exemplarSmallImageOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.image.ome.json';
 import exemplarSmallSegmentationsOmeZarr from './json-fixtures/exemplar-small/exemplar-001.crop.segmentations.ome.json';
+import blobsCropSdata_0_3 from './json-fixtures/sdata-blobs/blobs.sdata-0.3.json';
+import blobsCropSdata_0_7 from './json-fixtures/sdata-blobs/blobs.sdata-0.7.json';
 
 // 3D Maps
 import { jainkidneyDecimated } from './view-configs/3d-maps/jain-kidney-decimated.js';
@@ -72,13 +84,16 @@ import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
+import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
+import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
+import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
 import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
-
+import { neuroglancerTwoLayers } from './view-configs/3d-maps/neuroglancer-two-layers.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -91,6 +106,7 @@ import { visium } from './view-configs/paper-figures/visium.js';
 // pageMode
 import { lake2023, lake2023component } from './view-configs/lake-2023.js';
 import { kpmpPremiere, kpmpPremiereComponent } from './view-configs/kpmp-premiere.js';
+import { kpmpAug2025, kpmpAug2025Component } from './view-configs/kpmp-aug-2025.js';
 import { hubmapHeart, hubmapHeartComponent } from './view-configs/hubmap-heart.js';
 
 export const coordinationTypeConfigs = {
@@ -142,15 +158,23 @@ export const configs = {
   'spatialdata-visium_io': visiumIoSpatialdata2023,
   'spatialdata-mcmicro_io': mcmicroIoSpatialdata2023,
   'spatialdata-aligned_visium_xenium': alignedVisiumXeniumSpatialdata,
+  'spatialdata-visium_hd': visiumHdSpatialdata2025,
+  'spatialdata-blobs': spatialdataBlobsConfig,
+  'sdata-blobs-0_3': spatialdataBlobsFixtureConfig_0_3,
+  'sdata-blobs-0_7': spatialdataBlobsFixtureConfig_0_7,
   gating: codeluppiGating,
   vanderbilt: spraggins2020,
   'dries-2019': eng2019,
   'lake-2023': lake2023,
   'kpmp-premiere': kpmpPremiere,
+  'kpmp-aug-2025': kpmpAug2025,
   'hubmap-heart': hubmapHeart,
   'salcher-2022': salcher2022,
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
+  empty: emptyConfig,
+  'sdata-merfish': sdataMerfishConfig,
+  'sdata-xenium_rep1_io': sdataXeniumConfig,
 
   // Multi-level coordination with spatialBeta view:
   'blin-2019-2': blinOop2019,
@@ -185,7 +209,17 @@ export const configs = {
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
+  // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
+  'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
+  'neuroglancer-merfish': neuroglancerMerfish,
+  'neuroglancer-two-layers': neuroglancerTwoLayers,
+  // Spatial Accelerated
+  's-a-lsp1': saLsp1,
+  's-a-lsp2': saLsp2,
+  's-a-lsp3': saLsp3,
+  's-a-kingsnake': saKingsnake,
+  's-a-gloria': saGloria,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,
@@ -222,10 +256,17 @@ const exemplarSmallStores = {
 export const configStores = {
   'exemplar-small': exemplarSmallStores,
   'exemplar-small-partial-init': exemplarSmallStores,
+  'sdata-blobs-0_3': {
+    'blobs.sdata.zarr': createStoreFromMapContents(blobsCropSdata_0_3),
+  },
+  'sdata-blobs-0_7': {
+    'blobs.sdata.zarr': createStoreFromMapContents(blobsCropSdata_0_7),
+  },
 };
 
 export const configPages = {
   'lake-2023': lake2023component,
   'kpmp-premiere': kpmpPremiereComponent,
+  'kpmp-aug-2025': kpmpAug2025Component,
   'hubmap-heart': hubmapHeartComponent,
 };

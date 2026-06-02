@@ -55,11 +55,6 @@ class MyLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    // super.load() will perform validation of this.options against this.optionsSchema
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
     // ... omitted ...
   }
 }

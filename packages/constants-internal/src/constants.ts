@@ -9,6 +9,7 @@ export const ViewType = {
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
   SPATIAL_BETA: 'spatialBeta',
+  // SPATIAL_ACCELERATED: 'spatialAccelerated',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   LAYER_CONTROLLER_BETA: 'layerControllerBeta',
@@ -25,6 +26,7 @@ export const ViewType = {
   OBS_SET_COMPOSITION_BAR_PLOT: 'obsSetCompositionBarPlot',
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'featureSetEnrichmentBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  BIOMARKER_SELECT_ALT: 'biomarkerSelectAlt',
   COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
@@ -160,9 +162,8 @@ export const FileType = {
   OBS_SETS_SPATIALDATA_ZARR: 'obsSets.spatialdata.zarr',
   OBS_SPOTS_SPATIALDATA_ZARR: 'obsSpots.spatialdata.zarr',
   FEATURE_LABELS_SPATIALDATA_ZARR: 'featureLabels.spatialdata.zarr',
-  // TODO:
-  // OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
-  // OBS_LOCATIONS_SPATIALDATA_ZARR: 'obsLocations.spatialdata.zarr',
+  OBS_POINTS_SPATIALDATA_ZARR: 'obsPoints.spatialdata.zarr',
+  OBS_EMBEDDING_SPATIALDATA_ZARR: 'obsEmbedding.spatialdata.zarr',
 
   // SpatialData - zipped
   IMAGE_SPATIALDATA_ZARR_ZIP: 'image.spatialdata.zarr.zip',
@@ -172,6 +173,9 @@ export const FileType = {
   OBS_SETS_SPATIALDATA_ZARR_ZIP: 'obsSets.spatialdata.zarr.zip',
   OBS_SPOTS_SPATIALDATA_ZARR_ZIP: 'obsSpots.spatialdata.zarr.zip',
   FEATURE_LABELS_SPATIALDATA_ZARR_ZIP: 'featureLabels.spatialdata.zarr.zip',
+  OBS_POINTS_SPATIALDATA_ZARR_ZIP: 'obsPoints.spatialdata.zarr.zip',
+  OBS_EMBEDDING_SPATIALDATA_ZARR_ZIP: 'obsEmbedding.spatialdata.zarr.zip',
+
   // MuData
   OBS_FEATURE_MATRIX_MUDATA_ZARR: 'obsFeatureMatrix.mudata.zarr',
   OBS_SETS_MUDATA_ZARR: 'obsSets.mudata.zarr',
@@ -183,12 +187,17 @@ export const FileType = {
   OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
   FEATURE_LABELS_MUDATA_ZARR: 'featureLabels.mudata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  GENOMIC_PROFILES_ZARR_ZIP: 'genomic-profiles.zarr.zip',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // GLB
   OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
+  // Neuroglancer
+  // Precomputed (mesh) format
+  OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
+  OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -277,6 +286,7 @@ export const CoordinationType = {
   OBS_SET_HIGHLIGHT: 'obsSetHighlight',
   OBS_SET_EXPANSION: 'obsSetExpansion',
   OBS_SET_COLOR: 'obsSetColor',
+  FEATURE_COLOR: 'featureColor',
   FEATURE_HIGHLIGHT: 'featureHighlight',
   FEATURE_SELECTION: 'featureSelection',
   FEATURE_SET_SELECTION: 'featureSetSelection',
@@ -318,6 +328,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_MODEL_MATRIX: 'spatialLayerModelMatrix',
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
+  SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
@@ -327,6 +338,8 @@ export const CoordinationType = {
   SPATIAL_RENDERING_MODE: 'spatialRenderingMode', // For whole spatial view
   VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
+  SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
+  SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
@@ -400,7 +413,7 @@ export const ViewHelpMapping = {
   FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
-  NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
+  NEUROGLANCER: 'This view displays 3D meshes and points using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
   OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',

@@ -173,7 +173,7 @@ export function useUrls(urls) {
  * @returns {array} `[width, height]` where width and height
  * are numbers.
  */
-export function useClosestVitessceContainerSize(ref) {
+export function useClosestVitessceContainerSize(ref, sidebarWidth) {
   const [height, setHeight] = useState();
   const [width, setWidth] = useState();
 
@@ -183,7 +183,7 @@ export function useClosestVitessceContainerSize(ref) {
         const {
           clientHeight: componentHeight, clientWidth: componentWidth,
         } = ref.current.closest(`.${VITESSCE_CONTAINER}`);
-        setWidth(componentWidth);
+        setWidth(componentWidth - (sidebarWidth ?? 0));
         setHeight(componentHeight);
       }
     }
@@ -362,7 +362,7 @@ export function useExpandedFeatureLabelsMap(featureType, featureLabelsMap, optio
         ? Array.from(fetchedMapping).map(([k, v]) => ([k.split(':')[1], v.split(':')[1]]))
         : fetchedMapping
       ),
-      ...(featureLabelsMap || []),
+      ...Array.from(featureLabelsMap?.entries() || []),
     ]);
   }, [fetchedMapping, featureLabelsMap, stripCuriePrefixes]);
   // If not enabled, return success

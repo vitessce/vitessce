@@ -1,15 +1,16 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.6.7",
+  "version": "3.9.11",
   "description": "Vitessce app and React component library",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io/",
   "repository": "https://github.com/vitessce/vitessce/",
   "scripts": {
     "start": "pnpm -r --parallel start",
-    "start-demo": "pnpm -r --parallel --filter=!docs start",
-    "start-docs": "pnpm -r --parallel --filter=!demo start",
+    "start-demo": "pnpm -r --parallel --filter=!docs --filter=!app start",
+    "start-docs": "pnpm -r --parallel --filter=!demo --filter=!app start",
+    "start-app": "pnpm -r --parallel --filter=!demo --filter=!docs start",
     "start-html": "pnpm -r start-html",
     "clean-start": "pnpm install && pnpm run clean && pnpm run build && pnpm run start-demo",
     "build:ci": "pnpm -r --workspace-concurrency 1 build",
@@ -70,7 +71,7 @@
     "react-dom": "catalog:",
     "remark-parse": "^7.0.1",
     "remark-stringify": "^7.0.3",
-    "sass": "1.55.0",
+    "sass": "^1.71.0",
     "serve-static": "^1.15.0",
     "set.prototype.intersection": "^1.1.5",
     "svg-inline-loader": "^0.8.2",
@@ -94,7 +95,6 @@
     },
     "patchedDependencies": {
       "@janelia-flyem/neuroglancer@2.37.5": "patches/@janelia-flyem__neuroglancer@2.37.5.patch",
-      "@janelia-flyem/react-neuroglancer@2.5.0": "patches/@janelia-flyem__react-neuroglancer@2.5.0.patch",
       "rc-tree@2.1.0": "patches/rc-tree@2.1.0.patch"
     }
   },

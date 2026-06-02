@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import {
   initializeCellSetColor,
   treeToMembershipMap,
@@ -52,10 +50,6 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async load() {
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
     if (!this.cachedResult) {
       const { options } = this;
       this.cachedResult = Promise.all([
@@ -79,8 +73,6 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
-    return Promise.resolve(
-      new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues),
-    );
+    return new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues);
   }
 }

@@ -37,7 +37,7 @@ export default {
         src: 'img/logo-v.png',
       },
       items: [
-        {
+         {
           href: '/#?edit=true',
           label: 'App',
           position: 'left',
@@ -53,12 +53,12 @@ export default {
           label: 'Docs',
           position: 'left',
         },
-        {
+        /*{
           type: 'doc',
           docId: 'tutorials',
           label: 'Tutorials',
           position: 'left',
-        },
+        },*/
         {
           href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
@@ -67,6 +67,11 @@ export default {
         {
           href: 'https://r-docs.vitessce.io/',
           label: 'For R',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/vitessce/easy_vitessce',
+          label: 'EasyVitessce',
           position: 'left',
         },
         {
@@ -81,7 +86,7 @@ export default {
           position: 'right',
         },
         {
-          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          href: 'https://ipa-reader.com/?text=v%C9%AAt-%C9%9Bs',
           position: 'right',
           className: 'header-pronunciation-link',
           'aria-label': 'Pronunciation',
@@ -130,22 +135,7 @@ export default {
             },
           ],
         },
-        {
-          title: 'Funding',
-          items: [
-            {
-              html: 'NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)',
-            }
-          ],
-        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://hidivelab.org/">HIDIVE Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.`,
     },
   },
   presets: [

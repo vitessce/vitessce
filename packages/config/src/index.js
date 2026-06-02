@@ -5,3 +5,5 @@ export {
   getInitialCoordinationScopePrefix,
   getInitialCoordinationScopeName,
 } from '@vitessce/utils';
+
+export { generateConfig as generateConfigAlt, parseUrls, parseUrlsFromString } from './generate-config.js';

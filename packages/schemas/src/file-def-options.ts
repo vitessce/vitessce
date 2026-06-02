@@ -197,15 +197,29 @@ export const imageSpatialdataSchema = z.object({
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
 });
 export const obsSegmentationsSpatialdataSchema = z.object({
-  // TODO: should this be renamed labelsSpatialdataSchema?
-  // TODO: support obsTypesFromChannelNames?
-  path: z.string(),
+  // TODO: support obsTypesFromElementNames?
+  path: z.string().describe('The path to the segmentation data, stored in either shapes/ or labels/.'),
   tablePath: z.string()
     .optional()
-    .describe('The path to a table which annotates the labels. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+    .describe('The path to a table which annotates the labels or shapes. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+});
+export const obsPointsSpatialdataSchema = z.object({
+  path: z.string().describe('The path to the point data.'),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which annotates the points. If available but not specified, the spot identifiers may not be aligned with associated tabular data as expected.'),
+  coordinateSystem: z.string()
+    .optional()
+    .describe('The name of a coordinate transformation output used to transform the image. If not provided, the "global" coordinate system is assumed.'),
+  featureIndexColumn: z.string()
+    .optional()
+    .describe('The name of the column in the table which contains the feature (e.g., gene) indices associated with each point (aligned with the table var.index dataframe column).'),
+  mortonCodeColumn: z.string()
+    .optional()
+    .describe('The name of the column in the table which contains the Morton codes for each point, used for efficient spatial querying. If not provided, Vitessce will assume the default column name "morton_code_2d".'),
 });
 export const obsLocationsSpatialdataSchema = z.object({
   path: z.string(),
@@ -239,6 +253,22 @@ export const obsSetsSpatialdataSchema = z.object({
     .describe('The path to a table which contains the index for the set values.'),
   obsSets: annDataObsSetsArr,
 });
+export const obsEmbeddingSpatialdataSchema = annDataObsEmbedding.extend({
+  // We extend anndataObsEmbedding which already has properties like `dims` and `path`.
+  region: z.string()
+    .describe('The name of a region to use to filter instances (i.e., rows) in the table')
+    .optional(),
+  tablePath: z.string()
+    .optional()
+    .describe('The path to a table which contains the index for the set values.'),
+});
+
+// TODO: should the convenience schema also allow specifying tablePath and region?
+const obsEmbeddingSpatialdataSchemaConvenience = z.union([
+  annDataObsEmbedding,
+  // For convenience, allow an array of items with `embeddingType` properties.
+  z.array(annDataConvenienceObsEmbeddingItem),
+]);
 
 // GLB
 export const meshGlbSchema = z.object({
@@ -258,6 +288,41 @@ export const meshGlbSchema = z.object({
   sceneScaleY: z.number(),
   sceneScaleZ: z.number(),
   materialSide: z.enum(['front', 'back']),
+}).partial().nullable();
+
+// NG SegmentationLayer
+export const ngPrecomputedMeshSchema = z.object({
+  // TODO: Should this explicitly specify sharded vs. unsharded?
+  // Or can/should that be inferred from the data?
+
+  // Note: None of these make sense to specify at the file level, since they
+  // are global camera settings that would apply to all layers.
+  // Intead, initial values should be set via the usual coordination space mechanism,
+  // and the NeuroglancerSubscriber should handle conversion into values to pass to Neuroglancer.
+  // dimensionX: z.number(),
+  // dimensionY: z.number(),
+  // dimensionZ: z.number(),
+  // dimensionUnit: z.enum(['nm', 'um', 'µm', 'mm', 'cm', 'm']),
+  // TODO: should the following be passed via coordination types instead?
+  // projectionScale: z.number(),
+  // position: z.array(z.number()).length(3),
+  // projectionOrientation: z.array(z.number()).length(4),
+  subsources: z.record(z.boolean())
+    .describe('Subsources are the individual data components of a source (e.g. meshes, skeletons, etc.). Each entry explicitly enables or disables a subsource.')
+    .optional(),
+  enableDefaultSubsources: z.boolean()
+    .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
+    .optional(),
+}).partial().nullable();
+// Annotation Layer
+export const ngPointAnnotationSchema = z.object({
+  projectionAnnotationSpacing: z.number(),
+  featureIndexProp: z.string()
+    .optional()
+    .describe('The name of the Neuroglancer AnnotationProperty containing feature IDs. For example, specify \'gene\' to use prop_gene() in the Neuroglancer shader code.'),
+  pointIndexProp: z.string()
+    .optional()
+    .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
 }).partial().nullable();
 
 /**
@@ -371,21 +436,23 @@ export const spatialdataZarrSchema = z.object({
   image: imageSpatialdataSchema,
   // TODO: should this be a special schema
   // to allow specifying fileUid (like for embeddingType)?
-  // TODO: allow multiple labels?
-  labels: obsSegmentationsSpatialdataSchema,
+  // TODO: allow multiple labels/shapes?
+  obsSegmentations: obsSegmentationsSpatialdataSchema,
+  obsPoints: obsPointsSpatialdataSchema,
   // TODO: allow multiple shapes?
-  // TODO: unify labels and shapes to obsSegmentations,
-  // then distinguish in expand function based on
-  // "labels/*" vs. "shapes/*" in path?
-  shapes: obsSegmentationsSpatialdataSchema,
   obsFeatureMatrix: obsFeatureMatrixSpatialdataSchema,
   obsSpots: obsSpotsSpatialdataSchema,
   // TODO: obsPoints
   // TODO: obsLocations
   obsSets: obsSetsSpatialdataSchema,
-  // TODO: obsEmbedding
+  obsEmbedding: obsEmbeddingSpatialdataSchemaConvenience,
   // TODO: obsLabels
-  // TODO: featureLabels
+  featureLabels: z.union([
+    annDataFeatureLabels,
+    z.array(annDataConvenienceFeatureLabelsItem),
+  ]),
+
+  // TODO: allow specifying tablePath and region at the top-level here.
   coordinateSystem: z.string()
     .optional()
     .describe('The name of a coordinate transformation output used to transform all elements which lack a per-element coordinateSystem property.'),

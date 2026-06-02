@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/biomarker-select",
-  "version": "3.6.7",
+  "version": "3.9.11",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,7 +26,7 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
@@ -38,7 +38,8 @@
     "@vitessce/types": "workspace:*",
     "fuse.js": "^7.0.0",
     "d3-dsv": "catalog:",
-    "clsx": "catalog:"
+    "clsx": "catalog:",
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

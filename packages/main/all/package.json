@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "3.6.7",
+  "version": "3.9.11",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -28,13 +28,14 @@
   "scripts": {
     "start": "pnpm -C ../../../ run start-tsc",
     "build": "pnpm -C ../../../ run build-tsc",
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/abstract": "workspace:*",
+    "@vitessce/error": "workspace:*",
     "@vitessce/csv": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
@@ -60,6 +61,7 @@
     "@vitessce/globals": "workspace:*",
     "@vitessce/spatial-zarr": "workspace:*",
     "@vitessce/spatial-three": "workspace:*",
+    "@vitessce/spatial-accelerated": "workspace:*",
     "@vitessce/biomarker-select": "workspace:*",
     "@vitessce/neuroglancer": "workspace:*",
     "zod": "catalog:"

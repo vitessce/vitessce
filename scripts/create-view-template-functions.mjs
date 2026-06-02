@@ -43,7 +43,7 @@ export function generatePackageJson({ viewName, version, author, license, homepa
       "dist-tsc"
     ],
     "scripts": {
-      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+      "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
       "test": "pnpm exec vitest --run"
     },
     "dependencies": {
@@ -89,7 +89,7 @@ export function generateTsConfig() {
  * @returns {string} The vitest.config.ts content
  */
 export function generateVitestConfig() {
-  return `import configShared from '../../../vite.config.js';
+  return `import configShared from '../../../vite.config.mjs';
 
 export default configShared;
 `;
@@ -126,13 +126,14 @@ import {
   useCoordination,
   useLoaders,
   useObsFeatureMatrixIndices,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { ${pascalName} } from './${pascalName}.js';
 
 export function ${pascalName}Subscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     theme,
     title = '${pascalName}',
@@ -141,6 +142,7 @@ export function ${pascalName}Subscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   // Get "props" from the coordination space.
   const [{

@@ -14,7 +14,7 @@ Vitessce currently supports automatic view config generation for the following f
 
 - [OME-TIFF](https://docs.openmicroscopy.org/ome-model/6.2.0/ome-tiff/specification.html), 
 - [OME-Zarr](https://ngff.openmicroscopy.org/latest/#on-disk),
-- AnnData-Zarr (AnnData objects that have been [saved to Zarr store](/docs/data-file-types/#anndata-as-h5ad)).
+- AnnData-Zarr (AnnData objects that have been [saved to Zarr store](../data-file-types/#anndata-zarr)).
 
 
 ### How to use

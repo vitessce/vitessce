@@ -16,6 +16,7 @@ export {
   getNgffAxes,
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
   physicalSizeToMatrix,
   hexToRgb,
   getStatsForResolution,

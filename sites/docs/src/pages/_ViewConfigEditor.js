@@ -73,7 +73,7 @@ export default function ViewConfigEditor(props) {
 
   const viewConfigDocsJsUrl = useBaseUrl('/docs/view-config-js/');
   const viewConfigDocsJsonUrl = useBaseUrl('/docs/view-config-json/');
-  const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json');
+  const defaultViewConfigDocsUrl = useBaseUrl('/docs/default-config-json/');
 
   const [pendingUrl, setPendingUrl] = useState('');
   const [datasetUrls, setDatasetUrls] = useState('');

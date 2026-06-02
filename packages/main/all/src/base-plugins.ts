@@ -62,7 +62,9 @@ import {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   obsSetPath,
   rgbArray,
   obsSetsSchema,
@@ -71,6 +73,8 @@ import {
   neighborhoodsLayerObj,
   moleculesLayerObj,
   meshGlbSchema,
+  ngPrecomputedMeshSchema,
+  ngPointAnnotationSchema,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -170,11 +174,19 @@ import {
   // SpatialData
   SpatialDataTableSource,
   SpatialDataShapesSource,
+  SpatialDataPointsSource,
   SpatialDataImageLoader,
   SpatialDataLabelsLoader,
   SpatialDataObsSpotsLoader,
+  SpatialDataObsPointsLoader,
   SpatialDataObsSegmentationsLoader,
   SpatialDataObsSetsLoader,
+  SpatialDataObsEmbeddingLoader,
+  SpatialDataFeatureLabelsLoader,
+  // NG precomputed
+  NgPassthroughSource,
+  NgPrecomputedMeshLoader,
+  NgAnnotationPointsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -190,6 +202,7 @@ import {
 // Joint file types
 import {
   BiomarkerSelectSubscriber,
+  BiomarkerSelectAltSubscriber,
   ComparativeHeadingSubscriber,
   SampleSetPairManagerSubscriber,
   autocompleteFeature,
@@ -225,9 +238,13 @@ function makeViewType(name: string, component: any) {
 function makeFileType<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodTypeAny) {
   return new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema);
 }
-// For when we have multiple file types with the same data type and options schema.
+// For when we have multiple file types with the same data type and options schema,
+// e.g., for Zip- and H5AD- variants of Zarr file types.
 function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: string, dataType: string, dataLoaderClass: any, dataSourceClass: any, optionsSchema: z.ZodObject<any>) {
   const altFileTypes = ALT_ZARR_STORE_TYPES[name];
+  if (!altFileTypes) {
+    throw new Error(`No alternative file types found for Zarr-based fileType ${name}`);
+  }
   return [
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
     ...Object.entries(altFileTypes).map(([key, fileType]) => {
@@ -262,6 +279,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
+  makeViewType(ViewType.BIOMARKER_SELECT_ALT, BiomarkerSelectAltSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
   makeViewType(ViewType.NEUROGLANCER, NeuroglancerSubscriber),
   makeViewType(ViewType.TREEMAP, TreemapSubscriber),
@@ -319,15 +337,20 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // SpatialData file types
-  makeFileType(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
-  makeFileType(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
-  makeFileType(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataObsSegmentationsLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
-  makeFileType(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
-  makeFileType(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
-  makeFileType(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.SHAPES_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataObsSegmentationsLoader, SpatialDataShapesSource, obsSegmentationsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SPOTS_SPATIALDATA_ZARR, DataType.OBS_SPOTS, SpatialDataObsSpotsLoader, SpatialDataShapesSource, obsSpotsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_POINTS_SPATIALDATA_ZARR, DataType.OBS_POINTS, SpatialDataObsPointsLoader, SpatialDataPointsSource, obsPointsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_FEATURE_MATRIX_SPATIALDATA_ZARR, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixAnndataLoader, SpatialDataTableSource, obsFeatureMatrixSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_SETS_SPATIALDATA_ZARR, DataType.OBS_SETS, SpatialDataObsSetsLoader, SpatialDataTableSource, obsSetsSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR, DataType.OBS_EMBEDDING, SpatialDataObsEmbeddingLoader, SpatialDataTableSource, obsEmbeddingSpatialdataSchema),
+  ...makeZarrFileTypes(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, SpatialDataFeatureLabelsLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
 
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
-  makeFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR, DataType.FEATURE_LABELS, FeatureLabelsAnndataLoader, SpatialDataTableSource, featureLabelsAnndataSchema),
+  makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
+  makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
   makeFileType(FileType.IMAGE_RASTER_JSON, DataType.IMAGE, RasterJsonAsImageLoader, JsonSource, rasterJsonSchema),
@@ -343,6 +366,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_LABELS_MOLECULES_JSON, DataType.OBS_LABELS, MoleculesJsonAsObsLabelsLoader, JsonSource, z.null()),
   makeFileType(FileType.NEIGHBORHOODS_JSON, DataType.NEIGHBORHOODS, JsonLoader, JsonSource, z.null()),
   makeFileType(FileType.GENOMIC_PROFILES_ZARR, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource, z.null()),
+  makeFileType(FileType.GENOMIC_PROFILES_ZARR_ZIP, DataType.GENOMIC_PROFILES, GenomicProfilesZarrLoader, ZarrDataSource, z.null()),
 ];
 
 export const baseJointFileTypes = [
@@ -464,9 +488,21 @@ export const baseCoordinationTypes = [
     })).nullable(),
   ),
   new PluginCoordinationType(
+    CoordinationType.FEATURE_COLOR,
+    null,
+    z.array(z.object({
+      name: z.string(),
+      color: rgbArray,
+    })).nullable(),
+  ),
+  new PluginCoordinationType(
     CoordinationType.OBS_COLOR_ENCODING,
     'cellSetSelection',
-    z.enum(['geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels']),
+    z.enum([
+      'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
+      // For point coloring.
+      'random', 'randomByFeature',
+    ]),
   ),
   new PluginCoordinationType(CoordinationType.FEATURE_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_HIGHLIGHT, null, z.string().nullable()),
@@ -493,7 +529,7 @@ export const baseCoordinationTypes = [
     null,
     z.array(obsSetPath).nullable(),
   ),
-  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter']).nullable()),
+  new PluginCoordinationType(CoordinationType.FEATURE_FILTER_MODE, null, z.enum(['featureFilter', 'featureSetFilter', 'featureSelection']).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_VALUE_TRANSFORM,
     null,
@@ -559,11 +595,14 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_COLOR, [255, 255, 255], z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_RESOLUTION, 0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_MAX_RESOLUTION, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_X, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Y, null, z.array(z.number()).length(2).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SLICE_Z, null, z.array(z.number()).length(2).nullable()),

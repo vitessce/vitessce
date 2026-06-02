@@ -39,9 +39,13 @@ export {
   obsSegmentationsSpatialdataSchema,
   obsFeatureMatrixSpatialdataSchema,
   obsSpotsSpatialdataSchema,
+  obsPointsSpatialdataSchema,
   obsLocationsSpatialdataSchema,
   obsSetsSpatialdataSchema,
+  obsEmbeddingSpatialdataSchema,
   meshGlbSchema,
+  ngPrecomputedMeshSchema,
+  ngPointAnnotationSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

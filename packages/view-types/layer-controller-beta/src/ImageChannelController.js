@@ -40,6 +40,9 @@ export default function ImageChannelController(props) {
     featureIndex, // The channel names.
     image, // To get the channel window extent using image metadata.
     spatialRenderingMode,
+    numResolutions,
+    spatialMaxResolution,
+    setSpatialMaxResolution,
   } = props;
 
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
@@ -145,6 +148,9 @@ export default function ImageChannelController(props) {
           showValueExtent={showValueExtent}
           setShowValueExtent={setShowValueExtent}
           onResetWindowUsingIQR={handleResetWindowUsingIQR}
+          numResolutions={numResolutions}
+          spatialMaxResolution={spatialMaxResolution}
+          setSpatialMaxResolution={setSpatialMaxResolution}
         />
       </Grid>
     </Grid>

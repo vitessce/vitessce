@@ -17,9 +17,11 @@ import {
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useCoordination,
+  useInitialCoordination,
   useLoaders,
   useSetComponentHover,
   useSetComponentViewInfo,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
@@ -49,7 +51,7 @@ import GatingScatterplotOptions from './GatingScatterplotOptions.js';
 export function GatingSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -62,6 +64,7 @@ export function GatingSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
@@ -124,6 +127,14 @@ export function GatingSubscriber(props) {
     coordinationScopes,
   );
 
+  const {
+    embeddingZoom: initialZoom,
+    embeddingTargetX: initialTargetX,
+    embeddingTargetY: initialTargetY,
+  } = useInitialCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.GATING], coordinationScopes,
+  );
+
   const [width, height, deckRef, onBeforeRender] = useDeckCanvasSize();
 
   const title = useMemo(() => {
@@ -144,33 +155,51 @@ export function GatingSubscriber(props) {
   ), [gatingFeatureSelectionY]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls] = useObsSetsData(
+  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
     { obsType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataColor, loadedColor, featureSelectionColorStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataColor, loadedColor, featureSelectionColorStatus, featureSelectionColorErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, gatingFeatureSelectionColor,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataX, loadedX, featureSelectionXStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataX, loadedX, featureSelectionXStatus, featureSelectionXErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionX,
     { obsType, featureType, featureValueType },
   );
-  // eslint-disable-next-line no-unused-vars
-  const [expressionDataY, loadedY, featureSelectionYStatus] = useFeatureSelection(
+  const [
+    // eslint-disable-next-line no-unused-vars
+    expressionDataY, loadedY, featureSelectionYStatus, featureSelectionYErrors,
+  ] = useFeatureSelection(
     loaders, dataset, false, featureSelectionY,
     { obsType, featureType, featureValueType },
   );
   const [
     { obsIndex, featureIndex }, matrixIndicesStatus, matrixIndicesUrls,
+    matrixIndicesError,
   ] = useObsFeatureMatrixIndices(
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
+
+  // Consolidate error values from data hooks.
+  const errors = [
+    obsSetsError,
+    ...featureSelectionColorErrors,
+    ...featureSelectionXErrors,
+    ...featureSelectionYErrors,
+    matrixIndicesError,
+  ];
+
+
   const cellsCount = obsIndex?.length || 0;
 
   const isReady = useReady([
@@ -223,6 +252,8 @@ export function GatingSubscriber(props) {
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
+
+  const [originalViewState, setOriginalViewState] = useState(null);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -294,7 +325,7 @@ export function GatingSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
@@ -303,19 +334,28 @@ export function GatingSubscriber(props) {
       );
       setDynamicCellOpacity(nextCellOpacityScale);
 
-      if (typeof targetX !== 'number' || typeof targetY !== 'number') {
+      if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
         const newTargetX = xExtent[0] + xRange / 2;
         const newTargetY = yExtent[0] + yRange / 2;
         const newZoom = Math.log2(Math.min(width / xRange, height / yRange));
-        setTargetX(newTargetX);
-        // Graphics rendering has the y-axis going south so we need to multiply by negative one.
-        setTargetY(-newTargetY);
-        setZoom(newZoom);
+        const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
+        const stillDefaultInitialized = (targetX === newTargetX && targetY === -newTargetY);
+        if (notYetInitialized || stillDefaultInitialized) {
+          setTargetX(newTargetX);
+          // Graphics rendering has the y-axis going south so we need to multiply by negative one.
+          setTargetY(-newTargetY);
+          setZoom(newZoom);
+        }
+        setOriginalViewState({ target: [newTargetX, -newTargetY, 0], zoom: newZoom });
+      } else if (!originalViewState) {
+        // originalViewState has not yet been set and
+        // the view config defined an initial viewState.
+        setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
-    width, height, zoom, averageFillDensity]);
+    width, height, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
   const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
   const getCellIsSelected = useCallback((object, { index }) => (
@@ -352,6 +392,13 @@ export function GatingSubscriber(props) {
     gatingFeatureSelectionX, gatingFeatureSelectionY, obsType,
   ]);
 
+  const setViewState = ({ zoom: newZoom, target }) => {
+    setZoom(newZoom);
+    setTargetX(target[0]);
+    setTargetY(target[1]);
+    setTargetZ(target[2] || 0);
+  };
+
   return (
     <TitleInfo
       title={title}
@@ -363,6 +410,7 @@ export function GatingSubscriber(props) {
       theme={theme}
       isReady={isReady}
       helpText={helpText}
+      errors={errors}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}
@@ -417,13 +465,10 @@ export function GatingSubscriber(props) {
         uuid={uuid}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
+        hideRecenter={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
-        setViewState={({ zoom: newZoom, target }) => {
-          setZoom(newZoom);
-          setTargetX(target[0]);
-          setTargetY(target[1]);
-          setTargetZ(target[2] || 0);
-        }}
+        setViewState={setViewState}
+        originalViewState={originalViewState}
         obsEmbeddingIndex={obsIndex}
         obsEmbedding={obsXY}
         cellFilter={cellFilter}
@@ -449,6 +494,7 @@ export function GatingSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
         onBeforeRender={onBeforeRender}
+        embeddingPointsVisible
       />
       {!disableTooltip && (
       <ScatterplotTooltipSubscriber

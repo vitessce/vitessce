@@ -322,8 +322,55 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
     // TODO: obsPoints?
     // TODO: obsLocations?
     // TODO: obsLabels
-    // TODO: featureLabels
-    // TODO: obsEmbedding
+    // featureLabels
+    ...(options.featureLabels ? [{
+      ...baseFileDef,
+      fileType: getFileType(FileType.FEATURE_LABELS_SPATIALDATA_ZARR),
+      options: {
+        ...options.featureLabels,
+        tablePath: options.tablePath,
+        region: options.region,
+      },
+      coordinationValues: {
+        ...extraCoordinationValues,
+        featureType: baseFileDef.coordinationValues.featureType,
+      },
+    }] : []),
+    // obsEmbedding
+    // eslint-disable-next-line no-nested-ternary
+    ...(options.obsEmbedding ? (
+      Array.isArray(options.obsEmbedding) ? options.obsEmbedding.map((oe: any) => ({
+        // obsEmbedding was an array, process each element.
+        ...baseFileDef,
+        fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
+        options: {
+          path: oe.path,
+          dims: oe.dims,
+          tablePath: options.tablePath,
+          region: options.region,
+        },
+        coordinationValues: {
+          ...extraCoordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
+          // Move embedding type property out of options and into coordinationValues.
+          embeddingType: oe.embeddingType,
+        },
+      })) : [{
+        // obsEmbedding was an object.
+        ...baseFileDef,
+        fileType: getFileType(FileType.OBS_EMBEDDING_SPATIALDATA_ZARR),
+        options: {
+          ...options.obsEmbedding,
+          tablePath: options.tablePath,
+          region: options.region,
+        },
+        coordinationValues: {
+          ...extraCoordinationValues,
+          obsType: baseFileDef.coordinationValues.obsType,
+          embeddingType: baseFileDef.coordinationValues.embeddingType,
+        },
+      }]
+    ) : []),
     // image
     // TODO: handle multiple image elements?
     ...(options.image ? [{
@@ -339,14 +386,19 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
         // TODO: fileUid?
       },
     }] : []),
-    // labels
-    // TODO: handle multiple labels?
-    ...(options.labels ? [{
+    // labels/shapes
+    ...(options.obsSegmentations ? [{
       ...baseFileDef,
-      fileType: getFileType(FileType.LABELS_SPATIALDATA_ZARR),
+      // Determine the fileType based on the path.
+      // If the path starts with "labels/", use LABELS_SPATIALDATA_ZARR,
+      // otherwise use SHAPES_SPATIALDATA_ZARR.
+      fileType: (options.obsSegmentations.path.startsWith('labels/')
+        ? getFileType(FileType.LABELS_SPATIALDATA_ZARR)
+        : getFileType(FileType.SHAPES_SPATIALDATA_ZARR)
+      ),
       options: {
         coordinateSystem: defaultCoordinateSystem,
-        ...options.labels,
+        ...options.obsSegmentations,
       },
       coordinationValues: {
         ...extraCoordinationValues,
@@ -354,14 +406,13 @@ export function expandSpatialdataZarr(fileDef: z.infer<typeof latestFileDefSchem
         // TODO: fileUid?
       },
     }] : []),
-    // shapes
-    // TODO: handle multiple shape elements?
-    ...(options.shapes ? [{
+    // points
+    ...(options.obsPoints ? [{
       ...baseFileDef,
-      fileType: getFileType(FileType.SHAPES_SPATIALDATA_ZARR),
+      fileType: getFileType(FileType.OBS_POINTS_SPATIALDATA_ZARR),
       options: {
         coordinateSystem: defaultCoordinateSystem,
-        ...options.shapes,
+        ...options.obsPoints,
       },
       coordinationValues: {
         ...extraCoordinationValues,

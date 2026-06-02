@@ -13,6 +13,14 @@ import {
 } from './data-hooks-multilevel-utils.js';
 
 
+/**
+ * Wrapper around useFeatureSelectionMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [featureData, loadedSelections, extents, normData, featureStatus, errors]
+ */
 export function useSegmentationMultiFeatureSelection(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -60,13 +68,21 @@ export function useSegmentationMultiFeatureSelection(
     JSON.stringify(useMemoDependency.length > 0 ? useMemoDependency : [null]),
   ]);
   const [
-    featureData, loadedSelections, extents, normData, featureStatus,
+    featureData, loadedSelections, extents, normData, featureStatus, errors,
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 2,
   );
-  return [featureData, loadedSelections, extents, normData, featureStatus];
+  return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
+/**
+ * Wrapper around useFeatureSelectionMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [featureData, loadedSelections, extents, normData, featureStatus, errors]
+ */
 export function useSpotMultiFeatureSelection(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -102,17 +118,25 @@ export function useSpotMultiFeatureSelection(
   ),
   // Need to execute this more frequently, whenever the featureSelections update.
   [coordinationScopes, coordinationScopesBy,
-    ...Object.values(featureSelectionCoordination[0] || {})
-      .flatMap(layerVal => layerVal.featureSelection),
+    JSON.stringify(Object.values(featureSelectionCoordination[0] || {})
+      .flatMap(layerVal => layerVal.featureSelection)),
   ]);
   const [
-    featureData, loadedSelections, extents, normData, featureStatus,
+    featureData, loadedSelections, extents, normData, featureStatus, errors,
   ] = useFeatureSelectionMultiLevel(
     loaders, dataset, false, matchOnObj, selections, 1,
   );
-  return [featureData, loadedSelections, extents, normData, featureStatus];
+  return [featureData, loadedSelections, extents, normData, featureStatus, errors];
 }
 
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [indicesData, status, errors]
+ */
 export function useSegmentationMultiObsFeatureMatrixIndices(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -132,12 +156,20 @@ export function useSegmentationMultiObsFeatureMatrixIndices(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [indicesData, status, errors]
+ */
 export function useSpotMultiObsFeatureMatrixIndices(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -156,12 +188,20 @@ export function useSpotMultiObsFeatureMatrixIndices(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsFeatureMatrixIndicesMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsLabelsMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [data, status, errors]
+ */
 export function usePointMultiObsLabels(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -179,12 +219,53 @@ export function usePointMultiObsLabels(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsLabelsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsLabelsMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [indicesData, status, errors]
+ */
+export function usePointMultiObsFeatureMatrixIndices(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsFeatureMatrixCoordination = useComplexCoordination(
+    [
+      // We currently do not specify obsType or featureValueType here,
+      // since for points we are only interested in the var table
+      // to get the info about each feature (gene).
+      CoordinationType.FEATURE_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsFeatureMatrixCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
+    loaders, dataset, false, matchOnObj, 1,
+  );
+  return [indicesData, indicesDataStatus, indicesDataErrors];
+}
+
+/**
+ * Wrapper around useObsLocationsMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [data, status, errors]
+ */
 export function useSegmentationMultiObsLocations(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -202,12 +283,20 @@ export function useSegmentationMultiObsLocations(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsLocationsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsLocationsMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }
 
+/**
+ * Wrapper around useObsSetsMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [data, status, errors]
+ */
 export function useSegmentationMultiObsSets(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -225,8 +314,8 @@ export function useSegmentationMultiObsSets(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [indicesData, indicesDataStatus] = useObsSetsMultiLevel(
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsSetsMultiLevel(
     loaders, dataset, false, matchOnObj, 2,
   );
-  return [indicesData, indicesDataStatus];
+  return [indicesData, indicesDataStatus, indicesDataErrors];
 }

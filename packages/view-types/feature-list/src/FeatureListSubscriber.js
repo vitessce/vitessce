@@ -2,14 +2,27 @@ import React, { useState } from 'react';
 import { pluralize as plur, capitalize, commaNumber } from '@vitessce/utils';
 import {
   TitleInfo,
-  useReady, useUrls,
+  useReady, useUrls, useGridItemSize,
   useFeatureLabelsData, useObsFeatureMatrixIndices,
   useCoordination, useLoaders,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { makeStyles } from '@vitessce/styles';
 import FeatureList from './FeatureList.js';
 import FeatureListOptions from './FeatureListOptions.js';
+
+const useStyles = makeStyles()(theme => ({
+  featureListContainer: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: theme.palette.primaryBackground,
+    color: theme.palette.primaryForeground,
+  },
+}));
 
 
 /**
@@ -35,7 +48,7 @@ import FeatureListOptions from './FeatureListOptions.js';
  */
 export function FeatureListSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     removeGridComponent,
     variablesLabelOverride,
     theme,
@@ -50,6 +63,9 @@ export function FeatureListSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  const [width, height, containerRef] = useGridItemSize();
+  const { classes } = useStyles();
 
   // Get "props" from the coordination space.
   const [{
@@ -72,17 +88,26 @@ export function FeatureListSubscriber(props) {
 
   // Get data from loaders using the data hooks.
   // TODO: support multiple feature labels using featureLabelsType coordination values.
-  const [{ featureLabelsMap }, featureLabelsStatus, featureLabelsUrls] = useFeatureLabelsData(
+  const [
+    { featureLabelsMap }, featureLabelsStatus, featureLabelsUrls, featureLabelsError,
+  ] = useFeatureLabelsData(
     loaders, dataset, false, {}, {},
     { featureType },
   );
   const [expandedFeatureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMap, { stripCuriePrefixes: true },
   );
-  const [{ featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls] = useObsFeatureMatrixIndices(
+  const [
+    { featureIndex }, matrixIndicesStatus, obsFeatureMatrixUrls, matrixIndicesError,
+  ] = useObsFeatureMatrixIndices(
     loaders, dataset, true,
     { obsType, featureType },
   );
+  // Consolidate error values from data hooks.
+  const errors = [
+    featureLabelsError,
+    matrixIndicesError,
+  ];
   const isReady = useReady([
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -113,16 +138,14 @@ export function FeatureListSubscriber(props) {
       title={title}
       info={`${commaNumber(numGenes)} ${plur(variablesLabel, numGenes)}`}
       theme={theme}
-      // Virtual scroll is used but this allows for the same styling as a scroll component
-      // even though this no longer uses the TitleInfo component's
-      // scroll css (SelectableTable is virtual scroll).
-      isScroll
+      withPadding={false}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       urls={urls}
       helpText={helpText}
+      errors={errors}
       options={(
         <FeatureListOptions
           featureListSort={featureListSort}
@@ -136,23 +159,27 @@ export function FeatureListSubscriber(props) {
         />
       )}
     >
-      <FeatureList
-        hasColorEncoding={cellColorEncoding === 'geneSelection'}
-        showFeatureTable={showFeatureTable}
-        geneList={geneList}
-        featureListSort={featureListSort}
-        featureListSortKey={featureListSortKey || initialSortKey}
-        featureLabelsMap={expandedFeatureLabelsMap}
-        featureType={featureType}
-        geneSelection={geneSelection}
-        geneFilter={geneFilter}
-        setGeneSelection={setGeneSelectionAndColorEncoding}
-        setGeneFilter={setGeneFilter}
-        setGeneHighlight={setGeneHighlight}
-        enableMultiSelect={enableMultiSelect}
-        hasFeatureLabels={hasFeatureLabels}
-        primaryColumnName={primaryColumnName}
-      />
+      <div ref={containerRef} className={classes.featureListContainer}>
+        <FeatureList
+          width={width}
+          height={height}
+          hasColorEncoding={cellColorEncoding === 'geneSelection'}
+          showFeatureTable={showFeatureTable}
+          geneList={geneList}
+          featureListSort={featureListSort}
+          featureListSortKey={featureListSortKey || initialSortKey}
+          featureLabelsMap={expandedFeatureLabelsMap}
+          featureType={featureType}
+          geneSelection={geneSelection}
+          geneFilter={geneFilter}
+          setGeneSelection={setGeneSelectionAndColorEncoding}
+          setGeneFilter={setGeneFilter}
+          setGeneHighlight={setGeneHighlight}
+          enableMultiSelect={enableMultiSelect}
+          hasFeatureLabels={hasFeatureLabels}
+          primaryColumnName={primaryColumnName}
+        />
+      </div>
     </TitleInfo>
   );
 }

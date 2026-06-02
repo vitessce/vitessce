@@ -22,7 +22,7 @@ const OrderedLogLevels = [
 ];
 
 export const DEFAULT_DEBUG_MODE = false;
-export const DEFAULT_LOG_LEVEL = LogLevel.TRACE;
+export const DEFAULT_LOG_LEVEL = LogLevel.INFO;
 
 let GLOBAL_DEBUG_MODE = DEFAULT_DEBUG_MODE;
 

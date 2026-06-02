@@ -2,7 +2,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, NativeSelect, MoreVert as MoreVertIcon } from '@vitessce/styles';
+import { makeStyles, MenuItem, NativeSelect, Slider, MoreVert as MoreVertIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
@@ -27,6 +27,9 @@ export default function ChannelOptions(props) {
     onResetWindowUsingIQR,
     showValueExtent,
     setShowValueExtent,
+    numResolutions,
+    spatialMaxResolution,
+    setSpatialMaxResolution,
   } = props;
   const [open, setOpen] = useState(false);
 
@@ -56,6 +59,23 @@ export default function ChannelOptions(props) {
       withPaper
       aria-label="Open channel options menu"
     >
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
+          Best Resolution:&nbsp;
+        </label>
+        <Slider
+          value={spatialMaxResolution || 1}
+          valueLabelDisplay="auto"
+          onChange={(e, v) => setSpatialMaxResolution(v)}
+          min={1}
+          max={numResolutions - 1}
+          step={1}
+          orientation="horizontal"
+          // className={classes.channelSlider}
+          // style={{ color: rgbColor }}
+          // disabled={disabled}
+        />
+      </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
           Slider Extent:&nbsp;

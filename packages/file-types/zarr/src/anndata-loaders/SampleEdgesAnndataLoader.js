@@ -1,6 +1,4 @@
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 
 
 /**
@@ -27,19 +25,14 @@ export default class SampleEdgesAnndataLoader extends AbstractTwoStepLoader {
 
   async load() {
     const { path } = this.options;
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, sampleIds] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadLabels(),
-    ]).then(([obsIndex, sampleIds]) => {
-      const sampleEdges = new Map(obsIndex.map((obsId, i) => ([obsId, sampleIds[i]])));
-      return Promise.resolve(new LoaderResult(
-        { sampleEdges },
-        null,
-      ));
-    });
+    ]);
+    const sampleEdges = new Map(obsIndex.map((obsId, i) => ([obsId, sampleIds[i]])));
+    return new LoaderResult(
+      { sampleEdges },
+      null,
+    );
   }
 }

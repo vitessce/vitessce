@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import type {
   AbstractImageWrapper,
   VivLoaderType,
@@ -10,6 +11,7 @@ import type {
 import {
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
   getNgffAxes,
   getNgffAxesForTiff,
   physicalSizeToMatrix,
@@ -29,6 +31,8 @@ export default class ImageWrapper implements AbstractImageWrapper {
   vivLoader: VivLoaderType;
 
   options: ImageOptions;
+
+  modelMatrix: number[]|null = null;
 
   constructor(vivLoader: VivLoaderType, options: ImageOptions) {
     this.options = options || {};
@@ -73,9 +77,20 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   getModelMatrix(): number[] {
+    if (!this.modelMatrix) {
+      // Cache the model matrix
+      this.modelMatrix = this._getModelMatrix();
+    }
+    return this.modelMatrix;
+  }
+
+  _getModelMatrix(): number[] {
     // The user can always provide an additional transform matrix
     // via the file definition options property.
-    const { coordinateTransformations: coordinateTransformationsFromOptions } = this.options;
+    const {
+      coordinateSystem = 'global',
+      coordinateTransformations: coordinateTransformationsFromOptions,
+    } = this.options;
     // We combine any user-provided transform matrix with the one
     // from the image file.
     if ('multiscales' in this.vivLoader.metadata) {
@@ -94,13 +109,27 @@ export default class ImageWrapper implements AbstractImageWrapper {
       const transformMatrixFromOptions = coordinateTransformationsToMatrix(
         coordinateTransformationsFromOptions, ngffAxes,
       );
-      // Normalize the coordinate transformations from the file.
-      const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
-        coordinateTransformationsFromFile, datasets,
-      );
-      const transformMatrixFromFile = coordinateTransformationsToMatrix(
-        normCoordinateTransformationsFromFile, ngffAxes,
-      );
+
+      let transformMatrixFromFile;
+      // Note: Older SpatialData objects did not include 'spatialdata_attrs'
+      // in the image Element metadata.
+      if ('spatialdata_attrs' in this.vivLoader.metadata) {
+        // This is a SpatialData images or labels element.
+        transformMatrixFromFile = coordinateTransformationsToMatrixForSpatialData(
+          // Pass the first multiscales element.
+          this.vivLoader.metadata.multiscales[0],
+          coordinateSystem,
+        );
+      } else {
+        // TODO: update this if NGFF eventually supports named coordinate systems.
+        // Normalize the coordinate transformations from the file.
+        const normCoordinateTransformationsFromFile = normalizeCoordinateTransformations(
+          coordinateTransformationsFromFile, datasets,
+        );
+        transformMatrixFromFile = coordinateTransformationsToMatrix(
+          normCoordinateTransformationsFromFile, ngffAxes,
+        );
+      }
       const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
       return transformMatrix;
     }
@@ -345,6 +374,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasZStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('z')) {
+      // If there is no 'z' dimension, then there is no z stack.
+      return false;
+    }
     const hasZStack = shape[labels.indexOf('z')] > 1;
     return hasZStack;
   }
@@ -352,8 +385,41 @@ export default class ImageWrapper implements AbstractImageWrapper {
   hasTStack(): boolean {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('t')) {
+      // If there is no 't' dimension, then there is no time stack.
+      return false;
+    }
     const hasTStack = shape[labels.indexOf('t')] > 1;
     return hasTStack;
+  }
+
+  hasCStack(): boolean {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (!labels.includes('c')) {
+      // If there is no 'c' dimension, then there is no channel stack.
+      return false;
+    }
+    const hasCStack = shape[labels.indexOf('c')] > 1;
+    return hasCStack;
+  }
+
+  hasDimZ(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('z');
+  }
+
+  hasDimT(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('t');
+  }
+
+  hasDimC(): boolean {
+    const loader = this.vivLoader;
+    const { labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return labels.includes('c');
   }
 
   getNumZ(): number {
@@ -366,6 +432,17 @@ export default class ImageWrapper implements AbstractImageWrapper {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
     return shape[labels.indexOf('t')];
+  }
+
+  getNumC(): number {
+    const loader = this.vivLoader;
+    const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    return shape[labels.indexOf('c')];
+  }
+
+  getNumResolutions(): number {
+    const loader = this.vivLoader;
+    return Array.isArray(loader.data) ? loader.data.length : 1;
   }
 
   isMultiResolution(): boolean {
@@ -387,15 +464,25 @@ export default class ImageWrapper implements AbstractImageWrapper {
         const {
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
         } = getStatsForResolution(loader.data, resolution);
         return {
           canLoad: canLoadResolution(loader.data, resolution),
           height,
           width,
+          depth,
           depthDownsampled,
           totalBytes,
+          dims,
+          // chunkHeight
+          // chunkWidth
+          // chunkDepth
+          // physicalSizeVoxel
+          // eslint-disable-next-line max-len
+          // physicalSizeTotal (physicalSizeVoxel * highest-resolution numPixels, for each dimension)
         };
       });
   }
@@ -420,6 +507,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
     } while (totalBytes > 5e7 && nextTargetResolution < multiResStats.length - 1);
     return nextTargetResolution;
   }
+
 
   getBoundingCube(): BoundingCube {
     const loader = this.vivLoader;

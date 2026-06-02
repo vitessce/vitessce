@@ -13,7 +13,7 @@ export class AbstractAutoConfig {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  addViews(vc, layoutOption) {
+  addViews(vc, dataset, layoutOption) {
     throw new Error('The addViews() method has not been implemented.');
   }
 }
