@@ -546,39 +546,57 @@ export function NeuroglancerSubscriber(props) {
     //     // console.log('[spatial0 test] sample:', entries.slice(0, 5));
     //   });
   
-    const fetchChunkWithPositions = async ([cx, cy]) => {
+
+
+  // Fetch all annotation chunks
+    const allLevelCoords = info.spatial.flatMap((level) => {
+      const coords = getIntersectingChunkCoords(
+        {
+          min: [info.lower_bound[0], info.lower_bound[1], info.lower_bound[2]],
+          max: [info.upper_bound[0], info.upper_bound[1], info.upper_bound[2]],
+        },
+        info.lower_bound, level.chunk_size, level.grid_shape,
+      );
+      return coords.map(([cx, cy, cz]) => ({
+        level: level.key, cx, cy, cz
+      }));
+    });
+
+    const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
       const { serializer } = annotationTransformRef.current;
-      // Guard against missing serializer
-      if (!serializer) {
-        console.warn('[fetchChunk] serializer not ready yet');
-        return [];
-      }
-      const cacheKey = `${cellsUrl}/${key}/${cx}_${cy}_0`;
+      if (!serializer) return [];
+  
+      const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
       try {
-        const res = await fetch(`${cacheKey}`);
+        const res = await fetch(cacheKey);
         if (!res.ok) {
-          console.warn(`[fetch] FAILED ${cacheKey} — status: ${res.status}`);
           chunkCacheRef.current.set(cacheKey, []);
           return [];
         }
         const buffer = await res.arrayBuffer();
         const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
-        // console.log(`[fetch] OK ${cx},${cy} — ${entries.length} entries, url: ${cacheKey}`);
         chunkCacheRef.current.set(cacheKey, entries);
         return entries;
       } catch (e) {
-        // console.error(`[fetch] ERROR ${cacheKey}:`, e);
         chunkCacheRef.current.set(cacheKey, []);
         return [];
       }
     };
 
-  // Fetch all annotation chunks
-    const results = await Promise.all(allCoords.map(fetchChunkWithPositions));
-    const allEntries = results.flat();
+    const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
+
+    // Deduplicate by ID since same cell may appear in multiple levels
+    const seenIds = new Set();
+    const allEntries = results.flat().filter(({ id }) => {
+      if (seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    });
+
+    console.log('total unique centroids across all levels:', allEntries.length);
 
   // Threshold check - if too zoomed out, clear segments and return
     const datasetExtentAnnot = Math.max(
