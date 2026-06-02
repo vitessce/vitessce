@@ -514,7 +514,7 @@ export function NeuroglancerSubscriber(props) {
     // Screen radius in annotation units
     const projectionScaleInAnnotUnitsPerPx = projectionScale * transform.x;
     const screenRadiusAnnot = Math.max(ngWidth, ngHeight) * projectionScaleInAnnotUnitsPerPx * 0.5;
-  
+
     // Fetch all chunks (64 total) — cached after first load
     // Position filtering handles precision, no need to limit chunks
     const allCoords = getIntersectingChunkCoords(
@@ -524,29 +524,35 @@ export function NeuroglancerSubscriber(props) {
       },
       lowerBound, chunkSize, gridShape,
     );  
-    const { serializer } = annotationTransformRef.current;
+
     const cellsUrl = info.url;
 
 
     if (chunkCacheRef.current.size > 0) {
       const firstVal = chunkCacheRef.current.values().next().value;
       if (firstVal?.length > 0 && typeof firstVal[0] === 'string') {
-        console.log('[cache] clearing stale string-format cache');
+        // console.log('[cache] clearing stale string-format cache');
         chunkCacheRef.current.clear();
       }
     }
 
-    const testLevel = info.spatial[0]; // spatial0
-    const testUrl = `${cellsUrl}/${testLevel.key}/0_0_0`;
-    fetch(testUrl)
-      .then(r => r.arrayBuffer())
-      .then(buf => {
-        const entries = parseAnnotationChunkSegmentsWithPositions(buf);
-        // console.log('[spatial0 test] entries:', entries.length);
-        // console.log('[spatial0 test] sample:', entries.slice(0, 5));
-      });
+    // const testLevel = info.spatial[0]; // spatial0
+    // const testUrl = `${cellsUrl}/${testLevel.key}/0_0_0`;
+    // fetch(testUrl)
+    //   .then(r => r.arrayBuffer())
+    //   .then(buf => {
+    //     const entries = parseAnnotationChunkSegmentsWithPositions(buf);
+    //     // console.log('[spatial0 test] entries:', entries.length);
+    //     // console.log('[spatial0 test] sample:', entries.slice(0, 5));
+    //   });
   
     const fetchChunkWithPositions = async ([cx, cy]) => {
+      const { serializer } = annotationTransformRef.current;
+      // Guard against missing serializer
+      if (!serializer) {
+        console.warn('[fetchChunk] serializer not ready yet');
+        return [];
+      }
       const cacheKey = `${cellsUrl}/${key}/${cx}_${cy}_0`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
@@ -560,21 +566,40 @@ export function NeuroglancerSubscriber(props) {
         }
         const buffer = await res.arrayBuffer();
         const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
-        console.log(`[fetch] OK ${cx},${cy} — ${entries.length} entries, url: ${cacheKey}`);
+        // console.log(`[fetch] OK ${cx},${cy} — ${entries.length} entries, url: ${cacheKey}`);
         chunkCacheRef.current.set(cacheKey, entries);
         return entries;
       } catch (e) {
-        console.error(`[fetch] ERROR ${cacheKey}:`, e);
+        // console.error(`[fetch] ERROR ${cacheKey}:`, e);
         chunkCacheRef.current.set(cacheKey, []);
         return [];
       }
     };
 
-  
+  // Fetch all annotation chunks
     const results = await Promise.all(allCoords.map(fetchChunkWithPositions));
     const allEntries = results.flat();
+
+  // Threshold check - if too zoomed out, clear segments and return
+    const datasetExtentAnnot = Math.max(
+      info.upper_bound[0] - info.lower_bound[0],
+      info.upper_bound[1] - info.lower_bound[1],
+    );
+    const screenCoverageFraction = (screenRadiusAnnot * 2) / datasetExtentAnnot;
+    const MAX_COVERAGE_FRACTION = meshLoadThresholdUm
+      ? meshLoadThresholdUm / 100
+      : 0.30; // default: load meshes when viewport covers < 30% of dataset
+    
+    if (screenCoverageFraction > MAX_COVERAGE_FRACTION) {
+      // Too zoomed out — clear any existing segments
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      return;
+    }
   
-    // Filter to only centroids whose position is inside the viewport bbox
+    // Position filter -  only centroids whose position is inside the viewport bbox
     const visibleIds = [...new Set(
       allEntries
         .filter(({ x, y }) =>
@@ -1023,12 +1048,29 @@ export function NeuroglancerSubscriber(props) {
         // No culling — show all segments from color mapping
         segments = Object.keys(layerColorMapping);
       }
-
-      // If no color mapping, build one from spatialChannelColor for visible segments
-      let derivedSegmentColors = layerColorMapping;
-      if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
-        derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
+      // only include colors for visible segments
+      let derivedSegmentColors = {};
+      if (hasMatchingAnnotationSource && segments.length > 0) {
+        // Build color map only for visible segments
+        const visibleSet = new Set(segments);
+        if (Object.keys(layerColorMapping).length > 0) {
+          // Filter full color mapping to only visible IDs
+          Object.entries(layerColorMapping).forEach(([id, color]) => {
+            if (visibleSet.has(id)) derivedSegmentColors[id] = color;
+          });
+        } else if (defaultColor) {
+          // No color mapping — use default color for all visible segments
+          segments.forEach(id => { derivedSegmentColors[id] = defaultColor; });
+        }
+      } else if (!hasMatchingAnnotationSource) {
+        derivedSegmentColors = layerColorMapping;
       }
+
+
+      // // If no color mapping, build one from spatialChannelColor for visible segments
+      // if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
+      //   derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
+      // }
 
       // console.log('[derivedViewerState]');
       // console.log('  layer:', layer.name);
