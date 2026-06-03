@@ -64,19 +64,6 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 
-// Maximum number of annotation spatial chunks fetched per viewport update.
-// Acts as a safety valve against fetch storms on large grids (e.g. 64×64 = 4096 chunks).
-// Chunk sizes scale inversely with grid density — small grids have fewer, larger chunks;
-// large grids have more, smaller chunks — so a fixed chunk count gives consistent
-// viewport coverage across datasets of different sizes.
-// Override via meshMaxChunks prop if the default doesn't suit a specific dataset.
-const MAX_CHUNKS_TO_LOAD = 25;
-
-// Fraction of dataset spatial extent used as the default mesh-load threshold.
-// Meshes are shown only when projectionScale (µm/pixel) is below this fraction
-// of the dataset's largest dimension — i.e. when the user is zoomed in enough
-// to benefit from mesh detail
-const DATASET_SPATIAL_EXTENT = 0.3;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 
@@ -106,7 +93,6 @@ export function NeuroglancerSubscriber(props) {
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
     meshLoadThresholdUm,
-    meshMaxChunks,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -115,6 +101,7 @@ export function NeuroglancerSubscriber(props) {
     // to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState,
   } = props;
+  console.log(meshLoadThresholdUm)
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
@@ -598,18 +585,25 @@ export function NeuroglancerSubscriber(props) {
 
     console.log('total unique centroids across all levels:', allEntries.length);
 
-  // Threshold check - if too zoomed out, clear segments and return
-    const datasetExtentAnnot = Math.max(
-      info.upper_bound[0] - info.lower_bound[0],
-      info.upper_bound[1] - info.lower_bound[1],
-    );
-    const screenCoverageFraction = (screenRadiusAnnot * 2) / datasetExtentAnnot;
-    const MAX_COVERAGE_FRACTION = meshLoadThresholdUm
-      ? meshLoadThresholdUm / 100
-      : 0.30; // default: load meshes when viewport covers < 30% of dataset
-    
-    if (screenCoverageFraction > MAX_COVERAGE_FRACTION) {
-      // Too zoomed out — clear any existing segments
+    // Load meshes when screen radius is less than N chunk sizes
+    // chunkSize[0] = 95 annot units (spatial3)
+    // At screenRadiusAnnot < 3 * chunkSize = 285, we're zoomed in to ~3 chunk widths
+    const finestLevel = info.spatial[info.spatial.length - 1];
+    const chunkSizeAnnot = Math.max(finestLevel.chunk_size[0], finestLevel.chunk_size[1]);
+
+    // meshLoadThresholdUm now = number of chunk widths before meshes appear
+    // default: show meshes when viewport covers < 4 chunk widths
+    const maxChunkWidths = meshLoadThresholdUm ?? 4;
+    const thresholdAnnot = chunkSizeAnnot * maxChunkWidths;
+
+    console.log('[threshold] screenRadiusAnnot:', screenRadiusAnnot.toFixed(1));
+    console.log('[threshold] thresholdAnnot:', thresholdAnnot.toFixed(1), '(', maxChunkWidths, 'chunk widths )');
+    console.log('[threshold] skip?', screenRadiusAnnot > thresholdAnnot);
+    console.log("[zoom level]", projectionScale)
+    console.log('[threshold] meshLoadThresholdUm prop:', meshLoadThresholdUm);
+    console.log('[threshold] maxChunkWidths:', maxChunkWidths);
+
+    if (screenRadiusAnnot > thresholdAnnot) {
       if (visibleSegmentIdsRef.current?.length !== 0) {
         visibleSegmentIdsRef.current = [];
         incrementLatestViewerStateIteration();
@@ -645,7 +639,7 @@ export function NeuroglancerSubscriber(props) {
   
     visibleSegmentIdsRef.current = visibleIds;
     incrementLatestViewerStateIteration();
-  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData]);
+  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadThresholdUm]);
   const updateVisibleSegmentsThrottled = useMemo(
     () => throttle(updateVisibleSegments, 500),
     [updateVisibleSegments],

@@ -112,10 +112,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       ],
     },
     showAxisLines: false,
-    // maximum number of annotation spatial chunks fetched per viewport update
-    meshMaxChunks: 64,
     // projectionScale threshold (in µm/pixel) below which meshes load
-    meshLoadThresholdUm: 30, // Lower = require more zoom before meshes appear.
+    meshLoadThresholdUm: 200, // Lower = require more zoom before meshes appear.
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
