@@ -24,9 +24,7 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState, getViewportBoundingBox } from './utils.js';
-// TODO: Grey color used by Vitessce - maybe set globally
-const GREY_HEX = '#323232';
+import { diffCameraState, GREY_HEX } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;

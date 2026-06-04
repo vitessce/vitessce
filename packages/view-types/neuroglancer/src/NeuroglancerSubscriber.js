@@ -32,7 +32,7 @@ import {
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
-import { useNeuroglancerViewerState, UNIT_TO_NM } from './data-hook-ng-utils.js';
+import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
 import {
   useMemoCustomComparison,
   customIsEqualForCellColors,
@@ -52,6 +52,7 @@ import {
   getIntersectingChunkCoords,
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
+  GREY_HEX,
 } from './utils.js';
 
 
@@ -417,6 +418,16 @@ export function NeuroglancerSubscriber(props) {
             });
             result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+          } else if (instanceObsIndex) {
+            // No expression data available — use default color for all segments
+            const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
+            const ngCellColors = {};
+            instanceObsIndex.forEach((id) => {
+              ngCellColors[id] = fallbackColor;
+            });
+            result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = fallbackColor;
           }
         } else if (layerSets && layerIndex) {
           // cellSetSelection encoding — color by obs set membership
@@ -867,15 +878,11 @@ export function NeuroglancerSubscriber(props) {
 
 
   useEffect(() => {
-    if (!hasMatchingAnnotationSource && isReady) {
-      // Check if obs sets data has loaded with actual IDs
-      const hasData = segmentationLayerScopes?.some(layerScope => segmentationChannelScopesByLayer?.[layerScope]?.some(channelScope => obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsIndex?.length > 0));
-      if (hasData || !segmentationLayerScopes?.length) {
-        setIsLayersLoaded(true);
-      }
+    if (!hasMatchingAnnotationSource && isReady && !segmentationLayerScopes?.length) {
+      // If no segmentation layers at all — show the loading overlay
+      setIsLayersLoaded(true);
     }
-  }, [hasMatchingAnnotationSource, isReady, obsSegmentationsSetsData,
-    segmentationLayerScopes, segmentationChannelScopesByLayer]);
+  }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
 
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,

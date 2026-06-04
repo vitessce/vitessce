@@ -16,6 +16,9 @@ import {
 // Used by NG source code for decoding annotation chunks
 export const ANNOTATION_HEADER_OFFSET = 8;
 
+// TODO: Grey color used by Vitessce - maybe set globally
+export const GREY_HEX = '#323232';
+
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 100,
   projectionOrientation: 2e-2,
