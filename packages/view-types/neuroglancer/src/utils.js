@@ -334,9 +334,16 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
       const x = dv.getFloat32(propBase + 0, true);
       const y = dv.getFloat32(propBase + 4, true);
       const z = dv.getFloat32(propBase + 8, true);
+      const indexInfo = dv.getInt32(propBase + 24, true);
 
       if (x !== 0 || y !== 0 || z !== 0) {
-        results.push({ id: String(segId), x, y, z });
+        results.push({
+          id: String(segId),// mesh segment ID → use for segments array
+          obsId: String(indexInfo), // obsIndex value → use for colors + hover
+          x,
+          y,
+          z,
+        });
       }
     }
   }

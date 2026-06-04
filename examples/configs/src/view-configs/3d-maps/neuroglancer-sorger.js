@@ -80,7 +80,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       projectionAnnotationSpacing: 1,
       useForSegmentationCulling: true,
       featureIndexProp: 'volume_norm',
-      pointIndexProp: 'id',
+      // pointIndexProp: 'index_info',
       quantitativeColorProp: 'volume_norm',
       matrix: [
         [7148.09960682, 0, 0, 0],
@@ -113,7 +113,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     },
     showAxisLines: false,
     // projectionScale threshold (in µm/pixel) below which meshes load
-    meshLoadThresholdUm: 200, // Lower = require more zoom before meshes appear.
+    meshLoadThresholdUm: 500, // Lower = require more zoom before meshes appear.
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');

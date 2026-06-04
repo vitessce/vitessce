@@ -506,32 +506,40 @@ export default class Neuroglancer extends React.Component {
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
       const defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
 
-      // Track all known IDs for this layer scope
-      if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
-      if (!this.allKnownIdsByLayer[layerScope]) {
-        this.allKnownIdsByLayer[layerScope] = new Set();
-      }
-      for (const id of Object.keys(selected)) {
-        this.allKnownIdsByLayer[layerScope].add(id);
-      }
-
-      // Build a full color table: selected keep their hex, others grey
-      const fullSegmentColors = {};
-      for (const id of this.allKnownIdsByLayer[layerScope] || []) {
-        fullSegmentColors[id] = selected[id] || defaultColor; //  use defaultColor
-      }
-
-      if (layer.type === 'segmentation') {
+      // 👇 Only color segments that are currently in viewerState.segments
+      const currentSegments = layer.segments ?? [];
+      console.log('[currentSegments]', currentSegments?.length)
+          
+      if (currentSegments.length > 0) {
+        // Culling active — only color visible segments
+        const segmentSet = new Set(currentSegments.map(String));
+        const fullSegmentColors = {};
+        for (const id of segmentSet) {
+          fullSegmentColors[id] = selected[id] || defaultColor;
+        }
+        return { ...layer, segmentColors: fullSegmentColors };
+      } else {
+        // No culling — color all known segments
+        if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
+        if (!this.allKnownIdsByLayer[layerScope]) {
+          this.allKnownIdsByLayer[layerScope] = new Set();
+        }
+        for (const id of Object.keys(selected)) {
+          this.allKnownIdsByLayer[layerScope].add(id);
+        }
+        const fullSegmentColors = {};
+        for (const id of this.allKnownIdsByLayer[layerScope]) {
+          fullSegmentColors[id] = selected[id] || defaultColor;
+        }
         return { ...layer, segmentColors: fullSegmentColors };
       }
-      return layer;
-    });
-    this.withoutEmitting(() => {
-      this.preserveDimensions(() => {
-        this.viewer.state.restoreState({ layers: newLayers });
       });
+    this.withoutEmitting(() => {
+    this.preserveDimensions(() => {
+      this.viewer.state.restoreState({ layers: newLayers });
     });
-    /* ** Vitessce integration update end ** */
+    });
+/* ** Vitessce integration update end ** */
   };
 
   componentDidMount() {
@@ -707,6 +715,12 @@ export default class Neuroglancer extends React.Component {
     }, 1000);
 
     this.disposers.push(() => { firstChunkLoaded = false; });
+
+    // Prevent browser zoom when scrolling in NG viewer
+    const { canvas } = this.viewer.display;
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+    }, { passive: false });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;

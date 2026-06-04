@@ -64,20 +64,28 @@ export class NeuroglancerComp extends PureComponent {
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
-        // Point annotation hover
+        // For point layer ms.pickedAnnotationId returns the indexInfo (obsId)
+        // which needs to be mapped to mesh Id
         if (ms.pickedAnnotationId != null) {
-          this.latestOnSelectHoveredCoords?.(ms.pickedAnnotationId);
+          // Convert to mesh segment ID via lookup
+          const obsId = String(ms.pickedAnnotationId);
+          const meshId = this.props.getObsIdToMeshId?.(obsId) ?? obsId;
+          this.latestOnSelectHoveredCoords?.(meshId);
           return;
         }
-        // Segment (mesh) hover
+
         if (ms.pickedValue !== undefined) {
-          const pickedSegment = ms.pickedValue;
-          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+          this.latestOnSelectHoveredCoords?.(ms.pickedValue?.low);
           return;
         }
-        // Nothing hovered — clear highlight
+
         this.latestOnSelectHoveredCoords?.(null);
       };
+
+      this.props.onViewerReady?.(() => {
+        const panel = [...viewer.display.panels][0];
+        return panel?.projectionParameters?.value_?.viewProjectionMat;
+      });
 
       viewer.mouseState.changed.add(this.prevHoverHandler);
     } else {
@@ -107,6 +115,7 @@ export class NeuroglancerComp extends PureComponent {
       cellColorMapping,
       onLayerLoadingChange,
       onAnnotationSourceReady,
+      onViewerReady,
     } = this.props;
 
     return (
@@ -123,6 +132,8 @@ export class NeuroglancerComp extends PureComponent {
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
               onAnnotationSourceReady={onAnnotationSourceReady}
+              // getObsIdToMeshId={this.props.getObsIdToMeshId}
+              onViewerReady={onViewerReady}
             />
           </Suspense>
         </div>

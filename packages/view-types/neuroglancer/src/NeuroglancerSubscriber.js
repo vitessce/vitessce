@@ -63,6 +63,8 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
+const MESH_LOAD_THRESHOLD = 30;
+const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
@@ -109,6 +111,8 @@ export function NeuroglancerSubscriber(props) {
   const { classes } = useStyles();
 
   const initialRotationPushedRef = useRef(false);
+  const getViewProjectionMatRef = useRef(null);
+  const obsIdToMeshIdRef = useRef({});
 
   const ngRotPushAtRef = useRef(0);
   const lastInteractionSource = useRef(null);
@@ -125,14 +129,17 @@ export function NeuroglancerSubscriber(props) {
   const chunkCacheRef = useRef(new Map());
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
-  const clearSegmentsTimeoutRef = useRef(null);
-
+  // For overlay when meshes are loaded on demand
+  const [isMeshLoading, setIsMeshLoading] = useState(false);
 
   const [annotationReady, setAnnotationReady] = useState(false);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+  useEffect(() => {
+    window.__chunkCache = chunkCacheRef.current;
+  }, []);
 
   const [{
     dataset,
@@ -482,60 +489,26 @@ export function NeuroglancerSubscriber(props) {
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
     if (!pointLayerScopes?.length) return;
-  
-    const { position, projectionScale, projectionOrientation } = latestViewerStateRef.current;
+
+    const { position, projectionScale } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
-  
+
+    chunkCacheRef.current.clear();
+
+    // Threshold check - too zoomed out, clear segments
+    const maxProjectionScale = meshLoadThresholdUm ?? MESH_LOAD_THRESHOLD;
+    if (projectionScale > maxProjectionScale) {
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+      }
+      return;
+    }
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
-    const spatialLevel = info.spatial[info.spatial.length - 1];
-    const lowerBound = info.lower_bound;
-    const chunkSize = spatialLevel.chunk_size;
-    const gridShape = spatialLevel.grid_shape;
-    const { key } = spatialLevel;
-  
-    // Camera position in annotation space
-    const camAnnotX = position[0] * transform.x;
-    const camAnnotY = position[1] * transform.y;
-  
-    // Screen radius in annotation units
-    const projectionScaleInAnnotUnitsPerPx = projectionScale * transform.x;
-    const screenRadiusAnnot = Math.max(ngWidth, ngHeight) * projectionScaleInAnnotUnitsPerPx * 0.5;
-
-    // Fetch all chunks (64 total) — cached after first load
-    // Position filtering handles precision, no need to limit chunks
-    const allCoords = getIntersectingChunkCoords(
-      {
-        min: [info.lower_bound[0], info.lower_bound[1], -Infinity],
-        max: [info.upper_bound[0], info.upper_bound[1], Infinity],
-      },
-      lowerBound, chunkSize, gridShape,
-    );  
-
     const cellsUrl = info.url;
 
-
-    if (chunkCacheRef.current.size > 0) {
-      const firstVal = chunkCacheRef.current.values().next().value;
-      if (firstVal?.length > 0 && typeof firstVal[0] === 'string') {
-        // console.log('[cache] clearing stale string-format cache');
-        chunkCacheRef.current.clear();
-      }
-    }
-
-    // const testLevel = info.spatial[0]; // spatial0
-    // const testUrl = `${cellsUrl}/${testLevel.key}/0_0_0`;
-    // fetch(testUrl)
-    //   .then(r => r.arrayBuffer())
-    //   .then(buf => {
-    //     const entries = parseAnnotationChunkSegmentsWithPositions(buf);
-    //     // console.log('[spatial0 test] entries:', entries.length);
-    //     // console.log('[spatial0 test] sample:', entries.slice(0, 5));
-    //   });
-  
-
-
-  // Fetch all annotation chunks
+    // Fetch all annotation chunks across all spatial levels
     const allLevelCoords = info.spatial.flatMap((level) => {
       const coords = getIntersectingChunkCoords(
         {
@@ -544,15 +517,12 @@ export function NeuroglancerSubscriber(props) {
         },
         info.lower_bound, level.chunk_size, level.grid_shape,
       );
-      return coords.map(([cx, cy, cz]) => ({
-        level: level.key, cx, cy, cz
-      }));
+      return coords.map(([cx, cy, cz]) => ({ level: level.key, cx, cy, cz }));
     });
 
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
       const { serializer } = annotationTransformRef.current;
       if (!serializer) return [];
-  
       const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
@@ -572,74 +542,79 @@ export function NeuroglancerSubscriber(props) {
         return [];
       }
     };
-
-    const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
-
-    // Deduplicate by ID since same cell may appear in multiple levels
-    const seenIds = new Set();
-    const allEntries = results.flat().filter(({ id }) => {
-      if (seenIds.has(id)) return false;
-      seenIds.add(id);
-      return true;
-    });
-
-    console.log('total unique centroids across all levels:', allEntries.length);
-
-    // Load meshes when screen radius is less than N chunk sizes
-    // chunkSize[0] = 95 annot units (spatial3)
-    // At screenRadiusAnnot < 3 * chunkSize = 285, we're zoomed in to ~3 chunk widths
-    const finestLevel = info.spatial[info.spatial.length - 1];
-    const chunkSizeAnnot = Math.max(finestLevel.chunk_size[0], finestLevel.chunk_size[1]);
-
-    // meshLoadThresholdUm now = number of chunk widths before meshes appear
-    // default: show meshes when viewport covers < 4 chunk widths
-    const maxChunkWidths = meshLoadThresholdUm ?? 4;
-    const thresholdAnnot = chunkSizeAnnot * maxChunkWidths;
-
-    console.log('[threshold] screenRadiusAnnot:', screenRadiusAnnot.toFixed(1));
-    console.log('[threshold] thresholdAnnot:', thresholdAnnot.toFixed(1), '(', maxChunkWidths, 'chunk widths )');
-    console.log('[threshold] skip?', screenRadiusAnnot > thresholdAnnot);
-    console.log("[zoom level]", projectionScale)
-    console.log('[threshold] meshLoadThresholdUm prop:', meshLoadThresholdUm);
-    console.log('[threshold] maxChunkWidths:', maxChunkWidths);
-
-    if (screenRadiusAnnot > thresholdAnnot) {
-      if (visibleSegmentIdsRef.current?.length !== 0) {
-        visibleSegmentIdsRef.current = [];
-        incrementLatestViewerStateIteration();
+  
+    setIsMeshLoading(true);
+  
+    try {
+      const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
+  
+      // Deduplicate by ID across all spatial levels
+      const seenIds = new Set();
+      const allEntries = results.flat().filter(({ id }) => {
+        if (seenIds.has(id)) return false;
+        seenIds.add(id);
+        return true;
+      });
+      // Build obsId → meshId lookup for hover (centroid dot hover returns indexInfo/obsId)
+      const obsIdToMeshId = {};
+      allEntries.forEach(({ id, obsId }) => {
+        obsIdToMeshId[obsId] = id;
+      });
+      obsIdToMeshIdRef.current = obsIdToMeshId;
+  
+      // Get current viewProjectionMatrix from NG panel
+      const mat = getViewProjectionMatRef.current?.();
+  
+      let visibleIds;
+      if (!mat) {
+        // Fallback: load all if projection matrix not available
+        console.warn('[screen cull] no viewProjectionMat, loading all');
+        visibleIds = [...new Set(allEntries.map(({ id }) => id))];
+      } else {
+        // Screen-space projection filter
+        visibleIds = [...new Set(
+          allEntries.filter(({ x, y, z }) => {
+            // annotation to viewer coordinates
+            const vx = x / transform.x;
+            const vy = y / transform.y;
+            const vz = (z || 0) / transform.x;
+  
+            // Project to clip space (column-major matrix)
+            const cx = mat[0]*vx + mat[4]*vy + mat[8]*vz  + mat[12];
+            const cy = mat[1]*vx + mat[5]*vy + mat[9]*vz  + mat[13];
+            const cw = mat[3]*vx + mat[7]*vy + mat[11]*vz + mat[15];
+  
+            // Perspective divide to screen pixels
+            const screenX = ((cx/cw) + 1) * 0.5 * ngWidth;
+            const screenY = (1 - (cy/cw)) * 0.5 * ngHeight;
+  
+            return screenX >= 0 && screenX <= ngWidth &&
+                   screenY >= 0 && screenY <= ngHeight;
+          }).map(({ id }) => id)
+        )];
       }
-      return;
-    }
-  
-    // Position filter -  only centroids whose position is inside the viewport bbox
-    const visibleIds = [...new Set(
-      allEntries
-        .filter(({ x, y }) =>
-          x >= camAnnotX - screenRadiusAnnot &&
-          x <= camAnnotX + screenRadiusAnnot &&
-          y >= camAnnotY - screenRadiusAnnot &&
-          y <= camAnnotY + screenRadiusAnnot,
-        )
-        .map(({ id }) => id),
-    )];
-  
-    // console.log('[centroid cull] screenRadiusAnnot:', screenRadiusAnnot.toFixed(2));
-    // console.log('[centroid cull] camAnnot:', camAnnotX.toFixed(2), camAnnotY.toFixed(2));
-    // console.log('[centroid cull] total centroids:', allEntries.length);
-    // console.log('[centroid cull] visible in viewport:', visibleIds.length);
-  
-    // Clear segments if none visible
-    if (visibleIds.length === 0) {
-      if (visibleSegmentIdsRef.current?.length !== 0) {
-        visibleSegmentIdsRef.current = [];
-        incrementLatestViewerStateIteration();
+      console.log("IDs", visibleIds, projectionScale, )
+      if (visibleIds.length === 0) {
+        if (visibleSegmentIdsRef.current?.length !== 0) {
+          visibleSegmentIdsRef.current = [];
+          incrementLatestViewerStateIteration();
+        }
+        setIsMeshLoading(false);
+        return;
       }
-      return;
-    }
+
+      visibleSegmentIdsRef.current = visibleIds;
+      incrementLatestViewerStateIteration();
+      setTimeout(() => {
+        setIsMeshLoading(false);
+      }, MESH_LOADING_OVERLAY_TIMEOUT);
   
-    visibleSegmentIdsRef.current = visibleIds;
-    incrementLatestViewerStateIteration();
+    } catch (e) {
+      console.warn('[updateVisibleSegments] error:', e);
+      setIsMeshLoading(false);
+    }
   }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadThresholdUm]);
+
   const updateVisibleSegmentsThrottled = useMemo(
     () => throttle(updateVisibleSegments, 500),
     [updateVisibleSegments],
@@ -1063,33 +1038,13 @@ export function NeuroglancerSubscriber(props) {
       // only include colors for visible segments
       let derivedSegmentColors = {};
       if (hasMatchingAnnotationSource && segments.length > 0) {
-        // Build color map only for visible segments
-        const visibleSet = new Set(segments);
-        if (Object.keys(layerColorMapping).length > 0) {
-          // Filter full color mapping to only visible IDs
-          Object.entries(layerColorMapping).forEach(([id, color]) => {
-            if (visibleSet.has(id)) derivedSegmentColors[id] = color;
-          });
-        } else if (defaultColor) {
-          // No color mapping — use default color for all visible segments
-          segments.forEach(id => { derivedSegmentColors[id] = defaultColor; });
-        }
+        segments.forEach((meshId) => {
+          const color = layerColorMapping[meshId] || defaultColor;
+          if (color) derivedSegmentColors[meshId] = color;
+        });
       } else if (!hasMatchingAnnotationSource) {
         derivedSegmentColors = layerColorMapping;
       }
-
-
-      // // If no color mapping, build one from spatialChannelColor for visible segments
-      // if (Object.keys(layerColorMapping).length === 0 && defaultColor && segments.length > 0) {
-      //   derivedSegmentColors = Object.fromEntries(segments.map(id => [id, defaultColor]));
-      // }
-
-      // console.log('[derivedViewerState]');
-      // console.log('  layer:', layer.name);
-      // console.log('  hasMatchingAnnotationSource:', hasMatchingAnnotationSource);
-      // console.log('  visibleSegmentIdsRef.current count:', visibleSegmentIdsRef.current?.length);
-      // console.log('  segments being set:', segments.length);
-      // console.log('  segments sample:', segments.slice(0, 5));
 
       return {
         ...layer,
@@ -1129,9 +1084,11 @@ export function NeuroglancerSubscriber(props) {
   }, [setCellHighlight]);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
-    setIsLayersLoaded(isLoaded);
-  }, []);
-
+    if (!isLayersLoaded && isLoaded) {
+      setIsLayersLoaded(true);
+    }
+  }, [isLayersLoaded]);
+  
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
@@ -1150,7 +1107,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady && isLayersLoaded}
+      isReady={isReady && isLayersLoaded && !isMeshLoading}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
@@ -1184,6 +1141,8 @@ export function NeuroglancerSubscriber(props) {
             setViewerState={handleStateUpdate}
             onLayerLoadingChange={handleLayerLoadingChange}
             onAnnotationSourceReady={onAnnotationSourceReady}
+            onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
+            getObsIdToMeshId={obsId => obsIdToMeshIdRef.current[obsId]}
           />
         </div>
       ) : null}
