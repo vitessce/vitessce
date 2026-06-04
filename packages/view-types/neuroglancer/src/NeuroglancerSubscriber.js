@@ -1132,7 +1132,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady && isLayersLoaded && !isMeshLoading}
+      isReady={isReady && isLayersLoaded && !(hasMatchingAnnotationSource && isMeshLoading)}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
