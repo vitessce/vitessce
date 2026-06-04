@@ -506,7 +506,7 @@ export default class Neuroglancer extends React.Component {
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
       const defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
 
-      // 👇 Only color segments that are currently in viewerState.segments
+      // Only color segments that are currently in viewerState.segments
       const currentSegments = layer.segments ?? [];
       if (currentSegments.length > 0) {
         // Culling active — only color visible segments
@@ -700,7 +700,6 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(visibleChunksChanged.add(checkAndMarkLoaded));
 
     // To fix infinite loading loop on subsequent page refresh due to cache
-
     // Also check immediately in case chunks already loaded (cached)
     setTimeout(() => {
       if (!firstChunkLoaded) checkAndMarkLoaded();
@@ -712,12 +711,6 @@ export default class Neuroglancer extends React.Component {
     }, 1000);
 
     this.disposers.push(() => { firstChunkLoaded = false; });
-
-    // // Prevent browser zoom when scrolling in NG viewer
-    // const { canvas } = this.viewer.display;
-    // canvas.addEventListener('wheel', (e) => {
-    //   e.preventDefault();
-    // }, { passive: false });
 
     // Prevent browser pinch-zoom when using touchpad inside NG viewer
     document.addEventListener('wheel', (e) => {
@@ -731,8 +724,8 @@ export default class Neuroglancer extends React.Component {
     });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
-    window.viewer = this.viewer;
-    window.getViewportBoundingBox = getViewportBoundingBox;
+    // window.viewer = this.viewer;
+    // window.getViewportBoundingBox = getViewportBoundingBox;
   }
 
   componentDidUpdate(prevProps, prevState) {

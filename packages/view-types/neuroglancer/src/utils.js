@@ -269,29 +269,6 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
 }
 
 /**
- * Parse segment IDs from annotation chunk binary data
- * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
- */
-export function parseAnnotationChunkSegmentIds(buffer, serializer) {
-  const dv = new DataView(buffer);
-  const count = dv.getUint32(0, true);
-  if (count === 0) return [];
-  // Property data starts at offset 8
-  // Each record is numBytes (20) bytes
-  // Use the serializer to read the 'id' property
-  const properties = [null, null];
-  const ids = [];
-
-  for (let i = 0; i < count; i++) {
-    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
-    // properties[0] = phenotype
-    // properties[1] = id (mesh segment ID)
-    if (properties[1] > 0) ids.push(String(properties[1]));
-  }
-  return ids;
-}
-
-/**
  * Parse segment IDs and positions from annotation chunk binary data
  * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
 */

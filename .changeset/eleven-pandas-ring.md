@@ -4,4 +4,4 @@
 "@vitessce/schemas": patch
 ---
 
-Adds on-demand-mesh-loading when centroids for pointsLayer is available
+Adds on-demand-mesh-loading when centroids for pointsLayer are available

@@ -49,9 +49,7 @@ import {
   rad2deg,
   deg2rad,
   Q_Y_UP,
-  getViewportBoundingBox,
   getIntersectingChunkCoords,
-  parseAnnotationChunkSegmentIds,
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
 } from './utils.js';

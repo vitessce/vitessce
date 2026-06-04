@@ -135,7 +135,6 @@ export class NeuroglancerComp extends PureComponent {
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
               onAnnotationSourceReady={onAnnotationSourceReady}
-              // getObsIdToMeshId={this.props.getObsIdToMeshId}
               onViewerReady={onViewerReady}
             />
           </Suspense>
