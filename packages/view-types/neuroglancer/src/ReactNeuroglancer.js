@@ -723,7 +723,6 @@ export default class Neuroglancer extends React.Component {
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     // window.viewer = this.viewer;
-    // window.getViewportBoundingBox = getViewportBoundingBox;
   }
 
   componentDidUpdate(prevProps, prevState) {

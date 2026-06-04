@@ -400,9 +400,17 @@ export function NeuroglancerSubscriber(props) {
             ?.[layerScope]?.[channelScope]?.obsIndex;
           const expressionData = segmentationMultiExpressionNormData
             ?.[layerScope]?.[channelScope];
-          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
-            const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
-            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(key));
+            if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
+              // matrixObsIndex uses 'MIS_X' format, instanceObsIndex uses 'X'
+              // Strip prefix to align the two index spaces
+              const matrixIndexMap = new Map(
+                matrixObsIndex.map((key, i) => {
+                  // Strip any non-numeric prefix (e.g. 'MIS_0' -> '0')
+                  const normalizedKey = key.replace(/^[^0-9]+/, '');
+                  return [normalizedKey, i];
+                })
+              );
+            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(String(key)));
             const [low, high] = featureValueColormapRange ?? [0, 1];
             const ngCellColors = {};
             instanceObsIndex.forEach((id, i) => {
