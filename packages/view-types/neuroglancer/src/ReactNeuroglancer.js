@@ -716,11 +716,22 @@ export default class Neuroglancer extends React.Component {
 
     this.disposers.push(() => { firstChunkLoaded = false; });
 
-    // Prevent browser zoom when scrolling in NG viewer
-    const { canvas } = this.viewer.display;
-    canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
+    // // Prevent browser zoom when scrolling in NG viewer
+    // const { canvas } = this.viewer.display;
+    // canvas.addEventListener('wheel', (e) => {
+    //   e.preventDefault();
+    // }, { passive: false });
+
+    // Prevent browser pinch-zoom when using touchpad inside NG viewer
+    document.addEventListener('wheel', (e) => {
+      if (e.ctrlKey) e.preventDefault();
     }, { passive: false });
+
+    this.disposers.push(() => {
+      document.removeEventListener('wheel', (e) => {
+        if (e.ctrlKey) e.preventDefault();
+      });
+    });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;

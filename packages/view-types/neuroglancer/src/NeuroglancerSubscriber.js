@@ -544,7 +544,6 @@ export function NeuroglancerSubscriber(props) {
       }
     };
   
-    setIsMeshLoading(true);
     try {
       const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
       // Deduplicate by ID across all spatial levels
@@ -595,7 +594,7 @@ export function NeuroglancerSubscriber(props) {
           }).map(({ id }) => id)
         )];
       }
-      console.log("IDs", visibleIds, projectionScale, visibleSegmentIdsRef.current?.length);
+      // console.log("IDs", projectionScale, visibleIds.length, visibleSegmentIdsRef.current?.length);
 
       // If panned into an empty area
       if (visibleIds.length === 0) {
@@ -607,19 +606,22 @@ export function NeuroglancerSubscriber(props) {
         return;
       }
 
-      // Only show overlay if visibleIds changed from previous
       const prevIds = new Set(visibleSegmentIdsRef.current ?? []);
-      const newIds = new Set(visibleIds);
-      const hasChanged = visibleIds.some(id => !prevIds.has(id))
-        || prevIds.size !== newIds.size;
 
-      if (hasChanged) {
-        setIsMeshLoading(true); // only show overlay when IDs actually changed
+      // Count how many IDs are new (not in previous set)
+      const addedIdsCount = visibleIds.filter(id => !prevIds.has(id)).length;
+
+      // Only show overlay if significant number of new meshes need loading
+      const hasSignificantChange = addedIdsCount > 5;
+
+      if (hasSignificantChange) {
+        setIsMeshLoading(true);
       }
 
       visibleSegmentIdsRef.current = visibleIds;
       incrementLatestViewerStateIteration();
-      if (hasChanged) {
+
+      if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }
     } catch (e) {
