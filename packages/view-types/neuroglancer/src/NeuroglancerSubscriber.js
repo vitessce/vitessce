@@ -63,7 +63,7 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
-const MESH_LOAD_THRESHOLD = 30;
+const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 
@@ -94,7 +94,7 @@ export function NeuroglancerSubscriber(props) {
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
-    meshLoadThresholdUm,
+    meshLoadProjectionScaleThreshold,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -103,7 +103,6 @@ export function NeuroglancerSubscriber(props) {
     // to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState,
   } = props;
-  console.log(meshLoadThresholdUm)
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
@@ -473,7 +472,9 @@ export function NeuroglancerSubscriber(props) {
     obsPointsData,
     pointMultiIndicesData,
   );
-
+  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
+  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
+  // is the mechanism to propagate culling updates to the NG viewer state.
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
     ...initialViewerState,
@@ -483,7 +484,6 @@ export function NeuroglancerSubscriber(props) {
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
-
   const updateVisibleSegments = useCallback(async () => {
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
@@ -496,11 +496,12 @@ export function NeuroglancerSubscriber(props) {
     chunkCacheRef.current.clear();
 
     // Threshold check - too zoomed out, clear segments
-    const maxProjectionScale = meshLoadThresholdUm ?? MESH_LOAD_THRESHOLD;
+    const maxProjectionScale = meshLoadProjectionScaleThreshold ?? MESH_LOAD_THRESHOLD;
     if (projectionScale > maxProjectionScale) {
       if (visibleSegmentIdsRef.current?.length !== 0) {
         visibleSegmentIdsRef.current = [];
         incrementLatestViewerStateIteration();
+        setIsMeshLoading(false);
       }
       return;
     }
@@ -544,10 +545,8 @@ export function NeuroglancerSubscriber(props) {
     };
   
     setIsMeshLoading(true);
-  
     try {
       const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
-  
       // Deduplicate by ID across all spatial levels
       const seenIds = new Set();
       const allEntries = results.flat().filter(({ id }) => {
@@ -562,7 +561,7 @@ export function NeuroglancerSubscriber(props) {
       });
       obsIdToMeshIdRef.current = obsIdToMeshId;
   
-      // Get current viewProjectionMatrix from NG panel
+      // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
   
       let visibleIds;
@@ -572,6 +571,8 @@ export function NeuroglancerSubscriber(props) {
         visibleIds = [...new Set(allEntries.map(({ id }) => id))];
       } else {
         // Screen-space projection filter
+        // Screen-space culling: project each centroid from annotation space
+        // to screen pixels and keep only those within the viewport bounds.
         visibleIds = [...new Set(
           allEntries.filter(({ x, y, z }) => {
             // annotation to viewer coordinates
@@ -587,13 +588,16 @@ export function NeuroglancerSubscriber(props) {
             // Perspective divide to screen pixels
             const screenX = ((cx/cw) + 1) * 0.5 * ngWidth;
             const screenY = (1 - (cy/cw)) * 0.5 * ngHeight;
-  
+
+            // Keep centroid only if it projects within the viewport.
             return screenX >= 0 && screenX <= ngWidth &&
                    screenY >= 0 && screenY <= ngHeight;
           }).map(({ id }) => id)
         )];
       }
-      console.log("IDs", visibleIds, projectionScale, )
+      console.log("IDs", visibleIds, projectionScale, visibleSegmentIdsRef.current?.length);
+
+      // If panned into an empty area
       if (visibleIds.length === 0) {
         if (visibleSegmentIdsRef.current?.length !== 0) {
           visibleSegmentIdsRef.current = [];
@@ -603,17 +607,26 @@ export function NeuroglancerSubscriber(props) {
         return;
       }
 
+      // Only show overlay if visibleIds changed from previous
+      const prevIds = new Set(visibleSegmentIdsRef.current ?? []);
+      const newIds = new Set(visibleIds);
+      const hasChanged = visibleIds.some(id => !prevIds.has(id))
+        || prevIds.size !== newIds.size;
+
+      if (hasChanged) {
+        setIsMeshLoading(true); // only show overlay when IDs actually changed
+      }
+
       visibleSegmentIdsRef.current = visibleIds;
       incrementLatestViewerStateIteration();
-      setTimeout(() => {
-        setIsMeshLoading(false);
-      }, MESH_LOADING_OVERLAY_TIMEOUT);
-  
+      if (hasChanged) {
+        setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
+      }
     } catch (e) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadThresholdUm]);
+  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
 
   const updateVisibleSegmentsThrottled = useMemo(
     () => throttle(updateVisibleSegments, 500),

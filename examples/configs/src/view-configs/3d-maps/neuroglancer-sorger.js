@@ -112,8 +112,9 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       ],
     },
     showAxisLines: false,
-    // projectionScale threshold (in µm/pixel) below which meshes load
-    meshLoadThresholdUm: 500, // Lower = require more zoom before meshes appear.
+    // Maximum projectionScale at which meshes start loading.
+    // Higher = meshes load at lower zoom levels. Lower = requires more zoom before meshes appear.
+    meshLoadProjectionScaleThreshold: 500,
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
