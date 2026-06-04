@@ -9,7 +9,6 @@ import {
   interpolateJet,
   interpolateGreys,
 } from '@vitessce/sets-utils';
-import { UNIT_TO_NM } from './data-hook-ng-utils.js';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
@@ -338,7 +337,7 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
 
       if (x !== 0 || y !== 0 || z !== 0) {
         results.push({
-          id: String(segId),// mesh segment ID → use for segments array
+          id: String(segId), // mesh segment ID → use for segments array
           obsId: String(indexInfo), // obsIndex value → use for colors + hover
           x,
           y,

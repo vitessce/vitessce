@@ -136,9 +136,6 @@ export function NeuroglancerSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
-  useEffect(() => {
-    window.__chunkCache = chunkCacheRef.current;
-  }, []);
 
   const [{
     dataset,
@@ -543,7 +540,7 @@ export function NeuroglancerSubscriber(props) {
         return [];
       }
     };
-  
+
     try {
       const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
       // Deduplicate by ID across all spatial levels
@@ -559,10 +556,10 @@ export function NeuroglancerSubscriber(props) {
         obsIdToMeshId[obsId] = id;
       });
       obsIdToMeshIdRef.current = obsIdToMeshId;
-  
+
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
-  
+
       let visibleIds;
       if (!mat) {
         // Fallback: load all if projection matrix not available
@@ -578,20 +575,20 @@ export function NeuroglancerSubscriber(props) {
             const vx = x / transform.x;
             const vy = y / transform.y;
             const vz = (z || 0) / transform.x;
-  
+
             // Project to clip space (column-major matrix)
-            const cx = mat[0]*vx + mat[4]*vy + mat[8]*vz  + mat[12];
-            const cy = mat[1]*vx + mat[5]*vy + mat[9]*vz  + mat[13];
-            const cw = mat[3]*vx + mat[7]*vy + mat[11]*vz + mat[15];
-  
+            const cx = mat[0] * vx + mat[4] * vy + mat[8] * vz + mat[12];
+            const cy = mat[1] * vx + mat[5] * vy + mat[9] * vz + mat[13];
+            const cw = mat[3] * vx + mat[7] * vy + mat[11] * vz + mat[15];
+
             // Perspective divide to screen pixels
-            const screenX = ((cx/cw) + 1) * 0.5 * ngWidth;
-            const screenY = (1 - (cy/cw)) * 0.5 * ngHeight;
+            const screenX = ((cx / cw) + 1) * 0.5 * ngWidth;
+            const screenY = (1 - (cy / cw)) * 0.5 * ngHeight;
 
             // Keep centroid only if it projects within the viewport.
-            return screenX >= 0 && screenX <= ngWidth &&
-                   screenY >= 0 && screenY <= ngHeight;
-          }).map(({ id }) => id)
+            return screenX >= 0 && screenX <= ngWidth
+                   && screenY >= 0 && screenY <= ngHeight;
+          }).map(({ id }) => id),
         )];
       }
       // console.log("IDs", projectionScale, visibleIds.length, visibleSegmentIdsRef.current?.length);
@@ -1103,7 +1100,7 @@ export function NeuroglancerSubscriber(props) {
       setIsLayersLoaded(true);
     }
   }, [isLayersLoaded]);
-  
+
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;

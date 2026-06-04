@@ -62,6 +62,8 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
+      const { getObsIdToMeshId, onViewerReady } = this.props;
+
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
         // For point layer ms.pickedAnnotationId returns the indexInfo (obsId)
@@ -69,7 +71,7 @@ export class NeuroglancerComp extends PureComponent {
         if (ms.pickedAnnotationId != null) {
           // Convert to mesh segment ID via lookup
           const obsId = String(ms.pickedAnnotationId);
-          const meshId = this.props.getObsIdToMeshId?.(obsId) ?? obsId;
+          const meshId = getObsIdToMeshId?.(obsId) ?? obsId;
           this.latestOnSelectHoveredCoords?.(meshId);
           return;
         }
@@ -82,8 +84,9 @@ export class NeuroglancerComp extends PureComponent {
         this.latestOnSelectHoveredCoords?.(null);
       };
 
-      this.props.onViewerReady?.(() => {
+      onViewerReady?.(() => {
         const panel = [...viewer.display.panels][0];
+        /* eslint-disable-next-line no-underscore-dangle */
         return panel?.projectionParameters?.value_?.viewProjectionMat;
       });
 
