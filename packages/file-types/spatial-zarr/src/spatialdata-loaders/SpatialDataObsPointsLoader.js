@@ -61,7 +61,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locations = await this.dataSource.loadPoints(path);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
@@ -82,7 +82,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     let locationsFeatureIndex;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locationsFeatureIndex = await this.dataSource.loadPointsFeatureIds(
         path,
       );
@@ -103,7 +103,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     let locations;
     // TODO: cache the format version associated with this path.
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locations = await this.dataSource.loadPointsInRect(
         path, bounds, signal, featureIndexColumn, mortonCodeColumn,
       );
@@ -138,7 +138,6 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       mortonCodeColumn,
     } = this.options;
 
-    // Check for the presence of bounding_box metadata.
     const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
     const { spatialdata_attrs: spatialDataAttrs } = zattrs;
     const { feature_key: featureKey } = spatialDataAttrs;
@@ -160,18 +159,10 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       ),
     ]);
 
-    const isSupportedVersion = formatVersion === '0.1';
-    const boundingBox = zattrs?.bounding_box;
-    const hasBoundingBox2D = (
-      typeof boundingBox?.x_max === 'number'
-      && typeof boundingBox?.x_min === 'number'
-      && typeof boundingBox?.y_max === 'number'
-      && typeof boundingBox?.y_min === 'number'
-    );
+    const isSupportedVersion = formatVersion === '0.1' || formatVersion === '0.2';
 
     return (
       isSupportedVersion
-      && hasBoundingBox2D
       && hasRequiredColumnsAndRowGroupSize
     );
   }
@@ -221,7 +212,7 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
         obsPointsModelMatrix: modelMatrix,
 
         // Return 'tiled' if the morton_code_2d column
-        // and bounding_box metadata are present,
+        // is present,
         // and the row group size is small enough.
         // Otherwise, return 'full'.
         obsPointsTilingType: (supportsTiling ? 'tiled' : 'full'),

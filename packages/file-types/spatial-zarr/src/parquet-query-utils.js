@@ -8,9 +8,13 @@
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
 import { createGetRange } from '@vitessce/zarr-utils';
+import { log } from '@vitessce/globals';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { QueryClient } from '@tanstack/react-query' */
+
+// Corresponds to value in vitessce-python.
+export const MORTON_CODE_EXTREME_VALUE_INDICATOR = 0;
 
 
 export async function getParquetModule() {
@@ -126,7 +130,11 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
 
       // Step 2: Extract footer length and magic number
       // little-endian
-      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
+      const footerLength = new DataView(
+        tailBytes.buffer,
+        tailBytes.byteOffset,
+        tailBytes.byteLength,
+      ).getInt32(0, true);
       const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
 
       if (magic !== 'PAR1') {
@@ -180,24 +188,30 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
           if (error.message.includes('Failed to load parquet footerLength')) {
             // No more parts found.
             numParts = partIndex;
+            log.info(`Found ${numParts} parts for parquet path ${parquetPath}; An above "Failed to load parquet footerLength" error is expected for the subsequent part.`);
           }
         }
       } while (numParts === undefined);
 
       // Accumulate metadata across all parts.
+      // Note: It is possible for each part to have a different number of row groups
+      // and rows per row group.
+      // Namely, the first part is likely to contain only the first 0-4 "sentinel" rows
+      // for computing the bounding box in a single 4-element row group,
+      // while the subsequent parts will contain more row groups of size ~25_000.
+      const numRows = allMetadata.map(part => part.metadata.fileMetadata().numRows());
+      const numRowGroups = allMetadata.map(part => part.metadata.numRowGroups());
+      const numRowsPerGroup = allMetadata.map(part => part.metadata.rowGroup(0).numRows());
+
       const metadata = {
-        numRows: 0,
-        numRowGroups: 0,
-        numRowsPerGroup: 0,
-        schema: null,
+        totalNumRows: numRows.reduce((a, b) => a + b, 0),
+        totalNumRowGroups: numRowGroups.reduce((a, b) => a + b, 0),
+        // Array of count per part (length equal to numParts).
+        numRowsByPart: numRows,
+        numRowGroupsByPart: numRowGroups,
+        numRowsPerGroupByPart: numRowsPerGroup,
+        schema: allMetadata?.[0]?.schema?.schema,
       };
-      if (allMetadata.length > 0) {
-        const firstPart = allMetadata[0];
-        metadata.numRows = allMetadata.reduce((sum, part) => sum + part.metadata.fileMetadata().numRows(), 0);
-        metadata.numRowGroups = allMetadata.reduce((sum, part) => sum + part.metadata.numRowGroups(), 0);
-        metadata.numRowsPerGroup = firstPart.metadata.rowGroup(0).numRows(); // TODO: try/catch in case no row groups?
-        metadata.schema = firstPart.schema.schema;
-      }
 
       const result = {
         ...metadata,
@@ -222,8 +236,8 @@ export async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, p
       const { readParquetRowGroup } = await _getParquetModule({ queryClient });
 
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-      if (rowGroupIndex < 0 || rowGroupIndex >= allMetadata.numRowGroups) {
-        throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.numRowGroups} row groups.`);
+      if (rowGroupIndex < 0 || rowGroupIndex >= allMetadata.totalNumRowGroups) {
+        throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.totalNumRowGroups} row groups.`);
       }
 
       // Find the part index that contains this row group.
@@ -380,10 +394,10 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
       const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
-      const { numRowGroups } = allMetadata;
+      const { totalNumRowGroups } = allMetadata;
 
       let lo = 0;
-      let hi = numRowGroups;
+      let hi = totalNumRowGroups;
       while (lo < hi) {
         // The optimization: Can we do better than lo and hi?
         // Check cachedRowGroupInfo to determine whether a closer row group is already contained in the queryClient cache.

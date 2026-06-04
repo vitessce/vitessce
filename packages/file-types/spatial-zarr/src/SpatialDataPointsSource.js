@@ -81,7 +81,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
     const formatVersion = zattrs.spatialdata_attrs.version;
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === 'ngff:points' && !(formatVersion === '0.1')) {
+    if (encodingType === 'ngff:points' && !(formatVersion === '0.1' || formatVersion === '0.2')) {
       throw new Error(
         `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
       );
@@ -215,11 +215,6 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const {
       // axes,
       spatialdata_attrs: spatialDataAttrs,
-      // The bounding box (extent) of all points.
-      // Required for un-normalization from uints back to floats.
-      // TODO: decide whether these will be stored here or somewhere else.
-      // Reference: https://github.com/vitessce/vitessce-python/pull/476#issuecomment-3362656956
-      bounding_box: allPointsBbox,
     } = zattrs;
     // const normAxes = normalizeAxes(axes);
     // const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
@@ -235,7 +230,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     );
 
     return this.loadParquetTableInRect(
-      parquetPath, tileBbox, allPointsBbox, signal,
+      parquetPath, tileBbox, signal,
       featureIndexColumnName, mortonCodeColumn,
     );
   }

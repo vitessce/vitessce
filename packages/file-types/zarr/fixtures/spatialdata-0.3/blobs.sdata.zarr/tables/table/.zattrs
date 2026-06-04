@@ -1,0 +1,9 @@
+{
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
+    "instance_key": "instance_id",
+    "region": "blobs_labels",
+    "region_key": "region",
+    "spatialdata-encoding-type": "ngff:regions_table",
+    "version": "0.1"
+}

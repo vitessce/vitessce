@@ -1,4 +1,29 @@
 
+## 3.9.11
+
+### Patch Changes
+
+- Support for SpatialData shapes format 0.3. (`@vitessce/spatial-zarr`) ([#2495](https://github.com/vitessce/vitessce/pull/2495))
+
+
+## 3.9.10
+
+### Patch Changes
+
+- Updated tiled points loading implementation to rely on the first 2-4 rows of the points dataframe to compute the bounding box, rather than relying on non-standard metadata (as the new approach only requires sorting). (`@vitessce/spatial-zarr`) ([#2489](https://github.com/vitessce/vitessce/pull/2489))
+
+- Add support for zipped multivec zarr stores for the genomic profiles view. (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/config`) ([#2484](https://github.com/vitessce/vitessce/pull/2484))
+
+- Update comparative example dataset. (`@vitessce/comparative`) ([#2481](https://github.com/vitessce/vitessce/pull/2481))
+
+
+## 3.9.9
+
+### Patch Changes
+
+- Add test fixtures that use anndata Python package versions 0.11 and 0.12 and spatialdata Python package versions 0.3 and 0.7. The anndata 0.12 and spatialdata 0.7 fixtures are written to Zarr v3 format. New unit tests and configurations that use the new fixtures are added. Update the `anndata.zarr` \_loadColumn function to support string-array and nullable-string-array encoding types. Update the `spatialdata.zarr` points format validation to allow points format 0.2. (`@vitessce/zarr`) ([#2479](https://github.com/vitessce/vitessce/pull/2479))
+
+
 ## 3.9.8
 
 ### Patch Changes
