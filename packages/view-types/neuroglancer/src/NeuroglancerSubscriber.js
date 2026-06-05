@@ -536,7 +536,12 @@ export function NeuroglancerSubscriber(props) {
     });
 
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
-      const { serializer } = annotationTransformRef.current;
+      const { serializers, serializer: defaultSerializer } = annotationTransformRef.current;
+      // TODO: confirm for all datasets
+      // spatial0 uses serializer[0] (32 bytes), spatial1/2/3 use serializer[1] (44 bytes)
+      const serializer = level === 'spatial0'
+        ? (serializers?.[0] ?? defaultSerializer)
+        : (serializers?.[1] ?? defaultSerializer);
       if (!serializer) return [];
       const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
@@ -608,6 +613,12 @@ export function NeuroglancerSubscriber(props) {
           }).map(({ id }) => id),
         )];
       }
+      // Confirming phenotypes are correct cell types for an id - tested against csv
+      // console.log('[phenotype] sample entries:', 
+      //   allEntries.slice(0, 50).map(e => ({ 
+      //     id: e.id, phenotype: e.phenotype 
+      //   }))
+      // );
       // console.log("IDs", projectionScale, visibleIds.length, visibleSegmentIdsRef.current?.length);
 
       // If panned into an empty area

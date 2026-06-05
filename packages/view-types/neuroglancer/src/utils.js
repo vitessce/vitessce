@@ -282,12 +282,8 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
   const count = dv.getUint32(0, true);
   // countHigh at bytes 4-7 should be 0
   if (count === 0) return [];
-
+  // 32 for spatial0, 44 for spatial1/2/3
   const numBytes = serializer.serializedBytes;
-  const expectedBytes = 8 + (numBytes + 8) * count;
-  if (buffer.byteLength !== expectedBytes) {
-    console.warn(`[parseAnnotations] unexpected buffer size: got ${buffer.byteLength}, expected ${expectedBytes}`);
-  }
   // float32 index in buffer:
   // [0] x position
   // [1] y position
@@ -304,21 +300,23 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
   for (let i = 0; i < count; i++) {
     // Use serializer to read properties for annotation i
     serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
-
+    const phenotype = properties[0]; // phenotype int8
     const segId = properties[1]; // 'id' property = mesh segment ID
+    const indexInfo = properties[4]; // index_info
     if (segId > 0) {
       // Position x,y,z are the first 3 float32 in each annotation's property block
       // at offset: 8 (header) + i * numBytes
-      const propBase = 8 + i * numBytes;
+      const propBase = ANNOTATION_HEADER_OFFSET + i * numBytes;
       const x = dv.getFloat32(propBase + 0, true);
       const y = dv.getFloat32(propBase + 4, true);
       const z = dv.getFloat32(propBase + 8, true);
-      const indexInfo = dv.getInt32(propBase + 24, true);
+      // const indexInfo = dv.getInt32(propBase + 24, true);
 
       if (x !== 0 || y !== 0 || z !== 0) {
         results.push({
           id: String(segId), // mesh segment ID → use for segments array
           obsId: String(indexInfo), // obsIndex value → use for colors + hover
+          phenotype: Number(phenotype),
           x,
           y,
           z,

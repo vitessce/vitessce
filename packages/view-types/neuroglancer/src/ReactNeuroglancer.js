@@ -680,12 +680,17 @@ export default class Neuroglancer extends React.Component {
             requestAnimationFrame(() => requestAnimationFrame(() => {
               this.props.onLayerLoadingChange?.(true);
             }));
-
             const annotState = layer.layer.annotationStates?.states[0];
             const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
-            const serializer = annotState?.source?.annotationPropertySerializers?.[0];
-            if (t && serializer) {
-              this.props.onAnnotationSourceReady?.({ x: t[0], y: t[5], z: t[10], serializer });
+            const serializers = annotState?.source?.annotationPropertySerializers;
+            if (t && serializers) {
+              this.props.onAnnotationSourceReady?.({ 
+                x: t[0], 
+                y: t[5], 
+                z: t[10], 
+                serializers, // pass all serializers
+                serializer: serializers[0] // keep default for backward compat
+              });
             }
             return true;
           }
@@ -722,7 +727,7 @@ export default class Neuroglancer extends React.Component {
     });
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
-    // window.viewer = this.viewer;
+    window.viewer = this.viewer;
   }
 
   componentDidUpdate(prevProps, prevState) {

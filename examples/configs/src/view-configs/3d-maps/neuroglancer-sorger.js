@@ -42,8 +42,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       obsIndex: 'CellID',
       obsSets: [
         {
-          name: 'Clusters',
-          column: 'spatial_kmeans',
+          name: 'Cell Types',
+          column: 'phenotype',
         },
       ],
     },
