@@ -561,6 +561,35 @@ export function getRandomPerPointFilteredShader(
     `;
 }
 
+/**
+ * Generate a shader for obsSetSelection encoding using phenotype index.
+ * Colors each point by its phenotype category using colors from obsSetColor.
+ * @param {Array} phenotypeColors - Array of 13 RGB colors [r,g,b] indexed by phenotype int8
+ * @param {number} opacity
+ * @param {number} borderWidth
+ */
+export function getObsSetSelectionShader(
+  phenotypeColors,
+  opacity,
+  borderWidth = 0.0,
+) {
+  const numColors = phenotypeColors.length;
+  const normColors = phenotypeColors.map(c => normalizeColor(c));
+  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
+
+  return `
+    void main() {
+      int phenotype = prop_phenotype();
+      ${colorsDecl}
+      vec3 color = ${toVec3(normalizeColor([128, 128, 128]))};
+      if (phenotype >= 0 && phenotype < ${numColors}) {
+        color = phenotypeColors[phenotype];
+      }
+      setColor(vec4(color, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
+}
 
 export function getPointsShader(layerCoordination) {
   const {
@@ -578,6 +607,8 @@ export function getPointsShader(layerCoordination) {
     quantitativeColorProp,
     featureValueColormap,
     featureValueColormapRange,
+    obsSetColor,
+    obsSetSelection,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
@@ -757,6 +788,69 @@ export function getPointsShader(layerCoordination) {
       pointMarkerBorderWidth,
     );
   }
+
+  if (obsColorEncoding === 'cellSetSelection') {
+    if (!obsSetColor || !obsSetSelection) {
+      // Fall back to static grey until obs sets load
+      return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
+    }
+  //   // Build color array indexed by phenotype int8 (0-12)
+  //   // phenotypeIndexMap maps index → phenotype name
+  //   const phenotypeIndexMap = [
+  //     'B cells',              // 0
+  //     'CD11B+ CD11C- cells',  // 1
+  //     'CD4 T',                // 2
+  //     'CD8 T',                // 3
+  //     'Dendritic cells',      // 4
+  //     'B cells',              // 5 - verify
+  //     'Macrophage',           // 6
+  //     'T reg',                // 7
+  //     'Tissue T',             // 8
+  //     'Tumor',                // 9
+  //     'Unknown',              // 10
+  //     'endothelial',          // 11
+  //     'keratinocytes',        // 12
+  //   ];
+  
+  //   // Build color array from obsSetColor
+  //   const phenotypeColors = phenotypeIndexMap.map((name) => {
+  //     // obsSetColor is array of { path, color }
+  //     // Find color for this phenotype name
+  //     const match = obsSetColor?.find(
+  //       c => c.path?.[1] === name || c.path?.[0] === name
+  //     );
+  //     return match?.color ?? defaultColor;
+  //   });
+  
+  //   return getObsSetSelectionShader(phenotypeColors, opacity, pointMarkerBorderWidth);
+  // }
+
+    // Build color lookup from obsSetColor
+    // obsSetColor is array of { path: ['Cell Types', 'CD8 T'], color: [r,g,b] }
+      const colorByName = {};
+      obsSetColor?.forEach(({ path, color }) => {
+       // Only include leaf nodes (path length > 1)
+        // path[0] = group name ('Cell Types'), path[1] = phenotype name
+        if (path?.length > 1) {
+          colorByName[path[path.length - 1]] = color;
+        }
+      });
+
+      // Build phenotype index → color array
+      // Phenotypes are stored as sorted alphabetical indices in binary
+      const uniqueNames = Object.keys(colorByName).sort();
+
+      // Build color array indexed by phenotype int8
+      const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
+      console.log('[cellSetSelection] colorByName:', colorByName);
+      console.log('[cellSetSelection] uniqueNames sorted:', uniqueNames);
+      console.log('[cellSetSelection] phenotypeColors:', phenotypeColors);
+      return getObsSetSelectionShader(
+        phenotypeColors,
+        opacity,
+        pointMarkerBorderWidth,
+      );
+    }
 
   // Fallback: static color.
   return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);

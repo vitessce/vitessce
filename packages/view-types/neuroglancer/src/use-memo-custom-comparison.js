@@ -186,6 +186,9 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'featureValueColormap',
             'featureValueColormapRange',
             'featureSelection',
+            'obsSetColor',
+            'obsSetSelection',
+            'additionalObsSets',
           ])
           // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
           || (

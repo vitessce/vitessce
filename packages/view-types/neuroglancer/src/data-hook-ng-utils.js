@@ -228,6 +228,10 @@ export function useNeuroglancerViewerState(
           pointIndexProp: layerData.neuroglancerOptions?.pointIndexProp,
           quantitativeColorProp: layerData.neuroglancerOptions?.quantitativeColorProp,
           pointMarkerBorderWidth: spatialPointStrokeWidth ?? 0.0,
+          obsSets: layerCoordination.obsSets,
+          obsSetColor: layerCoordination.obsSetColor,
+          obsSetSelection: layerCoordination.obsSetSelection,
+          additionalObsSets: layerCoordination.additionalObsSets,
         });
         result = {
           ...result,
