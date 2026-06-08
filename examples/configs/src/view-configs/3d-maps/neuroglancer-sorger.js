@@ -34,7 +34,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/MIS_corrected_with_tsne.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -51,7 +51,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/MIS_corrected_with_tsne.csv',
     options: {
       obsIndex: 'CellID',
       obsEmbedding: ['tSNE_1', 'tSNE_2'],
@@ -64,7 +64,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/MIS_TSNE.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/MIS_corrected_with_tsne.csv',
     coordinationValues: {
       obsType: 'cell',
       featureType: 'gene',
@@ -75,13 +75,13 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   dataset.addFile({
     fileType: 'obsPoints.ng-annotations',
-    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_with_numerical_features/cells',
+    url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
       useForSegmentationCulling: true,
-      featureIndexProp: 'volume_norm',
+      featureIndexProp: 'mx1_spot',
       // pointIndexProp: 'index_info',
-      quantitativeColorProp: 'volume_norm',
+      quantitativeColorProp: 'mx1_spot',
       matrix: [
         [7148.09960682, 0, 0, 0],
         [0, 7148.09960682, 0, 0],
@@ -115,6 +115,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     // Maximum projectionScale at which meshes start loading.
     // Higher = meshes load at lower zoom levels. Lower = requires more zoom before meshes appear.
     meshLoadProjectionScaleThreshold: 500,
+    csvUrl: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/MIS_corrected_with_tsne.csv',
   });
 
   const layerController = config.addView(dataset, 'layerControllerBeta');
@@ -150,7 +151,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
-            featureSelection: ['volume_norm'],
+            featureSelection: ['mx1_spot'],
             featureValueColormap: 'viridis',
             featureValueColormapRange: [0.0, 1.0],
           },
@@ -171,6 +172,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
         featureValueColormapRange: [0.0, 1.0],
+        featureFilterMode: 'featureSelection',
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

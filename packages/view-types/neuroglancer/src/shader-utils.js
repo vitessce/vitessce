@@ -109,6 +109,42 @@ export function getSpatialLayerColorWithSelectionShader(
     `;
 }
 
+export function getObsSetSelectionFilteredShader(
+  phenotypeColors,
+  selectedIndices,
+  opacity,
+  borderWidth = 0.0,
+) {
+  const numColors = phenotypeColors.length;
+  const numSelected = selectedIndices.length;
+  const normColors = phenotypeColors.map(c => normalizeColor(c));
+  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
+  const selectedDecl = `int selectedIndices[${numSelected}] = int[${numSelected}](${selectedIndices.join(', ')});`;
+
+  return `
+    void main() {
+      int phenotype = prop_phenotype();
+      ${colorsDecl}
+      ${selectedDecl}
+      bool isSelected = false;
+      for (int i = 0; i < ${numSelected}; ++i) {
+        if (phenotype == selectedIndices[i]) {
+          isSelected = true;
+        }
+      }
+      if (!isSelected) {
+        discard;
+      }
+      vec3 color = vec3(0.5, 0.5, 0.5);
+      if (phenotype >= 0 && phenotype < ${numColors}) {
+        color = phenotypeColors[phenotype];
+      }
+      setColor(vec4(color, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
+}
+
 
 /**
  * Generate a shader for spatialLayerColor encoding with feature selection
@@ -794,64 +830,48 @@ export function getPointsShader(layerCoordination) {
       // Fall back to static grey until obs sets load
       return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
     }
-  //   // Build color array indexed by phenotype int8 (0-12)
-  //   // phenotypeIndexMap maps index → phenotype name
-  //   const phenotypeIndexMap = [
-  //     'B cells',              // 0
-  //     'CD11B+ CD11C- cells',  // 1
-  //     'CD4 T',                // 2
-  //     'CD8 T',                // 3
-  //     'Dendritic cells',      // 4
-  //     'B cells',              // 5 - verify
-  //     'Macrophage',           // 6
-  //     'T reg',                // 7
-  //     'Tissue T',             // 8
-  //     'Tumor',                // 9
-  //     'Unknown',              // 10
-  //     'endothelial',          // 11
-  //     'keratinocytes',        // 12
-  //   ];
-  
-  //   // Build color array from obsSetColor
-  //   const phenotypeColors = phenotypeIndexMap.map((name) => {
-  //     // obsSetColor is array of { path, color }
-  //     // Find color for this phenotype name
-  //     const match = obsSetColor?.find(
-  //       c => c.path?.[1] === name || c.path?.[0] === name
-  //     );
-  //     return match?.color ?? defaultColor;
-  //   });
-  
-  //   return getObsSetSelectionShader(phenotypeColors, opacity, pointMarkerBorderWidth);
-  // }
-
-    // Build color lookup from obsSetColor
-    // obsSetColor is array of { path: ['Cell Types', 'CD8 T'], color: [r,g,b] }
-      const colorByName = {};
-      obsSetColor?.forEach(({ path, color }) => {
+    const colorByName = {};
+    obsSetColor?.forEach(({ path, color }) => {
        // Only include leaf nodes (path length > 1)
         // path[0] = group name ('Cell Types'), path[1] = phenotype name
-        if (path?.length > 1) {
-          colorByName[path[path.length - 1]] = color;
-        }
-      });
-
+      if (path?.length > 1) {
+        colorByName[path[path.length - 1]] = color;
+      }
+    });
+  
       // Build phenotype index → color array
       // Phenotypes are stored as sorted alphabetical indices in binary
-      const uniqueNames = Object.keys(colorByName).sort();
+    const uniqueNames = Object.keys(colorByName).sort();
+    const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
 
-      // Build color array indexed by phenotype int8
-      const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
-      console.log('[cellSetSelection] colorByName:', colorByName);
-      console.log('[cellSetSelection] uniqueNames sorted:', uniqueNames);
-      console.log('[cellSetSelection] phenotypeColors:', phenotypeColors);
-      return getObsSetSelectionShader(
+    if (isFiltered) {
+      // Build selected indices from obsSetSelection
+      const selectedNames = new Set(
+        obsSetSelection?.map(path => path[path.length - 1]) ?? []
+      );
+      const selectedIndices = uniqueNames
+        .map((name, idx) => selectedNames.has(name) ? idx : -1)
+        .filter(idx => idx >= 0);
+  
+      if (selectedIndices.length === 0) {
+        // Nothing selected — hide all points
+        return `void main() { discard; }`;
+      }
+
+      return getObsSetSelectionFilteredShader(
         phenotypeColors,
+        selectedIndices,
         opacity,
         pointMarkerBorderWidth,
       );
     }
-
+  
+    return getObsSetSelectionShader(
+      phenotypeColors,
+      opacity,
+      pointMarkerBorderWidth,
+    );
+  }
   // Fallback: static color.
   return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
 }

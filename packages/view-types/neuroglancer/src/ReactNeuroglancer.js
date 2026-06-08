@@ -684,12 +684,12 @@ export default class Neuroglancer extends React.Component {
             const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
             const serializers = annotState?.source?.annotationPropertySerializers;
             if (t && serializers) {
-              this.props.onAnnotationSourceReady?.({ 
+              this.props.onAnnotationSourceReady?.({
                 x: t[0], 
                 y: t[5], 
                 z: t[10], 
                 serializers, // pass all serializers
-                serializer: serializers[0] // keep default for backward compat
+                serializer: serializers[0], // keep default for backward compat
               });
             }
             return true;

@@ -94,6 +94,7 @@ export function NeuroglancerSubscriber(props) {
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
     meshLoadProjectionScaleThreshold,
+    csvUrl,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -498,6 +499,32 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
 
+  useEffect(() => {
+    window.__chunkCache = chunkCacheRef.current;
+  }, []);
+
+  const meshIdToCellIdRef = useRef({});
+
+  // TODO: need to read it from vitessce globals
+  useEffect(() => {
+    if (!csvUrl) return;
+    fetch(csvUrl)
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.split('\n');
+        const header = lines[0].split(',');
+        const meshIdIdx = header.indexOf('MeshID');
+        const cellIdIdx = header.indexOf('CellID');
+        const map = {};
+        lines.slice(1).forEach(l => {
+          const cols = l.split(',');
+          const meshId = cols[meshIdIdx]?.trim();
+          const cellId = cols[cellIdIdx]?.trim();
+          if (meshId && cellId) map[meshId] = cellId;
+        });
+        meshIdToCellIdRef.current = map;
+      });
+  }, [csvUrl]);
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
@@ -541,10 +568,10 @@ export function NeuroglancerSubscriber(props) {
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
       const { serializers, serializer: defaultSerializer } = annotationTransformRef.current;
       // TODO: confirm for all datasets
-      // spatial0 uses serializer[0] (32 bytes), spatial1/2/3 use serializer[1] (44 bytes)
-      const serializer = level === 'spatial0'
-        ? (serializers?.[0] ?? defaultSerializer)
-        : (serializers?.[1] ?? defaultSerializer);
+      // All spatial levels use serializer[0] (32-byte property block).
+      // Although serializer[1] (44 bytes) exists for rank-3 spatial levels spatial1/2/3,
+      // the actual chunk data was generated with 32-byte properties regardless of level.
+      const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer) return [];
       const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
@@ -646,9 +673,12 @@ export function NeuroglancerSubscriber(props) {
         setIsMeshLoading(true);
       }
 
-      visibleSegmentIdsRef.current = visibleIds;
+      const visibleCellIds = visibleIds.map(meshId =>
+        meshIdToCellIdRef.current[meshId] ?? meshId
+      );
+      visibleSegmentIdsRef.current = [...new Set(visibleCellIds)];
       incrementLatestViewerStateIteration();
-
+      // window.__meshIdToCellId = meshIdToCellIdRef.current;
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }
@@ -1181,7 +1211,8 @@ export function NeuroglancerSubscriber(props) {
             onLayerLoadingChange={handleLayerLoadingChange}
             onAnnotationSourceReady={onAnnotationSourceReady}
             onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
-            getObsIdToMeshId={obsId => obsIdToMeshIdRef.current[obsId]}
+            getMeshIdToCellId={(meshId) => meshIdToCellIdRef.current[meshId]}
+            cellsUrl={cellsUrl}
           />
         </div>
       ) : null}

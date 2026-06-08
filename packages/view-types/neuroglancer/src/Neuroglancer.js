@@ -62,25 +62,33 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
-      const { getObsIdToMeshId, onViewerReady } = this.props;
+      const { getMeshIdToCellId, onViewerReady, cellsUrl } = this.props;
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
-        // For point layer ms.pickedAnnotationId returns the indexInfo (obsId)
-        // which needs to be mapped to mesh Id
+        // For point hover: pickedAnnotationId is a by_id lookup key (not MeshID).
+        // Fetch by_id record to get actual MeshID (at offset 12),
+        // then convert MeshID to CellID for scatterplot highlight.
         if (ms.pickedAnnotationId != null) {
-          // Convert to mesh segment ID via lookup
-          const obsId = String(ms.pickedAnnotationId);
-          const meshId = getObsIdToMeshId?.(obsId) ?? obsId;
-          this.latestOnSelectHoveredCoords?.(meshId);
+          const byIdKey = String(ms.pickedAnnotationId);
+          fetch(`${cellsUrl}/by_id/${byIdKey}`)
+            .then(r => r.arrayBuffer())
+            .then(buf => {
+              const dv = new DataView(buf);
+              const actualMeshId = String(dv.getInt32(12, true));
+              const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
+              this.latestOnSelectHoveredCoords?.(cellId);
+            });
           return;
         }
-
-        if (ms.pickedValue !== undefined) {
+      
+        if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
+          // Mesh hover: pickedValue.low = CellID directly
           this.latestOnSelectHoveredCoords?.(ms.pickedValue?.low);
           return;
         }
-
+      
+      
         this.latestOnSelectHoveredCoords?.(null);
       };
 
