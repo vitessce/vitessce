@@ -79,9 +79,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     options: {
       projectionAnnotationSpacing: 1,
       useForSegmentationCulling: true,
-      featureIndexProp: 'mx1_spot',
-      // pointIndexProp: 'index_info',
-      quantitativeColorProp: 'mx1_spot',
+      featureIndexProp: 'mx1spots',
+      quantitativeColorProp: 'mx1spots',
       matrix: [
         [7148.09960682, 0, 0, 0],
         [0, 7148.09960682, 0, 0],
@@ -151,7 +150,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
-            featureSelection: ['mx1_spot'],
+            featureSelection: ['MX1_SPOTS'],
             featureValueColormap: 'viridis',
             featureValueColormapRange: [0.0, 1.0],
           },
@@ -171,6 +170,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
+        featureSelection: ['MX1_SPOTS'],
         featureValueColormapRange: [0.0, 1.0],
         featureFilterMode: 'featureSelection',
       },
