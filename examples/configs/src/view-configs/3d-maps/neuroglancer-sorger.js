@@ -81,6 +81,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       // useForSegmentationCulling: true,
       featureIndexProp: 'mx1spots',
       quantitativeColorProp: 'mx1spots',
+      // max value for mx1spots from binary chunks - used to normalize the colormap scale
+      quantitativeColorMax: 58,
       matrix: [
         [7148.09960682, 0, 0, 0],
         [0, 7148.09960682, 0, 0],
@@ -151,8 +153,11 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
             featureSelection: ['MX1_SPOTS'],
-            featureValueColormap: 'viridis',
-            featureValueColormapRange: [0.0, 0.2] // Mesh: normalized 0-255, so 50/255 ≈ 0.196],
+            // TODO: viridis colormap is inconsistent between points and meshes.
+            // NG GLSL viridis ends at yellow (#fde725), but Vitessce's applyColormap('viridis')
+            // ends at cyan (#69fcea). Use 'plasma' colormap for consistent colors across both layers.
+            featureValueColormap: 'plasma',
+            featureValueColormapRange: [0.0, 1.0],
           },
         ]),
       },
@@ -169,9 +174,9 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialLayerColor: [0, 255, 0],
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'quantitativeColormap',
-        featureValueColormap: 'viridis',
+        featureValueColormap: 'plasma',
         featureSelection: ['MX1_SPOTS'],
-        featureValueColormapRange: [0.0, 0.2],
+        featureValueColormapRange: [0.0, 1.0],
         featureFilterMode: 'featureSelection',
       },
     ]),

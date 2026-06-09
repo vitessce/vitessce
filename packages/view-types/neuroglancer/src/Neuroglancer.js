@@ -81,14 +81,13 @@ export class NeuroglancerComp extends PureComponent {
             });
           return;
         }
-      
+        // TODO: Undo if meshes and cells have same id
         if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
-          // Mesh hover: pickedValue.low = CellID directly
-          this.latestOnSelectHoveredCoords?.(ms.pickedValue?.low);
+          const meshId = String(ms.pickedValue?.low);
+          const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
+          this.latestOnSelectHoveredCoords?.(cellId);
           return;
         }
-      
-      
         this.latestOnSelectHoveredCoords?.(null);
       };
 

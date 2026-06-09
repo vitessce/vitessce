@@ -210,7 +210,11 @@ export function useNeuroglancerViewerState(
           featureValueColormap,
           featureValueColormapRange,
         } = layerCoordination || {};
-
+        const quantitativeColorMax = layerData.neuroglancerOptions?.quantitativeColorMax;
+        if (!quantitativeColorMax && obsColorEncoding === 'quantitativeColormap') {
+          console.warn('quantitativeColorMax not specified in options — defaulting to 1.0 (no normalization)');
+        }
+        const quantitativeColorMaxSelected = quantitativeColorMax ?? 1.0;
         // Dynamically construct the shader based on the color encoding
         // and other coordination values.
         const shader = getPointsShader({
@@ -232,6 +236,7 @@ export function useNeuroglancerViewerState(
           obsSetColor: layerCoordination.obsSetColor,
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
+          quantitativeColorMax: quantitativeColorMaxSelected,
         });
         result = {
           ...result,

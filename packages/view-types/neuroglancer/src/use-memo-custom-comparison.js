@@ -82,6 +82,9 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('theme')) {
     forceUpdate = true;
   }
+  if (curriedShallowDiff('csvLoaded')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {

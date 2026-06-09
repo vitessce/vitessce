@@ -112,6 +112,9 @@ export function NeuroglancerSubscriber(props) {
   const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
   const obsIdToMeshIdRef = useRef({});
+  const meshIdToCellIdRef = useRef({});
+  // TODO: maynot be needed for other dataset
+  const cellIdToMeshIdRef = useRef({});
 
   const ngRotPushAtRef = useRef(0);
   const lastInteractionSource = useRef(null);
@@ -132,6 +135,7 @@ export function NeuroglancerSubscriber(props) {
   const [isMeshLoading, setIsMeshLoading] = useState(false);
 
   const [annotationReady, setAnnotationReady] = useState(false);
+  const [csvLoaded, setCsvLoaded] = useState(false);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -392,7 +396,14 @@ export function NeuroglancerSubscriber(props) {
 
             // Store hex as default even if no layerIndex
             // so applyColorsAndVisibility knows the intended color
-            result[layerScope][channelScope] = ngCellColors;
+            // result[layerScope][channelScope] = ngCellColors;
+            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
+            const remappedColors = {};
+            Object.entries(ngCellColors).forEach(([cellId, color]) => {
+              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+              remappedColors[meshId] = color;
+            });
+            result[layerScope][channelScope] = remappedColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = hex; // store default color
           }
@@ -428,7 +439,14 @@ export function NeuroglancerSubscriber(props) {
               const color = applyColormap(featureValueColormap ?? 'viridis', tClamped);
               ngCellColors[id] = rgbToHex(color);
             });
-            result[layerScope][channelScope] = ngCellColors;
+            // TODO: Remove
+            const remappedColors = {};
+            Object.entries(ngCellColors).forEach(([cellId, color]) => {
+              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+              remappedColors[meshId] = color;
+            });
+            result[layerScope][channelScope] = remappedColors;
+            // result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
           } else if (instanceObsIndex) {
             // No expression data available — use default color for all segments
@@ -437,7 +455,14 @@ export function NeuroglancerSubscriber(props) {
             instanceObsIndex.forEach((id) => {
               ngCellColors[id] = fallbackColor;
             });
-            result[layerScope][channelScope] = ngCellColors;
+              //TODO: removes
+            const remappedColors = {};
+            Object.entries(ngCellColors).forEach(([cellId, color]) => {
+              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+              remappedColors[meshId] = color;
+            });
+            result[layerScope][channelScope] = remappedColors;
+            // result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = fallbackColor;
           }
@@ -456,7 +481,14 @@ export function NeuroglancerSubscriber(props) {
           cellColors.forEach((color, id) => {
             ngCellColors[id] = rgbToHex(color);
           });
-          result[layerScope][channelScope] = ngCellColors;
+            // TODO: remove
+          const remappedColors = {};
+          Object.entries(ngCellColors).forEach(([cellId, color]) => {
+            const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+            remappedColors[meshId] = color;
+          });
+          result[layerScope][channelScope] = remappedColors;
+          // result[layerScope][channelScope] = ngCellColors;
           result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
@@ -472,6 +504,7 @@ export function NeuroglancerSubscriber(props) {
     theme,
     segmentationMultiExpressionNormData,
     segmentationMultiIndicesData,
+    csvLoaded,
   }, customIsEqualForCellColors);
 
   // Obtain the Neuroglancer viewerState object.
@@ -503,26 +536,34 @@ export function NeuroglancerSubscriber(props) {
     window.__chunkCache = chunkCacheRef.current;
   }, []);
 
-  const meshIdToCellIdRef = useRef({});
-
   // TODO: need to read it from vitessce globals
   useEffect(() => {
     if (!csvUrl) return;
     fetch(csvUrl)
       .then(r => r.text())
-      .then(text => {
+      .then((text) => {
         const lines = text.split('\n');
         const header = lines[0].split(',');
         const meshIdIdx = header.indexOf('MeshID');
         const cellIdIdx = header.indexOf('CellID');
-        const map = {};
+        const meshMap = {};
+        const cellMap = {};
         lines.slice(1).forEach(l => {
           const cols = l.split(',');
           const meshId = cols[meshIdIdx]?.trim();
           const cellId = cols[cellIdIdx]?.trim();
-          if (meshId && cellId) map[meshId] = cellId;
+          if (meshId && cellId) {
+            meshMap[meshId] = cellId;
+            cellMap[cellId] = meshId; // ← add reverse map
+          }
         });
-        meshIdToCellIdRef.current = map;
+        meshIdToCellIdRef.current = meshMap;
+        cellIdToMeshIdRef.current = cellMap;
+        setCsvLoaded(true);
+        // window.__meshIdToCellId = meshIdToCellIdRef.current;
+        // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
+        // console.log('[csvUrl] meshIdToCellId size:', Object.keys(meshMap).length);
+        // console.log('[csvUrl] cellIdToMeshId size:', Object.keys(cellMap).length);
       });
   }, [csvUrl]);
 
@@ -675,8 +716,7 @@ export function NeuroglancerSubscriber(props) {
 
       visibleSegmentIdsRef.current = visibleIds;
       incrementLatestViewerStateIteration();
-      window.__visibleSegmentIds = visibleSegmentIdsRef.current;
-      window.__meshIdToCellId = meshIdToCellIdRef.current;
+      // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }

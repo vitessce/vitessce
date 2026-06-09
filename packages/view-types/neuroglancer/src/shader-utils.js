@@ -495,6 +495,7 @@ export function getQuantitativeColormapShader(
   colormap = GLSL_COLORMAP_DEFAULT,
   colormapRange = [0.0, 1.0],
   borderWidth = 0.0,
+  quantitativeColorMax = 1.0,
 ) {
   const [low, high] = colormapRange;
   const resolvedColormap = GLSL_COLORMAPS.includes(colormap) ? colormap : GLSL_COLORMAP_DEFAULT;
@@ -505,7 +506,8 @@ export function getQuantitativeColormapShader(
     ${colormaps}
     void main() {
       float rawVal = float(prop_${quantitativeColorProp}());
-      float t = (rawVal - ${low.toFixed(4)}) / max(${(high - low).toFixed(4)}, 0.0001);
+      float normalizedVal = rawVal / ${quantitativeColorMax.toFixed(4)};
+      float t = (normalizedVal - ${low.toFixed(4)}) / max(${(high - low).toFixed(4)}, 0.0001);
       t = clamp(t, 0.0, 1.0);
       vec4 col = COLORMAP_FUNC(t);
       setColor(vec4(col.rgb, ${opacity.toFixed(4)}));
@@ -645,6 +647,7 @@ export function getPointsShader(layerCoordination) {
     featureValueColormapRange,
     obsSetColor,
     obsSetSelection,
+    quantitativeColorMax,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
@@ -822,6 +825,7 @@ export function getPointsShader(layerCoordination) {
       featureValueColormap,
       featureValueColormapRange,
       pointMarkerBorderWidth,
+      quantitativeColorMax,
     );
   }
 
