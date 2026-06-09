@@ -334,7 +334,7 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
-
+  
 
   // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
@@ -410,7 +410,7 @@ export function NeuroglancerSubscriber(props) {
             const matrixIndexMap = new Map(
               matrixObsIndex.map((key, i) => {
                 // Strip any non-numeric prefix (e.g. 'MIS_0' -> '0')
-                const normalizedKey = key.replace(/^[^0-9]+/, '');
+                const normalizedKey = key.replace(/^.*_/, '');
                 return [normalizedKey, i];
               }),
             );
@@ -673,12 +673,10 @@ export function NeuroglancerSubscriber(props) {
         setIsMeshLoading(true);
       }
 
-      const visibleCellIds = visibleIds.map(meshId =>
-        meshIdToCellIdRef.current[meshId] ?? meshId
-      );
-      visibleSegmentIdsRef.current = [...new Set(visibleCellIds)];
+      visibleSegmentIdsRef.current = visibleIds;
       incrementLatestViewerStateIteration();
-      // window.__meshIdToCellId = meshIdToCellIdRef.current;
+      window.__visibleSegmentIds = visibleSegmentIdsRef.current;
+      window.__meshIdToCellId = meshIdToCellIdRef.current;
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }

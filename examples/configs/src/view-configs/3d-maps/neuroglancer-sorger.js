@@ -78,7 +78,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      useForSegmentationCulling: true,
+      // useForSegmentationCulling: true,
       featureIndexProp: 'mx1spots',
       quantitativeColorProp: 'mx1spots',
       matrix: [
@@ -152,7 +152,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             obsColorEncoding: 'geneSelection',
             featureSelection: ['MX1_SPOTS'],
             featureValueColormap: 'viridis',
-            featureValueColormapRange: [0.0, 1.0],
+            featureValueColormapRange: [0.0, 0.2] // Mesh: normalized 0-255, so 50/255 ≈ 0.196],
           },
         ]),
       },
@@ -171,7 +171,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         obsColorEncoding: 'quantitativeColormap',
         featureValueColormap: 'viridis',
         featureSelection: ['MX1_SPOTS'],
-        featureValueColormapRange: [0.0, 1.0],
+        featureValueColormapRange: [0.0, 0.2],
         featureFilterMode: 'featureSelection',
       },
     ]),
