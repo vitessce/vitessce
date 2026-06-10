@@ -836,30 +836,30 @@ export function getPointsShader(layerCoordination) {
     }
     const colorByName = {};
     obsSetColor?.forEach(({ path, color }) => {
-       // Only include leaf nodes (path length > 1)
-        // path[0] = group name ('Cell Types'), path[1] = phenotype name
+      // Only include leaf nodes (path length > 1)
+      // path[0] = group name ('Cell Types'), path[1] = phenotype name
       if (path?.length > 1) {
         colorByName[path[path.length - 1]] = color;
       }
     });
-  
-      // Build phenotype index → color array
-      // Phenotypes are stored as sorted alphabetical indices in binary
+
+    // Build phenotype index → color array
+    // Phenotypes are stored as sorted alphabetical indices in binary
     const uniqueNames = Object.keys(colorByName).sort();
     const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
 
     if (isFiltered) {
       // Build selected indices from obsSetSelection
       const selectedNames = new Set(
-        obsSetSelection?.map(path => path[path.length - 1]) ?? []
+        obsSetSelection?.map(path => path[path.length - 1]) ?? [],
       );
       const selectedIndices = uniqueNames
-        .map((name, idx) => selectedNames.has(name) ? idx : -1)
+        .map((name, idx) => (selectedNames.has(name) ? idx : -1))
         .filter(idx => idx >= 0);
-  
+
       if (selectedIndices.length === 0) {
         // Nothing selected — hide all points
-        return `void main() { discard; }`;
+        return 'void main() { discard; }';
       }
 
       return getObsSetSelectionFilteredShader(
@@ -869,7 +869,7 @@ export function getPointsShader(layerCoordination) {
         pointMarkerBorderWidth,
       );
     }
-  
+
     return getObsSetSelectionShader(
       phenotypeColors,
       opacity,

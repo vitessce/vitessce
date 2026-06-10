@@ -73,7 +73,7 @@ export class NeuroglancerComp extends PureComponent {
           const byIdKey = String(ms.pickedAnnotationId);
           fetch(`${cellsUrl}/by_id/${byIdKey}`)
             .then(r => r.arrayBuffer())
-            .then(buf => {
+            .then((buf) => {
               const dv = new DataView(buf);
               const actualMeshId = String(dv.getInt32(12, true));
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;

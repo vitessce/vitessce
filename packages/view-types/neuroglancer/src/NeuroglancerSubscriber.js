@@ -53,6 +53,7 @@ import {
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
+  remapCellColors,
 } from './utils.js';
 
 
@@ -338,9 +339,6 @@ export function NeuroglancerSubscriber(props) {
     tx: spatialTargetX,
     ty: spatialTargetY,
   });
-  
-
-  // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
@@ -398,12 +396,7 @@ export function NeuroglancerSubscriber(props) {
             // so applyColorsAndVisibility knows the intended color
             // result[layerScope][channelScope] = ngCellColors;
             // TODO: Remove remapping when Meshid/cellID mismatch is fixed
-            const remappedColors = {};
-            Object.entries(ngCellColors).forEach(([cellId, color]) => {
-              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
-              remappedColors[meshId] = color;
-            });
-            result[layerScope][channelScope] = remappedColors;
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = hex; // store default color
           }
@@ -440,12 +433,7 @@ export function NeuroglancerSubscriber(props) {
               ngCellColors[id] = rgbToHex(color);
             });
             // TODO: Remove
-            const remappedColors = {};
-            Object.entries(ngCellColors).forEach(([cellId, color]) => {
-              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
-              remappedColors[meshId] = color;
-            });
-            result[layerScope][channelScope] = remappedColors;
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
             // result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
           } else if (instanceObsIndex) {
@@ -455,13 +443,8 @@ export function NeuroglancerSubscriber(props) {
             instanceObsIndex.forEach((id) => {
               ngCellColors[id] = fallbackColor;
             });
-              //TODO: removes
-            const remappedColors = {};
-            Object.entries(ngCellColors).forEach(([cellId, color]) => {
-              const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
-              remappedColors[meshId] = color;
-            });
-            result[layerScope][channelScope] = remappedColors;
+            // TODO: remove
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
             // result[layerScope][channelScope] = ngCellColors;
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
             result[layerScope].defaultColor = fallbackColor;
@@ -481,13 +464,8 @@ export function NeuroglancerSubscriber(props) {
           cellColors.forEach((color, id) => {
             ngCellColors[id] = rgbToHex(color);
           });
-            // TODO: remove
-          const remappedColors = {};
-          Object.entries(ngCellColors).forEach(([cellId, color]) => {
-            const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
-            remappedColors[meshId] = color;
-          });
-          result[layerScope][channelScope] = remappedColors;
+          // TODO: remove
+          result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
           // result[layerScope][channelScope] = ngCellColors;
           result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
@@ -532,7 +510,9 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
 
+  // TODO: For debugging in console
   useEffect(() => {
+    // eslint-disable-next-line no-underscore-dangle
     window.__chunkCache = chunkCacheRef.current;
   }, []);
 
@@ -548,7 +528,7 @@ export function NeuroglancerSubscriber(props) {
         const cellIdIdx = header.indexOf('CellID');
         const meshMap = {};
         const cellMap = {};
-        lines.slice(1).forEach(l => {
+        lines.slice(1).forEach((l) => {
           const cols = l.split(',');
           const meshId = cols[meshIdIdx]?.trim();
           const cellId = cols[cellIdIdx]?.trim();
@@ -685,9 +665,9 @@ export function NeuroglancerSubscriber(props) {
         )];
       }
       // Confirming phenotypes are correct cell types for an id - tested against csv
-      // console.log('[phenotype] sample entries:', 
-      //   allEntries.slice(0, 50).map(e => ({ 
-      //     id: e.id, phenotype: e.phenotype 
+      // console.log('[phenotype] sample entries:',
+      //   allEntries.slice(0, 50).map(e => ({
+      //     id: e.id, phenotype: e.phenotype
       //   }))
       // );
       // console.log("IDs", projectionScale, visibleIds.length, visibleSegmentIdsRef.current?.length);
@@ -1249,7 +1229,7 @@ export function NeuroglancerSubscriber(props) {
             onLayerLoadingChange={handleLayerLoadingChange}
             onAnnotationSourceReady={onAnnotationSourceReady}
             onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
-            getMeshIdToCellId={(meshId) => meshIdToCellIdRef.current[meshId]}
+            getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             cellsUrl={cellsUrl}
           />
         </div>

@@ -685,9 +685,9 @@ export default class Neuroglancer extends React.Component {
             const serializers = annotState?.source?.annotationPropertySerializers;
             if (t && serializers) {
               this.props.onAnnotationSourceReady?.({
-                x: t[0], 
-                y: t[5], 
-                z: t[10], 
+                x: t[0],
+                y: t[5],
+                z: t[10],
                 serializers, // pass all serializers
                 serializer: serializers[0], // keep default for backward compat
               });

@@ -78,7 +78,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      // useForSegmentationCulling: true,
+      useForSegmentationCulling: true,
       featureIndexProp: 'mx1spots',
       quantitativeColorProp: 'mx1spots',
       // max value for mx1spots from binary chunks - used to normalize the colormap scale
@@ -155,7 +155,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             featureSelection: ['MX1_SPOTS'],
             // TODO: viridis colormap is inconsistent between points and meshes.
             // NG GLSL viridis ends at yellow (#fde725), but Vitessce's applyColormap('viridis')
-            // ends at cyan (#69fcea). Use 'plasma' colormap for consistent colors across both layers.
+            // ends at cyan (#69fcea). Use 'plasma' colormap for consistent colors.
             featureValueColormap: 'plasma',
             featureValueColormapRange: [0.0, 1.0],
           },

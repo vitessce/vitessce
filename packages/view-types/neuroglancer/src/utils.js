@@ -324,6 +324,8 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
 //   }
 //   return results;
 // }
+
+// eslint-disable-next-line no-unused-vars
 export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
   const dv = new DataView(buffer);
   if (buffer.byteLength <= 8) return [];
@@ -361,9 +363,21 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
       results.push({
         id: String(segId), // MeshID from binary annotation
         phenotype: Number(phenotype),
-        x, y, z,
+        x,
+        y,
+        z,
       });
     }
   }
   return results;
 }
+
+
+export const remapCellColors = (ngCellColors, cellIdToMeshIdRef) => {
+  const remapped = {};
+  Object.entries(ngCellColors).forEach(([cellId, color]) => {
+    const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+    remapped[meshId] = color;
+  });
+  return remapped;
+};
