@@ -510,7 +510,7 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
 
-  // TODO: For debugging in console
+  // TODO: Remove - For debugging in console
   useEffect(() => {
     // eslint-disable-next-line no-underscore-dangle
     window.__chunkCache = chunkCacheRef.current;
@@ -547,6 +547,11 @@ export function NeuroglancerSubscriber(props) {
       });
   }, [csvUrl]);
 
+    // clear cache when annotation source changes
+      useEffect(() => {
+        chunkCacheRef.current.clear();
+      }, [obsPointsData]);
+
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
   const updateVisibleSegments = useCallback(async () => {
@@ -557,8 +562,6 @@ export function NeuroglancerSubscriber(props) {
 
     const { position, projectionScale } = latestViewerStateRef.current;
     if (!position || !projectionScale) return;
-
-    chunkCacheRef.current.clear();
 
     // Threshold check - too zoomed out, clear segments
     const maxProjectionScale = meshLoadProjectionScaleThreshold ?? MESH_LOAD_THRESHOLD;
@@ -632,9 +635,10 @@ export function NeuroglancerSubscriber(props) {
 
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
+      // window.__getViewProjectionMat = getViewProjectionMatRef.current;
 
       let visibleIds;
-      if (!mat) {
+            if (!mat) {
         // Fallback: load all if projection matrix not available
         console.warn('[screen cull] no viewProjectionMat, loading all');
         visibleIds = [...new Set(allEntries.map(({ id }) => id))];
@@ -647,7 +651,7 @@ export function NeuroglancerSubscriber(props) {
             // annotation to viewer coordinates
             const vx = x / transform.x;
             const vy = y / transform.y;
-            const vz = (z || 0) / transform.x;
+            const vz = (z || 0) / transform.z;
 
             // Project to clip space (column-major matrix)
             const cx = mat[0] * vx + mat[4] * vy + mat[8] * vz + mat[12];

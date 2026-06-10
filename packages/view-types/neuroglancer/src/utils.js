@@ -275,98 +275,52 @@ export function getIntersectingChunkCoords(annotBbox, lowerBound, chunkSize, gri
  * Parse segment IDs and positions from annotation chunk binary data
  * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
 */
-// export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
-//   const dv = new DataView(buffer);
-//   if (buffer.byteLength <= 8) return [];
-
-//   const count = dv.getUint32(0, true);
-//   // countHigh at bytes 4-7 should be 0
-//   if (count === 0) return [];
-//   // 32 for spatial0, 44 for spatial1/2/3
-//   const numBytes = serializer.serializedBytes;
-//   // float32 index in buffer:
-//   // [0] x position
-//   // [1] y position
-//   // [2] z position
-//   // [3] padding
-//   // [4] phenotype   -> properties[0]
-//   // [5] id          -> properties[1]
-//   // [6] volume_norm -> properties[2]
-//   // [7] random      -> properties[3]
-//   // [7] random      -> properties[4]
-//   const properties = [null, null, null, null, null];
-//   const results = [];
-
-//   for (let i = 0; i < count; i++) {
-//     // Use serializer to read properties for annotation i
-//     serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
-//     const phenotype = properties[0]; // phenotype int8
-//     const segId = properties[1]; // 'id' property = mesh segment ID
-//     const indexInfo = properties[4]; // index_info
-//     if (segId > 0) {
-//       // Position x,y,z are the first 3 float32 in each annotation's property block
-//       // at offset: 8 (header) + i * numBytes
-//       const propBase = ANNOTATION_HEADER_OFFSET + i * numBytes;
-//       const x = dv.getFloat32(propBase + 0, true);
-//       const y = dv.getFloat32(propBase + 4, true);
-//       const z = dv.getFloat32(propBase + 8, true);
-//       // const indexInfo = dv.getInt32(propBase + 24, true);
-
-//       if (x !== 0 || y !== 0 || z !== 0) {
-//         results.push({
-//           id: String(segId), // mesh segment ID → use for segments array
-//           obsId: String(indexInfo), // obsIndex value → use for colors + hover
-//           phenotype: Number(phenotype),
-//           x, y, z,
-//         });
-//       }
-//     }
-//   }
-//   return results;
-// }
-
-// eslint-disable-next-line no-unused-vars
 export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
   const dv = new DataView(buffer);
   if (buffer.byteLength <= 8) return [];
 
   const count = dv.getUint32(0, true);
+  // countHigh at bytes 4-7 should be 0
   if (count === 0) return [];
-
-  // Calculate actual bytes per record from buffer size.
-  // serializer.serializedBytes (32) does NOT match actual record size (40)
-  // for this dataset — so calculating from buffer.
-  const actualNumBytes = Math.round((buffer.byteLength - 8) / count);
-
+  // 32 for spatial0, 44 for spatial1/2/3
+  const numBytes = serializer.serializedBytes;
+  // float32 index in buffer:
+  // [0] x position
+  // [1] y position
+  // [2] z position
+  // [3] padding
+  // [4] phenotype   -> properties[0]
+  // [5] id          -> properties[1]
+  // [6] volume_norm -> properties[2]
+  // [7] random      -> properties[3]
+  // [7] random      -> properties[4]
+  const properties = [null, null, null, null, null];
   const results = [];
 
   for (let i = 0; i < count; i++) {
-    const base = ANNOTATION_HEADER_OFFSET + i * actualNumBytes;
+    // Use serializer to read properties for annotation i
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
+    const phenotype = properties[0]; // phenotype int8
+    const segId = properties[1]; // 'id' property = mesh segment ID
+    // const indexInfo = properties[4]; // index_info
+    if (segId > 0) {
+      // Position x,y,z are the first 3 float32 in each annotation's property block
+      // at offset: 8 (header) + i * numBytes
+      const propBase = ANNOTATION_HEADER_OFFSET + i * numBytes;
+      const x = dv.getFloat32(propBase + 0, true);
+      const y = dv.getFloat32(propBase + 4, true);
+      const z = dv.getFloat32(propBase + 8, true);
+      // const indexInfo = dv.getInt32(propBase + 24, true);
 
-    // Binary layout for all spatial levels (40 bytes/record):
-    //   offset 0:  x (float32)
-    //   offset 4:  y (float32)
-    //   offset 8:  z (float32)
-    //   offset 12: MeshID (int32)
-    //   offset 16: mx1spots (int32)
-    //   offset 20: volume (int32)
-    //   offset 24: yh2axspots (int32)
-    //   offset 28: phenotype (int8) — alphabetical index 0-12
-    //   offset 29-39: padding / rank-3 extra coords
-    const x = dv.getFloat32(base + 0, true);
-    const y = dv.getFloat32(base + 4, true);
-    const z = dv.getFloat32(base + 8, true);
-    const segId = dv.getInt32(base + 12, true); // MeshID
-    const phenotype = dv.getInt8(base + 28);
-
-    if (segId > 0 && (x !== 0 || y !== 0 || z !== 0)) {
-      results.push({
-        id: String(segId), // MeshID from binary annotation
-        phenotype: Number(phenotype),
-        x,
-        y,
-        z,
-      });
+      if (x !== 0 || y !== 0 || z !== 0) {
+        results.push({
+          id: String(segId), // mesh segment ID - use for segments array
+          phenotype: Number(phenotype),
+          x,
+          y,
+          z,
+        });
+      }
     }
   }
   return results;
