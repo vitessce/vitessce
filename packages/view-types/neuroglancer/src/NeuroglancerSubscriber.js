@@ -547,10 +547,10 @@ export function NeuroglancerSubscriber(props) {
       });
   }, [csvUrl]);
 
-    // clear cache when annotation source changes
-      useEffect(() => {
-        chunkCacheRef.current.clear();
-      }, [obsPointsData]);
+  // clear cache when annotation source changes
+  useEffect(() => {
+    chunkCacheRef.current.clear();
+  }, [obsPointsData]);
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
@@ -638,7 +638,7 @@ export function NeuroglancerSubscriber(props) {
       // window.__getViewProjectionMat = getViewProjectionMatRef.current;
 
       let visibleIds;
-            if (!mat) {
+      if (!mat) {
         // Fallback: load all if projection matrix not available
         console.warn('[screen cull] no viewProjectionMat, loading all');
         visibleIds = [...new Set(allEntries.map(({ id }) => id))];
