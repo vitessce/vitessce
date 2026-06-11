@@ -494,16 +494,14 @@ export default class Neuroglancer extends React.Component {
     // Build full color table per layer
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
-
+    let defaultColor;
     const newLayers = baseLayers.map((layer) => {
       // Match layerScope by checking if the NG layer name contains the scope key.
       // NG layer names are of the form:
       // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
       const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
-
       const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
-      const defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
-
+      defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
       // Only color segments that are currently in viewerState.segments
       const currentSegments = layer.segments ?? [];
       if (currentSegments.length > 0) {
@@ -529,11 +527,69 @@ export default class Neuroglancer extends React.Component {
       }
       return { ...layer, segmentColors: fullSegmentColors };
     });
-    this.withoutEmitting(() => {
-      this.preserveDimensions(() => {
-        this.viewer.state.restoreState({ layers: newLayers });
+
+    /** To avoid clearing loaded meshes from GPU cache.
+    * Directly colors the segments rather than resetting the layers 
+    * prevents mesh disappearnce on vitessce interations and random colors 
+    * when loading more meshes during zooming in 
+    */
+    // TODO: as you zoom in and meshes appear, for 1 frame they get random
+    // colors before getting the appropriate colors.
+    const hexToNgColor = (hex) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return b * 65536 + g * 256 + r; // BGR format
+    };
+
+    let usedDirectUpdate = false;
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
+      const matchingNewLayer = newLayers.find(l => l.name === managedLayer.name);
+      if (!matchingNewLayer?.segmentColors) continue;
+      const segGroupState = managedLayer.layer.displayState
+        .segmentationColorGroupState?.value;
+      const statedColors = segGroupState?.segmentStatedColors;
+      if (!statedColors) continue;
+
+      // Clear and re-set all colors directly
+      const currentJson = statedColors.toJSON();
+      const newColors = matchingNewLayer.segmentColors;
+
+      // Remove entries no longer in new colors (reset to NG default)
+      // Reset removed entries to defaultColor
+      for (const id of Object.keys(currentJson)) {
+        if (!newColors[id]) {
+          const colorInt = hexToNgColor(defaultColor || GREY_HEX);
+          // eslint-disable-next-line no-underscore-dangle
+          statedColors.delete_({ low: Number(id), high: 0 });
+            // eslint-disable-next-line no-underscore-dangle
+          statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+        }
+      }
+
+      // Set/update new colors
+      for (const [id, hex] of Object.entries(newColors)) {
+        const colorInt = hexToNgColor(hex);
+        // eslint-disable-next-line no-underscore-dangle
+        statedColors.delete_({ low: Number(id), high: 0 });
+        // eslint-disable-next-line no-underscore-dangle
+        statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+      }
+      statedColors.changed.dispatch();
+      usedDirectUpdate = true;
+    }
+
+    // Fallback to restoreState if direct update not possible
+    if (!usedDirectUpdate) {
+      this.withoutEmitting(() => {
+        this.preserveDimensions(() => {
+          this.viewer.state.restoreState({ layers: newLayers });
+        });
       });
-    });
+    }
+
+    this.viewer.display.scheduleRedraw();
     /* ** Vitessce integration update end ** */
   };
 
@@ -726,6 +782,15 @@ export default class Neuroglancer extends React.Component {
       });
     });
 
+    // In componentDidMount, after viewer setup:
+    this.disposers.push(
+      this.viewer.chunkQueueManager.visibleChunksChanged.add(() => {
+        if (this.props.cellColorMapping) {
+          this.applyColorsAndVisibility(this.props.cellColorMapping);
+        }
+      }),
+    );
+
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
   }
@@ -875,7 +940,6 @@ export default class Neuroglancer extends React.Component {
 
     // first-time seeding – from 0 segments → N segments
     const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
-
     if (initialSegmentsAdded) {
       this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
