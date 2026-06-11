@@ -813,11 +813,13 @@ export function getPointsShader(layerCoordination) {
 
   if (obsColorEncoding === 'quantitativeColormap') {
     if (!quantitativeColorProp) {
-      throw new Error(
+      console.warn(
         'In order to use quantitative colormap encoding for Neuroglancer Points, '
         + 'options.quantitativeColorProp must be specified for the '
-        + 'obsPoints.ng-annotations fileType in the Vitessce configuration.',
+        + 'obsPoints.ng-annotations fileType in the Vitessce configuration. '
+        + 'Falling back to static color.',
       );
+      return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
     }
     return getQuantitativeColormapShader(
       quantitativeColorProp,
