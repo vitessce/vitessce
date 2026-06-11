@@ -488,6 +488,15 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // Convert hex color string to NG's BGR integer format
+  hexToNgColor = (hex) => {
+    if (!hex || hex.length < 7) return 0;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return b * 65536 + g * 256 + r; // BGR format
+  };
+
   /* To add colors to the segments, turning unselected to grey  */
   applyColorsAndVisibility = (cellColorMappingByLayer) => {
     if (!this.viewer) return;
@@ -528,20 +537,12 @@ export default class Neuroglancer extends React.Component {
       return { ...layer, segmentColors: fullSegmentColors };
     });
 
-    /** To avoid clearing loaded meshes from GPU cache.
-    * Directly colors the segments rather than resetting the layers 
-    * prevents mesh disappearnce on vitessce interations and random colors 
-    * when loading more meshes during zooming in 
-    */
-    // TODO: as you zoom in and meshes appear, for 1 frame they get random
-    // colors before getting the appropriate colors.
-    const hexToNgColor = (hex) => {
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      return b * 65536 + g * 256 + r; // BGR format
-    };
-
+    /** Directly update segmentStatedColors instead of calling restoreState({ layers }).
+   * This prevents:
+   * 1. Mesh disappearance — restoreState clears GPU mesh cache
+   * 2. Random color flash — restoreState resets segmentStatedColors,
+   *    causing NG to assign random colors until next applyColorsAndVisibility call
+   */
     let usedDirectUpdate = false;
     for (const managedLayer of this.viewer.layerManager.managedLayers) {
       if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
@@ -560,17 +561,17 @@ export default class Neuroglancer extends React.Component {
       // Reset removed entries to defaultColor
       for (const id of Object.keys(currentJson)) {
         if (!newColors[id]) {
-          const colorInt = hexToNgColor(defaultColor || GREY_HEX);
+          const colorInt = this.hexToNgColor(defaultColor || GREY_HEX);
           // eslint-disable-next-line no-underscore-dangle
           statedColors.delete_({ low: Number(id), high: 0 });
-            // eslint-disable-next-line no-underscore-dangle
+          // eslint-disable-next-line no-underscore-dangle
           statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
         }
       }
 
       // Set/update new colors
       for (const [id, hex] of Object.entries(newColors)) {
-        const colorInt = hexToNgColor(hex);
+        const colorInt = this.hexToNgColor(hex);
         // eslint-disable-next-line no-underscore-dangle
         statedColors.delete_({ low: Number(id), high: 0 });
         // eslint-disable-next-line no-underscore-dangle
@@ -945,6 +946,9 @@ export default class Neuroglancer extends React.Component {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
       });
+      // Re-apply colors immediately after restoreState clears segmentStatedColors
+      // this is useful when culling is activated to avoid randomcolor assignment by NG
+      this.applyColorsAndVisibility(cellColorMappingByLayer);
     }
 
     /* ** Vitessce Integration update end ** */
