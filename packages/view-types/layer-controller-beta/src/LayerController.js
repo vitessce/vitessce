@@ -39,12 +39,23 @@ export default function LayerController(props) {
     volumeLoadingStatus,
     tiledPointsLoadingProgress,
     layerPerFeatureForPoints,
+    obsPointsData,
+
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
     .some(image => image?.image?.instance.hasTStack());
   const anyLayerHasZ = Object.values(images || {})
     .some(image => image?.image?.instance.hasZStack());
+
+  // const anyPointLayerHasZ = Object.values(pointMultiIndicesData || {})
+  // .some(data => {console.log("data", data)});
+
+
+  const anyPointLayerHasZ = Object.values(obsPointsData || {})
+    .some(layerData => Object.values(layerData || {})
+      .some(obsData => obsData?.obsLocations?.shape?.[1] >= 3
+      || obsData?.obsLocations?.data?.shape?.[1] >= 3));
 
   const maxT = Object.values(images || {})
     .reduce((a, h) => Math.max(a, h?.image?.instance.getNumT()), 1) - 1;
@@ -67,7 +78,7 @@ export default function LayerController(props) {
   return (
     <div>
       {/* Global T and Z sliders */}
-      {anyLayerHasZ ? (
+      {anyLayerHasZ && anyPointLayerHasZ ? (
         <GlobalDimensionSlider
           label="Z"
           targetValue={targetZ}
