@@ -1275,6 +1275,9 @@ const globalNeuroglancerStyles = {
     color: '#fff',
     textAlign: 'left',
   },
+  '.neuroglancer-rendered-data-panel:active': {
+    cursor: 'grabbing',
+  },
   '.neuroglancer-display-dimensions-widget': {
     position: 'absolute',
     cursor: 'default',
