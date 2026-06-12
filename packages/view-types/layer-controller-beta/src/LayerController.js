@@ -54,15 +54,6 @@ export default function LayerController(props) {
   const anyLayerHasZ = Object.values(images || {})
     .some(image => image?.image?.instance.hasZStack());
 
-  // const anyPointLayerHasZ = Object.values(pointMultiIndicesData || {})
-  // .some(data => {console.log("data", data)});
-
-
-  const anyPointLayerHasZ = Object.values(obsPointsData || {})
-    .some(layerData => Object.values(layerData || {})
-      .some(obsData => obsData?.obsLocations?.shape?.[1] >= 3
-      || obsData?.obsLocations?.data?.shape?.[1] >= 3));
-
   const maxT = Object.values(images || {})
     .reduce((a, h) => Math.max(a, h?.image?.instance.getNumT()), 1) - 1;
   const maxZ = Object.values(images || {})
