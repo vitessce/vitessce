@@ -43,6 +43,12 @@ export default function LayerController(props) {
 
   } = props;
 
+  const anyPointLayerHasZ = Object.values(obsPointsData || {})
+    .some(layerData => Object.values(layerData || {})
+      .some(obsData => obsData?.obsLocations?.shape?.[1] >= 3
+      || obsData?.obsLocations?.data?.shape?.[1] >= 3));
+
+
   const anyLayerHasT = Object.values(images || {})
     .some(image => image?.image?.instance.hasTStack());
   const anyLayerHasZ = Object.values(images || {})
