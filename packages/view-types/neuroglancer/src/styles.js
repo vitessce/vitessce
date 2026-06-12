@@ -1268,7 +1268,7 @@ const globalNeuroglancerStyles = {
   },
   'input.perspective-panel-show-slice-views': { pointerEvents: 'all' },
   '.neuroglancer-rendered-data-panel': {
-    cursor: 'crosshair',
+    cursor: 'grab',
     position: 'relative',
     outline: '0',
     touchAction: 'none',
