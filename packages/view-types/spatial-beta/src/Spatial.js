@@ -494,8 +494,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[1] = staticColor[1];
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
+
+          const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+          const featureColorMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)
+            : null;
+          const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = Math.round(featureOpacity * 255);
           return target;
         }
         if (!showUnselected) {
@@ -541,6 +547,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           const featureColorMatch = Array.isArray(featureColor)
             ? featureColor.find(fc => fc.name === featureName)?.color
             : null;
+          const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
           if (featureColorMatch) {
             // eslint-disable-next-line no-param-reassign
             target[0] = featureColorMatch[0];
@@ -549,7 +556,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // eslint-disable-next-line no-param-reassign
             target[2] = featureColorMatch[2];
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = Math.round(featureOpacity * 255);
             return target;
           }
           // No color found for this feature: use static color.
@@ -606,8 +613,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+    
+            const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+            const featureColorMatch = Array.isArray(featureColor)
+              ? featureColor.find(fc => fc.name === featureName)
+              : null;
+            const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = Math.round(featureOpacity * 255);
             return target;
           }
           if (!showUnselected) {
