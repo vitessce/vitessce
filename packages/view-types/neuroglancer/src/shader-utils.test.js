@@ -177,6 +177,7 @@ describe('getGeneSelectionWithSelectionShader', () => {
   it('generates a shader with per-feature colors for selected and default for unselected', () => {
     const result = getGeneSelectionWithSelectionShader(
       [1, 4],
+      [1.0, 0.5],
       [[255, 0, 0], [0, 255, 0]],
       [128, 128, 128],
       [50, 50, 50],
@@ -208,6 +209,7 @@ void main() {
     // Since featureColors are always normalized, we just check the normal path.
     const result = getGeneSelectionWithSelectionShader(
       [0],
+      [1.0],
       [[0, 0, 255]],
       [255, 255, 255],
       [0, 0, 0],
@@ -238,6 +240,7 @@ describe('getGeneSelectionFilteredShader', () => {
     const result = getGeneSelectionFilteredShader(
       [2, 8],
       [[255, 0, 0], [0, 0, 255]],
+      [0.8, 0.3],
       [128, 128, 128],
       0.75,
       'gene_index',
