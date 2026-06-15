@@ -222,10 +222,11 @@ void main() {
     int geneIndex = prop_fi();
     int selectedIndices[1] = int[1](0);
     vec3 featureColors[1] = vec3[1](vec3(0, 0, 1));
+    float featureOpacities[1] = float[1](1.0000);
     vec4 color = vec4(0, 0, 0, 1);
     for (int i = 0; i < 1; ++i) {
         if (geneIndex == selectedIndices[i]) {
-            color = vec4(featureColors[i], 1);
+            color = vec4(featureColors[i], featureOpacities[i]);
         }
     }
     setColor(color);
