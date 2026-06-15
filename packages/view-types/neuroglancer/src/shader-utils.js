@@ -47,7 +47,6 @@ function toVec4(normalizedColor, alpha) {
 }
 
 
-
 // ============================================================
 // Case 1: spatialLayerColor
 // ============================================================
@@ -588,15 +587,15 @@ export function getPointsShader(layerCoordination) {
     : [];
 
   const resolvedFeatureOpacities = hasResolvedIndices
-  ? featureSelection
-    .filter(name => featureIndex?.indexOf(name) >= 0)
-    .map((name) => {
-      const match = Array.isArray(featureColor)
-        ? featureColor.find(fc => fc.name === name)
-        : null;
-      return match?.opacity ?? opacity;
-    })
-  : [];
+    ? featureSelection
+      .filter(name => featureIndex?.indexOf(name) >= 0)
+      .map((name) => {
+        const match = Array.isArray(featureColor)
+          ? featureColor.find(fc => fc.name === name)
+          : null;
+        return match?.opacity ?? opacity;
+      })
+    : [];
 
   // Points coloring cases:
   // (See `createPointLayer` in spatial-beta/Spatial.js for more background.)

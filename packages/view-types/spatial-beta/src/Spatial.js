@@ -613,7 +613,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
-    
+
             const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
             const featureColorMatch = Array.isArray(featureColor)
               ? featureColor.find(fc => fc.name === featureName)
