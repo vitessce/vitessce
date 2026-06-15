@@ -12,6 +12,9 @@ import { PALETTE, getDefaultColor } from '@vitessce/utils';
  * @returns {[number, number, number]}
  */
 function normalizeColor(rgbColor) {
+  if (!Array.isArray(rgbColor)) {
+    return [0, 0, 0];
+  }
   return rgbColor.map(c => c / 255);
 }
 
