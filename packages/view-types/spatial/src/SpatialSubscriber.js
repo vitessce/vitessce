@@ -25,6 +25,7 @@ import {
   useHasLoader,
   useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
+import { aggregateFeatureArrays } from '@vitessce/utils';
 import {
   setObsSelection,
   mergeObsSets,
@@ -477,10 +478,22 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+  ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+
+  const aggregatedExpressionData = useMemo(() => {
+    if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
+      const aggregated = aggregateFeatureArrays(expressionData, featureAggregationStrategyToUse);
+      return [aggregated];
+    }
+    return expressionData;
+  }, [expressionData, featureAggregationStrategyToUse]);
+
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
-  } = useUint8FeatureSelection(expressionData);
+  } = useUint8FeatureSelection(aggregatedExpressionData);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -732,6 +745,7 @@ export function SpatialSubscriber(props) {
         featureValueColormapRange={geneExpressionColormapRange}
         setFeatureValueColormapRange={setGeneExpressionColormapRange}
         extent={expressionExtents?.[0]}
+        featureAggregationStrategy={featureAggregationStrategyToUse}
       />
     </TitleInfo>
   );
