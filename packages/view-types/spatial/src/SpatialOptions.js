@@ -209,9 +209,9 @@ export default function SpatialOptions(props) {
                 >
                   {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
                     <option key={opt} value={opt}>
-                    {capitalize(opt)}
-                  </option>
-                ))}
+                      {capitalize(opt)}
+                    </option>
+                  ))}
                 </OptionSelect>
               </TableCell>
             </TableRow>
