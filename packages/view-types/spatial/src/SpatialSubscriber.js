@@ -105,6 +105,7 @@ export function SpatialSubscriber(props) {
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
     photometricInterpretation: photometricInterpretationFromCoordination,
+    featureAggregationStrategy,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -128,6 +129,7 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setFeatureAggregationStrategy,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const {
@@ -542,6 +544,9 @@ export function SpatialSubscriber(props) {
             (hasLocationsData || hasSegmentationsData) && hasExpressionData
           }
           canShow3DOptions={canShow3DOptions}
+          featureSelection={geneSelection}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       );
     }
@@ -552,6 +557,7 @@ export function SpatialSubscriber(props) {
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
     tooltipsVisible, setTooltipsVisible,
+    geneSelection, featureAggregationStrategy, setFeatureAggregationStrategy,
   ]);
 
   useEffect(() => {

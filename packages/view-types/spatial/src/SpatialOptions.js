@@ -70,6 +70,9 @@ export default function SpatialOptions(props) {
     canShowExpressionOptions,
     canShowColorEncodingOption,
     canShow3DOptions,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
+    featureSelection,
   } = props;
 
   const spatialOptionsId = useId();
@@ -189,6 +192,26 @@ export default function SpatialOptions(props) {
               />
             </TableCell>
           </TableRow>
+          {setFeatureAggregationStrategy ? (
+            <TableRow>
+              <TableCell className={classes.labelCell} variant="head" scope="row">
+                <label htmlFor={`feature-aggregation-strategy-${spatialOptionsId}`}>
+                  Feature Aggregation Strategy
+                </label>
+              </TableCell>
+              <TableCell className={classes.inputCell} variant="body">
+                <OptionSelect
+                  className={classes.select}
+                  value={featureAggregationStrategy ?? 'first'}
+                  onChange={e => setFeatureAggregationStrategy(e.target.value)}
+                  inputProps={{ id: `feature-aggregation-strategy-${spatialOptionsId}` }}
+                >
+                  <option value="first">First</option>
+                  <option value="last">Last</option>
+                </OptionSelect>
+              </TableCell>
+            </TableRow>
+          ) : null}
         </>
       ) : null}
     </OptionsContainer>
