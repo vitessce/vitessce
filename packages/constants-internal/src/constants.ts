@@ -421,3 +421,9 @@ export const ViewHelpMapping = {
   SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
 };
+
+
+export const CHANNEL_SORT_OPTIONS = {
+  ORIGINAL: 'original',
+  ALPHABETICAL: 'alphabetical',
+};

@@ -29,6 +29,7 @@ import {
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
+import { CHANNEL_SORT_OPTIONS } from '@vitessce/constants-internal';
 import {
   useControllerSectionStyles,
   useSelectStyles,
@@ -465,10 +466,10 @@ export default function ImageLayerController(props) {
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
-  const [channelSort, setChannelSort] = useState('original');
+  const [channelSort, setChannelSort] = useState(CHANNEL_SORT_OPTIONS.ORIGINAL);
 
   const sortedChannelScopes = useMemo(() => {
-    if (channelSort !== 'alphabetical' || !featureIndex) return channelScopes;
+    if (channelSort !== CHANNEL_SORT_OPTIONS.ALPHABETICAL || !featureIndex) return channelScopes;
     return [...channelScopes].sort((a, b) => {
       const nameA = featureIndex[image?.getChannelIndex(channelCoordination[a].spatialTargetC)] ?? '';
       const nameB = featureIndex[image?.getChannelIndex(channelCoordination[b].spatialTargetC)] ?? '';
@@ -563,11 +564,11 @@ export default function ImageLayerController(props) {
            <Button
              size="small"
              variant="outlined"
-             onClick={() => setChannelSort(s => s === 'original' ? 'alphabetical' : 'original')}
+             onClick={() => setChannelSort(s => s === CHANNEL_SORT_OPTIONS.ORIGINAL? CHANNEL_SORT_OPTIONS.ALPHABETICAL : CHANNEL_SORT_OPTIONS.ORIGINAL)}
              style={{ fontSize: '0.7rem', padding: '2px 6px' }}
              aria-label="Toggle channel sort order"
            >
-             {channelSort === 'original' ? 'Sort A→Z' : 'Sort: Original'}
+             {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL ? 'Sort A→Z' : 'Sort: Original'}
            </Button>
          </Grid>
         ) : null}
