@@ -304,97 +304,108 @@ export default function LayerController(props) {
     setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
 
+  const [channelSort, setChannelSort] = useState('original');
+
   let channelControllers = [];
   if (labels.length > 0) {
     const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
+    // Create a sorted index array for display order.
+    const sortedChannelIndices = channels.map((_, i) => i);
+    if (channelSort === 'alphabetical') {
+      sortedChannelIndices.sort((a, b) => {
+        const nameA = channelOptions[channels[a].selection[channelLabel]] ?? String(channels[a].selection[channelLabel]);
+        const nameB = channelOptions[channels[b].selection[channelLabel]] ?? String(channels[b].selection[channelLabel]);
+        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+    }
+
     // Create the channel controllers for each channel.
-    channelControllers = channels.map(
+    channelControllers = sortedChannelIndices.map((channelId) => {
       // c is an object like { color, selection, slider, visible }.
-      (c, channelId) => {
-        // Update the auxiliary store with the current loading state of a channel.
-        const setIsLoading = (val) => {
-          const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
-          newAreLayerChannelsLoading[channelId] = val;
-          setAreLayerChannelsLoading(newAreLayerChannelsLoading);
-        };
-        // Change one property of a channel (for now - soon
-        // nested structures allowing for multiple z/t selecitons at once, for example).
-        const handleChannelPropertyChange = (property, value) => {
-          // property is something like "selection" or "slider."
-          // value is the actual change, like { channel: "DAPI" }.
-          const update = { [property]: value };
-          if (property === 'selection') {
-            // Channel is loading until the layer callback is called
-            // by the layer, which fetches the raster data.
-            setIsLoading(true);
-            update.selection = {
-              ...globalLabelValues,
-              ...update.selection,
-            };
+      const c = channels[channelId];
+      // Update the auxiliary store with the current loading state of a channel.
+      const setIsLoading = (val) => {
+        const newAreLayerChannelsLoading = [...areLayerChannelsLoading];
+        newAreLayerChannelsLoading[channelId] = val;
+        setAreLayerChannelsLoading(newAreLayerChannelsLoading);
+      };
+      // Change one property of a channel (for now - soon
+      // nested structures allowing for multiple z/t selecitons at once, for example).
+      const handleChannelPropertyChange = (property, value) => {
+        // property is something like "selection" or "slider."
+        // value is the actual change, like { channel: "DAPI" }.
+        const update = { [property]: value };
+        if (property === 'selection') {
+          // Channel is loading until the layer callback is called
+          // by the layer, which fetches the raster data.
+          setIsLoading(true);
+          update.selection = {
+            ...globalLabelValues,
+            ...update.selection,
+          };
+          setChannel({ ...c, ...update }, channelId);
+          // Call back for raster layer handles update of UI
+          // like sliders and the loading state of the channel.
+          setImageLayerCallback(async () => {
+            const selections = [
+              { ...channels[channelId][property], ...value },
+            ];
+            const { sliders } = await getDomainsAndSliders(
+              loader,
+              selections,
+              domainType,
+              use3d,
+            );
+            [update.slider] = sliders;
             setChannel({ ...c, ...update }, channelId);
-            // Call back for raster layer handles update of UI
-            // like sliders and the loading state of the channel.
-            setImageLayerCallback(async () => {
-              const selections = [
-                { ...channels[channelId][property], ...value },
-              ];
-              const { sliders } = await getDomainsAndSliders(
-                loader,
-                selections,
-                domainType,
-                use3d,
-              );
-              [update.slider] = sliders;
-              setChannel({ ...c, ...update }, channelId);
-              setImageLayerCallback(null);
-              setIsLoading(false);
-            });
-          } else {
-            setChannel({ ...c, ...update }, channelId);
-          }
-        };
-        const handleChannelRemove = () => {
-          removeChannel(channelId);
-        };
-        const handleIQRUpdate = async () => {
-          const { data: loaderData } = loader;
-          const source = Array.isArray(loaderData)
-            ? loaderData[loaderData.length - 1]
-            : loaderData;
-          const raster = await source.getRaster({
-            selection: channels[channelId].selection,
+            setImageLayerCallback(null);
+            setIsLoading(false);
           });
-          const stats = viv.getChannelStats(raster.data);
-          const { q1, q3 } = stats;
-          setChannel({ ...c, slider: [q1, q3] }, channelId);
-        };
-        return (
-          <ChannelController
-            // eslint-disable-next-line react/no-array-index-key
-            key={`channel-controller-${channelId}`}
-            dimName={channelLabel}
-            visibility={c.visible}
-            selectionIndex={c.selection[channelLabel]}
-            slider={c.slider}
-            color={c.color}
-            channels={channels}
-            channelId={channelId}
-            domainType={domainType}
-            loader={loader}
-            globalLabelValues={globalLabelValues}
-            theme={theme}
-            channelOptions={channelOptions}
-            colormapOn={Boolean(colormap)}
-            handlePropertyChange={handleChannelPropertyChange}
-            handleChannelRemove={handleChannelRemove}
-            handleIQRUpdate={handleIQRUpdate}
-            setRasterLayerCallback={setImageLayerCallback}
-            isLoading={areLayerChannelsLoading[channelId]}
-            use3d={use3d}
-          />
-        );
-      },
-    );
+        } else {
+          setChannel({ ...c, ...update }, channelId);
+        }
+      };
+      const handleChannelRemove = () => {
+        removeChannel(channelId);
+      };
+      const handleIQRUpdate = async () => {
+        const { data: loaderData } = loader;
+        const source = Array.isArray(loaderData)
+          ? loaderData[loaderData.length - 1]
+          : loaderData;
+        const raster = await source.getRaster({
+          selection: channels[channelId].selection,
+        });
+        const stats = viv.getChannelStats(raster.data);
+        const { q1, q3 } = stats;
+        setChannel({ ...c, slider: [q1, q3] }, channelId);
+      };
+      return (
+        <ChannelController
+          // eslint-disable-next-line react/no-array-index-key
+          key={`channel-controller-${channelId}`}
+          dimName={channelLabel}
+          visibility={c.visible}
+          selectionIndex={c.selection[channelLabel]}
+          slider={c.slider}
+          color={c.color}
+          channels={channels}
+          channelId={channelId}
+          domainType={domainType}
+          loader={loader}
+          globalLabelValues={globalLabelValues}
+          theme={theme}
+          channelOptions={channelOptions}
+          colormapOn={Boolean(colormap)}
+          handlePropertyChange={handleChannelPropertyChange}
+          handleChannelRemove={handleChannelRemove}
+          handleIQRUpdate={handleIQRUpdate}
+          setRasterLayerCallback={setImageLayerCallback}
+          isLoading={areLayerChannelsLoading[channelId]}
+          use3d={use3d}
+        />
+      );
+    });
   }
 
   const { classes: controllerSectionClasses } = useControllerSectionStyles();
@@ -447,6 +458,18 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
+      {photometricInterpretation !== 'RGB' && channelOptions?.length > 1 ? (
+        <Grid container direction="row" justifyContent="flex-end" sx={{ mb: 0.5 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setChannelSort(s => s === 'original' ? 'alphabetical' : 'original')}
+            style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+          >
+            {channelSort === 'original' ? 'Sort A→Z' : 'Sort: Original'}
+          </Button>
+        </Grid>
+      ) : null}
       {photometricInterpretation === 'RGB'
         ? null
         : channelControllers}
