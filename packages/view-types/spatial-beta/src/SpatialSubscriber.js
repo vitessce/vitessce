@@ -66,7 +66,7 @@ const SEGMENTATION_LAYER_PREFIX = 'segmentation-layer-';
  * Prefers highest resolution (least negative z) tile with non-zero data at the coordinate,
  * falling back to lower resolution if needed.
  */
-function findBestTile(tiles, transformedCoordinate) {
+function findBestTile(tiles, transformedCoordinate, tileSize = 512) {
   if (!tiles || !tiles.length) return null;
 
   const candidates = tiles.filter((t) => {
@@ -88,9 +88,9 @@ function findBestTile(tiles, transformedCoordinate) {
     const { content, bbox } = t;
     const { data, width, height } = content;
     const { left, top, right, bottom } = bbox;
-    const base = 512;
-    const adjustedRight = data.width < base ? left + width : right;
-    const adjustedBottom = data.height < base ? top + height : bottom;
+
+    const adjustedRight = data.width < tileSize ? left + width : right;
+    const adjustedBottom = data.height < tileSize ? top + height : bottom;
     const dx = Math.floor(((transformedCoordinate[0] - left) / (adjustedRight - left)) * width);
     const dy = Math.floor(((transformedCoordinate[1] - top) / (adjustedBottom - top)) * height);
     return dx >= 0 && dx < width && dy >= 0 && dy < height && data[0][dy * width + dx] > 0;
@@ -103,7 +103,7 @@ function findBestTile(tiles, transformedCoordinate) {
  * Accepts optional segmentation tiles to sample directly, bypassing hoverInfo.tile —
  * used when the image layer intercepts picking before the segmentation layer at high zoom.
  */
-function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null) {
+function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null, tileSize = 512) {
   const { coordinate, sourceLayer: layer, tile } = hoverInfo;
   if (!coordinate || !layer) return null;
 
@@ -115,27 +115,20 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null
     vec4.transformMat4(worldCoord, worldCoord, invModelMatrix);
     transformedCoordinate = [worldCoord[0], worldCoord[1]];
   }
-  const bestTile = findBestTile(segTiles, transformedCoordinate);
-
   // Use provided segmentation tiles if available, otherwise use hoverInfo tile
   const activeTile = segTiles
-    ? (() => {
-      const best = findBestTile(segTiles, transformedCoordinate);
-      return best;
-    })()
-    : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
+  ? findBestTile(segTiles, transformedCoordinate, tileSize)
+  : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
 
-  const nonZero = activeTile?.content?.data?.[0]?.filter(v => v > 0);
 
   if (activeTile?.content) {
-    const { content, bbox, index: { z } } = activeTile;
+    const { content, bbox } = activeTile;
     const { data, width, height } = content;
     const { left, right, top, bottom } = bbox;
 
     // Replicated the bounds calculation from renderSubBitmaskLayers
-    const base = 512; // tileSize
-    const adjustedRight = data.width < base ? left + width : right;
-    const adjustedBottom = data.height < base ? top + height : bottom;
+    const adjustedRight = data.width < tileSize ? left + width : right;
+    const adjustedBottom = data.height < tileSize ? top + height : bottom;
 
     const bboxWidth = adjustedRight - left;
     const bboxHeight = adjustedBottom - top;
@@ -143,17 +136,6 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null
       Math.floor(((transformedCoordinate[0] - left) / bboxWidth) * width),
       Math.floor(((transformedCoordinate[1] - top) / bboxHeight) * height),
     ];
-
-    const neighbors = [];
-    for (let dy = -2; dy <= 2; dy++) {
-      for (let dx = -2; dx <= 2; dx++) {
-        const nx = dataCoords[0] + dx;
-        const ny = dataCoords[1] + dy;
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          neighbors.push(data[0][ny * width + nx]);
-        }
-      }
-    }
 
     if (
       dataCoords[0] >= 0 && dataCoords[0] < width
@@ -822,7 +804,8 @@ export function SpatialSubscriber(props) {
         const tiledSubLayer = segLayer?.getSubLayers?.()?.find(l => l?.id?.includes('Tiled-Image'));
         const segTiles = tiledSubLayer?.state?.tileset?._tiles; // eslint-disable-line no-underscore-dangle
         if (!segTiles) return null;
-        return getHoverData(hoverInfo, 'segmentation-bitmask', segModelMatrix, segTiles);
+        const tileSize = tiledSubLayer?.state?.tileset?.opts?.tileSize ?? 512;
+        return getHoverData(hoverInfo, 'segmentation-bitmask', segModelMatrix, segTiles, tileSize);
       }, null))()
       : null;
 
