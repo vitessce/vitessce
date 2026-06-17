@@ -1,7 +1,7 @@
 import React from 'react';
 import { useId } from 'react-aria';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
-import { TableCell, TableRow, Checkbox } from '@material-ui/core';
+import { TableCell, TableRow, Checkbox } from '@vitessce/styles';
 import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';
 
 
@@ -32,7 +32,7 @@ export default function FeatureListOptions(props) {
     setShowFeatureTable(event.target.checked);
   }
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   return (
     <OptionsContainer>
@@ -95,10 +95,10 @@ export default function FeatureListOptions(props) {
                 onChange={handleShowTableChange}
                 name="feature-list-show-table"
                 color="default"
-                inputProps={{
+                slotProps={{ input: {
                   'aria-label': 'Show or hide alternative feature ids',
                   id: `feature-list-show-alternative-ids-${featureListId}`,
-                }}
+                } }}
               />
             </TableCell>
           </TableRow>

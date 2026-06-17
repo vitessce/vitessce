@@ -1,13 +1,9 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import '@testing-library/jest-dom';
-import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 
 import Description from './Description.js';
 
-afterEach(() => {
-  cleanup();
-});
 
 describe('Description.js', () => {
   describe('<Description />', () => {

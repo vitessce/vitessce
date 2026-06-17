@@ -5,6 +5,7 @@ export type VivLoaderType = LoadOmeTiffReturnValue<string[]> | LoadOmeZarrReturn
 export type VivLoaderDataType = VivLoaderType['data'];
 
 export type ImageOptions = {
+  coordinateSystem?: string;
   coordinateTransformations?: object[]; // TODO: stricter type
   offsetsUrl?: string;
 };
@@ -25,9 +26,11 @@ export type ChannelObject = {
 export type ResolutionObject = {
   height: number;
   width: number;
+  depth: number;
   depthDownsampled: number;
   totalBytes: number;
   canLoad: boolean;
+  dims: Record<string, number>;
 };
 
 export type BoundingCube = [

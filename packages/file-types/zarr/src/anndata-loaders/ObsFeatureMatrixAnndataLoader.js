@@ -1,9 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet, slice } from 'zarrita';
 import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import {
-  LoaderResult, AbstractTwoStepLoader, AbstractLoaderError,
-} from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { maybeDowncastInt64, concatenateColumnVectors } from './utils.js';
 
 // Put array of data into an object,
@@ -356,17 +354,14 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
 
   async load() {
     const { path } = this.getOptions();
-    const superResult = await super.load().catch(reason => Promise.resolve(reason));
-    if (superResult instanceof AbstractLoaderError) {
-      return Promise.reject(superResult);
-    }
-    return Promise.all([
+    const [obsIndex, featureIndex, obsFeatureMatrix] = await Promise.all([
       this.dataSource.loadObsIndex(path),
       this.loadInitialFilteredGeneNames(),
       this.loadCellXGene(),
-    ]).then(([obsIndex, featureIndex, obsFeatureMatrix]) => Promise.resolve(new LoaderResult(
+    ]);
+    return new LoaderResult(
       { obsIndex, featureIndex, obsFeatureMatrix },
       null,
-    )));
+    );
   }
 }

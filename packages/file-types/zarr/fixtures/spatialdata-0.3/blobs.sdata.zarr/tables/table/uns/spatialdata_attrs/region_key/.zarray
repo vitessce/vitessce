@@ -1,0 +1,11 @@
+{
+    "chunks": [],
+    "compressor": null,
+    "dimension_separator": "/",
+    "dtype": "<U6",
+    "fill_value": "",
+    "filters": null,
+    "order": "C",
+    "shape": [],
+    "zarr_format": 2
+}

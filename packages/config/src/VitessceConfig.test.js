@@ -128,6 +128,51 @@ describe('src/api/VitessceConfig.js', () => {
         version: '1.0.4',
       });
     });
+    it('can add a file with requestInit to a dataset', () => {
+      const config = new VitessceConfig({
+        schemaVersion: '1.0.4',
+        name: 'My config',
+        description: 'My config description',
+      });
+      // Named arguments.
+      config.addDataset('My dataset', 'My dataset description').addFile({
+        url: 'http://example.com/cells.json',
+        fileType: 'cells.json',
+        requestInit: {
+          headers: {
+            Authorization: 'Bearer my-token',
+          },
+        },
+      });
+
+      const configJSON = config.toJSON();
+      expect(configJSON).toEqual({
+        coordinationSpace: {
+          dataset: {
+            A: 'A',
+          },
+        },
+        datasets: [{
+          name: 'My dataset',
+          description: 'My dataset description',
+          uid: 'A',
+          files: [{
+            url: 'http://example.com/cells.json',
+            fileType: 'cells.json',
+            requestInit: {
+              headers: {
+                Authorization: 'Bearer my-token',
+              },
+            },
+          }],
+        }],
+        description: 'My config description',
+        initStrategy: 'auto',
+        layout: [],
+        name: 'My config',
+        version: '1.0.4',
+      });
+    });
 
     it('can add a view', () => {
       const config = new VitessceConfig({

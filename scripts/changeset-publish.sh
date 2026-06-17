@@ -20,7 +20,7 @@ mv ./packages/main/prod/README.md ./packages/main/prod/README.temp.md
 cp ./README.md ./packages/main/prod/README.md
 
 # Publish all sub-packages to NPM.
-pnpm publish --filter='./packages/**' --no-git-checks --access public
+pnpm publish --filter='./packages/**' --no-git-checks --provenance --access public
 
 # Revert the copied README
 rm ./packages/main/prod/README.md

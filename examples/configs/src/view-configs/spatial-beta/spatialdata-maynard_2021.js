@@ -59,6 +59,7 @@ function generateMaynardConfig() {
       fileType: 'obsSets.spatialdata.zarr',
       url: baseUrl,
       options: {
+        tablePath: 'table/table',
         obsSets: [
           {
             name: 'Layer',

@@ -7,7 +7,7 @@ DATE=`date "+%Y-%m-%d"`
 HASH=`git rev-parse --short HEAD`
 PKG_VERSION=`npm pkg get version | tr -d '"'`
 
-BUCKET="temp-vitessce-data"
+BUCKET="legacy.vitessce.io"
 
 DEMO_URL_PATH="demos/$DATE/$HASH"
 ROOT_DOCS_URL_PATH="docs-root/$DATE/$HASH"

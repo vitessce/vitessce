@@ -2,10 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import { SELECTION_TYPE } from '@vitessce/gl';
 import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
-import { makeStyles } from '@material-ui/core';
-import { CenterFocusStrong } from '@material-ui/icons';
+import { makeStyles, CenterFocusStrong } from '@vitessce/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   toolButton: {
     display: 'inline-flex',
     '&:active': {
@@ -52,6 +51,7 @@ const useStyles = makeStyles(() => ({
 
     '& > svg': {
       verticalAlign: 'middle',
+      display: 'inline-block',
       color: 'black',
     },
     '&:active': {
@@ -72,7 +72,7 @@ export function IconTool(props) {
   const {
     alt, onClick, isActive, children,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <button
       className={clsx(classes.toolIcon, { [classes.toolActive]: isActive })}
@@ -89,7 +89,7 @@ export function IconButton(props) {
   const {
     alt, onClick, children,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <button
       className={clsx(classes.toolIcon, classes.toolButton)}
@@ -108,10 +108,10 @@ export default function ToolMenu(props) {
   const {
     setActiveTool,
     activeTool,
-    visibleTools = { pan: true, selectLasso: true },
+    visibleTools = { pan: true, selectLasso: true, recenter: true },
     recenterOnClick = () => {},
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const onRecenterButtonCLick = () => {
     recenterOnClick();
@@ -135,12 +135,14 @@ export default function ToolMenu(props) {
         ><SelectLassoIconSVG />
         </IconTool>
       ) : null}
-      <IconButton
-        alt="click to recenter"
-        onClick={() => onRecenterButtonCLick()}
-        aria-label="Recenter scatterplot view"
-      ><CenterFocusStrong />
-      </IconButton>
+      {visibleTools.recenter ? (
+        <IconButton
+          alt="click to recenter"
+          onClick={() => onRecenterButtonCLick()}
+          aria-label="Recenter scatterplot view"
+        ><CenterFocusStrong />
+        </IconButton>
+      ) : null}
     </div>
   );
 }

@@ -7,15 +7,21 @@ import HelpTooltip from './HelpTooltip.js';
  * @param {*} props Props are passed through to the HelpTooltip component.
  */
 export default function Popover(props) {
+  const {
+    overlayClassName = 'popover',
+    placement = 'top',
+    trigger = 'click',
+    mouseEnterDelay = 0,
+    mouseLeaveDelay = 0,
+  } = props;
   return (
-    <HelpTooltip {...props} />
+    <HelpTooltip
+      {...props}
+      overlayClassName={overlayClassName}
+      placement={placement}
+      trigger={trigger}
+      mouseEnterDelay={mouseEnterDelay}
+      mouseLeaveDelay={mouseLeaveDelay}
+    />
   );
 }
-
-Popover.defaultProps = {
-  overlayClassName: 'popover',
-  placement: 'top',
-  trigger: 'click',
-  mouseEnterDelay: 0,
-  mouseLeaveDelay: 0,
-};

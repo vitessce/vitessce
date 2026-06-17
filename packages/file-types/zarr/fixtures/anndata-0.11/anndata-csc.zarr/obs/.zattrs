@@ -1,0 +1,8 @@
+{
+    "_index": "_index",
+    "column-order": [
+        "leiden"
+    ],
+    "encoding-type": "dataframe",
+    "encoding-version": "0.2.0"
+}

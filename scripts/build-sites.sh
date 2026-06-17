@@ -24,8 +24,19 @@ cp error.html $DEMO_DIST_DIR
 echo 'User-agent: *
 Disallow: /' > $DEMO_DIST_DIR/robots.txt
 
-# and push to S3.
-DEMO_TARGET_URL="https://s3.amazonaws.com/$BUCKET/$DEMO_URL_PATH/index.html"
+cd ../..
+
+# Build app site...
+cd sites/app
+pnpm run build-app
+
+# Finalize app site...
+DEMO_DIST_DIR='dist/'
+# and add an error page for app.vitessce.io
+cp error.html $DEMO_DIST_DIR
+# and add a robots.txt since we do not want to publicize app.vitessce.io
+echo 'User-agent: *
+Disallow: /' > $DEMO_DIST_DIR/robots.txt
 
 cd ../..
 

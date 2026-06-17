@@ -1,8 +1,8 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 import Tooltip from './Tooltip.js';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   cellEmphasisCrosshair: {
     zIndex: 50,
     position: 'absolute',
@@ -36,7 +36,7 @@ export default function Tooltip2D(props) {
     children,
   } = props;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   // Check if out of bounds.
   if (x < 0 || x > parentWidth || y < 0 || y > parentHeight) {

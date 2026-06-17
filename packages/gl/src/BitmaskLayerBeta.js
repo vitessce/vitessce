@@ -69,16 +69,10 @@ const defaultProps = {
 export default class BitmaskLayer extends XRLayer {
   // eslint-disable-next-line class-methods-use-this
   getShaders() {
-    const { colormap } = this.props;
     return {
       fs,
       vs,
       modules: [project32, picking],
-      defines: {
-        [COLORMAP_SHADER_PLACEHOLDER]: GLSL_COLORMAPS.includes(colormap)
-          ? colormap
-          : GLSL_COLORMAP_DEFAULT,
-      },
     };
   }
 
@@ -170,8 +164,6 @@ export default class BitmaskLayer extends XRLayer {
       channelOpacities,
       channelColors,
       channelsVisible,
-      // TODO: use `channelFeatureValueColormaps` in shader,
-      // figure out how to call multiple GLSL colormap functions
       channelFeatureValueColormaps,
       channelFeatureValueColormapRanges,
       channelIsStaticColorMode,
@@ -241,6 +233,12 @@ export default class BitmaskLayer extends XRLayer {
               1.0,
               // There are six texture entries on the shaders
               MAX_CHANNELS - channelStrokeWidths.length,
+            ),
+            channelColormapFuncIndices: padWithDefault(
+              channelFeatureValueColormaps.map(d => GLSL_COLORMAPS.indexOf(d)),
+              0,
+              // There are six texture entries on the shaders
+              MAX_CHANNELS - channelFeatureValueColormaps.length,
             ),
             channelColormapRangeStarts: padWithDefault(
               channelFeatureValueColormapRanges.map(r => r?.[0] || 0.0),

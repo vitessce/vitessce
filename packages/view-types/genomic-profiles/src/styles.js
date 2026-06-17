@@ -1,10 +1,12 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core';
+/* eslint-disable react-refresh/only-export-components */
+import React from 'react';
+import { makeStyles, ScopedGlobalStyles } from '@vitessce/styles';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   higlassTitleWrapper: {
     height: 'calc(100% - 20px)',
-    '& > div:nth-child(2)': {
+    '& > div:nth-of-type(2)': {
       width: 'inherit',
       height: 'inherit',
       padding: '5px',
@@ -30,25 +32,38 @@ export const useStyles = makeStyles(theme => ({
     display: 'block',
     textAlign: 'left',
     boxSizing: 'border-box',
-    '@global .higlass': {
-      width: '100%',
-      height: '100%',
-    },
-    '@global .higlass .react-grid-layout': {
-      backgroundColor: 'transparent !important',
-    },
-    '@global .higlass nav': {
-      display: 'flex',
-    },
-    '@global .higlass input': {
-      fontSize: '12px',
-    },
-    '@global .higlass .btn': {
-      color: '#999',
-      fontSize: '12px',
-    },
   },
 }));
+
+const higlassGlobalStyles = {
+  '.higlass': {
+    width: '100%',
+    height: '100%',
+  },
+  '.higlass .react-grid-layout': {
+    backgroundColor: 'transparent !important',
+  },
+  '.higlass nav': {
+    display: 'flex',
+  },
+  '.higlass input': {
+    fontSize: '12px',
+  },
+  '.higlass .btn': {
+    color: '#999',
+    fontSize: '12px',
+  },
+};
+
+export function HiglassGlobalStyles(props) {
+  const { classes } = props;
+  return (
+    <ScopedGlobalStyles
+      parentClassName={classes.higlassWrapper}
+      styles={higlassGlobalStyles}
+    />
+  );
+}
 
 /*
 .vitessce-container .higlass-wrapper {

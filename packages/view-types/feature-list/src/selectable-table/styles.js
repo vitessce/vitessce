@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@vitessce/styles';
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles()(theme => ({
   selectableTable: {
     flex: '1 1 auto',
     outline: 'none',
@@ -34,6 +34,7 @@ export const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    paddingLeft: '10px',
   },
   inputContainer: {
     width: '1em',

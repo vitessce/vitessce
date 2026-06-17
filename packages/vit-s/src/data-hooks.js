@@ -3,15 +3,13 @@ import { CoordinationType, DataType, STATUS } from '@vitessce/constants-internal
 import { useQuery, useQueries } from '@tanstack/react-query';
 import {
   LoaderNotFoundError,
-} from '@vitessce/abstract';
+} from '@vitessce/error';
 import {
   useMultiCoordinationValues,
   useComplexCoordination,
-  useSetWarning,
   getMatchingLoader,
 } from './state/hooks.js';
 import {
-  warn,
   useDataType,
   useDataTypeMulti,
 } from './data-hook-utils.js';
@@ -61,9 +59,7 @@ export function useDescription(loaders, dataset) {
  * @param {object} initialCoordinationValues Object where
  * keys are coordination type names with the prefix 'initialize',
  * values are initialization preferences as boolean values.
- * @returns {array} [cells, cellsCount] where
- * cells is an object and cellsCount is the
- * number of items in the cells object.
+ * @returns {array} [data, status, urls, error]
  */
 export function useObsEmbeddingData(
   loaders, dataset, isRequired,
@@ -76,6 +72,16 @@ export function useObsEmbeddingData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsSpotsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -87,6 +93,16 @@ export function useObsSpotsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsPointsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -98,6 +114,16 @@ export function useObsPointsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsLocationsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -109,6 +135,16 @@ export function useObsLocationsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsLabelsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -120,6 +156,16 @@ export function useObsLabelsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsSegmentationsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -131,6 +177,16 @@ export function useObsSegmentationsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsSetsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -142,6 +198,16 @@ export function useObsSetsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useSampleSetsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -153,6 +219,16 @@ export function useSampleSetsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useSampleEdgesData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -164,6 +240,16 @@ export function useSampleEdgesData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useObsFeatureMatrixData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -175,6 +261,16 @@ export function useObsFeatureMatrixData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useFeatureLabelsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -186,6 +282,16 @@ export function useFeatureLabelsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useImageData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -197,6 +303,16 @@ export function useImageData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useGenomicProfilesData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -208,6 +324,16 @@ export function useGenomicProfilesData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useNeighborhoodsData(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -219,6 +345,16 @@ export function useNeighborhoodsData(
   );
 }
 
+/**
+ * Wrapper around useDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
 export function useComparisonMetadata(
   loaders, dataset, isRequired,
   coordinationSetters, initialCoordinationValues, matchOn,
@@ -241,7 +377,9 @@ export function useComparisonMetadata(
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
  * @param {boolean} selection A list of gene names to get expression data for.
- * @returns {array} [geneData] where geneData is an array [Uint8Array, ..., Uint8Array]
+ * @param {object} matchOn Coordination values used to obtain a matching loader.
+ * @returns {array} [geneData, geneName, status, errors]
+ * where geneData is an array [Uint8Array, ..., Uint8Array]
  * for however many genes are in the selection.
  */
 export function useFeatureSelection(
@@ -251,7 +389,6 @@ export function useFeatureSelection(
   selection,
   matchOn,
 ) {
-  const setWarning = useSetWarning();
   const featureQueries = useQueries({
     queries: selection?.map(featureId => ({
       structuralSharing: false,
@@ -288,7 +425,7 @@ export function useFeatureSelection(
         }
         // No loader was found.
         if (isRequired) {
-          throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+          throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${DataType.OBS_FEATURE_MATRIX}, ${JSON.stringify(matchOn)}`);
         } else {
           return { data: null, dataKey: null };
         }
@@ -298,6 +435,7 @@ export function useFeatureSelection(
   });
   const anyLoading = featureQueries.some(q => q.isFetching);
   const anyError = featureQueries.some(q => q.isError);
+  const errors = anyError ? featureQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading
     ? STATUS.LOADING
@@ -310,18 +448,7 @@ export function useFeatureSelection(
     isSuccess ? featureQueries.map(q => q.data?.dataKey || null) : null
   ), [isSuccess, selection, dataset]);
 
-  useEffect(() => {
-    featureQueries
-      .map(q => q.error)
-      .filter(e => Boolean(e))
-      .forEach((error) => {
-        warn(error, setWarning);
-      });
-  // Deliberate dependency omissions: use indirect dependencies for efficiency.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyError, setWarning]);
-
-  return [geneData, loadedGeneName, dataStatus];
+  return [geneData, loadedGeneName, dataStatus, errors];
 }
 
 /**
@@ -338,13 +465,14 @@ export function useFeatureSelection(
  * @param {object} matchOn Coordination values used to obtain a matching loader.
  * @param {object} volcanoOptions Options to pass to the loadMulti function of the loader.
  * @param {string} dataType A data type.
- * @returns {array} [{ df, metadata }] Array of dataframes and their metadata, where
- * df is an object in which each column is stored as an array like { col1: arr1, col2: arr2 }.
+ * @returns {array} [{ df, metadata }, status, urls, error]
+ * Array of dataframes and their metadata, where
+ * df is an object in which each column is stored
+ * as an array like { col1: arr1, col2: arr2 }.
  */
 export function useComparativeDataType(
   loaders, dataset, isRequired, matchOn, volcanoOptions, dataType,
 ) {
-  const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
   const statsQuery = useQuery({
     // TODO: only enable once `loaders` is available?
@@ -385,7 +513,7 @@ export function useComparativeDataType(
       // No loader was found.
       if (isRequired) {
         // Status: error
-        throw new LoaderNotFoundError(loaders, dataset, dataType, matchOn);
+        throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${dataType}, ${JSON.stringify(matchOn)}`);
       } else {
         // Status: success
         return { data: placeholderObject, dataKey: null };
@@ -399,15 +527,18 @@ export function useComparativeDataType(
   const dataStatus = isFetching ? STATUS.LOADING : status;
   const urls = data?.urls;
 
-  useEffect(() => {
-    if (error) {
-      setWarning(error.message);
-    }
-  }, [error, setWarning]);
-
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, error];
 }
 
+/**
+ * Wrapper around useComparativeDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOn
+ * @param {object} volcanoOptions
+ * @returns {array} [data, status, urls, error].
+ */
 export function useFeatureStatsData(
   loaders, dataset, isRequired, matchOn, volcanoOptions,
 ) {
@@ -417,6 +548,15 @@ export function useFeatureStatsData(
   );
 }
 
+/**
+ * Wrapper around useComparativeDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOn
+ * @param {object} volcanoOptions
+ * @returns {array} [data, status, urls, error].
+ */
 export function useFeatureSetStatsData(
   loaders, dataset, isRequired, matchOn, volcanoOptions,
 ) {
@@ -426,6 +566,15 @@ export function useFeatureSetStatsData(
   );
 }
 
+/**
+ * Wrapper around useComparativeDataType.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOn
+ * @param {object} volcanoOptions
+ * @returns {array} [data, status, urls, error].
+ */
 export function useObsSetStatsData(
   loaders, dataset, isRequired, matchOn, volcanoOptions,
 ) {
@@ -447,12 +596,13 @@ export function useObsSetStatsData(
  * used to identify which loader to use.
  * @param {boolean} isRequired Should a warning be thrown if
  * loading is unsuccessful?
- * @returns {object} [attrs] { rows, cols } object containing cell and gene names.
+ * @param {object} matchOn Coordination values used to obtain a matching loader.
+ * @returns {object} [attrs, status, urls, error]
+ * where attrs is { rows, cols } object containing cell and gene names.
  */
 export function useObsFeatureMatrixIndices(
   loaders, dataset, isRequired, matchOn,
 ) {
-  const setWarning = useSetWarning();
   const placeholderObject = useMemo(() => ({}), []);
   const indicesQuery = useQuery({
     // TODO: only enable once `loaders` is available?
@@ -501,7 +651,7 @@ export function useObsFeatureMatrixIndices(
       // No loader was found.
       if (isRequired) {
         // Status: error
-        throw new LoaderNotFoundError(loaders, dataset, DataType.OBS_FEATURE_MATRIX, matchOn);
+        throw new LoaderNotFoundError(`Loader not found for parameters: ${dataset}, ${DataType.OBS_FEATURE_MATRIX}, ${JSON.stringify(matchOn)}`);
       } else {
         // Status: success
         return { data: placeholderObject, dataKey: null };
@@ -515,15 +665,19 @@ export function useObsFeatureMatrixIndices(
   const dataStatus = isFetching ? STATUS.LOADING : status;
   const urls = data?.urls;
 
-  useEffect(() => {
-    if (error) {
-      setWarning(error.message);
-    }
-  }, [error, setWarning]);
-
-  return [loadedData, dataStatus, urls];
+  return [loadedData, dataStatus, urls, error];
 }
 
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useMultiObsPoints(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
   mergeCoordination, viewUid,
@@ -541,14 +695,24 @@ export function useMultiObsPoints(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsPointsData, obsPointsDataStatus, obsPointsUrls] = useDataTypeMulti(
+  const [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors] = useDataTypeMulti(
     DataType.OBS_POINTS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsPointsData, obsPointsDataStatus, obsPointsUrls];
+  return [obsPointsData, obsPointsDataStatus, obsPointsUrls, obsPointsErrors];
 }
 
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useMultiObsSpots(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
   mergeCoordination, viewUid,
@@ -566,14 +730,24 @@ export function useMultiObsSpots(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls] = useDataTypeMulti(
+  const [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors] = useDataTypeMulti(
     DataType.OBS_SPOTS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls];
+  return [obsSpotsData, obsSpotsDataStatus, obsSpotsUrls, obsSpotsErrors];
 }
 
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useSpotMultiObsSets(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -590,15 +764,24 @@ export function useSpotMultiObsSets(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [obsSetsData, obsSetsDataStatus, obsSetsUrls] = useDataTypeMulti(
+  const [obsSetsData, obsSetsDataStatus, obsSetsUrls, obsSetsErrors] = useDataTypeMulti(
     DataType.OBS_SETS, loaders, dataset,
     false, {}, {},
     matchOnObj,
   );
-  return [obsSetsData, obsSetsDataStatus, obsSetsUrls];
+  return [obsSetsData, obsSetsDataStatus, obsSetsUrls, obsSetsErrors];
 }
 
-
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useSpotMultiFeatureLabels(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
 ) {
@@ -615,15 +798,34 @@ export function useSpotMultiFeatureLabels(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [featureLabelsData, featureLabelsStatus, featureLabelsUrls] = useDataTypeMulti(
+  const [
+    featureLabelsData,
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsErrors,
+  ] = useDataTypeMulti(
     DataType.FEATURE_LABELS, loaders, dataset,
     false, {}, {},
     matchOnObj,
   );
-  return [featureLabelsData, featureLabelsStatus, featureLabelsUrls];
+  return [
+    featureLabelsData,
+    featureLabelsStatus,
+    featureLabelsUrls,
+    featureLabelsErrors,
+  ];
 }
 
-
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [labelsTypes, data, status, urls, errors]
+ */
 export function useMultiObsLabels(
   coordinationScopes, obsType, loaders, dataset,
 ) {
@@ -637,14 +839,24 @@ export function useMultiObsLabels(
       { obsLabelsType, obsType },
     ])),
   ), [obsLabelsTypes, obsType]);
-  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls] = useDataTypeMulti(
+  const [obsLabelsData, obsLabelsDataStatus, obsLabelsUrls, obsLabelsErrors] = useDataTypeMulti(
     DataType.OBS_LABELS, loaders, dataset,
     false, {}, {},
     obsLabelsMatchOnObj,
   );
-  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls];
+  return [obsLabelsTypes, obsLabelsData, obsLabelsDataStatus, obsLabelsUrls, obsLabelsErrors];
 }
 
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useMultiObsSegmentations(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
   mergeCoordination, viewUid,
@@ -666,14 +878,30 @@ export function useMultiObsSegmentations(
     obsSegmentationsData,
     obsSegmentationsDataStatus,
     obsSegmentationsUrls,
+    obsSegmentationsErrors,
   ] = useDataTypeMulti(
     DataType.OBS_SEGMENTATIONS, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [obsSegmentationsData, obsSegmentationsDataStatus, obsSegmentationsUrls];
+  return [
+    obsSegmentationsData,
+    obsSegmentationsDataStatus,
+    obsSegmentationsUrls,
+    obsSegmentationsErrors,
+  ];
 }
 
+/**
+ * Wrapper around useDataTypeMulti.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {function} mergeCoordination
+ * @param {string} viewUid
+ * @returns {array} [data, status, urls, errors]
+ */
 export function useMultiImages(
   coordinationScopes, coordinationScopesBy, loaders, dataset,
   mergeCoordination, viewUid,
@@ -693,10 +921,10 @@ export function useMultiImages(
     // use coordinationScopes and coordinationScopesBy which are
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
-  const [imageData, imageDataStatus, imageUrls] = useDataTypeMulti(
+  const [imageData, imageDataStatus, imageUrls, imageErrors] = useDataTypeMulti(
     DataType.IMAGE, loaders, dataset,
     false, {}, {},
     matchOnObj, mergeCoordination, viewUid,
   );
-  return [imageData, imageDataStatus, imageUrls];
+  return [imageData, imageDataStatus, imageUrls, imageErrors];
 }

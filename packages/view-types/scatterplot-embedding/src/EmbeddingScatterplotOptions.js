@@ -1,6 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionSelect } from '@vitessce/vit-s';
 
 export default function EmbeddingScatterplotOptions(props) {
@@ -11,7 +11,7 @@ export default function EmbeddingScatterplotOptions(props) {
     setSelectedMapping,
   } = props;
 
-  const classes = usePlotOptionsStyles();
+  const { classes } = usePlotOptionsStyles();
 
   const scatterplotOptionsId = useId();
 

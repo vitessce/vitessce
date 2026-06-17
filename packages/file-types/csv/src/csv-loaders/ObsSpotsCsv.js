@@ -1,5 +1,5 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsSpotsCsvLoader extends CsvLoader {
@@ -20,14 +20,11 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
 
     const coordinationValues = {
       spotLayer: CL({
-        obsType: 'spot',
+        obsType: this.coordinationValues?.obsType ?? 'spot',
         // obsColorEncoding: 'spatialLayerColor',
         // spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,
@@ -45,10 +42,10 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }

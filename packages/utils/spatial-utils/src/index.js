@@ -16,11 +16,13 @@ export {
   getNgffAxes,
   getNgffAxesForTiff,
   coordinateTransformationsToMatrix,
+  coordinateTransformationsToMatrixForSpatialData,
   physicalSizeToMatrix,
   hexToRgb,
   getStatsForResolution,
   canLoadResolution,
   normalizeCoordinateTransformations,
+  normalizeAxes,
 } from './spatial.js';
 export {
   loadOmeZarr,

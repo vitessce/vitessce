@@ -1,5 +1,5 @@
 import React from 'react';
-import RcTree from 'rc-tree';
+import RcTree from 'rc-tree/es/Tree.js';
 import clsx from 'clsx';
 
 /**
@@ -9,12 +9,13 @@ import clsx from 'clsx';
  */
 const Tree = React.forwardRef((props, ref) => {
   const {
-    prefixCls,
+    prefixCls = 'rc-tree',
     className,
-    showIcon,
-    blockNode,
+    showIcon = false,
+    blockNode = true,
     children,
-    checkable,
+    checkable = false,
+    virtual = false,
   } = props;
   // Do not render RcTree if the tree nodes have not yet loaded.
   return (children?.length > 0 ? (
@@ -22,6 +23,10 @@ const Tree = React.forwardRef((props, ref) => {
       itemHeight={32}
       ref={ref}
       {...props}
+      virtual={virtual}
+      showIcon={showIcon}
+      blockNode={blockNode}
+      prefixCls={prefixCls}
       className={clsx(className, {
         [`${prefixCls}-icon-hide`]: !showIcon,
         [`${prefixCls}-block-node`]: blockNode,
@@ -34,12 +39,5 @@ const Tree = React.forwardRef((props, ref) => {
   ) : null);
 });
 Tree.displayName = 'Tree';
-Tree.defaultProps = {
-  virtual: false,
-  checkable: false,
-  showIcon: false,
-  blockNode: true,
-  prefixCls: 'rc-tree',
-};
 
 export default Tree;

@@ -3,5 +3,11 @@ export {
 } from './adapter.js';
 export {
   zarrOpenRoot,
+  transformEntriesForZipFileStore,
 } from './normalize.js';
 export { createStoreFromMapContents } from './base64-store.js';
+export { createGetRange } from './base-getrange.js';
+export {
+  flattenOmeAttrs,
+  getOmeNgffVersion,
+} from './ome-ngff-version.js';

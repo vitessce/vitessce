@@ -9,8 +9,7 @@ import Fuse from 'fuse.js/basic';
 /** @import { QueryClient, QueryFunctionContext } from '@tanstack/react-query' */
 
 const KG_BASE_URL = 'https://storage.googleapis.com/vitessce-demo-data/enrichr-kg-september-2023';
-const ENSG_TO_GENE_SYMBOL_URL = 'https://vitessce-resources.s3.us-east-2.amazonaws.com/genes_filtered.json';
-
+const ENSG_TO_GENE_SYMBOL_URL = 'https://data-1.vitessce.io/genes_filtered.json';
 /**
  * @returns {Promise<KgNode[]>}
  */

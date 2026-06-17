@@ -1,16 +1,9 @@
-import {
-  AbstractLoaderError,
-} from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import SpatialDataImageLoader from './SpatialDataImageLoader.js';
 
 export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
   async load() {
     const result = await super.load();
-    if (result instanceof AbstractLoaderError) {
-      return Promise.reject(result);
-    }
-
     result.data = {
       obsSegmentations: result.data.image,
       obsSegmentationsType: 'bitmask',
@@ -45,9 +38,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
         },
       ]),
     };
-
     result.coordinationValues = coordinationValues;
-
-    return Promise.resolve(result);
+    return result;
   }
 }

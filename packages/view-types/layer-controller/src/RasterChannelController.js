@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import { Grid, Slider } from '@material-ui/core';
+import { Grid, Slider } from '@vitessce/styles';
 import { debounce, isEqual } from 'lodash-es';
 
 import {
@@ -45,12 +45,12 @@ function ChannelSlider({
     [handleChange],
   );
 
-  const classes = useChannelSliderStyles();
+  const { classes } = useChannelSliderStyles();
 
   const step = max - min < 500 && dtype.startsWith('Float') ? (max - min) / 500 : 1;
   return (
     <Slider
-      classes={{ valueLabel: classes.valueLabel }}
+      slotProps={{ valueLabel: { className: classes.valueLabel } }}
       value={slider}
       valueLabelFormat={abbreviateNumber}
       onChange={(e, v) => handleChangeDebounced(v)}
@@ -186,9 +186,9 @@ function RasterChannelController({
    */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="column" m={1} justifyContent="center">
+    <Grid container direction="column" justifyContent="center">
       <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={10}>
+        <Grid size={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))
             }
@@ -197,7 +197,7 @@ function RasterChannelController({
             disabled={isLoading}
           />
         </Grid>
-        <Grid item xs={1} style={{ marginTop: '4px' }}>
+        <Grid size={1} sx={{ marginTop: '4px' }}>
           <ChannelOptions
             handlePropertyChange={handlePropertyChange}
             handleChannelRemove={handleChannelRemove}
@@ -207,7 +207,7 @@ function RasterChannelController({
         </Grid>
       </Grid>
       <Grid container direction="row" justifyContent="space-between">
-        <Grid item xs={2}>
+        <Grid size={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}
             checked={visibility}
@@ -215,7 +215,7 @@ function RasterChannelController({
             disabled={isLoading}
           />
         </Grid>
-        <Grid item xs={9}>
+        <Grid size={9}>
           <ChannelSlider
             color={rgbColor}
             slider={slider}

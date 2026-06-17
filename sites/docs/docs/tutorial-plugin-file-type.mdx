@@ -2,9 +2,11 @@
 id: tutorial-plugin-file-type
 title: 'Tutorial: Develop a plugin file type'
 sidebar_label: Plugin File Type
+last_update:
+  date: 2025-05-24
 ---
 
-See the [file type implementation](/docs/dev-add-loader/) and [plugin file type development](https://github.com/vitessce/vitessce/blob/main/dev-docs/plugin-file-types.md) documentation for more details.
+See the [plugin file type development](https://github.com/vitessce/vitessce/blob/main/dev-docs/plugin-file-types.md) documentation for more details.
 
 
 ### Minimal example
@@ -13,13 +15,12 @@ See the [file type implementation](/docs/dev-add-loader/) and [plugin file type 
 import { range } from 'lodash-es';
 import {
   Vitessce,
-  registerPluginFileType,
+  PluginFileType,
   JsonLoader,
   JsonSource,
   LoaderResult,
+  z,
 } from 'vitessce';
-import 'vitessce/dist/es/production/static/css/index.css';
-import './index.css';
 
 const numCells = 60;
 const numGenes = 90;
@@ -80,15 +81,21 @@ class InMemoryMatrixLoader extends JsonLoader {
   }
 }
 
-registerPluginFileType(
-  'in-memory-cells', 'cells',
-  InMemoryCellsLoader, JsonSource,
-);
 
-registerPluginFileType(
-  'in-memory-matrix', 'expression-matrix',
-  InMemoryMatrixLoader, JsonSource,
-);
+// Define the plugin file type array
+// which will be passed as a React prop to <Vitessce/>
+const pluginFileTypes = [
+  new PluginFileType(
+    'in-memory-cells', 'cells',
+    InMemoryCellsLoader, JsonSource,
+    z.null(),
+  ),
+  new PluginFileType(
+    'in-memory-matrix', 'expression-matrix',
+    InMemoryMatrixLoader, JsonSource,
+    z.null(),
+  ),
+];
 
 // Use the plugin file type in the configuration.
 const configWithPluginFileType = {
@@ -147,6 +154,7 @@ export default function MyApp() {
       config={configWithPluginFileType}
       height={800}
       theme="light"
+      pluginFileTypes={pluginFileTypes}
     />
   );
 }

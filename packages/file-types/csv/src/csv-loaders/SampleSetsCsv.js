@@ -1,4 +1,4 @@
-import { LoaderResult, AbstractLoaderError } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
 import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 
@@ -35,10 +35,7 @@ export default class SampleSetsCsvLoader extends CsvLoader {
   }
 
   async load() {
-    const payload = await this.getSourceData().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await this.getSourceData();
     const { data, url } = payload;
     const [
       obsIndex,
@@ -46,12 +43,10 @@ export default class SampleSetsCsvLoader extends CsvLoader {
       obsSetsMembership,
       coordinationValues,
     ] = this.loadFromCache(data);
-    return Promise.resolve(
-      new LoaderResult({
-        sampleIndex: obsIndex,
-        sampleSets: cellSetsTree,
-        sampleSetsMembership: obsSetsMembership,
-      }, url, coordinationValues),
-    );
+    return new LoaderResult({
+      sampleIndex: obsIndex,
+      sampleSets: cellSetsTree,
+      sampleSetsMembership: obsSetsMembership,
+    }, url, coordinationValues);
   }
 }

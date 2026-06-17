@@ -4,6 +4,8 @@ on:
   push:
     branches:
     - main
+    paths-ignore:
+    - '**/*.md'
   pull_request:
 
 jobs:
@@ -13,13 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [18.20.0, 20.10.0, 22]
-        os: [ubuntu-latest]
-        include:
-          - os: windows-2022
-            node: 18.20.0
+        os: [ubuntu-latest, windows-2022]
     
-    name: Test on ${{ matrix.os }} with Node ${{ matrix.node }}
+    name: Test on ${{ matrix.os }}
 
     permissions:
       # Permissions required for the vitest-coverage-report action
@@ -33,9 +31,6 @@ jobs:
           # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -56,7 +51,7 @@ jobs:
         # Generage coverage report even when tests fail,
         # but only generate a coverage report once per matrix.
         # (Here, we just pick ubuntu and node 18, a bit arbitrarily).
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 18 && always() }}
+        if: ${{ matrix.os == 'ubuntu-latest' && always() }}
         uses: davelosert/vitest-coverage-report-action@v2
 
   
@@ -64,9 +59,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -102,9 +94,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -139,9 +128,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -159,4 +145,32 @@ jobs:
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Playwright
-        run: pnpm exec playwright test
+        run: pnpm exec playwright test auto-init-coordination/
+
+  test-e2e-playwright-for-create-view-cli:
+    # because we take the golden screenshots on macOS locally
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          run_install: true
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - id: get-options
+        run: . ./scripts/set-node-options.sh --action
+        shell: bash
+      - name: Run the create-view CLI
+        run: |
+          pnpm run create-view some-plot
+          pnpm install --no-frozen-lockfile
+      - run: |
+          pnpm run build:ci
+          cd ./sites/demo
+          pnpm run build-demo
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      - name: Playwright
+        run: pnpm exec playwright test create-view/

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useId } from 'react-aria';
 import {
   makeStyles,
@@ -9,11 +9,9 @@ import {
   Typography,
   Slider,
   Button,
-  Select,
+  NativeSelect,
   Checkbox,
   MenuItem,
-} from '@material-ui/core';
-import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
@@ -21,7 +19,10 @@ import {
   ExpandMore,
   ExpandLess,
   MoreVert as MoreVertIcon,
-} from '@material-ui/icons';
+  Input,
+  Box,
+  InputAdornment,
+} from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
 import {
   useAddImageChannelInMetaCoordinationScopes,
@@ -35,9 +36,10 @@ import {
 } from './styles.js';
 import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
+import LoadingStatusIndicator from './LoadingStatusIndicator.js';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   imageLayerButton: {
     borderStyle: 'dashed',
     marginTop: '10px',
@@ -66,9 +68,34 @@ const useStyles = makeStyles(() => ({
   },
   clippingSliders: {
     padding: '0 8px',
-
   },
 }));
+
+
+// Convert LOD slider value (0-100) to LOD factor (inverse relationship)
+// Higher slider values = higher quality = lower LOD factor
+// Slider 0 -> LOD factor 10 (lowest quality)
+// Slider 50 -> LOD factor 1 (default quality)
+// Slider 100 -> LOD factor 0.1 (highest quality)
+
+function convertLogarithmicSliderValueToLodFactor(sliderValue) {
+  // Invert the slider value so higher slider = lower LOD factor (higher quality)
+  const invertedValue = 100 - sliderValue;
+  return 10 ** ((invertedValue - 50) / 25);
+}
+
+function convertLodFactorToLogarithmicSliderValue(lodFactor) {
+  // Convert LOD factor back to inverted slider value
+  const invertedValue = 50 + 25 * Math.log10(lodFactor);
+  return 100 - invertedValue;
+}
+
+const lodSliderRangeConfig = {
+  min: 0,
+  max: 100,
+  step: 1,
+};
+
 
 function ImageLayerEllipsisMenu(props) {
   const {
@@ -78,6 +105,8 @@ function ImageLayerEllipsisMenu(props) {
     setPhotometricInterpretation,
     spatialTargetResolution,
     setSpatialTargetResolution,
+    spatialLodFactor,
+    setSpatialLodFactor,
     volumetricRenderingAlgorithm,
     setVolumetricRenderingAlgorithm,
     spatialLayerTransparentColor,
@@ -95,8 +124,18 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelSize,
   } = props;
   const [open, setOpen] = useState(false);
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
+
+  // Local state for LOD slider to update immediately on drag
+  const [localLodSliderValue, setLocalLodSliderValue] = useState(
+    convertLodFactorToLogarithmicSliderValue(spatialLodFactor || 1.0),
+  );
+
+  // Sync local slider value when spatialLodFactor changes externally
+  useEffect(() => {
+    setLocalLodSliderValue(convertLodFactorToLogarithmicSliderValue(spatialLodFactor || 1.0));
+  }, [spatialLodFactor]);
 
   const is3dMode = spatialRenderingMode === '3D';
   const isMultiResolution = image?.isMultiResolution();
@@ -124,6 +163,22 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelsOrientation(event.target.value);
   }
 
+  // Update local LOD slider value immediately on drag
+  function handleLodFactorChange(event, value) {
+    setLocalLodSliderValue(value);
+  }
+
+  // Update the actual LOD factor when user finishes sliding
+  function handleLodFactorChangeCommitted(event, value) {
+    setLocalLodSliderValue(value);
+    setSpatialLodFactor(convertLogarithmicSliderValueToLodFactor(value));
+  }
+
+  function handleLodFactorInputChange(event) {
+    const value = event.target.value === '' ? 0 : Number(event.target.value);
+    setLocalLodSliderValue(value);
+  }
+
   const colormapId = useId();
   const interpretationId = useId();
   const transparentId = useId();
@@ -133,6 +188,7 @@ function ImageLayerEllipsisMenu(props) {
   const channelLabelsVisibleId = useId();
   const channelLabelsOrientationId = useId();
   const channelLabelSizeId = useId();
+  const lodFactorId = useId();
 
   return (
     <PopperMenu
@@ -144,12 +200,45 @@ function ImageLayerEllipsisMenu(props) {
       withPaper
       aria-label="Open image layer options menu"
     >
-      <MenuItem dense disableGutters>
+      {is3dMode && (
+        <MenuItem dense disableGutters className={menuClasses.menuItem}>
+          <label id={`${lodFactorId}-label`} className={menuClasses.imageLayerMenuLabel} htmlFor={lodFactorId}>
+            LOD Factor:&nbsp;
+          </label>
+          <Slider
+            disabled={!is3dMode}
+            value={localLodSliderValue}
+            onChange={handleLodFactorChange}
+            onChangeCommitted={handleLodFactorChangeCommitted}
+            className={menuClasses.menuItemSlider}
+            orientation="horizontal"
+            id={lodFactorId}
+            aria-label="Level of detail factor slider"
+            valueLabelDisplay="off"
+            {...lodSliderRangeConfig}
+          />
+          <Box px={1} />
+          <Input
+            value={localLodSliderValue}
+            onChange={handleLodFactorInputChange}
+            onBlur={handleLodFactorInputChange}
+            aria-labelledby={`${lodFactorId}-label`}
+            size="small"
+            sx={{ width: '6ch', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}
+            endAdornment={<InputAdornment position="end" variant="standard" sx={{ '& > p': { marginBottom: 0 } }}>%</InputAdornment>}
+            inputProps={{
+              ...lodSliderRangeConfig,
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            }}
+          />
+        </MenuItem>
+      )}
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapId}>
           Colormap:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleColormapChange}
           value={colormap === null ? '' : colormap}
@@ -162,14 +251,13 @@ function ImageLayerEllipsisMenu(props) {
               {name}
             </option>
           ))}
-        </Select>
+        </NativeSelect>
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={interpretationId}>
           Photometric Interpretation:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleInterpretationChange}
           value={photometricInterpretation}
           inputProps={{ id: interpretationId, 'aria-label': 'Photometric interpretation selector' }}
@@ -179,9 +267,9 @@ function ImageLayerEllipsisMenu(props) {
           {channelScopes.length > 0 ? (
             <option aria-label="BlackIsZero" value="BlackIsZero">BlackIsZero</option>
           ) : null}
-        </Select>
+        </NativeSelect>
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={transparentId}>
           Zero Transparent:&nbsp;
         </label>
@@ -189,15 +277,14 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={spatialLayerTransparentColor !== null}
           onChange={(e, v) => setSpatialLayerTransparentColor(v ? ([0, 0, 0]) : null)}
-          inputProps={{ id: transparentId, 'aria-label': 'Render zero-value pixels as transparent' }}
+          slotProps={{ input: { id: transparentId, 'aria-label': 'Render zero-value pixels as transparent' } }}
         />
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={volumetricId}>
           Volumetric Rendering:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleVolumetricChange}
           value={volumetricRenderingAlgorithm}
           inputProps={{ id: volumetricId, 'aria-label': 'Volumetric rendering algorithm selector' }}
@@ -206,14 +293,13 @@ function ImageLayerEllipsisMenu(props) {
         >
           <option aria-label="Additive" value="additive">Additive</option>
           <option aria-label="Maximum Intensity Projection" value="maximumIntensityProjection">Maximum Intensity Projection</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={resolutionId}>
           Volume Resolution:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={!is3dMode || !isMultiResolution}
           onChange={handleResolutionChange}
           value={spatialTargetResolution === null ? 'auto' : spatialTargetResolution}
@@ -232,9 +318,9 @@ function ImageLayerEllipsisMenu(props) {
                 )} per channel, (${stats.height}, ${stats.width}, ${stats.depthDownsampled})`}
               </option>
             ) : null)) : null}
-        </Select>
+        </NativeSelect>
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={tooltipsVisibleId}>
           Tooltips Visible:&nbsp;
         </label>
@@ -242,10 +328,10 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={tooltipsVisible}
           onChange={(e, v) => setTooltipsVisible(v)}
-          inputProps={{ id: tooltipsVisibleId, 'aria-label': 'Render pixel value tooltips' }}
+          slotProps={{ input: { id: tooltipsVisibleId, 'aria-label': 'Render pixel value tooltips' } }}
         />
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelsVisibleId}>
           Channel Labels Visible:&nbsp;
         </label>
@@ -254,15 +340,14 @@ function ImageLayerEllipsisMenu(props) {
           color="primary"
           checked={channelLabelsVisible}
           onChange={(e, v) => setChannelLabelsVisible(v)}
-          inputProps={{ id: channelLabelsVisibleId, 'aria-label': 'Render channel labels' }}
+          slotProps={{ input: { id: channelLabelsVisibleId, 'aria-label': 'Render channel labels' } }}
         />
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelsOrientationId}>
           Channel Labels Orientation:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           disabled={photometricInterpretation === 'RGB'}
           onChange={handleChannelLabelsOrientationChange}
           value={channelLabelsOrientation}
@@ -271,9 +356,9 @@ function ImageLayerEllipsisMenu(props) {
         >
           <option aria-label="Vertical" value="vertical">Vertical</option>
           <option aria-label="Horizontal" value="horizontal">Horizontal</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
-      <MenuItem dense disableGutters>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelLabelSizeId}>
           Channel Labels Size:&nbsp;
         </label>
@@ -309,6 +394,11 @@ export default function ImageLayerController(props) {
     targetT,
     targetZ,
     spatialRenderingMode,
+    // Volume loading status props (optional, will be undefined if not in 3D mode)
+    volumeLoadingProgress = null,
+    onStopVolumeLoading = () => {},
+    onRestartVolumeLoading = () => {},
+    volumeStillRef = null,
   } = props;
 
   const [open, setOpen] = useState(true);
@@ -319,6 +409,7 @@ export default function ImageLayerController(props) {
     spatialLayerColormap: colormap,
     photometricInterpretation,
     spatialTargetResolution,
+    spatialLodFactor,
     volumetricRenderingAlgorithm,
     spatialLayerTransparentColor,
     spatialSliceX,
@@ -335,6 +426,7 @@ export default function ImageLayerController(props) {
     setSpatialLayerColormap: setColormap,
     setPhotometricInterpretation,
     setSpatialTargetResolution,
+    setSpatialLodFactor,
     setVolumetricRenderingAlgorithm,
     setSpatialLayerTransparentColor,
     setSpatialSliceX,
@@ -374,15 +466,15 @@ export default function ImageLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
-  const classes = useStyles();
-  const menuClasses = useEllipsisMenuStyles();
-  const controllerSectionClasses = useControllerSectionStyles();
+  const { classes } = useStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
+  const { classes: controllerSectionClasses } = useControllerSectionStyles();
   const isMultiChannel = photometricInterpretation !== 'RGB';
   return (
-    <Grid item className={controllerSectionClasses.layerControllerGrid}>
-      <Paper className={controllerSectionClasses.layerControllerRoot}>
+    <Grid className={controllerSectionClasses.layerControllerGrid}>
+      <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Button
               className={menuClasses.imageLayerVisibleButton}
               onClick={handleVisibleChange}
@@ -391,13 +483,13 @@ export default function ImageLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid item xs={1} />
-          <Grid item xs={6}>
+          <Grid size={1} />
+          <Grid size={6}>
             <Typography className={menuClasses.imageLayerName}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <Slider
               value={opacity}
               min={0}
@@ -409,7 +501,7 @@ export default function ImageLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <ImageLayerEllipsisMenu
               colormap={colormap}
               setColormap={setColormap}
@@ -417,6 +509,8 @@ export default function ImageLayerController(props) {
               setPhotometricInterpretation={setPhotometricInterpretation}
               spatialTargetResolution={spatialTargetResolution}
               setSpatialTargetResolution={setSpatialTargetResolution}
+              spatialLodFactor={spatialLodFactor}
+              setSpatialLodFactor={setSpatialLodFactor}
               volumetricRenderingAlgorithm={volumetricRenderingAlgorithm}
               setVolumetricRenderingAlgorithm={setVolumetricRenderingAlgorithm}
               spatialLayerTransparentColor={spatialLayerTransparentColor}
@@ -434,7 +528,7 @@ export default function ImageLayerController(props) {
               setChannelLabelSize={setChannelLabelSize}
             />
           </Grid>
-          <Grid item xs={1} container direction="row">
+          <Grid size={1} container direction="row">
             <ImageIcon className={classes.layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button
@@ -461,6 +555,7 @@ export default function ImageLayerController(props) {
                 spatialChannelOpacity,
                 spatialChannelColor,
                 spatialChannelWindow,
+                spatialMaxResolution,
               } = channelCoordination[cScope];
               const {
                 setSpatialTargetC,
@@ -468,9 +563,11 @@ export default function ImageLayerController(props) {
                 setSpatialChannelOpacity,
                 setSpatialChannelColor,
                 setSpatialChannelWindow,
+                setSpatialMaxResolution,
               } = setChannelCoordination[cScope];
 
               const channelIndex = image?.getChannelIndex(spatialTargetC);
+              const numResolutions = image?.getNumResolutions();
 
               return (
                 <ImageChannelController
@@ -495,6 +592,9 @@ export default function ImageLayerController(props) {
                   featureIndex={featureIndex}
                   image={image}
                   spatialRenderingMode={spatialRenderingMode}
+                  numResolutions={numResolutions}
+                  spatialMaxResolution={spatialMaxResolution}
+                  setSpatialMaxResolution={setSpatialMaxResolution}
                 />
               );
             })}
@@ -523,7 +623,7 @@ export default function ImageLayerController(props) {
             className={classes.imageChannelControllerGrid}
           >
             <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
-            <Grid item xs={12} className={classes.clippingSliders}>
+            <Grid size={12} className={classes.clippingSliders}>
               <ClippingSliders
                 image={image}
                 spatialSliceX={spatialSliceX}
@@ -534,6 +634,13 @@ export default function ImageLayerController(props) {
                 setSpatialSliceZ={setSpatialSliceZ}
               />
             </Grid>
+            <LoadingStatusIndicator
+              loadingProgress={volumeLoadingProgress}
+              onStopLoading={onStopVolumeLoading}
+              onRestartLoading={onRestartVolumeLoading}
+              stillRef={volumeStillRef}
+              spatialRenderingMode={spatialRenderingMode}
+            />
           </Grid>
         ) : null}
       </Paper>

@@ -2,12 +2,11 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState } from 'react';
 import { useId } from 'react-aria';
-import { makeStyles, MenuItem, Select } from '@material-ui/core';
-import { MoreVert as MoreVertIcon } from '@material-ui/icons';
+import { makeStyles, MenuItem, NativeSelect, Slider, MoreVert as MoreVertIcon } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { useSelectStyles, useEllipsisMenuStyles } from './styles.js';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   channelMenuButton: {
     backgroundColor: 'transparent',
     padding: '3px 0',
@@ -28,12 +27,15 @@ export default function ChannelOptions(props) {
     onResetWindowUsingIQR,
     showValueExtent,
     setShowValueExtent,
+    numResolutions,
+    spatialMaxResolution,
+    setSpatialMaxResolution,
   } = props;
   const [open, setOpen] = useState(false);
 
-  const classes = useStyles();
-  const selectClasses = useSelectStyles();
-  const menuClasses = useEllipsisMenuStyles();
+  const { classes } = useStyles();
+  const { classes: selectClasses } = useSelectStyles();
+  const { classes: menuClasses } = useEllipsisMenuStyles();
 
   function handleRemove() {
     setOpen(false);
@@ -59,10 +61,26 @@ export default function ChannelOptions(props) {
     >
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
+          Best Resolution:&nbsp;
+        </label>
+        <Slider
+          value={spatialMaxResolution || 1}
+          valueLabelDisplay="auto"
+          onChange={(e, v) => setSpatialMaxResolution(v)}
+          min={1}
+          max={numResolutions - 1}
+          step={1}
+          orientation="horizontal"
+          // className={classes.channelSlider}
+          // style={{ color: rgbColor }}
+          // disabled={disabled}
+        />
+      </MenuItem>
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={domainTypeId}>
           Slider Extent:&nbsp;
         </label>
-        <Select
-          native
+        <NativeSelect
           onChange={handleDomainTypeChange}
           value={showValueExtent ? 'Value Min/Max' : 'Dtype Min/Max'}
           inputProps={{ id: domainTypeId, 'aria-label': 'Slider extent selector' }}
@@ -70,7 +88,7 @@ export default function ChannelOptions(props) {
         >
           <option value="Value Min/Max">Value Min/Max</option>
           <option value="Dtype Min/Max">Dtype Min/Max</option>
-        </Select>
+        </NativeSelect>
       </MenuItem>
       <MenuItem
         dense

@@ -1,0 +1,9 @@
+{
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
+    "instance_key": null,
+    "region": null,
+    "region_key": null,
+    "spatialdata-encoding-type": "ngff:regions_table",
+    "version": "0.1"
+}

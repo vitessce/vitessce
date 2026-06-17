@@ -262,3 +262,8 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
 export const configSchema1_0_17 = configSchema1_0_16.extend({
   version: z.literal('1.0.17'),
 });
+
+// spatialdata.zarr options schema changes.
+export const configSchema1_0_18 = configSchema1_0_17.extend({
+  version: z.literal('1.0.18'),
+});

@@ -1,0 +1,431 @@
+diff --git a/HISTORY.md b/HISTORY.md
+deleted file mode 100644
+index 407250b172cfd5c29104037632553b6be6567a0d..0000000000000000000000000000000000000000
+diff --git a/es/Tree.js b/es/Tree.js
+index 3fb1e4270910b9e924a67399046cf27fc4988da2..311e2b3e76db69d09ccd1fac555ff744fcc6c769 100644
+--- a/es/Tree.js
++++ b/es/Tree.js
+@@ -11,9 +11,10 @@ import warning from 'warning';
+ import toArray from 'rc-util/es/Children/toArray';
+ import { polyfill } from 'react-lifecycles-compat';
+ 
+-import { treeContextTypes } from './contextTypes';
++import { TreeContext } from './contextTypes';
+ import { convertTreeToEntities, convertDataToTree, getDataAndAria, getPosition, getDragNodesKeys, parseCheckedKeys, conductExpandParent, calcSelectedKeys, calcDropPosition, arrAdd, arrDel, posToArr, mapChildren, conductCheck, warnOnlyTreeNode } from './util';
+ 
++
+ var Tree = function (_React$Component) {
+   _inherits(Tree, _React$Component);
+ 
+@@ -528,10 +529,64 @@ var Tree = function (_React$Component) {
+ 
+     // Internal usage for `rc-tree-select`, we don't promise it will not change.
+     _this.domTreeNodes = {};
++
++
++    var _props = _this.props,
++          prefixCls = _props.prefixCls,
++          selectable = _props.selectable,
++          showIcon = _props.showIcon,
++          icon = _props.icon,
++          draggable = _props.draggable,
++          checkable = _props.checkable,
++          checkStrictly = _props.checkStrictly,
++          disabled = _props.disabled,
++          loadData = _props.loadData,
++          filterTreeNode = _props.filterTreeNode,
++          motion = _props.motion,
++          switcherIcon = _props.switcherIcon;
++    _this.rcTreeContextValue = {
++      // root: this,
++
++      prefixCls: prefixCls,
++      selectable: selectable,
++      showIcon: showIcon,
++      icon: icon,
++      switcherIcon: switcherIcon,
++      draggable: draggable,
++      checkable: checkable,
++      checkStrictly: checkStrictly,
++      disabled: disabled,
++      motion: motion,
++
++      loadData: loadData,
++      filterTreeNode: filterTreeNode,
++      renderTreeNode: _this.renderTreeNode,
++      isKeyChecked: _this.isKeyChecked,
++
++      onNodeClick: _this.onNodeClick,
++      onNodeDoubleClick: _this.onNodeDoubleClick,
++      onNodeExpand: _this.onNodeExpand,
++      onNodeSelect: _this.onNodeSelect,
++      onNodeCheck: _this.onNodeCheck,
++      onNodeLoad: _this.onNodeLoad,
++      onNodeMouseEnter: _this.onNodeMouseEnter,
++      onNodeMouseLeave: _this.onNodeMouseLeave,
++      onNodeContextMenu: _this.onNodeContextMenu,
++      onNodeDragStart: _this.onNodeDragStart,
++      onNodeDragEnter: _this.onNodeDragEnter,
++      onNodeDragOver: _this.onNodeDragOver,
++      onNodeDragLeave: _this.onNodeDragLeave,
++      onNodeDragEnd: _this.onNodeDragEnd,
++      onNodeDrop: _this.onNodeDrop,
++
++      registerTreeNode: _this.registerTreeNode
++    };
++
++
+     return _this;
+   }
+ 
+-  _createClass(Tree, [{
++  _createClass(Tree, [/*{
+     key: 'getChildContext',
+     value: function getChildContext() {
+       var _props = this.props,
+@@ -589,7 +644,7 @@ var Tree = function (_React$Component) {
+         }
+       };
+     }
+-  }, {
++  },*/ {
+     key: 'render',
+     value: function render() {
+       var _this2 = this;
+@@ -611,7 +666,7 @@ var Tree = function (_React$Component) {
+         domProps.onKeyDown = this.onKeyDown;
+       }
+ 
+-      return React.createElement(
++      return React.createElement(TreeContext.Provider, { value: this.rcTreeContextValue }, React.createElement(
+         'ul',
+         _extends({}, domProps, {
+           className: classNames(prefixCls, className, _defineProperty({}, prefixCls + '-show-line', showLine)),
+@@ -622,7 +677,7 @@ var Tree = function (_React$Component) {
+         mapChildren(treeNode, function (node, index) {
+           return _this2.renderTreeNode(node, index);
+         })
+-      );
++      ));
+     }
+   }], [{
+     key: 'getDerivedStateFromProps',
+@@ -791,7 +846,7 @@ Tree.propTypes = {
+   motion: PropTypes.object,
+   switcherIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.func])
+ };
+-Tree.childContextTypes = treeContextTypes;
++//Tree.childContextTypes = treeContextTypes;
+ Tree.defaultProps = {
+   prefixCls: 'rc-tree',
+   showLine: false,
+diff --git a/es/TreeNode.js b/es/TreeNode.js
+index c9b1e06b64debe00e301822f390491ee8325b2f2..7b5d8a9493761978d30ed76c8df04421431721a1 100644
+--- a/es/TreeNode.js
++++ b/es/TreeNode.js
+@@ -11,7 +11,7 @@ import classNames from 'classnames';
+ import CSSMotion from 'rc-animate/es/CSSMotion';
+ import toArray from 'rc-util/es/Children/toArray';
+ import { polyfill } from 'react-lifecycles-compat';
+-import { nodeContextTypes } from './contextTypes';
++import { TreeContext } from './contextTypes';
+ import { getNodeChildren, getDataAndAria, mapChildren, warnOnlyTreeNode } from './util';
+ 
+ var ICON_OPEN = 'open';
+@@ -19,6 +19,7 @@ var ICON_CLOSE = 'close';
+ 
+ var defaultTitle = '---';
+ 
++
+ var TreeNode = function (_React$Component) {
+   _inherits(TreeNode, _React$Component);
+ 
+@@ -32,10 +33,11 @@ var TreeNode = function (_React$Component) {
+     _this.state = {
+       dragNodeHighlight: false
+     };
++
+     return _this;
+   }
+ 
+-  _createClass(TreeNode, [{
++  _createClass(TreeNode, [/*{
+     key: 'getChildContext',
+     value: function getChildContext() {
+       return _extends({}, this.context, {
+@@ -47,11 +49,11 @@ var TreeNode = function (_React$Component) {
+ 
+     // Isomorphic needn't load data in server side
+ 
+-  }, {
++  }, */{
+     key: 'componentDidMount',
+     value: function componentDidMount() {
+       var eventKey = this.props.eventKey;
+-      var registerTreeNode = this.context.rcTree.registerTreeNode;
++      var registerTreeNode = this.context.registerTreeNode;
+ 
+ 
+       this.syncLoadData(this.props);
+@@ -67,7 +69,7 @@ var TreeNode = function (_React$Component) {
+     key: 'componentWillUnmount',
+     value: function componentWillUnmount() {
+       var eventKey = this.props.eventKey;
+-      var registerTreeNode = this.context.rcTree.registerTreeNode;
++      var registerTreeNode = this.context.registerTreeNode;
+ 
+       registerTreeNode(eventKey, null);
+     }
+@@ -81,7 +83,7 @@ var TreeNode = function (_React$Component) {
+     key: 'isSelectable',
+     value: function isSelectable() {
+       var selectable = this.props.selectable;
+-      var treeSelectable = this.context.rcTree.selectable;
++      var treeSelectable = this.context.selectable;
+ 
+       // Ignore when selectable is undefined or null
+ 
+@@ -126,7 +128,8 @@ var TreeNode = function (_React$Component) {
+           halfChecked = _props.halfChecked,
+           otherProps = _objectWithoutProperties(_props, ['className', 'style', 'dragOver', 'dragOverGapTop', 'dragOverGapBottom', 'isLeaf', 'expanded', 'selected', 'checked', 'halfChecked']);
+ 
+-      var _context$rcTree = this.context.rcTree,
++      console.log(this.context);
++      var _context$rcTree = this.context,
+           prefixCls = _context$rcTree.prefixCls,
+           filterTreeNode = _context$rcTree.filterTreeNode,
+           draggable = _context$rcTree.draggable;
+@@ -191,8 +194,8 @@ TreeNode.propTypes = {
+   icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+   switcherIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.func])
+ };
+-TreeNode.contextTypes = nodeContextTypes;
+-TreeNode.childContextTypes = nodeContextTypes;
++//TreeNode.contextTypes = nodeContextTypes;
++//TreeNode.childContextTypes = nodeContextTypes;
+ TreeNode.defaultProps = {
+   title: defaultTitle
+ };
+@@ -202,7 +205,7 @@ var _initialiseProps = function _initialiseProps() {
+ 
+   this.onSelectorClick = function (e) {
+     // Click trigger before select/check operation
+-    var onNodeClick = _this2.context.rcTree.onNodeClick;
++    var onNodeClick = _this2.context.onNodeClick;
+ 
+     onNodeClick(e, _this2);
+ 
+@@ -214,7 +217,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onSelectorDoubleClick = function (e) {
+-    var onNodeDoubleClick = _this2.context.rcTree.onNodeDoubleClick;
++    var onNodeDoubleClick = _this2.context.onNodeDoubleClick;
+ 
+     onNodeDoubleClick(e, _this2);
+   };
+@@ -222,7 +225,7 @@ var _initialiseProps = function _initialiseProps() {
+   this.onSelect = function (e) {
+     if (_this2.isDisabled()) return;
+ 
+-    var onNodeSelect = _this2.context.rcTree.onNodeSelect;
++    var onNodeSelect = _this2.context.onNodeSelect;
+ 
+     e.preventDefault();
+     onNodeSelect(e, _this2);
+@@ -234,7 +237,7 @@ var _initialiseProps = function _initialiseProps() {
+     var _props2 = _this2.props,
+         disableCheckbox = _props2.disableCheckbox,
+         checked = _props2.checked;
+-    var onNodeCheck = _this2.context.rcTree.onNodeCheck;
++    var onNodeCheck = _this2.context.onNodeCheck;
+ 
+ 
+     if (!_this2.isCheckable() || disableCheckbox) return;
+@@ -245,25 +248,25 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onMouseEnter = function (e) {
+-    var onNodeMouseEnter = _this2.context.rcTree.onNodeMouseEnter;
++    var onNodeMouseEnter = _this2.context.onNodeMouseEnter;
+ 
+     onNodeMouseEnter(e, _this2);
+   };
+ 
+   this.onMouseLeave = function (e) {
+-    var onNodeMouseLeave = _this2.context.rcTree.onNodeMouseLeave;
++    var onNodeMouseLeave = _this2.context.onNodeMouseLeave;
+ 
+     onNodeMouseLeave(e, _this2);
+   };
+ 
+   this.onContextMenu = function (e) {
+-    var onNodeContextMenu = _this2.context.rcTree.onNodeContextMenu;
++    var onNodeContextMenu = _this2.context.onNodeContextMenu;
+ 
+     onNodeContextMenu(e, _this2);
+   };
+ 
+   this.onDragStart = function (e) {
+-    var onNodeDragStart = _this2.context.rcTree.onNodeDragStart;
++    var onNodeDragStart = _this2.context.onNodeDragStart;
+ 
+ 
+     e.stopPropagation();
+@@ -282,7 +285,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onDragEnter = function (e) {
+-    var onNodeDragEnter = _this2.context.rcTree.onNodeDragEnter;
++    var onNodeDragEnter = _this2.context.onNodeDragEnter;
+ 
+ 
+     e.preventDefault();
+@@ -291,7 +294,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onDragOver = function (e) {
+-    var onNodeDragOver = _this2.context.rcTree.onNodeDragOver;
++    var onNodeDragOver = _this2.context.onNodeDragOver;
+ 
+ 
+     e.preventDefault();
+@@ -300,7 +303,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onDragLeave = function (e) {
+-    var onNodeDragLeave = _this2.context.rcTree.onNodeDragLeave;
++    var onNodeDragLeave = _this2.context.onNodeDragLeave;
+ 
+ 
+     e.stopPropagation();
+@@ -308,7 +311,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onDragEnd = function (e) {
+-    var onNodeDragEnd = _this2.context.rcTree.onNodeDragEnd;
++    var onNodeDragEnd = _this2.context.onNodeDragEnd;
+ 
+ 
+     e.stopPropagation();
+@@ -319,7 +322,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onDrop = function (e) {
+-    var onNodeDrop = _this2.context.rcTree.onNodeDrop;
++    var onNodeDrop = _this2.context.onNodeDrop;
+ 
+ 
+     e.preventDefault();
+@@ -331,7 +334,7 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onExpand = function (e) {
+-    var onNodeExpand = _this2.context.rcTree.onNodeExpand;
++    var onNodeExpand = _this2.context.onNodeExpand;
+ 
+     onNodeExpand(e, _this2);
+   };
+@@ -370,7 +373,7 @@ var _initialiseProps = function _initialiseProps() {
+     var _props3 = _this2.props,
+         isLeaf = _props3.isLeaf,
+         loaded = _props3.loaded;
+-    var loadData = _this2.context.rcTree.loadData;
++    var loadData = _this2.context.loadData;
+ 
+ 
+     var hasChildren = _this2.getNodeChildren().length !== 0;
+@@ -384,7 +387,7 @@ var _initialiseProps = function _initialiseProps() {
+ 
+   this.isDisabled = function () {
+     var disabled = _this2.props.disabled;
+-    var treeDisabled = _this2.context.rcTree.disabled;
++    var treeDisabled = _this2.context.disabled;
+ 
+     // Follow the logic of Selectable
+ 
+@@ -397,7 +400,7 @@ var _initialiseProps = function _initialiseProps() {
+ 
+   this.isCheckable = function () {
+     var checkable = _this2.props.checkable;
+-    var treeCheckable = _this2.context.rcTree.checkable;
++    var treeCheckable = _this2.context.checkable;
+ 
+     // Return false if tree or treeNode is not checkable
+ 
+@@ -409,7 +412,7 @@ var _initialiseProps = function _initialiseProps() {
+     var expanded = props.expanded,
+         loading = props.loading,
+         loaded = props.loaded;
+-    var _context$rcTree2 = _this2.context.rcTree,
++    var _context$rcTree2 = _this2.context,
+         loadData = _context$rcTree2.loadData,
+         onNodeLoad = _context$rcTree2.onNodeLoad;
+ 
+@@ -431,7 +434,7 @@ var _initialiseProps = function _initialiseProps() {
+     var _props4 = _this2.props,
+         expanded = _props4.expanded,
+         switcherIconFromProps = _props4.switcherIcon;
+-    var _context$rcTree3 = _this2.context.rcTree,
++    var _context$rcTree3 = _this2.context,
+         prefixCls = _context$rcTree3.prefixCls,
+         switcherIconFromCtx = _context$rcTree3.switcherIcon;
+ 
+@@ -459,7 +462,7 @@ var _initialiseProps = function _initialiseProps() {
+         checked = _props5.checked,
+         halfChecked = _props5.halfChecked,
+         disableCheckbox = _props5.disableCheckbox;
+-    var prefixCls = _this2.context.rcTree.prefixCls;
++    var prefixCls = _this2.context.prefixCls;
+ 
+     var disabled = _this2.isDisabled();
+     var checkable = _this2.isCheckable();
+@@ -481,7 +484,7 @@ var _initialiseProps = function _initialiseProps() {
+ 
+   this.renderIcon = function () {
+     var loading = _this2.props.loading;
+-    var prefixCls = _this2.context.rcTree.prefixCls;
++    var prefixCls = _this2.context.prefixCls;
+ 
+ 
+     return React.createElement('span', {
+@@ -496,7 +499,7 @@ var _initialiseProps = function _initialiseProps() {
+         selected = _props6.selected,
+         icon = _props6.icon,
+         loading = _props6.loading;
+-    var _context$rcTree4 = _this2.context.rcTree,
++    var _context$rcTree4 = _this2.context,
+         prefixCls = _context$rcTree4.prefixCls,
+         showIcon = _context$rcTree4.showIcon,
+         treeIcon = _context$rcTree4.icon,
+@@ -556,7 +559,7 @@ var _initialiseProps = function _initialiseProps() {
+     var _props7 = _this2.props,
+         expanded = _props7.expanded,
+         pos = _props7.pos;
+-    var _context$rcTree5 = _this2.context.rcTree,
++    var _context$rcTree5 = _this2.context,
+         prefixCls = _context$rcTree5.prefixCls,
+         motion = _context$rcTree5.motion,
+         renderTreeNode = _context$rcTree5.renderTreeNode;
+@@ -593,6 +596,7 @@ var _initialiseProps = function _initialiseProps() {
+ };
+ 
+ TreeNode.isTreeNode = 1;
++TreeNode.contextType = TreeContext;
+ 
+ polyfill(TreeNode);
+ 
+diff --git a/es/contextTypes.js b/es/contextTypes.js
+index b69e5cca026ae0130823cae7f19f43c449f2ee7f..d453371f5ba2d4c9fbb59e086a29f0ffbe5f720c 100644
+--- a/es/contextTypes.js
++++ b/es/contextTypes.js
+@@ -5,6 +5,9 @@ import _extends from 'babel-runtime/helpers/extends';
+  */
+ 
+ import PropTypes from 'prop-types';
++import React from 'react';
++
++export const TreeContext = React.createContext();
+ 
+ /**
+  * Thought we still use `cloneElement` to pass `key`,

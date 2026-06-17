@@ -27,6 +27,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Data Preparation',
+      collapsed: false,
       items: [
         'data-file-types',
         'data-hosting',
@@ -48,6 +49,11 @@ module.exports = {
       ],
     },
     {
+      type: 'link',
+      label: 'Tutorials',
+      href: '/docs/tutorials/',
+    },
+    {
       type: 'doc',
       id: 'showcase',
     },
@@ -63,7 +69,7 @@ module.exports = {
     {
       type: 'link',
       label: 'Changelog',
-      href: 'https://github.com/vitessce/vitessce/tree/main/CHANGELOG.md',
+      href: 'https://github.com/vitessce/vitessce/releases',
     },
   ],
   tutorials: [

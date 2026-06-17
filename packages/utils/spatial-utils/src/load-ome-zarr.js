@@ -1,6 +1,7 @@
 import { viv } from '@vitessce/gl';
 import { open as zarrOpen } from 'zarrita';
-import { createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { createZarrArrayAdapter, flattenOmeAttrs } from '@vitessce/zarr-utils';
+import { ZarrNodeNotFoundError } from '@vitessce/error';
 
 function prevPowerOf2(x) {
   return 2 ** Math.floor(Math.log2(x));
@@ -29,13 +30,27 @@ function isAxis(axisOrLabel) {
 }
 
 async function loadMultiscales(root) {
-  const rootAttrs = (await zarrOpen(root)).attrs;
+  let rootAttrs;
+  try {
+    rootAttrs = (await zarrOpen(root)).attrs;
+  } catch (e) {
+    if (e.name === 'NodeNotFoundError') {
+      throw new ZarrNodeNotFoundError(root.path);
+    }
+    // Re-throw the error if it is not a NodeNotFoundError.
+    throw e;
+  }
+
+  // OME-NGFF v0.5 nests OME metadata under an `ome` key.
+  // Hoist it to the root so downstream consumers see the flat v0.4 shape.
+  rootAttrs = flattenOmeAttrs(rootAttrs);
 
   let paths = ['0'];
   // Default axes used for v0.1 and v0.2.
   let labels = ['t', 'c', 'z', 'y', 'x'];
   if ('multiscales' in rootAttrs) {
-    const { datasets, axes } = rootAttrs.multiscales[0];
+    const { multiscales } = rootAttrs;
+    const { datasets, axes } = multiscales[0];
     paths = datasets.map(d => d.path);
     if (axes) {
       if (isAxis(axes)) {
@@ -44,6 +59,9 @@ async function loadMultiscales(root) {
         labels = axes;
       }
     }
+  } else {
+    // TODO: Relax this after https://github.com/vitessce/vitessce/issues/2199
+    throw new Error('Expected the Zarr store to contain OME-NGFF multiscales metadata.');
   }
 
   const data = paths

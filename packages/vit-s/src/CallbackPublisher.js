@@ -44,6 +44,9 @@ export default function CallbackPublisher(props) {
   // to subscribe to view config changes.
   // Reference: https://github.com/react-spring/zustand#transient-updates-for-often-occuring-state-changes
   useEffect(() => viewConfigStoreApi.subscribe(
+    // The function to specify which part of the store
+    // we want to subscribe to.
+    state => state.viewConfig,
     // The function to run on each publish.
     (viewConfig) => {
       if (validateOnConfigChange && viewConfig) {
@@ -53,9 +56,7 @@ export default function CallbackPublisher(props) {
         onConfigChange(viewConfig);
       }
     },
-    // The function to specify which part of the store
-    // we want to subscribe to.
-    state => state.viewConfig,
+    // TODO: here, should we specify the "shallow" equality function?
   ), [onConfigChange, validateOnConfigChange, viewConfigStoreApi, pluginSpecificConfigSchema]);
 
   // Emit updates to the warning message.

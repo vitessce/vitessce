@@ -1,10 +1,9 @@
 const blinName = 'Blin et al., PLoS Biol 2019';
 const blinDescription = 'Mouse blastocysts imaged by confocal microscopy';
 export const blin2019 = {
-  version: '1.0.6',
+  version: '1.0.17',
   name: blinName,
   description: blinDescription,
-  public: true,
   datasets: [
     {
       uid: 'idr0062-blin-nuclearsegmentation/6001240',
@@ -18,11 +17,16 @@ export const blin2019 = {
     },
   ],
   initStrategy: 'auto',
+  coordinationSpace: {
+    photometricInterpretation: {
+      A: 'BlackIsZero',
+    },
+  },
   layout: [
     {
       component: 'spatial',
-      props: {
-        channelNamesVisible: true,
+      coordinationScopes: {
+        photometricInterpretation: 'A',
       },
       x: 0,
       y: 0,
@@ -31,6 +35,9 @@ export const blin2019 = {
     },
     {
       component: 'layerController',
+      coordinationScopes: {
+        photometricInterpretation: 'A',
+      },
       x: 8,
       y: 0,
       w: 4,

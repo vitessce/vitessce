@@ -23,6 +23,8 @@ const stateClasses = [
 
 const defaultPrefix = 'vit-';
 
+// TODO: We are no longer using this; is it still needed?
+// Reference: https://mui.com/material-ui/experimental-api/classname-generator/
 export function createGenerateClassName(customPrefix) {
   return (rule, styleSheet) => {
     const {

@@ -10,7 +10,7 @@ import {
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
 import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
-import { AbstractLoaderError, LoaderResult } from '@vitessce/abstract';
+import { LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
@@ -144,10 +144,7 @@ export default class RasterLoader extends JsonLoader {
   }
 
   async load() {
-    const payload = await super.load().catch(reason => Promise.resolve(reason));
-    if (payload instanceof AbstractLoaderError) {
-      return Promise.reject(payload);
-    }
+    const payload = await super.load();
     const { data: raster } = payload;
     const { images, renderLayers, usePhysicalSizeScaling = false } = raster;
 
@@ -179,7 +176,10 @@ export default class RasterLoader extends JsonLoader {
         spatialImageLayer: autoImageLayers,
       };
       return new LoaderResult(
-        { loaders: imageLayerLoaders, meta: imageLayerMeta },
+        {
+          loaders: imageLayerLoaders,
+          meta: imageLayerMeta,
+        },
         urls,
         coordinationValues,
       );

@@ -1,5 +1,6 @@
-const path = require('path');
-module.exports = {
+import prismLightTheme from './src/pages/_prism-light-theme.js';
+import prismDarkTheme from './src/pages/_prism-dark-theme.js';
+export default {
   title: 'Vitessce',
   tagline: 'Visual integration tool for exploration of spatial single cell experiments',
   url: 'http://vitessce.io',
@@ -18,8 +19,9 @@ module.exports = {
       disableSwitch: false,
     },
     prism: {
-      theme: require('./src/pages/_prism-light-theme.cjs.js'),
-      darkTheme: require('./src/pages/_prism-dark-theme.cjs.js'),
+      additionalLanguages: ['bash', 'diff', 'json'],
+      theme: prismLightTheme,
+      darkTheme: prismDarkTheme,
     },
     algolia: {
       appId: 'VM9PGXT4A9',
@@ -35,7 +37,7 @@ module.exports = {
         src: 'img/logo-v.png',
       },
       items: [
-        {
+         {
           href: '/#?edit=true',
           label: 'App',
           position: 'left',
@@ -51,12 +53,12 @@ module.exports = {
           label: 'Docs',
           position: 'left',
         },
-        {
+        /*{
           type: 'doc',
           docId: 'tutorials',
           label: 'Tutorials',
           position: 'left',
-        },
+        },*/
         {
           href: 'https://python-docs.vitessce.io/',
           label: 'For Python',
@@ -65,6 +67,11 @@ module.exports = {
         {
           href: 'https://r-docs.vitessce.io/',
           label: 'For R',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/vitessce/easy_vitessce',
+          label: 'EasyVitessce',
           position: 'left',
         },
         {
@@ -79,7 +86,7 @@ module.exports = {
           position: 'right',
         },
         {
-          href: 'http://ipa-reader.xyz/?text=v%C9%AAt-%C9%9Bs',
+          href: 'https://ipa-reader.com/?text=v%C9%AAt-%C9%9Bs',
           position: 'right',
           className: 'header-pronunciation-link',
           'aria-label': 'Pronunciation',
@@ -128,22 +135,7 @@ module.exports = {
             },
           ],
         },
-        {
-          title: 'Funding',
-          items: [
-            {
-              html: 'NIH/OD Human BioMolecular Atlas Program (HuBMAP) (OT2OD026677, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'NIH/NLM Biomedical Informatics and Data Science Research Training Program (T15LM007092, PI: Nils Gehlenborg)',
-            },
-            {
-              html: 'Harvard Stem Cell Institute (CF-0014-17-03, PI: Nils Gehlenborg)',
-            }
-          ],
-        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="http://hidivelab.org/">HIDIVE Lab</a>.<br/> Vitessce is open source and MIT licensed. Vitessce documentation is CC BY 4.0 licensed.`,
     },
   },
   presets: [
@@ -151,15 +143,16 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/vitessce/vitessce/edit/main/sites/docs/',
+          showLastUpdateTime: false,
         },
         blog: {
           showReadingTime: true,
         },
         theme: {
           customCss: [
-            require.resolve('./src/css/custom.css'),
+            './src/css/custom.css',
             // TODO(monorepo)
             //require.resolve('../dist/esm/index.css'),
           ],
@@ -179,6 +172,6 @@ module.exports = {
     }
   ],
   clientModules: [
-    require.resolve('./analytics.js'),
+    './analytics.js',
   ],
 };

@@ -4,9 +4,9 @@
 
 Visual Integration Tool for Exploration of Spatial Single-Cell Experiments
 
-- [Latest demos and documentation](http://vitessce.io/)
-- [Sandbox environment](http://vitessce.io/#?edit=true)
-- [Older demos](DEMOS.md)
+- [Documentation and demos](http://vitessce.io/)
+- [Online configuration editor](http://vitessce.io/#?edit=true)
+- [Older releases and demos](https://github.com/vitessce/vitessce/releases)
 - [Older releases on NPM](https://www.npmjs.com/package/vitessce?activeTab=versions)
 
 <table><tr>
@@ -67,6 +67,12 @@ pnpm run start-demo
 
 The development server will refresh the browser as you edit the code.
 
+To get started creating a new view:
+
+```sh
+pnpm run create-view line-plot
+```
+
 Further details for internal developers can be found within [dev-docs](./dev-docs/).
 
 ### Changesets
@@ -123,7 +129,7 @@ The following commands can be helpful in case the local environment gets into a 
 Before running any of the deployment scripts, confirm that you have installed the AWS CLI and are in the appropriate AWS account:
 ```
 $ aws iam list-account-aliases --query 'AccountAliases[0]'
-"gehlenborglab"
+"hdv-vitessce"
 ```
 
 ### Staging
@@ -137,7 +143,7 @@ This will build the demo and docs, push both to S3, and finally open the docs de
 
 #### Publish staged development site
 
-After doing a [manual test](TESTING.md) of the deployment of the dev site,
+After doing a [manual test](./dev-docs/manual-testing.md) of the deployment of the dev site,
 if it looks good, copy it to dev.vitessce.io:
 
 ```sh
@@ -171,6 +177,8 @@ Releasing refers to publishing all sub-packages to NPM and creating a correspond
 
 Note: releasing does not currently result in automatic deployment of the documentation or development sites (see the [Deployment](#deployment) section above).
 
+Also note: If the release includes a new NPM package (e.g., `@vitessce/new-view`), trusted publishing must first be configured via NPM (see [discussion](https://github.com/orgs/community/discussions/181927)).
+
 ### From GitHub Actions
 
 When there are changesets on the `main` branch, the [`changesets/action`](https://github.com/changesets/action) bot will run `./scripts/changeset-version.sh --action` and make a pull request titled "Create release".
@@ -179,7 +187,7 @@ When there are changesets on the `main` branch, the [`changesets/action`](https:
 
 Once this "Create release" pull request is merged, the next time `release.yml` is executed on GitHub Actions, the following will occur:
 - [`changesets/action`](https://github.com/changesets/action) will run `./scripts/changeset-publish.sh --action`, which:
-  - publishes to NPM
+  - publishes to NPM using [OIDC trusted publishing](https://docs.npmjs.com/trusted-publishers)
   - creates a new git tag for the release
 - [`softprops/action-gh-release`](https://github.com/softprops/action-gh-release) will generate a GitHub release based on the git tag, using the latest changelog entries for the release notes.
 

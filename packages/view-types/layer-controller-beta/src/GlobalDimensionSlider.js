@@ -8,14 +8,14 @@ import {
   FormGroup,
   FormControlLabel,
   Switch,
-} from '@material-ui/core';
+} from '@vitessce/styles';
 import {
   DimensionsSVG,
 } from '@vitessce/icons';
 import { useControllerSectionStyles } from './styles.js';
 
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()(theme => ({
   dimensionsIcon: {
     height: '40px',
     width: '40px',
@@ -48,9 +48,10 @@ export default function GlobalDimensionSlider(props) {
     setSpatialRenderingMode = null,
   } = props;
 
-  const lcClasses = useControllerSectionStyles();
-  const classes = useStyles();
+  const { classes: lcClasses } = useControllerSectionStyles();
+  const { classes } = useStyles();
   const isForZ = spatialRenderingMode !== null;
+  const is3dMode = spatialRenderingMode === '3D';
 
   function handleRenderingModeChange(event) {
     setSpatialRenderingMode(event.target.checked ? '3D' : '2D');
@@ -62,32 +63,34 @@ export default function GlobalDimensionSlider(props) {
   }
 
   return (
-    <Grid item className={lcClasses.layerControllerGrid}>
-      <Paper className={lcClasses.layerControllerRoot}>
+    <Grid className={lcClasses.layerControllerGrid}>
+      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
         <Grid container direction="row" justifyContent="space-between">
-          <Grid item xs={1}>
+          <Grid size={1}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>
-          <Grid item xs={1}>
+          <Grid size={1}>
             <Typography className={classes.dimensionLabel}>
               {label}
             </Typography>
           </Grid>
-          <Grid item xs={8}>
-            <Slider
-              value={targetValue}
-              min={min}
-              max={max}
-              step={1}
-              onChange={(e, v) => setTargetValue(v)}
-              className={classes.dimensionSlider}
-              valueLabelDisplay="auto"
-              orientation="horizontal"
-              disabled={spatialRenderingMode === '3D'}
-              aria-label={`${label}-slice slider`}
-            />
+          <Grid size={8}>
+            {!is3dMode ? (
+              <Slider
+                value={targetValue}
+                min={min}
+                max={max}
+                step={1}
+                onChange={(e, v) => setTargetValue(v)}
+                className={classes.dimensionSlider}
+                valueLabelDisplay="auto"
+                orientation="horizontal"
+                disabled={spatialRenderingMode === '3D'}
+                aria-label={`${label}-slice slider`}
+              />
+            ) : null}
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             {isForZ ? (
               <FormGroup row className={classes.switchFormGroup}>
                 <FormControlLabel

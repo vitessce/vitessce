@@ -1,6 +1,6 @@
 import React from 'react';
 import { useColorMode } from '@docusaurus/theme-common';
-import { Vitessce } from 'vitessce';
+import { Vitessce } from '@vitessce/all';
 
 export default function ThemedVitessce(props) {
   const { colorMode } = useColorMode();

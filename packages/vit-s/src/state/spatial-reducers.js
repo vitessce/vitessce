@@ -176,6 +176,7 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
   const nextWindowScope = getNextScope(Object.keys(coordinationSpace[CoordinationType.SPATIAL_CHANNEL_WINDOW] || {}));
   const nextVisibleScope = getNextScope(Object.keys(coordinationSpace[CoordinationType.SPATIAL_CHANNEL_VISIBLE] || {}));
   const nextOpacityScope = getNextScope(Object.keys(coordinationSpace[CoordinationType.SPATIAL_CHANNEL_OPACITY] || {}));
+  const nextMaxResolutionScope = getNextScope(Object.keys(coordinationSpace[CoordinationType.SPATIAL_MAX_RESOLUTION] || {}));
 
   newCoordinationSpace = {
     ...coordinationSpace,
@@ -201,6 +202,10 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
     },
     [CoordinationType.SPATIAL_CHANNEL_OPACITY]: {
       ...coordinationSpace[CoordinationType.SPATIAL_CHANNEL_OPACITY],
+      [nextOpacityScope]: 1,
+    },
+    [CoordinationType.SPATIAL_MAX_RESOLUTION]: {
+      ...coordinationSpace[CoordinationType.SPATIAL_MAX_RESOLUTION],
       [nextOpacityScope]: 1,
     },
   };
@@ -240,6 +245,10 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
             ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_OPACITY],
             [nextChannelScope]: nextOpacityScope,
           },
+          [CoordinationType.SPATIAL_MAX_RESOLUTION]: {
+            ...metaCoordinationScopesBy?.[channelMetaScopeBy]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_MAX_RESOLUTION],
+            [nextChannelScope]: nextMaxResolutionScope,
+          },
         },
       },
     };
@@ -277,6 +286,10 @@ export function addImageChannelInMetaCoordinationScopesHelper(coordinationScopes
           [CoordinationType.SPATIAL_CHANNEL_OPACITY]: {
             ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_CHANNEL_OPACITY],
             [nextChannelScope]: nextOpacityScope,
+          },
+          [CoordinationType.SPATIAL_MAX_RESOLUTION]: {
+            ...metaCoordinationScopesBy?.[channelMetaScope]?.[CoordinationType.IMAGE_CHANNEL]?.[CoordinationType.SPATIAL_MAX_RESOLUTION],
+            [nextChannelScope]: nextMaxResolutionScope,
           },
         },
       },
