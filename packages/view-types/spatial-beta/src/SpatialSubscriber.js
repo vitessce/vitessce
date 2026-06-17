@@ -117,8 +117,8 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null
   }
   // Use provided segmentation tiles if available, otherwise use hoverInfo tile
   const activeTile = segTiles
-  ? findBestTile(segTiles, transformedCoordinate, tileSize)
-  : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
+    ? findBestTile(segTiles, transformedCoordinate, tileSize)
+    : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
 
 
   if (activeTile?.content) {
