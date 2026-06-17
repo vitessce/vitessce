@@ -465,6 +465,16 @@ export default function ImageLayerController(props) {
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
+  const [channelSort, setChannelSort] = useState('original');
+
+  const sortedChannelScopes = useMemo(() => {
+    if (channelSort !== 'alphabetical' || !featureIndex) return channelScopes;
+    return [...channelScopes].sort((a, b) => {
+      const nameA = featureIndex[image?.getChannelIndex(channelCoordination[a].spatialTargetC)] ?? '';
+      const nameB = featureIndex[image?.getChannelIndex(channelCoordination[b].spatialTargetC)] ?? '';
+      return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+  }, [channelScopes, channelSort, channelCoordination, featureIndex, image]);
 
   const { classes } = useStyles();
   const { classes: menuClasses } = useEllipsisMenuStyles();
@@ -548,7 +558,20 @@ export default function ImageLayerController(props) {
             justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
           >
-            {channelScopes.map((cScope) => {
+        {channelScopes?.length > 1 ? (
+         <Grid container direction="row" justifyContent="flex-end" sx={{ mb: 0.5 }}>
+           <Button
+             size="small"
+             variant="outlined"
+             onClick={() => setChannelSort(s => s === 'original' ? 'alphabetical' : 'original')}
+             style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+             aria-label="Toggle channel sort order"
+           >
+             {channelSort === 'original' ? 'Sort A→Z' : 'Sort: Original'}
+           </Button>
+         </Grid>
+        ) : null}
+            {sortedChannelScopes.map((cScope) => {
               const {
                 spatialTargetC,
                 spatialChannelVisible,
