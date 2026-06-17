@@ -84,24 +84,17 @@ function findBestTile(tiles, transformedCoordinate) {
   const sorted = [...candidates].sort((a, b) => b.index.z - a.index.z);
 
   // Prefer highest resolution tile that has non-zero data at the coordinate
-  for (const t of sorted) {
+  return sorted.find((t) => {
     const { content, bbox } = t;
     const { data, width, height } = content;
     const { left, top, right, bottom } = bbox;
     const base = 512;
     const adjustedRight = data.width < base ? left + width : right;
     const adjustedBottom = data.height < base ? top + height : bottom;
-    const bboxWidth = adjustedRight - left;
-    const bboxHeight = adjustedBottom - top;
-    const dx = Math.floor(((transformedCoordinate[0] - left) / bboxWidth) * width);
-    const dy = Math.floor(((transformedCoordinate[1] - top) / bboxHeight) * height);
-    if (dx >= 0 && dx < width && dy >= 0 && dy < height) {
-      const val = data[0][dy * width + dx];
-      if (val > 0) return t; // found a tile with actual cell data here
-    }
-  }
-  // Fall back to highest resolution candidate even if empty
-  return sorted[0];
+    const dx = Math.floor(((transformedCoordinate[0] - left) / (adjustedRight - left)) * width);
+    const dy = Math.floor(((transformedCoordinate[1] - top) / (adjustedBottom - top)) * height);
+    return dx >= 0 && dx < width && dy >= 0 && dy < height && data[0][dy * width + dx] > 0;
+  }) ?? sorted[0];
 }
 
 /**
@@ -131,14 +124,14 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null
       return best;
     })()
     : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
- 
+
   const nonZero = activeTile?.content?.data?.[0]?.filter(v => v > 0);
 
   if (activeTile?.content) {
     const { content, bbox, index: { z } } = activeTile;
     const { data, width, height } = content;
     const { left, right, top, bottom } = bbox;
-  
+
     // Replicated the bounds calculation from renderSubBitmaskLayers
     const base = 512; // tileSize
     const adjustedRight = data.width < base ? left + width : right;
@@ -166,11 +159,11 @@ function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null
       dataCoords[0] >= 0 && dataCoords[0] < width
       && dataCoords[1] >= 0 && dataCoords[1] < height
     ) {
-        const coords = dataCoords[1] * width + dataCoords[0];
-        const result = data.map(d => d[coords]);
-        return result;
-      }
+      const coords = dataCoords[1] * width + dataCoords[0];
+      const result = data.map(d => d[coords]);
+      return result;
     }
+  }
   return null;
 }
 
@@ -820,26 +813,17 @@ export function SpatialSubscriber(props) {
     // To still detect segmentation hover, we directly sample the segmentation tile data
     // using the same screen coordinate, applying the segmentation layer's inverse model matrix.
     const segmentationHoverData = layerType === 'image'
-      ? (() => {
-        for (const segLayerScope of segmentationLayerScopes) {
-          const segModelMatrix = segmentationModelMatrixRef.current?.[segLayerScope];
-          if (!segModelMatrix) continue;
-    
-          const deck = deckRef?.current?.deck;
-          const segLayer = deck?.props?.layers?.find(
-            l => l?.id === `${SEGMENTATION_LAYER_PREFIX}${segLayerScope}`,
-          );
-          const tiledSubLayer = segLayer?.getSubLayers?.()
-            ?.find(l => l?.id?.includes('Tiled-Image'));
-          const segTiles = tiledSubLayer?.state?.tileset?._tiles;
-    
-          if (!segTiles) continue;
-    
-          const result = getHoverData(hoverInfo, 'segmentation-bitmask', segModelMatrix, segTiles);
-          if (result) return result;
-        }
-        return null;
-      })()
+      ? (() => segmentationLayerScopes.reduce((acc, segLayerScope) => {
+        if (acc) return acc;
+        const segModelMatrix = segmentationModelMatrixRef.current?.[segLayerScope];
+        if (!segModelMatrix) return null;
+        const deck = deckRef?.current?.deck;
+        const segLayer = deck?.props?.layers?.find(l => l?.id === `${SEGMENTATION_LAYER_PREFIX}${segLayerScope}`);
+        const tiledSubLayer = segLayer?.getSubLayers?.()?.find(l => l?.id?.includes('Tiled-Image'));
+        const segTiles = tiledSubLayer?.state?.tileset?._tiles; // eslint-disable-line no-underscore-dangle
+        if (!segTiles) return null;
+        return getHoverData(hoverInfo, 'segmentation-bitmask', segModelMatrix, segTiles);
+      }, null))()
       : null;
 
     segmentationLayerScopes?.forEach((segmentationLayerScope) => {
