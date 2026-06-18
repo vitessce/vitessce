@@ -559,19 +559,21 @@ export default function ImageLayerController(props) {
             justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
           >
-        {channelScopes?.length > 1 ? (
-         <Grid container direction="row" justifyContent="flex-end" sx={{ mb: 0.5 }}>
-           <Button
-             size="small"
-             variant="outlined"
-             onClick={() => setChannelSort(s => s === CHANNEL_SORT_OPTIONS.ORIGINAL? CHANNEL_SORT_OPTIONS.ALPHABETICAL : CHANNEL_SORT_OPTIONS.ORIGINAL)}
-             style={{ fontSize: '0.7rem', padding: '2px 6px' }}
-             aria-label="Toggle channel sort order"
-           >
-             {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL ? 'Sort A→Z' : 'Sort: Original'}
-           </Button>
-         </Grid>
-        ) : null}
+            {channelScopes?.length > 1 ? (
+              <Grid container direction="row" justifyContent="flex-end" sx={{ mb: 0.5 }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setChannelSort(s => (s === CHANNEL_SORT_OPTIONS.ORIGINAL
+                    ? CHANNEL_SORT_OPTIONS.ALPHABETICAL
+                    : CHANNEL_SORT_OPTIONS.ORIGINAL))}
+                  style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+                  aria-label="Toggle channel sort order"
+                >
+                  {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL ? 'Sort A→Z' : 'Sort: Original'}
+                </Button>
+              </Grid>
+            ) : null}
             {sortedChannelScopes.map((cScope) => {
               const {
                 spatialTargetC,

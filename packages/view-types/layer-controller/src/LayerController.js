@@ -315,8 +315,10 @@ export default function LayerController(props) {
     const sortedChannelIndices = channels.map((_, i) => i);
     if (channelSort === CHANNEL_SORT_OPTIONS.ALPHABETICAL) {
       sortedChannelIndices.sort((a, b) => {
-        const nameA = channelOptions[channels[a].selection[channelLabel]] ?? String(channels[a].selection[channelLabel]);
-        const nameB = channelOptions[channels[b].selection[channelLabel]] ?? String(channels[b].selection[channelLabel]);
+        const nameA = channelOptions[channels[a].selection[channelLabel]]
+          ?? String(channels[a].selection[channelLabel]);
+        const nameB = channelOptions[channels[b].selection[channelLabel]]
+         ?? String(channels[b].selection[channelLabel]);
         return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
       });
     }
@@ -465,10 +467,12 @@ export default function LayerController(props) {
           <Button
             size="small"
             variant="outlined"
-            onClick={() => setChannelSort(s => s === CHANNEL_SORT_OPTIONS.ORIGINAL ? CHANNEL_SORT_OPTIONS.ALPHABETICAL : CHANNEL_SORT_OPTIONS.ORIGINAL)}
+            onClick={() => setChannelSort(s => (s === CHANNEL_SORT_OPTIONS.ORIGINAL
+              ? CHANNEL_SORT_OPTIONS.ALPHABETICAL
+              : CHANNEL_SORT_OPTIONS.ORIGINAL))}
             style={{ fontSize: '0.7rem', padding: '2px 6px' }}
           >
-            {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL? 'Sort A→Z' : 'Sort: Original'}
+            {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL ? 'Sort A→Z' : 'Sort: Original'}
           </Button>
         </Grid>
       ) : null}
