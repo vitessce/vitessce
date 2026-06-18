@@ -117,10 +117,13 @@ export default function VitessceGrid(props) {
   const [cacheCleared, setCacheCleared] = useState(false);
 
   const handleClearCache = useCallback(() => {
+    // console.log('queries before clear:', queryClient.getQueryCache().getAll().length);
     clearCache();
+    queryClient?.clear();
+    // console.log('queries after clear:', queryClient.getQueryCache().getAll().length);
     setCacheCleared(true);
     setTimeout(() => setCacheCleared(false), 2000);
-  }, [clearCache]);
+  }, [clearCache, queryClient]);
 
   return (
     <div
