@@ -7,26 +7,26 @@ import {
 
 const SORT_OPTION_VALUE = '__sort__';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()(({ palette }) => ({
   oneLineChannelSelect: {
     width: '90%',
     marginLeft: '5%',
     fontSize: '12px',
   },
   sortMenuItem: {
-    color: '#888',
+    color: palette.text.secondary,
     fontStyle: 'italic',
     fontSize: '12px',
     position: 'sticky',
     top: 0,
     zIndex: 1,
-    backgroundColor: '#222',
+    backgroundColor: palette.background.paper,
     '&:hover': {
-      backgroundColor: '#333',
+      backgroundColor: palette.action.hover,
     },
   },
   dividerMenuItem: {
-    color: '#555',
+    color: palette.text.disabled,
     fontSize: '12px',
     pointerEvents: 'none',
     minHeight: 'auto',
