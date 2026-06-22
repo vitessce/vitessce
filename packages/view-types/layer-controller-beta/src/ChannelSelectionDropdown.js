@@ -1,15 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   makeStyles,
-  NativeSelect,
+  Select,
+  MenuItem,
+  SortIcon,
 } from '@vitessce/styles';
-import { useSelectStyles } from './styles.js';
 
+const SORT_OPTION_VALUE = '__sort__';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()(({ palette }) => ({
   oneLineChannelSelect: {
     width: '90%',
     marginLeft: '5%',
+    fontSize: '12px',
+  },
+  sortMenuItem: {
+    color: palette.text.secondary,
+    fontStyle: 'italic',
+    fontSize: '12px',
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+    backgroundColor: palette.background.paper,
+    '&.MuiMenuItem-root:hover': {
+      backgroundColor: palette.background.paper,
+    },
+    '&.MuiButtonBase-root:hover': {
+      backgroundColor: palette.background.paper,
+    },
+  },
+  dividerMenuItem: {
+    color: palette.text.disabled,
+    fontSize: '12px',
+    pointerEvents: 'none',
+    minHeight: 'auto',
+    padding: '2px 16px',
+  },
+  channelMenuItem: {
     fontSize: '12px',
   },
 }));
@@ -28,27 +55,61 @@ export default function ChannelSelectionDropdown(props) {
     disabled,
   } = props;
   const { classes } = useStyles();
-  const { classes: selectClasses } = useSelectStyles();
+  const [sortAlphabetical, setSortAlphabetical] = useState(false);
 
   function handleChange(event) {
+    if (event.target.value === SORT_OPTION_VALUE) {
+      setSortAlphabetical(s => !s);
+      return;
+    }
     setTargetC(event.target.value === '' ? null : Number(event.target.value));
     setWindow(null); // Clear the window value so that it can be re-auto-calculated.
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
-  return (Array.isArray(featureIndex) ? (
-    <NativeSelect
-      classes={{ root: selectClasses.selectRoot }}
+
+  if (!Array.isArray(featureIndex)) return null;
+
+  const sortedOptions = sortAlphabetical
+    ? featureIndex
+      .map((channelName, channelIndex) => ({ channelName, channelIndex }))
+      .sort((a, b) => a.channelName.localeCompare(b.channelName, undefined, { numeric: true, sensitivity: 'base' }))
+    : featureIndex.map((channelName, channelIndex) => ({ channelName, channelIndex }));
+
+  return (
+    <Select
       className={classes.oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
       onChange={handleChange}
       inputProps={{ 'aria-label': 'Channel selector' }}
+      size="small"
+      variant="standard"
+      MenuProps={{
+        PaperProps: {
+          style: { maxHeight: 300 },
+        },
+      }}
     >
-      {featureIndex.map((channelName, channelIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
+      <MenuItem
+        value={SORT_OPTION_VALUE}
+        className={classes.sortMenuItem}
+        disableRipple
+      >
+        <SortIcon sx={{ fontSize: '14px', marginRight: '4px' }} />
+        {sortAlphabetical ? 'Sort Original' : 'Sort A→Z'}
+      </MenuItem>
+      <MenuItem disabled className={classes.dividerMenuItem}>
+        ──────────
+      </MenuItem>
+      {sortedOptions.map(({ channelName, channelIndex }) => (
+        <MenuItem
+          disabled={disabled}
+          key={`${channelName}-${channelIndex}`}
+          value={channelIndex}
+          className={classes.channelMenuItem}
+        >
           {channelName}
-        </option>
+        </MenuItem>
       ))}
-    </NativeSelect>
-  ) : null);
+    </Select>
+  );
 }
