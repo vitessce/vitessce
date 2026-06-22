@@ -3,6 +3,7 @@ import {
   makeStyles,
   Select,
   MenuItem,
+  SortIcon,
 } from '@vitessce/styles';
 
 const SORT_OPTION_VALUE = '__sort__';
@@ -21,8 +22,11 @@ const useStyles = makeStyles()(({ palette }) => ({
     top: 0,
     zIndex: 1,
     backgroundColor: palette.background.paper,
-    '&:hover': {
-      backgroundColor: palette.action.hover,
+    '&.MuiMenuItem-root:hover': {
+      backgroundColor: palette.background.paper,
+    },
+    '&.MuiButtonBase-root:hover': {
+      backgroundColor: palette.background.paper,
     },
   },
   dividerMenuItem: {
@@ -55,7 +59,7 @@ export default function ChannelSelectionDropdown(props) {
 
   function handleChange(event) {
     if (event.target.value === SORT_OPTION_VALUE) {
-    setSortAlphabetical(s => !s);
+      setSortAlphabetical(s => !s);
       return;
     }
     setTargetC(event.target.value === '' ? null : Number(event.target.value));
@@ -67,8 +71,8 @@ export default function ChannelSelectionDropdown(props) {
 
   const sortedOptions = sortAlphabetical
     ? featureIndex
-        .map((channelName, channelIndex) => ({ channelName, channelIndex }))
-        .sort((a, b) => a.channelName.localeCompare(b.channelName, undefined, { numeric: true, sensitivity: 'base' }))
+      .map((channelName, channelIndex) => ({ channelName, channelIndex }))
+      .sort((a, b) => a.channelName.localeCompare(b.channelName, undefined, { numeric: true, sensitivity: 'base' }))
     : featureIndex.map((channelName, channelIndex) => ({ channelName, channelIndex }));
 
   return (
@@ -90,7 +94,8 @@ export default function ChannelSelectionDropdown(props) {
         className={classes.sortMenuItem}
         disableRipple
       >
-        {sortAlphabetical ? '↕ Sort: Original' : '↕ Sort: A→Z'}
+        <SortIcon sx={{ fontSize: '14px', marginRight: '4px' }} />
+        {sortAlphabetical ? 'Sort Original' : 'Sort A→Z'}
       </MenuItem>
       <MenuItem disabled className={classes.dividerMenuItem}>
         ──────────
