@@ -60,6 +60,7 @@ export default function VitessceGrid(props) {
     pageMode,
     children,
     queryClient,
+    clearTileCaches,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -121,9 +122,10 @@ export default function VitessceGrid(props) {
     clearCache();
     queryClient?.clear();
     // console.log('queries after clear:', queryClient.getQueryCache().getAll().length);
+    clearTileCaches?.();
     setCacheCleared(true);
     setTimeout(() => setCacheCleared(false), 2000);
-  }, [clearCache, queryClient]);
+  }, [clearCache, queryClient, clearTileCaches]);
 
   return (
     <div

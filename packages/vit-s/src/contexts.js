@@ -20,6 +20,8 @@ export function useAsyncFunction(functionType) {
   return partialFunction;
 }
 
+export const ClearTileCacheContext = createContext(null);
+
 export const PageModeViewContext = createContext({
   // Keys are view UIDs and values are
   // the corresponding React components.

@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState, useContext } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -35,6 +35,7 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  ClearTileCacheContext,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -154,6 +155,7 @@ export function SpatialSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
   const mergeCoordination = useMergeCoordination();
+  const registerClearTileCache = useContext(ClearTileCacheContext);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -566,6 +568,21 @@ export function SpatialSubscriber(props) {
     obsSegmentationsDataStatus,
     imageDataStatus,
   ]);
+
+
+  useEffect(() => {
+    const clearTiles = () => {
+      const deckInstance = deckRef.current?.deck;
+      if (!deckInstance) return;
+      const clearLayer = (layer) => {
+        if (!layer) return;
+        layer.state?.tileset?.finalize();
+        layer.getSubLayers?.()?.forEach(clearLayer);
+      };
+      deckInstance.layerManager?.getLayers()?.forEach(clearLayer);
+    };
+    return registerClearTileCache?.(clearTiles);
+  }, [deckRef, registerClearTileCache]);
 
   const isReady = useReady([
     // Spots
