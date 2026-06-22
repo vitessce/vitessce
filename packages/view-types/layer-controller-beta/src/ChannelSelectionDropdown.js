@@ -5,12 +5,20 @@ import {
 } from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
 
+const SORT_OPTION_VALUE = '__sort__';
 
 const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
     width: '90%',
     marginLeft: '5%',
     fontSize: '12px',
+  },
+  sortOption: {
+    color: '#888',
+    fontStyle: 'italic',
+    position: 'sticky',
+    top: 0,
+    background: '#222',
   },
 }));
 
@@ -33,6 +41,10 @@ export default function ChannelSelectionDropdown(props) {
 
 
   function handleChange(event) {
+      if (event.target.value === SORT_OPTION_VALUE) {
+        setSortAlphabetical(s => !s);
+        return;
+      }
     setTargetC(event.target.value === '' ? null : Number(event.target.value));
     setWindow(null); // Clear the window value so that it can be re-auto-calculated.
     // TODO: also clear the window and re-calculate upon change of Z/T.
@@ -52,16 +64,10 @@ export default function ChannelSelectionDropdown(props) {
       classes={{ root: selectClasses.selectRoot }}
       className={classes.oneLineChannelSelect}
       value={targetC === null ? '' : targetC}
-      onChange={(e) => {
-        if (e.target.value === '__sort__') {
-          setSortAlphabetical(s => !s);
-          return;
-        }
-        handleChange(e);
-      }}
+      onChange={handleChange}
       inputProps={{ 'aria-label': 'Channel selector' }}
     >
-      <option value="__sort__">
+      <option value={SORT_OPTION_VALUE} className={classes.sortOption}>
         {sortAlphabetical ? '↕ Sort: Original' : '↕ Sort: A→Z'}
       </option>
       <option disabled value="">──────────</option>
