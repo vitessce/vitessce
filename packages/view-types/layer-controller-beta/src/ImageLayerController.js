@@ -29,7 +29,6 @@ import {
   PopperMenu,
 } from '@vitessce/vit-s';
 import { COLORMAP_OPTIONS, formatBytes } from '@vitessce/utils';
-
 import {
   useControllerSectionStyles,
   useSelectStyles,
@@ -466,7 +465,6 @@ export default function ImageLayerController(props) {
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
-
 
   const { classes } = useStyles();
   const { classes: menuClasses } = useEllipsisMenuStyles();
