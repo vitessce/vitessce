@@ -40,36 +40,37 @@ export default function ChannelSelectionDropdown(props) {
 
   if (!Array.isArray(featureIndex)) return null;
 
-  const sortedOptions =  sortAlphabetical
-  ? featureIndex
+  const sortedOptions = sortAlphabetical
+    ? featureIndex
       .map((channelName, channelIndex) => ({ channelName, channelIndex }))
       .sort((a, b) => a.channelName.localeCompare(b.channelName, undefined, { numeric: true, sensitivity: 'base' }))
-  : featureIndex.map((channelName, channelIndex) => ({ channelName, channelIndex }))
+    : featureIndex.map((channelName, channelIndex) => ({ channelName, channelIndex }));
 
 
   return (
-      <NativeSelect
-        classes={{ root: selectClasses.selectRoot }}
-        className={classes.oneLineChannelSelect}
-        value={targetC === null ? '' : targetC}
-        onChange={(e) => {
-          if (e.target.value === '__sort__') {
-            setSortAlphabetical(s => !s);
-            return;
-          }
-          handleChange(e);
-        }}
-        inputProps={{ 'aria-label': 'Channel selector' }}
-      >  <option value="__sort__">
-      {sortAlphabetical ? '↕ Sort: Original' : '↕ Sort: A→Z'}
-    </option>
-    <option disabled value="">──────────</option>
-        {sortedOptions.map(({channelName, channelIndex}) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
-            {channelName}
-          </option>
-        ))}
-      </NativeSelect>
-  )
+    <NativeSelect
+      classes={{ root: selectClasses.selectRoot }}
+      className={classes.oneLineChannelSelect}
+      value={targetC === null ? '' : targetC}
+      onChange={(e) => {
+        if (e.target.value === '__sort__') {
+          setSortAlphabetical(s => !s);
+          return;
+        }
+        handleChange(e);
+      }}
+      inputProps={{ 'aria-label': 'Channel selector' }}
+    >
+      <option value="__sort__">
+        {sortAlphabetical ? '↕ Sort: Original' : '↕ Sort: A→Z'}
+      </option>
+      <option disabled value="">──────────</option>
+      {sortedOptions.map(({ channelName, channelIndex }) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
+          {channelName}
+        </option>
+      ))}
+    </NativeSelect>
+  );
 }
