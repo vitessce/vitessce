@@ -34,6 +34,7 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  ANNOTATION_CONTROLLER: 'annotationController',
 };
 
 export const DataType = {
@@ -379,6 +380,13 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  // Annotation frames
+  ANNOTATION_FRAMES: 'annotationFrames',
+  ANNOTATION_FRAME_INDEX: 'annotationFrameIndex',
+  ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
+  ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
+  ANNOTATION_DIVERGED: 'annotationDiverged',
+  ANNOTATION_DESCRIPTION: 'annotationDescription',
 };
 
 export const STATUS = {

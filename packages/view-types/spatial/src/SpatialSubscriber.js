@@ -1,4 +1,29 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
+
+// Merges channel/layer visibility overrides into a baseline layer config.
+// Only the `visible` flag is applied — colors, sliders, and opacity are preserved.
+function mergeLayerVisibility(baseline, override) {
+  if (!baseline || !override) return override ?? baseline;
+  return baseline.map(layer => {
+    const overrideLayer = override.find(l => l.index === layer.index);
+    if (!overrideLayer) return layer;
+    const mergedChannels = (overrideLayer.channels && layer.channels)
+      ? layer.channels.map(ch => {
+          const chKey = ch.selection?.channel ?? ch.selection?.c;
+          const overrideCh = overrideLayer.channels.find(oc => {
+            const ocKey = oc.selection?.channel ?? oc.selection?.c;
+            return ocKey === chKey;
+          });
+          return overrideCh !== undefined ? { ...ch, visible: overrideCh.visible } : ch;
+        })
+      : layer.channels;
+    return {
+      ...layer,
+      ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
+      channels: mergedChannels,
+    };
+  });
+}
 import { debounce } from 'lodash-es';
 import {
   TitleInfo,
@@ -35,7 +60,23 @@ import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
-import { Typography } from '@vitessce/styles';
+import { Typography, makeStyles } from '@vitessce/styles';
+
+const useStyles = makeStyles()(() => ({
+  coordOverlay: {
+    position: 'absolute',
+    bottom: 4,
+    right: 8,
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'monospace',
+    pointerEvents: 'none',
+    zIndex: 10,
+    background: 'rgba(0,0,0,0.45)',
+    borderRadius: 3,
+    padding: '1px 5px',
+  },
+}));
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
@@ -67,8 +108,11 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
+    coordinatesVisible = false,
+    logClickCoords = false,
   } = props;
 
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
@@ -105,6 +149,11 @@ export function SpatialSubscriber(props) {
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
     photometricInterpretation: photometricInterpretationFromCoordination,
+    annotationFrames,
+    annotationFrameIndex,
+    annotationOverlayVisible,
+    annotationTransitionDuration,
+    annotationDiverged,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -117,6 +166,7 @@ export function SpatialSubscriber(props) {
     setSpatialSegmentationLayer: setCellsLayer,
     setSpatialPointLayer: setMoleculesLayer,
     setSpatialNeighborhoodLayer: setNeighborhoodsLayer,
+    setAnnotationDiverged,
     setObsFilter: setCellFilter,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
@@ -152,6 +202,161 @@ export function SpatialSubscriber(props) {
   );
 
   const use3d = imageLayers?.some(l => l.use3d);
+
+  // Animated zoom/pan for frame transitions.
+  // In deck.gl controlled mode we must feed interpolated values on every RAF
+  // frame — setting transitionDuration in the viewState prop alone has no effect.
+  // We keep local state for the animated position and drive it ourselves.
+  // During normal panning we use the coordination values directly (no overhead).
+  const [animZoom, setAnimZoom] = useState(zoom);
+  const [animTargetX, setAnimTargetX] = useState(targetX);
+  const [animTargetY, setAnimTargetY] = useState(targetY);
+  const animFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (annotationTransitionDuration <= 0) {
+      // Keep animated state in sync with coordination space while not animating,
+      // so the next frame transition always starts from the current actual position
+      // rather than from stale mount-time values.
+      if (zoom != null) setAnimZoom(zoom);
+      if (targetX != null) setAnimTargetX(targetX);
+      if (targetY != null) setAnimTargetY(targetY);
+      return;
+    }
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    const startZoom = animZoom;
+    const startX = animTargetX;
+    const startY = animTargetY;
+    const endZoom = zoom;
+    const endX = targetX;
+    const endY = targetY;
+    const startTime = performance.now();
+    const duration = annotationTransitionDuration;
+
+    const step = (now) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      // Cubic ease-in-out
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Only interpolate when both endpoints are numbers — null means "not set"
+      // and null arithmetic (null + 0 = 0) would silently move the view to origin.
+      if (typeof startZoom === 'number' && typeof endZoom === 'number') {
+        setAnimZoom(startZoom + (endZoom - startZoom) * ease);
+      }
+      if (typeof startX === 'number' && typeof endX === 'number') {
+        setAnimTargetX(startX + (endX - startX) * ease);
+      }
+      if (typeof startY === 'number' && typeof endY === 'number') {
+        setAnimTargetY(startY + (endY - startY) * ease);
+      }
+      if (t < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animFrameRef.current = null;
+      }
+    };
+    animFrameRef.current = requestAnimationFrame(step);
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom, targetX, targetY, annotationTransitionDuration]);
+
+  const effectiveZoom = annotationTransitionDuration > 0 ? animZoom : zoom;
+  const effectiveTargetX = annotationTransitionDuration > 0 ? animTargetX : targetX;
+  const effectiveTargetY = annotationTransitionDuration > 0 ? animTargetY : targetY;
+
+  // Apply per-frame view state from the frame's viewStates[] entry for 'spatial',
+  // falling back to the flat viewState for backward compatibility.
+  // This is the same targetView + targetCoordinationValues pattern as shapes:
+  // each view subscriber reads only the entry addressed to it.
+  // spatialPointLayer and spatialNeighborhoodLayer are handled here (not via the
+  // annotation controller) to avoid the scope initialization conflict that occurs
+  // when a controller subscribes to a type set dynamically by a data hook.
+  const spatialDefaultsRef = useRef(null);
+
+  useEffect(() => {
+    if (!annotationFrames) return;
+
+    // Exit story: restore the pre-story baseline (captured before frame 0 was applied).
+    // The animation is already signalled by annotationTransitionDuration being set to 800
+    // by the controller in the same batch as setting frameIndex → null.
+    if (annotationFrameIndex === null) {
+      const d = spatialDefaultsRef.current;
+      if (!d) return;
+      if (d.spatialZoom != null) setZoom(d.spatialZoom);
+      if (d.spatialTargetX != null) setTargetX(d.spatialTargetX);
+      if (d.spatialTargetY != null) setTargetY(d.spatialTargetY);
+      if (d.spatialImageLayer !== undefined) setRasterLayers(d.spatialImageLayer);
+      if (d.spatialSegmentationLayer !== undefined) setCellsLayer(d.spatialSegmentationLayer);
+      if (d.spatialPointLayer !== undefined) setMoleculesLayer(d.spatialPointLayer);
+      if (d.spatialNeighborhoodLayer !== undefined) setNeighborhoodsLayer(d.spatialNeighborhoodLayer);
+      return;
+    }
+
+    const frame = annotationFrames[annotationFrameIndex];
+
+    // Capture spatial baseline once, just before the first frame mutates anything.
+    if (spatialDefaultsRef.current === null) {
+      spatialDefaultsRef.current = {
+        spatialZoom: zoom, spatialTargetX: targetX,
+        spatialTargetY: targetY, spatialTargetZ: targetZ,
+        spatialImageLayer: imageLayers,
+        spatialSegmentationLayer: cellsLayer,
+        spatialPointLayer: moleculesLayer,
+        spatialNeighborhoodLayer: neighborhoodsLayer,
+      };
+    }
+    const d = spatialDefaultsRef.current;
+
+    // Find per-view entry: targetView === 'spatial'.
+    // For multiple spatial views, add targetCoordinationValues matching here.
+    const viewStateEntry = (frame?.viewStates ?? []).find(
+      e => e.targetView === 'spatial',
+    );
+    // Fall back to flat viewState (backward compat)
+    const vs = viewStateEntry ?? frame?.viewState ?? {};
+
+    const applyVal = (setter, key) => {
+      const v = vs[key] !== undefined ? vs[key] : d?.[key];
+      if (v !== undefined) setter(v);
+    };
+
+    applyVal(setZoom, 'spatialZoom');
+    applyVal(setTargetX, 'spatialTargetX');
+    applyVal(setTargetY, 'spatialTargetY');
+    applyVal(setTargetZ, 'spatialTargetZ');
+    applyVal(setCellsLayer, 'spatialSegmentationLayer');
+    applyVal(setMoleculesLayer, 'spatialPointLayer');
+    applyVal(setNeighborhoodsLayer, 'spatialNeighborhoodLayer');
+
+    // spatialImageLayer: merge visibility overrides against the BASELINE config
+    // so channel states are deterministic regardless of previous frame.
+    if (vs.spatialImageLayer !== undefined) {
+      setRasterLayers(mergeLayerVisibility(d?.spatialImageLayer, vs.spatialImageLayer));
+    } else if (d?.spatialImageLayer !== undefined) {
+      setRasterLayers(d.spatialImageLayer);
+    }
+  }, [
+    annotationFrameIndex, annotationFrames,
+    // annotationTransitionDuration is included so that Recenter (which sets
+    // it to 800 without changing annotationFrameIndex) still triggers this
+    // effect and re-applies the stored viewState.
+    annotationTransitionDuration,
+    setZoom, setTargetX, setTargetY, setTargetZ,
+    setRasterLayers, setCellsLayer, setMoleculesLayer, setNeighborhoodsLayer,
+  ]);
+
+  // Filter annotation shapes to those that belong to the spatial view.
+  // Shapes with no targetView default to 'spatial' for backwards compatibility.
+  const activeShapes = useMemo(() => {
+    if (!annotationOverlayVisible || !annotationFrames || annotationFrameIndex === null) return [];
+    const frame = annotationFrames[annotationFrameIndex];
+    return (frame?.shapes ?? []).filter(s => {
+      if (s.visible === false) return false;
+      return !s.targetView || s.targetView === 'spatial';
+    });
+  }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex]);
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -423,6 +628,22 @@ export function SpatialSubscriber(props) {
     return getObsInfo(tooltipObsId);
   }, [getObsInfo, obsLocationsLabels]);
 
+  const [hoverCoords, setHoverCoords] = useState(null);
+  const onCoordHover = useCallback((coord) => {
+    if (coordinatesVisible) setHoverCoords(coord);
+  }, [coordinatesVisible]);
+  const onCoordClick = useCallback((coord) => {
+    if (logClickCoords) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Vitessce] spatial`
+        + `  click: x=${coord[0].toFixed(2)}, y=${coord[1].toFixed(2)}`
+        + `  zoom: ${zoom?.toFixed(3) ?? 'null'}`
+        + `  center: x=${targetX?.toFixed(2) ?? 'null'}, y=${targetY?.toFixed(2) ?? 'null'}`,
+      );
+    }
+  }, [logClickCoords, zoom, targetX, targetY]);
+
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
   const [hoverMode, setHoverMode] = useState(null);
@@ -458,6 +679,13 @@ export function SpatialSubscriber(props) {
     rotationOrbit: newRotationOrbit,
     orbitAxis: newOrbitAxis,
   }) => {
+    // Suppress coordination updates during annotation frame transitions so
+    // deck.gl can animate unimpeded — intermediate viewState values from
+    // onViewStateChange would otherwise fight the animation.
+    if (annotationTransitionDuration > 0) return;
+    // If the user pans/zooms while a frame is active, mark as diverged
+    // so the annotation controller can show the indicator.
+    if (annotationFrameIndex !== null) setAnnotationDiverged(true);
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
@@ -645,8 +873,8 @@ export function SpatialSubscriber(props) {
         width={width}
         height={height}
         viewState={{
-          zoom,
-          target: [targetX, targetY, targetZ],
+          zoom: effectiveZoom,
+          target: [effectiveTargetX, effectiveTargetY, targetZ],
           rotationX,
           rotationY,
           rotationZ,
@@ -695,7 +923,15 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
+        annotationShapes={activeShapes}
+        onCoordHover={onCoordHover}
+        onCoordClick={onCoordClick}
       />
+      {coordinatesVisible && hoverCoords && (
+        <div className={classes.coordOverlay}>
+          {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
+        </div>
+      )}
       {tooltipsVisible && (
         <SpatialTooltipSubscriber
           parentUuid={uuid}

@@ -75,6 +75,7 @@ import {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  annotationFrameObj,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -92,6 +93,7 @@ import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { LinkControllerSubscriber } from '@vitessce/link-controller';
+import { AnnotationControllerSubscriber } from '@vitessce/annotation-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import { NeuroglancerSubscriber } from '@vitessce/neuroglancer';
@@ -287,6 +289,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
   makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
   makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
+  makeViewType(ViewType.ANNOTATION_CONTROLLER, AnnotationControllerSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -646,6 +649,13 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
+  // Annotation frames
+  new PluginCoordinationType(CoordinationType.ANNOTATION_FRAMES, null, annotationFrameObj),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_FRAME_INDEX, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_OVERLAY_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_DIVERGED, false, z.boolean()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_DESCRIPTION, null, z.string().nullable()),
 ];
 
 export const baseAsyncFunctions = [

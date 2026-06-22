@@ -129,8 +129,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
-      setHoverInfo,
+      setHoverInfo, onCoordHover,
     } = this.props;
+    // Expose raw data-space coordinate for the optional coordinate display overlay.
+    if (onCoordHover) onCoordHover(coordinate ?? null);
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
       return null;
@@ -317,6 +319,11 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           controller={tool ? { dragPan: false } : true}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
+          onClick={(info) => {
+            if (this.props.onCoordClick && info.coordinate) {
+              this.props.onCoordClick(info.coordinate);
+            }
+          }}
           width="100%"
           height="100%"
         >

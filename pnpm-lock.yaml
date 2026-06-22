@@ -1163,6 +1163,9 @@ importers:
       '@vitessce/abstract':
         specifier: workspace:*
         version: link:../../file-types/abstract
+      '@vitessce/annotation-controller':
+        specifier: workspace:*
+        version: link:../../view-types/annotation-controller
       '@vitessce/biomarker-select':
         specifier: workspace:*
         version: link:../../view-types/biomarker-select
@@ -1785,6 +1788,31 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 6.3.5(@types/node@20.16.10)(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+
+  packages/view-types/annotation-controller:
+    dependencies:
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/styles':
+        specifier: workspace:*
+        version: link:../../styles
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+    devDependencies:
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 18.3.1(react@18.3.1)
+      vite:
+        specifier: 'catalog:'
+        version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
@@ -15773,7 +15801,7 @@ packages:
 
   uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@7.0.3:

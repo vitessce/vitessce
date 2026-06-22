@@ -133,6 +133,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.EMBEDDING_CONTOUR_PERCENTILES,
     CoordinationType.CONTOUR_COLOR_ENCODING,
     CoordinationType.CONTOUR_COLOR,
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -249,6 +254,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -658,6 +668,22 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.SAMPLE_SET_COLOR,
     CoordinationType.FEATURE_SELECTION,
+  ],
+  [ViewType.ANNOTATION_CONTROLLER]: [
+    CoordinationType.DATASET,
+    // Annotation navigation state
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_DESCRIPTION,
+    // Cross-view state (shared across all views, not per-view)
+    // Zoom/pan/layers are now applied by each view subscriber directly
+    // via the viewStates[] array in each frame, not by the controller.
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.OBS_SET_SELECTION,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [

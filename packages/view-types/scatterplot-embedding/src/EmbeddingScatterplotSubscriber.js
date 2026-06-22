@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useRef,
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -39,7 +39,24 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { makeStyles } from '@vitessce/styles';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
+
+const useStyles = makeStyles()(() => ({
+  coordOverlay: {
+    position: 'absolute',
+    bottom: 4,
+    right: 8,
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'monospace',
+    pointerEvents: 'none',
+    zIndex: 10,
+    background: 'rgba(0,0,0,0.45)',
+    borderRadius: 3,
+    padding: '1px 5px',
+  },
+}));
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
@@ -67,6 +84,8 @@ export function EmbeddingScatterplotSubscriber(props) {
     observationsLabelOverride,
     title: titleOverride,
     helpText = ViewHelpMapping.SCATTERPLOT,
+    coordinatesVisible = false,
+    logClickCoords = false,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
     // For the dual scatterplot:
@@ -75,6 +94,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     circleScaleFactor = 0.8,
   } = props;
 
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
@@ -118,8 +138,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationFrames,
+    annotationFrameIndex,
+    annotationOverlayVisible,
+    annotationTransitionDuration,
   }, {
     setEmbeddingZoom: setZoom,
+    setAnnotationDiverged,
     setEmbeddingTargetX: setTargetX,
     setEmbeddingTargetY: setTargetY,
     setEmbeddingTargetZ: setTargetZ,
@@ -154,6 +179,126 @@ export function EmbeddingScatterplotSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
   );
+
+  // Filter annotation shapes to those targeting this specific scatterplot instance.
+  // `mapping` (embeddingType) disambiguates UMAP vs PCA vs tSNE scatterplots.
+  const activeShapes = useMemo(() => {
+    if (!annotationOverlayVisible || !annotationFrames || annotationFrameIndex === null) return [];
+    const frame = annotationFrames[annotationFrameIndex];
+    return (frame?.shapes ?? []).filter(s => {
+      if (s.visible === false) return false;
+      if (s.targetView !== 'scatterplot') return false;
+      const tcv = s.targetCoordinationValues ?? {};
+      if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
+      return true;
+    });
+  }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex, mapping]);
+
+  // Apply per-frame embedding view state from the frame's viewStates[] entry.
+  // Matching uses targetView === 'scatterplot' AND targetCoordinationValues.embeddingType
+  // === mapping, so a UMAP entry applies only to the UMAP panel and a PCA entry
+  // applies only to the PCA panel — independently, without any extra coordination types.
+  const embeddingDefaultsRef = useRef(null);
+
+  useEffect(() => {
+    if (!annotationFrames) return;
+
+    // Exit story: restore the pre-story embedding baseline.
+    if (annotationFrameIndex === null) {
+      const d = embeddingDefaultsRef.current;
+      if (!d) return;
+      if (d.embeddingZoom != null) setZoom(d.embeddingZoom);
+      if (d.embeddingTargetX != null) setTargetX(d.embeddingTargetX);
+      if (d.embeddingTargetY != null) setTargetY(d.embeddingTargetY);
+      return;
+    }
+
+    const frame = annotationFrames[annotationFrameIndex];
+
+    if (embeddingDefaultsRef.current === null) {
+      embeddingDefaultsRef.current = { embeddingZoom: zoom, embeddingTargetX: targetX, embeddingTargetY: targetY };
+    }
+    const d = embeddingDefaultsRef.current;
+
+    // Find the viewStates entry addressed to this specific scatterplot instance.
+    const viewStateEntry = (frame?.viewStates ?? []).find(e => {
+      if (e.targetView !== 'scatterplot') return false;
+      const tcv = e.targetCoordinationValues ?? {};
+      if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
+      return true;
+    });
+    // Fall back to flat viewState (backward compat) — but only if it doesn't
+    // also specify scatterplot-targeted entries in viewStates that differ.
+    const vs = viewStateEntry ?? frame?.viewState ?? {};
+
+    const applyVal = (setter, key) => {
+      const v = vs[key] !== undefined ? vs[key] : d?.[key];
+      if (v !== undefined) setter(v);
+    };
+
+    applyVal(setZoom, 'embeddingZoom');
+    applyVal(setTargetX, 'embeddingTargetX');
+    applyVal(setTargetY, 'embeddingTargetY');
+  }, [
+    annotationFrameIndex, annotationFrames, mapping,
+    annotationTransitionDuration,
+    setZoom, setTargetX, setTargetY,
+  ]);
+
+  // Animated embedding zoom/pan — same RAF-driven approach as SpatialSubscriber.
+  const [animZoom, setAnimZoom] = useState(zoom);
+  const [animTargetX, setAnimTargetX] = useState(targetX);
+  const [animTargetY, setAnimTargetY] = useState(targetY);
+  const animFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (annotationTransitionDuration <= 0) {
+      if (zoom != null) setAnimZoom(zoom);
+      if (targetX != null) setAnimTargetX(targetX);
+      if (targetY != null) setAnimTargetY(targetY);
+      return;
+    }
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    const startZoom = animZoom;
+    const startX = animTargetX;
+    const startY = animTargetY;
+    const endZoom = zoom;
+    const endX = targetX;
+    const endY = targetY;
+    const startTime = performance.now();
+    const duration = annotationTransitionDuration;
+
+    const step = (now) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Only interpolate when both endpoints are numbers — null means "not set"
+      // and null arithmetic (null + 0 = 0) would silently move the view to origin.
+      if (typeof startZoom === 'number' && typeof endZoom === 'number') {
+        setAnimZoom(startZoom + (endZoom - startZoom) * ease);
+      }
+      if (typeof startX === 'number' && typeof endX === 'number') {
+        setAnimTargetX(startX + (endX - startX) * ease);
+      }
+      if (typeof startY === 'number' && typeof endY === 'number') {
+        setAnimTargetY(startY + (endY - startY) * ease);
+      }
+      if (t < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animFrameRef.current = null;
+      }
+    };
+    animFrameRef.current = requestAnimationFrame(step);
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom, targetX, targetY, annotationTransitionDuration]);
+
+  const effectiveZoom = annotationTransitionDuration > 0 ? animZoom : zoom;
+  const effectiveTargetX = annotationTransitionDuration > 0 ? animTargetX : targetX;
+  const effectiveTargetY = annotationTransitionDuration > 0 ? animTargetY : targetY;
 
   const observationsLabel = observationsLabelOverride || obsType;
   const sampleSetSelection = (
@@ -264,6 +409,21 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [hoverCoords, setHoverCoords] = useState(null);
+  const onCoordHover = useCallback((coord) => {
+    if (coordinatesVisible) setHoverCoords(coord);
+  }, [coordinatesVisible]);
+  const onCoordClick = useCallback((coord) => {
+    if (logClickCoords) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Vitessce] ${mapping}`
+        + `  click: x=${coord[0].toFixed(4)}, y=${coord[1].toFixed(4)}`
+        + `  zoom: ${zoom?.toFixed(3) ?? 'null'}`
+        + `  center: x=${targetX?.toFixed(4) ?? 'null'}, y=${targetY?.toFixed(4) ?? 'null'}`,
+      );
+    }
+  }, [logClickCoords, mapping, zoom, targetX, targetY]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -528,6 +688,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
+    if (annotationTransitionDuration > 0) return;
+    if (annotationFrameIndex !== null) setAnnotationDiverged(true);
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
@@ -596,7 +758,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         ref={deckRef}
         uuid={uuid}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom: effectiveZoom, target: [effectiveTargetX, effectiveTargetY, targetZ] }}
         setViewState={setViewState}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
@@ -640,7 +802,15 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+        annotationShapes={activeShapes}
+        onCoordHover={onCoordHover}
+        onCoordClick={onCoordClick}
       />
+      {coordinatesVisible && hoverCoords && (
+        <div className={classes.coordOverlay}>
+          {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
+        </div>
+      )}
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber
           parentUuid={uuid}

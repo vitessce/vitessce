@@ -55,6 +55,8 @@ import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 import { emptyConfig } from './view-configs/empty.js';
+import { annotationsDemoSpraggins } from './view-configs/annotations-demo-spraggins.js';
+import { annotationsDemoCodeluppi } from './view-configs/annotations-demo-codeluppi.js';
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -173,6 +175,8 @@ export const configs = {
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
   empty: emptyConfig,
+  'annotations-demo-spraggins': annotationsDemoSpraggins,
+  'annotations-demo-codeluppi': annotationsDemoCodeluppi,
   'sdata-merfish': sdataMerfishConfig,
   'sdata-xenium_rep1_io': sdataXeniumConfig,
 
@@ -237,6 +241,8 @@ export const configs = {
 // (http://localhost:3000 or dev.vitessce.io).
 // To adjust the list for the docs site, see docs/src/pages/_DemoList.js
 export const publicConfigs = [
+  'annotations-demo-spraggins',
+  'annotations-demo-codeluppi',
   'codeluppi-2018',
   'eng-2019',
   'wang-2018',

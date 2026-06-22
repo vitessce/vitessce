@@ -37,6 +37,7 @@
     "@vitessce/abstract": "workspace:*",
     "@vitessce/error": "workspace:*",
     "@vitessce/csv": "workspace:*",
+    "@vitessce/annotation-controller": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/genomic-profiles": "workspace:*",
