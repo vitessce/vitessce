@@ -9,8 +9,6 @@ import {
   canLoadResolution,
 } from '@vitessce/spatial-utils';
 
-import { CHANNEL_SORT_OPTIONS } from '@vitessce/constants-internal';
-
 import {
   Grid, Button, Slider, Tabs, Tab, InputLabel,
   Accordion, AccordionDetails, AccordionSummary,
@@ -306,25 +304,11 @@ export default function LayerController(props) {
     setGlobalLabelValues(prev => ({ ...prev, ...selection }));
   };
 
-  const [channelSort, setChannelSort] = useState(CHANNEL_SORT_OPTIONS.ORIGINAL);
-
   let channelControllers = [];
   if (labels.length > 0) {
     const channelLabel = labels.find(c => c === 'channel' || c === 'c') || labels[0];
-    // Create a sorted index array for display order.
-    const sortedChannelIndices = channels.map((_, i) => i);
-    if (channelSort === CHANNEL_SORT_OPTIONS.ALPHABETICAL) {
-      sortedChannelIndices.sort((a, b) => {
-        const nameA = channelOptions[channels[a].selection[channelLabel]]
-          ?? String(channels[a].selection[channelLabel]);
-        const nameB = channelOptions[channels[b].selection[channelLabel]]
-         ?? String(channels[b].selection[channelLabel]);
-        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-      });
-    }
-
     // Create the channel controllers for each channel.
-    channelControllers = sortedChannelIndices.map((channelId) => {
+    channelControllers = channels.map((channelId) => {
       // c is an object like { color, selection, slider, visible }.
       const c = channels[channelId];
       // Update the auxiliary store with the current loading state of a channel.
@@ -462,20 +446,6 @@ export default function LayerController(props) {
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
       />
-      {photometricInterpretation !== 'RGB' && channelOptions?.length > 1 ? (
-        <Grid container direction="row" justifyContent="flex-end" sx={{ mb: 0.5 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setChannelSort(s => (s === CHANNEL_SORT_OPTIONS.ORIGINAL
-              ? CHANNEL_SORT_OPTIONS.ALPHABETICAL
-              : CHANNEL_SORT_OPTIONS.ORIGINAL))}
-            style={{ fontSize: '0.7rem', padding: '2px 6px' }}
-          >
-            {channelSort === CHANNEL_SORT_OPTIONS.ORIGINAL ? 'Sort A→Z' : 'Sort: Original'}
-          </Button>
-        </Grid>
-      ) : null}
       {photometricInterpretation === 'RGB'
         ? null
         : channelControllers}

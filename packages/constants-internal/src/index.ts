@@ -7,7 +7,6 @@ export {
   ViewHelpMapping,
   DescriptionType,
   STATUS,
-  CHANNEL_SORT_OPTIONS,
 } from './constants.js';
 export {
   FILE_TYPE_DATA_TYPE_MAPPING,
