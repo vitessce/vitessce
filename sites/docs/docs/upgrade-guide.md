@@ -5,6 +5,58 @@ title: Upgrade Guide
 
 This guide describes how to upgrade from one major version of the `vitessce` JavaScript package to the next.
 
+## v3 to v4
+
+### React 19
+
+Vitessce v4 is built against React 19.
+
+- React 18.3+ is required for 2D views.
+- React 19 is required for 3D / spatial / VR (XR) views, because Vitessce now uses
+  `@react-three/fiber` v9, which only supports React 19.
+- React 16 and 17 are no longer supported.
+
+If your app still uses the legacy `ReactDOM.render`, switch to `createRoot`:
+
+```diff
+- import ReactDOM from 'react-dom';
+- ReactDOM.render(<Vitessce {...props} />, document.getElementById('root'));
++ import { createRoot } from 'react-dom/client';
++ createRoot(document.getElementById('root')).render(<Vitessce {...props} />);
+```
+
+### Three.js and React Three Fiber peer dependencies
+
+Previously, `three` and the `@react-three/*` packages were bundled into Vitessce.
+In v4 they are **peer dependencies**, so that a single copy is shared with your
+application. (Multiple copies of `@react-three/fiber` cause runtime errors such as
+`"R3F: Hooks can only be used within the Canvas component!"`.)
+
+If you use any 3D, spatial, volume-rendering, or VR views, install them alongside
+Vitessce:
+
+```sh
+npm install three @react-three/fiber @react-three/drei
+# Only if you use VR / XR views:
+npm install @react-three/xr
+```
+
+Recommended versions (with React 19):
+
+| Package | Version |
+| --- | --- |
+| `three` | `>=0.159.0` |
+| `@react-three/fiber` | `^9.0.0` |
+| `@react-three/drei` | `^10.0.0` |
+| `@react-three/xr` | `^6.0.0` |
+
+If you already had `three` / `@react-three/fiber` installed, bump them to these
+versions. Note that `@react-three/fiber` v9 requires React 19.
+
+If you only use 2D views, you do **not** need to install these packages. The 3D
+code is loaded lazily; when the peer dependencies are absent, the 3D view shows a
+fallback message instead of crashing.
+
 ## v2 to v3
 
 

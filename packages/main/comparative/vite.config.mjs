@@ -29,6 +29,9 @@ export default defineConfig({
         || id === 'react-dom'
         || id.startsWith('react/')
         || id.startsWith('react-dom/')
+        || id.startsWith('@react-three/')
+        || id === 'three'
+        || id.startsWith('three/')
       ),
       // output.globals required for UMD builds
       // (e.g., no longer used since only generating ESM build)
