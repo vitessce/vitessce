@@ -26,7 +26,7 @@ jobs:
       pull-requests: write
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
           ref: ${{ github.event.pull_request.head.sha }}
@@ -58,7 +58,7 @@ jobs:
   test-e2e-demo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -93,7 +93,7 @@ jobs:
   test-e2e-html:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -127,7 +127,7 @@ jobs:
     # because we take the golden screenshots on macOS locally
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -153,7 +153,7 @@ jobs:
   test-e2e-playwright-react-19:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
@@ -177,7 +177,7 @@ jobs:
     # because we take the golden screenshots on macOS locally
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         id: pnpm-install
