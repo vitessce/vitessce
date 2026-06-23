@@ -575,32 +575,16 @@ export function SpatialSubscriber(props) {
       const deckInstance = deckRef.current?.deck;
       if (!deckInstance) return;
       const layers = deckInstance.layerManager?.getLayers();
-      // console.log('layers before clear:', layers?.map(l => ({
-      //   id: l.id,
-      //   type: l.constructor.name,
-      //   hasTileset: !!l.state?.tileset,
-      //   cacheSize: l.state?.tileset?._cache?.size,
-      //   subLayers: l.getSubLayers?.()?.map(sl => ({
-      //     id: sl.id,
-      //     type: sl.constructor.name,
-      //     hasTileset: !!sl.state?.tileset,
-      //     cacheSize: sl.state?.tileset?._cache?.size,
-      //   })),
-      // })));
-      let tileCount = 0;
       const clearLayer = (layer) => {
         if (!layer) return;
         if (layer.state?.tileset) {
-          // eslint-disable-next-line no-underscore-dangle
-          tileCount += layer.state.tileset._cache?.size || 0;
-          // console.log('Before cleaning', layer.state.tileset._cache?.size);
-          layer.state.tileset.finalize();
-          // console.log('After cleaning', layer.state.tileset._cache?.size);
+          // Use  maxCacheSize prop to evict all tiles
+          layer.state.tileset.setOptions({ maxCacheSize: 0 });
+          layer.state.tileset.setOptions({ maxCacheSize: null }); // restore default
         }
         layer.getSubLayers?.()?.forEach(clearLayer);
       };
       layers?.forEach(clearLayer);
-      // console.log(`Cleared ${tileCount} tiles`);
     };
     return registerClearTileCache?.(clearTiles);
   }, [deckRef, registerClearTileCache]);
