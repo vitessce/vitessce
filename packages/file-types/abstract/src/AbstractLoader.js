@@ -19,6 +19,7 @@ export default class AbstractLoader {
     requestInit,
     options,
     coordinationValues,
+    queryClient,
   }) {
     this.fileType = fileType;
     this.type = type;
@@ -26,6 +27,7 @@ export default class AbstractLoader {
     this.requestInit = requestInit;
     this.options = options;
     this.coordinationValues = coordinationValues;
+    this.queryClient = queryClient;
   }
 
   /**

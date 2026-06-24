@@ -45,6 +45,8 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+import {useIsFetching } from '@tanstack/react-query';
+
 import {
   useAggregatedNormalizedExpressionDataForLayers,
   useAggregatedNormalizedExpressionDataForChannels,
@@ -891,6 +893,10 @@ export function SpatialSubscriber(props) {
     }
   };
 
+  const isTilesFetching = useIsFetching({
+    queryKey: ['pixel-source', 'get-tile'],
+  });
+
   return (
     <TitleInfo
       title={title}
@@ -904,6 +910,25 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       errors={errors}
     >
+      {isTilesFetching > 0 ? (
+        <div style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(50,50,50,0.85)',
+          color: '#fff',
+          borderRadius: '20px',
+          padding: '6px 16px',
+          fontSize: '13px',
+          pointerEvents: 'none',
+          zIndex: 100,
+          whiteSpace: 'nowrap',
+        }}
+        >
+          Loading image tiles...
+        </div>
+      ) : null}
       {
         shouldUseThree ? (
           acceleratedFor3d ? (

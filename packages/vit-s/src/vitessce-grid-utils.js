@@ -184,7 +184,7 @@ export function createLoaders(
           queryClient,
         }));
       }
-      const loader = new LoaderClass(dataSources.get(dataSourceKey), file);
+      const loader = new LoaderClass(dataSources.get(dataSourceKey), { ...file, queryClient });
       if (datasetLoaders.loaders[dataType]) {
         datasetLoaders.loaders[dataType].set(coordinationValuesWithDefaults, loader);
       } else {
