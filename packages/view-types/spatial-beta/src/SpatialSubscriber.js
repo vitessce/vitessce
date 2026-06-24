@@ -36,7 +36,8 @@ import {
   useGridItemSize,
   useAuxiliaryCoordination,
 } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
+
+import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, TileFetchingQueryKeys } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
@@ -894,7 +895,7 @@ export function SpatialSubscriber(props) {
   };
 
   const isTilesFetching = useIsFetching({
-    queryKey: ['pixel-source', 'get-tile'],
+    queryKey: [TileFetchingQueryKeys.TILE_QUERY_KEY_PREFIX, TileFetchingQueryKeys.TILE_QUERY_KEY_TYPE],
   });
 
   return (
