@@ -77,12 +77,14 @@ export default function ImageChannelController(props) {
       });
       // eslint-disable-next-line prefer-destructuring
       const [newDomain] = stats.domains;
-      return newDomain;
+      const [newSlider] = stats.sliders;
+      return { domain: newDomain, slider: newSlider };
     },
     meta: { image },
   });
 
-  const minMaxDomain = minMaxQuery.data;
+  const minMaxDomain = minMaxQuery.data?.domain;
+  const minimizedSlider = minMaxQuery.data?.slider;
   const disabled = isLoading || minMaxQuery.isLoading;
 
   function handleResetWindowUsingIQR() {
@@ -140,6 +142,7 @@ export default function ImageChannelController(props) {
           colormapOn={colormapOn}
           showValueExtent={showValueExtent}
           minMaxDomain={minMaxDomain}
+          minimizedSlider={minimizedSlider}
         />
       </Grid>
       <Grid size={1}>
