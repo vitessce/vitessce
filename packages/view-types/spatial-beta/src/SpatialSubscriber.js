@@ -46,7 +46,8 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
-import {useIsFetching } from '@tanstack/react-query';
+import { useIsFetching } from '@tanstack/react-query';
+import { Chip , makeStyles, alpha} from '@vitessce/styles'
 
 import {
   useAggregatedNormalizedExpressionDataForLayers,
@@ -125,6 +126,21 @@ function getHoverData(hoverInfo, layerType) {
   return null;
 }
 
+const useStyles = makeStyles()(({ palette }) => ({
+  tileLoadingIndicator: {
+    position: 'absolute',
+    bottom: '12px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    pointerEvents: 'none',
+    zIndex: 100,
+    backgroundColor: alpha(palette.background.paper, 0.8),
+    color: palette.text.primary,
+    padding: '15px 20px',
+  },
+}));
+
+
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -153,6 +169,7 @@ export function SpatialSubscriber(props) {
     accelerated: acceleratedFor3d = false,
   } = props;
 
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
@@ -912,23 +929,13 @@ export function SpatialSubscriber(props) {
       errors={errors}
     >
       {isTilesFetching > 0 ? (
-        <div style={{
-          position: 'absolute',
-          bottom: '12px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'rgba(50,50,50,0.85)',
-          color: '#fff',
-          borderRadius: '20px',
-          padding: '6px 16px',
-          fontSize: '13px',
-          pointerEvents: 'none',
-          zIndex: 100,
-          whiteSpace: 'nowrap',
-        }}
-        >
-          Loading image tiles...
-        </div>
+        <Chip
+          label="Loading image tiles..."
+          size="small"
+          color="primary"
+          className={classes.tileLoadingIndicator}
+        />
+
       ) : null}
       {
         shouldUseThree ? (
