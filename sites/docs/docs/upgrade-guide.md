@@ -36,7 +36,7 @@ In v4 they are **peer dependencies**, so that a single copy is shared with your
 application. (Multiple copies of `@react-three/fiber` cause runtime errors such as
 `"R3F: Hooks can only be used within the Canvas component!"`.)
 
-If you use any 3D, spatial, volume-rendering, or VR views, install them alongside
+If you use the ThreeJS-based functionality, install the required dependencies alongside
 Vitessce:
 
 ```sh
