@@ -41,13 +41,13 @@ import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, TileFetchingQ
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
+import { useIsFetching } from '@tanstack/react-query';
+import { Chip, makeStyles, alpha } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
-import { useIsFetching } from '@tanstack/react-query';
-import { Chip , makeStyles, alpha} from '@vitessce/styles'
 
 import {
   useAggregatedNormalizedExpressionDataForLayers,

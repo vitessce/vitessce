@@ -424,6 +424,6 @@ export const ViewHelpMapping = {
 
 
 export const TileFetchingQueryKeys = {
-  TILE_QUERY_KEY_PREFIX : 'imagePixelSource',
-  TILE_QUERY_KEY_TYPE : 'tileRequest'
+  TILE_QUERY_KEY_PREFIX: 'imagePixelSource',
+  TILE_QUERY_KEY_TYPE: 'tileRequest',
 };
