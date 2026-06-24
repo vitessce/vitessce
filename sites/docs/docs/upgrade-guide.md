@@ -11,9 +11,9 @@ This guide describes how to upgrade from one major version of the `vitessce` Jav
 
 Vitessce v4 is now developed and tested against React 19.
 
-- React 18.3+ is required for 2D views.
-- React 19 is required for 3D / spatial / VR (XR) views, because Vitessce now uses
-  `@react-three/fiber` v9, which only supports React 19.
+- Most functionality remains compatible with React 18.3+.
+- React 19 is required for usage of the ThreeJS-based 3D rendering functionality, because this uses
+  `@react-three/fiber` v9, which only supports React 19. See the instructions below for more details.
 - React 16 and 17 are no longer supported.
 
 If your app still uses the legacy `ReactDOM.render`, switch to `createRoot`:
