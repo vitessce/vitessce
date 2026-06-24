@@ -27,6 +27,9 @@ If your app still uses the legacy `ReactDOM.render`, switch to `createRoot`:
 
 ### Three.js and React Three Fiber peer dependencies
 
+The following information is only relevant for Vitessce users who use the ThreeJS-based `spatial-three` or `spatial-accelerated` views for 3D volumetric and mesh rendering (which includes users of [Vitessce Link](https://vitessce.link/about) and its VR rendering features). Users who only rely on the DeckGL- and Neuroglancer-based 3D rendering functionality in Vitessce can ignore this section.
+
+
 Previously, `three` and the `@react-three/*` packages were bundled into Vitessce.
 In v4 they are **peer dependencies**, so that a single copy is shared with your
 application. (Multiple copies of `@react-three/fiber` cause runtime errors such as
