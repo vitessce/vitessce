@@ -25,6 +25,7 @@ If your app still uses the legacy `ReactDOM.render`, switch to `createRoot`:
 + createRoot(document.getElementById('root')).render(<Vitessce {...props} />);
 ```
 
+For further React upgrade information, see the [React 19 Upgrade Guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide).
 ### Three.js and React Three Fiber peer dependencies
 
 The following information is only relevant for Vitessce users who use the ThreeJS-based `spatial-three` or `spatial-accelerated` views for 3D volumetric and mesh rendering (which includes users of [Vitessce Link](https://vitessce.link/about) and its VR rendering features). Users who only rely on the DeckGL- and Neuroglancer-based 3D rendering functionality in Vitessce can ignore this section.
