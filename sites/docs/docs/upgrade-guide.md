@@ -55,7 +55,7 @@ Recommended versions (with React 19):
 | `@react-three/xr` | `^6.0.0` |
 
 If you already had `three` / `@react-three/fiber` installed, bump them to these
-versions. Note that `@react-three/fiber` v9 requires React 19.
+versions. Note that `@react-three/fiber` v9 requires React 19. For more details, visit the [react-three-fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction).
 
 If you only use 2D views, you do **not** need to install these packages. The 3D
 code is loaded lazily; when the peer dependencies are absent, the 3D view shows a
