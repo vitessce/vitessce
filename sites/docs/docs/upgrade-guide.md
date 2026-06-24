@@ -9,7 +9,7 @@ This guide describes how to upgrade from one major version of the `vitessce` Jav
 
 ### React 19
 
-Vitessce v4 is built against React 19.
+Vitessce v4 is now developed and tested against React 19.
 
 - React 18.3+ is required for 2D views.
 - React 19 is required for 3D / spatial / VR (XR) views, because Vitessce now uses
