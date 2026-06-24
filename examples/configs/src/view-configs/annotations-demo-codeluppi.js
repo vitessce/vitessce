@@ -1,6 +1,6 @@
 // Comprehensive annotation demo using the Codeluppi 2018 osmFISH dataset.
 // Demonstrates every annotation feature:
-//   - Spatial shapes (rectangle, arrow)
+//   - Spatial shapes (rectangle, arrow, ellipse, polygon, polyline)
 //   - Scatterplot shapes tethered to t-SNE vs PCA (targetCoordinationValues)
 //   - Simultaneous shapes across all three views in one frame
 //   - obsSetSelection (highlight specific cell type clusters)
@@ -351,84 +351,6 @@ export const annotationsDemoCodeluppi = {
             featureSelection: ['Plp1']
           },
         },
-        // ── Frame 3 ─────────────────────────────────────────────────────────
-        // Feature: featureSelection + obsColorEncoding — switch to gene expression.
-        // Plp1 (proteolipid protein 1) is a confirmed osmFISH gene and marks oligodendrocytes.
-        {
-          uid: 'frame-3',
-          title: 'Gene Expression — Plp1 (Oligodendrocyte Marker)',
-          text: 'obsColorEncoding switches to "geneSelection" and featureSelection is set to "Plp1" — a myelin proteolipid protein expressed in oligodendrocytes. All views color cells by Plp1 expression level.',
-          shapes: [
-            {
-              uid: 'spatial-arrow-3',
-              type: 'line',
-              targetView: 'spatial',
-              x1: 18000, y1: 17000,
-              x2: 16500, y2: 19000,
-              markerEnd: 'Arrow',
-              strokeColor: [255, 100, 100],
-              strokeWidth: 4,
-              text: 'High Plp1',
-              textPosition: 'start',
-            },
-          ],
-          viewState: {
-            // Zoom in on the upper tissue where Plp1-expressing cells concentrate
-            spatialZoom: -3.8,
-            spatialTargetX: 17500,
-            spatialTargetY: 18500,
-            // Pull back to full t-SNE to show expression across all clusters
-            embeddingZoom: 0.75,
-            embeddingTargetX: 0,
-            embeddingTargetY: 0,
-            obsColorEncoding: 'geneSelection',
-            featureSelection: ['Plp1'],
-          },
-        },
-
-        // ── Frame 4 ─────────────────────────────────────────────────────────
-        // Feature: PCA shapes — targetCoordinationValues: { embeddingType: 'PCA' }
-        // The rectangle appears ONLY in the PCA panel, not in t-SNE.
-        // The spatial arrow appears ONLY in the spatial view.
-        // Nothing appears in t-SNE (no shapes with embeddingType: 't-SNE').
-        {
-          uid: 'frame-4',
-          title: 'PCA Shapes — targetCoordinationValues: embeddingType',
-          text: 'The white rectangle appears only in the PCA panel — it has targetCoordinationValues: { embeddingType: "PCA" }. The t-SNE panel shows no annotation shapes because no shapes target it in this frame. This is how shapes are pinned to specific view instances.',
-          shapes: [
-            {
-              uid: 'spatial-arrow-4',
-              type: 'line',
-              targetView: 'spatial',
-              x1: 20000, y1: 18000,
-              x2: 18000, y2: 20000,
-              markerEnd: 'Arrow',
-              strokeColor: [255, 255, 255],
-              strokeWidth: 4,
-            },
-            {
-              uid: 'pca-rect-1',
-              type: 'rectangle',
-              targetView: 'scatterplot',
-              targetCoordinationValues: { embeddingType: 'PCA' },
-              x: -0.5, y: -0.3, width: 1.0, height: 0.6,
-              strokeColor: [255, 255, 255],
-              strokeWidth: 2,
-              text: 'PCA cluster',
-            },
-          ],
-          viewState: {
-            // Animate back to full tissue overview
-            spatialZoom: -5.5,
-            spatialTargetX: 16000,
-            spatialTargetY: 20000,
-            embeddingZoom: 0.75,
-            embeddingTargetX: 0,
-            embeddingTargetY: 0,
-            obsColorEncoding: 'cellSetSelection',
-          },
-        },
-
         // ── Frame 5 ─────────────────────────────────────────────────────────
         // Feature: all three views with shapes simultaneously in one frame.
         // Demonstrates that one frame can annotate spatial + t-SNE + PCA at once.
@@ -476,15 +398,77 @@ export const annotationsDemoCodeluppi = {
             embeddingTargetX: -10,
             embeddingTargetY: -4,
             obsColorEncoding: 'cellSetSelection',
+            spatialImageLayer: [{ index: 0, visible: false }],
+            spatialPointLayer: { visible: false, radius: 20, opacity: 1 }
+
           },
         },
 
         // ── Frame 6 ─────────────────────────────────────────────────────────
-        // Narrative close — resets everything, no shapes.
+        // New shape types: ellipse, polygon, polyline
         {
           uid: 'frame-6',
+          title: 'New Shape Types — Ellipse, Polygon, Polyline',
+          text: 'Three additional OME-ROI shape types: an ellipse outlining a region of interest, a polygon tracing an irregular boundary, and a polyline path with an arrowhead.',
+          shapes: [
+            {
+              uid: 'ellipse-1',
+              type: 'ellipse',
+              targetView: 'spatial',
+              x1: 10323.79, y1: 41354.99,
+              radiusX: 2000, radiusY: 1300,
+              strokeColor: [255, 255, 255],
+              strokeWidth: 4,
+              text: 'Ellipse ROI',
+            },
+            {
+              uid: 'polygon-1',
+              type: 'polygon',
+              targetView: 'spatial',
+              points: [
+                [14500, 18800],
+                [15800, 18400],
+                [16200, 19200],
+                [15600, 20000],
+                [14300, 19600],
+              ],
+              strokeColor: [100, 220, 255],
+              strokeWidth: 4,
+              text: 'Polygon region',
+            },
+            {
+              uid: 'polyline-1',
+              type: 'polyline',
+              targetView: 'spatial',
+              points: [
+                [17200, 19000],
+                [16800, 19800],
+                [16400, 20400],
+                [16000, 21000],
+              ],
+              strokeColor: [180, 120, 255],
+              strokeWidth: 4,
+              strokeDashArray: "10 4",
+              markerEnd: 'Arrow',
+              text: 'Polyline path',
+            },
+          ],
+          viewState: {
+            spatialZoom: -5.088,
+            spatialTargetX: 7024.56,
+            spatialTargetY: 42388.31,
+            spatialImageLayer: [{ index: 0, visible: false }],
+            spatialPointLayer: { visible: false, radius: 20, opacity: 1 }
+
+          },
+        },
+
+        // ── Frame 7 ─────────────────────────────────────────────────────────
+        // Narrative close — resets everything, no shapes.
+        {
+          uid: 'frame-7',
           title: 'End of Demo — All Features Shown',
-          text: 'Features demonstrated: spatial shapes, scatterplot shapes (t-SNE and PCA), shape tethering via targetCoordinationValues, obsSetSelection, featureSelection, obsColorEncoding, and per-frame zoom/pan. Shapes can be combined freely across views within a single frame.',
+          text: 'Features demonstrated: spatial shapes (rectangle, line, ellipse, polygon, polyline), scatterplot shapes (t-SNE and PCA), shape tethering via targetCoordinationValues, obsSetSelection, featureSelection, obsColorEncoding, and per-frame zoom/pan.',
           shapes: [],
           viewState: {
             spatialZoom: -5.5,
@@ -494,6 +478,8 @@ export const annotationsDemoCodeluppi = {
             embeddingTargetX: 0,
             embeddingTargetY: 0,
             obsColorEncoding: 'cellSetSelection',
+            spatialImageLayer: [{ index: 0, visible: false }],
+            spatialPointLayer: { visible: false, radius: 20, opacity: 1 }
             // omitting obsSetSelection — leaves whatever is currently active unchanged
             // omitting featureSelection — leaves whatever is currently active unchanged
           },

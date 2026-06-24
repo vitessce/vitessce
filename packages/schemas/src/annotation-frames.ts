@@ -11,6 +11,8 @@ const shapeBaseObj = z.object({
   text: z.string().optional(),
   strokeColor: z.array(z.number()).length(3).optional(),
   strokeWidth: z.number().optional(),
+  // SVG-style dash pattern, e.g. "10 5" or "10 20 30 10". "none" or omitted = solid.
+  strokeDashArray: z.string().optional(),
   visible: z.boolean().optional(),
 });
 
@@ -38,9 +40,39 @@ const lineShapeObj = shapeBaseObj.extend({
   textBufferPx: z.number().optional(),
 });
 
+const ellipseShapeObj = shapeBaseObj.extend({
+  type: z.literal('ellipse'),
+  // OME-XML field names verbatim (centre point + radii)
+  x1: z.number(),
+  y1: z.number(),
+  radiusX: z.number(),
+  radiusY: z.number(),
+  fillColor: z.array(z.number()).length(3).optional(),
+  fillOpacity: z.number().optional(),
+});
+
+const polygonShapeObj = shapeBaseObj.extend({
+  type: z.literal('polygon'),
+  // OME-XML: array of [x, y] coordinate pairs, closed automatically
+  points: z.array(z.tuple([z.number(), z.number()])),
+  fillColor: z.array(z.number()).length(3).optional(),
+  fillOpacity: z.number().optional(),
+});
+
+const polylineShapeObj = shapeBaseObj.extend({
+  type: z.literal('polyline'),
+  // OME-XML: array of [x, y] coordinate pairs, open (not closed)
+  points: z.array(z.tuple([z.number(), z.number()])),
+  markerStart: z.enum(['Arrow']).nullable().optional(),
+  markerEnd: z.enum(['Arrow']).nullable().optional(),
+});
+
 const annotationShapeObj = z.discriminatedUnion('type', [
   rectangleShapeObj,
   lineShapeObj,
+  ellipseShapeObj,
+  polygonShapeObj,
+  polylineShapeObj,
 ]);
 
 // Per-view viewState entry — same targetView + targetCoordinationValues pattern as shapes.

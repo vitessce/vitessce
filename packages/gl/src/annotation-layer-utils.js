@@ -1,4 +1,4 @@
-import { PolygonLayer, LineLayer, TextLayer, COORDINATE_SYSTEM } from './deck.js';
+import { PolygonLayer, PathLayer, LineLayer, TextLayer, COORDINATE_SYSTEM, PathStyleExtension } from './deck.js';
 
 // Target arrowhead size in screen pixels, converted to data-space at render time.
 const ARROW_SCREEN_PX = 14;
@@ -7,6 +7,24 @@ const ARROW_SCREEN_PX = 14;
 const LABEL_FONT_FAMILY = '"Roboto", "Helvetica", "Arial", sans-serif';
 const LABEL_FONT_WEIGHT = 'bold';
 const LABEL_FONT_SIZE = 14;
+
+// Parse an SVG-style dash string ("10 5", "10 20 30 10") into a [dash, gap] pair for
+// deck.gl's PathStyleExtension. Returns null for "none" or invalid input.
+// deck.gl only supports a 2-element array; we use the first two values of longer patterns.
+function parseDashArray(strokeDashArray) {
+  if (!strokeDashArray || strokeDashArray === 'none') return null;
+  const nums = strokeDashArray.trim().split(/\s+/).map(Number).filter(n => !Number.isNaN(n) && n >= 0);
+  return nums.length >= 2 ? [nums[0], nums[1]] : null;
+}
+
+function computeEllipsePolygon(cx, cy, rx, ry, numSegments = 64) {
+  const pts = [];
+  for (let i = 0; i < numSegments; i++) {
+    const angle = (2 * Math.PI * i) / numSegments;
+    pts.push([cx + rx * Math.cos(angle), cy + ry * Math.sin(angle)]);
+  }
+  return pts;
+}
 
 /**
  * Compute the three vertices of an arrowhead triangle pointing in the direction (dirX, dirY).
@@ -47,10 +65,15 @@ export function createAnnotationLayers(shapes, zoom = 0) {
       type,
       strokeColor = [255, 255, 255],
       strokeWidth = 1,
+      strokeDashArray,
     } = shape;
     // Arrowhead scales with stroke width: 4px per unit, floor at ARROW_SCREEN_PX.
     const arrowDataSize = Math.max(ARROW_SCREEN_PX, strokeWidth * 4) / Math.pow(2, zoom);
     const base = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN };
+    const dashArray = parseDashArray(strokeDashArray);
+    const dashProps = dashArray
+      ? { extensions: [new PathStyleExtension({ dash: true })], getDashArray: dashArray }
+      : {};
 
     if (type === 'rectangle') {
       const {
@@ -66,6 +89,7 @@ export function createAnnotationLayers(shapes, zoom = 0) {
       ];
       layers.push(new PolygonLayer({
         ...base,
+        ...dashProps,
         id: `annotation-rect-${uid}-${i}`,
         data: [{ polygon }],
         getPolygon: d => d.polygon,
@@ -111,16 +135,30 @@ export function createAnnotationLayers(shapes, zoom = 0) {
       const tgtX = markerEnd === 'Arrow' ? x2 - ux * arrowDataSize : x2;
       const tgtY = markerEnd === 'Arrow' ? y2 - uy * arrowDataSize : y2;
 
-      layers.push(new LineLayer({
-        ...base,
-        id: `annotation-line-${uid}-${i}`,
-        data: [{ source: [srcX, srcY], target: [tgtX, tgtY] }],
-        getSourcePosition: d => d.source,
-        getTargetPosition: d => d.target,
-        getColor: strokeColor,
-        getWidth: strokeWidth,
-        widthUnits: 'pixels',
-      }));
+      if (dashArray) {
+        layers.push(new PathLayer({
+          ...base,
+          ...dashProps,
+          id: `annotation-line-${uid}-${i}`,
+          data: [{ path: [[srcX, srcY], [tgtX, tgtY]] }],
+          getPath: d => d.path,
+          getColor: strokeColor,
+          getWidth: strokeWidth,
+          widthUnits: 'pixels',
+          capRounded: true,
+        }));
+      } else {
+        layers.push(new LineLayer({
+          ...base,
+          id: `annotation-line-${uid}-${i}`,
+          data: [{ source: [srcX, srcY], target: [tgtX, tgtY] }],
+          getSourcePosition: d => d.source,
+          getTargetPosition: d => d.target,
+          getColor: strokeColor,
+          getWidth: strokeWidth,
+          widthUnits: 'pixels',
+        }));
+      }
 
       if (markerEnd === 'Arrow') {
         const head = computeArrowhead(x2, y2, x2 - x1, y2 - y1, arrowDataSize);
@@ -202,6 +240,168 @@ export function createAnnotationLayers(shapes, zoom = 0) {
           getPixelOffset: pixelOffset,
           getTextAnchor: textAnchor,
           getAlignmentBaseline: alignmentBaseline,
+        }));
+      }
+    }
+
+    if (type === 'ellipse') {
+      const { x1, y1, radiusX, radiusY, fillColor = strokeColor, fillOpacity = 0 } = shape;
+      const polygon = computeEllipsePolygon(x1, y1, radiusX, radiusY);
+      layers.push(new PolygonLayer({
+        ...base,
+        ...dashProps,
+        id: `annotation-ellipse-${uid}-${i}`,
+        data: [{ polygon }],
+        getPolygon: d => d.polygon,
+        stroked: true,
+        filled: fillOpacity > 0,
+        getLineColor: strokeColor,
+        getLineWidth: strokeWidth,
+        lineWidthUnits: 'pixels',
+        getFillColor: [...fillColor, Math.round(fillOpacity * 255)],
+      }));
+      if (shape.text) {
+        layers.push(new TextLayer({
+          ...base,
+          id: `annotation-ellipse-text-${uid}-${i}`,
+          data: [{ position: [x1, y1 - radiusY], text: shape.text }],
+          getPosition: d => d.position,
+          getText: d => d.text,
+          getColor: strokeColor,
+          getSize: LABEL_FONT_SIZE,
+          sizeUnits: 'pixels',
+          fontFamily: LABEL_FONT_FAMILY,
+          fontWeight: LABEL_FONT_WEIGHT,
+          getPixelOffset: [0, -4],
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'bottom',
+        }));
+      }
+    }
+
+    if (type === 'polygon') {
+      const { points, fillColor = strokeColor, fillOpacity = 0 } = shape;
+      if (!points || points.length < 3) return;
+      layers.push(new PolygonLayer({
+        ...base,
+        ...dashProps,
+        id: `annotation-polygon-${uid}-${i}`,
+        data: [{ polygon: points }],
+        getPolygon: d => d.polygon,
+        stroked: true,
+        filled: fillOpacity > 0,
+        getLineColor: strokeColor,
+        getLineWidth: strokeWidth,
+        lineWidthUnits: 'pixels',
+        getFillColor: [...fillColor, Math.round(fillOpacity * 255)],
+      }));
+      if (shape.text) {
+        const minX = Math.min(...points.map(p => p[0]));
+        const maxX = Math.max(...points.map(p => p[0]));
+        const minY = Math.min(...points.map(p => p[1]));
+        const topCenterX = (minX + maxX) / 2;
+        layers.push(new TextLayer({
+          ...base,
+          id: `annotation-polygon-text-${uid}-${i}`,
+          data: [{ position: [topCenterX, minY], text: shape.text }],
+          getPosition: d => d.position,
+          getText: d => d.text,
+          getColor: strokeColor,
+          getSize: LABEL_FONT_SIZE,
+          sizeUnits: 'pixels',
+          fontFamily: LABEL_FONT_FAMILY,
+          fontWeight: LABEL_FONT_WEIGHT,
+          getPixelOffset: [0, -4],
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'bottom',
+        }));
+      }
+    }
+
+    if (type === 'polyline') {
+      const { points, markerStart, markerEnd } = shape;
+      if (!points || points.length < 2) return;
+      layers.push(new PathLayer({
+        ...base,
+        ...dashProps,
+        id: `annotation-polyline-${uid}-${i}`,
+        data: [{ path: points }],
+        getPath: d => d.path,
+        getColor: strokeColor,
+        getWidth: strokeWidth,
+        widthUnits: 'pixels',
+        jointRounded: true,
+        capRounded: true,
+      }));
+      if (markerStart === 'Arrow') {
+        const [x0, y0] = points[0];
+        const [x1, y1] = points[1];
+        const head = computeArrowhead(x0, y0, x0 - x1, y0 - y1, arrowDataSize);
+        if (head) {
+          layers.push(new PolygonLayer({
+            ...base,
+            id: `annotation-polyline-start-arrow-${uid}-${i}`,
+            data: [{ polygon: head }],
+            getPolygon: d => d.polygon,
+            filled: true,
+            stroked: false,
+            getFillColor: strokeColor,
+          }));
+        }
+      }
+      if (markerEnd === 'Arrow') {
+        const last = points[points.length - 1];
+        const prev = points[points.length - 2];
+        const head = computeArrowhead(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
+        if (head) {
+          layers.push(new PolygonLayer({
+            ...base,
+            id: `annotation-polyline-end-arrow-${uid}-${i}`,
+            data: [{ polygon: head }],
+            getPolygon: d => d.polygon,
+            filled: true,
+            stroked: false,
+            getFillColor: strokeColor,
+          }));
+        }
+      }
+      if (shape.text) {
+        const [px0, py0] = points[0];
+        const [px1, py1] = points[1];
+        const dxT = px0 - px1;
+        const dyT = py0 - py1;
+        const lenT = Math.sqrt(dxT * dxT + dyT * dyT);
+        const bufferPx = shape.textBufferPx ?? 8;
+        let polylinePixelOffset = [0, 0];
+        let polylineTextAnchor = 'middle';
+        let polylineAlignmentBaseline = 'bottom';
+        if (lenT > 0) {
+          const uxT = dxT / lenT;
+          const uyT = dyT / lenT;
+          const offX = uxT * bufferPx;
+          const offY = uyT * bufferPx;
+          polylinePixelOffset = [offX, offY];
+          if (Math.abs(offX) >= Math.abs(offY)) {
+            polylineTextAnchor = offX > 0 ? 'start' : 'end';
+          }
+          if (Math.abs(offY) >= Math.abs(offX)) {
+            polylineAlignmentBaseline = offY > 0 ? 'top' : 'bottom';
+          }
+        }
+        layers.push(new TextLayer({
+          ...base,
+          id: `annotation-polyline-text-${uid}-${i}`,
+          data: [{ position: [px0, py0], text: shape.text }],
+          getPosition: d => d.position,
+          getText: d => d.text,
+          getColor: strokeColor,
+          getSize: LABEL_FONT_SIZE,
+          sizeUnits: 'pixels',
+          fontFamily: LABEL_FONT_FAMILY,
+          fontWeight: LABEL_FONT_WEIGHT,
+          getPixelOffset: polylinePixelOffset,
+          getTextAnchor: polylineTextAnchor,
+          getAlignmentBaseline: polylineAlignmentBaseline,
         }));
       }
     }

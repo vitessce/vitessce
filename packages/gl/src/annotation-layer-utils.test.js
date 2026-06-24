@@ -58,6 +58,61 @@ describe('createAnnotationLayers', () => {
     expect(layers).toHaveLength(3);
   });
 
+  it('returns a PolygonLayer for an ellipse', () => {
+    const shapes = [{ uid: 'e1', type: 'ellipse', x1: 0, y1: 0, radiusX: 50, radiusY: 30 }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers).toHaveLength(1);
+    // 64-vertex polygon approximation
+    expect(layers[0].props.data[0].polygon).toHaveLength(64);
+  });
+
+  it('returns a PolygonLayer for a polygon with 3+ points', () => {
+    const shapes = [{ uid: 'p1', type: 'polygon', points: [[0, 0], [10, 0], [5, 10]] }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers).toHaveLength(1);
+  });
+
+  it('skips a polygon with fewer than 3 points', () => {
+    const shapes = [{ uid: 'p2', type: 'polygon', points: [[0, 0], [10, 0]] }];
+    expect(createAnnotationLayers(shapes, 0)).toHaveLength(0);
+  });
+
+  it('returns a PathLayer for a polyline', () => {
+    const shapes = [{ uid: 'pl1', type: 'polyline', points: [[0, 0], [5, 5], [10, 0]] }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers).toHaveLength(1);
+  });
+
+  it('returns PathLayer + arrowhead for polyline with markerEnd', () => {
+    const shapes = [{ uid: 'pl2', type: 'polyline', points: [[0, 0], [5, 5], [10, 0]], markerEnd: 'Arrow' }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers).toHaveLength(2);
+  });
+
+  it('skips a polyline with fewer than 2 points', () => {
+    const shapes = [{ uid: 'pl3', type: 'polyline', points: [[0, 0]] }];
+    expect(createAnnotationLayers(shapes, 0)).toHaveLength(0);
+  });
+
+  it('adds PathStyleExtension to a rectangle when strokeDashArray is set', () => {
+    const shapes = [{ uid: 'r3', type: 'rectangle', x: 0, y: 0, width: 10, height: 10, strokeDashArray: '10 5' }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers[0].props.extensions).toHaveLength(1);
+    expect(layers[0].props.getDashArray).toEqual([10, 5]);
+  });
+
+  it('does not set getDashArray when strokeDashArray is "none"', () => {
+    const shapes = [{ uid: 'r4', type: 'rectangle', x: 0, y: 0, width: 10, height: 10, strokeDashArray: 'none' }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers[0].props.getDashArray).toBeUndefined();
+  });
+
+  it('uses only the first two values of a longer dash pattern', () => {
+    const shapes = [{ uid: 'r5', type: 'rectangle', x: 0, y: 0, width: 10, height: 10, strokeDashArray: '10 20 30 10' }];
+    const layers = createAnnotationLayers(shapes, 0);
+    expect(layers[0].props.getDashArray).toEqual([10, 20]);
+  });
+
   it('scales arrowhead size with zoom (larger at negative zoom)', () => {
     // ARROW_SCREEN_PX=14, strokeWidth=1 so arrowScreenPx = max(14, 4) = 14
     // zoom=0 → arrowDataSize = 14 / 2^0 = 14
