@@ -78,13 +78,13 @@ export default function ImageChannelController(props) {
       // eslint-disable-next-line prefer-destructuring
       const [newDomain] = stats.domains;
       const [newSlider] = stats.sliders;
-      return {domain: newDomain, slider: newSlider};
+      return { domain: newDomain, slider: newSlider };
     },
     meta: { image },
   });
 
   const minMaxDomain = minMaxQuery.data?.domain;
-  const minimizedSlider = minMaxQuery.data?.slider
+  const minimizedSlider = minMaxQuery.data?.slider;
   const disabled = isLoading || minMaxQuery.isLoading;
 
   function handleResetWindowUsingIQR() {
