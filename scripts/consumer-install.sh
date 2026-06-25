@@ -20,7 +20,10 @@ rm -rf node_modules/
 npm init -y
 # Set private: true to prevent changesets from trying to publish this as a package.
 # Reference: https://stackoverflow.com/a/61049639
-contents="$(jq '.private = true' package.json)" && echo -E "${contents}" > package.json
+# Set type: module so the ESM source files (pages, components, next.config.js)
+# match the package's module format (Next.js 15.5+/16 reject the mismatch that
+# `npm init -y`'s default "type": "commonjs" would otherwise cause).
+contents="$(jq '.private = true | .type = "module"' package.json)" && echo -E "${contents}" > package.json
 
 cd -
 
@@ -40,6 +43,6 @@ npm exec vite build
 
 
 echo "Done vite build. Starting NextJS build."
-npm install next@15
+npm install next@16
 # Run NextJS build to bundle the consumer HTML/JS.
 npm exec next build

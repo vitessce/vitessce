@@ -272,16 +272,12 @@ export function VolumeView(props) {
     // layout(location = 0) out vec4 gColor: Final rendered color (sRGB)
     // layout(location = 1) out vec4 gRequest: Brick loading requests (packed coordinates)
     // layout(location = 2) out vec4 gUsage: Brick usage tracking (for cache management)
-    // three removed WebGLMultipleRenderTargets in r172; r162+ supports the `count`
-    // option on WebGLRenderTarget. Access via the namespace (not a named import) so
-    // bundlers don't fail on the missing export, and feature-detect to support the
-    // full peer range (three >=0.159).
-    // ponytail: drop the WebGLMultipleRenderTargets branch once the three peer floor is >=0.162
-    const mrt = THREE.WebGLMultipleRenderTargets
-      ? new THREE.WebGLMultipleRenderTargets(width, height, 3)
-      : new THREE.WebGLRenderTarget(width, height, { count: 3 });
-    // Old API exposes the attachments as `.texture` (array); new API as `.textures`.
-    const mrtTextures = mrt.textures ?? mrt.texture;
+    // Render to three color attachments (gColor, gRequest, gUsage) via three's
+    // WebGLRenderTarget `count` option. This replaced WebGLMultipleRenderTargets,
+    // which three removed in r172. Requires three >=0.162 (when `count` was added);
+    // the attachments are then exposed as the `.textures` array.
+    const mrt = new THREE.WebGLRenderTarget(width, height, { count: 3 });
+    const mrtTextures = mrt.textures;
     mrtTextures.forEach((tex) => {
       // eslint-disable-next-line no-param-reassign
       tex.format = THREE.RGBAFormat;

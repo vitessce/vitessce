@@ -529,7 +529,7 @@ export class VolumeRenderManager {
 
   /**
    * Sets the processing render target
-   * @param {WebGLMultipleRenderTargets} mrt - Multiple render targets object with 3 attachments
+   * @param {import('three').WebGLRenderTarget} mrt - Multiple render targets object with 3 attachments
    */
   /*
   setProcessingTargets(mrt) {
