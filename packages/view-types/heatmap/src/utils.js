@@ -106,7 +106,7 @@ export function getAxisSizes(
  * @returns {number[]} [colI, rowI]
  */
 export function mouseToHeatmapPosition(mouseX, mouseY, {
-  offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
+  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY, matrixWidth, matrixHeight, numRows, numCols,
 }) {
   // TODO: use linear algebra
   const viewMouseX = mouseX - offsetLeft;
@@ -118,17 +118,17 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
   }
 
   // Determine the rowI and colI values based on the current viewState.
-  const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
-  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+  const bboxTargetX = targetX * scaleFactorX + matrixWidth * scaleFactorX / 2;
+  const bboxTargetY = targetY * scaleFactorY + matrixHeight * scaleFactorY / 2;
 
   const bboxLeft = bboxTargetX - matrixWidth / 2;
   const bboxTop = bboxTargetY - matrixHeight / 2;
 
-  const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
-  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
+  const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactorX);
+  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactorY);
 
-  const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
-  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+  const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactorX);
+  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactorY);
 
   const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
   const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
@@ -146,19 +146,19 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
  * @returns {number[]} [x, y]
  */
 export function heatmapToMousePosition(colI, rowI, {
-  offsetLeft, offsetTop, targetX, targetY, scaleFactor, matrixWidth, matrixHeight, numRows, numCols,
+  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY, matrixWidth, matrixHeight, numRows, numCols,
 }) {
   // TODO: use linear algebra
   let zoomedMouseY = null;
   let zoomedMouseX = null;
 
   if (rowI !== null) {
-    const minY = -matrixHeight * scaleFactor / 2;
-    const maxY = matrixHeight * scaleFactor / 2;
+    const minY = -matrixHeight * scaleFactorY / 2;
+    const maxY = matrixHeight * scaleFactorY / 2;
     const totalHeight = maxY - minY;
 
-    const minInViewY = (targetY * scaleFactor) - (matrixHeight / 2);
-    const maxInViewY = (targetY * scaleFactor) + (matrixHeight / 2);
+    const minInViewY = (targetY * scaleFactorY) - (matrixHeight / 2);
+    const maxInViewY = (targetY * scaleFactorY) + (matrixHeight / 2);
     const inViewHeight = maxInViewY - minInViewY;
 
     const normalizedRowY = (rowI + 0.5) / numRows;
@@ -169,12 +169,12 @@ export function heatmapToMousePosition(colI, rowI, {
     }
   }
   if (colI !== null) {
-    const minX = -matrixWidth * scaleFactor / 2;
-    const maxX = matrixWidth * scaleFactor / 2;
+    const minX = -matrixWidth * scaleFactorX / 2;
+    const maxX = matrixWidth * scaleFactorX / 2;
     const totalWidth = maxX - minX;
 
-    const minInViewX = (targetX * scaleFactor) - (matrixWidth / 2);
-    const maxInViewX = (targetX * scaleFactor) + (matrixWidth / 2);
+    const minInViewX = (targetX * scaleFactorX) - (matrixWidth / 2);
+    const maxInViewX = (targetX * scaleFactorX) + (matrixWidth / 2);
     const inViewWidth = maxInViewX - minInViewX;
 
     const normalizedRowX = (colI + 0.5) / numCols;
@@ -204,7 +204,8 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   transpose,
   targetX,
   targetY,
-  scaleFactor,
+  scaleFactorX,
+  scaleFactorY,
   matrixWidth,
   matrixHeight,
   numRows,
@@ -226,20 +227,20 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
   let cellI;
   if (transpose) {
     const viewMouseX = mouseX - offsetLeft;
-    const bboxTargetX = targetX * scaleFactor + matrixWidth * scaleFactor / 2;
+    const bboxTargetX = targetX * scaleFactorX + matrixWidth * scaleFactorX / 2;
     const bboxLeft = bboxTargetX - matrixWidth / 2;
-    const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactor);
-    const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactor);
+    const zoomedOffsetLeft = bboxLeft / (matrixWidth * scaleFactorX);
+    const zoomedViewMouseX = viewMouseX / (matrixWidth * scaleFactorX);
     const zoomedMouseX = zoomedOffsetLeft + zoomedViewMouseX;
     cellI = Math.floor(zoomedMouseX * numCols);
     return [cellI, trackI];
   }
   // Not transposed
   const viewMouseY = mouseY - axisOffsetTop;
-  const bboxTargetY = targetY * scaleFactor + matrixHeight * scaleFactor / 2;
+  const bboxTargetY = targetY * scaleFactorY + matrixHeight * scaleFactorY / 2;
   const bboxTop = bboxTargetY - matrixHeight / 2;
-  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactor);
-  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactor);
+  const zoomedOffsetTop = bboxTop / (matrixHeight * scaleFactorY);
+  const zoomedViewMouseY = viewMouseY / (matrixHeight * scaleFactorY);
   const zoomedMouseY = zoomedOffsetTop + zoomedViewMouseY;
   cellI = Math.floor(zoomedMouseY * numRows);
 

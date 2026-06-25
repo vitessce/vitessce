@@ -65,6 +65,7 @@ export function HeatmapSubscriber(props) {
     featureType,
     featureValueType,
     heatmapZoomX: zoomX,
+    heatmapZoomY: zoomY,
     heatmapTargetX: targetX,
     heatmapTargetY: targetY,
     featureSelection: geneSelection,
@@ -254,7 +255,7 @@ export function HeatmapSubscriber(props) {
       <Heatmap
         ref={deckRef}
         transpose={transpose}
-        viewState={{ zoom: zoomX, target: [targetX, targetY] }}
+        viewState={{ zoomX: zoomX, zoomY: zoomY, target: [targetX, targetY] }}
         setViewState={({ zoom, target }) => {
           setZoomX(zoom);
           setZoomY(zoom);

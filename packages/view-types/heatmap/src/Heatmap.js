@@ -132,6 +132,8 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const viewState = {
     ...rawViewState,
+    zoomX: rawViewState.zoomX ?? rawViewState.zoom ?? 0,
+    zoomY: rawViewState.zoomY ?? rawViewState.zoom ?? 0,
     target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
     minZoom: 0,
   };
@@ -157,6 +159,29 @@ const Heatmap = forwardRef((props, deckRef) => {
   // We need to keep a backlog of the tasks for the worker thread,
   // since the array buffer can only be held by one thread at a time.
   const [backlog, setBacklog] = useState([]);
+
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const [altHeld, setAltHeld] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Shift') setShiftHeld(true);
+      if (e.key === 'Alt') setAltHeld(true);
+    };
+    const onKeyUp = (e) => {
+      if (e.key === 'Shift') setShiftHeld(false);
+      if (e.key === 'Alt') setAltHeld(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
+  const zoomAxis = shiftHeld ? 'X' : altHeld ? 'Y' : 'all';
+
 
   // Store a reference to the matrix Uint8Array in the dataRef,
   // since we need to access its array buffer to transfer
@@ -257,9 +282,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
 
-  const scaleFactor = 2 ** viewState.zoom;
-  const cellHeight = (matrixHeight * scaleFactor) / height;
-  const cellWidth = (matrixWidth * scaleFactor) / width;
+  const scaleFactorX = 2 ** (viewState.zoomX ?? 0);
+  const scaleFactorY = 2 ** (viewState.zoomY ?? 0);
+  const cellHeight = (matrixHeight * scaleFactorY) / height;
+  const cellWidth = (matrixWidth * scaleFactorX) / width;
 
   // Get power of 2 between 1 and 16,
   // for number of cells to aggregate together in each direction.
@@ -282,7 +308,8 @@ const Heatmap = forwardRef((props, deckRef) => {
             offsetTop,
             targetX: viewState.target[0],
             targetY: viewState.target[1],
-            scaleFactor,
+            scaleFactorX,
+            scaleFactorY,
             matrixWidth,
             matrixHeight,
             numRows: height,
@@ -292,19 +319,21 @@ const Heatmap = forwardRef((props, deckRef) => {
       },
     });
   }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
-    offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
+    offsetTop, viewState, scaleFactorX, scaleFactorY, matrixWidth, matrixHeight, height, width]);
 
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    const { zoom: nextZoom } = nextViewState;
-    const nextScaleFactor = 2 ** nextZoom;
+    const nextZoomX = nextViewState.zoomX ?? nextViewState.zoom ?? 0;
+    const nextZoomY = nextViewState.zoomY ?? nextViewState.zoom ?? 0;
+    const nextScaleFactorX = 2 ** nextZoomX;
+    const nextScaleFactorY = 2 ** nextZoomY;
 
-    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const minTargetX = nextZoomX === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactorX));
     const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const minTargetY = nextZoomY === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactorY));
     const maxTargetY = -1 * minTargetY;
 
     // Manipulate view state if necessary to keep the user in the window.
@@ -314,7 +343,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     ];
 
     setViewState({
-      zoom: nextZoom,
+      zoomX: nextZoomX,
+      zoomY: nextZoomY,
       target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
     });
   }, [matrixRight, matrixBottom, transpose, setViewState]);
@@ -539,7 +569,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'axisLeftCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorY,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -566,7 +596,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'axisTopCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorX,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -594,7 +624,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'cellColorLabelCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorX,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -730,7 +760,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       transpose,
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactorX,
+      scaleFactorY,
       matrixWidth,
       matrixHeight,
       numRows: height,
@@ -756,7 +787,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       offsetTop,
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactorX,
+      scaleFactorY,
       matrixWidth,
       matrixHeight,
       numRows: height,
@@ -805,7 +837,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       if (transpose) {
         view = new deck.OrthographicView({
           id: `colorsTop-${track}`,
-          controller: true,
+          controller: { zoomAxis },
           x: offsetLeft,
           y: axisOffsetTop + track * COLOR_BAR_SIZE,
           width: matrixWidth,
@@ -814,7 +846,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       } else {
         view = new deck.OrthographicView({
           id: `colorsLeft-${track}`,
-          controller: true,
+          controller: { zoomAxis },
           x: axisOffsetLeft + track * COLOR_BAR_SIZE,
           y: offsetTop,
           width: COLOR_BAR_SIZE - AXIS_MARGIN,
@@ -826,7 +858,7 @@ const Heatmap = forwardRef((props, deckRef) => {
 
     return result;
   }, [numCellColorTracks, transpose, offsetLeft, axisOffsetTop,
-    matrixWidth, axisOffsetLeft, offsetTop, matrixHeight]);
+    matrixWidth, axisOffsetLeft, offsetTop, matrixHeight, zoomAxis]);
 
   return (
     <deck.DeckGL
@@ -838,7 +870,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         // but only one viewState.
         new deck.OrthographicView({
           id: 'heatmap',
-          controller: true,
+          controller: { zoomAxis },
           x: offsetLeft,
           y: offsetTop,
           width: matrixWidth,
