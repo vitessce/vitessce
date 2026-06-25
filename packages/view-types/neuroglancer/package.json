@@ -45,15 +45,8 @@
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
-    "three": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
-  },
-  "peerDependencies": {
-    "three": ">=0.159.0"
-  },
-  "peerDependenciesMeta": {
-    "three": { "optional": true }
   }
 }
