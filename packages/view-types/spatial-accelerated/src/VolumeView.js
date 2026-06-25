@@ -10,7 +10,6 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { WebGLMultipleRenderTargets } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 
@@ -273,8 +272,17 @@ export function VolumeView(props) {
     // layout(location = 0) out vec4 gColor: Final rendered color (sRGB)
     // layout(location = 1) out vec4 gRequest: Brick loading requests (packed coordinates)
     // layout(location = 2) out vec4 gUsage: Brick usage tracking (for cache management)
-    const mrt = new WebGLMultipleRenderTargets(width, height, 3);
-    mrt.texture.forEach((tex) => {
+    // three removed WebGLMultipleRenderTargets in r172; r162+ supports the `count`
+    // option on WebGLRenderTarget. Access via the namespace (not a named import) so
+    // bundlers don't fail on the missing export, and feature-detect to support the
+    // full peer range (three >=0.159).
+    // ponytail: drop the WebGLMultipleRenderTargets branch once the three peer floor is >=0.162
+    const mrt = THREE.WebGLMultipleRenderTargets
+      ? new THREE.WebGLMultipleRenderTargets(width, height, 3)
+      : new THREE.WebGLRenderTarget(width, height, { count: 3 });
+    // Old API exposes the attachments as `.texture` (array); new API as `.textures`.
+    const mrtTextures = mrt.textures ?? mrt.texture;
+    mrtTextures.forEach((tex) => {
       // eslint-disable-next-line no-param-reassign
       tex.format = THREE.RGBAFormat;
       // eslint-disable-next-line no-param-reassign
@@ -297,7 +305,7 @@ export function VolumeView(props) {
     const screenMaterial = new THREE.ShaderMaterial({
       uniforms: {
         // Bind the first render target texture as the input of the gaussian blur shader.
-        tDiffuse: { value: mrt.texture[0] },
+        tDiffuse: { value: mrtTextures[0] },
         resolution: { value: new THREE.Vector2(width, height) },
         gaussian: { value: 7 },
       },
