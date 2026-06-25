@@ -60,36 +60,15 @@ export default function FeatureList(props) {
       const selectionArray = Array.isArray(selection)
         ? selection
         : [selection];
-      const incomingKeys = selectionArray.map(s => s.key).filter(
+      const selectedVisibleKeys = selectionArray.map(s => s.key).filter(
         key => searchResults.includes(key),
       );
 
-      let newSelection;
-      if (enableMultiSelect) {
-        // Find which key was just clicked by diffing against current geneSelection.
-        // It's either a newly added key, or if a key was removed, we keep the order as is.
-        const currentVisibleSelection = (geneSelection || []).filter(
-          key => searchResults.includes(key),
-        );
-        const addedKey = incomingKeys.find(k => !currentVisibleSelection.includes(k));
 
-        let orderedVisibleKeys;
-        if (addedKey) {
-          // Keep previous order, move/append the newly clicked key to the end
-          // so featureAggregationStrategy:'last' always points to the most recent click.
-          orderedVisibleKeys = [
-            ...currentVisibleSelection.filter(k => incomingKeys.includes(k) && k !== addedKey),
-            addedKey,
-          ];
-        } else {
-          // A key was removed — preserve the existing click order, just drop the removed one
-          orderedVisibleKeys = currentVisibleSelection.filter(k => incomingKeys.includes(k));
-        }
-        // Safety net for any null/undefined values
-        newSelection = [...selectedHiddenKeys, ...orderedVisibleKeys].filter(Boolean);
-      } else {
-        newSelection = incomingKeys.filter(Boolean);
-      }
+      const newSelection = enableMultiSelect ? (
+        [...selectedHiddenKeys, ...selectedVisibleKeys]
+          .filter(Boolean)
+      ) : selectionArray.map(s => s.key).filter(Boolean);
 
       if (newSelection.length > 0) {
         setGeneSelection(newSelection);
@@ -110,7 +89,6 @@ export default function FeatureList(props) {
             || featureLabelsMap?.get(cleanFeatureId(gene))
             || gene
           ),
-          value: (geneSelection ? geneSelection.includes(gene) : false),
         }),
       );
 
@@ -122,7 +100,7 @@ export default function FeatureList(props) {
 
     return preSortedData;
   }, [featureListSort, selectableTableSortKey, searchResults,
-    geneFilter, featureLabelsMap, geneSelection,
+    geneFilter, featureLabelsMap,
   ]);
 
   const handleChange = (event) => {
@@ -157,7 +135,7 @@ export default function FeatureList(props) {
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
-        valueKey="value"
+        selectedIds={geneSelection}
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}

@@ -42,6 +42,8 @@ import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -478,7 +480,6 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
   const featureAggregationStrategyToUse = featureAggregationStrategy
   ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
