@@ -440,29 +440,30 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    console.log('VSC target:', nextViewState.target, 'zoom:', nextViewState.zoom);
     const { zoom: nextZoom } = nextViewState;
     const nextScaleFactor = 2 ** nextZoom;
 
+    // For Y clamping, use zoomY not the scalar zoom
+    const prevZoom = rawViewStateRef.current.zoom ?? 0;
+    const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
+    const zoomDelta = nextZoom - prevZoom;
+    const nextZoomY = Math.max(0, prevZoomY + zoomDelta);
+    const nextScaleFactorY = 2 ** nextZoomY;
     const minTargetX = nextZoom === 0 ? 0
-      : -(matrixRightRef.current - (matrixRightRef.current / nextScaleFactor));
-    const maxTargetX = -1 * minTargetX;
+      : -(matrixRightRef.current - matrixRightRef.current / nextScaleFactor);
+    const maxTargetX = -minTargetX;
 
-    const minTargetY = nextZoom === 0 ? 0
-      : -(matrixBottomRef.current - (matrixBottomRef.current / nextScaleFactor));
-    const maxTargetY = -1 * minTargetY;
+    // Use nextZoomY for Y bounds so pan works when Y is independently zoomed
+    const minTargetY = nextZoomY === 0 ? 0
+      : -(matrixBottomRef.current - matrixBottomRef.current / nextScaleFactorY);
+    const maxTargetY = -minTargetY;
 
     const nextTarget = [
       clamp(nextViewState.target[0], minTargetX, maxTargetX),
       clamp(nextViewState.target[1], minTargetY, maxTargetY),
-    ];// During normal scroll, zoom and zoomY should move together.
-    // Only preserve an independent zoomY if it was explicitly set
-    // differently from zoom (i.e. user did axis-locked zoom).
-    const prevZoom = rawViewStateRef.current.zoom ?? 0;
-    const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
-    const zoomDelta = nextZoom - prevZoom;
-    // If zoomY was independent, keep its offset relative to zoom
-    const nextZoomY = Math.max(0, prevZoomY + zoomDelta);
-
+    ];
+    console.log('setting target:', nextTarget, 'minTargetY:', minTargetY, 'maxTargetY:', maxTargetY)
     setViewState({
       zoom: nextZoom,
       zoomY: nextZoomY,
@@ -689,18 +690,22 @@ const Heatmap = forwardRef((props, deckRef) => {
   const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
   const hideLeftLabels = (transpose ? hideVariableLabels : hideObservationLabels);
 
+  console.log('targetY:', targetY, 'scaleRatioY:', scaleRatioY, 
+    'targetY*scaleRatioY:', targetY * scaleRatioY,
+    'cellHeight:', cellHeight, 'height:', height);
+
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
     new HeatmapCompositeTextLayer({
       axis: 'left',
       id: 'axisLeftCompositeTextLayer',
       targetX,
-      targetY,
+      targetY: targetY * scaleRatioY,
       scaleFactor: scaleFactorY,
       axisLeftLabelData,
-      matrixTop,
+      matrixTop: matrixTop * scaleRatioY,
       height,
-      matrixHeight,
+      matrixHeight: matrixHeight * scaleRatioY,
       cellHeight,
       cellWidth,
       axisTopLabelData,
@@ -721,7 +726,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     new HeatmapCompositeTextLayer({
       axis: 'top',
       id: 'axisTopCompositeTextLayer',
-      targetX,
+      targetX: targetX * scaleRatioX,
       targetY,
       scaleFactor: scaleFactorX,
       axisLeftLabelData,
@@ -731,9 +736,9 @@ const Heatmap = forwardRef((props, deckRef) => {
       cellHeight,
       cellWidth,
       axisTopLabelData,
-      matrixLeft,
+      matrixLeft: matrixLeft * scaleRatioX,
       width,
-      matrixWidth,
+      matrixWidth: matrixWidth * scaleRatioX,
       viewHeight,
       viewWidth,
       theme,
@@ -749,7 +754,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     new HeatmapCompositeTextLayer({
       axis: 'corner',
       id: 'cellColorLabelCompositeTextLayer',
-      targetX,
+      targetX: targetX * scaleRatioX,
       targetY,
       scaleFactor: scaleFactorX,
       axisLeftLabelData,
