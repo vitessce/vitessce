@@ -106,7 +106,8 @@ export function getAxisSizes(
  * @returns {number[]} [colI, rowI]
  */
 export function mouseToHeatmapPosition(mouseX, mouseY, {
-  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY, matrixWidth, matrixHeight, numRows, numCols,
+  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY,
+  matrixWidth, matrixHeight, numRows, numCols,
 }) {
   // TODO: use linear algebra
   const viewMouseX = mouseX - offsetLeft;
@@ -146,7 +147,8 @@ export function mouseToHeatmapPosition(mouseX, mouseY, {
  * @returns {number[]} [x, y]
  */
 export function heatmapToMousePosition(colI, rowI, {
-  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY, matrixWidth, matrixHeight, numRows, numCols,
+  offsetLeft, offsetTop, targetX, targetY, scaleFactorX, scaleFactorY,
+  matrixWidth, matrixHeight, numRows, numCols,
 }) {
   // TODO: use linear algebra
   let zoomedMouseY = null;

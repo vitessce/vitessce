@@ -384,7 +384,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Normal scroll (no modifier) falls through to DeckGL's controller.
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el) return undefined;
 
     const onWheel = (e) => {
       if (!e.shiftKey && !e.altKey) return; // let DeckGL handle normal zoom
@@ -416,9 +416,11 @@ const Heatmap = forwardRef((props, deckRef) => {
       // Clamp target based on new zoom levels
       const sfX = 2 ** nextZoomX;
       const sfY = 2 ** nextZoomY;
-      const minTX = nextZoomX === 0 ? 0 : -(matrixRightRef.current - matrixRightRef.current / sfX);
+      const minTX = nextZoomX === 0 ? 0
+        : -(matrixRightRef.current - matrixRightRef.current / sfX);
       const maxTX = -minTX;
-      const minTY = nextZoomY === 0 ? 0 : -(matrixBottomRef.current - matrixBottomRef.current / sfY);
+      const minTY = nextZoomY === 0 ? 0
+        : -(matrixBottomRef.current - matrixBottomRef.current / sfY);
       const maxTY = -minTY;
 
       const nextTarget = [
@@ -440,7 +442,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    console.log('VSC target:', nextViewState.target, 'zoom:', nextViewState.zoom);
     const { zoom: nextZoom } = nextViewState;
     const nextScaleFactor = 2 ** nextZoom;
 
@@ -463,7 +464,6 @@ const Heatmap = forwardRef((props, deckRef) => {
       clamp(nextViewState.target[0], minTargetX, maxTargetX),
       clamp(nextViewState.target[1], minTargetY, maxTargetY),
     ];
-    console.log('setting target:', nextTarget, 'minTargetY:', minTargetY, 'maxTargetY:', maxTargetY)
     setViewState({
       zoom: nextZoom,
       zoomY: nextZoomY,
@@ -689,10 +689,6 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const hideTopLabels = (transpose ? hideObservationLabels : hideVariableLabels);
   const hideLeftLabels = (transpose ? hideVariableLabels : hideObservationLabels);
-
-  console.log('targetY:', targetY, 'scaleRatioY:', scaleRatioY, 
-    'targetY*scaleRatioY:', targetY * scaleRatioY,
-    'cellHeight:', cellHeight, 'height:', height);
 
   // Generate the axis label, axis title, and loading indicator text layers.
   const textLayers = [
