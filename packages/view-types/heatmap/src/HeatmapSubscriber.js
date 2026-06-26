@@ -1,7 +1,6 @@
 import React, {
-  useState, useCallback, useMemo, useRef,
+  useState, useCallback, useMemo,
 } from 'react';
-import { unstable_batchedUpdates } from 'react-dom';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -94,8 +93,6 @@ export function HeatmapSubscriber(props) {
     setTooltipsVisible,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
-  // console.log('obsHighlight', cellHighlight, geneHighlight)
-
   const observationsLabel = observationsLabelOverride || obsType;
   const observationsPluralLabel = plur(observationsLabel);
   const variablesLabel = variablesLabelOverride || featureType;
@@ -175,21 +172,6 @@ export function HeatmapSubscriber(props) {
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
-  const [isInteracting, setIsInteracting] = useState(false);
-  const interactingTimeoutRef = useRef(null);
-
-  const handleSetViewState = useCallback(({ zoomX: newZoomX, zoomY: newZoomY, target }) => {
- setIsInteracting(true);
-clearTimeout(interactingTimeoutRef.current);
-interactingTimeoutRef.current = setTimeout(() => setIsInteracting(false), 100);
-    unstable_batchedUpdates(() => {
-      setZoomX(newZoomX);
-      setZoomY(newZoomY);
-      setTargetX(target[0]);
-      setTargetY(target[1]);
-    });
-    }, [setZoomX, setZoomY, setTargetX, setTargetY]);
-
   const cellColors = useMemo(() => getCellColors({
     cellSets: mergedCellSets,
     cellSetSelection,
@@ -246,10 +228,6 @@ interactingTimeoutRef.current = setTimeout(() => setIsInteracting(false), 100);
   ]), [observationsLabel]);
 
   const selectedCount = cellColors.size;
-  const handleSetComponentHover = useCallback(() => {
-    setComponentHover(uuid);
-  }, [setComponentHover, uuid]);
-
   return (
     <TitleInfo
       title={title}
@@ -277,8 +255,13 @@ interactingTimeoutRef.current = setTimeout(() => setIsInteracting(false), 100);
       <Heatmap
         ref={deckRef}
         transpose={transpose}
-        viewState={{ zoomX: zoomX, zoomY: zoomY, target: [targetX, targetY] }}
-        setViewState={handleSetViewState}
+        viewState={{ zoom: zoomX, zoomY, target: [targetX, targetY] }}
+        setViewState={({ zoom, zoomY: newZoomY, target }) => {
+          setZoomX(zoom);
+          setZoomY(newZoomY ?? zoom);
+          setTargetX(target[0]);
+          setTargetY(target[1]);
+        }}
         colormapRange={geneExpressionColormapRange}
         setColormapRange={setGeneExpressionColormapRange}
         height={height}
@@ -295,7 +278,9 @@ interactingTimeoutRef.current = setTimeout(() => setIsInteracting(false), 100);
         obsIndex={obsIndex}
         featureIndex={featureIndex}
         setTrackHighlight={setTrackHighlight}
-        setComponentHover={handleSetComponentHover}
+        setComponentHover={() => {
+          setComponentHover(uuid);
+        }}
         updateViewInfo={setComponentViewInfo}
         observationsTitle={observationsTitle}
         variablesTitle={variablesTitle}
@@ -306,7 +291,7 @@ interactingTimeoutRef.current = setTimeout(() => setIsInteracting(false), 100);
         onHeatmapClick={onHeatmapClick}
         setColorEncoding={setHoveredColorEncoding}
       />
-      {tooltipsVisible && !isInteracting && ( 
+      {tooltipsVisible && (
       <HeatmapTooltipSubscriber
         parentUuid={uuid}
         width={width}
