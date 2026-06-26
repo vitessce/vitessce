@@ -149,6 +149,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
   const [cursorType, setCursorType] = useState('default');
 
+  const containerRef = useRef(null);
+  const rawViewStateRef = useRef(rawViewState);
+  useEffect(() => { rawViewStateRef.current = rawViewState; }, [rawViewState]);
+
 
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
@@ -274,39 +278,58 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const [targetX, targetY] = viewState.target;
 
+  const matrixRightRef = useRef(matrixRight);
+  const matrixBottomRef = useRef(matrixBottom);
+
+  const updateViewInfoRef = useRef(updateViewInfo);
+  useEffect(() => {
+    updateViewInfoRef.current = updateViewInfo;
+  }, [updateViewInfo]);
+
+  const offsetLeftRef = useRef(offsetLeft);
+  const offsetTopRef = useRef(offsetTop);
+  const matrixWidthRef = useRef(matrixWidth);
+  const matrixHeightRef = useRef(matrixHeight);
+  const heightRef = useRef(height);
+  const widthRef = useRef(width);
+
+  useEffect(() => {
+    offsetLeftRef.current = offsetLeft;
+    offsetTopRef.current = offsetTop;
+    matrixWidthRef.current = matrixWidth;
+    matrixHeightRef.current = matrixHeight;
+    heightRef.current = height;
+    widthRef.current = width;
+  }, [offsetLeft, offsetTop, matrixWidth, matrixHeight, height, width]);
+
+
   // Emit the viewInfo object on viewState updates
   // (used by tooltips / crosshair elements).
   useEffect(() => {
-    updateViewInfo({
+    updateViewInfoRef.current({
       uuid,
       projectFromId: (cellId, geneId) => {
-        const colI = transpose ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
-        const rowI = transpose ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
-        return heatmapToMousePosition(
-          colI, rowI, {
-            offsetLeft,
-            offsetTop,
-            targetX: viewState.target[0],
-            targetY: viewState.target[1],
-            scaleFactorX,
-            scaleFactorY,
-            matrixWidth,
-            matrixHeight,
-            numRows: height,
-            numCols: width,
-          },
-        );
+        const colI = transpose
+          ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+        const rowI = transpose
+          ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+        return heatmapToMousePosition(colI, rowI, {
+          offsetLeft: offsetLeftRef.current,
+          offsetTop: offsetTopRef.current,
+          targetX: rawViewStateRef.current.target?.[0] ?? 0,
+          targetY: rawViewStateRef.current.target?.[1] ?? 0,
+          scaleFactorX: 2 ** (rawViewStateRef.current.zoom ?? 0),
+          scaleFactorY: 2 ** (rawViewStateRef.current.zoomY
+            ?? rawViewStateRef.current.zoom ?? 0),
+          matrixWidth: matrixWidthRef.current,
+          matrixHeight: matrixHeightRef.current,
+          numRows: heightRef.current,
+          numCols: widthRef.current,
+        });
       },
     });
-  }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
-    offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
+  }, [uuid, transpose, axisTopLabels, axisLeftLabels]); // only label changes trigger this
 
-  const containerRef = useRef(null);
-  const rawViewStateRef = useRef(rawViewState);
-  useEffect(() => { rawViewStateRef.current = rawViewState; }, [rawViewState]);
-
-  const matrixRightRef = useRef(matrixRight);
-  const matrixBottomRef = useRef(matrixBottom);
   useEffect(() => {
     matrixRightRef.current = matrixRight;
     matrixBottomRef.current = matrixBottom;
@@ -317,6 +340,8 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!el) return;
 
     const onWheel = (e) => {
+      console.log('WHEEL shiftKey:', e.shiftKey, 'altKey:', e.altKey, 'deltaY:', e.deltaY,
+        'currentZoom:', rawViewStateRef.current.zoom, 'currentZoomY:', rawViewStateRef.current.zoomY);
       if (!e.shiftKey && !e.altKey) return; // let DeckGL handle normal zoom
 
       e.preventDefault();
@@ -369,6 +394,8 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
+    console.log('VSC zoom:', nextViewState.zoom, 'prevZoom:', rawViewStateRef.current.zoom,
+      'prevZoomY:', rawViewStateRef.current.zoomY);
     const { zoom: nextZoom } = nextViewState;
     const nextScaleFactor = 2 ** nextZoom;
 
@@ -382,11 +409,18 @@ const Heatmap = forwardRef((props, deckRef) => {
     const nextTarget = [
       clamp(nextViewState.target[0], minTargetX, maxTargetX),
       clamp(nextViewState.target[1], minTargetY, maxTargetY),
-    ];
+    ];// During normal scroll, zoom and zoomY should move together.
+    // Only preserve an independent zoomY if it was explicitly set
+    // differently from zoom (i.e. user did axis-locked zoom).
+    const prevZoom = rawViewStateRef.current.zoom ?? 0;
+    const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
+    const zoomDelta = nextZoom - prevZoom;
+    // If zoomY was independent, keep its offset relative to zoom
+    const nextZoomY = prevZoomY + zoomDelta;
 
     setViewState({
       zoom: nextZoom,
-      zoomY: rawViewStateRef.current.zoomY ?? nextZoom,
+      zoomY: nextZoomY,
       target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
     });
   }, [matrixRight, matrixBottom, transpose, setViewState]);
