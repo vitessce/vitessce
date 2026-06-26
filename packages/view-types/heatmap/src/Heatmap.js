@@ -288,7 +288,8 @@ const Heatmap = forwardRef((props, deckRef) => {
             offsetTop,
             targetX: viewState.target[0],
             targetY: viewState.target[1],
-            scaleFactor,
+            scaleFactorX,
+            scaleFactorY,
             matrixWidth,
             matrixHeight,
             numRows: height,
@@ -300,71 +301,70 @@ const Heatmap = forwardRef((props, deckRef) => {
   }, [uuid, updateViewInfo, transpose, axisTopLabels, axisLeftLabels, offsetLeft,
     offsetTop, viewState, scaleFactor, matrixWidth, matrixHeight, height, width]);
 
-    const containerRef = useRef(null);
-    const rawViewStateRef = useRef(rawViewState);
-    useEffect(() => { rawViewStateRef.current = rawViewState; }, [rawViewState]);
+  const containerRef = useRef(null);
+  const rawViewStateRef = useRef(rawViewState);
+  useEffect(() => { rawViewStateRef.current = rawViewState; }, [rawViewState]);
 
-    const matrixRightRef = useRef(matrixRight);
-    const matrixBottomRef = useRef(matrixBottom);
-    useEffect(() => {
-      matrixRightRef.current = matrixRight;
-      matrixBottomRef.current = matrixBottom;
-    }, [matrixRight, matrixBottom]);
+  const matrixRightRef = useRef(matrixRight);
+  const matrixBottomRef = useRef(matrixBottom);
+  useEffect(() => {
+    matrixRightRef.current = matrixRight;
+    matrixBottomRef.current = matrixBottom;
+  }, [matrixRight, matrixBottom]);
 
-useEffect(() => {
-  const el = containerRef.current;
-  if (!el) return;
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-  const onWheel = (e) => {
-    if (!e.shiftKey && !e.altKey) return; // let DeckGL handle normal zoom
+    const onWheel = (e) => {
+      if (!e.shiftKey && !e.altKey) return; // let DeckGL handle normal zoom
 
-    e.preventDefault();
-    e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
-    const rawDelta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-    const zoomDelta = -rawDelta * 0.001;
+      const rawDelta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      const zoomDelta = -rawDelta * 0.001;
 
-    const prevZoomX = rawViewStateRef.current.zoom ?? 0;
-    const prevZoomY = rawViewStateRef.current.zoomY ?? rawViewStateRef.current.zoom ?? 0;
+      const prevZoomX = rawViewStateRef.current.zoom ?? 0;
+      const prevZoomY = rawViewStateRef.current.zoomY ?? rawViewStateRef.current.zoom ?? 0;
 
-    const maxZoomX = Math.log2(matrixRightRef.current * 2);
-    const maxZoomY = Math.log2(matrixBottomRef.current * 2);
+      const maxZoomX = Math.log2(matrixRightRef.current * 2);
+      const maxZoomY = Math.log2(matrixBottomRef.current * 2);
 
-    const nextZoomX = clamp(
-      e.shiftKey ? prevZoomX : prevZoomX + zoomDelta,
-      -2, maxZoomX,
-    );
-    const nextZoomY = clamp(
-      e.altKey ? prevZoomY : prevZoomY + zoomDelta,
-      -2, maxZoomY,
-    );
+      const nextZoomX = clamp(
+        e.shiftKey ? prevZoomX : prevZoomX + zoomDelta,
+        -2, maxZoomX,
+      );
+      const nextZoomY = clamp(
+        e.altKey ? prevZoomY : prevZoomY + zoomDelta,
+        -2, maxZoomY,
+      );
 
-    const prevTarget = rawViewStateRef.current.target ?? [0, 0];
+      const prevTarget = rawViewStateRef.current.target ?? [0, 0];
 
-    // Clamp target based on new zoom levels
-    const sfX = 2 ** nextZoomX;
-    const sfY = 2 ** nextZoomY;
-    const minTX = nextZoomX === 0 ? 0 : -(matrixRightRef.current - matrixRightRef.current / sfX);
-    const maxTX = -minTX;
-    const minTY = nextZoomY === 0 ? 0 : -(matrixBottomRef.current - matrixBottomRef.current / sfY);
-    const maxTY = -minTY;
+      // Clamp target based on new zoom levels
+      const sfX = 2 ** nextZoomX;
+      const sfY = 2 ** nextZoomY;
+      const minTX = nextZoomX === 0 ? 0 : -(matrixRightRef.current - matrixRightRef.current / sfX);
+      const maxTX = -minTX;
+      const minTY = nextZoomY === 0 ? 0 : -(matrixBottomRef.current - matrixBottomRef.current / sfY);
+      const maxTY = -minTY;
 
-    const nextTarget = [
-      clamp(prevTarget[0], minTX, maxTX),
-      clamp(prevTarget[1], minTY, maxTY),
-    ];
+      const nextTarget = [
+        clamp(prevTarget[0], minTX, maxTX),
+        clamp(prevTarget[1], minTY, maxTY),
+      ];
 
-    setViewState({
-      zoom: nextZoomX, // DeckGL's scalar zoom = zoomX
-      zoomY: nextZoomY,
-      target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
-    });
-  };
+      setViewState({
+        zoom: nextZoomX, // DeckGL's scalar zoom = zoomX
+        zoomY: nextZoomY,
+        target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
+      });
+    };
 
-  el.addEventListener('wheel', onWheel, { passive: false, capture: true });
-  return () => el.removeEventListener('wheel', onWheel, { capture: true });
-}, [transpose, setViewState]);
-
+    el.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    return () => el.removeEventListener('wheel', onWheel, { capture: true });
+  }, [transpose, setViewState]);
 
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
@@ -802,7 +802,8 @@ useEffect(() => {
       transpose,
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactorX,
+      scaleFactorY,
       matrixWidth,
       matrixHeight,
       numRows: height,
@@ -828,7 +829,8 @@ useEffect(() => {
       offsetTop,
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactorX,
+      scaleFactorY,
       matrixWidth,
       matrixHeight,
       numRows: height,
