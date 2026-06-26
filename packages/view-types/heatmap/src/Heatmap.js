@@ -134,7 +134,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     ...rawViewState,
     zoom: rawViewState.zoom ?? 0,
     target: (transpose ? [rawViewState.target[1], rawViewState.target[0]] : rawViewState.target),
-    // minZoom: 0,
+    minZoom: 0,
   };
 
   const axisLeftTitle = (transpose ? variablesTitle : observationsTitle);
@@ -149,10 +149,32 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
   const [cursorType, setCursorType] = useState('default');
 
+  // Ref to the container div for intercepting wheel events for axis-locked zoom.
   const containerRef = useRef(null);
+  // Ref to track the latest rawViewState without causing effect re-runs.
   const rawViewStateRef = useRef(rawViewState);
   useEffect(() => { rawViewStateRef.current = rawViewState; }, [rawViewState]);
 
+  // Refs for modifier key state, read directly in wheel handler.
+  const shiftHeldRef = useRef(false);
+  const altHeldRef = useRef(false);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Shift') shiftHeldRef.current = true;
+      if (e.key === 'Alt') altHeldRef.current = true;
+    };
+    const onKeyUp = (e) => {
+      if (e.key === 'Shift') shiftHeldRef.current = false;
+      if (e.key === 'Alt') altHeldRef.current = false;
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
 
   // Since we are storing the tile data in a ref,
   // and updating it asynchronously when the worker finishes,
@@ -261,12 +283,22 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const tileWidth = (matrixWidth / widthRatio) / (xTiles);
   const tileHeight = (matrixHeight / heightRatio) / (yTiles);
+
+  // Independent X/Y zoom values. zoomY is stored as an extra field on rawViewState.
+  // DeckGL's viewport always uses the scalar zoom (= zoomX) for pan/zoom mechanics.
   const zoomX = rawViewState.zoom ?? 0;
   const zoomY = rawViewState.zoomY ?? rawViewState.zoom ?? 0;
 
+  // scaleFactor is the scalar zoom DeckGL uses for its viewport.
   const scaleFactor = 2 ** viewState.zoom;
+  // Independent scale factors for layer bounds and label positioning.
   const scaleFactorX = 2 ** zoomX;
   const scaleFactorY = 2 ** zoomY;
+
+  // Ratios between independent axis scale and the scalar DeckGL viewport scale.
+  // Used to stretch tile bounds to achieve visual independent-axis zoom.
+  const scaleRatioX = scaleFactorX / scaleFactor;
+  const scaleRatioY = scaleFactorY / scaleFactor;
 
   const cellHeight = (matrixHeight * scaleFactorY) / height;
   const cellWidth = (matrixWidth * scaleFactorX) / width;
@@ -278,8 +310,13 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   const [targetX, targetY] = viewState.target;
 
+  // Refs for values needed in effects/callbacks without causing re-runs.
   const matrixRightRef = useRef(matrixRight);
   const matrixBottomRef = useRef(matrixBottom);
+  useEffect(() => {
+    matrixRightRef.current = matrixRight;
+    matrixBottomRef.current = matrixBottom;
+  }, [matrixRight, matrixBottom]);
 
   const updateViewInfoRef = useRef(updateViewInfo);
   useEffect(() => {
@@ -306,6 +343,7 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Emit the viewInfo object on viewState updates
   // (used by tooltips / crosshair elements).
   useEffect(() => {
+    if (!axisTopLabels.length || !axisLeftLabels.length) return;
     updateViewInfoRef.current({
       uuid,
       projectFromId: (cellId, geneId) => {
@@ -330,18 +368,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     });
   }, [uuid, transpose, axisTopLabels, axisLeftLabels]); // only label changes trigger this
 
-  useEffect(() => {
-    matrixRightRef.current = matrixRight;
-    matrixBottomRef.current = matrixBottom;
-  }, [matrixRight, matrixBottom]);
-
+  // Intercept wheel events on the container to support axis-locked zoom
+  // via Shift (Y-axis zoom only) or Alt (X-axis zoom only).
+  // Normal scroll (no modifier) falls through to DeckGL's controller.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const onWheel = (e) => {
-      console.log('WHEEL shiftKey:', e.shiftKey, 'altKey:', e.altKey, 'deltaY:', e.deltaY,
-        'currentZoom:', rawViewStateRef.current.zoom, 'currentZoomY:', rawViewStateRef.current.zoomY);
       if (!e.shiftKey && !e.altKey) return; // let DeckGL handle normal zoom
 
       e.preventDefault();
@@ -356,13 +390,14 @@ const Heatmap = forwardRef((props, deckRef) => {
       const maxZoomX = Math.log2(matrixRightRef.current * 2);
       const maxZoomY = Math.log2(matrixBottomRef.current * 2);
 
+      // shiftKey = zoom Y only (lock X), altKey = zoom X only (lock Y)
       const nextZoomX = clamp(
         e.shiftKey ? prevZoomX : prevZoomX + zoomDelta,
-        -2, maxZoomX,
+        0, maxZoomX,
       );
       const nextZoomY = clamp(
         e.altKey ? prevZoomY : prevZoomY + zoomDelta,
-        -2, maxZoomY,
+        0, maxZoomY,
       );
 
       const prevTarget = rawViewStateRef.current.target ?? [0, 0];
@@ -382,7 +417,7 @@ const Heatmap = forwardRef((props, deckRef) => {
 
       setViewState({
         zoom: nextZoomX, // DeckGL's scalar zoom = zoomX
-        zoomY: nextZoomY,
+        zoomY: nextZoomY, // extra field for independent Y zoom
         target: transpose ? [nextTarget[1], nextTarget[0]] : nextTarget,
       });
     };
@@ -394,8 +429,6 @@ const Heatmap = forwardRef((props, deckRef) => {
   // Listen for viewState changes.
   // Do not allow the user to zoom and pan outside of the initial window.
   const onViewStateChange = useCallback(({ viewState: nextViewState }) => {
-    console.log('VSC zoom:', nextViewState.zoom, 'prevZoom:', rawViewStateRef.current.zoom,
-      'prevZoomY:', rawViewStateRef.current.zoomY);
     const { zoom: nextZoom } = nextViewState;
     const nextScaleFactor = 2 ** nextZoom;
 
@@ -416,7 +449,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
     const zoomDelta = nextZoom - prevZoom;
     // If zoomY was independent, keep its offset relative to zoom
-    const nextZoomY = prevZoomY + zoomDelta;
+    const nextZoomY = Math.max(0, prevZoomY + zoomDelta);
 
     setViewState({
       zoom: nextZoom,
@@ -553,11 +586,13 @@ const Heatmap = forwardRef((props, deckRef) => {
         return new PaddedExpressionHeatmapBitmapLayer({
           id: `heatmapLayer-${i}-${j}`,
           image: paddedExpressions,
+          // Stretch bounds by scaleRatio to achieve independent X/Y zoom
+          // while DeckGL's viewport uses a single scalar zoom.
           bounds: [
-            matrixLeft + j * tileWidth,
-            matrixTop + i * tileHeight,
-            matrixLeft + (j + 1) * tileWidth,
-            matrixTop + (i + 1) * tileHeight,
+            (matrixLeft + j * tileWidth) * scaleRatioX,
+            (matrixTop + i * tileHeight) * scaleRatioY,
+            (matrixLeft + (j + 1) * tileWidth) * scaleRatioX,
+            (matrixTop + (i + 1) * tileHeight) * scaleRatioY,
           ],
           tileI: i,
           tileJ: j,
@@ -573,7 +608,7 @@ const Heatmap = forwardRef((props, deckRef) => {
           colorScaleHi: colormapRange[1],
           updateTriggers: {
             image: [axisLeftLabels, axisTopLabels],
-            bounds: [tileHeight, tileWidth],
+            bounds: [tileHeight, tileWidth, scaleRatioX, scaleRatioY],
           },
         });
       }
@@ -586,11 +621,13 @@ const Heatmap = forwardRef((props, deckRef) => {
       return new HeatmapBitmapLayer({
         id: `heatmapLayer-${tileIteration}-${i}-${j}`,
         image: tile,
+        // Stretch bounds by scaleRatio to achieve independent X/Y zoom
+        // while DeckGL's viewport uses a single scalar zoom.
         bounds: [
-          matrixLeft + j * tileWidth,
-          matrixTop + i * tileHeight,
-          matrixLeft + (j + 1) * tileWidth,
-          matrixTop + (i + 1) * tileHeight,
+          (matrixLeft + j * tileWidth) * scaleRatioX,
+          (matrixTop + i * tileHeight) * scaleRatioY,
+          (matrixLeft + (j + 1) * tileWidth) * scaleRatioX,
+          (matrixTop + (i + 1) * tileHeight) * scaleRatioY,
         ],
         aggSizeX,
         aggSizeY,
@@ -599,7 +636,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         colorScaleHi: colormapRange[1],
         updateTriggers: {
           image: [axisLeftLabels, axisTopLabels],
-          bounds: [tileHeight, tileWidth],
+          bounds: [tileHeight, tileWidth, scaleRatioX, scaleRatioY],
         },
       });
     }
@@ -609,7 +646,9 @@ const Heatmap = forwardRef((props, deckRef) => {
     return layers;
   }, [uint8ObsFeatureMatrix, backlog.length, transpose, axisTopLabels, axisLeftLabels,
     paddedExpressions, matrixLeft, tileWidth, matrixTop, tileHeight, yTiles, xTiles,
-    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex]);
+    aggSizeX, aggSizeY, colormap, colormapRange, tileIteration, featureIndex,
+    scaleRatioX, scaleRatioY]);
+
   const axisLeftDashes = (transpose ? variablesDashes : observationsDashes);
   const axisTopDashes = (transpose ? observationsDashes : variablesDashes);
 
@@ -700,7 +739,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'cellColorLabelCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactorX,
+      scaleFactor,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -938,59 +977,59 @@ const Heatmap = forwardRef((props, deckRef) => {
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
-    <deck.DeckGL
-      id={`deckgl-overlay-${uuid}`}
-      ref={deckRef}
-      onWebGLInitialized={setGlContext}
-      views={[
-        // Note that there are multiple views here,
-        // but only one viewState.
-        new deck.OrthographicView({
-          id: 'heatmap',
-          controller: true,
-          x: offsetLeft,
-          y: offsetTop,
-          width: matrixWidth,
-          height: matrixHeight,
-        }),
-        new deck.OrthographicView({
-          id: 'axisLeft',
-          controller: false,
-          x: 0,
-          y: offsetTop,
-          width: axisOffsetLeft,
-          height: matrixHeight,
-        }),
-        new deck.OrthographicView({
-          id: 'axisTop',
-          controller: false,
-          x: offsetLeft,
-          y: 0,
-          width: matrixWidth,
-          height: axisOffsetTop,
-        }),
-        new deck.OrthographicView({
-          id: 'cellColorLabel',
-          controller: false,
-          x: (transpose ? 0 : axisOffsetLeft),
-          y: (transpose ? axisOffsetTop : 0),
-          width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE * numCellColorTracks),
-          height: (transpose ? COLOR_BAR_SIZE * numCellColorTracks : axisOffsetTop),
-        }),
-        ...cellColorsViews,
-      ]}
-      layers={layers}
-      layerFilter={layerFilter}
-      getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
-      glOptions={DEFAULT_GL_OPTIONS}
-      onViewStateChange={onViewStateChange}
-      viewState={viewState}
-      onHover={onHover}
-      useDevicePixels={useDevicePixels}
-      onClick={onHeatmapClick}
-      width="100%"
-      height="100%"
-    />
+      <deck.DeckGL
+        id={`deckgl-overlay-${uuid}`}
+        ref={deckRef}
+        onWebGLInitialized={setGlContext}
+        views={[
+          // Note that there are multiple views here,
+          // but only one viewState.
+          new deck.OrthographicView({
+            id: 'heatmap',
+            controller: true,
+            x: offsetLeft,
+            y: offsetTop,
+            width: matrixWidth,
+            height: matrixHeight,
+          }),
+          new deck.OrthographicView({
+            id: 'axisLeft',
+            controller: false,
+            x: 0,
+            y: offsetTop,
+            width: axisOffsetLeft,
+            height: matrixHeight,
+          }),
+          new deck.OrthographicView({
+            id: 'axisTop',
+            controller: false,
+            x: offsetLeft,
+            y: 0,
+            width: matrixWidth,
+            height: axisOffsetTop,
+          }),
+          new deck.OrthographicView({
+            id: 'cellColorLabel',
+            controller: false,
+            x: (transpose ? 0 : axisOffsetLeft),
+            y: (transpose ? axisOffsetTop : 0),
+            width: (transpose ? axisOffsetLeft : COLOR_BAR_SIZE * numCellColorTracks),
+            height: (transpose ? COLOR_BAR_SIZE * numCellColorTracks : axisOffsetTop),
+          }),
+          ...cellColorsViews,
+        ]}
+        layers={layers}
+        layerFilter={layerFilter}
+        getCursor={interactionState => (interactionState.isDragging ? 'grabbing' : cursorType)}
+        glOptions={DEFAULT_GL_OPTIONS}
+        onViewStateChange={onViewStateChange}
+        viewState={viewState}
+        onHover={onHover}
+        useDevicePixels={useDevicePixels}
+        onClick={onHeatmapClick}
+        width="100%"
+        height="100%"
+      />
     </div>
   );
 });
