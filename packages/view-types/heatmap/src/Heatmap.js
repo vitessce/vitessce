@@ -387,8 +387,8 @@ const Heatmap = forwardRef((props, deckRef) => {
       const prevZoomX = rawViewStateRef.current.zoom ?? 0;
       const prevZoomY = rawViewStateRef.current.zoomY ?? rawViewStateRef.current.zoom ?? 0;
 
-      const maxZoomX = Math.log2(matrixRightRef.current * 2);
-      const maxZoomY = Math.log2(matrixBottomRef.current * 2);
+      const maxZoomX = widthRef.current > 0 ? Math.log2(widthRef.current) : 10;
+      const maxZoomY = heightRef.current > 0 ? Math.log2(heightRef.current) : 10;
 
       // shiftKey = zoom Y only (lock X), altKey = zoom X only (lock Y)
       const nextZoomX = clamp(
@@ -432,13 +432,14 @@ const Heatmap = forwardRef((props, deckRef) => {
     const { zoom: nextZoom } = nextViewState;
     const nextScaleFactor = 2 ** nextZoom;
 
-    const minTargetX = nextZoom === 0 ? 0 : -(matrixRight - (matrixRight / nextScaleFactor));
+    const minTargetX = nextZoom === 0 ? 0
+      : -(matrixRightRef.current - (matrixRightRef.current / nextScaleFactor));
     const maxTargetX = -1 * minTargetX;
 
-    const minTargetY = nextZoom === 0 ? 0 : -(matrixBottom - (matrixBottom / nextScaleFactor));
+    const minTargetY = nextZoom === 0 ? 0
+      : -(matrixBottomRef.current - (matrixBottomRef.current / nextScaleFactor));
     const maxTargetY = -1 * minTargetY;
 
-    // Manipulate view state if necessary to keep the user in the window.
     const nextTarget = [
       clamp(nextViewState.target[0], minTargetX, maxTargetX),
       clamp(nextViewState.target[1], minTargetY, maxTargetY),
@@ -448,7 +449,6 @@ const Heatmap = forwardRef((props, deckRef) => {
     const prevZoom = rawViewStateRef.current.zoom ?? 0;
     const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
     const zoomDelta = nextZoom - prevZoom;
-    // If zoomY was independent, keep its offset relative to zoom
     const nextZoomY = Math.max(0, prevZoomY + zoomDelta);
 
     setViewState({
@@ -456,7 +456,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       zoomY: nextZoomY,
       target: (transpose ? [nextTarget[1], nextTarget[0]] : nextTarget),
     });
-  }, [matrixRight, matrixBottom, transpose, setViewState]);
+  }, [transpose, setViewState]);
 
   // If `expression` or `cellOrdering` have changed,
   // then new tiles need to be generated,
