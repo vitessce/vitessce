@@ -149,6 +149,15 @@ const Heatmap = forwardRef((props, deckRef) => {
   const [numCellColorTracks, setNumCellColorTracks] = useState([]);
   const [cursorType, setCursorType] = useState('default');
 
+  const axisTopLabelsRef = useRef(axisTopLabels);
+  const axisLeftLabelsRef = useRef(axisLeftLabels);
+
+  useEffect(() => {
+    axisTopLabelsRef.current = axisTopLabels;
+    axisLeftLabelsRef.current = axisLeftLabels;
+  }, [axisTopLabels, axisLeftLabels]);
+
+
   // Ref to the container div for intercepting wheel events for axis-locked zoom.
   const containerRef = useRef(null);
   // Ref to track the latest rawViewState without causing effect re-runs.
@@ -348,9 +357,11 @@ const Heatmap = forwardRef((props, deckRef) => {
       uuid,
       projectFromId: (cellId, geneId) => {
         const colI = transpose
-          ? axisTopLabels.indexOf(cellId) : axisTopLabels.indexOf(geneId);
+          ? axisTopLabelsRef.current.indexOf(cellId)
+          : axisTopLabelsRef.current.indexOf(geneId);
         const rowI = transpose
-          ? axisLeftLabels.indexOf(geneId) : axisLeftLabels.indexOf(cellId);
+          ? axisLeftLabelsRef.current.indexOf(geneId)
+          : axisLeftLabelsRef.current.indexOf(cellId);
         return heatmapToMousePosition(colI, rowI, {
           offsetLeft: offsetLeftRef.current,
           offsetTop: offsetTopRef.current,
@@ -366,7 +377,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         });
       },
     });
-  }, [uuid, transpose, axisTopLabels, axisLeftLabels]); // only label changes trigger this
+  }, [uuid, transpose]); // only label changes trigger this
 
   // Intercept wheel events on the container to support axis-locked zoom
   // via Shift (Y-axis zoom only) or Alt (X-axis zoom only).
@@ -449,6 +460,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     const prevZoom = rawViewStateRef.current.zoom ?? 0;
     const prevZoomY = rawViewStateRef.current.zoomY ?? prevZoom;
     const zoomDelta = nextZoom - prevZoom;
+    // If zoomY was independent, keep its offset relative to zoom
     const nextZoomY = Math.max(0, prevZoomY + zoomDelta);
 
     setViewState({
@@ -684,7 +696,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'axisLeftCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorY,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -711,7 +723,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'axisTopCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorX,
       axisLeftLabelData,
       matrixTop,
       height,
@@ -739,7 +751,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       id: 'cellColorLabelCompositeTextLayer',
       targetX,
       targetY,
-      scaleFactor,
+      scaleFactor: scaleFactorX,
       axisLeftLabelData,
       matrixTop,
       height,
