@@ -5,5 +5,5 @@
     "outDir": "dist-tsc",
     "rootDir": "src"
   },
-  "include": ["src"]
+  "include": ["src", "../../utils/image-utils/src/WrappedTiffPixelSource.js"]
 }

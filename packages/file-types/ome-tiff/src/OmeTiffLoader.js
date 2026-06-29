@@ -4,11 +4,11 @@ import {
   coordinateTransformationsToMatrix,
   getNgffAxesForTiff,
 } from '@vitessce/spatial-utils';
-import { ImageWrapper } from '@vitessce/image-utils';
+import { ImageWrapper, createWrappedPixelSource } from '@vitessce/image-utils';
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
 import { CoordinationLevel as CL } from '@vitessce/config';
 import { getDebugMode, log } from '@vitessce/globals';
-import { createWrappedTiffPixelSource } from './WrappedTiffPixelSource.js';
+
 
 const OFFSETS_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#ome-tiff-offsets';
 const PYRAMID_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#multi-resolution-pyramidal-representation';
@@ -35,7 +35,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     const loader = await viv.loadOmeTiff(url, { offsets, headers: requestInit?.headers });
     if (this.queryClient) {
       loader.data = loader.data.map(
-        pixelSource => createWrappedTiffPixelSource(pixelSource, this.queryClient),
+        pixelSource => createWrappedPixelSource(pixelSource, this.queryClient),
       );
     }
     const imageWrapper = new ImageWrapper(loader, this.options);

@@ -1,9 +1,9 @@
 import { TileFetchingQueryKeys } from '@vitessce/constants-internal';
 /**
- * Wraps a TiffPixelSource to route getTile through queryClient.fetchQuery,
+ * Wraps a pixelSource to route getTile through queryClient.fetchQuery,
  * enabling React Query to track image tile loading state via useIsFetching.
  */
-export function createWrappedTiffPixelSource(pixelSource, queryClient) {
+export function createWrappedPixelSource(pixelSource, queryClient) {
   // Proxy to intercept getTile calls and route them through React Query,
   // enabling useIsFetching to track tile loading state.
   return new Proxy(pixelSource, {
@@ -15,7 +15,8 @@ export function createWrappedTiffPixelSource(pixelSource, queryClient) {
             TileFetchingQueryKeys.TILE_QUERY_KEY_TYPE,
             x,
             y,
-            selection],
+            selection,
+          ],
           queryFn: () => target.getTile({ x, y, selection, signal }),
           gcTime: 0,
           staleTime: Infinity,
