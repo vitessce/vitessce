@@ -64,6 +64,7 @@ export default function FeatureList(props) {
         key => searchResults.includes(key),
       );
 
+
       const newSelection = enableMultiSelect ? (
         [...selectedHiddenKeys, ...selectedVisibleKeys]
           .filter(Boolean)
@@ -88,7 +89,6 @@ export default function FeatureList(props) {
             || featureLabelsMap?.get(cleanFeatureId(gene))
             || gene
           ),
-          value: (geneSelection ? geneSelection.includes(gene) : false),
         }),
       );
 
@@ -100,7 +100,7 @@ export default function FeatureList(props) {
 
     return preSortedData;
   }, [featureListSort, selectableTableSortKey, searchResults,
-    geneFilter, featureLabelsMap, geneSelection,
+    geneFilter, featureLabelsMap,
   ]);
 
   const handleChange = (event) => {
@@ -135,7 +135,7 @@ export default function FeatureList(props) {
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
-        valueKey="value"
+        selectedIds={geneSelection}
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
