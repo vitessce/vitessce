@@ -8,6 +8,7 @@ import {
 } from '@vitessce/spatial-utils';
 import {
   ImageWrapper,
+  createWrappedPixelSource,
 } from '@vitessce/image-utils';
 import {
   LoaderResult,
@@ -30,6 +31,10 @@ export default class OmeZarrLoader extends AbstractTwoStepLoader {
     // Loader sub-classes may override this.storeRoot in their constructor
     // if their OME-Zarr image is not at the root of the store.
     const loader = await loadOmeZarr(this.storeRoot);
+    // Wrap pixel sources to route tile fetches through React Query
+    if (this.queryClient && loader.data) {
+      loader.data = loader.data.map(ps => createWrappedPixelSource(ps, this.queryClient));
+    }
     const imageWrapper = new ImageWrapper(loader, this.options);
 
     const { metadata, data } = loader;
