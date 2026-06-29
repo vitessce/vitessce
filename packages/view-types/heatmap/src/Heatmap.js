@@ -369,33 +369,33 @@ const Heatmap = forwardRef((props, deckRef) => {
     registrationTimerRef.current = setTimeout(() => {
       updateViewInfoRef.current({
         uuid,
-      projectFromId: (cellId, geneId) => {
-        const colI = transpose
-          ? axisTopLabelsRef.current.indexOf(cellId)
-          : axisTopLabelsRef.current.indexOf(geneId);
-        const rowI = transpose
-          ? axisLeftLabelsRef.current.indexOf(geneId)
-          : axisLeftLabelsRef.current.indexOf(cellId);
-        if (colI < 0 && rowI < 0) return null;
-        return heatmapToMousePosition(
-          colI < 0 ? 0 : colI,
-          rowI < 0 ? 0 : rowI,
-          {
-            offsetLeft,
-            offsetTop,
-            targetX: rawViewStateRef.current.target?.[0] ?? 0,
-            targetY: rawViewStateRef.current.target?.[1] ?? 0,
-            scaleFactorX: 2 ** (rawViewStateRef.current.zoom ?? 0),
-            scaleFactorY: 2 ** (rawViewStateRef.current.zoomY
+        projectFromId: (cellId, geneId) => {
+          const colI = transpose
+            ? axisTopLabelsRef.current.indexOf(cellId)
+            : axisTopLabelsRef.current.indexOf(geneId);
+          const rowI = transpose
+            ? axisLeftLabelsRef.current.indexOf(geneId)
+            : axisLeftLabelsRef.current.indexOf(cellId);
+          if (colI < 0 && rowI < 0) return null;
+          return heatmapToMousePosition(
+            colI < 0 ? 0 : colI,
+            rowI < 0 ? 0 : rowI,
+            {
+              offsetLeft,
+              offsetTop,
+              targetX: rawViewStateRef.current.target?.[0] ?? 0,
+              targetY: rawViewStateRef.current.target?.[1] ?? 0,
+              scaleFactorX: 2 ** (rawViewStateRef.current.zoom ?? 0),
+              scaleFactorY: 2 ** (rawViewStateRef.current.zoomY
               ?? rawViewStateRef.current.zoom ?? 0),
-            matrixWidth,
-            matrixHeight,
-            numRows: height,
-            numCols: width,
-          },
-        );
-      },
-    });
+              matrixWidth,
+              matrixHeight,
+              numRows: height,
+              numCols: width,
+            },
+          );
+        },
+      });
     });
   }, [uuid, transpose, axisTopLabels, axisLeftLabels,
     offsetLeft, offsetTop, matrixWidth, matrixHeight, height, width]);
