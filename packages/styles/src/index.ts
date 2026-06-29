@@ -122,6 +122,9 @@ export { default as Warning } from '@mui/icons-material/Warning';
 export { default as Palette } from '@mui/icons-material/Palette';
 export { default as ClearIcon } from '@mui/icons-material/Clear';
 
+// General styles
+export { alpha } from '@mui/material/styles';
+
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';
 

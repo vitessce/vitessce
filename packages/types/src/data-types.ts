@@ -121,6 +121,7 @@ export type LoaderParams = {
   requestInit?: RequestInit,
   options?: any,
   coordinationValues?: { [key: string]: any },
+  queryClient?: any,
 };
 
 /*

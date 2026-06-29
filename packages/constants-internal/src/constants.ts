@@ -421,3 +421,9 @@ export const ViewHelpMapping = {
   SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
 };
+
+
+export const TileFetchingQueryKeys = {
+  TILE_QUERY_KEY_PREFIX: 'imagePixelSource',
+  TILE_QUERY_KEY_TYPE: 'tileRequest',
+};

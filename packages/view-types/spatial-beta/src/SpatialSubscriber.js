@@ -36,15 +36,19 @@ import {
   useGridItemSize,
   useAuxiliaryCoordination,
 } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
+
+import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, TileFetchingQueryKeys } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
+import { useIsFetching } from '@tanstack/react-query';
+import { Chip, makeStyles, alpha } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+
 import {
   useAggregatedNormalizedExpressionDataForLayers,
   useAggregatedNormalizedExpressionDataForChannels,
@@ -122,6 +126,21 @@ function getHoverData(hoverInfo, layerType) {
   return null;
 }
 
+const useStyles = makeStyles()(({ palette }) => ({
+  tileLoadingIndicator: {
+    position: 'absolute',
+    bottom: '12px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    pointerEvents: 'none',
+    zIndex: 100,
+    backgroundColor: alpha(palette.background.paper, 0.8),
+    color: palette.text.primary,
+    padding: '15px 20px',
+  },
+}));
+
+
 /**
  * A subscriber component for the spatial plot.
  * @param {object} props
@@ -150,6 +169,7 @@ export function SpatialSubscriber(props) {
     accelerated: acceleratedFor3d = false,
   } = props;
 
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
@@ -891,6 +911,10 @@ export function SpatialSubscriber(props) {
     }
   };
 
+  const isTilesFetching = useIsFetching({
+    queryKey: [TileFetchingQueryKeys.TILE_QUERY_KEY_PREFIX, TileFetchingQueryKeys.TILE_QUERY_KEY_TYPE],
+  });
+
   return (
     <TitleInfo
       title={title}
@@ -904,6 +928,15 @@ export function SpatialSubscriber(props) {
       isReady={isReady}
       errors={errors}
     >
+      {isTilesFetching > 0 ? (
+        <Chip
+          label="Loading image tiles..."
+          size="small"
+          color="primary"
+          className={classes.tileLoadingIndicator}
+        />
+
+      ) : null}
       {
         shouldUseThree ? (
           acceleratedFor3d ? (
