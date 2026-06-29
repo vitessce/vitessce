@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@vitessce/types": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
