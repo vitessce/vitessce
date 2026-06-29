@@ -152,6 +152,10 @@ const Heatmap = forwardRef((props, deckRef) => {
   const axisTopLabelsRef = useRef(axisTopLabels);
   const axisLeftLabelsRef = useRef(axisLeftLabels);
 
+  const viewInfoRegisteredRef = useRef(false);
+  const prevGeometryRef = useRef(null);
+  const registrationTimerRef = useRef(null);
+
   useEffect(() => {
     axisTopLabelsRef.current = axisTopLabels;
     axisLeftLabelsRef.current = axisLeftLabels;
@@ -332,29 +336,39 @@ const Heatmap = forwardRef((props, deckRef) => {
     updateViewInfoRef.current = updateViewInfo;
   }, [updateViewInfo]);
 
-  const offsetLeftRef = useRef(offsetLeft);
-  const offsetTopRef = useRef(offsetTop);
-  const matrixWidthRef = useRef(matrixWidth);
-  const matrixHeightRef = useRef(matrixHeight);
   const heightRef = useRef(height);
   const widthRef = useRef(width);
 
   useEffect(() => {
-    offsetLeftRef.current = offsetLeft;
-    offsetTopRef.current = offsetTop;
-    matrixWidthRef.current = matrixWidth;
-    matrixHeightRef.current = matrixHeight;
     heightRef.current = height;
     widthRef.current = width;
-  }, [offsetLeft, offsetTop, matrixWidth, matrixHeight, height, width]);
+  }, [height, width]);
 
 
-  // Emit the viewInfo object on viewState updates
-  // (used by tooltips / crosshair elements).
+  // Re-register projectFromId when layout geometry or labels change, gated by isEqual to prevent
+  // re-firing on zoom re-renders where geometry is unchanged.
   useEffect(() => {
     if (!axisTopLabels.length || !axisLeftLabels.length) return;
-    updateViewInfoRef.current({
-      uuid,
+    if (!matrixWidth || !matrixHeight || !height || !width) return;
+
+    // Only re-register if geometry actually changed
+    const geometry = {
+      offsetLeft: Math.round(offsetLeft),
+      offsetTop: Math.round(offsetTop),
+      matrixWidth: Math.round(matrixWidth),
+      matrixHeight: Math.round(matrixHeight),
+      height,
+      width,
+    };
+    if (isEqual(prevGeometryRef.current, geometry) && viewInfoRegisteredRef.current) return;
+    prevGeometryRef.current = geometry;
+    viewInfoRegisteredRef.current = true;
+
+    // Debounce to avoid firing during rapid zoom while tooltip is visible
+    clearTimeout(registrationTimerRef.current);
+    registrationTimerRef.current = setTimeout(() => {
+      updateViewInfoRef.current({
+        uuid,
       projectFromId: (cellId, geneId) => {
         const colI = transpose
           ? axisTopLabelsRef.current.indexOf(cellId)
@@ -362,22 +376,29 @@ const Heatmap = forwardRef((props, deckRef) => {
         const rowI = transpose
           ? axisLeftLabelsRef.current.indexOf(geneId)
           : axisLeftLabelsRef.current.indexOf(cellId);
-        return heatmapToMousePosition(colI, rowI, {
-          offsetLeft: offsetLeftRef.current,
-          offsetTop: offsetTopRef.current,
-          targetX: rawViewStateRef.current.target?.[0] ?? 0,
-          targetY: rawViewStateRef.current.target?.[1] ?? 0,
-          scaleFactorX: 2 ** (rawViewStateRef.current.zoom ?? 0),
-          scaleFactorY: 2 ** (rawViewStateRef.current.zoomY
-            ?? rawViewStateRef.current.zoom ?? 0),
-          matrixWidth: matrixWidthRef.current,
-          matrixHeight: matrixHeightRef.current,
-          numRows: heightRef.current,
-          numCols: widthRef.current,
-        });
+        if (colI < 0 && rowI < 0) return null;
+        return heatmapToMousePosition(
+          colI < 0 ? 0 : colI,
+          rowI < 0 ? 0 : rowI,
+          {
+            offsetLeft,
+            offsetTop,
+            targetX: rawViewStateRef.current.target?.[0] ?? 0,
+            targetY: rawViewStateRef.current.target?.[1] ?? 0,
+            scaleFactorX: 2 ** (rawViewStateRef.current.zoom ?? 0),
+            scaleFactorY: 2 ** (rawViewStateRef.current.zoomY
+              ?? rawViewStateRef.current.zoom ?? 0),
+            matrixWidth,
+            matrixHeight,
+            numRows: height,
+            numCols: width,
+          },
+        );
       },
     });
-  }, [uuid, transpose]); // only label changes trigger this
+    });
+  }, [uuid, transpose, axisTopLabels, axisLeftLabels,
+    offsetLeft, offsetTop, matrixWidth, matrixHeight, height, width]);
 
   // Intercept wheel events on the container to support axis-locked zoom
   // via Shift (Y-axis zoom only) or Alt (X-axis zoom only).
