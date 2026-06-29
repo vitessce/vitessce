@@ -49,6 +49,7 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   useExpandedFeatureLabelsMap,
+  useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import {
   setObsSelection,
@@ -60,6 +61,7 @@ import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
+import { createPreviewLayer } from '@vitessce/gl';
 import { Typography, makeStyles } from '@vitessce/styles';
 
 const useStyles = makeStyles()(() => ({
@@ -154,7 +156,11 @@ export function SpatialSubscriber(props) {
     annotationOverlayVisible,
     annotationTransitionDuration,
     annotationDiverged,
+    annotationActiveTool,
+    annotationCaptureViewStateTrigger,
+    annotationSelectedShapeUid,
   }, {
+    setAnnotationFrames,
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
     setSpatialTargetY: setTargetY,
@@ -273,20 +279,27 @@ export function SpatialSubscriber(props) {
   // spatialPointLayer and spatialNeighborhoodLayer are handled here (not via the
   // annotation controller) to avoid the scope initialization conflict that occurs
   // when a controller subscribes to a type set dynamically by a data hook.
+
+  // Sync frames into a ref so the frame-apply effect reads the latest frames
+  // without listing annotationFrames as a dep — which would cause the effect to
+  // fire (and reset zoom) whenever a shape is added or view-state is captured.
+  const annotationFramesRef = useRef(annotationFrames);
+  annotationFramesRef.current = annotationFrames;
+
   const spatialDefaultsRef = useRef(null);
 
   useEffect(() => {
-    if (!annotationFrames) return;
+    const frames = annotationFramesRef.current;
+    if (!frames) return;
 
-    // Exit story: restore the pre-story baseline (captured before frame 0 was applied).
-    // The animation is already signalled by annotationTransitionDuration being set to 800
-    // by the controller in the same batch as setting frameIndex → null.
+    // Exit story: restore the pre-story baseline.
     if (annotationFrameIndex === null) {
       const d = spatialDefaultsRef.current;
       if (!d) return;
       if (d.spatialZoom != null) setZoom(d.spatialZoom);
       if (d.spatialTargetX != null) setTargetX(d.spatialTargetX);
       if (d.spatialTargetY != null) setTargetY(d.spatialTargetY);
+      if (d.spatialTargetZ != null) setTargetZ(d.spatialTargetZ);
       if (d.spatialImageLayer !== undefined) setRasterLayers(d.spatialImageLayer);
       if (d.spatialSegmentationLayer !== undefined) setCellsLayer(d.spatialSegmentationLayer);
       if (d.spatialPointLayer !== undefined) setMoleculesLayer(d.spatialPointLayer);
@@ -294,9 +307,12 @@ export function SpatialSubscriber(props) {
       return;
     }
 
-    const frame = annotationFrames[annotationFrameIndex];
+    const frame = frames[annotationFrameIndex];
 
     // Capture spatial baseline once, just before the first frame mutates anything.
+    // Uses closure values (zoom, targetX, …) — only needed once and zoom/pan must
+    // NOT be listed as deps (that would snap the view back on every pan/zoom).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (spatialDefaultsRef.current === null) {
       spatialDefaultsRef.current = {
         spatialZoom: zoom, spatialTargetX: targetX,
@@ -310,18 +326,19 @@ export function SpatialSubscriber(props) {
     const d = spatialDefaultsRef.current;
 
     // Find per-view entry: targetView === 'spatial'.
-    // For multiple spatial views, add targetCoordinationValues matching here.
     const viewStateEntry = (frame?.viewStates ?? []).find(
       e => e.targetView === 'spatial',
     );
     // Fall back to flat viewState (backward compat)
     const vs = viewStateEntry ?? frame?.viewState ?? {};
 
+    // Apply frame value if set, otherwise fall back to pre-story baseline.
+    // This is safe now that annotationFrames is no longer a dep: the effect only
+    // fires on navigation / recenter, never on shape-add or capture.
     const applyVal = (setter, key) => {
       const v = vs[key] !== undefined ? vs[key] : d?.[key];
       if (v !== undefined) setter(v);
     };
-
     applyVal(setZoom, 'spatialZoom');
     applyVal(setTargetX, 'spatialTargetX');
     applyVal(setTargetY, 'spatialTargetY');
@@ -338,10 +355,9 @@ export function SpatialSubscriber(props) {
       setRasterLayers(d.spatialImageLayer);
     }
   }, [
-    annotationFrameIndex, annotationFrames,
-    // annotationTransitionDuration is included so that Recenter (which sets
-    // it to 800 without changing annotationFrameIndex) still triggers this
-    // effect and re-applies the stored viewState.
+    annotationFrameIndex,
+    // annotationTransitionDuration: included so Recenter (which sets it to 800
+    // without changing annotationFrameIndex) still triggers re-apply.
     annotationTransitionDuration,
     setZoom, setTargetX, setTargetY, setTargetZ,
     setRasterLayers, setCellsLayer, setMoleculesLayer, setNeighborhoodsLayer,
@@ -357,6 +373,142 @@ export function SpatialSubscriber(props) {
       return !s.targetView || s.targetView === 'spatial';
     });
   }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex]);
+
+  // ── Annotation drawing state ─────────────────────────────────────────────
+  const [drawingVertices, setDrawingVertices] = useState([]);
+  const [drawHoverCoord, setDrawHoverCoord] = useState(null);
+
+  const appendAnnotationShape = useCallback((newShape) => {
+    if (!annotationFrames || annotationFrameIndex === null) return;
+    const updated = annotationFrames.map((f, idx) => (
+      idx === annotationFrameIndex
+        ? { ...f, shapes: [...(f.shapes ?? []), newShape] }
+        : f
+    ));
+    setAnnotationFrames(updated);
+  }, [annotationFrames, annotationFrameIndex, setAnnotationFrames]);
+
+  const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
+  const lastAnnotationClickTimeRef = React.useRef(0);
+  const DOUBLE_CLICK_MS = 350;
+
+  const handleAnnotationClick = useCallback((coord) => {
+    if (!annotationActiveTool || annotationFrameIndex === null) return;
+    const tool = annotationActiveTool;
+
+    if (TWO_CLICK_TOOLS.includes(tool)) {
+      if (drawingVertices.length === 0) {
+        setDrawingVertices([coord]);
+      } else {
+        const [ax, ay] = drawingVertices[0];
+        const [bx, by] = coord;
+        const uid = crypto.randomUUID();
+        let shape;
+        if (tool === 'rectangle') {
+          shape = { uid, type: 'rectangle', x: Math.min(ax, bx), y: Math.min(ay, by), width: Math.abs(bx - ax), height: Math.abs(by - ay) };
+        } else if (tool === 'line') {
+          shape = { uid, type: 'line', x1: ax, y1: ay, x2: bx, y2: by };
+        } else {
+          shape = { uid, type: 'ellipse', x1: ax, y1: ay, radiusX: Math.abs(bx - ax), radiusY: Math.abs(by - ay) };
+        }
+        appendAnnotationShape(shape);
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    } else {
+      // Multi-click tool: detect rapid successive clicks as a finish gesture.
+      // Check timing BEFORE adding the vertex — if this click is within DOUBLE_CLICK_MS
+      // of the previous one and we already have enough vertices, finish without adding this point.
+      const now = Date.now();
+      const elapsed = now - lastAnnotationClickTimeRef.current;
+      lastAnnotationClickTimeRef.current = now;
+      const minVerts = tool === 'polygon' ? 3 : 2;
+      if (elapsed < DOUBLE_CLICK_MS && drawingVertices.length >= minVerts) {
+        const uid = crypto.randomUUID();
+        appendAnnotationShape({ uid, type: tool, points: drawingVertices });
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+        return;
+      }
+      setDrawingVertices(prev => [...prev, coord]);
+    }
+  }, [annotationActiveTool, annotationFrameIndex, drawingVertices, appendAnnotationShape]);
+
+  const finishMultiClickShape = useCallback(() => {
+    const tool = annotationActiveTool;
+    if (!tool || TWO_CLICK_TOOLS.includes(tool)) return;
+    const minVerts = tool === 'polygon' ? 3 : 2;
+    if (drawingVertices.length < minVerts) return;
+    const uid = crypto.randomUUID();
+    appendAnnotationShape({ uid, type: tool, points: drawingVertices });
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool, drawingVertices, appendAnnotationShape]);
+
+
+  // Reset drawing state when tool changes
+  useEffect(() => {
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool]);
+
+  // Keyboard: Enter to finish polygon/polyline, Escape to cancel.
+  // Double-click: also finishes — but two single-click events fire first via deck.gl,
+  // adding an extra vertex, so we trim it before finishing.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Enter') finishMultiClickShape();
+      if (e.key === 'Escape') {
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [finishMultiClickShape]);
+
+
+  const inProgress = annotationActiveTool && drawingVertices.length > 0
+    ? { type: annotationActiveTool, vertices: drawingVertices }
+    : null;
+  const annotationPreviewLayer = createPreviewLayer(inProgress, drawHoverCoord);
+
+  // ── View state capture (triggered by AnnotationController) ───────────────
+  const storeApi = useViewConfigStoreApi();
+  const spatialViewStateRef = useRef(null);
+  useEffect(() => {
+    spatialViewStateRef.current = { zoom, targetX, targetY, targetZ, imageLayers, cellsLayer, moleculesLayer, neighborhoodsLayer };
+  });
+  useEffect(() => {
+    if (!annotationCaptureViewStateTrigger || annotationFrameIndex === null) return;
+    const s = spatialViewStateRef.current;
+    if (!s) return;
+    // Read live frames from the store rather than the stale React-state closure,
+    // so that sequential writes from sibling subscribers don't overwrite each other.
+    const scope = coordinationScopes.annotationFrames;
+    const currentFrames = storeApi.getState().viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
+    const entry = {
+      targetView: 'spatial',
+      spatialZoom: s.zoom,
+      spatialTargetX: s.targetX,
+      spatialTargetY: s.targetY,
+      spatialTargetZ: s.targetZ,
+      spatialImageLayer: s.imageLayers,
+      spatialSegmentationLayer: s.cellsLayer,
+      spatialPointLayer: s.moleculesLayer,
+    };
+    setAnnotationFrames(currentFrames.map((f, idx) => {
+      if (idx !== annotationFrameIndex) return f;
+      const filtered = (f.viewStates ?? []).filter(e => e.targetView !== 'spatial');
+      return { ...f, viewStates: [...filtered, entry] };
+    }));
+  // annotationFrameIndex is intentionally excluded from deps: the trigger only
+  // increments on a user click (fresh render → closure is current). Including it
+  // would re-fire the capture on every navigation, silently overwriting the
+  // destination frame's view state with the source frame's zoom.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationCaptureViewStateTrigger]);
+  // ── End view state capture ────────────────────────────────────────────────
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
@@ -631,8 +783,13 @@ export function SpatialSubscriber(props) {
   const [hoverCoords, setHoverCoords] = useState(null);
   const onCoordHover = useCallback((coord) => {
     if (coordinatesVisible) setHoverCoords(coord);
-  }, [coordinatesVisible]);
+    if (annotationActiveTool) setDrawHoverCoord(coord);
+  }, [coordinatesVisible, annotationActiveTool]);
   const onCoordClick = useCallback((coord) => {
+    if (annotationActiveTool) {
+      handleAnnotationClick(coord);
+      return;
+    }
     if (logClickCoords) {
       // eslint-disable-next-line no-console
       console.log(
@@ -642,7 +799,7 @@ export function SpatialSubscriber(props) {
         + `  center: x=${targetX?.toFixed(2) ?? 'null'}, y=${targetY?.toFixed(2) ?? 'null'}`,
       );
     }
-  }, [logClickCoords, zoom, targetX, targetY]);
+  }, [annotationActiveTool, handleAnnotationClick, logClickCoords, zoom, targetX, targetY]);
 
   const [hoverData, setHoverData] = useState(null);
   const [hoverCoord, setHoverCoord] = useState(null);
@@ -924,6 +1081,9 @@ export function SpatialSubscriber(props) {
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
         annotationShapes={activeShapes}
+        annotationActiveTool={annotationActiveTool}
+        annotationPreviewLayer={annotationPreviewLayer}
+        annotationSelectedShapeUid={annotationSelectedShapeUid}
         onCoordHover={onCoordHover}
         onCoordClick={onCoordClick}
       />

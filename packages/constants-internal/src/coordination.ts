@@ -138,6 +138,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -259,6 +262,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -678,12 +684,15 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_DIVERGED,
     CoordinationType.ANNOTATION_DESCRIPTION,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
     // Cross-view state (shared across all views, not per-view)
-    // Zoom/pan/layers are now applied by each view subscriber directly
-    // via the viewStates[] array in each frame, not by the controller.
     CoordinationType.FEATURE_SELECTION,
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.OBS_SET_SELECTION,
+    // Trigger that tells each view subscriber to capture its own current view state
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    // Currently-selected shape UID in the editor panel (for canvas highlight)
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [

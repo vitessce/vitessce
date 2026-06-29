@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeArrowhead, createAnnotationLayers } from './annotation-layer-utils.js';
+import { computeArrowhead, createAnnotationLayers, createPreviewLayer } from './annotation-layer-utils.js';
 
 describe('computeArrowhead', () => {
   it('returns null for a zero-length direction vector', () => {
@@ -111,6 +111,44 @@ describe('createAnnotationLayers', () => {
     const shapes = [{ uid: 'r5', type: 'rectangle', x: 0, y: 0, width: 10, height: 10, strokeDashArray: '10 20 30 10' }];
     const layers = createAnnotationLayers(shapes, 0);
     expect(layers[0].props.getDashArray).toEqual([10, 20]);
+  });
+
+  it('returns null when no vertices', () => {
+    expect(createPreviewLayer({ type: 'rectangle', vertices: [] }, [5, 5])).toBeNull();
+  });
+
+  it('returns null when inProgress is null', () => {
+    expect(createPreviewLayer(null, [5, 5])).toBeNull();
+  });
+
+  it('returns a PathLayer preview for rectangle with one vertex + hover', () => {
+    const layer = createPreviewLayer({ type: 'rectangle', vertices: [[0, 0]] }, [10, 10]);
+    expect(layer).not.toBeNull();
+    expect(layer.props.data[0].path).toHaveLength(5); // 4 corners + close
+  });
+
+  it('returns a PathLayer preview for line with one vertex + hover', () => {
+    const layer = createPreviewLayer({ type: 'line', vertices: [[0, 0]] }, [10, 5]);
+    expect(layer).not.toBeNull();
+    expect(layer.props.data[0].path).toHaveLength(2);
+  });
+
+  it('returns a PathLayer for polygon preview that closes back to start', () => {
+    const layer = createPreviewLayer({ type: 'polygon', vertices: [[0,0],[10,0],[5,10]] }, [3, 3]);
+    expect(layer).not.toBeNull();
+    const path = layer.props.data[0].path;
+    // vertices + cursor + close = 3 + 1 + 1 = 5
+    expect(path).toHaveLength(5);
+    // Last point closes to first vertex
+    expect(path[path.length - 1]).toEqual([0, 0]);
+  });
+
+  it('returns a PathLayer for polyline preview without closing', () => {
+    const layer = createPreviewLayer({ type: 'polyline', vertices: [[0,0],[10,0]] }, [15, 5]);
+    expect(layer).not.toBeNull();
+    const path = layer.props.data[0].path;
+    // vertices + cursor = 2 + 1 = 3 (no close)
+    expect(path).toHaveLength(3);
   });
 
   it('scales arrowhead size with zoom (larger at negative zoom)', () => {

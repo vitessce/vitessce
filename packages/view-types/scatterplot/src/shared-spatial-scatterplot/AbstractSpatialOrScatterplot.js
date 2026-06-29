@@ -269,6 +269,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
     } = this.props;
     const { gl, tool } = this.state;
+    const { annotationActiveTool } = this.props;
+    const isMultiClickAnnotation = annotationActiveTool === 'polygon' || annotationActiveTool === 'polyline';
     const layers = this.getLayers();
     const use3d = this.use3d();
 
@@ -316,7 +318,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? { dragPan: false } : true}
+          controller={tool
+            ? { dragPan: false, doubleClickZoom: false }
+            : (isMultiClickAnnotation ? { doubleClickZoom: false } : true)}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
           onClick={(info) => {

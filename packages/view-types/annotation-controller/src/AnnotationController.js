@@ -1,17 +1,74 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   makeStyles,
   IconButton,
   Button,
   Slider,
+  TextField,
+  Tooltip,
   ArrowLeft,
   ArrowRight,
+  ArrowDropUp,
+  ArrowDropDown,
   CenterFocusStrong,
   Visibility,
   VisibilityOff,
-  Stop,
+  Close,
   MenuBook,
+  Edit,
+  Add,
+  RemoveCircle,
+  CloudDownload,
+  ContentCopy,
+  Check,
+  Code,
 } from '@vitessce/styles';
+
+const TOOLS = [
+  { key: 'rectangle', label: 'Rect' },
+  { key: 'line', label: 'Line' },
+  { key: 'ellipse', label: 'Ellipse' },
+  { key: 'polygon', label: 'Poly' },
+  { key: 'polyline', label: 'Path' },
+];
+
+function rgbToHex(rgb) {
+  if (!rgb || rgb.length < 3) return '#ffffff';
+  return `#${rgb.slice(0, 3).map(c => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function hexToRgb(hex) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [255, 255, 255];
+}
+
+const DASH_OPTIONS = [
+  { key: null, label: 'Solid' },
+  { key: '8 4', label: 'Dash' },
+  { key: '2 4', label: 'Dot' },
+];
+
+function ShapeIcon({ type, size = 13 }) {
+  const s = size;
+  const sw = 1.5;
+  const c = 'currentColor';
+  if (type === 'rectangle') return (
+    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" stroke={c} strokeWidth={sw} /></svg>
+  );
+  if (type === 'line') return (
+    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><line x1="1.5" y1="11.5" x2="11.5" y2="1.5" stroke={c} strokeWidth={sw} strokeLinecap="round" /><polygon points="11.5,1.5 8.5,2.5 10.5,4.5" fill={c} /></svg>
+  );
+  if (type === 'ellipse') return (
+    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><ellipse cx="6.5" cy="6.5" rx="5" ry="3" stroke={c} strokeWidth={sw} /></svg>
+  );
+  if (type === 'polygon') return (
+    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polygon points="6.5,1 11.5,4.5 9.5,11 3.5,11 1.5,4.5" stroke={c} strokeWidth={sw} fill="none" /></svg>
+  );
+  if (type === 'polyline') return (
+    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polyline points="1.5,10.5 4,5 7,8.5 10,3 12,6" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+  );
+  return null;
+}
 
 const useStyles = makeStyles()(theme => ({
   root: {
@@ -24,106 +81,159 @@ const useStyles = makeStyles()(theme => ({
     overflow: 'hidden',
     boxSizing: 'border-box',
   },
+  enterTopBar: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '4px 6px',
+    flexShrink: 0,
+  },
+  enterEditBtn: {
+    opacity: 0.4,
+    '&:hover': { opacity: 0.9 },
+  },
   enterScreen: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    padding: 16,
+    gap: 10,
+    padding: '0 28px 24px',
     textAlign: 'center',
   },
-  enterHint: {
-    fontSize: '0.8rem',
-    opacity: 0.6,
-    lineHeight: 1.4,
+  enterIcon: {
+    opacity: 0.18,
+    lineHeight: 1,
+    marginBottom: 4,
   },
-  controls: {
+  enterLabel: {
+    fontSize: '0.6rem',
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    opacity: 0.35,
+  },
+  enterCount: {
+    fontSize: '1.6rem',
+    fontWeight: 300,
+    letterSpacing: '0.01em',
+    lineHeight: 1.1,
+    opacity: 0.85,
+  },
+  enterHint: {
+    fontSize: '0.75rem',
+    opacity: 0.45,
+    lineHeight: 1.6,
+    marginTop: 2,
+  },
+  enterBeginBtn: {
+    marginTop: 12,
+    padding: '9px 32px',
+    fontSize: '0.9rem',
+    letterSpacing: '0.04em',
+  },
+  // ── Play mode header ──────────────────────────────────────────────────────
+  playHeader: {
     display: 'flex',
-    flexDirection: 'column',
-    padding: '4px 12px 0',
+    alignItems: 'center',
+    padding: '2px 4px',
+    borderBottom: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
   },
-  sliderRow: {
+  playHeaderCenter: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: '0.7rem',
+    opacity: 0.45,
+    letterSpacing: '0.05em',
+    userSelect: 'none',
+  },
+  playExitBtn: {
+    opacity: 0.5,
+    '&:hover': { opacity: 1 },
+  },
+  playEditBtn: {
+    opacity: 0.5,
+    '&:hover': { opacity: 1 },
+  },
+  // ── Play mode nav ─────────────────────────────────────────────────────────
+  navRow: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '4px 6px 2px',
+    gap: 2,
+    flexShrink: 0,
+  },
+  navSlider: {
+    flex: 1,
     padding: '0 4px',
   },
-  buttonRow: {
+  utilityRow: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '4px',
-    marginBottom: '4px',
+    gap: 2,
+    padding: '0 8px 6px',
+    flexShrink: 0,
   },
-  exitBtn: {
-    marginLeft: 'auto',
+  divergedChip: {
+    position: 'absolute',
+    left: '100%',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    fontSize: '0.65rem',
+    color: theme.palette.warning?.main ?? '#f5a623',
+    opacity: 0.9,
+    whiteSpace: 'nowrap',
+    paddingLeft: 3,
+    pointerEvents: 'none',
+  },
+  editBtn: {
     fontSize: '0.7rem',
     padding: '2px 6px',
     minWidth: 0,
   },
-  topRow: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '2px 8px 0',
-    flexShrink: 0,
-  },
-  divergedDot: {
-    width: 7,
-    height: 7,
-    borderRadius: '50%',
-    backgroundColor: theme.palette.warning?.main ?? '#f5a623',
-    marginLeft: 4,
-    flexShrink: 0,
-    display: 'inline-block',
-    verticalAlign: 'middle',
-  },
-  divergedRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-    color: theme.palette.warning?.main ?? '#f5a623',
-    fontSize: '0.72rem',
-  },
-  spacer: {
-    flex: 1,
-  },
   recentBtnDiverged: {
     color: theme.palette.warning?.main ?? '#f5a623',
   },
+  // ── Active frame card ──────────────────────────────────────────────────────
   activeFrame: {
-    padding: '6px 12px 4px',
+    padding: '8px 14px 6px',
     borderTop: `1px solid ${theme.palette.divider}`,
+    borderBottom: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
   },
   frameTitle: {
-    fontWeight: 600,
-    fontSize: '0.875rem',
-    marginBottom: '2px',
+    fontWeight: 700,
+    fontSize: '0.9rem',
     lineHeight: 1.3,
+    marginBottom: 3,
   },
   frameText: {
-    fontSize: '0.8rem',
-    opacity: 0.8,
-    lineHeight: 1.4,
+    fontSize: '0.78rem',
+    opacity: 0.75,
+    lineHeight: 1.5,
+    marginBottom: 4,
   },
   shapeCount: {
-    fontSize: '0.75rem',
-    opacity: 0.55,
-    marginTop: '2px',
+    display: 'inline-block',
+    fontSize: '0.65rem',
+    opacity: 0.5,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
   },
   frameList: {
     overflowY: 'auto',
     flex: 1,
     padding: '4px 0',
-    borderTop: `1px solid ${theme.palette.divider}`,
   },
   frameItem: {
-    padding: '5px 12px',
+    padding: '6px 12px 6px 10px',
     cursor: 'pointer',
     fontSize: '0.82rem',
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
     '&:hover': {
       backgroundColor: theme.palette.action?.hover || 'rgba(255,255,255,0.08)',
     },
@@ -131,6 +241,14 @@ const useStyles = makeStyles()(theme => ({
   frameItemActive: {
     backgroundColor: theme.palette.action?.selected || 'rgba(255,255,255,0.14)',
     fontWeight: 600,
+  },
+  frameNum: {
+    fontSize: '0.65rem',
+    opacity: 0.3,
+    minWidth: 16,
+    textAlign: 'right',
+    flexShrink: 0,
+    fontVariantNumeric: 'tabular-nums',
   },
   frameDot: {
     width: 6,
@@ -148,6 +266,228 @@ const useStyles = makeStyles()(theme => ({
     fontSize: '0.85rem',
     textAlign: 'center',
   },
+  // Edit mode styles
+  editHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '4px 8px',
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    flexShrink: 0,
+    gap: 4,
+  },
+  editTitle: {
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    flex: 1,
+  },
+  toolPalette: {
+    display: 'flex',
+    gap: 4,
+    padding: '6px 10px',
+    flexWrap: 'wrap',
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    flexShrink: 0,
+  },
+  toolBtn: {
+    fontSize: '0.7rem',
+    padding: '2px 7px',
+    minWidth: 0,
+    textTransform: 'none',
+  },
+  toolBtnActive: {
+    backgroundColor: theme.palette.primary?.main || '#1976d2',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: theme.palette.primary?.dark || '#1565c0',
+    },
+  },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    flexShrink: 0,
+  },
+  headerIconBtn: {
+    opacity: 0.7,
+    '&:hover': { opacity: 1 },
+  },
+  captureViewBtn: {
+    fontSize: '0.7rem',
+    padding: '3px 8px',
+    minWidth: 0,
+    textTransform: 'none',
+    alignSelf: 'flex-start',
+  },
+  // ── Edit mode body ──────────────────────────────────────────────────────────
+  editBody: {
+    flex: 1,
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  editSectionBlock: {
+    flexShrink: 0,
+    borderTop: `1px solid ${theme.palette.divider}`,
+  },
+  sectionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '3px 6px 2px 12px',
+  },
+  sectionLabel: {
+    flex: 1,
+    fontSize: '0.6rem',
+    fontWeight: 700,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    opacity: 0.4,
+  },
+  framesCompactList: {
+    maxHeight: 170,
+    overflowY: 'auto',
+    paddingBottom: 2,
+  },
+  frameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '5px 6px 5px 14px',
+    cursor: 'pointer',
+    fontSize: '0.82rem',
+    '&:hover': {
+      backgroundColor: theme.palette.action?.hover || 'rgba(255,255,255,0.06)',
+    },
+  },
+  frameRowActive: {
+    backgroundColor: theme.palette.action?.selected || 'rgba(255,255,255,0.12)',
+    fontWeight: 600,
+  },
+  frameRowDot: {
+    width: 5,
+    height: 5,
+    borderRadius: '50%',
+    border: `1px solid ${theme.palette.primaryForeground}`,
+    flexShrink: 0,
+  },
+  frameRowDotActive: {
+    backgroundColor: theme.palette.primaryForeground,
+  },
+  frameRowTitle: {
+    flex: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  frameReorderBtns: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexShrink: 0,
+    opacity: 0.35,
+    '&:hover': { opacity: 0.8 },
+  },
+  frameDetailFields: {
+    padding: '6px 10px 10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  shapesBody: {
+    flex: 1,
+    overflowY: 'auto',
+  },
+  shapeList: {
+    padding: '2px 0 4px',
+  },
+  shapeItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    fontSize: '0.72rem',
+    opacity: 0.8,
+    padding: '2px 4px',
+    borderRadius: 3,
+    transition: 'background 0.1s',
+  },
+  shapeItemSelected: {
+    opacity: 1,
+    backgroundColor: theme.palette.action?.selected || 'rgba(255,255,255,0.14)',
+    outline: `1px solid ${theme.palette.primary?.main || '#1976d2'}`,
+  },
+  shapeLabel: {
+    flex: 1,
+  },
+  noFrameHint: {
+    padding: '8px 10px',
+    fontSize: '0.78rem',
+    opacity: 0.6,
+    fontStyle: 'italic',
+  },
+  shapeEditor: {
+    padding: '8px 10px 10px 10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    width: '100%',
+    borderTop: `1px solid ${theme.palette.divider}`,
+    backgroundColor: theme.palette.action?.hover || 'rgba(255,255,255,0.03)',
+  },
+  shapeEditorRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    fontSize: '0.72rem',
+  },
+  shapeEditorLabel: {
+    fontSize: '0.68rem',
+    opacity: 0.55,
+    minWidth: 42,
+    flexShrink: 0,
+    letterSpacing: '0.02em',
+  },
+  shapeEditorBtnGroup: {
+    display: 'flex',
+    gap: 3,
+  },
+  shapeEditorBtn: {
+    fontSize: '0.68rem',
+    padding: '2px 7px',
+    minWidth: 0,
+    textTransform: 'none',
+    lineHeight: 1.5,
+  },
+  shapeEditorBtnActive: {
+    backgroundColor: theme.palette.primary?.main || '#1976d2',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: theme.palette.primary?.dark || '#1565c0',
+    },
+  },
+  colorSwatch: {
+    width: 20,
+    height: 20,
+    padding: 0,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 3,
+    cursor: 'pointer',
+    flexShrink: 0,
+    '&::-webkit-color-swatch-wrapper': {
+      padding: 0,
+    },
+    '&::-webkit-color-swatch': {
+      border: 'none',
+      borderRadius: 2,
+    },
+  },
+  widthInput: {
+    width: 36,
+    fontSize: '0.7rem',
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 3,
+    padding: '1px 4px',
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    flexShrink: 0,
+  },
 }));
 
 export function AnnotationController(props) {
@@ -157,6 +497,7 @@ export function AnnotationController(props) {
     overlayVisible,
     diverged,
     description,
+    activeTool,
     onEnter,
     onExit,
     onBack,
@@ -164,39 +505,440 @@ export function AnnotationController(props) {
     onToggleOverlay,
     onRecenter,
     onFrameClick,
+    onSetFrames = () => {},
+    onSetActiveTool = () => {},
+    onCaptureViewState = () => {},
+    onDownloadConfig = () => {},
+    selectedShapeUid = null,
+    onSetSelectedShapeUid = () => {},
   } = props;
 
   const { classes, cx } = useStyles();
+  const [editMode, setEditMode] = useState(false);
+  const [captureConfirmed, setCaptureConfirmed] = useState(false);
+  const [copyConfirmed, setCopyConfirmed] = useState(false);
+  const [downloadConfirmed, setDownloadConfirmed] = useState(false);
+  const [configDownloadConfirmed, setConfigDownloadConfirmed] = useState(false);
+
+  const handleCaptureViewState = useCallback(() => {
+    onCaptureViewState();
+    setCaptureConfirmed(true);
+    setTimeout(() => setCaptureConfirmed(false), 1500);
+  }, [onCaptureViewState]);
+  const setSelectedShapeUid = onSetSelectedShapeUid;
+
+  const handleToggleEditMode = useCallback(() => {
+    if (editMode) {
+      onSetActiveTool(null);
+      setSelectedShapeUid(null);
+    }
+    setEditMode(prev => !prev);
+  }, [editMode, onSetActiveTool, setSelectedShapeUid]);
+
+  const handleAddFrame = useCallback(() => {
+    const newFrame = {
+      uid: crypto.randomUUID(),
+      title: 'New Frame',
+      shapes: [],
+    };
+    const updated = frames ? [...frames, newFrame] : [newFrame];
+    onSetFrames(updated);
+    onFrameClick(updated.length - 1);
+  }, [frames, onSetFrames, onFrameClick]);
+
+  const handleDeleteFrame = useCallback((i) => {
+    if (!frames) return;
+    const updated = frames.filter((_, idx) => idx !== i);
+    onSetFrames(updated);
+    if (updated.length === 0) {
+      onFrameClick(null);
+    } else {
+      onFrameClick(Math.min(i, updated.length - 1));
+    }
+  }, [frames, onSetFrames, onFrameClick]);
+
+  const handleMoveFrame = useCallback((index, direction) => {
+    if (!frames) return;
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= frames.length) return;
+    const updated = [...frames];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    onSetFrames(updated);
+    if (frameIndex === index) {
+      onFrameClick(newIndex);
+    } else if (frameIndex === newIndex) {
+      onFrameClick(index);
+    }
+  }, [frames, frameIndex, onSetFrames, onFrameClick]);
+
+  const handleUpdateTitle = useCallback((i, title) => {
+    if (!frames) return;
+    onSetFrames(frames.map((f, idx) => (idx === i ? { ...f, title } : f)));
+  }, [frames, onSetFrames]);
+
+  const handleUpdateText = useCallback((i, text) => {
+    if (!frames) return;
+    onSetFrames(frames.map((f, idx) => (idx === i ? { ...f, text } : f)));
+  }, [frames, onSetFrames]);
+
+  const handleDeleteShape = useCallback((shapeUid) => {
+    if (!frames || frameIndex === null) return;
+    onSetFrames(frames.map((f, idx) => (
+      idx === frameIndex
+        ? { ...f, shapes: (f.shapes ?? []).filter(s => s.uid !== shapeUid) }
+        : f
+    )));
+  }, [frames, frameIndex, onSetFrames]);
+
+  const handleUpdateShape = useCallback((shapeUid, updates) => {
+    if (!frames || frameIndex === null) return;
+    onSetFrames(frames.map((f, idx) => (
+      idx === frameIndex
+        ? { ...f, shapes: (f.shapes ?? []).map(s => s.uid === shapeUid ? { ...s, ...updates } : s) }
+        : f
+    )));
+  }, [frames, frameIndex, onSetFrames]);
+
+  const handleToolClick = useCallback((tool) => {
+    onSetActiveTool(activeTool === tool ? null : tool);
+  }, [activeTool, onSetActiveTool]);
+
+  const handleCopyJson = useCallback(() => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(frames, null, 2));
+      setCopyConfirmed(true);
+      setTimeout(() => setCopyConfirmed(false), 1500);
+    }
+  }, [frames]);
+
+  const handleDownloadJson = useCallback(() => {
+    const blob = new Blob([JSON.stringify(frames, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'annotation-frames.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    setDownloadConfirmed(true);
+    setTimeout(() => setDownloadConfirmed(false), 1500);
+  }, [frames]);
+
+  const handleDownloadConfig = useCallback(() => {
+    onDownloadConfig();
+    setConfigDownloadConfirmed(true);
+    setTimeout(() => setConfigDownloadConfirmed(false), 1500);
+  }, [onDownloadConfig]);
+
+  const numFrames = frames?.length ?? 0;
+
+  // ── Edit mode layout ──────────────────────────────────────────────────────
+  if (editMode) {
+    const activeFrame = frameIndex !== null && frames ? frames[frameIndex] : null;
+    return (
+      <div className={classes.root}>
+
+        {/* Header */}
+        <div className={classes.editHeader}>
+          <span className={classes.editTitle}>Edit Annotations</span>
+          <div className={classes.headerActions}>
+            <Tooltip title={copyConfirmed ? 'Copied!' : 'Copy JSON to clipboard'}>
+              <span>
+                <IconButton size="small" className={classes.headerIconBtn} onClick={handleCopyJson} disabled={!frames} style={copyConfirmed ? { color: '#4caf50' } : {}}>
+                  {copyConfirmed ? <Check style={{ fontSize: 14 }} /> : <ContentCopy style={{ fontSize: 14 }} />}
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title={downloadConfirmed ? 'Downloaded!' : 'Download annotation-frames.json'}>
+              <span>
+                <IconButton size="small" className={classes.headerIconBtn} onClick={handleDownloadJson} disabled={!frames} style={downloadConfirmed ? { color: '#4caf50' } : {}}>
+                  {downloadConfirmed ? <Check style={{ fontSize: 14 }} /> : <CloudDownload style={{ fontSize: 14 }} />}
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title={configDownloadConfirmed ? 'Downloaded!' : 'Download full Vitessce config'}>
+              <span>
+                <IconButton size="small" className={classes.headerIconBtn} onClick={handleDownloadConfig} style={configDownloadConfirmed ? { color: '#4caf50' } : {}}>
+                  {configDownloadConfirmed ? <Check style={{ fontSize: 14 }} /> : <Code style={{ fontSize: 14 }} />}
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Button size="small" variant="outlined" className={classes.editBtn} onClick={handleToggleEditMode}>
+              Done
+            </Button>
+          </div>
+        </div>
+
+        {/* ── Scrollable body ── */}
+        <div className={classes.editBody}>
+
+          {/* FRAMES section */}
+          <div className={classes.editSectionBlock}>
+            <div className={classes.sectionRow}>
+              <span className={classes.sectionLabel}>Frames{numFrames > 0 ? ` · ${numFrames}` : ''}</span>
+              <Tooltip title="Add frame">
+                <IconButton size="small" onClick={handleAddFrame}><Add fontSize="inherit" /></IconButton>
+              </Tooltip>
+            </div>
+            <div className={classes.framesCompactList}>
+              {numFrames === 0 && (
+                <div className={classes.noFrameHint}>No frames — click + to add one.</div>
+              )}
+              {(frames ?? []).map((frame, i) => (
+                <div
+                  key={frame.uid}
+                  className={cx(classes.frameRow, i === frameIndex && classes.frameRowActive)}
+                  onClick={() => onFrameClick(i)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
+                >
+                  <div className={cx(classes.frameRowDot, i === frameIndex && classes.frameRowDotActive)} />
+                  <span className={classes.frameRowTitle}>{frame.title || `Frame ${i + 1}`}</span>
+                  <div className={classes.frameReorderBtns} onClick={e => e.stopPropagation()} role="presentation">
+                    <IconButton size="small" disabled={i === 0} onClick={e => { e.stopPropagation(); handleMoveFrame(i, -1); }} title="Move up" style={{ padding: 1 }}>
+                      <ArrowDropUp style={{ fontSize: 14 }} />
+                    </IconButton>
+                    <IconButton size="small" disabled={i === (frames?.length ?? 0) - 1} onClick={e => { e.stopPropagation(); handleMoveFrame(i, 1); }} title="Move down" style={{ padding: 1 }}>
+                      <ArrowDropDown style={{ fontSize: 14 }} />
+                    </IconButton>
+                  </div>
+                  <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteFrame(i); }} title="Delete frame">
+                    <RemoveCircle fontSize="inherit" />
+                  </IconButton>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FRAME DETAILS section */}
+          {activeFrame && (
+            <div className={classes.editSectionBlock}>
+              <div className={classes.sectionRow}>
+                <span className={classes.sectionLabel}>Frame Details</span>
+              </div>
+              <div className={classes.frameDetailFields}>
+                <TextField
+                  value={activeFrame.title ?? ''}
+                  onChange={e => handleUpdateTitle(frameIndex, e.target.value)}
+                  size="small"
+                  variant="outlined"
+                  label="Title"
+                  fullWidth
+                  inputProps={{ style: { fontSize: '0.78rem' } }}
+                />
+                <TextField
+                  value={activeFrame.text ?? ''}
+                  onChange={e => handleUpdateText(frameIndex, e.target.value)}
+                  size="small"
+                  variant="outlined"
+                  label="Notes"
+                  placeholder="Narrative text (optional)"
+                  multiline
+                  maxRows={3}
+                  fullWidth
+                  inputProps={{ style: { fontSize: '0.75rem' } }}
+                />
+                <Tooltip title="Save current zoom/pan as this frame's view state">
+                  <Button
+                    size="small"
+                    variant={captureConfirmed ? 'contained' : 'outlined'}
+                    className={classes.captureViewBtn}
+                    color={captureConfirmed ? 'success' : 'primary'}
+                    startIcon={captureConfirmed
+                      ? <Check style={{ fontSize: 13 }} />
+                      : <CenterFocusStrong style={{ fontSize: 13 }} />}
+                    onClick={handleCaptureViewState}
+                  >
+                    Capture View
+                  </Button>
+                </Tooltip>
+              </div>
+            </div>
+          )}
+
+          {/* SHAPES section */}
+          {frameIndex !== null && (
+            <div className={cx(classes.editSectionBlock, classes.shapesBody)}>
+              <div className={classes.sectionRow}>
+                <span className={classes.sectionLabel}>Shape Options</span>
+              </div>
+              <div className={classes.toolPalette}>
+                {TOOLS.map(({ key, label }) => (
+                  <Button
+                    key={key}
+                    size="small"
+                    variant={activeTool === key ? 'contained' : 'outlined'}
+                    className={cx(classes.toolBtn, activeTool === key && classes.toolBtnActive)}
+                    onClick={() => handleToolClick(key)}
+                    title={`Draw ${key}`}
+                    startIcon={<ShapeIcon type={key} size={12} />}
+                  >
+                    {label}
+                  </Button>
+                ))}
+                {activeTool && (
+                  <Button size="small" variant="text" className={classes.toolBtn} onClick={() => onSetActiveTool(null)} title="Cancel drawing">✕</Button>
+                )}
+              </div>
+              <div className={classes.sectionRow} style={{ marginTop: 6 }}>
+                <span className={classes.sectionLabel}>
+                  Shapes{(activeFrame?.shapes?.length ?? 0) > 0 ? ` · ${activeFrame.shapes.length}` : ''}
+                </span>
+              </div>
+              {(activeFrame?.shapes?.length ?? 0) === 0 ? (
+                <div className={classes.noFrameHint}>
+                  {activeTool ? 'Click on the canvas to place points.' : 'Select a tool to start drawing.'}
+                </div>
+              ) : (
+                <div className={classes.shapeList}>
+                  {activeFrame.shapes.map(shape => {
+                    const isSelected = selectedShapeUid === shape.uid;
+                    const hasFill = ['rectangle', 'ellipse', 'polygon'].includes(shape.type);
+                    const hasMarkers = ['line', 'polyline'].includes(shape.type);
+                    const currentDash = shape.strokeDashArray ?? null;
+                    return (
+                      <div key={shape.uid}>
+                        <div
+                          className={cx(classes.shapeItem, isSelected && classes.shapeItemSelected)}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setSelectedShapeUid(isSelected ? null : shape.uid)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={e => e.key === 'Enter' && setSelectedShapeUid(isSelected ? null : shape.uid)}
+                        >
+                          <ShapeIcon type={shape.type} size={12} />
+                          <span className={classes.shapeLabel}>{shape.text ? `"${shape.text}"` : shape.type}</span>
+                          <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteShape(shape.uid); }} title="Delete shape">
+                            <RemoveCircle fontSize="inherit" />
+                          </IconButton>
+                        </div>
+                        {isSelected && (
+                          <div className={classes.shapeEditor} onClick={e => e.stopPropagation()} role="presentation">
+                            <div className={classes.shapeEditorRow}>
+                              <span className={classes.shapeEditorLabel}>Color</span>
+                              <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { strokeColor: hexToRgb(e.target.value) })} title="Stroke color" />
+                              <span className={classes.shapeEditorLabel} style={{ minWidth: 'unset' }}>Width</span>
+                              <input type="number" className={classes.widthInput} value={shape.strokeWidth ?? 3} min={1} max={20} step={1} onChange={e => handleUpdateShape(shape.uid, { strokeWidth: +e.target.value })} title="Stroke width (px)" />
+                            </div>
+                            <div className={classes.shapeEditorRow}>
+                              <span className={classes.shapeEditorLabel}>Style</span>
+                              <div className={classes.shapeEditorBtnGroup}>
+                                {DASH_OPTIONS.map(opt => (
+                                  <Button key={String(opt.key)} size="small" variant={currentDash === opt.key ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, currentDash === opt.key && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { strokeDashArray: opt.key ?? undefined })} title={opt.key === null ? 'Solid' : opt.key === '8 4' ? 'Dashed' : 'Dotted'}>
+                                    {opt.label}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                            {hasFill && (
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Fill</span>
+                                <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.fillColor ?? shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { fillColor: hexToRgb(e.target.value) })} title="Fill color" />
+                                <span style={{ fontSize: '0.65rem', opacity: 0.6, flexShrink: 0 }}>α</span>
+                                <Slider size="small" min={0} max={1} step={0.05} value={shape.fillOpacity ?? 0} onChange={(_, v) => handleUpdateShape(shape.uid, { fillOpacity: v })} style={{ flex: 1, marginLeft: 2 }} />
+                              </div>
+                            )}
+                            {hasMarkers && (
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Arrow</span>
+                                <div className={classes.shapeEditorBtnGroup}>
+                                  <Button size="small" variant={shape.markerStart === 'Arrow' ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, shape.markerStart === 'Arrow' && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { markerStart: shape.markerStart === 'Arrow' ? undefined : 'Arrow' })}>← Start</Button>
+                                  <Button size="small" variant={shape.markerEnd === 'Arrow' ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, shape.markerEnd === 'Arrow' && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { markerEnd: shape.markerEnd === 'Arrow' ? undefined : 'Arrow' })}>End →</Button>
+                                </div>
+                              </div>
+                            )}
+                            <div className={classes.shapeEditorRow}>
+                              <span className={classes.shapeEditorLabel}>Label</span>
+                              <TextField value={shape.text ?? ''} onChange={e => handleUpdateShape(shape.uid, { text: e.target.value || undefined })} size="small" variant="standard" placeholder="Label text" style={{ flex: 1 }} inputProps={{ style: { fontSize: '0.72rem', padding: '0 0' } }} />
+                            </div>
+                            {hasMarkers && shape.text && (
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Pos</span>
+                                <div className={classes.shapeEditorBtnGroup}>
+                                  {['start', 'middle', 'end'].map(pos => {
+                                    const active = (shape.textPosition ?? 'start') === pos;
+                                    return (
+                                      <Button key={pos} size="small" variant={active ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, active && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { textPosition: pos })}>
+                                        {pos.charAt(0).toUpperCase() + pos.slice(1)}
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {frameIndex === null && frames?.length > 0 && (
+            <div className={classes.noFrameHint}>Select a frame above to edit its shapes.</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Play mode layout (existing behavior, + edit button) ──────────────────
 
   if (!frames || frames.length === 0) {
     return (
       <div className={classes.root}>
         <div className={classes.empty}>No annotation frames configured.</div>
+        <div style={{ padding: '8px', textAlign: 'center' }}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<Edit fontSize="small" />}
+            onClick={handleToggleEditMode}
+          >
+            Author Annotations
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const numFrames = frames.length;
   const activeFrame = frameIndex !== null ? frames[frameIndex] : null;
   const sliderValue = frameIndex !== null ? frameIndex : 0;
 
-  // Not yet entered — show a neutral prompt with frame count only.
-  // Individual frames are not shown here because they aren't clickable yet.
   if (frameIndex === null) {
     return (
       <div className={classes.root}>
+        {/* Edit lives in the corner, well away from Begin */}
+        <div className={classes.enterTopBar}>
+          <Tooltip title="Author / edit annotation frames">
+            <IconButton size="small" className={classes.enterEditBtn} onClick={handleToggleEditMode}>
+              <Edit style={{ fontSize: 16 }} />
+            </IconButton>
+          </Tooltip>
+        </div>
+
         <div className={classes.enterScreen}>
+          <div className={classes.enterIcon}>
+            <MenuBook style={{ fontSize: 64 }} />
+          </div>
+          <div className={classes.enterLabel}>Guided Annotation</div>
+          <div className={classes.enterCount}>
+            {numFrames} frame{numFrames !== 1 ? 's' : ''}
+          </div>
+          <div className={classes.enterHint} style={{ width: '100%', textAlign: 'center' }}>
+            {description ?? 'Step through annotated views with shapes and narrative text.'}
+          </div>
           <Button
             variant="contained"
-            size="small"
-            startIcon={<MenuBook fontSize="small" />}
             onClick={onEnter}
+            className={classes.enterBeginBtn}
+            startIcon={<MenuBook style={{ fontSize: 18 }} />}
           >
             Begin
           </Button>
-          <div className={classes.enterHint}>
-            {description ?? `${numFrames} annotated frame${numFrames !== 1 ? 's' : ''} — step through guided views with shapes and narrative text.`}
-          </div>
         </div>
       </div>
     );
@@ -204,31 +946,30 @@ export function AnnotationController(props) {
 
   return (
     <div className={classes.root}>
-      {/* Exit + divergence row */}
-      <div className={classes.topRow}>
-        {diverged && (
-          <span
-            className={classes.divergedRow}
-            title="You've panned or zoomed away from this frame — click Recenter to snap back"
-          >
-            <span className={classes.divergedDot} />
-            View offset
-          </span>
-        )}
-        <div className={classes.spacer} />
-        <Button
-          size="small"
-          className={classes.exitBtn}
-          startIcon={<Stop fontSize="inherit" />}
-          onClick={onExit}
-          title="Exit and return to the original view state"
-        >
-          Exit
-        </Button>
+
+      {/* Header: Exit on left · counter · Edit on right */}
+      <div className={classes.playHeader}>
+        <Tooltip title="Exit and return to original view">
+          <IconButton size="small" className={classes.playExitBtn} onClick={onExit}>
+            <Close style={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
+        <span className={classes.playHeaderCenter}>
+          {numFrames > 0 ? `${(frameIndex ?? 0) + 1} of ${numFrames}` : ''}
+        </span>
+        <Tooltip title="Edit annotation frames">
+          <IconButton size="small" className={classes.playEditBtn} onClick={handleToggleEditMode}>
+            <Edit style={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
       </div>
 
-      <div className={classes.controls}>
-        <div className={classes.sliderRow}>
+      {/* Navigation: arrows flanking slider */}
+      <div className={classes.navRow}>
+        <IconButton onClick={onBack} disabled={frameIndex === 0} title="Previous frame" style={{ width: 48, height: 48 }}>
+          <ArrowLeft style={{ fontSize: 42 }} />
+        </IconButton>
+        <div className={classes.navSlider}>
           <Slider
             min={0}
             max={Math.max(0, numFrames - 1)}
@@ -239,38 +980,27 @@ export function AnnotationController(props) {
             disabled={numFrames <= 1}
           />
         </div>
-        <div className={classes.buttonRow}>
-          <IconButton
-            size="small"
-            onClick={onBack}
-            disabled={frameIndex === 0}
-            title="Previous frame"
-          >
-            <ArrowLeft fontSize="small" />
+        <IconButton onClick={onForward} disabled={frameIndex === numFrames - 1} title="Next frame" style={{ width: 48, height: 48 }}>
+          <ArrowRight style={{ fontSize: 42 }} />
+        </IconButton>
+      </div>
+
+      {/* Utility: overlay toggle + recenter (+ diverged indicator) */}
+      <div className={classes.utilityRow}>
+        <Tooltip title={overlayVisible ? 'Hide annotation overlay' : 'Show annotation overlay'}>
+          <IconButton onClick={onToggleOverlay}>
+            {overlayVisible ? <Visibility style={{ fontSize: 26 }} /> : <VisibilityOff style={{ fontSize: 26 }} />}
           </IconButton>
-          <IconButton
-            size="small"
-            onClick={onToggleOverlay}
-            title={overlayVisible ? 'Hide overlay' : 'Show overlay'}
-          >
-            {overlayVisible ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onRecenter}
-            title={diverged ? 'Diverged from frame — click to recenter' : 'Recenter view'}
-            className={diverged ? classes.recentBtnDiverged : undefined}
-          >
-            <CenterFocusStrong fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onForward}
-            disabled={frameIndex === numFrames - 1}
-            title="Next frame"
-          >
-            <ArrowRight fontSize="small" />
-          </IconButton>
+        </Tooltip>
+        <div style={{ position: 'relative', display: 'inline-flex' }}>
+          <Tooltip title={diverged ? 'View has drifted — click to recenter' : 'Recenter view'}>
+            <IconButton onClick={onRecenter} className={diverged ? classes.recentBtnDiverged : undefined}>
+              <CenterFocusStrong style={{ fontSize: 26 }} />
+            </IconButton>
+          </Tooltip>
+          {diverged && (
+            <span className={classes.divergedChip}>drifted</span>
+          )}
         </div>
       </div>
 
@@ -298,6 +1028,7 @@ export function AnnotationController(props) {
             tabIndex={0}
             onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
           >
+            <span className={classes.frameNum}>{i + 1}</span>
             <div className={cx(classes.frameDot, i === frameIndex && classes.frameDotActive)} />
             {frame.title || `Frame ${i + 1}`}
           </div>

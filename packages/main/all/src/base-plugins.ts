@@ -656,6 +656,9 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_DIVERGED, false, z.boolean()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_DESCRIPTION, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_ACTIVE_TOOL, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER, 0, z.number()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SELECTED_SHAPE, null, z.string().nullable()),
 ];
 
 export const baseAsyncFunctions = [

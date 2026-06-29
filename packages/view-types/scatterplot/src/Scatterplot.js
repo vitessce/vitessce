@@ -381,14 +381,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSetsLayers,
       contourLayers,
     } = this;
-    const { annotationShapes = [], viewState } = this.props;
-    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0);
+    const { annotationShapes = [], annotationPreviewLayer = null, annotationSelectedShapeUid = null, viewState } = this.props;
+    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid);
     return [
       cellsLayer,
       ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
       ...annotationLayers,
+      ...(annotationPreviewLayer ? [annotationPreviewLayer] : []),
     ];
   }
 

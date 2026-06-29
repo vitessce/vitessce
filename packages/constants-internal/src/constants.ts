@@ -387,6 +387,9 @@ export const CoordinationType = {
   ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
   ANNOTATION_DIVERGED: 'annotationDiverged',
   ANNOTATION_DESCRIPTION: 'annotationDescription',
+  ANNOTATION_ACTIVE_TOOL: 'annotationActiveTool',
+  ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER: 'annotationCaptureViewStateTrigger',
+  ANNOTATION_SELECTED_SHAPE: 'annotationSelectedShapeUid',
 };
 
 export const STATUS = {

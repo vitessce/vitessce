@@ -26,6 +26,7 @@ import {
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
   useCoordinationScopes,
+  useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -40,6 +41,7 @@ import {
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { makeStyles } from '@vitessce/styles';
+import { createPreviewLayer } from '@vitessce/gl';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 const useStyles = makeStyles()(() => ({
@@ -142,9 +144,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     annotationFrameIndex,
     annotationOverlayVisible,
     annotationTransitionDuration,
+    annotationActiveTool,
+    annotationCaptureViewStateTrigger,
+    annotationSelectedShapeUid,
   }, {
     setEmbeddingZoom: setZoom,
     setAnnotationDiverged,
+    setAnnotationFrames,
     setEmbeddingTargetX: setTargetX,
     setEmbeddingTargetY: setTargetY,
     setEmbeddingTargetZ: setTargetZ,
@@ -194,14 +200,150 @@ export function EmbeddingScatterplotSubscriber(props) {
     });
   }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex, mapping]);
 
+  // ── Annotation drawing state ─────────────────────────────────────────────
+  const [drawingVertices, setDrawingVertices] = useState([]);
+  const [drawHoverCoord, setDrawHoverCoord] = useState(null);
+
+  const appendAnnotationShape = useCallback((newShape) => {
+    if (!annotationFrames || annotationFrameIndex === null) return;
+    const updated = annotationFrames.map((f, idx) => (
+      idx === annotationFrameIndex
+        ? { ...f, shapes: [...(f.shapes ?? []), newShape] }
+        : f
+    ));
+    setAnnotationFrames(updated);
+  }, [annotationFrames, annotationFrameIndex, setAnnotationFrames]);
+
+  const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
+  const lastAnnotationClickTimeRef = React.useRef(0);
+  const DOUBLE_CLICK_MS = 350;
+
+  const handleAnnotationClick = useCallback((coord) => {
+    if (!annotationActiveTool || annotationFrameIndex === null) return;
+    const tool = annotationActiveTool;
+
+    if (TWO_CLICK_TOOLS.includes(tool)) {
+      if (drawingVertices.length === 0) {
+        setDrawingVertices([coord]);
+      } else {
+        const [ax, ay] = drawingVertices[0];
+        const [bx, by] = coord;
+        const uid = crypto.randomUUID();
+        let shape;
+        if (tool === 'rectangle') {
+          shape = { uid, type: 'rectangle', x: Math.min(ax, bx), y: Math.min(ay, by), width: Math.abs(bx - ax), height: Math.abs(by - ay), targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        } else if (tool === 'line') {
+          shape = { uid, type: 'line', x1: ax, y1: ay, x2: bx, y2: by, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        } else {
+          shape = { uid, type: 'ellipse', x1: ax, y1: ay, radiusX: Math.abs(bx - ax), radiusY: Math.abs(by - ay), targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        }
+        appendAnnotationShape(shape);
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    } else {
+      const now = Date.now();
+      const elapsed = now - lastAnnotationClickTimeRef.current;
+      lastAnnotationClickTimeRef.current = now;
+      const minVerts = tool === 'polygon' ? 3 : 2;
+      if (elapsed < DOUBLE_CLICK_MS && drawingVertices.length >= minVerts) {
+        const uid = crypto.randomUUID();
+        appendAnnotationShape({ uid, type: tool, points: drawingVertices, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } });
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+        return;
+      }
+      setDrawingVertices(prev => [...prev, coord]);
+    }
+  }, [annotationActiveTool, annotationFrameIndex, drawingVertices, appendAnnotationShape, mapping]);
+
+  const finishMultiClickShape = useCallback(() => {
+    const tool = annotationActiveTool;
+    if (!tool || TWO_CLICK_TOOLS.includes(tool)) return;
+    const minVerts = tool === 'polygon' ? 3 : 2;
+    if (drawingVertices.length < minVerts) return;
+    const uid = crypto.randomUUID();
+    appendAnnotationShape({ uid, type: tool, points: drawingVertices, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } });
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool, drawingVertices, appendAnnotationShape, mapping]);
+
+
+  useEffect(() => {
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Enter') finishMultiClickShape();
+      if (e.key === 'Escape') {
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [finishMultiClickShape]);
+
+  const inProgress = annotationActiveTool && drawingVertices.length > 0
+    ? { type: annotationActiveTool, vertices: drawingVertices }
+    : null;
+  const annotationPreviewLayer = createPreviewLayer(inProgress, drawHoverCoord);
+  // ── End annotation drawing state ─────────────────────────────────────────
+
+  // ── View state capture (triggered by AnnotationController) ───────────────
+  const storeApi = useViewConfigStoreApi();
+  const embeddingViewStateRef = useRef(null);
+  useEffect(() => {
+    embeddingViewStateRef.current = { zoom, targetX, targetY };
+  });
+  useEffect(() => {
+    if (!annotationCaptureViewStateTrigger || annotationFrameIndex === null) return;
+    const s = embeddingViewStateRef.current;
+    if (!s) return;
+    // Read live frames from the store to avoid stale-closure overwrites when
+    // multiple scatterplot subscribers write in the same effect flush.
+    const scope = coordinationScopes.annotationFrames;
+    const currentFrames = storeApi.getState().viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
+    const entry = {
+      targetView: 'scatterplot',
+      targetCoordinationValues: { embeddingType: mapping },
+      embeddingZoom: s.zoom,
+      embeddingTargetX: s.targetX,
+      embeddingTargetY: s.targetY,
+    };
+    setAnnotationFrames(currentFrames.map((f, idx) => {
+      if (idx !== annotationFrameIndex) return f;
+      const filtered = (f.viewStates ?? []).filter(e => !(
+        e.targetView === 'scatterplot'
+        && (e.targetCoordinationValues?.embeddingType ?? null) === mapping
+      ));
+      return { ...f, viewStates: [...filtered, entry] };
+    }));
+  // annotationFrameIndex and mapping are intentionally excluded from deps: the
+  // trigger only increments on a user click (fresh render → closures are current).
+  // Including them would re-fire the capture on every navigation, silently
+  // overwriting the destination frame with the source frame's zoom.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationCaptureViewStateTrigger]);
+  // ── End view state capture ────────────────────────────────────────────────
+
   // Apply per-frame embedding view state from the frame's viewStates[] entry.
   // Matching uses targetView === 'scatterplot' AND targetCoordinationValues.embeddingType
   // === mapping, so a UMAP entry applies only to the UMAP panel and a PCA entry
   // applies only to the PCA panel — independently, without any extra coordination types.
+
+  // Sync frames into a ref so the effect does not list annotationFrames as a dep —
+  // that would cause zoom to snap back every time a shape is added or captured.
+  const annotationFramesEmbedRef = useRef(annotationFrames);
+  annotationFramesEmbedRef.current = annotationFrames;
+
   const embeddingDefaultsRef = useRef(null);
 
   useEffect(() => {
-    if (!annotationFrames) return;
+    const frames = annotationFramesEmbedRef.current;
+    if (!frames) return;
 
     // Exit story: restore the pre-story embedding baseline.
     if (annotationFrameIndex === null) {
@@ -213,12 +355,15 @@ export function EmbeddingScatterplotSubscriber(props) {
       return;
     }
 
-    const frame = annotationFrames[annotationFrameIndex];
+    const frame = frames[annotationFrameIndex];
 
+    // Capture baseline once (closure values — only read once, must not be in deps).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (embeddingDefaultsRef.current === null) {
-      embeddingDefaultsRef.current = { embeddingZoom: zoom, embeddingTargetX: targetX, embeddingTargetY: targetY };
+      embeddingDefaultsRef.current = {
+        embeddingZoom: zoom, embeddingTargetX: targetX, embeddingTargetY: targetY,
+      };
     }
-    const d = embeddingDefaultsRef.current;
 
     // Find the viewStates entry addressed to this specific scatterplot instance.
     const viewStateEntry = (frame?.viewStates ?? []).find(e => {
@@ -227,20 +372,22 @@ export function EmbeddingScatterplotSubscriber(props) {
       if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
       return true;
     });
-    // Fall back to flat viewState (backward compat) — but only if it doesn't
-    // also specify scatterplot-targeted entries in viewStates that differ.
+    // Fall back to flat viewState (backward compat)
     const vs = viewStateEntry ?? frame?.viewState ?? {};
 
+    // Apply frame value or fall back to pre-story baseline.
+    // Safe because annotationFrames is no longer a dep — only navigation/recenter
+    // triggers this effect, never shape-add or capture.
+    const d = embeddingDefaultsRef.current;
     const applyVal = (setter, key) => {
       const v = vs[key] !== undefined ? vs[key] : d?.[key];
       if (v !== undefined) setter(v);
     };
-
     applyVal(setZoom, 'embeddingZoom');
     applyVal(setTargetX, 'embeddingTargetX');
     applyVal(setTargetY, 'embeddingTargetY');
   }, [
-    annotationFrameIndex, annotationFrames, mapping,
+    annotationFrameIndex, mapping,
     annotationTransitionDuration,
     setZoom, setTargetX, setTargetY,
   ]);
@@ -412,8 +559,13 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [hoverCoords, setHoverCoords] = useState(null);
   const onCoordHover = useCallback((coord) => {
     if (coordinatesVisible) setHoverCoords(coord);
-  }, [coordinatesVisible]);
+    if (annotationActiveTool) setDrawHoverCoord(coord);
+  }, [coordinatesVisible, annotationActiveTool]);
   const onCoordClick = useCallback((coord) => {
+    if (annotationActiveTool) {
+      handleAnnotationClick(coord);
+      return;
+    }
     if (logClickCoords) {
       // eslint-disable-next-line no-console
       console.log(
@@ -423,7 +575,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         + `  center: x=${targetX?.toFixed(4) ?? 'null'}, y=${targetY?.toFixed(4) ?? 'null'}`,
       );
     }
-  }, [logClickCoords, mapping, zoom, targetX, targetY]);
+  }, [annotationActiveTool, handleAnnotationClick, logClickCoords, mapping, zoom, targetX, targetY]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -803,6 +955,9 @@ export function EmbeddingScatterplotSubscriber(props) {
         circleInfo={circleInfo}
         featureSelection={geneSelection}
         annotationShapes={activeShapes}
+        annotationActiveTool={annotationActiveTool}
+        annotationPreviewLayer={annotationPreviewLayer}
+        annotationSelectedShapeUid={annotationSelectedShapeUid}
         onCoordHover={onCoordHover}
         onCoordClick={onCoordClick}
       />

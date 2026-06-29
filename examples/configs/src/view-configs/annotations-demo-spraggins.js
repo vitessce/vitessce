@@ -28,6 +28,7 @@ export const annotationsDemoSpraggins = {
     spatialTargetY: { A: 17300 },
     annotationFrameIndex: { A: null },
     annotationOverlayVisible: { A: true },
+    annotationDescription: { A: "This demo walks through the Spraggins 2020 multiplex immunofluorescence kidney dataset. The annotations and story are stictly for demonstration purposes only and will not reflect true biological findings." },
     annotationFrames: {
       A: [
         {
@@ -422,6 +423,7 @@ export const annotationsDemoSpraggins = {
         annotationFrames: 'A',
         annotationFrameIndex: 'A',
         annotationOverlayVisible: 'A',
+        annotationDescription: 'A',
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',

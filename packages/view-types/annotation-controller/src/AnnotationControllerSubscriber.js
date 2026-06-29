@@ -3,6 +3,7 @@ import {
   TitleInfo,
   useCoordination,
   useCoordinationScopes,
+  useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -29,15 +30,22 @@ export function AnnotationControllerSubscriber(props) {
       annotationOverlayVisible,
       annotationDiverged,
       annotationDescription,
+      annotationActiveTool,
+      annotationCaptureViewStateTrigger,
+      annotationSelectedShapeUid,
       obsSetSelection,
       featureSelection,
       obsColorEncoding,
     },
     {
+      setAnnotationFrames,
       setAnnotationFrameIndex,
       setAnnotationOverlayVisible,
       setAnnotationTransitionDuration,
       setAnnotationDiverged,
+      setAnnotationActiveTool,
+      setAnnotationCaptureViewStateTrigger,
+      setAnnotationSelectedShapeUid,
       setFeatureSelection,
       setObsColorEncoding,
       setObsSetSelection,
@@ -52,6 +60,28 @@ export function AnnotationControllerSubscriber(props) {
   useEffect(() => {
     latestCrossViewRef.current = { featureSelection, obsColorEncoding, obsSetSelection };
   }, [featureSelection, obsColorEncoding, obsSetSelection]);
+
+  const handleCaptureViewState = useCallback(() => {
+    if (annotationFrameIndex === null || !annotationFrames) return;
+    // Write cross-view state into frame.viewState (feature/color/set selections).
+    // Per-view spatial/embedding state is captured by each subscriber via the trigger.
+    const crossView = {};
+    if (featureSelection != null) crossView.featureSelection = featureSelection;
+    if (obsColorEncoding != null) crossView.obsColorEncoding = obsColorEncoding;
+    if (obsSetSelection != null) crossView.obsSetSelection = obsSetSelection;
+    setAnnotationFrames((annotationFrames ?? []).map((f, idx) => (
+      idx === annotationFrameIndex ? { ...f, viewState: { ...(f.viewState ?? {}), ...crossView } } : f
+    )));
+    // Increment trigger so each subscribed view writes its own viewStates[] entry.
+    setAnnotationCaptureViewStateTrigger(annotationCaptureViewStateTrigger + 1);
+    // The stored view state now matches the current view — no longer diverged.
+    setAnnotationDiverged(false);
+  }, [
+    annotationFrameIndex, annotationFrames, setAnnotationFrames,
+    setAnnotationCaptureViewStateTrigger, annotationCaptureViewStateTrigger,
+    setAnnotationDiverged,
+    featureSelection, obsColorEncoding, obsSetSelection,
+  ]);
 
   const defaultsCrossViewRef = useRef(null);
 
@@ -133,6 +163,20 @@ export function AnnotationControllerSubscriber(props) {
     if (annotationFrameIndex !== null) applyFrame(annotationFrameIndex);
   }, [annotationFrameIndex, applyFrame]);
 
+  const storeApi = useViewConfigStoreApi();
+
+  const handleDownloadConfig = useCallback(() => {
+    const viewConfig = storeApi.getState().viewConfig;
+    if (!viewConfig) return;
+    const blob = new Blob([JSON.stringify(viewConfig, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vitessce-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [storeApi]);
+
   const numFrames = annotationFrames?.length ?? 0;
   const infoText = numFrames > 0
     ? (annotationFrameIndex !== null
@@ -157,6 +201,7 @@ export function AnnotationControllerSubscriber(props) {
         overlayVisible={annotationOverlayVisible}
         diverged={annotationDiverged}
         description={annotationDescription}
+        activeTool={annotationActiveTool}
         onEnter={handleEnter}
         onExit={handleExit}
         onBack={handleBack}
@@ -164,6 +209,12 @@ export function AnnotationControllerSubscriber(props) {
         onToggleOverlay={handleToggleOverlay}
         onRecenter={handleRecenter}
         onFrameClick={applyFrame}
+        onSetFrames={setAnnotationFrames}
+        onSetActiveTool={setAnnotationActiveTool}
+        onCaptureViewState={handleCaptureViewState}
+        onDownloadConfig={handleDownloadConfig}
+        selectedShapeUid={annotationSelectedShapeUid}
+        onSetSelectedShapeUid={setAnnotationSelectedShapeUid}
       />
     </TitleInfo>
   );
