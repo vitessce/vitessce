@@ -49,7 +49,6 @@ import {
   rad2deg,
   deg2rad,
   Q_Y_UP,
-  getIntersectingChunkCoords,
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
@@ -577,16 +576,18 @@ export function NeuroglancerSubscriber(props) {
     const info = annotationInfoRef.current;
     const cellsUrl = info.url;
 
-    // Fetch all annotation chunks across all spatial levels
+    // // Fetch all annotation chunks across all spatial levels
     const allLevelCoords = info.spatial.flatMap((level) => {
-      const coords = getIntersectingChunkCoords(
-        {
-          min: [info.lower_bound[0], info.lower_bound[1], info.lower_bound[2]],
-          max: [info.upper_bound[0], info.upper_bound[1], info.upper_bound[2]],
-        },
-        info.lower_bound, level.chunk_size, level.grid_shape,
-      );
-      return coords.map(([cx, cy, cz]) => ({ level: level.key, cx, cy, cz }));
+      const [gx, gy, gz] = level.grid_shape;
+      const coords = [];
+      for (let cx = 0; cx < gx; cx++) {
+        for (let cy = 0; cy < gy; cy++) {
+          for (let cz = 0; cz < gz; cz++) {
+            coords.push({ level: level.key, cx, cy, cz });
+          }
+        }
+      }
+      return coords;
     });
 
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
