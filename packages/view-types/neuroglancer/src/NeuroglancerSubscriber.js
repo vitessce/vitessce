@@ -693,14 +693,20 @@ export function NeuroglancerSubscriber(props) {
       const addedIdsCount = visibleIds.filter(id => !prevIds.has(id)).length;
 
       // Only show overlay if significant number of new meshes need loading
-      const hasSignificantChange = addedIdsCount > 5;
+      const hasSignificantChange = addedIdsCount > 20;
 
       if (hasSignificantChange) {
         setIsMeshLoading(true);
       }
 
-      visibleSegmentIdsRef.current = visibleIds;
-      incrementLatestViewerStateIteration();
+      // To update NG state only when there is actual change in ids.
+      const prevSorted = [...(visibleSegmentIdsRef.current ?? [])].sort().join(',');
+      const nextSorted = [...visibleIds].sort().join(',');
+
+      if (prevSorted !== nextSorted) {
+        visibleSegmentIdsRef.current = visibleIds;
+        incrementLatestViewerStateIteration();
+      }
       // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
@@ -711,10 +717,11 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
 
-  const updateVisibleSegmentsThrottled = useMemo(
-    () => throttle(updateVisibleSegments, 500),
-    [updateVisibleSegments],
-  );
+  const updateVisibleSegmentsThrottledRef = useRef(null);
+  useEffect(() => {
+    updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
+    return () => updateVisibleSegmentsThrottledRef.current?.cancel();
+  }, [updateVisibleSegments]);
 
   useEffect(() => {
     const prevNgCameraState = {
@@ -837,6 +844,8 @@ export function NeuroglancerSubscriber(props) {
           setZoom(vitZoomFromNg);
           zoomRafRef.current = null;
         });
+        // Trigger immediate mesh update on zoom change, don't wait for throttle
+        updateVisibleSegments();
       }
       // remember last NG scale
       lastNgScaleRef.current = projectionScale;
@@ -905,8 +914,8 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
       position,
     };
-    updateVisibleSegmentsThrottled();
-  }, [updateVisibleSegmentsThrottled]);
+    updateVisibleSegmentsThrottledRef.current?.();
+  }, [updateVisibleSegmentsThrottledRef]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
