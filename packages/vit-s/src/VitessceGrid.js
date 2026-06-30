@@ -41,6 +41,7 @@ const margin = 5;
  * @param {PluginFileType[]} props.fileTypes
  * @param {PluginCoordinationType[]} props.coordinationTypes
  * @param {boolean} props.pageMode
+ * @param {PluginHelpView[]} props.helpViews
  */
 export default function VitessceGrid(props) {
   const {
@@ -58,6 +59,7 @@ export default function VitessceGrid(props) {
     pageMode,
     children,
     queryClient,
+    helpViews,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -139,6 +141,7 @@ export default function VitessceGrid(props) {
           isBounded={isBounded}
           onResize={onResize}
           onResizeStop={onResize}
+          helpViews={helpViews}
         >
           {children}
         </VitessceGridLayout>

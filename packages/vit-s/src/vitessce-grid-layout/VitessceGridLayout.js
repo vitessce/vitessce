@@ -25,6 +25,7 @@ export function VitessceGridLayout(props) {
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
     pageMode, children,
+    helpViews,
   } = props;
 
   const getComponent = useCallback((viewType) => {
@@ -179,7 +180,7 @@ export function VitessceGridLayout(props) {
         </div>
       );
     }), contextValue];
-  }, [gridComponents, getComponent, onRemoveComponent, theme]);
+  }, [gridComponents, getComponent, onRemoveComponent, theme, helpViews]);
 
   return (pageMode
     ? (
@@ -210,6 +211,7 @@ export function VitessceGridLayout(props) {
           onDragStart={saveCurrentLayouts}
           onResize={onResize}
           onResizeStop={onResizeStop}
+          helpViews={helpViews}
         >
           {layoutChildren}
         </ResponsiveHeightGridLayout>
