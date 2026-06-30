@@ -4,6 +4,7 @@ import {
   useCoordination,
   useCoordinationScopes,
   useViewConfigStoreApi,
+  cleanExportConfig,
 } from '@vitessce/vit-s';
 import {
   ViewType,
@@ -168,7 +169,8 @@ export function AnnotationControllerSubscriber(props) {
   const handleDownloadConfig = useCallback(() => {
     const viewConfig = storeApi.getState().viewConfig;
     if (!viewConfig) return;
-    const blob = new Blob([JSON.stringify(viewConfig, null, 2)], { type: 'application/json' });
+    const cleaned = cleanExportConfig(viewConfig);
+    const blob = new Blob([JSON.stringify(cleaned, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
