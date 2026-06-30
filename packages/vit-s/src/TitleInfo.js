@@ -142,7 +142,7 @@ function DownloadOptions(props) {
 }
 
 function HelpButton(props) {
-  const { helpText, guideUrl } = props;
+  const { helpText, guideUrl, helpComponent: HelpComponent } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -157,7 +157,7 @@ function HelpButton(props) {
       withPaper={false}
     >
       <span className={classes.helpTextSpan}>
-        {helpText}
+        {HelpComponent ? <HelpComponent /> : helpText}
         {guideUrl ? (
           <IconButton
             component="a"
@@ -232,9 +232,16 @@ export function TitleInfo(props) {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
     helpText, withPadding = true, errors: errorsProp, guideUrl,
+    helpViews, componentType,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
+  // Look up plugin help component for this view type
+  const helpComponent = useMemo(() => {
+    if (!helpViews || !componentType) return null;
+    return helpViews.find(h => h.viewType === componentType)?.component ?? null;
+  }, [helpViews, componentType]);
+  
 
   const { classes } = useTitleStyles();
   const hasInfoText = Boolean(info);
@@ -260,10 +267,11 @@ export function TitleInfo(props) {
               errors={errors}
             />
           ) : null}
-          {helpText ? (
+          {helpText || helpComponent ? (
             <HelpButton
               helpText={helpText}
               guideUrl={guideUrl}
+              helpComponent={helpComponent}
             />
           ) : null}
           {closeButtonVisible && removeGridComponent ? (
