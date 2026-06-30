@@ -70,6 +70,7 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -638,6 +639,8 @@ export function SpatialSubscriber(props) {
       options={options}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.SPATIAL}
     >
       <div style={{
         position: 'absolute',
