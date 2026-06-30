@@ -848,7 +848,11 @@ export default class Neuroglancer extends React.Component {
           scope => layer.name?.includes(scope),
         );
         if (layerScope) {
-          const opacity = cellColorMappingByLayer[layerScope]?.opacity ?? 1.0;
+          // meshOpacity prop takes precedence over coordination opacity
+          // when on-demand mesh loading is active
+          const opacity = this.props.meshOpacity !== undefined
+            ? this.props.meshOpacity
+            : (cellColorMappingByLayer[layerScope]?.opacity ?? 1.0);
           layer.layer.displayState.objectAlpha.value = opacity;
         }
       }

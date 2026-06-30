@@ -126,6 +126,7 @@ export class NeuroglancerComp extends PureComponent {
       onLayerLoadingChange,
       onAnnotationSourceReady,
       onViewerReady,
+      meshOpacity,
     } = this.props;
 
     return (
@@ -143,6 +144,7 @@ export class NeuroglancerComp extends PureComponent {
               ref={this.onRef}
               onAnnotationSourceReady={onAnnotationSourceReady}
               onViewerReady={onViewerReady}
+              meshOpacity={meshOpacity}
             />
           </Suspense>
         </div>

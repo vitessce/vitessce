@@ -968,6 +968,7 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
 
+  const meshOpacity = hasMatchingAnnotationSource ? 0.6 : undefined;
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -1245,6 +1246,7 @@ export function NeuroglancerSubscriber(props) {
             onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             cellsUrl={cellsUrl}
+            meshOpacity={meshOpacity}
           />
         </div>
       ) : null}
