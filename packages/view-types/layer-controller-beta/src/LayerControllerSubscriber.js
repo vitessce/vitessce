@@ -58,6 +58,7 @@ export function LayerControllerSubscriber(props) {
     uuid,
     layerPerFeatureForPoints = false,
     cameraPresets,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -366,6 +367,8 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.LAYER_CONTROLLER_BETA}
     >
       <LayerController
         theme={theme}

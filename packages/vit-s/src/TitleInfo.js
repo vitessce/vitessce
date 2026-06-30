@@ -241,7 +241,7 @@ export function TitleInfo(props) {
     if (!helpViews || !componentType) return null;
     return helpViews.find(h => h.viewType === componentType)?.component ?? null;
   }, [helpViews, componentType]);
-  
+
 
   const { classes } = useTitleStyles();
   const hasInfoText = Boolean(info);
