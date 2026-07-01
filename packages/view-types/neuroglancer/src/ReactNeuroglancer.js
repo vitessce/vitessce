@@ -943,7 +943,8 @@ export default class Neuroglancer extends React.Component {
 
     // Segments changed (0 segments → N segments or pan/zoom culling update) — push new segments to NG
     const segmentsChanged = prevSegIds.length !== nextSegIds.length
-      || prevSegIds[0] !== nextSegIds[0];
+      || prevSegIds[0] !== nextSegIds[0]
+      || prevSegIds[prevSegIds.length - 1] !== nextSegIds[nextSegIds.length - 1];
 
     if (segmentsChanged && nextSegIds.length > 0) {
       this.preserveDimensions(() => {

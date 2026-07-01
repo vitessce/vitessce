@@ -115,7 +115,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     showAxisLines: false,
     // Maximum projectionScale at which meshes start loading.
     // Higher = meshes load at lower zoom levels. Lower = requires more zoom before meshes appear.
-    meshLoadProjectionScaleThreshold: 500,
+    meshLoadProjectionScaleThreshold: 1200,
     csvUrl: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/MIS_corrected_with_tsne.csv',
   });
 

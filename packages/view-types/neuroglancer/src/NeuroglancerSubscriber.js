@@ -136,6 +136,8 @@ export function NeuroglancerSubscriber(props) {
 
   const [annotationReady, setAnnotationReady] = useState(false);
   const [csvLoaded, setCsvLoaded] = useState(false);
+  const updateVisibleSegmentsThrottledRef = useRef(null);
+  const viewportSizeRef = useRef({ width: 0, height: 0 });
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -551,8 +553,6 @@ export function NeuroglancerSubscriber(props) {
     chunkCacheRef.current.clear();
   }, [obsPointsData]);
 
-  const viewportSizeRef = useRef({ width: 0, height: 0 });
-
   // Keep ref in sync with latest dimensions
   useEffect(() => {
     if (ngWidth && ngHeight) {
@@ -562,6 +562,7 @@ export function NeuroglancerSubscriber(props) {
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
+  // Note: When loading overlay stops after zooming, the meshes appears after some time as fetching takes time
   /**
    ** Following are the steps/Pseudocode that provide the on-demand-mesh-loading
       Zoom in past threshold
@@ -743,7 +744,6 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
 
-  const updateVisibleSegmentsThrottledRef = useRef(null);
   useEffect(() => {
     updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
     return () => updateVisibleSegmentsThrottledRef.current?.cancel();
