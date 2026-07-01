@@ -35,6 +35,7 @@ export function CellSetSizesPlotSubscriber(props) {
     theme,
     title: titleOverride,
     helpText = ViewHelpMapping.OBS_SET_SIZES,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -145,6 +146,8 @@ export function CellSetSizesPlotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.OBS_SET_SIZES}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <CellSetSizesPlot

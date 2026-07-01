@@ -664,6 +664,7 @@ export function ObsSetsManagerSubscriber(props) {
       helpText={helpText}
       errors={errors}
       helpViews={helpViews}
+      componentType={ViewType.OBS_SETS}
     >
       {manager}
     </TitleInfo>

@@ -51,6 +51,7 @@ export function HeatmapSubscriber(props) {
     variablesLabelOverride,
     title = 'Heatmap',
     helpText = ViewHelpMapping.HEATMAP,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -240,6 +241,8 @@ export function HeatmapSubscriber(props) {
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
       isReady={isReady && !isRendering}
+      helpViews={helpViews}
+      componentType={ViewType.HEATMAP}
       options={(
         <HeatmapOptions
           geneExpressionColormap={geneExpressionColormap}

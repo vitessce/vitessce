@@ -60,6 +60,7 @@ export function FeatureListSubscriber(props) {
     closeButtonVisible,
     downloadButtonVisible,
     helpText = ViewHelpMapping.FEATURE_LIST,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -146,6 +147,8 @@ export function FeatureListSubscriber(props) {
       urls={urls}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.FEATURE_LIST}
       options={(
         <FeatureListOptions
           featureListSort={featureListSort}

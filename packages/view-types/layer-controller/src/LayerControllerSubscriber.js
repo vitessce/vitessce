@@ -83,6 +83,7 @@ const LayerControllerMemoized = React.memo(
       handleImageAdd,
       enableLayerButtonsWithOneLayer,
       helpText,
+      helpViews,
     } = props;
     const shouldShowImageLayerButton = Boolean(
       enableLayerButtonsWithOneLayer || imageLayerLoaders?.length > 1,
@@ -98,6 +99,8 @@ const LayerControllerMemoized = React.memo(
         isReady={isReady}
         helpText={helpText}
         errors={errors}
+        helpViews={helpViews}
+        componentType={ViewType.LAYER_CONTROLLER}
       >
         <div className="layer-controller-container" ref={ref}>
           {moleculesLayer && (

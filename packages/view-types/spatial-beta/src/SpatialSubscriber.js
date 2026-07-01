@@ -148,6 +148,7 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -903,6 +904,8 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.SPATIAL_BETA}
     >
       {
         shouldUseThree ? (
