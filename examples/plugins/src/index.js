@@ -17,5 +17,5 @@ export const pluginProps = {
   'plugin-coordination-type': pluginCoordinationTypeProps,
   'plugin-file-type': pluginFileTypeProps,
   'plugin-image-view': pluginImageViewProps,
-  'plugin-help-view-props': pluginHelpViewProps,
+  'plugin-help-view': pluginHelpViewProps,
 };

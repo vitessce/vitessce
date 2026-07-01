@@ -147,6 +147,7 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
@@ -175,6 +176,7 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
@@ -211,7 +213,6 @@ export function VitessceGridLayout(props) {
           onDragStart={saveCurrentLayouts}
           onResize={onResize}
           onResizeStop={onResizeStop}
-          helpViews={helpViews}
         >
           {layoutChildren}
         </ResponsiveHeightGridLayout>
