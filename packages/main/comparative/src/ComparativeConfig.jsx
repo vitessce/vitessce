@@ -137,7 +137,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     .addFile({
       fileType: 'anndata.zarr',
       // TODO: fix obs/subclass_l1 column
-      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-may-2026.adata.zarr',
+      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-june-2026.adata.zarr',
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',
@@ -548,8 +548,7 @@ export function ComparativePageComponent() {
             </div>
             <div className="view-row-center">
               <Tabs value={tableTab} onChange={(event, newValue) => setTableTab(newValue)} aria-label="Switch table tabs">
-                <Tab label="Differential Expression Results for Selected Gene" />
-                <Tab label="Differential Expression Results for All Genes" />
+                <Tab label="Differential Expression Results" />
                 <Tab label="Gene Set Enrichment Analysis Results" />
               </Tabs>
             </div>
