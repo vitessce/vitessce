@@ -938,14 +938,14 @@ export default class Neuroglancer extends React.Component {
       });
     }
 
-    const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
-      ? prevLayers[0].segments.length : 0;
-    const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
-      ? nextLayers[0].segments.length : 0;
+    const prevSegIds = prevLayers?.[0]?.segments ?? [];
+    const nextSegIds = nextLayers?.[0]?.segments ?? [];
 
-    // first-time seeding – from 0 segments → N segments
-    const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
-    if (initialSegmentsAdded) {
+    // Segments changed (0 segments → N segments or pan/zoom culling update) — push new segments to NG
+    const segmentsChanged = prevSegIds.length !== nextSegIds.length
+      || prevSegIds[0] !== nextSegIds[0];
+
+    if (segmentsChanged && nextSegIds.length > 0) {
       this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });

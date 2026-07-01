@@ -67,7 +67,7 @@ const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
-
+const MESH_OPACITY = 0.6;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -551,6 +551,15 @@ export function NeuroglancerSubscriber(props) {
     chunkCacheRef.current.clear();
   }, [obsPointsData]);
 
+  const viewportSizeRef = useRef({ width: 0, height: 0 });
+
+  // Keep ref in sync with latest dimensions
+  useEffect(() => {
+    if (ngWidth && ngHeight) {
+      viewportSizeRef.current = { width: ngWidth, height: ngHeight };
+    }
+  }, [ngWidth, ngHeight]);
+
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
   const updateVisibleSegments = useCallback(async () => {
@@ -572,6 +581,9 @@ export function NeuroglancerSubscriber(props) {
       }
       return;
     }
+    const { width, height } = viewportSizeRef.current;
+    if (!width || !height) return;
+
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
     const cellsUrl = info.url;
@@ -636,14 +648,13 @@ export function NeuroglancerSubscriber(props) {
 
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
-      // window.__getViewProjectionMat = getViewProjectionMatRef.current;
-
       let visibleIds;
       if (!mat) {
         // Fallback: load all if projection matrix not available
-        console.warn('[screen cull] no viewProjectionMat, loading all');
+        console.warn('No viewProjectionMatrix, loading all');
         visibleIds = [...new Set(allEntries.map(({ id }) => id))];
       } else {
+        const margin = Math.max(width, height) * 0.5;
         // Screen-space projection filter
         // Screen-space culling: project each centroid from annotation space
         // to screen pixels and keep only those within the viewport bounds.
@@ -658,17 +669,16 @@ export function NeuroglancerSubscriber(props) {
             const cx = mat[0] * vx + mat[4] * vy + mat[8] * vz + mat[12];
             const cy = mat[1] * vx + mat[5] * vy + mat[9] * vz + mat[13];
             const cw = mat[3] * vx + mat[7] * vy + mat[11] * vz + mat[15];
-
             // Perspective divide to screen pixels
-            const screenX = ((cx / cw) + 1) * 0.5 * ngWidth;
-            const screenY = (1 - (cy / cw)) * 0.5 * ngHeight;
-
+            const screenX = ((cx / cw) + 1) * 0.5 * width;
+            const screenY = (1 - (cy / cw)) * 0.5 * height;
             // Keep centroid only if it projects within the viewport.
-            return screenX >= 0 && screenX <= ngWidth
-                   && screenY >= 0 && screenY <= ngHeight;
+            return screenX >= -margin && screenX <= width + margin
+                  && screenY >= -margin && screenY <= height + margin;
           }).map(({ id }) => id),
         )];
       }
+      // TODO: ( remove - validation purposes)
       // Confirming phenotypes are correct cell types for an id - tested against csv
       // console.log('[phenotype] sample entries:',
       //   allEntries.slice(0, 50).map(e => ({
@@ -695,7 +705,7 @@ export function NeuroglancerSubscriber(props) {
       // Only show overlay if significant number of new meshes need loading
       const hasSignificantChange = addedIdsCount > 20;
 
-      if (hasSignificantChange) {
+      if (hasSignificantChange && visibleIds.length > 0) {
         setIsMeshLoading(true);
       }
 
@@ -715,7 +725,7 @@ export function NeuroglancerSubscriber(props) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [ngWidth, ngHeight, segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
+  }, [segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
 
   const updateVisibleSegmentsThrottledRef = useRef(null);
   useEffect(() => {
@@ -968,7 +978,9 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
 
-  const meshOpacity = hasMatchingAnnotationSource ? 0.6 : undefined;
+  // For on-demand-mesh-loading use opacity to make the centroids obvious
+  // TODO: may be this shoudl be a prop?
+  const meshOpacity = hasMatchingAnnotationSource ? MESH_OPACITY : undefined;
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
