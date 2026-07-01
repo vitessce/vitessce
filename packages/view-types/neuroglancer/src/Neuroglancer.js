@@ -62,12 +62,40 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
+      const { getMeshIdToCellId, onViewerReady, cellsUrl } = this.props;
+
       this.prevHoverHandler = () => {
-        if (viewer.mouseState.pickedValue !== undefined) {
-          const pickedSegment = viewer.mouseState.pickedValue;
-          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+        const ms = viewer.mouseState;
+        // For point hover: pickedAnnotationId is a by_id lookup key (not MeshID).
+        // Fetch by_id record to get actual MeshID (at offset 12),
+        // then convert MeshID to CellID for scatterplot highlight.
+        if (ms.pickedAnnotationId != null) {
+          const byIdKey = String(ms.pickedAnnotationId);
+          fetch(`${cellsUrl}/by_id/${byIdKey}`)
+            .then(r => r.arrayBuffer())
+            .then((buf) => {
+              const dv = new DataView(buf);
+              const actualMeshId = String(dv.getInt32(12, true));
+              const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
+              this.latestOnSelectHoveredCoords?.(cellId);
+            });
+          return;
         }
+        // TODO: Undo if meshes and cells have same id
+        if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
+          const meshId = String(ms.pickedValue?.low);
+          const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
+          this.latestOnSelectHoveredCoords?.(cellId);
+          return;
+        }
+        this.latestOnSelectHoveredCoords?.(null);
       };
+
+      onViewerReady?.(() => {
+        const panel = [...viewer.display.panels][0];
+        /* eslint-disable-next-line no-underscore-dangle */
+        return panel?.projectionParameters?.value_?.viewProjectionMat;
+      });
 
       viewer.mouseState.changed.add(this.prevHoverHandler);
     } else {
@@ -92,7 +120,14 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   render() {
-    const { classes, viewerState, cellColorMapping, onLayerLoadingChange } = this.props;
+    const { classes,
+      viewerState,
+      cellColorMapping,
+      onLayerLoadingChange,
+      onAnnotationSourceReady,
+      onViewerReady,
+      meshOpacity,
+    } = this.props;
 
     return (
       <>
@@ -107,6 +142,9 @@ export class NeuroglancerComp extends PureComponent {
               bundleRoot={this.bundleRoot}
               cellColorMapping={cellColorMapping}
               ref={this.onRef}
+              onAnnotationSourceReady={onAnnotationSourceReady}
+              onViewerReady={onViewerReady}
+              meshOpacity={meshOpacity}
             />
           </Suspense>
         </div>

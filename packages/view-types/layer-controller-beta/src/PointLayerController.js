@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-unused-vars */
 // eslint gets confused by the "id" being within MUI's inputProps.
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useId } from 'react-aria';
+import { GLSL_COLORMAPS } from '@vitessce/gl';
 import {
   makeStyles,
   Grid,
@@ -32,7 +33,7 @@ import {
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
-import { capitalize, getDefaultColor } from '@vitessce/utils';
+import { capitalize, getDefaultColor, PALETTE } from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
@@ -77,6 +78,8 @@ function PointLayerEllipsisMenu(props) {
     setFeatureFilterMode,
     obsColorEncoding,
     setObsColorEncoding,
+    featureValueColormap,
+    setFeatureValueColormap,
     featureValueColormapRange,
     setFeatureValueColormapRange,
     tooltipsVisible,
@@ -96,6 +99,7 @@ function PointLayerEllipsisMenu(props) {
   const crosshairsVisibleId = useId();
   const legendVisibleId = useId();
   const featureFilterModeId = useId();
+  const colormapSelectorId = useId();
 
   return (
     <PopperMenu
@@ -105,8 +109,23 @@ function PointLayerEllipsisMenu(props) {
       buttonClassName={menuClasses.imageLayerMenuButton}
       containerClassName={menuClasses.imageLayerPopperContainer}
       withPaper
-      aria-label="Open point layer options menu"
+      getAriaLabel={() => 'Open point layer options menu'}
     >
+      <MenuItem dense disableGutters>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={colormapSelectorId}>
+          Colormap:&nbsp;
+        </label>
+        <NativeSelect
+          onChange={e => setFeatureValueColormap(e.target.value)}
+          value={featureValueColormap}
+          inputProps={{ id: colormapSelectorId, 'aria-label': 'Colormap selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {GLSL_COLORMAPS.map(cmap => (
+            <option key={cmap} value={cmap}>{cmap}</option>
+          ))}
+        </NativeSelect>
+      </MenuItem>
       <MenuItem dense disableGutters>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={quantitativeColormapId}>
           Color Encoding:&nbsp;
@@ -121,6 +140,7 @@ function PointLayerEllipsisMenu(props) {
           <option value="geneSelection">Feature Color</option>
           <option value="randomByFeature">Random Color per Feature</option>
           <option value="random">Random Color per Point</option>
+          <option value="quantitativeColormap">Quantitative Colormap</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -140,7 +160,7 @@ function PointLayerEllipsisMenu(props) {
           Colormap Range:&nbsp;
         </label>
         <Slider
-          disabled={obsColorEncoding !== 'geneSelection'}
+          disabled={obsColorEncoding !== 'geneSelection' && obsColorEncoding !== 'quantitativeColormap'}
           value={featureValueColormapRange}
           min={0.0}
           max={1.0}
@@ -280,7 +300,7 @@ export default function PointLayerController(props) {
     obsColorEncoding === 'spatialLayerColor'
     || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
   );
-  const isColormap = false; // We do not yet support quantitative colormaps for points.
+  const isColormap = obsColorEncoding === 'quantitativeColormap';
 
   // If the feature color encoding is "geneSelection" and there is only one feature selected,
   // we can use the first feature's color as the static color, and hook up the featureColor setter
@@ -360,6 +380,40 @@ export default function PointLayerController(props) {
     && featureSelection.length > 0
   );
 
+  // // Sync featureColor with featureSelection whenever the selection changes.
+  // Removes stale entries for genes that are no longer selected, and seeds
+  // new entries with their assigned palette color so the view reflects the
+  // correct color immediately on add — without requiring manual picker interaction.
+  useEffect(() => {
+    if (obsColorEncoding !== 'geneSelection' || !Array.isArray(featureSelection)) return;
+
+    // Remove stale entries for genes no longer selected
+    const cleanedFeatureColor = (featureColor ?? []).filter(
+      fc => featureSelection.includes(fc.name),
+    );
+
+    // Find genes with no color entry yet
+    const missingEntries = featureSelection
+      .filter(featureName => !cleanedFeatureColor.find(fc => fc.name === featureName))
+      .map((featureName) => {
+        const varIdx = featureIndex?.indexOf(featureName) ?? -1;
+        const fColor = varIdx >= 0
+          ? PALETTE[varIdx % PALETTE.length]
+          : getDefaultColor(theme);
+        return { name: featureName, color: fColor };
+      });
+
+    const nextFeatureColor = [...cleanedFeatureColor, ...missingEntries];
+
+    // Only call setter if something actually changed
+    const changed = nextFeatureColor.length !== featureColor?.length
+      || missingEntries.length > 0;
+
+    if (changed) {
+      setFeatureColor(nextFeatureColor);
+    }
+  }, [featureSelection, obsColorEncoding, featureIndex, featureColor]);
+
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
@@ -417,6 +471,8 @@ export default function PointLayerController(props) {
               setLegendVisible={setLegendVisible}
               featureFilterMode={featureFilterMode}
               setFeatureFilterMode={setFeatureFilterMode}
+              featureValueColormap={featureValueColormap}
+              setFeatureValueColormap={setFeatureValueColormap}
             />
           </Grid>
           <Grid size={1} container direction="row">

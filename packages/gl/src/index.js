@@ -10,6 +10,7 @@ export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressio
 export {
   GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TYPE,
 } from './constants.js';
+export { colormaps } from './glsl/index.js';
 
 // Layer extensions
 export { default as ScaledExpressionExtension } from './ScaledExpressionExtension/index.js';

@@ -501,7 +501,7 @@ export const baseCoordinationTypes = [
     z.enum([
       'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
       // For point coloring.
-      'random', 'randomByFeature',
+      'random', 'randomByFeature', 'quantitativeColormap',
     ]),
   ),
   new PluginCoordinationType(CoordinationType.FEATURE_FILTER, null, z.array(z.string()).nullable()),

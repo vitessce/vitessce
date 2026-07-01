@@ -4,7 +4,7 @@
 // - https://github.com/vitessce/vitessce/issues/2359#issuecomment-3572906947
 // - https://chanzuckerberg.github.io/cryoet-data-portal/stable/neuroglancer_quickstart.html
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
-
+import { colormaps, GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT } from '@vitessce/gl';
 
 /**
  * Normalize an RGB color array from [0, 255] to [0, 1].
@@ -107,6 +107,42 @@ export function getSpatialLayerColorWithSelectionShader(
             }
         }
     `;
+}
+
+export function getObsSetSelectionFilteredShader(
+  phenotypeColors,
+  selectedIndices,
+  opacity,
+  borderWidth = 0.0,
+) {
+  const numColors = phenotypeColors.length;
+  const numSelected = selectedIndices.length;
+  const normColors = phenotypeColors.map(c => normalizeColor(c));
+  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
+  const selectedDecl = `int selectedIndices[${numSelected}] = int[${numSelected}](${selectedIndices.join(', ')});`;
+
+  return `
+    void main() {
+      int phenotype = prop_phenotype();
+      ${colorsDecl}
+      ${selectedDecl}
+      bool isSelected = false;
+      for (int i = 0; i < ${numSelected}; ++i) {
+        if (phenotype == selectedIndices[i]) {
+          isSelected = true;
+        }
+      }
+      if (!isSelected) {
+        discard;
+      }
+      vec3 color = vec3(0.5, 0.5, 0.5);
+      if (phenotype >= 0 && phenotype < ${numColors}) {
+        color = phenotypeColors[phenotype];
+      }
+      setColor(vec4(color, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
 }
 
 
@@ -440,6 +476,45 @@ export function getRandomPerPointShader(
     `;
 }
 
+// ============================================================
+// Case 5: quantitativeColormap (continuous/numeric coloring)
+// ============================================================
+
+/**
+ * Generate a shader for quantitative colormap encoding.
+ * Colors each point by mapping a numeric annotation property through a colormap.
+ * @param {string} quantitativeColorProp - Annotation property name holding the numeric value.
+ * @param {number} opacity
+ * @param {string} colormap - Must be a value from GLSL_COLORMAPS e.g. 'viridis', 'plasma'
+ * @param {[number, number]} colormapRange - [low, high] raw value range to normalize
+ * @param {number} borderWidth
+ */
+export function getQuantitativeColormapShader(
+  quantitativeColorProp,
+  opacity,
+  colormap = GLSL_COLORMAP_DEFAULT,
+  colormapRange = [0.0, 1.0],
+  borderWidth = 0.0,
+  quantitativeColorMax = 1.0,
+) {
+  const [low, high] = colormapRange;
+  const resolvedColormap = GLSL_COLORMAPS.includes(colormap) ? colormap : GLSL_COLORMAP_DEFAULT;
+
+  // lang: glsl
+  return `
+    #define COLORMAP_FUNC ${resolvedColormap}
+    ${colormaps}
+    void main() {
+      float rawVal = float(prop_${quantitativeColorProp}());
+      float normalizedVal = rawVal / ${quantitativeColorMax.toFixed(4)};
+      float t = (normalizedVal - ${low.toFixed(4)}) / max(${(high - low).toFixed(4)}, 0.0001);
+      t = clamp(t, 0.0, 1.0);
+      vec4 col = COLORMAP_FUNC(t);
+      setColor(vec4(col.rgb, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
+}
 /**
  * Generate a shader for random-per-point encoding with feature selection.
  * Selected points get a pseudo-random color; unselected get the default color.
@@ -524,6 +599,35 @@ export function getRandomPerPointFilteredShader(
     `;
 }
 
+/**
+ * Generate a shader for obsSetSelection encoding using phenotype index.
+ * Colors each point by its phenotype category using colors from obsSetColor.
+ * @param {Array} phenotypeColors - Array of 13 RGB colors [r,g,b] indexed by phenotype int8
+ * @param {number} opacity
+ * @param {number} borderWidth
+ */
+export function getObsSetSelectionShader(
+  phenotypeColors,
+  opacity,
+  borderWidth = 0.0,
+) {
+  const numColors = phenotypeColors.length;
+  const normColors = phenotypeColors.map(c => normalizeColor(c));
+  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
+
+  return `
+    void main() {
+      int phenotype = prop_phenotype();
+      ${colorsDecl}
+      vec3 color = ${toVec3(normalizeColor([128, 128, 128]))};
+      if (phenotype >= 0 && phenotype < ${numColors}) {
+        color = phenotypeColors[phenotype];
+      }
+      setColor(vec4(color, ${opacity.toFixed(4)}));
+      ${borderWidthGlsl(borderWidth)}
+    }
+  `;
+}
 
 export function getPointsShader(layerCoordination) {
   const {
@@ -538,6 +642,12 @@ export function getPointsShader(layerCoordination) {
     pointMarkerBorderWidth = 0.0,
     featureIndexProp,
     pointIndexProp,
+    quantitativeColorProp,
+    featureValueColormap,
+    featureValueColormapRange,
+    obsSetColor,
+    obsSetSelection,
+    quantitativeColorMax,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
@@ -701,6 +811,73 @@ export function getPointsShader(layerCoordination) {
     );
   }
 
+  if (obsColorEncoding === 'quantitativeColormap') {
+    if (!quantitativeColorProp) {
+      console.warn(
+        'In order to use quantitative colormap encoding for Neuroglancer Points, '
+        + 'options.quantitativeColorProp must be specified for the '
+        + 'obsPoints.ng-annotations fileType in the Vitessce configuration. '
+        + 'Falling back to static color.',
+      );
+      return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
+    }
+    return getQuantitativeColormapShader(
+      quantitativeColorProp,
+      opacity,
+      featureValueColormap,
+      featureValueColormapRange,
+      pointMarkerBorderWidth,
+      quantitativeColorMax,
+    );
+  }
+
+  if (obsColorEncoding === 'cellSetSelection') {
+    if (!obsSetColor || !obsSetSelection) {
+      // Fall back to static grey until obs sets load
+      return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
+    }
+    const colorByName = {};
+    obsSetColor?.forEach(({ path, color }) => {
+      // Only include leaf nodes (path length > 1)
+      // path[0] = group name ('Cell Types'), path[1] = phenotype name
+      if (path?.length > 1) {
+        colorByName[path[path.length - 1]] = color;
+      }
+    });
+
+    // Build phenotype index → color array
+    // Phenotypes are stored as sorted alphabetical indices in binary
+    const uniqueNames = Object.keys(colorByName).sort();
+    const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
+
+    if (isFiltered) {
+      // Build selected indices from obsSetSelection
+      const selectedNames = new Set(
+        obsSetSelection?.map(path => path[path.length - 1]) ?? [],
+      );
+      const selectedIndices = uniqueNames
+        .map((name, idx) => (selectedNames.has(name) ? idx : -1))
+        .filter(idx => idx >= 0);
+
+      if (selectedIndices.length === 0) {
+        // Nothing selected — hide all points
+        return 'void main() { discard; }';
+      }
+
+      return getObsSetSelectionFilteredShader(
+        phenotypeColors,
+        selectedIndices,
+        opacity,
+        pointMarkerBorderWidth,
+      );
+    }
+
+    return getObsSetSelectionShader(
+      phenotypeColors,
+      opacity,
+      pointMarkerBorderWidth,
+    );
+  }
   // Fallback: static color.
   return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
 }

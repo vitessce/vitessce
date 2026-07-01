@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
+import { throttle } from 'lodash-es';
 import {
   TitleInfo,
   useReady,
@@ -48,7 +49,12 @@ import {
   rad2deg,
   deg2rad,
   Q_Y_UP,
+  applyColormap,
+  parseAnnotationChunkSegmentsWithPositions,
+  GREY_HEX,
+  remapCellColors,
 } from './utils.js';
+
 
 const VITESSCE_INTERACTION_DELAY = 50;
 const INIT_VIT_ZOOM = -3.6;
@@ -56,8 +62,12 @@ const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
+const MESH_LOAD_THRESHOLD = 100;
+const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
+
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
+const MESH_OPACITY = 0.6;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -79,10 +89,12 @@ export function NeuroglancerSubscriber(props) {
     downloadButtonVisible,
     removeGridComponent,
     theme,
-    showAxisLines = false,
+    showAxisLines = true,
     title = 'Spatial',
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
+    meshLoadProjectionScaleThreshold,
+    csvUrl,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -94,6 +106,38 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
+
+  const { classes } = useStyles();
+
+  const initialRotationPushedRef = useRef(false);
+  const getViewProjectionMatRef = useRef(null);
+  const obsIdToMeshIdRef = useRef({});
+  const meshIdToCellIdRef = useRef({});
+  // TODO: maynot be needed for other dataset
+  const cellIdToMeshIdRef = useRef({});
+
+  const ngRotPushAtRef = useRef(0);
+  const lastInteractionSource = useRef(null);
+  const applyNgUpdateTimeoutRef = useRef(null);
+  const lastNgPushOrientationRef = useRef(null);
+  const initialRenderCalibratorRef = useRef(null);
+  const translationOffsetRef = useRef([0, 0, 0]);
+  const zoomRafRef = useRef(null);
+  const lastNgQuatRef = useRef([0, 0, 0, 1]);
+  const lastNgScaleRef = useRef(null);
+  const annotationInfoRef = useRef(null);
+  const annotationTransformRef = useRef(null);
+  const visibleSegmentIdsRef = useRef(null);
+  const chunkCacheRef = useRef(new Map());
+  // Track layer loading state for showing loading indicator
+  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
+  // For overlay when meshes are loaded on demand
+  const [isMeshLoading, setIsMeshLoading] = useState(false);
+
+  const [annotationReady, setAnnotationReady] = useState(false);
+  const [csvLoaded, setCsvLoaded] = useState(false);
+  const updateVisibleSegmentsThrottledRef = useRef(null);
+  const viewportSizeRef = useRef({ width: 0, height: 0 });
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -184,6 +228,8 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.FEATURE_TYPE,
+      CoordinationType.FEATURE_VALUE_TYPE,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -209,6 +255,9 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.OBS_SET_COLOR,
+      CoordinationType.OBS_SET_SELECTION,
+      CoordinationType.ADDITIONAL_OBS_SETS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -271,9 +320,27 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiIndicesDataStatus,
   ]);
 
-  // console.log("NG Subs Render orbit", spatialRotationX, spatialRotationY, spatialRotationOrbit);
 
-  const { classes } = useStyles();
+  const lastVitessceRotationRef = useRef({
+    x: spatialRotationX,
+    y: spatialRotationY,
+    z: spatialRotationZ,
+    orbit: spatialRotationOrbit,
+  });
+
+  // Track the last coord values we saw, and only mark "vitessce"
+  // when *those* actually change. This prevents cell set renders
+  // from spoofing the source.
+  const prevCoordsRef = useRef({
+    zoom: spatialZoom,
+    rx: spatialRotationX,
+    ry: spatialRotationY,
+    rz: spatialRotationZ,
+    orbit: spatialRotationOrbit,
+    tx: spatialTargetX,
+    ty: spatialTargetY,
+  });
+
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -283,8 +350,9 @@ export function NeuroglancerSubscriber(props) {
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
-        const { obsSets: layerSets, obsIndex: layerIndex } = obsSegmentationsSetsData
+        const { obsSets: layerSets, obsIndex: layerIndexFromSets } = obsSegmentationsSetsData
           ?.[layerScope]?.[channelScope] || {};
+        const layerIndex = layerIndexFromSets ?? null;
         const {
           obsSetColor,
           obsColorEncoding,
@@ -292,34 +360,98 @@ export function NeuroglancerSubscriber(props) {
           additionalObsSets,
           spatialChannelColor,
           spatialChannelOpacity,
+          featureValueColormap,
+          featureValueColormapRange,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
         if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
-          if (layerIndex && spatialChannelColor) {
+          if (spatialChannelColor) {
             const hex = rgbToHex(spatialChannelColor);
             const ngCellColors = {};
-
-            if (obsSetSelection?.length > 0) {
-              // Only color the segments belonging to selected sets.
-              const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
-              const selectedIds = new Set();
-              obsSetSelection.forEach((setPath) => {
-                const rootNode = mergedCellSets?.tree?.find(n => n.name === setPath[0]);
-                const leafNode = setPath.length > 1
-                  ? rootNode?.children?.find(n => n.name === setPath[1])
-                  : rootNode;
-                leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
-              });
-              layerIndex.forEach((id) => {
-                if (selectedIds.has(String(id))) {
+            if (layerIndex) {
+              // Has obs sets — use layerIndex for IDs
+              if (obsSetSelection?.length > 0) {
+                const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
+                const selectedIds = new Set();
+                obsSetSelection.forEach((setPath) => {
+                  const rootNode = mergedCellSets?.tree?.find(n => n.name === setPath[0]);
+                  const leafNode = setPath.length > 1
+                    ? rootNode?.children?.find(n => n.name === setPath[1])
+                    : rootNode;
+                  leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
+                });
+                layerIndex.forEach((id) => {
+                  if (selectedIds.has(String(id))) {
+                    ngCellColors[id] = hex;
+                  }
+                });
+              } else {
+                // null or empty selection - show ALL segments
+                layerIndex.forEach((id) => {
                   ngCellColors[id] = hex;
-                }
-              });
+                });
+              }
             }
-            result[layerScope][channelScope] = ngCellColors;
+
+            // Store hex as default even if no layerIndex
+            // so applyColorsAndVisibility knows the intended color
+            // result[layerScope][channelScope] = ngCellColors;
+            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
             result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = hex; // store default color
+          }
+        } else if (obsColorEncoding === 'geneSelection') {
+          // For NG mesh segmentations, obsIndex comes from obsSegmentationsSetsData
+          const instanceObsIndex = obsSegmentationsSetsData
+            ?.[layerScope]?.[channelScope]?.obsIndex;
+          const matrixObsIndex = segmentationMultiIndicesData
+            ?.[layerScope]?.[channelScope]?.obsIndex;
+          const expressionData = segmentationMultiExpressionNormData
+            ?.[layerScope]?.[channelScope];
+          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
+            // matrixObsIndex uses 'MIS_X' format, instanceObsIndex uses 'X'
+            // Strip prefix to align the two index spaces
+            const matrixIndexMap = new Map(
+              matrixObsIndex.map((key, i) => {
+                // Strip any non-numeric prefix (e.g. 'MIS_0' -> '0')
+                const normalizedKey = key.replace(/^.*_/, '');
+                return [normalizedKey, i];
+              }),
+            );
+            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(String(key)));
+            const [low, high] = featureValueColormapRange ?? [0, 1];
+            const ngCellColors = {};
+            instanceObsIndex.forEach((id, i) => {
+              const rowIndex = toMatrixIndex[i];
+              const rawVal = expressionData[0][rowIndex] ?? 0;
+              // Uint8Array values are 0-255, already normalized — convert to 0-1
+              const t = rawVal / 255;
+              // Apply colormapRange scaling
+              const tScaled = (t - low) / Math.max(high - low, 0.0001);
+              const tClamped = Math.max(0, Math.min(1, tScaled));
+              const color = applyColormap(featureValueColormap ?? 'viridis', tClamped);
+              ngCellColors[id] = rgbToHex(color);
+            });
+            // TODO: Remove
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+            // result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+          } else if (instanceObsIndex) {
+            // No expression data available — use default color for all segments
+            const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
+            const ngCellColors = {};
+            instanceObsIndex.forEach((id) => {
+              ngCellColors[id] = fallbackColor;
+            });
+            // TODO: remove
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+            // result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = fallbackColor;
           }
         } else if (layerSets && layerIndex) {
+          // cellSetSelection encoding — color by obs set membership
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
           const cellColors = getCellColors({
             cellSets: mergedCellSets,
@@ -328,12 +460,14 @@ export function NeuroglancerSubscriber(props) {
             obsIndex: layerIndex,
             theme,
           });
-          // Convert the list of colors to an object of hex strings, which NG requires.
           const ngCellColors = {};
-          cellColors.forEach((color, i) => {
-            ngCellColors[i] = rgbToHex(color);
+          // cellColors is a Map keyed by segment ID
+          cellColors.forEach((color, id) => {
+            ngCellColors[id] = rgbToHex(color);
           });
-          result[layerScope][channelScope] = ngCellColors;
+          // TODO: remove
+          result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+          // result[layerScope][channelScope] = ngCellColors;
           result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
@@ -347,11 +481,13 @@ export function NeuroglancerSubscriber(props) {
     obsSegmentationsSetsData,
     segmentationChannelCoordination,
     theme,
+    segmentationMultiExpressionNormData,
+    segmentationMultiIndicesData,
+    csvLoaded,
   }, customIsEqualForCellColors);
 
-
   // Obtain the Neuroglancer viewerState object.
-  const initalViewerState = useNeuroglancerViewerState(
+  const initialViewerState = useNeuroglancerViewerState(
     theme,
     showAxisLines,
     segmentationLayerScopes,
@@ -366,13 +502,252 @@ export function NeuroglancerSubscriber(props) {
     obsPointsData,
     pointMultiIndicesData,
   );
-
-
+  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
+  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
+  // is the mechanism to propagate culling updates to the NG viewer state.
   const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
   const latestViewerStateRef = useRef({
-    ...initalViewerState,
+    ...initialViewerState,
     ...(initialNgCameraState ?? {}),
   });
+
+  // TODO: Remove - For debugging in console
+  useEffect(() => {
+    // eslint-disable-next-line no-underscore-dangle
+    window.__chunkCache = chunkCacheRef.current;
+  }, []);
+
+  // TODO: need to read it from vitessce globals
+  useEffect(() => {
+    if (!csvUrl) return;
+    fetch(csvUrl)
+      .then(r => r.text())
+      .then((text) => {
+        const lines = text.split('\n');
+        const header = lines[0].split(',');
+        const meshIdIdx = header.indexOf('MeshID');
+        const cellIdIdx = header.indexOf('CellID');
+        const meshMap = {};
+        const cellMap = {};
+        lines.slice(1).forEach((l) => {
+          const cols = l.split(',');
+          const meshId = cols[meshIdIdx]?.trim();
+          const cellId = cols[cellIdIdx]?.trim();
+          if (meshId && cellId) {
+            meshMap[meshId] = cellId;
+            cellMap[cellId] = meshId; // ← add reverse map
+          }
+        });
+        meshIdToCellIdRef.current = meshMap;
+        cellIdToMeshIdRef.current = cellMap;
+        setCsvLoaded(true);
+        // window.__meshIdToCellId = meshIdToCellIdRef.current;
+        // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
+        // console.log('[csvUrl] meshIdToCellId size:', Object.keys(meshMap).length);
+        // console.log('[csvUrl] cellIdToMeshId size:', Object.keys(cellMap).length);
+      });
+  }, [csvUrl]);
+
+  // clear cache when annotation source changes
+  useEffect(() => {
+    chunkCacheRef.current.clear();
+  }, [obsPointsData]);
+
+  // Keep ref in sync with latest dimensions
+  useEffect(() => {
+    if (ngWidth && ngHeight) {
+      viewportSizeRef.current = { width: ngWidth, height: ngHeight };
+    }
+  }, [ngWidth, ngHeight]);
+
+  // Core viewport culling function — determines which mesh segments are visible
+  // in the current camera view and updates visibleSegmentIdsRef accordingly.
+  // Note: When loading overlay stops after zooming, the meshes appears after some time as fetching takes time
+  /**
+   ** Following are the steps/Pseudocode that provide the on-demand-mesh-loading
+      Zoom in past threshold
+      updateVisibleSegments() fires (throttled 500ms)
+      Fetch all chunks across all spatial levels (cached after first fetch)
+      Parse binary to array of { id, x, y, z, ... } per point
+      Deduplicate by id across LOD levels
+      Project each centroid through NG's view-projection matrix to screen pixels
+      Keep only centroids within [-margin, ngWidth+margin] × [-margin, ngHeight+margin]
+      visibleSegmentIdsRef = surviving IDs
+      Increment latestViewerStateIteration, derivedViewerState re-runs
+      derivedViewerState puts IDs into segmentation layer's segments array
+      componentDidUpdate in ReactNeuroglancer.js detects segments changed and calls restoreState({ layers })
+      NG receives updated segments and fetches and renders meshes for those IDs
+   */
+  const updateVisibleSegments = useCallback(async () => {
+    if (!annotationInfoRef.current) return;
+    if (!annotationTransformRef.current) return;
+    if (!segmentationLayerScopes?.length) return;
+    if (!pointLayerScopes?.length) return;
+
+    const { position, projectionScale } = latestViewerStateRef.current;
+    if (!position || !projectionScale) return;
+
+    // Threshold check - too zoomed out, clear segments
+    const maxProjectionScale = meshLoadProjectionScaleThreshold ?? MESH_LOAD_THRESHOLD;
+    if (projectionScale > maxProjectionScale) {
+      if (visibleSegmentIdsRef.current?.length !== 0) {
+        visibleSegmentIdsRef.current = [];
+        incrementLatestViewerStateIteration();
+        setIsMeshLoading(false);
+      }
+      return;
+    }
+    const { width, height } = viewportSizeRef.current;
+    if (!width || !height) return;
+
+    const transform = annotationTransformRef.current;
+    const info = annotationInfoRef.current;
+    const cellsUrl = info.url;
+
+    // // Fetch all annotation chunks across all spatial levels
+    const allLevelCoords = info.spatial.flatMap((level) => {
+      const [gx, gy, gz] = level.grid_shape;
+      const coords = [];
+      for (let cx = 0; cx < gx; cx++) {
+        for (let cy = 0; cy < gy; cy++) {
+          for (let cz = 0; cz < gz; cz++) {
+            coords.push({ level: level.key, cx, cy, cz });
+          }
+        }
+      }
+      return coords;
+    });
+
+    const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
+      const { serializers, serializer: defaultSerializer } = annotationTransformRef.current;
+      // TODO: confirm for all datasets
+      // All spatial levels use serializer[0] (32-byte property block).
+      // Although serializer[1] (44 bytes) exists for rank-3 spatial levels spatial1/2/3,
+      // the actual chunk data was generated with 32-byte properties regardless of level.
+      const serializer = serializers?.[0] ?? defaultSerializer;
+      if (!serializer) return [];
+      const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
+      if (chunkCacheRef.current.has(cacheKey)) {
+        return chunkCacheRef.current.get(cacheKey);
+      }
+      try {
+        const res = await fetch(cacheKey);
+        if (!res.ok) {
+          chunkCacheRef.current.set(cacheKey, []);
+          return [];
+        }
+        const buffer = await res.arrayBuffer();
+        const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
+        chunkCacheRef.current.set(cacheKey, entries);
+        return entries;
+      } catch (e) {
+        chunkCacheRef.current.set(cacheKey, []);
+        return [];
+      }
+    };
+
+    try {
+      const results = await Promise.all(allLevelCoords.map(fetchChunkWithPositions));
+      // Deduplicate by ID across all spatial levels
+      const seenIds = new Set();
+      const allEntries = results.flat().filter(({ id }) => {
+        if (seenIds.has(id)) return false;
+        seenIds.add(id);
+        return true;
+      });
+      // Build obsId → meshId lookup for hover (centroid dot hover returns indexInfo/obsId)
+      const obsIdToMeshId = {};
+      allEntries.forEach(({ id, obsId }) => {
+        obsIdToMeshId[obsId] = id;
+      });
+      obsIdToMeshIdRef.current = obsIdToMeshId;
+
+      // Get current view-projection matrix from NG panel
+      const mat = getViewProjectionMatRef.current?.();
+      let visibleIds;
+      if (!mat) {
+        // Fallback: load all if projection matrix not available
+        console.warn('No viewProjectionMatrix, loading all');
+        visibleIds = [...new Set(allEntries.map(({ id }) => id))];
+      } else {
+        // Extend the viewport by 50% on each side (to allow mesh-loading when panning around)
+        const margin = Math.max(width, height) * 0.5;
+        // Screen-space projection filter
+        // Screen-space culling: project each centroid from annotation space
+        // to screen pixels and keep only those within the viewport bounds.
+        visibleIds = [...new Set(
+          allEntries.filter(({ x, y, z }) => {
+            // Annotation to viewer coordinates
+            const vx = x / transform.x;
+            const vy = y / transform.y;
+            const vz = (z || 0) / transform.z;
+
+            // Project to clip space (column-major matrix)
+            const cx = mat[0] * vx + mat[4] * vy + mat[8] * vz + mat[12];
+            const cy = mat[1] * vx + mat[5] * vy + mat[9] * vz + mat[13];
+            const cw = mat[3] * vx + mat[7] * vy + mat[11] * vz + mat[15];
+            // Perspective divide to screen pixels
+            const screenX = ((cx / cw) + 1) * 0.5 * width;
+            const screenY = (1 - (cy / cw)) * 0.5 * height;
+            // Keep centroid only if it projects within the viewport.
+            return screenX >= -margin && screenX <= width + margin
+                  && screenY >= -margin && screenY <= height + margin;
+          }).map(({ id }) => id),
+        )];
+      }
+      // TODO: ( remove - validation purposes)
+      // Confirming phenotypes are correct cell types for an id - tested against csv
+      // console.log('[phenotype] sample entries:',
+      //   allEntries.slice(0, 50).map(e => ({
+      //     id: e.id, phenotype: e.phenotype
+      //   }))
+      // );
+      // console.log("IDs", projectionScale, visibleIds.length, visibleSegmentIdsRef.current?.length);
+
+      // If panned into an empty area
+      if (visibleIds.length === 0) {
+        if (visibleSegmentIdsRef.current?.length !== 0) {
+          visibleSegmentIdsRef.current = [];
+          incrementLatestViewerStateIteration();
+        }
+        setIsMeshLoading(false);
+        return;
+      }
+
+      const prevIds = new Set(visibleSegmentIdsRef.current ?? []);
+
+      // Count how many IDs are new (not in previous set)
+      const addedIdsCount = visibleIds.filter(id => !prevIds.has(id)).length;
+
+      // Only show overlay if significant number of new meshes need loading
+      const hasSignificantChange = addedIdsCount > 20;
+
+      if (hasSignificantChange && visibleIds.length > 0) {
+        setIsMeshLoading(true);
+      }
+
+      // To update NG state only when there is actual change in ids.
+      const prevSorted = [...(visibleSegmentIdsRef.current ?? [])].sort().join(',');
+      const nextSorted = [...visibleIds].sort().join(',');
+
+      if (prevSorted !== nextSorted) {
+        visibleSegmentIdsRef.current = visibleIds;
+        incrementLatestViewerStateIteration();
+      }
+      // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
+      if (hasSignificantChange) {
+        setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
+      }
+    } catch (e) {
+      console.warn('[updateVisibleSegments] error:', e);
+      setIsMeshLoading(false);
+    }
+  }, [segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
+
+  useEffect(() => {
+    updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
+    return () => updateVisibleSegmentsThrottledRef.current?.cancel();
+  }, [updateVisibleSegments]);
 
   useEffect(() => {
     const prevNgCameraState = {
@@ -381,48 +756,72 @@ export function NeuroglancerSubscriber(props) {
       projectionScale: latestViewerStateRef.current.projectionScale,
     };
     latestViewerStateRef.current = {
-      ...initalViewerState,
+      ...initialViewerState,
       ...prevNgCameraState,
     };
     // Force a re-render by incrementing a piece of state.
     // This works because we have made latestViewerStateIteration
     // a dependency for derivedViewerState, triggering the useMemo downstream.
     incrementLatestViewerStateIteration();
-  }, [initalViewerState]);
+  }, [initialViewerState]);
 
-  const initialRotationPushedRef = useRef(false);
+  // Get cells URL from obsPointsUrls
+  const cellsUrl = useMemo(() => {
+    const firstScope = pointLayerScopes?.[0];
+    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [pointLayerScopes, obsPointsUrls]);
 
-  const ngRotPushAtRef = useRef(0);
-  const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
-  const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
-  const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgQuatRef = useRef([0, 0, 0, 1]);
-  const lastNgScaleRef = useRef(null);
-  const lastVitessceRotationRef = useRef({
-    x: spatialRotationX,
-    y: spatialRotationY,
-    z: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-  });
 
-  // Track layer loading state for showing loading indicator
-  const [isLayersLoaded, setIsLayersLoaded] = useState(false);
+  // Whether the points layer has opted in to viewport-based mesh culling (useForSegmentationCulling: true).
+  // To avoid datasets like MERFISH (where points are molecules, not cells)
+  // from incorrectly driving mesh culling.
+  const hasMatchingAnnotationSource = useMemo(() => {
+    if (!cellsUrl) return false;
+    const firstPointScope = pointLayerScopes?.[0];
+    const firstPointData = obsPointsData?.[firstPointScope];
+    return !!(firstPointData?.neuroglancerOptions?.useForSegmentationCulling);
+  }, [cellsUrl, pointLayerScopes, obsPointsData]);
 
-  // Track the last coord values we saw, and only mark "vitessce"
-  // when *those* actually change. This prevents cell set renders
-  // from spoofing the source.
-  const prevCoordsRef = useRef({
-    zoom: spatialZoom,
-    rx: spatialRotationX,
-    ry: spatialRotationY,
-    rz: spatialRotationZ,
-    orbit: spatialRotationOrbit,
-    tx: spatialTargetX,
-    ty: spatialTargetY,
-  });
+
+  // URL of the annotation source for the points layer.
+  // To fetch cells/info and spatial chunk files for viewport culling.
+  useEffect(() => {
+    if (!cellsUrl) return;
+    // Fetch annotation info
+    fetch(`${cellsUrl}/info`)
+      .then(r => r.json())
+      .then((info) => {
+        const infoWithUrl = {
+          ...info,
+          url: cellsUrl,
+        };
+        annotationInfoRef.current = infoWithUrl;
+        if (annotationTransformRef.current) setAnnotationReady(true);
+      })
+      .catch(err => console.error('failed to fetch annotation info:', err));
+  }, [cellsUrl]);
+
+
+  // Once both annotation info and transform are available, trigger the initial
+  // mesh visibility update and mark the layer as loaded.
+  useEffect(() => {
+    if (annotationReady) {
+      // Points are loaded and showing — mark as loaded
+      // Meshes will load on demand when zoomed in
+      setIsLayersLoaded(true);
+      updateVisibleSegments();
+    }
+  }, [annotationReady]);
+
+
+  // Callback passed to ReactNeuroglancer when the annotation layer's first chunk loads.
+  // Receives the layerToChunkTransform (for coordinate space conversion) and
+  // the NG property serializer (for binary chunk parsing). Sets annotationReady to trigger initial culling.
+  const onAnnotationSourceReady = useCallback((transform) => {
+    annotationTransformRef.current = transform;
+    if (annotationInfoRef.current) setAnnotationReady(true);
+  }, []);
+
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -471,6 +870,8 @@ export function NeuroglancerSubscriber(props) {
           setZoom(vitZoomFromNg);
           zoomRafRef.current = null;
         });
+        // Trigger immediate mesh update on zoom change, don't wait for throttle
+        updateVisibleSegments();
       }
       // remember last NG scale
       lastNgScaleRef.current = projectionScale;
@@ -539,7 +940,8 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
       position,
     };
-  }, []);
+    updateVisibleSegmentsThrottledRef.current?.();
+  }, [updateVisibleSegmentsThrottledRef]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -574,20 +976,35 @@ export function NeuroglancerSubscriber(props) {
     const result = {};
     segmentationLayerScopes?.forEach((layerScope) => {
       const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+
       result[layerScope] = {
         colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
         opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
+        defaultColor: segmentationColorMapping?.[layerScope]?.defaultColor ?? null,
       };
     });
     return result;
   }, [segmentationColorMapping, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
+
+  useEffect(() => {
+    if (!hasMatchingAnnotationSource && isReady && !segmentationLayerScopes?.length) {
+      // If no segmentation layers at all — show the loading overlay
+      setIsLayersLoaded(true);
+    }
+  }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
+
+  // For on-demand-mesh-loading use opacity to make the centroids obvious
+  // TODO: may be this shoudl be a prop?
+  const meshOpacity = hasMatchingAnnotationSource ? MESH_OPACITY : undefined;
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
   // and would allow us to potentially remove usage of some refs (e.g., latestViewerStateRef)
   // by relying on the memoization to prevent unnecessary updates.
   const derivedViewerState = useMemo(() => {
+    // console.log('[derivedViewerState] iteration:', latestViewerStateIteration);
+    // console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
     const { current } = latestViewerStateRef;
     if (current.layers.length <= 0) {
       return current;
@@ -730,13 +1147,39 @@ export function NeuroglancerSubscriber(props) {
     }
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
-      const layerScope = segmentationLayerScopes?.[idx];
+      if (layer.type !== 'segmentation') return layer;
+
+      const layerScope = segmentationLayerScopes?.find(
+        scope => layer.name?.includes(scope),
+      );
+      if (!layerScope) return layer;
       const layerColorMapping = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
-      const layerSegments = Object.keys(layerColorMapping);
+      const defaultColor = cellColorMappingByLayer?.[layerScope]?.defaultColor;
+
+      // Determine which segment IDs to pass to NG:
+      let segments = [];
+      if (hasMatchingAnnotationSource) {
+        // Viewport culling active — use only visible segment IDs
+        segments = visibleSegmentIdsRef.current ?? [];
+      } else if (Object.keys(layerColorMapping).length > 0) {
+        // No culling — show all segments from color mapping
+        segments = Object.keys(layerColorMapping);
+      }
+      // only include colors for visible segments
+      let derivedSegmentColors = {};
+      if (hasMatchingAnnotationSource && segments.length > 0) {
+        segments.forEach((meshId) => {
+          const color = layerColorMapping[meshId] || defaultColor;
+          if (color) derivedSegmentColors[meshId] = color;
+        });
+      } else if (!hasMatchingAnnotationSource) {
+        derivedSegmentColors = layerColorMapping;
+      }
+
       return {
         ...layer,
-        segments: layerSegments,
-        segmentColors: layerColorMapping,
+        segments,
+        segmentColors: derivedSegmentColors,
         objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];
@@ -763,16 +1206,18 @@ export function NeuroglancerSubscriber(props) {
 
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
-    spatialRotationZ, spatialTargetX, spatialTargetY, initalViewerState,
-    latestViewerStateIteration]);
+    spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
+    latestViewerStateIteration, hasMatchingAnnotationSource]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
   }, [setCellHighlight]);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
-    setIsLayersLoaded(isLoaded);
-  }, []);
+    if (!isLayersLoaded && isLoaded) {
+      setIsLayersLoaded(true);
+    }
+  }, [isLayersLoaded]);
 
   // TODO: if all cells are deselected, a black view is shown, rather we want to show empty NG view?
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
@@ -780,7 +1225,6 @@ export function NeuroglancerSubscriber(props) {
   // }
 
   const hasLayers = derivedViewerState?.layers?.length > 0;
-  // console.log(derivedViewerState);
 
   return (
 
@@ -793,7 +1237,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady && isLayersLoaded}
+      isReady={isReady && isLayersLoaded && !(hasMatchingAnnotationSource && isMeshLoading)}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
@@ -826,6 +1270,11 @@ export function NeuroglancerSubscriber(props) {
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
             onLayerLoadingChange={handleLayerLoadingChange}
+            onAnnotationSourceReady={onAnnotationSourceReady}
+            onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
+            getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
+            cellsUrl={cellsUrl}
+            meshOpacity={meshOpacity}
           />
         </div>
       ) : null}
