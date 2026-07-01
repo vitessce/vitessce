@@ -562,6 +562,21 @@ export function NeuroglancerSubscriber(props) {
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
+  /**
+   ** Following are the steps/Pseudocode that provide the on-demand-mesh-loading
+      Zoom in past threshold
+      updateVisibleSegments() fires (throttled 500ms)
+      Fetch all chunks across all spatial levels (cached after first fetch)
+      Parse binary to array of { id, x, y, z, ... } per point
+      Deduplicate by id across LOD levels
+      Project each centroid through NG's view-projection matrix to screen pixels
+      Keep only centroids within [-margin, ngWidth+margin] × [-margin, ngHeight+margin]
+      visibleSegmentIdsRef = surviving IDs
+      Increment latestViewerStateIteration, derivedViewerState re-runs
+      derivedViewerState puts IDs into segmentation layer's segments array
+      componentDidUpdate in ReactNeuroglancer.js detects segments changed and calls restoreState({ layers })
+      NG receives updated segments and fetches and renders meshes for those IDs
+   */
   const updateVisibleSegments = useCallback(async () => {
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
@@ -654,13 +669,14 @@ export function NeuroglancerSubscriber(props) {
         console.warn('No viewProjectionMatrix, loading all');
         visibleIds = [...new Set(allEntries.map(({ id }) => id))];
       } else {
+        // Extend the viewport by 50% on each side (to allow mesh-loading when panning around)
         const margin = Math.max(width, height) * 0.5;
         // Screen-space projection filter
         // Screen-space culling: project each centroid from annotation space
         // to screen pixels and keep only those within the viewport bounds.
         visibleIds = [...new Set(
           allEntries.filter(({ x, y, z }) => {
-            // annotation to viewer coordinates
+            // Annotation to viewer coordinates
             const vx = x / transform.x;
             const vy = y / transform.y;
             const vz = (z || 0) / transform.z;
