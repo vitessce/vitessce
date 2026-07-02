@@ -305,7 +305,7 @@ function IndexWithHashParams() {
               <button
                 type="button"
                 onClick={() => handleEdit(false)}
-               title="Edit the original configuration as it was initially loaded"
+                title="Edit the original configuration as it was initially loaded"
               >
                 Edit original
               </button>
