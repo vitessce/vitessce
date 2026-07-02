@@ -1,4 +1,14 @@
 
+## 3.9.12
+
+### Patch Changes
+
+- - Fixed sort-order gene selection to click-based when FeatureList multi-select is enabled (`@vitessce/feature-list`, `@vitessce/example-configs`) ([#2502](https://github.com/vitessce/vitessce/pull/2502))
+  - Added the FeatureAggregateStrategy option for the spatial view to match the scatterplot view.
+
+- Make FetchStore logic for `getRange` consistent with `get` (`@vitessce/zarr-utils`) ([#2509](https://github.com/vitessce/vitessce/pull/2509))
+
+
 ## 3.9.11
 
 ### Patch Changes
