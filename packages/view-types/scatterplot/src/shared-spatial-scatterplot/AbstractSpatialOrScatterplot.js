@@ -265,6 +265,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   render() {
     const {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
+      onBeforeRender,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
@@ -310,7 +311,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
               : []
           }
           glOptions={DEFAULT_GL_OPTIONS}
-          onWebGLInitialized={this.onWebGLInitialized}
+          onDeviceInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
@@ -319,6 +320,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onHover={this.onHover}
           width="100%"
           height="100%"
+          onBeforeRender={onBeforeRender}
         >
           {this.onInitializeViewInfo}
         </deck.DeckGL>

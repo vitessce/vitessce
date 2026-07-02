@@ -1,7 +1,6 @@
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
+/* eslint-disable no-underscore-dangle */
 import { _mergeShaders, project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
 import { BitmapLayer } from '@deck.gl/layers'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D } from '@luma.gl/core';
 import { PIXELATED_TEXTURE_PARAMETERS, TILE_SIZE } from './heatmap-constants.js';
 import {
   GLSL_COLORMAPS,
@@ -9,6 +8,32 @@ import {
   COLORMAP_SHADER_PLACEHOLDER,
 } from './constants.js';
 import { vertexShader, fragmentShader } from './heatmap-bitmap-layer-shaders.js';
+
+
+const uniformBlock = `\
+uniform uBlockUniforms {
+  // What are the dimensions of the texture (width, height)?
+  vec2 uTextureSize;
+
+  // How many consecutive pixels should be aggregated together along each axis?
+  vec2 uAggSize;
+
+  // What are the values of the color scale sliders?
+  vec2 uColorScaleRange;
+} uBlock;
+`;
+
+export const bitmapUniforms = {
+  name: 'uBlock',
+  vs: uniformBlock,
+  fs: uniformBlock,
+  uniformTypes: {
+    uTextureSize: 'vec2<f32>',
+    uAggSize: 'vec2<f32>',
+    uColorScaleRange: 'vec2<f32>',
+  },
+};
+
 
 const defaultProps = {
   image: { type: 'object', value: null, async: true },
@@ -30,14 +55,16 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {object} shaders
    * @returns {object} Merged shaders.
    */
-  // eslint-disable-next-line no-underscore-dangle
   _getShaders(shaders) {
+    // TODO: Update to not use param-reassign.
+    // eslint-disable-next-line no-param-reassign
+    shaders = _mergeShaders(shaders, {
+      disableWarnings: true,
+      modules: this.context.defaultShaderModules,
+    });
     this.props.extensions.forEach((extension) => {
       // eslint-disable-next-line no-param-reassign
-      shaders = _mergeShaders(
-        shaders,
-        extension.getShaders.call(this, extension),
-      );
+      shaders = _mergeShaders(shaders, extension.getShaders.call(this, extension));
     });
     return shaders;
   }
@@ -57,22 +84,22 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
     return this._getShaders({
       vs: vertexShader,
       fs: fragmentShaderWithColormap,
-      modules: [project32, picking],
+      modules: [project32, picking, bitmapUniforms],
     });
   }
 
   updateState(args) {
-    super.updateState(args);
-    this.loadTexture(this.props.image);
     const { props, oldProps } = args;
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
-      // eslint-disable-next-line no-unused-expressions
-      this.state.model?.delete();
-      // eslint-disable-next-line no-underscore-dangle
-      this.state.model = this._getModel(gl);
-      this.getAttributeManager().invalidateAll();
+      // Reference: https://github.com/visgl/deck.gl/blob/87883cdaae08c6eeddf112382da9b572d1503674/modules/layers/src/bitmap-layer/bitmap-layer.ts#L169
+      const attributeManager = this.getAttributeManager();
+      this.state.model?.destroy();
+      this.state.model = this._getModel();
+      attributeManager.invalidateAll();
     }
+    // For some reason, super.updateState must come after the above colormap check.
+    super.updateState(args);
+    this.loadTexture(this.props.image);
   }
 
   /**
@@ -81,8 +108,8 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * Reference: https://github.com/visgl/deck.gl/blob/0afd4e99a6199aeec979989e0c361c97e6c17a16/modules/layers/src/bitmap-layer/bitmap-layer.js#L173
    * @param {*} opts
    */
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
-    const { uniforms } = opts;
     const { bitmapTexture, model } = this.state;
     const {
       aggSizeX, aggSizeY, colorScaleLo, colorScaleHi,
@@ -90,16 +117,14 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
 
     // Render the image
     if (bitmapTexture && model) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            uBitmapTexture: bitmapTexture,
-            uTextureSize: [TILE_SIZE, TILE_SIZE],
-            uAggSize: [aggSizeX, aggSizeY],
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-          }),
-        )
-        .draw();
+      const bitmapProps = {
+        uBitmapTexture: bitmapTexture,
+        uTextureSize: [TILE_SIZE, TILE_SIZE],
+        uAggSize: [aggSizeX, aggSizeY],
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
+      };
+      model.shaderInputs.setProps({ uBlock: bitmapProps });
+      model.draw(this.context.renderPass);
     }
   }
 
@@ -111,28 +136,27 @@ export default class HeatmapBitmapLayer extends BitmapLayer {
    * @param {Uint8Array} image
    */
   loadTexture(image) {
-    const { gl } = this.context;
+    const { device } = this.context;
 
     if (this.state.bitmapTexture) {
       this.state.bitmapTexture.delete();
     }
 
-    if (image instanceof Texture2D) {
+    if (image && image.device) {
       this.setState({
         bitmapTexture: image,
       });
     } else if (image) {
       this.setState({
-        bitmapTexture: new Texture2D(gl, {
+        bitmapTexture: device.createTexture({
           data: image,
+          dimension: '2d',
           mipmaps: false,
-          parameters: PIXELATED_TEXTURE_PARAMETERS,
+          sampler: PIXELATED_TEXTURE_PARAMETERS,
           // Each color contains a single luminance value.
           // When sampled, rgb are all set to this luminance, alpha is 1.0.
           // Reference: https://luma.gl/docs/api-reference/webgl/texture#texture-formats
-          format: GL.LUMINANCE,
-          dataFormat: GL.LUMINANCE,
-          type: GL.UNSIGNED_BYTE,
+          format: 'r8unorm',
           width: TILE_SIZE,
           height: TILE_SIZE,
         }),

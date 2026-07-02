@@ -1,6 +1,4 @@
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
 import { project32, picking } from '@deck.gl/core'; // eslint-disable-line import/no-extraneous-dependencies
-import { Texture2D, isWebGL2 } from '@luma.gl/core';
 import { XRLayer } from '@hms-dbmi/viv';
 import { fs, vs } from './bitmask-layer-shaders.js';
 import {
@@ -8,6 +6,7 @@ import {
   GLSL_COLORMAP_DEFAULT,
   COLORMAP_SHADER_PLACEHOLDER,
 } from './constants.js';
+import { PIXELATED_TEXTURE_PARAMETERS } from './heatmap-constants.js';
 
 function padWithDefault(arr, defaultValue, padWidth) {
   const newArr = [...arr];
@@ -50,6 +49,47 @@ export default class BitmaskLayer extends XRLayer {
     };
   }
 
+  /**
+   * Override the parent loadChannelTextures to enable
+   * up to eight channels (rather than six).
+   * Reference: https://github.com/hms-dbmi/viv/blob/v0.13.3/packages/layers/src/xr-layer/xr-layer.js#L316
+  */
+  loadChannelTextures(channelData) {
+    const textures = {
+      channel0: null,
+      channel1: null,
+      channel2: null,
+      channel3: null,
+      channel4: null,
+      channel5: null,
+    };
+    if (this.state.textures) {
+      Object.values(this.state.textures).forEach(tex => tex && tex.delete());
+    }
+    if (channelData
+      && Object.keys(channelData).length > 0
+      && channelData.data
+    ) {
+      channelData.data.forEach((d, i) => {
+        textures[`channel${i}`] = this.dataToTexture(
+          d,
+          channelData.width,
+          channelData.height,
+        );
+      }, this);
+      Object.keys(textures).forEach((key) => {
+        if (!textures[key]) {
+          textures[key] = this.dataToTexture(
+            [],
+            0,
+            0,
+          );
+        }
+      });
+      this.setState({ textures });
+    }
+  }
+
   updateState({ props, oldProps, changeFlags }) {
     super.updateState({ props, oldProps, changeFlags });
     // Check the cellColorData to determine whether
@@ -69,12 +109,12 @@ export default class BitmaskLayer extends XRLayer {
       this.setState({ expressionTex });
     }
     if (props.colormap !== oldProps.colormap) {
-      const { gl } = this.context;
+      const { device } = this.context;
       if (this.state.model) {
-        this.state.model.delete();
+        this.state.model.destroy();
       }
       // eslint-disable-next-line no-underscore-dangle
-      this.setState({ model: this._getModel(gl) });
+      this.setState({ model: this._getModel(device) });
 
       this.getAttributeManager().invalidateAll();
     }
@@ -86,30 +126,22 @@ export default class BitmaskLayer extends XRLayer {
       cellTexHeight: height,
       cellTexWidth: width,
     } = this.props;
-    const colorTex = new Texture2D(this.context.gl, {
+    const colorTex = this.context.device.createTexture({
       width,
       height,
+      dimension: '2d',
       // Only use Float32 so we don't have to write two shaders
       data,
       // we don't want or need mimaps
       mipmaps: false,
-      parameters: {
-        // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-        // CLAMP_TO_EDGE to remove tile artifacts
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
-      },
-      format: GL.RGB,
-      dataFormat: GL.RGB,
-      type: GL.UNSIGNED_BYTE,
+      sampler: PIXELATED_TEXTURE_PARAMETERS,
+      format: 'rgba8unorm',
     });
     this.setState({ colorTex });
   }
 
+  // eslint-disable-next-line no-unused-vars
   draw(opts) {
-    const { uniforms } = opts;
     const {
       channelsVisible,
       hoveredCell,
@@ -122,26 +154,25 @@ export default class BitmaskLayer extends XRLayer {
     } = this.state;
     // Render the image
     if (textures && model && colorTex) {
-      model
-        .setUniforms(
-          Object.assign({}, uniforms, {
-            hovered: hoveredCell || 0,
-            colorTex,
-            expressionTex,
-            colorTexHeight: colorTex.height,
-            colorTexWidth: colorTex.width,
-            channelsVisible: padWithDefault(
-              channelsVisible,
-              false,
-              // There are six texture entries on the shaders
-              6 - channelsVisible.length,
-            ),
-            uColorScaleRange: [colorScaleLo, colorScaleHi],
-            uIsExpressionMode: isExpressionMode,
-            ...textures,
-          }),
-        )
-        .draw();
+      model.setUniforms({
+        hovered: hoveredCell || 0,
+        colorTexHeight: colorTex.height,
+        colorTexWidth: colorTex.width,
+        channelsVisible: padWithDefault(
+          channelsVisible,
+          false,
+          // There are six texture entries on the shaders
+          6 - channelsVisible.length,
+        ),
+        uColorScaleRange: [colorScaleLo, colorScaleHi],
+        uIsExpressionMode: isExpressionMode,
+      });
+      model.setBindings({
+        colorTex,
+        expressionTex,
+        ...textures,
+      });
+      model.draw(this.context.renderPass);
     }
   }
 
@@ -149,25 +180,23 @@ export default class BitmaskLayer extends XRLayer {
    * This function creates textures from the data
    */
   dataToTexture(data, width, height) {
-    const isWebGL2On = isWebGL2(this.context.gl);
-    return new Texture2D(this.context.gl, {
+    return this.context.device.createTexture({
       width,
       height,
+      dimension: '2d',
       // Only use Float32 so we don't have to write two shaders
       data: new Float32Array(data),
       // we don't want or need mimaps
       mipmaps: false,
-      parameters: {
+      sampler: {
         // NEAREST for integer data
-        [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-        [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+        minFilter: 'nearest',
+        magFilter: 'nearest',
         // CLAMP_TO_EDGE to remove tile artifacts
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+        addressModeU: 'clamp-to-edge',
+        addressModeV: 'clamp-to-edge',
       },
-      format: isWebGL2On ? GL.R32F : GL.LUMINANCE,
-      dataFormat: isWebGL2On ? GL.RED : GL.LUMINANCE,
-      type: GL.FLOAT,
+      format: 'r32float',
     });
   }
 }

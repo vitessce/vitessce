@@ -1,5 +1,3 @@
-import GL from '@luma.gl/constants'; // eslint-disable-line import/no-extraneous-dependencies
-
 // Image texture dimensions
 export const TILE_SIZE = 4096;
 // Reshaped data texture dimensions
@@ -23,9 +21,9 @@ export const AXIS_FONT_FAMILY = "-apple-system, 'Helvetica Neue', Arial, sans-se
 
 export const PIXELATED_TEXTURE_PARAMETERS = {
   // NEAREST for integer data to prevent interpolation.
-  [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-  [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-  // CLAMP_TO_EDGE to remove tile artifacts.
-  [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-  [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+  minFilter: 'nearest',
+  magFilter: 'nearest',
+  // CLAMP_TO_EDGE to remove tile artifacts
+  addressModeU: 'clamp-to-edge',
+  addressModeV: 'clamp-to-edge',
 };

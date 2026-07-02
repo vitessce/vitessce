@@ -1,4 +1,4 @@
-export { default as DeckGL } from 'deck.gl';
+export { DeckGL } from '@deck.gl/react';
 export { COORDINATE_SYSTEM } from '@deck.gl/core';
 export {
   PolygonLayer,

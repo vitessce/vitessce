@@ -4,14 +4,16 @@ import { colormaps } from './glsl/index.js';
  * No change to the vertex shader from the base BitmapLayer.
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-vertex.js
  */
-export const vertexShader = `
+// lang: glsl
+export const vertexShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-vertex-shader
 
-attribute vec2 texCoords;
-attribute vec3 positions;
-attribute vec3 positions64Low;
+in vec2 texCoords;
+in vec3 positions;
+in vec3 positions64Low;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 const vec3 pickingColor = vec3(1.0, 0.0, 0.0);
 
@@ -36,11 +38,13 @@ void main(void) {
  * Reference: https://github.com/visgl/deck.gl/blob/8.2-release/modules/layers/src/bitmap-layer/bitmap-layer-fragment.js
  * Reference: https://github.com/hms-dbmi/viv/blob/06231ae02cac1ff57ba458c71e9bc59ed2fc4f8b/src/layers/XRLayer/xr-layer-fragment-colormap.webgl1.glsl
  */
-export const fragmentShader = `
+// lang: glsl
+export const fragmentShader = `\
+#version 300 es
 #define SHADER_NAME heatmap-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 ${colormaps}
@@ -48,27 +52,21 @@ ${colormaps}
 // The texture (GL.LUMINANCE & Uint8Array).
 uniform sampler2D uBitmapTexture;
 
-// What are the dimensions of the texture (width, height)?
-uniform vec2 uTextureSize;
-
-// How many consecutive pixels should be aggregated together along each axis?
-uniform vec2 uAggSize;
-
-// What are the values of the color scale sliders?
-uniform vec2 uColorScaleRange;
 
 // The texture coordinate, varying (interpolated between values set by the vertex shader).
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 void main(void) {
   // Compute 1 pixel in texture coordinates
-  vec2 onePixel = vec2(1.0, 1.0) / uTextureSize;
+  vec2 onePixel = vec2(1.0, 1.0) / uBlock.uTextureSize;
   
-  vec2 viewCoord = vec2(floor(vTexCoord.x * uTextureSize.x), floor(vTexCoord.y * uTextureSize.y));
+  vec2 viewCoord = vec2(floor(vTexCoord.x * uBlock.uTextureSize.x), floor(vTexCoord.y * uBlock.uTextureSize.y));
 
   // Compute (x % aggSizeX, y % aggSizeY).
   // These values will be the number of values to the left / above the current position to consider.
-  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uAggSize.x), -1.0 * mod(viewCoord.y, uAggSize.y));
+  vec2 modAggSize = vec2(-1.0 * mod(viewCoord.x, uBlock.uAggSize.x), -1.0 * mod(viewCoord.y, uBlock.uAggSize.y));
 
   // Take the sum of values along each axis.
   float intensitySum = 0.0;
@@ -77,7 +75,7 @@ void main(void) {
   for(int i = 0; i < 16; i++) {
     // Check to break outer loop early.
     // Uniforms cannot be used as conditions in GLSL for loops.
-    if(float(i) >= uAggSize.y) {
+    if(float(i) >= uBlock.uAggSize.y) {
       // Done in the y direction.
       break;
     }
@@ -87,25 +85,25 @@ void main(void) {
     for(int j = 0; j < 16; j++) {
       // Check to break inner loop early.
       // Uniforms cannot be used as conditions in GLSL for loops.
-      if(float(j) >= uAggSize.x) {
+      if(float(j) >= uBlock.uAggSize.x) {
         // Done in the x direction.
         break;
       }
 
       offsetPixels = vec2((modAggSize.x + float(j)) * onePixel.x, offsetPixels.y);
-      intensitySum += texture2D(uBitmapTexture, vTexCoord + offsetPixels).r;
+      intensitySum += texture(uBitmapTexture, vTexCoord + offsetPixels).r;
     }
   }
   
   // Compute the mean value.
-  float intensityMean = intensitySum / (uAggSize.x * uAggSize.y);
+  float intensityMean = intensitySum / (uBlock.uAggSize.x * uBlock.uAggSize.y);
   
   // Re-scale using the color scale slider values.
-  float scaledIntensityMean = (intensityMean - uColorScaleRange[0]) / max(0.005, (uColorScaleRange[1] - uColorScaleRange[0]));
+  float scaledIntensityMean = (intensityMean - uBlock.uColorScaleRange[0]) / max(0.005, (uBlock.uColorScaleRange[1] - uBlock.uColorScaleRange[0]));
 
-  gl_FragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
+  fragColor = COLORMAP_FUNC(clamp(scaledIntensityMean, 0.0, 1.0));
 
   geometry.uv = vTexCoord;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
