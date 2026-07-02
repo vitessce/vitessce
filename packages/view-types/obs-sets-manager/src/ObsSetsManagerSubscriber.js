@@ -76,6 +76,7 @@ export function ObsSetsManagerSubscriber(props) {
     theme,
     title: titleOverride,
     helpText = ViewHelpMapping.OBS_SETS,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -662,6 +663,8 @@ export function ObsSetsManagerSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.OBS_SETS}
     >
       {manager}
     </TitleInfo>

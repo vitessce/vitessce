@@ -31,6 +31,7 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.FEATURE_SET_ENRICHMENT_BAR_PLOT,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -148,6 +149,8 @@ export function FeatureSetEnrichmentBarPlotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {featureSetStats ? (

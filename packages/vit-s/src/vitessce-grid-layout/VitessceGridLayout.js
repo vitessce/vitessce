@@ -25,6 +25,7 @@ export function VitessceGridLayout(props) {
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded,
     pageMode, children,
+    helpViews,
   } = props;
 
   const getComponent = useCallback((viewType) => {
@@ -146,6 +147,7 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
@@ -174,12 +176,13 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
       );
     }), contextValue];
-  }, [gridComponents, getComponent, onRemoveComponent, theme]);
+  }, [gridComponents, getComponent, onRemoveComponent, theme, helpViews]);
 
   return (pageMode
     ? (

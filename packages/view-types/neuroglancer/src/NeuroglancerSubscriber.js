@@ -90,6 +90,7 @@ export function NeuroglancerSubscriber(props) {
     // and then NeuroglancerSubscriber should internally convert
     // to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -797,6 +798,9 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
+      helpViews={helpViews}
+      componentType={ViewType.NEUROGLANCER
+      }
     >
       {hasLayers ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>

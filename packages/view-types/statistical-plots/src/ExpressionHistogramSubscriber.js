@@ -32,6 +32,7 @@ export function ExpressionHistogramSubscriber(props) {
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.FEATURE_VALUE_HISTOGRAM,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -163,6 +164,8 @@ export function ExpressionHistogramSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.FEATURE_VALUE_HISTOGRAM}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         <ExpressionHistogram

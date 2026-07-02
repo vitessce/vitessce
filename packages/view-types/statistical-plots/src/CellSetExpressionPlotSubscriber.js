@@ -144,6 +144,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     yMin = null,
     yUnits = null,
     helpText = ViewHelpMapping.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -297,6 +298,8 @@ export function CellSetExpressionPlotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.OBS_SET_FEATURE_VALUE_DISTRIBUTION}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

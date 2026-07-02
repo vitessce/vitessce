@@ -26,6 +26,7 @@ export function StatusSubscriber(props) {
     theme,
     title = 'Status',
     helpText = ViewHelpMapping.STATUS,
+    helpViews,
   } = props;
 
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -64,6 +65,8 @@ export function StatusSubscriber(props) {
       isScroll
       isReady
       helpText={helpText}
+      helpViews={helpViews}
+      componentType={ViewType.STATUS}
     >
       <Status warn={warn} info={info} />
     </TitleInfo>

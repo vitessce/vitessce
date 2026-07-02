@@ -61,6 +61,7 @@ export function GatingSubscriber(props) {
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
     helpText = ViewHelpMapping.GATING,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -411,6 +412,8 @@ export function GatingSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.GATING}
       options={(
         <ScatterplotOptions
           observationsLabel={obsType}
