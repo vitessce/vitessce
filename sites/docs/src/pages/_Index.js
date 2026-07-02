@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-console */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
@@ -95,6 +95,25 @@ function IndexWithHashParams() {
 
   const [pendingJson, setPendingJson] = useState(baseJson);
   const [pendingJs, setPendingJs] = useState(baseJs);
+
+  // Holds the most recent view config emitted by Vitessce's onConfigChange,
+  const liveConfigRef = useRef(null);
+
+  // Capture every live view config update without causing a re-render.
+  const handleConfigChange = useCallback((nextConfig) => {
+    liveConfigRef.current = nextConfig;
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.log(nextConfig);
+    }
+  }, [debug]);
+
+  // When a genuinely new base config is loaded (new url/demo/validConfig),
+  // discard any live state captured from the previous visualization so it
+  // cannot leak into the next one.
+  useEffect(() => {
+    liveConfigRef.current = null;
+  }, [validConfig]);
 
   function clearConfigs() {
     setValidConfig(null);
@@ -212,10 +231,15 @@ function IndexWithHashParams() {
     };
   }, [edit, url, demo]);
 
-  function handleEdit() {
+  // Open the editor. When `useLiveConfig` is true (the default), prefer the
+  // live config reflecting the user's current interactions (gene selections,
+  // spatial pan/zoom, etc.). When false, edit the original config as it was
+  // loaded, discarding any live interaction state.
+  function handleEdit(useLiveConfig = true) {
+    const configToEdit = (useLiveConfig && liveConfigRef.current) || validConfig;
     setHashParams({
       dataset: undefined,
-      url: `data:,${encodeURIComponent(JSON.stringify(validConfig))}`,
+      url: `data:,${encodeURIComponent(JSON.stringify(configToEdit))}`,
       edit: true,
     });
   }
@@ -273,9 +297,17 @@ function IndexWithHashParams() {
               ) : null}
               <button
                 type="button"
-                onClick={handleEdit}
+                onClick={() => handleEdit(true)}
+                title="Edit the configuration reflecting the current interactions (gene selections, pan/zoom, etc.)"
               >
                 Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => handleEdit(false)}
+                title="Edit the original configuration as it was initially loaded"
+              >
+                Edit original
               </button>
             </div>
           </div>
@@ -296,7 +328,7 @@ function IndexWithHashParams() {
           ) : null}
           <ThemedVitessce
             validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
+            onConfigChange={handleConfigChange}
             onConfigUpgrade={debug ? logConfigUpgrade : undefined}
             config={validConfig}
             handleEdit={handleEdit}
