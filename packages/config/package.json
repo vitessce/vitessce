@@ -35,6 +35,7 @@
     "@vitessce/globals": "workspace:*",
     "@vitessce/zarr-utils": "workspace:*",
     "zarrita": "catalog:",
-    "@zarrita/storage": "catalog:"
+    "@zarrita/storage": "catalog:",
+    "fetch-jsonp": "^1.4.0"
   }
 }

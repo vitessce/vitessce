@@ -535,6 +535,9 @@ importers:
       '@zarrita/storage':
         specifier: 'catalog:'
         version: 0.1.4
+      fetch-jsonp:
+        specifier: ^1.4.0
+        version: 1.4.0
       zarrita:
         specifier: 'catalog:'
         version: 0.6.1
@@ -10234,6 +10237,9 @@ packages:
   fetch-blob@3.2.0:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
     engines: {node: ^12.20 || >= 14.13}
+
+  fetch-jsonp@1.4.0:
+    resolution: {integrity: sha512-SmOI6UshTUzQ1O+1CJDg31AE4VUIfAO4xfVAy/sH03h4Obml3BnuhTopdFaJMI21T94RfRvfTgTIvV0X8GnJ2A==}
 
   fflate@0.6.10:
     resolution: {integrity: sha512-IQrh3lEPM93wVCEczc9SaAOvkmcoQn/G8Bo1e8ZPlY3X3bnAxWaBdvTdvM1hP62iZp0BXWDy4vTAy4fF0+Dlpg==}
@@ -25846,6 +25852,8 @@ snapshots:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.2.1
+
+  fetch-jsonp@1.4.0: {}
 
   fflate@0.6.10: {}
 
