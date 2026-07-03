@@ -197,37 +197,37 @@ function IndexWithHashParams() {
           setLoading(false);
           clearConfigs();
         }
-      } else if(gist) {
+      } else if (gist) {
         setLoading(true);
         try {
           const gistResult = await fetchConfigFromGist(gist);
           if (unmounted) {
             return;
           }
-          const { title, configContents: responseText, readmeContents } = gistResult;
+          const { configContents: responseText } = gistResult;
           if (edit) {
-              // User wants to edit the URL-based config.
-              try {
-                const responseJson = JSON.parse(responseText);
-                setPendingJson(JSON.stringify(responseJson, null, 2));
-              } catch (e) {
-                // However, this may be an invalid JSON object
-                // so we can just let the user edit the unformatted string.
-                setPendingJson(responseText);
-              }
-              setError(null);
-            } else {
-              try {
-                const responseJson = JSON.parse(responseText);
-                setValidConfig(responseJson);
-              } catch (e) {
-                setError({
-                  title: 'Error parsing JSON',
-                  message: 'Error executing JSON.parse',
-                });
-              }
+            // User wants to edit the URL-based config.
+            try {
+              const responseJson = JSON.parse(responseText);
+              setPendingJson(JSON.stringify(responseJson, null, 2));
+            } catch (e) {
+              // However, this may be an invalid JSON object
+              // so we can just let the user edit the unformatted string.
+              setPendingJson(responseText);
             }
-            setLoading(false);
+            setError(null);
+          } else {
+            try {
+              const responseJson = JSON.parse(responseText);
+              setValidConfig(responseJson);
+            } catch (e) {
+              setError({
+                title: 'Error parsing JSON',
+                message: 'Error executing JSON.parse',
+              });
+            }
+          }
+          setLoading(false);
         } catch (e) {
           console.log(e);
           setError({

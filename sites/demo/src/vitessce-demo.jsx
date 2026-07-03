@@ -49,26 +49,26 @@ function logConfigUpgrade(prevConfig, nextConfig) {
 
 function tryConfigText(configText, theme, debug) {
   try {
-      const config = JSON.parse(configText);
-      return Promise.resolve(() => (
-        <Vitessce
-          config={config}
-          theme={theme}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          validateOnConfigChange={debug}
-        />
-      ));
-    } catch (e) {
-      return Promise.resolve(() => (
-        <Warning
-          title="Error parsing JSON"
-          preformatted={preformattedDetails(response)}
-          unformatted={`${e.message}: ${text}`}
-          theme={theme}
-        />
-      ));
-    }
+    const config = JSON.parse(configText);
+    return Promise.resolve(() => (
+      <Vitessce
+        config={config}
+        theme={theme}
+        onConfigChange={debug ? console.log : undefined}
+        onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+        validateOnConfigChange={debug}
+      />
+    ));
+  } catch (e) {
+    return Promise.resolve(() => (
+      <Warning
+        title="Error parsing JSON"
+        preformatted="Error parsing config JSON."
+        unformatted={`${e.message}: ${configText}`}
+        theme={theme}
+      />
+    ));
+  }
 }
 
 function checkResponse(response, theme, debug) {
@@ -83,11 +83,8 @@ function checkResponse(response, theme, debug) {
       ),
     );
   }
-  return response.text().then((text) => {
-    return tryConfigText(text, theme, debug);
-  });
+  return response.text().then(text => tryConfigText(text, theme, debug));
 }
-
 
 
 /**
@@ -190,18 +187,18 @@ export function VitessceDemo() {
     }
     if (datasetUrl || datasetGist) {
       const responsePromise = (
-        datasetUrl ?
-          fetch(datasetUrl)
+        datasetUrl
+          ? fetch(datasetUrl)
             .then(response => checkResponse(response, theme, debug))
-        : fetchConfigFromGist(datasetGist)
-          .then(gistResult => tryConfigText(gistResult.configContents, theme, debug))
-        ).catch(error => Promise.resolve(() => (
-          <Warning
-            title="Error fetching"
-            unformatted={error.message}
-            theme={theme}
-          />
-        )));
+          : fetchConfigFromGist(datasetGist)
+            .then(gistResult => tryConfigText(gistResult.configContents, theme, debug))
+      ).catch(error => Promise.resolve(() => (
+        <Warning
+          title="Error fetching"
+          unformatted={error.message}
+          theme={theme}
+        />
+      )));
       return (
         <ContainerComponent>
           {!pageMode ? (
