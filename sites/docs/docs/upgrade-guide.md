@@ -5,6 +5,62 @@ title: Upgrade Guide
 
 This guide describes how to upgrade from one major version of the `vitessce` JavaScript package to the next.
 
+## v3 to v4
+
+### React 19
+
+Vitessce v4 is now developed and tested against React 19.
+
+- Most functionality remains compatible with React 18.3+.
+- React 19 is required for usage of the ThreeJS-based 3D rendering functionality, because this uses
+  `@react-three/fiber` v9, which only supports React 19. See the instructions below for more details.
+- React 16 and 17 are no longer supported.
+
+If your app still uses the legacy `ReactDOM.render`, switch to `createRoot`:
+
+```diff
+- import ReactDOM from 'react-dom';
+- ReactDOM.render(<Vitessce {...props} />, document.getElementById('root'));
++ import { createRoot } from 'react-dom/client';
++ createRoot(document.getElementById('root')).render(<Vitessce {...props} />);
+```
+
+For further React upgrade information, see the [React 19 Upgrade Guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide).
+### Three.js and React Three Fiber peer dependencies
+
+The following information is only relevant for Vitessce users who use the ThreeJS-based `spatial-three` or `spatial-accelerated` views for 3D volumetric and mesh rendering (which includes users of [Vitessce Link](https://vitessce.link/about) and its VR rendering features). Users who only rely on the DeckGL- and Neuroglancer-based 3D rendering functionality in Vitessce can ignore this section.
+
+
+Previously, `three` and the `@react-three/*` packages were bundled into Vitessce.
+In v4 they are **peer dependencies**, so that a single copy is shared with your
+application. (Multiple copies of `@react-three/fiber` cause runtime errors such as
+`"R3F: Hooks can only be used within the Canvas component!"`.)
+
+If you use the ThreeJS-based functionality, install the required dependencies alongside
+Vitessce:
+
+```sh
+npm install three @react-three/fiber @react-three/drei
+# Only if you use VR / XR views:
+npm install @react-three/xr
+```
+
+Recommended versions (with React 19):
+
+| Package | Version |
+| --- | --- |
+| `three` | `>=0.159.0` |
+| `@react-three/fiber` | `^9.0.0` |
+| `@react-three/drei` | `^10.0.0` |
+| `@react-three/xr` | `^6.0.0` |
+
+If you already had `three` / `@react-three/fiber` installed, bump them to these
+versions. Note that `@react-three/fiber` v9 requires React 19. For more details, visit the [react-three-fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction).
+
+If you only use 2D views, you do **not** need to install these packages. The 3D
+code is loaded lazily; when the peer dependencies are absent, the 3D view shows a
+fallback message instead of crashing.
+
 ## v2 to v3
 
 

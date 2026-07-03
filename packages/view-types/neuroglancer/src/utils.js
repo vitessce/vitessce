@@ -1,9 +1,3 @@
-import {
-  Quaternion,
-  Euler,
-} from 'three';
-
-
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
 
@@ -120,25 +114,50 @@ export function diffCameraState(prev, next) {
 }
 
 
-//  Convert WebGL's Quaternion rotation to DeckGL's Euler
-export function quaternionToEuler([x, y, z, w]) {
-  const quaternion = new Quaternion(x, y, z, w);
-  // deck.gl uses Y (yaw), X (pitch), Z (roll)
-  // TODO confirm the direction - YXZ
-  const euler = new Euler().setFromQuaternion(quaternion, 'YXZ');
-  const pitch = euler.x; // X-axis rotation
-  const yaw = euler.y; // Y-axis rotation
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-  // return [pitch * RAD2DEG, yaw * RAD2DEG];
+//  Convert WebGL's Quaternion rotation to DeckGL's Euler.
+//  Mirrors three.js Euler.setFromQuaternion(q, 'YXZ') exactly, but without
+//  pulling three into the bundle (deck.gl uses Y=yaw, X=pitch, Z=roll).
+export function quaternionToEuler([x, y, z, w]) {
+  const x2 = x + x;
+  const y2 = y + y;
+  const z2 = z + z;
+  const xx = x * x2;
+  const yy = y * y2;
+  const zz = z * z2;
+  const xz = x * z2;
+  const yz = y * z2;
+  const wx = w * x2;
+  const wy = w * y2;
+  const m11 = 1 - (yy + zz);
+  const m13 = xz + wy;
+  const m23 = yz - wx;
+  const m31 = xz - wy;
+  const m33 = 1 - (xx + yy);
+  const pitch = Math.asin(-clamp(m23, -1, 1)); // X-axis rotation
+  const yaw = Math.abs(m23) < 0.9999999 // Y-axis rotation
+    ? Math.atan2(m13, m33)
+    : Math.atan2(-m31, m11);
   return [pitch, yaw];
 }
 
 
-//  Convert DeckGL's rotation in Euler to WebGL's Quaternion
+//  Convert DeckGL's rotation in Euler to WebGL's Quaternion.
+//  Mirrors three.js Quaternion.setFromEuler(new Euler(pitch, yaw, roll, 'YXZ')).
 export function eulerToQuaternion(pitch, yaw, roll = 0) {
-  const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
-  const quaternion = new Quaternion().setFromEuler(euler);
-  return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+  const c1 = Math.cos(pitch / 2);
+  const c2 = Math.cos(yaw / 2);
+  const c3 = Math.cos(roll / 2);
+  const s1 = Math.sin(pitch / 2);
+  const s2 = Math.sin(yaw / 2);
+  const s3 = Math.sin(roll / 2);
+  return [
+    s1 * c2 * c3 + c1 * s2 * s3,
+    c1 * s2 * c3 - s1 * c2 * s3,
+    c1 * c2 * s3 - s1 * s2 * c3,
+    c1 * c2 * c3 + s1 * s2 * s3,
+  ];
 }
 
 
