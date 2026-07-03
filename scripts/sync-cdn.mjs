@@ -122,6 +122,20 @@ const esmShUrls = {
       "https://esm.sh/react@19.2.7/jsx-runtime",
       "https://esm.sh/react@19.2.7/es2022/jsx-runtime.mjs",
     ],
+    "react/jsx-dev-runtime": [
+      // For react 18.2.0
+      "https://esm.sh/react@18.2.0/jsx-dev-runtime",
+      "https://esm.sh/react@18.2.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 18.3.0
+      "https://esm.sh/react@18.3.0/jsx-dev-runtime",
+      "https://esm.sh/react@18.3.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 19.0.0
+      "https://esm.sh/react@19.0.0/jsx-dev-runtime",
+      "https://esm.sh/react@19.0.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 19.2.7
+      "https://esm.sh/react@19.2.7/jsx-dev-runtime",
+      "https://esm.sh/react@19.2.7/es2022/jsx-dev-runtime.development.mjs",
+    ],
 };
 
 const outDir = process.argv[2];
