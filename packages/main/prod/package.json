@@ -1,6 +1,6 @@
 {
   "name": "vitessce",
-  "version": "3.9.11",
+  "version": "4.0.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -55,9 +55,17 @@
     "@react-three/xr": "^6.0.0"
   },
   "peerDependenciesMeta": {
-    "@react-three/fiber": { "optional": true },
-    "@react-three/drei": { "optional": true },
-    "@react-three/xr": { "optional": true },
-    "three": { "optional": true }
+    "@react-three/fiber": {
+      "optional": true
+    },
+    "@react-three/drei": {
+      "optional": true
+    },
+    "@react-three/xr": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    }
   }
 }
