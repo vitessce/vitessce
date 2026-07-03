@@ -3039,6 +3039,9 @@ importers:
       '@vitessce/comparative':
         specifier: workspace:*
         version: link:../../packages/main/comparative
+      '@vitessce/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../packages/constants-internal

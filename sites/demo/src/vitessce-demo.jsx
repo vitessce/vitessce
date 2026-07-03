@@ -5,6 +5,7 @@ import React, {
 import { Vitessce } from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
+import { fetchConfigFromGist } from '@vitessce/config';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -46,21 +47,9 @@ function logConfigUpgrade(prevConfig, nextConfig) {
   console.log(nextConfig);
 }
 
-function checkResponse(response, theme, debug) {
-  if (!response.ok) {
-    return Promise.resolve(
-      () => (
-        <Warning
-          title="Fetch response not OK"
-          preformatted={preformattedDetails(response)}
-          theme={theme}
-        />
-      ),
-    );
-  }
-  return response.text().then((text) => {
-    try {
-      const config = JSON.parse(text);
+function tryConfigText(configText, theme, debug) {
+  try {
+      const config = JSON.parse(configText);
       return Promise.resolve(() => (
         <Vitessce
           config={config}
@@ -80,8 +69,26 @@ function checkResponse(response, theme, debug) {
         />
       ));
     }
+}
+
+function checkResponse(response, theme, debug) {
+  if (!response.ok) {
+    return Promise.resolve(
+      () => (
+        <Warning
+          title="Fetch response not OK"
+          preformatted={preformattedDetails(response)}
+          theme={theme}
+        />
+      ),
+    );
+  }
+  return response.text().then((text) => {
+    return tryConfigText(text, theme, debug);
   });
 }
+
+
 
 /**
  * Use the theme provided if it is valid, otherwise fall back to the 'dark' theme.
@@ -115,6 +122,7 @@ export function VitessceDemo() {
     const isComparative = urlParams.get('comparative') === 'true';
     const debug = urlParams.get('debug') === 'true';
     const datasetUrl = urlParams.get('url');
+    const datasetGist = urlParams.get('gist');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
@@ -180,10 +188,14 @@ export function VitessceDemo() {
         </ContainerComponent>
       );
     }
-    if (datasetUrl) {
-      const responsePromise = fetch(datasetUrl)
-        .then(response => checkResponse(response, theme, debug))
-        .catch(error => Promise.resolve(() => (
+    if (datasetUrl || datasetGist) {
+      const responsePromise = (
+        datasetUrl ?
+          fetch(datasetUrl)
+            .then(response => checkResponse(response, theme, debug))
+        : fetchConfigFromGist(datasetGist)
+          .then(gistResult => tryConfigText(gistResult.configContents, theme, debug))
+        ).catch(error => Promise.resolve(() => (
           <Warning
             title="Error fetching"
             unformatted={error.message}

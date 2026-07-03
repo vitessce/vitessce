@@ -17,7 +17,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vitessce": "workspace:*",
-    "@vitessce/comparative": "workspace:*"
+    "@vitessce/comparative": "workspace:*",
+    "@vitessce/config": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
