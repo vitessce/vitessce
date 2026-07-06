@@ -60,6 +60,11 @@ const configTech = {
   'jain-2024': '3D microscopy',
   'sorger-2024-2': 'CyCIF',
   'sorger-2024-4': 'CyCIF',
+  'sdata-xenium_rep1_io': '10x Genomics Xenium®',
+  'spatialdata-visium_hd': '10x Genomics Visium HD®',
+  'codex-2023': 'Akoya PhenoCycler® (formerly CODEX®)',
+  'sdata-merfish': 'MERFISH',
+  'spatialdata-aligned_visium_xenium': '10x Genomics Xenium®',
 };
 
 function cleanAttr(attrVal) {
@@ -129,12 +134,17 @@ function DemoList(props) {
       'jain-2024',
       'sorger-2024-2',
       'sorger-2024-4',
+      'sdata-xenium_rep1_io',
+      'spatialdata-visium_hd',
+      'codex-2023',
+      'sdata-merfish',
+      'spatialdata-aligned_visium_xenium',
     ],
   } = props;
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
- // Which axis the filter pills represent: 'technology' or 'dataType'.
+ // To select the filter in the dropdown, i.e., technology or dataType
  const [filterBy, setFilterBy] = useState(DROPDOWN_OPTIONS.technology);
  const [activeTags, setActiveTags] = useState([]);
   
