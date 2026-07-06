@@ -278,8 +278,8 @@ export default function Home() {
               <a href={examplesUrl} className={styles.sectionLink}>View all &rarr;</a>
             </div>
             <div className={styles.examplesMosaic}>
-              {featuredExamples.map(e => (
-                <ExampleCard key={e.key} configKey={e.key} {...e} isDarkTheme={isDarkTheme} />
+              {featuredExamples.map(({ key, ...rest }) => (
+                <ExampleCard key={key} configKey={key} {...rest} isDarkTheme={isDarkTheme} />
               ))}
             </div>
           </div>
@@ -296,8 +296,8 @@ export default function Home() {
               for Python and R.
             </p>
             <div className={styles.platformsRow}>
-              {platforms.map(p => (
-                <PlatformCard key={p.key} {...p} introUrl={introUrl} isDarkTheme={isDarkTheme} />
+              {platforms.map(({ key, ...rest }) => (
+                <PlatformCard key={key} {...rest} introUrl={introUrl} isDarkTheme={isDarkTheme} />
               ))}
             </div>
           </div>
