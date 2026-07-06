@@ -144,25 +144,25 @@ function DemoList(props) {
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
- // To select the filter in the dropdown, i.e., technology or dataType
- const [filterBy, setFilterBy] = useState(DROPDOWN_OPTIONS.technology);
- const [activeTags, setActiveTags] = useState([]);
-  
- const options = useMemo(() => {
-   const set = new Set();
-       subset.forEach((key) => {
-     if (filterBy === DROPDOWN_OPTIONS.technology) {
-       if (configTech[key]) set.add(configTech[key]);
-     } else {
-       (configAttrs[key] || []).forEach(t => set.add(t));
-     }
-       });
-   return Array.from(set).sort();
- }, [subset, filterBy]);
+  // To select the filter in the dropdown, i.e., technology or dataType
+  const [filterBy, setFilterBy] = useState(DROPDOWN_OPTIONS.technology);
+  const [activeTags, setActiveTags] = useState([]);
+
+  const options = useMemo(() => {
+    const set = new Set();
+    subset.forEach((key) => {
+      if (filterBy === DROPDOWN_OPTIONS.technology) {
+        if (configTech[key]) set.add(configTech[key]);
+      } else {
+        (configAttrs[key] || []).forEach(t => set.add(t));
+      }
+    });
+    return Array.from(set).sort();
+  }, [subset, filterBy]);
 
   const changeAxis = (nextAxis) => {
-     setFilterBy(nextAxis);
-     setActiveTags([]);
+    setFilterBy(nextAxis);
+    setActiveTags([]);
   };
 
   const toggleTag = (tag) => {
