@@ -153,16 +153,17 @@ function DemoList(props) {
   const [filterBy, setFilterBy] = useState(DROPDOWN_OPTIONS.technology);
   const [activeTags, setActiveTags] = useState([]);
 
-  const options = useMemo(() => {
-    const set = new Set();
+  // Collect all unique tags from the subset.
+  const allTags = useMemo(() => {
+    const tagSet = new Set();
     subset.forEach((key) => {
       if (filterBy === DROPDOWN_OPTIONS.technology) {
-        if (configTech[key]) set.add(configTech[key]);
+        if (configTech[key]) tagSet.add(configTech[key]);
       } else {
-        (configAttrs[key] || []).forEach(t => set.add(t));
+        (configAttrs[key] || []).forEach(t => tagSet.add(t));
       }
     });
-    return Array.from(set).sort();
+    return Array.from(tagSet).sort();
   }, [subset, filterBy]);
 
   const changeAxis = (nextAxis) => {
@@ -224,17 +225,17 @@ function DemoList(props) {
           >
             All
           </button>
-          {options.map(option => (
+          {allTags.map(tag => (
             <button
-              key={option}
+              key={tag}
               type="button"
               className={clsx(
                 styles.filterButton,
-                { [styles.filterButtonActive]: activeTags.includes(option) },
+                { [styles.filterButtonActive]: activeTags.includes(tag) },
               )}
-              onClick={() => toggleTag(option)}
+              onClick={() => toggleTag(tag)}
             >
-              {option}
+              {tag}
             </button>
           ))}
         </div>
