@@ -5,6 +5,11 @@ import { useColorMode } from '@docusaurus/theme-common';
 
 import styles from './styles.module.css';
 
+const DROPDOWN_OPTIONS = {
+  technology: 'TECHNOLOGY',
+  dataType: 'DATA_TYPE',
+};
+
 const configAttrs = {
   'codeluppi-2018': ['imaging', 'CSV'],
   'codeluppi-2018-via-zarr': ['imaging', 'Zarr', 'AnnData'],
@@ -29,6 +34,32 @@ const configAttrs = {
   'jain-2024': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
   'sorger-2024-2': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
   'sorger-2024-4': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+};
+
+// Commercial technology / instrument per dataset
+const configTech = {
+  'codeluppi-2018': 'osmFISH',
+  'eng-2019': 'seqFISH+',
+  'wang-2018': 'MERFISH',
+  'spraggins-2020': 'MALDI IMS',
+  'neumann-2020': 'MALDI IMS',
+  'satija-2020': '10x Chromium',
+  'sn-atac-seq-hubmap-2020': 'snATAC-seq',
+  'blin-2019': 'Fluorescence microscopy',
+  'human-lymph-node-10x-visium': '10x Genomics Visium®',
+  'habib-2017': 'DroNc-seq',
+  'marshall-2022': 'Slide-seqV2',
+  'kuppe-2022': '10x Genomics Visium®',
+  'combat-2022': 'CITE-seq',
+  'meta-2022-azimuth': 'scRNA-seq',
+  'salcher-2022': 'scRNA-seq',
+  'spatialdata-visium': '10x Genomics Visium®',
+  'spatialdata-visium_io': '10x Genomics Visium®',
+  'spatialdata-mcmicro_io': 'MCMICRO (output data)',
+  'maynard-2021': '10x Genomics Visium®',
+  'jain-2024': '3D microscopy',
+  'sorger-2024-2': 'CyCIF',
+  'sorger-2024-4': 'CyCIF',
 };
 
 function cleanAttr(attrVal) {
@@ -103,16 +134,26 @@ function DemoList(props) {
 
   const baseUrl = useBaseUrl('/#?dataset=');
 
-  // Collect all unique tags from the subset.
-  const allTags = useMemo(() => {
-    const tagSet = new Set();
-    subset.forEach((key) => {
-      (configAttrs[key] || []).forEach(t => tagSet.add(t));
-    });
-    return Array.from(tagSet).sort();
-  }, [subset]);
+ // Which axis the filter pills represent: 'technology' or 'dataType'.
+ const [filterBy, setFilterBy] = useState(DROPDOWN_OPTIONS.technology);
+ const [activeTags, setActiveTags] = useState([]);
+  
+ const options = useMemo(() => {
+   const set = new Set();
+       subset.forEach((key) => {
+     if (filterBy === DROPDOWN_OPTIONS.technology) {
+       if (configTech[key]) set.add(configTech[key]);
+     } else {
+       (configAttrs[key] || []).forEach(t => set.add(t));
+     }
+       });
+   return Array.from(set).sort();
+ }, [subset, filterBy]);
 
-  const [activeTags, setActiveTags] = useState([]);
+  const changeAxis = (nextAxis) => {
+     setFilterBy(nextAxis);
+     setActiveTags([]);
+  };
 
   const toggleTag = (tag) => {
     if (tag === null) {
@@ -126,10 +167,13 @@ function DemoList(props) {
   const filteredSubset = useMemo(() => {
     if (activeTags.length === 0) return subset;
     return subset.filter((key) => {
+      if (filterBy === DROPDOWN_OPTIONS.technology) {
+        return activeTags.includes(configTech[key]);
+      }
       const attrs = configAttrs[key] || [];
       return activeTags.every(tag => attrs.includes(tag));
     });
-  }, [subset, activeTags]);
+  }, [subset, activeTags, filterBy]);
 
   return (
     <div className={small ? undefined : styles.examplesPageContainer}>
@@ -146,6 +190,15 @@ function DemoList(props) {
       {/* Tag filter bar — only on the full examples page */}
       {!small && (
         <div className={styles.filterBar}>
+          <select
+            className={styles.axisSelect}
+            value={filterBy}
+            onChange={e => changeAxis(e.target.value)}
+            aria-label="Filter examples by"
+          >
+            <option value={DROPDOWN_OPTIONS.technology}>Technology</option>
+            <option value={DROPDOWN_OPTIONS.dataType}>Data type</option>
+          </select>
           <button
             type="button"
             className={clsx(
@@ -156,17 +209,17 @@ function DemoList(props) {
           >
             All
           </button>
-          {allTags.map(tag => (
+          {options.map(option => (
             <button
-              key={tag}
+              key={option}
               type="button"
               className={clsx(
                 styles.filterButton,
-                { [styles.filterButtonActive]: activeTags.includes(tag) },
+                { [styles.filterButtonActive]: activeTags.includes(option) },
               )}
-              onClick={() => toggleTag(tag)}
+              onClick={() => toggleTag(option)}
             >
-              {tag}
+              {option}
             </button>
           ))}
         </div>
