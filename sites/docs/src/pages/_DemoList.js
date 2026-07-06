@@ -34,6 +34,11 @@ const configAttrs = {
   'jain-2024': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
   'sorger-2024-2': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
   'sorger-2024-4': ['imaging', 'spatial', 'ome-tiff', '3D', 'meshes', 'XR'],
+  'sdata-xenium_rep1_io': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-visium_hd': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'codex-2023': ['spatial', 'imaging', 'ome-tiff', 'AnnData', 'Zarr'],
+  'sdata-merfish': ['spatial', 'imaging', 'Zarr', 'SpatialData'],
+  'spatialdata-aligned_visium_xenium': ['spatial', 'imaging', 'multi-modal', 'Zarr', 'SpatialData'],
 };
 
 // Commercial technology / instrument per dataset
