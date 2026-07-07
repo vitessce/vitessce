@@ -13,7 +13,7 @@ import {
   type MemStore,
 } from './test-fixtures.js';
 
-// The core guarantee of #2452: every helper behaves identically whether the
+// To make sure every helper behaves identically whether the
 // underlying store is Zarr v2 or v3. We run one shared suite against both.
 describe.each([
   ['v2', () => makeV2AnnDataStore()],
