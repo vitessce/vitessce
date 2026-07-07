@@ -11,3 +11,10 @@ export {
   flattenOmeAttrs,
   getOmeNgffVersion,
 } from './ome-ngff-version.js';
+export {
+  openListableRoot,
+  nodeExists,
+  getAttrs,
+  getArrayMeta,
+  findExistingPaths,
+} from './hierarchy.js';
