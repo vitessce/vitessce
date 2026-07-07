@@ -18,6 +18,7 @@ export {
   getAttrs,
   getArrayMeta,
   findExistingPaths,
+  getNode,
 } from './hierarchy.js';
 
 export type { NodeEntry } from './hierarchy.js';

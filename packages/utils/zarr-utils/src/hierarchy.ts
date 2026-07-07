@@ -136,3 +136,22 @@ export async function findExistingPaths(
   );
   return results.filter((c): c is string => c !== null);
 }
+
+/**
+ * Version-independent node lookup returning both `kind` and `attrs`, or `null`
+ * if the node doesn't exist. Useful when a caller needs to know whether a node
+ * exists at all (as opposed to `getAttrs`, which can't distinguish "missing
+ * node" from "node exists with empty attrs").
+ */
+export async function getNode(
+  loc: Location<Readable>,
+  path?: string,
+): Promise<{ kind: 'array' | 'group'; attrs: Record<string, unknown> } | null> {
+  try {
+    const node = await open(path ? loc.resolve(path) : loc);
+    return { kind: node.kind, attrs: (node.attrs ?? {}) as Record<string, unknown> };
+  } catch (e) {
+    if (e instanceof NodeNotFoundError) return null;
+    throw e;
+  }
+}
