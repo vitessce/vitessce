@@ -157,11 +157,11 @@ export async function parsedUrlToZmetadata(parsedUrl) {
   }
 
   const { root, contents } = await openListableRoot(initialStore);
-  if (contents){
+  if (contents) {
     // Consolidated store: read attrs for every manifest entry, in
     // manifest order. `kind` comes from the manifest itself.
     return Promise.all(contents.map(async ({ path, kind }) => {
-     const node = await getNode(root, path);
+      const node = await getNode(root, path);
 
       return {
         path,

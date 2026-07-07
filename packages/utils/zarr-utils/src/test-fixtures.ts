@@ -93,9 +93,9 @@ export function makeV2AnnDataStore(
     'obsm/X_umap/.zarray': v2Array([10, 2]),
     'X/.zarray': v2Array([10, 5]),
   };
-  for (const [key, value] of Object.entries(files)) {
+  Object.entries(files).forEach(([key, value]) => {
     store.put(`/${key}`, enc(value));
-  }
+  });
   if (consolidated) {
     store.put('/.zmetadata', enc({ zarr_consolidated_format: 1, metadata: files }));
   }
