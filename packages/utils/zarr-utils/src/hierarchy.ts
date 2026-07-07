@@ -1,7 +1,7 @@
 // Version-independent helpers for reading Zarr hierarchy state.
 //
-// The goal of this module is to let compatibility-critical code (config
-// generation, raster discovery) inspect a Zarr store WITHOUT depending on v2
+// This module serves as a bridge , that is, it allows compatibility-critical code (config
+// generation, raster discovery)  to inspect a Zarr store without depending on v2
 // metadata file names (.zattrs / .zarray / .zgroup / .zmetadata). Everything
 // here routes through zarrita, which resolves `.zattrs`/`.zarray` on v2 stores
 // and `zarr.json` on v3 stores transparently.
@@ -54,7 +54,7 @@ function stripLeadingSlash(path: string): string {
         .contents()
         .map(({ path, kind }) => ({ path, kind }))
       : null;
-    return { root: root(maybeListable), contents };
+      return { root: root(maybeListable) as Location<Readable>, contents };
   }
   
   /** Version-independent existence check for a node at `path`. */

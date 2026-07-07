@@ -3,6 +3,7 @@ export {
 } from './adapter.js';
 export {
   zarrOpenRoot,
+  zarrOpenStore,
   transformEntriesForZipFileStore,
 } from './normalize.js';
 export { createStoreFromMapContents } from './base64-store.js';
@@ -18,3 +19,5 @@ export {
   getArrayMeta,
   findExistingPaths,
 } from './hierarchy.js';
+
+export type { NodeEntry } from './hierarchy.js';

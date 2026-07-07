@@ -339,14 +339,75 @@ describe('generateConfig', () => {
     expect(config).toEqual(expectedConfig);
   });
 
-  it('raises an error for Anndata-ZARR file with misconfigured .zmetadata', async () => {
+  it('degrades gracefully for Anndata-ZARR file with a malformed consolidated manifest', async () => {
+    // invalidmeta.adata.zarr's .zmetadata is not a valid consolidated-metadata
+    // document ({"hello": "world"}), so tryWithConsolidated() cannot parse it.
+    // openListableRoot() treats that the same as "no consolidated metadata" and
+    // falls back to node-by-node probing, rather than surfacing a
+    // .zmetadata-specific parse error -- consistent with the version-independent
+    // goal of not hard-coding v2 metadata-file assumptions into the failure path.
+    // Since the store has no other real nodes on disk, probing finds nothing and
+    // the result is the same empty-but-successful config as the emptymeta case.
     const urls = ['http://localhost:4204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
-    // References:
-    // - https://vitest.dev/api/expect.html#tothrowerror
-    // - https://vitest.dev/api/expect.html#rejects
-    await expect(() => generateConfig(urls))
-      .rejects
-      .toThrowError('Could not generate config: .zmetadata file is not valid.');
+    const expectedConfig = {
+      version: '1.0.15',
+      name: 'An automatically generated config. Adjust values and add layout components if needed.',
+      description: 'Populate with text relevant to this visualisation.',
+      datasets: [
+        {
+          uid: 'A',
+          name: 'An automatically generated view config for dataset. Adjust values and add layout components if needed.',
+          files: [
+            {
+              url: urls[0],
+              fileType: 'anndata.zarr',
+              coordinationValues: {
+                obsType: 'cell',
+                featureType: 'gene',
+                featureValueType: 'expression',
+              },
+              options: {
+                obsEmbedding: [],
+                obsFeatureMatrix: {
+                  path: 'X',
+                },
+              },
+            },
+          ],
+        },
+      ],
+      coordinationSpace: {
+        dataset: {
+          A: 'A',
+        },
+      },
+      layout: [
+        {
+          component: 'obsSetSizes',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 6,
+          w: 12,
+          x: 0,
+          y: 0,
+        },
+        {
+          component: 'obsSetFeatureValueDistribution',
+          coordinationScopes: {
+            dataset: 'A',
+          },
+          h: 6,
+          w: 12,
+          x: 0,
+          y: 6,
+        },
+      ],
+      initStrategy: 'auto',
+    };
+
+    const config = await generateConfig(urls);
+    expect(config).toEqual(expectedConfig);
   });
 
   it('generates config for multiple files correctly', async () => {
