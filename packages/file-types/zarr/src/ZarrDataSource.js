@@ -1,7 +1,7 @@
 // @ts-check
 import { log } from '@vitessce/globals';
-import { zarrOpenRoot } from '@vitessce/zarr-utils';
-import { open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { zarrOpenRoot, getNode } from '@vitessce/zarr-utils';
+import { root as zarrRoot } from 'zarrita';
 import { ZarrNodeNotFoundError } from '@vitessce/error';
 
 /** @import { Location as ZarrLocation, Readable } from 'zarrita' */
@@ -54,17 +54,14 @@ export default class ZarrDataSource {
     if (key.endsWith('.zattrs') || key.endsWith('.zarray') || key.endsWith('.zgroup')) {
       dirKey = key.substring(0, key.length - 8);
     }
-    try {
-      const location = storeRootToUse.resolve(dirKey);
-      const arrOrGroup = await zarrOpen(location);
-      return arrOrGroup.attrs;
-    } catch (/** @type {any} */ e) {
-      if (e.name === 'NodeNotFoundError') {
-        // Throw our own error with a more specific message.
-        throw new ZarrNodeNotFoundError(dirKey);
-      }
-      // Re-throw the error if it is not a NodeNotFoundError.
-      throw e;
+    // `getNode` makes the node-vs-attrs distinction explicit: `null` means the
+    // node genuinely doesn't exist (throw our specific error) 
+    // any other failure (e.g. an unsupported dtype/codec) is
+    // surfaced as `ZarrUnsupportedNodeError`
+    const node = await getNode(storeRootToUse, dirKey);
+    if (!node) {
+      throw new ZarrNodeNotFoundError(dirKey);
     }
+    return node.attrs;
   }
 }
