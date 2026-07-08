@@ -942,7 +942,183 @@ export function upgradeFrom1_0_18(
         const scopeValue: z.infer<typeof imageLayerObj> = coordinationSpace?.spatialImageLayer?.[scopeName];
         // Consider each spatialImageLayer value.
 
-        // TODO
+        let metaCoordinationScope: string;
+        let metaCoordinationScopesBy: string;
+
+        if(hasAlreadyUpgradedImageLayerScopes[scopeName]) {
+          // If we have already upgraded this scope, reuse the existing metaCoordinationScope and metaCoordinationScopesBy.
+          [metaCoordinationScope, metaCoordinationScopesBy] = hasAlreadyUpgradedImageLayerScopes[scopeName];
+        } else {
+          // This is the first time we have encountered this spatialImageLayer scope.
+          metaCoordinationScope = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopes ?? {}));
+          metaCoordinationScopesBy = getNextScope(Object.keys(newCoordinationSpace?.metaCoordinationScopesBy ?? {}));
+
+          // First, need to get the dataset that corresponds to this view.
+          let datasetUid: string | undefined;
+          if (coordinationScopes?.dataset && typeof coordinationScopes?.dataset === 'string') {
+            datasetUid = newCoordinationSpace.dataset[coordinationScopes.dataset];
+          }
+          if (datasets.length > 0) {
+            datasetUid = datasets[0].uid;
+          }
+          // Use newDatasets (rather than datasets) since the image.raster.json
+          // file has already been converted to image.ome-zarr/ome-tiff file(s)
+          // with a fileUid coordinationValue, above.
+          const dataset = newDatasets.find(d => d.uid === datasetUid);
+
+          // Each old layer's `index` refers to its position among the dataset's
+          // image files, in the order they were declared
+          // (originally the renderLayers/images order in a raster.json file).
+          const imageFileDefs = dataset
+            ? dataset.files.filter(file => (
+              ['image.ome-zarr', 'image.ome-tiff'].includes(file.fileType)
+            ))
+            : [];
+
+          const imageLayerScopes: string[] = [];
+          const fileUidByLayer: Record<string, string> = {};
+          const layerVisibleByLayer: Record<string, string> = {};
+          const layerOpacityByLayer: Record<string, string> = {};
+          const layerColormapByLayer: Record<string, string> = {};
+          const layerTransparentColorByLayer: Record<string, string> = {};
+          const layerModelMatrixByLayer: Record<string, string> = {};
+          const imageChannelsByLayer: Record<string, string[]> = {};
+          const targetCByChannel: Record<string, string> = {};
+          const channelVisibleByChannel: Record<string, string> = {};
+          const channelColorByChannel: Record<string, string> = {};
+          const channelWindowByChannel: Record<string, string> = {};
+
+          scopeValue.forEach((layerDef) => {
+            const imageLayerScope = getNextScope(Object.keys(newCoordinationSpace?.imageLayer ?? {}));
+            const layerVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerVisible ?? {}));
+            const layerOpacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerOpacity ?? {}));
+            const fileUidScope = getNextScope(Object.keys(newCoordinationSpace?.fileUid ?? {}));
+            const layerColormapScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerColormap ?? {}));
+            const layerTransparentColorScope = getNextScope(
+              Object.keys(newCoordinationSpace?.spatialLayerTransparentColor ?? {}),
+            );
+            const layerModelMatrixScope = getNextScope(
+              Object.keys(newCoordinationSpace?.spatialLayerModelMatrix ?? {}),
+            );
+
+            const imageFileDef = imageFileDefs[layerDef.index];
+            const fileUidValue = imageFileDef?.coordinationValues?.fileUid ?? null;
+
+            newCoordinationSpace.imageLayer = {
+              ...(newCoordinationSpace.imageLayer ?? {}),
+              [imageLayerScope]: '__dummy__',
+            };
+            newCoordinationSpace.spatialLayerVisible = {
+              ...(newCoordinationSpace.spatialLayerVisible ?? {}),
+              [layerVisibleScope]: layerDef.visible ?? true,
+            };
+            newCoordinationSpace.spatialLayerOpacity = {
+              ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
+              [layerOpacityScope]: layerDef.opacity ?? 1,
+            };
+            newCoordinationSpace.fileUid = {
+              ...(newCoordinationSpace.fileUid ?? {}),
+              [fileUidScope]: fileUidValue,
+            };
+            newCoordinationSpace.spatialLayerColormap = {
+              ...(newCoordinationSpace.spatialLayerColormap ?? {}),
+              [layerColormapScope]: layerDef.colormap ?? null,
+            };
+            newCoordinationSpace.spatialLayerTransparentColor = {
+              ...(newCoordinationSpace.spatialLayerTransparentColor ?? {}),
+              [layerTransparentColorScope]: layerDef.transparentColor ?? null,
+            };
+            newCoordinationSpace.spatialLayerModelMatrix = {
+              ...(newCoordinationSpace.spatialLayerModelMatrix ?? {}),
+              [layerModelMatrixScope]: layerDef.modelMatrix ?? null,
+            };
+
+            imageLayerScopes.push(imageLayerScope);
+            fileUidByLayer[imageLayerScope] = fileUidScope;
+            layerVisibleByLayer[imageLayerScope] = layerVisibleScope;
+            layerOpacityByLayer[imageLayerScope] = layerOpacityScope;
+            layerColormapByLayer[imageLayerScope] = layerColormapScope;
+            layerTransparentColorByLayer[imageLayerScope] = layerTransparentColorScope;
+            layerModelMatrixByLayer[imageLayerScope] = layerModelMatrixScope;
+
+            imageChannelsByLayer[imageLayerScope] = (layerDef.channels ?? []).map((channelDef) => {
+              const imageChannelScope = getNextScope(Object.keys(newCoordinationSpace?.imageChannel ?? {}));
+              const targetCScope = getNextScope(Object.keys(newCoordinationSpace?.spatialTargetC ?? {}));
+              const channelVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelVisible ?? {}));
+              const channelColorScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelColor ?? {}));
+              const channelWindowScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelWindow ?? {}));
+
+              newCoordinationSpace.imageChannel = {
+                ...(newCoordinationSpace.imageChannel ?? {}),
+                [imageChannelScope]: '__dummy__',
+              };
+              newCoordinationSpace.spatialTargetC = {
+                ...(newCoordinationSpace.spatialTargetC ?? {}),
+                [targetCScope]: channelDef.selection?.c ?? 0,
+              };
+              newCoordinationSpace.spatialChannelVisible = {
+                ...(newCoordinationSpace.spatialChannelVisible ?? {}),
+                [channelVisibleScope]: channelDef.visible ?? true,
+              };
+              newCoordinationSpace.spatialChannelColor = {
+                ...(newCoordinationSpace.spatialChannelColor ?? {}),
+                [channelColorScope]: channelDef.color ?? null,
+              };
+              newCoordinationSpace.spatialChannelWindow = {
+                ...(newCoordinationSpace.spatialChannelWindow ?? {}),
+                [channelWindowScope]: channelDef.slider ?? null,
+              };
+
+              targetCByChannel[imageChannelScope] = targetCScope;
+              channelVisibleByChannel[imageChannelScope] = channelVisibleScope;
+              channelColorByChannel[imageChannelScope] = channelColorScope;
+              channelWindowByChannel[imageChannelScope] = channelWindowScope;
+
+              return imageChannelScope;
+            });
+          });
+
+          // Add the values to the coordinationSpace.
+          newCoordinationSpace.metaCoordinationScopes = {
+            ...(newCoordinationSpace.metaCoordinationScopes ?? {}),
+            [metaCoordinationScope]: {
+              imageLayer: imageLayerScopes,
+            },
+          };
+          newCoordinationSpace.metaCoordinationScopesBy = {
+            ...(newCoordinationSpace.metaCoordinationScopesBy ?? {}),
+            [metaCoordinationScopesBy]: {
+              imageLayer: {
+                fileUid: fileUidByLayer,
+                spatialLayerVisible: layerVisibleByLayer,
+                spatialLayerOpacity: layerOpacityByLayer,
+                spatialLayerColormap: layerColormapByLayer,
+                spatialLayerTransparentColor: layerTransparentColorByLayer,
+                spatialLayerModelMatrix: layerModelMatrixByLayer,
+                imageChannel: imageChannelsByLayer,
+              },
+              imageChannel: {
+                spatialTargetC: targetCByChannel,
+                spatialChannelVisible: channelVisibleByChannel,
+                spatialChannelColor: channelColorByChannel,
+                spatialChannelWindow: channelWindowByChannel,
+              },
+            },
+          };
+
+          hasAlreadyUpgradedImageLayerScopes[scopeName] = [metaCoordinationScope, metaCoordinationScopesBy];
+        }
+
+        // Update the meta-coordination scope mappings for the view.
+        newCoordinationScopes.metaCoordinationScopes = [
+          ...(newCoordinationScopes.metaCoordinationScopes ?? []),
+          metaCoordinationScope,
+        ];
+        newCoordinationScopes.metaCoordinationScopesBy = [
+          ...(newCoordinationScopes.metaCoordinationScopesBy ?? []),
+          metaCoordinationScopesBy,
+        ];
+        delete newCoordinationScopes['spatialImageLayer'];
       }
       if(coordinationScopes && coordinationScopes.spatialSegmentationLayer && !Array.isArray(coordinationScopes.spatialSegmentationLayer)) {
         const scopeName = coordinationScopes.spatialSegmentationLayer;
@@ -963,8 +1139,164 @@ export function upgradeFrom1_0_18(
 
           if(Array.isArray(scopeValue)) {
             const bitmaskScopeValue: z.infer<typeof imageLayerObj> = scopeValue;
-            // TODO
-            
+
+            // First, need to get the dataset that corresponds to this view.
+            let datasetUid: string | undefined;
+            if (coordinationScopes?.dataset && typeof coordinationScopes?.dataset === 'string') {
+              datasetUid = newCoordinationSpace.dataset[coordinationScopes.dataset];
+            }
+            if (datasets.length > 0) {
+              datasetUid = datasets[0].uid;
+            }
+            // Use newDatasets (rather than datasets) since the obsSegmentations.raster.json
+            // file has already been converted to obsSegmentations.ome-zarr/ome-tiff file(s)
+            // with a fileUid coordinationValue, above.
+            const dataset = newDatasets.find(d => d.uid === datasetUid);
+
+            // Each old layer's `index` refers to its position among the dataset's
+            // obsSegmentations image files, in the order they were declared
+            // (originally the renderLayers/images order in a raster.json file).
+            const obsSegmentationsFileDefs = dataset
+              ? dataset.files.filter(file => (
+                ['obsSegmentations.ome-zarr', 'obsSegmentations.ome-tiff'].includes(file.fileType)
+              ))
+              : [];
+
+            const segmentationLayerScopes: string[] = [];
+            const fileUidByLayer: Record<string, string> = {};
+            const layerVisibleByLayer: Record<string, string> = {};
+            const layerOpacityByLayer: Record<string, string> = {};
+            const segmentationChannelsByLayer: Record<string, string[]> = {};
+            const obsTypeByChannel: Record<string, string> = {};
+            const targetCByChannel: Record<string, string> = {};
+            const channelVisibleByChannel: Record<string, string> = {};
+            const channelOpacityByChannel: Record<string, string> = {};
+            const channelColorByChannel: Record<string, string> = {};
+            const channelWindowByChannel: Record<string, string> = {};
+            const filledByChannel: Record<string, string> = {};
+            const strokeWidthByChannel: Record<string, string> = {};
+
+            bitmaskScopeValue.forEach((layerDef) => {
+              const segmentationLayerScope = getNextScope(Object.keys(newCoordinationSpace?.segmentationLayer ?? {}));
+              const layerVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerVisible ?? {}));
+              const layerOpacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialLayerOpacity ?? {}));
+              const fileUidScope = getNextScope(Object.keys(newCoordinationSpace?.fileUid ?? {}));
+
+              const obsSegmentationsFileDef = obsSegmentationsFileDefs[layerDef.index];
+              const fileUidValue = obsSegmentationsFileDef?.coordinationValues?.fileUid ?? null;
+              const segmentationsObsType = obsSegmentationsFileDef?.coordinationValues?.obsType ?? null;
+
+              newCoordinationSpace.segmentationLayer = {
+                ...(newCoordinationSpace.segmentationLayer ?? {}),
+                [segmentationLayerScope]: '__dummy__',
+              };
+              newCoordinationSpace.spatialLayerVisible = {
+                ...(newCoordinationSpace.spatialLayerVisible ?? {}),
+                [layerVisibleScope]: layerDef.visible ?? true,
+              };
+              newCoordinationSpace.spatialLayerOpacity = {
+                ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
+                [layerOpacityScope]: layerDef.opacity ?? 1,
+              };
+              newCoordinationSpace.fileUid = {
+                ...(newCoordinationSpace.fileUid ?? {}),
+                [fileUidScope]: fileUidValue,
+              };
+
+              segmentationLayerScopes.push(segmentationLayerScope);
+              fileUidByLayer[segmentationLayerScope] = fileUidScope;
+              layerVisibleByLayer[segmentationLayerScope] = layerVisibleScope;
+              layerOpacityByLayer[segmentationLayerScope] = layerOpacityScope;
+
+              segmentationChannelsByLayer[segmentationLayerScope] = (layerDef.channels ?? []).map((channelDef) => {
+                const segmentationChannelScope = getNextScope(Object.keys(newCoordinationSpace?.segmentationChannel ?? {}));
+                const obsTypeScope = getNextScope(Object.keys(newCoordinationSpace?.obsType ?? {}));
+                const targetCScope = getNextScope(Object.keys(newCoordinationSpace?.spatialTargetC ?? {}));
+                const channelVisibleScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelVisible ?? {}));
+                const channelOpacityScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelOpacity ?? {}));
+                const channelColorScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelColor ?? {}));
+                const channelWindowScope = getNextScope(Object.keys(newCoordinationSpace?.spatialChannelWindow ?? {}));
+                const filledScope = getNextScope(Object.keys(newCoordinationSpace?.spatialSegmentationFilled ?? {}));
+                const strokeWidthScope = getNextScope(Object.keys(newCoordinationSpace?.spatialSegmentationStrokeWidth ?? {}));
+
+                newCoordinationSpace.segmentationChannel = {
+                  ...(newCoordinationSpace.segmentationChannel ?? {}),
+                  [segmentationChannelScope]: '__dummy__',
+                };
+                newCoordinationSpace.obsType = {
+                  ...(newCoordinationSpace.obsType ?? {}),
+                  [obsTypeScope]: segmentationsObsType ?? 'cell',
+                };
+                newCoordinationSpace.spatialTargetC = {
+                  ...(newCoordinationSpace.spatialTargetC ?? {}),
+                  [targetCScope]: channelDef.selection?.c ?? 0,
+                };
+                newCoordinationSpace.spatialChannelVisible = {
+                  ...(newCoordinationSpace.spatialChannelVisible ?? {}),
+                  [channelVisibleScope]: channelDef.visible ?? true,
+                };
+                newCoordinationSpace.spatialChannelOpacity = {
+                  ...(newCoordinationSpace.spatialChannelOpacity ?? {}),
+                  [channelOpacityScope]: 1.0,
+                };
+                newCoordinationSpace.spatialChannelColor = {
+                  ...(newCoordinationSpace.spatialChannelColor ?? {}),
+                  [channelColorScope]: channelDef.color ?? null,
+                };
+                newCoordinationSpace.spatialChannelWindow = {
+                  ...(newCoordinationSpace.spatialChannelWindow ?? {}),
+                  [channelWindowScope]: channelDef.slider ?? null,
+                };
+                newCoordinationSpace.spatialSegmentationFilled = {
+                  ...(newCoordinationSpace.spatialSegmentationFilled ?? {}),
+                  [filledScope]: true,
+                };
+                newCoordinationSpace.spatialSegmentationStrokeWidth = {
+                  ...(newCoordinationSpace.spatialSegmentationStrokeWidth ?? {}),
+                  [strokeWidthScope]: 1,
+                };
+
+                obsTypeByChannel[segmentationChannelScope] = obsTypeScope;
+                targetCByChannel[segmentationChannelScope] = targetCScope;
+                channelVisibleByChannel[segmentationChannelScope] = channelVisibleScope;
+                channelOpacityByChannel[segmentationChannelScope] = channelOpacityScope;
+                channelColorByChannel[segmentationChannelScope] = channelColorScope;
+                channelWindowByChannel[segmentationChannelScope] = channelWindowScope;
+                filledByChannel[segmentationChannelScope] = filledScope;
+                strokeWidthByChannel[segmentationChannelScope] = strokeWidthScope;
+
+                return segmentationChannelScope;
+              });
+            });
+
+            // Add the values to the coordinationSpace.
+            newCoordinationSpace.metaCoordinationScopes = {
+              ...(newCoordinationSpace.metaCoordinationScopes ?? {}),
+              [metaCoordinationScope]: {
+                segmentationLayer: segmentationLayerScopes,
+              },
+            };
+            newCoordinationSpace.metaCoordinationScopesBy = {
+              ...(newCoordinationSpace.metaCoordinationScopesBy ?? {}),
+              [metaCoordinationScopesBy]: {
+                segmentationLayer: {
+                  fileUid: fileUidByLayer,
+                  spatialLayerVisible: layerVisibleByLayer,
+                  spatialLayerOpacity: layerOpacityByLayer,
+                  segmentationChannel: segmentationChannelsByLayer,
+                },
+                segmentationChannel: {
+                  obsType: obsTypeByChannel,
+                  spatialTargetC: targetCByChannel,
+                  spatialChannelVisible: channelVisibleByChannel,
+                  spatialChannelOpacity: channelOpacityByChannel,
+                  spatialChannelColor: channelColorByChannel,
+                  spatialChannelWindow: channelWindowByChannel,
+                  spatialSegmentationFilled: filledByChannel,
+                  spatialSegmentationStrokeWidth: strokeWidthByChannel,
+                },
+              },
+            };
           } else {
             const polygonScopeValue: z.infer<typeof cellsLayerObj> = scopeValue;
 
@@ -1236,11 +1568,11 @@ export function upgradeFrom1_0_18(
     });
   });
 
-  const oldCoordinationTypes = ['spatialPointLayer', 'spatialSegmentationLayer', 'spatialNeighborhoodLayer']; // ['spatialImageLayer'];
+  const oldCoordinationTypes = ['spatialImageLayer', 'spatialPointLayer', 'spatialSegmentationLayer', 'spatialNeighborhoodLayer'];
   oldCoordinationTypes.forEach((coordinationType) => {
     delete newCoordinationSpace[coordinationType];
   });
-  
+
   Object.keys(newCoordinationSpace).forEach((coordinationType) => {
     if (oldCoordinationTypes.includes(coordinationType)) {
       // throw new Error(`Invalid coordination type ${coordinationType} found in coordinationSpace.`);
