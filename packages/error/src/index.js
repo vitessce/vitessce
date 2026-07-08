@@ -1,4 +1,8 @@
 export class VitessceError extends Error {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'VitessceError';
@@ -6,6 +10,10 @@ export class VitessceError extends Error {
 }
 
 export class LoaderNotFoundError extends VitessceError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'LoaderNotFoundError';
@@ -13,6 +21,10 @@ export class LoaderNotFoundError extends VitessceError {
 }
 
 export class DataLoaderError extends VitessceError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'DataLoaderError';
@@ -20,6 +32,10 @@ export class DataLoaderError extends VitessceError {
 }
 
 export class JsonLoaderValidationError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'JsonLoaderValidationError';
@@ -27,6 +43,10 @@ export class JsonLoaderValidationError extends DataLoaderError {
 }
 
 export class UnknownSpatialDataFormatError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'UnknownSpatialDataFormatError';
@@ -34,6 +54,10 @@ export class UnknownSpatialDataFormatError extends DataLoaderError {
 }
 
 export class DataFetchError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'DataFetchError';
@@ -41,6 +65,10 @@ export class DataFetchError extends DataLoaderError {
 }
 
 export class ZarrNodeNotFoundError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'ZarrNodeNotFoundError';
@@ -53,6 +81,10 @@ export class ZarrNodeNotFoundError extends DataLoaderError {
 * `column-order`/`encoding-type`/`encoding-version`).
 */
 export class ZarrConventionError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'ZarrConventionError';
@@ -65,6 +97,10 @@ export class ZarrConventionError extends DataLoaderError {
 * parse).
 */
 export class ZarrUnsupportedNodeError extends DataLoaderError {
+/**
+* @param {string} message
+* @param {ErrorOptions} [options]
+*/
   constructor(message, options) {
     super(message, options);
     this.name = 'ZarrUnsupportedNodeError';
