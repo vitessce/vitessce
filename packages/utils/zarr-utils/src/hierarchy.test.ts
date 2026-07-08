@@ -4,13 +4,18 @@ import {
   nodeExists,
   getAttrs,
   getArrayMeta,
+  getNode,
   findExistingPaths,
+  discoverPyramidLevels,
 } from './hierarchy.js';
+import { ZarrNodeNotFoundError, ZarrUnsupportedNodeError } from '@vitessce/error';
 import {
   makeV2AnnDataStore,
   makeV3AnnDataStore,
   makeV2StoreWithMalformedConsolidated,
   makeV3StoreWithInlineConsolidated,
+  makePyramidStore,
+  makeStoreWithUnsupportedDtype,
   type MemStore,
 } from './test-fixtures.js';
 
@@ -119,4 +124,76 @@ describe('consolidated metadata handling', () => {
       );
       expect(found).toEqual(['obsm/X_umap', 'X']);
     });
+});
+
+
+describe('discoverPyramidLevels', () => {
+  it('uses the consolidated manifest when available', async () => {
+    const store = makeV2AnnDataStore({ consolidated: true });
+    const { root, contents } = await openListableRoot(store);
+    expect(contents).not.toBeNull();
+    // makeV2AnnDataStore's only arrays are obsm/X_umap and X -- neither is a
+    // numeric pyramid-level name, which is fine: the consolidated path
+    // returns every array node without assuming any particular naming.
+    const levels = await discoverPyramidLevels(root, contents);
+    expect(levels.sort()).toEqual(['X', 'obsm/X_umap'].sort());
+  });
+
+  it('falls back to sequential numeric probing without a manifest (no .zarray/.zattrs assumptions)', async () => {
+    // A genuine v3 pyramid store with no consolidated metadata - this is
+    // the fallback path that must still work correctly on its own.
+    const store = await makePyramidStore(3);
+    const { root, contents } = await openListableRoot(store);
+    expect(contents).toBeNull();
+    const levels = await discoverPyramidLevels(root, contents);
+    expect(levels).toEqual(['0', '1', '2']);
+  });
+
+  it('stops probing at the first missing level', async () => {
+    const store = await makePyramidStore(1);
+    const { root, contents } = await openListableRoot(store);
+    const levels = await discoverPyramidLevels(root, contents);
+    expect(levels).toEqual(['0']);
+  });
+
+  it('returns an empty array when even level 0 is missing', async () => {
+    const store = await makePyramidStore(0);
+    const { root, contents } = await openListableRoot(store);
+    const levels = await discoverPyramidLevels(root, contents);
+    expect(levels).toEqual([]);
+  });
+});
+
+describe('differentiated error semantics by failure mode', () => {
+  it('getArrayMeta throws ZarrNodeNotFoundError for a genuinely missing node', async () => {
+    const store = await makeV3AnnDataStore();
+    const { root } = await openListableRoot(store);
+    await expect(getArrayMeta(root, 'does_not_exist')).rejects.toThrow(ZarrNodeNotFoundError);
+  });
+
+  it('getNode throws ZarrUnsupportedNodeError (not a not-found error) for a node that exists but fails to open', async () => {
+    const store = makeStoreWithUnsupportedDtype();
+    const { root } = await openListableRoot(store);
+    await expect(getNode(root, 'weird')).rejects.toThrow(ZarrUnsupportedNodeError);
+    // Specifically NOT the not-found error -- the node is present, just unreadable.
+    await expect(getNode(root, 'weird')).rejects.not.toThrow(ZarrNodeNotFoundError);
+  });
+
+  it('getAttrs throws ZarrUnsupportedNodeError for the same unopenable node', async () => {
+    const store = makeStoreWithUnsupportedDtype();
+    const { root } = await openListableRoot(store);
+    await expect(getAttrs(root, 'weird')).rejects.toThrow(ZarrUnsupportedNodeError);
+  });
+
+  it('getArrayMeta throws ZarrUnsupportedNodeError for the same unopenable node', async () => {
+    const store = makeStoreWithUnsupportedDtype();
+    const { root } = await openListableRoot(store);
+    await expect(getArrayMeta(root, 'weird')).rejects.toThrow(ZarrUnsupportedNodeError);
+  });
+
+  it('getAttrs returns {} (not an error) for a missing node -- distinct from an unopenable one', async () => {
+    const store = makeStoreWithUnsupportedDtype();
+    const { root } = await openListableRoot(store);
+    await expect(getAttrs(root, 'does_not_exist')).resolves.toEqual({});
+  });
 });
