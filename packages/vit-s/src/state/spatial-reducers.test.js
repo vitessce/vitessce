@@ -972,6 +972,9 @@ describe('spatial-reducers.js', () => {
               },
             },
             imageChannel: {
+              spatialMaxResolution: {
+                A: 'A',
+              },
               spatialTargetC: {
                 R: 'imageR',
                 G: 'imageG',
@@ -1026,7 +1029,9 @@ describe('spatial-reducers.js', () => {
           B: 'B',
           A: '__dummy__',
         },
-
+        spatialMaxResolution: {
+          A: 1,
+        },
         spatialTargetC: {
           imageR: 0,
           imageG: 1,
@@ -1298,6 +1303,9 @@ describe('spatial-reducers.js', () => {
               },
             },
             imageChannel: {
+              spatialMaxResolution: {
+                A: 'A',
+              },
               spatialTargetC: {
                 R: 'imageR',
                 G: 'imageG',
@@ -1352,7 +1360,9 @@ describe('spatial-reducers.js', () => {
           B: 'B',
           A: '__dummy__',
         },
-
+        spatialMaxResolution: {
+          A: 1,
+        },
         spatialTargetC: {
           imageR: 0,
           imageG: 1,

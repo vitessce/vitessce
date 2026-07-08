@@ -14,6 +14,7 @@ import {
   Close as CloseIcon,
   Help as HelpIcon,
   Warning as WarningIcon,
+  MenuBook as MenuBookIcon,
 } from '@vitessce/styles';
 
 import { TOOLTIP_ANCESTOR } from './classNames.js';
@@ -141,7 +142,7 @@ function DownloadOptions(props) {
 }
 
 function HelpButton(props) {
-  const { helpText } = props;
+  const { helpText, guideUrl } = props;
   const [open, setOpen] = useState(false);
   const { classes } = useStyles();
   return (
@@ -155,7 +156,23 @@ function HelpButton(props) {
       aria-label="Open help info"
       withPaper={false}
     >
-      <span className={classes.helpTextSpan}>{helpText}</span>
+      <span className={classes.helpTextSpan}>
+        {helpText}
+        {guideUrl ? (
+          <IconButton
+            component="a"
+            href={guideUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            className={classes.iconButton}
+            title="Open Navigation Guide"
+            aria-label="Open navigation guide"
+          >
+            <MenuBookIcon />
+          </IconButton>
+        ) : null}
+      </span>
     </PopperMenu>
   );
 }
@@ -209,16 +226,18 @@ function ClosePaneButton(props) {
   );
 }
 
+
 export function TitleInfo(props) {
   const {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
-    helpText, withPadding = true, errors: errorsProp,
+    helpText, withPadding = true, errors: errorsProp, guideUrl,
   } = props;
 
   const errors = errorsProp?.filter(Boolean);
 
   const { classes } = useTitleStyles();
+  const hasInfoText = Boolean(info);
 
   return (
     // d-flex without wrapping div is not always full height; I don't understand the root cause.
@@ -226,9 +245,6 @@ export function TitleInfo(props) {
       <div className={classes.title} role="banner">
         <div className={classes.titleLeft} role="heading" aria-level="1">
           {title}
-        </div>
-        <div className={classes.titleInfo} title={info} role="note">
-          {info}
         </div>
         <div className={classes.titleButtons} role="toolbar" aria-label="Plot options and controls">
           <PlotOptions
@@ -247,6 +263,7 @@ export function TitleInfo(props) {
           {helpText ? (
             <HelpButton
               helpText={helpText}
+              guideUrl={guideUrl}
             />
           ) : null}
           {closeButtonVisible && removeGridComponent ? (
@@ -266,6 +283,7 @@ export function TitleInfo(props) {
             [classes.noScrollCard]: !isScroll && !isSpatial,
             [classes.noPaddingCard]: !withPadding,
             [classes.paddingCard]: withPadding,
+            [classes.cardWithoutInfoText]: !hasInfoText,
           },
         )}
         aria-busy={!isReady}
@@ -274,6 +292,11 @@ export function TitleInfo(props) {
         { !isReady ? <LoadingIndicator /> : null }
         {children}
       </div>
+      {hasInfoText ? (
+        <div className={classes.infoText} title={info} role="note">
+          {info}
+        </div>
+      ) : null}
     </>
     // "pl-2" only matters when the window is very narrow.
   );

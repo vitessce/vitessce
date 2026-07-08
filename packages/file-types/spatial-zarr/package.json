@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-zarr",
-  "version": "3.6.14",
+  "version": "4.0.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -26,7 +26,7 @@
     "dist-tsc"
   ],
   "scripts": {
-    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.js",
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
@@ -36,6 +36,7 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/zarr": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*",
-    "@zarrita/storage": "catalog:"
+    "@zarrita/storage": "catalog:",
+    "@tanstack/react-query": "catalog:"
   }
 }

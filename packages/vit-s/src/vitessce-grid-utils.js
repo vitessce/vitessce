@@ -120,10 +120,18 @@ function withDefaults(
  * @param {PluginFileType[]} fileTypes
  * @param {PluginCoordinationType[]} coordinationTypes
  * @param {object} stores Optional mapping from URLs to Zarrita stores.
+ * @param {QueryClient} queryClient A react-query QueryClient instance.
  * @returns {object} Mapping from dataset ID to data type to loader
  * instance.
  */
-export function createLoaders(datasets, configDescription, fileTypes, coordinationTypes, stores) {
+export function createLoaders(
+  datasets,
+  configDescription,
+  fileTypes,
+  coordinationTypes,
+  stores,
+  queryClient,
+) {
   const result = {};
   const dataSources = new InternMap([], JSON.stringify);
   const defaultCoordinationValues = Object.fromEntries(
@@ -173,6 +181,7 @@ export function createLoaders(datasets, configDescription, fileTypes, coordinati
           // Optionally, pass a Zarrita store to the data source,
           // if one was mapped to this URL.
           store: stores?.[url],
+          queryClient,
         }));
       }
       const loader = new LoaderClass(dataSources.get(dataSourceKey), file);

@@ -8,6 +8,7 @@ export const ViewType = {
   STATUS: 'status',
   SCATTERPLOT: 'scatterplot',
   SPATIAL: 'spatial',
+  // SPATIAL_ACCELERATED: 'spatialAccelerated',
   HEATMAP: 'heatmap',
   LAYER_CONTROLLER: 'layerController',
   GENOMIC_PROFILES: 'genomicProfiles',
@@ -23,6 +24,7 @@ export const ViewType = {
   OBS_SET_COMPOSITION_BAR_PLOT: 'obsSetCompositionBarPlot',
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'featureSetEnrichmentBarPlot',
   BIOMARKER_SELECT: 'biomarkerSelect',
+  BIOMARKER_SELECT_ALT: 'biomarkerSelectAlt',
   COMPARATIVE_HEADING: 'comparativeHeading',
   LINK_CONTROLLER: 'linkController',
   NEUROGLANCER: 'neuroglancer',
@@ -186,12 +188,17 @@ export const FileType = {
   OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
   FEATURE_LABELS_MUDATA_ZARR: 'featureLabels.mudata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  GENOMIC_PROFILES_ZARR_ZIP: 'genomic-profiles.zarr.zip',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
   // GLB
   OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
+  // Neuroglancer
+  // Precomputed (mesh) format
+  OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
+  OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -281,6 +288,7 @@ export const CoordinationType = {
   OBS_SET_HIGHLIGHT: 'obsSetHighlight',
   OBS_SET_EXPANSION: 'obsSetExpansion',
   OBS_SET_COLOR: 'obsSetColor',
+  FEATURE_COLOR: 'featureColor',
   FEATURE_HIGHLIGHT: 'featureHighlight',
   FEATURE_SELECTION: 'featureSelection',
   FEATURE_SET_SELECTION: 'featureSetSelection',
@@ -318,6 +326,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_MODEL_MATRIX: 'spatialLayerModelMatrix',
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
+  SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
@@ -327,6 +336,8 @@ export const CoordinationType = {
   SPATIAL_RENDERING_MODE: 'spatialRenderingMode', // For whole spatial view
   VOLUMETRIC_RENDERING_ALGORITHM: 'volumetricRenderingAlgorithm', // Could be per-image-layer
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
+  SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
+  SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
@@ -406,7 +417,7 @@ export const ViewHelpMapping = {
   FEATURE_VALUE_HISTOGRAM: 'The feature value histogram displays the distribution of values (e.g., expression) for the selected feature (e.g., gene).',
   DOT_PLOT: 'The dot plot displays summary information about expression of the selected features (e.g., genes) for each selected observation set (e.g., cell type).',
   FEATURE_BAR_PLOT: 'The feature bar plot displays one bar per observation (e.g., cell) along the x-axis, where the value of a selected feature (e.g., gene) is encoded along the y-axis.',
-  NEUROGLANCER: 'The Neuroglancer view displays 3d meshes using Neuroglancer developed by Google.',
+  NEUROGLANCER: 'This view displays 3D meshes and points using Neuroglancer developed by Google.',
   TREEMAP: 'The treemap provides an overview of the current state of sample-level or cell-level selection and filtering.',
   VOLCANO_PLOT: 'The volcano plot displays differential expression results. Each data point represents a feature (as opposed to an observation).',
   OBS_SET_COMPOSITION_BAR_PLOT: 'The set composition bar plot displays the results of a compositional analysis conducted using the scCODA method (Büttner et al. 2021 Nature Communications).',

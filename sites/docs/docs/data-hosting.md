@@ -98,6 +98,8 @@ Simply add your data files to the `gh-pages` branch of your repository, enable G
 
 Note: OME-TIFF files hosted on GitHub Pages are currently not supported, as GitHub Pages does not support HTTP requests with the `Range` header.
 
+The Vitessce web application (in addition to the data) can be hosted using GitHub Pages. For more details, see the [tutorial](/docs/tutorial-gh-pages/).
+
 ## Local
 
 Before uploading data to a cloud object store, you may want to work with the data locally.

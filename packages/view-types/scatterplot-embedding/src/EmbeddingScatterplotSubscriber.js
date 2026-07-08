@@ -25,12 +25,13 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
   stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber } from '@vitessce/utils';
+import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
@@ -58,7 +59,7 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -68,12 +69,14 @@ export function EmbeddingScatterplotSubscriber(props) {
     helpText = ViewHelpMapping.SCATTERPLOT,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
-
     // For the dual scatterplot:
     sampleSetSelection: sampleSetSelectionFromProps,
+    // Circle scale factor:
+    circleScaleFactor = 0.8,
   } = props;
 
   const loaders = useLoaders();
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
@@ -332,7 +335,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   useEffect(() => {
     if (xRange && yRange && width && height) {
       const pointSizeDevicePixels = getPointSizeDevicePixels(
-        window.devicePixelRatio, zoom, xRange, yRange, width, height,
+        window.devicePixelRatio, zoom, xRange, yRange, width, height, numCells,
       );
       setDynamicCellRadius(pointSizeDevicePixels);
 
@@ -362,7 +365,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         setOriginalViewState({ target: [initialTargetX, initialTargetY, 0], zoom: initialZoom });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, initialZoom, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
@@ -378,11 +381,22 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
 
+  // Compute aggregated expression data if featureAggregationStrategyToUse is not null
+  // and we have multiple features to aggregate.
+  const aggregatedExpressionData = useMemo(() => {
+    if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
+      const aggregated = aggregateFeatureArrays(expressionData, featureAggregationStrategyToUse);
+      // Return as array with single element to match expressionData structure
+      return [aggregated];
+    }
+    return expressionData;
+  }, [expressionData, featureAggregationStrategyToUse]);
+
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
     missing: expressionMissing,
-  } = useUint8FeatureSelection(expressionData);
+  } = useUint8FeatureSelection(aggregatedExpressionData);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
@@ -432,7 +446,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     const size = Math.max(xRange, yRange);
     // TODO: figure out a better solution than
     // scaling the radius by the arbitrary 0.8?
-    const radius = ((size * Math.sqrt(2)) / 2) * 0.8;
+    const radius = ((size * Math.sqrt(2)) / 2) * circleScaleFactor;
     const numPoints = 96;
     const options = { steps: numPoints, units: 'degrees' };
     const circlePolygon = circle(center, radius, options);
@@ -442,7 +456,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       polygon: circlePolygon,
       steps: numPoints,
     };
-  }, [originalViewState, width, height, xRange, yRange]);
+  }, [originalViewState, width, height, xRange, yRange, circleScaleFactor]);
 
   // It is possible for the embedding index+data to be out of order
   // with respect to the matrix index+data. Here, we align the embedding
@@ -648,6 +662,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
         featureValueColormapRange={geneExpressionColormapRange}
+        setFeatureValueColormapRange={setGeneExpressionColormapRange}
         obsSetSelection={cellSetSelection}
         extent={expressionExtents}
         missing={expressionMissing}

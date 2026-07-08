@@ -61,13 +61,58 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     }
     let locations;
     const formatVersion = await this.dataSource.getPointsFormatVersion(path);
-    if (formatVersion === '0.1') {
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
       locations = await this.dataSource.loadPoints(path);
     } else {
       throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
     }
     this.locations = locations;
     return this.locations;
+  }
+
+  /**
+     * Class method for loading the feature index column for points.
+     * @returns {Promise} A promise for a column array of integers.
+     */
+  async loadPointsFeatureIds() {
+    const { path } = this.options;
+
+    if (this.locationsFeatureIndex) {
+      return this.locationsFeatureIndex;
+    }
+    let locationsFeatureIndex;
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
+      locationsFeatureIndex = await this.dataSource.loadPointsFeatureIds(
+        path,
+      );
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
+    }
+    this.locationsFeatureIndex = locationsFeatureIndex;
+    return this.locationsFeatureIndex;
+  }
+
+  async loadPointsInRect(bounds, signal) {
+    const { path, featureIndexColumn, mortonCodeColumn } = this.options;
+
+    // TODO: if points are XYZ, and in 2D rendering mode,
+    // pass in the current Z index and filter
+    // (after coordinate transformation?)
+
+    let locations;
+    // TODO: cache the format version associated with this path.
+    const formatVersion = await this.dataSource.getPointsFormatVersion(path);
+    if (formatVersion === '0.1' || formatVersion === '0.2') {
+      locations = await this.dataSource.loadPointsInRect(
+        path, bounds, signal, featureIndexColumn, mortonCodeColumn,
+      );
+    } else {
+      throw new UnknownSpatialDataFormatError('Only points format version 0.1 is supported.');
+    }
+    // TODO: cacheing?
+
+    return locations;
   }
 
   async loadObsIndex() {
@@ -86,17 +131,52 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
     return null;
   }
 
-  async load() {
-    const [obsIndex, obsPoints, modelMatrix] = await Promise.all([
-      this.loadObsIndex(),
-      this.loadPoints(),
-      this.loadModelMatrix(),
+  async supportsTiling() {
+    const {
+      path,
+      featureIndexColumn: featureIndexColumnNameFromOptions,
+      mortonCodeColumn,
+    } = this.options;
+
+    const zattrs = await this.dataSource.loadSpatialDataElementAttrs(path);
+    const { spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+        ?? `${featureKey}_codes`
+    );
+
+    const [formatVersion, hasRequiredColumnsAndRowGroupSize] = await Promise.all([
+      // Check the points format version.
+      this.dataSource.getPointsFormatVersion(path),
+
+      // Check the size of parquet row groups,
+      // and for the presence of morton_code_2d and feature_index columns.
+      this.dataSource.supportsLoadPointsInRect(
+        path, featureIndexColumnName, mortonCodeColumn,
+      ),
     ]);
-    // May require changing the obsPoints format (breaking change?)
+
+    const isSupportedVersion = formatVersion === '0.1' || formatVersion === '0.2';
+
+    return (
+      isSupportedVersion
+      && hasRequiredColumnsAndRowGroupSize
+    );
+  }
+
+  async load() {
+    // We need these things regardless of tiling support.
+    const [modelMatrix, supportsTiling] = await Promise.all([
+      this.loadModelMatrix(),
+      this.supportsTiling(),
+    ]);
 
     const coordinationValues = {
       pointLayer: CL({
-        obsType: 'point',
+        obsType: this.coordinationValues?.obsType ?? 'point',
         obsColorEncoding: 'spatialLayerColor',
         spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,
@@ -109,8 +189,39 @@ export default class SpatialDataObsPointsLoader extends AbstractTwoStepLoader {
       }),
     };
 
+    // If tiling is not supported, we need to load all points and the obs index,
+    // and the feature_index (or feature_type) column.
+    let obsIndex = null;
+    let obsPoints = null;
+    let featureIds = null;
+    if (!supportsTiling) {
+      // We need to load points in full.
+      [obsIndex, obsPoints, featureIds] = await Promise.all([
+        this.loadObsIndex(),
+        this.loadPoints(),
+        this.loadPointsFeatureIds(),
+      ]);
+    }
+
     return new LoaderResult(
-      { obsIndex, obsPoints, obsPointsModelMatrix: modelMatrix },
+      {
+        // These will be null if tiling is supported.
+        obsIndex,
+        obsPoints,
+        featureIds,
+        obsPointsModelMatrix: modelMatrix,
+
+        // Return 'tiled' if the morton_code_2d column
+        // is present,
+        // and the row group size is small enough.
+        // Otherwise, return 'full'.
+        obsPointsTilingType: (supportsTiling ? 'tiled' : 'full'),
+
+        // TEMPORARY: probably makes more sense to pass the loader instance all the way down.
+        // Caller can then decide whether to use loader.load vs. loader.loadPointsInRect.
+        // May need another function such as loader.supportsPointInRect() true/false.
+        loadPointsInRect: this.loadPointsInRect.bind(this),
+      },
       null,
       coordinationValues,
     );

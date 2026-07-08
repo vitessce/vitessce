@@ -1,5 +1,6 @@
 import { CoordinationLevel as CL } from '@vitessce/config';
 import { LoaderResult } from '@vitessce/abstract';
+import { GLSL_COLORMAP_DEFAULT } from '@vitessce/gl';
 import OmeZarrLoader from './OmeZarrLoader.js';
 
 export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
@@ -21,6 +22,7 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureValueColormap: GLSL_COLORMAP_DEFAULT,
       ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 

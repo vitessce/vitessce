@@ -49,7 +49,7 @@ uniform float channelOpacities[7];
 uniform bool channelIsStaticColorMode[7]; // TODO: should this be a single float?
 uniform bool channelIsSetColorMode[7]; // TODO: should this be a single float?
 
-// TODO: can array of tuples/vec2 be used?
+uniform int channelColormapFuncIndices[7];
 uniform float channelColormapRangeStarts[7];
 uniform float channelColormapRangeEnds[7];
 
@@ -115,7 +115,30 @@ vec3 sampleAndGetData(sampler2D dataTex, vec2 coord, bool isFilled, float stroke
   return vec3(clampedSampledData * float(isOn), sampledData, float(isEdge));
 }
 
-vec4 dataToColor(vec3 sampledDataAndIsEdge, bool isStaticColorMode, vec3 channelColor, float channelOpacity, float valueOffset, float rangeStart, float rangeEnd, bool isSetColorMode, float setColorOffset) {
+vec3 colormapFunc(float clampedScaledExpressionValue, int colormapIndex) {
+  // Map indices of GLSL_COLORMAPS array to their function calls.
+  // GLSL_COLORMAPS is defined in ./constants.js and needs to stay manually synced.
+  // 0: 'plasma',
+  // 1: 'viridis',
+  // 2: 'jet',
+  // 3: 'greys',
+
+  if (colormapIndex <= 0) {
+    // This should also match -1, to account for a failed Array.indexOf lookup.
+    return plasma(clampedScaledExpressionValue).rgb;
+  }
+  if (colormapIndex == 1) {
+    return viridis(clampedScaledExpressionValue).rgb;
+  }
+  if (colormapIndex == 2) {
+    return jet(clampedScaledExpressionValue).rgb;
+  }
+  if (colormapIndex == 3) {
+    return greys(clampedScaledExpressionValue).rgb;
+  }
+}
+
+vec4 dataToColor(vec3 sampledDataAndIsEdge, bool isStaticColorMode, vec3 channelColor, float channelOpacity, float valueOffset, int colormapFuncIndex, float rangeStart, float rangeEnd, bool isSetColorMode, float setColorOffset) {
   float clampedSampledDataAndIsOn = sampledDataAndIsEdge.x;
   float sampledData = sampledDataAndIsEdge.y;
   float isEdge = sampledDataAndIsEdge.z;
@@ -159,7 +182,7 @@ vec4 dataToColor(vec3 sampledDataAndIsEdge, bool isStaticColorMode, vec3 channel
   }
 
   
-  vec4 sampledColor = (1. - (float(isStaticColorMode) + float(isSetColorMode))) * vec4(COLORMAP_FUNC(clamp(scaledExpressionValue, 0.0, 1.0)).rgb, channelOpacity) + float(isStaticColorMode) * vec4(channelColor.rgb, channelOpacity) + float(isSetColorMode) * vec4(setColor, channelOpacity);
+  vec4 sampledColor = (1. - (float(isStaticColorMode) + float(isSetColorMode))) * vec4(colormapFunc(clamp(scaledExpressionValue, 0.0, 1.0), colormapFuncIndex).rgb, channelOpacity) + float(isStaticColorMode) * vec4(channelColor.rgb, channelOpacity) + float(isSetColorMode) * vec4(setColor, channelOpacity);
   // Only return a color if the data is non-zero.
   
   return clampedSampledDataAndIsOn * isEdge * sampledColor;
@@ -175,15 +198,15 @@ void main() {
   vec3 dat4 = sampleAndGetData(channel4, vTexCoord, channelsFilled[4], channelStrokeWidths[4], channelsVisible[4]);
   vec3 dat5 = sampleAndGetData(channel5, vTexCoord, channelsFilled[5], channelStrokeWidths[5], channelsVisible[5]);
   vec3 dat6 = sampleAndGetData(channel6, vTexCoord, channelsFilled[6], channelStrokeWidths[6], channelsVisible[6]);
-  
-  vec4 val0 = dataToColor(dat0, channelIsStaticColorMode[0], color0, channelOpacities[0], valueTexOffsets[0], channelColormapRangeStarts[0], channelColormapRangeEnds[0], channelIsSetColorMode[0], colorTexOffsets[0]);
-  vec4 val1 = dataToColor(dat1, channelIsStaticColorMode[1], color1, channelOpacities[1], valueTexOffsets[1], channelColormapRangeStarts[1], channelColormapRangeEnds[1], channelIsSetColorMode[1], colorTexOffsets[1]);
-  vec4 val2 = dataToColor(dat2, channelIsStaticColorMode[2], color2, channelOpacities[2], valueTexOffsets[2], channelColormapRangeStarts[2], channelColormapRangeEnds[2], channelIsSetColorMode[2], colorTexOffsets[2]);
-  vec4 val3 = dataToColor(dat3, channelIsStaticColorMode[3], color3, channelOpacities[3], valueTexOffsets[3], channelColormapRangeStarts[3], channelColormapRangeEnds[3], channelIsSetColorMode[3], colorTexOffsets[3]);
-  vec4 val4 = dataToColor(dat4, channelIsStaticColorMode[4], color4, channelOpacities[4], valueTexOffsets[4], channelColormapRangeStarts[4], channelColormapRangeEnds[4], channelIsSetColorMode[4], colorTexOffsets[4]);
-  vec4 val5 = dataToColor(dat5, channelIsStaticColorMode[5], color5, channelOpacities[5], valueTexOffsets[5], channelColormapRangeStarts[5], channelColormapRangeEnds[5], channelIsSetColorMode[5], colorTexOffsets[5]);
-  vec4 val6 = dataToColor(dat6, channelIsStaticColorMode[6], color6, channelOpacities[6], valueTexOffsets[6], channelColormapRangeStarts[6], channelColormapRangeEnds[6], channelIsSetColorMode[6], colorTexOffsets[6]);
-  
+
+  vec4 val0 = dataToColor(dat0, channelIsStaticColorMode[0], color0, channelOpacities[0], valueTexOffsets[0], channelColormapFuncIndices[0], channelColormapRangeStarts[0], channelColormapRangeEnds[0], channelIsSetColorMode[0], colorTexOffsets[0]);
+  vec4 val1 = dataToColor(dat1, channelIsStaticColorMode[1], color1, channelOpacities[1], valueTexOffsets[1], channelColormapFuncIndices[1], channelColormapRangeStarts[1], channelColormapRangeEnds[1], channelIsSetColorMode[1], colorTexOffsets[1]);
+  vec4 val2 = dataToColor(dat2, channelIsStaticColorMode[2], color2, channelOpacities[2], valueTexOffsets[2], channelColormapFuncIndices[2], channelColormapRangeStarts[2], channelColormapRangeEnds[2], channelIsSetColorMode[2], colorTexOffsets[2]);
+  vec4 val3 = dataToColor(dat3, channelIsStaticColorMode[3], color3, channelOpacities[3], valueTexOffsets[3], channelColormapFuncIndices[3], channelColormapRangeStarts[3], channelColormapRangeEnds[3], channelIsSetColorMode[3], colorTexOffsets[3]);
+  vec4 val4 = dataToColor(dat4, channelIsStaticColorMode[4], color4, channelOpacities[4], valueTexOffsets[4], channelColormapFuncIndices[4], channelColormapRangeStarts[4], channelColormapRangeEnds[4], channelIsSetColorMode[4], colorTexOffsets[4]);
+  vec4 val5 = dataToColor(dat5, channelIsStaticColorMode[5], color5, channelOpacities[5], valueTexOffsets[5], channelColormapFuncIndices[5], channelColormapRangeStarts[5], channelColormapRangeEnds[5], channelIsSetColorMode[5], colorTexOffsets[5]);
+  vec4 val6 = dataToColor(dat6, channelIsStaticColorMode[6], color6, channelOpacities[6], valueTexOffsets[6], channelColormapFuncIndices[6], channelColormapRangeStarts[6], channelColormapRangeEnds[6], channelIsSetColorMode[6], colorTexOffsets[6]);
+
   // If all of the channels are "empty", then discard this pixel so that it is not considered during picking.
   float emptyDat = 0.;
   if(dat0.x == emptyDat && dat1.x == emptyDat && dat2.x == emptyDat && dat3.x == emptyDat && dat4.x == emptyDat && dat5.x == emptyDat && dat6.x == emptyDat) {

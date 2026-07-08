@@ -496,17 +496,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     );
   }
 
-  componentWillUnmount() {
-    delete this.cellsQuadTree;
-    delete this.cellsLayer;
-    delete this.cellsData;
-    delete this.stratifiedData;
-    delete this.cellSetsForceSimulation;
-    delete this.cellSetsLabelPrevZoom;
-    delete this.cellSetsLayers;
-    delete this.contourLayers;
-  }
-
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,

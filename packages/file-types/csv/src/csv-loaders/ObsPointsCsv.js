@@ -15,7 +15,13 @@ export default class ObsPointsCsvLoader extends CsvLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    this.cachedResult = { obsIndex, obsPoints };
+    this.cachedResult = {
+      obsIndex,
+      obsPoints,
+      featureIds: data.map(() => 0), // TODO
+      obsPointsModelMatrix: null,
+      obsPointsTilingType: 'full'
+    };
     return this.cachedResult;
   }
 
@@ -24,9 +30,9 @@ export default class ObsPointsCsvLoader extends CsvLoader {
 
     const coordinationValues = {
       pointLayer: CL({
-        obsType: 'point',
-        // obsColorEncoding: 'spatialLayerColor',
-        // spatialLayerColor: [255, 255, 255],
+        obsType: this.coordinationValues?.obsType ?? 'point',
+        obsColorEncoding: 'spatialLayerColor',
+        spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,
         spatialLayerOpacity: 1.0,
         // TODO: support a point radius?

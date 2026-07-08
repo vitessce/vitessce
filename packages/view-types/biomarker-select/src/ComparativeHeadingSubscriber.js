@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import {
   useCoordination,
+  useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES } from '@vitessce/constants-internal';
 import { makeStyles } from '@vitessce/styles';
@@ -38,8 +39,10 @@ const useStyles = makeStyles()(theme => ({
 
 export function ComparativeHeadingSubscriber(props) {
   const {
-    coordinationScopes,
+    coordinationScopes: coordinationScopesRaw,
   } = props;
+
+  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
 
   const [{
     sampleSetSelection,
@@ -79,9 +82,9 @@ export function ComparativeHeadingSubscriber(props) {
     <div className={classes.headingContainer}>
       {sampleSetSelection && sampleSetSelection.length === 2 ? (
         <div className={classes.headingSectionContainer}>
-          <div style={{ width: '45%' }}><h2 className={classes.headingText}>{sampleSetSelection?.[0]?.at(-1)}</h2></div>
-          <div style={{ width: '5%' }}><h2 className={classes.headingText} style={{ textAlign: 'right' }}>vs.&nbsp;</h2></div>
-          <div style={{ width: '50%' }}><h2 className={classes.headingText}>{sampleSetSelection?.[1]?.at(-1)}</h2></div>
+          <div style={{ width: '45%' }}><h3 className={classes.headingText}>{sampleSetSelection?.[0]?.at(-1)}</h3></div>
+          <div style={{ width: '5%' }}><h3 className={classes.headingText} style={{ textAlign: 'right' }}>vs.&nbsp;</h3></div>
+          <div style={{ width: '50%' }}><h3 className={classes.headingText}>{sampleSetSelection?.[1]?.at(-1)}</h3></div>
           <div className={classes.buttonContainer}>
             <div>
               <button onClick={swapSampleSets} type="button">Swap</button>
@@ -91,7 +94,7 @@ export function ComparativeHeadingSubscriber(props) {
         </div>
       ) : (
         <div className={classes.headingSectionContainer}>
-          <div><h2 className={classes.headingText}>All samples</h2></div>
+          <div><h3 className={classes.headingText}>All samples</h3></div>
         </div>
       )}
       {featureSelection && featureSelection.length > 0 ? (

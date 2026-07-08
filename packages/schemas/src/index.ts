@@ -44,6 +44,8 @@ export {
   obsSetsSpatialdataSchema,
   obsEmbeddingSpatialdataSchema,
   meshGlbSchema,
+  ngPrecomputedMeshSchema,
+  ngPointAnnotationSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

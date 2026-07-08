@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { every } from 'lodash-es';
+import React, { useState, useMemo } from 'react';
 import { makeStyles } from '@vitessce/styles';
 import { cleanFeatureId } from '@vitessce/utils';
 import { SelectableTable } from './selectable-table/index.js';
@@ -38,35 +37,43 @@ export default function FeatureList(props) {
   const { classes } = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState(geneList);
 
   // In FeatureListSubscriber, we think in terms of 'featureIndex' and 'featureLabels'.
   // Here in FeatureList, we need to map these to 'key' or 'name' before
   // passing to the SelectableTable component.
   const selectableTableSortKey = (featureListSortKey === 'featureIndex' ? 'key' : 'name');
 
-  useEffect(() => {
-    const results = geneList
-      .filter(gene => (
-        gene.toLowerCase().includes(searchTerm.toLowerCase())
+  const searchResults = useMemo(() => geneList
+    .filter(gene => (
+      gene.toLowerCase().includes(searchTerm.toLowerCase())
         || featureLabelsMap?.get(gene)
           ?.toLowerCase().includes(searchTerm.toLowerCase())
         || featureLabelsMap?.get(cleanFeatureId(gene))
           ?.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-    setSearchResults(results);
-  }, [searchTerm, geneList, featureLabelsMap]);
+    )), [geneList, searchTerm, featureLabelsMap]);
 
   function onChange(selection) {
     if (setGeneSelection && selection) {
-      if (Array.isArray(selection)) {
-        if (selection.length > 0 && every(selection, s => s.key)) {
-          setGeneSelection(selection.map(s => s.key));
-        } else {
-          setGeneSelection(null);
-        }
-      } else if (selection.key) {
-        setGeneSelection([selection.key]);
+      const selectedHiddenKeys = (geneSelection || []).filter(
+        key => !searchResults.includes(key),
+      );
+      const selectionArray = Array.isArray(selection)
+        ? selection
+        : [selection];
+      const selectedVisibleKeys = selectionArray.map(s => s.key).filter(
+        key => searchResults.includes(key),
+      );
+
+
+      const newSelection = enableMultiSelect ? (
+        [...selectedHiddenKeys, ...selectedVisibleKeys]
+          .filter(Boolean)
+      ) : selectionArray.map(s => s.key).filter(Boolean);
+
+      if (newSelection.length > 0) {
+        setGeneSelection(newSelection);
+      } else {
+        setGeneSelection(null);
       }
     }
   }
@@ -82,7 +89,6 @@ export default function FeatureList(props) {
             || featureLabelsMap?.get(cleanFeatureId(gene))
             || gene
           ),
-          value: (geneSelection ? geneSelection.includes(gene) : false),
         }),
       );
 
@@ -94,7 +100,7 @@ export default function FeatureList(props) {
 
     return preSortedData;
   }, [featureListSort, selectableTableSortKey, searchResults,
-    geneFilter, featureLabelsMap, geneSelection,
+    geneFilter, featureLabelsMap,
   ]);
 
   const handleChange = (event) => {
@@ -114,7 +120,7 @@ export default function FeatureList(props) {
     ];
   }, [showFeatureTable, primaryColumnName, hasFeatureLabels]);
 
-  return (
+  return (width > 0 && height > 0) ? (
     <>
       <input
         className={classes.searchBar}
@@ -129,7 +135,7 @@ export default function FeatureList(props) {
         data={data}
         hasColorEncoding={hasColorEncoding}
         idKey="key"
-        valueKey="value"
+        selectedIds={geneSelection}
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
@@ -138,5 +144,5 @@ export default function FeatureList(props) {
         height={height - 34}
       />
     </>
-  );
+  ) : null;
 }

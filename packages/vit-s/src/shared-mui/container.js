@@ -97,7 +97,7 @@ const gridLayoutStyles = {
   },
   '.react-grid-item > .react-resizable-handle.react-resizable-handle-se': {
     bottom: '0',
-    right: '0',
+    right: '10px',
     cursor: 'se-resize',
   },
   '.react-grid-item > .react-resizable-handle.react-resizable-handle-nw': {

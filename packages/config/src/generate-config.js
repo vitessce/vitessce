@@ -1,11 +1,18 @@
 // TODO: ts-check
+
 import { FileType } from '@vitessce/constants-internal';
-import { withConsolidated, FetchStore, ZipFileStore, open as zarrOpen, root as zarrRoot } from 'zarrita';
+import { withConsolidated, FetchStore, open as zarrOpen } from 'zarrita';
+// eslint-disable-next-line import/no-unresolved
+import ZipFileStore from '@zarrita/storage/zip';
+import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
 import { OmeAutoConfig } from './generate-config-ome.js';
+
+// TODO: make this a function parameter?
+const FILE_TYPE_DELIM = '$';
 
 const fileTypeToExtensions = {
   [FileType.IMAGE_OME_TIFF]: ['.ome.tif', '.ome.tiff', '.ome.tf2', '.ome.tf8'],
@@ -17,6 +24,8 @@ const fileTypeToExtensions = {
   // Perhaps just assume one H5AD+one JSON (or .ref.json) file correspond to each other?
   [FileType.SPATIALDATA_ZARR]: ['.sd.zarr', '.sdata.zarr', '.spatialdata.zarr'],
   [FileType.SPATIALDATA_ZARR_ZIP]: ['.sd.zarr.zip', '.sdata.zarr.zip', '.spatialdata.zarr.zip'],
+  [FileType.GENOMIC_PROFILES_ZARR]: ['.multivec.zarr'],
+  [FileType.GENOMIC_PROFILES_ZARR_ZIP]: ['.multivec.zarr.zip'],
 };
 
 const fileTypeToClass = {
@@ -47,9 +56,14 @@ const ZARR_FILETYPES = [
   FileType.IMAGE_OME_ZARR_ZIP,
   FileType.OBS_SEGMENTATIONS_OME_ZARR,
   FileType.OBS_SEGMENTATIONS_OME_ZARR_ZIP,
+  FileType.GENOMIC_PROFILES_ZARR,
+  FileType.GENOMIC_PROFILES_ZARR_ZIP,
 ];
 
 function urlToFileType(url) {
+  // TODO: for plain .zarr, we could open the root .attrs and try to guess a fileType
+  // (we can probably infer at least whether OME-Zarr vs. AnnData vs. SpatialData).
+
   const match = Object.entries(fileTypeToExtensions).find(
     // eslint-disable-next-line no-unused-vars
     ([fileType, extensions]) => extensions.some(ext => url.endsWith(ext)),
@@ -71,7 +85,9 @@ function getStore(parsedUrl) {
     return null;
   }
   return fileType.endsWith('.zip')
-    ? ZipFileStore.fromUrl(url)
+    ? ZipFileStore.fromUrl(url, {
+      transformEntries: transformEntriesForZipFileStore,
+    })
     : new FetchStore(url);
 }
 
@@ -96,15 +112,12 @@ function ensureStores(parsedUrls) {
 
 /**
  *
- * @param {string} s A single string, like this
- * `http://example.com/my_zarr.zarr#anndata.zarr;
- * http://example.com/my_tiff.ome.tif`
- * @returns {{ url: string, fileType: string}[]} The URLs with file types.
+ * @param {string[]} arr
+ * @returns {{ url: string, fileType: string }[]} The URLs with file types.
  */
-export function parseUrls(s) {
-  const urlsWithHashes = s.split(';');
-  return urlsWithHashes.map((urlWithHash) => {
-    const parts = urlWithHash.split('#');
+export function parseUrls(arr) {
+  return arr.map((urlWithHash) => {
+    const parts = urlWithHash.split(FILE_TYPE_DELIM);
     if (parts.length === 1) {
       const [url] = parts;
       return {
@@ -118,8 +131,20 @@ export function parseUrls(s) {
         fileType,
       };
     }
-    throw new Error('Only expected zero or one # character per URL, but received more.');
+    throw new Error(`Only expected zero or one ${FILE_TYPE_DELIM} character per URL, but received more.`);
   });
+}
+
+/**
+ *
+ * @param {string} s A single string, like this
+ * `http://example.com/my_zarr.zarr#anndata.zarr;
+ * http://example.com/my_tiff.ome.tif`
+ * @returns {{ url: string, fileType: string}[]} The URLs with file types.
+ */
+export function parseUrlsFromString(s) {
+  const urlsWithHashes = s.split(';');
+  return parseUrls(urlsWithHashes);
 }
 
 
@@ -143,8 +168,29 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     }
     // Is consolidated.
     const contents = store.contents();
+    // Open all entries to get their attributes.
+    const consolidatedRoot = await zarrOpen(store, { kind: 'group' });
     promises = contents.map(async (value) => {
-      const item = await zarrOpen(zarrRoot(store).resolve(value.path));
+      let item;
+      try {
+        // Note: if `kind` is not provided,
+        // then zarrita must make extra network requests.
+        // TODO: open issue in Zarrita to avoid network requests for
+        // arrays that lack .zattrs (e.g., OME-NGFF multiscale arrays)
+        // (as determined from omission in consolidated metadata).
+        item = await zarrOpen(
+          consolidatedRoot.resolve(value.path),
+          { kind: value.kind },
+        );
+      } catch {
+        // Opening can fail if the dtype is unsupported,
+        // since zarrita assumes string dtypes
+        // but Scanpy rank_genes_groups can result in recarrays
+        // that have an array of dtypes.
+        item = {
+          attrs: {},
+        };
+      }
       return {
         ...value,
         attrs: item.attrs,
@@ -177,9 +223,10 @@ export async function parsedUrlToZmetadata(parsedUrl) {
       // Note: For spatialData, we assume the store is always consolidated.
       // TODO: throw error if spatialdata + not consolidated?
     ];
+    const storeRoot = await zarrOpen(store, { kind: 'group' });
     promises = keysToTry.map(async (k) => {
       try {
-        const item = await zarrOpen(zarrRoot(store).resolve(k));
+        const item = await zarrOpen(storeRoot.resolve(k));
         return {
           path: k,
           kind: item.kind,
@@ -244,7 +291,7 @@ export async function generateConfig(parsedUrls, layoutOption = null) {
 
     autoConfig.addFiles(vc, dataset);
     // TODO: add all files, then add all views (in two separate loops)?
-    autoConfig.addViews(vc, layoutOption);
+    autoConfig.addViews(vc, dataset, layoutOption);
   });
 
   const stores = Object.fromEntries(

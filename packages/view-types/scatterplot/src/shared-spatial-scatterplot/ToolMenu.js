@@ -108,7 +108,7 @@ export default function ToolMenu(props) {
   const {
     setActiveTool,
     activeTool,
-    visibleTools = { pan: true, selectLasso: true },
+    visibleTools = { pan: true, selectLasso: true, recenter: true },
     recenterOnClick = () => {},
   } = props;
   const { classes } = useStyles();
@@ -135,12 +135,14 @@ export default function ToolMenu(props) {
         ><SelectLassoIconSVG />
         </IconTool>
       ) : null}
-      <IconButton
-        alt="click to recenter"
-        onClick={() => onRecenterButtonCLick()}
-        aria-label="Recenter scatterplot view"
-      ><CenterFocusStrong />
-      </IconButton>
+      {visibleTools.recenter ? (
+        <IconButton
+          alt="click to recenter"
+          onClick={() => onRecenterButtonCLick()}
+          aria-label="Recenter scatterplot view"
+        ><CenterFocusStrong />
+        </IconButton>
+      ) : null}
     </div>
   );
 }

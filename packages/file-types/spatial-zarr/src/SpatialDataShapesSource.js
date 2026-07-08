@@ -3,8 +3,8 @@
 /* eslint-disable no-undef */
 import WKB from 'ol/format/WKB.js';
 import { basename } from '@vitessce/zarr';
-import { log } from '@vitessce/globals';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
+import { toFloat32Array } from './utils.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
@@ -56,42 +56,11 @@ function getParquetPath(arrPath) {
   throw new Error(`Cannot determine parquet path for shapes array path: ${arrPath}`);
 }
 
-/**
- * Converts BigInt64Array or Float64Array to Float32Array if needed.
- * TODO: remove this and support BigInts/Float64s in downstream code.
- * @param {Array<number>} input - The typed array to convert.
- * @returns {any} - The converted or original Float32Array.
- */
-function toFloat32Array(input) {
-  if (input instanceof Float32Array) {
-    return input; // Already a Float32Array
-  }
-
-  if (input instanceof BigInt64Array) {
-    const floats = new Float32Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      floats[i] = Number(input[i]); // May lose precision
-    }
-    return floats;
-  }
-
-  if (input instanceof Float64Array) {
-    return new Float32Array(input); // Converts with reduced precision
-  }
-
-  if (input instanceof Array) {
-    return new Float32Array(input);
-  }
-
-  log.warn('toFloat32Array expected Float32Array, Float64Array, BigInt64Array, or Array input');
-  return new Float32Array(input);
-}
-
 export default class SpatialDataShapesSource extends SpatialDataTableSource {
   /**
    *
    * @param {string} path A path to within shapes.
-   * @returns {Promise<"0.1"|"0.2">} The format version.
+   * @returns {Promise<"0.1"|"0.2"|"0.3">} The format version.
    */
   async getShapesFormatVersion(path) {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
@@ -101,6 +70,7 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
     if (encodingType !== 'ngff:shapes' || !(
       (formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0))
       || formatVersion === '0.2'
+      || formatVersion === '0.3'
     )) {
       throw new Error(
         `Unexpected encoding type or version for shapes spatialdata_attrs: ${encodingType} ${formatVersion}`,
@@ -173,9 +143,17 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
 
     // Check if the column has metadata indicating it is WKB encoded.
     // Reference: https://github.com/geopandas/geopandas/blob/6ab5a7145fa788d049a805f114bc46c6d0ed4507/geopandas/io/arrow.py#L172
-    return arrowTable.schema.fields
+    const geometryEncodingValue = arrowTable.schema.fields
       .find(field => field.name === columnName)
-      ?.metadata?.get('ARROW:extension:name') === 'geoarrow.wkb';
+      ?.metadata?.get('ARROW:extension:name');
+
+    if (!geometryEncodingValue) {
+      // This may occur if the Parquet file was written by pre-1.0.0 geopandas,
+      // which neither included the metadata nor supported alternative encodings.
+      // Reference: https://github.com/vitessce/vitessce/issues/2265
+      return true;
+    }
+    return geometryEncodingValue === 'geoarrow.wkb';
   }
 
   /**
@@ -188,9 +166,13 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
     const wkb = new WKB();
     const arr = geometryColumn.toArray();
     return arr.map(
-      (/** @type {ArrayBuffer} */ geom) => /** @type {[number, number]} */ (
-        (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates()
-      ),
+      (/** @type {ArrayBuffer} */ geom) => {
+        const coords = (/** @type {any} */ (wkb.readGeometry(geom))).getFlatCoordinates();
+        // Downcast coords if they are BigInts.
+        const downcastedCoords = (/** @type {[number, number]} */ (coords))
+          .map(coord => Number(coord));
+        return downcastedCoords;
+      },
     );
   }
 
@@ -214,7 +196,13 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
           (/** @type {any} */ (wkb.readGeometry(geom))).getCoordinates()
         );
         // Take first polygon (if multipolygon)
-        return coords[0];
+        const firstPolygon = coords[0];
+        // Downcast coords of vertices if they are BigInts.
+        for (let i = 0; i < firstPolygon.length; i++) {
+          firstPolygon[i] = (/** @type {[number, number]} */ (firstPolygon[i]))
+            .map(coord => Number(coord));
+        }
+        return firstPolygon;
       },
     );
   }

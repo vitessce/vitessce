@@ -118,8 +118,8 @@ export function useSpotMultiFeatureSelection(
   ),
   // Need to execute this more frequently, whenever the featureSelections update.
   [coordinationScopes, coordinationScopesBy,
-    ...Object.values(featureSelectionCoordination[0] || {})
-      .flatMap(layerVal => layerVal.featureSelection),
+    JSON.stringify(Object.values(featureSelectionCoordination[0] || {})
+      .flatMap(layerVal => layerVal.featureSelection)),
   ]);
   const [
     featureData, loadedSelections, extents, normData, featureStatus, errors,
@@ -220,6 +220,39 @@ export function usePointMultiObsLabels(
     // indirect dependencies here.
     [coordinationScopes, coordinationScopesBy]);
   const [indicesData, indicesDataStatus, indicesDataErrors] = useObsLabelsMultiLevel(
+    loaders, dataset, false, matchOnObj, 1,
+  );
+  return [indicesData, indicesDataStatus, indicesDataErrors];
+}
+
+/**
+ * Wrapper around useObsFeatureMatrixIndicesMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [indicesData, status, errors]
+ */
+export function usePointMultiObsFeatureMatrixIndices(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsFeatureMatrixCoordination = useComplexCoordination(
+    [
+      // We currently do not specify obsType or featureValueType here,
+      // since for points we are only interested in the var table
+      // to get the info about each feature (gene).
+      CoordinationType.FEATURE_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.POINT_LAYER,
+  );
+  const matchOnObj = useMemo(() => obsFeatureMatrixCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [indicesData, indicesDataStatus, indicesDataErrors] = useObsFeatureMatrixIndicesMultiLevel(
     loaders, dataset, false, matchOnObj, 1,
   );
   return [indicesData, indicesDataStatus, indicesDataErrors];

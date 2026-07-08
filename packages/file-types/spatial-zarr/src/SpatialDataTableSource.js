@@ -1,13 +1,22 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 /* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
+import { createGetRange } from '@vitessce/zarr-utils';
+import { range } from 'lodash-es';
+import {
+  getParquetModule,
+  _loadParquetMetadataByPart,
+  _loadParquetRowGroupByGroupIndex,
+  _rectToRowGroupIndices,
+  MORTON_CODE_EXTREME_VALUE_INDICATOR,
+} from './parquet-query-utils.js';
 
 /** @import { DataSourceParams } from '@vitessce/types' */
-
+/** @import { QueryClient } from '@tanstack/react-query' */
 
 // Note: This file also serves as the parent for
 // SpatialDataPointsSource and SpatialDataShapesSource,
@@ -15,32 +24,6 @@ import { log } from '@vitessce/globals';
 // have all of the required functionality to load the
 // table data and the parquet data.
 
-
-async function getParquetModule() {
-  // Reference: https://observablehq.com/@kylebarron/geoparquet-on-the-web
-  // TODO: host somewhere we control, like cdn.vitessce.io?
-  // @ts-ignore
-  const module = await import(/* webpackIgnore: true */ 'https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm.js');
-  await module.default();
-  // We cannot use regulary dynamic import here because it breaks NextJS builds
-  // due to pointing to a remote URL.
-  // I could not figure out a NextJS webpack configuration to resolve it.
-  // The following becomes inlined by Vite in library mode
-  // eliminating the benefit of dynamic import.
-  // Reference: https://github.com/vitejs/vite/issues/4454
-  // const responsePromise = await fetch(
-  //   new URL('parquet-wasm/esm/parquet_wasm_bg.wasm', import.meta.url).href
-  // );
-  // const responsePromise = await fetch('https://unpkg.com/parquet-wasm@0.6.1/esm/parquet_wasm_bg.wasm');
-  // const wasmBuffer = await responsePromise.arrayBuffer();
-  // module.initSync(wasmBuffer);
-  // Another issue is that when we import parquet-wasm JS from node_modules,
-  // running module.default there is a MIME type issue because the Vite dev
-  // server does not serve the .wasm with a MIME type of application/wasm.
-  // I can't seem to get a custom Vite plugin that sets the MIME type in
-  // request headers to work.
-  return { readParquet: module.readParquet, readSchema: module.readSchema };
-}
 
 /**
  * Get the name of the index column from an Apache Arrow table.
@@ -57,7 +40,15 @@ function tableToIndexColumnName(arrowTable) {
       Array.isArray(pandasMetadataJson.index_columns)
       && pandasMetadataJson.index_columns.length === 1
     ) {
-      return pandasMetadataJson.index_columns?.[0];
+      const result = pandasMetadataJson.index_columns?.[0];
+      if (typeof result === 'string') {
+        return result;
+      }
+      if (result?.kind === 'range') {
+        // TODO: handle range indices downstream.
+        return null;
+      }
+      throw new Error('Unexpected type in the pandas metadata index_columns array.');
     }
     throw new Error('Expected a single index column in the pandas metadata.');
   }
@@ -132,10 +123,13 @@ function getVarPath(arrPath) {
 export default class SpatialDataTableSource extends AnnDataSource {
   /**
    *
-   * @param {DataSourceParams} params
+   * @param {DataSourceParams & { queryClient: QueryClient }} params
    */
   constructor(params) {
     super(params);
+
+    const { queryClient } = params;
+    this.queryClient = queryClient;
 
     // Non-table-specific properties
     this.parquetModulePromise = getParquetModule();
@@ -147,9 +141,11 @@ export default class SpatialDataTableSource extends AnnDataSource {
      */
     this.elementAttrs = {};
 
-    // TODO: change to column-specific storage.
+    // TODO: change to column-specific storage?
     /** @type {{ [k: string]: Uint8Array }} */
     this.parquetTableBytes = {};
+    /** @type {{ [k: string]: boolean }} */
+    this.parquetTableIsDirectory = {};
 
 
     // Table-specific properties
@@ -232,23 +228,31 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * relative to the store root.
    * @returns {Promise<Uint8Array|undefined>} The parquet file bytes.
    */
-  async loadParquetBytes(parquetPath) {
-    if (this.parquetTableBytes[parquetPath]) {
-      // Return the cached bytes.
-      return this.parquetTableBytes[parquetPath];
-    }
-    let parquetBytes = await this.storeRoot.store.get(`/${parquetPath}`);
-    if (!parquetBytes) {
-      // This may be a directory with multiple parts.
-      const part0Path = `${parquetPath}/part.0.parquet`;
-      parquetBytes = await this.storeRoot.store.get(`/${part0Path}`);
+  async loadParquetBytes(
+    parquetPath,
+    offset = undefined,
+    length = undefined,
+    partIndex = undefined,
+  ) {
+    const { store } = this.storeRoot;
 
-      // TODO: support loading multiple parts.
+    let getter = path => store.get(path);
+    if (offset !== undefined && length !== undefined && store.getRange) {
+      getter = path => store.getRange(path, {
+        offset,
+        length,
+      });
     }
-    if (parquetBytes) {
-      // Cache the parquet bytes.
-      this.parquetTableBytes[parquetPath] = parquetBytes;
+
+    let parquetBytes = await getter(`/${parquetPath}`);
+    if (!parquetBytes) {
+      // We have not yet determined if this is a directory or a single file.
+
+      // This may be a directory with multiple parts.
+      const part0Path = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+      parquetBytes = await getter(`/${part0Path}`);
     }
+
     return parquetBytes;
   }
 
@@ -267,47 +271,53 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * @returns {Promise<Uint8Array|null>} The parquet file bytes,
    * or null if the store does not support getRange.
    */
-  async loadParquetSchemaBytes(parquetPath) {
+  async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
-    if (store.getRange) {
-      // Step 1: Fetch last 8 bytes to get footer length and magic number
-      const TAIL_LENGTH = 8;
-      let partZeroPath = parquetPath;
-      let tailBytes = await store.getRange(`/${partZeroPath}`, {
-        suffixLength: TAIL_LENGTH,
-      });
-      if (!tailBytes) {
-        // This may be a directory with multiple parts.
-        partZeroPath = `${parquetPath}/part.0.parquet`;
-        tailBytes = await store.getRange(`/${partZeroPath}`, {
-          suffixLength: TAIL_LENGTH,
-        });
-      }
-      if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
-        throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
-      }
-      // Step 2: Extract footer length and magic number
-      // little-endian
-      const footerLength = new DataView(tailBytes.buffer).getInt32(0, true);
-      const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
+    const getRange = createGetRange(store);
+    // Step 1: Fetch last 8 bytes to get footer length and magic number
+    const TAIL_LENGTH = 8;
+    let partZeroPath = parquetPath;
+    // Case 1: Parquet file (or still unknown if file vs. directory).
+    let tailBytes = await getRange(`/${partZeroPath}`, {
+      suffixLength: TAIL_LENGTH,
+    });
+    // We already know this is a directory, so we skip the single-file path altogether.
+    // Case 2: Rather than a single file, this may be a directory with multiple parts.
+    partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
+    tailBytes = await getRange(`/${partZeroPath}`, {
+      suffixLength: TAIL_LENGTH,
+    });
 
-      if (magic !== 'PAR1') {
-        throw new Error('Invalid Parquet file: missing PAR1 magic number');
-      }
-
-      // Step 3. Fetch the full footer bytes
-      const footerBytes = await store.getRange(`/${partZeroPath}`, {
-        suffixLength: footerLength + TAIL_LENGTH,
-      });
-      if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
-        throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
-      }
-
-      // Step 4: Return the footer bytes
-      return footerBytes;
+    if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
+      // TODO: throw custom error type to indicate no part was found to caller?
+      throw new Error(`Failed to load parquet footerLength for ${parquetPath}`);
     }
-    // Store does not support getRange.
-    return null;
+    // Step 2: Extract footer length and magic number
+    // little-endian
+    const footerLength = new DataView(
+      tailBytes.buffer,
+      // It is possible that tailBytes is a subarray,
+      // e.g., if the ArrayBuffer was created inside
+      // FlatFileSystemStore.getRange.
+      tailBytes.byteOffset,
+      tailBytes.byteLength,
+    ).getInt32(0, true);
+    const magic = new TextDecoder().decode(tailBytes.slice(4, 8));
+
+    if (magic !== 'PAR1') {
+      throw new Error('Invalid Parquet file: missing PAR1 magic number');
+    }
+
+    // Step 3. Fetch the full footer bytes
+    const footerBytes = await getRange(`/${partZeroPath}`, {
+      suffixLength: footerLength + TAIL_LENGTH,
+    });
+    if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
+      throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
+    }
+
+    // Step 4: Return the footer bytes
+    return footerBytes;
   }
 
   /**
@@ -356,7 +366,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
         if (schemaBytes) {
           const wasmSchema = readSchema(schemaBytes);
           /** @type {import('apache-arrow').Table} */
-          const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+          const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
           indexColumnName = tableToIndexColumnName(arrowTableForSchema);
         }
       } catch (/** @type {any} */ e) {
@@ -390,7 +400,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       // time from the full table bytes (rather than only the schema-bytes).
       const wasmSchema = readSchema(parquetBytes);
       /** @type {import('apache-arrow').Table} */
-      const arrowTableForSchema = await tableFromIPC(wasmSchema.intoIPCStream());
+      const arrowTableForSchema = tableFromIPC(wasmSchema.intoIPCStream());
       indexColumnName = tableToIndexColumnName(arrowTableForSchema);
     }
 
@@ -400,7 +410,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
 
     const wasmTable = readParquet(parquetBytes, options);
     /** @type {import('apache-arrow').Table} */
-    const arrowTable = await tableFromIPC(wasmTable.intoIPCStream());
+    const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
     return arrowTable;
   }
 
@@ -474,5 +484,212 @@ export default class SpatialDataTableSource extends AnnDataSource {
       (val, ind) => (val ? val.concat(` (${index[ind]})`) : index[ind]),
     );
     return this.varAliases[varPath];
+  }
+
+  async _supportsTiledPoints(parquetPath, featureIndexColumnName, mortonCodeColumn) {
+    const { queryClient } = this;
+    const { store } = this.storeRoot;
+
+    const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
+
+    // Now we can load the row groups and concatenate them into typed arrays.
+    // We already know the size of the final arrays based on the number of rows in each row group.
+    const { numRowsPerGroupByPart } = allMetadata;
+    const numRowsTotal = allMetadata.totalNumRows;
+    const maxNumRowsPerGroup = Math.max(...numRowsPerGroupByPart);
+    if (maxNumRowsPerGroup >= 100_000) {
+      // Heuristic: if there are more than 100,000 rows per row group,
+      // then tiled loading is probably difficult.
+      if (numRowsTotal > 5_000_000) {
+        throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the row group size is too large (${maxNumRowsPerGroup}). See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
+      }
+      return false;
+    }
+
+    const mortonCodeColumnName = mortonCodeColumn ?? 'morton_code_2d';
+    // Check if the required columns exist.
+    const requiredColumns = ['x', 'y', featureIndexColumnName, mortonCodeColumnName];
+    const hasColumns = allMetadata?.schema?.fields?.map(f => f.name);
+    if (!hasColumns) {
+      return false;
+    }
+
+    const hasRequiredColumns = requiredColumns.every(col => hasColumns.includes(col));
+    if (!hasRequiredColumns && numRowsTotal > 5_000_000) {
+      throw new Error(`The Parquet table at ${parquetPath} has ${numRowsTotal} total rows, which necessitates tiled loading, but it was not possible because the required columns are missing. Required columns: ${requiredColumns.join(', ')}. Found columns: ${hasColumns.join(', ')}. See the Vitessce documentation at Data Troubleshooting -> Points for more details.`);
+    }
+
+    return hasRequiredColumns;
+  }
+
+  /**
+   * Load point data using a tiled approach.
+   * @param {string} parquetPath A path to a parquet file (or directory).
+   * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
+   * @param {{ x_min: number, y_min: number, x_max: number, y_max: number }} allPointsBbox
+   * @param {string[]|undefined} columns An optional list of column names to load.
+   * @returns
+   */
+  async loadParquetTableInRect(
+    parquetPath,
+    tileBbox,
+    // eslint-disable-next-line no-unused-vars
+    signal,
+    featureIndexColumnName,
+    mortonCodeColumn,
+  ) {
+    const { queryClient } = this;
+    const { store } = this.storeRoot;
+
+    const mortonCodeColumnName = mortonCodeColumn ?? 'morton_code_2d';
+
+    // TODO: load only the columns we need (x, y, feature_index) rather than the full table.
+
+    // Subdivide tileBbox into rectangles of a fixed size.
+    const TILE_SIZE = 256; // 512 x 512.
+
+    // If tileBbox is larger than TILE_SIZE, we need to subdivide it.
+    let tileBboxes = [];
+    if (
+      tileBbox.right - tileBbox.left > TILE_SIZE
+      || tileBbox.bottom - tileBbox.top > TILE_SIZE
+    ) {
+      const xSteps = Math.ceil((tileBbox.right - tileBbox.left) / TILE_SIZE);
+      const ySteps = Math.ceil((tileBbox.bottom - tileBbox.top) / TILE_SIZE);
+      const xStepSize = (tileBbox.right - tileBbox.left) / xSteps;
+      const yStepSize = (tileBbox.bottom - tileBbox.top) / ySteps;
+      for (let i = 0; i < xSteps; i++) {
+        for (let j = 0; j < ySteps; j++) {
+          const subTileBbox = {
+            left: tileBbox.left + i * xStepSize,
+            right: Math.min(tileBbox.left + (i + 1) * xStepSize, tileBbox.right),
+            top: tileBbox.top + j * yStepSize,
+            bottom: Math.min(tileBbox.top + (j + 1) * yStepSize, tileBbox.bottom),
+          };
+          tileBboxes.push(subTileBbox);
+        }
+      }
+    } else {
+      tileBboxes = [tileBbox];
+    }
+
+    // TODO: pass signal to react-query functions to allow aborting requests.
+
+    // Load the first four rows to determine the full data extent/bounding box.
+    // To do so, we can load the first row group,
+    // which should be small if the parquet file is properly tiled,
+    // and will be cached for subsequent requests if this row group is needed again.
+    const firstRowGroupTable = await _loadParquetRowGroupByGroupIndex(
+      { queryClient, store },
+      parquetPath,
+      0,
+    );
+    const xColumnForBoundingBox = firstRowGroupTable.getChild('x');
+    const yColumnForBoundingBox = firstRowGroupTable.getChild('y');
+    const mortonCodeColumnForBoundingBox = firstRowGroupTable.getChild(mortonCodeColumnName);
+    const boundingBoxMaxNumRows = Math.min(4, firstRowGroupTable.numRows);
+    const firstMortonCodes = range(boundingBoxMaxNumRows)
+      .map(i => mortonCodeColumnForBoundingBox.get(i));
+    const boundingBoxNumRows = firstMortonCodes
+      .filter(code => code === MORTON_CODE_EXTREME_VALUE_INDICATOR)
+      .length;
+
+    const boundingBoxXValues = range(boundingBoxNumRows).map(i => xColumnForBoundingBox.get(i));
+    const boundingBoxYValues = range(boundingBoxNumRows).map(i => yColumnForBoundingBox.get(i));
+    const xMin = Math.min(...boundingBoxXValues);
+    const xMax = Math.max(...boundingBoxXValues);
+    const yMin = Math.min(...boundingBoxYValues);
+    const yMax = Math.max(...boundingBoxYValues);
+
+    const allPointsBbox = {
+      x_min: xMin,
+      x_max: xMax,
+      y_min: yMin,
+      y_max: yMax,
+    };
+
+    const rowGroupIndicesPerTile = await Promise.all(
+      tileBboxes
+        .map(async subTileBbox => _rectToRowGroupIndices(
+          { queryClient, store },
+          parquetPath,
+          subTileBbox,
+          allPointsBbox,
+          mortonCodeColumnName,
+        )),
+    );
+    // Combine the row group indices from all tiles, and remove duplicates.
+    const uniqueCoveredRowGroupIndices = Array.from(new Set(rowGroupIndicesPerTile.flat()))
+      .toSorted((a, b) => a - b);
+
+    const allMetadata = await _loadParquetMetadataByPart(
+      { queryClient, store },
+      parquetPath,
+    );
+
+    // Now we can load the row groups and concatenate them into typed arrays.
+    // We already know the size of the final arrays based on the number of rows in each row group.
+    const { numRowsPerGroupByPart, numRowGroupsByPart } = allMetadata;
+
+    // Given a row group index, determine how many rows are in that row group by
+    // first determining which part it belongs to,
+    // and then looking up the number of rows per group for that part.
+    const rowGroupIToNumRows = (rowGroupI) => {
+      let currPartIndex = 0;
+      let prevTotalRowGroupCount = 0;
+      for (let partIndex = 0; partIndex < numRowGroupsByPart.length; partIndex++) {
+        const numRowGroupsInPart = numRowGroupsByPart[partIndex];
+        if (
+          prevTotalRowGroupCount <= rowGroupI
+          && rowGroupI < prevTotalRowGroupCount + numRowGroupsInPart
+        ) {
+          currPartIndex = partIndex;
+          break;
+        }
+        prevTotalRowGroupCount += numRowGroupsInPart;
+      }
+      return numRowsPerGroupByPart[currPartIndex];
+    };
+
+    const totalNumRowsToLoad = uniqueCoveredRowGroupIndices
+      .reduce((acc, rowGroupI) => acc + rowGroupIToNumRows(rowGroupI), 0);
+
+    const xArr = new Float32Array(totalNumRowsToLoad);
+    const yArr = new Float32Array(totalNumRowsToLoad);
+    const featureIndexArr = new Uint32Array(totalNumRowsToLoad);
+
+    const rowGroupTables = await Promise.all(
+      uniqueCoveredRowGroupIndices
+        .map(async rowGroupIndex => _loadParquetRowGroupByGroupIndex(
+          { queryClient, store },
+          parquetPath,
+          rowGroupIndex,
+        )),
+    );
+
+    let rowOffset = 0;
+    rowGroupTables.forEach((table) => {
+      const xColumn = table.getChild('x');
+      const yColumn = table.getChild('y');
+      // TODO: get the feature index column name from the zattrs metadata
+      const featureIndexColumn = table.getChild(featureIndexColumnName);
+      if (!xColumn || !yColumn || !featureIndexColumn) {
+        throw new Error(`Missing required column in parquet table at ${parquetPath}. Required columns: x, y, feature_index`);
+      }
+      // Set the values in the typed arrays.
+      xArr.set(xColumn.toArray(), rowOffset);
+      yArr.set(yColumn.toArray(), rowOffset);
+      featureIndexArr.set(featureIndexColumn.toArray(), rowOffset);
+      rowOffset += table.numRows;
+    });
+
+    return {
+      data: {
+        x: xArr,
+        y: yArr,
+        featureIndices: featureIndexArr,
+      },
+      shape: [3, totalNumRowsToLoad],
+    };
   }
 }

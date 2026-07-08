@@ -78,6 +78,7 @@ const lightPalette = {
   gridLayoutBackground: '#FFFFFF',
   paperBackground: '#FFFFFF',
   cardBorder: 'rgba(241, 241, 241, 0.125)',
+  cardInfoBorder: '#ccc',
   tooltipText: 'rgba(0, 0, 0, 0.87)',
 };
 
@@ -104,6 +105,7 @@ export const muiTheme = {
       gridLayoutBackground: '#333333',
       paperBackground: '#2b2b2b',
       cardBorder: 'rgba(0, 0, 0, 0.125)',
+      cardInfoBorder: '#222222',
       tooltipText: '#FFFFFF',
       ...globalColors,
     },
@@ -113,6 +115,7 @@ export const muiTheme = {
   light: createTheme({
     palette: {
       ...lightPalette,
+      cardInfoBorder: '#F1F1F1',
       ...globalColors,
     },
     ...sharedThemeOptions,
@@ -130,6 +133,6 @@ export const muiTheme = {
       ...globalColors,
     },
     ...sharedThemeOptions,
-    cardBorderSize: '2px',
+    cardBorderSize: '1px',
   }),
 };

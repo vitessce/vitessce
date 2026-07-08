@@ -1187,11 +1187,11 @@ export function upgradeFrom1_0_18(
           };
           newCoordinationSpace.spatialLayerVisible = {
             ...(newCoordinationSpace.spatialLayerVisible ?? {}),
-            [visibleScope]: scopeValue.visible,
+            [visibleScope]: scopeValue?.visible,
           };
           newCoordinationSpace.spatialLayerOpacity = {
             ...(newCoordinationSpace.spatialLayerOpacity ?? {}),
-            [opacityScope]: scopeValue.opacity,
+            [opacityScope]: scopeValue?.opacity,
           };
 
           hasAlreadyUpgradedPointLayerScopes[scopeName] = [metaCoordinationScope, metaCoordinationScopesBy];
@@ -1209,7 +1209,7 @@ export function upgradeFrom1_0_18(
         delete newCoordinationScopes['spatialPointLayer'];
       }
       if(coordinationScopes && coordinationScopes.spatialNeighborhoodLayer && !Array.isArray(coordinationScopes.spatialNeighborhoodLayer)) {
-        throw new Error('spatialNeighborhoodLayer is no longer supported. Please open a GitHub issue if you need this feature.');
+        // throw new Error('spatialNeighborhoodLayer is no longer supported. Please open a GitHub issue if you need this feature.');
       }
 
       return {
@@ -1243,7 +1243,7 @@ export function upgradeFrom1_0_18(
   
   Object.keys(newCoordinationSpace).forEach((coordinationType) => {
     if (oldCoordinationTypes.includes(coordinationType)) {
-      throw new Error(`Invalid coordination type ${coordinationType} found in coordinationSpace.`);
+      // throw new Error(`Invalid coordination type ${coordinationType} found in coordinationSpace.`);
     }
   });
 
@@ -1254,7 +1254,7 @@ export function upgradeFrom1_0_18(
     }
     Object.keys(coordinationScopes || {}).forEach((coordinationType) => {
       if (oldCoordinationTypes.includes(coordinationType)) {
-        throw new Error(`Invalid coordination type ${coordinationType} found in coordinationScopes for a view in the layout.`);
+        // throw new Error(`Invalid coordination type ${coordinationType} found in coordinationScopes for a view in the layout.`);
       }
     });
   });

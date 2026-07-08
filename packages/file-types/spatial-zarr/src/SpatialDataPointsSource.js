@@ -1,9 +1,10 @@
-// @ts-check
+// @ts-ignore
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 import { basename } from '@vitessce/zarr';
 import { normalizeAxes } from '@vitessce/spatial-utils';
 import SpatialDataTableSource from './SpatialDataTableSource.js';
+import { downcastIfBigIntArray } from './utils.js';
 
 /** @import { TypedArray as ZarrTypedArray, Chunk } from 'zarrita' */
 
@@ -80,7 +81,7 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
     const formatVersion = zattrs.spatialdata_attrs.version;
     const encodingType = zattrs['encoding-type'];
-    if (encodingType === 'ngff:points' && !(formatVersion === '0.1')) {
+    if (encodingType === 'ngff:points' && !(formatVersion === '0.1' || formatVersion === '0.2')) {
       throw new Error(
         `Unexpected version for points spatialdata_attrs: ${formatVersion}`,
       );
@@ -134,13 +135,11 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
     const parquetPath = getParquetPath(elementPath);
 
     const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
-    const { axes, spatialdata_attrs: spatialDataAttrs } = zattrs;
+    const { axes } = zattrs;
     const normAxes = normalizeAxes(axes);
     const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
 
-    const { feature_key: featureKey } = spatialDataAttrs;
-
-    const columnNames = [...axisNames, featureKey].filter(Boolean);
+    const columnNames = axisNames.filter(Boolean);
     const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
 
     // TODO: this table will also contain the index column, and potentially the featureKey column.
@@ -151,12 +150,93 @@ export default class SpatialDataPointsSource extends SpatialDataTableSource {
       if (!column) {
         throw new Error(`Column "${name}" not found in the arrow table.`);
       }
-      return column.toArray();
+      return downcastIfBigIntArray(column.toArray());
     });
 
     return {
       shape: [axisColumnArrs.length, arrowTable.numRows],
       data: axisColumnArrs,
     };
+  }
+
+  /**
+   *
+   * @param {string} elementPath The path to the points element,
+   * like "points/element_name".
+   * @param {string|undefined} featureIndexColumnNameFromOptions The name
+   * of the feature index column specified in the file definition options, if any.
+   * @returns {Promise<number[]>} A promise for a zarr array containing the data.
+   */
+  async loadPointsFeatureIds(elementPath) {
+    const parquetPath = getParquetPath(elementPath);
+
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const { spatialdata_attrs: spatialDataAttrs } = zattrs;
+
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    // In the non-tiled case, we can load the string/categorical feature IDs directly,
+    // since we are not loading an individual row group (using my forked parquet-wasm which
+    // fails to load dictionary columns when loading individual row groups for some reason).
+    const columnNames = [featureKey];
+    const arrowTable = await this.loadParquetTable(parquetPath, columnNames);
+
+    const axisColumnArrs = columnNames.map((/** @type {string} */ name) => {
+      const column = arrowTable.getChild(name);
+      if (!column) {
+        throw new Error(`Column "${name}" not found in the arrow table.`);
+      }
+      // This .toArray should convert a categorical column to an array of
+      // string values if necessary.
+      return column.toArray();
+    });
+
+    // Just return the column of feature indices directly.
+    return axisColumnArrs[0];
+  }
+
+  /**
+   *
+   * @param {string} elementPath
+   * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
+   * @returns {Promise<{
+   *  data: [ZarrTypedArray<any>, ZarrTypedArray<any>],
+   *  shape: [number, number],
+   * }>} A promise for a zarr array containing the data.
+   */
+  async loadPointsInRect(
+    elementPath, tileBbox, signal,
+    featureIndexColumnNameFromOptions, mortonCodeColumn,
+  ) {
+    // Morton code rect querying functionality.
+    // Reference: https://github.com/vitessce/vitessce-python/pull/476
+    const parquetPath = getParquetPath(elementPath);
+    const zattrs = await this.loadSpatialDataElementAttrs(elementPath);
+    const {
+      // axes,
+      spatialdata_attrs: spatialDataAttrs,
+    } = zattrs;
+    // const normAxes = normalizeAxes(axes);
+    // const axisNames = normAxes.map((/** @type {{ name: string }} */ axis) => axis.name);
+    // const { feature_key: featureKey } = spatialDataAttrs;
+    // const columnNames = [...axisNames, featureKey].filter(Boolean);
+
+    const { feature_key: featureKey } = spatialDataAttrs;
+
+    // Reference: https://github.com/vitessce/vitessce-python/blob/adb066c088307b658a45ca9cf2ab2d63effaa5ef/src/vitessce/data_utils/spatialdata_points_zorder.py#L458C15-L458C35
+    const featureIndexColumnName = (
+      featureIndexColumnNameFromOptions
+      ?? `${featureKey}_codes`
+    );
+
+    return this.loadParquetTableInRect(
+      parquetPath, tileBbox, signal,
+      featureIndexColumnName, mortonCodeColumn,
+    );
+  }
+
+  async supportsLoadPointsInRect(elementPath, featureIndexColumnName, mortonCodeColumn) {
+    const parquetPath = getParquetPath(elementPath);
+    return this._supportsTiledPoints(parquetPath, featureIndexColumnName, mortonCodeColumn);
   }
 }
