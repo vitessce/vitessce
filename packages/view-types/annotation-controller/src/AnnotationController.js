@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   makeStyles,
   IconButton,
@@ -323,6 +323,7 @@ const useStyles = makeStyles()(theme => ({
   editBody: {
     flex: 1,
     overflowY: 'auto',
+    overflowX: 'hidden',
     display: 'flex',
     flexDirection: 'column',
   },
@@ -414,7 +415,7 @@ const useStyles = makeStyles()(theme => ({
     fontStyle: 'italic',
   },
   shapeEditor: {
-    padding: '8px 12px 12px',
+    padding: '8px 32px 12px 12px',
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
@@ -470,24 +471,30 @@ const useStyles = makeStyles()(theme => ({
     },
   },
   widthInput: {
-    width: 36,
+    width: 42,
     fontSize: FS.xs,
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: 3,
-    padding: '1px 4px',
+    padding: '2px 6px',
     backgroundColor: 'transparent',
     color: 'inherit',
     flexShrink: 0,
+    MozAppearance: 'textfield',
+    '&::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
+    '&::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
   },
   coordInput: {
-    width: 58,
+    width: 66,
     fontSize: FS.xs,
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: 3,
-    padding: '1px 4px',
+    padding: '2px 6px',
     backgroundColor: 'transparent',
     color: 'inherit',
     flexShrink: 0,
+    MozAppearance: 'textfield',
+    '&::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
+    '&::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
   },
   coordLabel: {
     fontSize: FS.xs,
@@ -504,6 +511,26 @@ const useStyles = makeStyles()(theme => ({
     color: 'inherit',
     cursor: 'pointer',
     minWidth: 0,
+  },
+  geomToggleBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'inherit',
+    cursor: 'pointer',
+    fontSize: FS.xs,
+    opacity: 0.5,
+    padding: '0 2px',
+    letterSpacing: '0.04em',
+    '&:hover': { opacity: 0.9 },
+  },
+  shapeCopySelect: {
+    fontSize: FS.xs,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 3,
+    padding: '1px 3px',
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    cursor: 'pointer',
   },
 }));
 
@@ -532,6 +559,8 @@ export function AnnotationController(props) {
 
   const { classes, cx } = useStyles();
   const [editMode, setEditMode] = useState(false);
+  const [geoOpen, setGeoOpen] = useState(false);
+  useEffect(() => { setGeoOpen(false); }, [selectedShapeUid]);
   const [captureConfirmed, setCaptureConfirmed] = useState(false);
   const [copyConfirmed, setCopyConfirmed] = useState(false);
   const [downloadConfirmed, setDownloadConfirmed] = useState(false);
@@ -867,14 +896,15 @@ export function AnnotationController(props) {
                         </div>
                         {isSelected && (
                           <div className={classes.shapeEditor} onClick={e => e.stopPropagation()} role="presentation">
+                            {/* Label — always first */}
                             <div className={classes.shapeEditorRow}>
-                              <span className={classes.shapeEditorLabel}>Color</span>
-                              <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { strokeColor: hexToRgb(e.target.value) })} title="Stroke color" />
-                              <span className={classes.shapeEditorLabel} style={{ minWidth: 'unset' }}>Width</span>
-                              <input type="number" className={classes.widthInput} value={shape.strokeWidth ?? 3} min={1} max={20} step={1} onChange={e => handleUpdateShape(shape.uid, { strokeWidth: +e.target.value })} title="Stroke width (px)" />
+                              <span className={classes.shapeEditorLabel}>Label</span>
+                              <TextField value={shape.text ?? ''} onChange={e => handleUpdateShape(shape.uid, { text: e.target.value || undefined })} size="small" variant="standard" placeholder="Label text" style={{ flex: 1 }} inputProps={{ style: { fontSize: FS.sm, padding: '0 0' } }} />
                             </div>
+                            {/* Stroke: color + dash style + width slider */}
                             <div className={classes.shapeEditorRow}>
-                              <span className={classes.shapeEditorLabel}>Style</span>
+                              <span className={classes.shapeEditorLabel}>Stroke</span>
+                              <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { strokeColor: hexToRgb(e.target.value) })} title="Stroke color" />
                               <div className={classes.shapeEditorBtnGroup}>
                                 {DASH_OPTIONS.map(opt => (
                                   <Button key={String(opt.key)} size="small" variant={currentDash === opt.key ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, currentDash === opt.key && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { strokeDashArray: opt.key ?? undefined })} title={opt.key === null ? 'Solid' : opt.key === '8 4' ? 'Dashed' : 'Dotted'}>
@@ -882,15 +912,18 @@ export function AnnotationController(props) {
                                   </Button>
                                 ))}
                               </div>
+                              <Slider size="small" min={1} max={10} step={1} value={shape.strokeWidth ?? 3} onChange={(_, v) => handleUpdateShape(shape.uid, { strokeWidth: v })} valueLabelDisplay="auto" style={{ flex: 1, marginLeft: 4 }} />
                             </div>
+                            {/* Fill: color + opacity slider */}
                             {hasFill && (
                               <div className={classes.shapeEditorRow}>
                                 <span className={classes.shapeEditorLabel}>Fill</span>
                                 <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.fillColor ?? shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { fillColor: hexToRgb(e.target.value) })} title="Fill color" />
                                 <span style={{ fontSize: FS.xs, opacity: 0.6, flexShrink: 0 }}>α</span>
-                                <Slider size="small" min={0} max={1} step={0.05} value={shape.fillOpacity ?? 0} onChange={(_, v) => handleUpdateShape(shape.uid, { fillOpacity: v })} style={{ flex: 1, marginLeft: 2 }} />
+                                <Slider size="small" min={0} max={1} step={0.05} value={shape.fillOpacity ?? 0} onChange={(_, v) => handleUpdateShape(shape.uid, { fillOpacity: v })} valueLabelDisplay="auto" valueLabelFormat={v => v.toFixed(2)} style={{ flex: 1, marginLeft: 2 }} />
                               </div>
                             )}
+                            {/* Arrow: direction (lines/polylines only) */}
                             {hasMarkers && (
                               <div className={classes.shapeEditorRow}>
                                 <span className={classes.shapeEditorLabel}>Arrow</span>
@@ -900,10 +933,7 @@ export function AnnotationController(props) {
                                 </div>
                               </div>
                             )}
-                            <div className={classes.shapeEditorRow}>
-                              <span className={classes.shapeEditorLabel}>Label</span>
-                              <TextField value={shape.text ?? ''} onChange={e => handleUpdateShape(shape.uid, { text: e.target.value || undefined })} size="small" variant="standard" placeholder="Label text" style={{ flex: 1 }} inputProps={{ style: { fontSize: FS.sm, padding: '0 0' } }} />
-                            </div>
+                            {/* Label text position (lines with a label) */}
                             {hasMarkers && shape.text && (
                               <div className={classes.shapeEditorRow}>
                                 <span className={classes.shapeEditorLabel}>Pos</span>
@@ -919,84 +949,94 @@ export function AnnotationController(props) {
                                 </div>
                               </div>
                             )}
-                            {/* ── Geometry ── */}
-                            {shape.type === 'rectangle' && (<>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Origin</span>
-                                <span className={classes.coordLabel}>x</span>
-                                <input type="number" className={classes.coordInput} value={shape.x ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x: +e.target.value })} />
-                                <span className={classes.coordLabel}>y</span>
-                                <input type="number" className={classes.coordInput} value={shape.y ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y: +e.target.value })} />
-                              </div>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Size</span>
-                                <span className={classes.coordLabel}>w</span>
-                                <input type="number" className={classes.coordInput} value={shape.width ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { width: +e.target.value })} />
-                                <span className={classes.coordLabel}>h</span>
-                                <input type="number" className={classes.coordInput} value={shape.height ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { height: +e.target.value })} />
-                              </div>
+                            {/* ── Utilities row: geometry toggle + copy to frame ── */}
+                            <div className={classes.shapeEditorRow} style={{ justifyContent: 'space-between', marginTop: 2 }}>
+                              <button className={classes.geomToggleBtn} onClick={() => setGeoOpen(o => !o)}>
+                                {geoOpen ? '▾' : '▸'} Geometry
+                              </button>
+                              {numFrames > 1 && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <span className={classes.coordLabel}>Copy →</span>
+                                  <select
+                                    className={classes.shapeCopySelect}
+                                    value=""
+                                    onClick={e => e.stopPropagation()}
+                                    onChange={e => {
+                                      e.stopPropagation();
+                                      if (e.target.value !== '') {
+                                        handleCopyShapeToFrame(shape.uid, +e.target.value);
+                                        e.target.value = '';
+                                      }
+                                    }}
+                                  >
+                                    <option value="">frame…</option>
+                                    {frames.map((f, fi) => fi !== frameIndex && (
+                                      <option key={f.uid} value={fi}>
+                                        {String(fi + 1).padStart(String(numFrames).length, '0')}
+                                        {f.title ? ` ${f.title.length > 18 ? f.title.slice(0, 18) + '…' : f.title}` : ''}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+                            </div>
+                            {/* ── Geometry inputs (collapsed by default) ── */}
+                            {geoOpen && (<>
+                              {shape.type === 'rectangle' && (<>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Origin</span>
+                                  <span className={classes.coordLabel}>x</span>
+                                  <input type="number" className={classes.coordInput} value={shape.x ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x: +e.target.value })} />
+                                  <span className={classes.coordLabel}>y</span>
+                                  <input type="number" className={classes.coordInput} value={shape.y ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y: +e.target.value })} />
+                                </div>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Size</span>
+                                  <span className={classes.coordLabel}>w</span>
+                                  <input type="number" className={classes.coordInput} value={shape.width ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { width: +e.target.value })} />
+                                  <span className={classes.coordLabel}>h</span>
+                                  <input type="number" className={classes.coordInput} value={shape.height ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { height: +e.target.value })} />
+                                </div>
+                              </>)}
+                              {shape.type === 'line' && (<>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Start</span>
+                                  <span className={classes.coordLabel}>x</span>
+                                  <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                  <span className={classes.coordLabel}>y</span>
+                                  <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                                </div>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>End</span>
+                                  <span className={classes.coordLabel}>x</span>
+                                  <input type="number" className={classes.coordInput} value={shape.x2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x2: +e.target.value })} />
+                                  <span className={classes.coordLabel}>y</span>
+                                  <input type="number" className={classes.coordInput} value={shape.y2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y2: +e.target.value })} />
+                                </div>
+                              </>)}
+                              {shape.type === 'ellipse' && (<>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Center</span>
+                                  <span className={classes.coordLabel}>x</span>
+                                  <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                  <span className={classes.coordLabel}>y</span>
+                                  <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                                </div>
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Radius</span>
+                                  <span className={classes.coordLabel}>rx</span>
+                                  <input type="number" className={classes.coordInput} value={shape.radiusX ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusX: +e.target.value })} />
+                                  <span className={classes.coordLabel}>ry</span>
+                                  <input type="number" className={classes.coordInput} value={shape.radiusY ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusY: +e.target.value })} />
+                                </div>
+                              </>)}
+                              {(shape.type === 'polygon' || shape.type === 'polyline') && (
+                                <div className={classes.shapeEditorRow}>
+                                  <span className={classes.shapeEditorLabel}>Points</span>
+                                  <span style={{ fontSize: FS.xs, opacity: 0.5 }}>{shape.points?.length ?? 0} vertices</span>
+                                </div>
+                              )}
                             </>)}
-                            {shape.type === 'line' && (<>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Start</span>
-                                <span className={classes.coordLabel}>x</span>
-                                <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
-                                <span className={classes.coordLabel}>y</span>
-                                <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
-                              </div>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>End</span>
-                                <span className={classes.coordLabel}>x</span>
-                                <input type="number" className={classes.coordInput} value={shape.x2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x2: +e.target.value })} />
-                                <span className={classes.coordLabel}>y</span>
-                                <input type="number" className={classes.coordInput} value={shape.y2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y2: +e.target.value })} />
-                              </div>
-                            </>)}
-                            {shape.type === 'ellipse' && (<>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Center</span>
-                                <span className={classes.coordLabel}>x</span>
-                                <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
-                                <span className={classes.coordLabel}>y</span>
-                                <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
-                              </div>
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Radius</span>
-                                <span className={classes.coordLabel}>rx</span>
-                                <input type="number" className={classes.coordInput} value={shape.radiusX ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusX: +e.target.value })} />
-                                <span className={classes.coordLabel}>ry</span>
-                                <input type="number" className={classes.coordInput} value={shape.radiusY ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusY: +e.target.value })} />
-                              </div>
-                            </>)}
-                            {(shape.type === 'polygon' || shape.type === 'polyline') && (
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Points</span>
-                                <span style={{ fontSize: FS.xs, opacity: 0.5 }}>{shape.points?.length ?? 0} vertices</span>
-                              </div>
-                            )}
-                            {/* ── Copy to frame ── */}
-                            {numFrames > 1 && (
-                              <div className={classes.shapeEditorRow}>
-                                <span className={classes.shapeEditorLabel}>Copy to</span>
-                                <select
-                                  className={classes.coordSelect}
-                                  value=""
-                                  onChange={e => {
-                                    if (e.target.value !== '') {
-                                      handleCopyShapeToFrame(shape.uid, +e.target.value);
-                                      e.target.value = '';
-                                    }
-                                  }}
-                                >
-                                  <option value="">Frame…</option>
-                                  {frames.map((f, fi) => fi !== frameIndex && (
-                                    <option key={f.uid} value={fi}>
-                                      {String(fi + 1).padStart(String(numFrames).length, '0')} — {f.title || `Frame ${fi + 1}`}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            )}
                           </div>
                         )}
                       </div>
