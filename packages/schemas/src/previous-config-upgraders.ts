@@ -848,6 +848,28 @@ export function upgradeFrom1_0_17(
   };
 }
 
+// HuBMAP CODEX segmentation bitmask files contain four channels,
+// in order: cells, nuclei, cell_boundaries, nucleus_boundaries.
+// These channel names are not present in the config (only in the
+// OME-TIFF file itself), so we detect these datasets by their
+// obsSegmentations.raster.json file referencing a HuBMAP asset named
+// "reg001_mask", and assume the channel order above.
+function isHubmapCodexSegmentationDataset(
+  dataset: z.infer<typeof configSchema1_0_18.shape.datasets.element> | undefined,
+): boolean {
+  if (!dataset) {
+    return false;
+  }
+  return dataset.files.some((fileDef) => {
+    if (fileDef.fileType !== 'obsSegmentations.raster.json' || !fileDef.options) {
+      return false;
+    }
+    const { images } = fileDef.options as z.infer<typeof rasterJsonSchema>;
+    return images.some(img => img.url.startsWith('https://assets.hubmapconsortium.org'))
+      && images.some(img => img.name === 'reg001_mask');
+  });
+}
+
 // Added in version 1.0.19:
 // - Replace spatial and layerController components
 //   with spatialBeta and layerControllerBeta components.
@@ -1156,6 +1178,13 @@ export function upgradeFrom1_0_18(
             // with a fileUid coordinationValue, above.
             const dataset = newDatasets.find(d => d.uid === datasetUid);
 
+            // Check the original (pre-conversion) dataset definition, since by this point
+            // the obsSegmentations.raster.json fileType has already been converted to
+            // obsSegmentations.ome-zarr/ome-tiff file(s) in newDatasets.
+            const isHubmapCodexDataset = isHubmapCodexSegmentationDataset(
+              datasets.find(d => d.uid === datasetUid),
+            );
+
             // Each old layer's `index` refers to its position among the dataset's
             // obsSegmentations image files, in the order they were declared
             // (originally the renderLayers/images order in a raster.json file).
@@ -1211,7 +1240,15 @@ export function upgradeFrom1_0_18(
               layerVisibleByLayer[segmentationLayerScope] = layerVisibleScope;
               layerOpacityByLayer[segmentationLayerScope] = layerOpacityScope;
 
-              segmentationChannelsByLayer[segmentationLayerScope] = (layerDef.channels ?? []).map((channelDef) => {
+              // For HuBMAP CODEX bitmask segmentations, the four channels are
+              // (in order) cells, nuclei, cell_boundaries, nucleus_boundaries.
+              // Only the cells (c=0) and nuclei (c=1) channels are kept;
+              // the boundary channels are dropped.
+              const layerChannels = isHubmapCodexDataset
+                ? (layerDef.channels ?? []).filter(channelDef => (channelDef.selection?.c ?? 0) < 2)
+                : (layerDef.channels ?? []);
+
+              segmentationChannelsByLayer[segmentationLayerScope] = layerChannels.map((channelDef) => {
                 const segmentationChannelScope = getNextScope(Object.keys(newCoordinationSpace?.segmentationChannel ?? {}));
                 const obsTypeScope = getNextScope(Object.keys(newCoordinationSpace?.obsType ?? {}));
                 const targetCScope = getNextScope(Object.keys(newCoordinationSpace?.spatialTargetC ?? {}));
@@ -1252,11 +1289,11 @@ export function upgradeFrom1_0_18(
                 };
                 newCoordinationSpace.spatialSegmentationFilled = {
                   ...(newCoordinationSpace.spatialSegmentationFilled ?? {}),
-                  [filledScope]: true,
+                  [filledScope]: isHubmapCodexDataset ? false : true,
                 };
                 newCoordinationSpace.spatialSegmentationStrokeWidth = {
                   ...(newCoordinationSpace.spatialSegmentationStrokeWidth ?? {}),
-                  [strokeWidthScope]: 1,
+                  [strokeWidthScope]: isHubmapCodexDataset ? 0.06 : 1,
                 };
 
                 obsTypeByChannel[segmentationChannelScope] = obsTypeScope;
