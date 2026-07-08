@@ -1670,6 +1670,9 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
+      math.gl:
+        specifier: 'catalog:'
+        version: 3.6.3
     devDependencies:
       vite:
         specifier: 'catalog:'

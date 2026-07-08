@@ -890,6 +890,9 @@ export function upgradeFrom1_0_18(
                 url: rasterJsonImageDef.url,
                 options: {
                   ...(rasterJsonImageDef?.metadata?.omeTiffOffsetsUrl ? { offsetsUrl: rasterJsonImageDef.metadata.omeTiffOffsetsUrl } : {}),
+                  ...(rasterJsonImageDef.type === 'ome-tiff' && options.usePhysicalSizeScaling !== undefined
+                    ? { usePhysicalSizeScaling: options.usePhysicalSizeScaling }
+                    : {}),
                   // TODO: support metadata.transform? But we do not know how many dimensions.
                 },
                 coordinationValues: {

@@ -8,6 +8,7 @@ import type {
   ResolutionObject,
   BoundingCube,
 } from '@vitessce/types';
+import { Matrix4 } from 'math.gl';
 import {
   normalizeCoordinateTransformations,
   coordinateTransformationsToMatrix,
@@ -90,6 +91,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
     const {
       coordinateSystem = 'global',
       coordinateTransformations: coordinateTransformationsFromOptions,
+      usePhysicalSizeScaling = true,
     } = this.options;
     // We combine any user-provided transform matrix with the one
     // from the image file.
@@ -152,11 +154,15 @@ export default class ImageWrapper implements AbstractImageWrapper {
         coordinateTransformationsFromOptions, ngffAxes,
       );
       // For the OME-TIFF case, we convert the size and unit information
-      // to a transformation matrix.
-      const transformMatrixFromFile = physicalSizeToMatrix(
-        PhysicalSizeX, PhysicalSizeY, PhysicalSizeZ,
-        PhysicalSizeXUnit, PhysicalSizeYUnit, PhysicalSizeZUnit,
-      );
+      // to a transformation matrix, unless usePhysicalSizeScaling is false,
+      // in which case we ignore the physical size metadata in the file
+      // and use an identity matrix instead.
+      const transformMatrixFromFile = usePhysicalSizeScaling
+        ? physicalSizeToMatrix(
+          PhysicalSizeX, PhysicalSizeY, PhysicalSizeZ,
+          PhysicalSizeXUnit, PhysicalSizeYUnit, PhysicalSizeZUnit,
+        )
+        : (new Matrix4()).identity();
       const transformMatrix = transformMatrixFromFile.multiplyLeft(transformMatrixFromOptions);
       return transformMatrix;
     }

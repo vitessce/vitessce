@@ -34,7 +34,8 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
-    "@hms-dbmi/viv": "catalog:"
+    "@hms-dbmi/viv": "catalog:",
+    "math.gl": "catalog:"
   },
   "devDependencies": {
     "vite": "catalog:",
