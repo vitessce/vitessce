@@ -20,6 +20,7 @@ import {
   RemoveCircle,
   CloudDownload,
   ContentCopy,
+  FileCopy,
   Check,
   Code,
 } from '@vitessce/styles';
@@ -70,6 +71,9 @@ function ShapeIcon({ type, size = 13 }) {
   return null;
 }
 
+const FS = { xs: '0.65rem', sm: '0.78rem', md: '0.82rem', lg: '0.92rem' };
+const FONT_MONO = 'monospace';
+
 const useStyles = makeStyles()(theme => ({
   root: {
     width: '100%',
@@ -107,7 +111,7 @@ const useStyles = makeStyles()(theme => ({
     marginBottom: 4,
   },
   enterLabel: {
-    fontSize: '0.6rem',
+    fontSize: FS.xs,
     fontWeight: 700,
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
@@ -121,7 +125,7 @@ const useStyles = makeStyles()(theme => ({
     opacity: 0.85,
   },
   enterHint: {
-    fontSize: '0.75rem',
+    fontSize: FS.sm,
     opacity: 0.45,
     lineHeight: 1.6,
     marginTop: 2,
@@ -129,7 +133,7 @@ const useStyles = makeStyles()(theme => ({
   enterBeginBtn: {
     marginTop: 12,
     padding: '9px 32px',
-    fontSize: '0.9rem',
+    fontSize: FS.lg,
     letterSpacing: '0.04em',
   },
   // ── Play mode header ──────────────────────────────────────────────────────
@@ -143,9 +147,10 @@ const useStyles = makeStyles()(theme => ({
   playHeaderCenter: {
     flex: 1,
     textAlign: 'center',
-    fontSize: '0.7rem',
-    opacity: 0.45,
-    letterSpacing: '0.05em',
+    fontSize: FS.md,
+    fontWeight: 600,
+    opacity: 0.75,
+    letterSpacing: '0.04em',
     userSelect: 'none',
   },
   playExitBtn: {
@@ -181,7 +186,7 @@ const useStyles = makeStyles()(theme => ({
     left: '100%',
     top: '50%',
     transform: 'translateY(-50%)',
-    fontSize: '0.65rem',
+    fontSize: FS.xs,
     color: theme.palette.warning?.main ?? '#f5a623',
     opacity: 0.9,
     whiteSpace: 'nowrap',
@@ -189,7 +194,7 @@ const useStyles = makeStyles()(theme => ({
     pointerEvents: 'none',
   },
   editBtn: {
-    fontSize: '0.7rem',
+    fontSize: FS.xs,
     padding: '2px 6px',
     minWidth: 0,
   },
@@ -198,27 +203,27 @@ const useStyles = makeStyles()(theme => ({
   },
   // ── Active frame card ──────────────────────────────────────────────────────
   activeFrame: {
-    padding: '8px 14px 6px',
+    padding: '8px 12px 6px',
     borderTop: `1px solid ${theme.palette.divider}`,
     borderBottom: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
   },
   frameTitle: {
     fontWeight: 700,
-    fontSize: '0.9rem',
+    fontSize: FS.lg,
     lineHeight: 1.3,
     marginBottom: 3,
   },
   frameText: {
-    fontSize: '0.78rem',
+    fontSize: FS.sm,
     opacity: 0.75,
     lineHeight: 1.5,
     marginBottom: 4,
   },
   shapeCount: {
     display: 'inline-block',
-    fontSize: '0.65rem',
-    opacity: 0.5,
+    fontSize: FS.xs,
+    opacity: 0.6,
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
   },
@@ -228,9 +233,9 @@ const useStyles = makeStyles()(theme => ({
     padding: '4px 0',
   },
   frameItem: {
-    padding: '6px 12px 6px 10px',
+    padding: '6px 12px',
     cursor: 'pointer',
-    fontSize: '0.82rem',
+    fontSize: FS.md,
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -243,53 +248,49 @@ const useStyles = makeStyles()(theme => ({
     fontWeight: 600,
   },
   frameNum: {
-    fontSize: '0.65rem',
-    opacity: 0.3,
-    minWidth: 16,
+    fontSize: FS.md,
+    fontWeight: 700,
+    opacity: 0.35,
+    minWidth: 20,
     textAlign: 'right',
     flexShrink: 0,
     fontVariantNumeric: 'tabular-nums',
+    fontFamily: FONT_MONO,
   },
-  frameDot: {
-    width: 6,
-    height: 6,
-    borderRadius: '50%',
-    border: `1px solid ${theme.palette.primaryForeground}`,
-    flexShrink: 0,
-  },
-  frameDotActive: {
-    backgroundColor: theme.palette.primaryForeground,
+  frameNumActive: {
+    opacity: 1,
+    color: theme.palette.primary?.main || '#90caf9',
   },
   empty: {
     padding: '12px',
     opacity: 0.5,
-    fontSize: '0.85rem',
+    fontSize: FS.md,
     textAlign: 'center',
   },
   // Edit mode styles
   editHeader: {
     display: 'flex',
     alignItems: 'center',
-    padding: '4px 8px',
+    padding: '5px 12px',
     borderBottom: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
     gap: 4,
   },
   editTitle: {
-    fontSize: '0.8rem',
+    fontSize: FS.lg,
     fontWeight: 600,
     flex: 1,
   },
   toolPalette: {
     display: 'flex',
     gap: 4,
-    padding: '6px 10px',
+    padding: '6px 12px',
     flexWrap: 'wrap',
     borderBottom: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
   },
   toolBtn: {
-    fontSize: '0.7rem',
+    fontSize: FS.xs,
     padding: '2px 7px',
     minWidth: 0,
     textTransform: 'none',
@@ -312,7 +313,7 @@ const useStyles = makeStyles()(theme => ({
     '&:hover': { opacity: 1 },
   },
   captureViewBtn: {
-    fontSize: '0.7rem',
+    fontSize: FS.xs,
     padding: '3px 8px',
     minWidth: 0,
     textTransform: 'none',
@@ -332,15 +333,15 @@ const useStyles = makeStyles()(theme => ({
   sectionRow: {
     display: 'flex',
     alignItems: 'center',
-    padding: '3px 6px 2px 12px',
+    padding: '4px 12px',
   },
   sectionLabel: {
     flex: 1,
-    fontSize: '0.6rem',
+    fontSize: FS.xs,
     fontWeight: 700,
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    opacity: 0.4,
+    opacity: 0.5,
   },
   framesCompactList: {
     maxHeight: 170,
@@ -351,9 +352,9 @@ const useStyles = makeStyles()(theme => ({
     display: 'flex',
     alignItems: 'center',
     gap: 6,
-    padding: '5px 6px 5px 14px',
+    padding: '5px 12px',
     cursor: 'pointer',
-    fontSize: '0.82rem',
+    fontSize: FS.md,
     '&:hover': {
       backgroundColor: theme.palette.action?.hover || 'rgba(255,255,255,0.06)',
     },
@@ -361,16 +362,6 @@ const useStyles = makeStyles()(theme => ({
   frameRowActive: {
     backgroundColor: theme.palette.action?.selected || 'rgba(255,255,255,0.12)',
     fontWeight: 600,
-  },
-  frameRowDot: {
-    width: 5,
-    height: 5,
-    borderRadius: '50%',
-    border: `1px solid ${theme.palette.primaryForeground}`,
-    flexShrink: 0,
-  },
-  frameRowDotActive: {
-    backgroundColor: theme.palette.primaryForeground,
   },
   frameRowTitle: {
     flex: 1,
@@ -386,7 +377,7 @@ const useStyles = makeStyles()(theme => ({
     '&:hover': { opacity: 0.8 },
   },
   frameDetailFields: {
-    padding: '6px 10px 10px',
+    padding: '8px 12px 12px',
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
@@ -396,15 +387,15 @@ const useStyles = makeStyles()(theme => ({
     overflowY: 'auto',
   },
   shapeList: {
-    padding: '2px 0 4px',
+    padding: '2px 0',
   },
   shapeItem: {
     display: 'flex',
     alignItems: 'center',
     gap: 4,
-    fontSize: '0.72rem',
+    fontSize: FS.sm,
     opacity: 0.8,
-    padding: '2px 4px',
+    padding: '3px 12px',
     borderRadius: 3,
     transition: 'background 0.1s',
   },
@@ -417,13 +408,13 @@ const useStyles = makeStyles()(theme => ({
     flex: 1,
   },
   noFrameHint: {
-    padding: '8px 10px',
-    fontSize: '0.78rem',
+    padding: '6px 12px',
+    fontSize: FS.sm,
     opacity: 0.6,
     fontStyle: 'italic',
   },
   shapeEditor: {
-    padding: '8px 10px 10px 10px',
+    padding: '8px 12px 12px',
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
@@ -435,10 +426,10 @@ const useStyles = makeStyles()(theme => ({
     display: 'flex',
     alignItems: 'center',
     gap: 6,
-    fontSize: '0.72rem',
+    fontSize: FS.sm,
   },
   shapeEditorLabel: {
-    fontSize: '0.68rem',
+    fontSize: FS.xs,
     opacity: 0.55,
     minWidth: 42,
     flexShrink: 0,
@@ -449,7 +440,7 @@ const useStyles = makeStyles()(theme => ({
     gap: 3,
   },
   shapeEditorBtn: {
-    fontSize: '0.68rem',
+    fontSize: FS.xs,
     padding: '2px 7px',
     minWidth: 0,
     textTransform: 'none',
@@ -480,13 +471,39 @@ const useStyles = makeStyles()(theme => ({
   },
   widthInput: {
     width: 36,
-    fontSize: '0.7rem',
+    fontSize: FS.xs,
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: 3,
     padding: '1px 4px',
     backgroundColor: 'transparent',
     color: 'inherit',
     flexShrink: 0,
+  },
+  coordInput: {
+    width: 58,
+    fontSize: FS.xs,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 3,
+    padding: '1px 4px',
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    flexShrink: 0,
+  },
+  coordLabel: {
+    fontSize: FS.xs,
+    opacity: 0.4,
+    flexShrink: 0,
+  },
+  coordSelect: {
+    flex: 1,
+    fontSize: FS.xs,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 3,
+    padding: '2px 4px',
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    cursor: 'pointer',
+    minWidth: 0,
   },
 }));
 
@@ -572,6 +589,20 @@ export function AnnotationController(props) {
     }
   }, [frames, frameIndex, onSetFrames, onFrameClick]);
 
+  const handleDuplicateFrame = useCallback((i) => {
+    if (!frames) return;
+    const source = frames[i];
+    const copy = {
+      ...source,
+      uid: crypto.randomUUID(),
+      title: source.title ? `${source.title} (copy)` : 'Frame (copy)',
+      shapes: (source.shapes ?? []).map(s => ({ ...s, uid: crypto.randomUUID() })),
+    };
+    const updated = [...frames.slice(0, i + 1), copy, ...frames.slice(i + 1)];
+    onSetFrames(updated);
+    onFrameClick(i + 1);
+  }, [frames, onSetFrames, onFrameClick]);
+
   const handleUpdateTitle = useCallback((i, title) => {
     if (!frames) return;
     onSetFrames(frames.map((f, idx) => (idx === i ? { ...f, title } : f)));
@@ -597,6 +628,16 @@ export function AnnotationController(props) {
       idx === frameIndex
         ? { ...f, shapes: (f.shapes ?? []).map(s => s.uid === shapeUid ? { ...s, ...updates } : s) }
         : f
+    )));
+  }, [frames, frameIndex, onSetFrames]);
+
+  const handleCopyShapeToFrame = useCallback((shapeUid, targetFrameIndex) => {
+    if (!frames || frameIndex === null) return;
+    const shape = frames[frameIndex].shapes?.find(s => s.uid === shapeUid);
+    if (!shape) return;
+    const copy = { ...shape, uid: crypto.randomUUID() };
+    onSetFrames(frames.map((f, fi) => (
+      fi === targetFrameIndex ? { ...f, shapes: [...(f.shapes ?? []), copy] } : f
     )));
   }, [frames, frameIndex, onSetFrames]);
 
@@ -684,30 +725,41 @@ export function AnnotationController(props) {
               {numFrames === 0 && (
                 <div className={classes.noFrameHint}>No frames — click + to add one.</div>
               )}
-              {(frames ?? []).map((frame, i) => (
-                <div
-                  key={frame.uid}
-                  className={cx(classes.frameRow, i === frameIndex && classes.frameRowActive)}
-                  onClick={() => onFrameClick(i)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
-                >
-                  <div className={cx(classes.frameRowDot, i === frameIndex && classes.frameRowDotActive)} />
-                  <span className={classes.frameRowTitle}>{frame.title || `Frame ${i + 1}`}</span>
-                  <div className={classes.frameReorderBtns} onClick={e => e.stopPropagation()} role="presentation">
-                    <IconButton size="small" disabled={i === 0} onClick={e => { e.stopPropagation(); handleMoveFrame(i, -1); }} title="Move up" style={{ padding: 1 }}>
-                      <ArrowDropUp style={{ fontSize: 14 }} />
-                    </IconButton>
-                    <IconButton size="small" disabled={i === (frames?.length ?? 0) - 1} onClick={e => { e.stopPropagation(); handleMoveFrame(i, 1); }} title="Move down" style={{ padding: 1 }}>
-                      <ArrowDropDown style={{ fontSize: 14 }} />
-                    </IconButton>
-                  </div>
-                  <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteFrame(i); }} title="Delete frame">
-                    <RemoveCircle fontSize="inherit" />
-                  </IconButton>
-                </div>
-              ))}
+              {(() => {
+                const editPadLen = String(numFrames).length;
+                return (frames ?? []).map((frame, i) => {
+                  const isActive = i === frameIndex;
+                  return (
+                    <div
+                      key={frame.uid}
+                      className={cx(classes.frameRow, isActive && classes.frameRowActive)}
+                      onClick={() => onFrameClick(i)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
+                    >
+                      <span className={cx(classes.frameNum, isActive && classes.frameNumActive)}>
+                        {String(i + 1).padStart(editPadLen, '0')}
+                      </span>
+                      <span className={classes.frameRowTitle}>{frame.title || `Frame ${i + 1}`}</span>
+                      <div className={classes.frameReorderBtns} onClick={e => e.stopPropagation()} role="presentation">
+                        <IconButton size="small" disabled={i === 0} onClick={e => { e.stopPropagation(); handleMoveFrame(i, -1); }} title="Move up" style={{ padding: 1 }}>
+                          <ArrowDropUp style={{ fontSize: 14 }} />
+                        </IconButton>
+                        <IconButton size="small" disabled={i === (frames?.length ?? 0) - 1} onClick={e => { e.stopPropagation(); handleMoveFrame(i, 1); }} title="Move down" style={{ padding: 1 }}>
+                          <ArrowDropDown style={{ fontSize: 14 }} />
+                        </IconButton>
+                      </div>
+                      <IconButton size="small" onClick={e => { e.stopPropagation(); handleDuplicateFrame(i); }} title="Duplicate frame">
+                        <FileCopy fontSize="inherit" />
+                      </IconButton>
+                      <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteFrame(i); }} title="Delete frame">
+                        <RemoveCircle fontSize="inherit" />
+                      </IconButton>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 
@@ -725,7 +777,7 @@ export function AnnotationController(props) {
                   variant="outlined"
                   label="Title"
                   fullWidth
-                  inputProps={{ style: { fontSize: '0.78rem' } }}
+                  inputProps={{ style: { fontSize: FS.sm } }}
                 />
                 <TextField
                   value={activeFrame.text ?? ''}
@@ -737,7 +789,7 @@ export function AnnotationController(props) {
                   multiline
                   maxRows={3}
                   fullWidth
-                  inputProps={{ style: { fontSize: '0.75rem' } }}
+                  inputProps={{ style: { fontSize: FS.sm } }}
                 />
                 <Tooltip title="Save current zoom/pan as this frame's view state">
                   <Button
@@ -835,7 +887,7 @@ export function AnnotationController(props) {
                               <div className={classes.shapeEditorRow}>
                                 <span className={classes.shapeEditorLabel}>Fill</span>
                                 <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.fillColor ?? shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { fillColor: hexToRgb(e.target.value) })} title="Fill color" />
-                                <span style={{ fontSize: '0.65rem', opacity: 0.6, flexShrink: 0 }}>α</span>
+                                <span style={{ fontSize: FS.xs, opacity: 0.6, flexShrink: 0 }}>α</span>
                                 <Slider size="small" min={0} max={1} step={0.05} value={shape.fillOpacity ?? 0} onChange={(_, v) => handleUpdateShape(shape.uid, { fillOpacity: v })} style={{ flex: 1, marginLeft: 2 }} />
                               </div>
                             )}
@@ -850,7 +902,7 @@ export function AnnotationController(props) {
                             )}
                             <div className={classes.shapeEditorRow}>
                               <span className={classes.shapeEditorLabel}>Label</span>
-                              <TextField value={shape.text ?? ''} onChange={e => handleUpdateShape(shape.uid, { text: e.target.value || undefined })} size="small" variant="standard" placeholder="Label text" style={{ flex: 1 }} inputProps={{ style: { fontSize: '0.72rem', padding: '0 0' } }} />
+                              <TextField value={shape.text ?? ''} onChange={e => handleUpdateShape(shape.uid, { text: e.target.value || undefined })} size="small" variant="standard" placeholder="Label text" style={{ flex: 1 }} inputProps={{ style: { fontSize: FS.sm, padding: '0 0' } }} />
                             </div>
                             {hasMarkers && shape.text && (
                               <div className={classes.shapeEditorRow}>
@@ -865,6 +917,84 @@ export function AnnotationController(props) {
                                     );
                                   })}
                                 </div>
+                              </div>
+                            )}
+                            {/* ── Geometry ── */}
+                            {shape.type === 'rectangle' && (<>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Origin</span>
+                                <span className={classes.coordLabel}>x</span>
+                                <input type="number" className={classes.coordInput} value={shape.x ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x: +e.target.value })} />
+                                <span className={classes.coordLabel}>y</span>
+                                <input type="number" className={classes.coordInput} value={shape.y ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y: +e.target.value })} />
+                              </div>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Size</span>
+                                <span className={classes.coordLabel}>w</span>
+                                <input type="number" className={classes.coordInput} value={shape.width ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { width: +e.target.value })} />
+                                <span className={classes.coordLabel}>h</span>
+                                <input type="number" className={classes.coordInput} value={shape.height ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { height: +e.target.value })} />
+                              </div>
+                            </>)}
+                            {shape.type === 'line' && (<>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Start</span>
+                                <span className={classes.coordLabel}>x</span>
+                                <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                <span className={classes.coordLabel}>y</span>
+                                <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                              </div>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>End</span>
+                                <span className={classes.coordLabel}>x</span>
+                                <input type="number" className={classes.coordInput} value={shape.x2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x2: +e.target.value })} />
+                                <span className={classes.coordLabel}>y</span>
+                                <input type="number" className={classes.coordInput} value={shape.y2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y2: +e.target.value })} />
+                              </div>
+                            </>)}
+                            {shape.type === 'ellipse' && (<>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Center</span>
+                                <span className={classes.coordLabel}>x</span>
+                                <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                <span className={classes.coordLabel}>y</span>
+                                <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                              </div>
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Radius</span>
+                                <span className={classes.coordLabel}>rx</span>
+                                <input type="number" className={classes.coordInput} value={shape.radiusX ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusX: +e.target.value })} />
+                                <span className={classes.coordLabel}>ry</span>
+                                <input type="number" className={classes.coordInput} value={shape.radiusY ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusY: +e.target.value })} />
+                              </div>
+                            </>)}
+                            {(shape.type === 'polygon' || shape.type === 'polyline') && (
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Points</span>
+                                <span style={{ fontSize: FS.xs, opacity: 0.5 }}>{shape.points?.length ?? 0} vertices</span>
+                              </div>
+                            )}
+                            {/* ── Copy to frame ── */}
+                            {numFrames > 1 && (
+                              <div className={classes.shapeEditorRow}>
+                                <span className={classes.shapeEditorLabel}>Copy to</span>
+                                <select
+                                  className={classes.coordSelect}
+                                  value=""
+                                  onChange={e => {
+                                    if (e.target.value !== '') {
+                                      handleCopyShapeToFrame(shape.uid, +e.target.value);
+                                      e.target.value = '';
+                                    }
+                                  }}
+                                >
+                                  <option value="">Frame…</option>
+                                  {frames.map((f, fi) => fi !== frameIndex && (
+                                    <option key={f.uid} value={fi}>
+                                      {String(fi + 1).padStart(String(numFrames).length, '0')} — {f.title || `Frame ${fi + 1}`}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
                             )}
                           </div>
@@ -1019,20 +1149,27 @@ export function AnnotationController(props) {
       )}
 
       <div className={classes.frameList}>
-        {frames.map((frame, i) => (
-          <div
-            key={frame.uid}
-            className={cx(classes.frameItem, i === frameIndex && classes.frameItemActive)}
-            onClick={() => onFrameClick(i)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
-          >
-            <span className={classes.frameNum}>{i + 1}</span>
-            <div className={cx(classes.frameDot, i === frameIndex && classes.frameDotActive)} />
-            {frame.title || `Frame ${i + 1}`}
-          </div>
-        ))}
+        {(() => {
+          const padLen = String(numFrames).length;
+          return frames.map((frame, i) => {
+            const isActive = i === frameIndex;
+            return (
+              <div
+                key={frame.uid}
+                className={cx(classes.frameItem, isActive && classes.frameItemActive)}
+                onClick={() => onFrameClick(i)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && onFrameClick(i)}
+              >
+                <span className={cx(classes.frameNum, isActive && classes.frameNumActive)}>
+                  {String(i + 1).padStart(padLen, '0')}
+                </span>
+                {frame.title || `Frame ${i + 1}`}
+              </div>
+            );
+          });
+        })()}
       </div>
     </div>
   );
