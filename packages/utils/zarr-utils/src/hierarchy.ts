@@ -14,6 +14,7 @@ import {
   type Listable,
 } from 'zarrita';
 import type { Readable } from '@zarrita/storage';
+import { ZarrNodeNotFoundError, ZarrUnsupportedNodeError } from '@vitessce/error';
 
 /** A node entry as reported by consolidated metadata. */
 export interface NodeEntry {
@@ -85,7 +86,10 @@ export async function getAttrs(
     return (node.attrs ?? {}) as Record<string, unknown>;
   } catch (e) {
     if (e instanceof NodeNotFoundError) return {};
-    throw e;
+    throw new ZarrUnsupportedNodeError(
+    `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+    { cause: e },
+    );
   }
 }
 
@@ -105,7 +109,18 @@ export async function getArrayMeta(
     chunks: number[];
     attrs: Record<string, unknown>;
   }> {
-  const arr = await open(path ? loc.resolve(path) : loc, { kind: 'array' });
+    let arr;
+    try {
+        arr = await open(path ? loc.resolve(path) : loc, { kind: 'array' });
+    } catch (e) {
+        if (e instanceof NodeNotFoundError) {
+        throw new ZarrNodeNotFoundError(`Zarr array not found at "${path ?? loc.path}".`, { cause: e });
+        }
+        throw new ZarrUnsupportedNodeError(
+        `Zarr array at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+        { cause: e },
+        );
+    }
   return {
     dtype: arr.dtype as string,
     shape: [...arr.shape],
@@ -152,6 +167,9 @@ export async function getNode(
     return { kind: node.kind, attrs: (node.attrs ?? {}) as Record<string, unknown> };
   } catch (e) {
     if (e instanceof NodeNotFoundError) return null;
-    throw e;
+    throw new ZarrUnsupportedNodeError(
+        `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+        { cause: e },
+    );
   }
 }

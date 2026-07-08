@@ -11,6 +11,7 @@ import { VitessceConfig } from './VitessceConfig.js';
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
 import { OmeAutoConfig } from './generate-config-ome.js';
+import { ZarrUnsupportedNodeError } from '@vitessce/error';
 
 // TODO: make this a function parameter?
 const FILE_TYPE_DELIM = '$';
@@ -161,13 +162,19 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     // Consolidated store: read attrs for every manifest entry, in
     // manifest order. `kind` comes from the manifest itself.
     return Promise.all(contents.map(async ({ path, kind }) => {
-      const node = await getNode(root, path);
-
-      return {
-        path,
-        kind,
-        attrs: node ? node.attrs : {},
-      };
+      let attrs = {};
+      try {
+        // Opening can fail for reasons other than a missing node (e.g. an
+        // unsupported dtype/codec) -- drop the candidate rather than crashing
+        // the whole call.
+        const node = await getNode(root, path);
+        attrs = node ? node.attrs : {};
+      } catch (e) {
+        if (!(e instanceof ZarrUnsupportedNodeError)) {
+          throw e;
+        }
+      }
+      return { path, kind, attrs };
     }));
   }
 
@@ -197,12 +204,25 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     // TODO: throw error if spatialdata + not consolidated?
   ];
   const entries = await Promise.all(keysToTry.map(async (path) => {
-    const node = await getNode(root, path);
+    let node;
+    try {
+      node = await getNode(root, path);
+    } catch (e) {
+      // Opening can fail for reasons other than a missing node (e.g. an
+      // unsupported dtype/codec) -- drop the candidate rather than crashing
+      // the whole call, matching historical behavior. Any other kind of
+      // error propagates.
+      if (!(e instanceof ZarrUnsupportedNodeError)) {
+        throw e;
+      }
+      return null;
+    }
     if (!node) {
       return null;
     }
     return { path, kind: node.kind, attrs: node.attrs };
   }));
+
   return entries.filter(entry => entry !== null);
 }
 

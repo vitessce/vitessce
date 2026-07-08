@@ -1,5 +1,6 @@
 import { CoordinationType as ct, FileType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
+import { ZarrConventionError } from '@vitessce/error';
 import {
   zarrOpenStore,
   openListableRoot,
@@ -267,7 +268,7 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       let obsKeys = [];
       if (Object.keys(obsAttrs).length > 0) {
         if (!this.isObsAttrsValid(obsAttrs)) {
-          throw new Error('Could not generate config: obs attributes are not a valid AnnData dataframe.');
+          throw new ZarrConventionError('Could not generate config: obs attributes are not a valid AnnData dataframe.');
         }
         obsKeys = obsAttrs['column-order'].map(key => `obs/${key}`).sort();
       }
